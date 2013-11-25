@@ -7,7 +7,6 @@
 package net.java.sip.communicator.plugin.otr;
 
 import net.java.otr4j.*;
-import net.java.otr4j.session.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -101,13 +100,13 @@ public interface ScOtrEngine
     public abstract void refreshSession(Contact contact);
 
     /**
-     * Gets the {@link SessionStatus} for the given {@link Contact}.
+     * Gets the {@link ScSessionStatus} for the given {@link Contact}.
      *
-     * @param contact the {@link Contact} whose {@link SessionStatus} we are
+     * @param contact the {@link Contact} whose {@link ScSessionStatus} we are
      *            interested in.
-     * @return the {@link SessionStatus}.
+     * @return the {@link ScSessionStatus}.
      */
-    public abstract SessionStatus getSessionStatus(Contact contact);
+    public abstract ScSessionStatus getSessionStatus(Contact contact);
 
     // New Methods (Misc)
 

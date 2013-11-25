@@ -314,6 +314,27 @@ public class ScOtrEngineImpl
         }
     }
 
+    /**
+     * The max timeout period elapsed prior to establishing a TIMED_OUT session.
+     */
+    private static final int SESSION_TIMEOUT =
+        OtrActivator.configService.getInt(
+            "net.java.sip.communicator.plugin.otr.SESSION_STATUS_TIMEOUT",
+            30000);
+
+    /**
+     * Manages the scheduling of TimerTasks that are used to set Contact's
+     * ScSessionStatus (to TIMED_OUT) after a period of time.
+     */
+    private ScSessionStatusScheduler scheduler = new ScSessionStatusScheduler();
+
+    /**
+     * This mapping is used for taking care of keeping SessionStatus and
+     * ScSessionStatus in sync for every Session object.
+     */
+    private Map<SessionID, ScSessionStatus> scSessionStatusMap =
+        new ConcurrentHashMap<SessionID, ScSessionStatus>();
+
     private static final Map<ScSessionID, Contact> contactsMap =
         new Hashtable<ScSessionID, Contact>();
 
@@ -388,6 +409,7 @@ public class ScOtrEngineImpl
         // Clears the map after previous instance
         // This is required because of OSGi restarts in the same VM on Android
         contactsMap.clear();
+        scSessionStatusMap.clear();
 
         this.otrEngine.addOtrEngineListener(new OtrEngineListener()
         {
@@ -397,10 +419,17 @@ public class ScOtrEngineImpl
                 if (contact == null)
                     return;
 
+                // Cancels any scheduled tasks that will change the
+                // ScSessionStatus for this Contact
+                scheduler.cancel(contact);
+
+                ScSessionStatus scSessionStatus = getSessionStatus(contact);
                 String message = "";
                 switch (otrEngine.getSessionStatus(sessionID))
                 {
                 case ENCRYPTED:
+                    scSessionStatus = ScSessionStatus.ENCRYPTED;
+                    scSessionStatusMap.put(sessionID, scSessionStatus);
                     PublicKey remotePubKey =
                         otrEngine.getRemotePublicKey(sessionID);
 
@@ -490,6 +519,8 @@ public class ScOtrEngineImpl
 
                     break;
                 case FINISHED:
+                    scSessionStatus = ScSessionStatus.FINISHED;
+                    scSessionStatusMap.put(sessionID, scSessionStatus);
                     message =
                         OtrActivator.resourceService.getI18NString(
                             "plugin.otr.activator.sessionfinished",
@@ -497,6 +528,8 @@ public class ScOtrEngineImpl
                             { contact.getDisplayName() });
                     break;
                 case PLAINTEXT:
+                    scSessionStatus = ScSessionStatus.PLAINTEXT;
+                    scSessionStatusMap.put(sessionID, scSessionStatus);
                     message =
                         OtrActivator.resourceService.getI18NString(
                             "plugin.otr.activator.sessionlost", new String[]
@@ -575,6 +608,8 @@ public class ScOtrEngineImpl
         SessionID sessionID = getSessionID(contact);
         try
         {
+            setSessionStatus(contact, ScSessionStatus.PLAINTEXT);
+
             otrEngine.endSession(sessionID);
         }
         catch (OtrException e)
@@ -617,9 +652,73 @@ public class ScOtrEngineImpl
         }
     }
 
-    public SessionStatus getSessionStatus(Contact contact)
+    /**
+     * Manages the scheduling of TimerTasks that are used to set Contact's
+     * ScSessionStatus after a period of time.
+     * 
+     * @author Marin Dzhigarov
+     */
+    private class ScSessionStatusScheduler
     {
-        return otrEngine.getSessionStatus(getSessionID(contact));
+        private final Timer timer = new Timer();
+
+        private final Map<Contact, TimerTask> tasks =
+            new ConcurrentHashMap<Contact, TimerTask>();
+
+        public void scheduleScSessionStatusChange(
+            final Contact contact, final ScSessionStatus status)
+        {
+            cancel(contact);
+
+            TimerTask task = new TimerTask() {
+                @Override
+                public void run()
+                {
+                    setSessionStatus(contact, status);
+                }
+            };
+            timer.schedule(task, SESSION_TIMEOUT);
+            tasks.put(contact, task);
+        }
+
+        public void cancel(final Contact contact)
+        {
+            TimerTask task = tasks.get(contact);
+            if (task != null)
+                task.cancel();
+            tasks.remove(contact);
+        }
+    }
+
+    private void setSessionStatus(Contact contact, ScSessionStatus status)
+    {
+        scSessionStatusMap.put(getSessionID(contact), status);
+        for (ScOtrEngineListener l : getListeners())
+            l.sessionStatusChanged(contact);
+    }
+
+    public ScSessionStatus getSessionStatus(Contact contact)
+    {
+        SessionID sessionID = getSessionID(contact);
+        SessionStatus sessionStatus = otrEngine.getSessionStatus(sessionID);
+        ScSessionStatus scSessionStatus = null;
+        if (!scSessionStatusMap.containsKey(sessionID))
+        {
+            switch (sessionStatus)
+            {
+            case PLAINTEXT:
+                scSessionStatus = ScSessionStatus.PLAINTEXT;
+                break;
+            case ENCRYPTED:
+                scSessionStatus = ScSessionStatus.ENCRYPTED;
+                break;
+            case FINISHED:
+                scSessionStatus = ScSessionStatus.FINISHED;
+                break;
+            }
+            scSessionStatusMap.put(sessionID, scSessionStatus);
+        }
+        return scSessionStatusMap.get(sessionID);
     }
 
     public boolean isMessageUIDInjected(String mUID)
@@ -751,6 +850,17 @@ public class ScOtrEngineImpl
     public void startSession(Contact contact)
     {
         SessionID sessionID = getSessionID(contact);
+
+        ScSessionStatus scSessionStatus = getSessionStatus(contact);
+        scSessionStatus = ScSessionStatus.LOADING;
+        scSessionStatusMap.put(sessionID, scSessionStatus);
+        for (ScOtrEngineListener l : getListeners())
+        {
+            l.sessionStatusChanged(contact);
+            scheduler.scheduleScSessionStatusChange(
+                contact, ScSessionStatus.TIMED_OUT);
+        }
+
         try
         {
             otrEngine.startSession(sessionID);

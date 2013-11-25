@@ -7,7 +7,6 @@
 package net.java.sip.communicator.plugin.otr;
 
 import net.java.otr4j.*;
-import net.java.otr4j.session.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -27,12 +26,13 @@ public class OtrTransformLayer
         Contact contact = evt.getDestinationContact();
 
         OtrPolicy policy = OtrActivator.scOtrEngine.getContactPolicy(contact);
-        SessionStatus sessionStatus =
+        ScSessionStatus sessionStatus =
             OtrActivator.scOtrEngine.getSessionStatus(contact);
         // If OTR is disabled and we are not over an encrypted session, don't
         // process anything.
         if (!policy.getEnableManual()
-            && sessionStatus == SessionStatus.PLAINTEXT)
+            && sessionStatus != ScSessionStatus.ENCRYPTED
+            && sessionStatus != ScSessionStatus.FINISHED)
             return evt;
 
         if (OtrActivator.scOtrEngine.isMessageUIDInjected(evt
@@ -63,12 +63,13 @@ public class OtrTransformLayer
         Contact contact = evt.getDestinationContact();
 
         OtrPolicy policy = OtrActivator.scOtrEngine.getContactPolicy(contact);
-        SessionStatus sessionStatus =
+        ScSessionStatus sessionStatus =
             OtrActivator.scOtrEngine.getSessionStatus(contact);
         // If OTR is disabled and we are not over an encrypted session, don't
         // process anything.
         if (!policy.getEnableManual()
-            && sessionStatus == SessionStatus.PLAINTEXT)
+            && sessionStatus != ScSessionStatus.ENCRYPTED
+            && sessionStatus != ScSessionStatus.FINISHED)
             return evt;
 
         // If this is a message otr4j injected earlier, return the event as is.
@@ -111,12 +112,13 @@ public class OtrTransformLayer
         Contact contact = evt.getSourceContact();
 
         OtrPolicy policy = OtrActivator.scOtrEngine.getContactPolicy(contact);
-        SessionStatus sessionStatus =
+        ScSessionStatus sessionStatus =
             OtrActivator.scOtrEngine.getSessionStatus(contact);
         // If OTR is disabled and we are not over an encrypted session, don't
         // process anything.
         if (!policy.getEnableManual()
-            && sessionStatus == SessionStatus.PLAINTEXT)
+            && sessionStatus != ScSessionStatus.ENCRYPTED
+            && sessionStatus != ScSessionStatus.FINISHED)
             return evt;
 
         // Process the incoming message.
