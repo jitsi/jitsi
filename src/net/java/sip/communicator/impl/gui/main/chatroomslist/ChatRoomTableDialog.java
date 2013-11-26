@@ -9,18 +9,17 @@ package net.java.sip.communicator.impl.gui.main.chatroomslist;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.util.List;
 
 import javax.swing.*;
+import javax.swing.border.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
-import net.java.sip.communicator.plugin.desktoputil.chat.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 
 /**
@@ -47,13 +46,6 @@ public class ChatRoomTableDialog
     private JComboBox providersCombo;
 
     /**
-     * An editable JComboBox which will allow to set a room name, and gives
-     * suggestions regarding to its content.
-     */
-    private JComboBox roomsCombo = null;
-
-    
-    /**
      * The ok button.
      */
     private final JButton okButton
@@ -71,10 +63,28 @@ public class ChatRoomTableDialog
     /**
      * The editor for the chat room name.
      */
-    private JTextField editor = null;
-
-//    private final ChatRoomList chatRoomList
-//        = GuiActivator.getMUCService().getChatRoomList();
+    private JTextField chatRoomNameField = null;
+    
+    /**
+     * Label that hides and shows the more fields panel on click.
+     */
+    private JLabel cmdExpandMoreFields;
+    
+    /**
+     * Panel that holds the subject field and the nickname field.
+     */
+    private JPanel moreFieldsPannel = new JPanel(new BorderLayout(5, 5));
+    
+    /**
+     * The field for the nickname.
+     */
+    private JTextField nicknameField = new JTextField();
+    
+    /** 
+     * Text field for the subject.
+     */
+    private SIPCommTextField subject = new SIPCommTextField(DesktopUtilActivator
+        .getResources().getI18NString("service.gui.SUBJECT"));
 
     /**
      * The <tt>ChatRoomList.ChatRoomProviderWrapperListener</tt> instance which
@@ -164,46 +174,16 @@ public class ChatRoomTableDialog
             .getI18NString("service.gui.ACCOUNT")));
         labels.add(new JLabel(GuiActivator.getResources()
             .getI18NString("service.gui.ROOM_NAME")));
+        
 
         JPanel valuesPanel = new TransparentPanel(new GridLayout(2, 2, 5, 5));
         providersCombo = createProvidersCombobox();
-
-        roomsCombo = new JComboBox();
-        roomsCombo.setEditable(true);
-        roomsCombo.setPreferredSize(providersCombo.getPreferredSize());
-        editor = ((JTextField)roomsCombo.getEditor().getEditorComponent());
-
-        // when provider is changed we load providers rooms list
-        // so we can show them in the combobox below
-        providersCombo.addItemListener(new ItemListener(){
-            public void itemStateChanged(ItemEvent e)
-            {
-                if(e.getStateChange() == ItemEvent.SELECTED)
-                    loadProviderRooms();
-            }
-        });
-
-        // if a room is selected enable buttons
-        roomsCombo.addItemListener(new ItemListener(){
-            public void itemStateChanged(ItemEvent e)
-            {
-                if(e.getStateChange() == ItemEvent.SELECTED
-                    && roomsCombo.getSelectedIndex() > -1)
-                {
-                    okButton.setEnabled(true);
-                }
-                else if((roomsCombo.getSelectedIndex() == -1
-                        || e.getStateChange() == ItemEvent.DESELECTED)
-                        && editor.getText().trim().length() <= 0)
-                {
-                    okButton.setEnabled(false);
-                }
-            }
-        });
+        
+        chatRoomNameField = new JTextField();
 
         valuesPanel.add(providersCombo);
-        valuesPanel.add(roomsCombo);
-
+        valuesPanel.add(chatRoomNameField);
+        
         northPanel.add(labels, BorderLayout.WEST);
         northPanel.add(valuesPanel, BorderLayout.CENTER);
         northPanel.setPreferredSize(new Dimension(600, 80));
@@ -222,15 +202,13 @@ public class ChatRoomTableDialog
         eastButtonPanel.add(okButton);
 
         buttonPanel.add(eastButtonPanel, BorderLayout.EAST);
-
         this.getContentPane().add(northPanel, BorderLayout.NORTH);
-        this.getContentPane().add(buttonPanel, BorderLayout.CENTER);
-
-        loadProviderRooms();
+        this.getContentPane().add(initMoreFields(), BorderLayout.CENTER);
+        this.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
         // when we are typing we clear any selection in the available and saved
         // rooms
-        editor.addKeyListener(new KeyListener() {
+        chatRoomNameField.addKeyListener(new KeyListener() {
 
             public void keyTyped(KeyEvent e)
             {}
@@ -240,16 +218,94 @@ public class ChatRoomTableDialog
 
             public void keyReleased(KeyEvent e)
             {
-                okButton.setEnabled((editor.getText().trim().length() > 0));
+                okButton.setEnabled(
+                    (chatRoomNameField.getText() != null 
+                        && chatRoomNameField.getText().trim().length() > 0) 
+                    && (nicknameField.getText() != null 
+                        && nicknameField.getText().trim().length() > 0));
             }
         });
-
+        
+        providersCombo.addItemListener(new ItemListener()
+        {
+            
+            @Override
+            public void itemStateChanged(ItemEvent event)
+            {
+                setNickname(
+                    (ChatRoomProviderWrapper)providersCombo.getSelectedItem());
+            }
+        });
         //register listener to listen for newly added chat room providers
         // and for removed ones
         GuiActivator.getMUCService().addChatRoomProviderWrapperListener(
                 chatRoomProviderWrapperListener);
     }
+    
+    /**
+     * Sets the default value in the nickname field based on chat room provider.
+     * @param provider the provider
+     */
+    private void setNickname(ChatRoomProviderWrapper provider)
+    {
+        nicknameField.setText(
+            GuiActivator.getMUCService().getDefaultNickname(
+                provider.getProtocolProvider()));
+    }
 
+    /**
+     * Constructs the more label and the fields related to the label and returns
+     * them.
+     * @return the more label and the fields related to the label
+     */
+    private Component initMoreFields()
+    {
+        JPanel morePanel = new TransparentPanel(new BorderLayout());
+        morePanel.setOpaque(false);
+        morePanel.setBorder(BorderFactory.createEmptyBorder(0, 15, 5, 15));
+        moreFieldsPannel.setBorder(
+            BorderFactory.createEmptyBorder(10, 30, 0, 0));
+        moreFieldsPannel.setOpaque(false);
+        moreFieldsPannel.setVisible(false);
+        JPanel subjectPanel = new TransparentPanel(new BorderLayout());
+        subject.setFont(getFont().deriveFont(12f));
+        subjectPanel.add(subject,BorderLayout.NORTH);
+        moreFieldsPannel.add(subjectPanel, BorderLayout.CENTER);
+        JPanel nicknamePanel = new TransparentPanel(new BorderLayout(5, 5));
+        setNickname((ChatRoomProviderWrapper)providersCombo.getSelectedItem());
+        nicknamePanel.add(nicknameField, BorderLayout.CENTER);
+        nicknamePanel.add(new JLabel(
+            GuiActivator.getResources().getI18NString("service.gui.NICKNAME")), 
+            BorderLayout.WEST);
+        moreFieldsPannel.add(nicknamePanel,BorderLayout.NORTH);
+        cmdExpandMoreFields = new JLabel();
+        cmdExpandMoreFields.setBorder(new EmptyBorder(0, 5, 0, 0));
+        cmdExpandMoreFields.setIcon(DesktopUtilActivator.getResources()
+            .getImage("service.gui.icons.RIGHT_ARROW_ICON"));
+        cmdExpandMoreFields.setText(DesktopUtilActivator
+            .getResources().getI18NString("service.gui.MORE_LABEL"));
+        cmdExpandMoreFields.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                cmdExpandMoreFields.setIcon(
+                        GuiActivator.getResources().getImage(
+                            moreFieldsPannel.isVisible()
+                                    ? "service.gui.icons.RIGHT_ARROW_ICON"
+                                    : "service.gui.icons.DOWN_ARROW_ICON"));
+
+                moreFieldsPannel.setVisible(
+                    !moreFieldsPannel.isVisible());
+
+                pack();
+            }
+        });
+        morePanel.add(cmdExpandMoreFields,BorderLayout.NORTH);
+        morePanel.add(moreFieldsPannel,BorderLayout.CENTER);
+        return morePanel;
+    }
+    
     /**
      * Creates the providers combobox and filling its content.
      * @return
@@ -274,18 +330,19 @@ public class ChatRoomTableDialog
      */
     public void actionPerformed(ActionEvent e)
     {
-        String[] joinOptions;
         String subject = null;
         JButton sourceButton = (JButton) e.getSource();
          if(sourceButton.equals(okButton))
         {
 
-            if(editor.getText() != null
-                    && editor.getText().trim().length() > 0)
+            if((chatRoomNameField.getText() != null
+                    && chatRoomNameField.getText().trim().length() > 0)
+                && (nicknameField.getText() != null 
+                    && nicknameField.getText().trim().length() > 0))
             {
                 ChatRoomWrapper chatRoomWrapper =
                     GuiActivator.getMUCService().createChatRoom(
-                        editor.getText().trim(),
+                        chatRoomNameField.getText().trim(),
                         getSelectedProvider().getProtocolProvider(),
                         new ArrayList<String>(),
                         "",
@@ -293,11 +350,11 @@ public class ChatRoomTableDialog
                         false,
                         false);
 
-                joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
-                    chatRoomWrapper.getParentProvider().getProtocolProvider(), 
-                    chatRoomWrapper.getChatRoomID());
-                String nickName = joinOptions[0];
-                subject = joinOptions[1];
+                String nickName = nicknameField.getText().trim();
+                ConfigurationUtils.updateChatRoomProperty(
+                    chatRoomWrapper.getParentProvider().getProtocolProvider(),
+                    chatRoomWrapper.getChatRoomID(), "userNickName", nickName);
+                subject = this.subject.getText();
                 if(nickName == null)
                     return;
 
@@ -343,17 +400,6 @@ public class ChatRoomTableDialog
         super.dispose();
     }
 
-    /**
-     * Loads the rooms hosted on the selected provider.
-     * Loads it in different thread so it won't block the caller.
-     */
-    public void loadProviderRooms()
-    {
-        okButton.setEnabled(false);
-        roomsCombo.setEnabled(false);
-
-        new LoadProvidersWorker().start();
-    }
 
     /**
      * Returns the selected provider in the providers combo box.
@@ -410,63 +456,6 @@ public class ChatRoomTableDialog
                     .getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16)));
 
             return this;
-        }
-    }
-
-    /**
-     * SwingWorker that will load rooms list and show them in the ui.
-     */
-    private class LoadProvidersWorker
-        extends SwingWorker
-    {
-        /**
-         * List of rooms.
-         */
-        private List<String> rooms;
-
-        /**
-         * Worker thread.
-         * @return
-         * @throws Exception
-         */
-        @Override
-        protected Object construct()
-            throws
-            Exception
-        {
-            rooms = GuiActivator.getMUCService()
-                    .getExistingChatRooms(getSelectedProvider());
-
-            return null;
-        }
-
-        /**
-         * Called on the event dispatching thread (not on the worker thread)
-         * after the <code>construct</code> method has returned.
-         */
-        @Override
-        protected void finished()
-        {
-            roomsCombo.removeAllItems();
-
-            // if there is no room list coming from provider
-            if(rooms == null)
-            {
-                roomsCombo.setEnabled(true);
-                //okButton.setEnabled(true);
-                return;
-            }
-
-            Collections.sort(rooms);
-
-            for(String room : rooms)
-                roomsCombo.addItem(room);
-
-            // select nothing
-            roomsCombo.setSelectedIndex(-1);
-
-            roomsCombo.setEnabled(true);
-            chatRoomTableDialog.pack();
         }
     }
 }

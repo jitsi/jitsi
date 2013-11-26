@@ -473,6 +473,9 @@ public class MUCCustomContactActionService
                         = (ChatRoomSourceContact) actionSource;
                     ChatRoomWrapper room = MUCActivator.getMUCService()
                         .findChatRoomWrapperFromSourceContact(contact);
+                    if(room == null)
+                        return false;
+                    
                     if(name.equals("autojoin"))
                         return !room.isAutojoin();
                     

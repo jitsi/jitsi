@@ -287,5 +287,13 @@ public abstract class MUCService
      * @param room the chat room.
      */
     public abstract void openChatRoom(ChatRoomWrapper room);
+    
+    /**
+     * Returns default nickname for chat room based on the given provider.
+     * @param pps the given protocol provider service
+     * @return default nickname for chat room based on the given provider.
+     */
+    public abstract String getDefaultNickname(
+        ProtocolProviderService pps);
 
 }

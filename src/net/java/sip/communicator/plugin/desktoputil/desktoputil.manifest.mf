@@ -60,7 +60,8 @@ Import-Package: com.sun.awt,
  sun.awt.shell,
  sun.net.dns,
  sun.net.util,
- net.java.sip.communicator.service.globaldisplaydetails
+ net.java.sip.communicator.service.globaldisplaydetails,
+ net.java.sip.communicator.service.muc
 Export-Package: net.java.sip.communicator.plugin.desktoputil,
  net.java.sip.communicator.plugin.desktoputil.border,
  net.java.sip.communicator.plugin.desktoputil.event,

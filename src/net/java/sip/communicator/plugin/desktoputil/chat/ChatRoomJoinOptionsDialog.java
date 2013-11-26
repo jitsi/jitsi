@@ -152,32 +152,9 @@ public class ChatRoomJoinOptionsDialog extends ChatOperationReasonDialog
        reasonDialog.setIcon(new ImageIcon(DesktopUtilActivator.getImage(
            "service.gui.icons.CHANGE_NICKNAME_16x16")));
        
-       final OperationSetServerStoredAccountInfo accountInfoOpSet
-           = pps.getOperationSet(
-                   OperationSetServerStoredAccountInfo.class);
        
-       String displayName = "";
-       if (accountInfoOpSet != null)
-       {
-           displayName = AccountInfoUtils.getDisplayName(accountInfoOpSet);
-       }
-       
-       if(displayName == null || displayName.length() == 0)
-       {
-           displayName = DesktopUtilActivator.getGlobalDisplayDetailsService()
-               .getGlobalDisplayName();
-           if(displayName == null || displayName.length() == 0)
-           {
-               displayName = pps.getAccountID().getUserID();
-               if(displayName != null)
-               {
-                   int atIndex = displayName.lastIndexOf("@");
-                   if (atIndex > 0)
-                       displayName = displayName.substring(0, atIndex);
-               }
-           }
-       }
-       reasonDialog.setReasonFieldText(displayName);
+       reasonDialog.setReasonFieldText(
+           DesktopUtilActivator.getMUCService().getDefaultNickname(pps));
        
        int result = reasonDialog.showDialog();
 

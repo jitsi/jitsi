@@ -11,6 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.customcontactactions.*;
+import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -96,6 +97,11 @@ public class MUCActivator
      */
     private static ProtocolProviderRegListener protocolProviderRegListener 
         = null;
+
+    /**
+     * The global display details service instance.
+     */
+    private static GlobalDisplayDetailsService globalDisplayDetailsService;
 
     /**
      * Starts this bundle.
@@ -382,5 +388,23 @@ public class MUCActivator
                         UIService.class);
         }
         return uiService;
+    }
+
+    /**
+     * Returns the <tt>GlobalDisplayDetailsService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>GlobalDisplayDetailsService</tt> obtained from the bundle
+     * context
+     */
+    public static GlobalDisplayDetailsService getGlobalDisplayDetailsService()
+    {
+        if(globalDisplayDetailsService == null)
+        {
+            globalDisplayDetailsService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        GlobalDisplayDetailsService.class);
+        }
+        return globalDisplayDetailsService;
     }
 }
