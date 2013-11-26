@@ -274,6 +274,25 @@ public class SIPCommButton
                 this);
     }
 
+    /** 
+     * This method is called internally by Graphics.drawImage. This is necessary 
+     * for properly updating the icon image of this SIPCommButton.
+     *
+     * @param img the image to update
+     * @param x the x coordinate
+     * @param y the y coordinate
+     * @param width the image width
+     * @param height the image height
+     * @return true if the image is updated
+     */
+    @Override
+    public boolean imageUpdate(
+        Image img, int infoflags, int x, int y, int width, int height) 
+    {
+        repaint();
+        return true;
+    }
+
     /**
      * Returns the background image of this button.
      *
