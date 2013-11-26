@@ -558,9 +558,14 @@ public class ChatConversationPanel
                 + ImageLoader.getImageUri(ImageLoader.EXCLAMATION_MARK)
                 + "' </IMG>";
 
-            chatString += errorIcon
-                + messageTitle
-                + endHeaderTag + "<h5>" + message + "</h5>";
+            // If the message title is null do not show it and show the error
+            // icon on the same line as the actual error message.
+            if (messageTitle != null)
+                chatString += errorIcon + messageTitle + endHeaderTag
+                                + "<h5>" + message + "</h5>";
+            else
+                chatString += endHeaderTag
+                                + "<h5>" + errorIcon + " " + message + "</h5>";
         }
 
         return chatString;
