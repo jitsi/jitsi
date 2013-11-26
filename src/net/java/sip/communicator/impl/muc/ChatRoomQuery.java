@@ -244,9 +244,9 @@ public class ChatRoomQuery
         boolean isAutoJoin)
     {
         if(queryString == null
-            || ((room.getName().startsWith(
+            || ((room.getName().contains(
                             queryString)
-                    || room.getIdentifier().startsWith(queryString)
+                    || room.getIdentifier().contains(queryString)
                     )))
         {
             ChatRoomSourceContact contact 
@@ -283,9 +283,9 @@ public class ChatRoomQuery
         boolean isAutoJoin)
     {
         if(queryString == null
-            || ((chatRoomName.startsWith(
+            || ((chatRoomName.contains(
                             queryString)
-                    || chatRoomID.startsWith(queryString)
+                    || chatRoomID.contains(queryString)
                     )))
         {
             ChatRoomSourceContact contact 
