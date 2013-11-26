@@ -11,14 +11,15 @@ import java.util.*;
 
 import javax.imageio.*;
 
-import org.jitsi.service.fileaccess.FileCategory;
-
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.DisplayNameDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.sf.jml.*;
+
+import org.jitsi.service.fileaccess.*;
 
 /**
  * Saves account avatar image. If one is already saved we set it as initial one
@@ -254,17 +255,8 @@ public class OperationSetServerStoredAccountInfoMsnImpl
     public boolean isDetailClassSupported(
             Class<? extends GenericDetail> detailClass)
     {
-        List<GenericDetail> details = getContactDetails(uin);
-        Iterator<GenericDetail> iter = details.iterator();
-        while (iter.hasNext())
-        {
-            GenericDetail obj = iter.next();
-            if (detailClass.isAssignableFrom(obj.getClass()))
-            {
-                return true;
-            }
-        }
-        return false;
+        return ImageDetail.class.isAssignableFrom(detailClass) ||
+               DisplayNameDetail.class.isAssignableFrom(detailClass);
     }
 
     /**

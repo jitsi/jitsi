@@ -52,6 +52,15 @@ public interface PluginComponent
     public Object getComponent();
 
     /**
+     * Returns the position of this <tt>PluginComponent</tt> within its
+     * <tt>Container</tt>
+     * 
+     * @return The position of this <tt>PluginComponent</tt> within its
+     * <tt>Container</tt>
+     */
+    public int getPositionIndex();
+
+    /**
      * Sets the current contact. Meant to be used by plugin components that
      * are interested of the current contact. The current contact is the contact
      * for the currently selected chat transport.

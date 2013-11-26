@@ -21,6 +21,8 @@ import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.main.configforms.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.notification.*;
@@ -29,18 +31,20 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.account.*;
 import net.java.sip.communicator.util.skin.*;
-import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
-
 import org.osgi.framework.*;
 
 /**
- * The <tt>FileMenu</tt> is a menu in the main application menu bar that
- * contains "New account".
+ * The <tt>ToolsMenu</tt> is a menu in the contact list / chat panel bars that
+ * contains "Tools". This menu is separated in different sections by
+ * <tt>JSeparator</tt>s. These sections are ordered in the following matter:
+ * 0 0 0 | 1 1 | 2 2... where numbers indicate the indices of the corresponding
+ * sections and | are separators. Currently, section 0 contains "Options",
+ * "Create a video bridge", "Create a conference call"... until the first
+ * <tt>JSeparator</tt> after which starts the next section - section 1.
  *
  * @author Yana Stamcheva
  * @author Lyubomir Marinov
@@ -184,8 +188,11 @@ public class ToolsMenu
                 {
                     public void run()
                     {
-                        add((Component) f.getPluginComponentInstance(
-                            ToolsMenu.this).getComponent());
+                        PluginComponent pluginComponent =
+                            f.getPluginComponentInstance(ToolsMenu.this);
+                        insertInSection(
+                            (JMenuItem) pluginComponent.getComponent(),
+                            pluginComponent.getPositionIndex());
                     }
                 });
             }
@@ -309,7 +316,11 @@ public class ToolsMenu
             {
                 public void run()
                 {
-                    add((Component) c.getPluginComponentInstance(ToolsMenu.this));
+                    PluginComponent pluginComponent =
+                        c.getPluginComponentInstance(ToolsMenu.this);
+                    insertInSection(
+                        (JMenuItem) pluginComponent.getComponent(),
+                        pluginComponent.getPositionIndex());
                 }
             });
 
@@ -433,6 +444,61 @@ public class ToolsMenu
 
         // All items are now instantiated and we could safely load the skin.
         loadSkin();
+    }
+
+    /**
+     * Keeps track of the indices of <tt>JSeparator</tt>s
+     * that are places within this <tt>Container</tt>
+     */
+    private List<Integer> separatorIndices = new LinkedList<Integer>();
+
+    /**
+     * When a new separator is added to this <tt>Container</tt> its position
+     * will be saved in separatorIndices.
+     */
+    public void addSeparator()
+    {
+        super.addSeparator();
+        separatorIndices.add(this.getMenuComponentCount() - 1);
+    }
+
+    /**
+     * Inserts the given <tt>JMenuItem</tt> at the end of the specified section.
+     * Sections are ordered in the following matter: 0 0 0 | 1 1 | 2 2 ...
+     * 
+     * @param item The <tt>JMenuItem</tt> that we insert
+     * 
+     * @param section The section index in which we want to insert the specified
+     * <tt>JMenuItem</tt>. If section is < 0 or section is >= the
+     * <tt>JSeparator</tt>s count in this menu, this item will be inserted at
+     * the end of the menu.
+     * 
+     * @return The inserted <tt>JMenuItem</tt>
+     */
+    private JMenuItem insertInSection(JMenuItem item, int section)
+    {
+        if (section < 0 || section >= separatorIndices.size())
+        {
+            add(item);
+            return item;
+        }
+
+        // Gets the index of the separator so we can insert the JMenuItem
+        // before it.
+        int separatorIndex = separatorIndices.get(section);
+
+        // All following separators' positions must be incremented because we
+        // will insert a new JMenuItem before them.
+        ListIterator<Integer> it = separatorIndices.listIterator(section);
+        while (it.hasNext())
+        {
+            int i = it.next() + 1;
+            it.remove();
+            it.add(i);
+        }
+
+        insert(item, separatorIndex);
+        return item;
     }
 
     /**

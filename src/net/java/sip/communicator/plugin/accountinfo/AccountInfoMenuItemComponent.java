@@ -116,4 +116,17 @@ public class AccountInfoMenuItemComponent
         return
             Resources.getString("plugin.accountinfo.TITLE");
     }
+
+    /**
+     * Returns the position of this <tt>PluginComponent</tt> within its
+     * <tt>Container</tt>
+     * 
+     * @return Always returns 0. 0 is index of the first section in the "Tools"
+     * menu bar in the Contacts list that also contains "Options",
+     * "Create a video bridge" etc...
+     */
+    public int getPositionIndex()
+    {
+        return 0;
+    }
 }

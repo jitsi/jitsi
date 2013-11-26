@@ -681,4 +681,15 @@ public class LanguageMenuBar
             }
         }
     }
+
+    /**
+     * Returns the index indicating the position of this menu in its container.
+     * 
+     * @return -1 to indicate that this menu should take the last position
+     */
+    @Override
+    public int getPositionIndex()
+    {
+        return -1;
+    }
 }
