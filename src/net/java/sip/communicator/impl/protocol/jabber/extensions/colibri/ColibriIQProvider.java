@@ -168,7 +168,23 @@ public class ColibriIQProvider
                     else if (ColibriConferenceIQ.Channel.SSRC_ELEMENT_NAME
                             .equals(name))
                     {
-                        channel.addSSRC(Long.parseLong(ssrc.toString().trim()));
+                        String s = ssrc.toString().trim();
+
+                        if (s.length() != 0)
+                        {
+                            int i;
+
+                            /*
+                             * Legacy versions of Jitsi and Jitsi Videobridge
+                             * may send a synchronization source (SSRC)
+                             * identifier as a negative integer.
+                             */
+                            if (s.startsWith("-"))
+                                i = Integer.parseInt(s);
+                            else
+                                i = (int) Long.parseLong(s);
+                            channel.addSSRC(i);
+                        }
                         ssrc = null;
                     }
                     else if (ColibriConferenceIQ.Content.ELEMENT_NAME.equals(

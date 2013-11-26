@@ -762,7 +762,7 @@ public class CallPeerMediaHandlerJabberImpl
     @Override
     public long getRemoteSSRC(MediaType mediaType)
     {
-        long[] ssrcs = getRemoteSSRCs(mediaType);
+        int[] ssrcs = getRemoteSSRCs(mediaType);
 
         /*
          * A peer (regardless of whether it is local or remote) may send
@@ -772,13 +772,8 @@ public class CallPeerMediaHandlerJabberImpl
          * known in the list reported by the Jitsi Videobridge server is the
          * last.
          */
-        for (int i = ssrcs.length - 1; i >= 0; i--)
-        {
-            long ssrc = ssrcs[i];
-
-            if (ssrc != SSRC_UNKNOWN)
-                return ssrc;
-        }
+        if (ssrcs.length != 0)
+            return 0xFFFFFFFFL & ssrcs[ssrcs.length - 1];
 
         /*
          * XXX In the case of Jitsi Videobridge, the super implementation of
@@ -803,11 +798,11 @@ public class CallPeerMediaHandlerJabberImpl
      *
      * @param mediaType the <tt>MediaType</tt> of the RTP streams the SSRCs of
      * which are to be returned
-     * @return an array of <tt>long</tt> values which represent the SSRCs of RTP
+     * @return an array of <tt>int</tt> values which represent the SSRCs of RTP
      * streams with the specified <tt>mediaType</tt> known to be received by a
      * <tt>MediaStream</tt> associated with this instance
      */
-    public long[] getRemoteSSRCs(MediaType mediaType)
+    private int[] getRemoteSSRCs(MediaType mediaType)
     {
         /*
          * If the Jitsi Videobridge server-side technology is utilized, a single
@@ -817,6 +812,7 @@ public class CallPeerMediaHandlerJabberImpl
          * why the server will report them to the conference focus.
          */
         ColibriConferenceIQ.Channel channel = getColibriChannel(mediaType);
+
         if (channel != null)
             return channel.getSSRCs();
 
@@ -830,7 +826,7 @@ public class CallPeerMediaHandlerJabberImpl
         return
             (ssrc == SSRC_UNKNOWN)
                 ? ColibriConferenceIQ.NO_SSRCS
-                : new long[] { ssrc };
+                : new int[] { (int) ssrc };
     }
 
     /**
@@ -1060,7 +1056,7 @@ public class CallPeerMediaHandlerJabberImpl
                 return Collections.emptyList();
             else
             {
-                long[] remoteSSRCs = getRemoteSSRCs(MediaType.VIDEO);
+                int[] remoteSSRCs = getRemoteSSRCs(MediaType.VIDEO);
 
                 if (remoteSSRCs.length == 0)
                     return Collections.emptyList();
@@ -1070,16 +1066,15 @@ public class CallPeerMediaHandlerJabberImpl
                     List<Component> visualComponents
                         = new LinkedList<Component>();
 
-                    for (long remoteSSRC : remoteSSRCs)
+                    for (int i = 0; i < remoteSSRCs.length; i++)
                     {
-                        if (remoteSSRC != -1)
-                        {
-                            Component visualComponent
-                                = videoStream.getVisualComponent(remoteSSRC);
+                        int remoteSSRC = remoteSSRCs[i];
+                        Component visualComponent
+                            = videoStream.getVisualComponent(
+                                    0xFFFFFFFFL & remoteSSRC);
 
-                            if (visualComponent != null)
-                                visualComponents.add(visualComponent);
-                        }
+                        if (visualComponent != null)
+                            visualComponents.add(visualComponent);
                     }
                     return visualComponents;
                 }
@@ -1376,25 +1371,11 @@ public class CallPeerMediaHandlerJabberImpl
 
                         if (src != null)
                         {
-                            long[] ssrcs = src.getSSRCs();
-                            long[] dstSsrcs = dst.getSSRCs();
+                            int[] ssrcs = src.getSSRCs();
+                            int[] dstSSRCs = dst.getSSRCs();
 
-                            if (!Arrays.equals(dstSsrcs, ssrcs))
-                            {
+                            if (!Arrays.equals(dstSSRCs, ssrcs))
                                 dst.setSSRCs(ssrcs);
-                                if(logger.isDebugEnabled())
-                                {
-                                    logger.debug(
-                                            "SSRCs changed for colibri "
-                                                + mediaType.toString()
-                                                + " channel "
-                                                + dst.getID()
-                                                + " from: "
-                                                + Arrays.toString(dstSsrcs)
-                                                + " to: "
-                                                + Arrays.toString(ssrcs));
-                                }
-                            }
                         }
                     }
                 }

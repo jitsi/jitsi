@@ -43,11 +43,11 @@ public class ColibriConferenceIQ
         = "http://jitsi.org/protocol/colibri";
 
     /**
-     * An array of <tt>long</tt>s which represents the lack of any (RTP) SSRCs
+     * An array of <tt>int</tt>s which represents the lack of any (RTP) SSRCs
      * seen/received on a <tt>Channel</tt>. Explicitly defined to reduce
      * unnecessary allocations.
      */
-    public static final long[] NO_SSRCS = new long[0];
+    public static final int[] NO_SSRCS = new int[0];
 
     /**
      * The list of {@link Content}s included into this <tt>conference</tt> IQ.
@@ -395,7 +395,7 @@ public class ColibriConferenceIQ
          * <tt>Channel</tt> by now. These may exclude SSRCs which are no longer
          * active. Set by the Jitsi Videobridge server, not its clients.
          */
-        private long[] ssrcs = NO_SSRCS;
+        private int[] ssrcs = NO_SSRCS;
 
         private IceUdpTransportPacketExtension transport;
 
@@ -460,15 +460,15 @@ public class ColibriConferenceIQ
          * <tt>Channel</tt> has been modified as part of the method call;
          * otherwise, <tt>false</tt>
          */
-        public synchronized boolean addSSRC(long ssrc)
+        public synchronized boolean addSSRC(int ssrc)
         {
             // contains
-            for (long element : ssrcs)
-                if (element == ssrc)
+            for (int i = 0; i < ssrcs.length; i++)
+                if (ssrcs[i] == ssrc)
                     return false;
 
             // add
-            long[] newSSRCs = new long[ssrcs.length + 1];
+            int[] newSSRCs = new int[ssrcs.length + 1];
 
             System.arraycopy(ssrcs, 0, newSSRCs, 0, ssrcs.length);
             newSSRCs[ssrcs.length] = ssrc;
@@ -483,9 +483,7 @@ public class ColibriConferenceIQ
          */
         public MediaDirection getDirection()
         {
-            return direction == null
-                    ? MediaDirection.SENDRECV
-                    : direction;
+            return (direction == null) ? MediaDirection.SENDRECV : direction;
         }
 
         /**
@@ -601,10 +599,10 @@ public class ColibriConferenceIQ
          * Gets (a copy of) the list of (RTP) SSRCs seen/received on this
          * <tt>Channel</tt>.
          *
-         * @return an array of <tt>long</tt>s which represents (a copy of) the
+         * @return an array of <tt>int</tt>s which represents (a copy of) the
          * list of (RTP) SSRCs seen/received on this <tt>Channel</tt>
          */
-        public synchronized long[] getSSRCs()
+        public synchronized int[] getSSRCs()
         {
             return (ssrcs.length == 0) ? NO_SSRCS : ssrcs.clone();
         }
@@ -670,7 +668,7 @@ public class ColibriConferenceIQ
          * <tt>Channel</tt> has been modified as part of the method call;
          * otherwise, <tt>false</tt>
          */
-        public synchronized boolean removeSSRC(long ssrc)
+        public synchronized boolean removeSSRC(int ssrc)
         {
             if (ssrcs.length == 1)
             {
@@ -688,7 +686,7 @@ public class ColibriConferenceIQ
                 {
                     if (ssrcs[i] == ssrc)
                     {
-                        long[] newSSRCs = new long[ssrcs.length - 1];
+                        int[] newSSRCs = new int[ssrcs.length - 1];
 
                         if (i != 0)
                             System.arraycopy(ssrcs, 0, newSSRCs, 0, i);
@@ -843,7 +841,7 @@ public class ColibriConferenceIQ
          * @param ssrcs the list of (RTP) SSRCs to be set as seen/received on
          * this <tt>Channel</tt>
          */
-        public void setSSRCs(long[] ssrcs)
+        public void setSSRCs(int[] ssrcs)
         {
             /*
              * TODO Make sure that the SSRCs set on this instance do not contain
@@ -948,7 +946,7 @@ public class ColibriConferenceIQ
             boolean hasPayloadTypes = !payloadTypes.isEmpty();
             List<SourcePacketExtension> sources = getSources();
             boolean hasSources = !sources.isEmpty();
-            long[] ssrcs = getSSRCs();
+            int[] ssrcs = getSSRCs();
             boolean hasSSRCs = (ssrcs.length != 0);
             IceUdpTransportPacketExtension transport = getTransport();
             boolean hasTransport = (transport != null);
@@ -968,11 +966,12 @@ public class ColibriConferenceIQ
                 }
                 if (hasSSRCs)
                 {
-                    for (long ssrc : ssrcs)
+                    for (int i = 0; i < ssrcs.length; i++)
                     {
                         xml.append('<').append(SSRC_ELEMENT_NAME).append('>')
-                                .append(ssrc).append("</")
-                                        .append(SSRC_ELEMENT_NAME).append('>');
+                                .append(Long.toString(ssrcs[i] & 0xFFFFFFFFL))
+                                    .append("</").append(SSRC_ELEMENT_NAME)
+                                        .append('>');
                     }
                 }
                 if (hasTransport)
