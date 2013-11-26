@@ -216,11 +216,13 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         Iterator<? extends CallPeer> callPeerIter = call.getCallPeers();
 
         while (callPeerIter.hasNext())
+        {
             callPeerAdded(
-                new CallPeerEvent(
-                        callPeerIter.next(),
-                        call,
-                        CallPeerEvent.CALL_PEER_ADDED));
+                    new CallPeerEvent(
+                            callPeerIter.next(),
+                            call,
+                            CallPeerEvent.CALL_PEER_ADDED));
+        }
     }
 
     /**
@@ -241,11 +243,13 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         Iterator<? extends CallPeer> callPeerIter = call.getCallPeers();
 
         while (callPeerIter.hasNext())
+        {
             callPeerRemoved(
-                new CallPeerEvent(
-                        callPeerIter.next(),
-                        call,
-                        CallPeerEvent.CALL_PEER_REMOVED));
+                    new CallPeerEvent(
+                            callPeerIter.next(),
+                            call,
+                            CallPeerEvent.CALL_PEER_REMOVED));
+        }
 
         call.removeCallChangeListener(this);
     }
@@ -1088,7 +1092,9 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             {
                 long srcId = -1;
                 if (remote)
+                {
                     srcId = getRemoteSourceID(callPeer, mediaType);
+                }
                 else if (stream != null)
                 {
                     srcId = stream.getLocalSourceID();
@@ -1119,8 +1125,10 @@ public abstract class AbstractOperationSetTelephonyConferencing<
 
                 MediaDirection direction = MediaDirection.INACTIVE;
                 if (remote)
+                {
                     direction
                         = callPeer.getDirection(mediaType).getReverseDirection();
+                }
                 else
                 {
                     if (mediaType == MediaType.AUDIO &&
