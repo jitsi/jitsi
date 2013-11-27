@@ -19,8 +19,8 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.plaf.*;
 import net.java.sip.communicator.util.skin.*;
 
+import org.apache.commons.lang3.*;
 import org.jitsi.service.configuration.*;
-import org.jitsi.util.*;
 
 /**
  * The field used for searching in the properties table.
@@ -255,7 +255,7 @@ public class SearchField
                  * not want to keep it alive forever.
                  */
                 if ((prevFilterTime != 0)
-                        && StringUtils.isEquals(filter, prevFilter))
+                        && StringUtils.equalsIgnoreCase(filter, prevFilter))
                 {
                     long timeout
                         = FILTER_THREAD_TIMEOUT
@@ -287,7 +287,10 @@ public class SearchField
 
             for (String property : properties)
             {
-                if ((filter == null) || property.contains(filter))
+                String value = (String) confService.getProperty(property);
+                if ((filter == null)
+                    || StringUtils.containsIgnoreCase(property, filter)
+                    || StringUtils.containsIgnoreCase(value, filter))
                 {
                     rows.add(
                             new Object[]
@@ -300,7 +303,7 @@ public class SearchField
 
             // If in the meantime someone has changed the filter, we don't want
             // to update the GUI but filter the results again.
-            if (StringUtils.isEquals(filter, this.filter))
+            if (StringUtils.equalsIgnoreCase(filter, this.filter))
             {
                 LowPriorityEventQueue.invokeLater(
                         new Runnable()
