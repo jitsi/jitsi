@@ -15,6 +15,7 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
+import org.apache.http.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
@@ -254,6 +255,21 @@ public class ProvisioningServiceImpl
      */
     private File retrieveConfigurationFile(String url)
     {
+        return retrieveConfigurationFile(url, null);
+    }
+
+    /**
+     * Retrieve configuration file from provisioning URL.
+     * This method is blocking until configuration file is retrieved from the
+     * network or if an exception happen
+     *
+     * @param url provisioning URL
+     * @param parameters the already filled parameters if any.
+     * @return provisioning file downloaded
+     */
+    private File retrieveConfigurationFile(String url,
+                                           List<NameValuePair> parameters)
+    {
         File tmpFile = null;
 
         try
@@ -462,30 +478,52 @@ public class ProvisioningServiceImpl
                 paramNames = new ArrayList<String>(args.length);
                 paramValues = new ArrayList<String>(args.length);
 
+                String usernameParam = "${username}";
+                String passwordParam = "${password}";
+
                 for(int i = 0; i < args.length; i++)
                 {
                     String s = args[i];
 
-                    String usernameParam = "${username}";
-                    String passwordParam = "${password}";
+                    int equalsIndex = s.indexOf("=");
+                    String currentParamName = null;
+
+                    if (equalsIndex > -1)
+                    {
+                        currentParamName = s.substring(0, equalsIndex);
+                    }
+
+                    // pre loaded value we will reuse.
+                    String preloadedParamValue =
+                        getParamValue(parameters, currentParamName);
 
                     // If we find the username or password parameter at this
                     // stage we replace it with an empty string.
+                    // or if we have an already filled value we will reuse it.
                     if(s.indexOf(usernameParam) != -1)
                     {
-                        s = s.replace(usernameParam, "");
+                        if(preloadedParamValue != null)
+                        {
+                            s = s.replace(usernameParam, preloadedParamValue);
+                        }
+                        else
+                            s = s.replace(usernameParam, "");
                         usernameIx = paramNames.size();
                     }
                     else if(s.indexOf(passwordParam) != -1)
                     {
-                        s = s.replace(passwordParam, "");
+                        if(preloadedParamValue != null)
+                        {
+                            s = s.replace(passwordParam, preloadedParamValue);
+                        }
+                        else
+                            s = s.replace(passwordParam, "");
                         passwordIx = paramNames.size();
                     }
 
-                    int equalsIndex = s.indexOf("=");
                     if (equalsIndex > -1)
                     {
-                        paramNames.add(s.substring(0, equalsIndex));
+                        paramNames.add(currentParamName);
                         paramValues.add(s.substring(equalsIndex + 1));
                     }
                     else
@@ -514,7 +552,29 @@ public class ProvisioningServiceImpl
                         paramNames,
                         paramValues,
                         usernameIx,
-                        passwordIx);
+                        passwordIx,
+                        new HttpUtils.RedirectHandler()
+                        {
+                            @Override
+                            public boolean handleRedirect(
+                                String location,
+                                List<NameValuePair> parameters)
+                            {
+                                if(!hasParams(location))
+                                    return false;
+
+                                // if we have parameters proceed
+                                retrieveConfigurationFile(location, parameters);
+
+                                return true;
+                            }
+
+                            @Override
+                            public boolean hasParams(String location)
+                            {
+                                return location.contains("${");
+                            }
+                        });
             }
             catch(Throwable t)
             {
@@ -658,6 +718,27 @@ public class ProvisioningServiceImpl
             tmpFile.delete();
             return null;
         }
+    }
+
+    /**
+     * Search param value for the supplied name.
+     * @param parameters the parameters can be null.
+     * @param paramName the name to search.
+     * @return the corresponding parameter value.
+     */
+    private static String getParamValue(List<NameValuePair> parameters,
+                                        String paramName)
+    {
+        if(parameters == null || paramName == null)
+            return null;
+
+        for(NameValuePair nv : parameters)
+        {
+            if(nv.getName().equals(paramName))
+                return nv.getValue();
+        }
+
+        return null;
     }
 
     /**

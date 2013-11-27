@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.gui.*;
 
 import org.apache.http.*;
 import org.apache.http.Header;
+import org.apache.http.ProtocolException;
 import org.apache.http.auth.*;
 import org.apache.http.client.*;
 import org.apache.http.client.methods.*;
@@ -31,6 +32,7 @@ import org.apache.http.impl.client.*;
 import org.apache.http.impl.conn.*;
 import org.apache.http.message.*;
 import org.apache.http.params.*;
+import org.apache.http.protocol.*;
 import org.apache.http.util.*;
 import org.jitsi.util.*;
 
@@ -125,7 +127,7 @@ public class HttpUtils
                 }
             }
 
-            HttpEntity result = executeMethod(httpClient, httpGet);
+            HttpEntity result = executeMethod(httpClient, httpGet, null, null);
 
             if(result == null)
                 return null;
@@ -149,10 +151,17 @@ public class HttpUtils
      * they stay saved.
      * @param httpClient the configured http client to use.
      * @param req the request for now it is get or post.
+     * @param redirectHandler handles redirection, should we redirect and
+     * the actual redirect.
+     * @param parameters if we are redirecting we can use already filled
+     * username and password in order to avoid asking the user twice.
+     *
      * @return the result http entity.
      */
     private static HttpEntity executeMethod(DefaultHttpClient httpClient,
-                                            HttpRequestBase req)
+                                            HttpRequestBase req,
+                                            RedirectHandler redirectHandler,
+                                            List<NameValuePair> parameters)
         throws Throwable
     {
         // do it when response (first execution) or till we are unauthorized
@@ -211,13 +220,11 @@ public class HttpUtils
 
                 String newLocation = locationHeader.getValue();
 
-                // append query string if any
-                HttpEntity en = ((HttpPost) oldreq).getEntity();
-                if(en != null && en instanceof StringEntity)
+                // lets ask redirection handler if any
+                if(redirectHandler != null
+                    && redirectHandler.handleRedirect(newLocation, parameters))
                 {
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    en.writeTo(out);
-                    newLocation += "?" + out.toString("UTF-8");
+                    return null;
                 }
 
                 req = new HttpGet(newLocation);
@@ -296,7 +303,8 @@ public class HttpUtils
 
             postMethod.setEntity(reqEntity);
 
-            HttpEntity resEntity = executeMethod(httpClient, postMethod);
+            HttpEntity resEntity =
+                executeMethod(httpClient, postMethod, null, null);
 
             if(resEntity == null)
                 return null;
@@ -341,6 +349,47 @@ public class HttpUtils
                                    int passwordParamIx)
         throws Throwable
     {
+        return postForm(
+            address,
+            usernamePropertyName, passwordPropertyName,
+            formParamNames, formParamValues,
+            usernameParamIx, passwordParamIx,
+            null);
+    }
+
+    /**
+     * Posting form to <tt>address</tt>. For submission we use POST method
+     * which is "application/x-www-form-urlencoded" encoded.
+     * @param address HTTP address.
+     * @param usernamePropertyName the property to use to retrieve/store
+     * username value if protected site is hit, for username
+     * ConfigurationService service is used.
+     * @param passwordPropertyName the property to use to retrieve/store
+     * password value if protected site is hit, for password
+     * CredentialsStorageService service is used.
+     * @param formParamNames the parameter names to include in post.
+     * @param formParamValues the corresponding parameter values to use.
+     * @param usernameParamIx the index of the username parameter in the
+     * <tt>formParamNames</tt> and <tt>formParamValues</tt>
+     * if any, otherwise -1.
+     * @param passwordParamIx the index of the password parameter in the
+     * <tt>formParamNames</tt> and <tt>formParamValues</tt>
+     * if any, otherwise -1.
+     * @param redirectHandler handles redirection, should we redirect and
+     * the actual redirect.
+     * @return the result or null if send was not possible or
+     * credentials ask if any was canceled.
+     */
+    public static HTTPResponseResult postForm(String address,
+                                   String usernamePropertyName,
+                                   String passwordPropertyName,
+                                   ArrayList<String> formParamNames,
+                                   ArrayList<String> formParamValues,
+                                   int usernameParamIx,
+                                   int passwordParamIx,
+                                   RedirectHandler redirectHandler)
+        throws Throwable
+    {
         DefaultHttpClient httpClient;
         HttpPost postMethod;
         HttpEntity resEntity = null;
@@ -363,12 +412,11 @@ public class HttpUtils
                         httpClient,
                         postMethod,
                         address,
-                        usernamePropertyName,
-                        passwordPropertyName,
                         formParamNames,
                         formParamValues,
                         usernameParamIx,
-                        passwordParamIx);
+                        passwordParamIx,
+                        redirectHandler);
 
                 authEx = null;
             }
@@ -408,12 +456,6 @@ public class HttpUtils
      * @param httpClient the http client
      * @param postMethod the post method
      * @param address HTTP address.
-     * @param usernamePropertyName the property to use to retrieve/store
-     * username value if protected site is hit, for username
-     * ConfigurationService service is used.
-     * @param passwordPropertyName the property to use to retrieve/store
-     * password value if protected site is hit, for password
-     * CredentialsStorageService service is used.
      * @param formParamNames the parameter names to include in post.
      * @param formParamValues the corresponding parameter values to use.
      * @param usernameParamIx the index of the username parameter in the
@@ -429,21 +471,25 @@ public class HttpUtils
                                    DefaultHttpClient httpClient,
                                    HttpPost postMethod,
                                    String address,
-                                   String usernamePropertyName,
-                                   String passwordPropertyName,
                                    ArrayList<String> formParamNames,
                                    ArrayList<String> formParamValues,
                                    int usernameParamIx,
-                                   int passwordParamIx)
+                                   int passwordParamIx,
+                                   RedirectHandler redirectHandler)
         throws Throwable
     {
         // if we have username and password in the parameters, lets
         // retrieve their values
+        // if there are already filled skip asking the user
         Credentials creds = null;
         if(usernameParamIx != -1
             && usernameParamIx < formParamNames.size()
             && passwordParamIx != -1
-            && passwordParamIx < formParamNames.size())
+            && passwordParamIx < formParamNames.size()
+            && (formParamValues.get(usernameParamIx) == null
+                || formParamValues.get(usernameParamIx).length() == 0)
+            && (formParamValues.get(passwordParamIx) == null
+                || formParamValues.get(passwordParamIx).length() == 0))
         {
             URL url = new URL(address);
             HTTPCredentialsProvider prov = (HTTPCredentialsProvider)
@@ -492,6 +538,11 @@ public class HttpUtils
             }
         }
 
+        // our custom strategy, will check redirect handler should we redirect
+        // if missing will use the default handler
+        httpClient.setRedirectStrategy(
+            new CustomRedirectStrategy(redirectHandler, parameters));
+
         // Uses String UTF-8 to keep compatible with android version and
         // older versions of the http client libs, as the one used
         // in debian (4.1.x)
@@ -504,7 +555,8 @@ public class HttpUtils
         postMethod.setEntity(entity);
 
         // execute post
-        return executeMethod(httpClient, postMethod);
+        return executeMethod(
+            httpClient, postMethod, redirectHandler, parameters);
     }
 
     /**
@@ -987,5 +1039,93 @@ public class HttpUtils
 
             return cred;
         }
+    }
+
+    /**
+     * Custom redirect handler that extends DefaultRedirectStrategy
+     * We will check redirect handler should we redirect
+     * If redirect handler is missing will continue with default strategy
+     */
+    private static class CustomRedirectStrategy
+        extends DefaultRedirectStrategy
+    {
+        /**
+         * The redirect handler to check.
+         */
+        private final RedirectHandler handler;
+
+        /**
+         * The already filled parameters to be used when redirecting.
+         */
+        private final List<NameValuePair> parameters;
+
+        /**
+         * Created custom redirect strategy.
+         * @param handler the redirect handler.
+         * @param parameters already filled parameters.
+         */
+        CustomRedirectStrategy(RedirectHandler handler,
+                               List<NameValuePair> parameters)
+        {
+            this.handler = handler;
+            this.parameters = parameters;
+        }
+
+        /**
+         * Check whether we need to redirect.
+         * @param request the initial request
+         * @param response the response containing the location param for
+         * redirect.
+         * @param context the http context.
+         * @return should we redirect.
+         * @throws ProtocolException
+         */
+        public boolean isRedirected(
+                final HttpRequest request,
+                final HttpResponse response,
+                final HttpContext context)
+            throws ProtocolException
+        {
+            Header locationHeader = response.getFirstHeader("location");
+
+            if(handler != null
+                && locationHeader != null
+                && handler.hasParams(locationHeader.getValue()))
+            {
+                //we will cancel this redirect and will schedule new redirect
+                handler.handleRedirect(locationHeader.getValue(), parameters);
+                return false;
+            }
+
+            return super.isRedirected(request, response, context);
+        }
+    }
+
+    /**
+     * The redirect handler will cancel/proceed the redirection. Can
+     * schedule new request with the redirect location, reusing the already
+     * filled parameters.
+     */
+    public static interface RedirectHandler
+    {
+        /**
+         * Schedule new request with the redirect location, reusing the already
+         * filled parameters.
+         *
+         * @param location the new location.
+         * @param parameters the parameters that were already filled.
+         * @return should we continue with normal redirect.
+         */
+        public boolean handleRedirect(String location,
+                                      List<NameValuePair> parameters);
+
+        /**
+         * Do the new location has params that need to be filled, return
+         * <tt>true</tt> will cause to handle redirect.
+         * @param location the new location.
+         * @return <tt>true</tt> if we need to redirect in the handler or
+         * <tt>false</tt> if we will continue with default redirect handling.
+         */
+        boolean hasParams(String location);
     }
 }
