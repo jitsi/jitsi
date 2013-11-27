@@ -699,8 +699,11 @@ class NotificationServiceImpl
                     long timeout
                         = configService.getLong(
                             actionPropName + ".timeout",-1);
+                    String groupName
+                        = configService.getString(
+                            actionPropName + ".groupName");
                     action = new PopupMessageNotificationAction(
-                                    defaultMessage, timeout);
+                                    defaultMessage, timeout, groupName);
                 }
                 else if(actionType.equals(ACTION_LOG_MESSAGE))
                 {
@@ -1272,6 +1275,9 @@ class NotificationServiceImpl
             configProperties.put(
                 actionTypeNodeName + ".timeout",
                 messageAction.getTimeout());
+            configProperties.put(
+                actionTypeNodeName + ".groupName",
+                messageAction.getGroupName());
         }
         else if(action instanceof LogMessageNotificationAction)
         {

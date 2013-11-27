@@ -56,6 +56,12 @@ public class PopupMessage
     private long timeout;
 
     /**
+     * Name of the popup group to which this popup will belong.
+     * Used to group notifications on Android.
+     */
+    private String group;
+
+    /**
      * Creates a <tt>PopupMessage</tt> with the given title and message inside.
      *
      * @param title title of the message
@@ -280,5 +286,23 @@ public class PopupMessage
     public long getTimeout()
     {
         return timeout;
+    }
+
+    /**
+     * Returns name of the popup group.
+     * @return name of the popup group.
+     */
+    public String getGroup()
+    {
+        return group;
+    }
+
+    /**
+     * Set name of the group to which this popup will belong.
+     * @param group the popup group name to set.
+     */
+    public void setGroup(String group)
+    {
+        this.group = group;
     }
 }

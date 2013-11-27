@@ -61,6 +61,7 @@ public class PopupMessageNotificationHandlerImpl
             PopupMessage popupMsg
                     = new PopupMessage(title, message, icon ,tag);
             popupMsg.setTimeout(action.getTimeout());
+            popupMsg.setGroup(action.getGroupName());
 
             systray.showPopupMessage(popupMsg);
         }
