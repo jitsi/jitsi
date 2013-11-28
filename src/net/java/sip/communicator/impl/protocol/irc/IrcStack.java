@@ -638,31 +638,16 @@ public class IrcStack
             return this.alternativeNicks;
         }
 
-        public void setAlternativeNicknames(List<String> names)
-        {
-            this.alternativeNicks = names;
-        }
-
         @Override
         public String getIdent()
         {
             return this.ident;
         }
 
-        public void setIdent(String ident)
-        {
-            this.ident = ident;
-        }
-
         @Override
         public String getRealname()
         {
             return this.real;
-        }
-
-        public void setRealname(String realname)
-        {
-            this.real = realname;
         }
 
         @Override
