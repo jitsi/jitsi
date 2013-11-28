@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.filehistory.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.muc.*;
@@ -189,6 +190,10 @@ public class HistorySelectorBox
                             MessageHistoryService.class)
                                 .eraseLocallyStoredHistory(
                                     (MetaContact)desc);
+                        ServiceUtils.getService(GuiActivator.bundleContext,
+                            FileHistoryService.class)
+                                .eraseLocallyStoredHistory(
+                                    (MetaContact)desc);
                     }
                     else if(desc instanceof ChatRoomWrapper)
                     {
@@ -226,6 +231,9 @@ public class HistorySelectorBox
                 {
                     ServiceUtils.getService(GuiActivator.bundleContext,
                         MessageHistoryService.class).eraseLocallyStoredHistory();
+
+                    ServiceUtils.getService(GuiActivator.bundleContext,
+                        FileHistoryService.class).eraseLocallyStoredHistory();
                 }
                 catch(IOException ex)
                 {

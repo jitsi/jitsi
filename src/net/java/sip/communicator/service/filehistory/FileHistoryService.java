@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.filehistory;
 
+import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.contactlist.*;
@@ -173,4 +174,24 @@ public interface FileHistoryService
     public Collection<FileRecord> findLastRecordsBefore(
             MetaContact contact, Date date, int count)
         throws RuntimeException;
+
+    /**
+     * Permanently removes all locally stored file history.
+     *
+     * @throws java.io.IOException
+     *         Thrown if the history could not be removed due to a IO error.
+     */
+    public void eraseLocallyStoredHistory()
+        throws
+        IOException;
+
+    /**
+     * Permanently removes locally stored file history for the metacontact.
+     *
+     * @throws java.io.IOException
+     *         Thrown if the history could not be removed due to a IO error.
+     */
+    public void eraseLocallyStoredHistory(MetaContact contact)
+        throws IOException;
+
 }
