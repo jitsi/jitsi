@@ -958,9 +958,15 @@ public class ImageLoader
         = new ImageID("service.gui.icons.CLOSED_GROUP");
 
     /**
-     * The image used for chat rooms.
+     * The image used for chat rooms presence status.
      */
     public static final ImageID CHAT_ROOM_OFFLINE_ICON
+        = new ImageID("service.gui.icons.CHAT_ROOM_ICON");
+    
+    /**
+     * The image used for chat rooms presence status.
+     */
+    public static final ImageID CHAT_ROOM_MENU_ICON
         = new ImageID("service.gui.icons.CHAT_ROOM_16x16_ICON");
     
     /**

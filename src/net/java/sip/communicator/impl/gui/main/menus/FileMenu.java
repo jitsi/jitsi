@@ -221,7 +221,7 @@ public class FileMenu
                 ImageLoader.GROUPS_16x16_ICON)));
         myChatRoomsItem.setIcon(
             new ImageIcon(ImageLoader.getImage(
-                ImageLoader.CHAT_ROOM_OFFLINE_ICON)));
+                ImageLoader.CHAT_ROOM_MENU_ICON)));
 
         if(closeMenuItem != null)
         {

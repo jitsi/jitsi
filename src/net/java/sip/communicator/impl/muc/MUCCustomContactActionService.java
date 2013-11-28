@@ -58,8 +58,8 @@ public class MUCCustomContactActionService
      */
     private String[] actionsIcons = {
         "service.gui.icons.LEAVE_ICON_BUTTON", 
-        "service.gui.icons.AUTOJOIN_ICON_BUTTON",
-        "service.gui.icons.AUTOJOIN_ICON_PRESSED_BUTTON"
+        "service.gui.icons.AUTOJOIN_ON_ICON_BUTTON",
+        "service.gui.icons.AUTOJOIN_OFF_ICON_BUTTON"
       };
     
     /**
@@ -67,8 +67,8 @@ public class MUCCustomContactActionService
      */
     private String[] actionsIconsRollover = {
         "service.gui.icons.LEAVE_ICON_ROLLOVER_BUTTON", 
-        "service.gui.icons.AUTOJOIN_ICON_ROLLOVER_BUTTON",
-        "service.gui.icons.AUTOJOIN_ICON_ROLLOVER_BUTTON"
+        "service.gui.icons.AUTOJOIN_ON_ICON_ROLLOVER_BUTTON",
+        "service.gui.icons.AUTOJOIN_OFF_ICON_ROLLOVER_BUTTON"
       };
     
     /**
@@ -76,8 +76,8 @@ public class MUCCustomContactActionService
      */
     private String[] actionsIconsPressed = {
         "service.gui.icons.LEAVE_ICON_PRESSED_BUTTON", 
-        "service.gui.icons.AUTOJOIN_ICON_PRESSED_BUTTON",
-        "service.gui.icons.AUTOJOIN_ICON_BUTTON",
+        "service.gui.icons.AUTOJOIN_ON_ICON_PRESSED_BUTTON",
+        "service.gui.icons.AUTOJOIN_OFF_ICON_PRESSED_BUTTON",
       };
     
     /**
@@ -477,10 +477,9 @@ public class MUCCustomContactActionService
                         return false;
                     
                     if(name.equals("autojoin"))
-                        return !room.isAutojoin();
-                    
-                    if(name.equals("autojoin_pressed"))
                         return room.isAutojoin();
+                    else if(name.equals("autojoin_pressed"))
+                        return !room.isAutojoin();
                 }
             }
             return false;
