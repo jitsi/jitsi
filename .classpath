@@ -85,5 +85,10 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/zrtp4j-light.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jcalendar-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/hsqldb.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/irc-api-1.0.jar" sourcepath="lib/installer-exclude/irc-api-1.0-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/jitsi/lib/installer-exclude/irc-api-1.0-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
