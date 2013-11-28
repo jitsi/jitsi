@@ -342,9 +342,9 @@ public class IrcStack
         this.irc.message(chatroom.getIdentifier(), message);
     }
 
-    private static ChatRoomMemberRole convertMemberMode(char mode)
+    private static ChatRoomMemberRole convertMemberMode(char modeSymbol)
     {
-        return Mode.convertSymbolToRole(mode);
+        return Mode.bySymbol(modeSymbol).getRole();
     }
 
     private class ChatRoomListener

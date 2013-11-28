@@ -8,18 +8,6 @@ public enum Mode
     OPERATOR('o', ChatRoomMemberRole.ADMINISTRATOR),
     VOICE('v', ChatRoomMemberRole.MEMBER);
     
-    public static ChatRoomMemberRole convertSymbolToRole(char symbol)
-    {
-        for(Mode mode : Mode.values())
-        {
-            if (mode.getSymbol() == symbol)
-            {
-                return mode.getRole();
-            }
-        }
-        throw new IllegalArgumentException("Invalid mode symbol provided. ('"+symbol+"')");
-    }
-    
     public static Mode bySymbol(char symbol)
     {
         for(Mode mode : Mode.values())
