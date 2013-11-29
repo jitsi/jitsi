@@ -205,7 +205,8 @@ public class ChatRoomQuery
                 ChatRoomWrapper chatRoom 
                     = MUCActivator.getMUCService()
                         .findChatRoomWrapperFromChatRoom(sourceChatRoom);
-                addChatRoom(sourceChatRoom, false, chatRoom.isAutojoin());
+                if(chatRoom != null)
+                    addChatRoom(sourceChatRoom, false, chatRoom.isAutojoin());
             }
         }
         else if ((LocalUserChatRoomPresenceChangeEvent
