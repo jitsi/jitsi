@@ -396,18 +396,6 @@ public class GroupNode
          */
         public int compare(ContactListNode node1, ContactListNode node2)
         {
-            // Child groups are shown after child contacts.
-            if (node1 instanceof GroupNode)
-            {
-                if (node2 instanceof ContactNode)
-                    return 1;
-            }
-            else if (node1 instanceof ContactNode)
-            {
-                if (node2 instanceof GroupNode)
-                    return -1;
-            }
-
             int index1 = node1.getSourceIndex();
             int index2 = node2.getSourceIndex();
 

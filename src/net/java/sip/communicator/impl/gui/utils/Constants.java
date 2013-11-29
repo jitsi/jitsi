@@ -57,6 +57,13 @@ public class Constants
     public static Color CALL_HISTORY_EVEN_ROW_COLOR
         = new Color(GuiActivator.getResources().
             getColor("service.gui.CALL_HISTORY_EVEN_ROW_COLOR"));
+    
+    /**
+     * Background color for chat room contact rows.
+     */
+    public static Color CHAT_ROOM_ROW_COLOR
+        = new Color(GuiActivator.getResources().
+            getColor("service.gui.CHAT_ROOM_ROW_COLOR"));
 
     /**
      * The start color used to paint a gradient selected background of some

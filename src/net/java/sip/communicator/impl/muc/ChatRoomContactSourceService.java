@@ -22,7 +22,7 @@ public class ChatRoomContactSourceService
      */
     public int getType()
     {
-        return PRESENCE_TYPE;
+        return CHAT_ROOM_TYPE;
     }
 
     /**
@@ -69,6 +69,7 @@ public class ChatRoomContactSourceService
         
         return contactQuery;
     }
+    
     /**
      * Returns the index of the contact source in the result list.
      *
@@ -77,7 +78,7 @@ public class ChatRoomContactSourceService
     @Override
     public int getIndex()
     {
-        return -1;
+        return 0;
     }
 
 }

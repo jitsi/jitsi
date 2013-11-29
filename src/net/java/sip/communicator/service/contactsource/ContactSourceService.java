@@ -31,9 +31,9 @@ public interface ContactSourceService
     public static final int HISTORY_TYPE = 2;
     
     /**
-     * Type of a presence source. Queries when presence should be shown.
+     * Type of a chat room source.
      */
-    public static final int PRESENCE_TYPE = 3;
+    public static final int CHAT_ROOM_TYPE = 3;
 
     /**
      * Returns the type of this contact source.

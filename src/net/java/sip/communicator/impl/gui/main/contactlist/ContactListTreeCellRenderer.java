@@ -425,7 +425,14 @@ public class ContactListTreeCellRenderer
         {
             UIContactImpl contact
                 = ((ContactNode) value).getContactDescriptor();
-
+            
+            if((contact.getDescriptor() instanceof SourceContact) &&
+                ((SourceContact)contact.getDescriptor())
+                    .getPreferredContactDetail(OperationSetMultiUserChat.class) 
+                        != null)
+            {
+                setBackground(Constants.CHAT_ROOM_ROW_COLOR);
+            }
             String displayName = contact.getDisplayName();
 
             if ((displayName == null

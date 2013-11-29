@@ -16,6 +16,8 @@ import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.customcontactactions.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.Logger;
+
 import org.osgi.framework.*;
 
 import java.awt.*;
@@ -74,6 +76,11 @@ public class ExternalContactSource
                                     customServiceActionButtons;
 
     private final JTree contactListTree;
+    
+    /**
+     * The index of the contact source used to order the contact sources.
+     */
+    private int contactSourceIndex;
 
     /**
      * Creates an <tt>ExternalContactSource</tt> based on the given
@@ -87,6 +94,7 @@ public class ExternalContactSource
     {
         this.contactSource = contactSource;
         this.contactListTree = contactListTree;
+        contactSourceIndex = contactSource.getIndex();
 
         sourceUIGroup = new SourceUIGroup(contactSource.getDisplayName(), this);
     }
@@ -593,6 +601,16 @@ public class ExternalContactSource
     }
 
     /**
+     * Sets the contact source index.
+     * 
+     * @param contactSourceIndex the contact source index to set
+     */
+    public void setContactSourceIndex(int contactSourceIndex)
+    {
+        this.contactSourceIndex = contactSourceIndex;
+    }
+
+    /**
      * The <tt>SourceUIGroup</tt> is the implementation of the UIGroup for the
      * <tt>ExternalContactSource</tt>. It takes the name of the source and
      * sets it as a group name.
@@ -646,10 +664,8 @@ public class ExternalContactSource
         @Override
         public int getSourceIndex()
         {
-            int sourceIndex = contactSource.getIndex();
-
-            if (sourceIndex >= 0)
-                return sourceIndex;
+            if (contactSourceIndex >= 0)
+                return contactSourceIndex * MAX_GROUPS;
 
             if (contactSource.getType() == ContactSourceService.HISTORY_TYPE)
                 return Integer.MAX_VALUE;

@@ -154,9 +154,18 @@ public class MetaUIContact
     {
         MetaContactGroup parentMetaContactGroup =
                 metaContact.getParentMetaContactGroup();
+        int groupSourceIndex = 0;
         if (parentMetaContactGroup == null)
             return -1;
-        return parentMetaContactGroup.indexOf(metaContact);
+        MetaContactGroup parentGroup 
+            = parentMetaContactGroup.getParentMetaContactGroup();
+       
+        if(parentGroup != null)
+            groupSourceIndex = parentGroup.indexOf(parentMetaContactGroup) 
+                * UIGroup.MAX_CONTACTS;
+        return  GuiActivator.getContactListService().getSourceIndex() 
+            * UIGroup.MAX_GROUPS + groupSourceIndex +
+            parentMetaContactGroup.indexOf(metaContact);
     }
 
     /**

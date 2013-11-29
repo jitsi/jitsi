@@ -118,7 +118,10 @@ public class SourceUIContact
     @Override
     public int getSourceIndex()
     {
-        return sourceContact.getIndex();
+        int contactIndex = sourceContact.getIndex();
+        int groupIndex = getParentGroup().getSourceIndex();
+        return ((contactIndex == -1) ? -1 : 
+            ((groupIndex == -1) ? contactIndex : groupIndex + contactIndex));
     }
 
     /**
