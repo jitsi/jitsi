@@ -6,6 +6,11 @@
  */
 package net.java.sip.communicator.impl.gui.main.contactlist.contactsource;
 
+import java.awt.*;
+import java.awt.event.*;
+import java.util.*;
+import java.util.List;
+
 import javax.swing.*;
 import javax.swing.tree.*;
 
@@ -16,14 +21,8 @@ import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.customcontactactions.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.Logger;
 
 import org.osgi.framework.*;
-
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import java.util.List;
 
 /**
  * The <tt>ExternalContactSource</tt> is the UI abstraction of the
