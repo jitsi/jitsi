@@ -1126,12 +1126,10 @@ public class CallJabberImpl
 
         if (dtlsControl != null)
         {
-            /*
-             * Jitsi Videobridge is a server-side endpoint and thus is supposed
-             * to have a public IP so it makes sense to start the DTLS-SRTP
-             * endpoint represented by this Call as a client.
-             */
-            dtlsControl.setDtlsProtocol(DtlsControl.DTLS_CLIENT_PROTOCOL);
+            dtlsControl.setSetup(
+                    peer.isInitiator()
+                        ? DtlsControl.Setup.ACTIVE
+                        : DtlsControl.Setup.PASSIVE);
         }
 
         IceUdpTransportPacketExtension remoteTransport = channel.getTransport();

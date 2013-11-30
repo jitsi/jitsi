@@ -30,12 +30,28 @@ public enum RTPLevelRelayType
      */
     TRANSLATOR;
 
+    /**
+     * Parses a <tt>String</tt> into an <tt>RTPLevelRelayType</tt> enum value.
+     * The specified <tt>String</tt> to parse must be in a format as produced by
+     * {@link #toString()}; otherwise, the method will throw an exception.
+     *
+     * @param s the <tt>String</tt> to parse into an <tt>RTPLevelRelayType</tt>
+     * enum value
+     * @return an <tt>RTPLevelRelayType</tt> enum value on which
+     * <tt>toString()</tt> produces the specified <tt>s</tt>
+     * @throws IllegalArgumentException if none of the
+     * <tt>RTPLevelRelayType</tt> enum values produce the specified <tt>s</tt>
+     * when <tt>toString()</tt> is invoked on them
+     * @throws NullPointerException if <tt>s</tt> is <tt>null</tt>
+     */
     public static RTPLevelRelayType parseRTPLevelRelayType(String s)
     {
-        for (RTPLevelRelayType value : RTPLevelRelayType.values())
+        if (s == null)
+            throw new NullPointerException("s");
+        for (RTPLevelRelayType v : values())
         {
-            if (s.equals(value.toString()))
-                return value;
+            if (v.toString().equalsIgnoreCase(s))
+                return v;
         }
         throw new IllegalArgumentException(s);
     }
@@ -46,14 +62,6 @@ public enum RTPLevelRelayType
     @Override
     public String toString()
     {
-        switch (this)
-        {
-        case MIXER:
-            return "mixer";
-        case TRANSLATOR:
-            return "translator";
-        default:
-            return super.toString();
-        }
+        return name().toLowerCase();
     }
 }

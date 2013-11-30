@@ -44,13 +44,7 @@ public class CallPeerMediaHandlerSipImpl
      */
     private static final String DTLS_SRTP_FINGERPRINT_ATTR = "fingerprint";
 
-    private static final String DTLS_SRTP_SETUP_ACTIVE = "active";
-
-    private static final String DTLS_SRTP_SETUP_ACTPASS = "actpass";
-
     private static final String DTLS_SRTP_SETUP_ATTR = "setup";
-
-    private static final String DTLS_SRTP_SETUP_PASSIVE = "passive";
 
     /**
      * Our class logger.
@@ -820,12 +814,14 @@ public class CallPeerMediaHandlerSipImpl
                     Vector<Attribute> attrs = localMd.getAttributes(true);
 
                     // setup
-                    String setup
+                    DtlsControl.Setup setup
                         = (remoteMd == null)
-                            ? DTLS_SRTP_SETUP_ACTPASS
-                            : DTLS_SRTP_SETUP_ACTIVE;
+                            ? DtlsControl.Setup.ACTPASS
+                            : DtlsControl.Setup.ACTIVE;
                     Attribute setupAttr
-                        = SdpUtils.createAttribute(DTLS_SRTP_SETUP_ATTR, setup);
+                        = SdpUtils.createAttribute(
+                                DTLS_SRTP_SETUP_ATTR,
+                                setup.toString());
 
                     attrs.add(setupAttr);
 
@@ -840,12 +836,7 @@ public class CallPeerMediaHandlerSipImpl
 
                     attrs.add(fingerprintAttr);
 
-                    int dtlsProtocol
-                        = DTLS_SRTP_SETUP_ACTIVE.equals(setup)
-                            ? DtlsControl.DTLS_CLIENT_PROTOCOL
-                            : DtlsControl.DTLS_SERVER_PROTOCOL;
-
-                    dtlsControl.setDtlsProtocol(dtlsProtocol);
+                    dtlsControl.setSetup(setup);
 
                     if (remoteMd != null) // answer
                         updateSrtpControlsForDtls(mediaType, localMd, remoteMd);
@@ -921,11 +912,8 @@ public class CallPeerMediaHandlerSipImpl
                 {
                     setup = null;
                 }
-                if (DTLS_SRTP_SETUP_PASSIVE.equals(setup))
-                {
-                    dtlsControl.setDtlsProtocol(
-                            DtlsControl.DTLS_CLIENT_PROTOCOL);
-                }
+                if (DtlsControl.Setup.PASSIVE.toString().equals(setup))
+                    dtlsControl.setSetup(DtlsControl.Setup.ACTIVE);
             }
 
             // fingerprint

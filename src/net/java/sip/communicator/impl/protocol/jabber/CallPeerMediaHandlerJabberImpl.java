@@ -2340,7 +2340,7 @@ public class CallPeerMediaHandlerJabberImpl
                     }
 
                     DtlsControl dtlsControl;
-                    int dtlsProtocol;
+                    DtlsControl.Setup setup;
 
                     if (isInitiator)
                     {
@@ -2349,7 +2349,7 @@ public class CallPeerMediaHandlerJabberImpl
                                 srtpControls.get(
                                         mediaType,
                                         SrtpControlType.DTLS_SRTP);
-                        dtlsProtocol = DtlsControl.DTLS_SERVER_PROTOCOL;
+                        setup = DtlsControl.Setup.PASSIVE;
                     }
                     else
                     {
@@ -2358,12 +2358,12 @@ public class CallPeerMediaHandlerJabberImpl
                                 srtpControls.getOrCreate(
                                         mediaType,
                                         SrtpControlType.DTLS_SRTP);
-                        dtlsProtocol = DtlsControl.DTLS_CLIENT_PROTOCOL;
+                        setup = DtlsControl.Setup.ACTIVE;
                     }
                     if (dtlsControl != null)
                     {
-                        dtlsControl.setDtlsProtocol(dtlsProtocol);
                         dtlsControl.setRemoteFingerprints(remoteFingerprints);
+                        dtlsControl.setSetup(setup);
                         removeAndCleanupOtherSrtpControls(
                                 mediaType,
                                 SrtpControlType.DTLS_SRTP);
@@ -2531,12 +2531,12 @@ public class CallPeerMediaHandlerJabberImpl
 
                 if (dtlsControl != null)
                 {
-                    int dtlsProtocol
+                    DtlsControl.Setup setup
                         = (remoteContent == null)
-                            ? DtlsControl.DTLS_SERVER_PROTOCOL
-                            : DtlsControl.DTLS_CLIENT_PROTOCOL;
+                            ? DtlsControl.Setup.PASSIVE
+                            : DtlsControl.Setup.ACTIVE;
 
-                    dtlsControl.setDtlsProtocol(dtlsProtocol);
+                    dtlsControl.setSetup(setup);
                     b = true;
 
                     setDtlsEncryptionOnTransport(
