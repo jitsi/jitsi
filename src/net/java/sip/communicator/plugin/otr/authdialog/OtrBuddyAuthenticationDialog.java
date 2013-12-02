@@ -167,7 +167,7 @@ public class OtrBuddyAuthenticationDialog
                 }
                 else if (authenticationMethod.equals(am[1]))
                 {
-                    String secret = secretQuestionPanel.getSecret();
+                    String secret = sharedSecretPanel.getSecret();
                     String question = null;
 
                     OtrActivator.scOtrEngine.initSmp(contact, question, secret);
