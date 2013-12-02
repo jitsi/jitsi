@@ -8,6 +8,9 @@ package net.java.sip.communicator.plugin.otr;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+
+import javax.imageio.*;
 
 import net.java.otr4j.*;
 import net.java.otr4j.session.*;
@@ -37,6 +40,18 @@ public class OtrMetaContactButton
     private SIPCommButton button;
 
     private Contact contact;
+
+    private AnimatedImage animatedPadlockImage;
+
+    private Image finishedPadlockImage;
+
+    private Image verifiedLockedPadlockImage;
+
+    private Image unverifiedLockedPadlockImage;
+
+    private Image unlockedPadlockImage;
+
+    private Image timedoutPadlockImage;
 
     /**
      * The timer task that changes the padlock icon to "loading" and
@@ -69,6 +84,7 @@ public class OtrMetaContactButton
             setPolicy(
                 OtrActivator.scOtrEngine.getContactPolicy(contact));
     }
+
     public void contactVerificationStatusChanged(Contact contact)
     {
         // OtrMetaContactButton.this.contact can be null.
@@ -117,6 +133,40 @@ public class OtrMetaContactButton
 
             button.setToolTipText(OtrActivator.resourceService.getI18NString(
                 "plugin.otr.menu.OTR_TOOLTIP"));
+
+            Image i1 = null, i2 = null, i3 = null;
+            try
+            {
+                i1 = ImageIO.read(
+                        OtrActivator.resourceService.getImageURL(
+                            "plugin.otr.LOADING_ICON1_22x22"));
+                i2 = ImageIO.read(
+                        OtrActivator.resourceService.getImageURL(
+                            "plugin.otr.LOADING_ICON2_22x22"));
+                i3 = ImageIO.read(
+                        OtrActivator.resourceService.getImageURL(
+                            "plugin.otr.LOADING_ICON3_22x22"));
+                finishedPadlockImage = ImageIO.read(
+                        OtrActivator.resourceService.getImageURL(
+                            "plugin.otr.FINISHED_ICON_22x22"));
+                verifiedLockedPadlockImage = ImageIO.read(
+                        OtrActivator.resourceService.getImageURL(
+                            "plugin.otr.ENCRYPTED_ICON_22x22"));
+                unverifiedLockedPadlockImage = ImageIO.read(
+                        OtrActivator.resourceService.getImageURL(
+                            "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_22x22"));
+                unlockedPadlockImage = ImageIO.read(
+                        OtrActivator.resourceService.getImageURL(
+                            "plugin.otr.PLAINTEXT_ICON_22x22"));
+                timedoutPadlockImage = ImageIO.read(
+                        OtrActivator.resourceService.getImageURL(
+                            "plugin.otr.BROKEN_ICON_22x22"));
+            } catch (IOException e)
+            {
+                logger.debug("Failed to load padlock image");
+            }
+
+            animatedPadlockImage = new AnimatedImage(button, i1, i2, i3);
 
             button.addActionListener(new ActionListener()
             {
@@ -216,34 +266,36 @@ public class OtrMetaContactButton
      */
     private void setStatus(ScSessionStatus status)
     {
-        String urlKey;
+        animatedPadlockImage.pause();
+        Image image;
         String tipKey;
         switch (status)
         {
         case ENCRYPTED:
-            urlKey
+            image
                 = OtrActivator.scOtrKeyManager.isVerified(contact)
-                    ? "plugin.otr.ENCRYPTED_ICON_22x22"
-                    : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_22x22";
+                    ? verifiedLockedPadlockImage
+                    : unverifiedLockedPadlockImage;
             tipKey = 
                 OtrActivator.scOtrKeyManager.isVerified(contact)
                 ? "plugin.otr.menu.VERIFIED"
                 : "plugin.otr.menu.UNVERIFIED";
             break;
         case FINISHED:
-            urlKey = "plugin.otr.FINISHED_ICON_22x22";
+            image = finishedPadlockImage;
             tipKey = "plugin.otr.menu.FINISHED";
             break;
         case PLAINTEXT:
-            urlKey = "plugin.otr.PLAINTEXT_ICON_22x22";
+            image = unlockedPadlockImage;
             tipKey = "plugin.otr.menu.START_OTR";
             break;
         case LOADING:
-            urlKey = "plugin.otr.LOADING_ICON_22x22";
+            image = animatedPadlockImage;
+            animatedPadlockImage.start();
             tipKey = "plugin.otr.menu.LOADING_OTR";
             break;
         case TIMED_OUT:
-            urlKey = "plugin.otr.BROKEN_ICON_22x22";
+            image = timedoutPadlockImage;
             tipKey = "plugin.otr.menu.TIMED_OUT";
             break;
         default:
@@ -251,9 +303,7 @@ public class OtrMetaContactButton
         }
 
         SIPCommButton button = getButton();
-        button.setIconImage(
-            Toolkit.getDefaultToolkit().getImage(
-                OtrActivator.resourceService.getImageURL(urlKey)));
+        button.setIconImage(image);
         button.setToolTipText(OtrActivator.resourceService
             .getI18NString(tipKey));
         button.repaint();
