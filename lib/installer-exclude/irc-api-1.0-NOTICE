@@ -1,0 +1,17 @@
+The IRC-API library is currently a snapshot version from VCS on https://code.google.com/p/irc-api.
+
+Additionally, one modification has been made to prevent joining large IRC channels to result in an occasional threading issue when adding users. The diff for the modification:
+
+diff --git a/src/main/java/com/ircclouds/irc/api/domain/IRCChannel.java b/src/main/java/com/ircclouds/irc/api/domain/IRCChannel.java
+index a97f2ce..8744eb8 100644
+--- a/src/main/java/com/ircclouds/irc/api/domain/IRCChannel.java
++++ b/src/main/java/com/ircclouds/irc/api/domain/IRCChannel.java
+@@ -15,7 +15,7 @@ public class IRCChannel
+ 	private String name;
+ 	private IRCTopic topic;
+ 	
+-	private Map<IRCUser, Set<IRCUserStatus>> users = new LinkedHashMap<IRCUser, Set<IRCUserStatus>>();
++	private Map<IRCUser, Set<IRCUserStatus>> users = Collections.synchronizedMap(new LinkedHashMap<IRCUser, Set<IRCUserStatus>>());
+ 	private List<ChannelMode> chanModes = new ArrayList<ChannelMode>();
+ 	
+ 	public IRCChannel()
