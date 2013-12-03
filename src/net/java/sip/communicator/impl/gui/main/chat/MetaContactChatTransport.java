@@ -11,6 +11,7 @@ import java.net.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -452,14 +453,10 @@ public class MetaContactChatTransport
         if (!allowsSmsMessage())
             return;
 
-        OperationSetSmsMessaging smsOpSet
-            = contact
-                .getProtocolProvider()
-                    .getOperationSet(OperationSetSmsMessaging.class);
-
-        Message smsMessage = smsOpSet.createMessage(messageText);
-
-        smsOpSet.sendSmsMessage(phoneNumber, smsMessage);
+        SMSManager.sendSMS(
+            contact.getProtocolProvider(),
+            phoneNumber,
+            messageText);
     }
 
     /**
@@ -496,13 +493,7 @@ public class MetaContactChatTransport
         if (!allowsSmsMessage())
             return;
 
-        OperationSetSmsMessaging smsOpSet
-            = contact.getProtocolProvider()
-                .getOperationSet(OperationSetSmsMessaging.class);
-
-        Message smsMessage = smsOpSet.createMessage(message);
-
-        smsOpSet.sendSmsMessage(contact, smsMessage);
+        SMSManager.sendSMS(contact, message);
     }
 
     /**

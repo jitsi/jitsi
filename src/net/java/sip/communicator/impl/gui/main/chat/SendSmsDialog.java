@@ -8,13 +8,12 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -124,48 +123,7 @@ public class SendSmsDialog
             chatTransport.getParentChatSession()
                 .setDefaultSmsNumber(phoneNumber);
 
-        try
-        {
-            if(phoneNumber != null)
-                chatTransport.sendSmsMessage(phoneNumber, message);
-            else
-                chatTransport.sendSmsMessage(message);
-        }
-        catch (IllegalStateException ex)
-        {
-            logger.error("Failed to send SMS.", ex);
-
-            chatPanel.addMessage(
-                phoneNumber,
-                new Date(),
-                Chat.OUTGOING_MESSAGE,
-                message,
-                "text/plain");
-
-            chatPanel.addErrorMessage(
-                phoneNumber,
-                GuiActivator.getResources()
-                    .getI18NString("service.gui.SMS_SEND_CONNECTION_PROBLEM"));
-        }
-        catch (Exception ex)
-        {
-            logger.error("Failed to send SMS.", ex);
-
-            chatPanel.addMessage(
-                phoneNumber,
-                new Date(),
-                Chat.OUTGOING_MESSAGE,
-                message,
-                "text/plain");
-
-            chatPanel.addErrorMessage(
-                phoneNumber,
-                GuiActivator.getResources()
-                    .getI18NString("service.gui.MSG_DELIVERY_ERROR",
-                    new String[]{ex.getMessage()}));
-        }
-
-        chatPanel.refreshWriteArea();
+        SMSManager.sendSMS(phoneNumber, message, chatTransport, chatPanel);
 
         this.dispose();
     }

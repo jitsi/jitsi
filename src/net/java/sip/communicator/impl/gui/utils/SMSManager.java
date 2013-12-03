@@ -8,8 +8,10 @@ package net.java.sip.communicator.impl.gui.utils;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
+import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.account.*;
@@ -36,7 +38,20 @@ public class SMSManager
      * to show popup for choosing provider.
      * @param to the destination number
      */
-    public static void sendSMS(JComponent invoker, final String to)
+    public static void sendSMS(
+        JComponent invoker, String to)
+    {
+        sendSMSInternal(invoker, to, null, null);
+    }
+
+    /**
+     * Sends sms, chooses provider and sends the sms.
+     * @param invoker the component invoker, used to get correct location
+     * to show popup for choosing provider.
+     * @param to the destination number
+     */
+    private static void sendSMSInternal(
+        JComponent invoker, String to, String messageText, ChatPanel chatPanel)
     {
         List<ProtocolProviderService> providers =
             AccountUtils
@@ -45,35 +60,27 @@ public class SMSManager
         if(providers.size() == 1)
         {
             //send
-            sendSms(providers.get(0), to);
+            if(messageText != null)
+            {
+                sendSMSInternal(
+                    to,
+                    messageText,
+                    providers.get(0),
+                    null,
+                    chatPanel);
+            }
+            else
+                sendSMSInternal(providers.get(0), to);
         }
         else if(providers.size() > 1)
         {
-            ChooseCallAccountPopupMenu chooseAccountDialog
-                = new ChooseCallAccountPopupMenu(
+            ChooseSMSAccountPopupMenu chooseAccountDialog
+                = new ChooseSMSAccountPopupMenu(
                         invoker,
                         to,
-                        providers)
-            {
-                @Override
-                protected void itemSelected(
-                    Class<? extends OperationSet> opSetClass,
-                    ProtocolProviderService protocolProviderService,
-                    String contact,
-                    UIContactImpl uiContact)
-                {
-                    sendSms(protocolProviderService, to);
-                }
-
-                @Override
-                protected void itemSelected(
-                    Class<? extends OperationSet> opSetClass,
-                    ProtocolProviderService protocolProviderService,
-                    String contact)
-                {
-                    sendSms(protocolProviderService, to);
-                }
-            };
+                        providers,
+                        messageText,
+                        chatPanel);
 
             chooseAccountDialog.setLocation(invoker.getLocation());
             chooseAccountDialog.showPopupMenu();
@@ -81,11 +88,50 @@ public class SMSManager
     }
 
     /**
+     * Sends sms message.
+     * @param protocolProviderService
+     * @param to the receive number
+     * @param messageText the text
+     */
+    public static void sendSMS(
+            ProtocolProviderService protocolProviderService,
+            String to,
+            String messageText)
+        throws Exception
+    {
+        OperationSetSmsMessaging smsOpSet
+            = protocolProviderService
+                .getOperationSet(OperationSetSmsMessaging.class);
+
+        Message smsMessage = smsOpSet.createMessage(messageText);
+
+        smsOpSet.sendSmsMessage(to, smsMessage);
+    }
+
+    /**
+     * Sends sms message.
+     * @param contact the contact to send sms to
+     * @param messageText the text.
+     */
+    public static void sendSMS(
+            Contact contact,
+            String messageText)
+        throws Exception
+    {
+        OperationSetSmsMessaging smsOpSet = contact.getProtocolProvider()
+            .getOperationSet(OperationSetSmsMessaging.class);
+
+        Message smsMessage = smsOpSet.createMessage(messageText);
+
+        smsOpSet.sendSmsMessage(contact, smsMessage);
+    }
+
+    /**
      * Sends sms.
      * @param protocolProviderService
      * @param to
      */
-    private static void sendSms(
+    private static void sendSMSInternal(
         ProtocolProviderService protocolProviderService,
         String to)
     {
@@ -105,5 +151,251 @@ public class SMSManager
 
         GuiActivator.getUIService().getChatWindowManager()
             .startChat(metaContact, contact, true);
+    }
+
+    /**
+     * Sends sms, chooses phone and chooses provider and sends the sms.
+     * @param invoker the component invoker, used to get correct location
+     * to show popup for choosing provider.
+     * @param additionalNumbers the destination numbers to choose from
+     */
+    public static void sendSMS(final JComponent invoker,
+                               List<UIContactDetail> additionalNumbers,
+                               String messageText,
+                               ChatPanel chatPanel)
+    {
+        if(additionalNumbers.size() == 1)
+        {
+            sendSMSInternal(invoker, additionalNumbers.get(0).getAddress(),
+                messageText, chatPanel);
+        }
+        else
+        {
+            ChooseSMSAccountPopupMenu chooseAccountDialog
+                = new ChooseSMSAccountPopupMenu(
+                        invoker,
+                        additionalNumbers,
+                        OperationSetSmsMessaging.class,
+                        messageText,
+                        chatPanel);
+
+            chooseAccountDialog.setLocation(invoker.getLocation());
+            chooseAccountDialog.showPopupMenu();
+        }
+    }
+
+    /**
+     * Sends sms message using chatTransport otherwise.
+     * @param phoneNumber
+     * @param message
+     * @param chatTransport the transport to use if protocol provider missing
+     * @param chatPanel the panel where the message is sent, will be used for
+     * success or fail messages
+     */
+    public static void sendSMS(
+        String phoneNumber,
+        String message,
+        ChatTransport chatTransport,
+        ChatPanel chatPanel)
+    {
+        sendSMSInternal(phoneNumber, message, null, chatTransport, chatPanel);
+    }
+
+    /**
+     * Sends sms message using protocolProviderService if it is not null,
+     * or using chatTransport otherwise.
+     * @param phoneNumber
+     * @param message
+     * @param protocolProviderService the protocol provider service to use,
+     * if not null.
+     * @param chatTransport the transport to use if protocol provider missing
+     * @param chatPanel the panel where the message is sent, will be used for
+     * success or fail messages
+     */
+    private static void sendSMSInternal(
+        String phoneNumber,
+        String message,
+        ProtocolProviderService protocolProviderService,
+        ChatTransport chatTransport,
+        ChatPanel chatPanel)
+    {
+        try
+        {
+            if(protocolProviderService != null)
+            {
+                sendSMS(protocolProviderService, phoneNumber, message);
+            }
+            else
+            {
+                if(phoneNumber != null)
+                    chatTransport.sendSmsMessage(phoneNumber, message);
+                else
+                    chatTransport.sendSmsMessage(message);
+            }
+        }
+        catch (IllegalStateException ex)
+        {
+            logger.error("Failed to send SMS.", ex);
+
+            chatPanel.addMessage(
+                phoneNumber,
+                new Date(),
+                Chat.OUTGOING_MESSAGE,
+                message,
+                "text/plain");
+
+            chatPanel.addErrorMessage(
+                phoneNumber,
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.SMS_SEND_CONNECTION_PROBLEM"));
+        }
+        catch (Exception ex)
+        {
+            logger.error("Failed to send SMS.", ex);
+
+            chatPanel.addMessage(
+                phoneNumber,
+                new Date(),
+                Chat.OUTGOING_MESSAGE,
+                message,
+                "text/plain");
+
+            chatPanel.addErrorMessage(
+                phoneNumber,
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.MSG_DELIVERY_ERROR",
+                        new String[]{ex.getMessage()}));
+        }
+
+        chatPanel.refreshWriteArea();
+    }
+
+    /**
+     * Extends ChooseCallAccountPopupMenu to use it for sms functionality.
+     */
+    private static class ChooseSMSAccountPopupMenu
+        extends ChooseCallAccountPopupMenu
+    {
+        private String messageText = null;
+        private ChatPanel chatPanel = null;
+
+        /**
+         * Creates popup menu.
+         * @param invoker
+         * @param contactToCall
+         * @param telephonyProviders
+         */
+        public ChooseSMSAccountPopupMenu(
+            JComponent invoker,
+            final String contactToCall,
+            List<ProtocolProviderService> telephonyProviders,
+            String messageText,
+            ChatPanel chatPanel)
+        {
+            super(invoker, contactToCall, telephonyProviders,
+                OperationSetBasicTelephony.class);
+
+            this.messageText = messageText;
+            this.chatPanel = chatPanel;
+        }
+
+        /**
+         * Creates popup menu.
+         * @param invoker
+         * @param telephonyObjects
+         * @param opSetClass
+         */
+        public ChooseSMSAccountPopupMenu(
+            JComponent invoker,
+            List<?> telephonyObjects,
+            Class<? extends OperationSet> opSetClass,
+            String messageText,
+            ChatPanel chatPanel)
+        {
+            super(invoker, telephonyObjects, opSetClass);
+
+            this.messageText = messageText;
+            this.chatPanel = chatPanel;
+        }
+
+        /**
+         * Sends sms when number is selected and several providers are
+         * available.
+         * @param opSetClass the operation set to use.
+         * @param providers list of available protocol providers
+         * @param contact the contact address selected
+         */
+        @Override
+        protected void itemSelected(
+            Class<? extends OperationSet> opSetClass,
+            List<ProtocolProviderService> providers,
+            String contact)
+        {
+            SMSManager.sendSMSInternal(invoker, contact, messageText, chatPanel);
+        }
+
+        /**
+         * Sends sms when we have a number and provider.
+         * @param opSetClass the operation set to use.
+         * @param protocolProviderService the protocol provider
+         * @param contact the contact address
+         * @param uiContact the <tt>MetaContact</tt> selected
+         */
+        @Override
+        protected void itemSelected(
+            Class<? extends OperationSet> opSetClass,
+            ProtocolProviderService protocolProviderService,
+            String contact,
+            UIContactImpl uiContact)
+        {
+            if(messageText != null)
+            {
+                sendSMSInternal(
+                    contact,
+                    messageText,
+                    protocolProviderService,
+                    null,
+                    chatPanel);
+            }
+            else
+                sendSMSInternal(protocolProviderService, contact);
+        }
+
+        /**
+         * Sends sms when we have a number and provider.
+         * @param opSetClass the operation set to use.
+         * @param protocolProviderService the protocol provider
+         * @param contact the contact address selected
+         */
+        @Override
+        protected void itemSelected(
+            Class<? extends OperationSet> opSetClass,
+            ProtocolProviderService protocolProviderService,
+            String contact)
+        {
+            if(messageText != null)
+            {
+                sendSMSInternal(
+                    contact,
+                    messageText,
+                    protocolProviderService,
+                    null,
+                    chatPanel);
+            }
+            else
+                sendSMSInternal(protocolProviderService, contact);
+        }
+
+        @Override
+        protected String getI18NKeyChooseContact()
+        {
+            return "service.gui.CHOOSE_NUMBER";
+        }
+
+        @Override
+        protected String getI18NKeyCallVia()
+        {
+            return "service.gui.SEND_VIA";
+        }
     }
 }

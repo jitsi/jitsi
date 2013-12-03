@@ -20,11 +20,13 @@ import javax.swing.plaf.basic.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.filetransfer.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.filehistory.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
@@ -1664,6 +1666,26 @@ public class ChatPanel
 
         if(smsChatTransport.askForSMSNumber())
         {
+            Object desc =
+                smsChatTransport.getParentChatSession().getDescriptor();
+            // descriptor will be metacontact
+            if(desc instanceof MetaContact)
+            {
+                UIPhoneUtil contactPhoneUtil =
+                    UIPhoneUtil.getPhoneUtil((MetaContact) desc);
+
+                List<UIContactDetail> uiContactDetailList =
+                    contactPhoneUtil.getAdditionalNumbers();
+
+                if(uiContactDetailList.size() != 0)
+                {
+                    SMSManager.sendSMS(
+                        this, uiContactDetailList, messageText, this);
+
+                    return;
+                }
+            }
+
             smsDialog.setPreferredSize(new Dimension(400, 200));
             smsDialog.setVisible(true);
         }
