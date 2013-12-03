@@ -7,6 +7,7 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+import javax.imageio.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
@@ -105,12 +106,18 @@ public class ShowPreviewDialog
     {
         this.chatPanel = chatPanel;
 
+        this.setTitle(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.SHOW_PREVIEW_DIALOG_TITLE"));
         okButton = new JButton(
             GuiActivator.getResources().getI18NString("service.gui.OK"));
         cancelButton = new JButton(
             GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
-        JPanel mainPanel = new TransparentPanel(new BorderLayout());
+        JPanel mainPanel = new TransparentPanel();
+        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        //mainPanel.setPreferredSize(new Dimension(200, 150));
         this.getContentPane().add(mainPanel);
 
         JTextPane descriptionMsg = new JTextPane();
@@ -119,6 +126,26 @@ public class ShowPreviewDialog
         descriptionMsg.setText(
             GuiActivator.getResources().getI18NString(
                 "service.gui.SHOW_PREVIEW_WARNING_DESCRIPTION"));
+
+        Icon warningIcon = null;
+        try
+        {
+            warningIcon =
+                new ImageIcon(
+                    ImageIO.read(GuiActivator.getResources().getImageURL(
+                        "service.gui.icons.WARNING_ICON")));
+        }
+        catch (IOException e)
+        {
+            logger.debug("failed to load the warning icon");
+        }
+        JLabel warningSign = new JLabel(warningIcon);
+
+        JPanel warningPanel = new TransparentPanel();
+        warningPanel.setLayout(new BoxLayout(warningPanel, BoxLayout.X_AXIS));
+        warningPanel.add(warningSign);
+        warningPanel.add(Box.createHorizontalStrut(10));
+        warningPanel.add(descriptionMsg);
 
         enableReplacement
             = new JCheckBox(
@@ -133,7 +160,8 @@ public class ShowPreviewDialog
                     "plugin.chatconfig.replacement.ENABLE_REPLACEMENT_PROPOSAL"));
         enableReplacementProposal.setOpaque(false);
 
-        JPanel checkBoxPanel = new TransparentPanel(new GridLayout(0, 1));
+        JPanel checkBoxPanel = new TransparentPanel();
+        checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.Y_AXIS));
         checkBoxPanel.add(enableReplacement);
         checkBoxPanel.add(enableReplacementProposal);
 
@@ -142,16 +170,15 @@ public class ShowPreviewDialog
         buttonsPanel.add(okButton);
         buttonsPanel.add(cancelButton);
 
-        JPanel panel = new TransparentPanel(new GridLayout(0, 1));
-        panel.add(descriptionMsg);
-        panel.add(checkBoxPanel);
-        mainPanel.add(panel, BorderLayout.NORTH);
-        mainPanel.add(buttonsPanel, BorderLayout.CENTER);
+        mainPanel.add(warningPanel);
+        mainPanel.add(Box.createVerticalStrut(10));
+        mainPanel.add(checkBoxPanel);
+        mainPanel.add(buttonsPanel);
 
         okButton.addActionListener(this);
         cancelButton.addActionListener(this);
 
-        this.setPreferredSize(new Dimension(350, 200));
+        this.setPreferredSize(new Dimension(390, 230));
     }
 
     @Override
