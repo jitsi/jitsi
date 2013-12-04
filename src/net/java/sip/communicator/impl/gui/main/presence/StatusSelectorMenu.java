@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.presence;
 
 import java.awt.*;
 import java.awt.image.*;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -28,6 +29,7 @@ import net.java.sip.communicator.util.skin.*;
 public abstract class StatusSelectorMenu
     extends SIPCommMenu
     implements  ImageObserver,
+                StatusEntry,
                 Skinnable
 {
     /**
@@ -44,6 +46,21 @@ public abstract class StatusSelectorMenu
      * The <tt>ProtocolProviderService</tt> associated with this status menu.
      */
     protected ProtocolProviderService protocolProvider;
+
+    /**
+     * The offline status if presence is supported, <tt>null</tt> otherwise.
+     */
+    private PresenceStatus offlineStatus;
+
+    /**
+     * The online status if presence is supported, <tt>null</tt> otherwise.
+     */
+    private PresenceStatus onlineStatus;
+
+    /**
+     * The presence if supported, <tt>null</tt> otherwise.
+     */
+    protected OperationSetPresence presence;
 
     /**
      * Creates a <tt>StatusSelectorMenu</tt>.
@@ -69,13 +86,35 @@ public abstract class StatusSelectorMenu
 
         this.protocolProvider = protocolProvider;
 
+        this.presence
+            = protocolProvider.getOperationSet(OperationSetPresence.class);
+
+        // presence can be not supported
+        if(this.presence != null)
+        {
+            Iterator<PresenceStatus> statusIterator
+                = this.presence.getSupportedStatusSet();
+            while (statusIterator.hasNext())
+            {
+                PresenceStatus status = statusIterator.next();
+                int connectivity = status.getStatus();
+
+                if (connectivity < 1)
+                {
+                    this.offlineStatus = status;
+                }
+                else if ((onlineStatus != null
+                    && (onlineStatus.getStatus() < connectivity))
+                    || (onlineStatus == null
+                    && (connectivity > 50 && connectivity < 80)))
+                {
+                    this.onlineStatus = status;
+                }
+            }
+        }
+
         loadSkin();
     }
-
-    /**
-     * Updates the current status.
-     */
-    public void updateStatus(){}
 
     /**
      * Returns the account index (In case of more than one account for one and
@@ -164,6 +203,26 @@ public abstract class StatusSelectorMenu
     }
 
     /**
+     * Returns the Offline status in this selector box.
+     *
+     * @return the Offline status in this selector box
+     */
+    public PresenceStatus getOfflineStatus()
+    {
+        return offlineStatus;
+    }
+
+    /**
+     * Returns the Online status in this selector box.
+     *
+     * @return the Online status in this selector box
+     */
+    public PresenceStatus getOnlineStatus()
+    {
+        return onlineStatus;
+    }
+
+    /**
      * Load connecting icon.
      */
     public void loadSkin()
@@ -180,5 +239,16 @@ public abstract class StatusSelectorMenu
     {
         protocolProvider = null;
         connectingIcon = null;
+        offlineStatus = null;
+        onlineStatus = null;
+    }
+
+    /**
+     * The component of this entry.
+     * @return the component used to add to global status
+     */
+    public JMenuItem getEntryComponent()
+    {
+        return this;
     }
 }

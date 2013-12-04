@@ -44,14 +44,6 @@ public class PresenceStatusMenu
 
     private final Logger logger = Logger.getLogger(PresenceStatusMenu.class);
 
-    private Iterator<PresenceStatus> statusIterator;
-
-    private PresenceStatus offlineStatus;
-
-    private PresenceStatus onlineStatus;
-
-    private OperationSetPresence presence;
-
     /**
      * The area will display the account display name and its status message
      * if any.
@@ -85,7 +77,8 @@ public class PresenceStatusMenu
         this.presence
                 = protocolProvider.getOperationSet(OperationSetPresence.class);
 
-        this.statusIterator = this.presence.getSupportedStatusSet();
+        Iterator<PresenceStatus> statusIterator
+            = this.presence.getSupportedStatusSet();
 
         String tooltip =
             "<html><b>" + protocolProvider.getAccountID().getDisplayName()
@@ -113,19 +106,6 @@ public class PresenceStatusMenu
         while (statusIterator.hasNext())
         {
             PresenceStatus status = statusIterator.next();
-            int connectivity = status.getStatus();
-
-            if (connectivity < 1)
-            {
-                this.offlineStatus = status;
-            }
-            else if ((onlineStatus != null
-                    && (onlineStatus.getStatus() < connectivity))
-                || (onlineStatus == null
-                    && (connectivity > 50 && connectivity < 80)))
-            {
-                this.onlineStatus = status;
-            }
 
             this.addItem(
                     status.getStatusName(),
@@ -137,8 +117,8 @@ public class PresenceStatusMenu
 
         this.add((JMenu)statusMessageMenu.getMenu());
 
-        this.setSelectedStatus(offlineStatus);
-        updateStatus(offlineStatus);
+        this.setSelectedStatus(getOfflineStatus());
+        updateStatus(getOfflineStatus());
     }
 
     /**
@@ -278,26 +258,6 @@ public class PresenceStatusMenu
         tooltip = tooltip.substring(0, tooltip.lastIndexOf("<br>"));
 
         this.setToolTipText(tooltip.concat("<br>" + status.getStatusName()));
-    }
-
-    /**
-     * Returns the Offline status in this selector box.
-     *
-     * @return the Offline status in this selector box
-     */
-    public PresenceStatus getOfflineStatus()
-    {
-        return offlineStatus;
-    }
-
-    /**
-     * Returns the Online status in this selector box.
-     *
-     * @return the Online status in this selector box
-     */
-    public PresenceStatus getOnlineStatus()
-    {
-        return onlineStatus;
     }
 
     /**

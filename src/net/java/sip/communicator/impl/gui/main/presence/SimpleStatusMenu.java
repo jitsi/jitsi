@@ -92,7 +92,7 @@ public class SimpleStatusMenu
          * Make sure it correctly depicts the status and don't just rely on it
          * being automatically updated.
          */
-        updateStatus();
+        updateStatus(null);
     }
 
     private JCheckBoxMenuItem createMenuItem(
@@ -134,9 +134,11 @@ public class SimpleStatusMenu
 
     /**
      * Stops the timer that manages the connecting animated icon.
+     * @param presenceStatus as we do not support presence this param
+     * will be null.
      */
     @Override
-    public void updateStatus()
+    public void updateStatus(PresenceStatus presenceStatus)
     {
         String tooltip = this.getToolTipText();
 

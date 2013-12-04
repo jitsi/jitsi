@@ -169,6 +169,9 @@ public class StatusSubMenu
      */
     private void addAccount(ProtocolProviderService protocolProvider)
     {
+        if(protocolProvider.getAccountID().isStatusMenuHidden())
+            return;
+
         OperationSetPresence presence
             = protocolProvider.getOperationSet(OperationSetPresence.class);
 
@@ -219,6 +222,11 @@ public class StatusSubMenu
     {
         Object selector =
             this.accountSelectors.get(protocolProvider.getAccountID());
+
+        // no such provider added
+        if(selector == null)
+            return;
+
         Object selectorMenu;
         if (selector instanceof StatusSimpleSelector)
             selectorMenu = ((StatusSimpleSelector) selector).getMenu();

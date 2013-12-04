@@ -700,7 +700,7 @@ public abstract class AccountID
     /**
      * Checks if the account is hidden.
      * @return <tt>true</tt> if this account is hidden or <tt>false</tt>
-     *         otherwise.
+     * otherwise.
      */
     public boolean isHidden()
     {
@@ -711,12 +711,23 @@ public abstract class AccountID
     /**
      * Checks if the account config is hidden.
      * @return <tt>true</tt> if the account config is hidden or <tt>false</tt>
-     *         otherwise.
+     * otherwise.
      */
     public boolean isConfigHidden()
     {
         return getAccountPropertyString(
                 ProtocolProviderFactory.IS_ACCOUNT_CONFIG_HIDDEN) != null;
+    }
+
+    /**
+     * Checks if the account status menu is hidden.
+     * @return <tt>true</tt> if the account status menu is hidden or
+     * <tt>false</tt> otherwise.
+     */
+    public boolean isStatusMenuHidden()
+    {
+        return getAccountPropertyString(
+            ProtocolProviderFactory.IS_ACCOUNT_STATUS_MENU_HIDDEN) != null;
     }
 
     /**

@@ -315,6 +315,13 @@ public abstract class ProtocolProviderFactory
 
     /**
      * The name of the property that would indicate if a given account
+     * status menu is currently hidden.
+     */
+    public static final String IS_ACCOUNT_STATUS_MENU_HIDDEN =
+        "IS_STATUS_MENU_HIDDEN";
+
+    /**
+     * The name of the property that would indicate if a given account
      * configuration is read only.
      */
     public static final String IS_ACCOUNT_READ_ONLY = "IS_READ_ONLY";

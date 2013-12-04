@@ -159,18 +159,28 @@ public class GlobalStatusSelectorBox
         OperationSetPersistentPresence presenceOpSet
             = (OperationSetPersistentPresence)
                 protocolProvider.getOperationSet(OperationSetPresence.class);
-        StatusSelectorMenu statusSelectorMenu
-            = (presenceOpSet != null)
+
+        JMenuItem itemToAdd;
+
+        if(protocolProvider.getAccountID().isStatusMenuHidden())
+        {
+            itemToAdd = new ReadonlyStatusItem(protocolProvider);
+        }
+        else
+        {
+            itemToAdd = (presenceOpSet != null)
                 ? new PresenceStatusMenu(protocolProvider)
                 : new SimpleStatusMenu(protocolProvider);
 
+        }
+
         if(ConfigurationUtils.isHideAccountStatusSelectorsEnabled())
-            statusSelectorMenu.setVisible(false);
+            itemToAdd.setVisible(false);
 
         // If this is the first account in our menu.
         if (isFirstAccount)
         {
-            add(statusSelectorMenu);
+            add(itemToAdd);
             isFirstAccount = false;
             return;
         }
@@ -180,11 +190,12 @@ public class GlobalStatusSelectorBox
         // If we already have other accounts.
         for (Component c : getPopupMenu().getComponents())
         {
-            if (!(c instanceof StatusSelectorMenu))
+            if (!(c instanceof StatusEntry))
                 continue;
 
-            StatusSelectorMenu menu = (StatusSelectorMenu) c;
-            int menuIndex = getPopupMenu().getComponentIndex(menu);
+            StatusEntry menu = (StatusEntry) c;
+            int menuIndex = getPopupMenu().getComponentIndex(
+                    menu.getEntryComponent());
 
             AccountID menuAccountID = menu.getProtocolProvider().getAccountID();
 
@@ -195,7 +206,7 @@ public class GlobalStatusSelectorBox
             // we insert the new account before the given menu.
             if (protocolCompare < 0)
             {
-                insert(statusSelectorMenu, menuIndex);
+                insert(itemToAdd, menuIndex);
                 isMenuAdded = true;
                 break;
             }
@@ -205,7 +216,7 @@ public class GlobalStatusSelectorBox
                 if (accountId.getDisplayName()
                         .compareTo(menuAccountID.getDisplayName()) < 0)
                 {
-                    insert( statusSelectorMenu, menuIndex);
+                    insert( itemToAdd, menuIndex);
                     isMenuAdded = true;
                     break;
                 }
@@ -213,7 +224,7 @@ public class GlobalStatusSelectorBox
         }
 
         if (!isMenuAdded)
-            add(statusSelectorMenu);
+            add(itemToAdd);
     }
 
     /**
@@ -224,12 +235,12 @@ public class GlobalStatusSelectorBox
      */
     public void removeAccount(ProtocolProviderService protocolProvider)
     {
-        StatusSelectorMenu menu = getStatusSelectorMenu(protocolProvider);
+        StatusEntry menu = getStatusEntry(protocolProvider);
 
         if (menu != null)
         {
             menu.dispose();
-            remove(menu);
+            remove(menu.getEntryComponent());
         }
     }
 
@@ -242,12 +253,7 @@ public class GlobalStatusSelectorBox
      */
     public boolean containsAccount(ProtocolProviderService protocolProvider)
     {
-        StatusSelectorMenu menu = getStatusSelectorMenu(protocolProvider);
-
-        if (menu != null)
-            return true;
-
-        return false;
+        return getStatusEntry(protocolProvider) != null;
     }
 
     /**
@@ -257,7 +263,7 @@ public class GlobalStatusSelectorBox
      */
     public void startConnecting(ProtocolProviderService protocolProvider)
     {
-        StatusSelectorMenu menu = getStatusSelectorMenu(protocolProvider);
+        StatusEntry menu = getStatusEntry(protocolProvider);
 
         if (menu != null)
             menu.startConnecting();
@@ -270,7 +276,7 @@ public class GlobalStatusSelectorBox
      */
     public void stopConnecting(ProtocolProviderService protocolProvider)
     {
-        StatusSelectorMenu menu = getStatusSelectorMenu(protocolProvider);
+        StatusEntry menu = getStatusEntry(protocolProvider);
 
         if (menu != null)
             menu.stopConnecting();
@@ -286,10 +292,10 @@ public class GlobalStatusSelectorBox
     {
         for (Component c : getComponents())
         {
-            if (!(c instanceof StatusSelectorMenu))
+            if (!(c instanceof StatusEntry))
                 continue;
 
-            StatusSelectorMenu menu = (StatusSelectorMenu) c;
+            StatusEntry menu = (StatusEntry) c;
 
             if (menu.isSelected())
                 return true;
@@ -319,33 +325,24 @@ public class GlobalStatusSelectorBox
      */
     public void updateStatus(ProtocolProviderService protocolProvider)
     {
-        StatusSelectorMenu accountMenu = getStatusSelectorMenu(protocolProvider);
+        StatusEntry accountMenu = getStatusEntry(protocolProvider);
 
         if (accountMenu == null)
             return;
 
-        if (accountMenu instanceof PresenceStatusMenu)
-        {
-            PresenceStatusMenu presenceStatusMenu
-                = (PresenceStatusMenu) accountMenu;
             PresenceStatus presenceStatus;
 
             if (!protocolProvider.isRegistered())
-                presenceStatus = presenceStatusMenu.getOfflineStatus();
+                presenceStatus = accountMenu.getOfflineStatus();
             else
             {
                 presenceStatus
                     = AccountStatusUtils.getLastPresenceStatus(protocolProvider);
                 if (presenceStatus == null)
-                    presenceStatus = presenceStatusMenu.getOnlineStatus();
+                    presenceStatus = accountMenu.getOnlineStatus();
             }
 
-            presenceStatusMenu.updateStatus(presenceStatus);
-        }
-        else
-        {
-            ((SimpleStatusMenu) accountMenu).updateStatus();
-        }
+        accountMenu.updateStatus(presenceStatus);
 
         accountMenu.repaint();
 
@@ -362,13 +359,12 @@ public class GlobalStatusSelectorBox
     public void updateStatus(ProtocolProviderService protocolProvider,
                              PresenceStatus presenceStatus)
     {
-        StatusSelectorMenu accountMenu = getStatusSelectorMenu(protocolProvider);
+        StatusEntry accountMenu = getStatusEntry(protocolProvider);
 
         if (accountMenu == null)
             return;
 
-        if (accountMenu instanceof PresenceStatusMenu)
-            ((PresenceStatusMenu) accountMenu).updateStatus(presenceStatus);
+        accountMenu.updateStatus(presenceStatus);
 
         this.updateGlobalStatus();
     }
@@ -501,22 +497,21 @@ public class GlobalStatusSelectorBox
     }
 
     /**
-     * Returns the <tt>StatusSelectorMenu</tt> corresponding to the given
+     * Returns the <tt>StatusEntry</tt> corresponding to the given
      * <tt>protocolProvider</tt>.
      * @param protocolProvider the <tt>ProtocolProviderService</tt>, which
      * corresponding menu we're looking for
-     * @return the <tt>StatusSelectorMenu</tt> corresponding to the given
+     * @return the <tt>StatusEntry</tt> corresponding to the given
      * <tt>protocolProvider</tt>
      */
-    private StatusSelectorMenu getStatusSelectorMenu(
-                                    ProtocolProviderService protocolProvider)
+    private StatusEntry getStatusEntry(ProtocolProviderService protocolProvider)
     {
         for (Component c : getPopupMenu().getComponents())
         {
-            if (!(c instanceof StatusSelectorMenu))
+            if (!(c instanceof StatusEntry))
                 continue;
 
-            StatusSelectorMenu menu = (StatusSelectorMenu) c;
+            StatusEntry menu = (StatusEntry) c;
 
             if (menu.getProtocolProvider() != null
                 && menu.getProtocolProvider().equals(protocolProvider))
@@ -551,4 +546,12 @@ public class GlobalStatusSelectorBox
     {
         return uiClassID;
     }
+
+    /**
+     * Not used.
+     * @param presenceStatus the <tt>PresenceStatus</tt> to be selected in this
+     */
+    @Override
+    public void updateStatus(PresenceStatus presenceStatus)
+    {}
 }
