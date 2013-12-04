@@ -1419,7 +1419,7 @@ public class CallManager
             {
                 // if it is source contact (history record)
                 // search for cusax contact match
-                Contact contact = getPeerCusaxContact(peer.getAddress(),
+                Contact contact = getPeerCusaxContact(peer,
                     (SourceContact)uiContact.getDescriptor());
                 if(contact != null)
                     displayName = contact.getDisplayName();
@@ -1524,7 +1524,7 @@ public class CallManager
                 {
                     // if it is source contact (history record)
                     // search for cusax contact match
-                    Contact contact = getPeerCusaxContact(peer.getAddress(),
+                    Contact contact = getPeerCusaxContact(peer,
                         (SourceContact)uiContact.getDescriptor());
 
                     if(contact != null)
@@ -1615,7 +1615,7 @@ public class CallManager
             {
                 // if it is source contact (history record)
                 // search for cusax contact match
-                Contact contact = getPeerCusaxContact(peer.getAddress(),
+                Contact contact = getPeerCusaxContact(peer,
                             (SourceContact)uiContact.getDescriptor());
                 if(contact != null
                     && contact.getProtocolProvider().getOperationSet(
@@ -1665,12 +1665,12 @@ public class CallManager
      * Find is there a linked cusax protocol provider for this source contact,
      * if it exist we try to resolve current peer to one of its contacts
      * or details of a contact (numbers).
-     * @param peerAddress the address of the peer to check
+     * @param peer the peer to check
      * @param sourceContact the currently selected source contact.
      * @return matching cusax contact.
      */
     private static Contact getPeerCusaxContact(
-        String peerAddress, SourceContact sourceContact)
+        CallPeer peer, SourceContact sourceContact)
     {
         ProtocolProviderService linkedCusaxProvider = null;
         for(ContactDetail detail : sourceContact.getContactDetails())
@@ -1693,6 +1693,22 @@ public class CallManager
             }
         }
 
+        // if we do not have preferred protocol, lets check the one
+        // used to dial the peer
+        if(linkedCusaxProvider == null)
+        {
+            ProtocolProviderService pps = peer.getProtocolProvider();
+
+            OperationSetCusaxUtils cusaxOpSet =
+                pps.getOperationSet(OperationSetCusaxUtils.class);
+
+            if(cusaxOpSet != null)
+            {
+                linkedCusaxProvider
+                    = cusaxOpSet.getLinkedCusaxProvider();
+            }
+        }
+
         if(linkedCusaxProvider != null)
         {
             OperationSetPersistentPresence opSetPersistentPresence
@@ -1701,6 +1717,8 @@ public class CallManager
 
             if(opSetPersistentPresence != null)
             {
+                String peerAddress = peer.getAddress();
+
                 // will strip the @server-address part, as the regular expression
                 // will match it
                 int index = peerAddress.indexOf("@");
@@ -1854,7 +1872,7 @@ public class CallManager
             else if(uiContact.getDescriptor() instanceof SourceContact)
             {
                 // if it is a source contact check for matching cusax contact
-                Contact contact = getPeerCusaxContact(peer.getAddress(),
+                Contact contact = getPeerCusaxContact(peer,
                     (SourceContact)uiContact.getDescriptor());
                 if(contact != null)
                     return GuiActivator.getContactListService()
