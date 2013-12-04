@@ -241,6 +241,10 @@ public class InfoRetreiver
             if(tmp != null)
                 result.add(new MobilePhoneDetail(tmp));
 
+            tmp = card.getPhoneHome("TEXT");
+            if(tmp != null)
+                result.add(new MobilePhoneDetail(tmp));
+
             tmp = card.getEmailHome();
             if(tmp != null)
                 result.add(new EmailAddressDetail(tmp));
@@ -292,6 +296,9 @@ public class InfoRetreiver
             if(tmp != null)
                 result.add(new WorkMobilePhoneDetail(tmp));
 
+            tmp = card.getPhoneWork("TEXT");
+            if(tmp != null)
+                result.add(new WorkMobilePhoneDetail(tmp));
 
             tmp = card.getEmailWork();
             if(tmp != null)

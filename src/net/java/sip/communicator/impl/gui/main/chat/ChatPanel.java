@@ -1675,7 +1675,7 @@ public class ChatPanel
                     UIPhoneUtil.getPhoneUtil((MetaContact) desc);
 
                 List<UIContactDetail> uiContactDetailList =
-                    contactPhoneUtil.getAdditionalNumbers();
+                    contactPhoneUtil.getAdditionalMobileNumbers();
 
                 if(uiContactDetailList.size() != 0)
                 {

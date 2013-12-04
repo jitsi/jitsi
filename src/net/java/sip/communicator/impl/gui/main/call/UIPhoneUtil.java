@@ -53,7 +53,27 @@ public class UIPhoneUtil
      *
      * @return additional phone numbers found in contact information;
      */
+    public List<UIContactDetail> getAdditionalMobileNumbers()
+    {
+        return getAdditionalNumbers(true);
+    }
+
+    /**
+     * Searches for additional phone numbers found in contact information
+     *
+     * @return additional phone numbers found in contact information;
+     */
     public List<UIContactDetail> getAdditionalNumbers()
+    {
+        return getAdditionalNumbers(false);
+    }
+
+    /**
+     * Searches for additional phone numbers found in contact information
+     *
+     * @return additional phone numbers found in contact information;
+     */
+    private List<UIContactDetail> getAdditionalNumbers(boolean onlyMobile)
     {
         List<UIContactDetail> telephonyContacts
             = new ArrayList<UIContactDetail>();
@@ -76,9 +96,22 @@ public class UIPhoneUtil
                 while(details.hasNext())
                 {
                     GenericDetail d = details.next();
-                    if(d instanceof PhoneNumberDetail &&
+
+                    boolean process = false;
+
+                    if(onlyMobile)
+                    {
+                        if(d instanceof MobilePhoneDetail)
+                            process = true;
+                    }
+                    else if(d instanceof PhoneNumberDetail &&
                         !(d instanceof PagerDetail) &&
                         !(d instanceof FaxDetail))
+                    {
+                        process = true;
+                    }
+
+                    if(process)
                     {
                         PhoneNumberDetail pnd = (PhoneNumberDetail)d;
                         if(pnd.getNumber() != null &&
