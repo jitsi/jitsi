@@ -817,6 +817,12 @@ public class MUCServiceImpl
         }
     }
     
+    /**
+     * Finds the <tt>ChatRoomWrapper</tt> instance associated with the 
+     * source contact.
+     * @param contact the source contact.
+     * @return the <tt>ChatRoomWrapper</tt> instance.
+     */
     public ChatRoomWrapper findChatRoomWrapperFromSourceContact(
         SourceContact contact)
     {
@@ -825,6 +831,19 @@ public class MUCServiceImpl
         ChatRoomSourceContact chatRoomContact = (ChatRoomSourceContact) contact;
         return chatRoomList.findChatRoomWrapperFromChatRoomID(
                 chatRoomContact.getChatRoomID(), chatRoomContact.getProvider()); 
+    }
+    
+    /**
+     * Finds the <tt>ChatRoomWrapper</tt> instance associated with the 
+     * chat room.
+     * @param chatRoomID the id of the chat room.
+     * @param pps the provider of the chat room.
+     * @return the <tt>ChatRoomWrapper</tt> instance.
+     */
+    public ChatRoomWrapper findChatRoomWrapperFromChatRoomID(String chatRoomID, 
+        ProtocolProviderService pps)
+    {
+        return chatRoomList.findChatRoomWrapperFromChatRoomID(chatRoomID, pps);
     }
 
     /**
@@ -1042,5 +1061,17 @@ public class MUCServiceImpl
         }
         
         return displayName;
+    }
+    
+    /**
+     * Returns instance of the <tt>ServerChatRoomContactSourceService</tt> 
+     * contact source.
+     * @return instance of the <tt>ServerChatRoomContactSourceService</tt> 
+     * contact source.
+     */
+    public ContactSourceService getServerChatRoomsContactSourceForProvider(
+        ChatRoomProviderWrapper pps)
+    {
+        return new ServerChatRoomContactSourceService(pps);
     }
 }

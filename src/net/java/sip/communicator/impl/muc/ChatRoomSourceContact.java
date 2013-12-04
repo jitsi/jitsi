@@ -7,7 +7,6 @@ package net.java.sip.communicator.impl.muc;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -17,26 +16,12 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Hristo Terezov
  */
 public class ChatRoomSourceContact
-    extends SortedGenericSourceContact
+    extends BaseChatRoomSourceContact
 {
     /**
      * The parent contact query.
      */
     private final ChatRoomQuery parentQuery;
-    /**
-     * The name of the chat room associated with the contact.
-     */
-    private String chatRoomName;
-    
-    /**
-     * The ID of the chat room associated with the contact.
-     */
-    private String chatRoomID;
-    
-    /**
-     * The protocol provider of the chat room associated with the contact.
-     */
-    private ProtocolProviderService provider;
     
     /**
      * The protocol provider of the chat room associated with the contact.
@@ -55,17 +40,12 @@ public class ChatRoomSourceContact
         String chatRoomID, ChatRoomQuery query, ProtocolProviderService pps,
         boolean isAutoJoin)
     {
-        super(query, query.getContactSource(), chatRoomName,
-            generateDefaultContactDetails(chatRoomName));
+        super(chatRoomName, chatRoomID, query, pps);
         
-        this.chatRoomName = chatRoomName;
-        this.chatRoomID = chatRoomID;
-        this.provider = pps;
         this.parentQuery = query;
         this.isAutoJoin = isAutoJoin;
         
         initContactProperties(getChatRoomStateByName());
-        
     }
     
     /**
@@ -78,12 +58,8 @@ public class ChatRoomSourceContact
     public ChatRoomSourceContact(ChatRoom chatRoom, ChatRoomQuery query,
         boolean isAutoJoin)
     { 
-        super(query, query.getContactSource(), chatRoom.getName(),
-            generateDefaultContactDetails(chatRoom.getName()));
-        
-        this.chatRoomName = chatRoom.getName();
-        this.chatRoomID = chatRoom.getIdentifier();
-        this.provider = chatRoom.getParentProvider();
+        super(chatRoom.getName(), chatRoom.getIdentifier(), query, 
+            chatRoom.getParentProvider());
         this.parentQuery = query;
         this.isAutoJoin = isAutoJoin;
         
@@ -94,16 +70,6 @@ public class ChatRoomSourceContact
         
     }
     
-    /**
-     * Sets the given presence status and the name of the chat room associated with the 
-     * contact.
-     * @param status the presence status to be set.
-     */
-    private void initContactProperties(PresenceStatus status)
-    {
-        setPresenceStatus(status);
-        setContactAddress(chatRoomName);
-    }
     
     /**
      * Checks if the chat room associated with the contact is joinned or not and 
@@ -114,10 +80,10 @@ public class ChatRoomSourceContact
     private PresenceStatus getChatRoomStateByName()
     {
         for(ChatRoom room : 
-                provider.getOperationSet(OperationSetMultiUserChat.class)
+                getProvider().getOperationSet(OperationSetMultiUserChat.class)
                     .getCurrentlyJoinedChatRooms())
         {
-            if(room.getName().equals(chatRoomName))
+            if(room.getName().equals(getChatRoomName()))
             {
                 return ChatRoomPresenceStatus.CHAT_ROOM_ONLINE;
             }
@@ -125,61 +91,6 @@ public class ChatRoomSourceContact
         return ChatRoomPresenceStatus.CHAT_ROOM_OFFLINE;
     }
     
-    /**
-     * Generates the default contact details for <tt>ChatRoomSourceContact</tt>
-     * instances.
-     * 
-     * @param chatRoomName the name of the chat room associated with the contact
-     * @return list of default <tt>ContactDetail</tt>s for the contact. 
-     */
-    private static List<ContactDetail> generateDefaultContactDetails(
-        String chatRoomName)
-    {
-        ContactDetail contactDetail
-            = new ContactDetail(chatRoomName);
-        List<Class<? extends OperationSet>> supportedOpSets
-            = new ArrayList<Class<? extends OperationSet>>();
-    
-        supportedOpSets.add(OperationSetMultiUserChat.class);
-        contactDetail.setSupportedOpSets(supportedOpSets);
-    
-        List<ContactDetail> contactDetails
-            = new ArrayList<ContactDetail>();
-    
-        contactDetails.add(contactDetail);
-        return contactDetails;
-    }
-    
-    /**
-     * Returns the id of the chat room associated with the contact.
-     * 
-     * @return the chat room id.
-     */
-    public String getChatRoomID()
-    {
-        return chatRoomID;
-    }
-
-    /**
-     * Returns the name of the chat room associated with the contact.
-     * 
-     * @return the chat room name
-     */
-    public String getChatRoomName()
-    {
-        return chatRoomName;
-    }
-
-    /**
-     * Returns the provider of the chat room associated with the contact.
-     * 
-     * @return the provider
-     */
-    public ProtocolProviderService getProvider()
-    {
-        return provider;
-    }
-
     /**
      * Returns the index of this source contact in its parent group.
      *

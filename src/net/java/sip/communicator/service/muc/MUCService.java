@@ -295,5 +295,14 @@ public abstract class MUCService
      */
     public abstract String getDefaultNickname(
         ProtocolProviderService pps);
+    
+    /**
+     * Returns instance of the <tt>ServerChatRoomContactSourceService</tt> 
+     * contact source.
+     * @return instance of the <tt>ServerChatRoomContactSourceService</tt> 
+     * contact source.
+     */
+    public abstract ContactSourceService 
+        getServerChatRoomsContactSourceForProvider(ChatRoomProviderWrapper pps);
 
 }

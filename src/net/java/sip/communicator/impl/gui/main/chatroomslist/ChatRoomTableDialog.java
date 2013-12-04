@@ -59,6 +59,12 @@ public class ChatRoomTableDialog
         = new JButton(
                 GuiActivator.getResources().getI18NString(
                         "service.gui.CANCEL"));
+    /**
+     * The list button. This button lists the existing chat rooms on the server.
+     */
+    private final JButton listButton
+        = new JButton(GuiActivator.getResources().getI18NString(
+                        "service.gui.LIST"));
 
     /**
      * The editor for the chat room name.
@@ -85,6 +91,11 @@ public class ChatRoomTableDialog
      */
     private SIPCommTextField subject = new SIPCommTextField(DesktopUtilActivator
         .getResources().getI18NString("service.gui.SUBJECT"));
+    
+    /**
+     * The dialog for the existing chat rooms on the server.
+     */
+    private ServerChatRoomsChoiceDialog serverChatRoomsChoiceDialog = null;
 
     /**
      * The <tt>ChatRoomList.ChatRoomProviderWrapperListener</tt> instance which
@@ -190,9 +201,11 @@ public class ChatRoomTableDialog
         JPanel buttonPanel = new TransparentPanel(new BorderLayout(5, 5));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 15));
         JPanel eastButtonPanel = new TransparentPanel();
+        JPanel westButtonPanel = new TransparentPanel();
 
         okButton.addActionListener(this);
         cancelButton.addActionListener(this);
+        listButton.addActionListener(this);
 
         okButton.setToolTipText(GuiActivator.getResources()
             .getI18NString("service.gui.JOIN_CHAT_ROOM"));
@@ -200,8 +213,10 @@ public class ChatRoomTableDialog
 
         eastButtonPanel.add(cancelButton);
         eastButtonPanel.add(okButton);
-
+        westButtonPanel.add(listButton);
+        
         buttonPanel.add(eastButtonPanel, BorderLayout.EAST);
+        buttonPanel.add(westButtonPanel, BorderLayout.WEST);
         this.getContentPane().add(northPanel, BorderLayout.NORTH);
         this.getContentPane().add(initMoreFields(), BorderLayout.CENTER);
         this.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
@@ -234,6 +249,9 @@ public class ChatRoomTableDialog
             {
                 setNickname(
                     (ChatRoomProviderWrapper)providersCombo.getSelectedItem());
+                if(serverChatRoomsChoiceDialog != null)
+                    serverChatRoomsChoiceDialog.changeProtocolProvider(
+                        getSelectedProvider());
             }
         });
         //register listener to listen for newly added chat room providers
@@ -376,6 +394,15 @@ public class ChatRoomTableDialog
         {
             dispose();
         }
+        else if(sourceButton.equals(listButton))
+        {
+            if(serverChatRoomsChoiceDialog == null)
+            {
+                serverChatRoomsChoiceDialog = new ServerChatRoomsChoiceDialog(
+                    getTitle(), getSelectedProvider());
+            }
+            serverChatRoomsChoiceDialog.setVisible(true);
+        }
     }
 
     @Override
@@ -396,7 +423,12 @@ public class ChatRoomTableDialog
 
         GuiActivator.getMUCService().removeChatRoomProviderWrapperListener(
                 chatRoomProviderWrapperListener);
-
+        if(serverChatRoomsChoiceDialog != null)
+        {
+            serverChatRoomsChoiceDialog.dispose();
+            serverChatRoomsChoiceDialog = null;
+        }
+        
         super.dispose();
     }
 
@@ -409,6 +441,28 @@ public class ChatRoomTableDialog
     public ChatRoomProviderWrapper getSelectedProvider()
     {
         return (ChatRoomProviderWrapper)providersCombo.getSelectedItem();
+    }
+    
+    /**
+     * Sets the value of chat room name field.
+     * @param chatRoom the chat room name.
+     */
+    public void setChatRoomNameField(String chatRoom)
+    {
+        this.chatRoomNameField.setText(chatRoom);
+    }
+    
+    /**
+     * Sets the value of chat room name field in the current 
+     * <tt>ChatRoomTableDialog</tt> instance.
+     * @param chatRoom the chat room name.
+     */
+    public static void setChatRoomField(String chatRoom)
+    {
+        if(chatRoomTableDialog != null)
+        {
+            chatRoomTableDialog.setChatRoomNameField(chatRoom);
+        }
     }
 
     /**
