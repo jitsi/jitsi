@@ -408,9 +408,13 @@ public class StatusSubMenu
         {
             nameToSelect = GlobalStatusEnum.OFFLINE_STATUS;
         }
-        else if(status < PresenceStatus.AWAY_THRESHOLD)
+        else if(status < PresenceStatus.EXTENDED_AWAY_THRESHOLD)
         {
             nameToSelect = GlobalStatusEnum.DO_NOT_DISTURB_STATUS;
+        }
+        else if(status < PresenceStatus.AWAY_THRESHOLD)
+        {
+            nameToSelect = GlobalStatusEnum.EXTENDED_AWAY_STATUS;
         }
         else if(status < PresenceStatus.AVAILABLE_THRESHOLD)
         {

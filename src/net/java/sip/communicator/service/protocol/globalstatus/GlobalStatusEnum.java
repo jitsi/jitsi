@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.protocol.globalstatus;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The global statuses available to the system.
@@ -30,6 +31,11 @@ public class GlobalStatusEnum
      * Indicates that the user is away.
      */
     public static final String AWAY_STATUS = "Away";
+
+    /**
+     * Indicates that the user is extended away.
+     */
+    public static final String EXTENDED_AWAY_STATUS = "Extended Away";
 
     /**
      * Indicates that the user is connected and eager to communicate.
@@ -76,6 +82,17 @@ public class GlobalStatusEnum
                 "service.gui.AWAY_STATUS");
 
     /**
+     * The Away status. Indicates that the user has connectivity but might
+     * not be able to immediately act upon initiation of communication.
+     */
+    public static final GlobalStatusEnum EXTENDED_AWAY
+        = new GlobalStatusEnum(
+                35,
+                EXTENDED_AWAY_STATUS,
+                loadIcon("service.gui.statusicons.USER_EXTENDED_AWAY_ICON"),
+                "service.gui.EXTENDED_AWAY_STATUS");
+
+    /**
      * The DND status. Indicates that the user has connectivity but prefers
      * not to be contacted.
      */
@@ -107,6 +124,10 @@ public class GlobalStatusEnum
         globalStatusSet.add(ONLINE);
         globalStatusSet.add(FREE_FOR_CHAT);
         globalStatusSet.add(AWAY);
+
+        if(!ConfigurationUtils.isHideExtendedAwayStatus())
+            globalStatusSet.add(EXTENDED_AWAY);
+
         globalStatusSet.add(DO_NOT_DISTURB);
         globalStatusSet.add(OFFLINE);
     }

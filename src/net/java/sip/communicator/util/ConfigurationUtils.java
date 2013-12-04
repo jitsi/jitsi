@@ -292,6 +292,11 @@ public class ConfigurationUtils
     private static boolean hideAccountStatusSelectors = false;
 
     /**
+     * Hide extended away status.
+     */
+    private static boolean hideExtendedAwayStatus = false;
+
+    /**
      * Whether to disable creation of auto answer submenu.
      */
     private static boolean autoAnswerDisableSubmenu = false;
@@ -890,6 +895,20 @@ public class ConfigurationUtils
         isHideAddressInCallHistoryTooltipEnabled = configService.getBoolean(
             HIDE_ADDR_IN_CALL_HISTORY_TOOLTIP_PROPERTY,
             isHideAddressInCallHistoryTooltipEnabled);
+
+        String hideExtendedAwayStatusProperty
+            = "net.java.sip.communicator.service.protocol" +
+                ".globalstatus.HIDE_EXTENDED_AWAY_STATUS";
+        String hideExtendedAwayStatusDefaultValue = UtilActivator.getResources()
+            .getSettingsString(hideExtendedAwayStatusProperty);
+
+        if(hideExtendedAwayStatusDefaultValue != null)
+            hideExtendedAwayStatus = Boolean.parseBoolean(
+                hideExtendedAwayStatusDefaultValue);
+
+        hideExtendedAwayStatus = configService.getBoolean(
+            hideExtendedAwayStatusProperty,
+            hideExtendedAwayStatus);
     }
 
     /**
@@ -1736,6 +1755,15 @@ public class ConfigurationUtils
     public static boolean isHideAccountStatusSelectorsEnabled()
     {
         return hideAccountStatusSelectors;
+    }
+
+    /**
+     * Whether to hide extended away status from global menu.
+     * @return whether to hide extended away status.
+     */
+    public static boolean isHideExtendedAwayStatus()
+    {
+        return hideExtendedAwayStatus;
     }
 
     /**

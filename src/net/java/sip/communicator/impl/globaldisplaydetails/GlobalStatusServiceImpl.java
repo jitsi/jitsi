@@ -101,9 +101,13 @@ public class GlobalStatusServiceImpl
         {
             return GlobalStatusEnum.OFFLINE;
         }
-        else if(status < PresenceStatus.AWAY_THRESHOLD)
+        else if(status < PresenceStatus.EXTENDED_AWAY_THRESHOLD)
         {
             return GlobalStatusEnum.DO_NOT_DISTURB;
+        }
+        else if(status < PresenceStatus.AWAY_THRESHOLD)
+        {
+            return GlobalStatusEnum.EXTENDED_AWAY;
         }
         else if(status < PresenceStatus.AVAILABLE_THRESHOLD)
         {
@@ -177,13 +181,21 @@ public class GlobalStatusServiceImpl
                         PresenceStatus.AWAY_THRESHOLD,
                         PresenceStatus.AVAILABLE_THRESHOLD);
                 }
+                else if (lastStatus.equals(
+                            GlobalStatusEnum.EXTENDED_AWAY_STATUS))
+                {
+                    status = getPresenceStatus(
+                        protocolProvider,
+                        PresenceStatus.EXTENDED_AWAY_THRESHOLD,
+                        PresenceStatus.AWAY_THRESHOLD);
+                }
                 else if (lastStatus
                             .equals(GlobalStatusEnum.DO_NOT_DISTURB_STATUS))
                 {
                     status = getPresenceStatus(
                             protocolProvider,
                             PresenceStatus.ONLINE_THRESHOLD,
-                            PresenceStatus.AWAY_THRESHOLD);
+                            PresenceStatus.EXTENDED_AWAY_THRESHOLD);
                 }
                 else if (lastStatus
                             .equals(GlobalStatusEnum.FREE_FOR_CHAT_STATUS))
@@ -448,7 +460,7 @@ public class GlobalStatusServiceImpl
                     publishStatus(
                             protocolProvider,
                             PresenceStatus.ONLINE_THRESHOLD,
-                            PresenceStatus.AWAY_THRESHOLD);
+                            PresenceStatus.EXTENDED_AWAY_THRESHOLD);
             }
             else if (itemName.equals(GlobalStatusEnum.AWAY_STATUS))
             {
@@ -465,6 +477,22 @@ public class GlobalStatusServiceImpl
                             protocolProvider,
                             PresenceStatus.AWAY_THRESHOLD,
                             PresenceStatus.AVAILABLE_THRESHOLD);
+            }
+            else if (itemName.equals(GlobalStatusEnum.EXTENDED_AWAY_STATUS))
+            {
+                if(!protocolProvider.isRegistered())
+                {
+                    saveStatusInformation(protocolProvider, itemName);
+
+                    GlobalDisplayDetailsActivator.getUIService()
+                        .getLoginManager().login(protocolProvider);
+                }
+                else
+                    // a status in the away interval
+                    publishStatus(
+                            protocolProvider,
+                            PresenceStatus.EXTENDED_AWAY_THRESHOLD,
+                            PresenceStatus.AWAY_THRESHOLD);
             }
         }
     }

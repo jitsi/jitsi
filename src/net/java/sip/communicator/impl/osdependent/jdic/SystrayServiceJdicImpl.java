@@ -82,6 +82,8 @@ public class SystrayServiceJdicImpl
 
     private ImageIcon logoIconAway;
 
+    private ImageIcon logoIconExtendedAway;
+
     private ImageIcon logoIconFFC;
 
     private ImageIcon logoIconDND;
@@ -100,6 +102,8 @@ public class SystrayServiceJdicImpl
     private URL dockIconOffline;
 
     private URL dockIconAway;
+
+    private URL dockIconExtendedAway;
 
     private URL dockIconFFC;
 
@@ -193,6 +197,8 @@ public class SystrayServiceJdicImpl
                 "service.systray.TRAY_ICON_WINDOWS_OFFLINE");
             logoIconAway = Resources.getImage(
                 "service.systray.TRAY_ICON_WINDOWS_AWAY");
+            logoIconExtendedAway = Resources.getImage(
+                "service.systray.TRAY_ICON_WINDOWS_EXTENDED_AWAY");
             logoIconFFC = Resources.getImage(
                 "service.systray.TRAY_ICON_WINDOWS_FFC");
             logoIconDND = Resources.getImage(
@@ -220,6 +226,8 @@ public class SystrayServiceJdicImpl
             logoIconOffline = Resources.getImage(
                 "service.systray.TRAY_ICON_OFFLINE");
             logoIconAway = Resources.getImage("service.systray.TRAY_ICON_AWAY");
+            logoIconExtendedAway = Resources.getImage(
+                "service.systray.TRAY_ICON_EXTENDED_AWAY");
             logoIconFFC = Resources.getImage("service.systray.TRAY_ICON_FFC");
             logoIconDND = Resources.getImage("service.systray.TRAY_ICON_DND");
             envelopeIcon = Resources.getImage("service.systray.MESSAGE_ICON");
@@ -248,6 +256,8 @@ public class SystrayServiceJdicImpl
                 "service.systray.DOCK_ICON_OFFLINE");
             dockIconAway = Resources.getImageURL(
                 "service.systray.DOCK_ICON_AWAY");
+            dockIconExtendedAway = Resources.getImageURL(
+                "service.systray.DOCK_ICON_EXTENDED_AWAY");
             dockIconFFC =
                     Resources.getImageURL("service.systray.DOCK_ICON_FFC");
             dockIconDND =
@@ -377,6 +387,10 @@ public class SystrayServiceJdicImpl
             if (!isMac)
                 systrayIconToSet = logoIconAway;
             break;
+        case SystrayService.SC_IMG_EXTENDED_AWAY_TYPE:
+            if (!isMac)
+                systrayIconToSet = logoIconExtendedAway;
+            break;
         case SystrayService.SC_IMG_FFC_TYPE:
             if (!isMac)
                 systrayIconToSet = logoIconFFC;
@@ -413,6 +427,9 @@ public class SystrayServiceJdicImpl
                 break;
             case SystrayService.SC_IMG_AWAY_TYPE:
                 dockIconURLToSet = dockIconAway;
+                break;
+            case SystrayService.SC_IMG_EXTENDED_AWAY_TYPE:
+                dockIconURLToSet = dockIconExtendedAway;
                 break;
             case SystrayService.SC_IMG_FFC_TYPE:
                 dockIconURLToSet = dockIconFFC;

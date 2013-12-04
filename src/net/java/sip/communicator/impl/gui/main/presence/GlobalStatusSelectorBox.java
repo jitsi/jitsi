@@ -413,6 +413,10 @@ public class GlobalStatusSelectorBox
         {
             imgType = SystrayService.SC_IMG_AWAY_TYPE;
         }
+        else if (globalStatus.equals(GlobalStatusEnum.EXTENDED_AWAY))
+        {
+            imgType = SystrayService.SC_IMG_EXTENDED_AWAY_TYPE;
+        }
         else if (globalStatus.equals(GlobalStatusEnum.ONLINE))
         {
             imgType = SystrayService.SC_IMG_TYPE;
