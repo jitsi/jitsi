@@ -8,27 +8,61 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.plaf.*;
 import javax.swing.text.*;
+
+import org.osgi.framework.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.plaf.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
- *
+ * The <tt>ContactSearchFieldUI</tt> class is used to draw the SearchField UI.
+ * The class extends <tt>SearchFieldUI</tt> and adds custom behavior for the 
+ * icons in the search field.
+ * 
  * @author Marin Dzhigarov
+ * @author Hristo Terezov
  */
 public class ContactSearchFieldUI
     extends SearchFieldUI
     implements Skinnable
 {
+    /**
+     * Indicates whether the call button should be enabled or not.
+     */
+    private boolean isCallButtonEnabled = true;
+    
+    /**
+     * Listener for registration state change for the protocol provider service.
+     */
+    private ProtocolProviderRegistrationStateListener 
+        providerRegistrationStateListener 
+            = new ProtocolProviderRegistrationStateListener(); 
+    
+    /**
+     * List of protocol providers that added <tt>ContactSearchFieldUI</tt> as 
+     * listener.
+     */
+    private List<ProtocolProviderService> providers 
+        = new LinkedList<ProtocolProviderService>();
+    
+    /**
+     * Listener for registration state change for the protocol provider service.
+     */
+    private ProtocolProviderRegListener 
+        providerRegListener = null;
+    
     /**
      * Creates a UI for a SearchFieldUI.
      * 
@@ -52,13 +86,43 @@ public class ContactSearchFieldUI
         {
             // If the outside call button is enabled the call button in this
             // search field is disabled.
-            isCallButtonEnabled
-                = !Boolean.parseBoolean(callButtonEnabledString);
+            setCallButtonEnabled(!Boolean.parseBoolean(callButtonEnabledString));
         }
-
+        
         loadSkin();
     }
-
+    
+    /**
+     * Setups the listeners used in <tt>ContactSearchFieldUI</tt>.
+     */
+    public void setupListeners()
+    {
+        providerRegListener = new ProtocolProviderRegListener();
+        GuiActivator.bundleContext.addServiceListener(providerRegListener);
+        for(ProtocolProviderFactory providerFactory : 
+            GuiActivator.getProtocolProviderFactories().values())
+        {
+            for(AccountID accountID : providerFactory.getRegisteredAccounts())
+            {
+                ProtocolProviderService pps 
+                    = (ProtocolProviderService) GuiActivator.bundleContext
+                    .getService(providerFactory.getProviderForAccount(accountID));
+                providers.add(pps);
+                pps.addRegistrationStateChangeListener(
+                    providerRegistrationStateListener);
+            }
+        }
+        setCallButtonEnabled(isCallButtonEnabled);
+    }
+    
+    @Override
+    public void setCallButtonEnabled(boolean isEnabled)
+    {
+        isCallButtonEnabled = isEnabled;
+        super.setCallButtonEnabled(isEnabled 
+            && CallManager.getTelephonyProviders().size() > 0);
+    }
+    
     /**
      * Paints the background of the associated component.
      * 
@@ -67,8 +131,6 @@ public class ContactSearchFieldUI
     @Override
     protected void customPaintBackground(Graphics g)
     {
-        isCallButtonEnabled = CallManager.getTelephonyProviders().size() > 0;
-
         setSMSButtonEnabled(
             GuiActivator.getUIService().getMainFrame()
                 .hasOperationSet(OperationSetSmsMessaging.class));
@@ -109,6 +171,88 @@ public class ContactSearchFieldUI
 
                 SMSManager.sendSMS(getComponent(), searchText);
             }
+        }
+    }
+    
+    /**
+     * Listens for <tt>ProtocolProviderService</tt> registrations.
+     */
+    private class ProtocolProviderRegListener
+        implements ServiceListener
+    {
+        public void serviceChanged(ServiceEvent event)
+        {
+            ServiceReference serviceRef = event.getServiceReference();
+
+            // if the event is caused by a bundle being stopped, we don't want to
+            // know
+            if (serviceRef.getBundle().getState() == Bundle.STOPPING)
+            {
+                return;
+            }
+
+            Object service = GuiActivator.bundleContext.getService(serviceRef);
+
+            // we don't care if the source service is not a protocol provider
+            if (!(service instanceof ProtocolProviderService))
+            {
+                return;
+            }
+
+            switch (event.getType())
+            {
+            case ServiceEvent.REGISTERED:
+                providers.add((ProtocolProviderService) service);
+                ((ProtocolProviderService) service)
+                    .addRegistrationStateChangeListener(
+                        providerRegistrationStateListener);
+                break;
+            case ServiceEvent.UNREGISTERING:
+                providers.remove((ProtocolProviderService) service);
+                ((ProtocolProviderService) service)
+                    .removeRegistrationStateChangeListener(
+                        providerRegistrationStateListener);
+                if(providers.size() == 0)
+                    providerRegistrationStateListener = null;
+                break;
+            }
+        }
+    }
+    
+    /**
+     * Listener for the provider registration state.
+     */
+    private class ProtocolProviderRegistrationStateListener 
+        implements RegistrationStateChangeListener
+    {
+
+        @Override
+        public void registrationStateChanged(RegistrationStateChangeEvent evt)
+        {
+            setCallButtonEnabled(isCallButtonEnabled);
+        }
+        
+    }
+
+    /**
+     * Removes all listeners that were added earlier.
+     */
+    public void removeListeners()
+    {
+        if(providerRegListener != null )
+        {
+            GuiActivator.bundleContext.removeServiceListener(providerRegListener);
+            providerRegListener = null;
+        }
+        
+        if(providers.size() != 0 && providerRegistrationStateListener != null)
+        {
+            for(ProtocolProviderService pps : providers)
+            {
+                pps.removeRegistrationStateChangeListener(
+                    providerRegistrationStateListener);
+            }
+            providerRegistrationStateListener = null;
         }
     }
 }

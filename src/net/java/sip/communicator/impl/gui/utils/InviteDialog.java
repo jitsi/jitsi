@@ -515,4 +515,11 @@ public class InviteDialog
         // This dialog has no menu bar so it will never be selected
         return false;
     }
+    
+    @Override
+    public void dispose()
+    {
+        searchField.dispose();
+        super.dispose();
+    }
 }

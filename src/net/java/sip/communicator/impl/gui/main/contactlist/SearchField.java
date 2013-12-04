@@ -89,6 +89,7 @@ public class SearchField
 
         if (getUI() instanceof ContactSearchFieldUI)
         {
+            ((ContactSearchFieldUI) getUI()).setupListeners();
             ((ContactSearchFieldUI) getUI()).setDeleteButtonEnabled(true);
             ((ContactSearchFieldUI) getUI())
                 .setCallButtonEnabled(isCallButtonEnabled);
@@ -284,6 +285,14 @@ public class SearchField
             // If the query is null or is canceled, we would simply check the
             // contact list content.
             filterQueryFinished(currentFilterQuery, !contactList.isEmpty());
+        }
+    }
+    
+    public void dispose()
+    {
+        if(getUI() instanceof ContactSearchFieldUI)
+        {
+            ((ContactSearchFieldUI)getUI()).removeListeners();
         }
     }
 }

@@ -23,6 +23,7 @@ import net.java.sip.communicator.service.gui.event.*;
  * user could pick in order to create a conference chat or call.
  *
  * @author Yana Stamcheva
+ * @author Hristo Terezov
  */
 public class OneChoiceInviteDialog
     extends SIPCommDialog
@@ -124,7 +125,7 @@ public class OneChoiceInviteDialog
         TransparentPanel listPanel = new TransparentPanel(new BorderLayout());
         listPanel.setBorder(SIPCommBorders.getRoundBorder());
         listPanel.add(contactListComponent);
-
+        
         northPanel.add(searchField, BorderLayout.SOUTH);
 
         mainPanel.add(northPanel, BorderLayout.NORTH);
@@ -340,5 +341,12 @@ public class OneChoiceInviteDialog
     {
         // This dialog has no menu bar so it will never be selected
         return false;
+    }
+    
+    @Override
+    public void dispose()
+    {
+        searchField.dispose();
+        super.dispose();
     }
 }

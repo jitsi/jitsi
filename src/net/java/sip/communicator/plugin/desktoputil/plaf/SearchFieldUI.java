@@ -88,7 +88,7 @@ public class SearchFieldUI
     /**
      * Indicates if the call button is enabled in this search field.
      */
-    protected boolean isCallButtonEnabled = true;
+    private boolean isCallButtonEnabled = true;
 
     /**
      * Indicates if the sms button is enabled in this search field.
@@ -161,7 +161,7 @@ public class SearchFieldUI
 
             JTextComponent c = this.getComponent();
 
-            int dy = (c.getY() + c.getHeight()) / 2
+            int dy = c.getHeight() / 2
                 - searchIcon.getIconHeight()/2;
 
             g2.drawImage(searchIcon.getImage(), 3, dy, null);
@@ -233,7 +233,7 @@ public class SearchFieldUI
         Rectangle rect = c.getBounds();
 
         int dx = getDeleteButtonRect().x - callRolloverIcon.getWidth(null) - 8;
-        int dy = (rect.y + rect.height) / 2 - callRolloverIcon.getHeight(null)/2;
+        int dy = (rect.height) / 2 - callRolloverIcon.getHeight(null)/2;
 
         return new Rectangle(   dx,
                                 dy,
@@ -447,7 +447,14 @@ public class SearchFieldUI
      */
     public void setCallButtonEnabled(boolean isEnabled)
     {
-        this.isCallButtonEnabled = isEnabled;
+        JTextComponent c = this.getComponent();
+        if(isCallButtonEnabled != isEnabled)
+        {
+            this.isCallButtonEnabled = isEnabled;
+            loadSkin();
+            if(c != null && c.isVisible())
+                c.repaint();
+        }
     }
 
     /**
