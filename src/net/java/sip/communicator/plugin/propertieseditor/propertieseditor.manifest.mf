@@ -1,4 +1,5 @@
 Bundle-Activator: net.java.sip.communicator.plugin.propertieseditor.PropertiesEditorActivator
+Bundle-Name: Properties Editor
 Bundle-Description: A panel that allows users to configure properties
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
