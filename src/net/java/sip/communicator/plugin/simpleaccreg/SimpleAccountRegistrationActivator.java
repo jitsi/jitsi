@@ -96,8 +96,6 @@ public class SimpleAccountRegistrationActivator
             InitialAccountRegistrationFrame accountRegFrame =
                 new InitialAccountRegistrationFrame();
 
-            accountRegFrame.pack();
-
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
             accountRegFrame.setLocation(screenSize.width / 2
                 - accountRegFrame.getWidth() / 2, screenSize.height / 2
