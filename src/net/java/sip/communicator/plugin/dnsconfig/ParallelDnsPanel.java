@@ -12,6 +12,7 @@ import static net.java.sip.communicator.util.NetworkUtils.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
 import java.text.*;
 import java.util.*;
 
@@ -38,7 +39,8 @@ public class ParallelDnsPanel
     extends TransparentPanel
     implements ActionListener,
                ChangeListener,
-               FocusListener
+               FocusListener,
+               PropertyChangeListener
 {
     private static final long serialVersionUID = 4393128042592738855L;
 
@@ -66,8 +68,8 @@ public class ParallelDnsPanel
     {
         initServices();
         initComponents();
-        initBehavior();
         loadData();
+        initBehavior();
     }
 
     /**
@@ -238,8 +240,7 @@ public class ParallelDnsPanel
         chkBackupDnsEnabled.addActionListener(this);
         txtBackupResolver.addActionListener(this);
         txtBackupResolver.addFocusListener(this);
-        txtBackupResolverFallbackIP.addActionListener(this);
-        txtBackupResolverFallbackIP.addFocusListener(this);
+        txtBackupResolverFallbackIP.addPropertyChangeListener("value", this);
         spnBackupResolverPort.addChangeListener(this);
         spnDnsTimeout.addChangeListener(this);
         spnDnsRedemption.addChangeListener(this);
@@ -304,13 +305,6 @@ public class ParallelDnsPanel
                 txtBackupResolver.getText()
             );
         }
-        else if(e.getSource() == txtBackupResolverFallbackIP)
-        {
-            configService.setProperty(
-                PNAME_BACKUP_RESOLVER_FALLBACK_IP,
-                txtBackupResolverFallbackIP.getValue().toString()
-            );
-        }
         else if(e.getSource() == spnBackupResolverPort)
         {
             configService.setProperty(
@@ -330,6 +324,23 @@ public class ParallelDnsPanel
             configService.setProperty(
                 PNAME_DNS_REDEMPTION,
                 spnDnsRedemption.getValue().toString()
+            );
+        }
+    }
+
+    /**
+     * Stores the changed UI value in the configuration
+     * @param e An event object required to provide access to the
+     *  source UI element
+     */
+    @Override
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        if(evt.getSource() == txtBackupResolverFallbackIP)
+        {
+            configService.setProperty(
+                PNAME_BACKUP_RESOLVER_FALLBACK_IP,
+                txtBackupResolverFallbackIP.getValue().toString()
             );
         }
     }
