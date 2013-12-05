@@ -335,6 +335,11 @@ public class SIPCommFrame
      */
     public void setSizeAndLocation()
     {
+        if (!isSaveSizeAndLocation)
+        {
+            return;
+        }
+
         ConfigurationService configService =
             DesktopUtilActivator.getConfigurationService();
         String className = this.getClass().getName();
