@@ -45,9 +45,9 @@ public class NewStatusMessageDialog
         DesktopUtilActivator.getResources().getI18NString("service.gui.CANCEL"));
 
     /**
-     * The presence operation set through which we change the status message.
+     * The current status message.
      */
-    private final OperationSetPresence presenceOpSet;
+    private final String currentStatusMessage;
 
     /**
      * Message panel.
@@ -67,15 +67,14 @@ public class NewStatusMessageDialog
     /**
      * Creates an instance of <tt>NewStatusMessageDialog</tt>.
      *
-     * @param protocolProvider the <tt>ProtocolProviderService</tt>.
+     * @param currentStatusMessage the current status message.
      */
-    public NewStatusMessageDialog (ProtocolProviderService protocolProvider,
+    public NewStatusMessageDialog (String currentStatusMessage,
                                    StatusMessageMenu parentMenu)
     {
         super(false);
 
-        presenceOpSet
-            = protocolProvider.getOperationSet(OperationSetPresence.class);
+        this.currentStatusMessage = currentStatusMessage;
         this.parentMenu = parentMenu;
 
         this.init();
@@ -130,7 +129,7 @@ public class NewStatusMessageDialog
 
         dataPanel.add(messageLabel, BorderLayout.WEST);
 
-        messageTextField.setText(presenceOpSet.getCurrentStatusMessage());
+        messageTextField.setText(currentStatusMessage);
         dataPanel.add(messageTextField, BorderLayout.CENTER);
 
         infoTitleLabel.setHorizontalAlignment(JLabel.CENTER);

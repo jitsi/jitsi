@@ -295,7 +295,10 @@ public class PresenceStatusMenu
         titleArea = null;
 
         if(statusMessageMenu != null)
+        {
+            statusMessageMenu.removePropertyChangeListener(this);
             statusMessageMenu.dispose();
+        }
         statusMessageMenu = null;
     }
 }

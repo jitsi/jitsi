@@ -99,8 +99,9 @@ public class StatusMessageMenu
 
     /**
      * All property change listeners registered so far.
+     * Static so we can communicate between status message menus.
      */
-    private java.util.List<PropertyChangeListener>
+    private static java.util.List<PropertyChangeListener>
         propertyChangeListeners = new ArrayList<PropertyChangeListener>();
 
     /**
@@ -326,8 +327,12 @@ public class StatusMessageMenu
 
         if (menuItem.equals(newMessageItem))
         {
-            NewStatusMessageDialog dialog
-                = new NewStatusMessageDialog(protocolProvider, this);
+            OperationSetPresence presenceOpSet
+                = protocolProvider.getOperationSet(OperationSetPresence.class);
+
+            NewStatusMessageDialog dialog = new NewStatusMessageDialog(
+                presenceOpSet == null ?
+                    "" : presenceOpSet.getCurrentStatusMessage(), this);
 
             dialog.setLocation(
                 Toolkit.getDefaultToolkit().getScreenSize().width/2
@@ -931,9 +936,9 @@ public class StatusMessageMenu
      */
     public void dispose()
     {
+        removePropertyChangeListener(this);
+
         protocolProvider = null;
-        propertyChangeListeners.clear();
-        propertyChangeListeners = null;
 
         noMessageItem = null;
         newMessageItem = null;
