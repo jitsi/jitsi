@@ -478,6 +478,9 @@ public class MUCServiceImpl
     public List<String> getExistingChatRooms(
         ChatRoomProviderWrapper chatRoomProvider)
     {
+        if (chatRoomProvider == null)
+            return null;
+        
         ProtocolProviderService protocolProvider
             = chatRoomProvider.getProtocolProvider();
 
