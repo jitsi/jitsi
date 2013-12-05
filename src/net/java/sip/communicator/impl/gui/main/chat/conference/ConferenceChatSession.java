@@ -68,8 +68,11 @@ public class ConferenceChatSession
             = new ConferenceChatTransport(this, chatRoomWrapper.getChatRoom());
 
         chatTransports.add(currentChatTransport);
-
-        this.initChatParticipants();
+        
+        synchronized(this.chatParticipants)
+        {
+            this.initChatParticipants();
+        }
 
         ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
         chatRoom.addMemberPresenceListener(this);
@@ -473,10 +476,12 @@ public class ConferenceChatSession
                     new String[] {sourceChatRoom.getName()});
             }
 
+            ChatContact<?> contact = null;
             for (ChatContact<?> chatContact : chatParticipants)
             {
                 if(chatContact.getDescriptor().equals(chatRoomMember))
                 {
+                    contact = chatContact;
                     sessionRenderer.updateChatContactStatus(
                         chatContact, statusMessage);
 
@@ -488,6 +493,17 @@ public class ConferenceChatSession
                             chatRoomMember.getName());
                     }
                     break;
+                }
+            }
+            
+            if (contact != null)
+            {
+                // If contact found, remove from chat participants.
+                // Keeping this list current is required in order to get good
+                // member name tab-completion.
+                synchronized (chatParticipants)
+                {
+                    chatParticipants.remove(contact);
                 }
             }
         }
@@ -537,13 +553,19 @@ public class ConferenceChatSession
         chatTransports.clear();
         chatTransports.add(currentChatTransport);
 
-        // Remove all existing contacts.
-        sessionRenderer.removeAllChatContacts();
-
-        // Add the new list of members.
-        for (ChatRoomMember member : chatRoom.getMembers())
+        synchronized(this.chatParticipants)
         {
-            sessionRenderer.addChatContact(new ConferenceChatContact(member));
+            // Remove all existing contacts.
+            sessionRenderer.removeAllChatContacts();
+            this.chatParticipants.clear();
+            // Add the new list of members.
+            for (ChatRoomMember member : chatRoom.getMembers())
+            {
+                ConferenceChatContact contact =
+                    new ConferenceChatContact(member);
+                chatParticipants.add(contact);
+                sessionRenderer.addChatContact(contact);
+            }
         }
 
         // Add all listeners to the new chat room.
@@ -583,7 +605,8 @@ public class ConferenceChatSession
     }
 
     /**
-     * Initializes the list of participants.
+     * Initializes the list of participants.(It is assumed that
+     * <tt>chatParticipants</tt> is locked.)
      */
     private void initChatParticipants()
     {
