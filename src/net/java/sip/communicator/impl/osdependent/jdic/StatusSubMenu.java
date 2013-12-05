@@ -15,6 +15,7 @@ import java.util.List;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.osdependent.*;
+import net.java.sip.communicator.plugin.desktoputil.presence.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
@@ -102,6 +103,10 @@ public class StatusSubMenu
         }
         // initially it is offline
         selectItemFromStatus(offlineStatus.getStatus());
+
+        this.addSeparator();
+
+        addMenuItem(menu, new GlobalStatusMessageMenu(swing).getMenu());
 
         if(!hideAccountStatusSelectors)
             this.addSeparator();

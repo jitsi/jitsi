@@ -57,7 +57,7 @@ public class NewStatusMessageDialog
     /**
      * The parent menu.
      */
-    private StatusMessageMenu parentMenu;
+    private AbstractStatusMessageMenu parentMenu;
 
     /**
      * A checkbox when checked, the new message will be saved.
@@ -70,7 +70,7 @@ public class NewStatusMessageDialog
      * @param currentStatusMessage the current status message.
      */
     public NewStatusMessageDialog (String currentStatusMessage,
-                                   StatusMessageMenu parentMenu)
+                                   AbstractStatusMessageMenu parentMenu)
     {
         super(false);
 
@@ -215,6 +215,10 @@ public class NewStatusMessageDialog
 
         if (name.equals("ok"))
         {
+            parentMenu.setCurrentMessage(messageTextField.getText(),
+                                         parentMenu.getNewMessageItem(),
+                                         saveNewMessage.isSelected());
+
             parentMenu.publishStatusMessage(messageTextField.getText(),
                                             parentMenu.getNewMessageItem(),
                                             saveNewMessage.isSelected());

@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.presence.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.service.systray.*;
@@ -105,6 +106,12 @@ public class GlobalStatusSelectorBox
             if(status.getStatus() < 1)
                 offlineStatus = status;
         }
+
+        this.addSeparator();
+
+        GlobalStatusMessageMenu globalStatusMessageMenu =
+            new GlobalStatusMessageMenu(true);
+        this.add((JMenu)globalStatusMessageMenu.getMenu());
 
         if(!ConfigurationUtils.isHideAccountStatusSelectorsEnabled())
             this.addSeparator();
