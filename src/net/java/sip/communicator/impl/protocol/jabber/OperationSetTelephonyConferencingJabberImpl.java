@@ -459,8 +459,9 @@ public class OperationSetTelephonyConferencingJabberImpl
      * temporary and should be removed once we choose a better way to pass the
      * SID.
      */
+    @Override
     protected ConferenceInfoDocument getCurrentConferenceInfo(
-            MediaAwareCallPeer callPeer)
+            MediaAwareCallPeer<?,?,?> callPeer)
     {
         ConferenceInfoDocument confInfo
                 = super.getCurrentConferenceInfo(callPeer);

@@ -169,7 +169,7 @@ public abstract class AbstractOperationSetDTMF
      * @param peer the call peer.
      * @return whether we can use rfc4733 in this call.
      */
-    protected static boolean isRFC4733Active(MediaAwareCallPeer peer)
+    protected static boolean isRFC4733Active(MediaAwareCallPeer<?,?,?> peer)
     {
         Iterator<MediaFormat> iter =
             peer.getMediaHandler().getStream(MediaType.AUDIO)

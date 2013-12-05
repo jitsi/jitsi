@@ -1009,7 +1009,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      * state of the conference in which this <tt>CallPeer</tt> participates.
      */
     protected ConferenceInfoDocument getCurrentConferenceInfo(
-            MediaAwareCallPeer callPeer)
+            MediaAwareCallPeer<?,?,?> callPeer)
     {
         ConferenceInfoDocument confInfo;
         try
@@ -1109,7 +1109,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                      * streams we have already set up with the other
                      * participants in the conference.
                      */
-                    for (MediaAwareCallPeer otherCallPeer
+                    for (MediaAwareCallPeer<?,?,?> otherCallPeer
                             : callPeer.getCall().getCallPeerList())
                     {
                         MediaStream otherStream

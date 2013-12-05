@@ -5,8 +5,6 @@
  */
 package net.java.sip.communicator.impl.muc;
 
-import java.util.*;
-
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -22,14 +20,15 @@ public class ChatRoomSourceContact
      * The parent contact query.
      */
     private final ChatRoomQuery parentQuery;
-    
+
     /**
      * The protocol provider of the chat room associated with the contact.
      */
     private boolean isAutoJoin;
-    
+
     /**
-     * Contsructs new chat room source contact.
+     * Constructs a new chat room source contact.
+     *
      * @param chatRoomName the name of the chat room associated with the room.
      * @param chatRoomID the id of the chat room associated with the room.
      * @param query the query associated with the contact.
@@ -47,10 +46,10 @@ public class ChatRoomSourceContact
         
         initContactProperties(getChatRoomStateByName());
     }
-    
+
     /**
      * Constructs new chat room source contact.
-     * 
+     *
      * @param chatRoom the chat room associated with the contact.
      * @param query the query associated with the contact.
      * @param isAutoJoin the auto join state
@@ -64,17 +63,16 @@ public class ChatRoomSourceContact
         this.isAutoJoin = isAutoJoin;
         
         initContactProperties(
-            (chatRoom.isJoined()? 
-                ChatRoomPresenceStatus.CHAT_ROOM_ONLINE : 
-                    ChatRoomPresenceStatus.CHAT_ROOM_OFFLINE));
+                chatRoom.isJoined()
+                    ? ChatRoomPresenceStatus.CHAT_ROOM_ONLINE
+                    : ChatRoomPresenceStatus.CHAT_ROOM_OFFLINE);
         
     }
-    
-    
+
     /**
-     * Checks if the chat room associated with the contact is joinned or not and 
+     * Checks if the chat room associated with the contact is joined or not and 
      * returns it presence status.
-     * 
+     *
      * @return the presence status of the chat room associated with the contact.
      */
     private PresenceStatus getChatRoomStateByName()
@@ -90,7 +88,7 @@ public class ChatRoomSourceContact
         }
         return ChatRoomPresenceStatus.CHAT_ROOM_OFFLINE;
     }
-    
+
     /**
      * Returns the index of this source contact in its parent group.
      *
@@ -104,6 +102,7 @@ public class ChatRoomSourceContact
 
     /**
      * Returns the auto join state of the contact.
+     *
      * @return the auto join state of the contact.
      */
     public boolean isAutoJoin()
@@ -113,6 +112,7 @@ public class ChatRoomSourceContact
 
     /**
      * Sets the auto join state of the contact.
+     *
      * @param isAutoJoin the auto join state to be set.
      */
     public void setAutoJoin(boolean isAutoJoin)

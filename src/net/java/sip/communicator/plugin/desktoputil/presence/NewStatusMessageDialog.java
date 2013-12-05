@@ -11,8 +11,9 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import org.jitsi.service.resources.*;
+
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -41,8 +42,10 @@ public class NewStatusMessageDialog
     /**
      * The button, used to cancel this dialog.
      */
-    private final JButton cancelButton = new JButton(
-        DesktopUtilActivator.getResources().getI18NString("service.gui.CANCEL"));
+    private final JButton cancelButton
+        = new JButton(
+                DesktopUtilActivator.getResources().getI18NString(
+                        "service.gui.CANCEL"));
 
     /**
      * The current status message.
@@ -57,7 +60,7 @@ public class NewStatusMessageDialog
     /**
      * The parent menu.
      */
-    private AbstractStatusMessageMenu parentMenu;
+    private final AbstractStatusMessageMenu parentMenu;
 
     /**
      * A checkbox when checked, the new message will be saved.
@@ -69,8 +72,8 @@ public class NewStatusMessageDialog
      *
      * @param currentStatusMessage the current status message.
      */
-    public NewStatusMessageDialog (String currentStatusMessage,
-                                   AbstractStatusMessageMenu parentMenu)
+    public NewStatusMessageDialog(String currentStatusMessage,
+                                  AbstractStatusMessageMenu parentMenu)
     {
         super(false);
 
@@ -87,36 +90,31 @@ public class NewStatusMessageDialog
      */
     private void init()
     {
-        JLabel messageLabel = new JLabel(
-            DesktopUtilActivator.getResources().getI18NString(
-                "service.gui.NEW_STATUS_MESSAGE"));
+        ResourceManagementService r = DesktopUtilActivator.getResources();
+        JLabel messageLabel
+            = new JLabel(r.getI18NString("service.gui.NEW_STATUS_MESSAGE"));
 
         JPanel dataPanel
             = new TransparentPanel(new BorderLayout(5, 5));
 
-        JTextArea infoArea = new JTextArea(
-            DesktopUtilActivator.getResources().getI18NString(
-                "service.gui.STATUS_MESSAGE_INFO"));
+        JTextArea infoArea
+            = new JTextArea(r.getI18NString("service.gui.STATUS_MESSAGE_INFO"));
 
-        JLabel infoTitleLabel = new JLabel(
-            DesktopUtilActivator.getResources().getI18NString(
-                "service.gui.NEW_STATUS_MESSAGE"));
+        JLabel infoTitleLabel
+            = new JLabel(r.getI18NString("service.gui.NEW_STATUS_MESSAGE"));
 
         JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1));
 
-        JButton okButton = new JButton(
-            DesktopUtilActivator.getResources().getI18NString(
-                "service.gui.OK"));
+        JButton okButton = new JButton(r.getI18NString("service.gui.OK"));
 
         JPanel buttonsPanel
             = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
 
-        saveNewMessage = new JCheckBox(
-            DesktopUtilActivator.getResources().getI18NString(
-                "service.gui.NEW_STATUS_MESSAGE_SAVE"));
+        saveNewMessage
+            = new JCheckBox(
+                    r.getI18NString("service.gui.NEW_STATUS_MESSAGE_SAVE"));
 
-        this.setTitle(DesktopUtilActivator.getResources()
-                .getI18NString("service.gui.NEW_STATUS_MESSAGE"));
+        this.setTitle(r.getI18NString("service.gui.NEW_STATUS_MESSAGE"));
 
         this.getRootPane().setDefaultButton(okButton);
 
@@ -137,8 +135,8 @@ public class NewStatusMessageDialog
             infoTitleLabel.getFont().deriveFont(Font.BOLD, 18.0f));
 
         saveNewMessage.setSelected(true);
-        JPanel saveToCustomPanel = new TransparentPanel(
-            new FlowLayout(FlowLayout.RIGHT));
+        JPanel saveToCustomPanel
+            = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
         saveToCustomPanel.add(saveNewMessage);
 
         labelsPanel.add(infoTitleLabel);
@@ -170,10 +168,8 @@ public class NewStatusMessageDialog
         okButton.setName("ok");
         cancelButton.setName("cancel");
 
-        okButton.setMnemonic(
-            DesktopUtilActivator.getResources().getI18nMnemonic("service.gui.OK"));
-        cancelButton.setMnemonic(
-            DesktopUtilActivator.getResources().getI18nMnemonic("service.gui.CANCEL"));
+        okButton.setMnemonic(r.getI18nMnemonic("service.gui.OK"));
+        cancelButton.setMnemonic(r.getI18nMnemonic("service.gui.CANCEL"));
 
         okButton.addActionListener(this);
         cancelButton.addActionListener(this);
@@ -206,8 +202,10 @@ public class NewStatusMessageDialog
     /**
      * Handles the <tt>ActionEvent</tt>. In order to change the status message
      * with the new one calls the <tt>PublishStatusMessageThread</tt>.
+     *
      * @param e the event that notified us of the action
      */
+    @Override
     public void actionPerformed(ActionEvent e)
     {
         JButton button = (JButton)e.getSource();
