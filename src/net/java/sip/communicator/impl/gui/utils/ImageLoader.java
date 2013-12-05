@@ -1326,6 +1326,12 @@ public class ImageLoader
         = new ImageID("service.gui.statusicons.USER_AWAY_ICON");
 
     /**
+     * Contact "away" icon.
+     */
+    public static final ImageID USER_EXTENDED_AWAY_ICON
+        = new ImageID("service.gui.statusicons.USER_EXTENDED_AWAY_ICON");
+
+    /**
      * Contact "free for chat" icon.
      */
     public static final ImageID USER_FFC_ICON
