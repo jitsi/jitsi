@@ -614,7 +614,14 @@ public class ChatWritePanel
                 position++;
 
             String sequence = message.substring(position, index);
-
+            
+            if (sequence.length() <= 0)
+            {
+                // Do not look for matching contacts if the matching pattern is
+                // 0 chars long, since all contacts will match.
+                return;
+            }
+            
             Iterator<ChatContact<?>> iter = chatPanel.getChatSession()
                                              .getParticipants();
             ArrayList<String> contacts = new ArrayList<String>();
