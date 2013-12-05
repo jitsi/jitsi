@@ -210,7 +210,8 @@ public class InitialAccountRegistrationFrame
     private void initAccountWizards()
     {
         String simpleWizards
-            = Resources.getLoginProperty("plugin.simpleaccreg.PROTOCOL_ORDER");
+            = SimpleAccountRegistrationActivator.getConfigService()
+                .getString("plugin.simpleaccreg.PROTOCOL_ORDER");
 
         StringTokenizer tokenizer = new StringTokenizer(simpleWizards, "|");
 
