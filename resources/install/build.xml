@@ -3096,6 +3096,10 @@ org.jitsi.bccontrib.util"/>
         <symlink resource="/usr/share/java/commons-codec.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/installer-exclude/commons-codec-1.4.jar"/>
+        <!-- libcommons-lang-java -->
+        <symlink resource="/usr/share/java/commons-lang3.jar"
+                 overwrite="true"
+                 link="${debian.src.dir}/lib/installer-exclude/commons-lang3-3.1.jar"/>
         <!-- libcommons-logging-java -->
         <symlink resource="/usr/share/java/commons-logging.jar"
                  overwrite="true"
