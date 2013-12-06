@@ -144,7 +144,35 @@ public abstract class StatusSelectorMenu
         super.paintComponent(g);
 
         if(isConnecting)
-            g.drawImage(connectingIcon, 0, 3, this);
+            g.drawImage(getConnectingIcon(), 0, 3, this);
+    }
+
+    /**
+     * Returns the connecting icon, if missing create it.
+     * @return the connecting i con, if missing create it.
+     */
+    private Image getConnectingIcon()
+    {
+        if(connectingIcon == null)
+        {
+            connectingIcon
+                = GuiActivator.getResources()
+                    .getImage("service.gui.icons.CONNECTING").getImage();
+        }
+
+        return connectingIcon;
+    }
+
+    /**
+     * Clears the connecting icon.
+     */
+    private void clearConnectingIcon()
+    {
+        if(connectingIcon != null)
+        {
+            connectingIcon.flush();
+            connectingIcon = null;
+        }
     }
 
     /**
@@ -160,6 +188,8 @@ public abstract class StatusSelectorMenu
      */
     public void stopConnecting()
     {
+        clearConnectingIcon();
+
         setConnecting(false);
     }
 
@@ -227,9 +257,7 @@ public abstract class StatusSelectorMenu
      */
     public void loadSkin()
     {
-        connectingIcon
-            = GuiActivator.getResources()
-                .getImage("service.gui.icons.CONNECTING").getImage();
+        clearConnectingIcon();
     }
 
     /**
@@ -238,7 +266,7 @@ public abstract class StatusSelectorMenu
     public void dispose()
     {
         protocolProvider = null;
-        connectingIcon = null;
+        clearConnectingIcon();
         offlineStatus = null;
         onlineStatus = null;
     }

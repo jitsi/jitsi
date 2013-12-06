@@ -133,7 +133,35 @@ public class ReadonlyStatusItem
         super.paintComponent(g);
 
         if(isConnecting)
-            g.drawImage(connectingIcon, 0, 3, this);
+            g.drawImage(getConnectingIcon(), 0, 3, this);
+    }
+
+    /**
+     * Returns the connecting icon, if missing create it.
+     * @return the connecting icon, if missing create it.
+     */
+    private Image getConnectingIcon()
+    {
+        if(connectingIcon == null)
+        {
+            connectingIcon
+                = GuiActivator.getResources()
+                    .getImage("service.gui.icons.CONNECTING").getImage();
+        }
+
+        return connectingIcon;
+    }
+
+    /**
+     * Clears the connecting icon.
+     */
+    private void clearConnectingIcon()
+    {
+        if(connectingIcon != null)
+        {
+            connectingIcon.flush();
+            connectingIcon = null;
+        }
     }
 
     /**
@@ -191,10 +219,7 @@ public class ReadonlyStatusItem
     @Override
     public void loadSkin()
     {
-        connectingIcon
-            = GuiActivator.getResources()
-            .getImage("service.gui.icons.CONNECTING").getImage();
-
+        clearConnectingIcon();
         this.setIcon(ImageLoader.getAccountStatusImage(protocolProvider));
     }
 
@@ -204,7 +229,7 @@ public class ReadonlyStatusItem
     public void dispose()
     {
         protocolProvider = null;
-        connectingIcon = null;
+        clearConnectingIcon();
         onlineStatus = null;
         offlineStatus = null;
     }
@@ -231,6 +256,8 @@ public class ReadonlyStatusItem
      */
     public void stopConnecting()
     {
+        clearConnectingIcon();
+
         setConnecting(false);
     }
 

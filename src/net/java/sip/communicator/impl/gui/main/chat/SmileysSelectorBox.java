@@ -270,7 +270,25 @@ public class SmileysSelectorBox
      * nothing.
      * @param e the <tt>PopupMenuEvent</tt>
      */
-    public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
+    public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+    {
+        // fixes a leak where gif images leak "Image Animator" threads
+        JPopupMenu popupMenu = (JPopupMenu) e.getSource();
+
+        for(Component c : popupMenu.getComponents())
+        {
+            if(c instanceof SmileyMenuItem)
+            {
+                SmileyMenuItem si = (SmileyMenuItem)c;
+                if(si.getIcon() instanceof ImageIcon)
+                {
+                    ImageIcon ii = (ImageIcon)si.getIcon();
+                    if(ii != null && ii.getImage() != null)
+                        ii.getImage().flush();
+                }
+            }
+        }
+    }
 
     /**
      * Implements PopupMenuListener#popupMenuWillBecomeVisible(PopupMenuEvent).
