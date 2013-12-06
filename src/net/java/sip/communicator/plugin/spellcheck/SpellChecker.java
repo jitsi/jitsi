@@ -352,7 +352,8 @@ class SpellChecker
     {
         synchronized (this.locale)
         {
-            if(this.locale.equals(locale))
+            if(this.locale.equals(locale)
+                && this.dict != null)
                 return;
 
             File dictLocation = getLocalDictForLocale(locale);
