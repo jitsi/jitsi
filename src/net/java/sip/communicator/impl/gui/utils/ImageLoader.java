@@ -1368,6 +1368,12 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.CHAT_BUTTON_AWAY_ICON");
 
     /**
+     * Chat button "away" icon.
+     */
+    public static final ImageID CHAT_BUTTON_EXTENDED_AWAY_ICON
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_EXTENDED_AWAY_ICON");
+
+    /**
      * Chat button "free for chat" icon.
      */
     public static final ImageID CHAT_BUTTON_FFC_ICON

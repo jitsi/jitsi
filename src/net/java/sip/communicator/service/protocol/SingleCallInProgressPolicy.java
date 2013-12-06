@@ -412,10 +412,11 @@ public class SingleCallInProgressPolicy
                             ? PresenceStatus.AVAILABLE_THRESHOLD
                             : presence.getPresenceStatus().getStatus();
 
-                    // between AVAILABLE and AWAY (>20, <= 31) are the busy
-                    // statuses as DND and On the phone
+                    // between AVAILABLE and EXTENDED AWAY (>20, <= 31) are
+                    // the busy statuses as DND and On the phone
                     if (presenceStatus > PresenceStatus.ONLINE_THRESHOLD
-                        && presenceStatus <= PresenceStatus.AWAY_THRESHOLD)
+                        && presenceStatus <=
+                                PresenceStatus.EXTENDED_AWAY_THRESHOLD)
                     {
                         rejectCallWithBusyHere(call);
                         return;

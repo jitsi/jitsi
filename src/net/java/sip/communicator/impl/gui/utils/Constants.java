@@ -348,17 +348,22 @@ public class Constants
                 return ImageLoader
                     .getImage(ImageLoader.CHAT_BUTTON_OFFLINE_ICON);
             }
-            else if(connectivity < PresenceStatus.AWAY_THRESHOLD)
+            else if(connectivity < PresenceStatus.EXTENDED_AWAY_THRESHOLD)
             {
                 return ImageLoader
                     .getImage(ImageLoader.CHAT_BUTTON_DND_ICON);
             }
-            else if(connectivity == PresenceStatus.AWAY_THRESHOLD)
+            else if(connectivity == PresenceStatus.EXTENDED_AWAY_THRESHOLD)
             {
                 // the special status On The Phone is state
-                // between DND and AWAY states.
+                // between DND and EXTENDED AWAY states.
                 return ImageLoader
                     .getImage(ImageLoader.CHAT_BUTTON_ON_THE_PHONE_ICON);
+            }
+            else if(connectivity < PresenceStatus.AWAY_THRESHOLD)
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_BUTTON_EXTENDED_AWAY_ICON);
             }
             else if(connectivity < PresenceStatus.AVAILABLE_THRESHOLD)
             {
