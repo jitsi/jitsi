@@ -139,6 +139,10 @@ public class AutoProxyConnection
         this.defaultTransport = defaultTransport;
         reset();
         this.address = address;
+        if (nu.isValidIPAddress(this.address))
+        {
+            this.state = State.IP;
+        }
     }
 
     /**

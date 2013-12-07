@@ -909,8 +909,11 @@ public class CallManager
         callString = callString.trim();
 
         // Removes special characters from phone numbers.
-        if (ConfigurationUtils.isNormalizePhoneNumber())
+        if (ConfigurationUtils.isNormalizePhoneNumber()
+            && !NetworkUtils.isValidIPAddress(callString))
+        {
             callString = PhoneNumberI18nService.normalize(callString);
+        }
 
         List<ProtocolProviderService> telephonyProviders
             = CallManager.getTelephonyProviders();
@@ -2502,7 +2505,8 @@ public class CallManager
             Contact contact = this.contact;
             String stringContact = this.stringContact;
 
-            if (ConfigurationUtils.isNormalizePhoneNumber())
+            if (ConfigurationUtils.isNormalizePhoneNumber()
+                && !NetworkUtils.isValidIPAddress(stringContact))
             {
                 if (contact != null)
                 {
