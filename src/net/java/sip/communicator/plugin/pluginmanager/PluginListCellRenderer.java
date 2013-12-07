@@ -46,19 +46,9 @@ public class PluginListCellRenderer
         = new Color(Resources.getColor("service.gui.GRADIENT_LIGHT_COLOR"));
 
     /**
-     * The panel containing name and version information.
+     * The name and version label.
      */
-    private JPanel nameVersionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-
-    /**
-     * The name label.
-     */
-    private JLabel nameLabel = new JLabel();
-
-    /**
-     * The version label.
-     */
-    private JLabel versionLabel = new JLabel();
+    private JLabel nameVersionLabel = new JLabel();
 
     /**
      * The description label.
@@ -69,18 +59,6 @@ public class PluginListCellRenderer
      * The state label.
      */
     private JLabel stateLabel = new JLabel();
-
-    /**
-     * The icon label.
-     */
-    private JLabel iconLabel = new JLabel();
-
-    /**
-     * The system label indicating that a bundle is system (i.e. not optional).
-     */
-    private JLabel systemLabel
-        = new JLabel("( " + Resources.getString("plugin.pluginmanager.SYSTEM")
-                    + " )");
 
     /**
      * Indicates if a skin is selected.
@@ -101,33 +79,13 @@ public class PluginListCellRenderer
      */
     public PluginListCellRenderer()
     {
-        super(new BorderLayout(8, 8));
-
-        JPanel mainPanel = new JPanel(new BorderLayout());
-
-        this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
+        super(new BorderLayout(8, 0));
+        this.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
         this.setBackground(Color.WHITE);
 
-        this.setOpaque(true);
-
-        mainPanel.setOpaque(false);
-        this.nameVersionPanel.setOpaque(false);
-
-        this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-        this.nameLabel.setIconTextGap(2);
-
-        this.nameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
-        this.systemLabel.setFont(this.getFont().deriveFont(Font.BOLD));
-
-        this.nameVersionPanel.add(nameLabel);
-        this.nameVersionPanel.add(versionLabel);
-
-        mainPanel.add(nameVersionPanel, BorderLayout.NORTH);
-        mainPanel.add(descriptionLabel, BorderLayout.CENTER);
-
-        this.add(iconLabel, BorderLayout.WEST);
+        JPanel mainPanel = new TransparentPanel(new GridLayout(2, 1));
+        mainPanel.add(nameVersionLabel);
+        mainPanel.add(descriptionLabel);
 
         this.add(mainPanel, BorderLayout.CENTER);
         this.add(stateLabel, BorderLayout.WEST);
@@ -157,15 +115,20 @@ public class PluginListCellRenderer
 
         Icon stateIcon = getStateIcon(bundle.getState());
 
-        if(bundleName != null)
-            this.nameLabel.setText(bundleName.toString());
-        else
-            this.nameLabel.setText("unknown");
+        StringBuilder sb = new StringBuilder();
+        sb.append("<html><nobr><b>");
+        sb.append(bundleName != null ? bundleName.toString() : "unknown");
+        sb.append("</b> ");
+        sb.append(bundleVersion != null ? bundleVersion.toString() : "");
+        if (PluginManagerActivator.isSystemBundle(bundle))
+        {
+            sb.append(" <b>(");
+            sb.append(Resources.getString("plugin.pluginmanager.SYSTEM"));
+            sb.append(")</b>");
+        }
 
-        if(bundleVersion != null)
-            this.versionLabel.setText(bundleVersion.toString());
-        else
-            this.versionLabel.setText("");
+        sb.append("</nobr></html>");
+        this.nameVersionLabel.setText(sb.toString());
 
         if(bundleDescription != null)
             this.descriptionLabel.setText(bundleDescription.toString());
@@ -174,11 +137,6 @@ public class PluginListCellRenderer
 
         if(stateIcon != null)
             this.stateLabel.setIcon(stateIcon);
-
-        this.nameVersionPanel.remove(systemLabel);
-
-        if(PluginManagerActivator.isSystemBundle(bundle))
-            this.nameVersionPanel.add(systemLabel);
 
         this.isSelected = isSelected;
 
