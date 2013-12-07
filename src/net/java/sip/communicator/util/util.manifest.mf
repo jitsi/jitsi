@@ -3,7 +3,7 @@ Bundle-Name: Jitsi Utility Packages
 Bundle-Description: A bundle that export packages with utility classes.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.service.util
 Import-Package: com.sun.awt,
  javax.imageio,
  javax.naming,

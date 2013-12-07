@@ -3,6 +3,7 @@ Bundle-Description: Contact sources configuration
 Bundle-Name: Contact sources configuration
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
+Bundle-SymbolicName: net.java.sip.communicator.plugin.contactsourceconfig
 Import-Package: net.java.sip.communicator.service.contactsource,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.util,
@@ -12,4 +13,3 @@ Import-Package: net.java.sip.communicator.service.contactsource,
  org.jitsi.service.configuration,
  org.osgi.framework,
  javax.swing
-System-Bundle: yes

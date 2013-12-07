@@ -3,8 +3,8 @@ Bundle-Description: Demultiplexing contact source
 Bundle-Name: Demux Contact Source
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
+Bundle-SymbolicName: net.java.sip.communicator.plugin.demuxcontactsource
 Import-Package: net.java.sip.communicator.service.contactsource,
  net.java.sip.communicator.service.protocol,
  org.jitsi.util,
  org.osgi.framework
-System-Bundle: yes

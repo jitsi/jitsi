@@ -3,7 +3,7 @@ Bundle-Name: MetaContactList
 Bundle-Description: An implementation of the MetaContactList service.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.contactlist
 Import-Package: org.osgi.framework,
  org.jitsi.service.fileaccess,
  org.jitsi.service.configuration,

@@ -3,6 +3,7 @@ Bundle-Description: The core of Jitsi as a stand-alone library
 Bundle-Name: libjitsi
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
+Bundle-SymbolicName: net.java.sip.communicator.libjitsi
 Export-Package: javax.media,
  javax.media.protocol,
  org.jitsi.impl.neomedia,
@@ -86,4 +87,3 @@ Import-Package: apple.awt,
  quicktime.std.image,
  quicktime.std.sg,
  quicktime.util
-System-Bundle: yes

@@ -3,7 +3,7 @@ Bundle-Name: General config plugin
 Bundle-Description: The plugin offering general configuration page.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.plugin.generalconfig
 Import-Package: org.osgi.framework,
  org.jitsi.service.configuration,
  org.jitsi.util,

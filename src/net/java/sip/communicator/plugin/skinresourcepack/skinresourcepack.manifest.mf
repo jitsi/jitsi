@@ -4,7 +4,7 @@ Bundle-Name: Skin Resource Pack
 Bundle-Description: The plugin offering skin related data.
 Bundle-Vendor: jitsi.org, Adam Netocny, CircleTech, s.r.o.
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.plugin.skinresourcepack
 Import-Package: org.osgi.framework,
  org.jitsi.service.resources, net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util

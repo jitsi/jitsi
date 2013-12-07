@@ -3,7 +3,7 @@ Bundle-Name: UI Service
 Bundle-Description:  The User Interface Service.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.service.gui
 Import-Package: org.osgi.framework,
  org.jitsi.service.resources,
  net.java.sip.communicator.service.resources,

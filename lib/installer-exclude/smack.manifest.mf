@@ -2,7 +2,7 @@ Bundle-Name: Smack Lib Provider
 Bundle-Description: Smack Lib Provider
 Bundle-Vendor: sip-communicator.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: org.jivesoftware.smack
 Import-Package: javax.net,
  javax.net.ssl,
  javax.security.auth.callback,

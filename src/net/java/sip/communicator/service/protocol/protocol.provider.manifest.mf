@@ -3,7 +3,7 @@ Bundle-Name: Protocol Provider Service
 Bundle-Description: Protocol Provider Service.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.service.protocol
 Import-Package: net.java.sip.communicator.service.credentialsstorage,
  net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util,

@@ -3,7 +3,7 @@ Bundle-Name: Media Utilities for the Protocol Provider Service
 Bundle-Description: Media Utilities for the Protocol Provider Service.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.service.protocol.media
 Import-Package: javax.xml.parsers,
  javax.xml.transform,
  javax.xml.transform.dom,

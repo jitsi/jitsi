@@ -3,6 +3,7 @@ Bundle-Description: Thunderbird address source
 Bundle-Name: thunderbird
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
+Bundle-SymbolicName: net.java.sip.communicator.plugin.thunderbird
 Import-Package: javax.swing,
  javax.swing.event,
  javax.swing.text,
@@ -17,4 +18,3 @@ Import-Package: javax.swing,
  net.java.sip.communicator.plugin.desktoputil,
  org.osgi.framework,
  mork
-System-Bundle: no

@@ -3,7 +3,7 @@ Bundle-Name: UI Service Provider Implementation
 Bundle-Description: An implementation of the UI service.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.swingui
 Import-Package: com.apple.eawt,
  com.sun.jna.platform,
  javax.accessibility,

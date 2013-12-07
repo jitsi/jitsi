@@ -2479,7 +2479,7 @@ javax.swing.event, javax.swing.border"/>
                 <attribute name="Bundle-Name" value="ZRTP4J"/>
                 <attribute name="Bundle-Description" value="ZRTP for Java library."/>
                 <attribute name="Bundle-Version" value="1.4.5"/>
-                <attribute name="System-Bundle" value="yes"/>
+                <attribute name="Bundle-SymbolicName" value="gnu.java.zrtp4j"/>
             </manifest>
         </jar>
     </target>

@@ -3,7 +3,7 @@ Bundle-Name: OS dependent
 Bundle-Description: OS dependent.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.osdependent
 Export-Package: net.java.sip.communicator.service.desktop
 Import-Package: org.osgi.framework,
  com.apple.cocoa.application,

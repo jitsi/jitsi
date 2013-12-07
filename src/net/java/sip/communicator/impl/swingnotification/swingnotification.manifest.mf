@@ -3,7 +3,7 @@ Bundle-Name: Swing Notification Service Provider
 Bundle-Description: A bundle which implements Swing notifications.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.swingnotification
 Import-Package: org.osgi.framework,
  org.jitsi.service.configuration,
  net.java.sip.communicator.service.protocol,

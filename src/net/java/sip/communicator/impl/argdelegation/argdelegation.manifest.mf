@@ -3,7 +3,7 @@ Bundle-Name: Argument Delegation
 Bundle-Description: A bundle that delegates invocation arguments to register handler services
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.argdelegation
 Import-Package: org.osgi.framework,
  com.apple.eawt,
  net.java.sip.communicator.util,

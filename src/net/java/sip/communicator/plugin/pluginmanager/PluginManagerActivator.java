@@ -43,6 +43,17 @@ public class PluginManagerActivator
         = "net.java.sip.communicator.plugin.pluginconfig.DISABLED";
 
     /**
+     * Name of the property that defines which bundles are considered system.
+     */
+    private static final String SYSTEM_BUNDLES_PROP
+        = "net.java.sip.communicator.plugin.pluginmanager.SYSTEM_BUNDLES";
+
+    /**
+     * Cache for the system bundles config property.
+     */
+    private static List<String> systemBundleNames;
+
+    /**
      * Starts this bundle and adds the
      * <td>PluginManagerConfigForm</tt> contained in it to the configuration
      * window obtained from the <tt>UIService</tt>.
@@ -64,13 +75,16 @@ public class PluginManagerActivator
             bundleContext.registerService(
                 ConfigurationForm.class.getName(),
                 new LazyConfigurationForm(
-                    "net.java.sip.communicator.plugin.pluginmanager.PluginManagerPanel",
+                    PluginManagerPanel.class.getName(),
                     getClass().getClassLoader(),
                     "plugin.pluginmanager.PLUGIN_ICON",
                     "plugin.pluginmanager.PLUGINS",
                     1000, true),
                 properties);
         }
+
+        systemBundleNames = Arrays.asList(getConfigurationService()
+            .getString(SYSTEM_BUNDLES_PROP).split(","));
     }
 
     /**
@@ -142,9 +156,7 @@ public class PluginManagerActivator
             return true;
         }
 
-        Object sysBundleProp = bundle.getHeaders().get("System-Bundle");
-
         //ignore if this is a system bundle
-        return (sysBundleProp != null && sysBundleProp.equals("yes"));
+        return systemBundleNames.contains(bundle.getSymbolicName());
     }
 }

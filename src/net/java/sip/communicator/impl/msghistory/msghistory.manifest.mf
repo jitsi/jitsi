@@ -3,7 +3,7 @@ Bundle-Name: Message History Service Provider
 Bundle-Description: A bundle that implements the message history package.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.msghistory
 Import-Package: org.osgi.framework,
  org.jitsi.service.configuration,
  org.jitsi.service.resources, net.java.sip.communicator.service.resources,

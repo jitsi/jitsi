@@ -3,7 +3,7 @@ Bundle-Name: Notifications
 Bundle-Description: An implementation of the Notification service.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.notification
 Import-Package: org.osgi.framework,
  javax.imageio,
  org.jitsi.util,

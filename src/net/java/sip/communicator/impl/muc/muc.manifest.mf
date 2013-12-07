@@ -3,7 +3,7 @@ Bundle-Name: Chat room contact source
 Bundle-Description: Chat room contact source
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.muc
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.contactsource,
  net.java.sip.communicator.service.protocol,
