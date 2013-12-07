@@ -242,6 +242,7 @@ public class ReceiveFileConversationComponent
         else if (status == FileTransferStatusChangeEvent.FAILED)
         {
             hideProgressRelatedComponents();
+            cancelButton.setVisible(false);
 
             titleLabel.setText(
                 dateString
