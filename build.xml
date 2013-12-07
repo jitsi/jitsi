@@ -2096,20 +2096,11 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/service/httputil"
                 prefix="net/java/sip/communicator/service/httputil"/>
         </jar>
-        <!--
-            Re-packaging into new bundle as original having wrong paths in osgi
-            bundle manifest and getting exceptions
-            'No paths specified in header' while loading
-         -->
-        <jar
-            compress="false" destfile="${bundles.dest}/httpclient.jar"
-            manifest="${lib.noinst}/httpclient.manifest.mf">
-            <zipfileset src="${lib.noinst}/httpclient-osgi-4.2.3.jar"
-                        prefix=""/>
-            <zipfileset src="${lib.noinst}/httpcore-osgi-4.2.3.jar"
-                        prefix=""/>
-        </jar>
 
+        <copy file="${lib.noinst}/httpclient-osgi-4.2.3.jar"
+            tofile="${bundles.dest}/httpclient.jar"/>
+        <copy file="${lib.noinst}/httpcore-osgi-4.2.3.jar"
+            tofile="${bundles.dest}/httpcore.jar"/>
     </target>
 
     <!-- BUNDLE-NOTIFICATION -->
