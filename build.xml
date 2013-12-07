@@ -2115,26 +2115,14 @@ javax.swing.event, javax.swing.border"/>
 
     <!--BUNDLE-COMMONS-CODEC -->
     <target name="bundle-commons-codec">
-        <jar compress="true" destfile="${bundles.dest}/commons-codec.jar"
-            filesetmanifest="merge">
-
-            <zipfileset src="${lib.noinst}/commons-codec-1.4.jar" prefix=""/>
-            <manifest>
-                <attribute name="System-Bundle" value="yes"/>
-            </manifest>
-        </jar>
+        <copy file="${lib.noinst}/commons-codec-1.4.jar"
+            tofile="${bundles.dest}/commons-codec.jar"/>
     </target>
 
     <!--BUNDLE-COMMONS-LANG -->
     <target name="bundle-commons-lang">
-        <jar compress="true" destfile="${bundles.dest}/commons-lang.jar"
-            filesetmanifest="merge">
-
-            <zipfileset src="${lib.noinst}/commons-lang3-3.1.jar" prefix=""/>
-            <manifest>
-                <attribute name="System-Bundle" value="yes"/>
-            </manifest>
-        </jar>
+        <copy file="${lib.noinst}/commons-lang3-3.1.jar"
+            tofile="${bundles.dest}/commons-lang.jar"/>
     </target>
 
     <!--BUNDLE-HTTPUTIL -->
