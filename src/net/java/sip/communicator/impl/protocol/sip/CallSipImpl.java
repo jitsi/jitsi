@@ -80,8 +80,7 @@ public class CallSipImpl
     * The amount of time (in milliseconds) for the initial interval for
     * retransmissions of response 180.
     */
-    private int retransmitsRingingInterval
-        = DEFAULT_RETRANSMITS_RINGING_INTERVAL;
+    private final int retransmitsRingingInterval;
 
     /**
      * Crates a CallSipImpl instance belonging to <tt>sourceProvider</tt> and
@@ -96,13 +95,21 @@ public class CallSipImpl
 
         this.messageFactory = getProtocolProvider().getMessageFactory();
 
+        ConfigurationService cfg = SipActivator.getConfigurationService();
+        int retransmitsRingingInterval = DEFAULT_RETRANSMITS_RINGING_INTERVAL;
+
+        if (cfg != null)
+        {
+            retransmitsRingingInterval
+                = cfg.getInt(
+                        RETRANSMITS_RINGING_INTERVAL,
+                        retransmitsRingingInterval);
+        }
+        this.retransmitsRingingInterval = retransmitsRingingInterval;
+
         //let's add ourselves to the calls repo. we are doing it ourselves just
         //to make sure that no one ever forgets.
         parentOpSet.getActiveCallsRepository().addCall(this);
-
-        ConfigurationService cfg = SipActivator.getConfigurationService();
-        retransmitsRingingInterval = cfg.getInt(RETRANSMITS_RINGING_INTERVAL,
-                DEFAULT_RETRANSMITS_RINGING_INTERVAL);
     }
 
     /**
