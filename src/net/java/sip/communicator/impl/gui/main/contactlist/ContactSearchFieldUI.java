@@ -39,6 +39,12 @@ public class ContactSearchFieldUI
     implements Skinnable
 {
     /**
+     * Class logger.
+     */
+    private final static Logger logger
+        = Logger.getLogger(ContactSearchFieldUI.class);
+
+    /**
      * Indicates whether the call button should be enabled or not.
      */
     private boolean isCallButtonEnabled = true;
@@ -98,7 +104,19 @@ public class ContactSearchFieldUI
     public void setupListeners()
     {
         providerRegListener = new ProtocolProviderRegListener();
-        GuiActivator.bundleContext.addServiceListener(providerRegListener);
+        try
+        {
+            GuiActivator.bundleContext.addServiceListener(providerRegListener,
+                "(objectclass="
+                    + ProtocolProviderService.class.getName() + ")");
+        }
+        catch (InvalidSyntaxException e)
+        {
+            // this should really not happen
+            logger.error(e);
+            return;
+        }
+
         for(ProtocolProviderFactory providerFactory : 
             GuiActivator.getProtocolProviderFactories().values())
         {
@@ -180,6 +198,7 @@ public class ContactSearchFieldUI
     private class ProtocolProviderRegListener
         implements ServiceListener
     {
+        @Override
         public void serviceChanged(ServiceEvent event)
         {
             ServiceReference serviceRef = event.getServiceReference();
@@ -191,24 +210,17 @@ public class ContactSearchFieldUI
                 return;
             }
 
-            Object service = GuiActivator.bundleContext.getService(serviceRef);
-
-            // we don't care if the source service is not a protocol provider
-            if (!(service instanceof ProtocolProviderService))
-            {
-                return;
-            }
-
-            ProtocolProviderService pps = (ProtocolProviderService)service;
+            ProtocolProviderService pps = (ProtocolProviderService)
+                GuiActivator.bundleContext.getService(serviceRef);
             switch (event.getType())
             {
             case ServiceEvent.REGISTERED:
-                providers.add((ProtocolProviderService) service);
+                providers.add(pps);
                 pps.addRegistrationStateChangeListener(
                         providerRegistrationStateListener);
                 break;
             case ServiceEvent.UNREGISTERING:
-                providers.remove((ProtocolProviderService) service);
+                providers.remove(pps);
                 pps.removeRegistrationStateChangeListener(
                         providerRegistrationStateListener);
                 break;
