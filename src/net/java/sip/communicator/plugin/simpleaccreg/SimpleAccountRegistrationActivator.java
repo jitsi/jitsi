@@ -25,7 +25,8 @@ import javax.swing.*;
  * @author Yana Stamcheva
  */
 public class SimpleAccountRegistrationActivator
-    implements BundleActivator
+    implements BundleActivator,
+               ServiceListener
 {
     private static final Logger logger
         = Logger.getLogger(SimpleAccountRegistrationActivator.class);
@@ -57,6 +58,10 @@ public class SimpleAccountRegistrationActivator
 
     private static ResourceManagementService resourcesService;
 
+    private int numWizardsRegistered = 0;
+
+    private String[] protocolNames;
+
     public void start(BundleContext bc)
         throws Exception
     {
@@ -78,6 +83,20 @@ public class SimpleAccountRegistrationActivator
     }
 
     /**
+     * Handles registration of a new account wizard.
+     */
+    public void serviceChanged(ServiceEvent event)
+    {
+        if (event.getType() == ServiceEvent.REGISTERED)
+        {
+            if (++numWizardsRegistered == protocolNames.length)
+            {
+                showDialog();
+            }
+        }
+    }
+
+    /**
      * Initialize and displays the initial registration frame.
      */
     private void init()
@@ -93,19 +112,73 @@ public class SimpleAccountRegistrationActivator
                 && !getConfigService().getBoolean(DISABLED_PROP, false))
         {
             // If no preferred wizard is specified we launch the default wizard.
-            InitialAccountRegistrationFrame accountRegFrame =
-                new InitialAccountRegistrationFrame();
+            String protocolOrder
+                = SimpleAccountRegistrationActivator.getConfigService()
+                    .getString("plugin.simpleaccreg.PROTOCOL_ORDER");
+            if (protocolOrder == null)
+            {
+                return;
+            }
 
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            accountRegFrame.setLocation(screenSize.width / 2
-                - accountRegFrame.getWidth() / 2, screenSize.height / 2
-                - accountRegFrame.getHeight() / 2);
+            String protocolFilter = "";
+            protocolNames = protocolOrder.split("\\|");
+            for (int i = 0; i < protocolNames.length; i++)
+            {
+                if (i > 0)
+                {
+                    protocolFilter = "(|" + protocolFilter;
+                }
 
-            accountRegFrame.setVisible(true);
+                protocolFilter += "(" + ProtocolProviderFactory.PROTOCOL
+                    + "=" + protocolNames[i] + ")";
+                if (i > 0)
+                {
+                    protocolFilter += ")";
+                }
+            }
+
+            try
+            {
+                ServiceReference[] refs = bundleContext.getAllServiceReferences(
+                    AccountRegistrationWizard.class.getName(), protocolFilter);
+                if (refs != null)
+                {
+                    numWizardsRegistered = refs.length;
+                }
+
+                // not all requested wizard are available, wait for them
+                if (numWizardsRegistered < protocolNames.length)
+                {
+                    bundleContext.addServiceListener(this, "(&(objectclass="
+                        + AccountRegistrationWizard.class.getName() + ")"
+                        + protocolFilter + ")");
+                }
+                else
+                {
+                    showDialog();
+                }
+            }
+            catch (InvalidSyntaxException e)
+            {
+                logger.error(e);
+            }
         }
 
         if (logger.isInfoEnabled())
             logger.info("SIMPLE ACCOUNT REGISTRATION ...[STARTED]");
+    }
+
+    private void showDialog()
+    {
+        InitialAccountRegistrationFrame accountRegFrame =
+            new InitialAccountRegistrationFrame();
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        accountRegFrame.setLocation(screenSize.width / 2
+            - accountRegFrame.getWidth() / 2, screenSize.height / 2
+            - accountRegFrame.getHeight() / 2);
+
+        accountRegFrame.setVisible(true);
     }
 
     public void stop(BundleContext bc) throws Exception

@@ -34,7 +34,6 @@ import org.osgi.framework.*;
  */
 public class InitialAccountRegistrationFrame
     extends SIPCommFrame
-    implements ServiceListener
 {
     /**
      * Serial version UID.
@@ -157,7 +156,7 @@ public class InitialAccountRegistrationFrame
         if (scroller.getViewport().getHeight()
             < Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 230)
         {
-            this.setSize(this.getSize().width,
+            this.setSize(scroller.getViewport().getWidth() + 100,
                 scroller.getViewport().getHeight() + 150);
         }
         else
@@ -269,9 +268,6 @@ public class InitialAccountRegistrationFrame
                 logger.error("GuiActivator : ", ex);
             }
         }
-
-        SimpleAccountRegistrationActivator.bundleContext
-            .addServiceListener(this);
     }
 
     /**
@@ -500,27 +496,6 @@ public class InitialAccountRegistrationFrame
                     .getPassword()));
 
             saveAccountWizard(protocolProvider, wizard);
-        }
-    }
-
-    /**
-     * Handles registration of a new account wizard.
-     */
-    public void serviceChanged(ServiceEvent event)
-    {
-        Object sService = SimpleAccountRegistrationActivator.bundleContext.
-            getService(event.getServiceReference());
-
-        // we don't care if the source service is not a plugin component
-        if (! (sService instanceof AccountRegistrationWizard))
-            return;
-
-        AccountRegistrationWizard wizard
-            = (AccountRegistrationWizard) sService;
-
-        if (event.getType() == ServiceEvent.REGISTERED)
-        {
-            this.addAccountRegistrationForm(wizard);
         }
     }
 
