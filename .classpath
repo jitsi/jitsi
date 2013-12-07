@@ -60,7 +60,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi.jar" sourcepath="../libjitsi/src"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/log4j-1.2.8.jar"/>
+	<classpathentry kind="lib" path="lib/bundle/log4j.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/mac_widgets-0.9.5.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/objenesis-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/otr4j.jar"/>
