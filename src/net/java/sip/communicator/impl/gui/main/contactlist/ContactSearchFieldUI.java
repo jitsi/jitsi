@@ -199,21 +199,18 @@ public class ContactSearchFieldUI
                 return;
             }
 
+            ProtocolProviderService pps = (ProtocolProviderService)service;
             switch (event.getType())
             {
             case ServiceEvent.REGISTERED:
                 providers.add((ProtocolProviderService) service);
-                ((ProtocolProviderService) service)
-                    .addRegistrationStateChangeListener(
+                pps.addRegistrationStateChangeListener(
                         providerRegistrationStateListener);
                 break;
             case ServiceEvent.UNREGISTERING:
                 providers.remove((ProtocolProviderService) service);
-                ((ProtocolProviderService) service)
-                    .removeRegistrationStateChangeListener(
+                pps.removeRegistrationStateChangeListener(
                         providerRegistrationStateListener);
-                if(providers.size() == 0)
-                    providerRegistrationStateListener = null;
                 break;
             }
         }
