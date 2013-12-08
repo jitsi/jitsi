@@ -45,8 +45,7 @@ public class AvatarStackManager
         {
             File imageFile
                 = DesktopUtilActivator.getFileAccessService()
-                    .getPrivatePersistentFile(
-                        fileName);
+                    .getPrivatePersistentFile(fileName, FileCategory.CACHE);
 
             if (imageFile.exists() && !imageFile.delete())
                 logger.error("Failed to delete stored image at index " + index);
@@ -73,8 +72,7 @@ public class AvatarStackManager
 
             imageFile
                 = DesktopUtilActivator.getFileAccessService().
-                    getPrivatePersistentFile(
-                        imagePath);
+                    getPrivatePersistentFile(imagePath, FileCategory.CACHE);
         }
         catch (Exception e)
         {
@@ -110,11 +108,13 @@ public class AvatarStackManager
         try
         {
             FileAccessService fas = DesktopUtilActivator.getFileAccessService();
-            File oldFile = fas.getPrivatePersistentFile(oldImagePath);
+            File oldFile = fas.getPrivatePersistentFile(oldImagePath,
+                FileCategory.CACHE);
 
             if (oldFile.exists())
             {
-                File newFile = fas.getPrivatePersistentFile(newImagePath);
+                File newFile = fas.getPrivatePersistentFile(newImagePath,
+                    FileCategory.CACHE);
 
                 oldFile.renameTo(newFile);
             }
@@ -149,12 +149,14 @@ public class AvatarStackManager
         try
         {
             FileAccessService fas = DesktopUtilActivator.getFileAccessService();
-            File storeDir = fas.getPrivatePersistentDirectory(STORE_DIR);
+            File storeDir = fas.getPrivatePersistentDirectory(STORE_DIR,
+                FileCategory.CACHE);
 
             // if dir doesn't exist create it
             storeDir.mkdirs();
 
-            File file = fas.getPrivatePersistentFile(imagePath);
+            File file = fas.getPrivatePersistentFile(imagePath,
+                FileCategory.CACHE);
 
             ImageIO.write(image, "png", file);
         }
