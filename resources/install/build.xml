@@ -2258,8 +2258,6 @@
                 <exclude name="**/dictaccregwizz/**"/>
                 <exclude name="**/irc/**"/>
                 <exclude name="**/ircaccregwizz/**"/>
-                <exclude name="**/rss/**"/>
-                <exclude name="**/rssaccregwizz/**"/>
                 <exclude name="**/ssh/**"/>
                 <exclude name="**/sshaccregwizz/**"/>
                 <exclude name="**/profiler4j/**"/>
