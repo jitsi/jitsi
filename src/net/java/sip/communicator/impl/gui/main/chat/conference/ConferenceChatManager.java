@@ -622,7 +622,7 @@ public class ConferenceChatManager
                 GuiActivator.getResources().getI18NString("service.gui.ERROR"),
                 GuiActivator.getResources().getI18NString(
                     "service.gui.CREATE_CHAT_ROOM_ERROR",
-                    new String[]{protocolProvider.getProtocolName()}),
+                    new String[]{protocolProvider.getProtocolDisplayName()}),
                     ex)
             .showDialog();
         }
@@ -633,7 +633,7 @@ public class ConferenceChatManager
                 GuiActivator.getResources().getI18NString("service.gui.ERROR"),
                 GuiActivator.getResources().getI18NString(
                     "service.gui.CREATE_CHAT_ROOM_ERROR",
-                    new String[]{protocolProvider.getProtocolName()}),
+                    new String[]{protocolProvider.getProtocolDisplayName()}),
                     ex)
             .showDialog();
         }

@@ -410,7 +410,7 @@ public class MUCServiceImpl
                 MUCActivator.getResources().getI18NString("service.gui.ERROR"),
                 MUCActivator.getResources().getI18NString(
                     "service.gui.CREATE_CHAT_ROOM_ERROR",
-                    new String[]{protocolProvider.getProtocolName()}),
+                    new String[]{protocolProvider.getProtocolDisplayName()}),
                     ex);
         }
         catch (OperationNotSupportedException ex)
@@ -421,7 +421,7 @@ public class MUCServiceImpl
                 MUCActivator.getResources().getI18NString("service.gui.ERROR"),
                 MUCActivator.getResources().getI18NString(
                     "service.gui.CREATE_CHAT_ROOM_ERROR",
-                    new String[]{protocolProvider.getProtocolName()}),
+                    new String[]{protocolProvider.getProtocolDisplayName()}),
                     ex);
         }
 
