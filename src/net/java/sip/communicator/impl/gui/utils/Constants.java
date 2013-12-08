@@ -172,52 +172,6 @@ public class Constants
 
     /*
      * ======================================================================
-     * ------------------------ PROTOCOL NAMES -------------------------------
-     * ======================================================================
-     */
-    /**
-     * The ICQ protocol.
-     */
-    public static final String ICQ = "ICQ";
-
-    /**
-     * The MSN protocol.
-     */
-    public static final String MSN = "MSN";
-
-    /**
-     * The AIM protocol.
-     */
-    public static final String AIM = "AIM";
-
-    /**
-     * The Yahoo protocol.
-     */
-    public static final String YAHOO = "Yahoo";
-
-    /**
-     * The Jabber protocol.
-     */
-    public static final String JABBER = "Jabber";
-
-    /**
-     * The Skype protocol.
-     */
-    public static final String SKYPE = "Skype";
-
-    /**
-     * The Gibberish protocol.
-     */
-    public static final String GIBBERISH = "Gibberish";
-
-
-    /**
-     * The SIP protocol.
-     */
-    public static final String SIP = "SIP";
-
-    /*
-     * ======================================================================
      * ------------------------ OTHER CONSTANTS ------------------------------
      * ======================================================================
      */
