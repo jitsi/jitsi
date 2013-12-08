@@ -132,6 +132,7 @@
   <ComponentRef Id="Component_StartupShortcut" />
 
   <ComponentGroupRef Id="ComponentGroup_RegistryEntries" />
+  <ComponentGroupRef Id="ComponentGroup_DefaultOverrides" />
 </Feature>
 
 <!--
@@ -671,5 +672,6 @@
     </Fragment>
 
 <?include SCRegistrySpec.wxi ?>
+<?include DefaultOverridesProps.wxi ?>
 
 </Wix>

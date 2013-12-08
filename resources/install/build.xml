@@ -690,6 +690,7 @@
                 <include name="*.wxl" />
                 <include name="installer-windows.wxs" />
                 <include name="SCRegistrySpec.wxi" />
+                <include name="DefaultOverridesProps.wxi" />
                 <include name="windows_shortcut_specification.wxi" />
             </fileset>
         </copy>
