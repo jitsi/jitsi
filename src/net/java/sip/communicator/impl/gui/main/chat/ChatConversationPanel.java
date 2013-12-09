@@ -100,7 +100,7 @@ public class ChatConversationPanel
     /**
      * The editor kit used by the text component.
      */
-    private final HTMLEditorKit editorKit;
+    private final ChatConversationEditorKit editorKit;
 
     /**
      * The document used by the text component.
@@ -206,7 +206,7 @@ public class ChatConversationPanel
      */
     public ChatConversationPanel(ChatConversationContainer chatContainer)
     {
-        editorKit = new SIPCommHTMLEditorKit(this);
+        editorKit = new ChatConversationEditorKit(this);
 
         this.chatContainer = chatContainer;
 
@@ -215,6 +215,8 @@ public class ChatConversationPanel
         this.rightButtonMenu = new ChatRightButtonMenu(this);
 
         this.document = (HTMLDocument) editorKit.createDefaultDocument();
+
+        this.document.addDocumentListener(editorKit);
 
         this.chatTextPane.setEditorKitForContentType("text/html", editorKit);
         this.chatTextPane.setEditorKit(editorKit);
@@ -1950,6 +1952,11 @@ public class ChatConversationPanel
     @Override
     public void dispose()
     {
+        if(editorKit != null)
+        {
+            editorKit.dispose();
+        }
+
         super.dispose();
 
         if(showPreview != null)
@@ -2073,5 +2080,114 @@ public class ChatConversationPanel
         }
 
         return null;
+    }
+
+    /**
+     * Extends SIPCommHTMLEditorKit to keeps track of created ImageView for
+     * the gif images in order to flush them whenever they are no longer visible
+     */
+    private class ChatConversationEditorKit
+        extends SIPCommHTMLEditorKit
+        implements DocumentListener
+    {
+        /**
+         * List of the image views.
+         */
+        private java.util.List<ImageView> imageViews =
+            new ArrayList<ImageView>();
+
+        /**
+         * Constructs.
+         * @param container
+         */
+        public ChatConversationEditorKit(JComponent container)
+        {
+            super(container);
+        }
+
+        /**
+         * Clears any left img view and removes any listener was added.
+         */
+        public void dispose()
+        {
+            if(document != null)
+            {
+                document.removeDocumentListener(this);
+            }
+
+            for(ImageView iv : imageViews)
+            {
+                Image img = iv.getImage();
+                if(img != null)
+                    img.flush();
+            }
+
+            imageViews.clear();
+        }
+
+        /**
+         * Inform view creation.
+         * @param view the newly created view.
+         */
+        protected void viewCreated(ViewFactory factory, View view)
+        {
+            if(view instanceof ImageView)
+            {
+                Element e = findFirstElement(view.getElement(), "img");
+
+                if(e == null)
+                    return;
+
+                Object src = e.getAttributes().getAttribute(Attribute.SRC);
+                if(src != null && src instanceof String
+                    && ((String)src).endsWith("gif"))
+                {
+                    imageViews.add((ImageView)view);
+                }
+            }
+        }
+
+        /**
+         * Not used.
+         * @param e
+         */
+        @Override
+        public void insertUpdate(DocumentEvent e)
+        {}
+
+        /**
+         * When something is removed from the current document we will check
+         * the stored image views for any element which si no longer visible.
+         * @param e the event.
+         */
+        @Override
+        public void removeUpdate(DocumentEvent e)
+        {
+            // will check if some image view is no longer visible
+            // will consider not visible when its length is 0
+            Iterator<ImageView> imageViewIterator = imageViews.iterator();
+            while(imageViewIterator.hasNext())
+            {
+                ImageView iv = imageViewIterator.next();
+
+                if((iv.getElement().getEndOffset()
+                    - iv.getElement().getStartOffset()) != 0)
+                    continue;
+
+                Image img = iv.getImage();
+                if(img != null)
+                    img.flush();
+
+                imageViewIterator.remove();
+            }
+        }
+
+        /**
+         * Not used.
+         * @param e
+         */
+        @Override
+        public void changedUpdate(DocumentEvent e)
+        {}
     }
 }

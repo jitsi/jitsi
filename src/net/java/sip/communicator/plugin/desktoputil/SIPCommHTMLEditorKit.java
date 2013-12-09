@@ -65,6 +65,8 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit
         {
             View view = super.create(elem);
 
+            viewCreated(this, view);
+
             if (view instanceof ParagraphView)
             {
                 return new ParagraphViewX(elem);
@@ -77,6 +79,12 @@ public class SIPCommHTMLEditorKit extends HTMLEditorKit
             return view;
         }
     }
+
+    /**
+     * Inform extenders for the view creation.
+     * @param view the newly created view.
+     */
+    protected void viewCreated(ViewFactory factory, View view){}
 
     /**
      * An extended component view, which provides horizontal and vertical
