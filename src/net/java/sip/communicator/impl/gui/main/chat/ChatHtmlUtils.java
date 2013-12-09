@@ -235,29 +235,29 @@ public class ChatHtmlUtils
         String contentType,
         boolean isHistory)
     {
-        StringBuffer headerBuffer = new StringBuffer();
+        StringBuilder headerBuffer = new StringBuilder();
 
 
         SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
-        headerBuffer.append("<h2 id=\"" + MESSAGE_HEADER_ID + "\" ");
-        headerBuffer.append(DATE_ATTRIBUTE + "='"
-            + sdf.format(date) + "'" + ">");
+        headerBuffer.append("<h2 id=\"").append(MESSAGE_HEADER_ID).append("\" ");
+        headerBuffer.append(DATE_ATTRIBUTE).append("='")
+            .append(sdf.format(date)).append("'>");
         headerBuffer.append("<a style=\"color:");
         headerBuffer.append(MSG_IN_NAME_FOREGROUND).append(";");
         headerBuffer.append("font-weight:bold;");
         headerBuffer.append("text-decoration:none;\" ");
-        headerBuffer.append("href=\"" + contactName + "\">");
+        headerBuffer.append("href=\"").append(contactName).append("\">");
         headerBuffer.append(
-            contactDisplayName + createEditedAtTag(messageID, -1));
+            contactDisplayName).append(createEditedAtTag(messageID, -1));
         headerBuffer.append("</a>");
         headerBuffer.append("</h2>");
 
         StringBuffer messageBuff = new StringBuffer();
 
         messageBuff.append("<table width=\"100%\" ");
-        messageBuff.append(NAME_ATTRIBUTE + "=\""
-                            +  Tag.TABLE.toString()
-                            + "\" id=\"messageHeader\"");
+        messageBuff.append(NAME_ATTRIBUTE).append("=\"")
+            .append(Tag.TABLE.toString())
+            .append("\" id=\"messageHeader\"");
         messageBuff.append("style=\"background-color:");
         messageBuff.append(MSG_NAME_BACKGROUND).append(";\">");
         messageBuff.append("<tr>");
@@ -265,7 +265,8 @@ public class ChatHtmlUtils
         messageBuff.append(headerBuffer.toString());
         messageBuff.append("</td>");
         messageBuff.append("<td align=\"right\"><h2>");
-        messageBuff.append(getDateString(date) + GuiUtils.formatTime(date));
+        messageBuff.append(getDateString(date))
+            .append(GuiUtils.formatTime(date));
         messageBuff.append("</h2></td>");
         messageBuff.append("</tr>");
         messageBuff.append("</table>");
@@ -304,28 +305,28 @@ public class ChatHtmlUtils
                                                     String contentType,
                                                     boolean isHistory)
     {
-        StringBuffer headerBuffer = new StringBuffer();
+        StringBuilder headerBuffer = new StringBuilder();
 
 
         SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
-        headerBuffer.append("<h3 id=\"" + MESSAGE_HEADER_ID + "\" ");
-        headerBuffer.append(DATE_ATTRIBUTE + "='"
-            + sdf.format(date) + "'" + ">");
+        headerBuffer.append("<h3 id=\"").append(MESSAGE_HEADER_ID).append("\" ");
+        headerBuffer.append(DATE_ATTRIBUTE).append("='")
+            .append(sdf.format(date)).append("'>");
         headerBuffer.append("<a style=\"color:#535353;");
         headerBuffer.append("font-weight:bold;");
         headerBuffer.append("text-decoration:none;\" ");
-        headerBuffer.append("href=\"" + contactName + "\">");
-        headerBuffer.append(contactDisplayName
-                + createEditedAtTag(messageID, -1));
+        headerBuffer.append("href=\"").append(contactName).append("\">");
+        headerBuffer.append(contactDisplayName)
+            .append(createEditedAtTag(messageID, -1));
         headerBuffer.append("</a>");
         headerBuffer.append("</h3>");
 
         StringBuffer messageBuff = new StringBuffer();
 
         messageBuff.append("<table width=\"100%\" ");
-        messageBuff.append(NAME_ATTRIBUTE + "=\""
-                            +  Tag.TABLE.toString()
-                            + "\" id=\"messageHeader\"");
+        messageBuff.append(NAME_ATTRIBUTE).append("=\"")
+            .append(Tag.TABLE.toString())
+            .append("\" id=\"messageHeader\"");
         messageBuff.append("style=\"background-color:");
         messageBuff.append(MSG_NAME_BACKGROUND).append(";\">");
         messageBuff.append("<tr>");
@@ -333,7 +334,8 @@ public class ChatHtmlUtils
         messageBuff.append(headerBuffer.toString());
         messageBuff.append("</td>");
         messageBuff.append("<td align=\"right\"><h3>");
-        messageBuff.append(getDateString(date) + GuiUtils.formatTime(date));
+        messageBuff.append(getDateString(date))
+            .append(GuiUtils.formatTime(date));
         messageBuff.append("</h3></td>");
         messageBuff.append("</tr>");
         messageBuff.append("</table>");
@@ -373,51 +375,53 @@ public class ChatHtmlUtils
         String contentType,
         boolean isHistory)
     {
-        StringBuffer headerBuffer = new StringBuffer();
+        StringBuilder headerBuffer = new StringBuilder();
 
         SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
-        headerBuffer.append("<h2 id=\"" + MESSAGE_HEADER_ID + "\" ");
-        headerBuffer.append(DATE_ATTRIBUTE + "='" + sdf.format(date) + "' ");
-        headerBuffer.append(IncomingMessageStyle.createHeaderStyle() + ">");
+        headerBuffer.append("<h2 id=\"").append(MESSAGE_HEADER_ID).append("\" ");
+        headerBuffer.append(DATE_ATTRIBUTE).append("='")
+            .append(sdf.format(date)).append("' ");
+        headerBuffer.append(IncomingMessageStyle.createHeaderStyle())
+            .append(">");
         headerBuffer.append("<a style=\"color:");
         headerBuffer.append(MSG_IN_NAME_FOREGROUND).append(";");
         headerBuffer.append("font-weight:bold;");
         headerBuffer.append("text-decoration:none;\" ");
-        headerBuffer.append("href=\"" + contactName + "\">");
+        headerBuffer.append("href=\"").append(contactName).append("\">");
         headerBuffer.append(
-            contactDisplayName + createEditedAtTag(messageID, -1));
+            contactDisplayName).append(createEditedAtTag(messageID, -1));
         headerBuffer.append("</a></h2>");
 
         StringBuffer messageBuff = new StringBuffer();
 
         messageBuff.append("<table width=\"100%\" ");
-        messageBuff.append(NAME_ATTRIBUTE + "=\""
-            +  Tag.TABLE.toString() + "\" id=\"messageHeader\">");
+        messageBuff.append(NAME_ATTRIBUTE).append("=\"")
+            .append(Tag.TABLE.toString()).append("\" id=\"messageHeader\">");
         messageBuff.append("<tr>");
         messageBuff.append("<td valign=\"top\">");
         messageBuff.append(
-            "<table " + IncomingMessageStyle.createTableBubbleStyle()
-            + " cellspacing=\"0px\" cellpadding=\"0px\">");
+            "<table ").append(IncomingMessageStyle.createTableBubbleStyle())
+            .append(" cellspacing=\"0px\" cellpadding=\"0px\">");
         messageBuff.append("<tr>");
         messageBuff.append("<td style=\"width:26px;\"></td>");
         messageBuff.append("<td style=\"width:9px;\"></td>");
-        messageBuff.append("<td "
-            + IncomingMessageStyle.createTableBubbleTlStyle() + ">");
+        messageBuff.append("<td ").append(
+            IncomingMessageStyle.createTableBubbleTlStyle()).append(">");
         messageBuff.append(
             createAdvancedMessageHeaderTag(headerBuffer.toString(), date));
         messageBuff.append("</td>");
-        messageBuff.append("<td "
-            + IncomingMessageStyle.createTableBubbleTrStyle() + "></td>");
+        messageBuff.append("<td ").append(
+            IncomingMessageStyle.createTableBubbleTrStyle()).append("></td>");
         messageBuff.append("</tr>");
 
         // Third row.
         messageBuff.append("<tr>");
-        messageBuff.append("<td><img src=\"" + avatarPath
-            + "\" width=\"26px\" height=\"26px\"/> </td>");
-        messageBuff.append("<td "
-            + IncomingMessageStyle.createIndicatorStyle() +"></td>");
-        messageBuff.append("<td "
-            + IncomingMessageStyle.createTableBubbleMessageStyle() + ">");
+        messageBuff.append("<td><img src=\"").append(avatarPath).append(
+            "\" width=\"26px\" height=\"26px\"/> </td>");
+        messageBuff.append("<td ").append(
+            IncomingMessageStyle.createIndicatorStyle()).append("></td>");
+        messageBuff.append("<td ").append(
+            IncomingMessageStyle.createTableBubbleMessageStyle()).append(">");
 
         messageBuff.append(
             createAdvancedMessageTag(   messageID,
@@ -429,19 +433,19 @@ public class ChatHtmlUtils
                                         isHistory));
 
         messageBuff.append("</td>");
-        messageBuff.append("<td "
-            + IncomingMessageStyle.createTableBubbleMessageRightStyle()
-            + "></td>");
+        messageBuff.append("<td ").append(
+            IncomingMessageStyle.createTableBubbleMessageRightStyle()).append(
+            "></td>");
         messageBuff.append("</tr>");
 
         //Forth row.
         messageBuff.append("<tr>");
         messageBuff.append("<td style=\"width:26px;\"></td>");
         messageBuff.append("<td style=\"width:9px;\"></td>");
-        messageBuff.append("<td "
-            + IncomingMessageStyle.createTableBubbleBlStyle() + "></td>");
-        messageBuff.append("<td "
-            + IncomingMessageStyle.createTableBubbleBrStyle() + "></td>");
+        messageBuff.append("<td ").append(
+            IncomingMessageStyle.createTableBubbleBlStyle()).append("></td>");
+        messageBuff.append("<td ").append(
+            IncomingMessageStyle.createTableBubbleBrStyle()).append("></td>");
         messageBuff.append("</tr>");
 
         messageBuff.append("</table>");
@@ -475,51 +479,53 @@ public class ChatHtmlUtils
                                                     String contentType,
                                                     boolean isHistory)
     {
-        StringBuffer headerBuffer = new StringBuffer();
+        StringBuilder headerBuffer = new StringBuilder();
 
         SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
-        headerBuffer.append("<h3 id=\"" + MESSAGE_HEADER_ID + "\" ");
-        headerBuffer.append(DATE_ATTRIBUTE + "='" + sdf.format(date) + "' ");
-        headerBuffer.append(IncomingMessageStyle.createHeaderStyle() + ">");
+        headerBuffer.append("<h3 id=\"").append(MESSAGE_HEADER_ID).append("\" ");
+        headerBuffer.append(DATE_ATTRIBUTE).append("='")
+            .append(sdf.format(date)).append("' ");
+        headerBuffer.append(IncomingMessageStyle.createHeaderStyle())
+            .append(">");
         headerBuffer.append("<a style=\"color:#6a6868;");
         headerBuffer.append("font-weight:bold;");
         headerBuffer.append("float:left;");
         headerBuffer.append("text-decoration:none;\" ");
-        headerBuffer.append("href=\"" + contactName + "\">");
-        headerBuffer.append(contactDisplayName
-                + createEditedAtTag(messageID, -1));
+        headerBuffer.append("href=\"").append(contactName).append("\">");
+        headerBuffer.append(contactDisplayName).append(
+                createEditedAtTag(messageID, -1));
         headerBuffer.append("</a></h3>");
 
         StringBuffer messageBuff = new StringBuffer();
 
         // Construct the message.
         messageBuff.append("<table width=\"100%\" ");
-        messageBuff.append(NAME_ATTRIBUTE + "=\""
-                            +  Tag.TABLE.toString()
-                            + "\" id=\"messageHeader\">");
+        messageBuff.append(NAME_ATTRIBUTE).append("=\"").append(
+                            Tag.TABLE.toString()).append(
+                            "\" id=\"messageHeader\">");
         messageBuff.append("<tr>");
         messageBuff.append("<td valign=\"top\">");
         messageBuff.append(
-            "<table " + OutgoingMessageStyle.createTableBubbleStyle()
-            + " cellspacing=\"0px\" cellpadding=\"0px\">");
+            "<table ").append(OutgoingMessageStyle.createTableBubbleStyle())
+            .append(" cellspacing=\"0px\" cellpadding=\"0px\">");
 
         // First row.
         messageBuff.append("<tr>");
-        messageBuff.append("<td "
-            + OutgoingMessageStyle.createTableBubbleTlStyle() + ">");
+        messageBuff.append("<td ").append(
+            OutgoingMessageStyle.createTableBubbleTlStyle()).append(">");
         messageBuff.append(
             createAdvancedMessageHeaderTag(headerBuffer.toString(), date));
         messageBuff.append("</td>");
-        messageBuff.append("<td "
-            + OutgoingMessageStyle.createTableBubbleTrStyle() + "></td>");
+        messageBuff.append("<td ").append(
+            OutgoingMessageStyle.createTableBubbleTrStyle()).append("></td>");
         messageBuff.append("<td style=\"width:9px;\"></td>");
         messageBuff.append("<td style=\"width:26px;\"></td>");
         messageBuff.append("</tr>");
 
         // Third row.
         messageBuff.append("<tr>");
-        messageBuff.append("<td "
-            + OutgoingMessageStyle.createTableBubbleMessageStyle() + ">");
+        messageBuff.append("<td ").append(
+            OutgoingMessageStyle.createTableBubbleMessageStyle()).append(">");
 
         messageBuff.append(
             createAdvancedMessageTag(   messageID,
@@ -531,22 +537,22 @@ public class ChatHtmlUtils
                                         isHistory));
 
         messageBuff.append("</td>");
-        messageBuff.append("<td "
-            + OutgoingMessageStyle.createTableBubbleMessageRightStyle()
-            + "></td>");
-        messageBuff.append("<td "
-            + OutgoingMessageStyle.createIndicatorStyle() +"></td>");
-        messageBuff.append("<td><div width=\"26px\" height=\"26px\"><img src=\""
-                + avatarPath
-                + "\" width=\"26px\" height=\"26px\"/></div></td>");
+        messageBuff.append("<td ").append(
+            OutgoingMessageStyle.createTableBubbleMessageRightStyle()).append(
+            "></td>");
+        messageBuff.append("<td ").append(
+            OutgoingMessageStyle.createIndicatorStyle()).append("></td>");
+        messageBuff.append("<td><div width=\"26px\" height=\"26px\"><img src=\"")
+            .append(avatarPath)
+            .append("\" width=\"26px\" height=\"26px\"/></div></td>");
         messageBuff.append("</tr>");
 
         // Forth row.
         messageBuff.append("<tr>");
-        messageBuff.append("<td "
-            + OutgoingMessageStyle.createTableBubbleBlStyle() + "></td>");
-        messageBuff.append("<td "
-            + OutgoingMessageStyle.createTableBubbleBrStyle() + "></td>");
+        messageBuff.append("<td ").append(
+            OutgoingMessageStyle.createTableBubbleBlStyle()).append("></td>");
+        messageBuff.append("<td ").append(
+            OutgoingMessageStyle.createTableBubbleBrStyle()).append("></td>");
         messageBuff.append("<td style=\"width:9px;\"></td>");
         messageBuff.append("<td style=\"width:26px;\"></td>");
         messageBuff.append("</tr>");
@@ -568,15 +574,15 @@ public class ChatHtmlUtils
     private static String createAdvancedMessageHeaderTag(String nameHeader,
                                                         Date date)
     {
-        StringBuffer messageHeader = new StringBuffer();
+        StringBuilder messageHeader = new StringBuilder();
 
         messageHeader.append("<table width=\"100%\">");
         messageHeader.append("<tr>");
         messageHeader.append("<td nowrap=\"nowrap\">");
         messageHeader.append(nameHeader);
         messageHeader.append("</td>");
-        messageHeader.append("<td nowrap=\"nowrap\" "
-                + OutgoingMessageStyle.createDateStyle() + ">");
+        messageHeader.append("<td nowrap=\"nowrap\" ").append(
+                OutgoingMessageStyle.createDateStyle()).append(">");
         messageHeader.append(getDateString(date));
         messageHeader.append(GuiUtils.formatTime(date));
         messageHeader.append("</td>");
@@ -682,7 +688,8 @@ public class ChatHtmlUtils
         messageTag.append(String.format("<div id='%s' %s = '%s' ",
                 MESSAGE_TEXT_ID + messageID, NAME_ATTRIBUTE,
                 contactName));
-        messageTag.append(DATE_ATTRIBUTE + "=\"" + sdf.format(date) + "\" ");
+        messageTag.append(DATE_ATTRIBUTE).append("=\"")
+            .append(sdf.format(date)).append("\" ");
         messageTag.append(String.format("%s = '%s' ",
                 ORIGINAL_MESSAGE_ATTRIBUTE, GuiUtils.escapeHTMLChars(message)));
         messageTag.append(IncomingMessageStyle
@@ -726,7 +733,8 @@ public class ChatHtmlUtils
         messageTag.append(String.format("<div id='%s' %s = '%s' ",
                 MESSAGE_TEXT_ID + messageID, NAME_ATTRIBUTE,
                 contactName));
-        messageTag.append(DATE_ATTRIBUTE + "=\"" + sdf.format(date) + "\" ");
+        messageTag.append(DATE_ATTRIBUTE).append("=\"")
+            .append(sdf.format(date)).append("\" ");
         messageTag.append(String.format("%s = '%s' ",
                 ORIGINAL_MESSAGE_ATTRIBUTE, GuiUtils.escapeHTMLChars(message)));
         messageTag.append(IncomingMessageStyle
