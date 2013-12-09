@@ -11,7 +11,8 @@
 			<Component
 				Id="ComponentGroup_DefaultOverrides_Provisioning_Method"
 				Directory="lib"
-				Guid="A1D53A23-11C6-4886-BB34-E70B68CF8CF4">
+				Guid="A1D53A23-11C6-4886-BB34-E70B68CF8CF4"
+				Win64="$(var.Win64)">
 				<Condition><![CDATA[PROV_METHOD]]></Condition>
 				<IniFile
 					Id="DefaultOverrides_ProvisioningMethodOnly"
@@ -27,7 +28,8 @@
 			<Component
 				Id="ComponentGroup_DefaultOverrides_Provisioning_URL"
 				Directory="lib"
-				Guid="36516208-617E-4901-B52C-E35D25FDC2C8">
+				Guid="36516208-617E-4901-B52C-E35D25FDC2C8"
+				Win64="$(var.Win64)">
 				<Condition><![CDATA[PROV_URL]]></Condition>
 				<IniFile
 					Id="DefaultOverrides_ProvisioningManualMethodForUrl"
@@ -52,7 +54,8 @@
 			<Component
 				Id="ComponentGroup_DefaultOverrides_MandatoryProvisioning_Method"
 				Directory="lib"
-				Guid="A1D53A23-11C6-4886-BB34-E70B68CF8CF4">
+				Guid="BCE0A574-8852-45FA-90AD-07D5CDC1ED2C"
+				Win64="$(var.Win64)">
 				<Condition><![CDATA[MPROV_METHOD]]></Condition>
 				<IniFile
 					Id="DefaultOverrides_MandatoryProvisioningMethodOnly"
@@ -68,7 +71,8 @@
 			<Component
 				Id="ComponentGroup_DefaultOverrides_MandatoryProvisioning_URL"
 				Directory="lib"
-				Guid="36516208-617E-4901-B52C-E35D25FDC2C8">
+				Guid="57FD10F7-324B-42B9-A3A3-F2ED97A518FC"
+				Win64="$(var.Win64)">
 				<Condition><![CDATA[MPROV_URL]]></Condition>
 				<IniFile
 					Id="DefaultOverrides_MandatoryProvisioningManualMethodForUrl"
