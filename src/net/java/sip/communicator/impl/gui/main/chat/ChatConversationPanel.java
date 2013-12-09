@@ -1081,7 +1081,59 @@ public class ChatConversationPanel
             {
                 logger.error("Error removing messages from chat: ", e);
             }
+
+            if(firstMsgElement.getName().equals("table"))
+            {
+                // as we have removed a header for maybe several messages,
+                // delete all messages without header
+                deleteAllMessagesWithoutHeader();
+            }
         }
+    }
+
+    /**
+     * Deletes all messages "div"s that are missing their header the table tag.
+     * The method calls itself recursively.
+     */
+    private void deleteAllMessagesWithoutHeader()
+    {
+        String[] ids = new String[]
+            {ChatHtmlUtils.MESSAGE_TEXT_ID,
+                "statusMessage",
+                "systemMessage",
+                "actionMessage"};
+
+        Element firstMsgElement = findElement(Attribute.ID, ids);
+
+        if(firstMsgElement == null
+            || !firstMsgElement.getName().equals("div"))
+        {
+            return;
+        }
+
+        int startIndex = firstMsgElement.getStartOffset();
+        int endIndex = firstMsgElement.getEndOffset();
+
+        try
+        {
+            // Remove the message.
+            if(endIndex - startIndex < document.getLength())
+                this.document.remove(startIndex, endIndex - startIndex);
+            else
+            {
+                // currently there is a problem of deleting the last message
+                // if it is the last message on the view
+                return;
+            }
+        }
+        catch (BadLocationException e)
+        {
+            logger.error("Error removing messages from chat: ", e);
+
+            return;
+        }
+
+        deleteAllMessagesWithoutHeader();
     }
 
     /**
@@ -2189,5 +2241,16 @@ public class ChatConversationPanel
         @Override
         public void changedUpdate(DocumentEvent e)
         {}
+
+        /**
+         * For debugging purposes, prints the content of the document
+         * in the console.
+         */
+        public void debug()
+        {
+            try {
+                write(System.out, document, 0, document.getLength());
+            } catch(Throwable t){}
+        }
     }
 }

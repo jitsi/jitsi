@@ -39,7 +39,7 @@ public class ChatHtmlUtils
     /**
      * The message header identifier attribute.
      */
-    public final static String MESSAGE_HEADER_ID = "messageHeader";
+    public final static String MESSAGE_HEADER_ID = "dateHeader";
 
     /**
      * The message identifier attribute.
@@ -256,7 +256,8 @@ public class ChatHtmlUtils
 
         messageBuff.append("<table width=\"100%\" ");
         messageBuff.append(NAME_ATTRIBUTE + "=\""
-                            +  Tag.TABLE.toString() + "\" ");
+                            +  Tag.TABLE.toString()
+                            + "\" id=\"messageHeader\"");
         messageBuff.append("style=\"background-color:");
         messageBuff.append(MSG_NAME_BACKGROUND).append(";\">");
         messageBuff.append("<tr>");
@@ -323,7 +324,8 @@ public class ChatHtmlUtils
 
         messageBuff.append("<table width=\"100%\" ");
         messageBuff.append(NAME_ATTRIBUTE + "=\""
-                            +  Tag.TABLE.toString() + "\" ");
+                            +  Tag.TABLE.toString()
+                            + "\" id=\"messageHeader\"");
         messageBuff.append("style=\"background-color:");
         messageBuff.append(MSG_NAME_BACKGROUND).append(";\">");
         messageBuff.append("<tr>");
@@ -390,7 +392,7 @@ public class ChatHtmlUtils
 
         messageBuff.append("<table width=\"100%\" ");
         messageBuff.append(NAME_ATTRIBUTE + "=\""
-            +  Tag.TABLE.toString() + "\">");
+            +  Tag.TABLE.toString() + "\" id=\"messageHeader\">");
         messageBuff.append("<tr>");
         messageBuff.append("<td valign=\"top\">");
         messageBuff.append(
@@ -493,7 +495,8 @@ public class ChatHtmlUtils
         // Construct the message.
         messageBuff.append("<table width=\"100%\" ");
         messageBuff.append(NAME_ATTRIBUTE + "=\""
-                            +  Tag.TABLE.toString() + "\">");
+                            +  Tag.TABLE.toString()
+                            + "\" id=\"messageHeader\">");
         messageBuff.append("<tr>");
         messageBuff.append("<td valign=\"top\">");
         messageBuff.append(
