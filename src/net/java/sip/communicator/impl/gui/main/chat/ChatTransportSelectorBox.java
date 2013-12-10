@@ -183,7 +183,9 @@ public class ChatTransportSelectorBox
      */
     public void removeChatTransport(ChatTransport chatTransport)
     {
-        this.menu.remove(transportMenuItems.get(chatTransport));
+        JCheckBoxMenuItem menuItem = transportMenuItems.get(chatTransport);
+        this.menu.remove(menuItem);
+        this.buttonGroup.remove(menuItem);
         this.transportMenuItems.remove(chatTransport);
 
         updateEnableStatus();
