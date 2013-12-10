@@ -7,8 +7,7 @@
 package net.java.sip.communicator.impl.version;
 
 import org.jitsi.service.version.*;
-
-import java.util.regex.*;
+import org.jitsi.service.version.util.*;
 
 /**
  * The version service keeps track of the Jitsi version that we are
@@ -21,14 +20,8 @@ import java.util.regex.*;
  * @author Emil Ivov
  */
 public class VersionServiceImpl
-    implements VersionService
+    extends AbstractVersionService
 {
-    /**
-     * The pattern that will parse strings to version object.
-     */
-    private static final Pattern PARSE_VERSION_STRING_PATTERN =
-        Pattern.compile("(\\d+)\\.(\\d+)\\.([\\d\\.]+)");
-
     /**
      * Returns a <tt>Version</tt> object containing version details of the
      * Jitsi version that we're currently running.
@@ -42,26 +35,14 @@ public class VersionServiceImpl
     }
 
     /**
-     * Returns a Version instance corresponding to the <tt>version</tt>
-     * string.
-     *
-     * @param version a version String that we have obtained by calling a
-     *   <tt>Version.toString()</tt> method.
-     * @return the <tt>Version</tt> object corresponding to the
-     *   <tt>version</tt> string. Or null if we cannot parse the string.
+     * {@inheritDoc}
      */
-    public Version parseVersionString(String version)
+    @Override
+    protected Version createVersionImpl(int majorVersion,
+                                        int minorVersion,
+                                        String nightlyBuildId)
     {
-        Matcher matcher = PARSE_VERSION_STRING_PATTERN.matcher(version);
-
-        if(matcher.matches() && matcher.groupCount() == 3)
-        {
-            return VersionImpl.customVersion(
-                Integer.parseInt(matcher.group(1)),
-                Integer.parseInt(matcher.group(2)),
-                matcher.group(3));
-        }
-
-        return null;
+        return VersionImpl.customVersion(
+            majorVersion, minorVersion, nightlyBuildId);
     }
 }
