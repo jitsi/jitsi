@@ -162,51 +162,7 @@ public class MUCCustomContactActionService
             @Override
             public void run()
             {
-                String[] joinOptions;
-                String subject = null;
-                if(chatRoomWrapper.getChatRoom() == null)
-                {
-                    // this is not a server persistent room we must create it
-                    // and join
-                    chatRoomWrapper =
-                        MUCActivator.getMUCService().createChatRoom(
-                                chatRoomWrapper.getChatRoomName(),
-                                chatRoomWrapper.getParentProvider()
-                                    .getProtocolProvider(),
-                                new ArrayList<String>(),
-                                "",
-                                false,
-                                false,
-                                true);
-                }
-                
-                if(!chatRoomWrapper.getChatRoom().isJoined())
-                {
-                    String nickName = null;
-
-                    nickName =
-                        ConfigurationUtils.getChatRoomProperty(
-                            chatRoomWrapper.getParentProvider()
-                                .getProtocolProvider(), chatRoomWrapper
-                                .getChatRoomID(), "userNickName");
-                    if(nickName == null)
-                    {
-                        joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
-                            chatRoomWrapper.getParentProvider()
-                                .getProtocolProvider(), 
-                            chatRoomWrapper.getChatRoomID());
-                        nickName = joinOptions[0];
-                        subject = joinOptions[1];
-                    }
-
-                    if (nickName != null)
-                        MUCActivator.getMUCService().joinChatRoom(
-                            chatRoomWrapper,nickName, null, subject);
-                    else
-                        return;
-                }
-
-                MUCActivator.getUIService().openChatRoomWindow(chatRoomWrapper);
+                MUCActivator.getMUCService().openChatRoom(chatRoomWrapper);
             }
         },
         new MUCCustomActionRunnable()

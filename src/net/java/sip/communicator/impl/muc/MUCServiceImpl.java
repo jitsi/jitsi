@@ -1000,31 +1000,31 @@ public class MUCServiceImpl
 
         }
 
-        String savedNick =
-            ConfigurationUtils.getChatRoomProperty(room
-                .getParentProvider().getProtocolProvider(), room
-                .getChatRoomID(), "userNickName");
-
-        if (savedNick == null)
+        if(!room.getChatRoom().isJoined())
         {
-            String[] joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
-                room.getParentProvider().getProtocolProvider(), 
-                room.getChatRoomID());
-            String nickName = joinOptions[0];
-            if(nickName == null)
-                return;
-
-            if (!room.getChatRoom().isJoined())
+            String savedNick =
+                ConfigurationUtils.getChatRoomProperty(room
+                    .getParentProvider().getProtocolProvider(), room
+                    .getChatRoomID(), "userNickName");
+            String subject = null;
+    
+            if (savedNick == null)
             {
-                joinChatRoom(room, nickName, null, 
-                        joinOptions[1]);
+                String[] joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
+                    room.getParentProvider().getProtocolProvider(), 
+                    room.getChatRoomID());
+                savedNick = joinOptions[0];
+                subject = joinOptions[1];
+    
             }
-
-        }
-        else
-        {
-            if (!room.getChatRoom().isJoined())
-                joinChatRoom(room, savedNick, null);
+            
+            if (savedNick != null)
+            {
+                joinChatRoom(room, savedNick, null, 
+                        subject);
+            }
+            else
+                return;
         }
 
         MUCActivator.getUIService().openChatRoomWindow(room);
