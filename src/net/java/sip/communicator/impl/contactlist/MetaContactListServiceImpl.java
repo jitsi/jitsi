@@ -121,9 +121,8 @@ public class MetaContactListServiceImpl
     {
         rootMetaGroup
             = new MetaContactGroupImpl(
-                    this,
-                    "RootMetaContactGroup",
-                    "RootMetaContactGroup");
+                    this, ContactlistActivator.getResources().getI18NString(
+                        "service.gui.CONTACTS"), "RootMetaContactGroup");
     }
 
     /**

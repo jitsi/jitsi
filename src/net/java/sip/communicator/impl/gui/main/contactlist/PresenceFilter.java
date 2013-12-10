@@ -294,13 +294,16 @@ public class PresenceFilter
                 if (resultCount <= INITIAL_CONTACT_COUNT)
                 {
                     UIGroup uiGroup = null;
+                    synchronized (metaGroup)
+                    {
+                        uiGroup = MetaContactListSource
+                            .getUIGroup(metaGroup);
+                    }
+                    
                     if (!MetaContactListSource.isRootGroup(metaGroup))
                     {
                         synchronized (metaGroup)
                         {
-                            uiGroup = MetaContactListSource
-                                .getUIGroup(metaGroup);
-
                             if (uiGroup == null)
                                 uiGroup = MetaContactListSource
                                     .createUIGroup(metaGroup);

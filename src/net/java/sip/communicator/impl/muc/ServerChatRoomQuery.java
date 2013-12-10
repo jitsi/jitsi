@@ -253,8 +253,6 @@ public class ServerChatRoomQuery
      */
     public boolean isMatching(String chatRoomID, ProtocolProviderService pps)
     {
-        Logger.getLogger(getClass()).info("QQQQQQQQQQQQQQQQQQQQQQ " + chatRoomID + ' ' + (MUCActivator.getMUCService().findChatRoomWrapperFromChatRoomID(
-            chatRoomID, pps) == null));
         return (MUCActivator.getMUCService().findChatRoomWrapperFromChatRoomID(
             chatRoomID, pps) == null);
     }

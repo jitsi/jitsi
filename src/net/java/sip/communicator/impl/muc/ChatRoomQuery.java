@@ -192,7 +192,7 @@ public class ChatRoomQuery
         {
             if(existingContact)
             {
-                ((ChatRoomSourceContact)foundContact).setPresenceStatus(
+                foundContact.setPresenceStatus(
                     ChatRoomPresenceStatus.CHAT_ROOM_ONLINE);
                 synchronized (contactResults)
                 {
@@ -219,8 +219,7 @@ public class ChatRoomQuery
         {
             if(existingContact)
             {
-                ((ChatRoomSourceContact)foundContact)
-                    .setPresenceStatus(
+                foundContact.setPresenceStatus(
                         ChatRoomPresenceStatus.CHAT_ROOM_OFFLINE);
                 synchronized (contactResults)
                 {

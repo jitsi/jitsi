@@ -11,6 +11,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.fileaccess.*;
+import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**
@@ -27,6 +28,8 @@ public class ContactlistActivator
     private static FileAccessService fileAccessService;
 
     private static AccountManager accountManager;
+    
+    private static ResourceManagementService resourcesService;
 
     private static BundleContext bundleContext;
 
@@ -90,6 +93,25 @@ public class ContactlistActivator
         return fileAccessService;
     }
 
+    /**
+     * Returns the <tt>ResourceManagementService</tt>, through which we will
+     * access all resources.
+     *
+     * @return the <tt>ResourceManagementService</tt>, through which we will
+     * access all resources.
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            resourcesService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ResourceManagementService.class);
+        }
+        return resourcesService;
+    }
+    
     /**
      * Returns the <tt>AccountManager</tt> obtained from the bundle context.
      * @return the <tt>AccountManager</tt> obtained from the bundle context

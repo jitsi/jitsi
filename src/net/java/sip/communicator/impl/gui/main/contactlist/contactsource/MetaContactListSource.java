@@ -247,13 +247,15 @@ public class MetaContactListSource
                 if (resultCount <= INITIAL_CONTACT_COUNT)
                 {
                     UIGroup uiGroup = null;
+                    synchronized (parentGroup)
+                    {
+                        uiGroup = MetaContactListSource
+                            .getUIGroup(parentGroup);
+                    }
                     if (!MetaContactListSource.isRootGroup(parentGroup))
                     {
                         synchronized (parentGroup)
                         {
-                            uiGroup = MetaContactListSource
-                                .getUIGroup(parentGroup);
-
                             if (uiGroup == null)
                                 uiGroup = MetaContactListSource
                                     .createUIGroup(parentGroup);
@@ -397,12 +399,16 @@ public class MetaContactListSource
                     = metaContact.getParentMetaContactGroup();
 
                 UIGroup uiGroup = null;
+                
+                synchronized (parentGroup)
+                {
+                    uiGroup = MetaContactListSource.getUIGroup(parentGroup);
+                }
+                
                 if (!MetaContactListSource.isRootGroup(parentGroup))
                 {
                     synchronized (parentGroup)
                     {
-                        uiGroup = MetaContactListSource.getUIGroup(parentGroup);
-
                         if (uiGroup == null)
                             uiGroup = MetaContactListSource
                                 .createUIGroup(parentGroup);
@@ -452,10 +458,9 @@ public class MetaContactListSource
 
         synchronized (metaGroup)
         {
-            if (isRootGroup(metaGroup))
-                uiGroup = treeModel.getRoot().getGroupDescriptor();
-            else
-                uiGroup = MetaContactListSource.getUIGroup(metaGroup);
+            uiGroup = MetaContactListSource.getUIGroup(metaGroup);
+            if (isRootGroup(metaGroup) && uiGroup == null)
+              uiGroup = treeModel.getRoot().getGroupDescriptor();
         }
 
         if (uiGroup != null)
@@ -507,13 +512,15 @@ public class MetaContactListSource
         if (currentFilter.isMatching(uiContact))
         {
             UIGroup uiGroup = null;
+            synchronized (parentGroup)
+            {
+                uiGroup = MetaContactListSource.getUIGroup(parentGroup);
+            }
+            
             if (!MetaContactListSource.isRootGroup(parentGroup))
             {
                 synchronized (parentGroup)
                 {
-                    uiGroup = MetaContactListSource
-                        .getUIGroup(parentGroup);
-
                     if (uiGroup == null)
                         uiGroup = MetaContactListSource
                             .createUIGroup(parentGroup);
@@ -680,15 +687,16 @@ public class MetaContactListSource
                 return;
 
             UIGroup oldUIGroup;
+            synchronized (oldParent)
+            {
+                oldUIGroup = MetaContactListSource.getUIGroup(oldParent);
+            }
 
-            if (MetaContactListSource.isRootGroup(oldParent))
+            if (MetaContactListSource.isRootGroup(oldParent) 
+                && oldUIGroup == null)
                 oldUIGroup = GuiActivator.getContactList().getTreeModel()
                     .getRoot().getGroupDescriptor();
-            else
-                synchronized (oldParent)
-                {
-                    oldUIGroup = MetaContactListSource.getUIGroup(oldParent);
-                }
+                
 
             if (oldUIGroup != null)
                 GuiActivator.getContactList().removeContact(uiContact);
@@ -697,12 +705,16 @@ public class MetaContactListSource
             uiContact = MetaContactListSource.createUIContact(metaContact);
 
             UIGroup newUIGroup = null;
+            
+            synchronized (newParent)
+            {
+                newUIGroup = MetaContactListSource.getUIGroup(newParent);
+            }
+            
             if (!MetaContactListSource.isRootGroup(newParent))
             {
                 synchronized (newParent)
                 {
-                    newUIGroup = MetaContactListSource.getUIGroup(newParent);
-
                     if (newUIGroup == null)
                         newUIGroup
                             = MetaContactListSource.createUIGroup(newParent);
@@ -824,14 +836,17 @@ public class MetaContactListSource
                     = metaContact.getParentMetaContactGroup();
 
                 UIGroup uiGroup = null;
+                synchronized(parentGroup)
+                {
+                    uiGroup = MetaContactListSource
+                        .getUIGroup(parentGroup);
+                }
+                
                 if (!MetaContactListSource
                         .isRootGroup(parentGroup))
                 {
                     synchronized(parentGroup)
                     {
-                        uiGroup = MetaContactListSource
-                            .getUIGroup(parentGroup);
-
                         if (uiGroup == null)
                             uiGroup = MetaContactListSource
                                 .createUIGroup(parentGroup);
@@ -922,14 +937,17 @@ public class MetaContactListSource
                     = newParent.getParentMetaContactGroup();
 
                 UIGroup uiGroup = null;
+                synchronized (parentGroup)
+                {
+                    uiGroup = MetaContactListSource
+                        .getUIGroup(parentGroup);
+                }
+                
                 if (!MetaContactListSource
                         .isRootGroup(parentGroup))
                 {
                     synchronized (parentGroup)
                     {
-                        uiGroup = MetaContactListSource
-                            .getUIGroup(parentGroup);
-
                         if (uiGroup == null)
                             uiGroup = MetaContactListSource
                                 .createUIGroup(parentGroup);

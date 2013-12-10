@@ -165,7 +165,7 @@ public class MetaUIContact
                 * UIGroup.MAX_CONTACTS;
         return  GuiActivator.getContactListService().getSourceIndex() 
             * UIGroup.MAX_GROUPS + groupSourceIndex +
-            parentMetaContactGroup.indexOf(metaContact);
+            parentMetaContactGroup.indexOf(metaContact) + 1;
     }
 
     /**
