@@ -209,6 +209,7 @@ public class ChatRoomTableDialog
 
         okButton.setToolTipText(GuiActivator.getResources()
             .getI18NString("service.gui.JOIN_CHAT_ROOM"));
+        updateOKButtonEnableState();
 
 
         eastButtonPanel.add(cancelButton);
@@ -221,8 +222,24 @@ public class ChatRoomTableDialog
         this.getContentPane().add(initMoreFields(), BorderLayout.CENTER);
         this.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
+        KeyListener keyListener = new KeyListener() {
+
+            public void keyTyped(KeyEvent e)
+            {}
+
+            public void keyPressed(KeyEvent e)
+            {}
+
+            public void keyReleased(KeyEvent e)
+            {
+                updateOKButtonEnableState();
+            }
+        };
         // when we are typing we clear any selection in the available and saved
         // rooms
+        chatRoomNameField.addKeyListener(keyListener);
+        nicknameField.addKeyListener(keyListener);
+        
         chatRoomNameField.addKeyListener(new KeyListener() {
 
             public void keyTyped(KeyEvent e)
@@ -233,11 +250,7 @@ public class ChatRoomTableDialog
 
             public void keyReleased(KeyEvent e)
             {
-                okButton.setEnabled(
-                    (chatRoomNameField.getText() != null 
-                        && chatRoomNameField.getText().trim().length() > 0) 
-                    && (nicknameField.getText() != null 
-                        && nicknameField.getText().trim().length() > 0));
+                updateOKButtonEnableState();
             }
         });
         
@@ -261,6 +274,17 @@ public class ChatRoomTableDialog
     }
     
     /**
+     * Updates the enable/disable state of the OK button.
+     */
+    private void updateOKButtonEnableState()
+    {
+        okButton.setEnabled(
+            (chatRoomNameField.getText() != null 
+                && chatRoomNameField.getText().trim().length() > 0) 
+            && (nicknameField.getText() != null 
+                && nicknameField.getText().trim().length() > 0));
+    }
+    /**
      * Sets the default value in the nickname field based on chat room provider.
      * @param provider the provider
      */
@@ -269,6 +293,7 @@ public class ChatRoomTableDialog
         nicknameField.setText(
             GuiActivator.getMUCService().getDefaultNickname(
                 provider.getProtocolProvider()));
+        updateOKButtonEnableState();
     }
 
     /**
@@ -450,6 +475,7 @@ public class ChatRoomTableDialog
     public void setChatRoomNameField(String chatRoom)
     {
         this.chatRoomNameField.setText(chatRoom);
+        updateOKButtonEnableState();
     }
     
     /**
