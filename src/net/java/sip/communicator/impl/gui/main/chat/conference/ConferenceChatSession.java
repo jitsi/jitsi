@@ -100,6 +100,7 @@ public class ConferenceChatSession
         ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
         chatRoom.removeMemberPresenceListener(this);
         chatRoom.removePropertyChangeListener(this);
+        chatRoom.removeConferencePublishedListener(this);
 
         if(ConfigurationUtils.isLeaveChatRoomOnWindowCloseEnabled())
         {
