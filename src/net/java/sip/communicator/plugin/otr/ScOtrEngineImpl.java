@@ -688,6 +688,33 @@ public class ScOtrEngineImpl
                 task.cancel();
             tasks.remove(contact);
         }
+
+        public void serviceChanged(ServiceEvent ev)
+        {
+            Object service
+                = OtrActivator.bundleContext.getService(
+                    ev.getServiceReference());
+
+            if (!(service instanceof ProtocolProviderService))
+                return;
+    
+            if (ev.getType() == ServiceEvent.UNREGISTERING)
+            {
+                ProtocolProviderService provider
+                    = (ProtocolProviderService) service;
+    
+                Iterator<Contact> i = tasks.keySet().iterator();
+    
+                while (i.hasNext())
+                {
+                    Contact contact = i.next();
+                    if (provider.equals(contact.getProtocolProvider())) {
+                        cancel(contact);
+                        i.remove();
+                    }
+                }
+            }
+        }
     }
 
     private void setSessionStatus(Contact contact, ScSessionStatus status)
@@ -797,8 +824,12 @@ public class ScOtrEngineImpl
 
                 while (i.hasNext())
                 {
-                    if (provider.equals(i.next().getProtocolProvider()))
+                    Contact contact = i.next();
+                    if (provider.equals(contact.getProtocolProvider()))
+                    {
+                        scSessionStatusMap.remove(getSessionID(contact));
                         i.remove();
+                    }
                 }
             }
 
@@ -809,6 +840,7 @@ public class ScOtrEngineImpl
                 if (provider.equals(i.next().getProtocolProvider()))
                     i.remove();
             }
+            scheduler.serviceChanged(ev);
         }
     }
 
