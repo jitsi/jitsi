@@ -714,11 +714,18 @@ public abstract class AbstractStatusMessageMenu
                 getDescriptor(),
                 STATUS_MESSAGE_UPDATED_PROP,
                 oldMessage, newMessage);
-        if (propertyChangeListeners != null)
+
+
+
+        java.util.List<PropertyChangeListener> listeners;
+        synchronized(propertyChangeListeners)
         {
-            for (PropertyChangeListener target : propertyChangeListeners)
-                target.propertyChange(evt);
+            listeners = new ArrayList<PropertyChangeListener>(
+                propertyChangeListeners);
         }
+
+        for (PropertyChangeListener target : listeners)
+            target.propertyChange(evt);
     }
 
     /**
@@ -731,11 +738,16 @@ public abstract class AbstractStatusMessageMenu
                 getDescriptor(),
                 CUSTOM_STATUS_MESSAGES_UPDATED_PROP,
                 null, null);
-        if (propertyChangeListeners != null)
+
+        java.util.List<PropertyChangeListener> listeners;
+        synchronized(propertyChangeListeners)
         {
-            for (PropertyChangeListener target : propertyChangeListeners)
-                target.propertyChange(evt);
+            listeners = new ArrayList<PropertyChangeListener>(
+                propertyChangeListeners);
         }
+
+        for (PropertyChangeListener target : listeners)
+            target.propertyChange(evt);
     }
 
     /**
