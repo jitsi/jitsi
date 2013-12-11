@@ -794,7 +794,7 @@ public class MUCServiceImpl
             if (!SUCCESS.equals(returnCode) && 
                 !AUTHENTICATION_FAILED.equals(returnCode))
             {
-                MUCActivator.getAlertUIService().showAlertDialog(
+                MUCActivator.getAlertUIService().showAlertPopup(
                     resources.getI18NString("service.gui.ERROR"), errorMessage);
             }
 

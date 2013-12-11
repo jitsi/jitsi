@@ -412,14 +412,12 @@ public class ConferenceChatManager
         else if (evt.getEventType().equals(
             LocalUserAdHocChatRoomPresenceChangeEvent.LOCAL_USER_JOIN_FAILED))
         {
-            new ErrorDialog(
-                GuiActivator.getUIService().getMainFrame(),
-                GuiActivator.getResources().getI18NString("service.gui.ERROR"),
+            GuiActivator.getAlertUIService().showAlertPopup(
+                GuiActivator.getResources().getI18NString("service.gui.ERROR"), 
                 GuiActivator.getResources().getI18NString(
-                        "service.gui.FAILED_TO_JOIN_CHAT_ROOM",
-                        new String[]{sourceAdHocChatRoom.getName()})
-                        + evt.getReason())
-            .showDialog();
+                    "service.gui.FAILED_TO_JOIN_CHAT_ROOM",
+                    new String[]{sourceAdHocChatRoom.getName()})
+                    + evt.getReason());
         }
         else if (LocalUserAdHocChatRoomPresenceChangeEvent
                         .LOCAL_USER_LEFT.equals(eventType)
@@ -510,13 +508,12 @@ public class ConferenceChatManager
         else if (LocalUserChatRoomPresenceChangeEvent
                     .LOCAL_USER_JOIN_FAILED.equals(eventType))
         {
-            new ErrorDialog(
-                GuiActivator.getUIService().getMainFrame(),
-                GuiActivator.getResources().getI18NString("service.gui.ERROR"),
+            GuiActivator.getAlertUIService().showAlertPopup(
+                GuiActivator.getResources().getI18NString("service.gui.ERROR"), 
                 GuiActivator.getResources().getI18NString(
                     "service.gui.FAILED_TO_JOIN_CHAT_ROOM",
-                    new String[]{sourceChatRoom.getName()}) + evt.getReason())
-                .showDialog();
+                    new String[]{sourceChatRoom.getName()})
+                    + evt.getReason());
         }
         else if (LocalUserChatRoomPresenceChangeEvent
                         .LOCAL_USER_LEFT.equals(eventType)
@@ -1053,10 +1050,9 @@ public class ConferenceChatManager
             if (!SUCCESS.equals(returnCode)
                     && !AUTHENTICATION_FAILED.equals(returnCode))
             {
-                new ErrorDialog(
-                    GuiActivator.getUIService().getMainFrame(),
+                GuiActivator.getAlertUIService().showAlertPopup(
                     GuiActivator.getResources().getI18NString(
-                            "service.gui.ERROR"), errorMessage).showDialog();
+                        "service.gui.ERROR"), errorMessage);
             }
         }
     }
