@@ -380,37 +380,6 @@ public class HistoryWindow
     }
 
     /**
-     * Indicates that the window is closing. Removes all message listeners when
-     * closing.
-     * @param e the <tt>WindowEvent</tt> that notified us
-     */
-    @Override
-    protected void windowClosing(WindowEvent e)
-    {
-        super.windowClosing(e);
-
-        /*
-         * Remove all listeners in order to have this instance ready for garbage
-         * collection.
-         */
-
-        history.removeSearchProgressListener(this);
-
-        if (basicInstantMessagings != null)
-        {
-            for (OperationSetBasicInstantMessaging basicInstantMessaging
-                    : basicInstantMessagings)
-                basicInstantMessaging.removeMessageListener(this);
-            basicInstantMessagings = null;
-        }
-        if (chatRoom != null)
-        {
-            chatRoom.removeMessageListener(this);
-            chatRoom = null;
-        }
-    }
-
-    /**
      * Returns the next date from the history.
      * When <tt>date</tt> is the last one, we return the current date,
      * means we are loading today messages (till now).
@@ -774,11 +743,33 @@ public class HistoryWindow
     @Override
     protected void close(boolean isEscaped)
     {
-        if(chatConvPanel.getRightButtonMenu().isVisible())
+        /*
+         * Remove all listeners in order to have this instance ready for garbage
+         * collection.
+         */
+        history.removeSearchProgressListener(this);
+
+        if (basicInstantMessagings != null)
+        {
+            for (OperationSetBasicInstantMessaging basicInstantMessaging
+                : basicInstantMessagings)
+                basicInstantMessaging.removeMessageListener(this);
+            basicInstantMessagings = null;
+        }
+
+        if (chatRoom != null)
+        {
+            chatRoom.removeMessageListener(this);
+            chatRoom = null;
+        }
+
+        if(chatConvPanel != null
+            && chatConvPanel.getRightButtonMenu() != null
+            && chatConvPanel.getRightButtonMenu().isVisible())
         {
             chatConvPanel.getRightButtonMenu().setVisible(false);
         }
-        else if(historyMenu.isPopupMenuVisible())
+        else if(historyMenu != null && historyMenu.isPopupMenuVisible())
         {
             MenuSelectionManager.defaultManager().clearSelectedPath();
         }
@@ -787,8 +778,11 @@ public class HistoryWindow
             GuiActivator.getUIService().getHistoryWindowManager()
                 .removeHistoryWindowForContact(historyContact);
 
-            datesPanel.dispose();
-            chatConvPanel.dispose();
+            if(datesPanel != null)
+                datesPanel.dispose();
+
+            if(chatConvPanel != null)
+                chatConvPanel.dispose();
 
             this.dispose();
         }
