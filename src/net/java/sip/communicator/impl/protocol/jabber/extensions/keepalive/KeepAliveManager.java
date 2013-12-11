@@ -10,6 +10,7 @@ import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
+import org.jivesoftware.smack.util.*;
 
 /**
  * XEP-0199: XMPP Ping. Tracks received packets and if for some interval
@@ -232,11 +233,12 @@ public class KeepAliveManager
 
                 try
                 {
-                    // lets send a ping
+                    // lets send a ping to our service name,
+                    // the @service-name part of the user id
                     KeepAliveEvent ping = new KeepAliveEvent(
                         parentProvider.getOurJID(),
-                        parentProvider.getAccountID().getService()
-                    );
+                        StringUtils.parseServer(
+                            parentProvider.getAccountID().getAccountAddress()));
 
                     if (logger.isTraceEnabled())
                         logger.trace("send keepalive for acc: "
