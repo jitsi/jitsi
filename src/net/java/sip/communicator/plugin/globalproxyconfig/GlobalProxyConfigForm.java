@@ -58,7 +58,7 @@ public class GlobalProxyConfigForm
     /**
      * The dns forward global checkbox, hides/shows the panel with values.
      */
-    private JCheckBox dnsForwardCheck = new JCheckBox();
+    private JCheckBox dnsForwardCheck = new SIPCommCheckBox();
 
     /**
      * Dns server address initially filled with the value of the proxy.
@@ -165,7 +165,7 @@ public class GlobalProxyConfigForm
         constraints.gridy = 6;
         constraints.gridwidth = 4;
         constraints.gridheight = 2;
-        constraints.insets = new Insets(20,20,20,20);
+        constraints.insets = new Insets(0, 20, 0, 20);
         JEditorPane table = new JEditorPane();
         table.setContentType("text/html");
         table.setEditable(false);
