@@ -394,6 +394,19 @@ public class ChatRoomTableDialog
                         false);
 
                 String nickName = nicknameField.getText().trim();
+                
+                if(!chatRoomWrapper.isPersistent())
+                {
+                    chatRoomWrapper.setPersistent(true);
+
+                    ConfigurationUtils.saveChatRoom(
+                        chatRoomWrapper.getParentProvider()
+                            .getProtocolProvider(),
+                        chatRoomWrapper.getChatRoomID(),
+                        chatRoomWrapper.getChatRoomID(),
+                        chatRoomWrapper.getChatRoomName());
+                }
+                
                 ConfigurationUtils.updateChatRoomProperty(
                     chatRoomWrapper.getParentProvider().getProtocolProvider(),
                     chatRoomWrapper.getChatRoomID(), "userNickName", nickName);
