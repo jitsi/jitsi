@@ -674,7 +674,8 @@ public class AddContactDialog
         if(!initialized)
             init();
 
-        this.contactAddressField.requestFocus();
+        // Focus the name field by default
+        this.displayNameField.requestFocus();
     }
 
     public void windowLostFocus(WindowEvent e) {}
