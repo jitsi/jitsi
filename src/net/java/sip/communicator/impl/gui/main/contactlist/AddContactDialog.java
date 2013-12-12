@@ -248,9 +248,15 @@ public class AddContactDialog
 
         this.contactAddressField = new JTextField();
         this.contactAddressField.setToolTipText(contact_info);
+        addPrompt(this.contactAddressField,
+            GuiActivator.getResources().getI18NString(
+                "service.gui.CONTACT_NAME_PROMPT"));
 
         this.displayNameField = new JTextField();
         this.displayNameField.setToolTipText(display_name_info);
+        addPrompt(this.displayNameField,
+            GuiActivator.getResources().getI18NString(
+                "service.gui.DISPLAY_NAME_PROMPT"));
 
         this.groupLabel = new JLabel(
             GuiActivator.getResources().getI18NString(
