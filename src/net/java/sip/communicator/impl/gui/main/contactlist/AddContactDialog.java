@@ -12,7 +12,9 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
 import javax.swing.event.*;
+import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
@@ -149,6 +151,47 @@ public class AddContactDialog
             init();
 
         displayNameField.setText(displayName);
+    }
+
+    /**
+     * Adds a faint gray prompt to the provided text field that
+     * will vanish as soon as text is entered into the field.
+     */
+    private void addPrompt(JTextField field, String text)
+    {
+        final JLabel prompt = new JLabel(text);
+
+        // Give prompt a foreground color like the original
+        // text field, but with half transparency.
+        final Color fg = field.getForeground();
+        final Color color = new Color(
+            fg.getRed(), fg.getGreen(), fg.getBlue(), 128);
+
+        // Mimic properties of given text field
+        prompt.setFont(field.getFont());
+        prompt.setForeground(color);
+        prompt.setBorder(new EmptyBorder(field.getInsets()));
+        prompt.setHorizontalAlignment(JLabel.LEADING);
+
+        // Add handler to hide prompt when text is entered
+        final Document doc = field.getDocument();
+        doc.addDocumentListener( new DocumentListener() {
+            public void insertUpdate(DocumentEvent e)
+            {
+                prompt.setVisible(doc.getLength() == 0);
+            }
+
+            public void removeUpdate(DocumentEvent e)
+            {
+                prompt.setVisible(doc.getLength() == 0);
+            }
+
+            public void changedUpdate(DocumentEvent e) {}
+        });
+
+        // Add prompt to text field
+        field.setLayout( new BorderLayout() );
+        field.add(prompt);
     }
 
     /**
