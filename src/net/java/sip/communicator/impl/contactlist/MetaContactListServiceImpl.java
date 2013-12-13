@@ -1478,6 +1478,9 @@ public class MetaContactListServiceImpl
         // if we failed to find the metagroup corresponding to proto group
         if(metaContainer == null)
         {
+            logger.warn(
+                "No meta container found, when trying to remove group: "
+                    + groupToRemove);
             return;
         }
 
@@ -2053,8 +2056,7 @@ public class MetaContactListServiceImpl
         ProtocolProviderService provider)
     {
         if (logger.isDebugEnabled())
-            logger.debug("Removing protocol provider "
-                     + provider.getProtocolName());
+            logger.debug("Removing protocol provider " + provider);
 
         this.currentlyInstalledProviders.
             remove(provider.getAccountID().getAccountUniqueID());
