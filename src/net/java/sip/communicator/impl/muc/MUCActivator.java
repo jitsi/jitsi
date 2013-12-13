@@ -134,7 +134,9 @@ public class MUCActivator
         {
             bundleContext.removeServiceListener(protocolProviderRegListener);
         }
-        chatRoomProviders.clear();
+
+        if(chatRoomProviders != null)
+            chatRoomProviders.clear();
     }
 
     /**
