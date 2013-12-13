@@ -735,6 +735,9 @@ public class MetaContactChatSession
         }
         sessionRenderer.removeChatTransport(chatTransport);
         chatTransport.dispose();
+
+        if(chatTransport.equals(currentChatTransport))
+            currentChatTransport = null;
     }
 
     /**
@@ -762,7 +765,6 @@ public class MetaContactChatSession
 
         contact.removeResourceListener(this);
 
-        currentChatTransport = null;
     }
 
     /**
