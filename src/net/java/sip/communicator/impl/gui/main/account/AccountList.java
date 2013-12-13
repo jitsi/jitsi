@@ -63,6 +63,13 @@ public class AccountList
         = new AccountRightButtonMenu();
 
     /**
+     * Used to prevent from running two enable account threads at the same time.
+     * This field is set when new worker is created and cleared once it finishes
+     * it's job.
+     */
+    private EnableAccountWorker enableAccountWorker;
+
+    /**
      * Creates an instance of this account list by specifying the parent
      * container of the list.
      *
@@ -389,6 +396,12 @@ public class AccountList
      */
     private void dispatchEventToCheckBox(MouseEvent event)
     {
+        if(enableAccountWorker != null)
+        {
+            logger.warn("Enable account worker is already running");
+            return;
+        }
+
         int mouseIndex = this.locationToIndex(event.getPoint());
 
         if (logger.isTraceEnabled())
@@ -435,7 +448,10 @@ public class AccountList
 
             checkBox.setSelected(!checkBox.isSelected());
 
-            new EnableAccountWorker(account, checkBox.isSelected()).start();
+            this.enableAccountWorker
+                = new EnableAccountWorker(account, checkBox.isSelected());
+
+            enableAccountWorker.start();
         }
     }
 
@@ -538,6 +554,8 @@ public class AccountList
         @Override
         protected void finished()
         {
+            enableAccountWorker = null;
+
             AccountList.this.repaint();
         }
     }
