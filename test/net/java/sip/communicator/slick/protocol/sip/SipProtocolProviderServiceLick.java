@@ -10,7 +10,10 @@ import java.util.*;
 
 import junit.framework.*;
 
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.sip.*;
+import net.java.sip.communicator.util.*;
+import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
 /**
@@ -78,6 +81,9 @@ public class SipProtocolProviderServiceLick
 
         if (offlineMode != null && offlineMode.equalsIgnoreCase("true"))
             SipSlickFixture.onlineTestingDisabled = true;
+
+        ServiceUtils.getService(SipSlickFixture.bc, ConfigurationService.class)
+            .setProperty(CertificateService.PNAME_ALWAYS_TRUST, true);
 
         // xcap parsing tests
         addTest(TestXCapParse.suite());
