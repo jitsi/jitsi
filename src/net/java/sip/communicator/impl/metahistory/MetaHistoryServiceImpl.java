@@ -750,7 +750,8 @@ public class MetaHistoryServiceImpl
    {
         synchronized(progressListeners)
         {
-            progressListeners.add(listener);
+            if(!progressListeners.contains(listener))
+                progressListeners.add(listener);
         }
    }
 
