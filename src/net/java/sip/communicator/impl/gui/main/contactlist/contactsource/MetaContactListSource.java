@@ -185,17 +185,14 @@ public class MetaContactListSource
     }
 
     /**
-     * Filters the <tt>MetaContactListService</tt> to match the given
-     * <tt>filterPattern</tt> and stores the result in the given
-     * <tt>treeModel</tt>.
+     * Starts the query.
+     * 
      * @param filterPattern the pattern to filter through
-     * @return the created <tt>MetaContactQuery</tt> corresponding to the
-     * query this method does
+     * @param query the query to be started
      */
-    public MetaContactQuery queryMetaContactSource(final Pattern filterPattern)
+    public void startQuery(final MetaContactQuery query,
+        final Pattern filterPattern)
     {
-        final MetaContactQuery query = new MetaContactQuery();
-
         new Thread()
         {
             @Override
@@ -215,8 +212,6 @@ public class MetaContactListSource
                         MetaContactQueryStatusEvent.QUERY_CANCELED);
             }
         }.start();
-
-        return query;
     }
 
     /**

@@ -86,8 +86,6 @@ public class PresenceFilter
         // Add this query to the filterQuery.
         filterQuery.addContactQuery(query);
 
-        List<ContactQuery> contactQueryList = new ArrayList<ContactQuery>();
-        
         for(int cssType : contactSourcePreferences.keySet())
         {
             Iterator<UIContactSource> filterSources 
@@ -107,12 +105,17 @@ public class PresenceFilter
                 
                 ContactSourceService sourceService
                     = filterSource.getContactSourceService();
-                ContactQuery contactQuery = sourceService.queryContactSource(null);
-    
-                contactQueryList.add(contactQuery);
-    
+                
+                ContactQuery contactQuery 
+                    = sourceService.createContactQuery(null);
+                
                 // Add this query to the filterQuery.
                 filterQuery.addContactQuery(contactQuery);
+                
+                contactQuery.addContactQueryListener(
+                    GuiActivator.getContactList());
+                
+                contactQuery.start();
             }
         }
 
@@ -120,20 +123,10 @@ public class PresenceFilter
         filterQuery.close();
 
         query.addContactQueryListener(GuiActivator.getContactList());
-
         int resultCount = 0;
         addMatching(GuiActivator.getContactListService().getRoot(),
                     query,
                     resultCount);
-
-        for(ContactQuery contactQuery : contactQueryList)
-        {
-            for(SourceContact contact : contactQuery.getQueryResults())
-            {
-                addSourceContact(contact);
-            }
-            contactQuery.addContactQueryListener(GuiActivator.getContactList());
-        }
 
         query.fireQueryEvent(
                 query.isCanceled()
@@ -290,6 +283,7 @@ public class PresenceFilter
 
             if(isMatching(metaContact))
             {
+                
                 resultCount++;
                 if (resultCount <= INITIAL_CONTACT_COUNT)
                 {
@@ -361,36 +355,5 @@ public class PresenceFilter
                 addMatching(subgroup, query, resultCount);
             }
         }
-    }
-
-    /**
-     * Adds the given <tt>sourceContact</tt> to the contact list.
-     * @param sourceContact the <tt>SourceContact</tt> to add
-     */
-    private void addSourceContact(SourceContact sourceContact)
-    {
-        ContactSourceService contactSource
-            = sourceContact.getContactSource();
-
-        TreeContactList sourceContactList = GuiActivator.getContactList();
-        UIContactSource sourceUI
-            = sourceContactList .getContactSource(contactSource);
-
-        if (sourceUI != null
-            // ExtendedContactSourceService has already matched the
-            // SourceContact over the pattern
-            && (contactSource instanceof ExtendedContactSourceService)
-                || isMatching(sourceContact))
-        {
-            boolean isSorted = (sourceContact.getIndex() > -1) ? true : false;
-
-            sourceContactList.addContact(
-                sourceUI.createUIContact(sourceContact),
-                sourceUI.getUIGroup(),
-                isSorted,
-                true);
-        }
-        else
-            sourceUI.removeUIContact(sourceContact);
     }
 }

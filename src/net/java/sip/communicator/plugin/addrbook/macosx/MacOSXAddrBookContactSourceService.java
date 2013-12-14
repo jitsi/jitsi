@@ -91,7 +91,7 @@ public class MacOSXAddrBookContactSourceService
     }
 
     /**
-     * Queries this <tt>ContactSourceService</tt> for <tt>SourceContact</tt>s
+     * Creates query that searches for <tt>SourceContact</tt>s
      * which match a specific <tt>query</tt> <tt>Pattern</tt>.
      *
      * @param query the <tt>Pattern</tt> which this
@@ -102,14 +102,13 @@ public class MacOSXAddrBookContactSourceService
      * any) will be returned
      * @see ExtendedContactSourceService#queryContactSource(Pattern)
      */
-    public ContactQuery queryContactSource(Pattern query)
+    public ContactQuery createContactQuery(Pattern query)
     {
         if(latestQuery != null)
             latestQuery.clear();
 
         latestQuery = new MacOSXAddrBookContactQuery(this, query);
 
-        latestQuery.start();
         return latestQuery;
     }
 

@@ -69,10 +69,7 @@ public class InviteContactListFilter
             if (filterQuery.isCanceled())
                 return;
 
-            ContactQuery query = applyFilter(filterSource);
-
-            if (query.getStatus() == ContactQuery.QUERY_IN_PROGRESS)
-                filterQuery.addContactQuery(query);
+            applyFilter(filterSource, filterQuery);
         }
 
         // Closes this filter to indicate that we finished adding queries to it.

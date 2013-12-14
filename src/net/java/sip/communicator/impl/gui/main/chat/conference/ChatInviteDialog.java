@@ -117,24 +117,6 @@ public class ChatInviteDialog
             }
             return true;
         }
-        
-        @Override
-        protected void addMatching(List<SourceContact> sourceContacts)
-        {
-            Iterator<SourceContact> contactsIter = sourceContacts.iterator();
-            
-            List<SourceContact> matchedContacts = new ArrayList<SourceContact>();
-            while (contactsIter.hasNext())
-            {
-                SourceContact contact = contactsIter.next();
-                if(!opSetMUC.isPrivateMessagingContact(
-                    contact.getContactAddress()))
-                {
-                    matchedContacts.add(contact);
-                }
-            }
-            super.addMatching(matchedContacts);
-        }
     }
 
     /**

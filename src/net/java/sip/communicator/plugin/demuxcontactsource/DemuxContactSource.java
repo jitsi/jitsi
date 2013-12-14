@@ -94,12 +94,12 @@ public class DemuxContactSource
     }
 
     /**
-     * Queries this search source for the given <tt>queryString</tt>.
+     * Creates query for the given <tt>queryString</tt>.
      *
      * @param queryString the string to search for
      * @return the created query
      */
-    public ContactQuery queryContactSource(String queryString)
+    public ContactQuery createContactQuery(String queryString)
     {
         if (logger.isDebugEnabled())
             logger.debug("Demux query contact source: " + contactSource
@@ -112,7 +112,7 @@ public class DemuxContactSource
         {
             return new DemuxContactQuery(
                 ((ExtendedContactSourceService) contactSource)
-                    .queryContactSource(Pattern.compile(
+                    .createContactQuery(Pattern.compile(
                         Pattern.quote(queryString),
                         Pattern.MULTILINE
                             | Pattern.CASE_INSENSITIVE
@@ -120,20 +120,20 @@ public class DemuxContactSource
         }
         else
             return new DemuxContactQuery(
-                contactSource.queryContactSource(queryString));
+                contactSource.createContactQuery(queryString));
     }
 
     /**
-     * Queries this search source for the given <tt>queryString</tt>.
+     * Creates query for the given <tt>queryString</tt>.
      *
      * @param queryString the string to search for
      * @param contactCount the maximum count of result contacts
      * @return the created query
      */
-    public ContactQuery queryContactSource(String queryString, int contactCount)
+    public ContactQuery createContactQuery(String queryString, int contactCount)
     {
         return new DemuxContactQuery(
-            contactSource.queryContactSource(queryString, contactCount));
+            contactSource.createContactQuery(queryString, contactCount));
     }
 
     /**
@@ -175,8 +175,6 @@ public class DemuxContactSource
 
             this.sourceQuery = sourceQuery;
 
-            initQueryResults();
-
             sourceQuery.addContactQueryListener(this);
         }
 
@@ -205,42 +203,6 @@ public class DemuxContactSource
         }
 
         /**
-         * Initializes the query results.
-         */
-        public void initQueryResults()
-        {
-            List<SourceContact> sourceContacts = sourceQuery.getQueryResults();
-
-            if (sourceContacts == null)
-                return;
-
-            Iterator<SourceContact> contactIter = sourceContacts.iterator();
-            while (contactIter.hasNext())
-            {
-                SourceContact sourceContact = contactIter.next();
-
-                Iterator<ContactDetail> detailsIter
-                    = sourceContact.getContactDetails().iterator();
-
-                while (detailsIter.hasNext())
-                {
-                    ContactDetail detail = detailsIter.next();
-
-                    if (preferredProtocolProviders == null
-                        || isPreferredContactDetail(detail))
-                    {
-                        SortedGenericSourceContact
-                            demuxContact
-                                = (SortedGenericSourceContact)
-                                    createSourceContact(sourceContact,
-                                                        detail);
-                        addContact(demuxContact);
-                    }
-                }
-            }
-        }
-
-        /**
          * Returns the list of <tt>SourceContact</tt>s returned by this query.
          *
          * @return the list of <tt>SourceContact</tt>s returned by this query
@@ -257,6 +219,12 @@ public class DemuxContactSource
         public void cancel()
         {
             sourceQuery.cancel();
+        }
+        
+        @Override
+        public void start()
+        {
+            sourceQuery.start();
         }
 
         /**

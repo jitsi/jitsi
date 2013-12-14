@@ -48,24 +48,25 @@ public interface ContactSourceService
      * @return the display name of this contact source
      */
     public String getDisplayName();
-
+    
     /**
-     * Queries this search source for the given <tt>queryString</tt>.
-     *
+     * Creates and returns new <tt>ContactQuery</tt> instance.
+     * 
      * @param queryString the string to search for
-     * @return the created query
+     * 
+     * @return new <tt>ContactQuery</tt> instance.
      */
-    public ContactQuery queryContactSource(String queryString);
-
+    public ContactQuery createContactQuery(String queryString);
+    
     /**
-     * Queries this search source for the given <tt>queryString</tt>.
-     *
+     * Creates and returns new <tt>ContactQuery</tt> instance.
+     * 
      * @param queryString the string to search for
      * @param contactCount the maximum count of result contacts
-     * @return the created query
+     * @return new <tt>ContactQuery</tt> instance.
      */
-    public ContactQuery queryContactSource(String queryString,
-            int contactCount);
+    public ContactQuery createContactQuery(String queryString,
+      int contactCount);
 
     /**
      * Returns the index of the contact source in the result list.
