@@ -48,10 +48,12 @@ public class CallHistoryFilter
                 = contactSource.getContactSourceService()
                     .createContactQuery("", 50);
 
+            query.start();
+            
             filterQuery.addContactQuery(query);
 
-            query.start();
-
+            addMatching(query.getQueryResults(), contactSource);
+            
             // We know that this query should be finished here and we do not
             // expect any further results from it.
             filterQuery.removeQuery(query);
@@ -121,6 +123,28 @@ public class CallHistoryFilter
                                 false,
                                 true);
             }
+        }
+    }
+    
+    /**
+     * Adds matching <tt>sourceContacts</tt> to the result tree model.
+     *
+     * @param sourceContacts the list of <tt>SourceContact</tt>s to add
+     * @param uiSource the <tt>ExternalContactSource</tt>, which contacts
+     * we're adding
+     */
+    private void addMatching(   List<SourceContact> sourceContacts,
+                                UIContactSource uiSource)
+    {
+        Iterator<SourceContact> contactsIter = sourceContacts.iterator();
+
+        while (contactsIter.hasNext())
+        {
+            GuiActivator.getContactList().addContact(
+                    uiSource.createUIContact(contactsIter.next()),
+                    uiSource.getUIGroup(),
+                    false,
+                    true);
         }
     }
 }
