@@ -569,24 +569,34 @@ public class TreeContactList
     {
         MetaContactGroup rootGroup 
             = GuiActivator.getContactListService().getRoot();
-        UIGroup uiGroup = MetaContactListSource
-            .getUIGroup(rootGroup);
+        UIGroup uiGroup;
+        synchronized (rootGroup)
+        {
+            uiGroup = MetaContactListSource
+                .getUIGroup(rootGroup);
 
-        if (uiGroup != null)
-            return;
+            if (uiGroup != null)
+                return;
             
-        uiGroup = MetaContactListSource
-            .createUIGroup(rootGroup);
-        
+            uiGroup = MetaContactListSource
+                .createUIGroup(rootGroup);
+        }
         
         treeModel.getRoot().sortedAddContactGroup((UIGroupImpl)uiGroup);
         Iterator<MetaContact> i = rootGroup.getChildContacts();
         while (i.hasNext())
         {
             MetaContact contact = i.next();
-            UIContact uiContact = MetaContactListSource.getUIContact(contact);
-            removeContact(uiContact);
-            uiContact = MetaContactListSource.createUIContact(contact);
+            UIContact uiContact;
+            synchronized (contact)
+            {
+                uiContact
+                    = MetaContactListSource.getUIContact(contact);
+                if(uiContact == null)
+                    continue;
+                removeContact(uiContact);
+                uiContact = MetaContactListSource.createUIContact(contact);
+            }
             if (currentFilter.isMatching(uiContact))
                 addContact(uiContact, uiGroup, true, true);
             else
@@ -602,11 +612,15 @@ public class TreeContactList
         MetaContactGroup rootGroup 
             = GuiActivator.getContactListService().getRoot();
         
-        UIGroup uiGroup = MetaContactListSource
-            .getUIGroup(rootGroup);
+        UIGroup uiGroup;
+        synchronized (rootGroup)
+        {
+            uiGroup = MetaContactListSource
+                .getUIGroup(rootGroup);
 
-        if (uiGroup == null)
-            return;
+            if (uiGroup == null)
+                return;
+        }
         
         GroupNode parentNode = treeModel.getRoot();
         
@@ -614,10 +628,16 @@ public class TreeContactList
         while (i.hasNext())
         {
             MetaContact contact = i.next();
-            UIContact uiContact 
-                = MetaContactListSource.getUIContact(contact);
-            removeContact(uiContact);
-            uiContact = MetaContactListSource.createUIContact(contact);
+            UIContact uiContact;
+            synchronized (contact)
+            {
+                uiContact
+                    = MetaContactListSource.getUIContact(contact);
+                if(uiContact == null)
+                    continue;
+                removeContact(uiContact);
+                uiContact = MetaContactListSource.createUIContact(contact);
+            }
             if (currentFilter.isMatching(uiContact))
                 addContact(uiContact, treeModel.getRoot().getGroupDescriptor(),
                     true, true);

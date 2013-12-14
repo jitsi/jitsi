@@ -258,22 +258,40 @@ public class MetaContactListSource
                     }
 
                     UIContact newUIContact;
+                    boolean uiContactCreated = false;
                     synchronized (metaContact)
                     {
-                        newUIContact
-                            = MetaContactListSource.createUIContact(metaContact);
+                        newUIContact 
+                            = MetaContactListSource.getUIContact(metaContact);
+    
+                        if (newUIContact == null)
+                        {
+                            newUIContact
+                                = MetaContactListSource
+                                    .createUIContact(metaContact);
+                            
+                            GuiActivator.getContactList().addContact(
+                                newUIContact,
+                                uiGroup,
+                                true,
+                                true);
+                        }
+                        
                     }
-
-                    GuiActivator.getContactList().addContact(
-                        newUIContact,
-                        uiGroup,
-                        true,
-                        true);
-
+                    
                     query.setInitialResultCount(resultCount);
                 }
                 else
-                    query.fireQueryEvent(metaContact);
+                {
+                    synchronized (metaContact)
+                    {
+                        if (MetaContactListSource.getUIContact(metaContact) 
+                            == null)
+                        {
+                            query.fireQueryEvent(metaContact);
+                        }
+                    }
+                }
             }
         }
 
