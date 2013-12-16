@@ -592,6 +592,9 @@ public class ContactGroupSipImpl
             || sipGroup.countSubgroups() != countSubgroups())
             return false;
 
+        if(getProtocolProvider() != ((ContactGroup)obj).getProtocolProvider())
+            return false;
+
         //traverse child contacts
         Iterator<Contact> theirContacts = sipGroup.contacts();
 
