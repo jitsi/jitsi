@@ -126,49 +126,56 @@ public class GoogleContactsSourceService
     }
 
     /**
-     * Creates query for the given <tt>searchPattern</tt>.
+     * Queries this search source for the given <tt>searchPattern</tt>.
      *
      * @param queryPattern the pattern to search for
-     * @param listener the listener that receives the found contacts
      * @return the created query
      */
-    public ContactQuery createContactQuery(Pattern queryPattern)
+    public ContactQuery queryContactSource(Pattern queryPattern)
     {
-        return createContactQuery(queryPattern,
+        return queryContactSource(queryPattern,
                 GoogleContactsQuery.GOOGLECONTACTS_MAX_RESULTS);
     }
 
     /**
-     * Creates query for the given <tt>searchPattern</tt>.
+     * Queries this search source for the given <tt>searchPattern</tt>.
      *
      * @param queryPattern the pattern to search for
      * @param count maximum number of contact returned
      * @return the created query
      */
-    public ContactQuery createContactQuery(Pattern queryPattern, int count)
+    public ContactQuery queryContactSource(Pattern queryPattern, int count)
     {
         GoogleContactsQuery query = new GoogleContactsQuery(this, queryPattern,
                 count);
-        
+
         synchronized (queries)
         {
             queries.add(query);
         }
 
+        boolean hasStarted = false;
+
+        try
+        {
+            query.start();
+            hasStarted = true;
+        }
+        finally
+        {
+            if (!hasStarted)
+            {
+                synchronized (queries)
+                {
+                    if (queries.remove(query))
+                        queries.notify();
+                }
+            }
+        }
+
         return query;
     }
 
-    /**
-     * Removes query from the list of queries.
-     * 
-     * @param query the query that will be removed.
-     */
-    public synchronized void removeQuery(ContactQuery query)
-    {
-        if (queries.remove(query))
-            queries.notify();
-    }
-    
     /**
      * Returns the Google Contacts connection.
      *
@@ -324,21 +331,21 @@ public class GoogleContactsSourceService
      * @param query the string to search for
      * @return the created query
      */
-    public ContactQuery createContactQuery(String query)
+    public ContactQuery queryContactSource(String query)
     {
-        return createContactQuery(
+        return queryContactSource(
                 query,
                 GoogleContactsQuery.GOOGLECONTACTS_MAX_RESULTS);
     }
 
     /**
-     *Creates query for the given <tt>queryString</tt>.
+     * Queries this search source for the given <tt>queryString</tt>.
      *
      * @param query the string to search for
      * @param contactCount the maximum count of result contacts
      * @return the created query
      */
-    public ContactQuery createContactQuery(String query, int contactCount)
+    public ContactQuery queryContactSource(String query, int contactCount)
     {
         Pattern pattern = null;
         try
@@ -353,7 +360,7 @@ public class GoogleContactsSourceService
 
         if(pattern != null)
         {
-            return createContactQuery(pattern, contactCount);
+            return queryContactSource(pattern, contactCount);
         }
         return null;
     }

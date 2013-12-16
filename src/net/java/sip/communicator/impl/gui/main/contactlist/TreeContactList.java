@@ -324,6 +324,7 @@ public class TreeContactList
     {
         MetaContact metaContact = event.getMetaContact();
         MetaContactGroup parentGroup = metaContact.getParentMetaContactGroup();
+
         UIGroup uiGroup = MetaContactListSource
             .getUIGroup(parentGroup);
         if (!MetaContactListSource.isRootGroup(parentGroup))
@@ -569,34 +570,23 @@ public class TreeContactList
     {
         MetaContactGroup rootGroup 
             = GuiActivator.getContactListService().getRoot();
-        UIGroup uiGroup;
-        synchronized (rootGroup)
-        {
-            uiGroup = MetaContactListSource
-                .getUIGroup(rootGroup);
+        UIGroup uiGroup = MetaContactListSource
+            .getUIGroup(rootGroup);
 
-            if (uiGroup != null)
-                return;
-            
+        if (uiGroup == null)
             uiGroup = MetaContactListSource
                 .createUIGroup(rootGroup);
-        }
         
         treeModel.getRoot().sortedAddContactGroup((UIGroupImpl)uiGroup);
+        
         Iterator<MetaContact> i = rootGroup.getChildContacts();
         while (i.hasNext())
         {
             MetaContact contact = i.next();
-            UIContact uiContact;
-            synchronized (contact)
-            {
-                uiContact
-                    = MetaContactListSource.getUIContact(contact);
-                if(uiContact == null)
-                    continue;
-                removeContact(uiContact);
-                uiContact = MetaContactListSource.createUIContact(contact);
-            }
+            UIContact uiContact
+                = MetaContactListSource.getUIContact(contact);
+            removeContact(uiContact);
+            uiContact = MetaContactListSource.createUIContact(contact);
             if (currentFilter.isMatching(uiContact))
                 addContact(uiContact, uiGroup, true, true);
             else
@@ -611,16 +601,11 @@ public class TreeContactList
     {
         MetaContactGroup rootGroup 
             = GuiActivator.getContactListService().getRoot();
-        
-        UIGroup uiGroup;
-        synchronized (rootGroup)
-        {
-            uiGroup = MetaContactListSource
-                .getUIGroup(rootGroup);
+        UIGroup uiGroup = MetaContactListSource
+            .getUIGroup(rootGroup);
 
-            if (uiGroup == null)
-                return;
-        }
+        if (uiGroup == null)
+            return;
         
         GroupNode parentNode = treeModel.getRoot();
         
@@ -628,16 +613,10 @@ public class TreeContactList
         while (i.hasNext())
         {
             MetaContact contact = i.next();
-            UIContact uiContact;
-            synchronized (contact)
-            {
-                uiContact
-                    = MetaContactListSource.getUIContact(contact);
-                if(uiContact == null)
-                    continue;
-                removeContact(uiContact);
-                uiContact = MetaContactListSource.createUIContact(contact);
-            }
+            UIContact uiContact
+                = MetaContactListSource.getUIContact(contact);
+            removeContact(uiContact);
+            uiContact = MetaContactListSource.createUIContact(contact);
             if (currentFilter.isMatching(uiContact))
                 addContact(uiContact, treeModel.getRoot().getGroupDescriptor(),
                     true, true);
@@ -1957,7 +1936,12 @@ public class TreeContactList
 
             if (contactSource instanceof ExtendedContactSourceService)
             {
-                ContactQueryListener queryListener = new ContactQueryListener()
+                ContactQuery query = ((ExtendedContactSourceService)
+                        contactSource).queryContactSource(filterPattern);
+
+                loadedQueries.add(query);
+
+                query.addContactQueryListener(new ContactQueryListener()
                 {
                     public void queryStatusChanged(ContactQueryStatusEvent event)
                     {}
@@ -2042,14 +2026,7 @@ public class TreeContactList
                         if (contactNode != null)
                             nodeChanged(contactNode);
                     }
-                };
-
-                ContactQuery query = ((ExtendedContactSourceService)
-                    contactSource).createContactQuery(filterPattern);
-
-                loadedQueries.add(query);
-                
-                query.start();
+                });
 
                 // If the image search has been canceled from one of the
                 // previous sources, we return here.

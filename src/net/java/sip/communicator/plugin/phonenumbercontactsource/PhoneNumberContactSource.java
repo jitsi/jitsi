@@ -41,26 +41,24 @@ public class PhoneNumberContactSource
     }
 
     /**
-     *  Creates query for the given <tt>queryString</tt>.
+     * Queries this contact source for the given <tt>queryString</tt>.
      *
      * @param queryString the string to search for
-     * @param listener the listener that receives the found contacts.
      * @return the created query
      */
-    public ContactQuery createContactQuery(String queryString)
+    public ContactQuery queryContactSource(String queryString)
     {
-        return createContactQuery(queryString, -1);
+        return queryContactSource(queryString, -1);
     }
 
     /**
-     *  Creates query for the given <tt>queryString</tt>.
+     * Queries this contact source for the given <tt>queryString</tt>.
      *
      * @param queryString the string to search for
      * @param contactCount the maximum count of result contacts
-     * @param listener the listener that receives the found contacts.
      * @return the created query
      */
-    public ContactQuery createContactQuery( String queryString,
+    public ContactQuery queryContactSource( String queryString,
                                             int contactCount)
     {
         if (queryString == null)
@@ -69,6 +67,7 @@ public class PhoneNumberContactSource
         PhoneNumberContactQuery contactQuery
             = new PhoneNumberContactQuery(this, queryString, contactCount);
 
+        contactQuery.start();
         return contactQuery;
     }
 

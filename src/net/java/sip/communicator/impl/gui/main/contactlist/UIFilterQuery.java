@@ -114,6 +114,12 @@ public class UIFilterQuery
             {
                 ContactQuery externalQuery = (ContactQuery) contactQuery;
 
+                List<SourceContact> externalResults
+                    = externalQuery.getQueryResults();
+
+                if (externalResults != null && externalResults.size() > 0)
+                    queryResults = new ArrayList<SourceContact>(externalResults);
+
                 externalQuery.addContactQueryListener(this);
             }
             else if (contactQuery instanceof MetaContactQuery)

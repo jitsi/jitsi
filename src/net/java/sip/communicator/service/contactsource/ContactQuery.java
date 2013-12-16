@@ -57,11 +57,6 @@ public interface ContactQuery
      * @return the list of <tt>SourceContact</tt>s returned by this query
      */
     public List<SourceContact> getQueryResults();
-    
-    /**
-     * Starts the query.
-     */
-    public void start();
 
     /**
      * Cancels this query.

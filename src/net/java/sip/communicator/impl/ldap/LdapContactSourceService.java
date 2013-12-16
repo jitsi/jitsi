@@ -49,47 +49,56 @@ public class LdapContactSourceService
     }
 
     /**
-     * Creates query for the given <tt>searchPattern</tt>.
+     * Queries this search source for the given <tt>searchPattern</tt>.
      *
      * @param queryPattern the pattern to search for
      * @return the created query
      */
-    public ContactQuery createContactQuery(Pattern queryPattern)
+    public ContactQuery queryContactSource(Pattern queryPattern)
     {
-        return createContactQuery(queryPattern,
+        return queryContactSource(queryPattern,
                 LdapContactQuery.LDAP_MAX_RESULTS);
     }
 
     /**
-     * Creates query for the given <tt>searchPattern</tt>.
+     * Queries this search source for the given <tt>searchPattern</tt>.
      *
      * @param queryPattern the pattern to search for
      * @param count maximum number of contact returned
      * @return the created query
      */
-    public ContactQuery createContactQuery(Pattern queryPattern, int count)
+    public ContactQuery queryContactSource(Pattern queryPattern, int count)
     {
         LdapContactQuery query = new LdapContactQuery(this, queryPattern,
                 count);
-        
+
         synchronized (queries)
         {
             queries.add(query);
         }
 
+        boolean hasStarted = false;
+
+        try
+        {
+            query.start();
+            hasStarted = true;
+        }
+        finally
+        {
+            if (!hasStarted)
+            {
+                synchronized (queries)
+                {
+                    if (queries.remove(query))
+                        queries.notify();
+                }
+            }
+        }
+
         return query;
     }
 
-    /**
-     * Removes a query from the list.
-     * @param query the query
-     */
-    public synchronized void removeQuery(ContactQuery query)
-    {
-        if (queries.remove(query))
-            queries.notify();
-    }
-    
     /**
      * Returns a user-friendly string that identifies this contact source.
      * @return the display name of this contact source
@@ -111,25 +120,23 @@ public class LdapContactSourceService
     }
 
     /**
-     * Creates query for the given <tt>query</tt>.
+     * Queries this search source for the given <tt>queryString</tt>.
      * @param query the string to search for
-     * @param listener the listener that receives the found contacts.
      * @return the created query
      */
-    public ContactQuery createContactQuery(String query)
+    public ContactQuery queryContactSource(String query)
     {
-        return createContactQuery(query, LdapContactQuery.LDAP_MAX_RESULTS);
+        return queryContactSource(query, LdapContactQuery.LDAP_MAX_RESULTS);
     }
 
     /**
-     * Creates query for the given <tt>query</tt>.
+     * Queries this search source for the given <tt>queryString</tt>.
      *
      * @param query the string to search for
      * @param contactCount the maximum count of result contacts
-     * @param listener the listener that receives the found contacts.
      * @return the created query
      */
-    public ContactQuery createContactQuery(String query, int contactCount)
+    public ContactQuery queryContactSource(String query, int contactCount)
     {
         Pattern pattern = null;
         try
@@ -143,7 +150,7 @@ public class LdapContactSourceService
 
         if(pattern != null)
         {
-            return createContactQuery(pattern, contactCount);
+            return queryContactSource(pattern, contactCount);
         }
         return null;
     }

@@ -69,24 +69,24 @@ public class StringContactSourceServiceImpl
     }
 
     /**
-     * Creates query for the given <tt>queryString</tt>.
+     * Queries this search source for the given <tt>queryString</tt>.
      *
      * @param queryString the string to search for
      * @return the created query
      */
-    public ContactQuery createContactQuery(String queryString)
+    public ContactQuery queryContactSource(String queryString)
     {
-        return createContactQuery(queryString, -1);
+        return queryContactSource(queryString, -1);
     }
 
     /**
-     * Creates query for the given <tt>queryString</tt>.
+     * Queries this search source for the given <tt>queryString</tt>.
      *
      * @param queryString the string to search for
      * @param contactCount the maximum count of result contacts
      * @return the created query
      */
-    public ContactQuery createContactQuery( String queryString,
+    public ContactQuery queryContactSource( String queryString,
                                             int contactCount)
     {
         return new StringQuery(queryString);
@@ -120,6 +120,10 @@ public class StringContactSourceServiceImpl
             this.queryString = queryString;
             this.results = new ArrayList<SourceContact>();
 
+            results.add(getSourceContact());
+
+            if (getStatus() != QUERY_CANCELED)
+                setStatus(QUERY_COMPLETED);
         }
 
         /**
@@ -142,16 +146,6 @@ public class StringContactSourceServiceImpl
             return results;
         }
 
-        @Override
-        public void start()
-        {
-            SourceContact contact = getSourceContact();
-            results.add(contact);
-            
-            fireContactReceived(contact);
-            if (getStatus() != QUERY_CANCELED)
-                setStatus(QUERY_COMPLETED);
-        }
         /**
          * Returns the source contact corresponding to the query string.
          *

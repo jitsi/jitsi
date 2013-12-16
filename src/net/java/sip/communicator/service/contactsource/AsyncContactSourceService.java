@@ -18,26 +18,25 @@ public abstract class AsyncContactSourceService
     implements ExtendedContactSourceService
 {
     /**
-     * Creates query that searches for <tt>SourceContact</tt>s
+     * Queries this <tt>ContactSourceService</tt> for <tt>SourceContact</tt>s
      * which match a specific <tt>query</tt> <tt>String</tt>.
      *
      * @param query the <tt>String</tt> which this <tt>ContactSourceService</tt>
      * is being queried for
-     * @param listener the listener that receives the found contacts.
      * @return a <tt>ContactQuery</tt> which represents the query of this
      * <tt>ContactSourceService</tt> implementation for the specified
      * <tt>String</tt> and via which the matching <tt>SourceContact</tt>s (if
      * any) will be returned
      * @see ContactSourceService#queryContactSource(String)
      */
-    public ContactQuery createContactQuery(String query)
+    public ContactQuery queryContactSource(String query)
     {
-        return createContactQuery(
+        return queryContactSource(
             Pattern.compile(query, Pattern.CASE_INSENSITIVE | Pattern.LITERAL));
     }
 
     /**
-     * Creates query that searches for <tt>SourceContact</tt>s
+     * Queries this <tt>ContactSourceService</tt> for <tt>SourceContact</tt>s
      * which match a specific <tt>query</tt> <tt>String</tt>.
      *
      * @param query the <tt>String</tt> which this <tt>ContactSourceService</tt>
@@ -49,9 +48,9 @@ public abstract class AsyncContactSourceService
      * any) will be returned
      * @see ContactSourceService#queryContactSource(String)
      */
-    public ContactQuery createContactQuery(String query, int contactCount)
+    public ContactQuery queryContactSource(String query, int contactCount)
     {
-        return createContactQuery(
+        return queryContactSource(
             Pattern.compile(query, Pattern.CASE_INSENSITIVE | Pattern.LITERAL));
     }
 

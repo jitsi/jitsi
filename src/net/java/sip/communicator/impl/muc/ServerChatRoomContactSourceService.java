@@ -44,32 +44,36 @@ public class ServerChatRoomContactSourceService
     }
 
     /**
-     * Creates query for the given <tt>queryString</tt>.
+     * Queries this contact source for the given <tt>queryString</tt>.
      *
      * @param queryString the string to search for
      * @return the created query
      */
     @Override
-    public ContactQuery createContactQuery(String queryString)
+    public ContactQuery queryContactSource(String queryString)
     {
-        return createContactQuery(queryString, -1);
+        return queryContactSource(queryString, -1);
     }
 
     /**
-     * Creates query for the given <tt>queryString</tt>.
+     * Queries this contact source for the given <tt>queryString</tt>.
      *
      * @param queryString the string to search for
      * @param contactCount the maximum count of result contacts
      * @return the created query
      */
     @Override
-    public ContactQuery createContactQuery(String queryString, int contactCount)
+    public ContactQuery queryContactSource(String queryString, int contactCount)
     {
         if (queryString == null)
             queryString = "";
         
         ServerChatRoomQuery contactQuery
             = new ServerChatRoomQuery(queryString, this, provider);
+
+        contactQuery.start();
+        
+        
         return contactQuery;
     }
     

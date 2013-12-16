@@ -83,24 +83,24 @@ public class ProtocolContactSourceServiceImpl
     }
 
     /**
-     * Creates query for the given <tt>searchPattern</tt>.
+     * Queries this search source for the given <tt>queryString</tt>.
      *
      * @param queryString the string to search for
      * @return the created query
      */
-    public ContactQuery createContactQuery(String queryString)
+    public ContactQuery queryContactSource(String queryString)
     {
-        return createContactQuery(queryString, -1);
+        return queryContactSource(queryString, -1);
     }
 
     /**
-     * Creates query for the given <tt>searchPattern</tt>.
+     * Queries this search source for the given <tt>queryString</tt>.
      *
      * @param queryString the string to search for
      * @param contactCount the maximum count of result contacts
      * @return the created query
      */
-    public ContactQuery createContactQuery( String queryString,
+    public ContactQuery queryContactSource( String queryString,
                                             int contactCount)
     {
         if (queryString == null)
@@ -108,23 +108,31 @@ public class ProtocolContactSourceServiceImpl
 
         ProtocolCQuery contactQuery
             = new ProtocolCQuery(queryString, contactCount);
-        
+
         synchronized (queries)
         {
             queries.add(contactQuery);
         }
 
+        boolean queryHasStarted = false;
+
+        try
+        {
+            contactQuery.start();
+            queryHasStarted = true;
+        }
+        finally
+        {
+            if (!queryHasStarted)
+            {
+                synchronized (queries)
+                {
+                    if (queries.remove(contactQuery))
+                        queries.notify();
+                }
+            }
+        }
         return contactQuery;
-    }
-    
-    /**
-     * Removes query from the list.
-     * @param contactQuery the query
-     */
-    public synchronized void removeQuery(ContactQuery contactQuery)
-    {
-        if (queries.remove(contactQuery))
-            queries.notify();
     }
 
     /**
@@ -192,26 +200,6 @@ public class ProtocolContactSourceServiceImpl
                 setStatus(QUERY_COMPLETED);
         }
 
-        @Override
-        public synchronized void start()
-        {
-            boolean queryHasStarted = false;
-
-            try
-            {
-                super.start();
-                queryHasStarted = true;
-            }
-            finally
-            {
-                if (!queryHasStarted)
-                {
-                    getContactSource().removeQuery(this);
-                }
-            }
-
-        }
-        
         /**
          * Adds the result for the given group.
          *

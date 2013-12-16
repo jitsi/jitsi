@@ -29,11 +29,11 @@ public interface ExtendedContactSourceService
     extends ContactSourceService
 {
     /**
-     * Creates query for the given <tt>searchPattern</tt>.
+     * Queries this search source for the given <tt>searchPattern</tt>.
      * @param queryPattern the pattern to search for
      * @return the created query
      */
-    public ContactQuery createContactQuery(Pattern queryPattern);
+    public ContactQuery queryContactSource(Pattern queryPattern);
 
     /**
      * Returns the global phone number prefix to be used when calling contacts

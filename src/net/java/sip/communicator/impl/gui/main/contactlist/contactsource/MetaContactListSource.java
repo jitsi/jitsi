@@ -185,14 +185,17 @@ public class MetaContactListSource
     }
 
     /**
-     * Starts the query.
-     * 
+     * Filters the <tt>MetaContactListService</tt> to match the given
+     * <tt>filterPattern</tt> and stores the result in the given
+     * <tt>treeModel</tt>.
      * @param filterPattern the pattern to filter through
-     * @param query the query to be started
+     * @return the created <tt>MetaContactQuery</tt> corresponding to the
+     * query this method does
      */
-    public void startQuery(final MetaContactQuery query,
-        final Pattern filterPattern)
+    public MetaContactQuery queryMetaContactSource(final Pattern filterPattern)
     {
+        final MetaContactQuery query = new MetaContactQuery();
+
         new Thread()
         {
             @Override
@@ -212,6 +215,8 @@ public class MetaContactListSource
                         MetaContactQueryStatusEvent.QUERY_CANCELED);
             }
         }.start();
+
+        return query;
     }
 
     /**
@@ -258,40 +263,22 @@ public class MetaContactListSource
                     }
 
                     UIContact newUIContact;
-                    boolean uiContactCreated = false;
                     synchronized (metaContact)
                     {
-                        newUIContact 
-                            = MetaContactListSource.getUIContact(metaContact);
-    
-                        if (newUIContact == null)
-                        {
-                            newUIContact
-                                = MetaContactListSource
-                                    .createUIContact(metaContact);
-                            
-                            GuiActivator.getContactList().addContact(
-                                newUIContact,
-                                uiGroup,
-                                true,
-                                true);
-                        }
-                        
+                        newUIContact
+                            = MetaContactListSource.createUIContact(metaContact);
                     }
-                    
+
+                    GuiActivator.getContactList().addContact(
+                        newUIContact,
+                        uiGroup,
+                        true,
+                        true);
+
                     query.setInitialResultCount(resultCount);
                 }
                 else
-                {
-                    synchronized (metaContact)
-                    {
-                        if (MetaContactListSource.getUIContact(metaContact) 
-                            == null)
-                        {
-                            query.fireQueryEvent(metaContact);
-                        }
-                    }
-                }
+                    query.fireQueryEvent(metaContact);
             }
         }
 

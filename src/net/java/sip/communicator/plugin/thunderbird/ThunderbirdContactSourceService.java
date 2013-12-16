@@ -141,7 +141,7 @@ public class ThunderbirdContactSourceService
      * @see net.java.sip.communicator.service.contactsource
      * .ContactSourceService#queryContactSource(java.lang.String)
      */
-    public ContactQuery createContactQuery(String queryString)
+    public ContactQuery queryContactSource(String queryString)
     {
         Pattern pattern = null;
         try
@@ -157,7 +157,7 @@ public class ThunderbirdContactSourceService
 
         if(pattern != null)
         {
-            return createContactQuery(pattern);
+            return queryContactSource(pattern);
         }
         return null;
     }
@@ -169,11 +169,11 @@ public class ThunderbirdContactSourceService
      * net.java.sip.communicator.service.contactsource.ContactSourceService#
      * queryContactSource(java.lang.String, int)
      */
-    public ContactQuery createContactQuery(String queryString, int contactCount)
+    public ContactQuery queryContactSource(String queryString, int contactCount)
     {
         // XXX: The ThunderbirdContactQuery does not tqke a contactCount
         // argument yet. Thus, call the default queryContactSource function.
-        return createContactQuery(queryString);
+        return queryContactSource(queryString);
     }
 
     /*
@@ -183,12 +183,9 @@ public class ThunderbirdContactSourceService
      * net.java.sip.communicator.service.contactsource.ExtendedContactSourceService
      * #queryContactSource(java.util.regex.Pattern)
      */
-    public ContactQuery createContactQuery(Pattern queryPattern)
+    public ContactQuery queryContactSource(Pattern queryPattern)
     {
-        ThunderbirdContactQuery query 
-            = new ThunderbirdContactQuery(this, queryPattern);
-        
-        return query;
+        return new ThunderbirdContactQuery(this, queryPattern);
     }
 
     /*
