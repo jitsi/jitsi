@@ -164,6 +164,11 @@ public class TreeContactList
      * The container, where this contact list component is added.
      */
     private ContactListContainer parentCLContainer;
+    
+    /**
+     * The Contacts group instance.
+     */
+    private UIGroupImpl rootUIGroup = null;
 
     /**
      * Creates the <tt>TreeContactList</tt>.
@@ -325,12 +330,13 @@ public class TreeContactList
         MetaContact metaContact = event.getMetaContact();
         MetaContactGroup parentGroup = metaContact.getParentMetaContactGroup();
 
-        UIGroup uiGroup = MetaContactListSource
-            .getUIGroup(parentGroup);
+        UIGroup uiGroup = null;
         if (!MetaContactListSource.isRootGroup(parentGroup))
         {
             synchronized (parentGroup)
             {
+                uiGroup = MetaContactListSource
+                    .getUIGroup(parentGroup);
 
                 if (uiGroup == null)
                     uiGroup = MetaContactListSource
@@ -522,22 +528,23 @@ public class TreeContactList
             UIGroupImpl contactImpl = (UIGroupImpl) group;
 
             groupNode = contactImpl.getGroupNode();
-            
-           
 
             if (groupNode == null)
             {
                 GroupNode parentNode = treeModel.getRoot();
-                if(group.getSourceIndex() < GuiActivator.getContactListService()
-                    .getSourceIndex())
-                {
-                    createMetaUIRootGroup();
-                }
                 
                 if (isGroupSorted)
                     groupNode = parentNode.sortedAddContactGroup(contactImpl);
                 else
                     groupNode = parentNode.addContactGroup(contactImpl);
+                
+                if(group.getSourceIndex() < GuiActivator.getContactListService()
+                    .getSourceIndex() && rootUIGroup == null 
+                    && (!(treeModel.getRoot().getChildAfter(groupNode) 
+                        instanceof GroupNode)))
+                {
+                    createMetaUIRootGroup();
+                }
             }
         }
 
@@ -549,12 +556,19 @@ public class TreeContactList
         if (!(contact instanceof UIContactImpl))
             return;
 
+        ContactNode contactNode = null;
         UIContactImpl contactImpl = (UIContactImpl) contact;
 
         if (isContactSorted)
-            groupNode.sortedAddContact(contactImpl);
+            contactNode = groupNode.sortedAddContact(contactImpl);
         else
-            groupNode.addContact(contactImpl);
+            contactNode = groupNode.addContact(contactImpl);
+        
+        if(rootUIGroup == null && groupNode == treeModel.getRoot() 
+            && treeModel.getRoot().getChildBefore(contactNode) instanceof GroupNode)
+        {
+            createMetaUIRootGroup();
+        }
 
         if ((!currentFilter.equals(presenceFilter)
                 || !groupNode.isCollapsed()))
@@ -568,30 +582,82 @@ public class TreeContactList
      */
     private void createMetaUIRootGroup()
     {
-        MetaContactGroup rootGroup 
-            = GuiActivator.getContactListService().getRoot();
-        UIGroup uiGroup = MetaContactListSource
-            .getUIGroup(rootGroup);
-
-        if (uiGroup == null)
-            uiGroup = MetaContactListSource
-                .createUIGroup(rootGroup);
+        if(rootUIGroup != null)
+            return;
         
-        treeModel.getRoot().sortedAddContactGroup((UIGroupImpl)uiGroup);
-        
-        Iterator<MetaContact> i = rootGroup.getChildContacts();
-        while (i.hasNext())
+        rootUIGroup = new UIGroupImpl()
         {
-            MetaContact contact = i.next();
-            UIContact uiContact
-                = MetaContactListSource.getUIContact(contact);
-            removeContact(uiContact);
-            uiContact = MetaContactListSource.createUIContact(contact);
-            if (currentFilter.isMatching(uiContact))
-                addContact(uiContact, uiGroup, true, true);
-            else
-                MetaContactListSource.removeUIContact(contact);
-        }
+            private GroupNode groupNode = null;
+            
+            @Override
+            public boolean isGroupCollapsed()
+            {
+                return true;
+            }
+            
+            @Override
+            public int getSourceIndex()
+            {
+                return GuiActivator.getContactListService().getSourceIndex();
+            }
+            
+            @Override
+            public Component getRightButtonMenu()
+            {
+                return null;
+            }
+            
+            @Override
+            public UIGroup getParentGroup()
+            {
+                return null;
+            }
+            
+            @Override
+            public String getId()
+            {
+                return null;
+            }
+            
+            @Override
+            public String getDisplayName()
+            {
+                return GuiActivator.getResources()
+                    .getI18NString("service.gui.CONTACTS");
+            }
+            
+            @Override
+            public Object getDescriptor()
+            {
+                return null;
+            }
+            
+            @Override
+            public int countOnlineChildContacts()
+            {
+               return -1;
+            }
+            
+            @Override
+            public int countChildContacts()
+            {
+                return -1;
+            }
+            
+            @Override
+            public void setGroupNode(GroupNode groupNode)
+            {
+                this.groupNode = groupNode;
+            }
+            
+            @Override
+            public GroupNode getGroupNode()
+            {
+                return groupNode;
+            }
+        };
+        
+        treeModel.getRoot().sortedAddContactGroup(rootUIGroup);
     }
     
     /**
@@ -599,31 +665,12 @@ public class TreeContactList
      */
     private void removeMetaUIRootGroup()
     {
-        MetaContactGroup rootGroup 
-            = GuiActivator.getContactListService().getRoot();
-        UIGroup uiGroup = MetaContactListSource
-            .getUIGroup(rootGroup);
-
-        if (uiGroup == null)
+        if(rootUIGroup == null)
             return;
-        
         GroupNode parentNode = treeModel.getRoot();
         
-        Iterator<MetaContact> i = rootGroup.getChildContacts();
-        while (i.hasNext())
-        {
-            MetaContact contact = i.next();
-            UIContact uiContact
-                = MetaContactListSource.getUIContact(contact);
-            removeContact(uiContact);
-            uiContact = MetaContactListSource.createUIContact(contact);
-            if (currentFilter.isMatching(uiContact))
-                addContact(uiContact, treeModel.getRoot().getGroupDescriptor(),
-                    true, true);
-            else
-                MetaContactListSource.removeUIContact(contact);
-        }
-        parentNode.removeContactGroup((UIGroupImpl)uiGroup);
+        parentNode.removeContactGroup(rootUIGroup);
+        rootUIGroup = null;
     }
 
     /**
@@ -736,15 +783,16 @@ public class TreeContactList
             if (parent != null)
             {
                 parent.removeContactGroup(parentGroup);
-                MetaContactGroup rootGroup 
-                    = GuiActivator.getContactListService().getRoot();
-                UIGroup uiGroup = MetaContactListSource
-                    .getUIGroup(rootGroup);
-                if(uiGroup != null && treeModel.getRoot().getChildBefore(
-                    ((UIGroupImpl) uiGroup).getGroupNode()) == null)
-                    removeMetaUIRootGroup();
             }
             
+        }
+        
+        if(rootUIGroup != null 
+            && (treeModel.getRoot().getChildAfter(rootUIGroup.getGroupNode()) 
+            instanceof GroupNode || treeModel.getRoot().getChildBefore(
+                (rootUIGroup).getGroupNode()) == null))
+        {
+            removeMetaUIRootGroup();
         }
     }
 
@@ -1013,7 +1061,7 @@ public class TreeContactList
 
         if (currentFilterQuery != null && !currentFilterQuery.isCanceled())
             currentFilterQuery.cancel();
-
+        rootUIGroup = null;
         currentFilterQuery = new UIFilterQuery(this);
 
         if (filterThread == null)

@@ -554,7 +554,9 @@ public class ContactListTreeCellRenderer
 
             this.initDisplayDetails(groupItem.getDisplayDetails());
             this.initButtonsPanel(groupItem);
-            this.setToolTipText(groupItem.getDescriptor().toString());
+            this.setToolTipText((groupItem.getDescriptor() != null) ? 
+                groupItem.getDescriptor().toString() : 
+                    groupItem.getDisplayName());
         }
 
         return this;
