@@ -498,7 +498,9 @@ public abstract class Call
                 throw new IllegalStateException("conference");
             }
             else
+            {
                 setConference(newValue);
+            }
         }
         return conference;
     }

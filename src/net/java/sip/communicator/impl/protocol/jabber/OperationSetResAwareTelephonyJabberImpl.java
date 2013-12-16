@@ -115,8 +115,10 @@ public class OperationSetResAwareTelephonyJabberImpl
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the call
      */
-    public Call createCall(String uri, String calleeResource,
-        CallConference conference)
+    public Call createCall(
+            String uri,
+            String calleeResource,
+            CallConference conference)
         throws OperationFailedException
     {
         CallJabberImpl call = new CallJabberImpl(jabberTelephony);
@@ -125,12 +127,15 @@ public class OperationSetResAwareTelephonyJabberImpl
             call.setConference(conference);
 
         String fullCalleeUri
-            = (!StringUtils.isNullOrEmpty(calleeResource))
-                ? uri + "/" + calleeResource
-                : uri;
-
-        CallPeer callPeer = jabberTelephony
-            .createOutgoingCall(call, uri, fullCalleeUri, null);
+            = StringUtils.isNullOrEmpty(calleeResource)
+                ? uri
+                : uri + "/" + calleeResource;
+        CallPeer callPeer
+            = jabberTelephony.createOutgoingCall(
+                    call,
+                    uri,
+                    fullCalleeUri,
+                    null);
 
         if (callPeer == null)
         {
@@ -142,14 +147,10 @@ public class OperationSetResAwareTelephonyJabberImpl
 
         Call callOfCallPeer = callPeer.getCall();
 
-        if (callOfCallPeer == call)
-            return call;
-        else
-        {
-            // We may have a Google Talk call here.
-            if (conference != null)
-                callOfCallPeer.setConference(conference);
-            return callOfCallPeer;
-        }
+        // We may have a Google Talk call here.
+        if ((callOfCallPeer != call) && (conference != null))
+            callOfCallPeer.setConference(conference);
+
+        return callOfCallPeer;
     }
 }

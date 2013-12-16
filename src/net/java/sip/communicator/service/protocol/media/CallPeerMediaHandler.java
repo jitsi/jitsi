@@ -340,14 +340,16 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      * <tt>Call</tt> of {@link #peer} has changed from a specific old value to a
      * specific new value.
      *
-     * @param event a <tt>PropertyChangeEvent</tt> which specified the property
+     * @param ev a <tt>PropertyChangeEvent</tt> which specified the property
      * which had its value changed and the old and new values of that property
      */
-    private void callPropertyChange(PropertyChangeEvent event)
+    private void callPropertyChange(PropertyChangeEvent ev)
     {
-        String propertyName = event.getPropertyName();
+        String propertyName = ev.getPropertyName();
+        boolean callConferenceChange
+            = MediaAwareCall.CONFERENCE.equals(propertyName);
 
-        if (MediaAwareCall.CONFERENCE.equals(propertyName)
+        if (callConferenceChange
                 || MediaAwareCall.DEFAULT_DEVICE.equals(propertyName))
         {
             MediaAwareCall<?,?,?> call = getPeer().getCall();
@@ -367,23 +369,29 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
 
                 if (oldDevice != null)
                 {
-                    if (oldDevice instanceof MediaDeviceWrapper)
-                    {
-                        oldDevice
-                            = ((MediaDeviceWrapper) oldDevice)
-                                .getWrappedDevice();
-                    }
-
+                    /*
+                     * DEFAULT_DEVICE signals that the actual/hardware device
+                     * has been changed and we will make sure that is the case
+                     * in order to avoid unnecessary changes. CONFERENCE signals
+                     * that the associated Call has been moved to a new
+                     * telephony conference and we have to move its MediaStreams
+                     * to the respective mixers.
+                     */
+                    MediaDevice oldValue
+                        = (!callConferenceChange
+                                && (oldDevice instanceof MediaDeviceWrapper))
+                            ? ((MediaDeviceWrapper) oldDevice)
+                                .getWrappedDevice()
+                            : oldDevice;
                     MediaDevice newDevice = getDefaultDevice(mediaType);
-                    MediaDevice newWrappedDevice = newDevice;
+                    MediaDevice newValue
+                        = (!callConferenceChange
+                                && (newDevice instanceof MediaDeviceWrapper))
+                            ? ((MediaDeviceWrapper) newDevice)
+                                .getWrappedDevice()
+                            : newDevice;
 
-                    if (newDevice instanceof MediaDeviceWrapper)
-                    {
-                        newWrappedDevice
-                            = ((MediaDeviceWrapper) newDevice)
-                                .getWrappedDevice();
-                    }
-                    if (oldDevice != newWrappedDevice)
+                    if (oldValue != newValue)
                         stream.setDevice(newDevice);
                 }
 

@@ -66,6 +66,7 @@ public class MediaAwareCallConference
     private final PropertyChangeListener propertyChangeListener
         = new PropertyChangeListener()
         {
+            @Override
             public void propertyChange(PropertyChangeEvent ev)
             {
                 MediaAwareCallConference.this.propertyChange(ev);
@@ -534,6 +535,7 @@ public class MediaAwareCallConference
          * Notifies this instance about a <tt>PropertyChangeEvent</tt> fired by
          * {@link #notifier}.
          */
+        @Override
         public void propertyChange(PropertyChangeEvent ev)
         {
             PropertyChangeListener[] ls;

@@ -2884,9 +2884,7 @@ public class CallManager
                     catch (OperationFailedException ofe)
                     {
                         logger.error(
-                                "Could not answer "
-                                    + peer
-                                    + " with video"
+                                "Could not answer " + peer + " with video"
                                     + " because of the following exception: "
                                     + ofe);
                     }
@@ -2903,8 +2901,7 @@ public class CallManager
                     catch (OperationFailedException ofe)
                     {
                         logger.error(
-                                "Could not answer "
-                                    + peer
+                                "Could not answer " + peer
                                     + " because of the following exception: ",
                                 ofe);
                     }

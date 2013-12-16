@@ -148,15 +148,11 @@ public class OperationSetBasicTelephonyJabberImpl
 
         Call callOfCallPeer = callPeer.getCall();
 
-        if (callOfCallPeer == call)
-            return call;
-        else
-        {
-            // We may have a Google Talk call here.
-            if (conference != null)
-                callOfCallPeer.setConference(conference);
-            return callOfCallPeer;
-        }
+        // We may have a Google Talk call here.
+        if ((callOfCallPeer != call) && (conference != null))
+            callOfCallPeer.setConference(conference);
+
+        return callOfCallPeer;
     }
 
     /**

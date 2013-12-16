@@ -149,16 +149,19 @@ public class CallConference
     private final CallChangeListener callChangeListener
         = new CallChangeListener()
         {
+            @Override
             public void callPeerAdded(CallPeerEvent ev)
             {
                 CallConference.this.onCallPeerEvent(ev);
             }
 
+            @Override
             public void callPeerRemoved(CallPeerEvent ev)
             {
                 CallConference.this.onCallPeerEvent(ev);
             }
 
+            @Override
             public void callStateChanged(CallChangeEvent ev)
             {
                 CallConference.this.callStateChanged(ev);

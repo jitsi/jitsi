@@ -11,7 +11,6 @@ import java.util.regex.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.Logger;
 
 /**
  * The <tt>ServerChatRoomQuery</tt> is a query over the
