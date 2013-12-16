@@ -645,6 +645,13 @@ public class ProtocolProviderServiceJabberImpl
     {
         synchronized(initializationLock)
         {
+            // if a thread is waiting for initializationLock and enters
+            // lets check whether someone hasn't already tried login and
+            // have succeeded,
+            // should prevent "Trace possible duplicate connections" prints
+            if(isRegistered())
+                return;
+
             JabberLoginStrategy loginStrategy = createLoginStrategy();
             userCredentials = loginStrategy.prepareLogin(authority, reasonCode);
             if(!loginStrategy.loginPreparationSuccessful())
