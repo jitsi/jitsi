@@ -651,7 +651,7 @@ Run_getLockFilePath()
     DWORD appDataCapacity = sizeof(appData) / sizeof(TCHAR);
     DWORD appDataLength
         = GetEnvironmentVariable(
-                _T("APPDATA"),
+                _T("LOCALAPPDATA"),
                 appData, appDataCapacity);
     LPTSTR lockFilePath = NULL;
 
