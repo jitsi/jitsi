@@ -578,6 +578,15 @@ public class TreeContactList
     }
 
     /**
+     * Returns the root meta contact UI group.
+     * @return the root meta contact UI group implementation.
+     */
+    public UIGroupImpl getRootUIGroup()
+    {
+       return rootUIGroup; 
+    }
+    
+    /**
      * Creates UI group for the root meta contact group.
      */
     private void createMetaUIRootGroup()

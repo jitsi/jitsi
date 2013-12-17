@@ -535,11 +535,19 @@ public class ContactListTreeCellRenderer
             statusIcon = expanded
                                 ? openedGroupIcon
                                 : closedGroupIcon;
-            this.statusLabel.setIcon(
-                    expanded
-                    ? openedGroupIcon
-                    : closedGroupIcon);
-
+            
+            if(groupItem != treeContactList.getRootUIGroup())
+            {
+                this.statusLabel.setIcon(
+                        expanded
+                        ? openedGroupIcon
+                        : closedGroupIcon);
+            }
+            else
+            {
+                this.statusLabel.setIcon(null);
+            }
+            
             // We have no photo icon for groups.
             this.rightLabel.setIcon(null);
             this.rightLabel.setText("");
