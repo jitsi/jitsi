@@ -106,10 +106,11 @@ public class PresenceStatusMenu
         while (statusIterator.hasNext())
         {
             PresenceStatus status = statusIterator.next();
+            byte[] statusIcon = status.getStatusIcon();
 
-            this.addItem(
+            addItem(
                     status.getStatusName(),
-                    new ImageIcon(status.getStatusIcon()),
+                    (statusIcon == null) ? null : new ImageIcon(statusIcon),
                     this);
         }
 
@@ -133,12 +134,13 @@ public class PresenceStatusMenu
     public void addItem(String text, Icon icon, ActionListener actionListener)
     {
         JCheckBoxMenuItem item = new JCheckBoxMenuItem(text, icon);
+
         item.setName(text);
         group.add(item);
 
         item.addActionListener(actionListener);
 
-        this.add(item);
+        add(item);
     }
 
     /**

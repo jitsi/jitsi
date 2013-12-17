@@ -177,49 +177,50 @@ public class StatusSelector
 
     public void updateStatus(PresenceStatus presenceStatus)
     {
+        String presenceStatusName = presenceStatus.getStatusName();
+
         if (logger.isTraceEnabled())
-            logger.trace("Systray update status for provider: "
-            + provider.getAccountID().getAccountAddress()
-            + ". The new status will be: " + presenceStatus.getStatusName());
+        {
+            logger.trace(
+                    "Systray update status for provider: "
+                        + provider.getAccountID().getAccountAddress()
+                        + ". The new status will be: "
+                        + presenceStatusName);
+        }
 
         if (menu instanceof AbstractButton)
-            ((AbstractButton) menu).setIcon(new ImageIcon(presenceStatus
-                .getStatusIcon()));
+        {
+            byte[] bytes = presenceStatus.getStatusIcon();
+
+            if (bytes != null)
+                ((AbstractButton) menu).setIcon(new ImageIcon());
+        }
 
         if(menu instanceof Menu)
         {
             Menu theMenu = (Menu) menu;
-            for(int i =0; i < theMenu.getItemCount(); i++)
+
+            for(int i = 0, count = theMenu.getItemCount(); i < count; i++)
             {
                 MenuItem item = theMenu.getItem(i);
 
                 if(item instanceof CheckboxMenuItem)
                 {
-                    if(item.getLabel().equals(presenceStatus.getStatusName()))
-                    {
-                        ((CheckboxMenuItem)item).setState(true);
-                    }
-                    else
-                    {
-                        ((CheckboxMenuItem)item).setState(false);
-                    }
+                    ((CheckboxMenuItem) item).setState(
+                            item.getLabel().equals(presenceStatusName));
                 }
             }
         }
         else if(menu instanceof JMenu)
         {
             JMenu theMenu = (JMenu) menu;
-            for(int i =0; i < theMenu.getItemCount(); i++)
+
+            for(int i = 0, count = theMenu.getItemCount(); i < count; i++)
             {
                 JMenuItem item = theMenu.getItem(i);
 
                 if(item instanceof JCheckBoxMenuItem)
-                {
-                    if(item.getText().equals(presenceStatus.getStatusName()))
-                        item.setSelected(true);
-                    else
-                        item.setSelected(false);
-                }
+                    item.setSelected(item.getText().equals(presenceStatusName));
             }
         }
     }

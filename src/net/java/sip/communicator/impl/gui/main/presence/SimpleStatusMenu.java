@@ -46,11 +46,12 @@ public class SimpleStatusMenu
      */
     public SimpleStatusMenu(ProtocolProviderService protocolProvider)
     {
-        this(protocolProvider,
-            protocolProvider.getAccountID().getDisplayName(),
-            ImageUtils.getBytesInImage(
-                protocolProvider.getProtocolIcon().getIcon(
-                    ProtocolIcon.ICON_SIZE_16x16)));
+        this(
+                protocolProvider,
+                protocolProvider.getAccountID().getDisplayName(),
+                getProtocolImage(
+                        protocolProvider,
+                        ProtocolIcon.ICON_SIZE_16x16));
     }
 
     /**
@@ -64,27 +65,34 @@ public class SimpleStatusMenu
                              String displayName,
                              Image onlineImage)
     {
-        super(displayName, new ImageIcon(onlineImage), protocolProvider);
+        super(
+                displayName,
+                (onlineImage == null) ? null : new ImageIcon(onlineImage),
+                protocolProvider);
 
-        this.setToolTipText("<html><b>" + displayName
-            + "</b><br>Offline</html>");
+        setToolTipText("<html><b>" + displayName + "</b><br>Offline</html>");
 
         JLabel titleLabel = new JLabel(displayName);
 
         titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD));
 
-        this.add(titleLabel);
-        this.addSeparator();
+        add(titleLabel);
+        addSeparator();
 
         onlineItem = createMenuItem(
             "service.gui.ONLINE",
             getIcon(),
             GlobalStatusEnum.ONLINE_STATUS);
-        offlineItem = createMenuItem(
-            "service.gui.OFFLINE",
-            new ImageIcon(LightGrayFilter.createDisabledImage(onlineImage)),
-            GlobalStatusEnum.OFFLINE_STATUS);
+        offlineItem
+            = createMenuItem(
+                    "service.gui.OFFLINE",
+                    (onlineImage == null)
+                        ? null
+                        : new ImageIcon(
+                                LightGrayFilter.createDisabledImage(
+                                        onlineImage)),
+                    GlobalStatusEnum.OFFLINE_STATUS);
         group.add(onlineItem);
         group.add(offlineItem);
 
@@ -96,16 +104,18 @@ public class SimpleStatusMenu
     }
 
     private JCheckBoxMenuItem createMenuItem(
-        String textKey, Icon icon, String name)
+            String textKey,
+            Icon icon,
+            String name)
     {
-        JCheckBoxMenuItem menuItem =
-            new JCheckBoxMenuItem(
-                GuiActivator.getResources().getI18NString(textKey),
-                icon);
+        JCheckBoxMenuItem menuItem
+            = new JCheckBoxMenuItem(
+                    GuiActivator.getResources().getI18NString(textKey),
+                    icon);
 
         menuItem.setName(name);
         menuItem.addActionListener(this);
-        this.add(menuItem);
+        add(menuItem);
         return menuItem;
     }
 
@@ -161,18 +171,29 @@ public class SimpleStatusMenu
     public void loadSkin()
     {
         super.loadSkin();
-        setIcon(new ImageIcon(ImageUtils.getBytesInImage(
-                protocolProvider.getProtocolIcon().getIcon(
-                    ProtocolIcon.ICON_SIZE_16x16))));
 
-        if(onlineItem != null)
+        Image image
+            = getProtocolImage(protocolProvider, ProtocolIcon.ICON_SIZE_16x16);
+
+        if (image != null)
+            setIcon(new ImageIcon(image));
+
+        if (onlineItem != null)
             onlineItem.setIcon(getIcon());
 
-        if(offlineItem != null)
+        if ((offlineItem != null) && (image != null))
+        {
             offlineItem.setIcon(
-                new ImageIcon(LightGrayFilter.createDisabledImage(
-                    ImageUtils.getBytesInImage(
-                        protocolProvider.getProtocolIcon().getIcon(
-                            ProtocolIcon.ICON_SIZE_16x16)))));
+                    new ImageIcon(LightGrayFilter.createDisabledImage(image)));
+        }
+    }
+
+    private static Image getProtocolImage(
+            ProtocolProviderService pps,
+            String iconSize)
+    {
+        byte[] bytes = pps.getProtocolIcon().getIcon(iconSize);
+
+        return (bytes == null) ? null : ImageUtils.getBytesInImage(bytes);
     }
 }

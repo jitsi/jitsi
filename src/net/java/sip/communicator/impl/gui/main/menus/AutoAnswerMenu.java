@@ -409,20 +409,30 @@ public class AutoAnswerMenu
      * @return the image.
      */
     private static Image getIconForProvider(
-        ProtocolProviderService providerService, Image customProviderImage,
-        ImageObserver imageObserver)
+            ProtocolProviderService providerService,
+            Image customProviderImage,
+            ImageObserver imageObserver)
     {
-        Image left = null;
-        if(isAutoAnswerEnabled(providerService))
-            left = ImageLoader.getImage(ImageLoader.AUTO_ANSWER_CHECK);
+        Image left
+            = isAutoAnswerEnabled(providerService)
+                ? ImageLoader.getImage(ImageLoader.AUTO_ANSWER_CHECK)
+                : null;
 
         if(customProviderImage == null)
-            customProviderImage = ImageUtils.getBytesInImage(
-                providerService.getProtocolIcon().getIcon(
-                    ProtocolIcon.ICON_SIZE_16x16));
+        {
+            byte[] bytes
+                = providerService.getProtocolIcon().getIcon(
+                        ProtocolIcon.ICON_SIZE_16x16);
 
-        return ImageUtils.getComposedImage(
-            left, customProviderImage, imageObserver);
+            if (bytes != null)
+                customProviderImage = ImageUtils.getBytesInImage(bytes);
+        }
+
+        return
+            ImageUtils.getComposedImage(
+                    left,
+                    customProviderImage,
+                    imageObserver);
     }
 
     /**
@@ -526,7 +536,10 @@ public class AutoAnswerMenu
                                    Image onlineImage,
                                    SIPCommMenu parentMenu)
         {
-            super(displayName, new ImageIcon(onlineImage));
+            super(
+                    displayName,
+                    (onlineImage == null) ? null : new ImageIcon(onlineImage));
+
             this.providerService = provider;
             this.parentMenu = parentMenu;
 

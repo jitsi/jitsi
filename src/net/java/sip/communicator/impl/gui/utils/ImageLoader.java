@@ -1535,16 +1535,13 @@ public class ImageLoader
      */
     public static ImageIcon getAccountStatusImage(ProtocolProviderService pps)
     {
-        ImageIcon statusIcon;
-
         OperationSetPresence presence
             = pps.getOperationSet(OperationSetPresence.class);
-
+        byte[] protocolStatusIcon
+            = (presence == null)
+                ? null
+                : presence.getPresenceStatus().getStatusIcon();
         Image statusImage;
-        byte[] protocolStatusIcon = null;
-
-        if(presence != null)
-            protocolStatusIcon = presence.getPresenceStatus().getStatusIcon();
 
         if (presence != null && protocolStatusIcon != null)
         {
@@ -1552,21 +1549,22 @@ public class ImageLoader
         }
         else
         {
-            statusImage
-                = ImageUtils.getBytesInImage(pps.getProtocolIcon().getIcon(
-                    ProtocolIcon.ICON_SIZE_16x16));
+            byte[] bytes
+                = pps.getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16);
 
-            if (!pps.isRegistered())
+            statusImage
+                = (bytes == null) ? null : ImageUtils.getBytesInImage(bytes);
+            if (!pps.isRegistered() && (statusImage != null))
             {
                 statusImage
                     = LightGrayFilter.createDisabledImage(statusImage);
             }
         }
 
-        statusIcon = new ImageIcon(
-            getIndexedProtocolImage(statusImage, pps));
-
-        return statusIcon;
+        return
+            (statusImage == null)
+                ? null
+                : new ImageIcon(getIndexedProtocolImage(statusImage, pps));
     }
 
     /**
