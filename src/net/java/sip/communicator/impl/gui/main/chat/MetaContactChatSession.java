@@ -699,10 +699,24 @@ public class MetaContactChatSession
             sessionRenderer.setSelectedChatTransport(chatTransport, false);
         }
 
-        // If no current transport is set we choose the first one in the list.
+        // If no current transport is set we choose
+        // the first online from the list.
         if (currentChatTransport == null)
         {
-            currentChatTransport = chatTransports.get(0);
+            for(ChatTransport ct : chatTransports)
+            {
+                if(ct.getStatus() != null
+                    && ct.getStatus().isOnline())
+                {
+                    currentChatTransport = ct;
+                    break;
+                }
+            }
+
+            // if still nothing selected, choose the first one
+            if (currentChatTransport == null)
+                currentChatTransport = chatTransports.get(0);
+
             sessionRenderer
                 .setSelectedChatTransport(currentChatTransport, false);
         }
