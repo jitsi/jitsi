@@ -72,6 +72,11 @@ public class ChatRoomMessageReceivedEvent
      * Some services can fill our room with message history.
      */
     private boolean historyMessage = false;
+    
+    /**
+     * Indicates whether the message is important or not.
+     */
+    private boolean isImportantMessage = false;
 
     /**
      * Creates a <tt>MessageReceivedEvent</tt> representing reception of the
@@ -166,5 +171,23 @@ public class ChatRoomMessageReceivedEvent
     public void setHistoryMessage(boolean historyMessage)
     {
         this.historyMessage = historyMessage;
+    }
+
+    /**
+     * Sets the the important message flag of the event.
+     * @param isImportant the value to be set.
+     */
+    public void setImportantMessage(boolean isImportant)
+    {
+        isImportantMessage = isImportant;
+    }
+    
+    /**
+     * Returns <tt>true</tt> if message is important and <tt>false</tt> if not.
+     * @return <tt>true</tt> if message is important and <tt>false</tt> if not.
+     */
+    public boolean isImportantMessage()
+    {
+        return isImportantMessage;
     }
 }

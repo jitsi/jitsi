@@ -44,7 +44,7 @@ public class ConferenceChatManager
                 AdHocChatRoomInvitationRejectionListener,
                 LocalUserChatRoomPresenceListener,
                 LocalUserAdHocChatRoomPresenceListener,
-                ServiceListener
+                ServiceListener, ChatRoomLocalUserRoleListener
 {
     /**
      * The object used for logging.
@@ -277,10 +277,10 @@ public class ConferenceChatManager
             message.getMessageUID(),
             null);
 
-        chatWindowManager.openChat(chatPanel, false);
+        if(evt.isImportantMessage())
+            chatWindowManager.openChat(chatPanel, true);
     }
-
-
+    
     /**
      * Implements the <tt>ChatRoomMessageListener.messageDeliveryFailed</tt>
      * method.
@@ -489,8 +489,8 @@ public class ConferenceChatManager
                 if(chatPanel.isShown())
                     ((ConferenceChatSession) chatPanel.getChatSession())
                         .loadChatRoom(sourceChatRoom);
-                else
-                    chatWindowManager.openChat(chatPanel, true);
+//                else
+//                    chatWindowManager.openChat(chatPanel, true);
             }
 
             if (sourceChatRoom.isSystem())
@@ -504,6 +504,7 @@ public class ConferenceChatManager
             }
 
             sourceChatRoom.addMessageListener(this);
+            sourceChatRoom.addLocalUserRoleListener(this);
         }
         else if (LocalUserChatRoomPresenceChangeEvent
                     .LOCAL_USER_JOIN_FAILED.equals(eventType))
@@ -536,6 +537,7 @@ public class ConferenceChatManager
             }
 
             sourceChatRoom.removeMessageListener(this);
+            sourceChatRoom.removelocalUserRoleListener(this);
         }
     }
 
@@ -1259,5 +1261,19 @@ public class ConferenceChatManager
     }
 
     public void invitationRejected(AdHocChatRoomInvitationRejectedEvent evt) {}
+
+    @Override
+    public void localUserRoleChanged(ChatRoomLocalUserRoleChangeEvent evt)
+    {
+        ChatRoom sourceChatRoom = evt.getSourceChatRoom();
+        ChatRoomWrapper chatRoomWrapper
+            = GuiActivator.getMUCService().findChatRoomWrapperFromChatRoom(
+                sourceChatRoom);
+        ChatWindowManager chatWindowManager
+            = GuiActivator.getUIService().getChatWindowManager();
+        ChatPanel chatPanel
+            = chatWindowManager.getMultiChat(chatRoomWrapper, true);
+        chatWindowManager.openChat(chatPanel, true);
+    }
     
 }

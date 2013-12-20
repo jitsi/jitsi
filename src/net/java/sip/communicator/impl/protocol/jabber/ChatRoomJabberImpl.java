@@ -2008,6 +2008,13 @@ public class ChatRoomJabberImpl
             if(delay != null)
                 msgReceivedEvt.setHistoryMessage(true);
 
+            if(messageReceivedEventType 
+                == ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED
+                && newMessage.getContent().contains(getUserNickname() + ":"))
+            {
+                msgReceivedEvt.setImportantMessage(true);
+            }
+                
             fireMessageEvent(msgReceivedEvt);
         }
     }
