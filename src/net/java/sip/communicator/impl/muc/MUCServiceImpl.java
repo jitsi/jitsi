@@ -1012,7 +1012,9 @@ public class MUCServiceImpl
             {
                 String[] joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
                     room.getParentProvider().getProtocolProvider(), 
-                    room.getChatRoomID());
+                    room.getChatRoomID(),
+                    getDefaultNickname(
+                        room.getParentProvider().getProtocolProvider()));
                 savedNick = joinOptions[0];
                 subject = joinOptions[1];
     

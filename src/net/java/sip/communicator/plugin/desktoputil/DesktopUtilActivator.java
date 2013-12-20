@@ -13,7 +13,6 @@ import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
-import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -57,8 +56,6 @@ public class DesktopUtilActivator
     private static GlobalDisplayDetailsService globalDisplayDetailsService;
 
     static BundleContext bundleContext;
-
-    private static MUCService mucService;
 
     /**
      * Calls <tt>Thread.setUncaughtExceptionHandler()</tt>
@@ -348,22 +345,5 @@ public class DesktopUtilActivator
                         GlobalDisplayDetailsService.class);
         }
         return globalDisplayDetailsService;
-    }
-
-    /**
-     * Returns the <tt>MUCService</tt> obtained from the bundle context.
-     *
-     * @return the <tt>MUCService</tt> obtained from the bundle context
-     */
-    public static MUCService getMUCService()
-    {
-        if (mucService == null)
-        {
-            mucService
-                = ServiceUtils.getService(
-                        bundleContext,
-                        MUCService.class);
-        }
-        return mucService;
     }
 }

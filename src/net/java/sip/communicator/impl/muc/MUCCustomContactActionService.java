@@ -185,7 +185,10 @@ public class MUCCustomContactActionService
                     joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
                         chatRoomWrapper.getParentProvider()
                             .getProtocolProvider(), 
-                        chatRoomWrapper.getChatRoomID());
+                        chatRoomWrapper.getChatRoomID(),
+                        MUCActivator.getMUCService().getDefaultNickname(
+                            chatRoomWrapper.getParentProvider()
+                                .getProtocolProvider()));
                     nickName = joinOptions[0];
                     subject = joinOptions[1];
                 }
@@ -204,7 +207,10 @@ public class MUCCustomContactActionService
                 String[] joinOptions;
                 joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
                     chatRoomWrapper.getParentProvider().getProtocolProvider(), 
-                    chatRoomWrapper.getChatRoomID());
+                    chatRoomWrapper.getChatRoomID(),
+                    MUCActivator.getMUCService().getDefaultNickname(
+                        chatRoomWrapper.getParentProvider()
+                            .getProtocolProvider()));
                 if(joinOptions[0] == null)
                     return;
                 MUCActivator.getMUCService()
@@ -244,7 +250,10 @@ public class MUCCustomContactActionService
             {
                 ChatRoomJoinOptionsDialog.getJoinOptions(true,
                     chatRoomWrapper.getParentProvider().getProtocolProvider(), 
-                    chatRoomWrapper.getChatRoomID());
+                    chatRoomWrapper.getChatRoomID(),
+                    MUCActivator.getMUCService().getDefaultNickname(
+                        chatRoomWrapper.getParentProvider()
+                            .getProtocolProvider()));
             }
         },
         autoJoinRunnable,

@@ -124,12 +124,13 @@ public class ChatRoomJoinOptionsDialog extends ChatOperationReasonDialog
     *
     * @param pps the protocol provider associated with the chat room.
     * @param chatRoomId the id of the chat room.
+    * @param defaultNickname the nickname to show if any
     * @return array with the nickname and subject values.
     */
    public static String[] getJoinOptions(ProtocolProviderService pps, 
-       String chatRoomId)
+       String chatRoomId, String defaultNickname)
    {
-       return getJoinOptions(false, pps, chatRoomId);
+       return getJoinOptions(false, pps, chatRoomId, defaultNickname);
    }
 
    /**
@@ -137,10 +138,13 @@ public class ChatRoomJoinOptionsDialog extends ChatOperationReasonDialog
     *  and returns them.
     *
     * @param dontDisplaySubjectFields if true the subject fields will be hidden
+    * @param pps the protocol provider associated with the chat room.
+    * @param chatRoomId the id of the chat room.
+    * @param defaultNickname the nickname to show if any
     * @return array with the nickname and subject values.
     */
    public static String[] getJoinOptions(boolean dontDisplaySubjectFields,
-       ProtocolProviderService pps, String chatRoomId)
+       ProtocolProviderService pps, String chatRoomId, String defaultNickname)
    {
        String nickName = null;
        ChatRoomJoinOptionsDialog reasonDialog =
@@ -151,10 +155,9 @@ public class ChatRoomJoinOptionsDialog extends ChatOperationReasonDialog
                    dontDisplaySubjectFields);
        reasonDialog.setIcon(new ImageIcon(DesktopUtilActivator.getImage(
            "service.gui.icons.CHANGE_NICKNAME_16x16")));
-       
-       
-       reasonDialog.setReasonFieldText(
-           DesktopUtilActivator.getMUCService().getDefaultNickname(pps));
+
+       if(defaultNickname != null)
+            reasonDialog.setReasonFieldText(defaultNickname);
        
        int result = reasonDialog.showDialog();
 
