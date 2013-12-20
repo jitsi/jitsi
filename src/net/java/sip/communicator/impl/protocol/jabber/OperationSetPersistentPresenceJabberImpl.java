@@ -799,6 +799,7 @@ public class OperationSetPersistentPresenceJabberImpl
             PresenceStatus offlineStatus =
                     parentProvider.getJabberStatusEnum().getStatus(
                         JabberStatusEnum.OFFLINE);
+
             if(newStatus.equals(offlineStatus))
             {
                 //send event notifications saying that all our buddies are
@@ -818,19 +819,7 @@ public class OperationSetPersistentPresenceJabberImpl
                         ContactJabberImpl contact
                             = (ContactJabberImpl)contactsIter.next();
 
-                        PresenceStatus oldContactStatus
-                            = contact.getPresenceStatus();
-
-                        if(!oldContactStatus.isOnline())
-                            continue;
-
-                        contact.updatePresenceStatus(offlineStatus);
-
-                        fireContactPresenceStatusChangeEvent(
-                            contact,
-                            contact.getParentContactGroup(),
-                            oldContactStatus,
-                            offlineStatus);
+                        updateContactStatus(contact, offlineStatus);
                     }
                 }
 
@@ -843,18 +832,7 @@ public class OperationSetPersistentPresenceJabberImpl
                     ContactJabberImpl contact
                         = (ContactJabberImpl) contactsIter.next();
 
-                    PresenceStatus oldContactStatus
-                        = contact.getPresenceStatus();
-
-                    if (!oldContactStatus.isOnline())
-                        continue;
-
-                    contact.updatePresenceStatus(offlineStatus);
-
-                    fireContactPresenceStatusChangeEvent(
-                        contact
-                        , contact.getParentContactGroup()
-                        , oldContactStatus, offlineStatus);
+                    updateContactStatus(contact, offlineStatus);
                 }
             }
         }
@@ -997,7 +975,8 @@ public class OperationSetPersistentPresenceJabberImpl
         // Do not obtain getRoster if we are not connected, or new Roster
         // will be created, all the resources that will be returned will be
         // unavailable. As we are not connected if set remove all resources
-        if(!parentProvider.getConnection().isConnected())
+        if( parentProvider.getConnection() == null
+            || !parentProvider.getConnection().isConnected())
         {
             if(removeUnavailable)
             {
@@ -1135,6 +1114,44 @@ public class OperationSetPersistentPresenceJabberImpl
     }
 
     /**
+     * Updates contact status and its resources, fires PresenceStatusChange
+     * events.
+     *
+     * @param contact the contact which presence to update if needed.
+     * @param newStatus the new status.
+     */
+    private void updateContactStatus(
+        ContactJabberImpl contact, PresenceStatus newStatus)
+    {
+        // When status changes this may be related to a change in the
+        // available resources.
+        boolean oldMobileIndicator = contact.isMobile();
+        boolean resourceUpdated = updateResources(contact, true);
+        mobileIndicator.resourcesUpdated(contact);
+
+        PresenceStatus oldStatus
+            = contact.getPresenceStatus();
+
+        // when old and new status are the same do nothing
+        // no change
+        if(oldStatus.equals(newStatus)
+            && oldMobileIndicator == contact.isMobile())
+        {
+            return;
+        }
+
+        contact.updatePresenceStatus(newStatus);
+
+        if (logger.isDebugEnabled())
+            logger.debug("Will Dispatch the contact status event.");
+
+        fireContactPresenceStatusChangeEvent(
+            contact, contact.getParentContactGroup(),
+            oldStatus, newStatus,
+            resourceUpdated);
+    }
+
+    /**
      * Manage changes of statuses by resource.
      */
     class ContactChangesListener
@@ -1235,7 +1252,8 @@ public class OperationSetPersistentPresenceJabberImpl
                     = StringUtils.parseBareAddress(presence.getFrom());
 
                 List<ChatRoom> chatRooms = parentProvider.getOperationSet(
-                    OperationSetMultiUserChat.class).getCurrentlyJoinedChatRooms();
+                    OperationSetMultiUserChat.class)
+                        .getCurrentlyJoinedChatRooms();
                 for(ChatRoom chatRoom : chatRooms)
                 {
                     if(chatRoom.getName().equals(userID))
@@ -1333,36 +1351,10 @@ public class OperationSetPersistentPresenceJabberImpl
                 // statuses may be the same and only change in status message
                 sourceContact.setStatusMessage(currentPresence.getStatus());
 
-                // When status changes this may be related to a change in the
-                // available resources.
-                boolean oldMobileIndicator = sourceContact.isMobile();
-                boolean resourceUpdated = updateResources(sourceContact, true);
-                mobileIndicator.resourcesUpdated(sourceContact);
-
-                PresenceStatus oldStatus
-                    = sourceContact.getPresenceStatus();
-                PresenceStatus newStatus
-                    = jabberStatusToPresenceStatus(
-                            currentPresence,
-                            parentProvider);
-
-                // when old and new status are the same do nothing
-                // no change
-                if(oldStatus.equals(newStatus)
-                    && oldMobileIndicator == sourceContact.isMobile())
-                {
-                    return;
-                }
-
-                sourceContact.updatePresenceStatus(newStatus);
-
-                ContactGroup parent
-                    = ssContactList.findContactGroup(sourceContact);
-
-                if (logger.isDebugEnabled())
-                    logger.debug("Will Dispatch the contact status event.");
-                fireContactPresenceStatusChangeEvent(sourceContact, parent,
-                    oldStatus, newStatus, resourceUpdated);
+                updateContactStatus(
+                    sourceContact,
+                    jabberStatusToPresenceStatus(
+                        currentPresence, parentProvider));
             }
             catch (IllegalStateException ex)
             {
