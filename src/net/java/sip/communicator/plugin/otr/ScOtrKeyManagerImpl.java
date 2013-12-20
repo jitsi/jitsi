@@ -62,47 +62,113 @@ public class ScOtrKeyManagerImpl
         }
     }
 
-    public void verify(Contact contact)
+    public void verify(Contact contact, String fingerprint)
     {
-        if ((contact == null) || isVerified(contact))
+        if ((fingerprint == null) || contact == null)
             return;
 
-        this.configurator.setProperty(contact.getAddress()
-            + ".publicKey.verified", true);
+        this.configurator.setProperty(contact.getAddress() + fingerprint
+            + ".fingerprint.verified", true);
 
         for (ScOtrKeyManagerListener l : getListeners())
             l.contactVerificationStatusChanged(contact);
     }
 
-    public void unverify(Contact contact)
+    public void unverify(Contact contact, String fingerprint)
     {
-        if ((contact == null) || !isVerified(contact))
+        if ((fingerprint == null) || contact == null)
             return;
 
-        this.configurator.removeProperty(contact.getAddress()
-            + ".publicKey.verified");
+        this.configurator.setProperty(contact.getAddress() + fingerprint
+            + ".fingerprint.verified", false);
 
         for (ScOtrKeyManagerListener l : getListeners())
             l.contactVerificationStatusChanged(contact);
     }
 
-    public boolean isVerified(Contact contact)
+    public boolean isVerified(Contact contact, String fingerprint)
     {
-        if (contact == null)
+        if (fingerprint == null || contact == null)
             return false;
 
-        return this.configurator.getPropertyBoolean(contact.getAddress()
-            + ".publicKey.verified", false);
+        return this.configurator.getPropertyBoolean(
+            contact.getAddress() + fingerprint
+                + ".fingerprint.verified", false);
     }
 
-    public String getRemoteFingerprint(Contact contact)
+    public List<String> getAllRemoteFingerprints(Contact contact)
     {
-        PublicKey remotePublicKey = loadPublicKey(contact);
-        if (remotePublicKey == null)
+        if (contact == null)
             return null;
+
+        /*
+         * The following lines are needed for backward compatibility with old
+         * versions of the otr plugin. Instead of lists of fingerprints the otr
+         * plugin used to store one public key for every contact in the form of
+         * "userID.publicKey=..." and one boolean property in the form of
+         * "userID.publicKey.verified=...". In order not to loose these old
+         * properties we have to convert them to match the new format.
+         */
+        String userID = contact.getAddress();
+
+        byte[] b64PubKey =
+            this.configurator.getPropertyBytes(userID + ".publicKey");
+        if (b64PubKey != null)
+        {
+            // We delete the old format property because we are going to convert
+            // it in the new format
+            this.configurator.removeProperty(userID + ".publicKey");
+
+            X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(b64PubKey);
+
+            KeyFactory keyFactory;
+            try
+            {
+                keyFactory = KeyFactory.getInstance("DSA");
+                PublicKey pubKey = keyFactory.generatePublic(publicKeySpec);
+
+                boolean isVerified =
+                    this.configurator.getPropertyBoolean(userID
+                        + ".publicKey.verified", false);
+
+                // We also make sure to delete this old format property if it
+                // exists.
+                this.configurator.removeProperty(userID + ".publicKey.verified");
+
+                String fingerprint = getFingerprintFromPublicKey(pubKey);
+
+                // Now we can store the old properties in the new format.
+                if (isVerified)
+                    verify(contact, fingerprint);
+                else
+                    unverify(contact, fingerprint);
+
+                // Finally we append the new fingerprint to out stored list of
+                // fingerprints.
+                this.configurator.appendProperty(
+                    userID + ".fingerprints", fingerprint);
+            }
+            catch (NoSuchAlgorithmException e)
+            {
+                e.printStackTrace();
+            }
+            catch (InvalidKeySpecException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        // Now we can safely return our list of fingerprints for this contact
+        // without worrying that we missed an old format property.
+        return this.configurator.getAppendedProperties(
+            contact.getAddress() + ".fingerprints");
+    }
+
+    public String getFingerprintFromPublicKey(PublicKey pubKey)
+    {
         try
         {
-            return new OtrCryptoEngineImpl().getFingerprint(remotePublicKey);
+            return new OtrCryptoEngineImpl().getFingerprint(pubKey);
         }
         catch (OtrCryptoException e)
         {
@@ -151,19 +217,16 @@ public class ScOtrKeyManagerImpl
         }
     }
 
-    public void savePublicKey(Contact contact, PublicKey pubKey)
+    public void saveFingerprint(Contact contact, String fingerprint)
     {
         if (contact == null)
             return;
 
-        X509EncodedKeySpec x509EncodedKeySpec =
-            new X509EncodedKeySpec(pubKey.getEncoded());
+        this.configurator.appendProperty(contact.getAddress() + ".fingerprints",
+            fingerprint);
 
-        this.configurator.setProperty(contact.getAddress() + ".publicKey",
-            x509EncodedKeySpec.getEncoded());
-
-        this.configurator.removeProperty(contact.getAddress()
-            + ".publicKey.verified");
+        this.configurator.setProperty(contact.getAddress() + fingerprint
+            + ".fingerprint.verified", false);
     }
 
     public PublicKey loadPublicKey(Contact contact)

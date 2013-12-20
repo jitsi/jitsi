@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.otr;
 
 import java.awt.event.*;
+import java.security.*;
 
 import javax.swing.*;
 
@@ -470,8 +471,13 @@ class OtrContactMenu
         switch (sessionStatus)
         {
         case ENCRYPTED:
+            PublicKey pubKey =
+                OtrActivator.scOtrEngine.getRemotePublicKey(contact);
+            String fingerprint =
+                OtrActivator.scOtrKeyManager.
+                    getFingerprintFromPublicKey(pubKey);
             imageID
-                = OtrActivator.scOtrKeyManager.isVerified(contact)
+                = OtrActivator.scOtrKeyManager.isVerified(contact, fingerprint)
                     ? "plugin.otr.ENCRYPTED_ICON_16x16"
                     : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_16x16";
             break;
@@ -489,5 +495,15 @@ class OtrContactMenu
         }
 
         separateMenu.setIcon(OtrActivator.resourceService.getImage(imageID));
+    }
+
+    @Override
+    public void multipleInstancesDetected(Contact contact) {}
+
+    @Override
+    public void outgoingSessionChanged(Contact contact)
+    {
+        if (contact.equals(OtrContactMenu.this.contact))
+            setSessionStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
     }
 }

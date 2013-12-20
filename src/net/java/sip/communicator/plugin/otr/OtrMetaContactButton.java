@@ -9,6 +9,7 @@ package net.java.sip.communicator.plugin.otr;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.security.*;
 
 import javax.imageio.*;
 
@@ -272,12 +273,17 @@ public class OtrMetaContactButton
         switch (status)
         {
         case ENCRYPTED:
+            PublicKey pubKey =
+                OtrActivator.scOtrEngine.getRemotePublicKey(contact);
+            String fingerprint =
+                OtrActivator.scOtrKeyManager.
+                    getFingerprintFromPublicKey(pubKey);
             image
-                = OtrActivator.scOtrKeyManager.isVerified(contact)
+                = OtrActivator.scOtrKeyManager.isVerified(contact, fingerprint)
                     ? verifiedLockedPadlockImage
                     : unverifiedLockedPadlockImage;
             tipKey = 
-                OtrActivator.scOtrKeyManager.isVerified(contact)
+                OtrActivator.scOtrKeyManager.isVerified(contact, fingerprint)
                 ? "plugin.otr.menu.VERIFIED"
                 : "plugin.otr.menu.UNVERIFIED";
             break;
@@ -307,5 +313,20 @@ public class OtrMetaContactButton
         button.setToolTipText(OtrActivator.resourceService
             .getI18NString(tipKey));
         button.repaint();
+    }
+
+    @Override
+    public void multipleInstancesDetected(Contact contact)
+    {}
+
+    @Override
+    public void outgoingSessionChanged(Contact contact)
+    {
+        // OtrMetaContactButton.this.contact can be null.
+        if (contact.equals(OtrMetaContactButton.this.contact))
+        {
+            setStatus(
+                OtrActivator.scOtrEngine.getSessionStatus(contact));
+        }
     }
 }

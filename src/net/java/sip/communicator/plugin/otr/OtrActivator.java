@@ -8,13 +8,14 @@ package net.java.sip.communicator.plugin.otr;
 
 import java.util.*;
 
+import net.java.sip.communicator.plugin.otr.authdialog.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
-
 import net.java.sip.communicator.util.Logger;
+
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
@@ -370,6 +371,20 @@ public class OtrActivator
             bundleContext.registerService(
                 OtrActionHandler.class.getName(),
                 new SwingOtrActionHandler(), null);
+
+        containerFilter.put(Container.CONTAINER_ID,
+                            Container.CONTAINER_CHAT_WRITE_PANEL.getID());
+        bundleContext.registerService(
+            PluginComponentFactory.class.getName(),
+            new PluginComponentFactory( Container.CONTAINER_CHAT_WRITE_PANEL)
+            {
+                protected PluginComponent getPluginInstance()
+                {
+                    return new OtrV3OutgoingSessionSwitcher(
+                        getContainer(), this);
+                }
+            },
+            containerFilter);
         }
 
         // If the general configuration form is disabled don't register it.
@@ -384,7 +399,8 @@ public class OtrActivator
             // Register the configuration form.
             bundleContext.registerService(ConfigurationForm.class.getName(),
                 new LazyConfigurationForm(
-                    "net.java.sip.communicator.plugin.otr.OtrConfigurationPanel",
+                    "net.java.sip.communicator.plugin.otr.authdialog." +
+                        "OtrConfigurationPanel",
                     getClass().getClassLoader(),
                     "plugin.otr.configform.ICON",
                     "service.gui.CHAT", 1),

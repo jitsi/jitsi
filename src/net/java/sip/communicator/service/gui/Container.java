@@ -84,6 +84,11 @@ public class Container
             = new Container("CONTAINER_GROUP_RIGHT_BUTTON_MENU");
 
     /**
+     * Chat write panel container.
+     */
+    public static final Container CONTAINER_CHAT_WRITE_PANEL
+            = new Container("CONTAINER_CHAT_WRITE_PANEL");
+    /**
      * Chat window "menu bar" container.
      */
     public static final Container CONTAINER_CHAT_MENU_BAR

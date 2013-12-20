@@ -19,4 +19,8 @@ public interface ScOtrEngineListener
     public void globalPolicyChanged();
 
     public void sessionStatusChanged(Contact contact);
+
+    public void multipleInstancesDetected(Contact contact);
+
+    public void outgoingSessionChanged(Contact contact);
 }

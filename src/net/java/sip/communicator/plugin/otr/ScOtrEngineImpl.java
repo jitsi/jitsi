@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import net.java.otr4j.*;
+import net.java.otr4j.crypto.*;
 import net.java.otr4j.session.*;
 import net.java.sip.communicator.plugin.otr.authdialog.*;
 import net.java.sip.communicator.service.browserlauncher.*;
@@ -265,19 +266,20 @@ public class ScOtrEngineImpl
                 progressDialog = new SmpProgressDialog(contact);
                 progressDialogMap.put(contact, progressDialog);
             }
-            
+
             progressDialog.init();
             progressDialog.setVisible(true);
         }
 
         @Override
-        public void verify(SessionID sessionID, boolean approved)
+        public void verify(
+            SessionID sessionID, String fingerprint, boolean approved)
         {
             Contact contact = getContact(sessionID);
             if (contact == null)
                 return;
 
-            OtrActivator.scOtrKeyManager.verify(contact);
+            OtrActivator.scOtrKeyManager.verify(contact, fingerprint);
 
             SmpProgressDialog progressDialog = progressDialogMap.get(contact);
             if (progressDialog == null)
@@ -285,20 +287,20 @@ public class ScOtrEngineImpl
                 progressDialog = new SmpProgressDialog(contact);
                 progressDialogMap.put(contact, progressDialog);
             }
-            
+
             progressDialog.setProgressSuccess();
             progressDialog.setVisible(true);
         }
 
         @Override
-        public void unverify(SessionID sessionID)
+        public void unverify(SessionID sessionID, String fingerprint)
         {
             Contact contact = getContact(sessionID);
             if (contact == null)
                 return;
 
-            OtrActivator.scOtrKeyManager.unverify(contact);
-            
+            OtrActivator.scOtrKeyManager.unverify(contact, fingerprint);
+
             SmpProgressDialog progressDialog = progressDialogMap.get(contact);
             if (progressDialog == null)
             {
@@ -331,6 +333,42 @@ public class ScOtrEngineImpl
             return OtrActivator.resourceService.getI18NString(
                 "plugin.otr.activator.fallbackmessage",
                 new String[] {accountID.getDisplayName()});
+        }
+
+        @Override
+        public void multipleInstancesDetected(SessionID sessionID)
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            String message =
+                OtrActivator.resourceService.getI18NString(
+                    "plugin.otr.activator.multipleinstancesdetected",
+                    new String[] {contact.getDisplayName()});
+            OtrActivator.uiService.getChat(contact).addMessage(
+                contact.getDisplayName(),
+                new Date(), Chat.SYSTEM_MESSAGE,
+                message,
+                OperationSetBasicInstantMessaging.HTML_MIME_TYPE);
+        }
+
+        @Override
+        public void messageFromAnotherInstanceReceived(SessionID sessionID)
+        {
+            Contact contact = getContact(sessionID);
+            if (contact == null)
+                return;
+
+            String message =
+                OtrActivator.resourceService.getI18NString(
+                    "plugin.otr.activator.msgfromanotherinstance",
+                    new String[] {contact.getDisplayName()});
+            OtrActivator.uiService.getChat(contact).addMessage(
+                contact.getDisplayName(),
+                new Date(), Chat.SYSTEM_MESSAGE,
+                message,
+                OperationSetBasicInstantMessaging.HTML_MIME_TYPE);
         }
     }
 
@@ -453,15 +491,38 @@ public class ScOtrEngineImpl
                     PublicKey remotePubKey =
                         otrEngine.getRemotePublicKey(sessionID);
 
-                    PublicKey storedPubKey =
-                        OtrActivator.scOtrKeyManager.loadPublicKey(contact);
-
-                    if (!remotePubKey.equals(storedPubKey))
-                        OtrActivator.scOtrKeyManager.savePublicKey(contact,
-                            remotePubKey);
-
-                    if (!OtrActivator.scOtrKeyManager.isVerified(contact))
+                    String remoteFingerprint = null;
+                    try
                     {
+                        remoteFingerprint =
+                            new OtrCryptoEngineImpl().
+                                getFingerprint(remotePubKey);
+                    }
+                    catch (OtrCryptoException e)
+                    {
+                        logger.debug(
+                            "Could not get the fingerprint from the "
+                            + "public key of contact: " + contact);
+                    }
+
+                    List<String> allFingerprintsOfContact =
+                        OtrActivator.scOtrKeyManager.
+                            getAllRemoteFingerprints(contact);
+                    if (allFingerprintsOfContact != null)
+                    {
+                        if (!allFingerprintsOfContact.contains(
+                                remoteFingerprint))
+                        {
+                            OtrActivator.scOtrKeyManager.saveFingerprint(
+                                contact, remoteFingerprint);
+                        }
+                    }
+
+                    if (!OtrActivator.scOtrKeyManager.isVerified(
+                            contact, remoteFingerprint))
+                    {
+                        OtrActivator.scOtrKeyManager.unverify(
+                            contact, remoteFingerprint);
                         UUID sessionGuid = null;
                         for(ScSessionID scSessionID : contactsMap.keySet())
                         {
@@ -531,7 +592,8 @@ public class ScOtrEngineImpl
 
                     message
                         = OtrActivator.resourceService.getI18NString(
-                                OtrActivator.scOtrKeyManager.isVerified(contact)
+                                OtrActivator.scOtrKeyManager.isVerified(
+                                    contact, remoteFingerprint)
                                     ? "plugin.otr.activator.sessionstared"
                                     : "plugin.otr.activator"
                                         + ".unverifiedsessionstared",
@@ -564,6 +626,26 @@ public class ScOtrEngineImpl
 
                 for (ScOtrEngineListener l : getListeners())
                     l.sessionStatusChanged(contact);
+            }
+
+            public void multipleInstancesDetected(SessionID sessionID)
+            {
+                Contact contact = getContact(sessionID);
+                if (contact == null)
+                    return;
+
+                for (ScOtrEngineListener l : getListeners())
+                    l.multipleInstancesDetected(contact);
+            }
+
+            public void outgoingSessionChanged(SessionID sessionID)
+            {
+                Contact contact = getContact(sessionID);
+                if (contact == null)
+                    return;
+
+                for (ScOtrEngineListener l : getListeners())
+                    l.outgoingSessionChanged(contact);
             }
         });
     }
@@ -1036,6 +1118,34 @@ public class ScOtrEngineImpl
                          + contact.getDisplayName(), e);
             showError(session.getSessionID(), e.getMessage());
         }
-        
+    }
+
+    public PublicKey getRemotePublicKey(Contact contact)
+    {
+        if (contact == null)
+            return null;
+
+        Session session = getSession(contact);
+
+        return session.getRemotePublicKey();
+    }
+
+    public List<Session> getSessionInstances(Contact contact)
+    {
+        if (contact == null)
+            return null;
+
+        return getSession(contact).getInstances();
+    }
+
+    public boolean setOutgoingSession(Contact contact, InstanceTag tag)
+    {
+        if (contact == null)
+            return false;
+
+        Session session = getSession(contact);
+
+        scSessionStatusMap.remove(session.getSessionID());
+        return session.setOutgoingInstance(tag);
     }
 }

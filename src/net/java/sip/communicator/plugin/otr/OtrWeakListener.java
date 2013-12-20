@@ -152,4 +152,28 @@ public class OtrWeakListener
         if (l != null)
             l.sessionStatusChanged(contact);
     }
+
+    /**
+     * Forwards the event/notification to the associated
+     * <tt>T</tt> if it is still needed by the application.
+     */
+    public void multipleInstancesDetected(Contact contact)
+    {
+        ScOtrEngineListener l = getListener();
+
+        if (l != null)
+            l.multipleInstancesDetected(contact);
+    }
+
+    /**
+     * Forwards the event/notification to the associated
+     * <tt>T</tt> if it is still needed by the application.
+     */
+    public void outgoingSessionChanged(Contact contact)
+    {
+        ScOtrEngineListener l = getListener();
+
+        if (l != null)
+            l.outgoingSessionChanged(contact);
+    }
 }

@@ -323,6 +323,7 @@ public class ChatPanel
             topSplitPane.setRightComponent(rightPanel);
             
             topPanel.add(topSplitPane);
+
         }
         else
         {
@@ -354,6 +355,7 @@ public class ChatPanel
                 this.repaint();
             }
 
+            writeMessagePanel.initPluginComponents();
             writeMessagePanel.setTransportSelectorBoxVisible(true);
 
             //Enables to change the protocol provider by simply pressing the

@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.otr.authdialog;
 
 import java.awt.*;
+import java.security.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -107,8 +108,13 @@ public class FingerprintAuthenticationPanel
         cbAction = new JComboBox();
         cbAction.addItem(actionIHave);
         cbAction.addItem(actionIHaveNot);
+
+        PublicKey pubKey = OtrActivator.scOtrEngine.getRemotePublicKey(contact);
+        String remoteFingerprint =
+            OtrActivator.scOtrKeyManager.getFingerprintFromPublicKey(pubKey);
         cbAction.setSelectedItem(OtrActivator.scOtrKeyManager
-            .isVerified(contact) ? actionIHave : actionIHaveNot);
+            .isVerified(contact, remoteFingerprint)
+                ? actionIHave : actionIHaveNot);
 
         pnlAction.add(cbAction, c);
 
@@ -152,8 +158,9 @@ public class FingerprintAuthenticationPanel
 
         // Remote fingerprint.
         String user = contact.getDisplayName();
+        PublicKey pubKey = OtrActivator.scOtrEngine.getRemotePublicKey(contact);
         String remoteFingerprint =
-            OtrActivator.scOtrKeyManager.getRemoteFingerprint(contact);
+            OtrActivator.scOtrKeyManager.getFingerprintFromPublicKey(pubKey);
         txtRemoteFingerprint.setText(OtrActivator.resourceService
             .getI18NString("plugin.otr.authbuddydialog.REMOTE_FINGERPRINT",
                 new String[]
@@ -182,6 +189,10 @@ public class FingerprintAuthenticationPanel
 
     public void compareFingerprints()
     {
+        PublicKey pubKey = OtrActivator.scOtrEngine.getRemotePublicKey(contact);
+        String remoteFingerprint =
+            OtrActivator.scOtrKeyManager.getFingerprintFromPublicKey(pubKey);
+
         if(txtRemoteFingerprintComparison.getText() == null
             || txtRemoteFingerprintComparison.getText().length() == 0)
         {
@@ -189,8 +200,7 @@ public class FingerprintAuthenticationPanel
             return;
         }
         if(txtRemoteFingerprintComparison.getText().toLowerCase().contains(
-            OtrActivator.scOtrKeyManager
-                .getRemoteFingerprint(contact).toLowerCase()))
+            remoteFingerprint.toLowerCase()))
         {
             txtRemoteFingerprintComparison.setBackground(Color.green);
             cbAction.setSelectedItem(actionIHave);

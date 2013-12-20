@@ -6,6 +6,7 @@
 package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
+import java.awt.Container;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
@@ -18,10 +19,13 @@ import javax.swing.text.html.*;
 import javax.swing.undo.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
@@ -29,6 +33,7 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.service.configuration.*;
+import org.osgi.framework.*;
 
 /**
  * The <tt>ChatWritePanel</tt> is the panel, where user writes her messages.
@@ -46,6 +51,7 @@ public class ChatWritePanel
                 MouseListener,
                 UndoableEditListener,
                 DocumentListener,
+                PluginComponentListener,
                 Skinnable
 {
     /**
@@ -1517,5 +1523,103 @@ public class ChatWritePanel
             // transport as outdated.
             isOutdatedResource = true;
         }
+    }
+
+    /**
+     * Initializes plug-in components for this container.
+     */
+    void initPluginComponents()
+    {
+        // Search for plugin components registered through the OSGI bundle
+        // context.
+        ServiceReference[] serRefs = null;
+
+        String osgiFilter = "("
+            + net.java.sip.communicator.service.gui.Container.CONTAINER_ID
+            + "="+net.java.sip.communicator.service.gui.Container.
+                    CONTAINER_CHAT_WRITE_PANEL.getID()+")";
+
+        try
+        {
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                PluginComponentFactory.class.getName(),
+                osgiFilter);
+        }
+        catch (InvalidSyntaxException exc)
+        {
+            logger.error("Could not obtain plugin reference.", exc);
+        }
+        if (serRefs != null)
+        {
+            for (int i = 0; i < serRefs.length; i ++)
+            {
+                PluginComponentFactory factory =
+                    (PluginComponentFactory) GuiActivator
+                        .bundleContext.getService(serRefs[i]);
+
+                PluginComponent component =
+                    factory.getPluginComponentInstance(this);
+                ChatSession chatSession = chatPanel.getChatSession();
+                if (chatSession instanceof MetaContactChatSession)
+                {
+                    MetaContact metaContact =
+                        (MetaContact) chatSession.getDescriptor();
+                    component.setCurrentContact(metaContact);
+                }
+                if (component.getComponent() == null)
+                    continue;
+
+                centerPanel.add((Component)component.getComponent());
+            }
+        }
+        GuiActivator.getUIService().addPluginComponentListener(this);
+        this.centerPanel.repaint();
+    }
+
+    /**
+     * Indicates that a new plugin component has been added. Adds it to this
+     * container if it belongs to it.
+     *
+     * @param event the <tt>PluginComponentEvent</tt> that notified us
+     */
+    public void pluginComponentAdded(PluginComponentEvent event)
+    {
+        PluginComponentFactory factory = event.getPluginComponentFactory();
+        if (!factory.getContainer().equals(
+                net.java.sip.communicator.service.
+                    gui.Container.CONTAINER_CHAT_WRITE_PANEL))
+            return;
+        PluginComponent c = factory.getPluginComponentInstance(this);
+        ChatSession chatSession = chatPanel.getChatSession();
+        if (chatSession instanceof MetaContactChatSession)
+        {
+            MetaContact metaContact = (MetaContact) chatSession.getDescriptor();
+            c.setCurrentContact(metaContact);
+        }
+        centerPanel.add((Component) c.getComponent());
+
+        this.centerPanel.repaint();
+    }
+
+    /**
+     * Removes the according plug-in component from this container.
+     * 
+     * @param event the <tt>PluginComponentEvent</tt> that notified us
+     */
+    public void pluginComponentRemoved(PluginComponentEvent event)
+    {
+        PluginComponentFactory factory = event.getPluginComponentFactory();
+
+        if (!factory.getContainer().equals(
+            net.java.sip.communicator.service.
+                gui.Container.CONTAINER_CHAT_WRITE_PANEL))
+            return;
+
+        Component c =
+            (Component)factory.getPluginComponentInstance(this)
+                .getComponent();
+
+        this.centerPanel.remove(c);
+        this.centerPanel.repaint();
     }
 }

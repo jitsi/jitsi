@@ -6,7 +6,11 @@
  */
 package net.java.sip.communicator.plugin.otr;
 
+import java.security.*;
+import java.util.*;
+
 import net.java.otr4j.*;
+import net.java.otr4j.session.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -100,6 +104,42 @@ public interface ScOtrEngine
     public abstract void refreshSession(Contact contact);
 
     /**
+     * Some IM networks always relay all messages to all sessions of a client
+     * who is logged in multiple times. OTR version 3 deals with this problem
+     * with introducing instance tags.
+     * <a href="https://otr.cypherpunks.ca/Protocol-v3-4.0.0.html">
+     * https://otr.cypherpunks.ca/Protocol-v3-4.0.0.html</a>
+     * <p>
+     * Returns a list containing all instances of a session. The 'master'
+     * session is always first in the list.
+     * 
+     * @param contact the {@link Contact} for whom we want to get the instances
+     * 
+     * @return A list of all instances of the session for the specified contact.
+     */
+    public abstract List<Session> getSessionInstances(Contact contact);
+
+    /**
+     * Some IM networks always relay all messages to all sessions of a client
+     * who is logged in multiple times. OTR version 3 deals with this problem
+     * with introducing instance tags.
+     * <a href="https://otr.cypherpunks.ca/Protocol-v3-4.0.0.html">
+     * https://otr.cypherpunks.ca/Protocol-v3-4.0.0.html</a>
+     * <p>
+     * When the client wishes to start sending OTRv3 encrypted messages to a
+     * specific session of his buddy who is logged in multiple times, he can set
+     * the outgoing instance of his buddy by specifying his <tt>InstanceTag</tt>.
+     * 
+     * @param contact the {@link Contact} to whom we want to set the outgoing
+     *          instance tag.
+     * @param tag the outgoing {@link InstanceTag}
+     *
+     * @return true if an outgoing session with such {@link InstanceTag} exists
+     *          . Otherwise false
+     */
+    public abstract boolean setOutgoingSession(Contact contact, InstanceTag tag);
+
+    /**
      * Gets the {@link ScSessionStatus} for the given {@link Contact}.
      *
      * @param contact the {@link Contact} whose {@link ScSessionStatus} we are
@@ -134,6 +174,8 @@ public interface ScOtrEngine
      * @param listener the {@link ScOtrEngineListener} to unregister.
      */
     public abstract void removeListener(ScOtrEngineListener listener);
+
+    public abstract PublicKey getRemotePublicKey(Contact contact);
 
     // New Methods (Policy management)
     /**

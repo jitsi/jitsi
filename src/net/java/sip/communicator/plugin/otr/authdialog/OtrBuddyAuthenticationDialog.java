@@ -8,12 +8,13 @@ package net.java.sip.communicator.plugin.otr.authdialog;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.security.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.otr.*;
-import net.java.sip.communicator.plugin.otr.authdialog.FingerprintAuthenticationPanel.*;
+import net.java.sip.communicator.plugin.otr.authdialog.FingerprintAuthenticationPanel.ActionComboBoxItem;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -178,13 +179,20 @@ public class OtrBuddyAuthenticationDialog
                     ActionComboBoxItem actionItem =
                         (ActionComboBoxItem) fingerprintPanel.
                             getCbAction().getSelectedItem();
+                    PublicKey pubKey =
+                        OtrActivator.scOtrEngine.getRemotePublicKey(contact);
+                    String fingerprint =
+                        OtrActivator.scOtrKeyManager.
+                            getFingerprintFromPublicKey(pubKey);
                     switch (actionItem.action)
                     {
                     case I_HAVE:
-                        OtrActivator.scOtrKeyManager.verify(contact);
+                        OtrActivator.scOtrKeyManager.verify(
+                            contact, fingerprint);
                         break;
                     case I_HAVE_NOT:
-                        OtrActivator.scOtrKeyManager.unverify(contact);
+                        OtrActivator.scOtrKeyManager.unverify(
+                            contact, fingerprint);
                         break;
                     }
                     dispose();
