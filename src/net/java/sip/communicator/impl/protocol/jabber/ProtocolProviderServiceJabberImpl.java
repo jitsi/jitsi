@@ -2433,10 +2433,19 @@ public class ProtocolProviderServiceJabberImpl
             }
             catch(CertificateException e)
             {
-                fireRegistrationStateChanged(getRegistrationState(),
+                // notify in a separate thread to avoid a deadlock when a
+                // reg state listener accesses a synchronized XMPPConnection
+                // method (like getRoster)
+                new Thread(new Runnable()
+                {
+                    public void run()
+                    {
+                        fireRegistrationStateChanged(getRegistrationState(),
                             RegistrationState.UNREGISTERED,
                             RegistrationStateChangeEvent.REASON_USER_REQUEST,
                             "Not trusted certificate");
+                    }
+                }).start();
                 throw e;
             }
 

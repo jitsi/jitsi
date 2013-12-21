@@ -962,10 +962,14 @@ public class OperationSetPersistentPresenceJabberImpl
                 ssContactList.cleanup();
                 subscribtionPacketListener = null;
 
-                if(parentProvider.getConnection() != null &&
-                    parentProvider.getConnection().getRoster() != null)
-                    parentProvider.getConnection().getRoster()
+                XMPPConnection connection = parentProvider.getConnection();
+                if(connection != null)
+                {
+                    // the roster is guaranteed to be non-null
+                    connection.getRoster()
                         .removeRosterListener(contactChangesListener);
+                }
+
                 contactChangesListener = null;
             }
         }
