@@ -34,13 +34,17 @@ public class ChatConferenceCallDialog
      * Create conference radio button.
      */
     private final JRadioButton createConferenceButton
-        = new JRadioButton("Create new video conference for this chat room");
+        = new JRadioButton(
+            GuiActivator.getResources()
+                    .getI18NString("service.gui.CREATE_VIDEO_CONFERENCE"));
 
     /**
      * Join conference radio button.
      */
     private final JRadioButton joinConferenceButton
-        = new JRadioButton("Join existing video conference for this chat room");
+        = new JRadioButton(
+            GuiActivator.getResources()
+                .getI18NString("service.gui.JOIN_EXISTING_VIDEO_CONFERENCE"));
     
     /**
      * Main panel that holds all elements in the dialog.
@@ -87,7 +91,7 @@ public class ChatConferenceCallDialog
      */
     private JButton endConference = new JButton(
         GuiActivator.getResources().getI18NString(
-            "service.gui.END_CONFEREMCE"));
+            "service.gui.END_CONFERENCE"));
     
     /**
      * The chat panel that created the dialog.

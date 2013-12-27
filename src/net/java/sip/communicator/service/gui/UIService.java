@@ -23,7 +23,7 @@ import net.java.sip.communicator.util.account.*;
  * <p>
  * Through the <tt>UIService</tt> all modules can add their own components in
  * different menus, toolbars, etc. within the ui. Each <tt>UIService</tt>
- * implementation should export its supported "plugable" containers - a set of
+ * implementation should export its supported "pluggable" containers - a set of
  * <tt>Container</tt>s corresponding to different "places" in the application,
  * where a module can add a component.
  * <p>

@@ -11,8 +11,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.event.*;
 
-import net.java.sip.communicator.plugin.desktoputil.DesktopUtilActivator;
-import net.java.sip.communicator.plugin.desktoputil.MessageDialog;
+import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
  *

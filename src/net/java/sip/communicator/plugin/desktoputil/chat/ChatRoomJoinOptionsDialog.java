@@ -14,11 +14,9 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 /**
- * @author Ico
- *
- */
-/**
  * Dialog with fields for nickname and subject.
+ *
+ * @author Hristo Terezov
  */
 public class ChatRoomJoinOptionsDialog extends ChatOperationReasonDialog
 {
