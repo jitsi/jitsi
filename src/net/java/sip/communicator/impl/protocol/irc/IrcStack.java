@@ -5,43 +5,19 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import net.java.sip.communicator.impl.protocol.irc.ModeParser.ModeEntry;
-import net.java.sip.communicator.impl.protocol.irc.listener.GenericListener;
-import net.java.sip.communicator.service.protocol.ChatRoomMember;
-import net.java.sip.communicator.service.protocol.ChatRoomMemberRole;
-import net.java.sip.communicator.service.protocol.RegistrationState;
-import net.java.sip.communicator.service.protocol.event.ChatRoomMemberPresenceChangeEvent;
-import net.java.sip.communicator.service.protocol.event.ChatRoomMessageReceivedEvent;
-import net.java.sip.communicator.service.protocol.event.LocalUserChatRoomPresenceChangeEvent;
-import net.java.sip.communicator.service.protocol.event.MessageReceivedEvent;
+import net.java.sip.communicator.impl.protocol.irc.listener.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 
-import com.ircclouds.irc.api.Callback;
-import com.ircclouds.irc.api.IRCApi;
-import com.ircclouds.irc.api.IRCApiImpl;
-import com.ircclouds.irc.api.IServerParameters;
-import com.ircclouds.irc.api.domain.IRCChannel;
-import com.ircclouds.irc.api.domain.IRCServer;
-import com.ircclouds.irc.api.domain.IRCTopic;
-import com.ircclouds.irc.api.domain.IRCUser;
-import com.ircclouds.irc.api.domain.IRCUserStatus;
-import com.ircclouds.irc.api.domain.messages.ChanJoinMessage;
-import com.ircclouds.irc.api.domain.messages.ChanPartMessage;
-import com.ircclouds.irc.api.domain.messages.ChannelKick;
-import com.ircclouds.irc.api.domain.messages.ChannelModeMessage;
-import com.ircclouds.irc.api.domain.messages.ChannelPrivMsg;
-import com.ircclouds.irc.api.domain.messages.QuitMessage;
-import com.ircclouds.irc.api.domain.messages.TopicMessage;
-import com.ircclouds.irc.api.listeners.VariousMessageListenerAdapter;
-import com.ircclouds.irc.api.state.IIRCState;
+import com.ircclouds.irc.api.*;
+import com.ircclouds.irc.api.domain.*;
+import com.ircclouds.irc.api.domain.messages.*;
+import com.ircclouds.irc.api.listeners.*;
+import com.ircclouds.irc.api.state.*;
 
 /**
  * An implementation of the PircBot IRC stack.
@@ -52,15 +28,15 @@ public class IrcStack
 
     private final ProtocolProviderServiceIrcImpl provider;
 
-    private final Map<String, IRCChannel> joined = Collections
-        .synchronizedMap(new HashMap<String, IRCChannel>());
+    private final List<ChatRoomIrcImpl> joined = Collections
+        .synchronizedList(new ArrayList<ChatRoomIrcImpl>());
 
     private final ServerParameters params;
 
     private IRCApi irc;
 
     private IIRCState connectionState;
-
+    
     public IrcStack(final ProtocolProviderServiceIrcImpl parentProvider,
         final String nick, final String login, final String version,
         final String finger)
@@ -91,6 +67,9 @@ public class IrcStack
             && this.connectionState.isConnected())
             return;
 
+        // Make sure we start with an empty joined-channel list.
+        this.joined.clear();
+
         // A container for storing the exception if connecting fails.
         final Exception[] exceptionContainer = new Exception[1];
 
@@ -98,7 +77,7 @@ public class IrcStack
         this.params.setServer(new IRCServer(host, port, password, false));
         synchronized (this.irc)
         {
-            this.irc.addListener(new GenericListener());
+            this.irc.addListener(new GenericListener(this.joined));
             // start connecting to the specified server ...
             this.irc.connect(this.params, new Callback<IIRCState>()
             {
@@ -166,11 +145,13 @@ public class IrcStack
         if (this.connectionState == null && this.irc == null)
             return;
         
-        for (String channel : this.joined.keySet())
+        synchronized(this.joined)
         {
-            leave(channel);
+            for (ChatRoomIrcImpl channel : this.joined)
+            {
+                leave(channel);
+            }
         }
-        this.joined.clear();
         this.irc.disconnect();
         this.irc = null;
         this.connectionState = null;
@@ -214,8 +195,7 @@ public class IrcStack
 
     public boolean isJoined(ChatRoomIrcImpl chatroom)
     {
-        String chatRoomName = chatroom.getIdentifier();
-        return this.joined.containsKey(chatRoomName);
+        return this.joined.contains(chatroom);
     }
 
     public List<String> getServerChatRoomList()
@@ -263,13 +243,10 @@ public class IrcStack
                             {
                                 try
                                 {
-                                    String name = channel.getName();
-                                    IrcStack.this.joined.put(name, channel);
-
+                                    IrcStack.this.joined.add(chatroom);
                                     IrcStack.this.irc
                                         .addListener(new ChatRoomListener(
                                             chatroom));
-
                                     IRCTopic topic = channel.getTopic();
                                     chatroom.updateSubject(topic.getValue());
 
@@ -468,17 +445,27 @@ public class IrcStack
                 IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
                     this.chatroom,
                     LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT, null);
-                IrcStack.this.joined.remove(this.chatroom.getIdentifier());
                 IrcStack.this.irc.deleteListener(this);
+                IrcStack.this.joined.remove(this.chatroom);
             }
             else
             {
                 String user = msg.getSource().getNick();
                 ChatRoomMember member = this.chatroom.getChatRoomMember(user);
-                // Possibility that 'member' is null (should be fixed now that race condition in irc-api is fixed)
-                this.chatroom.fireMemberPresenceEvent(member, null,
-                    ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
-                    msg.getPartMsg());
+                try
+                {
+                    // Possibility that 'member' is null (should be fixed now
+                    // that race condition in irc-api is fixed)
+                    this.chatroom.fireMemberPresenceEvent(member, null,
+                        ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
+                        msg.getPartMsg());
+                }
+                catch (NullPointerException e)
+                {
+                    System.err
+                        .println("This should not have happened. Please report this as it is a bug.");
+                    e.printStackTrace();
+                }
             }
         }
         
@@ -495,8 +482,8 @@ public class IrcStack
                     this.chatroom,
                     LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_KICKED,
                     msg.getText());
-                IrcStack.this.joined.remove(this.chatroom.getIdentifier());
                 IrcStack.this.irc.deleteListener(this);
+                IrcStack.this.joined.remove(this.chatroom);
             }
             else
             {
@@ -527,7 +514,7 @@ public class IrcStack
                     msg.getQuitMsg());
             }
         }
-
+        
         @Override
         public void onChannelMessage(ChannelPrivMsg msg)
         {

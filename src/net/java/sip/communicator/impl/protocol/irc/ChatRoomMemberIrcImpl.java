@@ -25,7 +25,7 @@ public class ChatRoomMemberIrcImpl
     /**
      * The id of the contact.
      */
-    private final String contactID;
+    private String contactID;
 
     /**
      * The provider that created us.
@@ -107,6 +107,18 @@ public class ChatRoomMemberIrcImpl
     public String getName()
     {
         return this.contactID;
+    }
+    
+    /**
+     * Set a new name for this ChatRoomMember.
+     * 
+     * @param newName
+     */
+    public void setName(String newName)
+    {
+        if (newName == null)
+            throw new IllegalArgumentException("newName cannot be null");
+        this.contactID = newName;
     }
 
     /**

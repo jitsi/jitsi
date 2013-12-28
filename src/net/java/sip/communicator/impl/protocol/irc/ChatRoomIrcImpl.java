@@ -136,6 +136,8 @@ public class ChatRoomIrcImpl
     {
         this(chatRoomName, parentProvider, false, false);
     }
+    
+    // TODO Need to implement equals() in order to correct compare 2 instances of ChatRoomIrcImpl as representing the same chatroom (room name + parent provider)
 
     /**
      * Creates an instance of <tt>ChatRoomIrcImpl</tt>, by specifying the room
@@ -624,7 +626,7 @@ public class ChatRoomIrcImpl
      * @param memberID the identifier of the member
      * @return the <tt>ChatRoomMember</tt> corresponding to the given member id.
      */
-    protected ChatRoomMember getChatRoomMember(String memberID)
+    public ChatRoomMember getChatRoomMember(String memberID)
     {
         return chatRoomMembers.get(memberID);
     }
@@ -1276,6 +1278,16 @@ public class ChatRoomIrcImpl
                 new ChatRoomPropertyChangeEvent(this,
                     ChatRoomPropertyChangeEvent.CHAT_ROOM_SUBJECT, "", subject);
             firePropertyChangeEvent(topicChangeEvent);
+        }
+    }
+    
+    public void updateChatRoomMemberName(String oldName, String newName)
+    {
+        synchronized(this.chatRoomMembers)
+        {
+            ChatRoomMember member = this.chatRoomMembers.remove(oldName);
+            if (member != null)
+                this.chatRoomMembers.put(newName, member);
         }
     }
 }
