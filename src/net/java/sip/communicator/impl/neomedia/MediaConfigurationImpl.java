@@ -1171,7 +1171,7 @@ public class MediaConfigurationImpl
         {
         case DeviceConfigurationComboBoxModel.AUDIO:
             preferredDeviceAndPreviewPanelHeight
-                = (devicePanel == null) ? 180 : 225;
+                = (devicePanel == null) ? 200 : 245;
             break;
         case DeviceConfigurationComboBoxModel.VIDEO:
             preferredDeviceAndPreviewPanelHeight = 305;
