@@ -77,7 +77,7 @@ public class IrcStack
         this.params.setServer(new IRCServer(host, port, password, false));
         synchronized (this.irc)
         {
-            this.irc.addListener(new GenericListener(this.joined));
+            this.irc.addListener(new ServerListener(this.joined));
             // start connecting to the specified server ...
             this.irc.connect(this.params, new Callback<IIRCState>()
             {

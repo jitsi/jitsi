@@ -9,12 +9,12 @@ import net.java.sip.communicator.service.protocol.event.*;
 import com.ircclouds.irc.api.domain.messages.*;
 import com.ircclouds.irc.api.listeners.*;
 
-public class GenericListener
+public class ServerListener
     extends VariousMessageListenerAdapter
 {
     private final List<ChatRoomIrcImpl> channels;
     
-    public GenericListener(List<ChatRoomIrcImpl> joinedChannels)
+    public ServerListener(List<ChatRoomIrcImpl> joinedChannels)
     {
         this.channels = joinedChannels;
     }
