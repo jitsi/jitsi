@@ -9,22 +9,46 @@ import net.java.sip.communicator.service.protocol.event.*;
 import com.ircclouds.irc.api.domain.messages.*;
 import com.ircclouds.irc.api.listeners.*;
 
+/**
+ * A listener for server-level messages (any messages that are related to the
+ * server, the connection or that are not related to any chatroom in
+ * particular).
+ */
 public class ServerListener
     extends VariousMessageListenerAdapter
 {
+    /**
+     * Reference to the list of joined channels from the IRC connection.
+     */
     private final List<ChatRoomIrcImpl> channels;
-    
+
+    /**
+     * ServerListener
+     * 
+     * @param joinedChannels Reference to the list of joined channels.
+     */
     public ServerListener(List<ChatRoomIrcImpl> joinedChannels)
     {
+        if (joinedChannels == null)
+            throw new IllegalArgumentException(
+                "joined channels reference cannot be null");
         this.channels = joinedChannels;
     }
-    
+
+    /**
+     * Print out server notices for debugging purposes and for simply keeping
+     * track of the connections.
+     */
     @Override
     public void onServerNotice(ServerNotice msg)
     {
         System.out.println("NOTICE: " + ((ServerNotice) msg).getText());
     }
-    
+
+    /**
+     * Print out server numeric messages for debugging purposes and for simply
+     * keeping track of the connection.
+     */
     @Override
     public void onServerNumericMessage(ServerNumericMessage msg)
     {
@@ -32,7 +56,14 @@ public class ServerListener
             + ((ServerNumericMessage) msg).getNumericCode() + ": "
             + ((ServerNumericMessage) msg).getText());
     }
-    
+
+    /**
+     * Act on nick change messages.
+     * 
+     * Nick change messages span multiple chat rooms. Specifically every chat
+     * room where this particular user is joined, needs to get an update for the
+     * nick change.
+     */
     @Override
     public void onNickChange(NickMessage msg)
     {

@@ -28,15 +28,37 @@ public class IrcStack
 
     private final ProtocolProviderServiceIrcImpl provider;
 
+    /**
+     * Container for joined channels.
+     */
     private final List<ChatRoomIrcImpl> joined = Collections
         .synchronizedList(new ArrayList<ChatRoomIrcImpl>());
 
+    /**
+     * Server parameters that are set and provided during the connection
+     * process.
+     */
     private final ServerParameters params;
 
+    /**
+     * Instance of the IRC library.
+     */
     private IRCApi irc;
 
+    /**
+     * Connection state of a successful IRC connection.
+     */
     private IIRCState connectionState;
     
+    /**
+     * Constructor
+     * 
+     * @param parentProvider Parent provider
+     * @param nick User's nick name
+     * @param login User's login name
+     * @param version Version
+     * @param finger Finger
+     */
     public IrcStack(final ProtocolProviderServiceIrcImpl parentProvider,
         final String nick, final String login, final String version,
         final String finger)
@@ -49,17 +71,36 @@ public class IrcStack
         this.params = new IrcStack.ServerParameters(nick, login, finger, null);
     }
 
+    /**
+     * Check whether or not a connection is established.
+     * 
+     * @return true if connected, false otherwise.
+     */
     public boolean isConnected()
     {
         return (this.irc != null && this.connectionState != null && this.connectionState
             .isConnected());
     }
 
+    /**
+     * Check whether the connection is a secure connection (TLS).
+     * 
+     * @return true if connection is secure, false otherwise.
+     */
     public boolean isSecureConnection()
     {
         return isConnected() && this.connectionState.getServer().isSSL();
     }
 
+    /**
+     * Connect to specified host, port, optionally using a password.
+     * 
+     * @param host IRC server's host name
+     * @param port IRC port
+     * @param password
+     * @param autoNickChange
+     * @throws Exception
+     */
     public void connect(String host, int port, String password,
         boolean autoNickChange) throws Exception
     {
@@ -77,6 +118,7 @@ public class IrcStack
         this.params.setServer(new IRCServer(host, port, password, false));
         synchronized (this.irc)
         {
+            // register a server listener in order to catch server and cross-/multi-channel messages
             this.irc.addListener(new ServerListener(this.joined));
             // start connecting to the specified server ...
             this.irc.connect(this.params, new Callback<IIRCState>()
@@ -110,7 +152,7 @@ public class IrcStack
             // wait while the irc connection is being established ...
             try
             {
-                System.out.println("Waiting for a connection ...");
+                System.out.println("Waiting for the connection to be established ...");
                 this.irc.wait();
                 if (this.connectionState != null
                     && this.connectionState.isConnected())
@@ -140,6 +182,9 @@ public class IrcStack
         }
     }
 
+    /**
+     * Disconnect from the IRC server
+     */
     public void disconnect()
     {
         if (this.connectionState == null && this.irc == null)
@@ -159,17 +204,31 @@ public class IrcStack
             .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
     }
 
+    /**
+     * Dispose
+     */
     public void dispose()
     {
         disconnect();
     }
 
+    /**
+     * Get the nick name of the user.
+     * 
+     * @return Returns either the acting nick if a connection is established or
+     *         the configured nick.
+     */
     public String getNick()
     {
         return (this.connectionState == null) ? this.params.getNickname()
             : this.connectionState.getNickname();
     }
 
+    /**
+     * Set the user's new nick name.
+     * 
+     * @param nick the new nick name
+     */
     public void setUserNickname(String nick)
     {
         if (this.connectionState == null)
@@ -182,6 +241,12 @@ public class IrcStack
         }
     }
 
+    /**
+     * Set the subject of the specified chat room.
+     * 
+     * @param chatroom The chat room for which to set the subject.
+     * @param subject The subject.
+     */
     public void setSubject(ChatRoomIrcImpl chatroom, String subject)
     {
         if (isConnected() == false)
@@ -193,22 +258,49 @@ public class IrcStack
             .changeTopic(chatroom.getName(), subject == null ? "" : subject);
     }
 
+    /**
+     * Check whether the user has joined a particular chat room.
+     * 
+     * @param chatroom Chat room to check for.
+     * @return Returns true in case the user is already joined, or false if the
+     *         user has not joined.
+     */
     public boolean isJoined(ChatRoomIrcImpl chatroom)
     {
         return this.joined.contains(chatroom);
     }
 
+    /**
+     * Get a list of channels available on the IRC server.
+     * 
+     * @return List of available channels.
+     */
     public List<String> getServerChatRoomList()
     {
         // TODO Implement this. (Also probably cache the list, to prevent doing too many requests.)
         return new ArrayList<String>();
     }
 
+    /**
+     * Join a particular chat room.
+     * 
+     * @param chatroom Chat room to join.
+     */
     public void join(ChatRoomIrcImpl chatroom)
     {
         join(chatroom, "");
     }
 
+    /**
+     * Join a particular chat room.
+     * 
+     * Issue a join channel IRC operation and wait for the join operation to
+     * complete (either successfully or failing).
+     * 
+     * @param chatroom The chatroom to join.
+     * @param password Optionally, a password that may be required for some
+     *            channels.
+     */
     public void join(final ChatRoomIrcImpl chatroom, final String password)
     {
         if (isConnected() == false)
@@ -218,6 +310,12 @@ public class IrcStack
             throw new IllegalArgumentException("chatroom cannot be null");
         if (password == null)
             throw new IllegalArgumentException("password cannot be null");
+        
+        // Make sure that we have not already joined the channel.
+        if (this.joined.contains(chatroom))
+        {
+            return;
+        }
 
         // TODO Handle forward to another channel (470) channel name change.
         // (Testable on irc.freenode.net#linux, forwards to ##linux)
@@ -323,6 +421,7 @@ public class IrcStack
                             }
                         }
                     });
+                // Wait until async channel join operation has finished.
                 joinSignal.wait();
                 if (isJoined(chatroom))
                 {
@@ -340,11 +439,21 @@ public class IrcStack
         }
     }
 
+    /**
+     * Part from a joined chat room.
+     * 
+     * @param chatroom The chat room to part from.
+     */
     public void leave(ChatRoomIrcImpl chatroom)
     {
         leave(chatroom.getIdentifier());
     }
 
+    /**
+     * Part from a joined chat room.
+     * 
+     * @param chatRoomName The chat room to part from.
+     */
     private void leave(String chatRoomName)
     {
         this.irc.leaveChannel(chatRoomName);
@@ -372,16 +481,39 @@ public class IrcStack
         // TODO Implement this.
     }
 
+    /**
+     * Send an IRC message.
+     * 
+     * @param chatroom The chat room to send the message to.
+     * @param message The message to send.
+     */
     public void message(ChatRoomIrcImpl chatroom, String message)
     {
         this.irc.message(chatroom.getIdentifier(), message);
     }
 
+    /**
+     * Convert a member mode character to a ChatRoomMemberRole instance.
+     * 
+     * @param modeSymbol The member mode character.
+     * @return Return the instance of ChatRoomMemberRole corresponding to the
+     *         member mode character.
+     */
     private static ChatRoomMemberRole convertMemberMode(char modeSymbol)
     {
         return Mode.bySymbol(modeSymbol).getRole();
     }
 
+    /**
+     * A chat room listener.
+     * 
+     * A chat room listener is registered for each chat room that we join. The
+     * chat room listener updates chat room data and fires events based on IRC
+     * messages that report state changes for the specified channel.
+     * 
+     * @author danny
+     * 
+     */
     private class ChatRoomListener
         extends VariousMessageListenerAdapter
     {
@@ -639,6 +771,9 @@ public class IrcStack
         }
     }
 
+    /**
+     * Container for storing server parameters.
+     */
     private static class ServerParameters
         implements IServerParameters
     {

@@ -1281,6 +1281,14 @@ public class ChatRoomIrcImpl
         }
     }
     
+    /**
+     * Update the ChatRoomMember instance. When the nick changes, the chat room
+     * member is still stored under the old nick. Find the instance under its
+     * old nick and reinsert it into the map according to the current nick name.
+     * 
+     * @param oldName The old nick name under which the member instance is
+     *            currently stored.
+     */
     public void updateChatRoomMemberName(String oldName)
     {
         synchronized(this.chatRoomMembers)
