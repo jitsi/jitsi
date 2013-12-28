@@ -19,10 +19,6 @@ public class ServerListener
         this.channels = joinedChannels;
     }
     
-    // TODO Maybe implement this as a IRC server listener and connect a system
-    // chatroom to each listener in order to inform the user of server
-    // (chatroom-independent) messages, notices, etc.
-    
     @Override
     public void onServerNotice(ServerNotice msg)
     {
@@ -69,7 +65,7 @@ public class ServerListener
             ChatRoomIrcImpl channel = record.getKey();
             ChatRoomMemberIrcImpl member = record.getValue();
             member.setName(newNick);
-            channel.updateChatRoomMemberName(oldNick, newNick);
+            channel.updateChatRoomMemberName(oldNick);
             ChatRoomMemberPropertyChangeEvent evt =
                 new ChatRoomMemberPropertyChangeEvent(member, channel,
                     ChatRoomMemberPropertyChangeEvent.MEMBER_NICKNAME, oldNick,

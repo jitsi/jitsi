@@ -1281,13 +1281,13 @@ public class ChatRoomIrcImpl
         }
     }
     
-    public void updateChatRoomMemberName(String oldName, String newName)
+    public void updateChatRoomMemberName(String oldName)
     {
         synchronized(this.chatRoomMembers)
         {
             ChatRoomMember member = this.chatRoomMembers.remove(oldName);
             if (member != null)
-                this.chatRoomMembers.put(newName, member);
+                this.chatRoomMembers.put(member.getContactAddress(), member);
         }
     }
 }
