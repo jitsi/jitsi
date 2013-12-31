@@ -476,9 +476,30 @@ public class IrcStack
         // TODO Implement this.
     }
 
+    /**
+     * Send a command to the IRC server.
+     * @param chatroom the chat room
+     * @param command the command message
+     */
     public void command(ChatRoomIrcImpl chatroom, String command)
     {
-        // TODO Implement this.
+        String target;
+        if (command.startsWith("/msg "))
+        {
+            command = command.substring(5);
+            int endOfNick = command.indexOf(' ');
+            if (endOfNick == -1)
+            {
+                throw new IllegalArgumentException("Invalid private message format. Message was not sent.");
+            }
+            target = command.substring(0,  endOfNick);
+            command = command.substring(endOfNick+1);
+        }
+        else
+        {
+            target = chatroom.getIdentifier();
+        }
+        this.irc.message(target, command);
     }
 
     /**
@@ -489,7 +510,8 @@ public class IrcStack
      */
     public void message(ChatRoomIrcImpl chatroom, String message)
     {
-        this.irc.message(chatroom.getIdentifier(), message);
+        String target = chatroom.getIdentifier();
+        this.irc.message(target, message);
     }
 
     /**
@@ -661,6 +683,25 @@ public class IrcStack
                     ChatRoomMemberRole.MEMBER);
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
                 ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
+        }
+        
+        @Override
+        public void onUserPrivMessage(UserPrivMsg msg)
+        {
+            //TODO DEBUG code
+            System.out.printf("Received private message from: %s", msg
+                .getSource().getNick());
+            String sourceNick = msg.getSource().getNick();
+            ChatRoomMember source = this.chatroom.getChatRoomMember(sourceNick);
+            if (source != null)
+            {
+                MessageIrcImpl message =
+                    new MessageIrcImpl("PRIVATE: " + msg.getText(),
+                        "text/plain", "UTF-8", null);
+                this.chatroom.fireMessageReceivedEvent(message, source,
+                    new Date(),
+                    ChatRoomMessageReceivedEvent.ACTION_MESSAGE_RECEIVED);
+            }
         }
 
         private void processModeMessage(ChannelModeMessage msg)
