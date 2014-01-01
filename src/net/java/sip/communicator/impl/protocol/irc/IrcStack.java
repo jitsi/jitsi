@@ -9,7 +9,6 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import net.java.sip.communicator.impl.protocol.irc.ModeParser.ModeEntry;
-import net.java.sip.communicator.impl.protocol.irc.listener.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -119,7 +118,7 @@ public class IrcStack
         synchronized (this.irc)
         {
             // register a server listener in order to catch server and cross-/multi-channel messages
-            this.irc.addListener(new ServerListener(this.joined));
+            this.irc.addListener(new ServerListener());
             // start connecting to the specified server ...
             this.irc.connect(this.params, new Callback<IIRCState>()
             {
@@ -527,6 +526,135 @@ public class IrcStack
     }
 
     /**
+     * A listener for server-level messages (any messages that are related to the
+     * server, the connection, that are not related to any chatroom in
+     * particular) or that are personal message from user to local user.
+     */
+    private class ServerListener
+    extends VariousMessageListenerAdapter
+    {
+        /**
+         * Print out server notices for debugging purposes and for simply
+         * keeping track of the connections.
+         */
+        @Override
+        public void onServerNotice(ServerNotice msg)
+        {
+            System.out.println("NOTICE: " + ((ServerNotice) msg).getText());
+        }
+
+        /**
+         * Print out server numeric messages for debugging purposes and for
+         * simply keeping track of the connection.
+         */
+        @Override
+        public void onServerNumericMessage(ServerNumericMessage msg)
+        {
+            System.out.println("NUM MSG: "
+                + ((ServerNumericMessage) msg).getNumericCode() + ": "
+                + ((ServerNumericMessage) msg).getText());
+        }
+
+        /**
+         * Act on nick change messages.
+         * 
+         * Nick change messages span multiple chat rooms. Specifically every
+         * chat room where this particular user is joined, needs to get an
+         * update for the nick change.
+         */
+        @Override
+        public void onNickChange(NickMessage msg)
+        {
+            if (msg == null)
+                return;
+
+            // Find all affected channels.
+            HashMap<ChatRoomIrcImpl, ChatRoomMemberIrcImpl> affected =
+                new HashMap<ChatRoomIrcImpl, ChatRoomMemberIrcImpl>();
+            String oldNick = msg.getSource().getNick();
+            synchronized (IrcStack.this.joined)
+            {
+                for (ChatRoomIrcImpl channel : IrcStack.this.joined)
+                {
+                    ChatRoomMemberIrcImpl member =
+                        (ChatRoomMemberIrcImpl) channel
+                            .getChatRoomMember(oldNick);
+                    if (member != null)
+                    {
+                        affected.put(channel, member);
+                    }
+                }
+            }
+
+            // Process nick change for all of those channels and fire
+            // corresponding
+            // property change event.
+            String newNick = msg.getNewNick();
+            for (Entry<ChatRoomIrcImpl, ChatRoomMemberIrcImpl> record : affected
+                .entrySet())
+            {
+                ChatRoomIrcImpl channel = record.getKey();
+                ChatRoomMemberIrcImpl member = record.getValue();
+                member.setName(newNick);
+                channel.updateChatRoomMemberName(oldNick);
+                ChatRoomMemberPropertyChangeEvent evt =
+                    new ChatRoomMemberPropertyChangeEvent(member, channel,
+                        ChatRoomMemberPropertyChangeEvent.MEMBER_NICKNAME,
+                        oldNick, newNick);
+                channel.fireMemberPropertyChangeEvent(evt);
+            }
+        }
+
+        @Override
+        public void onUserPrivMessage(UserPrivMsg msg)
+        {
+            if (IrcStack.this.getNick().equals(msg.getToUser()))
+            {
+                String user = msg.getSource().getNick();
+                String text = msg.getText();
+                int index = IrcStack.this.joined.indexOf(user);
+                if (index == -1)
+                {
+                    initiatePrivateChatWithInitialMessage(user, text);
+                }
+                else
+                {
+                    sendMessageToPrivateChat(IrcStack.this.joined.get(index), user, text);
+                }
+            }
+        }
+
+        private void sendMessageToPrivateChat(ChatRoomIrcImpl chatroom, String user,
+            String text)
+        {
+            ChatRoomMember member = chatroom.getChatRoomMember(user);
+            MessageIrcImpl message = new MessageIrcImpl(text, "text/plain", "UTF-8", null);
+            chatroom.fireMessageReceivedEvent(message, member, new Date(), ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
+        }
+
+        private void initiatePrivateChatWithInitialMessage(String user, String message)
+        {
+            ChatRoomIrcImpl chatroom = (ChatRoomIrcImpl)IrcStack.this.provider.getMUC().findRoom(user);
+            IrcStack.this.joined.add(chatroom);
+            ChatRoomMemberIrcImpl member =
+                new ChatRoomMemberIrcImpl(IrcStack.this.provider, chatroom,
+                    user, ChatRoomMemberRole.MEMBER);
+            chatroom.addChatRoomMember(member.getContactAddress(), member);
+            IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
+                chatroom,
+                LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
+                "Private conversation initiated.");
+
+            MessageIrcImpl ircMsg =
+                new MessageIrcImpl(message, "text/plain", "UTF-8",
+                    "Private chat with " + user);
+            chatroom.fireMessageReceivedEvent(ircMsg, member, new Date(),
+                ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
+        }
+    }
+
+    
+    /**
      * A chat room listener.
      * 
      * A chat room listener is registered for each chat room that we join. The
@@ -688,6 +816,8 @@ public class IrcStack
         @Override
         public void onUserPrivMessage(UserPrivMsg msg)
         {
+            //TODO Temporary since we'll soon have personal chat rooms.
+            
             //TODO DEBUG code
             System.out.printf("Received private message from: %s", msg
                 .getSource().getNick());

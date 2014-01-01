@@ -37,14 +37,6 @@ public class OperationSetMultiUserChatIrcImpl
         = new Hashtable<String, ChatRoom>();
 
     /**
-     * A list of all private rooms opened by user on this server. These rooms
-     * are a result of exchange of private messages between the local user and
-     * some of the other chat room members.
-     */
-    private final Map<String, ChatRoomIrcImpl> privateRoomCache
-        = new Hashtable<String, ChatRoomIrcImpl>();
-
-    /**
      * The <tt>ChatRoom</tt> corresponding to the IRC server channel. This chat
      * room is not returned by any of methods getExistingChatRooms(),
      * getCurrentlyJoinedChatRooms, etc.
@@ -220,43 +212,6 @@ public class OperationSetMultiUserChatIrcImpl
 
             return chatRoom;
         }
-    }
-
-    /**
-     * Returns the private room corresponding to the given nick name.
-     *
-     * @param nickIdentifier the nickName of the person for which the private
-     * room is.
-     * @return the private room corresponding to the given nick name
-     */
-    protected ChatRoomIrcImpl findPrivateChatRoom(String nickIdentifier)
-    {
-        ChatRoomIrcImpl chatRoom;
-
-        synchronized(privateRoomCache)
-        {
-            if(privateRoomCache.containsKey(nickIdentifier))
-                return privateRoomCache.get(nickIdentifier);
-
-            chatRoom =
-                new ChatRoomIrcImpl(
-                        nickIdentifier,
-                        ircProvider,
-                        true,
-                        false);
-            privateRoomCache.put(nickIdentifier, chatRoom);
-        }
-
-        /*
-         * As a rule of thumb, firing inside synchronized blocks increases the
-         * chances of creating deadlocks.
-         */
-        fireLocalUserPresenceEvent(
-            chatRoom,
-            LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
-            "Private conversation initiated.");
-
-        return chatRoom;
     }
 
     /**
