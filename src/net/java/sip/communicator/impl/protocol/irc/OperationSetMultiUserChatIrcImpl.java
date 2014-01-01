@@ -249,7 +249,6 @@ public class OperationSetMultiUserChatIrcImpl
             serverChatRoom = new ChatRoomIrcImpl(
                 ircProvider.getAccountID().getService(),
                 ircProvider,
-                false, // is private room
                 true); // is system room
 
             this.fireLocalUserPresenceEvent(

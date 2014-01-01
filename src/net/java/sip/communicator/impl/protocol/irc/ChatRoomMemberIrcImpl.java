@@ -17,6 +17,10 @@ import net.java.sip.communicator.service.protocol.*;
 public class ChatRoomMemberIrcImpl
     implements ChatRoomMember
 {
+    // TODO Since we instantiate new instances for every chat room, we should
+    // override equals() and hashCode() to make sure that we can compare users
+    // that are actually the same.
+    
     /**
      * The ChatRoom.
      */

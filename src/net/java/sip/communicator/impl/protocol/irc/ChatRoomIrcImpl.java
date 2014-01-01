@@ -103,12 +103,6 @@ public class ChatRoomIrcImpl
         = new ArrayList<ChatRoomMember>();
 
     /**
-     * Indicates if this chat room is a private one (i.e. created with the
-     * query command ).
-     */
-    private final boolean isPrivate;
-
-    /**
      * Indicates if this chat room is a system one (i.e. corresponding to the
      * server channel).
      */
@@ -134,7 +128,7 @@ public class ChatRoomIrcImpl
     public ChatRoomIrcImpl( String chatRoomName,
                             ProtocolProviderServiceIrcImpl parentProvider)
     {
-        this(chatRoomName, parentProvider, false, false);
+        this(chatRoomName, parentProvider, false);
     }
     
     // TODO Need to implement equals() in order to correct compare 2 instances of ChatRoomIrcImpl as representing the same chatroom (room name + parent provider)
@@ -151,12 +145,10 @@ public class ChatRoomIrcImpl
      */
     public ChatRoomIrcImpl( String chatRoomName,
                             ProtocolProviderServiceIrcImpl parentProvider,
-                            boolean isPrivate,
                             boolean isSystem)
     {
         this.parentProvider = parentProvider;
         this.chatRoomName = chatRoomName;
-        this.isPrivate = isPrivate;
         this.isSystem = isSystem;
     }
 
@@ -169,7 +161,7 @@ public class ChatRoomIrcImpl
     {
         return chatRoomName;
     }
-
+    
     /**
      * Returns the identifier of this <tt>ChatRoom</tt>.
      *
@@ -1013,7 +1005,10 @@ public class ChatRoomIrcImpl
      */
     public boolean isPrivate()
     {
-        return isPrivate;
+        // TODO Since we cannot change the chat room name/identifier maybe we
+        // should compute this upon construction and save the result, instead of
+        // doing a string operation every time the method is called.
+        return this.chatRoomName.startsWith("#") == false;
     }
 
     /**

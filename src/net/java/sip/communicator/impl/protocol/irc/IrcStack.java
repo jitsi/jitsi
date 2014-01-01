@@ -27,6 +27,7 @@ public class IrcStack
 
     private final ProtocolProviderServiceIrcImpl provider;
 
+    // TODO should make this thing a map or set?
     /**
      * Container for joined channels.
      */
@@ -310,9 +311,11 @@ public class IrcStack
         if (password == null)
             throw new IllegalArgumentException("password cannot be null");
         
-        // Make sure that we have not already joined the channel.
-        if (this.joined.contains(chatroom))
+        if (this.joined.contains(chatroom) || chatroom.isPrivate())
         {
+            // If we already joined this particular chatroom or if it is a
+            // private chat room (i.e. message from one user to another), no
+            // further action is required.
             return;
         }
 
@@ -445,7 +448,12 @@ public class IrcStack
      */
     public void leave(ChatRoomIrcImpl chatroom)
     {
-        leave(chatroom.getIdentifier());
+        if (chatroom.isPrivate() == false)
+        {
+            // You only actually join non-private chat rooms, so only these ones
+            // need to be left.
+            leave(chatroom.getIdentifier());
+        }
     }
 
     /**
@@ -555,86 +563,49 @@ public class IrcStack
                 + ((ServerNumericMessage) msg).getText());
         }
 
-        /**
-         * Act on nick change messages.
-         * 
-         * Nick change messages span multiple chat rooms. Specifically every
-         * chat room where this particular user is joined, needs to get an
-         * update for the nick change.
-         */
-        @Override
-        public void onNickChange(NickMessage msg)
-        {
-            if (msg == null)
-                return;
-
-            // Find all affected channels.
-            HashMap<ChatRoomIrcImpl, ChatRoomMemberIrcImpl> affected =
-                new HashMap<ChatRoomIrcImpl, ChatRoomMemberIrcImpl>();
-            String oldNick = msg.getSource().getNick();
-            synchronized (IrcStack.this.joined)
-            {
-                for (ChatRoomIrcImpl channel : IrcStack.this.joined)
-                {
-                    ChatRoomMemberIrcImpl member =
-                        (ChatRoomMemberIrcImpl) channel
-                            .getChatRoomMember(oldNick);
-                    if (member != null)
-                    {
-                        affected.put(channel, member);
-                    }
-                }
-            }
-
-            // Process nick change for all of those channels and fire
-            // corresponding
-            // property change event.
-            String newNick = msg.getNewNick();
-            for (Entry<ChatRoomIrcImpl, ChatRoomMemberIrcImpl> record : affected
-                .entrySet())
-            {
-                ChatRoomIrcImpl channel = record.getKey();
-                ChatRoomMemberIrcImpl member = record.getValue();
-                member.setName(newNick);
-                channel.updateChatRoomMemberName(oldNick);
-                ChatRoomMemberPropertyChangeEvent evt =
-                    new ChatRoomMemberPropertyChangeEvent(member, channel,
-                        ChatRoomMemberPropertyChangeEvent.MEMBER_NICKNAME,
-                        oldNick, newNick);
-                channel.fireMemberPropertyChangeEvent(evt);
-            }
-        }
-
         @Override
         public void onUserPrivMessage(UserPrivMsg msg)
         {
-            if (IrcStack.this.getNick().equals(msg.getToUser()))
+            ChatRoomIrcImpl chatroom = null;
+            String user = msg.getSource().getNick();
+            String text = msg.getText();
+            synchronized (IrcStack.this.joined)
             {
-                String user = msg.getSource().getNick();
-                String text = msg.getText();
-                int index = IrcStack.this.joined.indexOf(user);
-                if (index == -1)
+                // Find the chatroom matching the user.
+                for (ChatRoomIrcImpl room : IrcStack.this.joined)
                 {
-                    initiatePrivateChatWithInitialMessage(user, text);
-                }
-                else
-                {
-                    sendMessageToPrivateChat(IrcStack.this.joined.get(index), user, text);
+                    if (room.isPrivate() == false)
+                        continue;
+
+                    if (user.equals(room.getIdentifier()))
+                    {
+                        chatroom = room;
+                        break;
+                    }
                 }
             }
+            if (chatroom == null)
+            {
+                chatroom = initiatePrivateChatRoom(user);
+            }
+            deliverReceivedMessageToPrivateChat(chatroom, user, text);
         }
 
-        private void sendMessageToPrivateChat(ChatRoomIrcImpl chatroom, String user,
-            String text)
+        private void deliverReceivedMessageToPrivateChat(ChatRoomIrcImpl chatroom,
+            String user, String text)
         {
             ChatRoomMember member = chatroom.getChatRoomMember(user);
-            MessageIrcImpl message = new MessageIrcImpl(text, "text/plain", "UTF-8", null);
-            chatroom.fireMessageReceivedEvent(message, member, new Date(), ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
+            MessageIrcImpl message =
+                new MessageIrcImpl(text, "text/plain", "UTF-8", null);
+            chatroom.fireMessageReceivedEvent(message, member, new Date(),
+                ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
         }
 
-        private void initiatePrivateChatWithInitialMessage(String user, String message)
+        private ChatRoomIrcImpl initiatePrivateChatRoom(String user)
         {
-            ChatRoomIrcImpl chatroom = (ChatRoomIrcImpl)IrcStack.this.provider.getMUC().findRoom(user);
+            ChatRoomIrcImpl chatroom =
+                (ChatRoomIrcImpl) IrcStack.this.provider.getMUC()
+                    .findRoom(user);
             IrcStack.this.joined.add(chatroom);
             ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(IrcStack.this.provider, chatroom,
@@ -644,15 +615,9 @@ public class IrcStack
                 chatroom,
                 LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
                 "Private conversation initiated.");
-
-            MessageIrcImpl ircMsg =
-                new MessageIrcImpl(message, "text/plain", "UTF-8",
-                    "Private chat with " + user);
-            chatroom.fireMessageReceivedEvent(ircMsg, member, new Date(),
-                ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
+            return chatroom;
         }
     }
-
     
     /**
      * A chat room listener.
@@ -798,6 +763,31 @@ public class IrcStack
         }
         
         @Override
+        public void onNickChange(NickMessage msg)
+        {
+            if (msg == null)
+                return;
+
+            String oldNick = msg.getSource().getNick();
+            String newNick = msg.getNewNick();
+
+            ChatRoomMemberIrcImpl member =
+                (ChatRoomMemberIrcImpl) this.chatroom
+                    .getChatRoomMember(oldNick);
+            if (member != null)
+            {
+                member.setName(newNick);
+                this.chatroom.updateChatRoomMemberName(oldNick);
+                ChatRoomMemberPropertyChangeEvent evt =
+                    new ChatRoomMemberPropertyChangeEvent(member,
+                        this.chatroom,
+                        ChatRoomMemberPropertyChangeEvent.MEMBER_NICKNAME,
+                        oldNick, newNick);
+                this.chatroom.fireMemberPropertyChangeEvent(evt);
+            }
+        }
+        
+        @Override
         public void onChannelMessage(ChannelPrivMsg msg)
         {
             if (isThisChatRoom(msg.getChannelName()) == false)
@@ -811,27 +801,6 @@ public class IrcStack
                     ChatRoomMemberRole.MEMBER);
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
                 ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
-        }
-        
-        @Override
-        public void onUserPrivMessage(UserPrivMsg msg)
-        {
-            //TODO Temporary since we'll soon have personal chat rooms.
-            
-            //TODO DEBUG code
-            System.out.printf("Received private message from: %s", msg
-                .getSource().getNick());
-            String sourceNick = msg.getSource().getNick();
-            ChatRoomMember source = this.chatroom.getChatRoomMember(sourceNick);
-            if (source != null)
-            {
-                MessageIrcImpl message =
-                    new MessageIrcImpl("PRIVATE: " + msg.getText(),
-                        "text/plain", "UTF-8", null);
-                this.chatroom.fireMessageReceivedEvent(message, source,
-                    new Date(),
-                    ChatRoomMessageReceivedEvent.ACTION_MESSAGE_RECEIVED);
-            }
         }
 
         private void processModeMessage(ChannelModeMessage msg)
