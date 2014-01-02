@@ -139,12 +139,14 @@ public class OtrTransformLayer
             contact.getProtocolProvider().getOperationSet(
                 OperationSetBasicInstantMessaging.class);
         Message processedMessage =
-            imOpSet.createMessage(processedMessageContent);
+            imOpSet.createMessageWithUID(
+                processedMessageContent, evt.getSourceMessage().getMessageUID());
 
         // Create a new event and return.
         MessageReceivedEvent processedEvent =
             new MessageReceivedEvent(processedMessage, contact, evt
-                .getTimestamp());
+                .getContactResource(), evt.getTimestamp(),
+                evt.getCorrectedMessageUID());
 
         return processedEvent;
     }
