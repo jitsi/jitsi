@@ -315,7 +315,11 @@ public class ChatRoomTableDialog
         subjectPanel.add(subject,BorderLayout.NORTH);
         moreFieldsPannel.add(subjectPanel, BorderLayout.CENTER);
         JPanel nicknamePanel = new TransparentPanel(new BorderLayout(5, 5));
-        setNickname((ChatRoomProviderWrapper)providersCombo.getSelectedItem());
+        Object selectedProvider = providersCombo.getSelectedItem();
+        if (selectedProvider instanceof ChatRoomWrapper)
+        {
+            setNickname((ChatRoomProviderWrapper)selectedProvider);
+        }
         nicknamePanel.add(nicknameField, BorderLayout.CENTER);
         nicknamePanel.add(new JLabel(
             GuiActivator.getResources().getI18NString("service.gui.NICKNAME")), 
