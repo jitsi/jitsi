@@ -156,7 +156,19 @@ public class Messenger
 
     static
     {
-        System.loadLibrary("jmsofficecomm");
+        String lib = "jmsofficecomm";
+
+        try
+        {
+            System.loadLibrary(lib);
+        }
+        catch (Throwable t)
+        {
+            logger.error(
+                    "Failed to load native library " + lib + ": "
+                        + t.getMessage());
+            throw new RuntimeException(t);
+        }
     }
 
     private static synchronized void addSelf(

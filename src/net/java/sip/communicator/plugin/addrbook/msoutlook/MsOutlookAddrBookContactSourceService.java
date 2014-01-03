@@ -69,14 +69,18 @@ public class MsOutlookAddrBookContactSourceService
 
     static
     {
+        String lib = "jmsoutlookaddrbook";
+
         try
         {
-            System.loadLibrary("jmsoutlookaddrbook");
+            System.loadLibrary(lib);
         }
-        catch (Throwable ex)
+        catch (Throwable t)
         {
-            logger.error("Unable to load outlook native lib", ex);
-            throw new RuntimeException(ex);
+            logger.error(
+                    "Failed to load native library " + lib + ": "
+                        + t.getMessage());
+            throw new RuntimeException(t);
         }
 
         /*

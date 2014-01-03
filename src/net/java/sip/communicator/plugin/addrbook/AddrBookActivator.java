@@ -208,11 +208,13 @@ public class AddrBookActivator
         }
         catch (Exception ex)
         {
-            logger.error("Failed to instantiate " + cssClassName + " reason:"
-                + ex.getMessage());
+            String msg
+                = "Failed to instantiate " + cssClassName + ": "
+                    + ex.getMessage();
 
-            if(logger.isDebugEnabled())
-                logger.debug("Failed to instantiate " + cssClassName, ex);
+            logger.error(msg);
+            if (logger.isDebugEnabled())
+                logger.debug(msg, ex);
             return;
         }
         try
