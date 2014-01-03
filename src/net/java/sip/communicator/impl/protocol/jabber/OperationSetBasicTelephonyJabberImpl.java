@@ -174,31 +174,25 @@ public class OperationSetBasicTelephonyJabberImpl
         
         ((ChatRoomJabberImpl) chatRoom).addConferenceCall(call);
         
-        call.addCallChangeListener(new CallChangeListener()
-        {
-            
-            @Override
-            public void callStateChanged(CallChangeEvent evt)
-            {
-                if(CallState.CALL_ENDED.equals(evt.getNewValue()))
+        call.addCallChangeListener(
+                new CallChangeListener()
                 {
-                    ((ChatRoomJabberImpl) chatRoom).removeConferenceCall(call);
-                }
-                
-            }
-            
-            @Override
-            public void callPeerRemoved(CallPeerEvent evt)
-            {
-                
-            }
-            
-            @Override
-            public void callPeerAdded(CallPeerEvent evt)
-            {
-                
-            }
-        });
+                    @Override
+                    public void callPeerAdded(CallPeerEvent ev) {}
+
+                    @Override
+                    public void callPeerRemoved(CallPeerEvent ev) {}
+
+                    @Override
+                    public void callStateChanged(CallChangeEvent ev)
+                    {
+                        if (CallState.CALL_ENDED.equals(ev.getNewValue()))
+                        {
+                            ((ChatRoomJabberImpl) chatRoom)
+                                .removeConferenceCall(call);
+                        }
+                    }
+                });
 
         String remoteJid = cd.getUri();
         if (remoteJid.startsWith("xmpp:"))
@@ -215,11 +209,9 @@ public class OperationSetBasicTelephonyJabberImpl
 
         //String password = cd.getPassword();
         //if (password != null)
-        //{
         //   extensions.add(new PasswordPacketExtension(password));
-        //}
 
-        CallPeerJabberImpl callPeer = call.initiateSession(
+        call.initiateSession(
                 remoteJid,
                 null,
                 sessionInitiateExtensions,
