@@ -995,6 +995,29 @@ public class ChatRoomIrcImpl
         for (ChatRoomMemberRoleListener listener : listeners)
             listener.memberRoleChanged(evt);
     }
+    
+    /**
+     * Notify all <tt>ChatRoomLocalUserRoleListener</tt>s that the local user's
+     * role has been changed in this <tt>ChatRoom</tt>.
+     * 
+     * @param event the event that describes the local user's role change
+     */
+    public void fireLocalUserRoleChangedEvent(
+        ChatRoomLocalUserRoleChangeEvent event)
+    {
+        ArrayList<ChatRoomLocalUserRoleListener> listeners;
+        synchronized (localUserRoleListeners)
+        {
+            listeners =
+                new ArrayList<ChatRoomLocalUserRoleListener>(
+                    localUserRoleListeners);
+        }
+
+        for (ChatRoomLocalUserRoleListener listener : listeners)
+        {
+            listener.localUserRoleChanged(event);
+        }
+    }
 
     /**
      * Indicates if this chat room is a private one or not. Private chat rooms

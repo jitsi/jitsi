@@ -121,6 +121,7 @@ public class IrcStack
             // register a server listener in order to catch server and cross-/multi-channel messages
             this.irc.addListener(new ServerListener());
             // start connecting to the specified server ...
+            // TODO Catch IOException/SocketException in case of early failure in call to connect()
             this.irc.connect(this.params, new Callback<IIRCState>()
             {
 
@@ -818,9 +819,23 @@ public class IrcStack
                     String ownerUserName = mode.getParams()[0];
                     if (isMe(ownerUserName))
                     {
-                        System.out.println("Local user owner change! (no business logic yet, just discovery) "
-                            + mode.isAdded());
-                        // TODO Do something on local user owner change.
+                        ChatRoomLocalUserRoleChangeEvent event;
+                        if (mode.isAdded())
+                        {
+                            event =
+                                new ChatRoomLocalUserRoleChangeEvent(
+                                    this.chatroom,
+                                    ChatRoomMemberRole.SILENT_MEMBER,
+                                    ChatRoomMemberRole.OWNER);
+                        }
+                        else
+                        {
+                            event =
+                                new ChatRoomLocalUserRoleChangeEvent(
+                                    this.chatroom, ChatRoomMemberRole.OWNER,
+                                    ChatRoomMemberRole.SILENT_MEMBER);
+                        }
+                        this.chatroom.fireLocalUserRoleChangedEvent(event);
                     }
                     else
                     {
@@ -843,12 +858,24 @@ public class IrcStack
                     String opUserName = mode.getParams()[0];
                     if (isMe(opUserName))
                     {
-                        System.out.println("Local user op change! "
-                            + mode.isAdded());
-                        // TODO How to fire a local user role change event?
-                        // TODO Do something in case the local user is affected,
-                        // hence the member cannot be found using
-                        // getChatRoomMember.
+                        ChatRoomLocalUserRoleChangeEvent event;
+                        if (mode.isAdded())
+                        {
+                            event =
+                                new ChatRoomLocalUserRoleChangeEvent(
+                                    this.chatroom,
+                                    ChatRoomMemberRole.SILENT_MEMBER,
+                                    ChatRoomMemberRole.ADMINISTRATOR);
+                        }
+                        else
+                        {
+                            event =
+                                new ChatRoomLocalUserRoleChangeEvent(
+                                    this.chatroom,
+                                    ChatRoomMemberRole.ADMINISTRATOR,
+                                    ChatRoomMemberRole.SILENT_MEMBER);
+                        }
+                        this.chatroom.fireLocalUserRoleChangedEvent(event);
                     }
                     else
                     {
@@ -870,8 +897,23 @@ public class IrcStack
                     String voiceUserName = mode.getParams()[0];
                     if (isMe(voiceUserName))
                     {
-                        System.out.println("Local user voice change! "+mode.isAdded());
-                        // TODO Do something when local user is affected.
+                        ChatRoomLocalUserRoleChangeEvent event;
+                        if (mode.isAdded())
+                        {
+                            event =
+                                new ChatRoomLocalUserRoleChangeEvent(
+                                    this.chatroom,
+                                    ChatRoomMemberRole.SILENT_MEMBER,
+                                    ChatRoomMemberRole.MEMBER);
+                        }
+                        else
+                        {
+                            event =
+                                new ChatRoomLocalUserRoleChangeEvent(
+                                    this.chatroom, ChatRoomMemberRole.MEMBER,
+                                    ChatRoomMemberRole.SILENT_MEMBER);
+                        }
+                        this.chatroom.fireLocalUserRoleChangedEvent(event);
                     }
                     else
                     {
