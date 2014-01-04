@@ -805,6 +805,10 @@ public class IrcStack
 
         private void processModeMessage(ChannelModeMessage msg)
         {
+            String sourceNick = ((IRCUser) msg.getSource()).getNick();
+            ChatRoomMemberIrcImpl sourceMember =
+                (ChatRoomMemberIrcImpl) this.chatroom
+                    .getChatRoomMember(sourceNick);
             ModeParser parser = new ModeParser(msg);
             for (ModeEntry mode : parser.getModes())
             {
@@ -884,6 +888,33 @@ public class IrcStack
                                 ChatRoomMemberRole.SILENT_MEMBER);
                         }
                     }
+                    break;
+                case LIMIT:
+                    MessageIrcImpl message;
+                    if (mode.isAdded())
+                    {
+                        try
+                        {
+                            message =
+                                new MessageIrcImpl("channel limit set to "
+                                    + Integer.parseInt(mode.getParams()[0]),
+                                    "text/plain", "UTF-8", null);
+                        }
+                        catch (NumberFormatException e)
+                        {
+                            e.printStackTrace();
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        message =
+                            new MessageIrcImpl("channel limit removed",
+                                "text/plain", "UTF-8", null);
+                    }
+                    this.chatroom.fireMessageReceivedEvent(message,
+                        sourceMember, new Date(),
+                        ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
                     break;
                 default:
                     System.out.println("Unsupported mode '"

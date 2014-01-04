@@ -63,6 +63,9 @@ public class ModeParser
             return new ModeEntry(add, Mode.bySymbol(mode), this.params[this.index++]);
         case 'v':
             return new ModeEntry(add, Mode.bySymbol(mode), this.params[this.index++]);
+        case 'l':
+            String[] params = (add ? new String[] { this.params[this.index++] } : new String[]{});
+            return new ModeEntry(add, Mode.bySymbol(mode), params);
         default:
             throw new IllegalArgumentException(""+mode);
         }
