@@ -962,7 +962,7 @@ public class IrcStack
         private ServerParameters(String nickName, String realName,
             String ident, IRCServer server)
         {
-            this.nick = nickName;
+            this.nick = checkNick(nickName);
             this.alternativeNicks.add(nickName + "_");
             this.real = realName;
             this.ident = ident;
@@ -977,7 +977,16 @@ public class IrcStack
 
         public void setNickname(String nick)
         {
-            this.nick = nick;
+            this.nick = checkNick(nick);
+        }
+        
+        private String checkNick(String nick)
+        {
+            if (nick == null)
+                throw new IllegalArgumentException("a nick name must be provided");
+            if  (nick.startsWith("#"))
+                throw new IllegalArgumentException("the nick name must not start with '#' since this is reserved for IRC channels");
+            return nick;
         }
 
         @Override
