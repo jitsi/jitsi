@@ -293,7 +293,7 @@ public class IrcStack
         {
             if (this.channellist.instance == null)
             {
-                List<String> list = new ArrayList<String>();
+                List<String> list = new LinkedList<String>();
                 synchronized (list)
                 {
                     try
@@ -460,6 +460,7 @@ public class IrcStack
                     });
                 // Wait until async channel join operation has finished.
                 joinSignal.wait();
+                // TODO How to handle 471: Channel is full (reached set user limit)?
                 if (isJoined(chatroom))
                 {
                     // In case waiting ends with successful join
