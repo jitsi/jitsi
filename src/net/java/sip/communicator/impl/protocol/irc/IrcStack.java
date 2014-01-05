@@ -460,7 +460,8 @@ public class IrcStack
                     });
                 // Wait until async channel join operation has finished.
                 joinSignal.wait();
-                // TODO How to handle 471: Channel is full (reached set user limit)?
+                // TODO How to handle 471 (+l): Channel is full (reached set user limit)?
+                // TODO How to handle 480 (+j): Channel throttle exceeded?
                 if (isJoined(chatroom))
                 {
                     // In case waiting ends with successful join
