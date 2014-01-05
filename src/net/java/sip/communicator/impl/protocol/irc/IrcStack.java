@@ -507,15 +507,30 @@ public class IrcStack
         // TODO Implement this.
     }
 
+    /**
+     * Kick channel member.
+     * 
+     * @param chatroom channel to kick from
+     * @param member member to kick
+     * @param reason kick message to deliver
+     */
     public void kickParticipant(ChatRoomIrcImpl chatroom,
         ChatRoomMember member, String reason)
     {
-        this.irc.kick(chatroom.getIdentifier(), member.getContactAddress());
+        this.irc.kick(chatroom.getIdentifier(), member.getContactAddress(),
+            reason);
     }
 
+    /**
+     * Issue invite command to IRC server.
+     * 
+     * @param memberId member to invite
+     * @param chatroom channel to invite to
+     */
     public void invite(String memberId, ChatRoomIrcImpl chatroom)
     {
-        // TODO Implement this.
+        this.irc.rawMessage("INVITE " + memberId + " "
+            + chatroom.getIdentifier());
     }
 
     /**
