@@ -51,6 +51,15 @@ public class IrcStack
     private IIRCState connectionState;
     
     /**
+     * The cached channel list.
+     * 
+     * Contained inside a simple container object in order to lock the container
+     * while accessing the contents.
+     */
+    private final Container<List<String>> channellist =
+        new Container<List<String>>(null);
+
+    /**
      * Constructor
      * 
      * @param parentProvider Parent provider
@@ -278,8 +287,33 @@ public class IrcStack
      */
     public List<String> getServerChatRoomList()
     {
-        // TODO Implement this. (Also probably cache the list, to prevent doing too many requests.)
-        return new ArrayList<String>();
+        // FIXME Currently, not using an API library method for listing
+        // channels, since it isn't available.
+        synchronized (this.channellist)
+        {
+            if (this.channellist.instance == null)
+            {
+                List<String> list = new ArrayList<String>();
+                synchronized (list)
+                {
+                    try
+                    {
+                        this.irc.addListener(new ChannelListListener(this.irc,
+                            list));
+                        this.irc.rawMessage("LIST");
+                        System.out.println("Started waiting for list ...");
+                        list.wait();
+                        System.out.println("Done waiting for list.");
+                    }
+                    catch (InterruptedException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+                this.channellist.instance = list;
+            }
+            return Collections.unmodifiableList(this.channellist.instance);
+        }
     }
 
     /**
@@ -806,6 +840,9 @@ public class IrcStack
 
         private void processModeMessage(ChannelModeMessage msg)
         {
+            // TODO Handle or ignore ban channel mode (MODE STRING: +b
+            // *!*@some-ip.dynamicIP.provider.net)
+            // TODO msg.getSource() can also be an IRCServer instance.
             String sourceNick = ((IRCUser) msg.getSource()).getNick();
             ChatRoomMemberIrcImpl sourceMember =
                 (ChatRoomMemberIrcImpl) this.chatroom
@@ -985,6 +1022,95 @@ public class IrcStack
     }
 
     /**
+     * Special listener that processes LIST replies and signals once the list is
+     * completely filled.
+     */
+    private static class ChannelListListener
+        extends VariousMessageListenerAdapter
+    {
+        /**
+         * Reference to the IRC API instance.
+         */
+        private final IRCApi api;
+
+        /**
+         * Reference to the provided list instance.
+         */
+        private List<String> channels;
+
+        private ChannelListListener(IRCApi api, List<String> list)
+        {
+            if (api == null)
+                throw new IllegalArgumentException("IRC api cannot be null");
+            this.api = api;
+            this.channels = list;
+        }
+
+        /**
+         * Act on LIST messages: 321 RPL_LISTSTART, 322 RPL_LIST, 323
+         * RPL_LISTEND
+         * 
+         * Clears the list upon starting. All received channels are added to the
+         * list. Upon receiving RPL_LISTEND finalize the list and signal the
+         * waiting thread that it can continue processing the list.
+         */
+        @Override
+        public void onServerNumericMessage(ServerNumericMessage msg)
+        {
+            if (this.channels == null)
+                return;
+
+            switch (msg.getNumericCode())
+            {
+            case 321:
+                synchronized (this.channels)
+                {
+                    this.channels.clear();
+                }
+                break;
+            case 322:
+                String channel = parse(msg.getText());
+                if (channel != null)
+                {
+                    synchronized (this.channels)
+                    {
+                        this.channels.add(channel);
+                    }
+                }
+                break;
+            case 323:
+                synchronized (this.channels)
+                {
+                    this.channels.notifyAll();
+                    // Done collecting channels. Delete list reference and
+                    // remove listener and then we're done.
+                    this.channels = null;
+                    this.api.deleteListener(this);
+                }
+                break;
+            default:
+                break;
+            }
+        }
+
+        /**
+         * Parse an IRC server response RPL_LIST. Extract the channel name.
+         * 
+         * @param text raw server response
+         * @return returns the channel name
+         */
+        private String parse(String text)
+        {
+            int endOfChannelName = text.indexOf(' ');
+            if (endOfChannelName == -1)
+                return null;
+            // Create a new string to make sure that the original (larger)
+            // strings can be GC'ed.
+            return new String(text.substring(0, endOfChannelName));
+        }
+    }
+
+    /**
      * Container for storing server parameters.
      */
     private static class ServerParameters
@@ -1058,6 +1184,33 @@ public class IrcStack
         public void setServer(IRCServer server)
         {
             this.server = server;
+        }
+    }
+
+    /**
+     * Simplest possible container that we can use for locking while we're
+     * checking/modifying the contents.
+     * 
+     * FIXME I would love to get rid of this thing. Is there something similar
+     * in Java stdlib?
+     * 
+     * @param <T> The type of instance to store in the container
+     */
+    private static class Container<T>
+    {
+        /**
+         * The stored instance. (Can be null)
+         */
+        public T instance;
+
+        /**
+         * Constructor that immediately sets the instance.
+         * 
+         * @param instance the instance to set
+         */
+        private Container(T instance)
+        {
+            this.instance = instance;
         }
     }
 }

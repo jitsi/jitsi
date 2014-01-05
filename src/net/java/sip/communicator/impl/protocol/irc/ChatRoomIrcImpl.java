@@ -929,14 +929,14 @@ public class ChatRoomIrcImpl
                                         String eventID,
                                         String eventReason)
     {
-        // TODO Separate this from fireMemberPresenceEvent ... it does state modification not informing.
+        // First update local state w.r.t. member presence change
         if (eventID == ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED)
         {
-            this.chatRoomMembers.put(member.getContactAddress(), member);
+            addChatRoomMember(member.getContactAddress(), member);
         }
         else
         {
-            this.chatRoomMembers.remove(member.getContactAddress());
+            removeChatRoomMember(member.getContactAddress());
         }
         
         ChatRoomMemberPresenceChangeEvent evt;
