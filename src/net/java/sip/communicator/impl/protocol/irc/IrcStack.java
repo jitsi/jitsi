@@ -894,15 +894,18 @@ public class IrcStack
                         ChatRoomMember owner =
                             this.chatroom
                                 .getChatRoomMember(mode.getParams()[0]);
-                        if (mode.isAdded())
+                        if (owner != null)
                         {
-                            this.chatroom.fireMemberRoleEvent(owner,
-                                ChatRoomMemberRole.OWNER);
-                        }
-                        else
-                        {
-                            this.chatroom.fireMemberRoleEvent(owner,
-                                ChatRoomMemberRole.SILENT_MEMBER);
+                            if (mode.isAdded())
+                            {
+                                this.chatroom.fireMemberRoleEvent(owner,
+                                    ChatRoomMemberRole.OWNER);
+                            }
+                            else
+                            {
+                                this.chatroom.fireMemberRoleEvent(owner,
+                                    ChatRoomMemberRole.SILENT_MEMBER);
+                            }
                         }
                     }
                     break;
@@ -933,15 +936,18 @@ public class IrcStack
                     {
                         ChatRoomMember op =
                             this.chatroom.getChatRoomMember(opUserName);
-                        if (mode.isAdded())
+                        if (op != null)
                         {
-                            this.chatroom.fireMemberRoleEvent(op,
-                                ChatRoomMemberRole.ADMINISTRATOR);
-                        }
-                        else
-                        {
-                            this.chatroom.fireMemberRoleEvent(op,
-                                ChatRoomMemberRole.SILENT_MEMBER);
+                            if (mode.isAdded())
+                            {
+                                this.chatroom.fireMemberRoleEvent(op,
+                                    ChatRoomMemberRole.ADMINISTRATOR);
+                            }
+                            else
+                            {
+                                this.chatroom.fireMemberRoleEvent(op,
+                                    ChatRoomMemberRole.SILENT_MEMBER);
+                            }
                         }
                     }
                     break;
@@ -971,15 +977,18 @@ public class IrcStack
                     {
                         ChatRoomMember voice =
                             this.chatroom.getChatRoomMember(voiceUserName);
-                        if (mode.isAdded())
+                        if (voice != null)
                         {
-                            this.chatroom.fireMemberRoleEvent(voice,
-                                ChatRoomMemberRole.MEMBER);
-                        }
-                        else
-                        {
-                            this.chatroom.fireMemberRoleEvent(voice,
-                                ChatRoomMemberRole.SILENT_MEMBER);
+                            if (mode.isAdded())
+                            {
+                                this.chatroom.fireMemberRoleEvent(voice,
+                                    ChatRoomMemberRole.MEMBER);
+                            }
+                            else
+                            {
+                                this.chatroom.fireMemberRoleEvent(voice,
+                                    ChatRoomMemberRole.SILENT_MEMBER);
+                            }
                         }
                     }
                     break;
