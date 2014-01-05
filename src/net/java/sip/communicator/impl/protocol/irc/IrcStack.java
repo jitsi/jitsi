@@ -542,7 +542,7 @@ public class IrcStack
     public void command(ChatRoomIrcImpl chatroom, String command)
     {
         String target;
-        if (command.startsWith("/msg "))
+        if (command.toLowerCase().startsWith("/msg "))
         {
             command = command.substring(5);
             int endOfNick = command.indexOf(' ');
