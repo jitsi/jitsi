@@ -62,7 +62,26 @@ public class ScOtrEngineImpl
                     .getProtocolProvider()
                         .getOperationSet(
                                 OperationSetBasicInstantMessaging.class);
-            Message message = imOpSet.createMessage(messageText);
+
+            // This is a dirty way of detecting whether the injected message
+            // contains HTML markup. If this is the case then we should create
+            // the message with the appropriate content type so that the remote
+            // party can properly display the HTML.
+            // When otr4j injects QueryMessages it calls
+            // OtrEngineHost.getFallbackMessage() which is currently the only
+            // host method that uses HTML so we can simply check if the injected
+            // message contains the string that getFallbackMessage() returns.
+            String otrHtmlFallbackMessage =
+                "<a href=\"http://en.wikipedia.org/wiki/Off-the-Record_Messaging\">";
+            String contentType =
+                messageText.contains(otrHtmlFallbackMessage)
+                    ? imOpSet.HTML_MIME_TYPE : imOpSet.DEFAULT_MIME_TYPE;
+
+            Message message =
+                imOpSet.createMessage(  messageText,
+                                        contentType,
+                                        imOpSet.DEFAULT_MIME_ENCODING,
+                                        null);
 
             injectedMessageUIDs.add(message.getMessageUID());
             imOpSet.sendInstantMessage(contact, message);

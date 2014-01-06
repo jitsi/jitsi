@@ -94,7 +94,11 @@ public class OtrTransformLayer
             contact.getProtocolProvider().getOperationSet(
                 OperationSetBasicInstantMessaging.class);
         Message processedMessage =
-            imOpSet.createMessage(processedMessageContent);
+            imOpSet.createMessage(
+                processedMessageContent,
+                evt.getSourceMessage().getContentType(),
+                evt.getSourceMessage().getEncoding(),
+                evt.getSourceMessage().getSubject());
 
         // Create a new event and return.
         MessageDeliveredEvent processedEvent =
@@ -140,7 +144,9 @@ public class OtrTransformLayer
                 OperationSetBasicInstantMessaging.class);
         Message processedMessage =
             imOpSet.createMessageWithUID(
-                processedMessageContent, evt.getSourceMessage().getMessageUID());
+                processedMessageContent,
+                evt.getSourceMessage().getContentType(),
+                evt.getSourceMessage().getMessageUID());
 
         // Create a new event and return.
         MessageReceivedEvent processedEvent =

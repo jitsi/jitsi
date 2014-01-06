@@ -54,17 +54,19 @@ public interface OperationSetBasicInstantMessaging
     public Message createMessage(String messageText);
 
     /**
-     * Create a Message instance with the specified UID and a default
-     * (text/plain) content type and encoding.
+     * Create a Message instance with the specified UID, content type
+     * and a default encoding.
      * This method can be useful when message correction is required. One can
      * construct the corrected message to have the same UID as the message
      * before correction.
      *
      * @param messageText the string content of the message.
+     * @param contentType the MIME-type for <tt>content</tt>
      * @param messageUID the unique identifier of this message.
      * @return Message the newly created message
      */
-    public Message createMessageWithUID(String messageText, String messageUID);
+    public Message createMessageWithUID(
+        String messageText, String contentType, String messageUID);
 
     /**
      * Sends the <tt>message</tt> to the destination indicated by the
