@@ -4140,11 +4140,13 @@ public class CallManager
                 // use the pattern method of (ExtendedContactSourceService)
                 ContactQuery query
                     = ((ExtendedContactSourceService)contactSourceService)
-                            .queryContactSource(pattern);
+                            .createContactQuery(pattern);
 
                 resolvers.add(
                         new ResolveAddressToDisplayNameContactQueryListener(
                             query));
+                
+                query.start();
             }
 
             long startTime = System.currentTimeMillis();

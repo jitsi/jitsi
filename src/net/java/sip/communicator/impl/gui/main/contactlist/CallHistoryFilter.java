@@ -46,8 +46,10 @@ public class CallHistoryFilter
             // We're in a case of call history contact source.
             ContactQuery query
                 = contactSource.getContactSourceService()
-                    .queryContactSource("", 50);
+                    .createContactQuery("", 50);
 
+            query.start();
+            
             filterQuery.addContactQuery(query);
 
             // Add first available results.
@@ -99,28 +101,6 @@ public class CallHistoryFilter
     }
 
     /**
-     * Adds matching <tt>sourceContacts</tt> to the result tree model.
-     *
-     * @param sourceContacts the list of <tt>SourceContact</tt>s to add
-     * @param uiSource the <tt>ExternalContactSource</tt>, which contacts
-     * we're adding
-     */
-    private void addMatching(   List<SourceContact> sourceContacts,
-                                UIContactSource uiSource)
-    {
-        Iterator<SourceContact> contactsIter = sourceContacts.iterator();
-
-        while (contactsIter.hasNext())
-        {
-            GuiActivator.getContactList().addContact(
-                    uiSource.createUIContact(contactsIter.next()),
-                    uiSource.getUIGroup(),
-                    false,
-                    true);
-        }
-    }
-
-    /**
      * Adds matching notification contacts to the result tree model.
      *
      * @param notifSource
@@ -145,6 +125,28 @@ public class CallHistoryFilter
                                 false,
                                 true);
             }
+        }
+    }
+    
+    /**
+     * Adds matching <tt>sourceContacts</tt> to the result tree model.
+     *
+     * @param sourceContacts the list of <tt>SourceContact</tt>s to add
+     * @param uiSource the <tt>ExternalContactSource</tt>, which contacts
+     * we're adding
+     */
+    private void addMatching(   List<SourceContact> sourceContacts,
+                                UIContactSource uiSource)
+    {
+        Iterator<SourceContact> contactsIter = sourceContacts.iterator();
+
+        while (contactsIter.hasNext())
+        {
+            GuiActivator.getContactList().addContact(
+                    uiSource.createUIContact(contactsIter.next()),
+                    uiSource.getUIGroup(),
+                    false,
+                    true);
         }
     }
 }

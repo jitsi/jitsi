@@ -18,7 +18,7 @@ public abstract class AsyncContactSourceService
     implements ExtendedContactSourceService
 {
     /**
-     * Queries this <tt>ContactSourceService</tt> for <tt>SourceContact</tt>s
+     * Creates query that searches for <tt>SourceContact</tt>s
      * which match a specific <tt>query</tt> <tt>String</tt>.
      *
      * @param query the <tt>String</tt> which this <tt>ContactSourceService</tt>
@@ -29,14 +29,14 @@ public abstract class AsyncContactSourceService
      * any) will be returned
      * @see ContactSourceService#queryContactSource(String)
      */
-    public ContactQuery queryContactSource(String query)
+    public ContactQuery createContactQuery(String query)
     {
-        return queryContactSource(
+        return createContactQuery(
             Pattern.compile(query, Pattern.CASE_INSENSITIVE | Pattern.LITERAL));
     }
 
     /**
-     * Queries this <tt>ContactSourceService</tt> for <tt>SourceContact</tt>s
+     * Creates query that searches for <tt>SourceContact</tt>s
      * which match a specific <tt>query</tt> <tt>String</tt>.
      *
      * @param query the <tt>String</tt> which this <tt>ContactSourceService</tt>
@@ -48,9 +48,9 @@ public abstract class AsyncContactSourceService
      * any) will be returned
      * @see ContactSourceService#queryContactSource(String)
      */
-    public ContactQuery queryContactSource(String query, int contactCount)
+    public ContactQuery createContactQuery(String query, int contactCount)
     {
-        return queryContactSource(
+        return createContactQuery(
             Pattern.compile(query, Pattern.CASE_INSENSITIVE | Pattern.LITERAL));
     }
 

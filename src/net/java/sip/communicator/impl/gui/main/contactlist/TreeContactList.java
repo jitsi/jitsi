@@ -299,24 +299,33 @@ public class TreeContactList
         if(uiContact == null || !(uiContact instanceof UIContactImpl))
             return;
 
-        ContactNode contactNode = ((UIContactImpl) uiContact).getContactNode();
-       
-        if (contactNode != null)
+        ContactNode contactNode;
+        synchronized (uiContact)
         {
-            nodeChanged(contactNode);
+            contactNode = ((UIContactImpl) uiContact).getContactNode();
             
-            TreeNode parentNode = contactNode.getParent();
-            if(parentNode == null)
+            if (contactNode == null)
                 return;
-            int currentIndex = parentNode.getIndex(contactNode);
-            if(currentIndex != sourceContact.getIndex())
+            
+            nodeChanged(contactNode);
+        }
+
+        TreeNode parentNode = contactNode.getParent();
+        if(parentNode == null)
+            return;
+        int currentIndex = parentNode.getIndex(contactNode);
+        if(currentIndex != sourceContact.getIndex())
+        {
+            UIGroupImpl uiGroup = (UIGroupImpl)sourceUI.getUIGroup();
+            GroupNode groupNode;
+            synchronized (uiGroup)
             {
-                UIGroupImpl uiGroup = (UIGroupImpl)sourceUI.getUIGroup();
-                GroupNode groupNode = uiGroup.getGroupNode();
+                groupNode = uiGroup.getGroupNode();
                 if (groupNode == null)
                     return;
-                groupNode.sort(treeModel);
             }
+            
+            groupNode.sort(treeModel);
         }
     }
 
@@ -344,16 +353,25 @@ public class TreeContactList
             }
         }
 
-        UIContact newUIContact;
+        UIContactImpl newUIContact;
         synchronized (metaContact)
         {
-            newUIContact = MetaContactListSource.createUIContact(metaContact);
-        }
+            newUIContact 
+                = MetaContactListSource.getUIContact(metaContact);
 
+            if (newUIContact == null)
+            {
+                newUIContact = MetaContactListSource
+                    .createUIContact(metaContact);
+            }
+        }
+        
         addContact( event.getQuerySource(),
-                    newUIContact,
-                    uiGroup,
-                    true);
+            newUIContact,
+            uiGroup,
+            true);
+
+        
     }
 
     /**
@@ -445,31 +463,39 @@ public class TreeContactList
      */
     public void setActiveContact(MetaContact metaContact, boolean isActive)
     {
-        UIContactImpl uiContact
-            = MetaContactListSource.getUIContact(metaContact);
-
-        if (uiContact == null)
-            return;
-
-        ContactNode contactNode = uiContact.getContactNode();
-
-        if (contactNode != null)
+        UIContactImpl uiContact;
+        synchronized (metaContact)
         {
-            contactNode.setActive(isActive);
+            uiContact = MetaContactListSource.getUIContact(metaContact);
 
-            if (isActive)
-            {
-                activeContacts.add(contactNode);
+            if (uiContact == null)
+                return;
+        }
+
+        ContactNode contactNode;
+        synchronized (uiContact)
+        {
+            contactNode = uiContact.getContactNode();
+
+            if (contactNode == null)
+                return;
+        }
+        
+        contactNode.setActive(isActive);
+
+        if (isActive)
+        {
+            activeContacts.add(contactNode);
 //              SystrayService stray = GuiActivator.getSystrayService();
 //
 //              if (stray != null)
 //                  stray.setSystrayIcon(SystrayService.ENVELOPE_IMG_TYPE);
-            }
-            else
-                activeContacts.remove(contactNode);
-
-            treeModel.nodeChanged(contactNode);
         }
+        else
+            activeContacts.remove(contactNode);
+
+        treeModel.nodeChanged(contactNode);
+        
     }
 
     /**
@@ -481,9 +507,12 @@ public class TreeContactList
      */
     public boolean isContactActive(UIContactImpl contact)
     {
-        ContactNode contactNode = contact.getContactNode();
+        synchronized (contact)
+        {
+            ContactNode contactNode = contact.getContactNode();
 
-        return (contactNode == null) ? false : contactNode.isActive();
+            return (contactNode == null) ? false : contactNode.isActive();
+        }
     }
 
     /**
@@ -527,25 +556,29 @@ public class TreeContactList
         {
             UIGroupImpl contactImpl = (UIGroupImpl) group;
 
-            groupNode = contactImpl.getGroupNode();
-
-            if (groupNode == null)
+            synchronized (contactImpl)
             {
-                GroupNode parentNode = treeModel.getRoot();
-                
-                if (isGroupSorted)
-                    groupNode = parentNode.sortedAddContactGroup(contactImpl);
-                else
-                    groupNode = parentNode.addContactGroup(contactImpl);
-                
-                if(group.getSourceIndex() < GuiActivator.getContactListService()
-                    .getSourceIndex() && rootUIGroup == null 
-                    && (!(treeModel.getRoot().getChildAfter(groupNode) 
-                        instanceof GroupNode)))
+                groupNode = contactImpl.getGroupNode();
+
+                if (groupNode == null)
                 {
-                    createMetaUIRootGroup();
+                    GroupNode parentNode = treeModel.getRoot();
+                    
+                    if (isGroupSorted)
+                        groupNode = parentNode.sortedAddContactGroup(contactImpl);
+                    else
+                        groupNode = parentNode.addContactGroup(contactImpl);
+                    
+                    if(group.getSourceIndex() < GuiActivator.getContactListService()
+                        .getSourceIndex() && rootUIGroup == null 
+                        && (!(treeModel.getRoot().getChildAfter(groupNode) 
+                            instanceof GroupNode)))
+                    {
+                        createMetaUIRootGroup();
+                    }
                 }
             }
+            
         }
 
         if (groupNode == null)
@@ -558,7 +591,14 @@ public class TreeContactList
 
         ContactNode contactNode = null;
         UIContactImpl contactImpl = (UIContactImpl) contact;
-
+        
+        synchronized (contactImpl)
+        {
+            if(contactImpl.getContactNode() != null)
+            {
+                return;
+            }
+        }
         if (isContactSorted)
             contactNode = groupNode.sortedAddContact(contactImpl);
         else
@@ -776,24 +816,28 @@ public class TreeContactList
         if (parentGroup == null)
             return;
 
-        GroupNode parentGroupNode = parentGroup.getGroupNode();
-
-        // Nothing more to do here if we didn't find the parent.
-        if (parentGroupNode == null)
-            return;
-
-        parentGroupNode.removeContact((UIContactImpl) contact);
-
-        // If the parent group is empty remove it.
-        if (removeEmptyGroup && parentGroupNode.getChildCount() == 0)
+        GroupNode parentGroupNode;
+        synchronized (parentGroup)
         {
-            GroupNode parent = (GroupNode) parentGroupNode.getParent();
+            parentGroupNode = parentGroup.getGroupNode();
 
-            if (parent != null)
-            {
-                parent.removeContactGroup(parentGroup);
-            }
+            // Nothing more to do here if we didn't find the parent.
+            if (parentGroupNode == null)
+                return;
             
+            parentGroupNode.removeContact((UIContactImpl) contact);
+            
+            // If the parent group is empty remove it.
+            if (removeEmptyGroup && parentGroupNode.getChildCount() == 0)
+            {
+                GroupNode parent = (GroupNode) parentGroupNode.getParent();
+
+                if (parent != null)
+                {
+                    parent.removeContactGroup(parentGroup);
+                }
+                
+            }
         }
         
         if(rootUIGroup != null 
@@ -835,10 +879,14 @@ public class TreeContactList
             return;
         }
 
-        if (!(contact instanceof UIContactImpl))
-            return;
+        synchronized (contact)
+        {
+            if (!(contact instanceof UIContactImpl))
+                return;
 
-        treeModel.nodeChanged(((UIContactImpl) contact).getContactNode());
+            treeModel.nodeChanged(((UIContactImpl) contact).getContactNode());
+        }
+        
     }
 
     /**
@@ -871,18 +919,19 @@ public class TreeContactList
         }
 
         UIGroupImpl groupImpl = (UIGroupImpl) group;
-
-        GroupNode groupNode = groupImpl.getGroupNode();
-
-        if(groupNode == null)
+        synchronized (groupImpl)
         {
-            GroupNode parentNode = treeModel.getRoot();
+            GroupNode groupNode = groupImpl.getGroupNode();
 
-            if (isSorted)
-                parentNode.sortedAddContactGroup(groupImpl);
-            else
-                parentNode.addContactGroup(groupImpl);
+            if(groupNode != null)
+                return;
         }
+        GroupNode parentNode = treeModel.getRoot();
+
+        if (isSorted)
+            parentNode.sortedAddContactGroup(groupImpl);
+        else
+            parentNode.addContactGroup(groupImpl);
 
         expandGroup(treeModel.getRoot());
     }
@@ -912,21 +961,24 @@ public class TreeContactList
 
         GroupNode parentGroupNode;
 
-        if(parentGroup == null)
+        synchronized (parentGroup)
         {
-            if(group.countChildContacts() == 0)
-                parentGroupNode = treeModel.getRoot();
+            if(parentGroup == null)
+            {
+                if(group.countChildContacts() == 0)
+                    parentGroupNode = treeModel.getRoot();
+                else
+                    return;
+            }
             else
+                parentGroupNode = parentGroup.getGroupNode();
+
+            // Nothing more to do here if we didn't find the parent.
+            if (parentGroupNode == null)
                 return;
+
+            parentGroupNode.removeContactGroup((UIGroupImpl) group);
         }
-        else
-            parentGroupNode = parentGroup.getGroupNode();
-
-        // Nothing more to do here if we didn't find the parent.
-        if (parentGroupNode == null)
-            return;
-
-        parentGroupNode.removeContactGroup((UIGroupImpl) group);
 
         // If the parent group is empty remove it.
         if (parentGroupNode.getChildCount() == 0)
@@ -961,15 +1013,17 @@ public class TreeContactList
             return null;
 
         GroupNode groupNode;
+        synchronized (group)
+        {
+            if (group == null)
+                groupNode = treeModel.getRoot();
+            else
+                groupNode = ((UIGroupImpl) group).getGroupNode();
 
-        if (group == null)
-            groupNode = treeModel.getRoot();
-        else
-            groupNode = ((UIGroupImpl) group).getGroupNode();
-
-        if (groupNode == null)
-            return null;
-
+            if (groupNode == null)
+                return null;
+        }
+       
         Collection<ContactNode> contactNodes = groupNode.getContacts();
 
         if (contactNodes == null)
@@ -1993,12 +2047,7 @@ public class TreeContactList
 
             if (contactSource instanceof ExtendedContactSourceService)
             {
-                ContactQuery query = ((ExtendedContactSourceService)
-                        contactSource).queryContactSource(filterPattern);
-
-                loadedQueries.add(query);
-
-                query.addContactQueryListener(new ContactQueryListener()
+                ContactQueryListener queryListener = new ContactQueryListener()
                 {
                     public void queryStatusChanged(ContactQueryStatusEvent event)
                     {}
@@ -2067,7 +2116,8 @@ public class TreeContactList
                         ContactSourceService contactSource
                             = sourceContact.getContactSource();
 
-                        UIContactSource sourceUI = getContactSource(contactSource);
+                        UIContactSource sourceUI 
+                            = getContactSource(contactSource);
 
                         if (sourceUI == null)
                             return;
@@ -2075,15 +2125,27 @@ public class TreeContactList
                         UIContact uiContact
                             = sourceUI.getUIContact(sourceContact);
 
-                        if(uiContact == null || !(uiContact instanceof UIContactImpl))
+                        if(uiContact == null 
+                            || !(uiContact instanceof UIContactImpl))
                             return;
-
-                        ContactNode contactNode = ((UIContactImpl) uiContact).getContactNode();
-
-                        if (contactNode != null)
-                            nodeChanged(contactNode);
+                        
+                        synchronized (uiContact)
+                        {
+                            ContactNode contactNode 
+                                = ((UIContactImpl) uiContact).getContactNode();
+    
+                            if (contactNode != null)
+                                nodeChanged(contactNode);
+                        }
                     }
-                });
+                };
+
+                ContactQuery query = ((ExtendedContactSourceService)
+                    contactSource).createContactQuery(filterPattern);
+
+                loadedQueries.add(query);
+                
+                query.start();
 
                 // If the image search has been canceled from one of the
                 // previous sources, we return here.
@@ -2439,11 +2501,15 @@ public class TreeContactList
             return;
         }
 
-        if (!(uiContact instanceof UIContactImpl))
-            return;
-
-        setSelectionPath(new TreePath(
-            ((UIContactImpl) uiContact).getContactNode().getPath()));
+        synchronized (uiContact)
+        {
+            if (!(uiContact instanceof UIContactImpl))
+                return;
+            
+            setSelectionPath(new TreePath(
+                ((UIContactImpl) uiContact).getContactNode().getPath()));
+        }
+        
     }
 
     /**
@@ -2468,8 +2534,12 @@ public class TreeContactList
         if (!(uiGroup instanceof UIGroupImpl))
             return;
 
-        setSelectionPath(new TreePath(
-            ((UIGroupImpl) uiGroup).getGroupNode().getPath()));
+        synchronized (uiGroup)
+        {
+            setSelectionPath(new TreePath(
+                ((UIGroupImpl) uiGroup).getGroupNode().getPath()));
+        }
+        
     }
 
     /**

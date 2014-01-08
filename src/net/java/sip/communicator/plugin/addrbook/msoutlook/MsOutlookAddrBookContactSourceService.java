@@ -165,7 +165,7 @@ public class MsOutlookAddrBookContactSourceService
     public static native int getOutlookVersion();
 
     /**
-     * Queries this <tt>ContactSourceService</tt> for <tt>SourceContact</tt>s
+     *  Creates query that searches for <tt>SourceContact</tt>s
      * which match a specific <tt>query</tt> <tt>Pattern</tt>.
      *
      * @param query the <tt>Pattern</tt> which this
@@ -176,14 +176,13 @@ public class MsOutlookAddrBookContactSourceService
      * any) will be returned
      * @see ExtendedContactSourceService#queryContactSource(Pattern)
      */
-    public ContactQuery queryContactSource(Pattern query)
+    public ContactQuery createContactQuery(Pattern query)
     {
         if(latestQuery != null)
             latestQuery.clear();
 
         latestQuery = new MsOutlookAddrBookContactQuery(this, query);
-
-        latestQuery.start();
+        
         return latestQuery;
     }
 

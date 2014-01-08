@@ -375,7 +375,7 @@ public class ChatRoomTableDialog
     {
         String subject = null;
         JButton sourceButton = (JButton) e.getSource();
-         if(sourceButton.equals(okButton))
+        if(sourceButton.equals(okButton))
         {
 
             if((chatRoomNameField.getText() != null

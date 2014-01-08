@@ -123,6 +123,24 @@ public class LdapContactQuery
         }
     }
 
+    @Override
+    public synchronized void start()
+    {
+        boolean hasStarted = false;
+
+        try
+        {
+            super.start();
+            hasStarted = true;
+        }
+        finally
+        {
+            if (!hasStarted)
+            {
+                getContactSource().removeQuery(this);
+            }
+        }
+    }
     /**
      * Gets the <tt>contactDetails</tt> to be set on a <tt>SourceContact</tt>.
      *

@@ -132,7 +132,6 @@ public class MetaContactListSource
     {
         final MetaUIContact descriptor
             = new MetaUIContact(metaContact);
-
         metaContact.setData(UI_CONTACT_DATA_KEY, descriptor);
 
         return descriptor;
@@ -185,17 +184,14 @@ public class MetaContactListSource
     }
 
     /**
-     * Filters the <tt>MetaContactListService</tt> to match the given
-     * <tt>filterPattern</tt> and stores the result in the given
-     * <tt>treeModel</tt>.
+     * Starts the query.
+     * 
      * @param filterPattern the pattern to filter through
-     * @return the created <tt>MetaContactQuery</tt> corresponding to the
-     * query this method does
+     * @param query the query to be started
      */
-    public MetaContactQuery queryMetaContactSource(final Pattern filterPattern)
+    public void startQuery(final MetaContactQuery query,
+        final Pattern filterPattern)
     {
-        final MetaContactQuery query = new MetaContactQuery();
-
         new Thread()
         {
             @Override
@@ -215,8 +211,6 @@ public class MetaContactListSource
                         MetaContactQueryStatusEvent.QUERY_CANCELED);
             }
         }.start();
-
-        return query;
     }
 
     /**
@@ -262,20 +256,29 @@ public class MetaContactListSource
                     UIContact newUIContact;
                     synchronized (metaContact)
                     {
-                        newUIContact
-                            = MetaContactListSource.createUIContact(metaContact);
+                        newUIContact 
+                            = MetaContactListSource.getUIContact(metaContact);
+    
+                        if (newUIContact == null)
+                        {
+                            newUIContact
+                                = MetaContactListSource
+                                    .createUIContact(metaContact);
+                        }
+                        
+                        GuiActivator.getContactList().addContact(
+                            newUIContact,
+                            uiGroup,
+                            true,
+                            true);
                     }
-
-                    GuiActivator.getContactList().addContact(
-                        newUIContact,
-                        uiGroup,
-                        true,
-                        true);
-
+                    
                     query.setInitialResultCount(resultCount);
                 }
                 else
+                {
                     query.fireQueryEvent(metaContact);
+                }
             }
         }
 
@@ -431,8 +434,14 @@ public class MetaContactListSource
                 GuiActivator.getContactList().removeContact(uiContact);
             }
             else
-                GuiActivator.getContactList()
-                    .nodeChanged(uiContact.getContactNode());
+            {
+                synchronized (uiContact)
+                {
+                    GuiActivator.getContactList()
+                        .nodeChanged(uiContact.getContactNode());
+                }
+            }
+
         }
     }
 
@@ -458,10 +467,14 @@ public class MetaContactListSource
 
         if (uiGroup != null)
         {
-            GroupNode groupNode = uiGroup.getGroupNode();
+            synchronized (uiGroup)
+            {
+                GroupNode groupNode = uiGroup.getGroupNode();
 
-            if (groupNode != null)
-                groupNode.sort(treeModel);
+                if (groupNode != null)
+                    groupNode.sort(treeModel);
+            }
+           
         }
     }
 
@@ -485,7 +498,7 @@ public class MetaContactListSource
     private void metaContactAdded(final MetaContact metaContact,
                                  final MetaContactGroup parentGroup)
     {
-        UIContact uiContact;
+        UIContactImpl uiContact;
 
         synchronized (metaContact)
         {
@@ -588,11 +601,15 @@ public class MetaContactListSource
 
         if (uiGroup != null)
         {
-            GroupNode groupNode = uiGroup.getGroupNode();
+            synchronized (uiGroup)
+            {
+                GroupNode groupNode = uiGroup.getGroupNode();
 
-            if (groupNode != null)
-                GuiActivator.getContactList().getTreeModel()
-                    .nodeChanged(groupNode);
+                if (groupNode != null)
+                    GuiActivator.getContactList().getTreeModel()
+                        .nodeChanged(groupNode); 
+            }
+            
         }
     }
 
@@ -629,9 +646,11 @@ public class MetaContactListSource
         synchronized (metaContact)
         {
             uiContact = MetaContactListSource.getUIContact(metaContact);
+            if (uiContact == null)
+                return;
         }
 
-        if (uiContact != null)
+        synchronized (uiContact)
         {
             ContactNode contactNode
                 = uiContact.getContactNode();
@@ -670,7 +689,7 @@ public class MetaContactListSource
 
         synchronized (metaContact)
         {
-            UIContact uiContact
+            UIContactImpl uiContact
                 = MetaContactListSource.getUIContact(metaContact);
 
             if (uiContact == null)
@@ -692,6 +711,7 @@ public class MetaContactListSource
 
             // Add the contact to the new place.
             uiContact = MetaContactListSource.createUIContact(metaContact);
+            
 
             UIGroup newUIGroup = null;
             
@@ -710,11 +730,15 @@ public class MetaContactListSource
             ContactListFilter currentFilter
                 = GuiActivator.getContactList().getCurrentFilter();
 
-            if (currentFilter.isMatching(uiContact))
-                GuiActivator.getContactList()
-                    .addContact(uiContact, newUIGroup, true, true);
-            else
-                MetaContactListSource.removeUIContact(metaContact);
+            synchronized (uiContact)
+            {
+                if (currentFilter.isMatching(uiContact) 
+                    && uiContact.getContactNode() == null)
+                    GuiActivator.getContactList()
+                        .addContact(uiContact, newUIGroup, true, true);
+                else
+                    MetaContactListSource.removeUIContact(metaContact);
+            }
         }
     }
 
@@ -752,9 +776,11 @@ public class MetaContactListSource
         synchronized (metaContact)
         {
             uiContact = MetaContactListSource.getUIContact(metaContact);
+            if (uiContact == null)
+                return;
         }
 
-        if (uiContact != null)
+        synchronized (uiContact)
         {
             ContactNode contactNode = uiContact.getContactNode();
 
@@ -780,10 +806,14 @@ public class MetaContactListSource
 
         if (uiContact != null)
         {
-            ContactNode contactNode = uiContact.getContactNode();
+            synchronized (uiContact)
+            {
+                ContactNode contactNode = uiContact.getContactNode();
 
-            if (contactNode != null)
-                GuiActivator.getContactList().nodeChanged(contactNode);
+                if (contactNode != null)
+                    GuiActivator.getContactList().nodeChanged(contactNode);
+            }
+            
         }
     }
 
@@ -815,7 +845,7 @@ public class MetaContactListSource
         {
             ContactListFilter currentFilter
                 = GuiActivator.getContactList().getCurrentFilter();
-
+            
             if (currentFilter.isMatching(parentUIContact))
             {
                 MetaContactGroup parentGroup
@@ -835,7 +865,7 @@ public class MetaContactListSource
                                 .createUIGroup(parentGroup);
                     }
                 }
-
+                
                 GuiActivator.getContactList()
                     .addContact(parentUIContact, uiGroup, true, true);
             }
@@ -858,9 +888,11 @@ public class MetaContactListSource
         synchronized (metaContact)
         {
             uiContact = MetaContactListSource.getUIContact(metaContact);
+            if (uiContact == null)
+                return;
         }
 
-        if (uiContact != null)
+        synchronized (uiContact)
         {
             ContactNode contactNode = uiContact.getContactNode();
 
@@ -956,9 +988,11 @@ public class MetaContactListSource
         synchronized (oldParent)
         {
             oldUIContact = MetaContactListSource.getUIContact(oldParent);
+            if (oldUIContact == null)
+                return;
         }
 
-        if (oldUIContact != null)
+        synchronized (oldUIContact)
         {
             ContactNode contactNode = oldUIContact.getContactNode();
 
