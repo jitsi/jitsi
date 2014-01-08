@@ -2817,7 +2817,10 @@ org.jitsi.bccontrib.util"/>
         <symlink resource="/usr/share/java/bcpkix.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/src/libjitsi/lib"/>
-                 
+
+        <symlink resource="/usr/share/java/jna.jar"
+                 link="${debian.src.dir}/lib/src/libjitsi/lib"/>
+
         <ant dir="${debian.src.dir}/lib/src/libjitsi"
              inheritAll="false"
              target="jar">
@@ -3447,7 +3450,7 @@ org.jitsi.bccontrib.util"/>
     </target>
 
     <!-- target to rebuild the util bundle reusing debian package -->
-    <target name="deb-bundle-util">
+    <target name="deb-bundle-util" depends="version,load-properties">
         <!-- Create a properties file that the arg handler could use
         to determine SC's version -->
         <echo
