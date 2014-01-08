@@ -111,7 +111,7 @@ public class IrcStack
      * @throws Exception
      */
     public void connect(String host, int port, String password,
-        boolean autoNickChange) throws Exception
+        boolean secureConnection, boolean autoNickChange) throws Exception
     {
         if (this.irc != null && this.connectionState != null
             && this.connectionState.isConnected())
@@ -124,7 +124,7 @@ public class IrcStack
         final Exception[] exceptionContainer = new Exception[1];
 
         this.irc = new IRCApiImpl(true);
-        this.params.setServer(new IRCServer(host, port, password, false));
+        this.params.setServer(new IRCServer(host, port, password, secureConnection));
         synchronized (this.irc)
         {
             // register a server listener in order to catch server and cross-/multi-channel messages

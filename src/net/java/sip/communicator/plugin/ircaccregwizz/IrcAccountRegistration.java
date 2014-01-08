@@ -21,6 +21,7 @@ public class IrcAccountRegistration
     private boolean rememberPassword;
     private boolean autoChangeNick;
     private boolean isRequiredPassword;
+    private boolean secureConnection;
 
     /**
      * Returns the User ID of the IRC registration account.
@@ -167,5 +168,27 @@ public class IrcAccountRegistration
     public void setRememberPassword(boolean rememberPassword)
     {
         this.rememberPassword = rememberPassword;
+    }
+    
+    /**
+     * Indicates if the the connection must be secure or not.
+     * 
+     * @return returns <code>true</code> to indicate that the connection should
+     *         be secure, or false for unsecured connection.
+     */
+    public boolean isSecureConnection()
+    {
+        return this.secureConnection;
+    }
+    
+    /**
+     * Set the <tt>useSecureConnection</tt> property.
+     * 
+     * @param secureConnection true to require secure connection, or false
+     *            for unsecured connections
+     */
+    public void setSecureConnection(boolean secureConnection)
+    {
+        this.secureConnection = secureConnection;
     }
 }

@@ -170,7 +170,7 @@ public class ProtocolProviderServiceIrcImpl
             = accountID
                 .getAccountPropertyInt(
                     ProtocolProviderFactory.SERVER_PORT,
-                    6667);
+                    6697);
         //Verify whether a password has already been stored for this account
         String serverPassword = IrcActivator.
             getProtocolProviderFactory().loadPassword(getAccountID());
@@ -180,6 +180,9 @@ public class ProtocolProviderServiceIrcImpl
         boolean passwordRequired =
             accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactory.NO_PASSWORD_REQUIRED, true);
+        boolean secureConnection =
+            accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.DEFAULT_ENCRYPTION, true);
 
         //if we don't - retrieve it from the user through the security authority
         if (serverPassword == null && passwordRequired)
@@ -195,8 +198,12 @@ public class ProtocolProviderServiceIrcImpl
                     credentials,
                     SecurityAuthority.AUTHENTICATION_REQUIRED);
 
-            //extract the password the user passed us.
-            char[] pass = credentials.getPassword();
+            char[] pass = null;
+            if (credentials != null)
+            {
+                // extract the password the user passed us.
+                pass = credentials.getPassword();
+            }
 
             // the user didn't provide us a password (canceled the operation)
             if (pass == null)
@@ -221,7 +228,7 @@ public class ProtocolProviderServiceIrcImpl
         try
         {
             this.ircStack.connect(serverAddress, serverPort, serverPassword,
-                autoNickChange);
+                secureConnection, autoNickChange);
         }
         catch (Exception e)
         {
