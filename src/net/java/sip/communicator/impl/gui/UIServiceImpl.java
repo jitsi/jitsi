@@ -24,6 +24,7 @@ import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
+import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.configforms.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
@@ -1597,5 +1598,13 @@ public class UIServiceImpl
     public Collection<Call> getInProgressCalls()
     {
         return CallManager.getInProgressCalls();
+    }
+    
+    /**
+     * Shows Add chat room dialog.
+     */
+    public void showAddChatRoomDialog()
+    {
+        ChatRoomTableDialog.showChatRoomTableDialog();
     }
 }

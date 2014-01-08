@@ -13,7 +13,7 @@ import java.util.List;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.event.*;
-import net.java.sip.communicator.service.muc.ChatRoomWrapper;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.account.*;
 
@@ -490,4 +490,9 @@ public interface UIService
      * @param chatRoom the chat room associated with the chat room window
      */
     public void closeChatRoomWindow(ChatRoomWrapper chatRoom);
+    
+    /**
+     * Shows Add chat room dialog.
+     */
+    public void showAddChatRoomDialog();
 }

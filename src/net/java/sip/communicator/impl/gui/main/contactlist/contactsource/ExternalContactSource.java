@@ -82,6 +82,13 @@ public class ExternalContactSource
     private int contactSourceIndex;
 
     /**
+     * The list of right menu action items for this group.
+     */
+    private Map
+        <ContactActionMenuItem<ContactSourceService>, JMenuItem> 
+            customGroupActionMenuItems;
+    
+    /**
      * Creates an <tt>ExternalContactSource</tt> based on the given
      * <tt>ContactSourceService</tt>.
      *
@@ -236,6 +243,41 @@ public class ExternalContactSource
     }
 
     /**
+     * Returns all custom action menu items for the contact source.
+     *
+     * @param initActions if <tt>true</tt> the actions will be reloaded.
+     * @return a list of all custom action menu items for the contact source.
+     */
+    public Collection<JMenuItem> getGroupCustomActionMenuItems(
+        boolean initActions)
+    {
+        if (initActions || (customGroupActionMenuItems == null))
+            initCustomGroupActionMenuItems();
+
+        Iterator<ContactActionMenuItem<ContactSourceService>> customActionsIter
+            = customGroupActionMenuItems.keySet().iterator();
+
+        Collection<JMenuItem> availableCustomActionMenuItems
+            = new LinkedList<JMenuItem>();
+
+        while (customActionsIter.hasNext())
+        {
+            ContactActionMenuItem<ContactSourceService> contactAction
+                = customActionsIter.next();
+
+            JMenuItem actionMenuItem =
+                customGroupActionMenuItems.get(contactAction);
+
+            if (isContactActionVisible(contactAction, contactSource))
+            {
+                availableCustomActionMenuItems.add(actionMenuItem);
+            }
+        }
+
+        return availableCustomActionMenuItems;
+    }
+
+    /**
      * Indicates if the given <tt>ContactAction</tt> should be visible for the
      * given <tt>SourceContact</tt>.
      *
@@ -249,6 +291,26 @@ public class ExternalContactSource
                             SourceContact contact)
     {
         if (contactAction.isVisible(contact))
+            return true;
+
+        return false;
+    }
+    
+    /**
+     * Indicates if the given <tt>ContactAction</tt> should be visible for the
+     * given <tt>ContactSourceService</tt>.
+     *
+     * @param contactAction the <tt>ContactAction</tt> to verify
+     * if the given action should be visible
+     * @param contactSource the given <tt>ContactSourceService</tt>
+     * @return <tt>true</tt> if the given <tt>ContactAction</tt> is visible for
+     * the given <tt>ContactSourceService</tt>, <tt>false</tt> - otherwise
+     */
+    private static boolean isContactActionVisible(
+        ContactActionMenuItem<ContactSourceService> contactAction,
+        ContactSourceService contactSource)
+    {
+        if (contactAction.isVisible(contactSource))
             return true;
 
         return false;
@@ -318,6 +380,32 @@ public class ExternalContactSource
                     final ContactActionMenuItem<SourceContact> ca
                         = actionIterator.next();
                     initActionMenuItem(ca);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Initializes custom action menu items for this contact source.
+     */
+    private void initCustomGroupActionMenuItems()
+    {
+        customGroupActionMenuItems
+            = new LinkedHashMap<ContactActionMenuItem
+                <ContactSourceService>, JMenuItem>();
+        for (CustomContactActionsService<ContactSourceService> ccas
+                : getGroupActionsServices())
+        {
+            Iterator<ContactActionMenuItem<ContactSourceService>> actionIterator
+                = ccas.getCustomContactActionsMenuItems();
+
+            if (actionIterator!= null)
+            {
+                while (actionIterator.hasNext())
+                {
+                    final ContactActionMenuItem<ContactSourceService> ca
+                        = actionIterator.next();
+                    initGroupActionMenuItem(ca);
                 }
             }
         }
@@ -502,6 +590,63 @@ public class ExternalContactSource
             customContactActionMenuItems.put(ca, actionMenuItem);
         }
     }
+    
+    /**
+     * Initializes an action menu item.
+     *
+     * @param ca the <tt>ContactActionMenuItem</tt> corresponding to the item.
+     */
+    private void initGroupActionMenuItem(
+            final ContactActionMenuItem<ContactSourceService> ca)
+    {
+        JMenuItem actionMenuItem;
+
+        actionMenuItem = customGroupActionMenuItems.get(ca);
+
+        if (actionMenuItem == null)
+        {
+            if(ca.isCheckBox())
+            {
+                actionMenuItem = new JCheckBoxMenuItem();
+            }
+            else
+            {
+                actionMenuItem = new JMenuItem();
+            }
+
+            actionMenuItem.setText(ca.getText());
+
+            actionMenuItem.setMnemonic(ca.getMnemonics());
+            
+            byte[] icon = ca.getIcon();
+            if(icon != null)
+                actionMenuItem.setIcon(
+                    new ImageIcon(icon));
+            
+            actionMenuItem.setSelected(ca.isSelected(contactSource));
+            actionMenuItem.setEnabled(ca.isEnabled(contactSource));
+
+            actionMenuItem.addActionListener(new ActionListener()
+            {
+                public void actionPerformed(ActionEvent event)
+                {
+                    try
+                    {
+                        ca.actionPerformed(contactSource);
+                    }
+                    catch (OperationFailedException e)
+                    {
+                        new ErrorDialog(null,
+                            GuiActivator.getResources()
+                                .getI18NString("service.gui.ERROR"),
+                            e.getMessage());
+                    }
+                }
+            });
+
+            customGroupActionMenuItems.put(ca, actionMenuItem);
+        }
+    }
 
     /**
      * Returns a list of all custom contact action services.
@@ -531,14 +676,14 @@ public class ExternalContactSource
         {
             for (ServiceReference serRef : serRefs)
             {
-                CustomContactActionsService<SourceContact> customActionService
-                    = (CustomContactActionsService<SourceContact>)
+                CustomContactActionsService<?> customActionService
+                    = (CustomContactActionsService<?>)
                             GuiActivator.bundleContext.getService(serRef);
-
+                
                 if (customActionService.getContactSourceClass()
                         .equals(SourceContact.class))
                 {
-                    contactActionsServices.add(customActionService);
+                    contactActionsServices.add((CustomContactActionsService<SourceContact>)customActionService);
                 }
             }
         }
@@ -549,7 +694,56 @@ public class ExternalContactSource
 
         return contactActionsServices;
     }
+    
+    /**
+     * Returns a list of all custom contact action services.
+     *
+     * @return a list of all custom contact action services.
+     */
+    @SuppressWarnings ("unchecked")
+    private List<CustomContactActionsService<ContactSourceService>>
+        getGroupActionsServices()
+    {
+        List<CustomContactActionsService<ContactSourceService>>
+            contactActionsServices
+                = new ArrayList<CustomContactActionsService<ContactSourceService>>();
 
+        ServiceReference[] serRefs = null;
+        try
+        {
+            // get all registered provider factories
+            serRefs
+                = GuiActivator.bundleContext.getServiceReferences(
+                    CustomContactActionsService.class.getName(), null);
+        }
+        catch (InvalidSyntaxException e)
+        {}
+
+        if (serRefs != null)
+        {
+            for (ServiceReference serRef : serRefs)
+            {
+                CustomContactActionsService<?> customActionService
+                    = (CustomContactActionsService<?>)
+                            GuiActivator.bundleContext.getService(serRef);
+                
+                if (customActionService.getContactSourceClass()
+                        .equals(ContactSourceService.class))
+                {
+                    contactActionsServices.add(
+                        (CustomContactActionsService<ContactSourceService>)
+                            customActionService);
+                }
+            }
+        }
+
+        GuiActivator.bundleContext.addServiceListener(
+            new ContactActionsServiceListener<SourceContact>(
+                    SourceContact.class));
+
+        return contactActionsServices;
+    }
+    
     /**
      * Returns a list of all custom contact action services.
      *
@@ -759,7 +953,9 @@ public class ExternalContactSource
         @Override
         public JPopupMenu getRightButtonMenu()
         {
-            return null;
+            if(getGroupCustomActionMenuItems(false).isEmpty())
+                return null;
+            return new SourceGroupRightButtonMenu();
         }
 
         /**
@@ -794,6 +990,32 @@ public class ExternalContactSource
             }
 
             return availableCustomActionButtons;
+        }
+    }
+
+    /**
+     * Class for the external contact sources right button menu. It shows only 
+     * the defined custom actions.
+     */
+    private class SourceGroupRightButtonMenu extends SIPCommPopupMenu
+    {
+        /**
+         * Serial version UID.
+         */
+        private static final long serialVersionUID = 0L;
+        
+        /**
+         * Creates an instance of <tt>SourceContactRightButtonMenu</tt> by
+         * specifying the <tt>SourceUIContact</tt>, for which this menu is created.
+         * @param sourceUIContact the <tt>SourceUIContact</tt>, for which this menu
+         * is created
+         */
+        public SourceGroupRightButtonMenu()
+        {
+            for(JMenuItem item : getGroupCustomActionMenuItems(true))
+            {
+                add(item);
+            }
         }
     }
 

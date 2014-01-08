@@ -126,6 +126,11 @@ public class MUCActivator
             CustomContactActionsService.class.getName(), 
             mucCustomActionService, 
             null);
+        bundleContext.registerService(
+            CustomContactActionsService.class.getName(), 
+            new MUCGroupCustomContactActionService(), 
+            null);
+        
     }
 
     public void stop(BundleContext context) throws Exception
