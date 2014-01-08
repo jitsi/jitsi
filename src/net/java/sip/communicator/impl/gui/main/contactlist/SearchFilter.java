@@ -111,16 +111,6 @@ public class SearchFilter
             // First add the MetaContactListSource
             filterQuery.addContactQuery(defaultQuery);
             
-//            try
-//            {
-//                Thread.sleep(4000);
-//            }
-//            catch (InterruptedException e)
-//            {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            }
-            
             mclSource.startQuery(defaultQuery, filterPattern);
         }
         else if (sourceContactList.getDefaultFilter()
