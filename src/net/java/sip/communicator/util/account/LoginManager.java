@@ -125,24 +125,7 @@ public class LoginManager
                 (ProtocolProviderService) UtilActivator.bundleContext
                     .getService(serRef);
 
-            if(!loginRenderer.containsProtocolProviderUI(protocolProvider))
-            {
-                protocolProvider.addRegistrationStateChangeListener(this);
-                loginRenderer.addProtocolProviderUI(protocolProvider);
-            }
-
-            Object status =
-                AccountStatusUtils
-                    .getProtocolProviderLastStatus(protocolProvider);
-
-            if (status == null
-                || status.equals(GlobalStatusEnum.ONLINE_STATUS)
-                || ((status instanceof PresenceStatus)
-                    && (((PresenceStatus) status)
-                    .getStatus() >= PresenceStatus.ONLINE_THRESHOLD)))
-            {
-                login(protocolProvider);
-            }
+            handleProviderAdded(protocolProvider);
         }
     }
 
@@ -354,8 +337,20 @@ public class LoginManager
             logger.trace("The following protocol provider was just added: "
             + protocolProvider.getAccountID().getAccountAddress());
 
-        protocolProvider.addRegistrationStateChangeListener(this);
-        loginRenderer.addProtocolProviderUI(protocolProvider);
+        synchronized(loginRenderer)
+        {
+            if(!loginRenderer.containsProtocolProviderUI(protocolProvider))
+            {
+                protocolProvider.addRegistrationStateChangeListener(this);
+                loginRenderer.addProtocolProviderUI(protocolProvider);
+            }
+            // we have already added this provider and scheduled
+            // a login if needed
+            // we've done our work, if it fails or something else
+            // reconnect or other plugins will take care
+            else
+                return;
+        }
 
         Object status = AccountStatusUtils
             .getProtocolProviderLastStatus(protocolProvider);
