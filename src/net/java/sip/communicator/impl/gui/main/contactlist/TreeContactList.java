@@ -1013,16 +1013,20 @@ public class TreeContactList
             return null;
 
         GroupNode groupNode;
-        synchronized (group)
+        
+        if (group == null)
+            groupNode = treeModel.getRoot();
+        else
         {
-            if (group == null)
-                groupNode = treeModel.getRoot();
-            else
+            synchronized (group)
+            {
                 groupNode = ((UIGroupImpl) group).getGroupNode();
-
-            if (groupNode == null)
-                return null;
+            }
+            
         }
+
+        if (groupNode == null)
+            return null;
        
         Collection<ContactNode> contactNodes = groupNode.getContacts();
 
