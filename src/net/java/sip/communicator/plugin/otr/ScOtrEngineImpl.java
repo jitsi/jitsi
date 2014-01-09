@@ -71,17 +71,18 @@ public class ScOtrEngineImpl
             // OtrEngineHost.getFallbackMessage() which is currently the only
             // host method that uses HTML so we can simply check if the injected
             // message contains the string that getFallbackMessage() returns.
-            String otrHtmlFallbackMessage =
-                "<a href=\"http://en.wikipedia.org/wiki/Off-the-Record_Messaging\">";
-            String contentType =
-                messageText.contains(otrHtmlFallbackMessage)
-                    ? imOpSet.HTML_MIME_TYPE : imOpSet.DEFAULT_MIME_TYPE;
-
-            Message message =
-                imOpSet.createMessage(  messageText,
-                                        contentType,
-                                        imOpSet.DEFAULT_MIME_ENCODING,
-                                        null);
+            String otrHtmlFallbackMessage
+                = "<a href=\"http://en.wikipedia.org/wiki/Off-the-Record_Messaging\">";
+            String contentType
+                = messageText.contains(otrHtmlFallbackMessage)
+                    ? OperationSetBasicInstantMessaging.HTML_MIME_TYPE
+                    : OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE;
+            Message message
+                = imOpSet.createMessage(
+                        messageText,
+                        contentType,
+                        OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
+                        null);
 
             injectedMessageUIDs.add(message.getMessageUID());
             imOpSet.sendInstantMessage(contact, message);
