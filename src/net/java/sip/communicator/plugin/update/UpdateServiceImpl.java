@@ -921,18 +921,13 @@ public class UpdateServiceImpl
             if(ver.isNightly())
                 deltaTarget = ver.getNightlyBuildID();
             else
-                deltaTarget = String.valueOf(ver.toString());
+                deltaTarget = ver.toString();
 
             String deltaLink
                 = downloadLink.replace(
                         latestVersion,
                         latestVersion + "-delta-" + deltaTarget);
 
-            /*
-             * TODO Download the delta update regardless of the logging level
-             * once the generation of delta updates is implemented and the whole
-             * functionality performs satisfactory.
-             */
             if (!deltaLink.equalsIgnoreCase(downloadLink))
                 delta = download(deltaLink);
 
