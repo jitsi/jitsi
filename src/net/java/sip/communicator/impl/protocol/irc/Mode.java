@@ -9,6 +9,7 @@ import net.java.sip.communicator.service.protocol.ChatRoomMemberRole;
  */
 public enum Mode
 {
+    UNKNOWN('?', null),
     OWNER('O', ChatRoomMemberRole.OWNER),
     OPERATOR('o', ChatRoomMemberRole.ADMINISTRATOR),
     VOICE('v', ChatRoomMemberRole.MEMBER),

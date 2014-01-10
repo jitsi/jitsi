@@ -65,16 +65,8 @@ public class ModeParser
                 adding = false;
                 break;
             default:
-                try
-                {
-                    ModeEntry entry = process(adding, c);
-                    modes.add(entry);
-                }
-                catch (IllegalArgumentException e)
-                {
-                    System.out.println("Unknown mode encountered: '" + c
-                        + "' (mode string '" + modestring + "')");
-                }
+                ModeEntry entry = process(adding, c);
+                modes.add(entry);
                 break;
             }
         }
@@ -93,20 +85,17 @@ public class ModeParser
         switch (mode)
         {
         case 'O':
-            return new ModeEntry(add, Mode.bySymbol(mode),
-                this.params[this.index++]);
+            return new ModeEntry(add, Mode.OWNER, this.params[this.index++]);
         case 'o':
-            return new ModeEntry(add, Mode.bySymbol(mode),
-                this.params[this.index++]);
+            return new ModeEntry(add, Mode.OPERATOR, this.params[this.index++]);
         case 'v':
-            return new ModeEntry(add, Mode.bySymbol(mode),
-                this.params[this.index++]);
+            return new ModeEntry(add, Mode.VOICE, this.params[this.index++]);
         case 'l':
             String[] params = (add ? new String[]
             { this.params[this.index++] } : new String[] {});
-            return new ModeEntry(add, Mode.bySymbol(mode), params);
+            return new ModeEntry(add, Mode.LIMIT, params);
         default:
-            throw new IllegalArgumentException("" + mode);
+            return new ModeEntry(add, Mode.UNKNOWN, ""+mode);
         }
     }
 

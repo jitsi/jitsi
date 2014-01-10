@@ -15,6 +15,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import com.ircclouds.irc.api.*;
 import com.ircclouds.irc.api.domain.*;
 import com.ircclouds.irc.api.domain.messages.*;
+import com.ircclouds.irc.api.domain.messages.interfaces.*;
 import com.ircclouds.irc.api.listeners.*;
 import com.ircclouds.irc.api.state.*;
 
@@ -870,11 +871,8 @@ public class IrcStack
         {
             // TODO Handle or ignore ban channel mode (MODE STRING: +b
             // *!*@some-ip.dynamicIP.provider.net)
-            // TODO msg.getSource() can also be an IRCServer instance.
-            String sourceNick = ((IRCUser) msg.getSource()).getNick();
-            ChatRoomMemberIrcImpl sourceMember =
-                (ChatRoomMemberIrcImpl) this.chatroom
-                    .getChatRoomMember(sourceNick);
+            ChatRoomMemberIrcImpl sourceMember = extractChatRoomMember(msg);
+                
             ModeParser parser = new ModeParser(msg);
             for (ModeEntry mode : parser.getModes())
             {
@@ -1032,6 +1030,11 @@ public class IrcStack
                         sourceMember, new Date(),
                         ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
                     break;
+                case UNKNOWN:
+                    System.out.println("Unknown mode: "
+                        + (mode.isAdded() ? "+" : "-") + mode.getParams()[0]
+                        + ". Original mode string: '" + msg.getModeStr() + "'");
+                    break;
                 default:
                     System.out.println("Unsupported mode '"
                         + (mode.isAdded() ? "+" : "-") + mode.getMode()
@@ -1039,6 +1042,36 @@ public class IrcStack
                     break;
                 }
             }
+        }
+
+        private ChatRoomMemberIrcImpl extractChatRoomMember(
+            ChannelModeMessage msg)
+        {
+            ChatRoomMemberIrcImpl member;
+            ISource source = msg.getSource();
+            if (source instanceof IRCServer)
+            {
+                // TODO Created chat room member with creepy empty contact ID.
+                // Interacting with this contact might screw up other sections
+                // of code which is not good. Is there a better way to represent
+                // an IRC server as a chat room member?
+                member =
+                    new ChatRoomMemberIrcImpl(IrcStack.this.provider,
+                        this.chatroom, "", ChatRoomMemberRole.ADMINISTRATOR);
+            }
+            else if (source instanceof IRCUser)
+            {
+                String nick = ((IRCUser) source).getNick();
+                member =
+                    (ChatRoomMemberIrcImpl) this.chatroom
+                        .getChatRoomMember(nick);
+            }
+            else
+            {
+                throw new IllegalArgumentException("Unknown source type: "
+                    + source.getClass().getName());
+            }
+            return member;
         }
 
         private boolean isThisChatRoom(String chatRoomName)
