@@ -755,7 +755,12 @@ public class AccountDetailsPanel
             }
             else
             {
-                field.setText((String) detail.getDetailValue());
+                Object obj = detail.getDetailValue();
+                if(obj instanceof String)
+                    field.setText((String) obj);
+                else if(obj != null)
+                    field.setText(obj.toString());
+
                 if (detail.getClass().equals(DisplayNameDetail.class))
                     displayNameDetail = (DisplayNameDetail) detail;
                 else if (detail.getClass().equals(FirstNameDetail.class))
