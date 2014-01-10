@@ -365,6 +365,8 @@ public class MainToolBar
             
             setCallButtonsName();
             setCallButtonsIcons();
+
+            currentChatTransportChanged(chatSession);
         }
     }
 
@@ -435,7 +437,7 @@ public class MainToolBar
             Contact contact = (Contact) currentDescriptor;
 
             for (PluginComponent c : pluginContainer.getPluginComponents())
-                c.setCurrentContact(contact);
+                c.setCurrentContact(contact, currentTransport.getResourceName());
         }
     }
 

@@ -16,6 +16,7 @@ import javax.imageio.*;
 import net.java.otr4j.*;
 import net.java.otr4j.session.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.otr.OtrContactManager.OtrContact;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
@@ -40,7 +41,7 @@ public class OtrMetaContactButton
 
     private SIPCommButton button;
 
-    private Contact contact;
+    private OtrContact otrContact;
 
     private AnimatedImage animatedPadlockImage;
 
@@ -58,21 +59,20 @@ public class OtrMetaContactButton
      * The timer task that changes the padlock icon to "loading" and
      * then to "broken" if the specified timeout passed
      */
-    public void sessionStatusChanged(Contact contact)
+    public void sessionStatusChanged(OtrContact otrContact)
     {
         // OtrMetaContactButton.this.contact can be null.
-        if (contact.equals(OtrMetaContactButton.this.contact))
+        if (otrContact.equals(OtrMetaContactButton.this.otrContact))
         {
-
             setStatus(
-                OtrActivator.scOtrEngine.getSessionStatus(contact));
+                OtrActivator.scOtrEngine.getSessionStatus(otrContact));
         }
     }
 
     public void contactPolicyChanged(Contact contact)
     {
         // OtrMetaContactButton.this.contact can be null.
-        if (contact.equals(OtrMetaContactButton.this.contact))
+        if (contact.equals(OtrMetaContactButton.this.otrContact.contact))
         {
             setPolicy(
                 OtrActivator.scOtrEngine.getContactPolicy(contact));
@@ -81,18 +81,18 @@ public class OtrMetaContactButton
 
     public void globalPolicyChanged()
     {
-        if (OtrMetaContactButton.this.contact != null)
+        if (OtrMetaContactButton.this.otrContact != null)
             setPolicy(
-                OtrActivator.scOtrEngine.getContactPolicy(contact));
+                OtrActivator.scOtrEngine.getContactPolicy(otrContact.contact));
     }
 
-    public void contactVerificationStatusChanged(Contact contact)
+    public void contactVerificationStatusChanged(OtrContact otrContact)
     {
         // OtrMetaContactButton.this.contact can be null.
-        if (contact.equals(OtrMetaContactButton.this.contact))
+        if (otrContact.equals(OtrMetaContactButton.this.otrContact))
         {
             setStatus(
-                OtrActivator.scOtrEngine.getSessionStatus(contact));
+                OtrActivator.scOtrEngine.getSessionStatus(otrContact));
         }
     }
 
@@ -173,23 +173,23 @@ public class OtrMetaContactButton
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    if (contact == null)
+                    if (otrContact == null)
                         return;
 
-                    switch (OtrActivator.scOtrEngine.getSessionStatus(contact))
+                    switch (OtrActivator.scOtrEngine.getSessionStatus(otrContact))
                     {
                     case ENCRYPTED:
                     case FINISHED:
                     case LOADING:
                         // Default action for finished, encrypted and loading
                         // sessions is end session.
-                        OtrActivator.scOtrEngine.endSession(contact);
+                        OtrActivator.scOtrEngine.endSession(otrContact);
                         break;
                     case TIMED_OUT:
                     case PLAINTEXT:
                         // Default action for timed_out and plaintext sessions
                         // is start session.
-                        OtrActivator.scOtrEngine.startSession(contact);
+                        OtrActivator.scOtrEngine.startSession(otrContact);
                         break;
                     }
                 }
@@ -222,20 +222,49 @@ public class OtrMetaContactButton
     @Override
     public void setCurrentContact(Contact contact)
     {
-        if (this.contact == contact)
-            return;
+        setCurrentContact(contact, null);
+    }
 
-        this.contact = contact;
-        if (contact != null)
+    public void setCurrentContact(Contact contact, String resourceName)
+    {
+        if (contact == null)
         {
-            this.setStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
-            this.setPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
-        }
-        else
-        {
-            this.setStatus(ScSessionStatus.PLAINTEXT);
+            this.otrContact = null;
             this.setPolicy(null);
+            this.setStatus(ScSessionStatus.PLAINTEXT);
+            return;
         }
+
+        if (resourceName == null)
+        {
+            OtrContact otrContact =
+                OtrContactManager.getOtrContact(contact, null);
+            if (this.otrContact == otrContact)
+                return;
+            this.otrContact = otrContact;
+            this.setStatus(
+                OtrActivator.scOtrEngine.getSessionStatus(otrContact));
+            this.setPolicy(
+                OtrActivator.scOtrEngine.getContactPolicy(contact));
+            return;
+        }
+        for (ContactResource resource : contact.getResources())
+        {
+            if (resource.getResourceName().equals(resourceName))
+            {
+                OtrContact otrContact =
+                    OtrContactManager.getOtrContact(contact, resource);
+                if (this.otrContact == otrContact)
+                    return;
+                this.otrContact = otrContact;
+                this.setStatus(
+                    OtrActivator.scOtrEngine.getSessionStatus(otrContact));
+                this.setPolicy(
+                    OtrActivator.scOtrEngine.getContactPolicy(contact));
+                return;
+            }
+        }
+        logger.debug("Could not find resource for contact " + contact);
     }
 
     /*
@@ -274,16 +303,18 @@ public class OtrMetaContactButton
         {
         case ENCRYPTED:
             PublicKey pubKey =
-                OtrActivator.scOtrEngine.getRemotePublicKey(contact);
+                OtrActivator.scOtrEngine.getRemotePublicKey(otrContact);
             String fingerprint =
                 OtrActivator.scOtrKeyManager.
                     getFingerprintFromPublicKey(pubKey);
             image
-                = OtrActivator.scOtrKeyManager.isVerified(contact, fingerprint)
+                = OtrActivator.scOtrKeyManager.isVerified(
+                        otrContact.contact, fingerprint)
                     ? verifiedLockedPadlockImage
                     : unverifiedLockedPadlockImage;
             tipKey = 
-                OtrActivator.scOtrKeyManager.isVerified(contact, fingerprint)
+                OtrActivator.scOtrKeyManager.isVerified(
+                        otrContact.contact, fingerprint)
                 ? "plugin.otr.menu.VERIFIED"
                 : "plugin.otr.menu.UNVERIFIED";
             break;
@@ -316,17 +347,17 @@ public class OtrMetaContactButton
     }
 
     @Override
-    public void multipleInstancesDetected(Contact contact)
+    public void multipleInstancesDetected(OtrContact contact)
     {}
 
     @Override
-    public void outgoingSessionChanged(Contact contact)
+    public void outgoingSessionChanged(OtrContact otrContact)
     {
         // OtrMetaContactButton.this.contact can be null.
-        if (contact.equals(OtrMetaContactButton.this.contact))
+        if (otrContact.equals(OtrMetaContactButton.this.otrContact))
         {
             setStatus(
-                OtrActivator.scOtrEngine.getSessionStatus(contact));
+                OtrActivator.scOtrEngine.getSessionStatus(otrContact));
         }
     }
 }

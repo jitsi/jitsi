@@ -6,11 +6,11 @@
  */
 package net.java.sip.communicator.plugin.otr;
 
-import net.java.sip.communicator.plugin.otr.authdialog.*;
-import net.java.sip.communicator.service.protocol.*;
-
 import java.awt.*;
 import java.util.*;
+
+import net.java.sip.communicator.plugin.otr.OtrContactManager.OtrContact;
+import net.java.sip.communicator.plugin.otr.authdialog.*;
 
 /**
  * Default OtrActionHandler implementation that opens SWING buddy authenticate
@@ -24,13 +24,13 @@ public class SwingOtrActionHandler
 {
     public void onAuthenticateLinkClicked(UUID uuid)
     {
-        Contact contact = ScOtrEngineImpl.getContact(
+        OtrContact otrContact = ScOtrEngineImpl.getOtrContact(
                     ScOtrEngineImpl.getScSessionForGuid(uuid).getSessionID());
 
-        openAuthDialog(contact);
+        openAuthDialog(otrContact);
     }
 
-    public static void openAuthDialog(Contact contact)
+    public static void openAuthDialog(OtrContact contact)
     {
         // Launch auth buddy dialog.
         OtrBuddyAuthenticationDialog authenticateBuddyDialog

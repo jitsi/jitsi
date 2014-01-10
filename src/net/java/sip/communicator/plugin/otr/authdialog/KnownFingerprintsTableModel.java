@@ -13,6 +13,7 @@ import java.util.List;
 import javax.swing.table.*;
 
 import net.java.sip.communicator.plugin.otr.*;
+import net.java.sip.communicator.plugin.otr.OtrContactManager.OtrContact;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -218,8 +219,9 @@ public class KnownFingerprintsTableModel
     }
 
     @Override
-    public void contactVerificationStatusChanged(Contact contact)
+    public void contactVerificationStatusChanged(OtrContact otrContact)
     {
+        Contact contact = otrContact.contact;
         allContactsFingerprints.put(
             contact,
             OtrActivator.scOtrKeyManager.getAllRemoteFingerprints(contact));

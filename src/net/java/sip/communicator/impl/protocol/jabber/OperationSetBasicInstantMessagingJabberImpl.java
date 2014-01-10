@@ -20,7 +20,7 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
-import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.packet.*;
 
@@ -456,7 +456,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                             + " chat.tid=" + chat.getThreadID());
 
             MessageDeliveredEvent msgDeliveryPendingEvt
-                = new MessageDeliveredEvent(message, to);
+                = new MessageDeliveredEvent(message, to, toResource);
 
             msgDeliveryPendingEvt
                 = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
@@ -496,7 +496,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
             chat.sendMessage(msg);
 
             MessageDeliveredEvent msgDeliveredEvt
-                = new MessageDeliveredEvent(message, to);
+                = new MessageDeliveredEvent(message, to, toResource);
 
             // msgDeliveredEvt = messageDeliveredTransform(msgDeliveredEvt);
 

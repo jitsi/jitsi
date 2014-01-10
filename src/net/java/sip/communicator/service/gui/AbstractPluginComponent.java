@@ -93,6 +93,14 @@ public abstract class AbstractPluginComponent
     }
 
     /*
+     * Implements PluginComponent#setCurrentContact(Contact).
+     */
+    public void setCurrentContact(Contact contact, String resourceName)
+    {
+        setCurrentContact(contact);
+    }
+
+    /*
      * Implements PluginComponent#setCurrentContact(MetaContact).
      */
     public void setCurrentContact(MetaContact metaContact)

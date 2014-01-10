@@ -14,6 +14,7 @@ import javax.swing.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.otr.*;
+import net.java.sip.communicator.plugin.otr.OtrContactManager.OtrContact;
 import net.java.sip.communicator.plugin.otr.authdialog.FingerprintAuthenticationPanel.ActionComboBoxItem;
 import net.java.sip.communicator.service.protocol.*;
 
@@ -25,7 +26,7 @@ import net.java.sip.communicator.service.protocol.*;
 public class OtrBuddyAuthenticationDialog
     extends SIPCommDialog
 {
-    private final Contact contact;
+    private final OtrContact contact;
 
     /**
      * The {@link OtrBuddyAuthenticationDialog} ctor.
@@ -33,7 +34,7 @@ public class OtrBuddyAuthenticationDialog
      * @param contact The {@link Contact} this
      *            {@link OtrBuddyAuthenticationDialog} refers to.
      */
-    public OtrBuddyAuthenticationDialog(Contact contact)
+    public OtrBuddyAuthenticationDialog(OtrContact contact)
     {
         super(false);
         this.contact = contact;

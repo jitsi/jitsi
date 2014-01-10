@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.otr;
 
 import net.java.otr4j.*;
+import net.java.sip.communicator.plugin.otr.OtrContactManager.OtrContact;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -24,10 +25,12 @@ public class OtrTransformLayer
     public MessageDeliveredEvent messageDelivered(MessageDeliveredEvent evt)
     {
         Contact contact = evt.getDestinationContact();
+        OtrContact otrContact =
+            OtrContactManager.getOtrContact(contact, evt.getContactResource());
 
         OtrPolicy policy = OtrActivator.scOtrEngine.getContactPolicy(contact);
         ScSessionStatus sessionStatus =
-            OtrActivator.scOtrEngine.getSessionStatus(contact);
+            OtrActivator.scOtrEngine.getSessionStatus(otrContact);
         // If OTR is disabled and we are not over an encrypted session, don't
         // process anything.
         if (!policy.getEnableManual()
@@ -61,10 +64,12 @@ public class OtrTransformLayer
         MessageDeliveredEvent evt)
     {
         Contact contact = evt.getDestinationContact();
+        OtrContact otrContact =
+            OtrContactManager.getOtrContact(contact, evt.getContactResource());
 
         OtrPolicy policy = OtrActivator.scOtrEngine.getContactPolicy(contact);
         ScSessionStatus sessionStatus =
-            OtrActivator.scOtrEngine.getSessionStatus(contact);
+            OtrActivator.scOtrEngine.getSessionStatus(otrContact);
         // If OTR is disabled and we are not over an encrypted session, don't
         // process anything.
         if (!policy.getEnableManual()
@@ -80,7 +85,7 @@ public class OtrTransformLayer
         // Process the outgoing message.
         String msgContent = evt.getSourceMessage().getContent();
         String processedMessageContent =
-            OtrActivator.scOtrEngine.transformSending(contact, msgContent);
+            OtrActivator.scOtrEngine.transformSending(otrContact, msgContent);
 
         if (processedMessageContent == null
             || processedMessageContent.length() < 1)
@@ -114,10 +119,12 @@ public class OtrTransformLayer
     public MessageReceivedEvent messageReceived(MessageReceivedEvent evt)
     {
         Contact contact = evt.getSourceContact();
+        OtrContact otrContact =
+            OtrContactManager.getOtrContact(contact, evt.getContactResource());
 
         OtrPolicy policy = OtrActivator.scOtrEngine.getContactPolicy(contact);
         ScSessionStatus sessionStatus =
-            OtrActivator.scOtrEngine.getSessionStatus(contact);
+            OtrActivator.scOtrEngine.getSessionStatus(otrContact);
         // If OTR is disabled and we are not over an encrypted session, don't
         // process anything.
         if (!policy.getEnableManual()
@@ -129,7 +136,7 @@ public class OtrTransformLayer
         String msgContent = evt.getSourceMessage().getContent();
 
         String processedMessageContent =
-            OtrActivator.scOtrEngine.transformReceiving(contact, msgContent);
+            OtrActivator.scOtrEngine.transformReceiving(otrContact, msgContent);
 
         if (processedMessageContent == null
             || processedMessageContent.length() < 1)

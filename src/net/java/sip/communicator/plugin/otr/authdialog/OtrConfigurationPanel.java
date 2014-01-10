@@ -14,10 +14,9 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import net.java.otr4j.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.otr.*;
-import net.java.sip.communicator.plugin.otr.authdialog.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * A special {@link Panel} that manages the OTR configuration.

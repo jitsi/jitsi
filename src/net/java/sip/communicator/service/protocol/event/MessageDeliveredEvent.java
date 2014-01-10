@@ -30,6 +30,11 @@ public class MessageDeliveredEvent
     private Contact to = null;
 
     /**
+     * The <tt>ContactResource</tt>, to which the message was sent.
+     */
+    private ContactResource toResource = null;
+
+    /**
      * A timestamp indicating the exact date when the event occurred.
      */
     private final Date timestamp;
@@ -86,6 +91,42 @@ public class MessageDeliveredEvent
 
          this.to = to;
          this.timestamp = timestamp;
+     }
+
+     /**
+      * Creates a <tt>MessageDeliveredEvent</tt> representing delivery of the
+      * <tt>source</tt> message to the specified <tt>to</tt> contact.
+      *
+      * @param source the <tt>Message</tt> whose delivery this event represents.
+      * @param to the <tt>Contact</tt> that this message was sent to.
+      * @param timestamp a date indicating the exact moment when the event
+      * ocurred
+      */
+     public MessageDeliveredEvent(
+         Message source, Contact to, ContactResource toResource, Date timestamp)
+     {
+         super(source);
+
+         this.to = to;
+         this.toResource = toResource;
+         this.timestamp = timestamp;
+     }
+
+     /**
+      * Creates a <tt>MessageDeliveredEvent</tt> representing delivery of the
+      * <tt>source</tt> message to the specified <tt>to</tt> contact.
+      *
+      * @param source the <tt>Message</tt> whose delivery this event represents.
+      * @param to the <tt>Contact</tt> that this message was sent to.
+      * @param timestamp a date indicating the exact moment when the event
+      * ocurred
+      */
+     public MessageDeliveredEvent(
+         Message source, Contact to, ContactResource toResource)
+     {
+         this(source, to, new Date());
+
+         this.toResource = toResource;
      }
 
      /**
@@ -157,5 +198,17 @@ public class MessageDeliveredEvent
     public boolean isSmsMessage()
     {
         return smsMessage;
+    }
+
+    /**
+     * Returns a reference to the <tt>ContactResource</tt> that has sent the
+     * <tt>Message</tt> whose reception this event represents.
+     *
+     * @return a reference to the <tt>ContactResource</tt> that has sent the
+     * <tt>Message</tt> whose reception this event represents.
+     */
+    public ContactResource getContactResource()
+    {
+        return toResource;
     }
 }

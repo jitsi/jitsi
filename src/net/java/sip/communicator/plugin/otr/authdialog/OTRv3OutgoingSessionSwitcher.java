@@ -1,3 +1,9 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.plugin.otr.authdialog;
 
 import java.awt.*;
@@ -13,13 +19,21 @@ import javax.swing.Timer;
 import net.java.otr4j.session.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.otr.*;
+import net.java.sip.communicator.plugin.otr.OtrContactManager.OtrContact;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
-public class OtrV3OutgoingSessionSwitcher
+/**
+ * A special {@link JMenuBar} that controls the switching of OTRv3 outgoing
+ * sessions in case the remote party is logged in multiple times.
+ * 
+ * @author Marin Dzhigarov
+ *
+ */
+public class OTRv3OutgoingSessionSwitcher
     extends SIPCommMenuBar
     implements PluginComponent,
                ActionListener,
@@ -28,7 +42,9 @@ public class OtrV3OutgoingSessionSwitcher
 {
 
     private static final Logger logger
-        = Logger.getLogger(OtrV3OutgoingSessionSwitcher.class);
+        = Logger.getLogger(OTRv3OutgoingSessionSwitcher.class);
+
+    private final PluginComponentFactory parentFactory;
 
     private static final long serialVersionUID = 0L;
 
@@ -36,10 +52,20 @@ public class OtrV3OutgoingSessionSwitcher
 
     private ButtonGroup buttonGroup = new ButtonGroup();
 
-    Contact contact;
+    private OtrContact contact;
 
+    /**
+     * A map used for storing each <tt>Session</tt>s corresponding <tt>JMenuItem
+     * </tt>.
+     */
     private final Map<Session, JMenuItem> outgoingSessions
         = new HashMap<Session, JMenuItem>();
+
+    /**
+     * An animated {@link JMenu} 
+     * @author Marin Dzhigarov
+     *
+     */
     private static class SelectorMenu
         extends SIPCommMenu
     {
@@ -74,9 +100,10 @@ public class OtrV3OutgoingSessionSwitcher
                         fadeCycles++;
                     }
                     alpha = newAlpha;
-                    if (fadeCycles == 3)
+                    if (fadeCycles >= 3)
                     {
                         alphaChanger.stop();
+                        fadeCycles = 0;
                         alpha = 1f;
                     }
                     SelectorMenu.this.repaint();
@@ -95,18 +122,22 @@ public class OtrV3OutgoingSessionSwitcher
             super.paintComponent(g2d);
         }
 
+        /**
+         * Creates a fade in and out effect for this {@link JMenu}
+         */
         public void fadeAnimation()
         {
             alphaChanger.stop();
             alpha = 0.85f;
-            repaint();
+            SelectorMenu.this.repaint();
             alphaChanger.start();
         }
     };
 
-    private final PluginComponentFactory parentFactory;
-
-    public OtrV3OutgoingSessionSwitcher(Container container,
+    /**
+     * The OTRv3OutgoingSessionSwitcher constructor
+     */
+    public OTRv3OutgoingSessionSwitcher(Container container,
         PluginComponentFactory parentFactory)
     {
         this.parentFactory = parentFactory;
@@ -140,21 +171,21 @@ public class OtrV3OutgoingSessionSwitcher
          * obsolete and OtrWeakListener will remove it as a listener of
          * scOtrEngine and scOtrKeyManager.
          */
-        new OtrWeakListener<OtrV3OutgoingSessionSwitcher>(
+        new OtrWeakListener<OTRv3OutgoingSessionSwitcher>(
             this,
             OtrActivator.scOtrEngine, OtrActivator.scOtrKeyManager);
-        
+
         try
         {
             finishedPadlockImage = new ImageIcon(ImageIO.read(
                     OtrActivator.resourceService.getImageURL(
-                        "plugin.otr.FINISHED_ICON_16x16")));
+                        "plugin.otr.FINISHED_ICON_BLACK_16x16")));
             verifiedLockedPadlockImage = new ImageIcon(ImageIO.read(
                     OtrActivator.resourceService.getImageURL(
-                        "plugin.otr.ENCRYPTED_ICON_16x16")));
+                        "plugin.otr.ENCRYPTED_ICON_BLACK_16x16")));
             unverifiedLockedPadlockImage = new ImageIcon(ImageIO.read(
                     OtrActivator.resourceService.getImageURL(
-                        "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_16x16")));
+                        "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_BLACK_16x16")));
             unlockedPadlockImage = new ImageIcon(ImageIO.read(
                     OtrActivator.resourceService.getImageURL(
                         "plugin.otr.PLAINTEXT_ICON_16x16")));
@@ -170,22 +201,73 @@ public class OtrV3OutgoingSessionSwitcher
         return -1;
     }
 
-    @Override
+    /**
+     * Sets the current contact. Meant to be used by plugin components that
+     * are interested of the current contact. The current contact is the contact
+     * for the currently selected chat transport.
+     *
+     * @param contact the current contact
+     */
     public void setCurrentContact(Contact contact)
     {
-        if (this.contact == contact)
+        if (this.contact != null && this.contact.contact == contact)
             return;
 
-        this.contact = contact;
-        System.out.println("ot tuk1");
-        buildMenu(contact);
+        this.contact =
+            OtrContactManager.getOtrContact(contact, null);
+        buildMenu(this.contact);
     }
 
-    @Override
+    /**
+     * Sets the current meta contact. Meant to be used by plugin components that
+     * are interested of the current contact. The current contact could be the
+     * contact currently selected in the contact list or the contact for the
+     * currently selected chat, etc. It depends on the container, where this
+     * component is meant to be added.
+     *
+     * @param metaContact the current meta contact
+     */
     public void setCurrentContact(MetaContact metaContact)
     {
         setCurrentContact((metaContact == null) ? null : metaContact
             .getDefaultContact());
+    }
+
+    /**
+     * Sets the current contact. Meant to be used by plugin components that
+     * are interested of the current contact. The current contact is the contact
+     * for the currently selected chat transport.
+     *
+     * @param contact the current contact
+     * @param resourceName the <tt>ContactResource</tt> name. Some components
+     * may be interested in a particular ContactResource of a contact.
+     */
+    public void setCurrentContact(Contact contact, String resourceName)
+    {
+        if (this.contact != null && this.contact.contact == contact)
+            return;
+
+        if (resourceName == null)
+        {
+            this.contact =
+                OtrContactManager.getOtrContact(contact, null);
+            buildMenu(this.contact);
+        }
+        else
+        {
+            for (ContactResource resource : contact.getResources())
+            {
+                if (resource.getResourceName().equals(resourceName))
+                {
+                    OtrContact otrContact =
+                        OtrContactManager.getOtrContact(contact, resource);
+                    if (this.contact == otrContact)
+                        return;
+                    this.contact = otrContact;
+                    buildMenu(this.contact);
+                }
+            }
+        }
     }
 
     @Override
@@ -200,52 +282,92 @@ public class OtrV3OutgoingSessionSwitcher
         return parentFactory;
     }
 
-    @Override
-    public void contactVerificationStatusChanged(Contact contact)
+    /**
+     * Implements ScOtrKeyManagerListener#contactVerificationStatusChanged(
+     * Contact).
+     */
+    public void contactVerificationStatusChanged(OtrContact contact)
     {
-        if (contact == null || this.contact != contact) return;
+        buildMenu(contact);
+        if (this.menu.isVisible())
+            this.menu.fadeAnimation();
     }
 
-    @Override
+    /**
+     * Implements ScOtrEngineListener#contactPolicyChanged(Contact).
+     */
     public void contactPolicyChanged(Contact contact) {}
 
-    @Override
+    /**
+     * Implements ScOtrKeyManagerListener#globalPolicyChanged().
+     */
     public void globalPolicyChanged() {}
 
-    @Override
-    public void sessionStatusChanged(Contact contact)
+    /**
+     * Implements ScOtrEngineListener#sessionStatusChanged(OtrContact).
+     */
+    public void sessionStatusChanged(OtrContact contact)
     {
-        System.out.println("ot tuk2");
         buildMenu(contact);
+        if (this.menu.isVisible())
+            this.menu.fadeAnimation();
     }
 
-    @Override
-    public void multipleInstancesDetected(Contact contact)
+    /**
+     * Implements ScOtrEngineListener#multipleInstancesDetected(OtrContact).
+     */
+    public void multipleInstancesDetected(OtrContact contact)
     {
-        System.out.println("ot tuk3");
+        buildMenu(contact);
+        if (this.menu.isVisible())
+            this.menu.fadeAnimation();
+    }
+
+    /**
+     * Implements ScOtrEngineListener#outgoingSessionChanged(OtrContact).
+     */
+    public void outgoingSessionChanged(OtrContact contact)
+    {
         buildMenu(contact);
     }
 
     private ImageIcon verifiedLockedPadlockImage;
+
     private ImageIcon unverifiedLockedPadlockImage;
+
     private ImageIcon finishedPadlockImage;
+
     private ImageIcon unlockedPadlockImage;
-    void buildMenu(Contact contact)
+
+    /**
+     * Builds the JMenu used for switching between outgoing OTRv3 Sessions in
+     * case the remote party is logged in multiple locations
+     *
+     * @param otrContact the contact which is logged in multiple locations
+     */
+    private void buildMenu(OtrContact otrContact)
     {
-        if (contact == null || this.contact != contact) {
+        if (otrContact == null || !this.contact.equals(otrContact))
+        {
             return;
         }
         menu.removeAll();
-
         java.util.List<Session> multipleInstances =
-            OtrActivator.scOtrEngine.getSessionInstances(contact);
+            OtrActivator.scOtrEngine.getSessionInstances(
+                otrContact);
 
+        Session outgoingSession =
+            OtrActivator.scOtrEngine.getOutgoingSession(otrContact);
         int index = 0;
         for (Session session : multipleInstances)
         {
             index++;
             if (!outgoingSessions.containsKey(session))
-                outgoingSessions.put(session, new JRadioButtonMenuItem());
+            {
+                JMenuItem menuItem = new JRadioButtonMenuItem();
+                outgoingSessions.put(session, menuItem);
+                menuItem.addActionListener(this);
+            }
 
             JMenuItem menuItem = outgoingSessions.get(session);
             menuItem.setText("Session " + index);
@@ -260,7 +382,8 @@ public class OtrV3OutgoingSessionSwitcher
                     OtrActivator.scOtrKeyManager.
                         getFingerprintFromPublicKey(pubKey);
                 imageIcon
-                    = OtrActivator.scOtrKeyManager.isVerified(contact, fingerprint)
+                    = OtrActivator.scOtrKeyManager.isVerified(
+                            otrContact.contact, fingerprint)
                         ? verifiedLockedPadlockImage
                         : unverifiedLockedPadlockImage;
                 break;
@@ -276,17 +399,20 @@ public class OtrV3OutgoingSessionSwitcher
             menu.add(menuItem);
             SelectedObject selectedObject =
                 new SelectedObject(imageIcon, session);
-            this.menu.setSelected(selectedObject);
-            
+
             buttonGroup.add(menuItem);
-            menuItem.addActionListener(this);
-            setSelected(menu.getItem(0));
+            menuItem.repaint();
+            if (session == outgoingSession)
+            {
+                this.menu.setSelected(selectedObject);
+                setSelected(menu.getItem(index - 1));
+            }
+            
         }
-        System.out.println("da");
         updateEnableStatus();
+        menu.repaint();
     }
 
-    @Override
     public void actionPerformed(ActionEvent e)
     {
         for (Map.Entry<Session, JMenuItem> entry : outgoingSessions.entrySet())
@@ -301,19 +427,12 @@ public class OtrV3OutgoingSessionSwitcher
         }
     }
 
-    @Override
-    public void outgoingSessionChanged(Contact contact)
-    {
-        buildMenu(contact);
-    }
-
     /**
-     * Sets the menu to enabled or disabled. The menu is enabled, as soon as it
-     * contains two or more items. If it is empty, it is disabled.
+     * Sets the menu visibility. The menu is visible as soon as it
+     * contains two or more items. If it is empty, it is invisible.
      */
     private void updateEnableStatus()
     {
         this.menu.setVisible(this.menu.getItemCount() > 1);
-        this.menu.fadeAnimation();
     }
 }

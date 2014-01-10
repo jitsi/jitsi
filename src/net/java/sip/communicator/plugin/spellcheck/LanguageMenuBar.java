@@ -692,4 +692,9 @@ public class LanguageMenuBar
     {
         return -1;
     }
+
+    @Override
+    public void setCurrentContact(Contact contact, String resourceName)
+    {
+    }
 }

@@ -95,7 +95,8 @@ public class KnownFingerprintsPanel
             public void actionPerformed(ActionEvent arg0)
             {
                 OtrActivator.scOtrKeyManager
-                    .verify(getSelectedContact(), getSelectedFingerprint());
+                    .verify(OtrContactManager.getOtrContact(
+                        getSelectedContact(), null), getSelectedFingerprint());
                 openContact(getSelectedContact(), getSelectedFingerprint());
                 contactsTable.updateUI();
             }
@@ -113,7 +114,8 @@ public class KnownFingerprintsPanel
             public void actionPerformed(ActionEvent arg0)
             {
                 OtrActivator.scOtrKeyManager
-                    .unverify(getSelectedContact(), getSelectedFingerprint());
+                    .unverify(OtrContactManager.getOtrContact(
+                        getSelectedContact(), null), getSelectedFingerprint());
                 openContact(getSelectedContact(), getSelectedFingerprint());
                 contactsTable.updateUI();
             }

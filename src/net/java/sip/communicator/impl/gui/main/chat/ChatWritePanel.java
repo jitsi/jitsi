@@ -24,7 +24,6 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -1559,12 +1558,20 @@ public class ChatWritePanel
 
                 PluginComponent component =
                     factory.getPluginComponentInstance(this);
+
                 ChatSession chatSession = chatPanel.getChatSession();
-                if (chatSession instanceof MetaContactChatSession)
+                if (chatSession != null)
                 {
-                    MetaContact metaContact =
-                        (MetaContact) chatSession.getDescriptor();
-                    component.setCurrentContact(metaContact);
+                    ChatTransport currentTransport =
+                        chatSession.getCurrentChatTransport();
+                    Object currentDescriptor = currentTransport.getDescriptor();
+                    if (currentDescriptor instanceof Contact)
+                    {
+                        Contact contact = (Contact) currentDescriptor;
+
+                        component.setCurrentContact(
+                            contact, currentTransport.getResourceName());
+                    }
                 }
                 if (component.getComponent() == null)
                     continue;
@@ -1589,14 +1596,24 @@ public class ChatWritePanel
                 net.java.sip.communicator.service.
                     gui.Container.CONTAINER_CHAT_WRITE_PANEL))
             return;
-        PluginComponent c = factory.getPluginComponentInstance(this);
+
+        PluginComponent component = factory.getPluginComponentInstance(this);
+
         ChatSession chatSession = chatPanel.getChatSession();
-        if (chatSession instanceof MetaContactChatSession)
+        if (chatSession != null)
         {
-            MetaContact metaContact = (MetaContact) chatSession.getDescriptor();
-            c.setCurrentContact(metaContact);
+            ChatTransport currentTransport =
+                chatSession.getCurrentChatTransport();
+            Object currentDescriptor = currentTransport.getDescriptor();
+            if (currentDescriptor instanceof Contact)
+            {
+                Contact contact = (Contact) currentDescriptor;
+
+                component.setCurrentContact(
+                    contact, currentTransport.getResourceName());
+            }
         }
-        centerPanel.add((Component) c.getComponent());
+        centerPanel.add((Component) component.getComponent());
 
         this.centerPanel.repaint();
     }

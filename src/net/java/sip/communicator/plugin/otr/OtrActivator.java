@@ -308,6 +308,7 @@ public class OtrActivator
         // Register Transformation Layer
         bundleContext.addServiceListener(this);
         bundleContext.addServiceListener((ServiceListener) scOtrEngine);
+        bundleContext.addServiceListener(new OtrContactManager());
 
         ServiceReference[] protocolProviderRefs
             = ServiceUtils.getServiceReferences(
@@ -380,7 +381,7 @@ public class OtrActivator
             {
                 protected PluginComponent getPluginInstance()
                 {
-                    return new OtrV3OutgoingSessionSwitcher(
+                    return new OTRv3OutgoingSessionSwitcher(
                         getContainer(), this);
                 }
             },

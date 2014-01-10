@@ -9,6 +9,7 @@ package net.java.sip.communicator.plugin.otr;
 import java.security.*;
 import java.util.*;
 
+import net.java.sip.communicator.plugin.otr.OtrContactManager.OtrContact;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -23,9 +24,9 @@ public interface ScOtrKeyManager
 
     public abstract void removeListener(ScOtrKeyManagerListener l);
 
-    public abstract void verify(Contact contact, String fingerprint);
+    public abstract void verify(OtrContact contact, String fingerprint);
 
-    public abstract void unverify(Contact contact, String fingerprint);
+    public abstract void unverify(OtrContact contact, String fingerprint);
 
     public abstract boolean isVerified(Contact contact, String fingerprint);
 
@@ -38,8 +39,6 @@ public interface ScOtrKeyManager
     public abstract byte[] getLocalFingerprintRaw(AccountID account);
 
     public abstract void saveFingerprint(Contact contact, String fingerprint);
-
-    public abstract PublicKey loadPublicKey(Contact contact);
 
     public abstract KeyPair loadKeyPair(AccountID accountID);
 

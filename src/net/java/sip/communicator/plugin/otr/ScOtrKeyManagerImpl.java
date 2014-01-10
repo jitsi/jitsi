@@ -11,6 +11,7 @@ import java.security.spec.*;
 import java.util.*;
 
 import net.java.otr4j.crypto.*;
+import net.java.sip.communicator.plugin.otr.OtrContactManager.OtrContact;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -62,28 +63,28 @@ public class ScOtrKeyManagerImpl
         }
     }
 
-    public void verify(Contact contact, String fingerprint)
+    public void verify(OtrContact otrContact, String fingerprint)
     {
-        if ((fingerprint == null) || contact == null)
+        if ((fingerprint == null) || otrContact == null)
             return;
 
-        this.configurator.setProperty(contact.getAddress() + fingerprint
+        this.configurator.setProperty(otrContact.contact.getAddress() + fingerprint
             + ".fingerprint.verified", true);
 
         for (ScOtrKeyManagerListener l : getListeners())
-            l.contactVerificationStatusChanged(contact);
+            l.contactVerificationStatusChanged(otrContact);
     }
 
-    public void unverify(Contact contact, String fingerprint)
+    public void unverify(OtrContact otrContact, String fingerprint)
     {
-        if ((fingerprint == null) || contact == null)
+        if ((fingerprint == null) || otrContact == null)
             return;
 
-        this.configurator.setProperty(contact.getAddress() + fingerprint
+        this.configurator.setProperty(otrContact.contact.getAddress() + fingerprint
             + ".fingerprint.verified", false);
 
         for (ScOtrKeyManagerListener l : getListeners())
-            l.contactVerificationStatusChanged(contact);
+            l.contactVerificationStatusChanged(otrContact);
     }
 
     public boolean isVerified(Contact contact, String fingerprint)
@@ -139,9 +140,9 @@ public class ScOtrKeyManagerImpl
 
                 // Now we can store the old properties in the new format.
                 if (isVerified)
-                    verify(contact, fingerprint);
+                    verify(OtrContactManager.getOtrContact(contact, null), fingerprint);
                 else
-                    unverify(contact, fingerprint);
+                    unverify(OtrContactManager.getOtrContact(contact, null), fingerprint);
 
                 // Finally we append the new fingerprint to out stored list of
                 // fingerprints.
@@ -227,39 +228,6 @@ public class ScOtrKeyManagerImpl
 
         this.configurator.setProperty(contact.getAddress() + fingerprint
             + ".fingerprint.verified", false);
-    }
-
-    public PublicKey loadPublicKey(Contact contact)
-    {
-        if (contact == null)
-            return null;
-
-        String userID = contact.getAddress();
-
-        byte[] b64PubKey =
-            this.configurator.getPropertyBytes(userID + ".publicKey");
-        if (b64PubKey == null)
-            return null;
-
-        X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(b64PubKey);
-
-        // Generate KeyPair.
-        KeyFactory keyFactory;
-        try
-        {
-            keyFactory = KeyFactory.getInstance("DSA");
-            return keyFactory.generatePublic(publicKeySpec);
-        }
-        catch (NoSuchAlgorithmException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-        catch (InvalidKeySpecException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     public KeyPair loadKeyPair(AccountID account)
