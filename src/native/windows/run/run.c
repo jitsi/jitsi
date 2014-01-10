@@ -66,6 +66,9 @@ static DWORD Run_runJavaFromRegKey(HKEY key, BOOL *searchForJava);
 static DWORD Run_runJavaFromRuntimeLib(LPCTSTR runtimeLib, LPCTSTR javaHome, BOOL *searchForJava);
 static LPSTR Run_skipWhitespace(LPSTR str);
 
+typedef void (CALLBACK *SplashInit)();
+typedef int (CALLBACK *SplashLoadFile)(const char* file);
+
 static DWORD
 Run_addPath(LPCTSTR path)
 {
@@ -1533,6 +1536,53 @@ Run_runJavaFromRuntimeLib
                     javaVMInitArgs.nOptions = optionStringCount;
                     javaVMInitArgs.options = options;
                     javaVMInitArgs.version = JNI_VERSION_1_2;
+
+                    HMODULE hSplash = NULL;
+                    LPTSTR lockFilePath = Run_getLockFilePath();
+
+                    if(!(lockFilePath && Run_isFile(lockFilePath)))
+                    {// Lets load and start splashscreen, if any
+                        size_t javaHomeLength = _tcslen(javaHome);
+                        LPTSTR path
+                            = (LPTSTR) malloc(sizeof(TCHAR)
+                                * (javaHomeLength + 20 + 1));
+                        if (path)
+                        {
+                            if (javaHomeLength >= 1)
+                            {
+                                TCHAR *ch =
+                                    (TCHAR *) (javaHome + (javaHomeLength - 1));
+
+                                if ((_T('\\') == *ch) || (_T('/') == *ch))
+                                {
+                                    *ch = 0;
+                                    javaHomeLength--;
+                                }
+                            }
+
+                            _tcscpy(path, javaHome);
+                            _tcscpy(path + javaHomeLength,
+                                    _T("\\bin\\splashscreen.dll"));
+                            hSplash = LoadLibrary(path);
+
+                            if(hSplash > 0)
+                            {
+                                SplashInit splashInit =
+                                    (SplashInit)GetProcAddress(
+                                        hSplash, "SplashInit");
+                                SplashLoadFile splashLoadFile =
+                                    (SplashLoadFile)GetProcAddress(
+                                        hSplash, "SplashLoadFile");
+
+                                if (splashInit && splashLoadFile)
+                                {
+                                    splashInit();
+                                    splashLoadFile("splash.gif");
+                                }
+                            }
+                        }
+                    }
+
                     if (jniCreateJavaVM(
                             &javaVM,
                             (void **) &jniEnv,
@@ -1553,6 +1603,9 @@ Run_runJavaFromRuntimeLib
                     }
                     if (options)
                         free(options);
+
+                    if(hSplash)
+                        FreeLibrary(hSplash);
                 }
                 else
                     error = ERROR_OUTOFMEMORY;

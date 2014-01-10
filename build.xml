@@ -859,6 +859,12 @@
             <isset property="is.running.macos"/>
         </condition>
 
+        <condition property="jvmarg.splash"
+            value="-splash:resources/install/resources/splash.gif"
+            else="">
+            <isset property="splashscreen.enable"/>
+        </condition>
+
         <condition property="jvm.maxheapsize"
               value="-Xmx256m"
               else="" >
@@ -928,7 +934,7 @@
                  detection because -server uses much more memory for 32-bit OS
                  (64-bit always used -server) -->
             <jvmarg line="${profiler.args} ${jvmarg.line}
-              -client ${jvm.maxheapsize}"/>
+              -client ${jvm.maxheapsize} ${jvmarg.splash}"/>
 
             <sysproperty key="apple.laf.useScreenMenuBar" value="true" />
         </java>
@@ -1026,6 +1032,7 @@
     <target name="bundles"
         depends="bundle-sc-launcher,bundle-util,bundle-service-dns,
         bundle-impl-dns,bundle-dns-config,
+        bundle-splash-screen,
         bundle-configuration,bundle-configuration-slick,
         bundle-history,bundle-history-slick,bundle-messagehistory, bundle-msghistory-slick,
         bundle-callhistory, bundle-callhistory-slick, bundle-popupmessagehandler-slick,
@@ -1087,6 +1094,16 @@
         <jar compress="false" destfile="${bundles.dest}/sc-launcher.jar">
             <zipfileset dir="${dest}/net/java/sip/communicator/launcher"
                 prefix="net/java/sip/communicator/launcher"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-SPLASH-SCREEN-->
+    <target name="bundle-splash-screen">
+        <jar compress="false"
+             destfile="${bundles.dest}/splash-screen.jar"
+             manifest="${src}/net/java/sip/communicator/impl/splashscreen/splashscreen.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/splashscreen"
+                prefix="net/java/sip/communicator/impl/splashscreen"/>
         </jar>
     </target>
 

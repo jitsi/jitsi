@@ -432,6 +432,10 @@
             </fileset>
         </copy>
 
+        <antcall target="enable-splash">
+            <param name="target.dir" value="${light.dir}"/>
+        </antcall>
+
         <mkdir dir="${light.dir}/lib" />
         <copy todir="${light.dir}/lib" overwrite="true">
             <fileset dir="${sc.basedir}/lib">
@@ -1122,6 +1126,7 @@
                   stubfile="${macosx.app.dir}/tmp/${macosx.stub.filename}"
                   extraclasspath="/System/Library/Java,$JAVAROOT"
                   workingdirectory="$APP_PACKAGE/Contents/Resources/Java"
+                  splashfile="$JAVAROOT/splash.gif"
                   vmoptions="-agentlib:AEGetURLEventHandlerAgent ${jvmarg}">
 
         <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
@@ -1249,6 +1254,11 @@
             todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/"/>
 
       <antcall target="-macosx-include-jre"/>
+
+      <antcall target="enable-splash">
+          <param name="target.dir"
+             value="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java"/>
+      </antcall>
 
       <!-- Delete the tmp if it exists -->
       <delete dir="${macosx.app.dir}/tmp"
@@ -1733,6 +1743,12 @@
 
     </target>
 
+    <!-- Copies the splash to the ${target.dir} folder -->
+    <target name="enable-splash"
+            if="splashscreen.enable">
+        <copy file="${inst.resrc}/resources/splash.gif" todir="${target.dir}"/>
+    </target>
+
     <target name="-delete-oldest-delta-data">
         <resourcecount property="build.history.current.size">
             <dirset dir="${delta.history.location}">
@@ -2164,7 +2180,11 @@
                  value="${package.name}"/>
     </target>
     <!-- change the package.install file if used from deb target -->
-    <target name="-deb-package.install-file-update"
+    <target name="-deb-package.install-file-update">
+        <antcall target="-deb-package.install-file-update-non-src"/>
+        <antcall target="-deb-package.install-file-update-src"/>
+    </target>
+    <target name="-deb-package.install-file-update-non-src"
             unless="debianize.src.pkg">
         <concat destfile="${debianize.dir}/${package.name}.install"
                 append="true"
@@ -2174,7 +2194,21 @@
                 append="true"
                 eol="lf"
                 fixlastline="true">lib/bundle/commons-logging.jar usr/share/${package.name}/lib/bundle/&#010;lib/bundle/log4j.jar usr/share/${package.name}/lib/bundle/&#010;</concat>
+        <antcall target="-deb-package.install-file-update-splash"/>
     </target>
+    <target name="-deb-package.install-file-update-splash"
+            if="splashscreen.enable">
+        <concat destfile="${debianize.dir}/${package.name}.install"
+                append="true"
+                eol="lf"
+                fixlastline="true">resources/install/resources/splash.gif usr/share/${package.name}/&#010;</concat>
+    </target>
+    <target name="-deb-package.install-file-update-src"
+            if="debianize.src.pkg">
+        <property name="splashscreen.enable" value="true"/>
+        <antcall target="-deb-package.install-file-update-splash"/>
+    </target>
+
     <!-- updates the startup scritp only if called from deb target -->
     <target name="-deb-sh-file-update"
             unless="debianize.src.pkg">
@@ -2249,6 +2283,7 @@
                 <include name="install/build.xml"/>
                 <include name="install/ant-build-config.properties"/>
                 <include name="install/logging.properties"/>
+                <include name="install/resources/**/*"/>
             </fileset>
         </copy>
         <copy todir="${target.dir}/src">
