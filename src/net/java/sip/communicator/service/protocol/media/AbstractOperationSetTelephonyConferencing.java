@@ -1634,11 +1634,11 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      */
     private boolean isPartialNotificationEnabled()
     {
-        return Boolean.parseBoolean(
-                parentProvider
-                        .getAccountID()
+        String s = parentProvider.getAccountID()
                         .getAccountProperties()
-                        .get(PARTIAL_NOTIFICATIONS_PROP_NAME));
+                            .get(PARTIAL_NOTIFICATIONS_PROP_NAME);
+
+        return (s == null || Boolean.parseBoolean(s));
     }
 
     /**
