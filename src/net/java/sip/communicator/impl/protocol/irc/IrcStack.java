@@ -615,6 +615,17 @@ public class IrcStack
                 + ((ServerNumericMessage) msg).getText());
         }
 
+        /**
+         * Print out received errors for debugging purposes and may be for
+         * expected errors that can be acted upon.
+         */
+        @Override
+        public void onError(ErrorMessage msg)
+        {
+            System.out.println("ERROR: " + msg.getSource() + ": "
+                + msg.getText());
+        }
+        
         @Override
         public void onUserPrivMessage(UserPrivMsg msg)
         {
