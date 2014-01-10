@@ -37,8 +37,6 @@ import org.jitsi.util.*;
 import org.jitsi.util.event.*;
 import org.osgi.framework.*;
 
-import sun.security.provider.*;
-
 /**
  * The dialog created for a given call.
  *
