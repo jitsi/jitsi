@@ -85,6 +85,8 @@ public class VideoConferenceCallPanel
      */
     private final ThumbnailConferenceCallPanel thumbnailContainer;
 
+    private final JPanel thumbnailPanel;
+
     /**
      * Initializes a new <tt>VideoConferenceCallPanel</tt> instance which is to
      * be used by a specific <tt>CallPanel</tt> to depict a specific
@@ -107,6 +109,7 @@ public class VideoConferenceCallPanel
 
         this.uiVideoHandler = uiVideoHandler;
 
+        thumbnailPanel = new JPanel(new BorderLayout());
         thumbnailContainer
             = new ThumbnailConferenceCallPanel( callPanel,
                                                 callConference,
@@ -260,7 +263,6 @@ public class VideoConferenceCallPanel
     {
         VideoContainer videoContainer = new VideoContainer(null, true);
 
-        JPanel thumbnailPanel = new JPanel(new BorderLayout());
         thumbnailPanel.setBackground(Color.DARK_GRAY);
         thumbnailPanel.add(thumbnailContainer, BorderLayout.NORTH);
 
@@ -268,6 +270,17 @@ public class VideoConferenceCallPanel
         add(videoContainer, BorderLayout.CENTER);
 
         return videoContainer;
+    }
+
+    /**
+     * Shows/hides the participants thumbnails list.
+     *
+     * @param show <tt>true</tt> to show the participants list, <tt>false</tt>
+     * to hide it
+     */
+    public void showThumbnailsList(boolean show)
+    {
+        thumbnailPanel.setVisible(show);
     }
 
     /**

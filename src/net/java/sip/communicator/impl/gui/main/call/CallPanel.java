@@ -37,6 +37,8 @@ import org.jitsi.util.*;
 import org.jitsi.util.event.*;
 import org.osgi.framework.*;
 
+import sun.security.provider.*;
+
 /**
  * The dialog created for a given call.
  *
@@ -153,6 +155,20 @@ public class CallPanel
      */
     private static final String HIDE_VIDEO_BUTON_PROP
         = "net.java.sip.communicator.impl.gui.main.call.HIDE_VIDEO_BUTTON";
+
+    /**
+     * Property to disable the button, which shows/hides participants in video
+     * conferences.
+     */
+    private static final String HIDE_PEERS_LIST_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_PEERS_LIST_BUTTON";
+
+    /**
+     * Indicates if the participants list in a video conference is visible by
+     * default.
+     */
+    private static final String PEERS_LIST_HIDDEN_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.PEERS_LIST_HIDDEN";
 
     /**
      * Property to disable the desktop sharing button.
@@ -329,6 +345,12 @@ public class CallPanel
      * The button responsible for hiding/showing the local video.
      */
     private ShowHideVideoButton showHideVideoButton;
+
+    /**
+     * The button, which shows / hides the participants list in a video
+     * conference.
+     */
+    private ShowHidePeersButton showHidePeersButton;
 
     /**
      * The title of this call container.
@@ -960,6 +982,12 @@ public class CallPanel
             }
         }
 
+        if (showHidePeersButton != null)
+        {
+            showHidePeersButton.setVisible(isConference
+                && CallManager.isVideoStreaming(callConference));
+        }
+
         // The desktop sharing button depends on the operation set desktop
         // sharing server.
         if(desktopSharingButton != null)
@@ -1350,6 +1378,9 @@ public class CallPanel
             videoButton.setIndex(11);
         if (showHideVideoButton != null)
             showHideVideoButton.setIndex(12);
+        if (showHidePeersButton != null)
+            showHidePeersButton.setIndex(13);
+
         chatButton.setIndex(19);
 
         if (infoButton != null)
@@ -1523,6 +1554,14 @@ public class CallPanel
             videoButton = new LocalVideoButton(aCall);
         }
 
+        if (isButtonEnabled(HIDE_PEERS_LIST_BUTON_PROP))
+        {
+            // If the PEERS_LIST_HIDDEN_PROP isn't specified we show the list
+            // by default.
+            showHidePeersButton = new ShowHidePeersButton(this,
+                isButtonEnabled(PEERS_LIST_HIDDEN_PROP));
+        }
+
         localLevel
             = new InputVolumeControlButton(
                     aCall,
@@ -1580,6 +1619,8 @@ public class CallPanel
             settingsPanel.add(transferCallButton);
         if (videoButton != null)
             settingsPanel.add(videoButton);
+        if (showHidePeersButton != null)
+            settingsPanel.add(showHidePeersButton);
 
         // The bottom bar will contain the settingsPanel.
         add(createBottomBar(), BorderLayout.SOUTH);
@@ -2013,6 +2054,22 @@ public class CallPanel
     void setFullScreen(boolean fullScreen)
     {
         callWindow.setFullScreen(fullScreen);
+    }
+
+    /**
+     * Shows/hides the thumbnails list in the case of video conference.
+     *
+     * @param show <tt>true</tt> to show the thumbnails list, <tt>false</tt>
+     * to hide it
+     */
+    public void showThumbnailsList(boolean show)
+    {
+        // This shouldn't happen, but if we aren't in a video conference we
+        // have nothing to do here.
+        if (!(callPanel instanceof VideoConferenceCallPanel))
+            return;
+
+        ((VideoConferenceCallPanel) callPanel).showThumbnailsList(show);
     }
 
     /**

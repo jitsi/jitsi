@@ -778,6 +778,20 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.SHOW_LOCAL_VIDEO_BUTTON_PRESSED");
 
     /**
+     * A show/hide local video button icon. The icon shown in the CallPeer
+     * panel.
+     */
+    public static final ImageID SHOW_HIDE_PEERS_BUTTON
+        = new ImageID("service.gui.buttons.SHOW_HIDE_PEERS_BUTTON");
+
+    /**
+     * A show/hide local video button pressed icon. The icon shown in the
+     * CallPeer panel.
+     */
+    public static final ImageID SHOW_HIDE_PEERS_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.SHOW_HIDE_PEERS_BUTTON_PRESSED");
+
+    /**
      * The resize video button.
      */
     public static final ImageID HD_VIDEO_BUTTON
