@@ -509,7 +509,8 @@ public class MetaContactRightButtonMenu
                     && authOpSet.getSubscriptionStatus(contact) != null
                     && !authOpSet.getSubscriptionStatus(contact)
                         .equals(SubscriptionStatus.Subscribed)
-                    && !opSetMUC.isPrivateMessagingContact(contactAddress))
+                    && (opSetMUC == null
+                        || !opSetMUC.isPrivateMessagingContact(contactAddress)))
                 {
                     if (firstUnsubscribedContact == null)
                         firstUnsubscribedContact = contact;
@@ -715,8 +716,8 @@ public class MetaContactRightButtonMenu
                 && defaultContact.getProtocolProvider()
                     .getOperationSet(OperationSetExtendedAuthorizations.class)
                         != null
-                && !opSetMUC.isPrivateMessagingContact(
-                        defaultContact.getAddress()))
+                && (opSetMUC == null || !opSetMUC.isPrivateMessagingContact(
+                        defaultContact.getAddress())))
                 && !SubscriptionStatus.Subscribed
                         .equals(defaultContact.getProtocolProvider()
                                     .getOperationSet(
