@@ -597,6 +597,8 @@ public class IrcStack
         /**
          * Print out server notices for debugging purposes and for simply
          * keeping track of the connections.
+         * 
+         * @param msg the server notice
          */
         @Override
         public void onServerNotice(ServerNotice msg)
@@ -607,6 +609,8 @@ public class IrcStack
         /**
          * Print out server numeric messages for debugging purposes and for
          * simply keeping track of the connection.
+         * 
+         * @param msg the numeric message
          */
         @Override
         public void onServerNumericMessage(ServerNumericMessage msg)
@@ -619,6 +623,8 @@ public class IrcStack
         /**
          * Print out received errors for debugging purposes and may be for
          * expected errors that can be acted upon.
+         * 
+         * @param msg the error message
          */
         @Override
         public void onError(ErrorMessage msg)
@@ -627,6 +633,14 @@ public class IrcStack
                 + msg.getText());
         }
         
+        /**
+         * Upon receiving a private message from a user, deliver that to a
+         * private chat room and create one if it does not exist. We can ignore
+         * normal chat rooms, since they each have their own ChatRoomListener
+         * for managing chat room operations.
+         * 
+         * @param msg the private message
+         */
         @Override
         public void onUserPrivMessage(UserPrivMsg msg)
         {
@@ -655,6 +669,13 @@ public class IrcStack
             deliverReceivedMessageToPrivateChat(chatroom, user, text);
         }
 
+        /**
+         * Deliver a private message to the provided chat room.
+         * 
+         * @param chatroom the chat room
+         * @param user the source user
+         * @param text the message
+         */
         private void deliverReceivedMessageToPrivateChat(ChatRoomIrcImpl chatroom,
             String user, String text)
         {
@@ -665,6 +686,12 @@ public class IrcStack
                 ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
         }
 
+        /**
+         * Create a private chat room if one does not exist yet.
+         * 
+         * @param user private chat room for this user
+         * @return returns the private chat room
+         */
         private ChatRoomIrcImpl initiatePrivateChatRoom(String user)
         {
             ChatRoomIrcImpl chatroom =
@@ -1011,7 +1038,11 @@ public class IrcStack
                         {
                             message =
                                 new MessageIrcImpl("channel limit set to "
-                                    + Integer.parseInt(mode.getParams()[0]),
+                                    + Integer.parseInt(mode.getParams()[0])
+                                    + " by "
+                                    + (sourceMember.getContactAddress()
+                                        .length() == 0 ? "server"
+                                        : sourceMember.getContactAddress()),
                                     "text/plain", "UTF-8", null);
                         }
                         catch (NumberFormatException e)
@@ -1022,8 +1053,16 @@ public class IrcStack
                     }
                     else
                     {
+                        // FIXME "server" is now easily fakeable if someone
+                        // calls himself server. There should be some other way
+                        // to represent the server if a message comes from
+                        // something other than a normal chat room member.
                         message =
-                            new MessageIrcImpl("channel limit removed",
+                            new MessageIrcImpl(
+                                "channel limit removed by "
+                                    + (sourceMember.getContactAddress()
+                                        .length() == 0 ? "server"
+                                        : sourceMember.getContactAddress()),
                                 "text/plain", "UTF-8", null);
                     }
                     this.chatroom.fireMessageReceivedEvent(message,
