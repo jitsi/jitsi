@@ -290,6 +290,11 @@ public class ChatRoomTableDialog
      */
     private void setNickname(ChatRoomProviderWrapper provider)
     {
+        if (provider == null)
+        {
+            return;
+        }
+
         nicknameField.setText(
             GuiActivator.getMUCService().getDefaultNickname(
                 provider.getProtocolProvider()));
