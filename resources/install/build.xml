@@ -561,6 +561,22 @@
                 in="${windows.app.dir}/tmp/heat.wxs"
                 out="${windows.app.dir}/tmp/component-refs.wxi"
                 style="${inst.resrc}/windows/heat-component-refs.xsl" />
+        <xslt
+                in="${windows.app.dir}/tmp/heat.wxs"
+                out="${windows.app.dir}/tmp/lib-dir-id.properties"
+                style="${inst.resrc}/windows/heat-component-libsearch.xsl" />
+
+        <property file="${windows.app.dir}/tmp/lib-dir-id.properties"/>
+        <copy
+            file="${inst.resrc}/windows/DefaultOverridesProps.wxi.template"
+            tofile="${windows.app.dir}/tmp/DefaultOverridesProps.wxi">
+            <globmapper from="*.wxi.template" to="*.wxi" />
+            <filterchain>
+                <tokenfilter>
+                    <replacestring from="@@lib" to="${wix.heat.jitsi.lib.dir}" />
+                </tokenfilter>
+            </filterchain>
+        </copy>
 
         <condition property="windows.is.64" value="yes" else="no">
             <equals arg1="${windows.arch}" arg2="64" />
@@ -694,7 +710,6 @@
                 <include name="*.wxl" />
                 <include name="installer-windows.wxs" />
                 <include name="SCRegistrySpec.wxi" />
-                <include name="DefaultOverridesProps.wxi" />
                 <include name="windows_shortcut_specification.wxi" />
             </fileset>
         </copy>
