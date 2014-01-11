@@ -317,7 +317,8 @@ public class AccountManager
                 String factoryPackage = getFactoryImplPackageName(factory);
                 List<String> storedAccounts
                     = configService
-                        .getPropertyNamesByPrefix(factoryPackage, true);
+                        .getPropertyNamesByPrefix(factoryPackage + ".acc",
+                            false);
 
                 /* Ignore the hidden accounts. */
                 for (Iterator<String> storedAccountIter =
