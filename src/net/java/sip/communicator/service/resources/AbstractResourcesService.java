@@ -487,6 +487,11 @@ public abstract class AbstractResourcesService
             resourceString = resourceString.replaceAll("\\\\", "");
         }
 
+        if (resourceString.indexOf("''") > -1)
+        {
+            resourceString = resourceString.replaceAll("''", "'");
+        }
+
         return resourceString;
     }
 
