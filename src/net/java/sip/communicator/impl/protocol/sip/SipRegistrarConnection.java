@@ -872,11 +872,9 @@ public class SipRegistrarConnection
         }
         //401 UNAUTHORIZED,
         //407 PROXY_AUTHENTICATION_REQUIRED,
-        //403 FORBIDDEN
         else if (response.getStatusCode() == Response.UNAUTHORIZED
                 || response.getStatusCode()
-                                == Response.PROXY_AUTHENTICATION_REQUIRED
-                || response.getStatusCode() == Response.FORBIDDEN)
+                                == Response.PROXY_AUTHENTICATION_REQUIRED)
         {
             processAuthenticationChallenge(
                     clientTransaction, response, sourceProvider);
