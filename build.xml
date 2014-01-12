@@ -1086,8 +1086,9 @@
         bundle-globalshortcut,bundle-plugin-msofficecomm,bundle-libjitsi,
         bundle-customcontactactions, bundle-phonenumbercontactsource,
         bundle-demuxcontactsource, bundle-muc,
-    	bundle-desktoputil,bundle-globaldisplaydetails,
-        bundle-plugin-propertieseditor,bundle-plugin-accountinfo"/>
+        bundle-desktoputil,bundle-globaldisplaydetails,
+        bundle-plugin-propertieseditor,bundle-plugin-accountinfo,
+        bundle-guava"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -1364,7 +1365,6 @@
                 prefix="net/java/sip/communicator/service/googlecontacts"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/googlecontacts"
                 prefix="net/java/sip/communicator/impl/googlecontacts" />
-            <zipfileset src="${lib.noinst}/google-collect-1.0-rc1.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/gdata-core-1.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/gdata-contacts-3.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/gdata-contacts-meta-3.0.jar" prefix=""/>
@@ -1372,6 +1372,7 @@
             <zipfileset src="${lib.noinst}/gdata-client-meta-1.0.jar" prefix=""/>
         </jar>
     </target>
+
     <!--BUNDLE-GOOGLECONTACTS-SERVICE-->
     <target name="bundle-googlecontacts-service">
         <jar compress="false" destfile="${bundles.dest}/googlecontacts-service.jar"
@@ -1379,6 +1380,10 @@
             <zipfileset dir="${dest}/net/java/sip/communicator/service/googlecontacts"
                 prefix="net/java/sip/communicator/service/googlecontacts"/>
         </jar>
+    </target>
+
+    <target name="bundle-guava">
+        <copy file="${lib.noinst}/guava-15.0.jar" tofile="${bundles.dest}/guava.jar"/>
     </target>
 
     <!--BUNDLE-SERVICEBINDER -->
