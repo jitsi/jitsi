@@ -5,6 +5,7 @@
  */
 package net.java.sip.communicator.plugin.defaultresourcepack;
 
+import java.lang.reflect.*;
 import java.net.*;
 import java.util.*;
 
@@ -105,6 +106,31 @@ public class DefaultLanguagePackImpl
         lastResourcesAsked = resources;
 
         return resources;
+    }
+
+    /**
+     * Returns a Set of the keys contained only in the ResourceBundle for
+     * locale.
+     * @param locale the locale for which the keys are requested
+     * @return a Set of the keys contained only in the ResourceBundle for
+     * locale
+     */
+    @SuppressWarnings("unchecked")
+    public Set<String> getResourceKeys(Locale locale)
+    {
+        try
+        {
+            Method handleKeySet = ResourceBundle.class
+                .getDeclaredMethod("handleKeySet");
+            handleKeySet.setAccessible(true);
+            return (Set<String>)handleKeySet.invoke(
+                ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH, locale));
+        }
+        catch (Exception e)
+        {
+        }
+
+        return new HashSet<String>();
     }
 
     /**
