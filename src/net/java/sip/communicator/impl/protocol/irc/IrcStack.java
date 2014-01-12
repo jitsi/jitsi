@@ -6,11 +6,11 @@
 package net.java.sip.communicator.impl.protocol.irc;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 import net.java.sip.communicator.impl.protocol.irc.ModeParser.ModeEntry;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 import com.ircclouds.irc.api.*;
 import com.ircclouds.irc.api.domain.*;
@@ -24,8 +24,14 @@ import com.ircclouds.irc.api.state.*;
  */
 public class IrcStack
 {
-    // private static final Logger LOGGER = Logger.getLogger(IrcStack.class);
+    /**
+     * Logger
+     */
+    private static final Logger LOGGER = Logger.getLogger(IrcStack.class);
 
+    /**
+     * Parent provider for IRC
+     */
     private final ProtocolProviderServiceIrcImpl provider;
 
     // TODO should make this thing a map or set?
@@ -288,6 +294,7 @@ public class IrcStack
      */
     public List<String> getServerChatRoomList()
     {
+        LOGGER.trace("Start retrieve server chat room list.");
         // FIXME Currently, not using an API library method for listing
         // channels, since it isn't available.
         synchronized (this.channellist)
@@ -302,17 +309,19 @@ public class IrcStack
                         this.irc.addListener(new ChannelListListener(this.irc,
                             list));
                         this.irc.rawMessage("LIST");
-                        System.out.println("Started waiting for list ...");
+                        LOGGER.trace("Start waiting for list ...");
                         list.wait();
-                        System.out.println("Done waiting for list.");
+                        LOGGER.trace("Done waiting for list.");
                     }
                     catch (InterruptedException e)
                     {
+                        LOGGER.trace("INTERRUPTED while waiting for list.");
                         e.printStackTrace();
                     }
                 }
                 this.channellist.instance = list;
             }
+            LOGGER.trace("Finished retrieve server chat room list.");
             return Collections.unmodifiableList(this.channellist.instance);
         }
     }
@@ -346,7 +355,6 @@ public class IrcStack
             throw new IllegalArgumentException("chatroom cannot be null");
         if (password == null)
             throw new IllegalArgumentException("password cannot be null");
-        
         if (this.joined.contains(chatroom) || chatroom.isPrivate())
         {
             // If we already joined this particular chatroom or if it is a
@@ -355,17 +363,14 @@ public class IrcStack
             return;
         }
 
-        // TODO Handle forward to another channel (470) channel name change.
-        // (Testable on irc.freenode.net#linux, forwards to ##linux)
-        // Currently drops into an infinite wait because the callback is never
-        // executed. Not sure how to catch/detect this forward operation and act
-        // appropriately. Seems reasonable to just expect the same callback, but
-        // with different channel information.
+        LOGGER.trace("Start joining channel " + chatroom.getIdentifier());
         final Object joinSignal = new Object();
         synchronized (joinSignal)
         {
             try
             {
+                LOGGER
+                    .trace("Issue join channel command to IRC library and wait for join operation to complete (un)successfully.");
                 // TODO Refactor this ridiculous nesting of functions and
                 // classes.
                 this.irc.joinChannel(chatroom.getIdentifier(), password,
@@ -379,6 +384,17 @@ public class IrcStack
                             {
                                 try
                                 {
+                                    // TODO Handle forward to another channel
+                                    // (470) channel name change.
+                                    // (Testable on irc.freenode.net#linux,
+                                    // forwards to ##linux)
+                                    // Currently drops into an infinite wait
+                                    // because the callback is never
+                                    // executed. Not sure how to catch/detect
+                                    // this forward operation and act
+                                    // appropriately. Seems reasonable to just
+                                    // expect the same callback, but
+                                    // with different channel information.
                                     IrcStack.this.joined.add(chatroom);
                                     IrcStack.this.irc
                                         .addListener(new ChatRoomListener(
@@ -386,14 +402,12 @@ public class IrcStack
                                     IRCTopic topic = channel.getTopic();
                                     chatroom.updateSubject(topic.getValue());
 
-                                    for (Entry<IRCUser, Set<IRCUserStatus>> userEntry : channel
-                                        .getUsers().entrySet())
+                                    for (IRCUser user : channel.getUsers())
                                     {
-                                        IRCUser user = userEntry.getKey();
-                                        Set<IRCUserStatus> statuses =
-                                            userEntry.getValue();
                                         ChatRoomMemberRole role =
                                             ChatRoomMemberRole.SILENT_MEMBER;
+                                        Set<IRCUserStatus> statuses =
+                                            channel.getStatusesForUser(user);
                                         for (IRCUserStatus status : statuses)
                                         {
                                             role =
@@ -422,6 +436,20 @@ public class IrcStack
                                 }
                                 finally
                                 {
+                                    // In any case, issue the local user
+                                    // presence, since the irc library notified
+                                    // us of a successful join. We should wait
+                                    // as long as possible though. First we need
+                                    // to fill the list of chat room members and
+                                    // other chat room properties.
+                                    IrcStack.this.provider
+                                        .getMUC()
+                                        .fireLocalUserPresenceEvent(
+                                            chatroom,
+                                            LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
+                                            null);
+                                    LOGGER
+                                        .trace("Finished successful join callback. Waking up original thread.");
                                     // Notify waiting threads of finished
                                     // execution.
                                     joinSignal.notifyAll();
@@ -432,6 +460,8 @@ public class IrcStack
                         @Override
                         public void onFailure(Exception e)
                         {
+                            // TODO how should we communicate a failed attempt
+                            // at joining the channel?
                             synchronized (joinSignal)
                             {
                                 try
@@ -440,8 +470,8 @@ public class IrcStack
                                         new MessageIrcImpl(
                                             "Failed to join channel "
                                                 + chatroom.getIdentifier()
-                                                + "(message: " + e.getMessage()
-                                                + ")", "text/plain", "UTF-8",
+                                                + " (" + e.getMessage() + ")",
+                                            "text/plain", "UTF-8",
                                             "Failed to join");
                                     chatroom
                                         .fireMessageReceivedEvent(
@@ -452,6 +482,8 @@ public class IrcStack
                                 }
                                 finally
                                 {
+                                    LOGGER
+                                        .trace("Finished unsuccessful join callback. Waking up original thread.");
                                     // Notify waiting threads of finished
                                     // execution
                                     joinSignal.notifyAll();
@@ -461,16 +493,11 @@ public class IrcStack
                     });
                 // Wait until async channel join operation has finished.
                 joinSignal.wait();
-                // TODO How to handle 471 (+l): Channel is full (reached set user limit)?
+                LOGGER
+                    .trace("Finished waiting for join operation to complete.");
+                // TODO How to handle 471 (+l): Channel is full (reached set
+                // user limit)?
                 // TODO How to handle 480 (+j): Channel throttle exceeded?
-                if (isJoined(chatroom))
-                {
-                    // In case waiting ends with successful join
-                    IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
-                        chatroom,
-                        LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
-                        null);
-                }
             }
             catch (InterruptedException e)
             {
@@ -644,6 +671,9 @@ public class IrcStack
         @Override
         public void onUserPrivMessage(UserPrivMsg msg)
         {
+            // TODO handle special formatting/color control codes in message
+            // (see also channel private messages)
+
             ChatRoomIrcImpl chatroom = null;
             String user = msg.getSource().getNick();
             String text = msg.getText();
@@ -813,7 +843,7 @@ public class IrcStack
             if (isThisChatRoom(msg.getChannelName()) == false)
                 return;
             
-            String kickedUser = msg.getKickedUser();
+            String kickedUser = msg.getKickedNickname();
             if (isMe(kickedUser))
             {
                 IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
@@ -883,6 +913,9 @@ public class IrcStack
         {
             if (isThisChatRoom(msg.getChannelName()) == false)
                 return;
+
+            // TODO handle special formatting/color control codes in message
+            // (see also user private messages)
 
             MessageIrcImpl message =
                 new MessageIrcImpl(msg.getText(), "text/plain", "UTF-8", null);
