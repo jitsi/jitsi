@@ -109,6 +109,26 @@ class OtrContactMenu
                 this,
                 OtrActivator.scOtrEngine, OtrActivator.scOtrKeyManager);
 
+        /*
+         * Since we now support OTRv3 we have to make sure that the user's
+         * cached policy is up-to-date with the latest allowed version of the
+         * protocol. We have to set the ALLOW_V3 bit manually for the users.
+         */
+        OtrPolicy policy =
+            OtrActivator.scOtrEngine.getContactPolicy(otrContact.contact);
+        if (policy.getAllowV1() && policy.getAllowV2())
+            policy.setAllowV3(true);
+        else
+            policy.setAllowV3(false);
+        OtrActivator.scOtrEngine.setContactPolicy(contact.contact, policy);
+
+        policy = OtrActivator.scOtrEngine.getGlobalPolicy();
+        if (policy.getAllowV1() && policy.getAllowV2())
+            policy.setAllowV3(true);
+        else
+            policy.setAllowV3(false);
+        OtrActivator.scOtrEngine.setGlobalPolicy(policy);
+
         setSessionStatus(
             OtrActivator.scOtrEngine.getSessionStatus(this.contact));
         setOtrPolicy(
