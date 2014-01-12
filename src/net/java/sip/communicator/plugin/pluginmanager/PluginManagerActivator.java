@@ -84,7 +84,7 @@ public class PluginManagerActivator
         }
 
         systemBundleNames = Arrays.asList(getConfigurationService()
-            .getString(SYSTEM_BUNDLES_PROP).split(","));
+            .getString(SYSTEM_BUNDLES_PROP).split("\\s*,\\s*"));
     }
 
     /**
