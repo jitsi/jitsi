@@ -663,6 +663,7 @@ public class GeneralConfigurationPanel
      * 3-column layout to show the language in the current locale, the
      * locale of the language itself and the percentage of translation.
      */
+    @SuppressWarnings("serial")
     private static class LanguageDropDownRenderer
         extends JPanel
         implements ListCellRenderer
@@ -685,13 +686,23 @@ public class GeneralConfigurationPanel
             int index, boolean isSelected, boolean cellHasFocus)
         {
             LocaleItem lm = (LocaleItem)value;
-            labels[0].setText(lm.locale.getDisplayLanguage());
-            labels[1].setText(lm.locale.getDisplayLanguage(lm.locale));
-            labels[2].setText(Resources.getString(
-                "plugin.generalconfig.DEFAULT_LANGUAGE_TRANSLATED",
-                new String[]{
-                    Integer.toString(lm.translated)
-                }));
+            if (value != null)
+            {
+                labels[0].setText(lm.locale.getDisplayLanguage());
+                labels[1].setText(lm.locale.getDisplayLanguage(lm.locale));
+                labels[2].setText(Resources.getString(
+                    "plugin.generalconfig.DEFAULT_LANGUAGE_TRANSLATED",
+                    new String[]{
+                        Integer.toString(lm.translated)
+                    }));
+            }
+            else
+            {
+                labels[0].setText("");
+                labels[1].setText("");
+                labels[2].setText("");
+            }
+
             this.setBackground(isSelected
                 ? list.getSelectionBackground()
                 : list.getBackground());
