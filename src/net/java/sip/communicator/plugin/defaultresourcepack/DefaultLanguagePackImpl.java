@@ -93,7 +93,28 @@ public class DefaultLanguagePackImpl
         }
 
         ResourceBundle resourceBundle
-            = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH, locale);
+            = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH, locale,
+                new ResourceBundle.Control(){
+                // work around Java's backwards compatibility
+                @Override
+                public String toBundleName(String baseName, Locale locale)
+                {
+                    if (locale.equals(new Locale("he")))
+                    {
+                        return baseName + "_he";
+                    }
+                    else if (locale.equals(new Locale("yi")))
+                    {
+                        return baseName + "_yi";
+                    }
+                    else if (locale.equals(new Locale("id")))
+                    {
+                        return baseName + "_id";
+                    }
+
+                    return super.toBundleName(baseName, locale);
+                }
+            });
 
         Map<String, String> resources = new Hashtable<String, String>();
 
