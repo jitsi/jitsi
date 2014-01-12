@@ -992,6 +992,13 @@ public class SipRegistrarConnection
                     RegistrationStateChangeEvent.REASON_USER_REQUEST,
                     "User has canceled the authentication process.");
             }
+            else if (exc.getErrorCode() == OperationFailedException.FORBIDDEN)
+            {
+                this.setRegistrationState(
+                    RegistrationState.CONNECTION_FAILED,
+                    RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED,
+                    exc.getMessage());
+            }
             else
             {
                 //tell the others we couldn't register

@@ -367,13 +367,14 @@ public class SipSecurityManager
      * containing user credentials.
      * @throws TransactionUnavailableException if we get an exception white
      * creating the new transaction
+     * @throws OperationFailedException 
      */
     public synchronized ClientTransaction handleForbiddenResponse(
                                     Response          forbidden,
                                     ClientTransaction endedTransaction,
                                     SipProvider       transactionCreator)
         throws InvalidArgumentException,
-               TransactionUnavailableException
+               TransactionUnavailableException, OperationFailedException
 
     {
         //now empty the cache because the request we previously sent was
@@ -396,6 +397,12 @@ public class SipSecurityManager
         //extract the realms that we tried to authenticate with the previous
         //request and remove the authorization headers.
         List<String> realms = removeAuthHeaders(reoriginatedRequest);
+        if (realms.size() == 0)
+        {
+            throw new OperationFailedException(
+                "No realms present, cannot authenticate",
+                OperationFailedException.FORBIDDEN);
+        }
 
         //rfc 3261 says that the cseq header should be augmented for the new
         //request. do it here so that the new dialog (created together with
