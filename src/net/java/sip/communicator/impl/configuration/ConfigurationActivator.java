@@ -7,7 +7,11 @@
 package net.java.sip.communicator.impl.configuration;
 
 import com.sun.jna.*;
+
+import net.java.sip.communicator.util.ServiceUtils;
+
 import org.jitsi.service.configuration.*;
+import org.jitsi.service.fileaccess.*;
 import org.jitsi.service.libjitsi.*;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
@@ -29,10 +33,9 @@ public class ConfigurationActivator
         = Logger.getLogger(ConfigurationActivator.class);
 
     /**
-     * The <tt>BundleContext</tt> in which the configuration bundle has been
-     * started and has not been stopped yet.
+     * The currently registered {@link ConfigurationService} instance.
      */
-    private static BundleContext bundleContext;
+    private ConfigurationService cs;
 
     /**
      * Starts the configuration service
@@ -44,20 +47,29 @@ public class ConfigurationActivator
     public void start(BundleContext bundleContext)
         throws Exception
     {
-        ConfigurationActivator.bundleContext = bundleContext;
+        FileAccessService fas
+            = ServiceUtils.getService(bundleContext, FileAccessService.class);
+        File useDatabaseConfig = fas.getPrivatePersistentFile(
+            ".usedatabaseconfig",
+            FileCategory.PROFILE);
 
-        ConfigurationService configurationService
-            = LibJitsi.getConfigurationService();
-
-        if (configurationService != null)
+        // BETA: if the marker file exists, use the database configuration
+        if (useDatabaseConfig.exists())
         {
-            bundleContext.registerService(
-                    ConfigurationService.class.getName(),
-                    configurationService,
-                    null);
-
-            fixPermissions(configurationService);
+            logger.info("Using database configuration store.");
+            this.cs = new JdbcConfigService(fas);
         }
+        else
+        {
+            this.cs = LibJitsi.getConfigurationService();
+        }
+
+        bundleContext.registerService(
+                ConfigurationService.class.getName(),
+                this.cs,
+                null);
+
+        fixPermissions(this.cs);
     }
 
     /**
@@ -72,18 +84,8 @@ public class ConfigurationActivator
     public void stop(BundleContext bundleContext)
         throws Exception
     {
-    }
-
-    /**
-     * Gets the <tt>BundleContext</tt> in which the configuration bundle has
-     * been started and has not been stopped yet.
-     *
-     * @return the <tt>BundleContext</tt> in which the configuration bundle has
-     * been started and has not been stopped yet
-     */
-    public static BundleContext getBundleContext()
-    {
-        return bundleContext;
+        this.cs.storeConfiguration();
+        this.cs = null;
     }
 
     /**

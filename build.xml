@@ -1088,7 +1088,7 @@
         bundle-demuxcontactsource, bundle-muc,
         bundle-desktoputil,bundle-globaldisplaydetails,
         bundle-plugin-propertieseditor,bundle-plugin-accountinfo,
-        bundle-guava"/>
+        bundle-guava,bundle-hsql"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -1384,6 +1384,10 @@
 
     <target name="bundle-guava">
         <copy file="${lib.noinst}/guava-15.0.jar" tofile="${bundles.dest}/guava.jar"/>
+    </target>
+
+    <target name="bundle-hsql">
+        <copy file="${lib.noinst}/hsqldb.jar" tofile="${bundles.dest}/hsqldb.jar"/>
     </target>
 
     <!--BUNDLE-SERVICEBINDER -->
