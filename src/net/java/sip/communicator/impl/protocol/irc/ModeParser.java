@@ -1,3 +1,9 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.protocol.irc;
 
 import java.util.ArrayList;
@@ -5,6 +11,14 @@ import java.util.List;
 
 import com.ircclouds.irc.api.domain.messages.ChannelModeMessage;
 
+/**
+ * IRC mode parser.
+ * 
+ * Parses a mode string and returns individual mode entries complete with
+ * parameters, if any.
+ * 
+ * @author Danny van Heumen
+ */
 public class ModeParser
 {
     /**

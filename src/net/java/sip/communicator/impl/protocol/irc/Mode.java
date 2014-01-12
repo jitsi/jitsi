@@ -1,3 +1,9 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.protocol.irc;
 
 import net.java.sip.communicator.service.protocol.ChatRoomMemberRole;
@@ -5,7 +11,7 @@ import net.java.sip.communicator.service.protocol.ChatRoomMemberRole;
 /**
  * IRC Modes enum
  * 
- * @author danny
+ * @author Danny van Heumen
  */
 public enum Mode
 {
