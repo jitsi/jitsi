@@ -72,7 +72,8 @@ public class OtrMetaContactButton
     public void contactPolicyChanged(Contact contact)
     {
         // OtrMetaContactButton.this.contact can be null.
-        if (contact.equals(OtrMetaContactButton.this.otrContact.contact))
+        if (OtrMetaContactButton.this.otrContact != null &&
+            contact.equals(OtrMetaContactButton.this.otrContact.contact))
         {
             setPolicy(
                 OtrActivator.scOtrEngine.getContactPolicy(contact));

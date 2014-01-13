@@ -220,7 +220,8 @@ class OtrContactMenu
     public void contactPolicyChanged(Contact contact)
     {
         // Update the corresponding to the contact menu.
-        if (contact.equals(OtrContactMenu.this.contact))
+        if (OtrContactMenu.this.contact != null &&
+            contact.equals(OtrContactMenu.this.contact.contact))
             setOtrPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
     }
 
