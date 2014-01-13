@@ -341,17 +341,17 @@ public class GeneralConfigurationPanel
         // Log history check box.
         final JCheckBox logHistoryCheckBox = new SIPCommCheckBox();
         logHistoryPanel.add(logHistoryCheckBox, BorderLayout.NORTH);
+        final MessageHistoryService mhs
+            = GeneralConfigPluginActivator.getMessageHistoryService();
         logHistoryCheckBox.setText(
             Resources.getString("plugin.generalconfig.LOG_HISTORY"));
-        logHistoryCheckBox.setSelected(
-            ConfigurationUtils.isHistoryLoggingEnabled());
+        logHistoryCheckBox.setSelected(mhs.isHistoryLoggingEnabled());
 
         logHistoryCheckBox.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                ConfigurationUtils.setHistoryLoggingEnabled(
-                    logHistoryCheckBox.isSelected());
+                mhs.setHistoryLoggingEnabled(logHistoryCheckBox.isSelected());
             }
         });
         GeneralConfigPluginActivator.getConfigurationService()
@@ -363,7 +363,7 @@ public class GeneralConfigurationPanel
                     public void propertyChange(PropertyChangeEvent evt)
                     {
                         logHistoryCheckBox.setSelected(
-                            ConfigurationUtils.isHistoryLoggingEnabled());
+                            mhs.isHistoryLoggingEnabled());
                     }
                 });
 
@@ -434,7 +434,7 @@ public class GeneralConfigurationPanel
         historySizeLabel.setText(
             Resources.getString("plugin.generalconfig.HISTORY_SIZE"));
 
-        if (!ConfigurationUtils.isHistoryLoggingEnabled())
+        if (!mhs.isHistoryLoggingEnabled())
         {
             showHistoryCheckBox.setEnabled(false);
             historySizeSpinner.setEnabled(false);

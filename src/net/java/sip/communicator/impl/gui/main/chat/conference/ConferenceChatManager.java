@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -204,7 +205,15 @@ public class ConferenceChatManager
 
         ChatWindowManager chatWindowManager
             = GuiActivator.getUIService().getChatWindowManager();
-
+        
+        boolean createWindow = false;
+        
+        MessageHistoryService mhs = GuiActivator.getMessageHistoryService();
+        
+        if(!mhs.isHistoryLoggingEnabled() || 
+            !mhs.isHistoryLoggingEnabled(sourceChatRoom.getIdentifier()))
+            createWindow = true;
+        
         if(sourceChatRoom.isSystem())
         {
             ChatRoomProviderWrapper serverWrapper
@@ -212,14 +221,17 @@ public class ConferenceChatManager
                     sourceChatRoom.getParentProvider());
 
             chatPanel = chatWindowManager.getMultiChat(
-                serverWrapper.getSystemRoomWrapper(), true);
+                serverWrapper.getSystemRoomWrapper(), createWindow);
         }
         else
         {
             chatPanel = chatWindowManager.getMultiChat(
-                sourceChatRoom, true, message.getMessageUID());
+                sourceChatRoom, createWindow, message.getMessageUID());
         }
 
+        if(chatPanel == null)
+            return;
+        
         String messageContent = message.getContent();
 
         if (evt.isHistoryMessage())
@@ -277,7 +289,7 @@ public class ConferenceChatManager
             message.getMessageUID(),
             null);
 
-        if(evt.isImportantMessage())
+        if(evt.isImportantMessage() || createWindow)
             chatWindowManager.openChat(chatPanel, true);
     }
     
@@ -475,22 +487,40 @@ public class ConferenceChatManager
                     chatRoomWrapper,
                     ChatRoomListChangeEvent.CHAT_ROOM_CHANGED);
 
+                MessageHistoryService mhs 
+                    = GuiActivator.getMessageHistoryService();
+                
+                boolean createWindow = false;
+                
+                if(!mhs.isHistoryLoggingEnabled() 
+                    || !mhs.isHistoryLoggingEnabled(
+                        sourceChatRoom.getIdentifier()))
+                    createWindow = true;
+                
                 ChatWindowManager chatWindowManager
                     = GuiActivator.getUIService().getChatWindowManager();
                 ChatPanel chatPanel
-                    = chatWindowManager.getMultiChat(chatRoomWrapper, true);
+                    = chatWindowManager.getMultiChat(
+                        chatRoomWrapper, createWindow);
 
-                chatPanel.setChatIcon(
-                    chatPanel.getChatSession().getChatStatusIcon());
-
-                // Check if we have already opened a chat window for this chat
-                // wrapper and load the real chat room corresponding to the
-                // wrapper.
-                if(chatPanel.isShown())
-                    ((ConferenceChatSession) chatPanel.getChatSession())
-                        .loadChatRoom(sourceChatRoom);
-//                else
-//                    chatWindowManager.openChat(chatPanel, true);
+                if(chatPanel != null)
+                {
+                    chatPanel.setChatIcon(
+                        chatPanel.getChatSession().getChatStatusIcon());
+    
+                    // Check if we have already opened a chat window for this chat
+                    // wrapper and load the real chat room corresponding to the
+                    // wrapper.
+                    if(chatPanel.isShown())
+                    {
+                        ((ConferenceChatSession) chatPanel.getChatSession())
+                            .loadChatRoom(sourceChatRoom);
+                    }
+                    else
+                    {
+                        chatWindowManager.openChat(chatPanel, true);
+                    }
+                }
             }
 
             if (sourceChatRoom.isSystem())

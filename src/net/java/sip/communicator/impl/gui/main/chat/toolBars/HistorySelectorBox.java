@@ -133,8 +133,10 @@ public class HistorySelectorBox
         else if (menuItemName.equals("toggleAllHistory"))
         {
             boolean isHistoryEnabled =
-                ConfigurationUtils.isHistoryLoggingEnabled();
-            ConfigurationUtils.setHistoryLoggingEnabled(!isHistoryEnabled);
+                GuiActivator.getMessageHistoryService()
+                    .isHistoryLoggingEnabled();
+            GuiActivator.getMessageHistoryService()
+                .setHistoryLoggingEnabled(!isHistoryEnabled);
         }
         else if (menuItemName.equals("toggleHistoryPerContact"))
         {
@@ -143,19 +145,22 @@ public class HistorySelectorBox
             {
                 MetaContact currentContact = (MetaContact)desc;
                 boolean isHistoryEnabled =
-                    ConfigurationUtils.isHistoryLoggingEnabled(
-                        currentContact.getMetaUID());
-                ConfigurationUtils.setHistoryLoggingEnabled(
+                    GuiActivator.getMessageHistoryService()
+                        .isHistoryLoggingEnabled(currentContact.getMetaUID());
+                GuiActivator.getMessageHistoryService()
+                    .setHistoryLoggingEnabled(
                     !isHistoryEnabled, currentContact.getMetaUID());
             }
             else if(desc instanceof ChatRoomWrapper)
             {
                 ChatRoom currentChatRoom = ((ChatRoomWrapper)desc).getChatRoom();
                 boolean isHistoryEnabled =
-                    ConfigurationUtils.isHistoryLoggingEnabled(
-                        currentChatRoom.getIdentifier());
-                ConfigurationUtils.setHistoryLoggingEnabled(
-                    !isHistoryEnabled, currentChatRoom.getIdentifier());
+                    GuiActivator.getMessageHistoryService()
+                        .isHistoryLoggingEnabled(
+                            currentChatRoom.getIdentifier());
+                GuiActivator.getMessageHistoryService()
+                    .setHistoryLoggingEnabled(
+                        !isHistoryEnabled, currentChatRoom.getIdentifier());
             }
         }
         else if (menuItemName.equals("eraseHistoryPerContact"))
@@ -348,7 +353,8 @@ public class HistorySelectorBox
         toggleAllHistory.setSelected(false);
         toggleHistoryPerContact.setSelected(false);
 
-        if(!ConfigurationUtils.isHistoryLoggingEnabled())
+        MessageHistoryService mhs = GuiActivator.getMessageHistoryService();
+        if(!mhs.isHistoryLoggingEnabled())
             toggleAllHistory.setSelected(true);
 
         if(chatContainer.getCurrentChat() != null)
@@ -361,7 +367,7 @@ public class HistorySelectorBox
             {
                 MetaContact contact = (MetaContact)desc;
 
-                if(!ConfigurationUtils.isHistoryLoggingEnabled(
+                if(!mhs.isHistoryLoggingEnabled(
                         contact.getMetaUID()))
                 {
                     toggleHistoryPerContact.setSelected(true);
@@ -374,7 +380,7 @@ public class HistorySelectorBox
             }
             else if(desc instanceof ChatRoomWrapper)
             {
-                if(!ConfigurationUtils.isHistoryLoggingEnabled(
+                if(!mhs.isHistoryLoggingEnabled(
                         ((ChatRoomWrapper)desc).getChatRoom().getIdentifier()))
                 {
                     toggleHistoryPerContact.setSelected(true);

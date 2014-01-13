@@ -86,6 +86,12 @@ public class MessageHistoryServiceImpl
     private static ResourceManagementService resourcesService;
 
     /**
+     * Indicates if history logging is enabled.
+     */
+    private static boolean isHistoryLoggingEnabled;
+
+
+    /**
      * Returns the history service.
      * @return the history service
      */
@@ -808,6 +814,14 @@ public class MessageHistoryServiceImpl
         // We're adding a property change listener in order to
         // listen for modifications of the isMessageHistoryEnabled property.
         msgHistoryPropListener = new MessageHistoryPropertyChangeListener();
+        
+        // Load the "IS_MESSAGE_HISTORY_ENABLED" property.
+        isHistoryLoggingEnabled = configService.getBoolean(
+            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
+            Boolean.parseBoolean(UtilActivator
+                .getResources().getSettingsString(
+                    MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED))
+            );
 
         configService.addPropertyChangeListener(
             MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
@@ -859,7 +873,7 @@ public class MessageHistoryServiceImpl
 
     public void messageReceived(ChatRoomMessageReceivedEvent evt)
     {
-        if(!ConfigurationUtils.isHistoryLoggingEnabled(
+        if(!isHistoryLoggingEnabled(
                 evt.getSourceChatRoom().getIdentifier()))
         {
             // logging is switched off for this particular chat room
@@ -925,7 +939,7 @@ public class MessageHistoryServiceImpl
     {
         try
         {
-            if(!ConfigurationUtils.isHistoryLoggingEnabled(
+            if(!isHistoryLoggingEnabled(
                     evt.getSourceChatRoom().getIdentifier()))
             {
                 // logging is switched off for this particular chat room
@@ -996,7 +1010,7 @@ public class MessageHistoryServiceImpl
             MetaContact metaContact = MessageHistoryActivator
                 .getContactListService().findMetaContactByContact(destination);
             if(metaContact != null
-                && !ConfigurationUtils.isHistoryLoggingEnabled(
+                && !isHistoryLoggingEnabled(
                         metaContact.getMetaUID()))
             {
                 // logging is switched off for this particular contact
@@ -2241,12 +2255,11 @@ public class MessageHistoryServiceImpl
         public void propertyChange(PropertyChangeEvent evt)
         {
             String newPropertyValue = (String) evt.getNewValue();
-
-            boolean isMessageHistoryEnabled
+            isHistoryLoggingEnabled
                 = new Boolean(newPropertyValue).booleanValue();
 
             // If the message history is not enabled we stop here.
-            if (isMessageHistoryEnabled)
+            if (isHistoryLoggingEnabled)
                 loadMessageHistoryService();
             else
                 stop(bundleContext);
@@ -2337,7 +2350,7 @@ public class MessageHistoryServiceImpl
 
     public void messageDelivered(AdHocChatRoomMessageDeliveredEvent evt)
     {
-        if(!ConfigurationUtils.isHistoryLoggingEnabled(
+        if(!isHistoryLoggingEnabled(
                 evt.getSourceAdHocChatRoom().getIdentifier()))
         {
             // logging is switched off for this particular chat room
@@ -2366,7 +2379,7 @@ public class MessageHistoryServiceImpl
 
     public void messageReceived(AdHocChatRoomMessageReceivedEvent evt)
     {
-        if(!ConfigurationUtils.isHistoryLoggingEnabled(
+        if(!isHistoryLoggingEnabled(
                 evt.getSourceChatRoom().getIdentifier()))
         {
             // logging is switched off for this particular chat room
@@ -2452,5 +2465,72 @@ public class MessageHistoryServiceImpl
     {
         History history = this.getHistoryForMultiChat(room);
         historyService.purgeLocallyStoredHistory(history.getID());
+    }
+    
+    /**
+     * Returns <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+     * property is true, otherwise - returns <code>false</code>.
+     * Indicates to the user interface whether the history logging is enabled.
+     * @return <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+     * property is true, otherwise - returns <code>false</code>.
+     */
+    public boolean isHistoryLoggingEnabled()
+    {
+        return isHistoryLoggingEnabled;
+    }
+
+    /**
+     * Updates the "isHistoryLoggingEnabled" property through the
+     * <tt>ConfigurationService</tt>.
+     *
+     * @param isEnabled indicates if the history logging is
+     * enabled.
+     */
+    public void setHistoryLoggingEnabled(boolean isEnabled)
+    {
+        isHistoryLoggingEnabled = isEnabled;
+
+        configService.setProperty(
+            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
+            Boolean.toString(isHistoryLoggingEnabled));
+    }
+
+    /**
+     * Returns <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+     * property is true for the <tt>id</tt>, otherwise - returns
+     * <code>false</code>.
+     * Indicates to the user interface whether the history logging is enabled
+     * for the supplied id (id for metacontact or for chat room).
+     * @return <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+     * property is true for the <tt>id</tt>, otherwise - returns
+     * <code>false</code>.
+     */
+    public boolean isHistoryLoggingEnabled(String id)
+    {
+        return configService.getBoolean(MessageHistoryService
+                    .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX
+                        + "." + id, true);
+    }
+
+    /**
+     * Updates the "isHistoryLoggingEnabled" property through the
+     * <tt>ConfigurationService</tt> for the contact.
+     *
+     * @param isEnabled indicates if the history logging is
+     * enabled for the contact.
+     */
+    public void setHistoryLoggingEnabled(
+        boolean isEnabled, String id)
+    {
+        if(isEnabled)
+            configService.setProperty(
+                MessageHistoryService
+                    .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX
+                + "." + id, null);
+        else
+            configService.setProperty(
+                MessageHistoryService
+                    .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX
+                + "." + id, isEnabled);
     }
 }

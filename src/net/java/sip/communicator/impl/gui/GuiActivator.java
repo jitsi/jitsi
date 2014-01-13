@@ -24,6 +24,7 @@ import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.metahistory.*;
+import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -111,6 +112,8 @@ public class GuiActivator implements BundleActivator
     private static CredentialsStorageService credentialsService;
     
     private static MUCService mucService;
+    
+    private static MessageHistoryService messageHistoryService;
 
     private static final Map<Object, ProtocolProviderFactory>
         providerFactoriesMap = new Hashtable<Object, ProtocolProviderFactory>();
@@ -894,5 +897,18 @@ public class GuiActivator implements BundleActivator
                 = (MUCService) bundleContext.getService(mucServiceReference);
         }
         return mucService;
+    }
+    
+    /**
+     * Gets the service giving access to message history.
+     *
+     * @return the service giving access to message history.
+     */
+    public static MessageHistoryService getMessageHistoryService()
+    {
+        if (messageHistoryService == null)
+            messageHistoryService = ServiceUtils.getService(bundleContext, 
+                MessageHistoryService.class);
+        return messageHistoryService;
     }
 }

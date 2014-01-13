@@ -394,4 +394,43 @@ public interface MessageHistoryService
     */
    public void eraseLocallyStoredHistory(ChatRoom room)
        throws IOException;
+   
+   /**
+    * Returns <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+    * property is true, otherwise - returns <code>false</code>.
+    * Indicates to the user interface whether the history logging is enabled.
+    * @return <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+    * property is true, otherwise - returns <code>false</code>.
+    */
+   public boolean isHistoryLoggingEnabled();
+   
+   /**
+    * Updates the "isHistoryLoggingEnabled" property through the
+    * <tt>ConfigurationService</tt>.
+    *
+    * @param isEnabled indicates if the history logging is
+    * enabled.
+    */
+   public void setHistoryLoggingEnabled(boolean isEnabled);
+   
+   /**
+    * Returns <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+    * property is true for the <tt>id</tt>, otherwise - returns
+    * <code>false</code>.
+    * Indicates to the user interface whether the history logging is enabled
+    * for the supplied id (id for metacontact or for chat room).
+    * @return <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+    * property is true for the <tt>id</tt>, otherwise - returns
+    * <code>false</code>.
+    */
+   public boolean isHistoryLoggingEnabled(String id);
+   
+   /**
+    * Updates the "isHistoryLoggingEnabled" property through the
+    * <tt>ConfigurationService</tt> for the contact.
+    *
+    * @param isEnabled indicates if the history logging is
+    * enabled for the contact.
+    */
+   public void setHistoryLoggingEnabled(boolean isEnabled, String id);
 }

@@ -11,6 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.plugin.otr.authdialog.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -101,6 +102,11 @@ public class OtrActivator
      * The <tt>MetaContactListService</tt> reference.
      */
     private static MetaContactListService metaCListService;
+    
+    /**
+     * The message history service.
+     */
+    private static MessageHistoryService messageHistoryService;
 
     /**
      * Gets an {@link AccountID} by its UID.
@@ -465,6 +471,19 @@ public class OtrActivator
         return metaCListService;
     }
 
+    /**
+     * Gets the service giving access to message history.
+     *
+     * @return the service giving access to message history.
+     */
+    public static MessageHistoryService getMessageHistoryService()
+    {
+        if (messageHistoryService == null)
+            messageHistoryService = ServiceUtils.getService(bundleContext, 
+                MessageHistoryService.class);
+        return messageHistoryService;
+    }
+    
     /**
      * The factory that will be registered in OSGi and will create
      * otr menu instances.

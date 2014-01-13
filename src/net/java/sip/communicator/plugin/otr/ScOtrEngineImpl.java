@@ -611,8 +611,9 @@ public class ScOtrEngineImpl
 
                     // show info whether history is on or off
                     String otrAndHistoryMessage;
-                    if(!ConfigurationUtils.isHistoryLoggingEnabled()
-                        || !isHistoryLoggingEnabled(contact))
+                    if(!OtrActivator.getMessageHistoryService()
+                        .isHistoryLoggingEnabled() || 
+                        !isHistoryLoggingEnabled(contact))
                     {
                         otrAndHistoryMessage =
                             OtrActivator.resourceService.getI18NString(
@@ -732,8 +733,8 @@ public class ScOtrEngineImpl
         MetaContact metaContact = OtrActivator
             .getContactListService().findMetaContactByContact(contact);
         if(metaContact != null)
-            return ConfigurationUtils.isHistoryLoggingEnabled(
-                metaContact.getMetaUID());
+            return OtrActivator.getMessageHistoryService()
+                .isHistoryLoggingEnabled(metaContact.getMetaUID());
         else
             return true;
     }

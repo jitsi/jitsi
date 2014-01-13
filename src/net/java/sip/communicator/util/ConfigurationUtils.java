@@ -102,11 +102,6 @@ public class ConfigurationUtils
     private static boolean isLeaveChatRoomOnWindowCloseEnabled;
 
     /**
-     * Indicates if history logging is enabled.
-     */
-    private static boolean isHistoryLoggingEnabled;
-
-    /**
      * Indicates if the history should be shown in the chat window.
      */
     private static boolean isHistoryShown;
@@ -509,13 +504,6 @@ public class ConfigurationUtils
                         isLeaveChatRoomOnWindowCloseEnabledString);
         }
 
-        // Load the "IS_MESSAGE_HISTORY_ENABLED" property.
-        isHistoryLoggingEnabled = configService.getBoolean(
-            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
-            Boolean.parseBoolean(UtilActivator
-                .getResources().getSettingsString(
-                    MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED))
-            );
 
         // Load the "isHistoryShown" property.
         String isHistoryShownStringProperty =
@@ -1111,72 +1099,7 @@ public class ConfigurationUtils
             Boolean.toString(isLeaveChatRoomOnWindowCloseEnabled));
     }
 
-    /**
-     * Returns <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
-     * property is true, otherwise - returns <code>false</code>.
-     * Indicates to the user interface whether the history logging is enabled.
-     * @return <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
-     * property is true, otherwise - returns <code>false</code>.
-     */
-    public static boolean isHistoryLoggingEnabled()
-    {
-        return isHistoryLoggingEnabled;
-    }
-
-    /**
-     * Updates the "isHistoryLoggingEnabled" property through the
-     * <tt>ConfigurationService</tt>.
-     *
-     * @param isEnabled indicates if the history logging is
-     * enabled.
-     */
-    public static void setHistoryLoggingEnabled(boolean isEnabled)
-    {
-        isHistoryLoggingEnabled = isEnabled;
-
-        configService.setProperty(
-            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
-            Boolean.toString(isHistoryLoggingEnabled));
-    }
-
-    /**
-     * Returns <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
-     * property is true for the <tt>id</tt>, otherwise - returns
-     * <code>false</code>.
-     * Indicates to the user interface whether the history logging is enabled
-     * for the supplied id (id for metacontact or for chat room).
-     * @return <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
-     * property is true for the <tt>id</tt>, otherwise - returns
-     * <code>false</code>.
-     */
-    public static boolean isHistoryLoggingEnabled(String id)
-    {
-        return configService.getBoolean(MessageHistoryService
-                    .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX
-                        + "." + id, true);
-    }
-
-    /**
-     * Updates the "isHistoryLoggingEnabled" property through the
-     * <tt>ConfigurationService</tt> for the contact.
-     *
-     * @param isEnabled indicates if the history logging is
-     * enabled for the contact.
-     */
-    public static void setHistoryLoggingEnabled(
-        boolean isEnabled, String id)
-    {
-        if(isEnabled)
-            configService.setProperty(
-                MessageHistoryService
-                    .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX
-                + "." + id, null);
-        else
-            configService.setProperty(
-                MessageHistoryService
-                    .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX
-                + "." + id, isEnabled);
-    }
+    
 
 
     /**
@@ -2646,11 +2569,6 @@ public class ConfigurationUtils
             {
                 isLeaveChatRoomOnWindowCloseEnabled
                     = Boolean.parseBoolean(newValue);
-            }
-            else if (evt.getPropertyName().equals(
-                MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED))
-            {
-                isHistoryLoggingEnabled = Boolean.parseBoolean(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "service.gui.IS_MESSAGE_HISTORY_SHOWN"))

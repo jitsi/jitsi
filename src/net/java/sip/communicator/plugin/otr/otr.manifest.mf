@@ -32,4 +32,5 @@ Import-Package: org.osgi.framework,
  org.bouncycastle.crypto.engines,
  org.bouncycastle.crypto.modes,
  org.bouncycastle.util,
- org.bouncycastle.util.encoders
+ org.bouncycastle.util.encoders,
+ net.java.sip.communicator.service.msghistory
