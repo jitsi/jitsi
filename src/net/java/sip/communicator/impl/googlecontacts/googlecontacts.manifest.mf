@@ -5,6 +5,7 @@ Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 Bundle-SymbolicName: net.java.sip.communicator.googlecontacts
 Import-Package: org.osgi.framework,
+ com.google.common.collect,
  org.jitsi.service.configuration,
  net.java.sip.communicator.service.credentialsstorage,
  net.java.sip.communicator.service.contactsource,
