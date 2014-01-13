@@ -587,17 +587,8 @@ public class ProvisioningServiceImpl
             {
                 // if canceled, lets check whether provisioning is
                 // mandatory
-                boolean provisioningMandatory = false;
-
-                String defaultSettingsProp =
-                    ProvisioningActivator.getResourceService()
-                        .getSettingsString(PROPERTY_PROVISIONING_MANDATORY);
-                if(defaultSettingsProp != null
-                    && Boolean.parseBoolean(defaultSettingsProp))
-                    provisioningMandatory = true;
-
                 if(ProvisioningActivator.getConfigurationService().getBoolean(
-                    PROPERTY_PROVISIONING_MANDATORY, provisioningMandatory))
+                    PROPERTY_PROVISIONING_MANDATORY, false))
                 {
                     String errorMsg;
                     if(errorWhileProvisioning != null)
