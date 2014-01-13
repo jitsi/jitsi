@@ -139,9 +139,9 @@ public class ProvisioningServiceImpl
 
          if(!StringUtils.isNullOrEmpty(url))
          {
-             File file = retrieveConfigurationFile(url);
+             InputStream data = retrieveConfigurationFile(url);
 
-             if(file != null)
+             if(data != null)
              {
                  /* store the provisioning URL in local configuration in case
                   * the provisioning discovery failed (DHCP/DNS unavailable, ...)
@@ -149,7 +149,7 @@ public class ProvisioningServiceImpl
                  ProvisioningActivator.getConfigurationService().setProperty(
                          PROPERTY_PROVISIONING_URL, url);
 
-                 updateConfiguration(file);
+                 updateConfiguration(data);
              }
          }
      }
@@ -251,9 +251,9 @@ public class ProvisioningServiceImpl
      * network or if an exception happen
      *
      * @param url provisioning URL
-     * @return provisioning file downloaded
+     * @return Stream of provisioning data
      */
-    private File retrieveConfigurationFile(String url)
+    private InputStream retrieveConfigurationFile(String url)
     {
         return retrieveConfigurationFile(url, null);
     }
@@ -265,21 +265,15 @@ public class ProvisioningServiceImpl
      *
      * @param url provisioning URL
      * @param parameters the already filled parameters if any.
-     * @return provisioning file downloaded
+     * @return Stream of provisioning data
      */
-    private File retrieveConfigurationFile(String url,
+    private InputStream retrieveConfigurationFile(String url,
                                            List<NameValuePair> parameters)
     {
-        File tmpFile = null;
-
         try
         {
             String arg = null;
             String args[] = null;
-            final File temp = File.createTempFile("provisioning",
-                    ".properties");
-
-            tmpFile = temp;
 
             URL u = new URL(url);
             InetAddress ipaddr =
@@ -648,7 +642,6 @@ public class ProvisioningServiceImpl
             InputStream in = res.getContent();
 
             // Skips ProgressMonitorInputStream wrapper on Android
-            InputStream usedStream = in;
             if(!OSUtils.IS_ANDROID)
             {
                 // Chain a ProgressMonitorInputStream to the
@@ -661,52 +654,15 @@ public class ProvisioningServiceImpl
                 pm.setMaximum((int)res.getContentLength());
 
                 // Uses ProgressMonitorInputStream if available
-                usedStream = pin;
+                return pin;
             }
 
-            final BufferedOutputStream bout
-                = new BufferedOutputStream(new FileOutputStream(temp));
-
-            ByteArrayOutputStream logStream = new ByteArrayOutputStream();
-
-            try
-            {
-                int read = -1;
-                byte[] buff = new byte[1024];
-
-                while((read = usedStream.read(buff)) != -1)
-                {
-                    bout.write(buff, 0, read);
-                    logStream.write(buff, 0, read);
-                }
-
-                usedStream.close();
-                bout.flush();
-                bout.close();
-
-                return temp;
-            }
-            catch (Exception e)
-            {
-                logger.error("Error saving", e);
-
-                try
-                {
-                    usedStream.close();
-                    bout.close();
-                }
-                catch (Exception e1)
-                {
-                }
-
-                return null;
-            }
+            return in;
         }
         catch (Exception e)
         {
             if (logger.isInfoEnabled())
                 logger.info("Error retrieving provisioning file!", e);
-            tmpFile.delete();
             return null;
         }
     }
@@ -735,16 +691,16 @@ public class ProvisioningServiceImpl
     /**
      * Update configuration with properties retrieved from provisioning URL.
      *
-     * @param file provisioning file
+     * @param Provisioning data
      */
-    private void updateConfiguration(final File file)
+    private void updateConfiguration(final InputStream data)
     {
         Properties fileProps = new OrderedProperties();
         InputStream in = null;
 
         try
         {
-            in = new BufferedInputStream(new FileInputStream(file));
+            in = new BufferedInputStream(data);
             fileProps.load(in);
 
             Iterator<Map.Entry<Object, Object> > it
@@ -808,7 +764,6 @@ public class ProvisioningServiceImpl
             try
             {
                 in.close();
-                file.delete();
             }
             catch(IOException e)
             {
