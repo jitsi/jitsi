@@ -15,6 +15,7 @@ import net.java.otr4j.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.otr.OtrContactManager.OtrContact;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * A special {@link JMenu} that holds the menu items for controlling the
@@ -28,6 +29,8 @@ class OtrContactMenu
                ScOtrEngineListener,
                ScOtrKeyManagerListener
 {
+    private final Logger logger = Logger.getLogger(OtrContactMenu.class);
+
     private static final String ACTION_COMMAND_AUTHENTICATE_BUDDY =
         "AUTHENTICATE_BUDDY";
 
@@ -460,6 +463,9 @@ class OtrContactMenu
     {
         if (sessionStatus != this.sessionStatus)
         {
+            logger.debug(
+                "Setting session status of contact " + contact.contact +
+                " to " + sessionStatus + ". Was " + this.sessionStatus);
             this.sessionStatus = sessionStatus;
 
             if (separateMenu != null)

@@ -1079,9 +1079,10 @@ public class ScOtrEngineImpl
         for (ScOtrEngineListener l : getListeners())
         {
             l.sessionStatusChanged(otrContact);
-            scheduler.scheduleScSessionStatusChange(
-                otrContact, ScSessionStatus.TIMED_OUT);
         }
+
+        scheduler.scheduleScSessionStatusChange(
+            otrContact, ScSessionStatus.TIMED_OUT);
 
         try
         {
