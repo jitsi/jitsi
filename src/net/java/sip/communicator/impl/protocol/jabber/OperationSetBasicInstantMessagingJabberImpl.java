@@ -559,13 +559,14 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * @param message The new message.
      * @param correctedMessageUID The ID of the message being replaced.
      */
-    public void correctMessage(Contact to, Message message,
-            String correctedMessageUID)
+    public void correctMessage(
+        Contact to, ContactResource resource,
+        Message message, String correctedMessageUID)
     {
         PacketExtension[] exts = new PacketExtension[1];
         exts[0] = new MessageCorrectionExtension(correctedMessageUID);
         MessageDeliveredEvent msgDelivered
-            = sendMessage(to, null, message, exts);
+            = sendMessage(to, resource, message, exts);
         msgDelivered.setCorrectedMessageUID(correctedMessageUID);
         fireMessageEvent(msgDelivered);
     }

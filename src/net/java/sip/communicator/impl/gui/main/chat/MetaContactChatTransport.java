@@ -415,7 +415,8 @@ public class MetaContactChatTransport
             msg = mcOpSet.createMessage(message);
         }
 
-        mcOpSet.correctMessage(contact, msg, correctedMessageUID);
+        mcOpSet.correctMessage(
+            contact, contactResource, msg, correctedMessageUID);
     }
 
     /**

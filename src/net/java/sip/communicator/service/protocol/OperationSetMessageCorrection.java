@@ -19,9 +19,10 @@ public interface OperationSetMessageCorrection
      * the contact <tt>to</tt> with the message <tt>message</tt>
      *
      * @param to The contact to send the message to.
+     * @param resource The ContactResource to send the message to.
      * @param message The new message.
      * @param correctedMessageUID The ID of the message being replaced.
      */
-    public void correctMessage(Contact to, Message message,
-            String correctedMessageUID);
+    public void correctMessage(Contact to, ContactResource resource,
+        Message message, String correctedMessageUID);
 }
