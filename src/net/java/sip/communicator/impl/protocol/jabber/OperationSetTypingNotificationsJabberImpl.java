@@ -40,6 +40,11 @@ public class OperationSetTypingNotificationsJabberImpl
     private OperationSetPersistentPresenceJabberImpl opSetPersPresence = null;
 
     /**
+     * An active instance of the opSetBasicIM operation set.
+     */
+    private OperationSetBasicInstantMessagingJabberImpl opSetBasicIM = null;
+
+    /**
      * We use this listener to cease the moment when the protocol provider
      * has been successfully registered.
      */
@@ -49,9 +54,6 @@ public class OperationSetTypingNotificationsJabberImpl
      * The manger which send us the typing info and through which we send inf
      */
     private MessageEventManager messageEventManager = null;
-
-//    private final Map<String, String> packetIDsTable
-//        = new Hashtable<String, String>();
 
     /**
      * The listener instance that we use to track chat states according to
@@ -142,15 +144,26 @@ public class OperationSetTypingNotificationsJabberImpl
      */
     private void sendXep85ChatState(Contact contact, int state)
     {
+        String toJID = null;
+
+        // find the currently contacted jid to send typing info to him
+        // or if we do not have a jid and we have already sent message to the
+        // bare jid we will also send typing info there
+        if (toJID == null)
+            toJID = opSetBasicIM.getJidForAddress(contact.getAddress());
+
+        // if we haven't sent a message yet, do not send typing notifications
+        if(toJID == null)
+            return;
+
         if (logger.isTraceEnabled())
             logger.trace("Sending XEP-0085 chat state=" + state
-            + " to " + contact.getAddress());
+                + " to " + toJID);
 
         Chat chat = parentProvider.getConnection()
-            .getChatManager().createChat(contact.getAddress(), null);
+            .getChatManager().createChat(toJID, null);
 
         ChatState chatState = null;
-
 
         if(state == STATE_TYPING)
         {
@@ -233,6 +246,11 @@ public class OperationSetTypingNotificationsJabberImpl
                 opSetPersPresence =
                     (OperationSetPersistentPresenceJabberImpl) parentProvider
                         .getOperationSet(OperationSetPersistentPresence.class);
+
+                opSetBasicIM =
+                    (OperationSetBasicInstantMessagingJabberImpl)parentProvider
+                        .getOperationSet(
+                            OperationSetBasicInstantMessaging.class);
 
                 messageEventManager =
                     new MessageEventManager(parentProvider.getConnection());
@@ -408,7 +426,7 @@ public class OperationSetTypingNotificationsJabberImpl
                 + state.name()+ " state.");
 
             String fromID = StringUtils.parseBareAddress(chat.getParticipant());
-            
+
             List<ChatRoom> chatRooms = parentProvider.getOperationSet(
                 OperationSetMultiUserChat.class).getCurrentlyJoinedChatRooms();
             boolean isPrivateMessagingAddress = false;
@@ -420,7 +438,7 @@ public class OperationSetTypingNotificationsJabberImpl
                     break;
                 }
             }
-            
+
             Contact sourceContact = opSetPersPresence.findContactByID(
                 (isPrivateMessagingAddress? message.getFrom() : fromID));
             if(sourceContact == null)

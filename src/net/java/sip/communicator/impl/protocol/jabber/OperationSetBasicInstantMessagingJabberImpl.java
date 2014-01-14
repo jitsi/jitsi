@@ -340,10 +340,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
     /**
      * Returns the last jid that the party with the specified <tt>address</tt>
-     * contacted us from or <tt>null</tt> if we don't have a jid for the
-     * specified <tt>address</tt> yet. The method would also purge all entries
-     * that haven't seen any activity (i.e. no one has tried to get or remap it)
-     * for a delay longer than <tt>JID_INACTIVITY_TIMEOUT</tt>.
+     * contacted us from or <tt>null</tt>(or bare jid) if we don't have a jid
+     * for the specified <tt>address</tt> yet. The method would also purge all
+     * entries that haven't seen any activity (i.e. no one has tried to get or
+     * remap it) for a delay longer than <tt>JID_INACTIVITY_TIMEOUT</tt>.
      *
      * @param address the <tt>address</tt> that we'd like to obtain a jid for.
      *
@@ -351,7 +351,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * contacted us from or <tt>null</tt> if we don't have a jid for the
      * specified <tt>address</tt> yet.
      */
-    private String getJidForAddress(String address)
+    String getJidForAddress(String address)
     {
         synchronized(jids)
         {
@@ -429,16 +429,27 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             String toJID = null;
 
+            boolean sendToBaseResource = false;
             if (toResource != null)
-                toJID = (toResource.equals(ContactResource.BASE_RESOURCE))
-                        ? to.getAddress()
-                        : ((ContactResourceJabberImpl) toResource).getFullJid();
+            {
+                if(toResource.equals(ContactResource.BASE_RESOURCE))
+                {
+                    toJID = to.getAddress();
+                    sendToBaseResource = true;
+                }
+                else
+                    toJID =
+                        ((ContactResourceJabberImpl) toResource).getFullJid();
+            }
 
             if (toJID == null)
                 toJID = getJidForAddress(to.getAddress());
 
             if (toJID == null)
+            {
+                sendToBaseResource = true;
                 toJID = to.getAddress();
+            }
 
             Chat chat = obtainChatInstance(toJID);
 
@@ -494,6 +505,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 addNotificationsRequests(msg, true, false, false, true);
 
             chat.sendMessage(msg);
+
+            if(sendToBaseResource)
+                putJidForAddress(to.getAddress(), to.getAddress());
 
             MessageDeliveredEvent msgDeliveredEvt
                 = new MessageDeliveredEvent(message, to, toResource);
@@ -706,7 +720,6 @@ public class OperationSetBasicInstantMessagingJabberImpl
             {
                 isPrivateMessaging = true;
             }
-            
 
             if(logger.isDebugEnabled())
             {
@@ -769,7 +782,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 correctedMessageUID = ((MessageCorrectionExtension)
                         correctionExtension).getCorrectedMessageUID();
             }
-            
+
             Contact sourceContact
                 = opSetPersPresence.findContactByID(
                     (isPrivateMessaging? msg.getFrom() : fromUserID));
