@@ -112,6 +112,11 @@ class OtrContactMenu
                 this,
                 OtrActivator.scOtrEngine, OtrActivator.scOtrKeyManager);
 
+        setSessionStatus(
+            OtrActivator.scOtrEngine.getSessionStatus(this.contact));
+        setOtrPolicy(
+            OtrActivator.scOtrEngine.getContactPolicy(otrContact.contact));
+
         /*
          * Since we now support OTRv3 we have to make sure that the user's
          * cached policy is up-to-date with the latest allowed version of the
@@ -131,11 +136,6 @@ class OtrContactMenu
         else
             policy.setAllowV3(false);
         OtrActivator.scOtrEngine.setGlobalPolicy(policy);
-
-        setSessionStatus(
-            OtrActivator.scOtrEngine.getSessionStatus(this.contact));
-        setOtrPolicy(
-            OtrActivator.scOtrEngine.getContactPolicy(otrContact.contact));
 
         buildMenu();
     }
