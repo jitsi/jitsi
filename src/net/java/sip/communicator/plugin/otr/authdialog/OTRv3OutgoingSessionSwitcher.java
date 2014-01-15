@@ -157,8 +157,6 @@ public class OTRv3OutgoingSessionSwitcher
         this.setOpaque(false);
         this.menu.setVisible(false);
 
-        buildMenu(contact);
-
         /*
          * XXX This OtrV3OutgoingSessionSwitcher instance cannot be added as a
          * listener to scOtrEngine and scOtrKeyManager without being removed
@@ -193,6 +191,8 @@ public class OTRv3OutgoingSessionSwitcher
         {
             logger.debug("Failed to load padlock image");
         }
+
+        buildMenu(contact);
     }
 
     @Override

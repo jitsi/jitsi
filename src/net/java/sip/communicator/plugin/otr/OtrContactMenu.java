@@ -124,18 +124,18 @@ class OtrContactMenu
          */
         OtrPolicy policy =
             OtrActivator.scOtrEngine.getContactPolicy(otrContact.contact);
-        if (policy.getAllowV1() && policy.getAllowV2())
+        if (policy.getAllowV1() && policy.getAllowV2() && !policy.getAllowV3())
+        {
             policy.setAllowV3(true);
-        else
-            policy.setAllowV3(false);
-        OtrActivator.scOtrEngine.setContactPolicy(contact.contact, policy);
+            OtrActivator.scOtrEngine.setContactPolicy(contact.contact, policy);
+        }
 
         policy = OtrActivator.scOtrEngine.getGlobalPolicy();
-        if (policy.getAllowV1() && policy.getAllowV2())
+        if (policy.getAllowV1() && policy.getAllowV2() && !policy.getAllowV3())
+        {
             policy.setAllowV3(true);
-        else
-            policy.setAllowV3(false);
-        OtrActivator.scOtrEngine.setGlobalPolicy(policy);
+            OtrActivator.scOtrEngine.setGlobalPolicy(policy);
+        }
 
         buildMenu();
     }
