@@ -100,4 +100,9 @@ public interface ChatRoomWrapper
      * @param value change of auto join property.
      */
     public void setAutoJoin(boolean value);
+    
+    /**
+     * Removes the listeners.
+     */
+    public void removeListeners();
 }

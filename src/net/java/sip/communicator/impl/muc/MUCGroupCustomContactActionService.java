@@ -82,7 +82,7 @@ public class MUCGroupCustomContactActionService
         }
 
         @Override
-        public String getText()
+        public String getText(ContactSourceService contactSource)
         {
             return resources.getI18NString("service.gui.MY_CHAT_ROOMS");
         }

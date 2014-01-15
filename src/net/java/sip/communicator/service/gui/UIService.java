@@ -495,4 +495,13 @@ public interface UIService
      * Shows Add chat room dialog.
      */
     public void showAddChatRoomDialog();
+    
+    /**
+     * Shows chat room open automatically configuration dialog.
+     * @param chatRoomId the chat room id of the chat room associated with the 
+     * dialog 
+     * @param pps the protocol provider service of the chat room
+     */
+    public void showChatRoomAutoOpenConfigDialog(
+        ProtocolProviderService pps, String chatRoomId);
 }

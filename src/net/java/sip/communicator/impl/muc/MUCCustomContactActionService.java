@@ -85,7 +85,7 @@ public class MUCCustomContactActionService
      */
     private String[] menuActionsNames = {
       "open", "join", "join_as", "leave", "remove", "change_nick", "autojoin",
-      "autojoin_pressed"
+      "autojoin_pressed", "open_automatically"
     };
     
     /**
@@ -96,7 +96,8 @@ public class MUCCustomContactActionService
       "service.gui.JOIN_AS", "service.gui.LEAVE",
       "service.gui.REMOVE", "service.gui.CHANGE_NICK",
       "service.gui.JOIN_AUTOMATICALLY",
-      "service.gui.DONT_JOIN_AUTOMATICALLY"
+      "service.gui.DONT_JOIN_AUTOMATICALLY",
+      "service.gui.OPEN_AUTOMATICALLY"
     };
     
     /**
@@ -107,7 +108,7 @@ public class MUCCustomContactActionService
         "service.gui.icons.JOIN_AS_ICON", "service.gui.icons.LEAVE_ICON", 
         "service.gui.icons.REMOVE_CHAT_ICON", 
         "service.gui.icons.RENAME_16x16_ICON",
-        "service.gui.icons.AUTOJOIN", "service.gui.icons.AUTOJOIN"
+        "service.gui.icons.AUTOJOIN", "service.gui.icons.AUTOJOIN", null
       };
 
     /**
@@ -257,7 +258,18 @@ public class MUCCustomContactActionService
             }
         },
         autoJoinRunnable,
-        autoJoinRunnable
+        autoJoinRunnable,
+        new MUCCustomActionRunnable()
+        {
+            
+            @Override
+            public void run()
+            {
+                MUCActivator.getUIService().showChatRoomAutoOpenConfigDialog(
+                    chatRoomWrapper.getParentProvider().getProtocolProvider(),
+                    chatRoomWrapper.getChatRoomID());
+            }
+        }
     };
     
     /**
@@ -269,6 +281,7 @@ public class MUCCustomContactActionService
       new JoinEnableChecker(),
       new JoinEnableChecker(),
       new LeaveEnableChecker(),
+      null,
       null,
       null,
       null,
@@ -526,9 +539,21 @@ public class MUCCustomContactActionService
 
 
         @Override
-        public String getText()
+        public String getText(SourceContact actionSource)
         {
-            return text;
+            if(!name.equals("open_automatically"))
+                return text;
+            
+            String openAutomaticallyValue 
+                = MUCService.getChatRoomAutoOpenOption(
+                    ((ChatRoomSourceContact)actionSource).getProvider(), 
+                    ((ChatRoomSourceContact)actionSource).getChatRoomID());
+            if(openAutomaticallyValue == null)
+                openAutomaticallyValue = MUCService.OPEN_ON_MESSAGE;
+            String openAutomaticallyKey = MUCService.autoOpenConfigValuesTexts
+                .get(openAutomaticallyValue);
+            return text +  " (" + resources.getI18NString(openAutomaticallyKey) 
+                + ")";
         }
 
         @Override

@@ -207,11 +207,17 @@ public class ConferenceChatManager
             = GuiActivator.getUIService().getChatWindowManager();
         
         boolean createWindow = false;
-        
-        MessageHistoryService mhs = GuiActivator.getMessageHistoryService();
-        
-        if(!mhs.isHistoryLoggingEnabled() || 
-            !mhs.isHistoryLoggingEnabled(sourceChatRoom.getIdentifier()))
+        String autoOpenConfig 
+            = MUCService.getChatRoomAutoOpenOption(
+                sourceChatRoom.getParentProvider(), 
+                sourceChatRoom.getIdentifier());
+        if(autoOpenConfig == null)
+            autoOpenConfig = MUCService.OPEN_ON_MESSAGE;
+    
+        if(autoOpenConfig.equals(MUCService.OPEN_ON_ACTIVITY)
+            || (autoOpenConfig.equals(MUCService.OPEN_ON_MESSAGE) 
+                && !evt.isHistoryMessage())
+            || evt.isImportantMessage())
             createWindow = true;
         
         if(sourceChatRoom.isSystem())
@@ -288,8 +294,8 @@ public class ConferenceChatManager
             message.getContentType(),
             message.getMessageUID(),
             null);
-
-        if(evt.isImportantMessage() || createWindow)
+        
+        if(createWindow)
             chatWindowManager.openChat(chatPanel, true);
     }
     
@@ -487,14 +493,15 @@ public class ConferenceChatManager
                     chatRoomWrapper,
                     ChatRoomListChangeEvent.CHAT_ROOM_CHANGED);
 
-                MessageHistoryService mhs 
-                    = GuiActivator.getMessageHistoryService();
-                
                 boolean createWindow = false;
                 
-                if(!mhs.isHistoryLoggingEnabled() 
-                    || !mhs.isHistoryLoggingEnabled(
-                        sourceChatRoom.getIdentifier()))
+                String autoOpenConfig 
+                = MUCService.getChatRoomAutoOpenOption(
+                    sourceChatRoom.getParentProvider(), 
+                    sourceChatRoom.getIdentifier());
+                
+                if(autoOpenConfig != null 
+                    && autoOpenConfig.equals(MUCService.OPEN_ON_ACTIVITY))
                     createWindow = true;
                 
                 ChatWindowManager chatWindowManager

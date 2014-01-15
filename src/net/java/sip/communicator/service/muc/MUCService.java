@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The MUC service provides interface for the chat rooms. It connects the GUI 
@@ -19,6 +20,71 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public abstract class MUCService
 {
+    /**
+     * The value for chat room configuration property to open automatically on 
+     * activity 
+     */
+    public static String OPEN_ON_ACTIVITY = "on_activity";
+    
+    /**
+     * The value for chat room configuration property to open automatically on 
+     * message 
+     */
+    public static String OPEN_ON_MESSAGE = "on_message";
+    
+    /**
+     * The value for chat room configuration property to open automatically on 
+     * important messages. 
+     */
+    public static String OPEN_ON_IMPORTANT_MESSAGE = "on_important_message";
+    
+    /**
+     * Map for the auto open configuration values and their text representation
+     */
+    public static Map<String, String> autoOpenConfigValuesTexts
+        = new HashMap<String, String>();
+    
+    static
+    {
+        autoOpenConfigValuesTexts.put(OPEN_ON_ACTIVITY, 
+            "service.gui.OPEN_ON_ACTIVITY");
+        autoOpenConfigValuesTexts.put(OPEN_ON_MESSAGE, 
+            "service.gui.OPEN_ON_MESSAGE");
+        autoOpenConfigValuesTexts.put(OPEN_ON_IMPORTANT_MESSAGE, 
+            "service.gui.OPEN_ON_IMPORTANT_MESSAGE");
+    }
+    
+    /**
+     * Sets chat room open automatically property
+     * @param pps the provider
+     * @param chatRoomId the chat room id
+     * @param value the new value for the property
+     */
+    public static void setChatRoomAutoOpenOption(
+        ProtocolProviderService pps,
+        String chatRoomId,
+        String value)
+    {
+        ConfigurationUtils.updateChatRoomProperty(
+            pps,
+            chatRoomId, "openAutomatically", value);
+    }
+    
+    /**
+     * Returns the value of the chat room open automatically property
+     * @param pps the provider
+     * @param chatRoomId the chat room id
+     * @return the value of the chat room open automatically property
+     */
+    public static String getChatRoomAutoOpenOption(
+        ProtocolProviderService pps,
+        String chatRoomId)
+    {
+        return ConfigurationUtils.getChatRoomProperty(
+            pps,
+            chatRoomId, "openAutomatically");
+    }
+
     /**
      * Fires a <tt>ChatRoomListChangedEvent</tt> event.
      * 

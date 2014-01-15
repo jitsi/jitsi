@@ -557,7 +557,7 @@ public class ExternalContactSource
                 actionMenuItem = new JMenuItem();
             }
 
-            actionMenuItem.setText(ca.getText());
+            actionMenuItem.setText(ca.getText(customActionContact));
 
             actionMenuItem.setMnemonic(ca.getMnemonics());
             
@@ -614,7 +614,7 @@ public class ExternalContactSource
                 actionMenuItem = new JMenuItem();
             }
 
-            actionMenuItem.setText(ca.getText());
+            actionMenuItem.setText(ca.getText(contactSource));
 
             actionMenuItem.setMnemonic(ca.getMnemonics());
             

@@ -7,6 +7,9 @@
 package net.java.sip.communicator.impl.muc;
 
 
+import java.beans.*;
+
+import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -65,6 +68,29 @@ public class ChatRoomWrapperImpl
      * of the chat room.
      */
     private String passwordPrefix;
+    
+    /**
+     * The property change listener for the message service.
+     */
+    private PropertyChangeListener propertyListener 
+        = new PropertyChangeListener()
+    {
+        
+        @Override
+        public void propertyChange(PropertyChangeEvent e)
+        {
+            MessageHistoryService mhs = MUCActivator.getMessageHistoryService();
+            if(!mhs.isHistoryLoggingEnabled() 
+                || !mhs.isHistoryLoggingEnabled(getChatRoomID()))
+            {
+                MUCService.setChatRoomAutoOpenOption(
+                    getParentProvider().getProtocolProvider(), 
+                    getChatRoomID(), 
+                    MUCService.OPEN_ON_ACTIVITY);
+            }
+        }
+
+    };
 
     /**
      * Creates a <tt>ChatRoomWrapper</tt> by specifying the protocol provider,
@@ -86,6 +112,15 @@ public class ChatRoomWrapperImpl
             getParentProvider().getProtocolProvider().getAccountID()
             .getAccountUniqueID(), chatRoomID) + ".password";
         
+        MUCActivator.getConfigurationService().addPropertyChangeListener(
+            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED, 
+            propertyListener);
+        
+        MUCActivator.getConfigurationService().addPropertyChangeListener(
+            MessageHistoryService
+                .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX + "."
+                    + getChatRoomID(), 
+                propertyListener);
     }
 
     /**
@@ -275,5 +310,18 @@ public class ChatRoomWrapperImpl
             ChatRoomListChangeEvent.CHAT_ROOM_CHANGED);
     }
 
-    
+    /**
+     * Removes the listeners.
+     */
+    public void removeListeners()
+    {
+        MUCActivator.getConfigurationService().removePropertyChangeListener(
+            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
+            propertyListener);
+        MUCActivator.getConfigurationService().removePropertyChangeListener(
+            MessageHistoryService
+                .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX + "."
+                    + getChatRoomID(),
+            propertyListener);
+    }
 }

@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.customcontactactions.*;
 import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -97,6 +98,11 @@ public class MUCActivator
      */
     private static ProtocolProviderRegListener protocolProviderRegListener 
         = null;
+    
+    /**
+     * The message history service.
+     */
+    private static MessageHistoryService messageHistoryService;
 
     /**
      * The global display details service instance.
@@ -413,5 +419,18 @@ public class MUCActivator
                         GlobalDisplayDetailsService.class);
         }
         return globalDisplayDetailsService;
+    }
+    
+    /**
+     * Gets the service giving access to message history.
+     *
+     * @return the service giving access to message history.
+     */
+    public static MessageHistoryService getMessageHistoryService()
+    {
+        if (messageHistoryService == null)
+            messageHistoryService = ServiceUtils.getService(bundleContext, 
+                MessageHistoryService.class);
+        return messageHistoryService;
     }
 }

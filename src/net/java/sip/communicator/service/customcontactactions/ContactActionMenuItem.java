@@ -33,11 +33,13 @@ public interface ContactActionMenuItem<T>
     /**
      * Returns the text of the component to create for this contact
      * action.
-     *
+     * 
+     * @param actionSource the action source for associated with the
+     * action.
      * @return the tool tip text of the component to create for this contact
      * action
      */
-    public String getText();
+    public String getText(T actionSource);
 
     /**
      * Indicates if this action is visible for the given <tt>actionSource</tt>.

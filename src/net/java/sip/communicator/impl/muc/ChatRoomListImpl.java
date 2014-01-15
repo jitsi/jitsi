@@ -339,6 +339,7 @@ public class ChatRoomListImpl
                 null,   // The new identifier.
                 null);   // The name of the chat room.
             
+            chatRoomWrapper.removeListeners();
             fireChatRoomListChangedEvent(
                 chatRoomWrapper,
                 ChatRoomListChangeEvent.CHAT_ROOM_REMOVED);
