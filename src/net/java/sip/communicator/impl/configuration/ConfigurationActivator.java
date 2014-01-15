@@ -49,20 +49,22 @@ public class ConfigurationActivator
     {
         FileAccessService fas
             = ServiceUtils.getService(bundleContext, FileAccessService.class);
-        File useDatabaseConfig = fas.getPrivatePersistentFile(
-            ".usedatabaseconfig",
-            FileCategory.PROFILE);
+        if (fas != null)
+        {
+            File useDatabaseConfig = fas.getPrivatePersistentFile(
+                ".usedatabaseconfig",
+                FileCategory.PROFILE);
 
-        // BETA: if the marker file exists, use the database configuration
-        if (useDatabaseConfig.exists())
-        {
-            logger.info("Using database configuration store.");
-            this.cs = new JdbcConfigService(fas);
+            // BETA: if the marker file exists, use the database configuration
+            if (useDatabaseConfig.exists())
+            {
+                logger.info("Using database configuration store.");
+                this.cs = new JdbcConfigService(fas);
+            }
         }
-        else
-        {
+
+        if (this.cs == null)
             this.cs = LibJitsi.getConfigurationService();
-        }
 
         bundleContext.registerService(
                 ConfigurationService.class.getName(),
