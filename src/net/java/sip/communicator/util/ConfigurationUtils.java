@@ -14,7 +14,6 @@ import java.util.List;
 
 import javax.net.ssl.*;
 
-import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 
