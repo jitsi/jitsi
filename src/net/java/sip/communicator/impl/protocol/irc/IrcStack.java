@@ -132,6 +132,11 @@ public class IrcStack
         final Exception[] exceptionContainer = new Exception[1];
 
         this.irc = new IRCApiImpl(true);
+	// FIXME Currently, the secure connection is created by
+	// explicitly creating an SSLContext for 'SSL'. According
+	// to Ingo (in a mailing list conversation) it is better to
+	// use the CertificateService for this. This should be
+	// implemented in the irc-api library, though.
         this.params.setServer(new IRCServer(host, port, password, secureConnection));
         synchronized (this.irc)
         {
