@@ -211,7 +211,7 @@ public class ConferenceChatManager
                 sourceChatRoom.getParentProvider(), 
                 sourceChatRoom.getIdentifier());
         if(autoOpenConfig == null)
-            autoOpenConfig = MUCService.OPEN_ON_MESSAGE;
+            autoOpenConfig = MUCService.OPEN_ON_IMPORTANT_MESSAGE;
     
         if(autoOpenConfig.equals(MUCService.OPEN_ON_ACTIVITY)
             || (autoOpenConfig.equals(MUCService.OPEN_ON_MESSAGE) 

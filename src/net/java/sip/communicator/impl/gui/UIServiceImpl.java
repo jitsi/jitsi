@@ -1617,6 +1617,7 @@ public class UIServiceImpl
     public void showChatRoomAutoOpenConfigDialog(
         ProtocolProviderService pps, String chatRoomId)
     {
-        new ChatRoomAutoOpenConfigDialog(pps, chatRoomId);
+        ChatRoomAutoOpenConfigDialog.showChatRoomAutoOpenConfigDialog(
+            pps, chatRoomId);
     }
 }

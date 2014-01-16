@@ -98,48 +98,62 @@ public class ChatRoomAutoOpenConfigDialog
     };
     
     /**
+     * The <tt>ChatRoomAutoOpenConfigDialog</tt> instance.
+     */
+    private static ChatRoomAutoOpenConfigDialog dialog = null;
+    
+    /**
+     * Creates if necessary a new  <tt>ChatRoomAutoOpenConfigDialog</tt> 
+     * instance and displays it.
+     * @param chatRoomId the chat room id of the chat room associated with the 
+     * dialog 
+     * @param pps the protocol provider service of the chat room
+     */
+    public static void showChatRoomAutoOpenConfigDialog(
+        ProtocolProviderService pps, 
+        String chatRoomId)
+    {
+        if(dialog == null)
+        {
+            dialog = new ChatRoomAutoOpenConfigDialog(pps, chatRoomId);
+        }
+        else
+        {
+            dialog.clearListeners();
+            dialog.setProvider(pps);
+            dialog.setChatRoomId(chatRoomId);
+            dialog.refreshValue();
+            if(dialog.isVisible())
+            {
+                dialog.toFront();
+            }
+            else
+            {
+                dialog.setVisible(true);
+            }
+            dialog.pack();
+        }
+    }
+    
+    /**
      * Constructs new <tt>ChatRoomAutoOpenConfigDialog</tt> instance.
      * @param chatRoomId the chat room id of the chat room associated with the 
      * dialog 
      * @param pps the protocol provider service of the chat room
      */
-    public ChatRoomAutoOpenConfigDialog(ProtocolProviderService pps, 
+    private ChatRoomAutoOpenConfigDialog(ProtocolProviderService pps, 
         final String chatRoomId)
     {
         
         this.pps = pps;
         this.chatRoomId = chatRoomId;
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        value = MUCService.getChatRoomAutoOpenOption(pps, chatRoomId);
         
-        GuiActivator.getConfigurationService().addPropertyChangeListener(
-            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED, 
-            propertyListener);
-        
-        GuiActivator.getConfigurationService().addPropertyChangeListener(
-            MessageHistoryService
-                .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX + "."
-                    + chatRoomId, 
-                propertyListener);
-        
-        if(value == null)
-            value = MUCService.OPEN_ON_MESSAGE;
-        
-        if(value.equals(MUCService.OPEN_ON_ACTIVITY))
-        {
-            openOnActivity.setSelected(true);
-        }
-        else if(value.equals(MUCService.OPEN_ON_IMPORTANT_MESSAGE))
-        {
-            openOnImportantMessage.setSelected(true);
-        }
-        else
-        {
-            openOnMessage.setSelected(true);
-        }
+        refreshValue();
         
         JPanel choicePanel = new TransparentPanel();
         choicePanel.setLayout(new BoxLayout(choicePanel, BoxLayout.Y_AXIS));
+        choicePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         openOnActivity.addActionListener( this );
         openOnMessage.addActionListener( this );
         openOnImportantMessage.addActionListener(this);
@@ -161,7 +175,6 @@ public class ChatRoomAutoOpenConfigDialog
         
         JPanel buttonPanel
             = new TransparentPanel(new FlowLayout(FlowLayout.RIGHT));
-        
         updateView();
     
         okButton.addActionListener(this);
@@ -173,10 +186,63 @@ public class ChatRoomAutoOpenConfigDialog
         add(choicePanel, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
         
-        setPreferredSize(new Dimension(300, 140));
         setVisible(true);
+        setPreferredSize(new Dimension(320, 150));
+        pack();
     }
     
+    /**
+     * Sets new <tt>ProtocolProviderService</tt> instance.
+     * 
+     * @param pps the <tt>ProtocolProviderService</tt> to be set.
+     */
+    private void setProvider(ProtocolProviderService pps)
+    {
+        this.pps = pps;
+    }
+    
+    /**
+     * Sets new chat room id.
+     * @param chatRoomId the chat room id to be set
+     */
+    private void setChatRoomId(String chatRoomId)
+    {
+        this.chatRoomId = chatRoomId;
+    }
+    
+    /**
+     * Refreshes the selected value if the chat room is changed.
+     */
+    private void refreshValue()
+    {
+        value = MUCService.getChatRoomAutoOpenOption(pps, chatRoomId);
+        
+        GuiActivator.getConfigurationService().addPropertyChangeListener(
+            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED, 
+            propertyListener);
+        
+        GuiActivator.getConfigurationService().addPropertyChangeListener(
+            MessageHistoryService
+                .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX + "."
+                    + chatRoomId, 
+                propertyListener);
+        
+        if(value == null)
+            value = MUCService.OPEN_ON_IMPORTANT_MESSAGE;
+        
+        if(value.equals(MUCService.OPEN_ON_ACTIVITY))
+        {
+            openOnActivity.setSelected(true);
+        }
+        else if(value.equals(MUCService.OPEN_ON_IMPORTANT_MESSAGE))
+        {
+            openOnImportantMessage.setSelected(true);
+        }
+        else
+        {
+            openOnMessage.setSelected(true);
+        }
+    }
     /**
      * Sets enable/disable state of the buttons.
      */
@@ -221,20 +287,22 @@ public class ChatRoomAutoOpenConfigDialog
             {
                 value = MUCService.OPEN_ON_ACTIVITY;
             }
-            else if(source.equals(openOnImportantMessage))
+            else if(source.equals(openOnMessage))
             {
-                value = MUCService.OPEN_ON_IMPORTANT_MESSAGE;
+                value = MUCService.OPEN_ON_MESSAGE;
             }
             else
             {
-                value = MUCService.OPEN_ON_MESSAGE;
+                value = MUCService.OPEN_ON_IMPORTANT_MESSAGE;
             }
         }
         
     }
 
-    @Override
-    public void dispose()
+    /**
+     * Removes the added listeners.
+     */
+    private void clearListeners()
     {
         GuiActivator.getConfigurationService().removePropertyChangeListener(
             MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
@@ -244,6 +312,12 @@ public class ChatRoomAutoOpenConfigDialog
                 .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX + "."
                     + chatRoomId,
             propertyListener);
+    }
+    
+    @Override
+    public void dispose()
+    {
+        clearListeners();
         super.dispose();
     }
     

@@ -549,11 +549,12 @@ public class MUCCustomContactActionService
                     ((ChatRoomSourceContact)actionSource).getProvider(), 
                     ((ChatRoomSourceContact)actionSource).getChatRoomID());
             if(openAutomaticallyValue == null)
-                openAutomaticallyValue = MUCService.OPEN_ON_MESSAGE;
+                openAutomaticallyValue = MUCService.OPEN_ON_IMPORTANT_MESSAGE;
             String openAutomaticallyKey = MUCService.autoOpenConfigValuesTexts
                 .get(openAutomaticallyValue);
-            return text +  " (" + resources.getI18NString(openAutomaticallyKey) 
-                + ")";
+            return "<html>" + text +  "...<br><font size=\"2\"><center> (" 
+                + resources.getI18NString(openAutomaticallyKey)
+                + ")</center></font></html>";
         }
 
         @Override
