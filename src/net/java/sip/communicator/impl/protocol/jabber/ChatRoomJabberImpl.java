@@ -989,7 +989,18 @@ public class ChatRoomJabberImpl
      */
     public void setLocalUserRole(ChatRoomMemberRole role)
     {
-        fireLocalUserRoleEvent(getUserRole(), role);
+        setLocalUserRole(role, false);
+    }
+    
+    /**
+     * Sets the new rolefor the local user in the context of this chatroom.
+     *
+     * @param role the new role to be set for the local user
+     * @param isInitial if <tt>true</tt> this is initial role set.
+     */
+    public void setLocalUserRole(ChatRoomMemberRole role, boolean isInitial)
+    {
+        fireLocalUserRoleEvent(getUserRole(), role, isInitial);
         this.role = role;
     }
 
@@ -2201,13 +2212,15 @@ public class ChatRoomJabberImpl
      *
      * @param previousRole the previous role that local user had
      * @param newRole the new role the local user gets
+     * @param isInitial if <tt>true</tt> this is initial role set.
      */
     private void fireLocalUserRoleEvent(ChatRoomMemberRole previousRole,
-                                        ChatRoomMemberRole newRole)
+                                        ChatRoomMemberRole newRole, 
+                                        boolean isInitial)
     {
         ChatRoomLocalUserRoleChangeEvent evt
             = new ChatRoomLocalUserRoleChangeEvent(
-                    this, previousRole, newRole);
+                    this, previousRole, newRole, isInitial);
 
         if (logger.isTraceEnabled())
             logger.trace("Will dispatch the following ChatRoom event: " + evt);
@@ -2726,10 +2739,10 @@ public class ChatRoomJabberImpl
                     if(affiliation.equalsIgnoreCase(ChatRoomMemberRole.OWNER
                             .getRoleName().toLowerCase()))
                     {
-                        setLocalUserRole(ChatRoomMemberRole.OWNER);
+                        setLocalUserRole(ChatRoomMemberRole.OWNER, true);
                     }
                     else
-                        setLocalUserRole(ChatRoomMemberRole.MODERATOR);
+                        setLocalUserRole(ChatRoomMemberRole.MODERATOR, true);
                 }
                 else
                 {
@@ -2743,7 +2756,7 @@ public class ChatRoomJabberImpl
                         || jitsiRole == ChatRoomMemberRole.OWNER
                         || jitsiRole == ChatRoomMemberRole.ADMINISTRATOR)
                     {
-                        setLocalUserRole(jitsiRole);
+                        setLocalUserRole(jitsiRole, true);
                     }
                 }
             }

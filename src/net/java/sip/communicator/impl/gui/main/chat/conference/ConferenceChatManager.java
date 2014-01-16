@@ -1301,6 +1301,8 @@ public class ConferenceChatManager
     @Override
     public void localUserRoleChanged(ChatRoomLocalUserRoleChangeEvent evt)
     {
+        if(evt.isInitial())
+            return;
         ChatRoom sourceChatRoom = evt.getSourceChatRoom();
         ChatRoomWrapper chatRoomWrapper
             = GuiActivator.getMUCService().findChatRoomWrapperFromChatRoom(

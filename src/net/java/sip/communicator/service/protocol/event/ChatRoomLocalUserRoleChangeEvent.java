@@ -37,6 +37,11 @@ public class ChatRoomLocalUserRoleChangeEvent
      * The new role that local participant get.
      */
     private ChatRoomMemberRole newRole = null;
+    
+    /**
+     * If <tt>true</tt> this is initial role set.
+     */
+    private boolean isInitial = false;
 
     /**
      * Creates a <tt>ChatRoomLocalUserRoleChangeEvent</tt> representing that
@@ -46,14 +51,17 @@ public class ChatRoomLocalUserRoleChangeEvent
      * @param sourceRoom the <tt>ChatRoom</tt> that produced the event
      * @param previousRole the previous role that local participant had
      * @param newRole the new role that local participant get
+     * @param isInitial if <tt>true</tt> this is initial role set.
      */
     public ChatRoomLocalUserRoleChangeEvent(ChatRoom sourceRoom,
                                         ChatRoomMemberRole previousRole,
-                                        ChatRoomMemberRole newRole)
+                                        ChatRoomMemberRole newRole, 
+                                        boolean isInitial)
     {
         super(sourceRoom);
         this.previousRole = previousRole;
         this.newRole = newRole;
+        this.isInitial = isInitial;
     }
 
     /**
@@ -84,5 +92,14 @@ public class ChatRoomLocalUserRoleChangeEvent
     public ChatRoom getSourceChatRoom()
     {
         return (ChatRoom)getSource();
+    }
+
+    /**
+     * Returns <tt>true</tt> if this is initial role set.
+     * @return <tt>true</tt> if this is initial role set.
+     */
+    public boolean isInitial()
+    {
+        return isInitial;
     }
 }
