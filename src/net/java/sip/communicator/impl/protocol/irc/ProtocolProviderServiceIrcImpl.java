@@ -88,6 +88,9 @@ public class ProtocolProviderServiceIrcImpl
 
             //Initialize the multi user chat support
             multiUserChat = new OperationSetMultiUserChatIrcImpl(this);
+            
+            // TODO Implement OperationSetPresence in order to support private
+            // messaging support.
 
             addSupportedOperationSet(
                 OperationSetMultiUserChat.class,
