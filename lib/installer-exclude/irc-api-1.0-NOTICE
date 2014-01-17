@@ -1,41 +1,39 @@
-The IRC-API library is currently a snapshot version from VCS on https://code.google.com/p/irc-api.
+http://irc-api.googlecode.com/svn/trunk@174 (1.0-0015-SNAPSHOT)
 
-Additionally:
-1. one modification has been made to prevent joining large IRC channels to result in an occasional threading issue when adding users. The diff for the modification:
-2. a modification has been made to fix an incorrect cut off of the first character of user names in channel mode change instances.
-
-1.
-diff --git a/src/main/java/com/ircclouds/irc/api/domain/IRCChannel.java b/src/main/java/com/ircclouds/irc/api/domain/IRCChannel.java
-index a97f2ce..8744eb8 100644
---- a/src/main/java/com/ircclouds/irc/api/domain/IRCChannel.java
-+++ b/src/main/java/com/ircclouds/irc/api/domain/IRCChannel.java
-@@ -15,7 +15,7 @@ public class IRCChannel
- 	private String name;
- 	private IRCTopic topic;
- 	
--	private Map<IRCUser, Set<IRCUserStatus>> users = new LinkedHashMap<IRCUser, Set<IRCUserStatus>>();
-+	private Map<IRCUser, Set<IRCUserStatus>> users = Collections.synchronizedMap(new LinkedHashMap<IRCUser, Set<IRCUserStatus>>());
- 	private List<ChannelMode> chanModes = new ArrayList<ChannelMode>();
- 	
- 	public IRCChannel()
-
-2.
-commit 4f025450b77ba0bd058b5c852652e76f529e9ff0
+Additional modifications:
+-------------------------
+commit 12c1890672b2aa04b8a5752b959d166be47f9418
 Author: Danny van Heumen <danny@dannyvanheumen.nl>
-Date:   Sat Jan 4 19:33:14 2014 +0100
+Date:   Fri Jan 17 20:38:15 2014 +0100
 
-    Fix invalid cut off of first char of user nick.
+    Added IRC reply 471 (Cannot join channel because of limit.)
 
-diff --git a/src/main/java/com/ircclouds/irc/api/om/AbstractChanModeBuilder.java b/src/main/java/com/ircclouds/irc/api/om/AbstractChanModeBuilder.java
-index b634e73..c19980f 100644
---- a/src/main/java/com/ircclouds/irc/api/om/AbstractChanModeBuilder.java
-+++ b/src/main/java/com/ircclouds/irc/api/om/AbstractChanModeBuilder.java
-@@ -63,7 +63,7 @@ public abstract class AbstractChanModeBuilder implements IBuilder<ChannelModeMes
+diff --git a/src/main/java/com/ircclouds/irc/api/domain/IRCServerNumerics.java b/src/main/java/com/ircclouds/irc/api/domain/IRCServerNumerics.java
+index 7f9818a..f91c882 100644
+--- a/src/main/java/com/ircclouds/irc/api/domain/IRCServerNumerics.java
++++ b/src/main/java/com/ircclouds/irc/api/domain/IRCServerNumerics.java
+@@ -28,6 +28,7 @@ public final class IRCServerNumerics
+ 	public static final int NICKNAME_IN_USE = 433;
+ 	public static final int ERR_NICKTOOFAST = 438;
+ 	public static final int CHANNEL_FORWARD = 470;
++	public static final int CHANNEL_CANNOT_JOIN_LIMIT = 471;
+ 	public static final int CHANNEL_CANNOT_JOIN_INVITE = 473;
+ 	public static final int CHANNEL_CANNOT_JOIN_BANNED = 474;
+ 	public static final int CHANNEL_CANNOT_JOIN_KEYED = 475;
+diff --git a/src/main/java/com/ircclouds/irc/api/listeners/AbstractChannelJoinListener.java b/src/main/java/com/ircclouds/irc/api/listeners/AbstractChannelJoinListener.java
+index 1de8ef8..08b7689 100644
+--- a/src/main/java/com/ircclouds/irc/api/listeners/AbstractChannelJoinListener.java
++++ b/src/main/java/com/ircclouds/irc/api/listeners/AbstractChannelJoinListener.java
+@@ -69,7 +69,11 @@ public abstract class AbstractChannelJoinListener
  			}
- 		}
- 		
--		return new ChannelModeMessage(ParseUtils.getSource(_cmpnts[0].substring(1)), _cmpnts[2], getModeStr(_cmpnts), _addedModes, _removedModes);
-+		return new ChannelModeMessage(ParseUtils.getSource(_cmpnts[0]), _cmpnts[2], getModeStr(_cmpnts), _addedModes, _removedModes);
- 	}
- 
- 	protected abstract IRCServerOptions getIRCServerOptions();
+ 			else if (callbacks.containsKey(getChannelNameFrom(aServerMessage.getText())))
+ 			{
+-				if (_numcode == IRCServerNumerics.CHANNEL_CANNOT_JOIN_INVITE)
++				if (_numcode == IRCServerNumerics.CHANNEL_CANNOT_JOIN_LIMIT)
++				{
++					callbacks.remove(getChannelNameFrom(aServerMessage.getText())).onFailure(new IRCException(aServerMessage.getText()));
++				}
++				else if (_numcode == IRCServerNumerics.CHANNEL_CANNOT_JOIN_INVITE)
+ 				{
+ 					callbacks.remove(getChannelNameFrom(aServerMessage.getText())).onFailure(new IRCException(aServerMessage.getText()));
+ 				}
