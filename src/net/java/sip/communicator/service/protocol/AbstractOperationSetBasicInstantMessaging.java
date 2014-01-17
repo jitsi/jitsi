@@ -125,6 +125,14 @@ public abstract class AbstractOperationSetBasicInstantMessaging
         return createMessage(messageText);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public Message createMessageWithUID(String messageText, String messageUID)
+    {
+        return createMessage(messageText);
+    }
+
     public abstract Message createMessage(
         String content, String contentType, String encoding, String subject);
 

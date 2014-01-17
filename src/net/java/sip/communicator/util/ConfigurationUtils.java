@@ -14,6 +14,7 @@ import java.util.List;
 
 import javax.net.ssl.*;
 
+import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 
@@ -1098,8 +1099,34 @@ public class ConfigurationUtils
             Boolean.toString(isLeaveChatRoomOnWindowCloseEnabled));
     }
 
-    
+    /**
+     * Returns <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+     * property is true, otherwise - returns <code>false</code>.
+     * Indicates to the user interface whether the history logging is enabled.
+     * @return <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+     * property is true, otherwise - returns <code>false</code>.
+     *
+     * @deprecated Method will be removed once OTR bundle is updated on Android.
+     */
+    @Deprecated
+    public static boolean isHistoryLoggingEnabled()
+    {
+        return configService.getBoolean(
+            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED, true);
+    }
 
+    /**
+     * Returns <code>true</code> if messages history is enabled.
+     * Parameter <tt>id</tt> is ignored as it's an adapter for Android version
+     * that has to work with old OTR bundle.
+     *
+     * @deprecated Method will be removed once OTR bundle is updated on Android.
+     */
+    @Deprecated
+    public static boolean isHistoryLoggingEnabled(String id)
+    {
+        return isHistoryLoggingEnabled();
+    }
 
     /**
      * Returns <code>true</code> if the "isHistoryShown" property is
