@@ -1244,6 +1244,7 @@ public class IrcStack
                     this.api.deleteListener(this);
                 }
                 break;
+            // TODO Add support for REPLY 416: LIST :output too large, truncated
             default:
                 break;
             }
