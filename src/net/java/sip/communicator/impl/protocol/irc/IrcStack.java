@@ -955,14 +955,14 @@ public class IrcStack
                                 new ChatRoomLocalUserRoleChangeEvent(
                                     this.chatroom,
                                     ChatRoomMemberRole.SILENT_MEMBER,
-                                    ChatRoomMemberRole.OWNER);
+                                    ChatRoomMemberRole.OWNER, false);
                         }
                         else
                         {
                             event =
                                 new ChatRoomLocalUserRoleChangeEvent(
                                     this.chatroom, ChatRoomMemberRole.OWNER,
-                                    ChatRoomMemberRole.SILENT_MEMBER);
+                                    ChatRoomMemberRole.SILENT_MEMBER, false);
                         }
                         this.chatroom.fireLocalUserRoleChangedEvent(event);
                     }
@@ -997,7 +997,7 @@ public class IrcStack
                                 new ChatRoomLocalUserRoleChangeEvent(
                                     this.chatroom,
                                     ChatRoomMemberRole.SILENT_MEMBER,
-                                    ChatRoomMemberRole.ADMINISTRATOR);
+                                    ChatRoomMemberRole.ADMINISTRATOR, false);
                         }
                         else
                         {
@@ -1005,7 +1005,7 @@ public class IrcStack
                                 new ChatRoomLocalUserRoleChangeEvent(
                                     this.chatroom,
                                     ChatRoomMemberRole.ADMINISTRATOR,
-                                    ChatRoomMemberRole.SILENT_MEMBER);
+                                    ChatRoomMemberRole.SILENT_MEMBER, false);
                         }
                         this.chatroom.fireLocalUserRoleChangedEvent(event);
                     }
@@ -1039,14 +1039,14 @@ public class IrcStack
                                 new ChatRoomLocalUserRoleChangeEvent(
                                     this.chatroom,
                                     ChatRoomMemberRole.SILENT_MEMBER,
-                                    ChatRoomMemberRole.MEMBER);
+                                    ChatRoomMemberRole.MEMBER, false);
                         }
                         else
                         {
                             event =
                                 new ChatRoomLocalUserRoleChangeEvent(
                                     this.chatroom, ChatRoomMemberRole.MEMBER,
-                                    ChatRoomMemberRole.SILENT_MEMBER);
+                                    ChatRoomMemberRole.SILENT_MEMBER, false);
                         }
                         this.chatroom.fireLocalUserRoleChangedEvent(event);
                     }
