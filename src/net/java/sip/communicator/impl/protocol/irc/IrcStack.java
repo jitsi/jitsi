@@ -21,7 +21,9 @@ import com.ircclouds.irc.api.listeners.*;
 import com.ircclouds.irc.api.state.*;
 
 /**
- * An implementation of the PircBot IRC stack.
+ * An implementation of IRC using the irc-api library.
+ * 
+ * @author Danny van Heumen
  */
 public class IrcStack
 {
@@ -132,18 +134,21 @@ public class IrcStack
         final Exception[] exceptionContainer = new Exception[1];
 
         this.irc = new IRCApiImpl(true);
-	// FIXME Currently, the secure connection is created by
-	// explicitly creating an SSLContext for 'SSL'. According
-	// to Ingo (in a mailing list conversation) it is better to
-	// use the CertificateService for this. This should be
-	// implemented in the irc-api library, though.
-        this.params.setServer(new IRCServer(host, port, password, secureConnection));
+        // FIXME Currently, the secure connection is created by
+        // explicitly creating an SSLContext for 'SSL'. According
+        // to Ingo (in a mailing list conversation) it is better to
+        // use the CertificateService for this. This should be
+        // implemented in the irc-api library, though.
+        this.params.setServer(new IRCServer(host, port, password,
+            secureConnection));
         synchronized (this.irc)
         {
-            // register a server listener in order to catch server and cross-/multi-channel messages
+            // register a server listener in order to catch server and
+            // cross-/multi-channel messages
             this.irc.addListener(new ServerListener());
             // start connecting to the specified server ...
-            // TODO Catch IOException/SocketException in case of early failure in call to connect()
+            // TODO Catch IOException/SocketException in case of early failure
+            // in call to connect()
             this.irc.connect(this.params, new Callback<IIRCState>()
             {
 
@@ -175,7 +180,8 @@ public class IrcStack
             // wait while the irc connection is being established ...
             try
             {
-                System.out.println("Waiting for the connection to be established ...");
+                System.out
+                    .println("Waiting for the connection to be established ...");
                 this.irc.wait();
                 if (this.connectionState != null
                     && this.connectionState.isConnected())
