@@ -38,16 +38,20 @@ public class IrcAccRegWizzActivator
         if (logger.isInfoEnabled())
             logger.info("Loading irc account wizard.");
 
-        uiService = (UIService)dependentService;
-        
+        uiService = (UIService) dependentService;
+
         wizardContainer = uiService.getAccountRegWizardContainer();
-        
+
         ircWizard = new IrcAccountRegistrationWizard(wizardContainer);
-        
-        Hashtable<String, String> containerFilter = new Hashtable<String, String>();
-        containerFilter.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.IRC);
-        
-        bundleContext.registerService(AccountRegistrationWizard.class.getName(), ircWizard, containerFilter);
+
+        Hashtable<String, String> containerFilter =
+            new Hashtable<String, String>();
+        containerFilter
+            .put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.IRC);
+
+        bundleContext.registerService(
+            AccountRegistrationWizard.class.getName(), ircWizard,
+            containerFilter);
 
         if (logger.isInfoEnabled())
             logger.info("IRC account registration wizard [STARTED].");
