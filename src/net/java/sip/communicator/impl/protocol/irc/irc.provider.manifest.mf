@@ -11,4 +11,5 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.util,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.event,
+ org.slf4j,
  javax.net.ssl
