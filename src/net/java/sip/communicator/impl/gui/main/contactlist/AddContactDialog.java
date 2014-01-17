@@ -214,6 +214,17 @@ public class AddContactDialog
                 "service.gui.SELECT_GROUP_INFO");
 
         // Initialize controls
+        this.displayNameLabel = new JLabel(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.DISPLAY_NAME") + ": ");
+        this.displayNameLabel.setToolTipText(display_name_info);
+
+        this.displayNameField = new JTextField();
+        this.displayNameField.setToolTipText(display_name_info);
+        addPrompt(this.displayNameField,
+            GuiActivator.getResources().getI18NString(
+                "service.gui.DISPLAY_NAME_PROMPT"));
+
         this.accountLabel = new JLabel(
             GuiActivator.getResources().getI18NString(
                 "service.gui.SELECT_ACCOUNT") + ": ");
@@ -227,22 +238,11 @@ public class AddContactDialog
                 "service.gui.CONTACT_NAME") + ": ");
         this.contactAddressLabel.setToolTipText(contact_info);
 
-        this.displayNameLabel = new JLabel(
-            GuiActivator.getResources().getI18NString(
-                "service.gui.DISPLAY_NAME") + ": ");
-        this.displayNameLabel.setToolTipText(display_name_info);
-
         this.contactAddressField = new JTextField();
         this.contactAddressField.setToolTipText(contact_info);
         addPrompt(this.contactAddressField,
             GuiActivator.getResources().getI18NString(
                 "service.gui.CONTACT_NAME_PROMPT"));
-
-        this.displayNameField = new JTextField();
-        this.displayNameField.setToolTipText(display_name_info);
-        addPrompt(this.displayNameField,
-            GuiActivator.getResources().getI18NString(
-                "service.gui.DISPLAY_NAME_PROMPT"));
 
         this.groupLabel = new JLabel(
             GuiActivator.getResources().getI18NString(
@@ -276,6 +276,12 @@ public class AddContactDialog
         initAccountCombo();
         accountCombo.setRenderer(new AccountComboRenderer());
 
+        labelsPanel.add(displayNameLabel);
+        fieldsPanel.add(displayNameField);
+
+        labelsPanel.add(contactAddressLabel);
+        fieldsPanel.add(contactAddressField);
+
         // we have an empty choice and one account
         if(accountCombo.getItemCount() > 2
             || (accountCombo.getItemCount() == 2
@@ -285,12 +291,6 @@ public class AddContactDialog
             labelsPanel.add(accountLabel);
             fieldsPanel.add(accountCombo);
         }
-
-        labelsPanel.add(contactAddressLabel);
-        fieldsPanel.add(contactAddressField);
-
-        labelsPanel.add(displayNameLabel);
-        fieldsPanel.add(displayNameField);
 
         labelsPanel.add(groupLabel);
         fieldsPanel.add(groupCombo);
