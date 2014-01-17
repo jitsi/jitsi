@@ -11,6 +11,20 @@ then
     CLIENTARGS="-client -Xmx256m"
 fi
 
+show_splash=true
+for arg in "$@" ; do
+  if [ "$arg" = "--splash=no" ] ; then
+    show_splash=false
+  elif [ "$arg" = "--splash=yes" ] ; then
+    show_splash=true
+  fi
+done
+
+SPLASH_ARG=""
+if $show_splash ; then
+    SPLASH_ARG="-splash:splash.gif"
+fi
+
 javabin=`which java`
 
 SCDIR=/usr/share/_PACKAGE_NAME_
@@ -18,7 +32,7 @@ LIBPATH=$SCDIR/lib
 CLASSPATH=/usr/share/java/org.apache.felix.framework.jar:/usr/share/java/org.apache.felix.main.jar:$SCDIR/sc-bundles/sc-launcher.jar:$SCDIR/sc-bundles/util.jar/launchutils.jar:$LIBPATH
 FELIX_CONFIG=$LIBPATH/felix.client.run.properties
 LOG_CONFIG=$LIBPATH/logging.properties
-COMMAND="$javabin $CLIENTARGS -classpath $CLASSPATH -Djna.library.path=/usr/lib/jni -Dfelix.config.properties=file:$FELIX_CONFIG -Djava.util.logging.config.file=$LOG_CONFIG -splash:splash.gif net.java.sip.communicator.launcher.SIPCommunicator"
+COMMAND="$javabin $CLIENTARGS -classpath $CLASSPATH -Djna.library.path=/usr/lib/jni -Dfelix.config.properties=file:$FELIX_CONFIG -Djava.util.logging.config.file=$LOG_CONFIG $SPLASH_ARG net.java.sip.communicator.launcher.SIPCommunicator"
 
 # set add LIBPATH to LD_LIBRARY_PATH for any sc natives (e.g. jmf .so's)
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}/usr/lib/jni"

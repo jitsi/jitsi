@@ -283,6 +283,11 @@ public class LaunchArgHandler
                 returnAction = ACTION_CONTINUE_LOCK_DISABLED;
                 continue;
             }
+            else if (args[i].startsWith("--splash="))
+            {
+                // do nothing already handled by startup script/binary
+                continue;
+            }
             //if this is the last arg and it's not an option then it's probably
             //an URI
             else if ( i == args.length - 1
