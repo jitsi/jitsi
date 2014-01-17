@@ -185,7 +185,9 @@ public class FirstWizardPage
         this.defaultPort.setSelected(true);
         this.passwordNotRequired.setSelected(true);
         this.useSecureConnection.setSelected(true);
-        this.portField.setText(this.useSecureConnection.isSelected() ? DEFAULT_SECURE_PORT : DEFAULT_PLAINTEXT_PORT);
+        this.portField
+            .setText(this.useSecureConnection.isSelected() ? DEFAULT_SECURE_PORT
+                : DEFAULT_PLAINTEXT_PORT);
 
         this.nickExampleLabel.setForeground(Color.GRAY);
         this.nickExampleLabel.setFont(
