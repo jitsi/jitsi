@@ -162,10 +162,6 @@ public class AddContactDialog
 
         this.accountCombo = new JComboBox();
 
-        this.groupLabel = new JLabel(
-            GuiActivator.getResources().getI18NString(
-                "service.gui.SELECT_GROUP") + ": ");
-
         this.contactAddressLabel = new JLabel(
             GuiActivator.getResources().getI18NString(
                 "service.gui.CONTACT_NAME") + ": ");
@@ -177,6 +173,10 @@ public class AddContactDialog
         this.contactAddressField = new JTextField();
 
         this.displayNameField = new JTextField();
+
+        this.groupLabel = new JLabel(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.SELECT_GROUP") + ": ");
 
         this.addButton = new JButton(
             GuiActivator.getResources().getI18NString("service.gui.ADD"));
@@ -214,14 +214,14 @@ public class AddContactDialog
             fieldsPanel.add(accountCombo);
         }
 
-        labelsPanel.add(groupLabel);
-        fieldsPanel.add(groupCombo);
-
         labelsPanel.add(contactAddressLabel);
         fieldsPanel.add(contactAddressField);
 
         labelsPanel.add(displayNameLabel);
         fieldsPanel.add(displayNameField);
+
+        labelsPanel.add(groupLabel);
+        fieldsPanel.add(groupCombo);
 
         contactAddressField.getDocument().addDocumentListener(
             new DocumentListener()
