@@ -39,12 +39,11 @@ public class IrcStack
      */
     private final ProtocolProviderServiceIrcImpl provider;
 
-    // TODO should make this thing a map or set?
     /**
      * Container for joined channels.
      */
-    private final List<ChatRoomIrcImpl> joined = Collections
-        .synchronizedList(new ArrayList<ChatRoomIrcImpl>());
+    private final Map<String, ChatRoomIrcImpl> joined = Collections
+        .synchronizedMap(new HashMap<String, ChatRoomIrcImpl>());
 
     /**
      * Server parameters that are set and provided during the connection
@@ -179,11 +178,13 @@ public class IrcStack
                 }
             });
 
-            // wait while the irc connection is being established ...
             try
             {
+                // wait while the irc connection is being established ...
                 System.out
                     .println("Waiting for the connection to be established ...");
+                // TODO Implement connection timeout and a way to recognize that
+                // the timeout occurred.
                 this.irc.wait();
                 if (this.connectionState != null
                     && this.connectionState.isConnected())
@@ -223,14 +224,19 @@ public class IrcStack
         
         synchronized(this.joined)
         {
-            for (ChatRoomIrcImpl channel : this.joined)
+            // Leave all joined channels.
+            for (ChatRoomIrcImpl channel : this.joined.values())
             {
                 leave(channel);
             }
         }
-        this.irc.disconnect();
-        this.irc = null;
-        this.connectionState = null;
+        synchronized(this.irc)
+        {
+            // Disconnect and clean up
+            this.irc.disconnect();
+            this.irc = null;
+            this.connectionState = null;
+        }
         this.provider
             .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
     }
@@ -298,7 +304,7 @@ public class IrcStack
      */
     public boolean isJoined(ChatRoomIrcImpl chatroom)
     {
-        return this.joined.contains(chatroom);
+        return this.joined.containsKey(chatroom.getIdentifier());
     }
 
     /**
@@ -369,7 +375,7 @@ public class IrcStack
             throw new IllegalArgumentException("chatroom cannot be null");
         if (password == null)
             throw new IllegalArgumentException("password cannot be null");
-        if (this.joined.contains(chatroom) || chatroom.isPrivate())
+        if (this.joined.containsKey(chatroom.getIdentifier()) || chatroom.isPrivate())
         {
             // If we already joined this particular chatroom or if it is a
             // private chat room (i.e. message from one user to another), no
@@ -409,7 +415,8 @@ public class IrcStack
                                     // appropriately. Seems reasonable to just
                                     // expect the same callback, but
                                     // with different channel information.
-                                    IrcStack.this.joined.add(chatroom);
+                                    IrcStack.this.joined.put(
+                                        chatroom.getIdentifier(), chatroom);
                                     IrcStack.this.irc
                                         .addListener(new ChatRoomListener(
                                             chatroom));
@@ -691,21 +698,7 @@ public class IrcStack
             ChatRoomIrcImpl chatroom = null;
             String user = msg.getSource().getNick();
             String text = msg.getText();
-            synchronized (IrcStack.this.joined)
-            {
-                // Find the chatroom matching the user.
-                for (ChatRoomIrcImpl room : IrcStack.this.joined)
-                {
-                    if (room.isPrivate() == false)
-                        continue;
-
-                    if (user.equals(room.getIdentifier()))
-                    {
-                        chatroom = room;
-                        break;
-                    }
-                }
-            }
+            chatroom = IrcStack.this.joined.get(user);
             if (chatroom == null)
             {
                 chatroom = initiatePrivateChatRoom(user);
@@ -741,7 +734,7 @@ public class IrcStack
             ChatRoomIrcImpl chatroom =
                 (ChatRoomIrcImpl) IrcStack.this.provider.getMUC()
                     .findRoom(user);
-            IrcStack.this.joined.add(chatroom);
+            IrcStack.this.joined.put(chatroom.getIdentifier(), chatroom);
             ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(IrcStack.this.provider, chatroom,
                     user, ChatRoomMemberRole.MEMBER);
