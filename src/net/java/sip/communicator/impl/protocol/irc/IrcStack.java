@@ -817,11 +817,11 @@ public class IrcStack
             
             if (isMe(msg.getSource()))
             {
+                IrcStack.this.irc.deleteListener(this);
+                IrcStack.this.joined.remove(this.chatroom);
                 IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
                     this.chatroom,
                     LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT, null);
-                IrcStack.this.irc.deleteListener(this);
-                IrcStack.this.joined.remove(this.chatroom);
             }
             else
             {
@@ -853,12 +853,12 @@ public class IrcStack
             String kickedUser = msg.getKickedNickname();
             if (isMe(kickedUser))
             {
+                IrcStack.this.irc.deleteListener(this);
+                IrcStack.this.joined.remove(this.chatroom);
                 IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
                     this.chatroom,
                     LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_KICKED,
                     msg.getText());
-                IrcStack.this.irc.deleteListener(this);
-                IrcStack.this.joined.remove(this.chatroom);
             }
             else
             {
