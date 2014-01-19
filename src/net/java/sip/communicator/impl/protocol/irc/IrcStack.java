@@ -400,28 +400,43 @@ public class IrcStack
                         @Override
                         public void onSuccess(IRCChannel channel)
                         {
+                            ChatRoomIrcImpl actualChatRoom = chatroom;
                             synchronized (joinSignal)
                             {
                                 try
                                 {
-                                    // TODO Handle forward to another channel
-                                    // (470) channel name change.
-                                    // (Testable on irc.freenode.net#linux,
-                                    // forwards to ##linux)
-                                    // Currently drops into an infinite wait
-                                    // because the callback is never
-                                    // executed. Not sure how to catch/detect
-                                    // this forward operation and act
-                                    // appropriately. Seems reasonable to just
-                                    // expect the same callback, but
-                                    // with different channel information.
+                                    if (channel.getName().equals(
+                                        actualChatRoom.getIdentifier()) == false)
+                                    {
+                                        // If the channel name is not the
+                                        // original chat room name, then we have
+                                        // been forwarded.
+                                        actualChatRoom =
+                                            new ChatRoomIrcImpl(channel
+                                                .getName(),
+                                                IrcStack.this.provider);
+                                        MessageIrcImpl message =
+                                            new MessageIrcImpl(
+                                                "Forwarding to channel "
+                                                    + channel.getName(),
+                                                "text/plain", "UTF-8", null);
+                                        chatroom
+                                            .fireMessageReceivedEvent(
+                                                message,
+                                                null,
+                                                new Date(),
+                                                MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+                                    }
+
                                     IrcStack.this.joined.put(
-                                        chatroom.getIdentifier(), chatroom);
+                                        actualChatRoom.getIdentifier(),
+                                        actualChatRoom);
                                     IrcStack.this.irc
                                         .addListener(new ChatRoomListener(
-                                            chatroom));
+                                            actualChatRoom));
                                     IRCTopic topic = channel.getTopic();
-                                    chatroom.updateSubject(topic.getValue());
+                                    actualChatRoom.updateSubject(topic
+                                        .getValue());
 
                                     for (IRCUser user : channel.getUsers())
                                     {
@@ -440,16 +455,16 @@ public class IrcStack
                                         if (IrcStack.this.getNick().equals(
                                             user.getNick()))
                                         {
-                                            chatroom.prepUserRole(role);
+                                            actualChatRoom.prepUserRole(role);
                                         }
                                         else
                                         {
                                             ChatRoomMemberIrcImpl member =
                                                 new ChatRoomMemberIrcImpl(
                                                     IrcStack.this.provider,
-                                                    chatroom, user.getNick(),
-                                                    role);
-                                            chatroom.addChatRoomMember(
+                                                    actualChatRoom, user
+                                                        .getNick(), role);
+                                            actualChatRoom.addChatRoomMember(
                                                 member.getContactAddress(),
                                                 member);
                                         }
@@ -466,7 +481,7 @@ public class IrcStack
                                     IrcStack.this.provider
                                         .getMUC()
                                         .fireLocalUserPresenceEvent(
-                                            chatroom,
+                                            actualChatRoom,
                                             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
                                             null);
                                     LOGGER
@@ -482,7 +497,9 @@ public class IrcStack
                         public void onFailure(Exception e)
                         {
                             // TODO how should we communicate a failed attempt
-                            // at joining the channel?
+                            // at joining the channel? (System messages don't
+                            // seem to show if there is no actual chat room
+                            // presence.)
                             synchronized (joinSignal)
                             {
                                 try
@@ -516,8 +533,6 @@ public class IrcStack
                 joinSignal.wait();
                 LOGGER
                     .trace("Finished waiting for join operation to complete.");
-                // TODO How to handle 471 (+l): Channel is full (reached set
-                // user limit)?
                 // TODO How to handle 480 (+j): Channel throttle exceeded?
             }
             catch (InterruptedException e)
