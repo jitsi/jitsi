@@ -186,6 +186,36 @@ public class ProtocolProviderServiceSipImpl
     private boolean forceLooseRouting = false;
 
     /**
+     * <tt>ClientCapabilities</tt> used by this instance.
+     */
+    private ClientCapabilities capabilities;
+
+    /**
+     * <tt>OperationSetPresenceSipImpl</tt> used by this instance.
+     */
+    private OperationSetPresenceSipImpl opSetPersPresence;
+
+    /**
+     * <tt>OperationSetBasicInstantMessagingSipImpl</tt> used by this instance.
+     */
+    private OperationSetBasicInstantMessagingSipImpl opSetBasicIM;
+
+    /**
+     * <tt>OperationSetMessageWaitingSipImpl</tt> used by this instance.
+     */
+    private OperationSetMessageWaitingSipImpl opSetMWI;
+
+    /**
+     * Used instance of <tt>OperationSetServerStoredAccountInfoSipImpl</tt>.
+     */
+    private OperationSetServerStoredAccountInfoSipImpl opSetSSAccountInfo;
+
+    /**
+     * <tt>OperationSetTypingNotificationsSipImpl</tt> used by this instance.
+     */
+    private OperationSetTypingNotificationsSipImpl opSetTypingNotif;
+
+    /**
      * Returns the AccountID that uniquely identifies the account represented by
      * this instance of the ProtocolProviderService.
      * @return the id of the account represented by this provider.
@@ -500,7 +530,7 @@ public class ProtocolProviderServiceSipImpl
             if (enablePresence)
             {
                 //init presence op set.
-                OperationSetPersistentPresence opSetPersPresence
+                this.opSetPersPresence
                     = new OperationSetPresenceSipImpl(this, enablePresence,
                             forceP2P, pollingValue, subscriptionExpiration);
 
@@ -520,7 +550,7 @@ public class ProtocolProviderServiceSipImpl
                 if (!isMessagingDisabled)
                 {
                     // init instant messaging
-                    OperationSetBasicInstantMessagingSipImpl opSetBasicIM =
+                    this.opSetBasicIM =
                         new OperationSetBasicInstantMessagingSipImpl(this);
 
                     addSupportedOperationSet(
@@ -528,23 +558,23 @@ public class ProtocolProviderServiceSipImpl
                         opSetBasicIM);
 
                     // init typing notifications
+                    this.opSetTypingNotif
+                        = new OperationSetTypingNotificationsSipImpl(
+                            this, opSetBasicIM);
                     addSupportedOperationSet(
                         OperationSetTypingNotifications.class,
-                        new OperationSetTypingNotificationsSipImpl(
-                            this,
-                            opSetBasicIM));
+                        opSetTypingNotif);
 
                     addSupportedOperationSet(
                         OperationSetInstantMessageTransform.class,
                         new OperationSetInstantMessageTransformImpl());
                 }
 
-                OperationSetServerStoredAccountInfoSipImpl opSetSSAccountInfo =
+                this.opSetSSAccountInfo =
                     new OperationSetServerStoredAccountInfoSipImpl(this);
 
                 // Set the display name.
-                if(opSetSSAccountInfo != null)
-                    opSetSSAccountInfo.setOurDisplayName(ourDisplayName);
+                opSetSSAccountInfo.setOurDisplayName(ourDisplayName);
 
                 // init avatar
                 addSupportedOperationSet(
@@ -561,9 +591,10 @@ public class ProtocolProviderServiceSipImpl
                     ProtocolProviderFactory.VOICEMAIL_ENABLED,
                     true))
             {
+                this.opSetMWI = new OperationSetMessageWaitingSipImpl(this);
                 addSupportedOperationSet(
                     OperationSetMessageWaiting.class,
-                    new OperationSetMessageWaitingSipImpl(this));
+                    opSetMWI);
             }
 
             if(getAccountID().getAccountPropertyString(
@@ -575,7 +606,7 @@ public class ProtocolProviderServiceSipImpl
             }
 
             //initialize our OPTIONS handler
-            new ClientCapabilities(this);
+            this.capabilities = new ClientCapabilities(this);
 
             //init the security manager
             this.sipSecurityManager = new SipSecurityManager(accountID);
@@ -1034,6 +1065,43 @@ public class ProtocolProviderServiceSipImpl
                         + getAccountID()
                         , ex);
                 }
+            }
+
+            // Shutdown capabilities
+            if(capabilities != null)
+            {
+                capabilities.shutdown();
+                capabilities = null;
+            }
+            // Shutdown presence
+            if(opSetPersPresence != null)
+            {
+                opSetPersPresence.shutdown();
+                opSetPersPresence = null;
+            }
+            // Shutdown IM
+            if(opSetBasicIM != null)
+            {
+                opSetBasicIM.shutdown();
+                opSetBasicIM = null;
+            }
+            // Shutdown MWI
+            if(opSetMWI != null)
+            {
+                opSetMWI.shutdown();
+                opSetMWI = null;
+            }
+            // Shutdown server stored account info
+            if(opSetSSAccountInfo != null)
+            {
+                opSetSSAccountInfo.shutdown();
+                opSetSSAccountInfo = null;
+            }
+            // Shutdown typing notifications
+            if(opSetTypingNotif != null)
+            {
+                opSetTypingNotif.shutdown();
+                opSetTypingNotif = null;
             }
 
             headerFactory = null;

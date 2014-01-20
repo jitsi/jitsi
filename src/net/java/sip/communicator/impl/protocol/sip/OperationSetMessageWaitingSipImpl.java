@@ -394,6 +394,14 @@ public class OperationSetMessageWaitingSipImpl
     }
 
     /**
+     * Frees allocated resources.
+     */
+    void shutdown()
+    {
+        provider.removeRegistrationStateChangeListener(this);
+    }
+
+    /**
      * Subscribes and receive result for message-summary event package.
      */
     private class MessageSummarySubscriber

@@ -3282,6 +3282,14 @@ public class OperationSetPresenceSipImpl
     }
 
     /**
+     * Frees allocated resources.
+     */
+    void shutdown()
+    {
+        parentProvider.removeRegistrationStateChangeListener(this);
+    }
+
+    /**
      * Represents a subscription of a specific <code>ContactSipImpl</code> to
      * our presence event package.
      *

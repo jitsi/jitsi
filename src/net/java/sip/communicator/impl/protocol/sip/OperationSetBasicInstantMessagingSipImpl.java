@@ -47,6 +47,11 @@ public class OperationSetBasicInstantMessagingSipImpl
     private final ProtocolProviderServiceSipImpl sipProvider;
 
     /**
+     * Registration listener instance.
+     */
+    private final RegistrationStateListener registrationListener;
+
+    /**
      * A reference to the persistent presence operation set that we use
      * to match incoming messages to <tt>Contact</tt>s and vice versa.
      */
@@ -84,8 +89,9 @@ public class OperationSetBasicInstantMessagingSipImpl
     {
         this.sipProvider = provider;
 
-        provider.addRegistrationStateChangeListener(new
-            RegistrationStateListener());
+        registrationListener = new RegistrationStateListener();
+        provider.addRegistrationStateChangeListener(
+            registrationListener);
 
         offlineMessageSupported =
             provider.getAccountID().getAccountPropertyBoolean(
@@ -543,6 +549,14 @@ public class OperationSetBasicInstantMessagingSipImpl
             throw new IllegalStateException(
                 "The provider must be signed on the service before "
                 + "being able to communicate.");
+    }
+
+    /**
+     * Frees allocated resources.
+     */
+    void shutdown()
+    {
+        sipProvider.removeRegistrationStateChangeListener(registrationListener);
     }
 
     /**

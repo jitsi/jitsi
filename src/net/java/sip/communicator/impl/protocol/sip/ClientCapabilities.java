@@ -42,6 +42,11 @@ public class ClientCapabilities
     private final ProtocolProviderServiceSipImpl provider;
 
     /**
+     * Registration listener instance.
+     */
+    private final RegistrationListener registrationListener;
+
+    /**
      * The timer that runs the keep-alive task
      */
     private Timer keepAliveTimer = null;
@@ -63,7 +68,9 @@ public class ClientCapabilities
         this.provider = protocolProvider;
 
         provider.registerMethodProcessor(Request.OPTIONS, this);
-        provider.addRegistrationStateChangeListener(new RegistrationListener());
+
+        registrationListener = new RegistrationListener();
+        provider.addRegistrationStateChangeListener(registrationListener);
     }
 
     /**
@@ -170,6 +177,14 @@ public class ClientCapabilities
             RegistrationState.CONNECTION_FAILED
             , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
             , "A timeout occurred while trying to connect to the server.");
+    }
+
+    /**
+     * Frees allocated resources.
+     */
+    void shutdown()
+    {
+        provider.removeRegistrationStateChangeListener(registrationListener);
     }
 
     /**
@@ -397,7 +412,7 @@ public class ClientCapabilities
                         ProtocolProviderFactory.KEEP_ALIVE_INTERVAL, -1);
 
                 if (logger.isTraceEnabled())
-                    logger.trace("Keep alive inerval is " + keepAliveInterval);
+                    logger.trace("Keep alive interval is " + keepAliveInterval);
                 if (keepAliveInterval > 0
                     && !provider.getRegistrarConnection().isRegistrarless())
                 {

@@ -580,4 +580,12 @@ public class OperationSetServerStoredAccountInfoSipImpl
             logger.error("Filed to set display name", e);
         }
     }
+
+    /**
+     * Frees allocated resources.
+     */
+    void shutdown()
+    {
+        provider.removeRegistrationStateChangeListener(this);
+    }
 }
