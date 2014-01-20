@@ -207,7 +207,7 @@ public class ColibriIQProvider
                         // direction
                         String direction
                             = parser.getAttributeValue(
-                                    "" ,
+                                    "",
                                     ColibriConferenceIQ.Channel
                                             .DIRECTION_ATTR_NAME);
 
@@ -216,6 +216,16 @@ public class ColibriIQProvider
                             channel.setDirection(
                                     MediaDirection.parseString(direction));
                         }
+
+                        // endpoint
+                        String endpoint
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.Channel
+                                            .ENDPOINT_ATTR_NAME);
+
+                        if ((endpoint != null) && (endpoint.length() != 0))
+                            channel.setEndpoint(endpoint);
 
                         // expire
                         String expire
@@ -254,6 +264,16 @@ public class ColibriIQProvider
 
                         if ((initiator != null) && (initiator.length() != 0))
                             channel.setInitiator(Boolean.valueOf(initiator));
+
+                        // lastN
+                        String lastN
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.Channel
+                                            .LAST_N_ATTR_NAME);
+
+                        if ((lastN != null) && (lastN.length() != 0))
+                            channel.setLastN(Integer.parseInt(lastN));
 
                         // rtcpPort
                         String rtcpPort

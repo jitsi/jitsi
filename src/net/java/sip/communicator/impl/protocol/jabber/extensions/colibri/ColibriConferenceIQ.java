@@ -243,6 +243,15 @@ public class ColibriConferenceIQ
         public static final String ELEMENT_NAME = "channel";
 
         /**
+         * The XML name of the <tt>endpoint</tt> attribute which specifies the
+         * optional identifier of the endpoint of the conference participant
+         * associated with a <tt>channel</tt>. The value of the
+         * <tt>endpoint</tt> attribute is an opaque <tt>String</tt> from the
+         * point of view of Jitsi Videobridge. 
+         */
+        public static final String ENDPOINT_ATTR_NAME = "endpoint";
+
+        /**
          * The XML name of the <tt>expire</tt> attribute of a <tt>channel</tt>
          * of a <tt>content</tt> of a <tt>conference</tt> IQ which represents
          * the value of the <tt>expire</tt> property of
@@ -286,6 +295,15 @@ public class ColibriConferenceIQ
         public static final String INITIATOR_ATTR_NAME = "initiator";
 
         /**
+         * The XML name of the <tt>last-n</tt> attribute of a video
+         * <tt>channel</tt> which specifies the maximum number of video RTP
+         * streams to be sent from Jitsi Videobridge to the endpoint associated
+         * with the video <tt>channel</tt>. The value of the <tt>last-n</tt>
+         * attribute is a positive number.
+         */
+        public static final String LAST_N_ATTR_NAME = "last-n";
+
+        /**
          * The XML name of the <tt>rtcpport</tt> attribute of a <tt>channel</tt>
          * of a <tt>content</tt> of a <tt>conference</tt> IQ which represents
          * the value of the <tt>rtcpPort</tt> property of
@@ -325,6 +343,12 @@ public class ColibriConferenceIQ
         private MediaDirection direction;
 
         /**
+         * The identifier of the endpoint of the conference participant
+         * associated with this <tt>Channel</tt>.
+         */
+        private String endpoint;
+
+        /**
          * The number of seconds of inactivity after which the <tt>channel</tt>
          * represented by this instance expires.
          */
@@ -350,6 +374,13 @@ public class ColibriConferenceIQ
          * negotiation associated with this instance.
          */
         private Boolean initiator;
+
+        /**
+         * The maximum number of video RTP streams to be sent from Jitsi
+         * Videobridge to the endpoint associated with this video
+         * <tt>Channel</tt>.
+         */
+        private Integer lastN;
 
         /**
          * The <tt>payload-type</tt> elements defined by XEP-0167: Jingle RTP
@@ -487,6 +518,18 @@ public class ColibriConferenceIQ
         }
 
         /**
+         * Gets the identifier of the endpoint of the conference participant
+         * associated with this <tt>Channel</tt>.
+         *
+         * @return the identifier of the endpoint of the conference participant
+         * associated with this <tt>Channel</tt>
+         */
+        public String getEndpoint()
+        {
+            return endpoint;
+        }
+
+        /**
          * Gets the number of seconds of inactivity after which the
          * <tt>channel</tt> represented by this instance expires.
          *
@@ -523,6 +566,20 @@ public class ColibriConferenceIQ
         public String getID()
         {
             return id;
+        }
+
+        /**
+         * Gets the maximum number of video RTP streams to be sent from Jitsi
+         * Videobridge to the endpoint associated with this video
+         * <tt>Channel</tt>.
+         *
+         * @return the maximum number of video RTP streams to be sent from Jitsi
+         * Videobridge to the endpoint associated with this video
+         * <tt>Channel</tt>
+         */
+        public Integer getLastN()
+        {
+            return lastN;
         }
 
         /**
@@ -717,6 +774,18 @@ public class ColibriConferenceIQ
         }
 
         /**
+         * Sets the identifier of the endpoint of the conference participant
+         * associated with this <tt>Channel</tt>.
+         *
+         * @param endpoint the identifier of the endpoint of the conference
+         * participant associated with this <tt>Channel</tt>
+         */
+        public void setEndpoint(String endpoint)
+        {
+            this.endpoint = endpoint;
+        }
+
+        /**
          * Sets the number of seconds of inactivity after which the
          * <tt>channel</tt> represented by this instance expires.
          *
@@ -775,6 +844,20 @@ public class ColibriConferenceIQ
         public void setInitiator(Boolean initiator)
         {
             this.initiator = initiator;
+        }
+
+        /**
+         * Sets the maximum number of video RTP streams to be sent from Jitsi
+         * Videobridge to the endpoint associated with this video
+         * <tt>Channel</tt>.
+         *
+         * @param lastN the maximum number of video RTP streams to be sent from
+         * Jitsi Videobridge to the endpoint associated with this video
+         * <tt>Channel</tt>
+         */
+        public void setLastN(Integer lastN)
+        {
+            this.lastN = lastN;
         }
 
         /**
@@ -879,6 +962,15 @@ public class ColibriConferenceIQ
                         .append(direction.toString()).append('\'');
             }
 
+            // endpoint
+            String endpoint = getEndpoint();
+
+            if (endpoint != null)
+            {
+                xml.append(' ').append(ENDPOINT_ATTR_NAME).append("='")
+                        .append(endpoint).append('\'');
+            }
+
             // expire
             int expire = getExpire();
 
@@ -913,6 +1005,15 @@ public class ColibriConferenceIQ
             {
                 xml.append(' ').append(INITIATOR_ATTR_NAME).append("='")
                         .append(initiator).append('\'');
+            }
+
+            // lastN
+            Integer lastN = getLastN();
+
+            if (lastN != null)
+            {
+                xml.append(' ').append(LAST_N_ATTR_NAME).append("='")
+                        .append(lastN).append('\'');
             }
 
             // rtcpPort
