@@ -684,10 +684,13 @@ public class AddContactDialog
                 this.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
                 MetaContactGroup group = (MetaContactGroup) value;
 
-                if (group.equals(GuiActivator
-                    .getContactListService().getRoot()))
+                if (group == null
+                    || group.equals(GuiActivator
+                            .getContactListService().getRoot()))
+                {
                     this.setText(GuiActivator.getResources()
                         .getI18NString("service.gui.SELECT_NO_GROUP"));
+                }
                 else
                     this.setText(group.getGroupName());
             }

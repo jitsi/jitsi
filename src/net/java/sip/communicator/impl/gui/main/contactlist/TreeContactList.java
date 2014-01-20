@@ -961,24 +961,26 @@ public class TreeContactList
 
         GroupNode parentGroupNode;
 
-        synchronized (parentGroup)
+        if(parentGroup == null)
         {
-            if(parentGroup == null)
-            {
-                if(group.countChildContacts() == 0)
-                    parentGroupNode = treeModel.getRoot();
-                else
-                    return;
-            }
+            if(group.countChildContacts() == 0)
+                parentGroupNode = treeModel.getRoot();
             else
-                parentGroupNode = parentGroup.getGroupNode();
-
-            // Nothing more to do here if we didn't find the parent.
-            if (parentGroupNode == null)
                 return;
-
-            parentGroupNode.removeContactGroup((UIGroupImpl) group);
         }
+        else
+        {
+            synchronized (parentGroup)
+            {
+                parentGroupNode = parentGroup.getGroupNode();
+            }
+        }
+
+        // Nothing more to do here if we didn't find the parent.
+        if (parentGroupNode == null)
+            return;
+
+        parentGroupNode.removeContactGroup((UIGroupImpl) group);
 
         // If the parent group is empty remove it.
         if (parentGroupNode.getChildCount() == 0)
