@@ -232,7 +232,7 @@ public class ScOtrEngineImpl
         }
 
         @Override
-        public void finishedSessionMessage(SessionID sessionID)
+        public void finishedSessionMessage(SessionID sessionID, String msgText)
             throws OtrException
         {
             OtrContact otrContact = getOtrContact(sessionID);
@@ -246,7 +246,7 @@ public class ScOtrEngineImpl
                 OtrActivator.resourceService.getI18NString(
                     "plugin.otr.activator.sessionfinishederror",
                     new String[]
-                        {contact.getDisplayName() + resourceName});
+                        {msgText, contact.getDisplayName() + resourceName});
             OtrActivator.uiService.getChat(contact).addMessage(
                 contact.getDisplayName(), new Date(),
                 Chat.ERROR_MESSAGE, error,
@@ -261,15 +261,12 @@ public class ScOtrEngineImpl
             if (otrContact == null)
                 return;
 
-            String resourceName = otrContact.resource != null ?
-                "/" + otrContact.resource.getResourceName() : "";
-
                 Contact contact = otrContact.contact;
             String error =
                 OtrActivator.resourceService.getI18NString(
                     "plugin.otr.activator.requireencryption",
                     new String[]
-                        {contact.getDisplayName() + resourceName});
+                        {msgText});
             OtrActivator.uiService.getChat(contact).addMessage(
                 contact.getDisplayName(), new Date(),
                 Chat.ERROR_MESSAGE, error,
