@@ -18,6 +18,7 @@ import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -60,14 +61,22 @@ public class SipSecurityManager
     private final AccountID accountID;
 
     /**
+     * The protocol provider that creates our instance.
+     */
+    private final ProtocolProviderServiceSipImpl protocolProvider;
+
+    /**
      * Default constructor for the security manager.
      *
      * @param accountID the id of the account that this security manager is
      * going to serve.
      */
-    public SipSecurityManager(AccountID accountID)
+    public SipSecurityManager(
+            AccountID accountID,
+            ProtocolProviderServiceSipImpl protocolProvider)
     {
         this.accountID = accountID;
+        this.protocolProvider = protocolProvider;
     }
 
     /**
@@ -245,6 +254,14 @@ public class SipSecurityManager
                     //remove password and ask user again.
                     SipActivator.getProtocolProviderFactory().storePassword(
                         accountID, null);
+
+                    protocolProvider.getRegistrarConnection()
+                        .setRegistrationState(
+                            RegistrationState.AUTHENTICATION_FAILED,
+                            RegistrationStateChangeEvent
+                                .REASON_AUTHENTICATION_FAILED,
+                            null
+                        );
 
                     ccEntry = createCcEntryWithNewCredentials(
                         realm, SecurityAuthority.WRONG_PASSWORD);

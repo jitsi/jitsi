@@ -609,7 +609,7 @@ public class ProtocolProviderServiceSipImpl
             this.capabilities = new ClientCapabilities(this);
 
             //init the security manager
-            this.sipSecurityManager = new SipSecurityManager(accountID);
+            this.sipSecurityManager = new SipSecurityManager(accountID, this);
             sipSecurityManager.setHeaderFactory(headerFactory);
 
             // register any available custom extensions
@@ -2291,7 +2291,7 @@ public class ProtocolProviderServiceSipImpl
      * Returns the current instance of <tt>SipRegistrarConnection</tt>.
      * @return SipRegistrarConnection
      */
-    SipRegistrarConnection getRegistrarConnection()
+    public SipRegistrarConnection getRegistrarConnection()
     {
         return sipRegistrarConnection;
     }

@@ -385,6 +385,7 @@ public class ClientCapabilities
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
             if(evt.getNewState() == RegistrationState.UNREGISTERING ||
+                evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED ||
                 evt.getNewState() == RegistrationState.CONNECTION_FAILED)
             {
                 // stop any task associated with the timer
@@ -393,7 +394,8 @@ public class ClientCapabilities
                     keepAliveTimer.cancel();
                     keepAliveTimer = null;
                 }
-            } else if (evt.getNewState().equals(RegistrationState.REGISTERED))
+            }
+            else if (evt.getNewState().equals(RegistrationState.REGISTERED))
             {
                 String keepAliveMethod =
                     provider.getAccountID().getAccountPropertyString(

@@ -544,6 +544,8 @@ public class OperationSetServerStoredAccountInfoSipImpl
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
         if (evt.getNewState().equals(RegistrationState.UNREGISTERED) ||
+                evt.getNewState().equals(
+                        RegistrationState.AUTHENTICATION_FAILED) ||
                 evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
         {
             isAccountImageLoaded = false;

@@ -3180,7 +3180,9 @@ public class OperationSetPresenceSipImpl
                 }
             }
         }
-        else if (evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
+        else if (evt.getNewState().equals(RegistrationState.CONNECTION_FAILED)
+            || evt.getNewState().equals(
+                        RegistrationState.AUTHENTICATION_FAILED))
         {
             if (logger.isDebugEnabled())
             {
