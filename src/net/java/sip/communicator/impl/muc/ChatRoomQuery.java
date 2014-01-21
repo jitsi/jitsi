@@ -36,7 +36,7 @@ public class ChatRoomQuery
      */
     private Set<ChatRoomSourceContact> contactResults
         = new TreeSet<ChatRoomSourceContact>();
-    
+
     /**
      * MUC service.
      */
@@ -51,17 +51,14 @@ public class ChatRoomQuery
      * The protocol provider registration listener.
      */
     private ServiceListener protolProviderRegistrationListener = null;
-    
-    
-    
+
     /**
      * Creates an instance of <tt>ChatRoomQuery</tt> by specifying
      * the parent contact source, the query string to match and the maximum
      * result contacts to return.
      *
-     * @param contactSource the parent contact source
      * @param queryString the query string to match
-     * @param count the maximum result contact count
+     * @param contactSource the parent contact source
      */
     public ChatRoomQuery(String queryString, 
         ChatRoomContactSourceService contactSource)
@@ -74,7 +71,7 @@ public class ChatRoomQuery
         mucService = MUCActivator.getMUCService();
         
     }
-    
+
     /**
      * Adds listeners for the query
      */
@@ -91,7 +88,7 @@ public class ChatRoomQuery
         MUCActivator.bundleContext.addServiceListener(
             protolProviderRegistrationListener);
     }
-    
+
     /**
      * Adds the query as presence listener to protocol provider service.
      * @param pps the protocol provider service.
@@ -105,7 +102,7 @@ public class ChatRoomQuery
             opSetMUC.addPresenceListener(this);
         }
     }
-    
+
     /**
      * Removes the query from protocol provider service presence listeners.
      * @param pps the protocol provider service.
@@ -120,7 +117,7 @@ public class ChatRoomQuery
             opSetMUC.removePresenceListener(this);
         }
     }
-    
+
     @Override
     protected void run()
     {
@@ -136,7 +133,7 @@ public class ChatRoomQuery
         if (getStatus() != QUERY_CANCELED)
             setStatus(QUERY_COMPLETED);
     }
-    
+
     /**
      * Handles adding a chat room provider.
      * @param provider the provider.
@@ -155,7 +152,7 @@ public class ChatRoomQuery
                 addQueryResult, chatRoom.isAutojoin());
         }
     }
-    
+
     /**
      * Handles chat room presence status updates.
      * 
@@ -185,8 +182,7 @@ public class ChatRoomQuery
                 }
             }
         }
-        
-        
+
         if (LocalUserChatRoomPresenceChangeEvent
             .LOCAL_USER_JOINED.equals(eventType))
         {
@@ -229,14 +225,12 @@ public class ChatRoomQuery
             }
         }
     }
-    
+
     /**
      * Adds found result to the query results.
      * 
-     * @param pps the protocol provider associated with the found chat room.
-     * @param chatRoomName the name of the chat room.
-     * @param chatRoomID the id of the chat room.
-     * @param addQueryResult indicates whether we should add the chat room to 
+     * @param room the chat room.
+     * @param addQueryResult indicates whether we should add the chat room to
      * the query results or fire an event without adding it to the results.
      * @param isAutoJoin the auto join state of the contact.
      */
@@ -266,8 +260,7 @@ public class ChatRoomQuery
             }
         }
     }
-    
-    
+
     /**
      * Adds found result to the query results.
      * 
@@ -363,7 +356,7 @@ public class ChatRoomQuery
                 break;
         }
     }
-    
+
     @Override
     public void chatRoomProviderWrapperAdded(ChatRoomProviderWrapper provider)
     {
@@ -409,7 +402,7 @@ public class ChatRoomQuery
        }
        return -1;
     }
-    
+
     /**
      * Clears any listener we used.
      */
@@ -426,7 +419,7 @@ public class ChatRoomQuery
             removeQueryFromProviderPresenceListeners(pps);
         }
     }
-    
+
     /**
      * Cancels this <tt>ContactQuery</tt>.
      *
@@ -438,7 +431,7 @@ public class ChatRoomQuery
 
         super.cancel();
     }
-    
+
     /**
      * If query has status changed to cancel, let's clear listeners.
      * @param status {@link ContactQuery#QUERY_CANCELED},
@@ -451,7 +444,7 @@ public class ChatRoomQuery
 
         super.setStatus(status);
     }
-    
+
     @Override
     public void addContactQueryListener(ContactQueryListener l)
     {
@@ -462,6 +455,7 @@ public class ChatRoomQuery
             initListeners();
         }
     }
+
     @Override
     public void removeContactQueryListener(ContactQueryListener l)
     {
@@ -472,7 +466,7 @@ public class ChatRoomQuery
             clearListeners();
         }
     }
-    
+
     /**
      * Listens for <tt>ProtocolProviderService</tt> registrations.
      */
