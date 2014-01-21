@@ -158,7 +158,7 @@ public class IrcStack
                 {
                     synchronized (IrcStack.this.irc)
                     {
-                        System.out.println("IRC connected successfully!");
+                        LOGGER.trace("IRC connected successfully!");
                         IrcStack.this.connectionState = state;
                         IrcStack.this.irc.notifyAll();
                     }
@@ -169,7 +169,7 @@ public class IrcStack
                 {
                     synchronized (IrcStack.this.irc)
                     {
-                        System.out.println("IRC connection FAILED! ("
+                        LOGGER.trace("IRC connection FAILED! ("
                             + e.getMessage() + ")");
                         exceptionContainer[0] = e;
                         IrcStack.this.connectionState = null;
@@ -181,8 +181,7 @@ public class IrcStack
             try
             {
                 // wait while the irc connection is being established ...
-                System.out
-                    .println("Waiting for the connection to be established ...");
+                LOGGER.trace("Waiting for the connection to be established ...");
                 // TODO Implement connection timeout and a way to recognize that
                 // the timeout occurred.
                 this.irc.wait();
@@ -403,6 +402,9 @@ public class IrcStack
                         @Override
                         public void onSuccess(IRCChannel channel)
                         {
+                            LOGGER
+                                .trace("Started callback for successful join of channel '"
+                                    + chatroom.getIdentifier() + "'.");
                             ChatRoomIrcImpl actualChatRoom = chatroom;
                             synchronized (joinSignal)
                             {
@@ -491,7 +493,9 @@ public class IrcStack
                                             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
                                             null);
                                     LOGGER
-                                        .trace("Finished successful join callback. Waking up original thread.");
+                                        .trace("Finished successful join callback for channel '"
+                                            + chatroom.getIdentifier()
+                                            + "'. Waking up original thread.");
                                     // Notify waiting threads of finished
                                     // execution.
                                     joinSignal.notifyAll();
@@ -502,6 +506,9 @@ public class IrcStack
                         @Override
                         public void onFailure(Exception e)
                         {
+                            LOGGER
+                                .trace("Started callback for failed attempt to join channel '"
+                                    + chatroom.getIdentifier() + "'.");
                             // TODO how should we communicate a failed attempt
                             // at joining the channel? (System messages don't
                             // seem to show if there is no actual chat room
@@ -528,7 +535,9 @@ public class IrcStack
                                 finally
                                 {
                                     LOGGER
-                                        .trace("Finished unsuccessful join callback. Waking up original thread.");
+                                        .trace("Finished callback for failed attempt to join channel '"
+                                            + chatroom.getIdentifier()
+                                            + "'. Waking up original thread.");
                                     // Notify waiting threads of finished
                                     // execution
                                     joinSignal.notifyAll();
@@ -539,7 +548,8 @@ public class IrcStack
                 // Wait until async channel join operation has finished.
                 joinSignal.wait();
                 LOGGER
-                    .trace("Finished waiting for join operation to complete.");
+                    .trace("Finished waiting for join operation for channel '"
+                        + chatroom.getIdentifier() + "' to complete.");
                 // TODO How to handle 480 (+j): Channel throttle exceeded?
             }
             catch (InterruptedException e)
@@ -683,7 +693,7 @@ public class IrcStack
         @Override
         public void onServerNotice(ServerNotice msg)
         {
-            System.out.println("NOTICE: " + ((ServerNotice) msg).getText());
+            LOGGER.debug("NOTICE: " + ((ServerNotice) msg).getText());
         }
 
         /**
@@ -695,7 +705,7 @@ public class IrcStack
         @Override
         public void onServerNumericMessage(ServerNumericMessage msg)
         {
-            System.out.println("NUM MSG: "
+            LOGGER.debug("NUM MSG: "
                 + ((ServerNumericMessage) msg).getNumericCode() + ": "
                 + ((ServerNumericMessage) msg).getText());
         }
@@ -709,7 +719,7 @@ public class IrcStack
         @Override
         public void onError(ErrorMessage msg)
         {
-            System.out.println("ERROR: " + msg.getSource() + ": "
+            LOGGER.debug("ERROR: " + msg.getSource() + ": "
                 + msg.getText());
         }
         
@@ -1142,12 +1152,12 @@ public class IrcStack
                         ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
                     break;
                 case UNKNOWN:
-                    System.out.println("Unknown mode: "
+                    LOGGER.info("Unknown mode: "
                         + (mode.isAdded() ? "+" : "-") + mode.getParams()[0]
                         + ". Original mode string: '" + msg.getModeStr() + "'");
                     break;
                 default:
-                    System.out.println("Unsupported mode '"
+                    LOGGER.info("Unsupported mode '"
                         + (mode.isAdded() ? "+" : "-") + mode.getMode()
                         + "' (from modestring '" + msg.getModeStr() + "')");
                     break;
