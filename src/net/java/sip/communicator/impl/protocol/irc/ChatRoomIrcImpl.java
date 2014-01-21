@@ -116,7 +116,7 @@ public class ChatRoomIrcImpl
     /**
      * The role of the local user for this chat room.
      */
-    private ChatRoomMemberRole userRole = ChatRoomMemberRole.MEMBER;
+    private ChatRoomMemberRole userRole = ChatRoomMemberRole.SILENT_MEMBER;
 
     /**
      * Creates an instance of <tt>ChatRoomIrcImpl</tt>, by specifying the room
