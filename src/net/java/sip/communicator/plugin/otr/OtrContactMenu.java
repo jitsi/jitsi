@@ -23,6 +23,7 @@ import net.java.sip.communicator.util.*;
  *
  * @author George Politis
  * @author Lyubomir Marinov
+ * @author Marin Dzhigarov
  */
 class OtrContactMenu
     implements ActionListener,
@@ -191,12 +192,28 @@ class OtrContactMenu
         String actionCommand = e.getActionCommand();
 
         if (ACTION_COMMAND_END_OTR.equals(actionCommand))
+        {
+            OtrPolicy policy =
+                OtrActivator.scOtrEngine.getContactPolicy(contact.contact);
+            policy.setSendWhitespaceTag(false);
+            OtrActivator.scOtrEngine.setContactPolicy(contact.contact, policy);
+
             // End session.
             OtrActivator.scOtrEngine.endSession(contact);
+        }
 
         else if (ACTION_COMMAND_START_OTR.equals(actionCommand))
+        {
+            OtrPolicy policy =
+                OtrActivator.scOtrEngine.getContactPolicy(contact.contact);
+            OtrPolicy globalPolicy =
+                OtrActivator.scOtrEngine.getGlobalPolicy();
+            policy.setSendWhitespaceTag(globalPolicy.getSendWhitespaceTag());
+            OtrActivator.scOtrEngine.setContactPolicy(contact.contact, policy);
+
             // Start session.
             OtrActivator.scOtrEngine.startSession(contact);
+        }
 
         else if (ACTION_COMMAND_REFRESH_OTR.equals(actionCommand))
             // Refresh session.
@@ -222,7 +239,6 @@ class OtrContactMenu
                 OtrActivator.scOtrEngine.getContactPolicy(contact.contact);
             boolean state = ((JCheckBoxMenuItem) e.getSource()).isSelected();
 
-            policy.setEnableAlways(state);
             policy.setSendWhitespaceTag(state);
 
             OtrActivator.scOtrEngine.setContactPolicy(contact.contact, policy);
@@ -234,12 +250,7 @@ class OtrContactMenu
                 OtrActivator.scOtrEngine.getGlobalPolicy();
             boolean state = ((JCheckBoxMenuItem) e.getSource()).isSelected();
 
-            globalPolicy.setEnableAlways(state);
             globalPolicy.setSendWhitespaceTag(state);
-
-            OtrActivator.configService.setProperty(
-                OtrActivator.AUTO_INIT_OTR_PROP,
-                Boolean.toString(state));
 
             OtrActivator.scOtrEngine.setGlobalPolicy(globalPolicy);
         }
@@ -420,13 +431,9 @@ class OtrContactMenu
             .getI18NString("plugin.otr.menu.CB_AUTO_ALL"));
         cbAlwaysAll.setEnabled(policy.getEnableManual());
 
-        String autoInitPropValue
-            = OtrActivator.configService.getString(
-                OtrActivator.AUTO_INIT_OTR_PROP);
         boolean isAutoInit =
             OtrActivator.scOtrEngine.getGlobalPolicy().getEnableAlways();
-        if (autoInitPropValue != null)
-            isAutoInit = Boolean.parseBoolean(autoInitPropValue);
+
         cbAlwaysAll.setSelected(isAutoInit);
 
         cbAlwaysAll.setActionCommand(ACTION_COMMAND_CB_AUTO_ALL);

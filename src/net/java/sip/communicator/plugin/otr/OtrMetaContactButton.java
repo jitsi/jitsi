@@ -28,6 +28,7 @@ import net.java.sip.communicator.util.*;
  * the main chat toolbar.
  *
  * @author George Politis
+ * @author Marin Dzhigarov
  */
 public class OtrMetaContactButton
     extends AbstractPluginComponent
@@ -55,10 +56,6 @@ public class OtrMetaContactButton
 
     private Image timedoutPadlockImage;
 
-    /**
-     * The timer task that changes the padlock icon to "loading" and
-     * then to "broken" if the specified timeout passed
-     */
     public void sessionStatusChanged(OtrContact otrContact)
     {
         // OtrMetaContactButton.this.contact can be null.
@@ -180,6 +177,12 @@ public class OtrMetaContactButton
                     switch (OtrActivator.scOtrEngine.getSessionStatus(otrContact))
                     {
                     case ENCRYPTED:
+                        OtrPolicy policy =
+                            OtrActivator.scOtrEngine.getContactPolicy(
+                                otrContact.contact);
+                        policy.setSendWhitespaceTag(false);
+                        OtrActivator.scOtrEngine.setContactPolicy(
+                            otrContact.contact, policy);
                     case FINISHED:
                     case LOADING:
                         // Default action for finished, encrypted and loading
@@ -188,6 +191,15 @@ public class OtrMetaContactButton
                         break;
                     case TIMED_OUT:
                     case PLAINTEXT:
+                        policy =
+                            OtrActivator.scOtrEngine.getContactPolicy(
+                                otrContact.contact);
+                        OtrPolicy globalPolicy =
+                            OtrActivator.scOtrEngine.getGlobalPolicy();
+                        policy.setSendWhitespaceTag(
+                            globalPolicy.getSendWhitespaceTag());
+                        OtrActivator.scOtrEngine.setContactPolicy(
+                            otrContact.contact, policy);
                         // Default action for timed_out and plaintext sessions
                         // is start session.
                         OtrActivator.scOtrEngine.startSession(otrContact);

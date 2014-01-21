@@ -30,12 +30,6 @@ public class OtrActivator
     extends AbstractServiceDependentActivator
     implements ServiceListener
 {
-    /**
-     * A property specifying whether private messaging should be automatically
-     * initiated.
-     */
-    public static final String AUTO_INIT_OTR_PROP =
-        "net.java.sip.communicator.plugin.otr.AUTO_INIT_PRIVATE_MESSAGING";
 
     /**
      * The {@link BundleContext} of the {@link OtrActivator}.

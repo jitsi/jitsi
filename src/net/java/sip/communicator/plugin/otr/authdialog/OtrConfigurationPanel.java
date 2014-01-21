@@ -249,12 +249,7 @@ public class OtrConfigurationPanel
             cbAutoInitiate.setEnabled(otrEnabled);
             cbRequireOtr.setEnabled(otrEnabled);
 
-            String autoInitPropValue
-                = OtrActivator.configService.getString(
-                    OtrActivator.AUTO_INIT_OTR_PROP);
             boolean isAutoInit = otrPolicy.getEnableAlways();
-            if (autoInitPropValue != null)
-                isAutoInit = Boolean.parseBoolean(autoInitPropValue);
 
             cbAutoInitiate.setSelected(isAutoInit);
 
@@ -322,10 +317,7 @@ public class OtrConfigurationPanel
                     boolean isAutoInit
                         = ((JCheckBox) e.getSource()).isSelected();
 
-                    otrPolicy.setEnableAlways(isAutoInit);
-                    OtrActivator.configService.setProperty(
-                        OtrActivator.AUTO_INIT_OTR_PROP,
-                        Boolean.toString(isAutoInit));
+                    otrPolicy.setSendWhitespaceTag(isAutoInit);
 
                     OtrActivator.scOtrEngine.setGlobalPolicy(otrPolicy);
 
