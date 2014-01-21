@@ -286,8 +286,16 @@ public class ChatRoomListImpl
         }
         
         for(int i = 0; i < chatRoomProvider.countChatRooms(); i++)
-            MUCActivator.getUIService().closeChatRoomWindow(
-                chatRoomProvider.getChatRoom(i));
+        {
+            ChatRoomWrapper wrapper = chatRoomProvider.getChatRoom(i);
+            MUCActivator.getUIService().closeChatRoomWindow(wrapper);
+
+            // clears listeners added by chat room
+            wrapper.removeListeners();
+        }
+
+        // clears listeners added by the system chat room
+        chatRoomProvider.getSystemRoomWrapper().removeListeners();
         
         fireProviderWrapperRemoved(chatRoomProvider);
     }
