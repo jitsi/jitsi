@@ -213,6 +213,19 @@ public class OperationSetMultiUserChatIrcImpl
             return chatRoom;
         }
     }
+    
+    /**
+     * Register chat room instance in case it is not yet registered.
+     * 
+     * @param chatroom the chatroom
+     */
+    public void registerChatRoomInstance(ChatRoomIrcImpl chatroom)
+    {
+        synchronized (this.chatRoomCache)
+        {
+            this.chatRoomCache.put(chatroom.getIdentifier(), chatroom);
+        }
+    }
 
     /**
      * Delivers a <tt>ChatRoomInvitationReceivedEvent</tt> to all

@@ -350,8 +350,9 @@ public class IrcStack
      * Join a particular chat room.
      * 
      * @param chatroom Chat room to join.
+     * @throws OperationFailedException failed to join the chat room
      */
-    public void join(ChatRoomIrcImpl chatroom)
+    public void join(ChatRoomIrcImpl chatroom) throws OperationFailedException
     {
         join(chatroom, "");
     }
@@ -365,8 +366,10 @@ public class IrcStack
      * @param chatroom The chatroom to join.
      * @param password Optionally, a password that may be required for some
      *            channels.
+     * @throws OperationFailedException failed to join the chat room
      */
     public void join(final ChatRoomIrcImpl chatroom, final String password)
+        throws OperationFailedException
     {
         if (isConnected() == false)
             throw new IllegalStateException(
@@ -384,7 +387,7 @@ public class IrcStack
         }
 
         LOGGER.trace("Start joining channel " + chatroom.getIdentifier());
-        final Object joinSignal = new Object();
+        final Exception[] joinSignal = new Exception[1];
         synchronized (joinSignal)
         {
             try
@@ -420,6 +423,9 @@ public class IrcStack
                                                 "Forwarding to channel "
                                                     + channel.getName(),
                                                 "text/plain", "UTF-8", null);
+                                        IrcStack.this.provider.getMUC()
+                                            .registerChatRoomInstance(
+                                                actualChatRoom);
                                         chatroom
                                             .fireMessageReceivedEvent(
                                                 message,
@@ -504,6 +510,7 @@ public class IrcStack
                             {
                                 try
                                 {
+                                    joinSignal[0] = e;
                                     MessageIrcImpl message =
                                         new MessageIrcImpl(
                                             "Failed to join channel "
@@ -537,7 +544,17 @@ public class IrcStack
             }
             catch (InterruptedException e)
             {
+                // TODO what should we do with this? Maybe store in joinSignal
+                // if there's nothing else?
                 e.printStackTrace();
+            }
+
+            if (joinSignal[0] != null)
+            {
+                // in case an exception occurred during join process
+                throw new OperationFailedException(joinSignal[0].getMessage(),
+                    OperationFailedException.CHAT_ROOM_NOT_JOINED,
+                    joinSignal[0]);
             }
         }
     }
