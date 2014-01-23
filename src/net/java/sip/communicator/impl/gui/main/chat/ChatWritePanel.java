@@ -1576,7 +1576,18 @@ public class ChatWritePanel
                 if (component.getComponent() == null)
                     continue;
 
-                centerPanel.add((Component)component.getComponent());
+                GridBagConstraints constraints = new GridBagConstraints();
+
+                constraints.anchor = GridBagConstraints.NORTHEAST;
+                constraints.fill = GridBagConstraints.NONE;
+                constraints.gridy = 0;
+                constraints.gridheight = 1;
+                constraints.weightx = 0f;
+                constraints.weighty = 0f;
+                constraints.insets = new Insets(0, 3, 0, 0);
+
+                centerPanel.add(
+                    (Component)component.getComponent(), constraints);
             }
         }
         GuiActivator.getUIService().addPluginComponentListener(this);
@@ -1613,7 +1624,17 @@ public class ChatWritePanel
                     contact, currentTransport.getResourceName());
             }
         }
-        centerPanel.add((Component) component.getComponent());
+
+        GridBagConstraints constraints = new GridBagConstraints();
+
+        constraints.anchor = GridBagConstraints.NORTHEAST;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridy = 0;
+        constraints.gridheight = 1;
+        constraints.weightx = 0f;
+        constraints.weighty = 0f;
+        constraints.insets = new Insets(0, 3, 0, 0);
+        centerPanel.add((Component) component.getComponent(), constraints);
 
         this.centerPanel.repaint();
     }
