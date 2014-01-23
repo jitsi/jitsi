@@ -24,11 +24,12 @@ public class ProtocolMediaActivator
     implements BundleActivator
 {
     /**
-     * The <tt>Logger</tt> used by the <tt>ProtocolMediaActivator</tt>
-     * class and its instances for logging output.
+     * The <tt>Logger</tt> used by the <tt>ProtocolMediaActivator</tt> class and
+     * its instances for logging output.
      */
-    private static final Logger logger = Logger
-                    .getLogger(ProtocolMediaActivator.class.getName());
+    private static final Logger logger
+        = Logger.getLogger(ProtocolMediaActivator.class);
+
     /**
      * Bundle context from OSGi.
      */
@@ -56,9 +57,9 @@ public class ProtocolMediaActivator
      *
      * @param context The execution context of the bundle being started.
      * @throws Exception If this method throws an exception, this bundle is
-     *   marked as stopped and the Framework will remove this bundle's
-     *   listeners, unregister all services registered by this bundle, and
-     *   release all services used by this bundle.
+     * marked as stopped and the Framework will remove this bundle's listeners,
+     * unregister all services registered by this bundle, and release all
+     * services used by this bundle.
      */
     public void start(BundleContext context) throws Exception
     {
@@ -73,10 +74,10 @@ public class ProtocolMediaActivator
      * bundle-specific activities necessary to stop the bundle.
      *
      * @param context The execution context of the bundle being stopped.
-     * @throws Exception If this method throws an exception, the bundle is
-     *   still marked as stopped, and the Framework will remove the bundle's
-     *   listeners, unregister all services registered by the bundle, and
-     *   release all services used by the bundle.
+     * @throws Exception If this method throws an exception, the bundle is still
+     * marked as stopped, and the Framework will remove the bundle's listeners,
+     * unregister all services registered by the bundle, and release all
+     * services used by the bundle.
      */
     public void stop(BundleContext context) throws Exception
     {
@@ -84,48 +85,6 @@ public class ProtocolMediaActivator
         mediaService = null;
         networkAddressManagerService = null;
     }
-
-    /**
-     * Returns a reference to a ConfigurationService implementation currently
-     * registered in the bundle context or null if no such implementation was
-     * found.
-     *
-     * @return a currently valid implementation of the ConfigurationService.
-     */
-    public static ConfigurationService getConfigurationService()
-    {
-        if(configurationService == null)
-        {
-            ServiceReference confReference
-                = bundleContext.getServiceReference(
-                    ConfigurationService.class.getName());
-            configurationService
-                = (ConfigurationService) bundleContext.getService(confReference);
-        }
-        return configurationService;
-    }
-
-    /**
-     * Returns a reference to a NetworkAddressManagerService implementation
-     * currently registered in the bundle context or null if no such
-     * implementation was found.
-     *
-     * @return a currently valid implementation of the
-     * NetworkAddressManagerService .
-     */
-    public static NetworkAddressManagerService getNetworkAddressManagerService()
-    {
-        if(networkAddressManagerService == null)
-        {
-            ServiceReference confReference
-                = bundleContext.getServiceReference(
-                    NetworkAddressManagerService.class.getName());
-            networkAddressManagerService = (NetworkAddressManagerService)
-                bundleContext.getService(confReference);
-        }
-        return networkAddressManagerService;
-    }
-
 
     /**
      * Returns a reference to the bundle context that we were started with.
@@ -139,22 +98,60 @@ public class ProtocolMediaActivator
     }
 
     /**
-     * Returns a reference to a MediaService implementation currently registered
-     * in the bundle context or null if no such implementation was found.
+     * Returns a reference to a ConfigurationService implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found.
      *
-     * @return a reference to a MediaService implementation currently registered
-     * in the bundle context or null if no such implementation was found.
+     * @return a currently valid implementation of the ConfigurationService.
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if(configurationService == null)
+        {
+            configurationService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ConfigurationService.class);
+        }
+        return configurationService;
+    }
+
+    /**
+     * Returns a reference to a <tt>MediaService</tt> implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found.
+     *
+     * @return a reference to a <tt>MediaService</tt> implementation currently
+     * registered in the bundle context or null if no such implementation was
+     * found.
      */
     public static MediaService getMediaService()
     {
         if(mediaService == null)
         {
-            ServiceReference mediaServiceReference
-                = bundleContext.getServiceReference(
-                    MediaService.class.getName());
-            mediaService = (MediaService)bundleContext
-                .getService(mediaServiceReference);
+            mediaService
+                = ServiceUtils.getService(bundleContext, MediaService.class);
         }
         return mediaService;
+    }
+
+    /**
+     * Returns a reference to a NetworkAddressManagerService implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a currently valid implementation of the
+     * <tt>NetworkAddressManagerService</tt>
+     */
+    public static NetworkAddressManagerService getNetworkAddressManagerService()
+    {
+        if(networkAddressManagerService == null)
+        {
+            networkAddressManagerService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        NetworkAddressManagerService.class);
+        }
+        return networkAddressManagerService;
     }
 }

@@ -620,15 +620,13 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     {
         try
         {
-            MediaType mediaType = MediaType.parseString(mediaTypeStr);
-
-            return getPortTracker(mediaType);
+            return getPortTracker(MediaType.parseString(mediaTypeStr));
         }
-        catch (Exception exc)
+        catch (Exception e)
         {
             logger.info(
                 "Returning default port tracker for unrecognized media type: "
-                + mediaTypeStr);
+                    + mediaTypeStr);
 
             return defaultPortTracker;
         }
