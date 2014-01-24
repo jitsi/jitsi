@@ -188,11 +188,35 @@ public class KeepAliveManager
         extends TimerTask
     {
         /**
+         * Minimal sleep interval between calls to this <tt>TimerTask</tt>.
+         */
+        private final long MIN_WAKE_UP_INTERVAL = 5000L; // 5 sec
+
+        /**
+         * Remembers when it was woken up for the last time.
+         */
+        private long lastWakeUp;
+
+        /**
          * Sends a single <tt>KeepAliveEvent</tt>.
          */
         @Override
         public void run()
         {
+            /**
+             * Timers on Android when CPU is sleeping can often sleep for too
+             * long and then they try to catch up doing rapid callbacks.
+             * The intention here is to filter out such calls.
+             */
+            long sleepDuration = (System.currentTimeMillis() - lastWakeUp);
+            lastWakeUp = System.currentTimeMillis();
+
+            if(sleepDuration < MIN_WAKE_UP_INTERVAL)
+            {
+                logger.error( this + " woken up too early !");
+                return;
+            }
+
             // if we are not registered do nothing
             if(!parentProvider.isRegistered())
             {
