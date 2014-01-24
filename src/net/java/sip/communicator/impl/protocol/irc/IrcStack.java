@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.irc.ModeParser.ModeEntry;
@@ -159,43 +160,42 @@ public class IrcStack
         synchronized (result)
         {
             // start connecting to the specified server ...
-            // TODO Catch IOException/SocketException in case of early failure
-            // in call to connect()
-            this.irc.connect(this.params, new Callback<IIRCState>()
-            {
-
-                @Override
-                public void onSuccess(IIRCState state)
-                {
-                    synchronized (result)
-                    {
-                        LOGGER.trace("IRC connected successfully!");
-                        result.setDone(state);
-                        result.notifyAll();
-                    }
-                }
-
-                @Override
-                public void onFailure(Exception e)
-                {
-                    synchronized (result)
-                    {
-                        LOGGER.trace("IRC connection FAILED! ("
-                            + e.getMessage() + ")");
-                        result.setDone(e);
-                        result.notifyAll();
-                    }
-                }
-            });
-
             try
             {
+                this.irc.connect(this.params, new Callback<IIRCState>()
+                {
+
+                    @Override
+                    public void onSuccess(IIRCState state)
+                    {
+                        synchronized (result)
+                        {
+                            LOGGER.trace("IRC connected successfully!");
+                            result.setDone(state);
+                            result.notifyAll();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Exception e)
+                    {
+                        synchronized (result)
+                        {
+                            LOGGER.trace("IRC connection FAILED! ("
+                                + e.getMessage() + ")");
+                            result.setDone(e);
+                            result.notifyAll();
+                        }
+                    }
+                });
+
                 while (!result.isDone())
                 {
                     LOGGER
                         .trace("Waiting for the connection to be established ...");
                     result.wait();
                 }
+                
                 this.connectionState = result.getValue();
                 // TODO Implement connection timeout and a way to recognize that
                 // the timeout occurred.
@@ -216,6 +216,12 @@ public class IrcStack
                     if (e != null)
                         throw e;
                 }
+            }
+            catch (IOException e)
+            {
+                this.provider
+                    .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
+                throw e;
             }
             catch (InterruptedException e)
             {
