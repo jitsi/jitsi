@@ -19,7 +19,10 @@ public enum Mode
     OWNER('O', ChatRoomMemberRole.OWNER),
     OPERATOR('o', ChatRoomMemberRole.ADMINISTRATOR),
     VOICE('v', ChatRoomMemberRole.MEMBER),
-    LIMIT('l', null);
+    LIMIT('l', null),
+    PRIVATE('p', null),
+    SECRET('s', null),
+    INVITE('i', null);
 
     /**
      * Find Mode instance by mode char.

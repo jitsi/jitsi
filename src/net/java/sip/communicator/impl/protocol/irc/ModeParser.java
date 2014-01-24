@@ -67,20 +67,30 @@ public class ModeParser
      */
     private void parse(String modestring)
     {
-        boolean adding = true;
+        Boolean addition = null;
         for (char c : modestring.toCharArray())
         {
             switch (c)
             {
             case '+':
-                adding = true;
+                addition = true;
                 break;
             case '-':
-                adding = false;
+                addition = false;
                 break;
             default:
-                ModeEntry entry = process(adding, c);
-                modes.add(entry);
+                if (addition == null)
+                    throw new IllegalStateException(
+                        "expect modifier (+ or -) first");
+                try
+                {
+                    ModeEntry entry = process(addition, c);
+                    modes.add(entry);
+                }
+                catch (ArrayIndexOutOfBoundsException e)
+                {
+                    throw new IllegalArgumentException("invalid mode string provided: parameter missing", e);
+                }
                 break;
             }
         }
@@ -108,6 +118,12 @@ public class ModeParser
             String[] params = (add ? new String[]
             { this.params[this.index++] } : new String[] {});
             return new ModeEntry(add, Mode.LIMIT, params);
+        case 'p':
+            return new ModeEntry(add, Mode.PRIVATE);
+        case 's':
+            return new ModeEntry(add, Mode.SECRET);
+        case 'i':
+            return new ModeEntry(add, Mode.INVITE);
         default:
             return new ModeEntry(add, Mode.UNKNOWN, ""+mode);
         }

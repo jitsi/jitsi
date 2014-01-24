@@ -13,7 +13,7 @@ public class ResultTest
         Assert.assertNull(result.getValue());
         Assert.assertNull(result.getException());
     }
-    
+
     public void testSetDone()
     {
         Result<Object, Exception> result = new Result<Object, Exception>();
@@ -22,7 +22,7 @@ public class ResultTest
         Assert.assertNull(result.getValue());
         Assert.assertNull(result.getException());
     }
-    
+
     public void testSetDoneWithValue()
     {
         Object v = new Object();
@@ -32,21 +32,23 @@ public class ResultTest
         Assert.assertSame(v, result.getValue());
         Assert.assertNull(result.getException());
     }
-    
+
     public void testSetDoneWithException()
     {
-        Exception e = new IllegalStateException("the world is going to explode");
+        Exception e =
+            new IllegalStateException("the world is going to explode");
         Result<Object, Exception> result = new Result<Object, Exception>();
         result.setDone(e);
         Assert.assertTrue(result.isDone());
         Assert.assertNull(result.getValue());
         Assert.assertSame(e, result.getException());
     }
-    
+
     public void testSetDoneWithBoth()
     {
         Object v = new Object();
-        Exception e = new IllegalStateException("the world is going to explode");
+        Exception e =
+            new IllegalStateException("the world is going to explode");
         Result<Object, Exception> result = new Result<Object, Exception>();
         result.setDone(v, e);
         Assert.assertTrue(result.isDone());
