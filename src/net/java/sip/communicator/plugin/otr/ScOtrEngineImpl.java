@@ -797,7 +797,7 @@ public class ScOtrEngineImpl
                 contact.getAddress(),
                 pps.getProtocolName());
         int policy =
-            this.configurator.getPropertyInt(sessionID + "policy",
+            this.configurator.getPropertyInt(sessionID + "contact_policy",
                 -1);
         if (policy < 0)
             return getGlobalPolicy();
@@ -807,8 +807,13 @@ public class ScOtrEngineImpl
 
     public OtrPolicy getGlobalPolicy()
     {
-        return new OtrPolicyImpl(this.configurator.getPropertyInt("POLICY",
-            OtrPolicy.OTRL_POLICY_DEFAULT));
+        /*
+         * SEND_WHITESPACE_TAG bit will be lowered until we stabilize the OTR.
+         */
+        int defaultScOtrPolicy =
+            OtrPolicy.OTRL_POLICY_DEFAULT & ~OtrPolicy.SEND_WHITESPACE_TAG;
+        return new OtrPolicyImpl(this.configurator.getPropertyInt(
+            "GLOBAL_POLICY", defaultScOtrPolicy));
     }
 
     /**
@@ -1033,7 +1038,7 @@ public class ScOtrEngineImpl
                 contact.getAddress(),
                 pps.getProtocolName());
 
-        String propertyID = sessionID + "policy";
+        String propertyID = sessionID + "contact_policy";
         if (policy == null)
             this.configurator.removeProperty(propertyID);
         else
@@ -1046,9 +1051,9 @@ public class ScOtrEngineImpl
     public void setGlobalPolicy(OtrPolicy policy)
     {
         if (policy == null)
-            this.configurator.removeProperty("POLICY");
+            this.configurator.removeProperty("GLOBAL_POLICY");
         else
-            this.configurator.setProperty("POLICY", policy.getPolicy());
+            this.configurator.setProperty("GLOBAL_POLICY", policy.getPolicy());
 
         for (ScOtrEngineListener l : getListeners())
             l.globalPolicyChanged();

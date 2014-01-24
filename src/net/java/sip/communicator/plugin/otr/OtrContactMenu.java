@@ -118,72 +118,9 @@ class OtrContactMenu
         setOtrPolicy(
             OtrActivator.scOtrEngine.getContactPolicy(otrContact.contact));
 
-        /*
-         * Since we now support OTRv3 we have to make sure that the user's
-         * cached policy is up-to-date with the latest allowed version of the
-         * protocol. We have to set the ALLOW_V3 bit manually for the users.
-         * 
-         * UPDATE: The WHITESPACE_START_AKE bit should also be manually set
-         * for any user that have all three ALLOW_V bits set to 1.
-         * 
-         * All of this is needed because the old users have cached otr policies
-         * that would not benefit from the recently updated otr functionality
-         * if these policies are not properly updated.
-         */
-        updateOldOtrPoliciesIfNeeded(otrContact);
-
         buildMenu();
     }
 
-    private void updateOldOtrPoliciesIfNeeded(OtrContact otrContact)
-    {
-        OtrPolicy policy =
-            OtrActivator.scOtrEngine.getContactPolicy(otrContact.contact);
-
-        /*
-         * This flag is used to indicate whether there are changes in the
-         * current policy or not. If there are not any changes then we don't
-         * have to access the configuration service and re-cache the policy.
-         * This greatly optimizes performance on big configurations.
-         */
-        boolean isChangedFlag = false;
-
-        if (policy.getAllowV1() && policy.getAllowV2() && !policy.getAllowV3())
-        {
-            policy.setAllowV3(true);
-            isChangedFlag = true;
-        }
-
-        if (policy.getEnableManual() && !policy.getWhitespaceStartAKE())
-        {
-            policy.setWhitespaceStartAKE(true);
-            isChangedFlag = true;
-        }
-
-        if (isChangedFlag)
-        {
-            OtrActivator.scOtrEngine.setContactPolicy(contact.contact, policy);
-        }
-
-        policy = OtrActivator.scOtrEngine.getGlobalPolicy();
-        isChangedFlag = false;
-        if (policy.getAllowV1() && policy.getAllowV2() && !policy.getAllowV3())
-        {
-            policy.setAllowV3(true);
-            isChangedFlag = true;
-        }
-
-        if (policy.getEnableManual() && !policy.getWhitespaceStartAKE())
-        {
-            policy.setWhitespaceStartAKE(true);
-            isChangedFlag = true;
-        }
-
-        if (isChangedFlag)
-        {
-            OtrActivator.scOtrEngine.setGlobalPolicy(policy);
-        }
-    }
     /*
      * Implements ActionListener#actionPerformed(ActionEvent).
      */
