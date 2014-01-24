@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.sip;
 
 import java.io.*;
+import java.net.*;
 import java.text.*;
 import java.util.*;
 
@@ -15,15 +16,21 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
+import gov.nist.javax.sip.*;
+
+import net.java.sip.communicator.impl.protocol.sip.net.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.util.OSUtils;
 
 /**
  * Handles OPTIONS requests by replying with an OK response containing
  * methods that we support.
  *
  * @author Emil Ivov
+ * @author Pawel Domas
  */
 public class ClientCapabilities
     extends MethodProcessorAdapter
@@ -191,7 +198,7 @@ public class ClientCapabilities
      * The task would continuously send OPTIONs request that we use as a keep
      * alive method.
      */
-    private class KeepAliveTask
+    private class OptionsKeepAliveTask
         extends TimerTask
     {
         @Override
@@ -369,6 +376,48 @@ public class ClientCapabilities
         }
    }
 
+    /**
+     * Class implements CRLF keep alive method.
+     */
+    private class CRLfKeepAliveTask
+        extends TimerTask
+    {
+
+        @Override
+        public void run()
+        {
+            ProxyConnection connection = provider.getConnection();
+            if(connection == null)
+            {
+                logger.error("No connection found to send CRLF keep alive" +
+                                 " with " + provider);
+                return;
+            }
+
+            ListeningPoint lp
+                = provider.getListeningPoint(connection.getTransport());
+
+            if( !(lp instanceof ListeningPointExt) )
+            {
+                logger.error("ListeningPoint is not ListeningPointExt" +
+                                 "(or is null)");
+                return;
+            }
+
+            InetSocketAddress address = connection.getAddress();
+            try
+            {
+                ((ListeningPointExt)lp)
+                    .sendHeartbeat( address.getHostString(),
+                                    address.getPort() );
+            }
+            catch (IOException e)
+            {
+                logger.error("Error while sending a heartbeat", e);
+            }
+        }
+    }
+
     private class RegistrationListener
         implements RegistrationStateChangeListener
     {
@@ -406,7 +455,8 @@ public class ClientCapabilities
                 // options is default keep-alive, if property is missing
                 // then options is used
                 if(keepAliveMethod != null &&
-                    !keepAliveMethod.equalsIgnoreCase("options"))
+                    !(keepAliveMethod.equalsIgnoreCase("options")
+                      || keepAliveMethod.equalsIgnoreCase("crlf")))
                     return;
 
                 int keepAliveInterval =
@@ -421,11 +471,24 @@ public class ClientCapabilities
                     if (keepAliveTimer == null)
                         keepAliveTimer = new Timer();
 
-                    if (logger.isDebugEnabled())
-                        logger.debug("Scheduling OPTIONS keep alives");
+                    TimerTask keepAliveTask;
+                    // CRLF is used by default on Android
+                    if( (OSUtils.IS_ANDROID && keepAliveMethod == null)
+                        || "crlf".equalsIgnoreCase(keepAliveMethod) )
+                    {
+                        keepAliveTask = new CRLfKeepAliveTask();
+                    }
+                    else
+                    {
+                        // OPTIONS
+                        keepAliveTask = new OptionsKeepAliveTask();
+                    }
 
-                    keepAliveTimer.schedule(new KeepAliveTask(), 0,
-                        keepAliveInterval * 1000);
+                    if (logger.isDebugEnabled())
+                        logger.debug("Scheduling keep alives: "+keepAliveTask);
+
+                    keepAliveTimer.schedule(keepAliveTask, 0,
+                                            keepAliveInterval * 1000);
                 }
             }
         }

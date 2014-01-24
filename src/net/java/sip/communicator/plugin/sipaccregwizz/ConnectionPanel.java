@@ -57,7 +57,7 @@ public class ConnectionPanel
         = new JComboBox(new String[] { "UDP", "TCP", "TLS" });
 
     private JComboBox keepAliveMethodBox
-        = new JComboBox(new String[] { "NONE", "REGISTER", "OPTIONS" });
+        = new JComboBox(new String[] { "NONE", "REGISTER", "OPTIONS", "CRLF" });
 
     private JTextField keepAliveIntervalValue
             = new JTextField(SipAccountID.getDefaultStr(

@@ -272,7 +272,9 @@ public class SipLogger
             PacketLoggingService packetLogging = SipActivator.getPacketLogging();
             if( packetLogging == null
                 || !packetLogging.isLoggingEnabled(
-                        PacketLoggingService.ProtocolName.SIP))
+                        PacketLoggingService.ProtocolName.SIP)
+                /* Via not present in CRLF packet on TCP - causes NPE */
+                || message.getTopmostVia() == null )
                 return;
 
             String transport = message.getTopmostVia().getTransport();
