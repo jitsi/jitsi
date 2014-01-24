@@ -802,8 +802,16 @@ public class IrcStack
     private class ChatRoomListener
         extends VariousMessageListenerAdapter
     {
+        /**
+         * Chat room for which this listener is working.
+         */
         private ChatRoomIrcImpl chatroom;
 
+        /**
+         * Constructor. Instantiate listener for the provided chat room.
+         * 
+         * @param chatroom
+         */
         private ChatRoomListener(ChatRoomIrcImpl chatroom)
         {
             if (chatroom == null)
@@ -812,30 +820,39 @@ public class IrcStack
             this.chatroom = chatroom;
         }
 
+        /**
+         * Event in case of topic change.
+         */
         @Override
         public void onTopicChange(TopicMessage msg)
         {
             if (isThisChatRoom(msg.getChannelName()) == false)
                 return;
-            
+
             this.chatroom.updateSubject(msg.getTopic().getValue());
         }
 
+        /**
+         * Event in case of channel mode changes.
+         */
         @Override
         public void onChannelMode(ChannelModeMessage msg)
         {
             if (isThisChatRoom(msg.getChannelName()) == false)
                 return;
-            
+
             processModeMessage(msg);
         }
 
+        /**
+         * Event in case of channel join message.
+         */
         @Override
         public void onChannelJoin(ChanJoinMessage msg)
         {
             if (isThisChatRoom(msg.getChannelName()) == false)
                 return;
-            
+
             if (isMe(msg.getSource()))
             {
                 // I think that this should not happen.
@@ -851,12 +868,15 @@ public class IrcStack
             }
         }
 
+        /**
+         * Event in case of channel part.
+         */
         @Override
         public void onChannelPart(ChanPartMessage msg)
         {
             if (isThisChatRoom(msg.getChannelName()) == false)
                 return;
-            
+
             if (isMe(msg.getSource()))
             {
                 IrcStack.this.irc.deleteListener(this);
@@ -885,13 +905,16 @@ public class IrcStack
                 }
             }
         }
-        
+
+        /**
+         * Event in case of channel kick.
+         */
         @Override
         public void onChannelKick(ChannelKick msg)
         {
             if (isThisChatRoom(msg.getChannelName()) == false)
                 return;
-            
+
             String kickedUser = msg.getKickedNickname();
             if (isMe(kickedUser))
             {
@@ -919,6 +942,9 @@ public class IrcStack
             }
         }
 
+        /**
+         * Event in case of user quit.
+         */
         @Override
         public void onUserQuit(QuitMessage msg)
         {
@@ -931,7 +957,10 @@ public class IrcStack
                     msg.getQuitMsg());
             }
         }
-        
+
+        /**
+         * Event in case of nick change.
+         */
         @Override
         public void onNickChange(NickMessage msg)
         {
@@ -956,7 +985,10 @@ public class IrcStack
                 this.chatroom.fireMemberPropertyChangeEvent(evt);
             }
         }
-        
+
+        /**
+         * Event in case of channel message arrival.
+         */
         @Override
         public void onChannelMessage(ChannelPrivMsg msg)
         {
@@ -976,12 +1008,17 @@ public class IrcStack
                 ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
         }
 
+        /**
+         * Process mode changes.
+         * 
+         * @param msg raw mode message
+         */
         private void processModeMessage(ChannelModeMessage msg)
         {
             // TODO Handle or ignore ban channel mode (MODE STRING: +b
             // *!*@some-ip.dynamicIP.provider.net)
             ChatRoomMemberIrcImpl sourceMember = extractChatRoomMember(msg);
-                
+
             ModeParser parser = new ModeParser(msg);
             for (ModeEntry mode : parser.getModes())
             {
@@ -1165,6 +1202,12 @@ public class IrcStack
             }
         }
 
+        /**
+         * Extract chat room member identifier from message.
+         * 
+         * @param msg raw mode message
+         * @return returns member instance
+         */
         private ChatRoomMemberIrcImpl extractChatRoomMember(
             ChannelModeMessage msg)
         {
@@ -1195,17 +1238,35 @@ public class IrcStack
             return member;
         }
 
+        /**
+         * Test whether this listener corresponds to the chat room.
+         * 
+         * @param chatRoomName chat room name
+         * @return returns true if this listener applies, false otherwise
+         */
         private boolean isThisChatRoom(String chatRoomName)
         {
             return this.chatroom.getIdentifier().equals(chatRoomName);
         }
 
+        /**
+         * Test whether the source user is this user.
+         * 
+         * @param user the source user
+         * @return returns true if this use, or false otherwise
+         */
         private boolean isMe(IRCUser user)
         {
             return IrcStack.this.connectionState.getNickname().equals(
                 user.getNick());
         }
 
+        /**
+         * Test whether the user nick is this user.
+         * 
+         * @param name nick of the user
+         * @return returns true if so, false otherwise
+         */
         private boolean isMe(String name)
         {
             return IrcStack.this.connectionState.getNickname().equals(name);
