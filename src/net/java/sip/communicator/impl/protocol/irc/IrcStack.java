@@ -131,9 +131,6 @@ public class IrcStack
         // Make sure we start with an empty joined-channel list.
         this.joined.clear();
 
-        // A container for storing the exception if connecting fails.
-        final Exception[] exceptionContainer = new Exception[1];
-
         this.irc = new IRCApiImpl(true);
         // FIXME Currently, the secure connection is created by
         // explicitly creating an SSLContext for 'SSL'. According
@@ -144,9 +141,23 @@ public class IrcStack
             secureConnection));
         synchronized (this.irc)
         {
-            // register a server listener in order to catch server and
-            // cross-/multi-channel messages
             this.irc.addListener(new ServerListener());
+            connectSynchronized();
+        }
+    }
+    
+    /**
+     * Perform synchronized connect operation.
+     * 
+     * @return returns true upon successful connection, false otherwise
+     * @throws Exception exception thrown when connect fails
+     */
+    private void connectSynchronized() throws Exception
+    {
+        final Result<IIRCState, Exception> result =
+            new Result<IIRCState, Exception>();
+        synchronized (result)
+        {
             // start connecting to the specified server ...
             // TODO Catch IOException/SocketException in case of early failure
             // in call to connect()
@@ -156,52 +167,54 @@ public class IrcStack
                 @Override
                 public void onSuccess(IIRCState state)
                 {
-                    synchronized (IrcStack.this.irc)
+                    synchronized (result)
                     {
                         LOGGER.trace("IRC connected successfully!");
-                        IrcStack.this.connectionState = state;
-                        IrcStack.this.irc.notifyAll();
+                        result.setDone(state);
+                        result.notifyAll();
                     }
                 }
 
                 @Override
                 public void onFailure(Exception e)
                 {
-                    synchronized (IrcStack.this.irc)
+                    synchronized (result)
                     {
                         LOGGER.trace("IRC connection FAILED! ("
                             + e.getMessage() + ")");
-                        exceptionContainer[0] = e;
-                        IrcStack.this.connectionState = null;
-                        IrcStack.this.irc.notifyAll();
+                        result.setDone(e);
+                        result.notifyAll();
                     }
                 }
             });
 
             try
             {
-                // wait while the irc connection is being established ...
-                LOGGER.trace("Waiting for the connection to be established ...");
+                while (!result.isDone())
+                {
+                    LOGGER
+                        .trace("Waiting for the connection to be established ...");
+                    result.wait();
+                }
+                this.connectionState = result.getValue();
                 // TODO Implement connection timeout and a way to recognize that
                 // the timeout occurred.
-                this.irc.wait();
                 if (this.connectionState != null
                     && this.connectionState.isConnected())
                 {
+                    // if connecting succeeded, set state to registered
                     this.provider
                         .setCurrentRegistrationState(RegistrationState.REGISTERED);
                 }
                 else
                 {
+                    // if connecting failed, set state to unregistered and throw
+                    // the exception if one exists
                     this.provider
                         .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
-
-                    if (exceptionContainer[0] != null)
-                    {
-                        // If an exception happens to be available that explains
-                        // the connection problem, throw it.
-                        throw exceptionContainer[0];
-                    }
+                    Exception e = result.getException();
+                    if (e != null)
+                        throw e;
                 }
             }
             catch (InterruptedException e)
@@ -377,7 +390,9 @@ public class IrcStack
             throw new IllegalArgumentException("chatroom cannot be null");
         if (password == null)
             throw new IllegalArgumentException("password cannot be null");
-        if (this.joined.containsKey(chatroom.getIdentifier()) || chatroom.isPrivate())
+
+        if (this.joined.containsKey(chatroom.getIdentifier())
+            || chatroom.isPrivate())
         {
             // If we already joined this particular chatroom or if it is a
             // private chat room (i.e. message from one user to another), no
@@ -386,145 +401,46 @@ public class IrcStack
         }
 
         LOGGER.trace("Start joining channel " + chatroom.getIdentifier());
-        final Exception[] joinSignal = new Exception[1];
+        final Result<Object, Exception> joinSignal =
+            new Result<Object, Exception>();
         synchronized (joinSignal)
         {
-            try
-            {
-                LOGGER
-                    .trace("Issue join channel command to IRC library and wait for join operation to complete (un)successfully.");
-                // TODO Refactor this ridiculous nesting of functions and
-                // classes.
-                this.irc.joinChannel(chatroom.getIdentifier(), password,
-                    new Callback<IRCChannel>()
+            LOGGER
+                .trace("Issue join channel command to IRC library and wait for join operation to complete (un)successfully.");
+            // TODO Refactor this ridiculous nesting of functions and
+            // classes.
+            this.irc.joinChannel(chatroom.getIdentifier(), password,
+                new Callback<IRCChannel>()
+                {
+
+                    @Override
+                    public void onSuccess(IRCChannel channel)
                     {
-
-                        @Override
-                        public void onSuccess(IRCChannel channel)
+                        LOGGER
+                            .trace("Started callback for successful join of channel '"
+                                + chatroom.getIdentifier() + "'.");
+                        ChatRoomIrcImpl actualChatRoom = chatroom;
+                        synchronized (joinSignal)
                         {
-                            LOGGER
-                                .trace("Started callback for successful join of channel '"
-                                    + chatroom.getIdentifier() + "'.");
-                            ChatRoomIrcImpl actualChatRoom = chatroom;
-                            synchronized (joinSignal)
+                            try
                             {
-                                try
+                                if (channel.getName().equals(
+                                    actualChatRoom.getIdentifier()) == false)
                                 {
-                                    if (channel.getName().equals(
-                                        actualChatRoom.getIdentifier()) == false)
-                                    {
-                                        // If the channel name is not the
-                                        // original chat room name, then we have
-                                        // been forwarded.
-                                        actualChatRoom =
-                                            new ChatRoomIrcImpl(channel
-                                                .getName(),
-                                                IrcStack.this.provider);
-                                        MessageIrcImpl message =
-                                            new MessageIrcImpl(
-                                                "Forwarding to channel "
-                                                    + channel.getName(),
-                                                "text/plain", "UTF-8", null);
-                                        IrcStack.this.provider.getMUC()
-                                            .registerChatRoomInstance(
-                                                actualChatRoom);
-                                        chatroom
-                                            .fireMessageReceivedEvent(
-                                                message,
-                                                null,
-                                                new Date(),
-                                                MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
-                                    }
-
-                                    IrcStack.this.joined.put(
-                                        actualChatRoom.getIdentifier(),
-                                        actualChatRoom);
-                                    IrcStack.this.irc
-                                        .addListener(new ChatRoomListener(
-                                            actualChatRoom));
-                                    IRCTopic topic = channel.getTopic();
-                                    actualChatRoom.updateSubject(topic
-                                        .getValue());
-
-                                    for (IRCUser user : channel.getUsers())
-                                    {
-                                        ChatRoomMemberRole role =
-                                            ChatRoomMemberRole.SILENT_MEMBER;
-                                        Set<IRCUserStatus> statuses =
-                                            channel.getStatusesForUser(user);
-                                        for (IRCUserStatus status : statuses)
-                                        {
-                                            role =
-                                                convertMemberMode(status
-                                                    .getChanModeType()
-                                                    .charValue());
-                                        }
-
-                                        if (IrcStack.this.getNick().equals(
-                                            user.getNick()))
-                                        {
-                                            actualChatRoom.prepUserRole(role);
-                                        }
-                                        else
-                                        {
-                                            ChatRoomMemberIrcImpl member =
-                                                new ChatRoomMemberIrcImpl(
-                                                    IrcStack.this.provider,
-                                                    actualChatRoom, user
-                                                        .getNick(), role);
-                                            actualChatRoom.addChatRoomMember(
-                                                member.getContactAddress(),
-                                                member);
-                                        }
-                                    }
-                                }
-                                finally
-                                {
-                                    // In any case, issue the local user
-                                    // presence, since the irc library notified
-                                    // us of a successful join. We should wait
-                                    // as long as possible though. First we need
-                                    // to fill the list of chat room members and
-                                    // other chat room properties.
-                                    IrcStack.this.provider
-                                        .getMUC()
-                                        .fireLocalUserPresenceEvent(
-                                            actualChatRoom,
-                                            LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
-                                            null);
-                                    LOGGER
-                                        .trace("Finished successful join callback for channel '"
-                                            + chatroom.getIdentifier()
-                                            + "'. Waking up original thread.");
-                                    // Notify waiting threads of finished
-                                    // execution.
-                                    joinSignal.notifyAll();
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Exception e)
-                        {
-                            LOGGER
-                                .trace("Started callback for failed attempt to join channel '"
-                                    + chatroom.getIdentifier() + "'.");
-                            // TODO how should we communicate a failed attempt
-                            // at joining the channel? (System messages don't
-                            // seem to show if there is no actual chat room
-                            // presence.)
-                            synchronized (joinSignal)
-                            {
-                                try
-                                {
-                                    joinSignal[0] = e;
+                                    // If the channel name is not the
+                                    // original chat room name, then we have
+                                    // been forwarded.
+                                    actualChatRoom =
+                                        new ChatRoomIrcImpl(channel.getName(),
+                                            IrcStack.this.provider);
                                     MessageIrcImpl message =
                                         new MessageIrcImpl(
-                                            "Failed to join channel "
-                                                + chatroom.getIdentifier()
-                                                + " (" + e.getMessage() + ")",
-                                            "text/plain", "UTF-8",
-                                            "Failed to join");
+                                            "Forwarding to channel "
+                                                + channel.getName(),
+                                            "text/plain", "UTF-8", null);
+                                    IrcStack.this.provider.getMUC()
+                                        .registerChatRoomInstance(
+                                            actualChatRoom);
                                     chatroom
                                         .fireMessageReceivedEvent(
                                             message,
@@ -532,39 +448,142 @@ public class IrcStack
                                             new Date(),
                                             MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
                                 }
-                                finally
+
+                                IrcStack.this.joined.put(
+                                    actualChatRoom.getIdentifier(),
+                                    actualChatRoom);
+                                IrcStack.this.irc
+                                    .addListener(new ChatRoomListener(
+                                        actualChatRoom));
+                                IRCTopic topic = channel.getTopic();
+                                actualChatRoom.updateSubject(topic.getValue());
+
+                                for (IRCUser user : channel.getUsers())
                                 {
-                                    LOGGER
-                                        .trace("Finished callback for failed attempt to join channel '"
-                                            + chatroom.getIdentifier()
-                                            + "'. Waking up original thread.");
-                                    // Notify waiting threads of finished
-                                    // execution
-                                    joinSignal.notifyAll();
+                                    ChatRoomMemberRole role =
+                                        ChatRoomMemberRole.SILENT_MEMBER;
+                                    Set<IRCUserStatus> statuses =
+                                        channel.getStatusesForUser(user);
+                                    for (IRCUserStatus status : statuses)
+                                    {
+                                        role =
+                                            convertMemberMode(status
+                                                .getChanModeType().charValue());
+                                    }
+
+                                    if (IrcStack.this.getNick().equals(
+                                        user.getNick()))
+                                    {
+                                        actualChatRoom.prepUserRole(role);
+                                    }
+                                    else
+                                    {
+                                        ChatRoomMemberIrcImpl member =
+                                            new ChatRoomMemberIrcImpl(
+                                                IrcStack.this.provider,
+                                                actualChatRoom, user.getNick(),
+                                                role);
+                                        actualChatRoom.addChatRoomMember(
+                                            member.getContactAddress(), member);
+                                    }
                                 }
                             }
+                            finally
+                            {
+                                // In any case, issue the local user
+                                // presence, since the irc library notified
+                                // us of a successful join. We should wait
+                                // as long as possible though. First we need
+                                // to fill the list of chat room members and
+                                // other chat room properties.
+                                IrcStack.this.provider
+                                    .getMUC()
+                                    .fireLocalUserPresenceEvent(
+                                        actualChatRoom,
+                                        LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
+                                        null);
+                                LOGGER
+                                    .trace("Finished successful join callback for channel '"
+                                        + chatroom.getIdentifier()
+                                        + "'. Waking up original thread.");
+                                // Notify waiting threads of finished
+                                // execution.
+                                joinSignal.setDone();
+                                joinSignal.notifyAll();
+                            }
                         }
-                    });
-                // Wait until async channel join operation has finished.
-                joinSignal.wait();
+                    }
+
+                    @Override
+                    public void onFailure(Exception e)
+                    {
+                        LOGGER
+                            .trace("Started callback for failed attempt to join channel '"
+                                + chatroom.getIdentifier() + "'.");
+                        // TODO how should we communicate a failed attempt
+                        // at joining the channel? (System messages don't
+                        // seem to show if there is no actual chat room
+                        // presence.)
+                        synchronized (joinSignal)
+                        {
+                            try
+                            {
+                                MessageIrcImpl message =
+                                    new MessageIrcImpl(
+                                        "Failed to join channel "
+                                            + chatroom.getIdentifier() + " ("
+                                            + e.getMessage() + ")",
+                                        "text/plain", "UTF-8", "Failed to join");
+                                chatroom
+                                    .fireMessageReceivedEvent(
+                                        message,
+                                        null,
+                                        new Date(),
+                                        MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+                            }
+                            finally
+                            {
+                                LOGGER
+                                    .trace("Finished callback for failed attempt to join channel '"
+                                        + chatroom.getIdentifier()
+                                        + "'. Waking up original thread.");
+                                // Notify waiting threads of finished
+                                // execution
+                                joinSignal.setDone(e);
+                                joinSignal.notifyAll();
+                            }
+                        }
+                    }
+                });
+
+            try
+            {
+                while (!joinSignal.isDone())
+                {
+                    LOGGER.trace("Waiting for channel join message ...");
+                    // Wait until async channel join operation has finished.
+                    joinSignal.wait();
+                }
+
                 LOGGER
                     .trace("Finished waiting for join operation for channel '"
                         + chatroom.getIdentifier() + "' to complete.");
                 // TODO How to handle 480 (+j): Channel throttle exceeded?
+                
+                Exception e = joinSignal.getException();
+                if (e != null)
+                {
+                    // in case an exception occurred during join process
+                    throw new OperationFailedException(e.getMessage(),
+                        OperationFailedException.CHAT_ROOM_NOT_JOINED, e);
+                }
             }
             catch (InterruptedException e)
             {
                 // TODO what should we do with this? Maybe store in joinSignal
                 // if there's nothing else?
-                e.printStackTrace();
-            }
-
-            if (joinSignal[0] != null)
-            {
-                // in case an exception occurred during join process
-                throw new OperationFailedException(joinSignal[0].getMessage(),
-                    OperationFailedException.CHAT_ROOM_NOT_JOINED,
-                    joinSignal[0]);
+                throw new OperationFailedException(e.getMessage(),
+                    OperationFailedException.INTERNAL_ERROR, e);
             }
         }
     }
