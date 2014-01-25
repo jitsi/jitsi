@@ -408,7 +408,7 @@ public class ClientCapabilities
             try
             {
                 ((ListeningPointExt)lp)
-                    .sendHeartbeat( address.getHostString(),
+                    .sendHeartbeat( address.getAddress().getHostAddress(),
                                     address.getPort() );
             }
             catch (IOException e)
