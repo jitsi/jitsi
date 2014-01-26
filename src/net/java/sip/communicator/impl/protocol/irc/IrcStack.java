@@ -372,13 +372,13 @@ public class IrcStack
                             list));
                         this.irc.rawMessage("LIST");
                         LOGGER.trace("Start waiting for list ...");
+                        // FIXME incorrect way of waiting (spurious wakeups)
                         list.wait();
                         LOGGER.trace("Done waiting for list.");
                     }
                     catch (InterruptedException e)
                     {
-                        LOGGER.trace("INTERRUPTED while waiting for list.");
-                        e.printStackTrace();
+                        LOGGER.warn("INTERRUPTED while waiting for list.", e);
                     }
                 }
                 this.channellist.instance = list;
@@ -1216,7 +1216,8 @@ public class IrcStack
                         }
                         catch (NumberFormatException e)
                         {
-                            e.printStackTrace();
+                            LOGGER.warn("server sent incorrect limit, "
+                                + "limit is not a number", e);
                             break;
                         }
                     }
