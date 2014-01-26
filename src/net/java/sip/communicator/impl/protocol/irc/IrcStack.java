@@ -363,17 +363,21 @@ public class IrcStack
         {
             if (this.channellist.instance == null)
             {
-                List<String> list = new LinkedList<String>();
-                synchronized (list)
+                Result<List<String>, Exception> listSignal =
+                    new Result<List<String>, Exception>(
+                        new LinkedList<String>());
+                synchronized (listSignal)
                 {
                     try
                     {
                         this.irc.addListener(new ChannelListListener(this.irc,
-                            list));
+                            listSignal));
                         this.irc.rawMessage("LIST");
-                        LOGGER.trace("Start waiting for list ...");
-                        // FIXME incorrect way of waiting (spurious wakeups)
-                        list.wait();
+                        while (!listSignal.isDone())
+                        {
+                            LOGGER.trace("Start waiting for list ...");
+                            listSignal.wait();
+                        }
                         LOGGER.trace("Done waiting for list.");
                     }
                     catch (InterruptedException e)
@@ -381,7 +385,7 @@ public class IrcStack
                         LOGGER.warn("INTERRUPTED while waiting for list.", e);
                     }
                 }
-                this.channellist.instance = list;
+                this.channellist.instance = listSignal.getValue();
             }
             LOGGER.trace("Finished retrieve server chat room list.");
             return Collections.unmodifiableList(this.channellist.instance);
@@ -1339,14 +1343,21 @@ public class IrcStack
         /**
          * Reference to the provided list instance.
          */
-        private List<String> channels;
+        private Result<List<String>, Exception> signal;
 
-        private ChannelListListener(IRCApi api, List<String> list)
+        /**
+         * Constructor for channel list listener.
+         * @param api irc-api library instance
+         * @param list signal for sync signaling
+         */
+        private ChannelListListener(IRCApi api,
+            Result<List<String>, Exception> list)
         {
             if (api == null)
-                throw new IllegalArgumentException("IRC api cannot be null");
+                throw new IllegalArgumentException(
+                    "IRC api instance cannot be null");
             this.api = api;
-            this.channels = list;
+            this.signal = list;
         }
 
         /**
@@ -1360,35 +1371,35 @@ public class IrcStack
         @Override
         public void onServerNumericMessage(ServerNumericMessage msg)
         {
-            if (this.channels == null)
+            if (this.signal.isDone())
                 return;
-
+            
             switch (msg.getNumericCode())
             {
             case 321:
-                synchronized (this.channels)
+                synchronized (this.signal)
                 {
-                    this.channels.clear();
+                    this.signal.getValue().clear();
                 }
                 break;
             case 322:
                 String channel = parse(msg.getText());
                 if (channel != null)
                 {
-                    synchronized (this.channels)
+                    synchronized (this.signal)
                     {
-                        this.channels.add(channel);
+                        this.signal.getValue().add(channel);
                     }
                 }
                 break;
             case 323:
-                synchronized (this.channels)
+                synchronized (this.signal)
                 {
-                    this.channels.notifyAll();
-                    // Done collecting channels. Delete list reference and
-                    // remove listener and then we're done.
-                    this.channels = null;
+                    // Done collecting channels. Remove listener and then we're
+                    // done.
                     this.api.deleteListener(this);
+                    this.signal.setDone();
+                    this.signal.notifyAll();
                 }
                 break;
             // TODO Add support for REPLY 416: LIST :output too large, truncated

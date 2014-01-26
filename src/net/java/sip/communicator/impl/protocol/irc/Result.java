@@ -31,6 +31,23 @@ public class Result<T, E extends Exception>
     private E exception = null;
 
     /**
+     * Constructor for result without initial value
+     */
+    public Result()
+    {
+    }
+    
+    /**
+     * Constructor for result with initial value
+     * 
+     * @param initialValue initial value
+     */
+    public Result(T initialValue)
+    {
+        this.value = initialValue;
+    }
+    
+    /**
      * Check whether it is actually done.
      * 
      * @return return true when done or false otherwise

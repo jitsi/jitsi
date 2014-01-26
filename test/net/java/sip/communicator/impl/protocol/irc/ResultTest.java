@@ -13,6 +13,17 @@ public class ResultTest
         Assert.assertNull(result.getValue());
         Assert.assertNull(result.getException());
     }
+    
+    public void testConstructionWithInitialValue()
+    {
+        Object initial = new Object();
+        Result<Object, Exception> result =
+            new Result<Object, Exception>(initial);
+        Assert.assertNotNull(result);
+        Assert.assertFalse(result.isDone());
+        Assert.assertSame(initial, result.getValue());
+        Assert.assertNull(result.getException());
+    }
 
     public void testSetDone()
     {
