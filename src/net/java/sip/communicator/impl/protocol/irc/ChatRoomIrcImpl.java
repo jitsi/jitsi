@@ -1031,7 +1031,7 @@ public class ChatRoomIrcImpl
         // TODO Since we cannot change the chat room name/identifier maybe we
         // should compute this upon construction and save the result, instead of
         // doing a string operation every time the method is called.
-        return this.chatRoomName.startsWith("#") == false;
+        return !this.chatRoomName.startsWith("#");
     }
 
     /**
@@ -1289,7 +1289,7 @@ public class ChatRoomIrcImpl
     
     public void updateSubject(String subject)
     {
-        if (this.chatSubject.equals(subject) == false)
+        if (!this.chatSubject.equals(subject))
         {
             this.chatSubject = subject;
             ChatRoomPropertyChangeEvent topicChangeEvent =

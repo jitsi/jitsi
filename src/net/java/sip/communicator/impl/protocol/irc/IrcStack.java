@@ -304,7 +304,7 @@ public class IrcStack
      */
     public void setSubject(ChatRoomIrcImpl chatroom, String subject)
     {
-        if (isConnected() == false)
+        if (!isConnected())
             throw new IllegalStateException(
                 "Please connect to an IRC server first.");
         if (chatroom == null)
@@ -389,7 +389,7 @@ public class IrcStack
     public void join(final ChatRoomIrcImpl chatroom, final String password)
         throws OperationFailedException
     {
-        if (isConnected() == false)
+        if (!isConnected())
             throw new IllegalStateException(
                 "Please connect to an IRC server first");
         if (chatroom == null)
@@ -430,8 +430,8 @@ public class IrcStack
                         {
                             try
                             {
-                                if (channel.getName().equals(
-                                    actualChatRoom.getIdentifier()) == false)
+                                if (!channel.getName().equals(
+                                    actualChatRoom.getIdentifier()))
                                 {
                                     // If the channel name is not the
                                     // original chat room name, then we have
@@ -601,12 +601,12 @@ public class IrcStack
      */
     public void leave(ChatRoomIrcImpl chatroom)
     {
-        if (chatroom.isPrivate() == false)
-        {
-            // You only actually join non-private chat rooms, so only these ones
-            // need to be left.
-            leave(chatroom.getIdentifier());
-        }
+        if (chatroom.isPrivate())
+            return;
+        
+        // You only actually join non-private chat rooms, so only these ones
+        // need to be left.
+        leave(chatroom.getIdentifier());
     }
 
     /**
@@ -653,6 +653,7 @@ public class IrcStack
 
     /**
      * Send a command to the IRC server.
+     * 
      * @param chatroom the chat room
      * @param command the command message
      */
@@ -850,7 +851,7 @@ public class IrcStack
         @Override
         public void onTopicChange(TopicMessage msg)
         {
-            if (isThisChatRoom(msg.getChannelName()) == false)
+            if (!isThisChatRoom(msg.getChannelName()))
                 return;
 
             this.chatroom.updateSubject(msg.getTopic().getValue());
@@ -862,7 +863,7 @@ public class IrcStack
         @Override
         public void onChannelMode(ChannelModeMessage msg)
         {
-            if (isThisChatRoom(msg.getChannelName()) == false)
+            if (!isThisChatRoom(msg.getChannelName()))
                 return;
 
             processModeMessage(msg);
@@ -874,7 +875,7 @@ public class IrcStack
         @Override
         public void onChannelJoin(ChanJoinMessage msg)
         {
-            if (isThisChatRoom(msg.getChannelName()) == false)
+            if (!isThisChatRoom(msg.getChannelName()))
                 return;
 
             if (isMe(msg.getSource()))
@@ -898,7 +899,7 @@ public class IrcStack
         @Override
         public void onChannelPart(ChanPartMessage msg)
         {
-            if (isThisChatRoom(msg.getChannelName()) == false)
+            if (!isThisChatRoom(msg.getChannelName()))
                 return;
 
             if (isMe(msg.getSource()))
@@ -936,7 +937,7 @@ public class IrcStack
         @Override
         public void onChannelKick(ChannelKick msg)
         {
-            if (isThisChatRoom(msg.getChannelName()) == false)
+            if (!isThisChatRoom(msg.getChannelName()))
                 return;
 
             String kickedUser = msg.getKickedNickname();
@@ -1016,7 +1017,7 @@ public class IrcStack
         @Override
         public void onChannelMessage(ChannelPrivMsg msg)
         {
-            if (isThisChatRoom(msg.getChannelName()) == false)
+            if (!isThisChatRoom(msg.getChannelName()))
                 return;
 
             // TODO handle special formatting/color control codes in message
