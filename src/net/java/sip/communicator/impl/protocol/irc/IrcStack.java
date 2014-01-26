@@ -718,7 +718,7 @@ public class IrcStack
         @Override
         public void onServerNotice(ServerNotice msg)
         {
-            LOGGER.debug("NOTICE: " + ((ServerNotice) msg).getText());
+            LOGGER.debug("NOTICE: " + msg.getText());
         }
 
         /**
@@ -730,9 +730,8 @@ public class IrcStack
         @Override
         public void onServerNumericMessage(ServerNumericMessage msg)
         {
-            LOGGER.debug("NUM MSG: "
-                + ((ServerNumericMessage) msg).getNumericCode() + ": "
-                + ((ServerNumericMessage) msg).getText());
+            LOGGER.debug("NUM MSG: " + msg.getNumericCode() + ": "
+                + msg.getText());
         }
 
         /**
