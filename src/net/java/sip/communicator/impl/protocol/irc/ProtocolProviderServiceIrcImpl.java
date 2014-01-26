@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -25,7 +26,7 @@ public class ProtocolProviderServiceIrcImpl
     /**
      * The irc server.
      */
-    private IrcStack ircStack;
+    private IrcStack ircStack = null;
 
     /**
      * The id of the account that this protocol provider represents.
@@ -150,6 +151,7 @@ public class ProtocolProviderServiceIrcImpl
     {
         return currentRegistrationState;
     }
+    
 
     /**
      * Starts the registration process.

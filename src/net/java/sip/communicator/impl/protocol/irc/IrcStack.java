@@ -7,9 +7,13 @@
 package net.java.sip.communicator.impl.protocol.irc;
 
 import java.io.*;
+import java.security.*;
 import java.util.*;
 
+import javax.net.ssl.*;
+
 import net.java.sip.communicator.impl.protocol.irc.ModeParser.ModeEntry;
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -61,7 +65,7 @@ public class IrcStack
      * Connection state of a successful IRC connection.
      */
     private IIRCState connectionState;
-    
+
     /**
      * The cached channel list.
      * 
@@ -133,20 +137,16 @@ public class IrcStack
         this.joined.clear();
 
         this.irc = new IRCApiImpl(true);
-        // FIXME Currently, the secure connection is created by
-        // explicitly creating an SSLContext for 'SSL'. According
-        // to Ingo (in a mailing list conversation) it is better to
-        // use the CertificateService for this. This should be
-        // implemented in the irc-api library, though.
-        this.params.setServer(new IRCServer(host, port, password,
-            secureConnection));
         synchronized (this.irc)
         {
+            this.params.setServer(new IRCServer(host, port, password,
+                secureConnection));
+            this.params.setCustomContext(getCustomSSLContext(host));
             this.irc.addListener(new ServerListener());
             connectSynchronized();
         }
     }
-    
+
     /**
      * Perform synchronized connect operation.
      * 
@@ -195,7 +195,7 @@ public class IrcStack
                         .trace("Waiting for the connection to be established ...");
                     result.wait();
                 }
-                
+
                 this.connectionState = result.getValue();
                 // TODO Implement connection timeout and a way to recognize that
                 // the timeout occurred.
@@ -233,14 +233,38 @@ public class IrcStack
     }
 
     /**
+     * Create a custom SSL context for this particular server.
+     * 
+     * @return returns a customized SSL context or <tt>null</tt> if one cannot
+     *         be created.
+     */
+    private SSLContext getCustomSSLContext(String hostname)
+    {
+        SSLContext context = null;
+        try
+        {
+            CertificateService cs =
+                IrcActivator.getCertificateVerificationService();
+            X509TrustManager tm =
+                cs.getTrustManager(hostname);
+            context = cs.getSSLContext(tm);
+        }
+        catch (GeneralSecurityException e)
+        {
+            LOGGER.error("failed to create custom SSL context", e);
+        }
+        return context;
+    }
+
+    /**
      * Disconnect from the IRC server
      */
     public void disconnect()
     {
         if (this.connectionState == null && this.irc == null)
             return;
-        
-        synchronized(this.joined)
+
+        synchronized (this.joined)
         {
             // Leave all joined channels.
             for (ChatRoomIrcImpl channel : this.joined.values())
@@ -248,7 +272,7 @@ public class IrcStack
                 leave(channel);
             }
         }
-        synchronized(this.irc)
+        synchronized (this.irc)
         {
             // Disconnect and clean up
             this.irc.disconnect();
@@ -575,7 +599,7 @@ public class IrcStack
                     .trace("Finished waiting for join operation for channel '"
                         + chatroom.getIdentifier() + "' to complete.");
                 // TODO How to handle 480 (+j): Channel throttle exceeded?
-                
+
                 Exception e = joinSignal.getException();
                 if (e != null)
                 {
@@ -666,10 +690,12 @@ public class IrcStack
             int endOfNick = command.indexOf(' ');
             if (endOfNick == -1)
             {
-                throw new IllegalArgumentException("Invalid private message format. Message was not sent.");
+                throw new IllegalArgumentException(
+                    "Invalid private message format. "
+                        + "Message was not sent.");
             }
-            target = command.substring(0,  endOfNick);
-            command = command.substring(endOfNick+1);
+            target = command.substring(0, endOfNick);
+            command = command.substring(endOfNick + 1);
         }
         else
         {
@@ -703,12 +729,12 @@ public class IrcStack
     }
 
     /**
-     * A listener for server-level messages (any messages that are related to the
-     * server, the connection, that are not related to any chatroom in
+     * A listener for server-level messages (any messages that are related to
+     * the server, the connection, that are not related to any chatroom in
      * particular) or that are personal message from user to local user.
      */
     private class ServerListener
-    extends VariousMessageListenerAdapter
+        extends VariousMessageListenerAdapter
     {
         /**
          * Print out server notices for debugging purposes and for simply
@@ -744,10 +770,9 @@ public class IrcStack
         @Override
         public void onError(ErrorMessage msg)
         {
-            LOGGER.debug("ERROR: " + msg.getSource() + ": "
-                + msg.getText());
+            LOGGER.debug("ERROR: " + msg.getSource() + ": " + msg.getText());
         }
-        
+
         /**
          * Upon receiving a private message from a user, deliver that to a
          * private chat room and create one if it does not exist. We can ignore
@@ -780,8 +805,8 @@ public class IrcStack
          * @param user the source user
          * @param text the message
          */
-        private void deliverReceivedMessageToPrivateChat(ChatRoomIrcImpl chatroom,
-            String user, String text)
+        private void deliverReceivedMessageToPrivateChat(
+            ChatRoomIrcImpl chatroom, String user, String text)
         {
             ChatRoomMember member = chatroom.getChatRoomMember(user);
             MessageIrcImpl message =
@@ -813,7 +838,7 @@ public class IrcStack
             return chatroom;
         }
     }
-    
+
     /**
      * A chat room listener.
      * 
@@ -924,9 +949,10 @@ public class IrcStack
                 }
                 catch (NullPointerException e)
                 {
-                    System.err
-                        .println("This should not have happened. Please report this as it is a bug.");
-                    e.printStackTrace();
+                    LOGGER
+                        .warn(
+                            "This should not have happened. Please report this as it is a bug.",
+                            e);
                 }
             }
         }
@@ -959,8 +985,7 @@ public class IrcStack
                 {
                     ChatRoomMember kicker =
                         this.chatroom.getChatRoomMember(user);
-                    this.chatroom.fireMemberPresenceEvent(kickedMember,
-                        kicker,
+                    this.chatroom.fireMemberPresenceEvent(kickedMember, kicker,
                         ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED,
                         msg.getText());
                 }
@@ -1214,9 +1239,9 @@ public class IrcStack
                         ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
                     break;
                 case UNKNOWN:
-                    LOGGER.info("Unknown mode: "
-                        + (mode.isAdded() ? "+" : "-") + mode.getParams()[0]
-                        + ". Original mode string: '" + msg.getModeStr() + "'");
+                    LOGGER.info("Unknown mode: " + (mode.isAdded() ? "+" : "-")
+                        + mode.getParams()[0] + ". Original mode string: '"
+                        + msg.getModeStr() + "'");
                     break;
                 default:
                     LOGGER.info("Unsupported mode '"
@@ -1395,16 +1420,43 @@ public class IrcStack
         implements IServerParameters
     {
 
+        /**
+         * Nick name.
+         */
         private String nick;
 
+        /**
+         * Alternative nick names.
+         */
         private List<String> alternativeNicks = new ArrayList<String>();
 
+        /**
+         * Real name.
+         */
         private String real;
 
+        /**
+         * Ident.
+         */
         private String ident;
 
+        /**
+         * IRC server.
+         */
         private IRCServer server;
+        
+        /**
+         * Custom SSL Context.
+         */
+        private SSLContext sslContext = null;
 
+        /**
+         * Construct ServerParameters instance.
+         * @param nickName nick name
+         * @param realName real name
+         * @param ident ident
+         * @param server IRC server instance
+         */
         private ServerParameters(String nickName, String realName,
             String ident, IRCServer server)
         {
@@ -1415,53 +1467,127 @@ public class IrcStack
             this.server = server;
         }
 
+        /**
+         * Get nick name.
+         * 
+         * @return returns nick name
+         */
         @Override
         public String getNickname()
         {
             return this.nick;
         }
 
+        /**
+         * Set new nick name.
+         * 
+         * @param nick nick name
+         */
         public void setNickname(String nick)
         {
             this.nick = checkNick(nick);
         }
-        
+
+        /**
+         * Verify nick name.
+         * 
+         * @param nick nick name
+         * @return returns nick name
+         * @throws IllegalArgumentException throws
+         *             <tt>IllegalArgumentException</tt> if an invalid nick name
+         *             is provided.
+         */
         private String checkNick(String nick)
         {
             if (nick == null)
-                throw new IllegalArgumentException("a nick name must be provided");
-            if  (nick.startsWith("#"))
-                throw new IllegalArgumentException("the nick name must not start with '#' since this is reserved for IRC channels");
+                throw new IllegalArgumentException(
+                    "a nick name must be provided");
+            if (nick.startsWith("#"))
+                throw new IllegalArgumentException(
+                    "the nick name must not start with '#' "
+                        + "since this is reserved for IRC channels");
             return nick;
         }
 
+        /**
+         * Get alternative nick names.
+         * 
+         * @return returns list of alternatives
+         */
         @Override
         public List<String> getAlternativeNicknames()
         {
             return this.alternativeNicks;
         }
 
+        /**
+         * Get ident string.
+         * 
+         * @return returns ident
+         */
         @Override
         public String getIdent()
         {
             return this.ident;
         }
 
+        /**
+         * Get real name
+         * 
+         * @return returns real name
+         */
         @Override
         public String getRealname()
         {
             return this.real;
         }
 
+        /**
+         * Get server
+         * 
+         * @return returns server instance
+         */
         @Override
         public IRCServer getServer()
         {
             return this.server;
         }
 
+        /**
+         * Set server instance.
+         * 
+         * @param server IRC server instance
+         */
         public void setServer(IRCServer server)
         {
+            if (server == null)
+                throw new IllegalArgumentException("server cannot be null");
+            
             this.server = server;
+        }
+        
+        /**
+         * Get the SSL Context.
+         * 
+         * Returns the custom SSLContext or null in case there is no
+         * custom implementation.
+         * 
+         * @return returns the SSLContext or null
+         */
+        @Override
+        public SSLContext getCustomContext()
+        {
+            return this.sslContext;
+        }
+        
+        /**
+         * Set custom SSLContext.
+         * 
+         * @param context the custom SSLContext
+         */
+        public void setCustomContext(SSLContext context)
+        {
+            this.sslContext = context;
         }
     }
 

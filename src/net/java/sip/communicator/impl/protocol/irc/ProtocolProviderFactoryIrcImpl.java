@@ -24,7 +24,7 @@ public class ProtocolProviderFactoryIrcImpl
 {
     public ProtocolProviderFactoryIrcImpl()
     {
-        super(IrcActivator.bundleContext, ProtocolNames.IRC);
+        super(IrcActivator.getBundleContext(), ProtocolNames.IRC);
     }
 
     /**
@@ -42,7 +42,7 @@ public class ProtocolProviderFactoryIrcImpl
     public AccountID installAccount( String userIDStr,
                                      Map<String, String> accountProperties)
     {
-        BundleContext context = IrcActivator.bundleContext;
+        BundleContext context = IrcActivator.getBundleContext();
 
         if (context == null)
             throw new NullPointerException(

@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.irc;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -37,9 +38,14 @@ public class IrcActivator
     /**
      * The currently valid bundle context.
      */
-    public static BundleContext bundleContext = null;
+    private static BundleContext bundleContext = null;
 
     private static ResourceManagementService resourceService;
+
+    /**
+     * Certificate Service instance.
+     */
+    private static CertificateService certiticateService;
 
     /**
      * Called when this bundle is started. In here we'll export the
@@ -111,5 +117,34 @@ public class IrcActivator
             resourceService
                 = ResourceManagementServiceUtils.getService(bundleContext);
         return resourceService;
+    }
+
+    /**
+     * Bundle Context
+     * 
+     * @return returns bundle context
+     */
+    public static BundleContext getBundleContext()
+    {
+        return bundleContext;
+    }
+    /**
+     * Return the certificate verification service impl.
+     * 
+     * @return the CertificateVerification service.
+     */
+    public static CertificateService getCertificateVerificationService()
+    {
+        if(certiticateService == null)
+        {
+            ServiceReference guiVerifyReference
+                = IrcActivator.getBundleContext().getServiceReference(
+                    CertificateService.class.getName());
+            if(guiVerifyReference != null)
+                certiticateService = (CertificateService)
+                    IrcActivator.getBundleContext().getService(
+                        guiVerifyReference);
+        }
+        return certiticateService;
     }
 }
