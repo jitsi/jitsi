@@ -303,7 +303,7 @@ public class UriHandlerSipImpl
 
         //handle "sip://" URIs as "sip:" 
         if(uri != null)
-            uri = uri.replace("sip://", "sip");
+            uri = uri.replace("sip://", "sip:");
 
         OperationSetBasicTelephony<?> telephonyOpSet
             = provider.getOperationSet(OperationSetBasicTelephony.class);
