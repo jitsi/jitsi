@@ -301,6 +301,10 @@ public class UriHandlerSipImpl
             return;
         }
 
+        //handle "sip://" URIs as "sip:" 
+        if(uri != null)
+            uri = uri.replace("sip://", "sip");
+
         OperationSetBasicTelephony<?> telephonyOpSet
             = provider.getOperationSet(OperationSetBasicTelephony.class);
 
