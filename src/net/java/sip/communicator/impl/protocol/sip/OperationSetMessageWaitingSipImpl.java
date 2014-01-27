@@ -411,11 +411,12 @@ public class OperationSetMessageWaitingSipImpl
          * Matching messages count
          * group 1 - new messages count.
          * group 2 - old messages count.
-         * group 3 - new urgent messages count.
-         * group 4 - old urgent messages count.
+         * group 3 - urgent messages group (0/0), optional.
+         * group 4 - new urgent messages count, optional.
+         * group 5 - old urgent messages count, optional.
          */
         private Pattern messageWaitingCountPattern = Pattern.compile(
-                "(\\d+)/(\\d+) \\((\\d+)/(\\d+)\\)");
+            "(\\d+)/(\\d+)( \\((\\d+)/(\\d+)\\))*");
 
         /**
          * Initializes a new <tt>Subscription</tt> instance with a specific
@@ -496,13 +497,20 @@ public class OperationSetMessageWaitingSipImpl
 
                         if(matcher.find())
                         {
+                            String newM = matcher.group(1);
+                            String oldM = matcher.group(2);
+                            String urgentNew = matcher.group(4);
+                            String urgentOld = matcher.group(5);
+
                             fireVoicemailNotificationEvent(
                                     msgType,
                                     messageAccount,
-                                    Integer.valueOf(matcher.group(1)),
-                                    Integer.valueOf(matcher.group(2)),
-                                    Integer.valueOf(matcher.group(3)),
-                                    Integer.valueOf(matcher.group(4)));
+                                    Integer.valueOf(newM),
+                                    Integer.valueOf(oldM),
+                                    urgentNew == null ?
+                                        0 : Integer.valueOf(urgentNew),
+                                    urgentOld == null ?
+                                        0 : Integer.valueOf(urgentOld));
                             eventFired = true;
                         }
                     }
