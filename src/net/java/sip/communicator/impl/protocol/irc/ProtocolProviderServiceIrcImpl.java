@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
-import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -96,6 +95,9 @@ public class ProtocolProviderServiceIrcImpl
             addSupportedOperationSet(
                 OperationSetMultiUserChat.class,
                 multiUserChat);
+            
+            // TODO Implement OperationSetServerStoredAccountInfo so we can
+            // suggest a display name to use when adding new chat rooms?
 
             userID = getAccountID().getUserID();
 

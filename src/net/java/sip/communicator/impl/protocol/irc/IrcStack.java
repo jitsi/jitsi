@@ -244,7 +244,7 @@ public class IrcStack
         try
         {
             CertificateService cs =
-                IrcActivator.getCertificateVerificationService();
+                IrcActivator.getCertificateService();
             X509TrustManager tm =
                 cs.getTrustManager(hostname);
             context = cs.getSSLContext(tm);

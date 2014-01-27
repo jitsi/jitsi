@@ -133,7 +133,7 @@ public class IrcActivator
      * 
      * @return the CertificateVerification service.
      */
-    public static CertificateService getCertificateVerificationService()
+    public static CertificateService getCertificateService()
     {
         if(certiticateService == null)
         {
