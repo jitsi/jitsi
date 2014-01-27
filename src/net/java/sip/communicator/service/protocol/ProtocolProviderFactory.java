@@ -558,6 +558,12 @@ public abstract class ProtocolProviderFactory
     public static final String SDES_CIPHER_SUITES = "SDES_CIPHER_SUITES";
 
     /**
+     * The name of the property that defines the enabled/disabled state of
+     * message carbons.
+     */
+    public static final String IS_CARBON_DISABLED = "CARBON_DISABLED";
+
+    /**
      * Creates a new <tt>ProtocolProviderFactory</tt>.
      *
      * @param bundleContext the bundle context reference of the service

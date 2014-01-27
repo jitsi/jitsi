@@ -354,6 +354,7 @@ public class JabberAccountRegistrationForm
         registration.setUseUPNP(iceConfigPanel.isUseUPNP());
 
         registration.setAllowNonSecure(connectionPanel.isAllowNonSecure());
+        registration.setDisableCarbon(connectionPanel.isCarbonDisabled());
 
         registration.setDisableJingle(
             telephonyConfigPanel.isJingleDisabled());
@@ -447,6 +448,7 @@ public class JabberAccountRegistrationForm
         iceConfigPanel.setUseUPNP(accountReg.isUseUPNP());
 
         connectionPanel.setAllowNonSecure(accountReg.isAllowNonSecure());
+        connectionPanel.setDisableCarbon(accountReg.isCarbonDisabled());
 
         connectionPanel.setServerOverridden(accountReg.isServerOverridden());
 

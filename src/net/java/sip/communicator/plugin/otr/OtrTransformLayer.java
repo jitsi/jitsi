@@ -7,6 +7,7 @@
 package net.java.sip.communicator.plugin.otr;
 
 import net.java.otr4j.*;
+import net.java.otr4j.io.*;
 import net.java.sip.communicator.plugin.otr.OtrContactManager.OtrContact;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -109,6 +110,11 @@ public class OtrTransformLayer
         MessageDeliveredEvent processedEvent =
             new MessageDeliveredEvent(processedMessage, contact, evt
                 .getTimestamp());
+
+        if(processedMessage.getContent().contains(SerializationConstants.HEAD))
+        {
+            processedEvent.setMessageEncrypted(true);
+        }
 
         return processedEvent;
     }

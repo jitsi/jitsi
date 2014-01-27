@@ -49,6 +49,11 @@ public class MessageDeliveredEvent
      * Whether the delivered message is a sms message.
      */
     private boolean smsMessage = false;
+    
+    /**
+     * Whether the delivered message is encrypted or not.
+     */
+    private boolean isMessageEncrypted = false;
 
      /**
       * Constructor.
@@ -210,5 +215,25 @@ public class MessageDeliveredEvent
     public ContactResource getContactResource()
     {
         return toResource;
+    }
+
+    /**
+     * Returns <tt>true</tt> if the message is encrypted and <tt>false</tt> if 
+     * not.
+     * @return <tt>true</tt> if the message is encrypted and <tt>false</tt> if 
+     * not.
+     */
+    public boolean isMessageEncrypted()
+    {
+        return isMessageEncrypted;
+    }
+
+    /**
+     * Sets the message encrypted flag of the event.
+     * @param isMessageEncrypted the value to be set.
+     */
+    public void setMessageEncrypted(boolean isMessageEncrypted)
+    {
+        this.isMessageEncrypted = isMessageEncrypted;
     }
 }

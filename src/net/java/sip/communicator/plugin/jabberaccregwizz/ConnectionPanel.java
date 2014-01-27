@@ -102,6 +102,11 @@ public class ConnectionPanel
             JabberAccountID.getDefaultBool(
                     ProtocolProviderFactory.IS_ALLOW_NON_SECURE));
 
+    JCheckBox disableCarbon = new SIPCommCheckBox(
+        Resources.getString("plugin.jabberaccregwizz.DISABLE_CARBON"),
+        JabberAccountID.getDefaultBool(
+                ProtocolProviderFactory.IS_CARBON_DISABLED));
+
     private JComboBox dtmfMethodBox = new JComboBox(new Object []
     {
         Resources.getString(
@@ -207,6 +212,7 @@ public class ConnectionPanel
         checkBoxesPanel.add(gmailNotificationsBox);
         checkBoxesPanel.add(googleContactsBox);
         checkBoxesPanel.add(allowNonSecureBox);
+        checkBoxesPanel.add(disableCarbon);
 
         final JPanel resourcePanel
                 = new TransparentPanel(new BorderLayout(10, 10));
@@ -522,6 +528,25 @@ public class ConnectionPanel
     boolean isAllowNonSecure()
     {
         return allowNonSecureBox.isSelected();
+    }
+
+    /**
+     * Set disable carbon value.
+     * @param value the new value.
+     */
+    void setDisableCarbon(boolean value)
+    {
+        this.disableCarbon.setSelected(value);
+    }
+
+    /**
+     * Checks if message carbons are disabled
+     * @return <tt>true</tt> if message carbons are disabled and <tt>false</tt>
+     * otherwise.
+     */
+    boolean isCarbonDisabled()
+    {
+        return disableCarbon.isSelected();
     }
 
     /**

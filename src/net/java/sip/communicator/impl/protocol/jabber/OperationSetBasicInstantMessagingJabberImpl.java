@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.carbon.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.messagecorrection.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -124,6 +125,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * current Operation Set.
      */
     private List<PacketFilter> packetFilters = new ArrayList<PacketFilter>();
+
+    /**
+     * Whether carbon is enabled or not.
+     */
+    private boolean isCarbonEnabled = false;
 
     /**
      * Creates an instance of this operation set.
@@ -501,6 +507,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             //msg.addExtension(new Version());
 
+            if(msgDeliveryPendingEvt.isMessageEncrypted())
+            {
+                msg.addExtension(new CarbonPacketExtension.PrivateExtension());
+            }
+
             MessageEventManager.
                 addNotificationsRequests(msg, true, false, false, true);
 
@@ -664,6 +675,20 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
                 if (enableGmailNotifications)
                     subscribeForGmailNotifications();
+
+                boolean enableCarbon
+                    = isCarbonSupported() && !jabberProvider.getAccountID()
+                            .getAccountPropertyBoolean(
+                                ProtocolProviderFactory.IS_CARBON_DISABLED,
+                                false);
+                if(enableCarbon)
+                {
+                    enableDisableCarbon(true);
+                }
+                else
+                {
+                    isCarbonEnabled = false;
+                }
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
                 || evt.getNewState() == RegistrationState.CONNECTION_FAILED
@@ -679,6 +704,91 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 smackMessageListener = null;
             }
         }
+
+    }
+
+
+    /**
+     * Sends enable or disable carbon packet to the server.
+     * @param enable if <tt>true</tt> sends enable packet otherwise sends
+     * disable packet.
+     */
+    private void enableDisableCarbon(final boolean enable)
+    {
+        IQ iq = new IQ(){
+
+            @Override
+            public String getChildElementXML()
+            {
+                return "<" + (enable? "enable" : "disable") + " xmlns='urn:xmpp:carbons:2' />";
+            }
+
+        };
+
+        Packet response = null;
+        try
+        {
+            PacketCollector packetCollector
+                = jabberProvider.getConnection().createPacketCollector(
+                        new PacketIDFilter(iq.getPacketID()));
+            iq.setFrom(jabberProvider.getOurJID());
+            iq.setType(IQ.Type.SET);
+            jabberProvider.getConnection().sendPacket(iq);
+            response
+                = packetCollector.nextResult(
+                        SmackConfiguration.getPacketReplyTimeout());
+
+            packetCollector.cancel();
+        }
+        catch(Exception e)
+        {
+            logger.error("Failed to enable carbon.", e);
+        }
+
+        isCarbonEnabled = false;
+
+        if (response == null)
+        {
+            logger.error(
+                    "Failed to enable carbon. No response is received.");
+        }
+        else if (response.getError() != null)
+        {
+            logger.error(
+                    "Failed to enable carbon: "
+                        + response.getError());
+        }
+        else if (!(response instanceof IQ)
+            || !((IQ) response).getType().equals(IQ.Type.RESULT))
+        {
+            logger.error(
+                    "Failed to enable carbon. The response is not correct.");
+        }
+        else
+        {
+            isCarbonEnabled = true;
+        }
+
+    }
+
+    /**
+     * Checks whether the carbon is supported by the server or not.
+     * @return <tt>true</tt> if carbon is supported by the server and
+     * <tt>false</tt> if not.
+     */
+    private boolean isCarbonSupported()
+    {
+        try
+        {
+            return jabberProvider.getDiscoveryManager().discoverInfo(
+                jabberProvider.getAccountID().getService())
+                .containsFeature(CarbonPacketExtension.NAMESPACE);
+        }
+        catch (XMPPException e)
+        {
+           logger.error("Failed to retrieve carbon support.",e);
+        }
+        return false;
     }
 
     /**
@@ -701,8 +811,30 @@ public class OperationSetBasicInstantMessagingJabberImpl
             org.jivesoftware.smack.packet.Message msg =
                 (org.jivesoftware.smack.packet.Message)packet;
 
+            boolean isForwardedSentMessage = false;
             if(msg.getBody() == null)
-                return;
+            {
+
+                CarbonPacketExtension carbonExt
+                    = (CarbonPacketExtension) msg.getExtension(
+                        CarbonPacketExtension.NAMESPACE);
+                if(carbonExt == null)
+                    return;
+
+                isForwardedSentMessage
+                    = (carbonExt.getElementName()
+                        == CarbonPacketExtension.SENT_ELEMENT_NAME);
+                List<ForwardedPacketExtension> extensions
+                    = carbonExt.getChildExtensionsOfType(
+                        ForwardedPacketExtension.class);
+                if(extensions.isEmpty())
+                    return;
+                ForwardedPacketExtension forwardedExt = extensions.get(0);
+                msg = forwardedExt.getMessage();
+                if(msg == null || msg.getBody() == null)
+                    return;
+
+            }
 
             Object multiChatExtension =
                 msg.getExtension("x", "http://jabber.org/protocol/muc#user");
@@ -710,12 +842,16 @@ public class OperationSetBasicInstantMessagingJabberImpl
             // its not for us
             if(multiChatExtension != null)
                 return;
-            
-            String fromUserID = StringUtils.parseBareAddress(msg.getFrom());
+
+            String userFullId
+                = isForwardedSentMessage? msg.getTo() : msg.getFrom();
+
+            String userBareID = StringUtils.parseBareAddress(userFullId);
+
             boolean isPrivateMessaging = false;
             ChatRoom privateContactRoom = ((OperationSetMultiUserChatJabberImpl)
                 jabberProvider.getOperationSet(OperationSetMultiUserChat.class))
-                    .getChatRoom(fromUserID);
+                    .getChatRoom(userBareID);
             if(privateContactRoom != null)
             {
                 isPrivateMessaging = true;
@@ -725,7 +861,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
             {
                 if (logger.isDebugEnabled())
                     logger.debug("Received from "
-                             + fromUserID
+                             + userBareID
                              + " the message "
                              + msg.toXML());
             }
@@ -785,12 +921,12 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             Contact sourceContact
                 = opSetPersPresence.findContactByID(
-                    (isPrivateMessaging? msg.getFrom() : fromUserID));
+                    (isPrivateMessaging? userFullId : userBareID));
             if(msg.getType()
                             == org.jivesoftware.smack.packet.Message.Type.error)
             {
                 if (logger.isInfoEnabled())
-                    logger.info("Message error received from " + fromUserID);
+                    logger.info("Message error received from " + userBareID);
 
                 int errorCode = packet.getError().getCode();
                 int errorResultCode = MessageDeliveryFailedEvent.UNKNOWN_ERROR;
@@ -823,20 +959,20 @@ public class OperationSetBasicInstantMessagingJabberImpl
             //cache the jid (resource included) of the contact that's sending us
             //a message so that all following messages would go to the resource
             //that they contacted us from.
-            String address = fromUserID;
+            String address = userBareID;
             if(isPrivateMessaging)
             {
                 address = JabberActivator.getResources().getI18NString(
                         "service.gui.FROM",
                         new String[]{
                             StringUtils.parseResource(msg.getFrom()),
-                            fromUserID} );
+                            userBareID} );
             }
 
-            putJidForAddress(address, msg.getFrom());
+            putJidForAddress(address, userFullId);
 
             if (logger.isTraceEnabled())
-                logger.trace("just mapped: " + fromUserID
+                logger.trace("just mapped: " + userBareID
                                 + " to " + msg.getFrom());
 
             // In the second condition we filter all group chat messages,
@@ -845,10 +981,12 @@ public class OperationSetBasicInstantMessagingJabberImpl
             {
                 if (logger.isDebugEnabled())
                     logger.debug("received a message from an unknown contact: "
-                                   + fromUserID);
+                                   + userBareID);
                 //create the volatile contact
                 sourceContact = opSetPersPresence
-                    .createVolatileContact(msg.getFrom(), isPrivateMessaging);
+                    .createVolatileContact(
+                        userFullId,
+                        isPrivateMessaging);
             }
 
             Date timestamp = new Date();
@@ -866,20 +1004,23 @@ public class OperationSetBasicInstantMessagingJabberImpl
             }
 
             ContactResource resource = ((ContactJabberImpl) sourceContact)
-                    .getResourceFromJid(msg.getFrom());
-            
-            MessageReceivedEvent msgReceivedEvt
-                = new MessageReceivedEvent( newMessage,
-                                            sourceContact,
-                                            resource,
-                                            timestamp,
-                                            correctedMessageUID,
-                                            isPrivateMessaging,
-                                            privateContactRoom);
+                    .getResourceFromJid(userFullId);
 
+            EventObject msgEvt = null;
+            if(!isForwardedSentMessage)
+                msgEvt
+                    = new MessageReceivedEvent( newMessage,
+                                                sourceContact,
+                                                resource,
+                                                timestamp,
+                                                correctedMessageUID,
+                                                isPrivateMessaging,
+                                                privateContactRoom);
+            else
+                msgEvt = new MessageDeliveredEvent(newMessage, sourceContact, timestamp);
             // msgReceivedEvt = messageReceivedTransform(msgReceivedEvt);
-            if (msgReceivedEvt != null)
-                fireMessageEvent(msgReceivedEvt);
+            if (msgEvt != null)
+                fireMessageEvent(msgEvt);
         }
     }
 

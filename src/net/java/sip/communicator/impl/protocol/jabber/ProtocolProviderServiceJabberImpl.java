@@ -18,6 +18,7 @@ import javax.net.ssl.*;
 import net.java.sip.communicator.impl.protocol.jabber.debugger.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.carbon.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.coin.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
@@ -1707,6 +1708,18 @@ public class ProtocolProviderServiceJabberImpl
                     ConferenceDescriptionPacketExtension.ELEMENT_NAME,
                     ConferenceDescriptionPacketExtension.NAMESPACE,
                     new ConferenceDescriptionPacketExtension.Provider());
+
+            providerManager.addExtensionProvider(
+                CarbonPacketExtension.RECEIVED_ELEMENT_NAME,
+                CarbonPacketExtension.NAMESPACE,
+                new CarbonPacketExtension.Provider(
+                    CarbonPacketExtension.RECEIVED_ELEMENT_NAME));
+
+            providerManager.addExtensionProvider(
+                CarbonPacketExtension.SENT_ELEMENT_NAME,
+                CarbonPacketExtension.NAMESPACE,
+                new CarbonPacketExtension.Provider(
+                    CarbonPacketExtension.SENT_ELEMENT_NAME));
 
             //initialize the telephony operation set
             boolean isCallingDisabled

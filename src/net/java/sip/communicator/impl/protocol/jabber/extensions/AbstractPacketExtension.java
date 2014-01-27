@@ -42,6 +42,11 @@ public abstract class AbstractPacketExtension
      */
     protected final Map<String, String> attributes
                                     = new LinkedHashMap<String, String>();
+    
+    /**
+     * A list of all packets that are wrapped by this extension.
+     */
+    private final List<Packet> packets = new LinkedList<Packet>();
 
     /**
      * The text content of this packet extension, if any.
@@ -125,8 +130,9 @@ public abstract class AbstractPacketExtension
         //add child elements if any
         List<? extends PacketExtension> childElements = getChildExtensions();
         String text = getText();
+        List<Packet> packets = getPackets();
 
-        if (childElements == null)
+        if (childElements == null && packets == null)
         {
             if ((text == null) || (text.length() == 0))
             {
@@ -140,7 +146,7 @@ public abstract class AbstractPacketExtension
         {
             synchronized(childElements)
             {
-                if (childElements.isEmpty()
+                if (childElements.isEmpty() && packets.isEmpty()
                         && ((text == null) || (text.length() == 0)))
                 {
                     bldr.append("/>");
@@ -151,6 +157,8 @@ public abstract class AbstractPacketExtension
                     bldr.append(">");
                     for(PacketExtension packExt : childElements)
                         bldr.append(packExt.toXML());
+                    for(Packet packet : packets)
+                        bldr.append(packet.toXML());
                 }
             }
         }
@@ -159,6 +167,7 @@ public abstract class AbstractPacketExtension
         if((text != null) && (text.trim().length() > 0))
             bldr.append(text);
 
+        
         bldr.append("</").append(getElementName()).append(">");
 
         return bldr.toString();
@@ -192,7 +201,27 @@ public abstract class AbstractPacketExtension
     {
         childExtensions.add(childExtension);
     }
-
+    
+    /**
+     * Returns the list of packets.
+     * 
+     * @return the list of packets.
+     */
+    public List<Packet> getPackets()
+    {
+        return packets;
+    }
+    
+    /**
+     * Adds packet to the list of packets.
+     * 
+     * @param packet the packet to add.
+     */
+    public void addPacket(Packet packet)
+    {
+        packets.add(packet);
+    }
+    
     /**
      * Sets the value of the attribute named <tt>name</tt> to <tt>value</tt>.
      *

@@ -467,6 +467,28 @@ public class JabberAccountID
     }
 
     /**
+     * Indicates if message carbons are allowed for this account
+     * @return <tt>true</tt> if message carbons are allowed for this account,
+     * otherwise returns <tt>false</tt>
+     */
+    public boolean isCarbonDisabled()
+    {
+        return getAccountPropertyBoolean(
+                ProtocolProviderFactory.IS_CARBON_DISABLED, false);
+    }
+
+    /**
+     * Sets the <tt>IS_CARBON_DISABLED</tt> property.
+     * @param isCarbonEnabled <tt>true</tt> to indicate that message carbons are
+     * allowed for this account, <tt>false</tt> - otherwise.
+     */
+    public void setDisableCarbon(boolean isCarbonEnabled)
+    {
+        putAccountProperty(
+                ProtocolProviderFactory.IS_CARBON_DISABLED, isCarbonEnabled);
+    }
+
+    /**
      * Is resource auto generate enabled.
      *
      * @return true if resource is auto generated
