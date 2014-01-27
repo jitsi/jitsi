@@ -310,6 +310,7 @@ public class IrcStack
      */
     public void setUserNickname(String nick)
     {
+        LOGGER.trace("Setting user's nick name to " + nick);
         if (this.connectionState == null)
         {
             this.params.setNickname(nick);
@@ -333,8 +334,9 @@ public class IrcStack
                 "Please connect to an IRC server first.");
         if (chatroom == null)
             throw new IllegalArgumentException("Cannot have a null chatroom");
+        LOGGER.trace("Setting chat room topic to '" + subject + "'");
         this.irc
-            .changeTopic(chatroom.getName(), subject == null ? "" : subject);
+            .changeTopic(chatroom.getIdentifier(), subject == null ? "" : subject);
     }
 
     /**
