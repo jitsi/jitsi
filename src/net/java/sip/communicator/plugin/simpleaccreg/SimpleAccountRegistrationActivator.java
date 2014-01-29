@@ -25,8 +25,8 @@ import javax.swing.*;
  * @author Yana Stamcheva
  */
 public class SimpleAccountRegistrationActivator
-    implements BundleActivator,
-               ServiceListener
+    extends AbstractServiceDependentActivator
+    implements ServiceListener
 {
     private static final Logger logger
         = Logger.getLogger(SimpleAccountRegistrationActivator.class);
@@ -62,11 +62,8 @@ public class SimpleAccountRegistrationActivator
 
     private String[] protocolNames;
 
-    public void start(BundleContext bc)
-        throws Exception
+    public void start(Object dependentService)
     {
-        bundleContext = bc;
-
         if(!SwingUtilities.isEventDispatchThread())
         {
             SwingUtilities.invokeLater(new Runnable()
@@ -80,6 +77,26 @@ public class SimpleAccountRegistrationActivator
         }
 
         init();
+    }
+
+    /**
+     * The dependent class. We are waiting for the ui service.
+     * @return the ui service class.
+     */
+    @Override
+    public Class<?> getDependentServiceClass()
+    {
+        return UIService.class;
+    }
+
+    /**
+     * Sets the bundle context to use.
+     * @param context a reference to the currently active bundle context.
+     */
+    @Override
+    public void setBundleContext(BundleContext context)
+    {
+        bundleContext = context;
     }
 
     /**
