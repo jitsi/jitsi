@@ -61,10 +61,12 @@ public class OperationSetCusaxUtilsJabberImpl
         while (phonesIter.hasNext())
         {
             String phone = phonesIter.next();
+            String normalizedPhone = PhoneNumberI18nService.normalize(phone);
 
             if (phone.equals(detailAddress)
-                || PhoneNumberI18nService.normalize(phone)
-                    .equals(detailAddress))
+                || normalizedPhone.equals(detailAddress)
+                || detailAddress.contains(phone)
+                || detailAddress.contains(normalizedPhone))
                 return true;
         }
 
