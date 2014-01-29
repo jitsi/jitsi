@@ -198,7 +198,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../ice4j/Ice4j.iml" filepath="$PROJECT_DIR$/../ice4j/Ice4j.iml" />
       <module fileurl="file://$PROJECT_DIR$/jitsi.iml" filepath="$PROJECT_DIR$/jitsi.iml" />
-      <module fileurl="file://$PROJECT_DIR$/jitsi.iml" filepath="$PROJECT_DIR$/jitsi.iml" />
       <module fileurl="file://$PROJECT_DIR$/../libjitsi/libjitsi.iml" filepath="$PROJECT_DIR$/../libjitsi/libjitsi.iml" />
     </modules>
   </component>
