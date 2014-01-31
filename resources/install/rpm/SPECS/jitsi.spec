@@ -98,6 +98,10 @@ cp resources/install/logging.properties $RPM_BUILD_ROOT/usr/share/jitsi/lib/
 cp lib/felix.client.run.properties $RPM_BUILD_ROOT/usr/share/jitsi/lib/
 cp lib/jitsi-defaults.properties $RPM_BUILD_ROOT/usr/share/jitsi/lib/
 cp resources/install/resources/splash.gif $RPM_BUILD_ROOT/usr/share/jitsi/
+if [ -f lib/jitsi-default-overrides.properties ]
+then
+    cp lib/jitsi-default-overrides.properties $RPM_BUILD_ROOT/usr/share/jitsi/lib/
+fi
 
 # Make felix deploy its bundles in ~/.felix/sip-communicator.bin
 sed -i -e "s/felix.cache.profiledir=sip-communicator.bin/felix.cache.profile=sip-communicator.bin/" $RPM_BUILD_ROOT/usr/share/jitsi/lib/felix.client.run.properties

@@ -452,6 +452,7 @@
             </fileset>
             <fileset dir="${sc.basedir}/lib">
                 <include name="jitsi-defaults.properties" />
+                <include name="jitsi-default-overrides.properties" />
             </fileset>
             <fileset dir="${sc.basedir}/resources/install">
                 <include name="logging.properties" />
@@ -1183,6 +1184,8 @@
                       files="felix.client.run.properties"/>
         <javafilelist dir="${lib}"
                       files="jitsi-defaults.properties"/>
+        <javafilelist dir="${lib}"
+                      files="jitsi-default-overrides.properties"/>
       </jarbundler>
 
       <!-- -->
@@ -1983,6 +1986,10 @@
                  token="_PACKAGE_NAME_"
                  value="${package.name}"/>
 
+        <available property="jitsi-default-overrides.exists"
+                   file="${lib}/jitsi-default-overrides.properties"/>
+        <antcall target="-deb-manage-jitsi-default-overrides"/>
+
         <!-- change the package.install file if used from deb target -->
         <antcall target="-deb-package.install-file-update"/>
 
@@ -2069,6 +2076,21 @@
         <copy todir="${debianize.dir}/patches">
             <fileset dir="${inst.resrc}/debian/patches"/>
         </copy>
+    </target>
+
+    <target name="-deb-manage-jitsi-default-overrides"
+            if="${jitsi-default-overrides.exists}">
+        <copy file="${lib}/jitsi-default-overrides.properties"
+              tofile="${debianize.dir}/../lib/jitsi-default-overrides.properties"
+              overwrite="true"
+              failonerror="false"/>
+
+        <!-- append to -->
+        <concat destfile="${debianize.dir}/${package.name}.install"
+            append="true"
+            eol="lf"
+            fixlastline="true">lib/jitsi-default-overrides.properties  usr/share/${package.name}/lib/&#010;</concat>
+
     </target>
 
     <!-- sets custom build target or a custom one -->
