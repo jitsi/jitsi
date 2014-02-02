@@ -804,12 +804,9 @@ public class IrcStack
         @Override
         public void onUserPrivMessage(UserPrivMsg msg)
         {
-            // TODO handle special formatting/color control codes in message
-            // (see also channel private messages)
-
             ChatRoomIrcImpl chatroom = null;
             String user = msg.getSource().getNick();
-            String text = msg.getText();
+            String text = Utils.parse(msg.getText());
             chatroom = IrcStack.this.joined.get(user);
             if (chatroom == null)
             {
@@ -1066,11 +1063,9 @@ public class IrcStack
             if (!isThisChatRoom(msg.getChannelName()))
                 return;
 
-            // TODO handle special formatting/color control codes in message
-            // (see also user private messages)
-
+            String text = Utils.parse(msg.getText());            
             MessageIrcImpl message =
-                new MessageIrcImpl(msg.getText(), "text/plain", "UTF-8", null);
+                new MessageIrcImpl(text, "text/plain", "UTF-8", null);
             ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(IrcStack.this.provider,
                     this.chatroom, msg.getSource().getNick(),
