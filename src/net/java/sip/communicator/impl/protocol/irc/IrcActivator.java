@@ -128,6 +128,7 @@ public class IrcActivator
     {
         return bundleContext;
     }
+    
     /**
      * Return the certificate verification service impl.
      * 

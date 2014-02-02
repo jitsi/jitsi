@@ -103,8 +103,8 @@ public class IrcStack
      */
     public boolean isConnected()
     {
-        return (this.irc != null && this.connectionState != null && this.connectionState
-            .isConnected());
+        return (this.irc != null && this.connectionState != null
+            && this.connectionState.isConnected());
     }
 
     /**
@@ -192,7 +192,8 @@ public class IrcStack
                 while (!result.isDone())
                 {
                     LOGGER
-                        .trace("Waiting for the connection to be established ...");
+                        .trace("Waiting for the connection to be established "
+                            + "...");
                     result.wait();
                 }
 
@@ -203,15 +204,16 @@ public class IrcStack
                     && this.connectionState.isConnected())
                 {
                     // if connecting succeeded, set state to registered
-                    this.provider
-                        .setCurrentRegistrationState(RegistrationState.REGISTERED);
+                    this.provider.setCurrentRegistrationState(
+                        RegistrationState.REGISTERED);
                 }
                 else
                 {
                     // if connecting failed, set state to unregistered and throw
                     // the exception if one exists
                     this.provider
-                        .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
+                        .setCurrentRegistrationState(
+                            RegistrationState.UNREGISTERED);
                     Exception e = result.getException();
                     if (e != null)
                         throw e;
@@ -220,13 +222,15 @@ public class IrcStack
             catch (IOException e)
             {
                 this.provider
-                    .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
+                    .setCurrentRegistrationState(
+                        RegistrationState.UNREGISTERED);
                 throw e;
             }
             catch (InterruptedException e)
             {
                 this.provider
-                    .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
+                    .setCurrentRegistrationState(
+                        RegistrationState.UNREGISTERED);
                 throw e;
             }
         }
@@ -336,7 +340,8 @@ public class IrcStack
             throw new IllegalArgumentException("Cannot have a null chatroom");
         LOGGER.trace("Setting chat room topic to '" + subject + "'");
         this.irc
-            .changeTopic(chatroom.getIdentifier(), subject == null ? "" : subject);
+            .changeTopic(chatroom.getIdentifier(),
+                         subject == null ? "" : subject);
     }
 
     /**
@@ -442,7 +447,8 @@ public class IrcStack
         synchronized (joinSignal)
         {
             LOGGER
-                .trace("Issue join channel command to IRC library and wait for join operation to complete (un)successfully.");
+                .trace("Issue join channel command to IRC library and wait "
+                    + "for join operation to complete (un)successfully.");
             // TODO Refactor this ridiculous nesting of functions and
             // classes.
             this.irc.joinChannel(chatroom.getIdentifier(), password,
@@ -453,7 +459,8 @@ public class IrcStack
                     public void onSuccess(IRCChannel channel)
                     {
                         LOGGER
-                            .trace("Started callback for successful join of channel '"
+                            .trace("Started callback for successful join of "
+                                + "channel '"
                                 + chatroom.getIdentifier() + "'.");
                         ChatRoomIrcImpl actualChatRoom = chatroom;
                         synchronized (joinSignal)
@@ -482,7 +489,8 @@ public class IrcStack
                                             message,
                                             null,
                                             new Date(),
-                                            MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+                                            MessageReceivedEvent
+                                                .SYSTEM_MESSAGE_RECEIVED);
                                 }
 
                                 IrcStack.this.joined.put(
@@ -536,10 +544,12 @@ public class IrcStack
                                     .getMUC()
                                     .fireLocalUserPresenceEvent(
                                         actualChatRoom,
-                                        LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
+                                        LocalUserChatRoomPresenceChangeEvent
+                                            .LOCAL_USER_JOINED,
                                         null);
                                 LOGGER
-                                    .trace("Finished successful join callback for channel '"
+                                    .trace("Finished successful join callback "
+                                        + "for channel '"
                                         + chatroom.getIdentifier()
                                         + "'. Waking up original thread.");
                                 // Notify waiting threads of finished
@@ -554,8 +564,9 @@ public class IrcStack
                     public void onFailure(Exception e)
                     {
                         LOGGER
-                            .trace("Started callback for failed attempt to join channel '"
-                                + chatroom.getIdentifier() + "'.");
+                            .trace("Started callback for failed attempt to "
+                                + "join channel '" + chatroom.getIdentifier()
+                                + "'.");
                         // TODO how should we communicate a failed attempt
                         // at joining the channel? (System messages don't
                         // seem to show if there is no actual chat room
@@ -569,18 +580,21 @@ public class IrcStack
                                         "Failed to join channel "
                                             + chatroom.getIdentifier() + " ("
                                             + e.getMessage() + ")",
-                                        "text/plain", "UTF-8", "Failed to join");
+                                        "text/plain", "UTF-8",
+                                        "Failed to join");
                                 chatroom
                                     .fireMessageReceivedEvent(
                                         message,
                                         null,
                                         new Date(),
-                                        MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+                                        MessageReceivedEvent
+                                            .SYSTEM_MESSAGE_RECEIVED);
                             }
                             finally
                             {
                                 LOGGER
-                                    .trace("Finished callback for failed attempt to join channel '"
+                                    .trace("Finished callback for failed "
+                                        + "attempt to join channel '"
                                         + chatroom.getIdentifier()
                                         + "'. Waking up original thread.");
                                 // Notify waiting threads of finished
@@ -957,7 +971,8 @@ public class IrcStack
                 {
                     LOGGER
                         .warn(
-                            "This should not have happened. Please report this as it is a bug.",
+                            "This should not have happened. Please report this "
+                            + "as it is a bug.",
                             e);
                 }
             }
