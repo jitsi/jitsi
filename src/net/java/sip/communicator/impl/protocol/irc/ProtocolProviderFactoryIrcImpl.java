@@ -22,6 +22,9 @@ import org.osgi.framework.*;
 public class ProtocolProviderFactoryIrcImpl
     extends ProtocolProviderFactory
 {
+    /**
+     * Constructor
+     */
     public ProtocolProviderFactoryIrcImpl()
     {
         super(IrcActivator.getBundleContext(), ProtocolNames.IRC);
@@ -76,6 +79,11 @@ public class ProtocolProviderFactoryIrcImpl
         return accountID;
     }
 
+    /**
+     * Create an IRC Account ID.
+     * 
+     * {@inheritDoc}
+     */
     @Override
     protected AccountID createAccountID(
         String userID,
@@ -84,6 +92,11 @@ public class ProtocolProviderFactoryIrcImpl
         return new IrcAccountID(userID, accountProperties);
     }
 
+    /**
+     * Create an IRC provider service.
+     * 
+     * {@inheritDoc}
+     */
     @Override
     protected ProtocolProviderService createService(String userID,
         AccountID accountID)
@@ -95,6 +108,11 @@ public class ProtocolProviderFactoryIrcImpl
         return service;
     }
 
+    /**
+     * Modify an existing IRC account.
+     * 
+     * {@inheritDoc}
+     */
     @Override
     public void modifyAccount(  ProtocolProviderService protocolProvider,
                                 Map<String, String> accountProperties)
