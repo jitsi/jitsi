@@ -368,6 +368,8 @@ public class IrcStack
         // channels, since it isn't available.
         synchronized (this.channellist)
         {
+            // TODO time out channel list cache and refresh it regularly (every
+            // minute?)
             if (this.channellist.instance == null)
             {
                 Result<List<String>, Exception> listSignal =
@@ -393,8 +395,12 @@ public class IrcStack
                     }
                 }
                 this.channellist.instance = listSignal.getValue();
+                LOGGER.trace("Finished retrieve server chat room list.");
             }
-            LOGGER.trace("Finished retrieve server chat room list.");
+            else
+            {
+                LOGGER.trace("Using cached list of server chat rooms.");
+            }
             return Collections.unmodifiableList(this.channellist.instance);
         }
     }
