@@ -18,7 +18,7 @@ import net.java.sip.communicator.util.call.*;
  * @author Yana Stamcheva
  */
 public class OperationSetCusaxUtilsJabberImpl
-    implements OperationSetCusaxUtils
+    implements OperationSetCusaxUtilsIM
 {
     /**
      * The parent jabber protocol provider.
@@ -71,16 +71,5 @@ public class OperationSetCusaxUtilsJabberImpl
         }
 
         return false;
-    }
-
-    /**
-     * Returns the linked CUSAX provider for this protocol provider.
-     *
-     * @return the linked CUSAX provider for this protocol provider or null
-     * if such isn't specified
-     */
-    public ProtocolProviderService getLinkedCusaxProvider()
-    {
-        return null;
     }
 }

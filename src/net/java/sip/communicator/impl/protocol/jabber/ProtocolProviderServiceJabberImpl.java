@@ -1854,9 +1854,9 @@ public class ProtocolProviderServiceJabberImpl
             addSupportedOperationSet(OperationSetChangePassword.class,
                     opsetChangePassword);
 
-            OperationSetCusaxUtils opsetCusaxCusaxUtils
+            OperationSetCusaxUtilsIM opsetCusaxCusaxUtils
                     = new OperationSetCusaxUtilsJabberImpl(this);
-            addSupportedOperationSet(OperationSetCusaxUtils.class,
+            addSupportedOperationSet(OperationSetCusaxUtilsIM.class,
                     opsetCusaxCusaxUtils);
 
             isInitialized = true;
