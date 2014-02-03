@@ -1185,6 +1185,7 @@ public class TreeContactList
                     try
                     {
                         currentFilter.applyFilter(filterQuery);
+                        selectFirstContact();
                     }
                     catch (Throwable t)
                     {
