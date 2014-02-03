@@ -1463,7 +1463,7 @@ javax.swing.event, javax.swing.border"/>
     <!--BUNDLE-SIP-->
     <target name="bundle-sip">
         <!--internal-target- Creates a bundle containing the sip implementation of the protocol provider package -->
-        <jar compress="false" destfile="${bundles.dest}/protocol-sip.jar"
+        <jar compress="false" destfile="${bundles.dest}/protocol-sip.jar" duplicate="preserve"
             manifest="${src}/net/java/sip/communicator/impl/protocol/sip/sip.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/sip"
                 prefix="net/java/sip/communicator/impl/protocol/sip"/>
