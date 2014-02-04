@@ -817,12 +817,13 @@ public class ChatRoomJabberImpl
         OperationSetBasicTelephonyJabberImpl basicTelephony
             = (OperationSetBasicTelephonyJabberImpl) provider
                 .getOperationSet(OperationSetBasicTelephony.class);
-        ActiveCallsRepositoryJabberGTalkImpl<CallJabberImpl, CallPeerJabberImpl> 
-            activeRepository = basicTelephony.getActiveCallsRepository();
-        
-        if(this.publishedConference != null)
+
+        if(basicTelephony != null && this.publishedConference != null)
         {
-            
+            ActiveCallsRepositoryJabberGTalkImpl
+                <CallJabberImpl, CallPeerJabberImpl> activeRepository
+                    = basicTelephony.getActiveCallsRepository();
+
             String callid = publishedConference.getCallId();
             
             if (callid != null)
