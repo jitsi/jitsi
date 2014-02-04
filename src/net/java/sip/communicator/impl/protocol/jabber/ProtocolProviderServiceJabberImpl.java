@@ -879,8 +879,7 @@ public class ProtocolProviderServiceJabberImpl
                             ))
                         {
                             FailoverConnectionMonitor.getInstance(this)
-                                .setCurrent(serviceName,
-                                            srv.getTarget());
+                                .setCurrent(domain, srv.getTarget());
                         }
 
                         ConnectState state = connectAndLogin(
