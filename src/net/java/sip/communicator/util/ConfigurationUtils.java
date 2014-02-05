@@ -320,6 +320,19 @@ public class ConfigurationUtils
                 ".HIDE_ADDRESS_IN_CALL_HISTORY_TOOLTIP_ENABLED";
 
     /**
+     * Whether domain will be shown in receive call dialog.
+     */
+    private static boolean isHideDomainInReceivedCallDialogEnabled = false;
+
+    /**
+     * The name of the property, whether to show addresses in call history
+     * tooltip.
+     */
+    private static final String HIDE_DOMAIN_IN_RECEIEVE_CALL_DIALOG_PROPERTY
+        = "net.java.sip.communicator.impl.gui.main.call." +
+            "HIDE_DOMAIN_IN_RECEIVE_CALL_DIALOG_ENABLED";
+
+    /**
      * The name of the show smileys property.
      */
     private static final String SHOW_SMILEYS_PROPERTY
@@ -883,6 +896,10 @@ public class ConfigurationUtils
         isHideAddressInCallHistoryTooltipEnabled = configService.getBoolean(
             HIDE_ADDR_IN_CALL_HISTORY_TOOLTIP_PROPERTY,
             isHideAddressInCallHistoryTooltipEnabled);
+
+        isHideDomainInReceivedCallDialogEnabled = configService.getBoolean(
+            HIDE_DOMAIN_IN_RECEIEVE_CALL_DIALOG_PROPERTY,
+            isHideDomainInReceivedCallDialogEnabled);
 
         String hideExtendedAwayStatusProperty
             = "net.java.sip.communicator.service.protocol" +
@@ -1746,6 +1763,15 @@ public class ConfigurationUtils
     }
 
     /**
+     * Whether domain will be shown in receive call dialog.
+     * @return whether domain will be shown in receive call dialog.
+     */
+    public static boolean isHideDomainInReceivedCallDialogEnabled()
+    {
+        return isHideDomainInReceivedCallDialogEnabled;
+    }
+
+    /**
      * Updates the "singleWindowInterface" property through the
      * <tt>ConfigurationService</tt>.
      *
@@ -2339,7 +2365,7 @@ public class ConfigurationUtils
     }
 
     /**
-     * Returns the chat room prefix saved in <tt>ConfigurationService</tt> 
+     * Returns the chat room prefix saved in <tt>ConfigurationService</tt>
      * associated with the <tt>accountID</tt> and <tt>chatRoomID</tt>.
      *
      * @param accountID the account id
@@ -2353,7 +2379,6 @@ public class ConfigurationUtils
             .getPropertyNamesByPrefix(prefix, true);
         for (String accountRootPropName : accounts)
         {
-            
             String tmpAccountID
                 = configService.getString(accountRootPropName);
 

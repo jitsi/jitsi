@@ -93,6 +93,11 @@ public abstract class PreCallDialog
     private JLabel callLabelAddress;
 
     /**
+     * Call label for account.
+     */
+    private JLabel callLabelAccount;
+
+    /**
      * The label that will contain the peer image.
      */
     private JLabel callLabelImage;
@@ -213,6 +218,8 @@ public abstract class PreCallDialog
                     = HudWidgetFactory.createHudComboBox(
                             new DefaultComboBoxModel(accounts));
             }
+            else
+                callLabelAccount = HudWidgetFactory.createHudLabel("");
         }
         else
         {
@@ -228,6 +235,8 @@ public abstract class PreCallDialog
 
             if (accounts != null)
                 accountsCombo = new JComboBox(accounts);
+            else
+                callLabelAccount = new JLabel();
         }
 
         if (text != null)
@@ -256,6 +265,9 @@ public abstract class PreCallDialog
         callLabelDisplayName.putClientProperty("html.disable", Boolean.TRUE);
         callLabelAddress.putClientProperty("html.disable", Boolean.TRUE);
         callLabelImage.putClientProperty("html.disable", Boolean.TRUE);
+
+        if(callLabelAccount != null)
+            callLabelAccount.putClientProperty("html.disable", Boolean.TRUE);
 
         JComponent buttonsPanel = new CallToolBar(false, true);
 
@@ -298,9 +310,17 @@ public abstract class PreCallDialog
         labelsPanel.setLayout(new BoxLayout(labelsPanel, BoxLayout.Y_AXIS));
         callLabelDisplayName.setAlignmentX(JLabel.LEFT_ALIGNMENT);
         labelsPanel.add(callLabelDisplayName);
+
         labelsPanel.add(Box.createVerticalStrut(3));
         callLabelAddress.setAlignmentX(JLabel.LEFT_ALIGNMENT);
         labelsPanel.add(callLabelAddress);
+
+        if(callLabelAccount != null)
+        {
+            labelsPanel.add(Box.createVerticalStrut(3));
+            callLabelAccount.setAlignmentX(JLabel.LEFT_ALIGNMENT);
+            labelsPanel.add(callLabelAccount);
+        }
 
         if (accountsCombo != null)
         {
@@ -314,8 +334,8 @@ public abstract class PreCallDialog
         // Loads skin resources.
         loadSkin();
 
-        JPanel rightPanel = new TransparentPanel(
-            new FlowLayout(FlowLayout.CENTER, 0, 0));
+        JPanel rightPanel = new TransparentPanel();
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS));
 
         rightPanel.setBorder(BorderFactory.createEmptyBorder(6, 0, 0, 0));
 
@@ -329,7 +349,10 @@ public abstract class PreCallDialog
 
         buttonsPanel.add(hangupButton);
 
+        buttonsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        rightPanel.add(Box.createVerticalGlue());
         rightPanel.add(buttonsPanel);
+        rightPanel.add(Box.createVerticalGlue());
         mainPanel.add(rightPanel, BorderLayout.EAST);
     }
 
@@ -416,8 +439,15 @@ public abstract class PreCallDialog
      */
     public JLabel[] getCallLabels()
     {
-        return new JLabel[]{
+        if(callLabelAccount == null)
+            return new JLabel[]{
                 callLabelImage, callLabelDisplayName, callLabelAddress};
+        else
+            return new JLabel[]{
+                callLabelImage,
+                callLabelDisplayName,
+                callLabelAddress,
+                callLabelAccount};
     }
 
     /**
