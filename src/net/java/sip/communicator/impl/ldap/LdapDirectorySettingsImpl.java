@@ -41,6 +41,10 @@ public class LdapDirectorySettingsImpl
         this.setBaseDN("");
         this.setScope(Scope.defaultValue());
         this.setGlobalPhonePrefix("");
+        this.setQueryMode("");
+        this.setCustomQuery("");
+        this.setMangleQuery(true);
+        this.setPhotoInline(false);
         // mail
         List<String> lst = new ArrayList<String>();
         lst.add("mail");
@@ -93,6 +97,10 @@ public class LdapDirectorySettingsImpl
         this.setGlobalPhonePrefix(settings.getGlobalPhonePrefix());
         this.mapAttributes = settings.mapAttributes;
         this.mailSuffix = settings.mailSuffix;
+        this.queryMode = settings.queryMode;
+        this.customQuery = settings.customQuery;
+        this.mangleQuery = settings.mangleQuery;
+        this.photoInline = settings.photoInline;
     }
 
     /**
@@ -169,6 +177,26 @@ public class LdapDirectorySettingsImpl
      * Mail suffix.
      */
     private String mailSuffix = null;
+
+    /**
+     * How the query should be constructed.
+     */
+    private String queryMode;
+
+    /**
+     * The user defined LDAP query.
+     */
+    private String customQuery;
+
+    /**
+     * Whether the query term should be automatically expanded for wildcards.
+     */
+    private boolean mangleQuery;
+
+    /**
+     * Whether photos are retrieved along with the other attributes.
+     */
+    private boolean photoInline;
 
     /**
      * Attributes map.
@@ -465,7 +493,11 @@ public class LdapDirectorySettingsImpl
             this.getPassword().equals(other.getPassword()) &&
             this.getBaseDN().equals(other.getBaseDN()) &&
             this.getScope().equals(other.getScope()) &&
-            this.getGlobalPhonePrefix().equals(other.getGlobalPhonePrefix());
+            this.getGlobalPhonePrefix().equals(other.getGlobalPhonePrefix()) &&
+            this.getCustomQuery().equals(other.getCustomQuery()) &&
+            this.getQueryMode().equals(other.getQueryMode()) &&
+            this.isMangleQuery() == other.isMangleQuery() &&
+            this.isPhotoInline() == other.isPhotoInline();
     }
 
     /**
@@ -501,6 +533,12 @@ public class LdapDirectorySettingsImpl
             this.getBaseDN().hashCode());
         hash = 31 * hash + (null == this.getGlobalPhonePrefix() ? 0 :
             this.getGlobalPhonePrefix().hashCode());
+        hash = 31 * hash + (null == this.getCustomQuery() ? 0 :
+            this.getCustomQuery().hashCode());
+        hash = 32 * hash + (null == this.getQueryMode() ? 0 :
+            this.getQueryMode().hashCode());
+        hash = 33 * hash + (this.isMangleQuery() ? 1 : 0);
+        hash = 34 * hash + (this.isPhotoInline() ? 1 : 0);
         return hash;
     }
 
@@ -542,6 +580,87 @@ public class LdapDirectorySettingsImpl
     public void setMailSuffix(String suffix)
     {
         this.mailSuffix = suffix;
+    }
+
+    /**
+     * Gets the mode how the LDAP query is constructed.
+     * @return the mode how the LDAP query is constructed.
+     */
+    @Override
+    public String getQueryMode()
+    {
+        return this.queryMode;
+    }
+
+    /**
+     * Sets the mode how the LDAP query is constructed.
+     * @param queryMode the mode how the LDAP query is constructed.
+     */
+    @Override
+    public void setQueryMode(String queryMode)
+    {
+        this.queryMode = queryMode;
+    }
+
+    /**
+     * Gets the user-defined LDAP query.
+     * @return the user-defined LDAP query.
+     */
+    @Override
+    public String getCustomQuery()
+    {
+        return this.customQuery;
+    }
+
+    /**
+     * Sets the user-defined LDAP query.
+     * @param query the user-defined LDAP query.
+     */
+    @Override
+    public void setCustomQuery(String query)
+    {
+        this.customQuery = query;
+    }
+
+    /**
+     * Gets whether the query term gets mangled with wildcards.
+     * @return whether the query term gets mangled with wildcards.
+     */
+    @Override
+    public boolean isMangleQuery()
+    {
+        return this.mangleQuery;
+    }
+
+    /**
+     * Sets whether the query term gets mangled with wildcards.
+     * @param mangle whether the query term gets mangled with wildcards.
+     */
+    @Override
+    public void setMangleQuery(boolean mangle)
+    {
+        this.mangleQuery = mangle;
+    }
+
+    /**
+     * Gets whether photos are retrieved along with the other attributes.
+     * @return whether photos are retrieved along with the other attributes.
+     */
+    @Override
+    public boolean isPhotoInline()
+    {
+        return this.photoInline;
+    }
+
+    /**
+     * Sets whether photos are retrieved along with the other attributes.
+     * @param inline whether photos are retrieved along with the other
+     *            attributes.
+     */
+    @Override
+    public void setPhotoInline(boolean inline)
+    {
+        this.photoInline = inline;
     }
 
     /**
@@ -700,6 +819,18 @@ public class LdapDirectorySettingsImpl
         configService.setProperty(
             directoriesPath + "." + node + ".globalPhonePrefix",
                         this.getGlobalPhonePrefix());
+        configService.setProperty(
+            directoriesPath + "." + node + ".querymode",
+            this.getQueryMode());
+        configService.setProperty(
+            directoriesPath + "." + node + ".customquery",
+            this.getCustomQuery());
+        configService.setProperty(
+            directoriesPath + "." + node + ".mangle",
+            this.isMangleQuery());
+        configService.setProperty(
+            directoriesPath + "." + node + ".inlinephoto",
+            this.isPhotoInline());
     }
 
     /**
@@ -852,6 +983,48 @@ public class LdapDirectorySettingsImpl
             if (ret != null)
                 setGlobalPhonePrefix(ret);
         }
+
+        if(configService.getProperty(directoriesPath + "." + node +
+            ".querymode") != null)
+        {
+            String ret = (String)configService.getProperty(
+                directoriesPath + "." + node + ".querymode");
+
+            if (ret != null)
+                setQueryMode(ret);
+        }
+
+        if(configService.getProperty(directoriesPath + "." + node +
+            ".customquery") != null)
+        {
+            String ret = (String)configService.getProperty(
+                directoriesPath + "." + node + ".customquery");
+
+            if (ret != null)
+                setCustomQuery(ret);
+        }
+
+        if(configService.getProperty(directoriesPath + "." + node +
+            ".mangle") != null)
+        {
+            Boolean ret = Boolean.parseBoolean(
+                (String)configService.getProperty(
+                    directoriesPath + "." + node + ".mangle"));
+
+            if (ret != null)
+                setMangleQuery(ret);
+        }
+
+        if(configService.getProperty(directoriesPath + "." + node +
+            ".inlinephoto") != null)
+        {
+            Boolean ret = Boolean.parseBoolean(
+                (String)configService.getProperty(
+                    directoriesPath + "." + node + ".inlinephoto"));
+
+            if (ret != null)
+                setPhotoInline(ret);
+        }
     }
 
     /**
@@ -913,6 +1086,18 @@ public class LdapDirectorySettingsImpl
         configService.setProperty(
                 directoriesPath + "." + node,
                 null);
+        configService.setProperty(
+            directoriesPath + "." + node + ".querymode",
+            null);
+        configService.setProperty(
+            directoriesPath + "." + node + ".customquery",
+            null);
+        configService.setProperty(
+            directoriesPath + "." + node + ".mangle",
+            null);
+        configService.setProperty(
+            directoriesPath + "." + node + ".inlinephoto",
+            null);
     }
 
     /**
@@ -932,7 +1117,11 @@ public class LdapDirectorySettingsImpl
             this.getBindDN() + ", \n" +
             this.getPassword() + ", \n" +
             this.getBaseDN() + ", \n" +
-            this.getGlobalPhonePrefix() + " \n}";
+            this.getGlobalPhonePrefix() + " \n" +
+            this.queryMode + " \n" +
+            this.customQuery + " \n" +
+            this.mangleQuery + " \n" +
+            this.photoInline + " \n}";
     }
 
     @Override

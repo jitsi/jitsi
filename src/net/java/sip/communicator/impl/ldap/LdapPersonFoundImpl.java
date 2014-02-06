@@ -63,6 +63,11 @@ public class LdapPersonFoundImpl
     private String department = null;
 
     /**
+     * the photo found in the directory for this person.
+     */
+    private byte[] photo = null;
+
+    /**
      * the set storing the mail addresses
      */
     private final Set<String> mails = new HashSet<String>();
@@ -145,11 +150,9 @@ public class LdapPersonFoundImpl
      * @return the photo found in the the directory for this person
      * or null if not found
      */
-    public byte[] fetchPhoto()
+    public void fetchPhoto()
     {
-        byte[] photo;
-        photo = this.server.fetchPhotoForPerson(this.dn);
-        return photo;
+        this.photo = this.server.fetchPhotoForPerson(this.dn);
     }
 
     /**
@@ -233,6 +236,31 @@ public class LdapPersonFoundImpl
     public String getDepartment()
     {
         return this.department;
+    }
+
+    /**
+     * Gets the photo found in the directory for this person.
+     * @return the photo found in the directory for this person.
+     */
+    @Override
+    public byte[] getPhoto()
+    {
+        if (this.photo == null)
+        {
+            this.fetchPhoto();
+        }
+
+        return this.photo;
+    }
+
+    /**
+     * Set the photo found in the directory for this person.
+     * @param photo the photo found in the directory for this person.
+     */
+    @Override
+    public void setPhoto(byte[] photo)
+    {
+        this.photo = photo;
     }
 
     /**

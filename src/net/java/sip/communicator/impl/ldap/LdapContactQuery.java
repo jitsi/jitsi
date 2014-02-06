@@ -269,7 +269,7 @@ public class LdapContactQuery
 
                 try
                 {
-                    sourceContact.setImage(person.fetchPhoto());
+                    sourceContact.setImage(person.getPhoto());
                 }
                 catch (OutOfMemoryError oome)
                 {
