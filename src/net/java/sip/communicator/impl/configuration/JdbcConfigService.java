@@ -354,7 +354,7 @@ public final class JdbcConfigService
         //remove all properties
         for (String child : this.getPropertyNamesByPrefix(propertyName, false))
         {
-            removeProperty(child);
+            this.setProperty(child, null, false);
         }
 
         this.setProperty(propertyName, null, false);
@@ -411,15 +411,17 @@ public final class JdbcConfigService
             while (q.next())
             {
                 String key = q.getString(1);
-                int ix = key.lastIndexOf('.');
-                if(ix == -1)
-                {
-                    continue;
-                }
 
-                String keyPrefix = key.substring(0, ix);
                 if(exactPrefixMatch)
                 {
+                    int ix = key.lastIndexOf('.');
+                    if(ix == -1)
+                    {
+                        continue;
+                    }
+
+                    String keyPrefix = key.substring(0, ix);
+
                     if(prefix.equals(keyPrefix))
                     {
                         resultSet.add(key);
@@ -427,7 +429,7 @@ public final class JdbcConfigService
                 }
                 else
                 {
-                    if(keyPrefix.startsWith(prefix))
+                    if(key.startsWith(prefix))
                     {
                         resultSet.add(key);
                     }
@@ -772,7 +774,6 @@ public final class JdbcConfigService
     {
         return "props.hsql.script";
     }
-    
 
     /**
      * Loads the specified default properties maps from the Jitsi installation

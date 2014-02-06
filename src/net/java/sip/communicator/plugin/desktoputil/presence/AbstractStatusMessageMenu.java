@@ -536,9 +536,13 @@ public abstract class AbstractStatusMessageMenu
             DesktopUtilActivator.getConfigurationService()
                 .getPropertyNamesByPrefix(CUSTOM_MESSAGES_PREFIX, false);
 
+        int prefixLen = CUSTOM_MESSAGES_PREFIX.length() + 1;
         for(String p : customMessagesProps)
         {
-            String s = p.substring(CUSTOM_MESSAGES_PREFIX.length() + 1);
+            if(prefixLen > p.length())
+                continue;
+
+            String s = p.substring(prefixLen);
 
             try
             {
