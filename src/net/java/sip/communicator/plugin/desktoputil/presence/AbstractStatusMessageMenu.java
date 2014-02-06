@@ -606,7 +606,7 @@ public abstract class AbstractStatusMessageMenu
     /**
      * Clears all items that they are not selected and its name is not bold.
      */
-    private void clearSelectedItems()
+    public void clearSelectedItems()
     {
         for(int i = 0; i < getMenuComponentCount(); i++)
         {
