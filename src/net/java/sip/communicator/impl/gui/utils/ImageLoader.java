@@ -891,6 +891,12 @@ public class ImageLoader
         new ImageID("service.gui.buttons.CALL_INFO");
 
     /**
+     * The call information button icon used in the call panel.
+     */
+    public static final ImageID CRM =
+        new ImageID("service.gui.buttons.CRM");
+
+    /**
      * The image used, when a contact has no photo specified.
      */
     public static final ImageID DEFAULT_USER_PHOTO
