@@ -807,6 +807,9 @@ public class AccountManager
                 = configurationService.getString(
                     storedAccount + "." + ProtocolProviderFactory.ACCOUNT_UID);
 
+            if(storedAccountUID == null)
+                continue;
+
             if (storedAccountUID.equals(accountUID))
                 accountNodeName = configurationService.getString(storedAccount);
         }
