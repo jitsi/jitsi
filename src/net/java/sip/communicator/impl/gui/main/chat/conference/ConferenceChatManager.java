@@ -85,7 +85,7 @@ public class ConferenceChatManager
         }.start();
 
         GuiActivator.bundleContext.addServiceListener(this);
-        
+
     }
 
     /**
@@ -204,21 +204,21 @@ public class ConferenceChatManager
 
         ChatWindowManager chatWindowManager
             = GuiActivator.getUIService().getChatWindowManager();
-        
+
         boolean createWindow = false;
-        String autoOpenConfig 
+        String autoOpenConfig
             = MUCService.getChatRoomAutoOpenOption(
-                sourceChatRoom.getParentProvider(), 
+                sourceChatRoom.getParentProvider(),
                 sourceChatRoom.getIdentifier());
         if(autoOpenConfig == null)
             autoOpenConfig = MUCService.OPEN_ON_IMPORTANT_MESSAGE;
-    
+
         if(autoOpenConfig.equals(MUCService.OPEN_ON_ACTIVITY)
-            || (autoOpenConfig.equals(MUCService.OPEN_ON_MESSAGE) 
+            || (autoOpenConfig.equals(MUCService.OPEN_ON_MESSAGE)
                 && !evt.isHistoryMessage())
             || evt.isImportantMessage())
             createWindow = true;
-        
+
         if(sourceChatRoom.isSystem())
         {
             ChatRoomProviderWrapper serverWrapper
@@ -236,7 +236,7 @@ public class ConferenceChatManager
 
         if(chatPanel == null)
             return;
-        
+
         String messageContent = message.getContent();
 
         if (evt.isHistoryMessage())
@@ -293,11 +293,11 @@ public class ConferenceChatManager
             message.getContentType(),
             message.getMessageUID(),
             null);
-        
+
         if(createWindow)
             chatWindowManager.openChat(chatPanel, true);
     }
-    
+
     /**
      * Implements the <tt>ChatRoomMessageListener.messageDeliveryFailed</tt>
      * method.
@@ -368,14 +368,16 @@ public class ConferenceChatManager
             = chatWindowManager.getMultiChat(sourceChatRoom, true);
 
         chatPanel.addMessage(
-            destMember.getName(),
+            destMember != null ? destMember.getName()
+                : sourceChatRoom.getName(),
             new Date(),
             Chat.OUTGOING_MESSAGE,
             sourceMessage.getContent(),
             sourceMessage.getContentType());
 
         chatPanel.addErrorMessage(
-            destMember.getName(),
+            destMember != null ? destMember.getName()
+                : sourceChatRoom.getName(),
             errorMsg);
 
         chatWindowManager.openChat(chatPanel, false);
@@ -430,7 +432,7 @@ public class ConferenceChatManager
             LocalUserAdHocChatRoomPresenceChangeEvent.LOCAL_USER_JOIN_FAILED))
         {
             GuiActivator.getAlertUIService().showAlertPopup(
-                GuiActivator.getResources().getI18NString("service.gui.ERROR"), 
+                GuiActivator.getResources().getI18NString("service.gui.ERROR"),
                 GuiActivator.getResources().getI18NString(
                     "service.gui.FAILED_TO_JOIN_CHAT_ROOM",
                     new String[]{sourceAdHocChatRoom.getName()})
@@ -493,16 +495,16 @@ public class ConferenceChatManager
                     ChatRoomListChangeEvent.CHAT_ROOM_CHANGED);
 
                 boolean createWindow = false;
-                
-                String autoOpenConfig 
+
+                String autoOpenConfig
                 = MUCService.getChatRoomAutoOpenOption(
-                    sourceChatRoom.getParentProvider(), 
+                    sourceChatRoom.getParentProvider(),
                     sourceChatRoom.getIdentifier());
-                
-                if(autoOpenConfig != null 
+
+                if(autoOpenConfig != null
                     && autoOpenConfig.equals(MUCService.OPEN_ON_ACTIVITY))
                     createWindow = true;
-                
+
                 ChatWindowManager chatWindowManager
                     = GuiActivator.getUIService().getChatWindowManager();
                 ChatPanel chatPanel
@@ -513,7 +515,7 @@ public class ConferenceChatManager
                 {
                     chatPanel.setChatIcon(
                         chatPanel.getChatSession().getChatStatusIcon());
-    
+
                     // Check if we have already opened a chat window for this chat
                     // wrapper and load the real chat room corresponding to the
                     // wrapper.
@@ -546,7 +548,7 @@ public class ConferenceChatManager
                     .LOCAL_USER_JOIN_FAILED.equals(eventType))
         {
             GuiActivator.getAlertUIService().showAlertPopup(
-                GuiActivator.getResources().getI18NString("service.gui.ERROR"), 
+                GuiActivator.getResources().getI18NString("service.gui.ERROR"),
                 GuiActivator.getResources().getI18NString(
                     "service.gui.FAILED_TO_JOIN_CHAT_ROOM",
                     new String[]{sourceChatRoom.getName()})
@@ -780,7 +782,7 @@ public class ConferenceChatManager
      */
     public void leaveChatRoom(ChatRoomWrapper chatRoomWrapper)
     {
-        ChatRoomWrapper leavedRoomWrapped 
+        ChatRoomWrapper leavedRoomWrapped
             = GuiActivator.getMUCService().leaveChatRoom(chatRoomWrapper);
         if(leavedRoomWrapped != null)
             GuiActivator.getUIService().closeChatRoomWindow(leavedRoomWrapped);
@@ -1313,5 +1315,5 @@ public class ConferenceChatManager
             = chatWindowManager.getMultiChat(chatRoomWrapper, true);
         chatWindowManager.openChat(chatPanel, true);
     }
-    
+
 }

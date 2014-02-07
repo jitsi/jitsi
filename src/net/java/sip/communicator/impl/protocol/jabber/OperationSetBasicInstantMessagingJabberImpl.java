@@ -925,6 +925,34 @@ public class OperationSetBasicInstantMessagingJabberImpl
             if(msg.getType()
                             == org.jivesoftware.smack.packet.Message.Type.error)
             {
+                // error which is multichat and we don't know about the contact
+                // is a muc message error which is missing muc extension
+                // and is coming from the room, when we try to send message to
+                // room which was deleted or offline on the server
+                if(isPrivateMessaging && sourceContact == null)
+                {
+                    if(privateContactRoom != null)
+                    {
+                        XMPPError error = packet.getError();
+                        int errorResultCode
+                            = ChatRoomMessageDeliveryFailedEvent.UNKNOWN_ERROR;
+                        String errorReason = error.getMessage();
+
+                        ChatRoomMessageDeliveryFailedEvent evt =
+                            new ChatRoomMessageDeliveryFailedEvent(
+                                privateContactRoom,
+                                null,
+                                errorResultCode,
+                                errorReason,
+                                new Date(),
+                                newMessage);
+                        ((ChatRoomJabberImpl)privateContactRoom)
+                            .fireMessageEvent(evt);
+                    }
+
+                    return;
+                }
+
                 if (logger.isInfoEnabled())
                     logger.info("Message error received from " + userBareID);
 

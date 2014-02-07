@@ -1696,7 +1696,7 @@ public class ChatRoomJabberImpl
      * @param evt the <tt>EventObject</tt> that we'd like delivered to all
      * registered message listeners.
      */
-    private void fireMessageEvent(EventObject evt)
+    void fireMessageEvent(EventObject evt)
     {
         Iterable<ChatRoomMessageListener> listeners;
         synchronized (messageListeners)
@@ -1930,8 +1930,8 @@ public class ChatRoomJabberImpl
                 member = smackParticipantToScMember(msgFrom);
             }
 
-            // somtimes when connecting to rooms they send history
-            // when the member is nolonger available we create
+            // sometimes when connecting to rooms they send history
+            // when the member is no longer available we create
             // a fake one so the messages to be displayed.
             if(member == null)
             {
