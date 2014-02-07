@@ -814,6 +814,14 @@ public class ChatRoomJabberImpl
      */
     public void leave()
     {
+        this.leave(null, null);
+    }
+
+    /**
+     * Leave this chat room.
+     */
+    private void leave(String reason, String alternateAddress)
+    {
         OperationSetBasicTelephonyJabberImpl basicTelephony
             = (OperationSetBasicTelephonyJabberImpl) provider
                 .getOperationSet(OperationSetBasicTelephony.class);
@@ -883,8 +891,11 @@ public class ChatRoomJabberImpl
         if(connection != null)
             connection.removePacketListener(invitationRejectionListeners);
 
-        opSetMuc.fireLocalUserPresenceEvent(this,
-            LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT, null);
+        opSetMuc.fireLocalUserPresenceEvent(
+            this,
+            LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT,
+            reason,
+            alternateAddress);
     }
 
     /**
@@ -2756,6 +2767,23 @@ public class ChatRoomJabberImpl
                         || jitsiRole == ChatRoomMemberRole.ADMINISTRATOR)
                     {
                         setLocalUserRole(jitsiRole, true);
+                    }
+
+                    if(!presence.isAvailable()
+                        && "none".equalsIgnoreCase(affiliation)
+                        && "none".equalsIgnoreCase(role))
+                    {
+                        MUCUser.Destroy destroy = mucUser.getDestroy();
+                        if(destroy == null)
+                        {
+                            // the room is unavailable to us, there is no
+                            // message we will just leave
+                            leave();
+                        }
+                        else
+                        {
+                            leave(destroy.getReason(), destroy.getJid());
+                        }
                     }
                 }
             }

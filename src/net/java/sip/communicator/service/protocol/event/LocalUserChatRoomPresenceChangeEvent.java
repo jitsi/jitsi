@@ -73,6 +73,12 @@ public class LocalUserChatRoomPresenceChangeEvent
     private String reason = null;
 
     /**
+     * An optional String indicating new address for the room, normally
+     * send when room is destroyed.
+     */
+    private String alternateAddress = null;
+
+    /**
      * Creates a <tt>ChatRoomLocalUserPresenceChangeEvent</tt> representing that
      * a change in local participant presence in the source chat room has
      * occured.
@@ -88,11 +94,32 @@ public class LocalUserChatRoomPresenceChangeEvent
                                                 String eventType,
                                                 String reason)
     {
+        this(source, chatRoom, eventType, reason, null);
+    }
+
+    /**
+     * Creates a <tt>ChatRoomLocalUserPresenceChangeEvent</tt> representing that
+     * a change in local participant presence in the source chat room has
+     * occured.
+     *
+     * @param source the <tt>OperationSetMultiUserChat</tt>, which produced this
+     * event
+     * @param chatRoom the <tt>ChatRoom</tt> that this event is about
+     * @param eventType the type of this event.
+     * @param reason the reason explaining why this event might have occurred
+     */
+    public LocalUserChatRoomPresenceChangeEvent(OperationSetMultiUserChat source,
+                                                ChatRoom chatRoom,
+                                                String eventType,
+                                                String reason,
+                                                String alternateAddress)
+    {
         super(source);
 
         this.chatRoom = chatRoom;
         this.eventType = eventType;
         this.reason = reason;
+        this.alternateAddress = alternateAddress;
     }
 
     /**
@@ -137,6 +164,16 @@ public class LocalUserChatRoomPresenceChangeEvent
     public String getEventType()
     {
         return eventType;
+    }
+
+    /**
+     * An optional String indicating new address for the room, normally
+     * send when room is destroyed.
+     * @return alternate address for the destroyed room.
+     */
+    public String getAlternateAddress()
+    {
+        return alternateAddress;
     }
 
     /**

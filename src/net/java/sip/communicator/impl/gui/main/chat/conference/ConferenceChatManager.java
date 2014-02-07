@@ -22,6 +22,9 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
+
+import org.jitsi.util.*;
 
 import org.jdesktop.swingworker.SwingWorker;
 import org.osgi.framework.*;
@@ -563,8 +566,52 @@ public class ConferenceChatManager
         {
             if(chatRoomWrapper != null)
             {
-                GuiActivator.getUIService()
-                    .closeChatRoomWindow(chatRoomWrapper);
+                if(StringUtils.isNullOrEmpty(evt.getReason()))
+                {
+                    GuiActivator.getUIService()
+                        .closeChatRoomWindow(chatRoomWrapper);
+                }
+                else
+                {
+                    // send some system messages informing for the
+                    // reason of leaving
+                    ChatWindowManager chatWindowManager
+                        = GuiActivator.getUIService().getChatWindowManager();
+
+                    ChatPanel chatPanel = chatWindowManager.getMultiChat(
+                        sourceChatRoom, false);
+
+                    if(chatPanel != null)
+                    {
+                        chatPanel.addMessage(
+                            sourceChatRoom.getName(),
+                            null,
+                            new Date(),
+                            Chat.SYSTEM_MESSAGE,
+                            evt.getReason(),
+                            OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE,
+                            null,
+                            null);
+
+                        // print and the alternate address
+                        if(!StringUtils.isNullOrEmpty(
+                                evt.getAlternateAddress()))
+                        {
+                            chatPanel.addMessage(
+                                sourceChatRoom.getName(),
+                                null,
+                                new Date(),
+                                Chat.SYSTEM_MESSAGE,
+                                GuiActivator.getResources().getI18NString(
+                                    "service.gui.CHAT_ROOM_ALTERNATE_ADDRESS",
+                                    new String[]{evt.getAlternateAddress()}),
+                                OperationSetBasicInstantMessaging
+                                    .DEFAULT_MIME_TYPE,
+                                null,
+                                null);
+                        }
+                    }
+                }
 
                 // Need to refresh the chat room's list in order to change
                 // the state of the chat room to offline.
