@@ -346,8 +346,7 @@ public class ClientCapabilities
                 }
                 catch (TransactionUnavailableException ex)
                 {
-                    logger.error("Could not create a register transaction!\n"
-                              + "Check that the Registrar address is correct!",
+                    logger.error("Could not create options transaction!\n",
                               ex);
                     return;
                 }
@@ -434,6 +433,7 @@ public class ClientCapabilities
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
             if(evt.getNewState() == RegistrationState.UNREGISTERING ||
+                evt.getNewState() == RegistrationState.UNREGISTERED ||
                 evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED ||
                 evt.getNewState() == RegistrationState.CONNECTION_FAILED)
             {
