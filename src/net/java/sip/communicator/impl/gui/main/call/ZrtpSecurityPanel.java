@@ -664,7 +664,7 @@ public class ZrtpSecurityPanel
             if (!videoSecurityLabel.isVisible())
                 videoSecurityLabel.setVisible(true);
         }
-        else if (visible)
+        else
             videoSecurityLabel.setVisible(visible);
 
         revalidate();

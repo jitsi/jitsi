@@ -616,13 +616,10 @@ public class OneToOneCallPeerPanel
             @Override
             public void mousePressed(MouseEvent e)
             {
-                CallPeerSecurityStatusEvent securityEvt
-                    = callPeer.getCurrentSecuritySettings();
-
                 // Only show the security details if the security is on.
-                if (securityEvt instanceof CallPeerSecurityOnEvent
-                    && ((CallPeerSecurityOnEvent) securityEvt)
-                        .getSecurityController() instanceof ZrtpControl)
+                SrtpControl ctrl = securityPanel.getSecurityControl();
+                if (ctrl instanceof ZrtpControl
+                    && ctrl.getSecureCommunicationStatus())
                 {
                     setSecurityPanelVisible(!callRenderer.getCallContainer()
                         .getCallWindow().getFrame().getGlassPane().isVisible());
@@ -803,11 +800,14 @@ public class OneToOneCallPeerPanel
             return;
         }
 
-        securityStatusLabel.setText("");
-        securityStatusLabel.setSecurityOff();
-        if (securityStatusLabel.getBorder() == null)
-            securityStatusLabel.setBorder(
-                BorderFactory.createEmptyBorder(2, 5, 2, 3));
+        if (evt.getSessionType() == CallPeerSecurityOffEvent.AUDIO_SESSION)
+        {
+            securityStatusLabel.setText("");
+            securityStatusLabel.setSecurityOff();
+            if (securityStatusLabel.getBorder() == null)
+                securityStatusLabel.setBorder(
+                    BorderFactory.createEmptyBorder(2, 5, 2, 3));
+        }
 
         securityPanel.securityOff(evt);
     }
