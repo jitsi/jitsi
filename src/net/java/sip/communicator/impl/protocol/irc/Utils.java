@@ -32,11 +32,20 @@ public final class Utils
      * 1. Remove chars which have a value < 32, since there are no equivalent
      * HTML entities available when storing them in the history log.
      * 
+     * TODO Support bold (0x02) control code.
+     * TODO Support italics (0x1D) control code.
+     * TODO Support underline (0x1F) control code.
+     * TODO Support reverse (0x16) control code?
+     * TODO Support color coding: 0x03<00-15>[,00-15]
+     * 
      * @param text message
      * @return returns the processed message
      */
     public static String parse(String text)
     {
+        if (text == null)
+            return null;
+        
         StringBuilder builder = new StringBuilder(text);
 
         // TODO support IRC control codes for formatting (now only removes them)
