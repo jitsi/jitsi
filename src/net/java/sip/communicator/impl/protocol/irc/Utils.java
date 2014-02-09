@@ -39,7 +39,8 @@ public final class Utils
      * TODO Support color coding: 0x03<00-15>[,00-15]
      * 
      * @param text message
-     * @return returns the processed message
+     * @return returns the processed message or null if text message was null,
+     * since there is nothing to modify there
      */
     public static String parse(String text)
     {
