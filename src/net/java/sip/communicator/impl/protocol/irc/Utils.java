@@ -5,6 +5,10 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import java.util.*;
+
+import net.java.sip.communicator.util.*;
+
 /**
  * Some IRC-related utility methods.
  * 
@@ -13,11 +17,9 @@ package net.java.sip.communicator.impl.protocol.irc;
 public final class Utils
 {
     /**
-     * Starting value of HTML entities.
-     * 
-     * The first 32 chars cannot be converted into HTML entities.
+     * Logger
      */
-    private static final int START_OF_HTML_ENTITIES = 32;
+    private static final Logger LOGGER = Logger.getLogger(Utils.class);
 
     /**
      * Private constructor since we do not need to construct anything.
@@ -29,40 +31,178 @@ public final class Utils
     /**
      * Parse IRC text message and process possible control codes.
      * 
-     * 1. Remove chars which have a value < 32, since there are no equivalent
-     * HTML entities available when storing them in the history log.
-     * 
-     * TODO Support bold (0x02) control code.
-     * TODO Support italics (0x1D) control code.
-     * TODO Support underline (0x1F) control code.
      * TODO Support reverse (0x16) control code?
-     * TODO Support color coding: 0x03<00-15>[,00-15]
      * 
-     * @param text message
+     * @param text the message
      * @return returns the processed message or null if text message was null,
-     * since there is nothing to modify there
+     *         since there is nothing to modify there
      */
     public static String parse(String text)
     {
         if (text == null)
             return null;
-        
-        StringBuilder builder = new StringBuilder(text);
 
-        // TODO support IRC control codes for formatting (now only removes them)
+        final Stack<ControlChar> formatting = new Stack<ControlChar>();
 
-        for (int i = 0; i < builder.length(); )
+        final StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < text.length(); i++)
         {
-            if (builder.charAt(i) < START_OF_HTML_ENTITIES)
+            char val = text.charAt(i);
+            ControlChar control = ControlChar.byCode(val);
+            if (control != null)
             {
-                builder.deleteCharAt(i);
+                // value is a control character, so do something special
+                switch (control)
+                {
+                case ITALICS:
+                case UNDERLINE:
+                case BOLD:
+                    if (formatting.size() > 0 && formatting.peek() == control)
+                    {
+                        formatting.pop();
+                        builder.append(control.getHtmlEnd());
+                    }
+                    else
+                    {
+                        formatting.push(control);
+                        builder.append(control.getHtmlStart());
+                    }
+                    break;
+                case NORMAL:
+                    while (formatting.size() > 0)
+                    {
+                        ControlChar c = formatting.pop();
+                        builder.append(c.getHtmlEnd());
+                    }
+                    break;
+                case COLOR:
+                    if (formatting.size() > 0 && formatting.peek() == control)
+                    {
+                        formatting.pop();
+                        builder.append(control.getHtmlEnd());
+                    }
+                    else
+                    {
+                        final List<String> adds = new LinkedList<String>();
+                        try
+                        {
+                            // parse foreground color code
+                            final Color foreground =
+                                parseForegroundColor(text.substring(i + 1));
+                            adds.add("color=\"" + foreground.getHtml() + "\"");
+                            i += 2;
+
+                            // parse background color code
+                            final Color background =
+                                parseBackgroundColor(text.substring(i + 1));
+                            adds.add("bgcolor=\"" + background.getHtml() + "\"");
+                            i += 3;
+                        }
+                        catch (IllegalArgumentException e)
+                        {
+                            LOGGER.debug("Invalid color code.", e);
+                        }
+                        formatting.push(control);
+                        String htmlTag =
+                            control.getHtmlStart(adds.toArray(new String[adds
+                                .size()]));
+                        builder.append(htmlTag);
+                    }
+                    break;
+                default:
+                    LOGGER.warn("Unsupported IRC control code encountered: "
+                        + control);
+                    break;
+                }
             }
             else
             {
-                // nothing to do here, go to next char
-                i++;
+                // value is a normal character, just append
+                builder.append(val);
             }
         }
+
+        // Finish any outstanding formatting.
+        while (formatting.size() > 0)
+        {
+            builder.append(formatting.pop().getHtmlEnd());
+        }
+
         return builder.toString();
+    }
+
+    /**
+     * Parse background color code starting with the separator.
+     * 
+     * @param text the text starting with the background color (separator)
+     * @return returns the background color
+     */
+    private static Color parseBackgroundColor(String text)
+    {
+        try
+        {
+            if (text.charAt(0) == ',')
+            {
+                // if available, also parse background color
+                int color =
+                    Integer.parseInt("" + text.charAt(1) + text.charAt(2));
+                return Color.values()[color];
+            }
+            throw new IllegalArgumentException(
+                "no color separator present, hence no background color present");
+        }
+        catch (StringIndexOutOfBoundsException e)
+        {
+            // Abort parsing background color. Assume only
+            // foreground color available.
+            throw new IllegalArgumentException(
+                "text stopped before the background color code was finished");
+        }
+        catch (NumberFormatException e)
+        {
+            // No background color defined, ignoring ...
+            throw new IllegalArgumentException(
+                "value isn't a background color code");
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
+            LOGGER.info("Specified IRC color is not a known color code.", e);
+            throw new IllegalArgumentException(
+                "background color value is not a known color");
+        }
+    }
+
+    /**
+     * Parse foreground color and return corresponding Color instance.
+     * 
+     * @param text the text to parse, starting with color code
+     * @return returns Color instance
+     */
+    private static Color parseForegroundColor(String text)
+    {
+        try
+        {
+            int color = Integer.parseInt("" + text.charAt(0) + text.charAt(1));
+            return Color.values()[color];
+        }
+        catch (StringIndexOutOfBoundsException e)
+        {
+            // Invalid control code, since text has ended.
+            LOGGER
+                .trace("ArrayIndexOutOfBounds during foreground color control code parsing.");
+            throw new IllegalArgumentException("missing foreground color code");
+        }
+        catch (NumberFormatException e)
+        {
+            // Invalid text color value
+            LOGGER.trace("Invalid foreground color code encountered.");
+            throw new IllegalArgumentException("invalid foreground color code");
+        }
+        catch (ArrayIndexOutOfBoundsException e)
+        {
+            LOGGER.info("Specified IRC color is not a known color code.", e);
+            throw new IllegalArgumentException(
+                "foreground color value is not a known color");
+        }
     }
 }

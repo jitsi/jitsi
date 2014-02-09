@@ -833,7 +833,7 @@ public class IrcStack
         {
             ChatRoomMember member = chatroom.getChatRoomMember(user);
             MessageIrcImpl message =
-                new MessageIrcImpl(text, "text/plain", "UTF-8", null);
+                new MessageIrcImpl(text, "text/html", "UTF-8", null);
             chatroom.fireMessageReceivedEvent(message, member, new Date(),
                 ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
         }
@@ -1071,7 +1071,7 @@ public class IrcStack
 
             String text = Utils.parse(msg.getText());            
             MessageIrcImpl message =
-                new MessageIrcImpl(text, "text/plain", "UTF-8", null);
+                new MessageIrcImpl(text, "text/html", "UTF-8", null);
             ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(IrcStack.this.provider,
                     this.chatroom, msg.getSource().getNick(),
