@@ -112,6 +112,21 @@ public class SplashScreenActivator
                 if(bundleName == null)
                     return;
 
+                // If the main frame was set visible, the splash screen was/will
+                // be closed by Java automatically. Otherwise we need to do that
+                // manually.
+                Object service =
+                    bundleContext
+                        .getService(serviceEvent.getServiceReference());
+                if (service.getClass().getSimpleName().equals("UIServiceImpl"))
+                {
+                    splash.close();
+                    stop(bundleContext);
+                    return;
+                }
+
+                bundleContext.ungetService(serviceEvent.getServiceReference());
+
                 progress++;
 
                 int progressWidth = 233;
