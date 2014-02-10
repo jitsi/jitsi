@@ -30,6 +30,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.call.*;
 import net.java.sip.communicator.util.skin.*;
@@ -50,6 +51,7 @@ public class MainToolBar
     implements ActionListener,
                ChatChangeListener,
                ChatSessionChangeListener,
+               ChatRoomLocalUserRoleListener,
                Skinnable
 {
     /**
@@ -336,13 +338,14 @@ public class MainToolBar
             for (PluginComponent c : pluginContainer.getPluginComponents())
                 c.setCurrentContact(contact);
 
-            setChatSession(chatPanel.chatSession);
+            ChatSession chatSession = chatPanel.getChatSession();
+            setChatSession(chatSession);
 
             leaveChatRoomButton.setEnabled(
-                chatPanel.chatSession instanceof ConferenceChatSession);
+                chatSession instanceof ConferenceChatSession);
             
             desktopSharingButton.setEnabled(
-                !(chatPanel.chatSession instanceof ConferenceChatSession));
+                !(chatSession instanceof ConferenceChatSession));
 
             inviteButton.setEnabled(
                 chatPanel.findInviteChatTransport() != null);
@@ -351,13 +354,19 @@ public class MainToolBar
                 chatPanel.findFileTransferChatTransport() != null);
             inviteButton.setEnabled(!chatPanel.isPrivateMessagingChat());
 
-            if(chatPanel.chatSession instanceof ConferenceChatSession)
+            if(chatSession instanceof ConferenceChatSession)
             {
+                updateInviteContactButton();
+
+                callButton.setVisible(false);
+                callVideoButton.setVisible(false);
                 callButton.setEnabled(true);
                 callVideoButton.setEnabled(true);
             }
             else if(contact != null)
             {
+                callButton.setVisible(true);
+                callVideoButton.setVisible(true);
                 new UpdateCallButtonWorker(contact).start();
             }
 
@@ -589,10 +598,18 @@ public class MainToolBar
             if (this.chatSession instanceof MetaContactChatSession)
                 this.chatSession.removeChatTransportChangeListener(this);
 
+            if(this.chatSession instanceof ConferenceChatSession)
+                ((ConferenceChatSession) this.chatSession)
+                    .removeLocalUserRoleListener(this);
+
             this.chatSession = chatSession;
 
             if (this.chatSession instanceof MetaContactChatSession)
                 this.chatSession.addChatTransportChangeListener(this);
+
+            if(this.chatSession instanceof ConferenceChatSession)
+                ((ConferenceChatSession) this.chatSession)
+                    .addLocalUserRoleListener(this);
         }
     }
 
@@ -780,6 +797,32 @@ public class MainToolBar
         }
         callButton.repaint();
         callVideoButton.repaint();
+    }
+
+    /**
+     * Fired when local user role has changed.
+     * @param evt the <tt>ChatRoomLocalUserRoleChangeEvent</tt> instance
+     */
+    @Override
+    public void localUserRoleChanged(ChatRoomLocalUserRoleChangeEvent evt)
+    {
+        updateInviteContactButton();
+    }
+
+    /**
+     * Updates invite contact button depending on the user role we have.
+     */
+    private void updateInviteContactButton()
+    {
+        if(chatSession instanceof ConferenceChatSession)
+        {
+            ChatRoomMemberRole role =
+                ((ChatRoomWrapper)chatSession.getDescriptor())
+                    .getChatRoom().getUserRole();
+
+            // it means we are at least a moderator
+            inviteButton.setEnabled(role.getRoleIndex() >= 50);
+        }
     }
 
     /**

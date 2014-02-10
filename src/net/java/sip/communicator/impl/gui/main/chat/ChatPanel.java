@@ -130,7 +130,7 @@ public class ChatPanel
 
     private boolean isShown = false;
 
-    public ChatSession chatSession;
+    private ChatSession chatSession;
 
     private Date firstHistoryMsgTimestamp = new Date(0);
 
