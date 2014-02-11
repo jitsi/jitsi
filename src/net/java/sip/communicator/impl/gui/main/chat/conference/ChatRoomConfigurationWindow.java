@@ -155,6 +155,7 @@ public class ChatRoomConfigurationWindow
             {
                 // Create a check box when the field is of type boolean.
                 field = new SIPCommCheckBox(formField.getLabel());
+                label.setText("");
 
                 if(values.hasNext())
                 {
