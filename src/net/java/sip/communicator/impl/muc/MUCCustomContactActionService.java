@@ -582,6 +582,9 @@ public class MUCCustomContactActionService
         @Override
         public String getText(SourceContact actionSource)
         {
+            if(!(actionSource instanceof ChatRoomSourceContact))
+                return "";
+
             if(!name.equals("open_automatically"))
                 return text;
 
@@ -653,6 +656,8 @@ public class MUCCustomContactActionService
         {
             ChatRoomWrapper chatRoomWrapper = MUCActivator.getMUCService()
                 .findChatRoomWrapperFromSourceContact(contact);
+            if(chatRoomWrapper == null)
+                return false;
             return chatRoomWrapper.isAutojoin();
         }
 

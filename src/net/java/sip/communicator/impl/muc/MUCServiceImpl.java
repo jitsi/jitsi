@@ -22,24 +22,24 @@ import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>MUCServiceImpl</tt> class implements the service for the chat rooms.
- * 
+ *
  * @author Hristo Terezov
  */
 public class MUCServiceImpl
     extends MUCService
 {
-    
+
     /**
      * The list of persistent chat rooms.
      */
     private final ChatRoomListImpl chatRoomList = new ChatRoomListImpl();
-    
+
     /**
      * The <tt>Logger</tt> used by the <tt>MUCServiceImpl</tt> class and its
      * instances for logging output.
      */
     private static Logger logger = Logger.getLogger(MUCServiceImpl.class);
-    
+
     /**
      * Called to accept an incoming invitation. Adds the invitation chat room
      * to the list of chat rooms and joins it.
@@ -59,27 +59,27 @@ public class MUCServiceImpl
 
     /**
      * Adds a change listener to the <tt>ChatRoomList</tt>.
-     * 
+     *
      * @param l the listener.
      */
     public void addChatRoomListChangeListener(ChatRoomListChangeListener l)
     {
         chatRoomList.addChatRoomListChangeListener(l);
     }
-    
+
     /**
      * Removes a change listener to the <tt>ChatRoomList</tt>.
-     * 
+     *
      * @param l the listener.
      */
     public void removeChatRoomListChangeListener(ChatRoomListChangeListener l)
     {
         chatRoomList.removeChatRoomListChangeListener(l);
     }
-    
+
     /**
      * Fires a <tt>ChatRoomListChangedEvent</tt> event.
-     * 
+     *
      * @param chatRoomWrapper the chat room.
      * @param eventID the id of the event.
      */
@@ -88,7 +88,7 @@ public class MUCServiceImpl
     {
         chatRoomList.fireChatRoomListChangedEvent(chatRoomWrapper, eventID);
     }
-    
+
 
     /**
      * Joins the given chat room with the given password and manages all the
@@ -100,7 +100,7 @@ public class MUCServiceImpl
      * @param rememberPassword if true the password should be saved.
      * @param isFirstAttempt is this the first attempt to join room, used
      *                       to check whether to show some error messages
-     * @param subject the subject which will be set to the room after the user 
+     * @param subject the subject which will be set to the room after the user
      * join successful.
      */
     private void joinChatRoom(   ChatRoomWrapper chatRoomWrapper,
@@ -115,7 +115,7 @@ public class MUCServiceImpl
         if(chatRoom == null)
         {
             MUCActivator.getAlertUIService().showAlertDialog(
-                MUCActivator.getResources().getI18NString("service.gui.WARNING"), 
+                MUCActivator.getResources().getI18NString("service.gui.WARNING"),
                 MUCActivator.getResources().getI18NString(
                 "service.gui.CHAT_ROOM_NOT_CONNECTED",
                 new String[]{chatRoomWrapper.getChatRoomName()}));
@@ -160,7 +160,7 @@ public class MUCServiceImpl
      * @param chatRoomWrapper the chat room to join.
      * @param nickName the nickname we choose for the given chat room.
      * @param password the password.
-     * @param subject the subject which will be set to the room after the user 
+     * @param subject the subject which will be set to the room after the user
      * join successful.
      */
     public void joinChatRoom(   ChatRoomWrapper chatRoomWrapper,
@@ -185,7 +185,7 @@ public class MUCServiceImpl
             .start();
     }
 
-    
+
     /**
      * Join chat room.
      * @param chatRoomWrapper
@@ -230,7 +230,7 @@ public class MUCServiceImpl
                 = chatRoomList.findServerWrapperFromProvider(
                     chatRoom.getParentProvider());
 
-            chatRoomWrapper 
+            chatRoomWrapper
                 = new ChatRoomWrapperImpl(parentProvider, chatRoom);
 
             chatRoomList.addChatRoom(chatRoomWrapper);
@@ -273,19 +273,19 @@ public class MUCServiceImpl
         {
             ChatRoomWrapper chatRoomWrapper
                 = chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom);
-    
+
             if(chatRoomWrapper == null)
             {
                 ChatRoomProviderWrapper parentProvider
                     = chatRoomList
                         .findServerWrapperFromProvider(
                             chatRoom.getParentProvider());
-    
-                chatRoomWrapper 
+
+                chatRoomWrapper
                     = new ChatRoomWrapperImpl(parentProvider, chatRoom);
-    
+
                 chatRoomList.addChatRoom(chatRoomWrapper);
-    
+
                 fireChatRoomListChangedEvent(
                     chatRoomWrapper,
                     ChatRoomListChangeEvent.CHAT_ROOM_ADDED);
@@ -328,7 +328,7 @@ public class MUCServiceImpl
             roomName, protocolProvider, contacts, reason, true, persistent,
             isPrivate);
     }
-    
+
     /**
      * Creates a chat room, by specifying the chat room name, the parent
      * protocol provider and eventually, the contacts invited to participate in
@@ -387,17 +387,17 @@ public class MUCServiceImpl
         ChatRoom chatRoom = null;
         try
         {
-            
-        
-            HashMap<String, Object> roomProperties = 
+
+
+            HashMap<String, Object> roomProperties =
                 new HashMap<String, Object>();
             roomProperties.put("isPrivate", isPrivate);
             chatRoom = groupChatOpSet.createChatRoom(roomName, roomProperties);
-    
+
             if(join)
             {
                 chatRoom.join();
-    
+
                 for(String contact : contacts)
                     chatRoom.invite(contact, reason);
             }
@@ -437,7 +437,7 @@ public class MUCServiceImpl
 
             if(chatRoomWrapper == null)
             {
-                chatRoomWrapper 
+                chatRoomWrapper
                     = new ChatRoomWrapperImpl(parentProvider, chatRoom);
                 chatRoomWrapper.setPersistent(persistent);
                 chatRoomList.addChatRoom(chatRoomWrapper);
@@ -467,7 +467,7 @@ public class MUCServiceImpl
         return this.createChatRoom(
             null, protocolProvider, contacts, reason, persistent, true);
     }
- 
+
 
     /**
      * Returns existing chat rooms for the given <tt>chatRoomProvider</tt>.
@@ -480,7 +480,7 @@ public class MUCServiceImpl
     {
         if (chatRoomProvider == null)
             return null;
-        
+
         ProtocolProviderService protocolProvider
             = chatRoomProvider.getProtocolProvider();
 
@@ -493,7 +493,7 @@ public class MUCServiceImpl
 
         if (groupChatOpSet == null)
             return null;
-        
+
         List<String> chatRooms = null;
         try
         {
@@ -511,10 +511,10 @@ public class MUCServiceImpl
                 logger.trace("Failed to obtain existing chat rooms for server: "
                 + protocolProvider.getAccountID().getService(), e);
         }
-        
+
         return chatRooms;
     }
-    
+
     /**
      * Rejects the given invitation with the specified reason.
      *
@@ -529,7 +529,7 @@ public class MUCServiceImpl
     {
         multiUserChatOpSet.rejectInvitation(invitation, reason);
     }
-    
+
     /**
      * Leaves the given chat room.
      *
@@ -569,7 +569,7 @@ public class MUCServiceImpl
             chatRoomWrapper.getParentProvider().getProtocolProvider(),
             chatRoomWrapper.getChatRoomID(),
             GlobalStatusEnum.OFFLINE_STATUS);
-        
+
         return existChatRoomWrapper;
     }
 
@@ -601,14 +601,14 @@ public class MUCServiceImpl
         private final String nickName;
 
         private final byte[] password;
-        
+
         private final boolean rememberPassword;
 
         private final boolean isFirstAttempt;
-        
+
         private final String subject;
-        
-        private ResourceManagementService resources 
+
+        private ResourceManagementService resources
             = MUCActivator.getResources();
 
         JoinChatRoomTask(   ChatRoomWrapper chatRoomWrapper,
@@ -641,14 +641,14 @@ public class MUCServiceImpl
             }
             this.rememberPassword = rememberPassword;
         }
-        
+
         JoinChatRoomTask(   ChatRoomWrapper chatRoomWrapper,
             String nickName,
             byte[] password)
         {
             this(chatRoomWrapper, nickName, password, false, true, null);
         }
-        
+
         JoinChatRoomTask(   ChatRoomWrapper chatRoomWrapper,
             String nickName,
             byte[] password,
@@ -658,7 +658,7 @@ public class MUCServiceImpl
         }
 
         /**
-         * @override {@link Thread}{@link #run()} to perform all asynchronous 
+         * @override {@link Thread}{@link #run()} to perform all asynchronous
          * tasks.
          */
         @Override
@@ -791,7 +791,7 @@ public class MUCServiceImpl
                             new String[]{chatRoomWrapper.getChatRoomName()});
             }
 
-            if (!SUCCESS.equals(returnCode) && 
+            if (!SUCCESS.equals(returnCode) &&
                 !AUTHENTICATION_FAILED.equals(returnCode))
             {
                 MUCActivator.getAlertUIService().showAlertPopup(
@@ -804,7 +804,7 @@ public class MUCServiceImpl
                 {
                     chatRoomWrapper.savePassword(new String(password));
                 }
-                
+
                 if(subject != null)
                 {
                     try
@@ -819,9 +819,9 @@ public class MUCServiceImpl
             }
         }
     }
-    
+
     /**
-     * Finds the <tt>ChatRoomWrapper</tt> instance associated with the 
+     * Finds the <tt>ChatRoomWrapper</tt> instance associated with the
      * source contact.
      * @param contact the source contact.
      * @return the <tt>ChatRoomWrapper</tt> instance.
@@ -833,17 +833,17 @@ public class MUCServiceImpl
             return null;
         ChatRoomSourceContact chatRoomContact = (ChatRoomSourceContact) contact;
         return chatRoomList.findChatRoomWrapperFromChatRoomID(
-                chatRoomContact.getChatRoomID(), chatRoomContact.getProvider()); 
+                chatRoomContact.getChatRoomID(), chatRoomContact.getProvider());
     }
-    
+
     /**
-     * Finds the <tt>ChatRoomWrapper</tt> instance associated with the 
+     * Finds the <tt>ChatRoomWrapper</tt> instance associated with the
      * chat room.
      * @param chatRoomID the id of the chat room.
      * @param pps the provider of the chat room.
      * @return the <tt>ChatRoomWrapper</tt> instance.
      */
-    public ChatRoomWrapper findChatRoomWrapperFromChatRoomID(String chatRoomID, 
+    public ChatRoomWrapper findChatRoomWrapperFromChatRoomID(String chatRoomID,
         ProtocolProviderService pps)
     {
         return chatRoomList.findChatRoomWrapperFromChatRoomID(chatRoomID, pps);
@@ -851,34 +851,34 @@ public class MUCServiceImpl
 
     /**
      * Searches for chat room wrapper in chat room list by chat room.
-     * 
+     *
      * @param chatRoom the chat room.
      * @param create if <tt>true</tt> and the chat room wrapper is not found new
      * chatRoomWrapper is created.
      * @return found chat room wrapper or the created chat room wrapper.
      */
     @Override
-    public ChatRoomWrapper getChatRoomWrapperByChatRoom(ChatRoom chatRoom, 
+    public ChatRoomWrapper getChatRoomWrapperByChatRoom(ChatRoom chatRoom,
         boolean create)
     {
         ChatRoomWrapper chatRoomWrapper
             = chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom);
-    
+
         if ((chatRoomWrapper == null) && create)
         {
             ChatRoomProviderWrapper parentProvider
                 = chatRoomList.findServerWrapperFromProvider(
                     chatRoom.getParentProvider());
-    
-            chatRoomWrapper 
+
+            chatRoomWrapper
                 = new ChatRoomWrapperImpl(
                     parentProvider, chatRoom);
-    
+
             chatRoomList.addChatRoom(chatRoomWrapper);
         }
         return chatRoomWrapper;
     }
-    
+
     /**
      * Goes through the locally stored chat rooms list and for each
      * {@link ChatRoomWrapper} tries to find the corresponding server stored
@@ -901,13 +901,13 @@ public class MUCServiceImpl
         {
             chatRoomProvider = chatRoomList.addRegisteredChatProvider(protocolProvider);
         }
-        
+
         if (chatRoomProvider != null)
         {
             chatRoomProvider.synchronizeProvider();
         }
     }
-    
+
     /**
      * Returns an iterator to the list of chat room providers.
      *
@@ -917,7 +917,7 @@ public class MUCServiceImpl
     {
         return chatRoomList.getChatRoomProviders();
     }
-    
+
     /**
      * Removes the given <tt>ChatRoom</tt> from the list of all chat rooms.
      *
@@ -938,7 +938,7 @@ public class MUCServiceImpl
     {
         chatRoomList.addChatRoomProviderWrapperListener(listener);
     }
-    
+
     /**
      * Removes the ChatRoomProviderWrapperListener to the listener list.
      *
@@ -949,7 +949,7 @@ public class MUCServiceImpl
     {
         chatRoomList.removeChatRoomProviderWrapperListener(listener);
     }
-    
+
     /**
      * Returns the <tt>ChatRoomProviderWrapper</tt> that correspond to the
      * given <tt>ProtocolProviderService</tt>. If the list doesn't contain a
@@ -964,7 +964,7 @@ public class MUCServiceImpl
     {
         return chatRoomList.findServerWrapperFromProvider(protocolProvider);
     }
-    
+
     /**
      * Returns the <tt>ChatRoomWrapper</tt> that correspond to the given
      * <tt>ChatRoom</tt>. If the list of chat rooms doesn't contain a
@@ -978,10 +978,10 @@ public class MUCServiceImpl
     {
         return chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom);
     }
-    
+
     /**
      * Opens a chat window for the chat room.
-     * 
+     *
      * @param room the chat room.
      */
     public void openChatRoom(ChatRoomWrapper room)
@@ -990,7 +990,7 @@ public class MUCServiceImpl
         {
             room = createChatRoom(
                 room.getChatRoomName(),
-                room.getParentProvider().getProtocolProvider(), 
+                room.getParentProvider().getProtocolProvider(),
                 new ArrayList<String>(),"", false, false, true);
 
             // leave the chatroom because getChatRoom().isJoined() returns true
@@ -1007,22 +1007,22 @@ public class MUCServiceImpl
                     .getParentProvider().getProtocolProvider(), room
                     .getChatRoomID(), "userNickName");
             String subject = null;
-    
+
             if (savedNick == null)
             {
                 String[] joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
-                    room.getParentProvider().getProtocolProvider(), 
+                    room.getParentProvider().getProtocolProvider(),
                     room.getChatRoomID(),
                     getDefaultNickname(
                         room.getParentProvider().getProtocolProvider()));
                 savedNick = joinOptions[0];
                 subject = joinOptions[1];
-    
+
             }
-            
+
             if (savedNick != null)
             {
-                joinChatRoom(room, savedNick, null, 
+                joinChatRoom(room, savedNick, null,
                         subject);
             }
             else
@@ -1031,7 +1031,7 @@ public class MUCServiceImpl
 
         MUCActivator.getUIService().openChatRoomWindow(room);
     }
-    
+
     /**
      * Returns default nickname for chat room based on the given provider.
      * @param pps the given protocol provider service
@@ -1042,13 +1042,13 @@ public class MUCServiceImpl
         final OperationSetServerStoredAccountInfo accountInfoOpSet
             = pps.getOperationSet(
                     OperationSetServerStoredAccountInfo.class);
-        
+
         String displayName = "";
         if (accountInfoOpSet != null)
         {
             displayName = AccountInfoUtils.getDisplayName(accountInfoOpSet);
         }
-        
+
         if(displayName == null || displayName.length() == 0)
         {
             displayName = MUCActivator.getGlobalDisplayDetailsService()
@@ -1064,19 +1064,30 @@ public class MUCServiceImpl
                 }
             }
         }
-        
+
         return displayName;
     }
-    
+
     /**
-     * Returns instance of the <tt>ServerChatRoomContactSourceService</tt> 
+     * Returns instance of the <tt>ServerChatRoomContactSourceService</tt>
      * contact source.
-     * @return instance of the <tt>ServerChatRoomContactSourceService</tt> 
+     * @return instance of the <tt>ServerChatRoomContactSourceService</tt>
      * contact source.
      */
     public ContactSourceService getServerChatRoomsContactSourceForProvider(
         ChatRoomProviderWrapper pps)
     {
         return new ServerChatRoomContactSourceService(pps);
+    }
+
+    /**
+     * Returns <tt>true</tt> if the contact is <tt>ChatRoomSourceContact</tt>
+     *
+     * @param contact the contact
+     * @return <tt>true</tt> if the contact is <tt>ChatRoomSourceContact</tt>
+     */
+    public boolean isMUCSourceContact(SourceContact contact)
+    {
+        return (contact instanceof ChatRoomSourceContact);
     }
 }

@@ -164,7 +164,7 @@ public class TreeContactList
      * The container, where this contact list component is added.
      */
     private ContactListContainer parentCLContainer;
-    
+
     /**
      * The Contacts group instance.
      */
@@ -213,7 +213,7 @@ public class TreeContactList
      */
     public void contactReceived(ContactReceivedEvent event)
     {
-        
+
         final SourceContact sourceContact = event.getContact();
 
         ContactSourceService contactSource
@@ -223,7 +223,7 @@ public class TreeContactList
 
         if (sourceUI == null)
             return;
-        
+
         UIContact uiContact
             = sourceUI.createUIContact(sourceContact);
 
@@ -303,10 +303,10 @@ public class TreeContactList
         synchronized (uiContact)
         {
             contactNode = ((UIContactImpl) uiContact).getContactNode();
-            
+
             if (contactNode == null)
                 return;
-            
+
             nodeChanged(contactNode);
         }
 
@@ -324,7 +324,7 @@ public class TreeContactList
                 if (groupNode == null)
                     return;
             }
-            
+
             groupNode.sort(treeModel);
         }
     }
@@ -356,7 +356,7 @@ public class TreeContactList
         UIContactImpl newUIContact;
         synchronized (metaContact)
         {
-            newUIContact 
+            newUIContact
                 = MetaContactListSource.getUIContact(metaContact);
 
             if (newUIContact == null)
@@ -365,13 +365,13 @@ public class TreeContactList
                     .createUIContact(metaContact);
             }
         }
-        
+
         addContact( event.getQuerySource(),
             newUIContact,
             uiGroup,
             true);
 
-        
+
     }
 
     /**
@@ -480,7 +480,7 @@ public class TreeContactList
             if (contactNode == null)
                 return;
         }
-        
+
         contactNode.setActive(isActive);
 
         if (isActive)
@@ -495,7 +495,7 @@ public class TreeContactList
             activeContacts.remove(contactNode);
 
         treeModel.nodeChanged(contactNode);
-        
+
     }
 
     /**
@@ -563,22 +563,22 @@ public class TreeContactList
                 if (groupNode == null)
                 {
                     GroupNode parentNode = treeModel.getRoot();
-                    
+
                     if (isGroupSorted)
                         groupNode = parentNode.sortedAddContactGroup(contactImpl);
                     else
                         groupNode = parentNode.addContactGroup(contactImpl);
-                    
+
                     if(group.getSourceIndex() < GuiActivator.getContactListService()
-                        .getSourceIndex() && rootUIGroup == null 
-                        && (!(treeModel.getRoot().getChildAfter(groupNode) 
+                        .getSourceIndex() && rootUIGroup == null
+                        && (!(treeModel.getRoot().getChildAfter(groupNode)
                             instanceof GroupNode)))
                     {
                         createMetaUIRootGroup();
                     }
                 }
             }
-            
+
         }
 
         if (groupNode == null)
@@ -591,7 +591,7 @@ public class TreeContactList
 
         ContactNode contactNode = null;
         UIContactImpl contactImpl = (UIContactImpl) contact;
-        
+
         synchronized (contactImpl)
         {
             if(contactImpl.getContactNode() != null)
@@ -603,8 +603,8 @@ public class TreeContactList
             contactNode = groupNode.sortedAddContact(contactImpl);
         else
             contactNode = groupNode.addContact(contactImpl);
-        
-        if(rootUIGroup == null && groupNode == treeModel.getRoot() 
+
+        if(rootUIGroup == null && groupNode == treeModel.getRoot()
             && treeModel.getRoot().getChildBefore(contactNode) instanceof GroupNode)
         {
             createMetaUIRootGroup();
@@ -623,9 +623,9 @@ public class TreeContactList
      */
     public UIGroupImpl getRootUIGroup()
     {
-       return rootUIGroup; 
+       return rootUIGroup;
     }
-    
+
     /**
      * Creates UI group for the root meta contact group.
      */
@@ -633,82 +633,82 @@ public class TreeContactList
     {
         if(rootUIGroup != null)
             return;
-        
+
         rootUIGroup = new UIGroupImpl()
         {
             private GroupNode groupNode = null;
-            
+
             @Override
             public boolean isGroupCollapsed()
             {
                 return true;
             }
-            
+
             @Override
             public int getSourceIndex()
             {
                 return GuiActivator.getContactListService().getSourceIndex();
             }
-            
+
             @Override
             public Component getRightButtonMenu()
             {
                 return null;
             }
-            
+
             @Override
             public UIGroup getParentGroup()
             {
                 return null;
             }
-            
+
             @Override
             public String getId()
             {
                 return null;
             }
-            
+
             @Override
             public String getDisplayName()
             {
                 return GuiActivator.getResources()
                     .getI18NString("service.gui.CONTACTS");
             }
-            
+
             @Override
             public Object getDescriptor()
             {
                 return null;
             }
-            
+
             @Override
             public int countOnlineChildContacts()
             {
                return -1;
             }
-            
+
             @Override
             public int countChildContacts()
             {
                 return -1;
             }
-            
+
             @Override
             public void setGroupNode(GroupNode groupNode)
             {
                 this.groupNode = groupNode;
             }
-            
+
             @Override
             public GroupNode getGroupNode()
             {
                 return groupNode;
             }
         };
-        
+
         treeModel.getRoot().sortedAddContactGroup(rootUIGroup);
     }
-    
+
     /**
      * Removes the UI group associated with the root meta contact group.
      */
@@ -717,7 +717,7 @@ public class TreeContactList
         if(rootUIGroup == null)
             return;
         GroupNode parentNode = treeModel.getRoot();
-        
+
         parentNode.removeContactGroup(rootUIGroup);
         rootUIGroup = null;
     }
@@ -824,9 +824,9 @@ public class TreeContactList
             // Nothing more to do here if we didn't find the parent.
             if (parentGroupNode == null)
                 return;
-            
+
             parentGroupNode.removeContact((UIContactImpl) contact);
-            
+
             // If the parent group is empty remove it.
             if (removeEmptyGroup && parentGroupNode.getChildCount() == 0)
             {
@@ -836,12 +836,12 @@ public class TreeContactList
                 {
                     parent.removeContactGroup(parentGroup);
                 }
-                
+
             }
         }
-        
-        if(rootUIGroup != null 
-            && (treeModel.getRoot().getChildAfter(rootUIGroup.getGroupNode()) 
+
+        if(rootUIGroup != null
+            && (treeModel.getRoot().getChildAfter(rootUIGroup.getGroupNode())
             instanceof GroupNode || treeModel.getRoot().getChildBefore(
                 (rootUIGroup).getGroupNode()) == null))
         {
@@ -886,7 +886,7 @@ public class TreeContactList
 
             treeModel.nodeChanged(((UIContactImpl) contact).getContactNode());
         }
-        
+
     }
 
     /**
@@ -1015,7 +1015,7 @@ public class TreeContactList
             return null;
 
         GroupNode groupNode;
-        
+
         if (group == null)
             groupNode = treeModel.getRoot();
         else
@@ -1024,12 +1024,12 @@ public class TreeContactList
             {
                 groupNode = ((UIGroupImpl) group).getGroupNode();
             }
-            
+
         }
 
         if (groupNode == null)
             return null;
-       
+
         Collection<ContactNode> contactNodes = groupNode.getContacts();
 
         if (contactNodes == null)
@@ -1768,12 +1768,12 @@ public class TreeContactList
                     .startChat((MetaContact) uiContact.getDescriptor());
             }
             else if(((SourceContact) uiContact.getDescriptor())
-                .getContactDetails(OperationSetMultiUserChat.class) 
+                .getContactDetails(OperationSetMultiUserChat.class)
                 != null)
             {
                 SourceContact contact = (SourceContact)
                     uiContact.getDescriptor();
-                ChatRoomWrapper room 
+                ChatRoomWrapper room
                     = GuiActivator.getMUCService()
                         .findChatRoomWrapperFromSourceContact(contact);
                 if(room != null)
@@ -1896,7 +1896,7 @@ public class TreeContactList
                 else
                     contactSources.add(extContactSource);
             }
-            
+
 
         }
         GuiActivator.bundleContext.addServiceListener(
@@ -2123,7 +2123,7 @@ public class TreeContactList
                         ContactSourceService contactSource
                             = sourceContact.getContactSource();
 
-                        UIContactSource sourceUI 
+                        UIContactSource sourceUI
                             = getContactSource(contactSource);
 
                         if (sourceUI == null)
@@ -2132,15 +2132,15 @@ public class TreeContactList
                         UIContact uiContact
                             = sourceUI.getUIContact(sourceContact);
 
-                        if(uiContact == null 
+                        if(uiContact == null
                             || !(uiContact instanceof UIContactImpl))
                             return;
-                        
+
                         synchronized (uiContact)
                         {
-                            ContactNode contactNode 
+                            ContactNode contactNode
                                 = ((UIContactImpl) uiContact).getContactNode();
-    
+
                             if (contactNode != null)
                                 nodeChanged(contactNode);
                         }
@@ -2151,7 +2151,7 @@ public class TreeContactList
                     contactSource).createContactQuery(filterPattern);
 
                 loadedQueries.add(query);
-                
+
                 query.start();
 
                 // If the image search has been canceled from one of the
@@ -2263,7 +2263,9 @@ public class TreeContactList
     {
         JMenuItem addContactComponentTmp = null;
 
-        List<ContactDetail> details = sourceContact.getContactDetails();
+        List<ContactDetail> details
+            = sourceContact.getContactDetails(
+                OperationSetPersistentPresence.class);
         final String displayName = sourceContact.getDisplayName();
 
         if (details.size() == 1)
@@ -2512,11 +2514,11 @@ public class TreeContactList
         {
             if (!(uiContact instanceof UIContactImpl))
                 return;
-            
+
             setSelectionPath(new TreePath(
                 ((UIContactImpl) uiContact).getContactNode().getPath()));
         }
-        
+
     }
 
     /**
@@ -2546,7 +2548,7 @@ public class TreeContactList
             setSelectionPath(new TreePath(
                 ((UIGroupImpl) uiGroup).getGroupNode().getPath()));
         }
-        
+
     }
 
     /**

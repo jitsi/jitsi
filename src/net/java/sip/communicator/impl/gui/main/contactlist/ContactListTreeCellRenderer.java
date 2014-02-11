@@ -324,12 +324,12 @@ public class ContactListTreeCellRenderer
                                 (MetaContact) contactDescriptor.getDescriptor());
                     }
                     else if(((SourceContact) contactDescriptor.getDescriptor())
-                        .getContactDetails(OperationSetMultiUserChat.class) 
+                        .getContactDetails(OperationSetMultiUserChat.class)
                             != null)
                     {
                         SourceContact contact = (SourceContact)
                             contactDescriptor.getDescriptor();
-                        ChatRoomWrapper room 
+                        ChatRoomWrapper room
                             = GuiActivator.getMUCService()
                                 .findChatRoomWrapperFromSourceContact(contact);
                         if(room != null)
@@ -425,11 +425,9 @@ public class ContactListTreeCellRenderer
         {
             UIContactImpl contact
                 = ((ContactNode) value).getContactDescriptor();
-            
+
             if((contact.getDescriptor() instanceof SourceContact) &&
-                ((SourceContact)contact.getDescriptor())
-                    .getPreferredContactDetail(OperationSetMultiUserChat.class) 
-                        != null)
+                GuiActivator.getMUCService().isMUCSourceContact((SourceContact)contact.getDescriptor()))
             {
                 setBackground(Constants.CHAT_ROOM_ROW_COLOR);
             }
@@ -535,7 +533,7 @@ public class ContactListTreeCellRenderer
             statusIcon = expanded
                                 ? openedGroupIcon
                                 : closedGroupIcon;
-            
+
             if(groupItem != treeContactList.getRootUIGroup())
             {
                 this.statusLabel.setIcon(
@@ -547,7 +545,7 @@ public class ContactListTreeCellRenderer
             {
                 this.statusLabel.setIcon(null);
             }
-            
+
             // We have no photo icon for groups.
             this.rightLabel.setIcon(null);
             this.rightLabel.setText("");
@@ -562,8 +560,8 @@ public class ContactListTreeCellRenderer
 
             this.initDisplayDetails(groupItem.getDisplayDetails());
             this.initButtonsPanel(groupItem);
-            this.setToolTipText((groupItem.getDescriptor() != null) ? 
-                groupItem.getDescriptor().toString() : 
+            this.setToolTipText((groupItem.getDescriptor() != null) ?
+                groupItem.getDescriptor().toString() :
                     groupItem.getDisplayName());
         }
 
@@ -846,7 +844,7 @@ public class ContactListTreeCellRenderer
         if (uiContact.getDescriptor() instanceof MetaContact)
             imContact = uiContact.getDefaultContactDetail(
                          OperationSetBasicInstantMessaging.class);
-        
+
         if(imContact == null)
             imContact = uiContact.getDefaultContactDetail(
                 OperationSetMultiUserChat.class);

@@ -221,6 +221,12 @@ public class ProtocolProviderServiceJabberImpl
         "net.java.sip.communicator.impl.protocol.XMPP_DSCP";
 
     /**
+     * Indicates if user search is disabled.
+     */
+    private static final String IS_USER_SEARCH_DISABLED_PROPERTY
+        = "USER_SEARCH_DISABLED";
+
+    /**
      * Google voice domain name.
      */
     public static final String GOOGLE_VOICE_DOMAIN = "voice.google.com";
@@ -1857,6 +1863,14 @@ public class ProtocolProviderServiceJabberImpl
                     = new OperationSetCusaxUtilsJabberImpl(this);
             addSupportedOperationSet(OperationSetCusaxUtils.class,
                     opsetCusaxCusaxUtils);
+
+            boolean isUserSearchDisabled = accountID.getAccountPropertyBoolean(
+                IS_USER_SEARCH_DISABLED_PROPERTY, true);
+            if(!isUserSearchDisabled)
+            {
+                addSupportedOperationSet(OperationSetUserSearch.class,
+                    new OperationSetUserSearchJabberImpl(this));
+            }
 
             isInitialized = true;
         }
