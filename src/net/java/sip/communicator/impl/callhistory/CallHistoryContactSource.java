@@ -22,17 +22,13 @@ public class CallHistoryContactSource
     implements ContactSourceService
 {
     /**
-     * The display name of this contact source.
-     */
-    private static final String CALL_HISTORY_NAME = "Call history";
-
-    /**
      * Returns the display name of this contact source.
      * @return the display name of this contact source
      */
     public String getDisplayName()
     {
-        return CALL_HISTORY_NAME;
+        return CallHistoryActivator.getResources().getI18NString(
+            "service.gui.CALL_HISTORY_GROUP_NAME");
     }
 
     /**
