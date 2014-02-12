@@ -452,7 +452,8 @@ public class ContactListTreeCellRenderer
 
             this.statusLabel.setIcon(statusIcon);
 
-            this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
+            this.nameLabel.setFont(
+                this.nameLabel.getFont().deriveFont(Font.PLAIN, 13f));
 
             if (contactForegroundColor != null)
                 nameLabel.setForeground(contactForegroundColor);
@@ -515,7 +516,8 @@ public class ContactListTreeCellRenderer
 
             this.nameLabel.setText(groupItem.getDisplayName());
 
-            this.nameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
+            this.nameLabel.setFont(
+                this.nameLabel.getFont().deriveFont(Font.BOLD, 13f));
 
             if (groupForegroundColor != null)
                 this.nameLabel.setForeground(groupForegroundColor);
