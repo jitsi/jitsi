@@ -425,9 +425,9 @@ public interface ChatRoom
     public boolean isPersistent();
 
     /**
-     * Finds private messaging contact by nickname. If the contact doesn't 
+     * Finds private messaging contact by nickname. If the contact doesn't
      * exists a new volatile contact is created.
-     * 
+     *
      * @param nickname the nickname of the contact.
      * @return the contact instance.
      */
@@ -555,14 +555,14 @@ public interface ChatRoom
 
     /**
      * Updates the presence status of private messaging contact.
-     * 
+     *
      * @param nickname the nickname of the contact.
      */
     public void updatePrivateContactPresenceStatus(String nickname);
 
     /**
      * Updates the presence status of private messaging contact.
-     * 
+     *
      * @param contact the contact.
      */
     public void updatePrivateContactPresenceStatus(Contact contact);
@@ -584,16 +584,24 @@ public interface ChatRoom
      */
     public void removeConferencePublishedListener(
             ChatRoomConferencePublishedListener listener);
-    
+
     /**
      * Returns cached <tt>ConferenceDescription</tt> instances.
      * @return the cached <tt>ConferenceDescription</tt> instances.
      */
     public Map<String, ConferenceDescription> getCachedConferenceDescriptions();
-    
+
     /**
      * Returns the number of cached <tt>ConferenceDescription</tt> instances.
      * @return the number of cached <tt>ConferenceDescription</tt> instances.
      */
     public int getCachedConferenceDescriptionSize();
+
+    /**
+     * Destroys the chat room.
+     * @param reason the reason for destroying.
+     * @param alternateAddress the alternate address
+     * @return <tt>true</tt> if the room is destroyed.
+     */
+    public boolean destroy(String reason, String alternateAddress);
 }

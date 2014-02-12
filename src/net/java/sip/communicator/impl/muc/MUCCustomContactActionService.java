@@ -44,7 +44,8 @@ public class MUCCustomContactActionService
         "leave",
         "join",
         "autojoin",
-        "autojoin_pressed"
+        "autojoin_pressed",
+        "destroy_chatroom"
     };
 
     /**
@@ -54,7 +55,8 @@ public class MUCCustomContactActionService
       "service.gui.LEAVE",
       "service.gui.JOIN",
       "service.gui.JOIN_AUTOMATICALLY",
-      "service.gui.JOIN_AUTOMATICALLY"
+      "service.gui.JOIN_AUTOMATICALLY",
+      "service.gui.DESTROY_CHATROOM"
     };
 
     /**
@@ -64,7 +66,8 @@ public class MUCCustomContactActionService
         "service.gui.icons.LEAVE_ICON_BUTTON",
         "service.gui.icons.JOIN_ICON_BUTTON",
         "service.gui.icons.AUTOJOIN_ON_ICON_BUTTON",
-        "service.gui.icons.AUTOJOIN_OFF_ICON_BUTTON"
+        "service.gui.icons.AUTOJOIN_OFF_ICON_BUTTON",
+        "service.gui.icons.DESTROY_ICON_BUTTON"
       };
 
     /**
@@ -74,7 +77,8 @@ public class MUCCustomContactActionService
         "service.gui.icons.LEAVE_ICON_ROLLOVER_BUTTON",
         "service.gui.icons.JOIN_ICON_ROLLOVER_BUTTON",
         "service.gui.icons.AUTOJOIN_ON_ICON_ROLLOVER_BUTTON",
-        "service.gui.icons.AUTOJOIN_OFF_ICON_ROLLOVER_BUTTON"
+        "service.gui.icons.AUTOJOIN_OFF_ICON_ROLLOVER_BUTTON",
+        "service.gui.icons.DESTROY_ICON_ROLLOVER_BUTTON"
       };
 
     /**
@@ -85,6 +89,7 @@ public class MUCCustomContactActionService
         "service.gui.icons.JOIN_ICON_PRESSED_BUTTON",
         "service.gui.icons.AUTOJOIN_ON_ICON_PRESSED_BUTTON",
         "service.gui.icons.AUTOJOIN_OFF_ICON_PRESSED_BUTTON",
+        "service.gui.icons.DESTROY_ICON_PRESSED_BUTTON"
       };
 
     /**
@@ -99,7 +104,8 @@ public class MUCCustomContactActionService
         "change_nick",
         "autojoin",
         "autojoin_pressed",
-        "open_automatically"
+        "open_automatically",
+        "destroy_chatroom"
     };
 
     /**
@@ -114,7 +120,8 @@ public class MUCCustomContactActionService
         "service.gui.CHANGE_NICK",
         "service.gui.JOIN_AUTOMATICALLY",
         "service.gui.DONT_JOIN_AUTOMATICALLY",
-        "service.gui.OPEN_AUTOMATICALLY"
+        "service.gui.OPEN_AUTOMATICALLY",
+        "service.gui.DESTROY_CHATROOM"
     };
 
     /**
@@ -129,7 +136,8 @@ public class MUCCustomContactActionService
         "service.gui.icons.RENAME_16x16_ICON",
         "service.gui.icons.AUTOJOIN",
         "service.gui.icons.AUTOJOIN",
-        null
+        "service.gui.icons.OPEN_AUTOMATICALLY",
+        "service.gui.icons.DESTROY_CHATROOM"
       };
 
     /**
@@ -205,6 +213,27 @@ public class MUCCustomContactActionService
         };
 
     /**
+     * A runnable that destroys the chat room.
+     */
+    private MUCCustomActionRunnable destroyActionRunnable
+        = new MUCCustomActionRunnable()
+        {
+
+            @Override
+            public void run()
+            {
+                String destroyOptions[]
+                    = ChatRoomDestroyReasonDialog.getDestroyOptions();
+                if(destroyOptions == null)
+                    return;
+
+                MUCActivator.getMUCService().destroyChatRoom(chatRoomWrapper,
+                    destroyOptions[0], destroyOptions[1]);
+
+            }
+        };
+
+    /**
      * Array of <tt>MUCCustomActionRunnable</tt> objects for the custom menu
      * items. They will be executed when the item is pressed.
      */
@@ -212,7 +241,8 @@ public class MUCCustomContactActionService
         leaveRunnable,
         joinRunnable,
         autoJoinRunnable,
-        autoJoinRunnable
+        autoJoinRunnable,
+        destroyActionRunnable
     };
 
     /**
@@ -299,7 +329,8 @@ public class MUCCustomContactActionService
                     chatRoomWrapper.getParentProvider().getProtocolProvider(),
                     chatRoomWrapper.getChatRoomID());
             }
-        }
+        },
+        destroyActionRunnable
     };
 
     /**
@@ -311,6 +342,7 @@ public class MUCCustomContactActionService
       new JoinEnableChecker(),
       new JoinEnableChecker(),
       new LeaveEnableChecker(),
+      null,
       null,
       null,
       null,
@@ -486,6 +518,18 @@ public class MUCCustomContactActionService
                 {
                     return actionsEnabledCheckers[1].check(actionSource);
                 }
+                else if(name.equals("destroy_chatroom"))
+                {
+                    ChatRoomSourceContact contact
+                        = (ChatRoomSourceContact) actionSource;
+                    ChatRoomWrapper room = MUCActivator.getMUCService()
+                        .findChatRoomWrapperFromSourceContact(contact);
+                    if(room == null || room.getChatRoom() == null)
+                        return false;
+                    if(room.getChatRoom().getUserRole().equals(ChatRoomMemberRole.OWNER))
+                        return true;
+                    return false;
+                }
                 else
                 {
                     ChatRoomSourceContact contact
@@ -618,6 +662,18 @@ public class MUCCustomContactActionService
 
                 if(name.equals("autojoin_pressed"))
                     return room.isAutojoin();
+            }
+            else if(name.equals("destroy_chatroom"))
+            {
+                ChatRoomSourceContact contact
+                    = (ChatRoomSourceContact) actionSource;
+                ChatRoomWrapper room = MUCActivator.getMUCService()
+                    .findChatRoomWrapperFromSourceContact(contact);
+                if(room == null || room.getChatRoom() == null)
+                    return false;
+                if(room.getChatRoom().getUserRole().equals(ChatRoomMemberRole.OWNER))
+                    return true;
+                return false;
             }
             return true;
         }

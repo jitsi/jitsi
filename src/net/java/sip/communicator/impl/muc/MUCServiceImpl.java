@@ -10,7 +10,6 @@ import java.util.*;
 
 import org.jitsi.service.resources.*;
 
-
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.chat.*;
 import net.java.sip.communicator.service.contactsource.*;
@@ -926,6 +925,25 @@ public class MUCServiceImpl
     public void removeChatRoom(ChatRoomWrapper chatRoomWrapper)
     {
         chatRoomList.removeChatRoom(chatRoomWrapper);
+    }
+
+    /**
+     * Destroys the given <tt>ChatRoom</tt> from the list of all chat rooms.
+     *
+     * @param chatRoomWrapper the <tt>ChatRoomWrapper</tt> to be destroyed.
+     * @param reason the reason for destroying.
+     * @param alternateAddress the alternate address.
+     */
+    public void destroyChatRoom(ChatRoomWrapper chatRoomWrapper,
+        String reason, String alternateAddress)
+    {
+        if(chatRoomWrapper.getChatRoom().destroy(reason, alternateAddress))
+        {
+            MUCActivator.getUIService().closeChatRoomWindow(
+                chatRoomWrapper);
+            chatRoomList.removeChatRoom(chatRoomWrapper);
+        }
+
     }
 
     /**

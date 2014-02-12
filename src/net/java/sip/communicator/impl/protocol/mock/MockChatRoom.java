@@ -776,7 +776,7 @@ public class MockChatRoom
     {
         return null;
         // TODO Auto-generated method stub
-        
+
     }
 
     /**
@@ -794,4 +794,15 @@ public class MockChatRoom
      */
     @Override
     public void updatePrivateContactPresenceStatus(Contact sourceContact) { }
+
+    /**
+     * Destroys the chat room.
+     * @param reason the reason for destroying.
+     * @param alternateAddress the alternate address
+     * @return <tt>true</tt> if the room is destroyed.
+     */
+    public boolean destroy(String reason, String alternateAddress)
+    {
+        return true;
+    }
 }

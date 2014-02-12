@@ -810,6 +810,26 @@ public class ChatRoomJabberImpl
     }
 
     /**
+     * Destroys the chat room.
+     * @param reason the reason for destroying.
+     * @param alternateAddress the alternate address
+     * @return <tt>true</tt> if the room is destroyed.
+     */
+    public boolean destroy(String reason, String alternateAddress)
+    {
+        try
+        {
+            multiUserChat.destroy(reason, alternateAddress);
+        }
+        catch (XMPPException e)
+        {
+            logger.warn("Error occured while destroying chat room", e);
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Leave this chat room.
      */
     public void leave()
