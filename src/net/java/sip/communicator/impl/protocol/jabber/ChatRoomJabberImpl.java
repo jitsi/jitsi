@@ -167,6 +167,11 @@ public class ChatRoomJabberImpl
         = new ArrayList<CallJabberImpl>();
 
     /**
+     * The Presence listener instance.
+     */
+    private PresenceListener presenceListener = null;
+
+    /**
      * Creates an instance of a chat room that has been.
      *
      * @param multiUserChat MultiUserChat
@@ -586,8 +591,9 @@ public class ChatRoomJabberImpl
             }
             else
             {
+                presenceListener = new PresenceListener(this);
                 this.provider.getConnection().addPacketListener(
-                    new PresenceListener(this),
+                    presenceListener,
                     new AndFilter(
                         new FromMatchesFilter(multiUserChat.getRoom()),
                         new PacketTypeFilter(
@@ -909,7 +915,14 @@ public class ChatRoomJabberImpl
 
         // connection can be null if we are leaving cause connection failed
         if(connection != null)
+        {
             connection.removePacketListener(invitationRejectionListeners);
+            if(presenceListener != null)
+            {
+                connection.removePacketListener(presenceListener);
+                presenceListener = null;
+            }
+        }
 
         opSetMuc.fireLocalUserPresenceEvent(
             this,
