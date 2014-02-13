@@ -38,6 +38,12 @@ public class MUCCustomContactActionService
         = new LinkedList<ContactAction<SourceContact>>();
 
     /**
+     *
+     */
+    private static final String OWNER_CANT_REMOVE_CHATROOM_PROPERTY
+        = "net.sip.communicator.impl.muc.OWNER_CANT_REMOVE_CHATROOM";
+
+    /**
      * Array of names for the custom actions.
      */
     private String[] actionsNames = {
@@ -651,27 +657,45 @@ public class MUCCustomContactActionService
             if(!(actionSource instanceof ChatRoomSourceContact))
                 return false;
 
+            ChatRoomSourceContact contact
+                = (ChatRoomSourceContact) actionSource;
+            ChatRoomWrapper room = MUCActivator.getMUCService()
+                .findChatRoomWrapperFromSourceContact(contact);
             if(name.equals("autojoin") || name.equals("autojoin_pressed"))
             {
-                ChatRoomSourceContact contact
-                = (ChatRoomSourceContact) actionSource;
-                ChatRoomWrapper room = MUCActivator.getMUCService()
-                    .findChatRoomWrapperFromSourceContact(contact);
+
                 if(name.equals("autojoin"))
                     return !room.isAutojoin();
 
                 if(name.equals("autojoin_pressed"))
                     return room.isAutojoin();
             }
+            else if(name.equals("remove"))
+            {
+                if(room == null || room.getChatRoom() == null)
+                    return true;
+
+                if(room.getChatRoom().getUserRole().equals(
+                    ChatRoomMemberRole.OWNER))
+                {
+                    if(MUCActivator.getConfigurationService().getBoolean(
+                        OWNER_CANT_REMOVE_CHATROOM_PROPERTY, false))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+                return true;
+            }
             else if(name.equals("destroy_chatroom"))
             {
-                ChatRoomSourceContact contact
-                    = (ChatRoomSourceContact) actionSource;
-                ChatRoomWrapper room = MUCActivator.getMUCService()
-                    .findChatRoomWrapperFromSourceContact(contact);
                 if(room == null || room.getChatRoom() == null)
                     return false;
-                if(room.getChatRoom().getUserRole().equals(ChatRoomMemberRole.OWNER))
+                if(room.getChatRoom().getUserRole().equals(
+                    ChatRoomMemberRole.OWNER))
                     return true;
                 return false;
             }
