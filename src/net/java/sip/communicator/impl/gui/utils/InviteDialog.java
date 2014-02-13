@@ -43,7 +43,7 @@ public class InviteDialog
     /**
      * The button, which performs the invite.
      */
-    private final JButton inviteButton = new JButton(
+    protected final JButton inviteButton = new JButton(
         GuiActivator.getResources().getI18NString("service.gui.INVITE"));
 
     /**
@@ -83,6 +83,11 @@ public class InviteDialog
     private final JLabel iconLabel;
 
     /**
+     * The description text.
+     */
+    protected final JTextArea infoTextArea;
+
+    /**
      * Constructs an <tt>InviteDialog</tt>.
      *
      * @param title the title to show on the top of this dialog
@@ -104,7 +109,7 @@ public class InviteDialog
         mainPanel.setBorder(
             BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JTextArea infoTextArea = new JTextArea();
+        infoTextArea = new JTextArea();
 
         infoTextArea.setText(GuiActivator.getResources()
             .getI18NString("service.gui.INVITE_CONTACT_MSG"));
@@ -316,7 +321,7 @@ public class InviteDialog
      *
      * @param uiContact the contact to move
      */
-    private void moveContactFromLeftToRight(UIContact uiContact)
+    protected void moveContactFromLeftToRight(UIContact uiContact)
     {
         destContactList.addContact(
             new InviteUIContact(uiContact, currentProvider), null, false, false);

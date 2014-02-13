@@ -805,4 +805,24 @@ public class MockChatRoom
     {
         return true;
     }
+
+    /**
+     * Returns the ids of the users that has the member role in the room.
+     * When the room is member only, this are the users allowed to join.
+     * @return the ids of the users that has the member role in the room.
+     */
+    @Override
+    public List<String> getMembersWhiteList()
+    {
+        return new ArrayList<String>();
+    }
+
+    /**
+     * Changes the list of users that has role member for this room.
+     * When the room is member only, this are the users allowed to join.
+     * @param members the ids of user to have member role.
+     */
+    @Override
+    public void setMembersWhiteList(List<String> members)
+    {}
 }

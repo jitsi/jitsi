@@ -1075,6 +1075,12 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.CHAT_ROOM_CONFIG");
 
     /**
+     * The icon used for the chat room configuration button.
+     */
+    public static final ImageID CHAT_ROOM_MEMBERS_LIST_CONFIG
+        = new ImageID("service.gui.buttons.CHAT_ROOM_MEMBERS_LIST_CONFIG");
+
+    /**
      * The video call menu item icon.
      */
     public static final ImageID VIDEO_CALL

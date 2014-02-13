@@ -425,10 +425,10 @@ public interface ChatRoom
     public boolean isPersistent();
 
     /**
-     * Finds private messaging contact by nickname. If the contact doesn't
+     * Finds private messaging contact by nickname. If the contact doesn't 
      * exists a new volatile contact is created.
-     *
-     * @param nickname the nickname of the contact.
+     * 
+     * @param name the nickname of the contact.
      * @return the contact instance.
      */
     public Contact getPrivateContactByNickname(String name);
@@ -604,4 +604,18 @@ public interface ChatRoom
      * @return <tt>true</tt> if the room is destroyed.
      */
     public boolean destroy(String reason, String alternateAddress);
+
+    /**
+     * Returns the ids of the users that has the member role in the room.
+     * When the room is member only, this are the users allowed to join.
+     * @return the ids of the users that has the member role in the room.
+     */
+    public List<String> getMembersWhiteList();
+
+    /**
+     * Changes the list of users that has role member for this room.
+     * When the room is member only, this are the users allowed to join.
+     * @param members the ids of user to have member role.
+     */
+    public void setMembersWhiteList(List<String> members);
 }

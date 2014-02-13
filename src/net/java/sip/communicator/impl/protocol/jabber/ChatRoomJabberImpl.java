@@ -1867,6 +1867,53 @@ public class ChatRoomJabberImpl
             packet.addExtension(ext);
     }
 
+    /**
+     * Returns the ids of the users that has the member role in the room.
+     * When the room is member only, this are the users allowed to join.
+     * @return the ids of the users that has the member role in the room.
+     */
+    public List<String> getMembersWhiteList()
+    {
+        List<String> res = new ArrayList<String>();
+        try
+        {
+
+            for(Affiliate a : multiUserChat.getMembers())
+            {
+                res.add(a.getJid());
+            }
+        }
+        catch(XMPPException e)
+        {
+            logger.error("Cannot obtain members list", e);
+        }
+
+        return res;
+    }
+
+    /**
+     * Changes the list of users that has role member for this room.
+     * When the room is member only, this are the users allowed to join.
+     * @param members the ids of user to have member role.
+     */
+    public void setMembersWhiteList(List<String> members)
+    {
+        try
+        {
+            List<String> membersToRemove = getMembersWhiteList();
+            membersToRemove.removeAll(members);
+
+            if(membersToRemove.size() > 0)
+                multiUserChat.revokeMembership(membersToRemove);
+
+            if(members.size() > 0)
+                multiUserChat.grantMembership(members);
+        }
+        catch(XMPPException e)
+        {
+            logger.error("Cannot modify members list", e);
+        }
+    }
 
     /**
      * A listener that listens for packets of type Message and fires an event

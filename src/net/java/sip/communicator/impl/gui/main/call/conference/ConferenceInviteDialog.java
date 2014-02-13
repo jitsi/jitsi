@@ -208,7 +208,7 @@ public class ConferenceInviteDialog
      * preselected protocol provider to be used and if this is an invite for
      * a video bridge conference.
      *
-     * @param selectedConfProvider the preselected protocol provider
+     * @param protocolProviders the protocol providers list
      * @param isJitsiVideobridge <tt>true</tt> if this dialog should create a
      * conference through a Jitsi Videobridge; otherwise, <tt>false</tt>
      */
@@ -468,10 +468,10 @@ public class ConferenceInviteDialog
      */
     private void inviteContacts(Collection<UIContact> contacts)
     {
-        ProtocolProviderService selectedProvider = null;
+        ProtocolProviderService selectedProvider;
         Map<ProtocolProviderService, List<String>> selectedProviderCallees
             = new HashMap<ProtocolProviderService, List<String>>();
-        List<String> callees = null;
+        List<String> callees;
 
         Iterator<UIContact> contactsIter = contacts.iterator();
 
