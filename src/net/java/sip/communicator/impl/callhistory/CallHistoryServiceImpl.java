@@ -487,7 +487,7 @@ public class CallHistoryServiceImpl
                     callPeerEndValue);
 
             String callPeerSecondaryID = null;
-            if(!callPeerSecondaryIDs.isEmpty())
+            if(callPeerSecondaryIDs != null && !callPeerSecondaryIDs.isEmpty())
                 callPeerSecondaryID = callPeerSecondaryIDs.get(i);
 
             if(callPeerSecondaryID != null && !callPeerSecondaryID.equals(""))
@@ -1100,25 +1100,31 @@ public class CallHistoryServiceImpl
     /**
      * Updates the secondary address field of call record.
      * @param date the start date of the record which will be updated.
-     * @param peer the peer of the record which will be updated.
+     * @param peerAddress the address of the peer of the record which will be
+     * updated.
      * @param address the value of the secondary address .
      */
     public void updateCallRecordPeerSecondaryAddress(final Date date,
-        final CallPeer peer,
+        final String peerAddress,
         final String address)
     {
-        CallRecord record = findCallRecord(peer.getCall());
-        if(record != null)
+        boolean callRecordFound = false;
+        synchronized (currentCallRecords)
         {
-            for(CallPeerRecord peerRecord : record.getPeerRecords())
-            {
-                if(peerRecord.getPeerAddress().equals(peer.getAddress()))
+            for(CallRecord record : currentCallRecords)
+                for(CallPeerRecord peerRecord : record.getPeerRecords())
                 {
-                    peerRecord.setPeerSecondaryAddress(address);
+                    if(peerRecord.getPeerAddress().equals(peerAddress)
+                        && peerRecord.getStartTime().equals(date))
+                    {
+                        callRecordFound = true;
+                        peerRecord.setPeerSecondaryAddress(address);
+                    }
                 }
-            }
-            return;
         }
+
+        if(callRecordFound)
+            return;
 
         History history;
         try
@@ -1173,7 +1179,7 @@ public class CallHistoryServiceImpl
                 List<String> peerIDs
                     = getCSVs(propertyVlaues[peerIDIndex]);
 
-                int i = peerIDs.indexOf(peer.getAddress());
+                int i = peerIDs.indexOf(peerAddress);
                 if(i == -1)
                     return false;
 
@@ -1209,13 +1215,13 @@ public class CallHistoryServiceImpl
                 List<String> peerIDs
                     = getCSVs(propertyVlaues[peerIDIndex]);
 
-                int i = peerIDs.indexOf(peer.getAddress());
+                int i = peerIDs.indexOf(peerAddress);
                 if(i == -1)
                     return null;
 
                 List<String> secondaryID
                     = getCSVs(record.getPropertyValues()[peerSecondaryIDIndex]);
-                secondaryID.set(i, peer.getAddress());
+                secondaryID.set(i, peerAddress);
                 String res = "";
                 int j = 0;
                 for(String id : secondaryID)
@@ -1248,11 +1254,15 @@ public class CallHistoryServiceImpl
      */
     private CallRecordImpl findCallRecord(Call call)
     {
-        for (CallRecordImpl item : currentCallRecords)
+        synchronized (currentCallRecords)
         {
-            if (item.getSourceCall().equals(call))
-                return item;
+            for (CallRecordImpl item : currentCallRecords)
+            {
+                if (item.getSourceCall().equals(call))
+                    return item;
+            }
         }
+
 
         return null;
     }
@@ -1281,12 +1291,17 @@ public class CallHistoryServiceImpl
      */
     private void handleNewCall(Call sourceCall, String direction)
     {
+
         // if call exist. its not new
-        for (CallRecordImpl currentCallRecord : currentCallRecords)
+        synchronized (currentCallRecords)
         {
-            if (currentCallRecord.getSourceCall().equals(sourceCall))
-                return;
+            for (CallRecordImpl currentCallRecord : currentCallRecords)
+            {
+                if (currentCallRecord.getSourceCall().equals(sourceCall))
+                    return;
+            }
         }
+
 
         CallRecordImpl newRecord = new CallRecordImpl(
             direction,
@@ -1296,7 +1311,10 @@ public class CallHistoryServiceImpl
 
         sourceCall.addCallChangeListener(historyCallChangeListener);
 
-        currentCallRecords.add(newRecord);
+        synchronized (currentCallRecords)
+        {
+            currentCallRecords.add(newRecord);
+        }
 
 
         // if has already perticipants Dispatch them
@@ -1452,8 +1470,10 @@ public class CallHistoryServiceImpl
                     callRecord.setEndTime(new Date());
 
                 writeCall(callRecord, null, null);
-
-                currentCallRecords.remove(callRecord);
+                synchronized (currentCallRecords)
+                {
+                    currentCallRecords.remove(callRecord);
+                }
             }
         }
     }

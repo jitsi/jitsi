@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.service.callhistory.event.*;
 import net.java.sip.communicator.service.contactlist.*;
-import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The Call History Service stores info about calls made from various protocols
@@ -153,7 +152,7 @@ public interface CallHistoryService
      * @param address the value of the secondary address .
      */
     public void updateCallRecordPeerSecondaryAddress(final Date date,
-        final CallPeer peer,
+        final String peerAddress,
         final String address);
 
     /**
