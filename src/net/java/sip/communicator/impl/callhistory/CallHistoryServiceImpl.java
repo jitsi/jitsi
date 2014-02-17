@@ -486,7 +486,10 @@ public class CallHistoryServiceImpl
                     callPeerStartValue,
                     callPeerEndValue);
 
-            String callPeerSecondaryID = callPeerSecondaryIDs.get(i);
+            String callPeerSecondaryID = null;
+            if(!callPeerSecondaryIDs.isEmpty())
+                callPeerSecondaryID = callPeerSecondaryIDs.get(i);
+
             if(callPeerSecondaryID != null && !callPeerSecondaryID.equals(""))
             {
                 cpr.setPeerSecondaryAddress(callPeerSecondaryID);
