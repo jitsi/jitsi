@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.history.records.*;
 
 /**
  * @author Alexander Pelov
+ * @author Hristo Terezov
  */
 public interface HistoryWriter {
 
@@ -61,4 +62,39 @@ public interface HistoryWriter {
      */
     public void updateRecord(String idProperty, String idValue,
         String property, String newValue) throws IOException;
+
+    /**
+     * Updates history record using given <tt>HistoryRecordUpdater</tt> instance
+     * to find which is the record to be updated and to get the new values for
+     * the fields
+     * @param updater the <tt>HistoryRecordUpdater</tt> instance.
+     */
+    public void updateRecord(HistoryRecordUpdater updater) throws IOException;
+
+    /**
+     * This interface is used to find a history record to update and to get the
+     * new values for the record.
+     */
+    public interface HistoryRecordUpdater
+    {
+        /**
+         * Sets the current history record.
+         * @param historyRecord the history record.
+         */
+        public void setHistoryRecord(HistoryRecord historyRecord);
+
+        /**
+         * Checks if the history record should be updated or not
+         * @return <tt>true<tt> if the record should be updated.
+         */
+        public boolean isMatching();
+
+        /**
+         * Returns a map with the names and new values of the fields that will
+         * be updated
+         * @return a map with the names and new values of the fields that will
+         * be updated
+         */
+        public Map<String, String> getUpdateChanges();
+    }
 }

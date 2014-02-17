@@ -10,12 +10,14 @@ import java.util.*;
 
 import net.java.sip.communicator.service.callhistory.event.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The Call History Service stores info about calls made from various protocols
  *
  * @author Alexander Pelov
  * @author Damian Minkov
+ * @author Hristo Terezov
  */
 public interface CallHistoryService
 {
@@ -143,4 +145,14 @@ public interface CallHistoryService
     */
     public void removeSearchProgressListener(
         CallHistorySearchProgressListener listener);
+
+    /**
+     * Updates the secondary address field of call record.
+     * @param date the start date of the record which will be updated.
+     * @param peer the peer of the record which will be updated.
+     * @param address the value of the secondary address .
+     */
+    public void updateCallRecordPeerSecondaryAddress(final Date date,
+        final CallPeer peer,
+        final String address);
 }

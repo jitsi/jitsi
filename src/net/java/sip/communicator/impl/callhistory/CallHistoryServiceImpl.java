@@ -46,7 +46,7 @@ public class CallHistoryServiceImpl
         new String[] { "accountUID", "callStart", "callEnd", "dir",
             "callParticipantIDs", "callParticipantStart",
             "callParticipantEnd", "callParticipantStates", "callEndReason",
-            "callParticipantNames"};
+            "callParticipantNames", "secondaryCallParticipantIDs"};
 
     private static HistoryRecordStructure recordStructure =
         new HistoryRecordStructure(STRUCTURE_NAMES);
@@ -74,6 +74,9 @@ public class CallHistoryServiceImpl
         new HistoryCallChangeListener();
 
     private HistoryReader historyReader;
+
+    private List<CallHistoryPeerRecordListener> callHistoryRecordlisteners
+        = new LinkedList<CallHistoryPeerRecordListener>();
 
     /**
      * Returns the underlying history service.
@@ -685,6 +688,7 @@ public class CallHistoryServiceImpl
             StringBuffer callPeerStartTime = new StringBuffer();
             StringBuffer callPeerEndTime = new StringBuffer();
             StringBuffer callPeerStates = new StringBuffer();
+            StringBuffer callPeerSecondaryIDs = new StringBuffer();
 
             for (CallPeerRecord item : callRecord
                 .getPeerRecords())
@@ -696,6 +700,7 @@ public class CallHistoryServiceImpl
                     callPeerStartTime.append(DELIM);
                     callPeerEndTime.append(DELIM);
                     callPeerStates.append(DELIM);
+                    callPeerSecondaryIDs.append(DELIM);
                 }
 
                 callPeerIDs.append(item.getPeerAddress());
@@ -703,6 +708,10 @@ public class CallHistoryServiceImpl
                 callPeerStartTime.append(sdf.format(item.getStartTime()));
                 callPeerEndTime.append(sdf.format(item.getEndTime()));
                 callPeerStates.append(item.getState().getStateString());
+                callPeerSecondaryIDs.append(
+                    item.getPeerSecondaryAddress() == null?
+                        "" : item.getPeerSecondaryAddress());
+
             }
 
             historyWriter.addRecord(new String[] {
@@ -716,7 +725,8 @@ public class CallHistoryServiceImpl
                     callPeerEndTime.toString(),
                     callPeerStates.toString(),
                     String.valueOf(callRecord.getEndReason()),
-                    callPeerNames.toString()},
+                    callPeerNames.toString(),
+                    callPeerSecondaryIDs.toString()},
                     new Date());    // this date is when the history
                                     // record is written
         }
@@ -872,6 +882,54 @@ public class CallHistoryServiceImpl
     }
 
     /**
+     * Adding <tt>CallHistoryRecordListener</tt> listener to the list.
+     *
+     * @param listener CallHistoryRecordListener
+     */
+    public void addCallHistoryRecordListener(CallHistoryPeerRecordListener
+                                          listener)
+    {
+        synchronized (callHistoryRecordlisteners)
+        {
+            callHistoryRecordlisteners.add(listener);
+        }
+    }
+
+    /**
+     * Removing <tt>CallHistoryRecordListener</tt> listener
+     *
+     * @param listener CallHistoryRecordListener
+     */
+    public void removeCallHistoryRecordListener(
+        CallHistoryPeerRecordListener listener)
+    {
+        synchronized(callHistoryRecordlisteners){
+            callHistoryRecordlisteners.remove(listener);
+        }
+    }
+
+    /**
+     * Fires the given event to all <tt>CallHistoryRecordListener</tt> listeners
+     * @param event the <tt>CallHistoryRecordReceivedEvent</tt> event to be
+     * fired
+     */
+    private void fireCallHistoryRecordReceivedEvent(
+        CallHistoryPeerRecordEvent event)
+    {
+        List<CallHistoryPeerRecordListener> tmpListeners;
+        synchronized (callHistoryRecordlisteners)
+        {
+            tmpListeners = new LinkedList<CallHistoryPeerRecordListener>(
+                callHistoryRecordlisteners);
+        }
+
+        for(CallHistoryPeerRecordListener listener : tmpListeners)
+        {
+            listener.callPeerRecordReceived(event);
+        }
+    }
+
+    /**
      * Add the registered CallHistorySearchProgressListeners to the given
      * HistoryReader
      *
@@ -990,6 +1048,8 @@ public class CallHistoryServiceImpl
         newRec.setDisplayName(callPeer.getDisplayName());
 
         callRecord.getPeerRecords().add(newRec);
+        fireCallHistoryRecordReceivedEvent(new CallHistoryPeerRecordEvent(
+            callPeer.getAddress(), startDate));
     }
 
     /**
@@ -1023,6 +1083,152 @@ public class CallHistoryServiceImpl
         {
             cpRecord.setEndTime(new Date());
         }
+    }
+
+    /**
+     * Updates the secondary address field of call record.
+     * @param date the start date of the record which will be updated.
+     * @param peer the peer of the record which will be updated.
+     * @param address the value of the secondary address .
+     */
+    public void updateCallRecordPeerSecondaryAddress(final Date date,
+        final CallPeer peer,
+        final String address)
+    {
+        CallRecord record = findCallRecord(peer.getCall());
+        if(record != null)
+        {
+            for(CallPeerRecord peerRecord : record.getPeerRecords())
+            {
+                if(peerRecord.getPeerAddress().equals(peer.getAddress()))
+                {
+                    peerRecord.setPeerSecondaryAddress(address);
+                }
+            }
+            return;
+        }
+
+        History history;
+        try
+        {
+            history = this.getHistory(null, null);
+        }
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return;
+        }
+        HistoryWriter historyWriter = history.getWriter();
+
+        HistoryWriter.HistoryRecordUpdater updater = new HistoryWriter.HistoryRecordUpdater()
+        {
+            private HistoryRecord record;
+
+            private int dateIndex;
+
+            private int peerIDIndex;
+
+            private int peerSecondaryIDIndex;
+
+            @Override
+            public void setHistoryRecord(HistoryRecord historyRecord)
+            {
+                record = historyRecord;
+                String propertyNames[] = record.getPropertyNames();
+                for(int i = 0; i < propertyNames.length; i++)
+                {
+                    if(propertyNames[i].equals(STRUCTURE_NAMES[5]))
+                    {
+                        dateIndex = i;
+                    }
+
+                    if(propertyNames[i].equals(STRUCTURE_NAMES[4]))
+                    {
+                        peerIDIndex = i;
+                    }
+
+                    if(propertyNames[i].equals(STRUCTURE_NAMES[10]))
+                    {
+                        peerSecondaryIDIndex = i;
+                    }
+                }
+            }
+
+            @Override
+            public boolean isMatching()
+            {
+                String[] propertyVlaues = record.getPropertyValues();
+                List<String> peerIDs
+                    = getCSVs(propertyVlaues[peerIDIndex]);
+
+                int i = peerIDs.indexOf(peer.getAddress());
+                if(i == -1)
+                    return false;
+
+
+                String dateString = getCSVs(propertyVlaues[dateIndex]).get(i);
+                SimpleDateFormat sdf
+                    = new SimpleDateFormat(HistoryService.DATE_FORMAT);
+                try
+                {
+                    if(!sdf.parse(dateString).equals(date))
+                        return false;
+                }
+                catch (ParseException e)
+                {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                    return false;
+                }
+
+                String secondaryID
+                    = getCSVs(propertyVlaues[peerSecondaryIDIndex]).get(i);
+                if(secondaryID != null)
+                    return false;
+
+                return true;
+            }
+
+
+
+            @Override
+            public Map<String, String> getUpdateChanges()
+            {
+                String[] propertyVlaues = record.getPropertyValues();
+                List<String> peerIDs
+                    = getCSVs(propertyVlaues[peerIDIndex]);
+
+                int i = peerIDs.indexOf(peer.getAddress());
+                if(i == -1)
+                    return null;
+
+                List<String> secondaryID
+                    = getCSVs(record.getPropertyValues()[peerSecondaryIDIndex]);
+                secondaryID.set(i, peer.getAddress());
+                String res = "";
+                int j = 0;
+                for(String id : secondaryID)
+                {
+                    if(j++ != 0)
+                        res += DELIM;
+                    res += id;
+                }
+                Map<String, String> changesMap = new HashMap<String, String>();
+                changesMap.put(STRUCTURE_NAMES[10], res);
+                return changesMap;
+            }
+        };
+        try
+        {
+            historyWriter.updateRecord(updater);
+        }
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -1082,6 +1288,7 @@ public class CallHistoryServiceImpl
         sourceCall.addCallChangeListener(historyCallChangeListener);
 
         currentCallRecords.add(newRecord);
+
 
         // if has already perticipants Dispatch them
         Iterator<? extends CallPeer> iter = sourceCall.getCallPeers();
