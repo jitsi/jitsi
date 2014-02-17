@@ -123,6 +123,7 @@ public class CallHistorySourceContact
             CallPeerRecord peerRecord = recordsIter.next();
 
             String peerAddress = peerRecord.getPeerAddress();
+            String peerSecondaryAddress = peerRecord.getPeerSecondaryAddress();
 
             if (peerAddress != null)
             {
@@ -219,6 +220,18 @@ public class CallHistorySourceContact
                 contactDetail.setSupportedOpSets(supportedOpSets);
 
                 contactDetails.add(contactDetail);
+
+                if(peerSecondaryAddress != null)
+                {
+                    ContactDetail secondaryContactDetail =
+                        new ContactDetail(peerSecondaryAddress);
+
+
+                    secondaryContactDetail.addSupportedOpSet(
+                        OperationSetPersistentPresence.class);
+
+                    contactDetails.add(secondaryContactDetail);
+                }
 
                 // Set the displayName.
                 String name = peerRecord.getDisplayName();

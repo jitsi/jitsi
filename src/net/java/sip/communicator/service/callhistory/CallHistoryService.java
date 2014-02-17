@@ -155,4 +155,20 @@ public interface CallHistoryService
     public void updateCallRecordPeerSecondaryAddress(final Date date,
         final CallPeer peer,
         final String address);
+
+    /**
+     * Adding <tt>CallHistoryRecordListener</tt> listener to the list.
+     *
+     * @param listener CallHistoryRecordListener
+     */
+    public void addCallHistoryRecordListener(
+        CallHistoryPeerRecordListener listener);
+
+    /**
+     * Removing <tt>CallHistoryRecordListener</tt> listener
+     *
+     * @param listener CallHistoryRecordListener
+     */
+    public void removeCallHistoryRecordListener(
+        CallHistoryPeerRecordListener listener);
 }

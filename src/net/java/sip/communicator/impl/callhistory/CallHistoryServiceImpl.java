@@ -375,6 +375,7 @@ public class CallHistoryServiceImpl
         List<String> callPeerStart = null;
         List<String> callPeerEnd = null;
         List<CallPeerState> callPeerStates = null;
+        List<String> callPeerSecondaryIDs = null;
 
         // History structure
         // 0 - callStart
@@ -424,6 +425,8 @@ public class CallHistoryServiceImpl
                 result.setEndReason(Integer.parseInt(value));
             else if(propName.equals(STRUCTURE_NAMES[9]))
                 callPeerNames = getCSVs(value);
+            else if(propName.equals(STRUCTURE_NAMES[10]))
+                callPeerSecondaryIDs = getCSVs(value);
         }
 
         final int callPeerCount = callPeerIDs == null ? 0 : callPeerIDs.size();
@@ -482,6 +485,12 @@ public class CallHistoryServiceImpl
                     callPeerIDs.get(i),
                     callPeerStartValue,
                     callPeerEndValue);
+
+            String callPeerSecondaryID = callPeerSecondaryIDs.get(i);
+            if(callPeerSecondaryID != null && !callPeerSecondaryID.equals(""))
+            {
+                cpr.setPeerSecondaryAddress(callPeerSecondaryID);
+            }
 
             // if there is no record about the states (backward compatibility)
             if (callPeerStates != null && i < callPeerStates.size())
@@ -1049,7 +1058,7 @@ public class CallHistoryServiceImpl
 
         callRecord.getPeerRecords().add(newRec);
         fireCallHistoryRecordReceivedEvent(new CallHistoryPeerRecordEvent(
-            callPeer.getAddress(), startDate));
+            callPeer.getAddress(), startDate, callPeer.getProtocolProvider()));
     }
 
     /**
