@@ -1115,8 +1115,7 @@ public class CallHistoryServiceImpl
         }
         catch (IOException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.warn("Failed to get the history object.");
             return;
         }
         HistoryWriter historyWriter = history.getWriter();
@@ -1177,8 +1176,7 @@ public class CallHistoryServiceImpl
                 }
                 catch (ParseException e)
                 {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    logger.warn("Failed to parse the date.");
                     return false;
                 }
 
@@ -1225,8 +1223,7 @@ public class CallHistoryServiceImpl
         }
         catch (IOException e)
         {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            logger.warn("Failed to update the record.");
         }
 
     }
