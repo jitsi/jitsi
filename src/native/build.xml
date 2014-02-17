@@ -959,6 +959,7 @@
         <compilerarg value="i386" />
         <compilerarg value="-I${system.JAVA_HOME}/include" />
         <compilerarg value="-I${system.JAVA_HOME}/include/darwin" />
+        <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers" />
         <compilerarg value="-mmacosx-version-min=10.6"/>
 
         <linkerarg value="-arch" />
