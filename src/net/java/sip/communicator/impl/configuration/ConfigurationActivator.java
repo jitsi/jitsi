@@ -49,14 +49,33 @@ public class ConfigurationActivator
     {
         FileAccessService fas
             = ServiceUtils.getService(bundleContext, FileAccessService.class);
+
         if (fas != null)
         {
-            File useDatabaseConfig = fas.getPrivatePersistentFile(
-                ".usedatabaseconfig",
-                FileCategory.PROFILE);
+            File useDatabaseConfig;
+
+            try
+            {
+                useDatabaseConfig
+                    = fas.getPrivatePersistentFile(
+                            ".usedatabaseconfig",
+                            FileCategory.PROFILE);
+            }
+            catch (IllegalStateException ise)
+            {
+                /*
+                 * There is somewhat of a chicken-and-egg dependency between
+                 * FileConfigurationServiceImpl and ConfigurationServiceImpl:
+                 * FileConfigurationServiceImpl throws IllegalStateException if
+                 * certain System properties are not set,
+                 * ConfigurationServiceImpl will make sure that these properties
+                 * are set but it will do that later.
+                 */
+                useDatabaseConfig = null;
+            }
 
             // BETA: if the marker file exists, use the database configuration
-            if (useDatabaseConfig.exists())
+            if ((useDatabaseConfig != null) && useDatabaseConfig.exists())
             {
                 logger.info("Using database configuration store.");
                 this.cs = new JdbcConfigService(fas);
