@@ -223,8 +223,8 @@ public class ProtocolProviderServiceJabberImpl
     /**
      * Indicates if user search is disabled.
      */
-    private static final String IS_USER_SEARCH_DISABLED_PROPERTY
-        = "USER_SEARCH_DISABLED";
+    private static final String IS_USER_SEARCH_ENABLED_PROPERTY
+        = "USER_SEARCH_ENABLED";
 
     /**
      * Google voice domain name.
@@ -1864,9 +1864,9 @@ public class ProtocolProviderServiceJabberImpl
             addSupportedOperationSet(OperationSetCusaxUtils.class,
                     opsetCusaxCusaxUtils);
 
-            boolean isUserSearchDisabled = accountID.getAccountPropertyBoolean(
-                IS_USER_SEARCH_DISABLED_PROPERTY, true);
-            if(!isUserSearchDisabled)
+            boolean isUserSearchEnabled = accountID.getAccountPropertyBoolean(
+                IS_USER_SEARCH_ENABLED_PROPERTY, false);
+            if(isUserSearchEnabled)
             {
                 addSupportedOperationSet(OperationSetUserSearch.class,
                     new OperationSetUserSearchJabberImpl(this));
