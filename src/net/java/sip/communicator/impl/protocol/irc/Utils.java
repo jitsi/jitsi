@@ -100,7 +100,7 @@ public final class Utils
                         }
                         catch (IllegalArgumentException e)
                         {
-                            LOGGER.debug("Invalid color code.", e);
+                            LOGGER.trace("Invalid color code.", e);
                         }
                         formatting.push(control);
                         String htmlTag =

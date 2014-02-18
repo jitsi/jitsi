@@ -153,4 +153,18 @@ public class UtilsTest
         final String htmlMessage = "<font color=\"White\">,99TEST</font>";
         Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
     }
+    
+    public void testStackIncompatibleFormatToggling()
+    {
+        final String ircMessage = "\u0002\u001D\u001FHello\u0002 W\u001Dorld\u001F!";
+        final String htmlMessage = "<b><i><u>Hello</u></i></b><i><u> W</u></i><u>orld</u>!";
+        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+    }
+    
+    public void testColorSwitch()
+    {
+        final String ircMessage = "\u000302,03Hello \u000308,09World\u000F!";
+        final String htmlMessage = "<font color=\"Navy\" bgcolor=\"Green\">Hello </font><font color=\"Yellow\" bgcolor=\"Lime\">World</font>!";
+        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+    }
 }
