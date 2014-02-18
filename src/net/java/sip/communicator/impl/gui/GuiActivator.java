@@ -163,6 +163,7 @@ public class GuiActivator implements BundleActivator
 
             SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     uiService.loadApplicationGui();
@@ -172,31 +173,31 @@ public class GuiActivator implements BundleActivator
 
                     bundleContext.addServiceListener(uiService);
 
-                    // don't block the ui thread
-                    // with registering services, as they are executed
-                    // in the same thread as registering
-                    new Thread(new Runnable()
+                    // don't block the ui thread with registering services, as
+                    // they are executed in the same thread as registering
+                    new Thread()
                     {
+                        @Override
                         public void run()
                         {
                             if (logger.isInfoEnabled())
                                 logger.info("UI Service...[  STARTED ]");
 
                             bundleContext.registerService(
-                                UIService.class.getName(),
-                                uiService,
-                                null);
+                                    UIService.class.getName(),
+                                    uiService,
+                                    null);
 
                             if (logger.isInfoEnabled())
                                 logger.info("UI Service ...[REGISTERED]");
 
                             // UIServiceImpl also implements ShutdownService.
                             bundleContext.registerService(
-                                ShutdownService.class.getName(),
-                                uiService,
-                                null);
+                                    ShutdownService.class.getName(),
+                                    uiService,
+                                    null);
                         }
-                    }).start();
+                    }.start();
                 }
             });
 

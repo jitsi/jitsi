@@ -145,19 +145,24 @@ public class Constants
         String fontName = null;
         int fontSize = 0;
 
-        if ((laf != null)
-                && "com.sun.java.swing.plaf.windows.WindowsLookAndFeel".equals(
-                        laf.getClass().getName()))
+        if (laf != null)
         {
-            Object desktopPropertyValue
-                = Toolkit.getDefaultToolkit().getDesktopProperty(
-                        "win.messagebox.font");
+            String lafClassName = laf.getClass().getName();
 
-            if (desktopPropertyValue instanceof Font)
+            if ("com.sun.java.swing.plaf.windows.WindowsLookAndFeel".equals(
+                    lafClassName))
             {
-                font = (Font) desktopPropertyValue;
-                fontName = font.getFontName();
-                fontSize = font.getSize();
+                Object desktopPropertyValue
+                    = Toolkit.getDefaultToolkit().getDesktopProperty(
+                            "win.messagebox.font");
+
+                if (desktopPropertyValue instanceof Font)
+                    font = (Font) desktopPropertyValue;
+            }
+            else if ("com.sun.java.swing.plaf.gtk.GTKLookAndFeel".equals(
+                    lafClassName))
+            {
+                font = UIManager.getDefaults().getFont("Panel.font");
             }
         }
 

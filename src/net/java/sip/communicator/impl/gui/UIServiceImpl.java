@@ -167,8 +167,7 @@ public class UIServiceImpl
         GuiActivator.getUIService().registerExportedWindow(mainFrame);
 
         // Initialize the login manager.
-        this.loginManager
-            = new LoginManager(new LoginRendererSwingImpl());
+        this.loginManager = new LoginManager(new LoginRendererSwingImpl());
 
         this.popupDialog = new PopupDialogImpl();
 
@@ -194,10 +193,10 @@ public class UIServiceImpl
 
         this.initExportedWindows();
 
-        KeyboardFocusManager focusManager =
-            KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        focusManager.
-            addKeyEventDispatcher(new KeyBindingsDispatching(focusManager));
+        KeyboardFocusManager focusManager
+            = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        focusManager.addKeyEventDispatcher(
+                new KeyBindingsDispatching(focusManager));
     }
 
     /**
@@ -929,6 +928,7 @@ public class UIServiceImpl
                 UIDefaults uiDefaults = UIManager.getDefaults();
                 if (OSUtils.IS_WINDOWS)
                     fixWindowsUIDefaults(uiDefaults);
+
                 // Workaround for SC issue #516
                 // "GNOME SCScrollPane has rounded and rectangular borders"
                 if (laf.equals(gtkLookAndFeel)
@@ -943,8 +943,8 @@ public class UIServiceImpl
             catch (ClassNotFoundException ex)
             {
                 /*
-                 * Ignore the exceptions because we're only trying to set
-                 * the native LookAndFeel and, if it fails, we'll use
+                 * Ignore the exceptions because we're only trying to set the
+                 * native LookAndFeel and, if it fails, we'll use
                  * SIPCommLookAndFeel.
                  */
             }
@@ -964,8 +964,7 @@ public class UIServiceImpl
             try
             {
                 SIPCommLookAndFeel lf = new SIPCommLookAndFeel();
-                SIPCommLookAndFeel.setCurrentTheme(
-                        new SIPCommDefaultTheme());
+                SIPCommLookAndFeel.setCurrentTheme(new SIPCommDefaultTheme());
 
                 // Check the isLookAndFeelDecorated property and set the
                 // appropriate default decoration.
