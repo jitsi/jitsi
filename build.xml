@@ -842,7 +842,7 @@
     </target>
 
     <!--RUN-JITSI -->
-    <target name="run" depends="deploy-os-specific-bundles"
+    <target name="run" depends="deploy-os-specific-bundles,load-properties"
         description="Starts felix and runs sip-comunicator gui (use latest build).">
 
         <!-- we allow users to pass command line args using the "args" system
@@ -851,10 +851,8 @@
              the value ${args}-->
         <property name="args" value=""/>
 
-        <!-- Jitsi on Mac OS X uses a JVMTI agent to handle kAEGetURL
-             AppleScript events. -->
         <condition property="jvmarg.line"
-                value="-agentlib:AEGetURLEventHandlerAgent -Xdock:name='Jitsi' -Xdock:icon='resources/images/logo/sc_logo_128x128.icns'"
+                value="-Xdock:name='${application.name}' -Xdock:icon='resources/images/logo/sc_logo_128x128.icns'"
                 else="">
             <isset property="is.running.macos"/>
         </condition>
@@ -863,6 +861,14 @@
             value="-splash:resources/install/resources/splash.gif"
             else="">
             <isset property="splashscreen.enable"/>
+        </condition>
+
+        <!-- Jitsi on Mac OS X uses a JVMTI agent to handle kAEGetURL
+             AppleScript events. To enable it use jvmarg.aegeturl property -->
+        <condition property="jvmarg.aegeturl"
+            value="-agentlib:AEGetURLEventHandlerAgent"
+            else="">
+            <isset property="aegeturl.enable"/>
         </condition>
 
         <condition property="jvm.maxheapsize"
@@ -934,7 +940,7 @@
                  detection because -server uses much more memory for 32-bit OS
                  (64-bit always used -server) -->
             <jvmarg line="${profiler.args} ${jvmarg.line}
-              -client ${jvm.maxheapsize} ${jvmarg.splash}"/>
+              -client ${jvm.maxheapsize} ${jvmarg.splash} ${jvmarg.aegeturl}"/>
 
             <sysproperty key="apple.laf.useScreenMenuBar" value="true" />
         </java>
