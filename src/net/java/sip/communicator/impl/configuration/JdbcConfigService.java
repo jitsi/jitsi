@@ -548,12 +548,22 @@ public final class JdbcConfigService
     public int getInt(String propertyName, int defaultValue)
     {
         Object value = this.getProperty(propertyName);
-        if (value == null)
+        if (value == null || "".equals(value.toString()))
         {
             return defaultValue;
         }
 
-        return Integer.parseInt(value.toString());
+        try
+        {
+            return Integer.parseInt(value.toString());
+        }
+        catch (NumberFormatException ex)
+        {
+            logger.error(String.format(
+                "'%s' for property %s not an integer, returning default (%s)",
+                value, propertyName, defaultValue), ex);
+            return defaultValue;
+        }
     }
 
     /*
@@ -567,12 +577,22 @@ public final class JdbcConfigService
     public long getLong(String propertyName, long defaultValue)
     {
         Object value = this.getProperty(propertyName);
-        if (value == null)
+        if (value == null || "".equals(value.toString()))
         {
             return defaultValue;
         }
 
-        return Long.parseLong(value.toString());
+        try
+        {
+            return Long.parseLong(value.toString());
+        }
+        catch (NumberFormatException ex)
+        {
+            logger.error(String.format(
+                "'%s' for property %s not a long, returning default (%s)",
+                value, propertyName, defaultValue), ex);
+            return defaultValue;
+        }
     }
 
     /*
