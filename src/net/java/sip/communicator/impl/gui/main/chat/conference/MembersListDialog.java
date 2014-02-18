@@ -6,6 +6,11 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat.conference;
 
+import java.awt.event.*;
+import java.util.*;
+
+import javax.swing.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
@@ -14,12 +19,6 @@ import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.util.*;
-import java.util.List;
 
 /**
  * A dialog with room provider's contacts on the left and contacts
