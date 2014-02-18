@@ -399,7 +399,7 @@ public class Messenger
      * @param messengerContact a <tt>MessengerContact</tt> instance which
      * specifies the contact for which the phone number information is to be
      * retrieved
-     * @param a member of the <tt>MPHONE_TYPE</tt> enumerated type which
+     * @param type member of the <tt>MPHONE_TYPE</tt> enumerated type which
      * specifies the type of the phone number information to be retrieved
      * @return the phone number information of the contact associated with the
      * specified <tt>messengerContact</tt>
@@ -507,6 +507,9 @@ public class Messenger
     {
         String signinName = messengerContact.signinName;
         ProtocolPresenceStatus presenceStatus;
+
+        if(logger.isTraceEnabled())
+            logger.trace("Got getStatus for " + signinName);
 
         if (signinName == null)
             presenceStatus = null;
@@ -658,6 +661,9 @@ public class Messenger
                                 serviceReference));
             }
         }
+
+        if (logger.isInfoEnabled())
+            logger.info("Messenger [REGISTERED] as service listener.");
     }
 
     /**
@@ -710,6 +716,11 @@ public class Messenger
             String[] participants,
             String conversationData)
     {
+        if(logger.isTraceEnabled())
+            logger.trace("Got startConversation participants:"
+                + participants == null? "" : Arrays.asList(participants)
+                + ", conversationData=" + conversationData);
+
         /*
          * Firstly, resolve the participants into Contacts which may include
          * looking up their vCards.
