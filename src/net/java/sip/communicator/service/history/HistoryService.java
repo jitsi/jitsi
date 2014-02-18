@@ -79,13 +79,19 @@ public interface HistoryService {
             throws IllegalArgumentException, IOException;
 
     /**
-     * Permamently removes local stored History
+     * Permanently removes local stored History
      *
      * @param id HistoryID
      * @throws IOException
      *             Thrown if the history could not be removed due to a IO error.
      */
     public void purgeLocallyStoredHistory(HistoryID id) throws IOException;
+
+
+    /**
+     * Clears locally(in memory) cached histories.
+     */
+    public void purgeLocallyCachedHistories();
 
     /**
      * Moves the content of oldId history to the content of the newId.

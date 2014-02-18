@@ -335,6 +335,14 @@ public class HistoryServiceImpl
     }
 
     /**
+     * Clears locally(in memory) cached histories.
+     */
+    public void purgeLocallyCachedHistories()
+    {
+        histories.clear();
+    }
+
+    /**
      * Checks the ids of the parent, do they exist in the supplied history ids.
      * If it exist the history is sub history of the on with the supplied ids.
      * @param parentIDs the parent ids

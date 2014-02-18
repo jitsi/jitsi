@@ -20,6 +20,8 @@ import net.java.sip.communicator.service.history.records.*;
 import org.jitsi.util.xml.XMLUtils;
 import org.w3c.dom.*;
 
+import com.google.common.xml.*;
+
 /**
  * @author Alexander Pelov
  */
@@ -122,13 +124,17 @@ public class HistoryWriterImpl
                     {
                         if (propertyValues[i] != null)
                         {
-                            propertyName = propertyName.replaceFirst(CDATA_SUFFIX, "");
+                            propertyName =
+                                propertyName.replaceFirst(CDATA_SUFFIX, "");
 
                             Element propertyElement = this.currentDoc
                                 .createElement(propertyName);
 
                             Text value = this.currentDoc
-                                .createCDATASection(propertyValues[i].replaceAll("\0", " "));
+                                .createCDATASection(
+                                    XmlEscapers.xmlContentEscaper().escape(
+                                        propertyValues[i].replaceAll("\0", " ")
+                                    ));
                             propertyElement.appendChild(value);
 
                             elem.appendChild(propertyElement);
@@ -142,7 +148,10 @@ public class HistoryWriterImpl
                                 .createElement(propertyName);
 
                             Text value = this.currentDoc
-                                .createTextNode(propertyValues[i].replaceAll("\0", " "));
+                                .createTextNode(
+                                    XmlEscapers.xmlContentEscaper().escape(
+                                        propertyValues[i].replaceAll("\0", " ")
+                                    ));
                             propertyElement.appendChild(value);
 
                             elem.appendChild(propertyElement);
@@ -217,8 +226,8 @@ public class HistoryWriterImpl
     }
 
     /**
-     * Updates a record by searching for record with idProperty which have idValue
-     * and updating/creating the property with newValue.
+     * Updates a record by searching for record with idProperty which have
+     * idValue and updating/creating the property with newValue.
      *
      * @param idProperty name of the id property
      * @param idValue value of the id property
