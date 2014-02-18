@@ -3196,10 +3196,10 @@ org.jitsi.bccontrib.util"/>
                  link="${debian.src.dir}/lib/installer-exclude"/>
         <symlink resource="/usr/share/java/bcprov.jar"
                  overwrite="true"
-                 link="${debian.src.dir}/lib/installer-exclude/bcprov-jdk15on-149.jar"/>
+                 link="${debian.src.dir}/lib/installer-exclude/bcprov-jdk15on-150.jar"/>
         <symlink resource="/usr/share/java/bcpkix.jar"
                  overwrite="true"
-                 link="${debian.src.dir}/lib/installer-exclude/bcpkix-jdk15on-149.jar"/>
+                 link="${debian.src.dir}/lib/installer-exclude/bcpkix-jdk15on-150.jar"/>
 
         <!-- liblaf-widget-java -->
         <symlink resource="/usr/share/java/laf-widget.jar"
