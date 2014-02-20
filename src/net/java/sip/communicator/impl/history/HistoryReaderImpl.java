@@ -89,7 +89,8 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet<HistoryRecord> findByPeriod(Date startDate, Date endDate)
+    public synchronized QueryResultSet<HistoryRecord>
+        findByPeriod(Date startDate, Date endDate)
             throws RuntimeException
     {
         return find(startDate, endDate, null, null, false);
@@ -105,8 +106,9 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet<HistoryRecord> findByKeyword(String keyword, String field)
-        throws RuntimeException
+    public synchronized QueryResultSet<HistoryRecord>
+        findByKeyword(String keyword, String field)
+            throws RuntimeException
     {
         return findByKeywords(new String[] { keyword }, field);
     }
@@ -121,10 +123,11 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet<HistoryRecord> findByKeywords(String[] keywords, String field)
+    public synchronized QueryResultSet<HistoryRecord>
+        findByKeywords(String[] keywords, String field)
             throws RuntimeException
     {
-            return find(null, null, keywords, field, false);
+        return find(null, null, keywords, field, false);
     }
 
     /**
@@ -140,8 +143,12 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet<HistoryRecord> findByPeriod(Date startDate, Date endDate,
-            String[] keywords, String field) throws UnsupportedOperationException
+    public synchronized QueryResultSet<HistoryRecord>
+        findByPeriod(Date startDate,
+                     Date endDate,
+                     String[] keywords,
+                     String field)
+            throws UnsupportedOperationException
     {
         return find(startDate, endDate, keywords, field, false);
     }
@@ -155,7 +162,8 @@ public class HistoryReaderImpl
      * @return QueryResultSet
      * @throws RuntimeException
      */
-    public synchronized QueryResultSet<HistoryRecord> findLast(int count) throws RuntimeException
+    public synchronized QueryResultSet<HistoryRecord> findLast(int count)
+        throws RuntimeException
     {
         // the files are supposed to be ordered from oldest to newest
         Vector<String> filelist =
@@ -179,7 +187,7 @@ public class HistoryReaderImpl
             }
 
             // will get nodes and construct a List of nodes
-            // so we can easyly get sublist of it
+            // so we can easily get sublist of it
             List<Node> nodes = new ArrayList<Node>();
             NodeList nodesList = doc.getElementsByTagName("record");
             for (int i = 0; i < nodesList.getLength(); i++)
@@ -269,9 +277,9 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet<HistoryRecord> findByKeyword(String keyword, String field,
-                                        boolean caseSensitive)
-        throws RuntimeException
+    public synchronized QueryResultSet<HistoryRecord>
+        findByKeyword(String keyword, String field, boolean caseSensitive)
+            throws RuntimeException
     {
         return findByKeywords(new String[] { keyword }, field, caseSensitive);
     }
@@ -287,9 +295,9 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet<HistoryRecord> findByKeywords(String[] keywords, String field,
-                                         boolean caseSensitive)
-        throws RuntimeException
+    public synchronized QueryResultSet<HistoryRecord>
+        findByKeywords(String[] keywords, String field, boolean caseSensitive)
+            throws RuntimeException
     {
         return find(null, null, keywords, field, caseSensitive);
     }
@@ -308,10 +316,13 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet<HistoryRecord> findByPeriod(Date startDate, Date endDate,
-                                       String[] keywords, String field,
-                                       boolean caseSensitive)
-        throws UnsupportedOperationException
+    public synchronized QueryResultSet<HistoryRecord>
+        findByPeriod(Date startDate,
+                     Date endDate,
+                     String[] keywords,
+                     String field,
+                     boolean caseSensitive)
+            throws UnsupportedOperationException
     {
         return find(startDate, endDate, keywords, field, caseSensitive);
     }
@@ -324,8 +335,9 @@ public class HistoryReaderImpl
      * @return QueryResultSet the found records
      * @throws RuntimeException
      */
-    public QueryResultSet<HistoryRecord> findFirstRecordsAfter(Date date, int count) throws
-        RuntimeException
+    public QueryResultSet<HistoryRecord>
+        findFirstRecordsAfter(Date date, int count)
+            throws RuntimeException
     {
         TreeSet<HistoryRecord> result
             = new TreeSet<HistoryRecord>(new HistoryRecordComparator());
@@ -427,8 +439,9 @@ public class HistoryReaderImpl
      * @return QueryResultSet the found records
      * @throws RuntimeException
      */
-    public QueryResultSet<HistoryRecord> findLastRecordsBefore(Date date, int count) throws
-        RuntimeException
+    public QueryResultSet<HistoryRecord>
+        findLastRecordsBefore(Date date, int count)
+            throws RuntimeException
     {
         // the files are supposed to be ordered from oldest to newest
         Vector<String> filelist =

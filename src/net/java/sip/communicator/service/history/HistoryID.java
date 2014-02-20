@@ -63,7 +63,8 @@ public class HistoryID
      *             Thrown if a string from the ID is not valid an exception.
      */
     public static HistoryID createFromID(String[] id)
-            throws IllegalArgumentException {
+            throws IllegalArgumentException
+    {
         // TODO: Validate: Assert.assertNonNull(id, "Parameter ID should be
         // non-null");
         // TODO: Validate: Assert.assertTrue(id.length > 0, "ID.length should be
@@ -195,12 +196,12 @@ public class HistoryID
                 {
                     // OK; Check Y..Y
                     try
-		    {
+                    {
                         Integer.parseInt(end, 16);
                         // OK
                         isValid = true;
                     }
-		    catch (Exception e)
+                    catch (Exception e)
                     {
                         // Not OK
                         isValid = false;
