@@ -4,10 +4,8 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.call;
+package net.java.sip.communicator.plugin.desktoputil;
 
-import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -130,8 +128,9 @@ public class UIPhoneUtil
                                     " (" + getLocalizedPhoneNumber(d) + ")",
                                     null,
                                     new ArrayList<String>(),
-                                    GuiActivator.getResources().getImage(
-                                        "service.gui.icons.EXTERNAL_PHONE"),
+                                    DesktopUtilActivator.getResources()
+                                        .getImage(
+                                            "service.gui.icons.EXTERNAL_PHONE"),
                                     null,
                                     null,
                                     pnd)
