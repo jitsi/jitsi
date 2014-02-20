@@ -951,10 +951,31 @@ public class ContactListTreeCellRenderer
             {
                 x += addButton(webButton, ++gridX, x, false);
 
-                webButton.setLinks(dets);
+                webButton.setLinksFromURLDetail(dets);
             }
             else
-                webButton.setLinks(null);
+                webButton.clearLinks();
+        }
+        else if (uiContact.getDescriptor() instanceof SourceContact)
+        {
+            SourceContact srcContact =
+                (SourceContact) uiContact.getDescriptor();
+
+            try
+            {
+                List<ContactDetail> dets = srcContact.getContactDetails(
+                    ContactDetail.Category.Web);
+                if(dets != null && dets.size() > 0)
+                {
+                    x += addButton(webButton, ++gridX, x, false);
+
+                    webButton.setLinksFromContactDetail(dets);
+                }
+                else
+                    webButton.clearLinks();
+            }
+            catch(OperationNotSupportedException e)
+            {} // ignore records that don't support it
         }
 
         // The list of the contact actions
@@ -1659,6 +1680,8 @@ public class ContactListTreeCellRenderer
             UIContact contactDescriptor
                 = ((ContactNode) treeNode).getContactDescriptor();
 
+            List<String> urlDetails = null;
+
             if (contactDescriptor instanceof MetaUIContact)
             {
                 List<URLDetail> details =
@@ -1667,59 +1690,92 @@ public class ContactListTreeCellRenderer
                 if(details == null)
                     return;
 
-                if(details.size() == 1)
+                urlDetails = new ArrayList<String>();
+
+                Iterator<URLDetail> detailIterator = details.iterator();
+                while(detailIterator.hasNext())
                 {
-                    GuiActivator.getBrowserLauncher().openURL(
-                        details.get(0).getURL().toString());
+                    final URLDetail wd = detailIterator.next();
+                    urlDetails.add(wd.getDetailValue().toString());
                 }
-                else
+            }
+            else if (contactDescriptor.getDescriptor()
+                instanceof SourceContact)
+            {
+                SourceContact src =
+                    (SourceContact)contactDescriptor.getDescriptor();
+                try
                 {
-                    Point location = new Point(button.getX(),
-                        button.getY() + button.getHeight());
+                    List<ContactDetail> cDetails  =
+                        src.getContactDetails(ContactDetail.Category.Web);
 
-                    SwingUtilities.convertPointToScreen(
-                        location, treeContactList);
+                    if(cDetails == null)
+                        return;
 
-                    location.y = location.y
-                        + treeContactList.getPathBounds(
-                                treeContactList.getSelectionPath()).y;
-                    location.x += 8;
-                    location.y -= 8;
+                    urlDetails = new ArrayList<String>();
 
-                    List<JMenuItem> items = new ArrayList<JMenuItem>();
-                    Iterator<URLDetail> detailIterator = details.iterator();
-                    while(detailIterator.hasNext())
+                    for(ContactDetail det : cDetails)
                     {
-                        final URLDetail wd = detailIterator.next();
-                        String url = wd.getDetailValue().toString();
-
-                        String displayStr = url;
-                        // do not display too long links
-                        if(displayStr.length() > 60)
-                        {
-                            displayStr = displayStr.substring(0, 60);
-                            displayStr += "...";
-                        }
-                        final JMenuItem menuItem = new JMenuItem(displayStr);
-                        menuItem.setName(url);
-                        menuItem.setToolTipText(url);
-
-                        menuItem.addActionListener(new ActionListener()
-                        {
-                            public void actionPerformed(ActionEvent e)
-                            {
-                                GuiActivator.getBrowserLauncher().openURL(
-                                    menuItem.getName());
-                            }
-                        });
-                        items.add(menuItem);
+                        urlDetails.add(det.getDetail());
                     }
-
-                    new ExtendedPopupMenu(
-                            treeContactList,
-                            null,
-                            items).showPopupMenu(location.x, location.y);
                 }
+                catch(OperationNotSupportedException onse)
+                {}
+            }
+
+            if(urlDetails == null)
+                return;
+
+            if(urlDetails.size() == 1)
+            {
+                GuiActivator.getBrowserLauncher().openURL(urlDetails.get(0));
+            }
+            else
+            {
+                Point location = new Point(button.getX(),
+                    button.getY() + button.getHeight());
+
+                SwingUtilities.convertPointToScreen(
+                    location, treeContactList);
+
+                location.y = location.y
+                    + treeContactList.getPathBounds(
+                            treeContactList.getSelectionPath()).y;
+                location.x += 8;
+                location.y -= 8;
+
+                List<JMenuItem> items = new ArrayList<JMenuItem>();
+                Iterator<String> detailIterator = urlDetails.iterator();
+                while(detailIterator.hasNext())
+                {
+                    String url = detailIterator.next();
+
+                    String displayStr = url;
+                    // do not display too long links
+                    if(displayStr.length() > 60)
+                    {
+                        displayStr = displayStr.substring(0, 60);
+                        displayStr += "...";
+                    }
+                    final JMenuItem menuItem = new JMenuItem(displayStr);
+                    menuItem.setName(url);
+                    menuItem.setToolTipText(url);
+
+                    menuItem.addActionListener(new ActionListener()
+                    {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            GuiActivator.getBrowserLauncher().openURL(
+                                menuItem.getName());
+                        }
+                    });
+                    items.add(menuItem);
+                }
+
+                new ExtendedPopupMenu(
+                        treeContactList,
+                        null,
+                        items).showPopupMenu(location.x, location.y);
             }
         }
     }
@@ -1944,15 +2000,36 @@ public class ContactListTreeCellRenderer
         /**
          * The links used in this button.
          */
-        private List<URLDetail> links;
+        private List<String> links;
 
         /**
          * Changes the links.
          * @param links
          */
-        private void setLinks(List<URLDetail> links)
+        private void setLinksFromURLDetail(List<URLDetail> links)
         {
-            this.links = links;
+            this.links = new ArrayList<String>();
+            for(URLDetail l : links)
+                this.links.add(l.getDetailValue().toString());
+        }
+
+        /**
+         * Changes the links.
+         * @param links
+         */
+        private void setLinksFromContactDetail(List<ContactDetail> links)
+        {
+            this.links = new ArrayList<String>();
+            for(ContactDetail l : links)
+                this.links.add(l.getDetail());
+        }
+
+        /**
+         * Clear links.
+         */
+        private void clearLinks()
+        {
+            this.links = null;
         }
 
         /**
@@ -1968,9 +2045,8 @@ public class ContactListTreeCellRenderer
             ExtendedTooltip tip = new ExtendedTooltip(true);
             tip.setTitle(webButton.getToolTipText());
 
-            for(URLDetail wd : links)
+            for(String displayStr : links)
             {
-                String displayStr = wd.getDetailValue().toString();
                 // do not display too long links
                 if(displayStr.length() > 60)
                 {
