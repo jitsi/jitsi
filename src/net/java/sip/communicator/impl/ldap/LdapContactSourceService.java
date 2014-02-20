@@ -24,7 +24,7 @@ import net.java.sip.communicator.service.ldap.*;
  * @author Sebastien Vincent
  */
 public class LdapContactSourceService
-    implements ContactSourceService
+    implements ContactSourceService, PrefixedContactSourceService
 {
     /**
      * The <tt>List</tt> of <tt>LdapContactQuery</tt> instances
@@ -167,6 +167,7 @@ public class LdapContactSourceService
      *
      * @return the phoneNumber prefix for all phone numbers
      */
+    @Override
     public String getPhoneNumberPrefix()
     {
         return ldapDirectory.getSettings().getGlobalPhonePrefix();

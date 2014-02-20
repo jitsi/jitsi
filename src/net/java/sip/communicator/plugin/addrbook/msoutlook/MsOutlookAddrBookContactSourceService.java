@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  */
 public class MsOutlookAddrBookContactSourceService
     extends AsyncContactSourceService
-    implements EditableContactSourceService
+    implements EditableContactSourceService, PrefixedContactSourceService
 {
     /**
      * The <tt>Logger</tt> used by the
@@ -209,6 +209,7 @@ public class MsOutlookAddrBookContactSourceService
      *
      * @return the global phone number prefix
      */
+    @Override
     public String getPhoneNumberPrefix()
     {
         return AddrBookActivator.getConfigService()

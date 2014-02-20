@@ -359,9 +359,9 @@ public class SourceUIContact
             ContactSourceService contactSource
                 = sourceContact.getContactSource();
 
-            if (contactSource instanceof ExtendedContactSourceService)
+            if (contactSource instanceof PrefixedContactSourceService)
             {
-                String prefix = ((ExtendedContactSourceService) contactSource)
+                String prefix = ((PrefixedContactSourceService) contactSource)
                     .getPhoneNumberPrefix();
 
                 if (prefix != null)
