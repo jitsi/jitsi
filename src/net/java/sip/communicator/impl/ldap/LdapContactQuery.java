@@ -75,22 +75,17 @@ public class LdapContactQuery
     @Override
     protected void run()
     {
-        /* query we get is delimited by \Q and \E
-         * and we should not query LDAP server with a too small number of
-         * characters
-         */
+        //we should not query LDAP server with a too small number of characters
         String queryStr = query.toString();
-        if(queryStr.length() < (4))
+        if(queryStr.length() < 2)
         {
             return;
         }
 
-        /* remove \Q and \E from the Pattern */
-        String queryString = queryStr.substring(2, queryStr.length() - 2);
         LdapService ldapService = LdapActivator.getLdapService();
         LdapFactory factory = ldapService.getFactory();
 
-        ldapQuery = factory.createQuery(queryString);
+        ldapQuery = factory.createQuery(queryStr);
         LdapSearchSettings settings = factory.createSearchSettings();
         settings.setDelay(250);
         settings.setMaxResults(count);

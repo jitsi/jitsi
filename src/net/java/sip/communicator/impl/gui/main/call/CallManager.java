@@ -4125,27 +4125,28 @@ public class CallManager
                 (index > -1) ? peerAddress.substring(0, index) : peerAddress;
 
             // searches for the whole number/username or with the @serverpart
-            peerUserID = Pattern.quote(peerUserID);
+            String quotedPeerUserID = Pattern.quote(peerUserID);
             Pattern pattern = Pattern.compile(
-                "^(" + peerUserID + "|" + peerUserID + "@.*)$");
+                "^(" + quotedPeerUserID + "|" + quotedPeerUserID + "@.*)$");
 
             // Queries all available resolvers
-            for(ContactSourceService contactSourceService:
-                    GuiActivator.getContactSources())
+            for(ContactSourceService css : GuiActivator.getContactSources())
             {
-                if(!(contactSourceService
-                        instanceof ExtendedContactSourceService))
-                    continue;
-
-                // use the pattern method of (ExtendedContactSourceService)
-                ContactQuery query
-                    = ((ExtendedContactSourceService)contactSourceService)
-                            .createContactQuery(pattern);
+                ContactQuery query;
+                if(css instanceof ExtendedContactSourceService)
+                {
+                    // use the pattern method of (ExtendedContactSourceService)
+                    query = ((ExtendedContactSourceService)css)
+                                .createContactQuery(pattern);
+                }
+                else
+                {
+                    query = css.createContactQuery(peerUserID);
+                }
 
                 resolvers.add(
                         new ResolveAddressToDisplayNameContactQueryListener(
                             query));
-                
                 query.start();
             }
 
