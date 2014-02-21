@@ -171,6 +171,12 @@ public class TreeContactList
     private UIGroupImpl rootUIGroup = null;
 
     /**
+     * If <tt>true</tt> when contact is received the selection will be set to
+     * the first contact automatically. The flag should be set by the filters.
+     */
+    private Boolean setAutoSelectionAllowed = false;
+
+    /**
      * Creates the <tt>TreeContactList</tt>.
      *
      * @param clContainer the container, where this contact list component is
@@ -603,6 +609,14 @@ public class TreeContactList
             contactNode = groupNode.sortedAddContact(contactImpl);
         else
             contactNode = groupNode.addContact(contactImpl);
+
+        synchronized (setAutoSelectionAllowed)
+        {
+            if(setAutoSelectionAllowed)
+            {
+                selectFirstContact();
+            }
+        }
 
         if(rootUIGroup == null && groupNode == treeModel.getRoot()
             && treeModel.getRoot().getChildBefore(contactNode) instanceof GroupNode)
@@ -1119,6 +1133,19 @@ public class TreeContactList
     }
 
     /**
+     * Sets the value of auto selection flag. If <tt>true</tt> when contact is
+     * received the first contact in the contact list will be automatically
+     * selected.
+     * @param value the value to be set.
+     */
+    public void setAutoSectionAllowed(boolean value)
+    {
+        synchronized (setAutoSelectionAllowed)
+        {
+            setAutoSelectionAllowed = value;
+        }
+    }
+    /**
      * Applies the given <tt>filter</tt>.
      * @param filter the <tt>ContactListFilter</tt> to apply.
      * @return the filter query
@@ -1180,12 +1207,12 @@ public class TreeContactList
                     if (currentFilter == null || !currentFilter.equals(filter))
                         currentFilter = filter;
 
+                    setAutoSectionAllowed(false);
                     // If something goes wrong in our filters, we don't want the
                     // whole gui to crash.
                     try
                     {
                         currentFilter.applyFilter(filterQuery);
-                        selectFirstContact();
                     }
                     catch (Throwable t)
                     {
@@ -1276,7 +1303,11 @@ public class TreeContactList
                 ContactNode contactNode = treeModel.findFirstContactNode();
 
                 if (contactNode != null)
-                    setSelectionPath(new TreePath(contactNode.getPath()));
+                {
+                    if(!contactNode.equals(getSelectedValue()))
+                        setSelectionPath(new TreePath(contactNode.getPath()));
+                }
+
             }
         });
     }
@@ -1403,6 +1434,7 @@ public class TreeContactList
             fireContactListEvent(
                 ((ContactNode) lastComponent).getContactDescriptor(),
                 ContactListEvent.CONTACT_CLICKED, e.getClickCount());
+            setAutoSectionAllowed(false);
         }
         else if (lastComponent instanceof GroupNode)
         {

@@ -169,9 +169,6 @@ public class SearchField
         // have found matching contacts we enter the normal view.
         enableUnknownContactView(!hasResults);
 
-        if (hasResults)
-            contactList.selectFirstContact();
-
         query.setQueryListener(null);
     }
 
@@ -287,7 +284,7 @@ public class SearchField
             filterQueryFinished(currentFilterQuery, !contactList.isEmpty());
         }
     }
-    
+
     public void dispose()
     {
         if(getUI() instanceof ContactSearchFieldUI)

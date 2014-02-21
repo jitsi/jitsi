@@ -51,11 +51,11 @@ public class SearchFilter
     protected String DISABLE_CALL_HISTORY_SEARCH_PROP
         = "net.java.sip.communicator.impl.gui"
                 + ".DISABLE_CALL_HISTORY_SEARCH_IN_CONTACT_LIST";
-    
+
     /**
      * Defines custom order for the contact sources.
      */
-    private static Map<Integer, Integer> contactSourceOrder 
+    private static Map<Integer, Integer> contactSourceOrder
         = new HashMap<Integer, Integer>();
 
     /**
@@ -76,16 +76,16 @@ public class SearchFilter
         this.sourceContactList = sourceContactList;
         initContactSourceOrder();
     }
-    
+
     /**
-     * Initializes the custom contact source order map. 
+     * Initializes the custom contact source order map.
      */
     private void initContactSourceOrder()
     {
         //This entry will be used to set the index for chat room contact sources
         //The index is used to order the contact sources in the contact list.
         //The chat room sources will be ordered after the meta contact list.
-        contactSourceOrder.put(ContactSourceService.CHAT_ROOM_TYPE, 
+        contactSourceOrder.put(ContactSourceService.CHAT_ROOM_TYPE,
             GuiActivator.getContactListService().getSourceIndex() + 1);
     }
 
@@ -105,12 +105,12 @@ public class SearchFilter
                 .equals(TreeContactList.presenceFilter))
         {
             final MetaContactQuery defaultQuery = new MetaContactQuery();
-            
+
             defaultQuery.addContactQueryListener(sourceContactList);
 
             // First add the MetaContactListSource
             filterQuery.addContactQuery(defaultQuery);
-            
+
             mclSource.startQuery(defaultQuery, filterPattern);
         }
         else if (sourceContactList.getDefaultFilter()
@@ -124,12 +124,17 @@ public class SearchFilter
         if (filterQuery.isCanceled())
             return;
 
+        if(sourceContactList instanceof TreeContactList)
+        {
+            ((TreeContactList) sourceContactList).setAutoSectionAllowed(true);
+        }
+
         // Then we apply the filter on all its contact sources.
         while (filterSources.hasNext())
         {
             final UIContactSource filterSource
                 = filterSources.next();
-            
+
             // Don't search in history sources if this is disabled from the
             // corresponding configuration property.
             if (sourceContactList.getDefaultFilter()
@@ -147,7 +152,7 @@ public class SearchFilter
                     filterSource.getContactSourceService().getType());
                 if(contactSourceIndex != null)
                 {
-                    //We are setting the index from contactSourceOrder map. This 
+                    //We are setting the index from contactSourceOrder map. This
                     //index is set to reorder the sources in the contact list.
                     filterSource.setContactSourceIndex(contactSourceIndex);
                 }
@@ -162,8 +167,6 @@ public class SearchFilter
         // Closes this filter to indicate that we finished adding queries to it.
         if (filterQuery.isRunning())
             filterQuery.close();
-        else if (!sourceContactList.isEmpty())
-            sourceContactList.selectFirstContact();
     }
 
     /**
@@ -174,7 +177,7 @@ public class SearchFilter
      * @param filterQuery the filter query object.
      * @return the <tt>ContactQuery</tt> that tracks this filter
      */
-    protected ContactQuery applyFilter(UIContactSource contactSource, 
+    protected ContactQuery applyFilter(UIContactSource contactSource,
         FilterQuery filterQuery)
     {
         ContactSourceService sourceService
@@ -189,14 +192,14 @@ public class SearchFilter
             contactQuery = sourceService.createContactQuery(filterString);
 
         contactQuery.addContactQueryListener(sourceContactList);
-        
+
         if (contactQuery.getStatus() == ContactQuery.QUERY_IN_PROGRESS)
         {
             filterQuery.addContactQuery(contactQuery);
         }
-        
+
         contactQuery.start();
-        
+
         return contactQuery;
     }
 
