@@ -1975,6 +1975,8 @@ public class ChatPanel
                 // Add incoming events accumulated while the history was loading
                 // at the end of the chat.
                 addIncomingEvents();
+
+                chatContainer.updateHistoryButtonState(ChatPanel.this);
             }
         };
 
