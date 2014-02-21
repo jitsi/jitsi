@@ -25,6 +25,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
+import net.java.sip.communicator.util.account.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
@@ -318,8 +319,7 @@ public class MessageHistoryServiceImpl
                 while (recs.hasNext())
                 {
                     result.add(
-                        convertHistoryRecordToMessageEvent(recs.next(),
-                            item));
+                        convertHistoryRecordToMessageEvent(recs.next(), item));
 
                 }
             } catch (IOException e)
@@ -336,6 +336,114 @@ public class MessageHistoryServiceImpl
             startIndex = 0;
 
         return resultAsList.subList(startIndex, resultAsList.size());
+    }
+
+    /**
+     * Returns the messages for the recently contacted <tt>count</tt> contacts.
+     *
+     * @param count contacts count
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    Collection<EventObject> findRecentMessagesPerContact(int count)
+        throws RuntimeException
+    {
+        TreeSet<EventObject> result
+            = new TreeSet<EventObject>(
+            new MessageEventComparator<EventObject>());
+
+        List<HistoryID> historyIDs=
+            this.historyService.getExistingHistories(
+                new String[]{"messages", "default"});
+
+        for(HistoryID id : historyIDs)
+        {
+            if(result.size() >= count)
+                break;
+
+            try
+            {
+                // find contact for historyID
+                Contact contact = getContactForHistory(id);
+
+                // skip not found contacts, disabled accounts and hidden one
+                if(contact == null)
+                    continue;
+
+                History history;
+                if (this.historyService.isHistoryExisting(id))
+                {
+                    history = this.historyService.getHistory(id);
+                }
+                else
+                {
+                    history = this.historyService.createHistory(id,
+                        recordStructure);
+                }
+
+                HistoryReader reader = history.getReader();
+
+                Iterator<HistoryRecord> recs = reader.findLast(1);
+                while (recs.hasNext())
+                {
+                    result.add(convertHistoryRecordToMessageEvent(
+                        recs.next(), contact));
+                    break;
+                }
+            }
+            catch(IOException ex)
+            {
+                logger.error("Could not read history", ex);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Founds the contact corresponding this HistoryID. Checks the account and
+     * then searches for the contact.
+     * Will skip hidden and disabled accounts.
+     *
+     * @param id the history id.
+     * @return
+     */
+    private Contact getContactForHistory(HistoryID id)
+    {
+        // this history id is: "messages", localId, account, remoteId
+        if(id.getID().length != 4)
+            return null;
+
+        String accountID = id.getID()[2].replace('_', ':');
+
+        AccountID account = null;
+        for(AccountID acc : AccountUtils.getStoredAccounts())
+        {
+            if( !acc.isHidden()
+                && acc.isEnabled()
+                && accountID.startsWith(acc.getAccountUniqueID()))
+            {
+                account = acc;
+                break;
+            }
+        }
+
+        if(account == null)
+            return null;
+
+        ProtocolProviderService pps =
+            AccountUtils.getRegisteredProviderForAccount(account);
+
+        if(pps == null)
+            return null;
+
+        OperationSetPersistentPresence opSetPresence =
+            pps.getOperationSet(OperationSetPersistentPresence.class);
+
+        if(opSetPresence == null)
+            return null;
+
+        return opSetPresence.findContactByID(id.getID()[3]);
     }
 
     /**

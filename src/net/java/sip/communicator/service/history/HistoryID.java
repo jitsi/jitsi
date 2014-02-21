@@ -56,6 +56,21 @@ public class HistoryID
     }
 
     /**
+     * Create a HistoryID from a raw Strings. You can pass any kind of strings
+     * and they will be checked and converted to valid IDs.
+     */
+    public static HistoryID createFromRawStrings(String[] rawStrings)
+    {
+        String[] id = new String[rawStrings.length];
+        for (int i = 0; i < rawStrings.length; i++)
+        {
+            id[i] = HistoryID.decodeReadableHash(rawStrings[i]);
+        }
+
+        return new HistoryID(id);
+    }
+
+    /**
      * Create a HistoryID from a valid ID. You should pass only valid IDs (ones
      * produced from readableHash).
      *
@@ -165,6 +180,32 @@ public class HistoryID
         }
 
         return encodedString.toString();
+    }
+
+    /**
+     * Decodes readable hash.
+     *
+     * @param rawString The string to be checked.
+     * @return The human-readable hash.
+     */
+    public static String decodeReadableHash(String rawString)
+    {
+        int replaceCharIx = rawString.indexOf("_");
+        int hashCharIx = rawString.indexOf("$");
+
+        if(replaceCharIx > -1
+            && hashCharIx > -1
+            && replaceCharIx < hashCharIx)
+        {
+            //String rawStrNotHashed = encodedString.substring(0, hashCharIx);
+            // String hashValue = encodedString.substring(hashCharIx + 1);
+            // TODO: we can check the string, just to be sure, if we now
+            // the char to replace, when dealing with accounts it will be :
+
+            return rawString;
+        }
+        else
+            return rawString;
     }
 
     /**
