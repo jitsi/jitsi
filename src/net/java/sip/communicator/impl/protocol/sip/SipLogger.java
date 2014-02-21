@@ -298,8 +298,18 @@ public class SipLogger
                             message.getRemotePort(),
                             message.getLocalAddress(),
                             transport);
-                    srcPort = localAddress.getPort();
-                    srcAddr = localAddress.getAddress().getAddress();
+                    if (localAddress != null)
+                    {
+                        srcPort = localAddress.getPort();
+                        srcAddr = localAddress.getAddress().getAddress();
+                    }
+                    else
+                    {
+                        logger.warn("Could not obtain source address for "
+                            + " packet. Writing source as 0.0.0.0:0");
+                        srcPort = 0;
+                        srcAddr = new byte[] { 0, 0, 0, 0 };
+                    }
                 }
                 else
                 {

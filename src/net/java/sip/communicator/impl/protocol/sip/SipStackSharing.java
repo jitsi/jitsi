@@ -701,7 +701,8 @@ public class SipStackSharing
 
             if(transaction == null)
             {
-                logger.warn("Transaction is null, probably already expired!");
+                logger.warn("Transaction is null, probably already expired! "
+                    + "Status=" + event.getResponse().getStatusCode());
                 return;
             }
 
