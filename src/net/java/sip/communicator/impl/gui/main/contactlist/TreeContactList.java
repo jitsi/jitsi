@@ -571,14 +571,19 @@ public class TreeContactList
                     GroupNode parentNode = treeModel.getRoot();
 
                     if (isGroupSorted)
-                        groupNode = parentNode.sortedAddContactGroup(contactImpl);
+                        groupNode = parentNode
+                            .sortedAddContactGroup(contactImpl);
                     else
                         groupNode = parentNode.addContactGroup(contactImpl);
 
-                    if(group.getSourceIndex() < GuiActivator.getContactListService()
-                        .getSourceIndex() && rootUIGroup == null
+                    // do not show the contacts group in history filter
+                    if( group.getSourceIndex()
+                            < GuiActivator.getContactListService()
+                                .getSourceIndex()
+                        && rootUIGroup == null
                         && (!(treeModel.getRoot().getChildAfter(groupNode)
-                            instanceof GroupNode)))
+                            instanceof GroupNode))
+                        && !currentFilter.equals(historyFilter))
                     {
                         createMetaUIRootGroup();
                     }
