@@ -782,4 +782,37 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         }
         return null;
     }
+
+
+    /**
+     * Creates the ICE agent that we would be using in this transport manager
+     * for all negotiation.
+     *
+     * @return the ICE agent to use for all the ICE negotiation that this
+     * transport manager would be going through
+     */
+    protected Agent createIceAgent()
+    {
+        //work in progress
+        return null;
+    }
+
+    /**
+     * Creates an {@link IceMediaStream} with the specified <tt>media</tt>
+     * name.
+     *
+     * @param media the name of the stream we'd like to create.
+     * @param agent the ICE {@link Agent} that we will be appending the stream
+     * to.
+     *
+     * @return the newly created {@link IceMediaStream}
+     *
+     * @throws OperationFailedException if binding on the specified media stream
+     * fails for some reason.
+     */
+    protected IceMediaStream createIceStream(String media, Agent agent)
+        throws OperationFailedException
+    {
+        return null;
+    }
 }
