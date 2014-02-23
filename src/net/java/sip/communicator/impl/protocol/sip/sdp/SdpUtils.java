@@ -19,9 +19,12 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
+import net.java.sip.communicator.util.Logger;
+import org.ice4j.ice.sdp.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.MediaType;
 import org.jitsi.service.neomedia.format.*;
+import org.jitsi.util.*;
 
 /**
  * The class contains a number of utility methods that are meant to facilitate
@@ -164,8 +167,10 @@ public class SdpUtils
                 : Connection.IP4;
 
             //o
-            if (userName == null)
+            if (StringUtils.isNullOrEmpty(userName) )
                 userName = "jitsi.org";
+            else
+                userName += "-jitsi.org";
 
             Origin o = sdpFactory.createOrigin(
                 userName, 0, 0, "IN", addrType, localAddress.getHostAddress());
@@ -1742,5 +1747,25 @@ public class SdpUtils
              */
             return new String(rawContent);
         }
+    }
+
+    /**
+     * Sets the specified ICE user fragment and password as attributes of the
+     * specified session description.
+     *
+     * @param sDes the session description where we'd like to set a user
+     * fragment and a password.
+     * @param uFrag the ICE user name fragment that we'd like to set on the
+     * session description
+     * @param pwd the ICE password that we'd like to set on the session
+     * description
+     *
+     * @throws NullPointerException if the either of the parameters is null
+     */
+    public static void setIceCredentials(SessionDescription sDes,
+                                         String             uFrag,
+                                         String             pwd)
+    {
+        IceSdpUtils.setIceCredentials(sDes, uFrag, pwd);
     }
 }
