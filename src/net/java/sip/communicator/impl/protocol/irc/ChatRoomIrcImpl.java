@@ -31,9 +31,14 @@ public class ChatRoomIrcImpl
         = Logger.getLogger(ChatRoomIrcImpl.class);
 
     /**
+     * The parent protocol service provider
+     */
+    private final ProtocolProviderServiceIrcImpl parentProvider;
+
+    /**
      * The name of the chat room.
      */
-    private String chatRoomName = null;
+    private final String chatRoomName;
 
     /**
      * The subject of the chat room.
@@ -45,11 +50,6 @@ public class ChatRoomIrcImpl
      */
     private final Hashtable<String, ChatRoomMember> chatRoomMembers
         = new Hashtable<String, ChatRoomMember>();
-
-    /**
-     * The parent protocol service provider
-     */
-    private final ProtocolProviderServiceIrcImpl parentProvider;
 
     /**
      * Listeners that will be notified of changes in member status in the
@@ -131,8 +131,6 @@ public class ChatRoomIrcImpl
         this(chatRoomName, parentProvider, false);
     }
     
-    // TODO Need to implement equals() in order to correct compare 2 instances of ChatRoomIrcImpl as representing the same chatroom (room name + parent provider)
-
     /**
      * Creates an instance of <tt>ChatRoomIrcImpl</tt>, by specifying the room
      * name, the protocol provider and the isPrivate property. Private chat
@@ -147,9 +145,50 @@ public class ChatRoomIrcImpl
                             ProtocolProviderServiceIrcImpl parentProvider,
                             boolean isSystem)
     {
+        if (parentProvider == null)
+            throw new IllegalArgumentException("parentProvider cannot be null");
         this.parentProvider = parentProvider;
+        if (chatRoomName == null)
+            throw new IllegalArgumentException("chatRoomName cannot be null");
         this.chatRoomName = chatRoomName;
         this.isSystem = isSystem;
+    }
+
+    /**
+     * hashCode implementation for Chat Room.
+     */
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result =
+            prime * result
+                + ((chatRoomName == null) ? 0 : chatRoomName.hashCode());
+        result =
+            prime * result
+                + ((parentProvider == null) ? 0 : parentProvider.hashCode());
+        return result;
+    }
+
+    /**
+     * equals implementation for Chat Room.
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ChatRoomIrcImpl other = (ChatRoomIrcImpl) obj;
+        if (!parentProvider.equals(other.parentProvider))
+            return false;
+        if (!chatRoomName.equals(other.chatRoomName))
+            return false;
+        return true;
     }
 
     /**
