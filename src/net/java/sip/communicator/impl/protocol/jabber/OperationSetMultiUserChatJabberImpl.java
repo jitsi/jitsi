@@ -55,6 +55,12 @@ public class OperationSetMultiUserChatJabberImpl
         = new RegistrationStateListener();
 
     /**
+     * A reference to the persistent presence operation set that we use
+     * to match incoming messages to <tt>Contact</tt>s and vice versa.
+     */
+    private OperationSetPersistentPresenceJabberImpl opSetPersPresence = null;
+    
+    /**
      * Instantiates the user operation set with a currently valid instance of
      * the Jabber protocol provider.
      * @param jabberProvider a currently valid instance of
@@ -67,11 +73,26 @@ public class OperationSetMultiUserChatJabberImpl
 
         jabberProvider.addRegistrationStateChangeListener(providerRegListener);
 
-        OperationSetPersistentPresence presenceOpSet
-            = jabberProvider
+        opSetPersPresence
+            = (OperationSetPersistentPresenceJabberImpl)jabberProvider
                 .getOperationSet(OperationSetPersistentPresence.class);
 
-        presenceOpSet.addSubscriptionListener(this);
+        opSetPersPresence.addSubscriptionListener(this);
+    }
+
+    /**
+     * Add SmackInvitationRejectionListener to <tt>MultiUserChat</tt> instance
+     * which will dispatch all rejection events.
+     *
+     * @param muc the smack MultiUserChat instance that we're going to wrap our
+     * chat room around.
+     * @param chatRoom the associated chat room instance
+     */
+    public void addSmackInvitationRejectionListener(MultiUserChat muc, 
+        ChatRoom chatRoom)
+    {
+        muc.addInvitationRejectionListener(
+            new SmackInvitationRejectionListener(chatRoom));
     }
 
     /**
@@ -133,17 +154,67 @@ public class OperationSetMultiUserChatJabberImpl
                                                    , ex.getXMPPError().getCode()
                                                    , ex.getCause());
             }
-
+            
+            boolean isPrivate = false;
+            if(roomProperties != null)
+            {
+                Object isPrivateObject = roomProperties.get("isPrivate");
+                if(isPrivateObject != null)
+                {
+                    isPrivate = isPrivateObject.equals(true);
+                }
+            }
+                
             try
             {
-                muc.sendConfigurationForm(new Form(Form.TYPE_SUBMIT));
+                Form form;
+                if(isPrivate)
+                {
+                    Form initForm = muc.getConfigurationForm();
+                    form = initForm.createAnswerForm();
+                    Iterator<FormField> fieldIterator = initForm.getFields();
+                    while(fieldIterator.hasNext())
+                    {
+                        FormField initField = fieldIterator.next();
+                        if( initField == null ||
+                            initField.getVariable() == null ||
+                            initField.getType() == FormField.TYPE_FIXED ||
+                            initField.getType() == FormField.TYPE_HIDDEN)
+                            continue;
+                        FormField submitField 
+                            = form.getField(initField.getVariable());
+                        if(submitField == null)                       
+                            continue;
+                        Iterator<String> value = initField.getValues();
+                        while(value.hasNext())
+                            submitField.addValue(value.next());
+                    }
+                    String[] fields = {"muc#roomconfig_membersonly",
+                        "muc#roomconfig_allowinvites",
+                        "muc#roomconfig_publicroom"};
+                    Boolean[] values = {true, true, false};
+                    for(int i = 0; i < fields.length; i++)
+                    {
+                        FormField field = new FormField(fields[i]);
+                        field.setType("boolean");
+                        form.addField(field);
+                        form.setAnswer(fields[i], values[i]);
+                    }
+                }
+                else
+                {
+                    form = new Form(Form.TYPE_SUBMIT);
+                }
+                muc.sendConfigurationForm(form);
             } catch (XMPPException e)
             {
                 logger.error("Failed to send config form.", e);
             }
 
             room = createLocalChatRoomInstance(muc);
-            room.setLocalUserRole(ChatRoomMemberRole.MODERATOR);
+            // as we are creating the room we are the owner of it
+            // at least that's what MultiUserChat.create says
+            room.setLocalUserRole(ChatRoomMemberRole.OWNER);
         }
         return room;
     }
@@ -168,21 +239,19 @@ public class OperationSetMultiUserChatJabberImpl
             // Add the contained in this class SmackInvitationRejectionListener
             // which will dispatch all rejection events to the
             // ChatRoomInvitationRejectionListener.
-            muc.addInvitationRejectionListener(
-                new SmackInvitationRejectionListener(chatRoom));
+            addSmackInvitationRejectionListener(muc, chatRoom);
 
             return chatRoom;
         }
     }
 
     /**
-     * Returns a reference to a chatRoom named <tt>roomName</tt> or null
-     * if that room does not exist.
+     * Returns a reference to a chatRoom named <tt>roomName</tt>. If the room 
+     * doesn't exists in the cache it creates it.
      *
      * @param roomName the name of the <tt>ChatRoom</tt> that we're looking
      *   for.
-     * @return the <tt>ChatRoom</tt> named <tt>roomName</tt> if it exists, null
-     * otherwise.
+     * @return the <tt>ChatRoom</tt> named <tt>roomName</tt>
      * @throws OperationFailedException if an error occurs while trying to
      * discover the room on the server.
      * @throws OperationNotSupportedException if the server does not support
@@ -200,26 +269,12 @@ public class OperationSetMultiUserChatJabberImpl
         if (room != null)
             return room;
 
-        try
-        {
-            // throws Exception if room does not exist
-            // do not use MultiUserChat.getRoomInfo as there is a bug which
-            // throws NPE
-            ServiceDiscoveryManager.getInstanceFor(getXmppConnection()).
-                discoverInfo(canonicalRoomName);
+        MultiUserChat muc
+            = new MultiUserChat(getXmppConnection(), canonicalRoomName);
 
-            MultiUserChat muc
-                = new MultiUserChat(getXmppConnection(), canonicalRoomName);
-
-            room = new ChatRoomJabberImpl(muc, jabberProvider);
-            chatRoomCache.put(canonicalRoomName, room);
-            return room;
-        }
-        catch (XMPPException e)
-        {
-            // room not found
-            return null;
-        }
+        room = new ChatRoomJabberImpl(muc, jabberProvider);
+        chatRoomCache.put(canonicalRoomName, room);
+        return room;
     }
 
     /**
@@ -370,6 +425,18 @@ public class OperationSetMultiUserChatJabberImpl
             return true;
 
         return false;
+    }
+
+    /**
+     * Checks if the contact address is associated with private messaging 
+     * contact or not.
+     * 
+     * @return <tt>true</tt> if the contact address is associated with private
+     * messaging contact and <tt>false</tt> if not.
+     */
+    public boolean isPrivateMessagingContact(String contactAddress)
+    {
+        return opSetPersPresence.isPrivateMessagingContact(contactAddress);
     }
 
     /**
@@ -597,11 +664,6 @@ public class OperationSetMultiUserChatJabberImpl
             try
             {
                 chatRoom = (ChatRoomJabberImpl) findRoom(room);
-                if (chatRoom == null)
-                {
-                    MultiUserChat muc = new MultiUserChat(conn, room);
-                    chatRoom = new ChatRoomJabberImpl(muc, jabberProvider);
-                }
                 if (password != null)
                     fireInvitationEvent(
                         chatRoom, inviter, reason, password.getBytes());
@@ -689,6 +751,15 @@ public class OperationSetMultiUserChatJabberImpl
                 // clear cached chatrooms as there are no longer valid
                 chatRoomCache.clear();
             }
+            else if (evt.getNewState() == RegistrationState.UNREGISTERING)
+            {
+                // lets check for joined rooms and leave them
+                List<ChatRoom> joinedRooms = getCurrentlyJoinedChatRooms();
+                for(ChatRoom room : joinedRooms)
+                {
+                    room.leave();
+                }
+            }
         }
     }
 
@@ -735,9 +806,6 @@ public class OperationSetMultiUserChatJabberImpl
       */
      public void subscriptionRemoved(SubscriptionEvent evt)
      {
-         // Set to null the contact reference in all corresponding chat room
-         // members.
-         this.updateChatRoomMembers(null);
      }
 
      /**

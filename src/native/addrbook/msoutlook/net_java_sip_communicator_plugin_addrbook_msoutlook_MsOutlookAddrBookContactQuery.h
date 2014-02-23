@@ -37,6 +37,10 @@ JNIEXPORT jobjectArray JNICALL Java_net_java_sip_communicator_plugin_addrbook_ms
 JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
   (JNIEnv *, jclass, jlong, jstring, jstring);
 
+JNIEXPORT jboolean JNICALL
+Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_compareEntryIds
+  (JNIEnv *, jclass, jstring, jstring);
+
 #ifdef __cplusplus
 }
 #endif

@@ -3,7 +3,7 @@ Bundle-Name: Meta History Service Provider
 Bundle-Description: A bundle that implements the meta history package.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.metahistory
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.history,
  net.java.sip.communicator.service.history.event,

@@ -12,11 +12,14 @@ import java.util.*;
 import javax.imageio.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.DisplayNameDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.sf.jml.*;
+
+import org.jitsi.service.fileaccess.*;
 
 /**
  * Saves account avatar image. If one is already saved we set it as initial one
@@ -252,17 +255,25 @@ public class OperationSetServerStoredAccountInfoMsnImpl
     public boolean isDetailClassSupported(
             Class<? extends GenericDetail> detailClass)
     {
-        List<GenericDetail> details = getContactDetails(uin);
-        Iterator<GenericDetail> iter = details.iterator();
-        while (iter.hasNext())
-        {
-            GenericDetail obj = iter.next();
-            if (detailClass.isAssignableFrom(obj.getClass()))
-            {
-                return true;
-            }
-        }
-        return false;
+        return ImageDetail.class.isAssignableFrom(detailClass) ||
+               DisplayNameDetail.class.isAssignableFrom(detailClass);
+    }
+
+    /**
+     * Determines whether the underlying implementation supports edition
+     * of this detail class.
+     * <p>
+     * @param detailClass the class whose edition we'd like to determine if it's
+     * possible
+     * @return true if the underlying implementation supports edition of this
+     * type of detail and false otherwise.
+     */
+    public boolean isDetailClassEditable(
+        Class<? extends GenericDetail> detailClass)
+    {
+        return 
+            isDetailClassSupported(detailClass)
+            && ImageDetail.class.isAssignableFrom(detailClass);
     }
 
     /**
@@ -397,13 +408,13 @@ public class OperationSetServerStoredAccountInfoMsnImpl
                 + msnProvider.getAccountID().getAccountUniqueID() + ".jpg";
 
         File storeDir = MsnActivator.getFileAccessService()
-            .getPrivatePersistentDirectory(STORE_DIR);
+            .getPrivatePersistentDirectory(STORE_DIR, FileCategory.CACHE);
 
         // if dir doesn't exist create it
         storeDir.mkdirs();
 
         File file = MsnActivator.getFileAccessService()
-            .getPrivatePersistentFile(imagePath);
+            .getPrivatePersistentFile(imagePath, FileCategory.CACHE);
 
         ImageIO.write(
             ImageIO.read(new ByteArrayInputStream(data)),
@@ -516,6 +527,18 @@ public class OperationSetServerStoredAccountInfoMsnImpl
         return false;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see net.java.sip.communicator.service.protocol.OperationSetServerStoredAccountInfo#save()
+     * This method is currently unimplemented.
+     * The idea behind this method is for users to call it only once, meaning 
+     * that all ServerStoredDetails previously modified by addDetail/removeDetail
+     * and/or replaceDetail will be saved online on the server in one step.
+     * Currently, addDetail/removeDetail/replaceDetail methods are doing the
+     * actual saving but in the future the saving part must be carried here. 
+     */
+    public void save() throws OperationFailedException {}
+
     /**
      * Utility method throwing an exception if the icq stack is not properly
      * initialized.
@@ -557,7 +580,7 @@ public class OperationSetServerStoredAccountInfoMsnImpl
                     + msnProvider.getAccountID().getAccountUniqueID() + ".jpg";
 
                 File file = MsnActivator.getFileAccessService()
-                    .getPrivatePersistentFile(imagePath);
+                    .getPrivatePersistentFile(imagePath, FileCategory.CACHE);
 
                 if(file.exists())
                 {

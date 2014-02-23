@@ -366,6 +366,30 @@ public class MetaContactRightButtonMenu
             this.moveToMenu.add(menuItem);
         }
 
+        boolean hasOnlyReadonlyContacts = true;
+        boolean hasAnyReadonlyContact = false;
+        Iterator<Contact> iter = metaContact.getContacts();
+        while(iter.hasNext())
+        {
+            Contact c = iter.next();
+            OperationSetPersistentPresencePermissions opsetPermissions =
+                c.getProtocolProvider()
+                    .getOperationSet(
+                        OperationSetPersistentPresencePermissions.class);
+
+            if( opsetPermissions == null
+                || !opsetPermissions.isReadOnly(c))
+            {
+                hasOnlyReadonlyContacts = false;
+            }
+
+            if(opsetPermissions != null
+                && opsetPermissions.isReadOnly(c))
+            {
+                hasAnyReadonlyContact = true;
+            }
+        }
+
         //Initialize removeContact menu.
         Iterator<Contact> contacts = metaContact.getContacts();
 
@@ -383,14 +407,18 @@ public class MetaContactRightButtonMenu
 
             allItem1.setName(moveSubcontactPrefix + "allContacts");
 
-            this.removeContactMenu.add(allItem);
-            this.moveSubcontactMenu.add(allItem1);
-            this.removeContactMenu.addSeparator();
-            this.moveSubcontactMenu.addSeparator();
+            if(!hasAnyReadonlyContact)
+            {
+                this.removeContactMenu.add(allItem);
+                this.moveSubcontactMenu.add(allItem1);
+                this.removeContactMenu.addSeparator();
+                this.moveSubcontactMenu.addSeparator();
+            }
         }
 
         contactPhoneUtil = MetaContactPhoneUtil.getPhoneUtil(metaContact);
 
+        boolean hasPersistableAddress = false;
         while (contacts.hasNext())
         {
             Contact contact = contacts.next();
@@ -398,22 +426,40 @@ public class MetaContactRightButtonMenu
             ProtocolProviderService protocolProvider
                 = contact.getProtocolProvider();
 
+            String contactPersistableAddress = contact.getPersistableAddress();
             String contactAddress = contact.getAddress();
 
             Icon protocolIcon = new ImageIcon(
                     createContactStatusImage(contact));
 
-            this.removeContactMenu.add(
-                new ContactMenuItem(contact,
-                                    contactAddress,
-                                    removeContactPrefix,
-                                    protocolIcon));
+            boolean isContactReadonly = false;
 
-            this.moveSubcontactMenu.add(
-                new ContactMenuItem(contact,
-                                    contactAddress,
-                                    moveSubcontactPrefix,
-                                    protocolIcon));
+            OperationSetPersistentPresencePermissions opsetPermissions =
+                protocolProvider
+                    .getOperationSet(
+                        OperationSetPersistentPresencePermissions.class);
+            if(opsetPermissions != null
+               && opsetPermissions.isReadOnly(contact))
+                isContactReadonly = true;
+
+            if(!isContactReadonly)
+                this.removeContactMenu.add(
+                    new ContactMenuItem(contact,
+                                        contactAddress,
+                                        removeContactPrefix,
+                                        protocolIcon));
+
+            if(contactPersistableAddress != null)
+            {
+                hasPersistableAddress = true;
+
+                if(!isContactReadonly)
+                    this.moveSubcontactMenu.add(
+                        new ContactMenuItem(contact,
+                                            contactPersistableAddress,
+                                            moveSubcontactPrefix,
+                                            protocolIcon));
+            }
 
             List<String> phones = contactPhoneUtil.getPhones(contact);
 
@@ -454,11 +500,17 @@ public class MetaContactRightButtonMenu
                 OperationSetExtendedAuthorizations authOpSet
                     = protocolProvider.getOperationSet(
                         OperationSetExtendedAuthorizations.class);
+                
+                OperationSetMultiUserChat opSetMUC
+                    = protocolProvider.getOperationSet(
+                        OperationSetMultiUserChat.class);
 
                 if (authOpSet != null
                     && authOpSet.getSubscriptionStatus(contact) != null
                     && !authOpSet.getSubscriptionStatus(contact)
-                        .equals(SubscriptionStatus.Subscribed))
+                        .equals(SubscriptionStatus.Subscribed)
+                    && (opSetMUC == null
+                        || !opSetMUC.isPrivateMessagingContact(contactAddress)))
                 {
                     if (firstUnsubscribedContact == null)
                         firstUnsubscribedContact = contact;
@@ -576,17 +628,30 @@ public class MetaContactRightButtonMenu
         addSeparator();
 
         if (!ConfigurationUtils.isContactMoveDisabled() &&
-            !ConfigurationUtils.isCreateGroupDisabled())
+            !ConfigurationUtils.isCreateGroupDisabled() &&
+            hasPersistableAddress)
         {
+            boolean addSeparator = false;
 
-            add(moveToMenu);
-            add(moveSubcontactMenu);
+            if(!hasAnyReadonlyContact)
+            {
+                add(moveToMenu);
+                addSeparator = true;
+            }
 
-            addSeparator();
+            if(moveSubcontactMenu.getItemCount() > 0)
+            {
+                add(moveSubcontactMenu);
+                addSeparator = true;
+            }
+
+            if(addSeparator)
+                addSeparator();
         }
 
-        if (!ConfigurationUtils.isAddContactDisabled() &&
-            !ConfigurationUtils.isMergeContactDisabled())
+        if (!ConfigurationUtils.isAddContactDisabled()
+            && !ConfigurationUtils.isMergeContactDisabled()
+            && !hasAnyReadonlyContact)
         {
             add(addContactItem);
             addSeparator();
@@ -600,7 +665,7 @@ public class MetaContactRightButtonMenu
                 add(removeContactMenu);
                 separator = true;
             }
-            else
+            else if(!hasOnlyReadonlyContacts)
             {
                 // There is only one contact, so a submenu is unnecessary -
                 // just add a single menu item.  It masquerades as an item to
@@ -635,6 +700,10 @@ public class MetaContactRightButtonMenu
 
         Contact defaultContact = metaContact.getDefaultContact();
         int authRequestItemCount = multiContactRequestAuthMenu.getItemCount();
+        OperationSetMultiUserChat opSetMUC
+            = defaultContact.getProtocolProvider().getOperationSet(
+                OperationSetMultiUserChat.class);
+        
         // If we have more than one request to make.
         if (authRequestItemCount > 1)
         {
@@ -646,7 +715,9 @@ public class MetaContactRightButtonMenu
             || (metaContact.getContactCount() == 1
                 && defaultContact.getProtocolProvider()
                     .getOperationSet(OperationSetExtendedAuthorizations.class)
-                        != null)
+                        != null
+                && (opSetMUC == null || !opSetMUC.isPrivateMessagingContact(
+                        defaultContact.getAddress())))
                 && !SubscriptionStatus.Subscribed
                         .equals(defaultContact.getProtocolProvider()
                                     .getOperationSet(
@@ -887,7 +958,7 @@ public class MetaContactRightButtonMenu
         try
         {
             serRefs = GuiActivator.bundleContext.getServiceReferences(
-                PluginComponent.class.getName(),
+                PluginComponentFactory.class.getName(),
                 osgiFilter);
         }
         catch (InvalidSyntaxException exc)
@@ -899,17 +970,21 @@ public class MetaContactRightButtonMenu
         {
             for (int i = 0; i < serRefs.length; i ++)
             {
-                PluginComponent component = (PluginComponent) GuiActivator
-                    .bundleContext.getService(serRefs[i]);
+                PluginComponentFactory factory =
+                    (PluginComponentFactory) GuiActivator
+                        .bundleContext.getService(serRefs[i]);
+
+                PluginComponent component =
+                    factory.getPluginComponentInstance(this);
 
                 component.setCurrentContact(metaContact);
 
                 if (component.getComponent() == null)
                     continue;
 
-                if(component.getPositionIndex() != -1)
+                if(factory.getPositionIndex() != -1)
                     this.add((Component)component.getComponent(),
-                             component.getPositionIndex());
+                        factory.getPositionIndex());
                 else
                     this.add((Component)component.getComponent());
 
@@ -1359,20 +1434,21 @@ public class MetaContactRightButtonMenu
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
-        if(!c.getContainer()
+        if(!factory.getContainer()
                 .equals(Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU))
             return;
 
         Object constraints
             = UIServiceImpl.getBorderLayoutConstraintsFromContainer(
-                c.getConstraints());
+                factory.getConstraints());
 
+        PluginComponent c = factory.getPluginComponentInstance(this);
         if (c.getComponent() == null)
             return;
 
-        int ix = c.getPositionIndex();
+        int ix = factory.getPositionIndex();
 
         if (constraints == null)
         {
@@ -1401,12 +1477,13 @@ public class MetaContactRightButtonMenu
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
-        if(c.getContainer()
+        if(factory.getContainer()
                 .equals(Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU))
         {
-            this.remove((Component) c.getComponent());
+            this.remove((Component)factory.getPluginComponentInstance(this)
+                .getComponent());
         }
     }
 

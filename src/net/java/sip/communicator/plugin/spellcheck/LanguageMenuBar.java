@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.spellcheck;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
+import java.beans.*;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -15,15 +16,14 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.event.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 import net.java.sip.communicator.plugin.spellcheck.Parameters.Default;
 import net.java.sip.communicator.plugin.spellcheck.Parameters.Locale;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 
 /**
  * Combo box providing a listing of all available locales with corresponding
@@ -36,16 +36,13 @@ import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
  */
 public class LanguageMenuBar
     extends SIPCommMenuBar
-    implements PluginComponent
+    implements PluginComponent,
+               PropertyChangeListener
 {
     /**
      * Serial version UID.
      */
     private static final long serialVersionUID = 0L;
-
-    private static final HashMap<SpellChecker, LanguageMenuBar>
-        CLASS_INSTANCES =
-            new HashMap<SpellChecker, LanguageMenuBar>();
 
     // parallel maps containing cached instances of country flags
     private static final HashMap<Parameters.Locale, ImageIcon>
@@ -78,31 +75,15 @@ public class LanguageMenuBar
     public final JList list;
 
     /**
-     * Provides instance of this class associated with a spell checker. If ones
-     * already been created then this instance is used.
-     *
-     * @param checker spell checker field is to be associated with
-     * @return spell checker locale selection field
+     * The parent factory.
      */
-    public synchronized static LanguageMenuBar makeSelectionField(
-        SpellChecker checker)
-    {
-        // singleton constructor to ensure only one combo box is associated with
-        // each checker
-        if (CLASS_INSTANCES.containsKey(checker))
-            return CLASS_INSTANCES.get(checker);
-        else
-        {
-            LanguageMenuBar instance =
-                new LanguageMenuBar(checker);
-            CLASS_INSTANCES.put(checker, instance);
-            return instance;
-        }
-    }
+    private final PluginComponentFactory parentFactory;
 
-    private LanguageMenuBar(SpellChecker checker)
+    LanguageMenuBar(SpellChecker checker, PluginComponentFactory parentFactory)
     {
         this.spellChecker = checker;
+        this.spellChecker.addPropertyChangeListener(this);
+        this.parentFactory = parentFactory;
 
         setPreferredSize(new Dimension(30, 28));
         setMaximumSize(new Dimension(30, 28));
@@ -217,7 +198,8 @@ public class LanguageMenuBar
         });
 
         removeItem.setEnabled(!spellChecker.getLocale().getIsoCode()
-            .equals(Parameters.getDefault(Parameters.Default.LOCALE)));
+            .equals(Parameters.getDefault(Parameters.Default.LOCALE))
+            && spellChecker.isUserLocale(spellChecker.getLocale()));
 
         removeItem.addActionListener(new ActionListener()
         {
@@ -258,30 +240,10 @@ public class LanguageMenuBar
                         Resources
                             .getString("plugin.spellcheck.DICT_ERROR_DELETE_TITLE"),
                         PopupDialog.WARNING_MESSAGE);
-                    ex.printStackTrace();
+                    logger.error("Error removing dict", ex);
                 }
             }
         });
-    }
-
-    /**
-     * Clears any cached data used by the field so it reflects the current state
-     * of its associated spell checker.
-     */
-    // public void revalidate()
-    // {
-    // this.localeAvailabilityCache.clear();
-    // this.field.setSelectedItem(this.spellChecker.getLocale());
-    // }
-
-    public String getConstraints()
-    {
-        return Container.RIGHT;
-    }
-
-    public Container getContainer()
-    {
-        return Container.CONTAINER_CHAT_TOOL_BAR;
     }
 
     @Override
@@ -290,22 +252,17 @@ public class LanguageMenuBar
         return "Spell Checker Toggle";
     }
 
-    public int getPositionIndex()
-    {
-        return -1;
-    }
-
-    public boolean isNativeComponent()
-    {
-        return false;
-    }
-
     public void setCurrentContact(MetaContact metaContact)
     {
 
     }
 
     public void setCurrentContactGroup(MetaContactGroup metaGroup)
+    {
+
+    }
+
+    public void setCurrentAccountID(AccountID account)
     {
 
     }
@@ -417,7 +374,26 @@ public class LanguageMenuBar
 
     }
 
-    private class SelectorMenu
+    /**
+     * When locale changed update the selected dict.
+     * @param evt
+     */
+    @Override
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        if(!evt.getPropertyName().equals(SpellChecker.LOCALE_CHANGED_PROP))
+            return;
+
+        Locale currentLocale = spellChecker.getLocale();
+        ImageIcon flagIcon =
+            getLocaleIcon(currentLocale,
+                localeAvailabilityCache.get(currentLocale));
+        SelectedObject selectedObject =
+            new SelectedObject(flagIcon, currentLocale);
+        menu.setSelected(selectedObject);
+    }
+
+    private static class SelectorMenu
         extends SIPCommMenu
     {
         /**
@@ -506,6 +482,15 @@ public class LanguageMenuBar
     }
 
     /**
+     * Returns the factory that has created the component.
+     * @return the parent factory.
+     */
+    public PluginComponentFactory getParentFactory()
+    {
+        return parentFactory;
+    }
+
+    /**
      * The worker.
      */
     public class SetSpellChecker extends SwingWorker
@@ -572,7 +557,8 @@ public class LanguageMenuBar
             setModelElements((DefaultListModel) sourceList.getModel());
             sourceList.setSelectedValue(locale, true);
             removeItem.setEnabled(!spellChecker.getLocale().getIsoCode()
-                .equals(Parameters.getDefault(Parameters.Default.LOCALE)));
+                .equals(Parameters.getDefault(Parameters.Default.LOCALE))
+                && spellChecker.isUserLocale(spellChecker.getLocale()));
             sourceList
                 .addListSelectionListener(new LanguageListSelectionListener());
 
@@ -694,5 +680,21 @@ public class LanguageMenuBar
 
             }
         }
+    }
+
+    /**
+     * Returns the index indicating the position of this menu in its container.
+     * 
+     * @return -1 to indicate that this menu should take the last position
+     */
+    @Override
+    public int getPositionIndex()
+    {
+        return -1;
+    }
+
+    @Override
+    public void setCurrentContact(Contact contact, String resourceName)
+    {
     }
 }

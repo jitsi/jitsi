@@ -121,8 +121,7 @@ class ChatAttachments
                     }
                     catch (BadLocationException e)
                     {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
+                        logger.error("Error", e);
                     }
                 }
 
@@ -224,7 +223,9 @@ class ChatAttachments
                 }
 
                 // entry to add word
-                JMenuItem addWord = new JMenuItem("Add Word", ADD_WORD_ICON);
+                JMenuItem addWord = new JMenuItem(
+                    resources.getI18NString("plugin.spellcheck.dialog.ADD"),
+                    ADD_WORD_ICON);
                 addWord.addActionListener(new ActionListener()
                 {
                     public void actionPerformed(ActionEvent event)

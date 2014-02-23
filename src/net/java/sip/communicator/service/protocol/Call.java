@@ -22,6 +22,7 @@ import net.java.sip.communicator.util.*;
  * @author Emil Ivov
  * @author Emanuel Onica
  * @author Lyubomir Marinov
+ * @author Boris Grozev
  */
 public abstract class Call
 {
@@ -88,6 +89,12 @@ public abstract class Call
      * in question is participating in a telephony conference.
      */
     private CallConference conference;
+
+    /**
+     * The flag that specifies whether incoming calls into this <tt>Call</tt>
+     * should be auto-answered.
+     */
+    private boolean isAutoAnswer = false;
 
     /**
      * Creates a new Call instance.
@@ -326,8 +333,7 @@ public abstract class Call
                         new CallChangeListener[callListeners.size()]);
         }
         for (CallChangeListener listener : listeners)
-            if(type.equals(CallChangeEvent.CALL_STATE_CHANGE))
-                listener.callStateChanged(event);
+            listener.callStateChanged(event);
     }
 
     /**
@@ -492,7 +498,9 @@ public abstract class Call
                 throw new IllegalStateException("conference");
             }
             else
+            {
                 setConference(newValue);
+            }
         }
         return conference;
     }
@@ -566,4 +574,27 @@ public abstract class Call
      */
     public abstract void removePropertyChangeListener(
             PropertyChangeListener listener);
+
+    /**
+     * Returns <tt>true</tt> iff incoming calls into this <tt>Call</tt> should
+     * be auto-answered.
+     *
+     * @return <tt>true</tt> iff incoming calls into this <tt>Call</tt> should
+     * be auto-answered.
+     */
+    public boolean isAutoAnswer()
+    {
+        return isAutoAnswer;
+    }
+
+    /**
+     * Sets the flag that specifies whether incoming calls into this
+     * <tt>Call</tt> should be auto-answered.
+     * @param autoAnswer whether incoming calls into this <tt>Call</tt> should
+     * be auto-answered.
+     */
+    public void setAutoAnswer(boolean autoAnswer)
+    {
+        isAutoAnswer = autoAnswer;
+    }
 }

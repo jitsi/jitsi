@@ -166,13 +166,24 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
                                                      PresenceStatus oldValue,
                                                      PresenceStatus newValue)
     {
+        this.fireContactPresenceStatusChangeEvent(
+            source, parentGroup, oldValue, newValue, false);
+    }
+
+    public void fireContactPresenceStatusChangeEvent(Contact source,
+                                                     ContactGroup parentGroup,
+                                                     PresenceStatus oldValue,
+                                                     PresenceStatus newValue,
+                                                     boolean isResourceChange)
+    {
         ContactPresenceStatusChangeEvent evt
             = new ContactPresenceStatusChangeEvent(
                     source,
                     parentProvider,
                     parentGroup,
                     oldValue,
-                    newValue);
+                    newValue,
+                    isResourceChange);
 
         Collection<ContactPresenceStatusListener> listeners;
         synchronized (contactPresenceStatusListeners)

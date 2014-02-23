@@ -24,6 +24,7 @@ import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
+import net.java.sip.communicator.impl.gui.main.chatroomslist.*;
 import net.java.sip.communicator.impl.gui.main.configforms.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.login.*;
@@ -34,6 +35,7 @@ import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.util.*;
@@ -55,6 +57,7 @@ import com.sun.jna.platform.WindowUtils;
  * @author Lyubomir Marinov
  * @author Dmitri Melnikov
  * @author Adam Netocny
+ * @author Hristo Terezov
  */
 public class UIServiceImpl
     implements UIService,
@@ -164,8 +167,7 @@ public class UIServiceImpl
         GuiActivator.getUIService().registerExportedWindow(mainFrame);
 
         // Initialize the login manager.
-        this.loginManager
-            = new LoginManager(new LoginRendererSwingImpl());
+        this.loginManager = new LoginManager(new LoginRendererSwingImpl());
 
         this.popupDialog = new PopupDialogImpl();
 
@@ -191,10 +193,10 @@ public class UIServiceImpl
 
         this.initExportedWindows();
 
-        KeyboardFocusManager focusManager =
-            KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        focusManager.
-            addKeyEventDispatcher(new KeyBindingsDispatching(focusManager));
+        KeyboardFocusManager focusManager
+            = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        focusManager.addKeyEventDispatcher(
+                new KeyBindingsDispatching(focusManager));
     }
 
     /**
@@ -214,15 +216,15 @@ public class UIServiceImpl
      * <tt>ContainerPluginListener</tt>s that a plugin component is added or
      * removed from the container.
      *
-     * @param pluginComponent the plugin component that is added to the
+     * @param factory the plugin component factory that is added to the
      *            container.
      * @param eventID one of the PLUGIN_COMPONENT_XXX static fields indicating
      *            the nature of the event.
      */
-    private void firePluginEvent(PluginComponent pluginComponent, int eventID)
+    private void firePluginEvent(PluginComponentFactory factory,
+                                 int eventID)
     {
-        PluginComponentEvent evt =
-            new PluginComponentEvent(pluginComponent, eventID);
+        PluginComponentEvent evt = new PluginComponentEvent(factory, eventID);
 
         if (logger.isDebugEnabled())
             logger.debug("Will dispatch the following plugin component event: "
@@ -661,7 +663,7 @@ public class UIServiceImpl
      * contact exists already, returns it; otherwise, creates a new one.
      *
      * @param contact the contact that we'd like to retrieve a chat window for.
-     * @param escapedMessageID the message ID of the message that should be
+     * @param escapedMessageUID the message ID of the message that should be
      * excluded from the history when the last one is loaded in the chat
      * @return the <tt>Chat</tt> corresponding to the specified contact.
      * @see UIService#getChat(Contact)
@@ -926,6 +928,7 @@ public class UIServiceImpl
                 UIDefaults uiDefaults = UIManager.getDefaults();
                 if (OSUtils.IS_WINDOWS)
                     fixWindowsUIDefaults(uiDefaults);
+
                 // Workaround for SC issue #516
                 // "GNOME SCScrollPane has rounded and rectangular borders"
                 if (laf.equals(gtkLookAndFeel)
@@ -940,8 +943,8 @@ public class UIServiceImpl
             catch (ClassNotFoundException ex)
             {
                 /*
-                 * Ignore the exceptions because we're only trying to set
-                 * the native LookAndFeel and, if it fails, we'll use
+                 * Ignore the exceptions because we're only trying to set the
+                 * native LookAndFeel and, if it fails, we'll use
                  * SIPCommLookAndFeel.
                  */
             }
@@ -961,8 +964,7 @@ public class UIServiceImpl
             try
             {
                 SIPCommLookAndFeel lf = new SIPCommLookAndFeel();
-                SIPCommLookAndFeel.setCurrentTheme(
-                        new SIPCommDefaultTheme());
+                SIPCommLookAndFeel.setCurrentTheme(new SIPCommDefaultTheme());
 
                 // Check the isLookAndFeelDecorated property and set the
                 // appropriate default decoration.
@@ -1060,10 +1062,10 @@ public class UIServiceImpl
             event.getServiceReference());
 
         // we don't care if the source service is not a plugin component
-        if (! (sService instanceof PluginComponent))
+        if (! (sService instanceof PluginComponentFactory))
             return;
 
-        PluginComponent pluginComponent = (PluginComponent) sService;
+        PluginComponentFactory factory = (PluginComponentFactory) sService;
 
         switch (event.getType())
         {
@@ -1071,27 +1073,12 @@ public class UIServiceImpl
             if (logger.isInfoEnabled())
                 logger.info("Handling registration of a new Plugin Component.");
 
-            /*
-            // call getComponent for the first time when the component is
-            // needed to be created and add to a container
-            // skip early creating of components
-            Object component = pluginComponent.getComponent();
-            if (!(component instanceof Component))
-            {
-                logger.error("Plugin Component type is not supported."
-                    + "Should provide a plugin in AWT, SWT or Swing.");
-                if (logger.isDebugEnabled())
-                    logger.debug("Logging exception to show the calling plugin",
-                    new Exception(""));
-                return;
-            }*/
-
-            this.firePluginEvent(pluginComponent,
+            this.firePluginEvent(factory,
                 PluginComponentEvent.PLUGIN_COMPONENT_ADDED);
             break;
 
         case ServiceEvent.UNREGISTERING:
-            this.firePluginEvent(pluginComponent,
+            this.firePluginEvent(factory,
                 PluginComponentEvent.PLUGIN_COMPONENT_REMOVED);
             break;
         }
@@ -1215,6 +1202,11 @@ public class UIServiceImpl
     {
         try
         {
+            // close chats, so we do not start removing plugins one by one
+            // when we start to stop the application
+            for(ChatPanel cp : chatWindowManager.getAllChats())
+                chatWindowManager.closeChat(cp);
+
             if (mainFrame != null)
                 mainFrame.dispose();
         }
@@ -1552,6 +1544,38 @@ public class UIServiceImpl
         else
             throw new IllegalArgumentException("participants");
     }
+    
+    /**
+     * Opens a chat room window for the given <tt>ChatRoomWrapper</tt> instance.
+     * 
+     * @param chatRoom the chat room associated with the chat room window
+     */
+    public void openChatRoomWindow(ChatRoomWrapper chatRoom)
+    {
+        ChatWindowManager chatWindowManager
+            = getChatWindowManager();
+        ChatPanel chatPanel
+            = chatWindowManager.getMultiChat(chatRoom, true);
+    
+        chatWindowManager.openChat(chatPanel, true);
+    }
+    
+    /**
+     * Closes the chat room window for the given <tt>ChatRoomWrapper</tt> 
+     * instance.
+     * 
+     * @param chatRoom the chat room associated with the chat room window.
+     */
+    public void closeChatRoomWindow(ChatRoomWrapper chatRoom)
+    {
+        ChatWindowManager chatWindowManager
+            = getChatWindowManager();
+        ChatPanel chatPanel
+            = chatWindowManager.getMultiChat(chatRoom, false);
+    
+        if (chatPanel != null)
+            chatWindowManager.closeChat(chatPanel);
+    }
 
     /**
      * Creates a contact list component.
@@ -1573,5 +1597,26 @@ public class UIServiceImpl
     public Collection<Call> getInProgressCalls()
     {
         return CallManager.getInProgressCalls();
+    }
+    
+    /**
+     * Shows Add chat room dialog.
+     */
+    public void showAddChatRoomDialog()
+    {
+        ChatRoomTableDialog.showChatRoomTableDialog();
+    }
+    
+    /**
+     * Shows chat room open automatically configuration dialog.
+     * @param chatRoomId the chat room id of the chat room associated with the 
+     * dialog 
+     * @param pps the protocol provider service of the chat room
+     */
+    public void showChatRoomAutoOpenConfigDialog(
+        ProtocolProviderService pps, String chatRoomId)
+    {
+        ChatRoomAutoOpenConfigDialog.showChatRoomAutoOpenConfigDialog(
+            pps, chatRoomId);
     }
 }

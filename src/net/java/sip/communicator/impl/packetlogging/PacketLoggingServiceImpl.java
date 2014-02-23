@@ -11,6 +11,7 @@ import java.util.*;
 
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.fileaccess.*;
 import org.jitsi.service.packetlogging.*;
 
 /**
@@ -165,12 +166,11 @@ public class PacketLoggingServiceImpl
         for(int i = 0; i < fileCount; i++)
         {
             files[i]
-                = PacketLoggingActivator.getFileAccessService().getPrivatePersistentFile(
-                        PacketLoggingActivator.LOGGING_DIR_NAME
-                            + File.separator
-                            + "jitsi"
-                            + i
-                            + ".pcap");
+                = PacketLoggingActivator.getFileAccessService()
+                    .getPrivatePersistentFile(
+                        new File(PacketLoggingActivator.LOGGING_DIR_NAME,
+                            "jitsi" + i + ".pcap").toString(),
+                        FileCategory.LOG);
         }
     }
 

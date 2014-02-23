@@ -84,9 +84,10 @@ public class OperationSetDesktopStreamingSipImpl
         Address toAddress = parentProvider.parseAddressString(uri);
 
         CallSipImpl call = basicTelephony.createOutgoingCall();
+        MediaUseCase useCase = getMediaUseCase();
 
-        call.setVideoDevice(mediaDevice);
-        call.setLocalVideoAllowed(true, getMediaUseCase());
+        call.setVideoDevice(mediaDevice, useCase);
+        call.setLocalVideoAllowed(true, useCase);
         call.invite(toAddress, null);
         origin = getOriginForMediaDevice(mediaDevice);
 
@@ -122,9 +123,10 @@ public class OperationSetDesktopStreamingSipImpl
         }
 
         CallSipImpl call = basicTelephony.createOutgoingCall();
+        MediaUseCase useCase = getMediaUseCase();
 
-        call.setLocalVideoAllowed(true, getMediaUseCase());
-        call.setVideoDevice(mediaDevice);
+        call.setLocalVideoAllowed(true, useCase);
+        call.setVideoDevice(mediaDevice, useCase);
         call.invite(toAddress, null);
         origin = getOriginForMediaDevice(mediaDevice);
 
@@ -199,9 +201,10 @@ public class OperationSetDesktopStreamingSipImpl
         throws OperationFailedException
     {
         CallSipImpl callImpl = (CallSipImpl) call;
+        MediaUseCase useCase = MediaUseCase.DESKTOP;
 
-        callImpl.setLocalVideoAllowed(allowed, MediaUseCase.DESKTOP);
-        callImpl.setVideoDevice(null);
+        callImpl.setLocalVideoAllowed(allowed, useCase);
+        callImpl.setVideoDevice(null, useCase);
 
         MediaDevice device = callImpl.getDefaultDevice(MediaType.VIDEO);
 
@@ -251,9 +254,10 @@ public class OperationSetDesktopStreamingSipImpl
         throws OperationFailedException
     {
         CallSipImpl sipCall = (CallSipImpl) call;
+        MediaUseCase useCase = MediaUseCase.DESKTOP;
 
-        sipCall.setVideoDevice(mediaDevice);
-        sipCall.setLocalVideoAllowed(allowed, MediaUseCase.DESKTOP);
+        sipCall.setVideoDevice(mediaDevice, useCase);
+        sipCall.setLocalVideoAllowed(allowed, useCase);
         size
             = (((VideoMediaFormat)
                         sipCall.getDefaultDevice(MediaType.VIDEO).getFormat())

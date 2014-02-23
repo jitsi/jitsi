@@ -9,11 +9,14 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
 import java.awt.*;
 import java.util.*;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.jabber.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**
@@ -212,8 +215,10 @@ public class JabberAccountRegistrationWizard
     {
         firstWizardPage.commitPage();
 
-        return signin(  registration.getUserID(),
-                        registration.getPassword());
+        return
+            firstWizardPage.isCommitted()
+                ? signin(registration.getUserID(), registration.getPassword())
+                : null;
     }
 
     /**
@@ -225,38 +230,112 @@ public class JabberAccountRegistrationWizard
      * new account
      * @throws OperationFailedException if the operation didn't succeed
      */
-    @Override
-    public ProtocolProviderService signin(String userName, String password)
+    public ProtocolProviderService signin(
+            final String userName,
+            final String password)
         throws OperationFailedException
     {
-        // if firstWizardPage is null we are requested sign-in from
-        // initial account registration form we must init
-        // firstWizardPage in order to init default values
-        // Pawel: firstWizardPage is never null, and commitPage fails
-        // with no user ID provided for simple account wizard.
-        // Now userName and password are reentered here
-        AccountPanel accPanel =
-                    (AccountPanel)firstWizardPage.getSimpleForm();
-        accPanel.setUsername(userName);
-        accPanel.setPassword(password);
-        accPanel.setRememberPassword(password != null);
+        /*
+         * If firstWizardPage is null we are requested sign-in from initial
+         * account registration form we must init firstWizardPage in order to
+         * init default values
+         * Pawel: firstWizardPage is never null, and commitPage fails with no
+         * user ID provided for simple account wizard. Now userName and password
+         * are reentered here.
+         */
+        final AccountPanel accPanel
+            = (AccountPanel) firstWizardPage.getSimpleForm();
+        /*
+         * XXX Swing is not thread safe! We've experienced deadlocks on OS X
+         * upon invoking accPanel's setters. In order to address them, (1)
+         * invoke accPanel's setters on the AWT event dispatching thread and (2)
+         * do it only if absolutely necessary.
+         */
+        String accPanelUsername = accPanel.getUsername();
+        boolean equals = false;
+        final boolean rememberPassword = (password != null);
+
+        if (StringUtils.isEquals(accPanelUsername, userName))
+        {
+            char[] accPanelPasswordChars = accPanel.getPassword();
+            char[] passwordChars
+                = (password == null) ? null : password.toCharArray();
+
+            if (accPanelPasswordChars == null)
+                equals = ((passwordChars == null) || passwordChars.length == 0);
+            else if (passwordChars == null)
+                equals = (accPanelPasswordChars.length == 0);
+            else
+                equals = Arrays.equals(accPanelPasswordChars, passwordChars);
+            if (equals)
+            {
+                boolean accPanelRememberPassword
+                    = accPanel.isRememberPassword();
+
+                equals = (accPanelRememberPassword == rememberPassword);
+            }
+        }
+        if (!equals)
+        {
+            try
+            {
+                if(SwingUtilities.isEventDispatchThread())
+                {
+                    accPanel.setUsername(userName);
+                    accPanel.setPassword(password);
+                    accPanel.setRememberPassword(rememberPassword);
+                }
+                else
+                {
+                    SwingUtilities.invokeAndWait(
+                            new Runnable()
+                            {
+                                public void run()
+                                {
+                                    accPanel.setUsername(userName);
+                                    accPanel.setPassword(password);
+                                    accPanel.setRememberPassword(
+                                        rememberPassword);
+                                }
+                            });
+                }
+            }
+            catch (Exception e)
+            {
+                if (e instanceof OperationFailedException)
+                {
+                    throw (OperationFailedException) e;
+                }
+                else
+                {
+                    throw new OperationFailedException(
+                            "Failed to set username and password on "
+                                + accPanel.getClass().getName(),
+                            OperationFailedException.INTERNAL_ERROR,
+                            e);
+                }
+            }
+        }
 
         if(!firstWizardPage.isCommitted())
             firstWizardPage.commitPage();
-
         if(!firstWizardPage.isCommitted())
-            throw new OperationFailedException("Could not confirm data.",
-                OperationFailedException.GENERAL_ERROR);
+        {
+            throw new OperationFailedException(
+                    "Could not confirm data.",
+                    OperationFailedException.GENERAL_ERROR);
+        }
 
         ProtocolProviderFactory factory
             = JabberAccRegWizzActivator.getJabberProtocolProviderFactory();
 
-        return this.installAccount(
-            factory,
-            registration.getUserID(),  // The user id may get changed.Server
-                                       // part can be added in the data
-                                       // commit.
-            password);
+        return
+            installAccount(
+                    factory,
+                    registration.getUserID(), // The user id may get changed.
+                                              // Server part can be added in the
+                                              // data commit.
+                    password);
     }
 
     /**

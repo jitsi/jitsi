@@ -36,6 +36,11 @@ interface IMsOutlookAddrBookServer : IUnknown
             [in] long propId,
             [in] BSTR value,
             [in] BSTR entryId);
+
+    HRESULT compareEntryIds(
+            [in] BSTR id1,
+            [in] BSTR id2,
+            [out] int *result);
 };
 
 

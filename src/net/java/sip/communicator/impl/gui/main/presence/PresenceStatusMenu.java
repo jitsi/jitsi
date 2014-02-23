@@ -44,14 +44,6 @@ public class PresenceStatusMenu
 
     private final Logger logger = Logger.getLogger(PresenceStatusMenu.class);
 
-    private Iterator<PresenceStatus> statusIterator;
-
-    private PresenceStatus offlineStatus;
-
-    private PresenceStatus onlineStatus;
-
-    private OperationSetPresence presence;
-
     /**
      * The area will display the account display name and its status message
      * if any.
@@ -85,7 +77,8 @@ public class PresenceStatusMenu
         this.presence
                 = protocolProvider.getOperationSet(OperationSetPresence.class);
 
-        this.statusIterator = this.presence.getSupportedStatusSet();
+        Iterator<PresenceStatus> statusIterator
+            = this.presence.getSupportedStatusSet();
 
         String tooltip =
             "<html><b>" + protocolProvider.getAccountID().getDisplayName()
@@ -113,23 +106,11 @@ public class PresenceStatusMenu
         while (statusIterator.hasNext())
         {
             PresenceStatus status = statusIterator.next();
-            int connectivity = status.getStatus();
+            byte[] statusIcon = status.getStatusIcon();
 
-            if (connectivity < 1)
-            {
-                this.offlineStatus = status;
-            }
-            else if ((onlineStatus != null
-                    && (onlineStatus.getStatus() < connectivity))
-                || (onlineStatus == null
-                    && (connectivity > 50 && connectivity < 80)))
-            {
-                this.onlineStatus = status;
-            }
-
-            this.addItem(
+            addItem(
                     status.getStatusName(),
-                    new ImageIcon(status.getStatusIcon()),
+                    (statusIcon == null) ? null : new ImageIcon(statusIcon),
                     this);
         }
 
@@ -137,8 +118,8 @@ public class PresenceStatusMenu
 
         this.add((JMenu)statusMessageMenu.getMenu());
 
-        this.setSelectedStatus(offlineStatus);
-        updateStatus(offlineStatus);
+        this.setSelectedStatus(getOfflineStatus());
+        updateStatus(getOfflineStatus());
     }
 
     /**
@@ -153,12 +134,13 @@ public class PresenceStatusMenu
     public void addItem(String text, Icon icon, ActionListener actionListener)
     {
         JCheckBoxMenuItem item = new JCheckBoxMenuItem(text, icon);
+
         item.setName(text);
         group.add(item);
 
         item.addActionListener(actionListener);
 
-        this.add(item);
+        add(item);
     }
 
     /**
@@ -281,26 +263,6 @@ public class PresenceStatusMenu
     }
 
     /**
-     * Returns the Offline status in this selector box.
-     *
-     * @return the Offline status in this selector box
-     */
-    public PresenceStatus getOfflineStatus()
-    {
-        return offlineStatus;
-    }
-
-    /**
-     * Returns the Online status in this selector box.
-     *
-     * @return the Online status in this selector box
-     */
-    public PresenceStatus getOnlineStatus()
-    {
-        return onlineStatus;
-    }
-
-    /**
      * Loads resources for this component.
      */
     @Override
@@ -322,5 +284,23 @@ public class PresenceStatusMenu
         {
             updateTitleArea();
         }
+    }
+
+    /**
+     * Clears resources.
+     */
+    public void dispose()
+    {
+        super.dispose();
+
+        presence = null;
+        titleArea = null;
+
+        if(statusMessageMenu != null)
+        {
+            statusMessageMenu.removePropertyChangeListener(this);
+            statusMessageMenu.dispose();
+        }
+        statusMessageMenu = null;
     }
 }

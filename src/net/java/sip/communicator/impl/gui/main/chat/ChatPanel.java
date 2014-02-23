@@ -16,6 +16,7 @@ import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.plaf.basic.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
@@ -23,17 +24,18 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.filetransfer.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.filehistory.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.metahistory.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
-import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 
 import org.jitsi.util.*;
 
@@ -49,11 +51,13 @@ import org.jitsi.util.*;
  * @author Yana Stamcheva
  * @author Lyubomir Marinov
  * @author Adam Netocny
+ * @author Hristo Terezov
  */
 @SuppressWarnings("serial")
 public class ChatPanel
     extends TransparentPanel
     implements  ChatSessionRenderer,
+                ChatSessionChangeListener,
                 Chat,
                 ChatConversationContainer,
                 ChatRoomMemberRoleListener,
@@ -77,9 +81,19 @@ public class ChatPanel
 
     private final ChatConversationPanel conversationPanel;
 
+    /**
+     * Will contain the typing panel on south and centered the
+     * conversation panel.
+     */
+    private final JPanel conversationPanelContainer
+        = new JPanel(new BorderLayout());
+
     private final ChatWritePanel writeMessagePanel;
 
     private ChatRoomMemberListPanel chatContactListPanel;
+    
+    private TransparentPanel conferencePanel 
+        = new TransparentPanel(new BorderLayout());
 
     private final ChatContainer chatContainer;
 
@@ -115,7 +129,7 @@ public class ChatPanel
 
     private boolean isShown = false;
 
-    public ChatSession chatSession;
+    private ChatSession chatSession;
 
     private Date firstHistoryMsgTimestamp = new Date(0);
 
@@ -148,6 +162,16 @@ public class ChatPanel
      * The ID of the last sent message in this chat.
      */
     private String lastSentMessageUID = null;
+    
+    /**
+     * Indicates whether the chat is private messaging chat or not.
+     */
+    private boolean isPrivateMessagingChat = false;
+
+    /**
+     * Dialog used to join or create chat conference call.
+     */
+    protected ChatConferenceCallDialog chatConferencesDialog = null;
 
     /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
@@ -165,10 +189,14 @@ public class ChatPanel
         this.conversationPanel.getChatTextPane()
             .setTransferHandler(new ChatTransferHandler(this));
 
+        this.conversationPanelContainer.add(
+            conversationPanel, BorderLayout.CENTER);
+        this.conversationPanelContainer.setBackground(Color.WHITE);
+        initTypingNotificationLabel(conversationPanelContainer);
+
         topPanel.setBackground(Color.WHITE);
         topPanel.setBorder(
             BorderFactory.createMatteBorder(1, 0, 1, 0, Color.GRAY));
-        initTypingNotificationLabel();
 
         this.writeMessagePanel = new ChatWritePanel(this);
 
@@ -202,44 +230,99 @@ public class ChatPanel
      */
     public void setChatSession(ChatSession chatSession)
     {
+        if(this.chatSession != null)
+        {
+            // remove old listener
+            this.chatSession.removeChatTransportChangeListener(this);
+        }
+
         this.chatSession = chatSession;
+        this.chatSession.addChatTransportChangeListener(this);
 
         if ((this.chatSession != null)
                 && this.chatSession.isContactListSupported())
         {
-            topPanel.remove(conversationPanel);
+            topPanel.remove(conversationPanelContainer);
 
             TransparentPanel rightPanel
-                = new TransparentPanel(new BorderLayout(5, 5));
-            Dimension chatContactPanelSize = new Dimension(150, 100);
-            rightPanel.setMinimumSize(chatContactPanelSize);
-            rightPanel.setPreferredSize(chatContactPanelSize);
+                = new TransparentPanel(new BorderLayout());
+            Dimension chatConferencesListsPanelSize = new Dimension(150, 25);
+            Dimension chatContactsListsPanelSize = new Dimension(150, 175);
+            Dimension rightPanelSize = new Dimension(150, 200);
+            rightPanel.setMinimumSize(rightPanelSize);
+            rightPanel.setPreferredSize(rightPanelSize);
 
+            TransparentPanel contactsPanel
+                = new TransparentPanel(new BorderLayout());
+            contactsPanel.setMinimumSize(chatContactsListsPanelSize);
+            contactsPanel.setPreferredSize(chatContactsListsPanelSize);
+            
+            conferencePanel.setMinimumSize(chatConferencesListsPanelSize);
+            conferencePanel.setPreferredSize(chatConferencesListsPanelSize);
+            
             this.chatContactListPanel = new ChatRoomMemberListPanel(this);
             this.chatContactListPanel.setOpaque(false);
-
+            
             topSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
             topSplitPane.setBorder(null); // remove default borders
             topSplitPane.setOneTouchExpandable(true);
             topSplitPane.setOpaque(false);
             topSplitPane.setResizeWeight(1.0D);
 
+            Color msgNameBackground =
+                Color.decode(ChatHtmlUtils.MSG_NAME_BACKGROUND);
+
+            // add border to the divider
+            if(topSplitPane.getUI() instanceof BasicSplitPaneUI)
+            {
+                ((BasicSplitPaneUI)topSplitPane.getUI()).getDivider()
+                    .setBorder(
+                        BorderFactory.createLineBorder(msgNameBackground));
+            }
+
             ChatTransport chatTransport = chatSession.getCurrentChatTransport();
 
+            JPanel localUserLabelPanel = new JPanel(new BorderLayout());
             JLabel localUserLabel = new JLabel(
                 chatTransport.getProtocolProvider()
                     .getAccountID().getDisplayName());
 
             localUserLabel.setFont(
                 localUserLabel.getFont().deriveFont(Font.BOLD));
+            localUserLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            localUserLabel.setBorder(
+                            BorderFactory.createEmptyBorder(2, 0, 3, 0));
+            localUserLabel.setForeground(
+                Color.decode(ChatHtmlUtils.MSG_IN_NAME_FOREGROUND));
 
-            rightPanel.add(localUserLabel, BorderLayout.NORTH);
-            rightPanel.add(chatContactListPanel, BorderLayout.CENTER);
-
-            topSplitPane.setLeftComponent(conversationPanel);
+            localUserLabelPanel.add(localUserLabel, BorderLayout.CENTER);
+            localUserLabelPanel.setBackground(msgNameBackground);
+            
+            
+            JButton joinConference = new JButton(GuiActivator.getResources()
+                .getI18NString("service.gui.JOIN_VIDEO"));
+            
+            joinConference.addActionListener(new ActionListener()
+            {
+                @Override
+                public void actionPerformed(ActionEvent arg0)
+                {
+                    showChatConferenceDialog();
+                }
+            });
+            contactsPanel.add(localUserLabelPanel, BorderLayout.NORTH);
+            contactsPanel.add(chatContactListPanel, BorderLayout.CENTER);
+            
+            conferencePanel.add(joinConference, BorderLayout.CENTER);
+            
+            rightPanel.add(conferencePanel, BorderLayout.NORTH);
+            rightPanel.add(contactsPanel, BorderLayout.CENTER);
+            
+            topSplitPane.setLeftComponent(conversationPanelContainer);
             topSplitPane.setRightComponent(rightPanel);
-
+            
             topPanel.add(topSplitPane);
+
         }
         else
         {
@@ -255,7 +338,7 @@ public class ChatPanel
                 topSplitPane = null;
             }
 
-            topPanel.add(conversationPanel);
+            topPanel.add(conversationPanelContainer);
         }
 
         if (chatSession instanceof MetaContactChatSession)
@@ -271,6 +354,7 @@ public class ChatPanel
                 this.repaint();
             }
 
+            writeMessagePanel.initPluginComponents();
             writeMessagePanel.setTransportSelectorBoxVisible(true);
 
             //Enables to change the protocol provider by simply pressing the
@@ -295,15 +379,21 @@ public class ChatPanel
             confSession.addLocalUserRoleListener(this);
             confSession.addMemberRoleListener(this);
 
-            ((ChatRoomWrapper) chatSession.getDescriptor())
-                .getChatRoom().addMemberPropertyChangeListener(this);
+            ChatRoom room 
+                = ((ChatRoomWrapper) chatSession.getDescriptor()).getChatRoom();
+            room.addMemberPropertyChangeListener(this);
 
+            setConferencesPanelVisible(
+                room.getCachedConferenceDescriptionSize() > 0);
             subjectPanel
                 = new ChatRoomSubjectPanel((ConferenceChatSession) chatSession);
 
             // The subject panel is added here, because it's specific for the
             // multi user chat and is not contained in the single chat chat panel.
             this.add(subjectPanel, BorderLayout.NORTH);
+
+            this.revalidate();
+            this.repaint();
         }
 
         if (chatContactListPanel != null)
@@ -317,6 +407,22 @@ public class ChatPanel
         }
     }
 
+    
+    public void showChatConferenceDialog()
+    {
+        if(chatConferencesDialog  == null)
+        {
+            chatConferencesDialog 
+                = new ChatConferenceCallDialog(ChatPanel.this);
+            chatConferencesDialog.initConferences();
+        }
+        
+        chatConferencesDialog.setVisible(true);
+        
+        chatConferencesDialog.toFront();
+        chatConferencesDialog.pack();
+    }
+    
     /**
      * Returns the chat session associated with this chat panel.
      * @return the chat session associated with this chat panel
@@ -336,6 +442,25 @@ public class ChatPanel
         writeMessagePanel.dispose();
         chatSession.dispose();
         conversationPanel.dispose();
+
+        if (chatSession instanceof ConferenceChatSession)
+        {
+            if(chatConferencesDialog != null)
+                chatConferencesDialog.dispose();
+            ConferenceChatSession confSession
+                            = (ConferenceChatSession) chatSession;
+
+            confSession.removeLocalUserRoleListener(this);
+            confSession.removeMemberRoleListener(this);
+            ((ChatRoomWrapper) chatSession.getDescriptor())
+                .getChatRoom().removeMemberPropertyChangeListener(this);
+        }
+
+        if(subjectPanel != null)
+            subjectPanel.dispose();
+
+        if(this.chatContactListPanel != null)
+            this.chatContactListPanel.dispose();
     }
 
     /**
@@ -434,8 +559,10 @@ public class ChatPanel
 
     /**
      * Initializes the typing notification label.
+     * @param typingLabelParent the parent container
+     *                          of typing notification label.
      */
-    private void initTypingNotificationLabel()
+    private void initTypingNotificationLabel(JPanel typingLabelParent)
     {
         typingNotificationLabel
             = new JLabel(" ", SwingConstants.CENTER);
@@ -447,7 +574,7 @@ public class ChatPanel
         typingNotificationLabel.setVerticalTextPosition(JLabel.BOTTOM);
         typingNotificationLabel.setHorizontalTextPosition(JLabel.LEFT);
         typingNotificationLabel.setIconTextGap(0);
-        topPanel.add(typingNotificationLabel, BorderLayout.SOUTH);
+        typingLabelParent.add(typingNotificationLabel, BorderLayout.SOUTH);
     }
 
     /**
@@ -556,6 +683,33 @@ public class ChatPanel
     }
 
     /**
+     * Called when the current {@link ChatTransport} has
+     * changed. We will change current icon
+     *
+     * @param chatSession the {@link ChatSession} it's current
+     * {@link ChatTransport} has changed
+     */
+    @Override
+    public void currentChatTransportChanged(ChatSession chatSession)
+    {
+        setChatIcon(new ImageIcon(Constants.getStatusIcon(
+            this.chatSession.getCurrentChatTransport().getStatus())));
+    }
+
+    /**
+     * When a property of the chatTransport has changed.
+     */
+    @Override
+    public void currentChatTransportUpdated(int eventID)
+    {
+        if(eventID == ChatSessionChangeListener.ICON_UPDATED)
+        {
+            setChatIcon(new ImageIcon(Constants.getStatusIcon(
+                this.chatSession.getCurrentChatTransport().getStatus())));
+        }
+    }
+
+    /**
      * Every time the chat panel is shown we set it as a current chat panel.
      * This is done here and not in the Tab selection listener, because the tab
      * change event is not fired when the user clicks on the close tab button
@@ -614,6 +768,17 @@ public class ChatPanel
         }
 
         return false;
+    }
+
+    /**
+     * Returns <tt>true</tt> if the chat is private messaging chat and 
+     * <tt>false</tt> if not.
+     * @return <tt>true</tt> if the chat is private messaging chat and 
+     * <tt>false</tt> if not.
+     */
+    public boolean isPrivateMessagingChat()
+    {
+        return isPrivateMessagingChat;
     }
 
     /**
@@ -700,7 +865,8 @@ public class ChatPanel
                             evt.getTimestamp(),
                             Chat.HISTORY_OUTGOING_MESSAGE,
                             evt.getMessage().getContent(),
-                            evt.getMessage().getContentType());
+                            evt.getMessage().getContentType(),
+                            evt.getMessage().getMessageUID());
             }
             else if(o instanceof ChatRoomMessageReceivedEvent)
             {
@@ -716,7 +882,8 @@ public class ChatPanel
                             evt.getTimestamp(),
                             Chat.HISTORY_INCOMING_MESSAGE,
                             evt.getMessage().getContent(),
-                            evt.getMessage().getContentType());
+                            evt.getMessage().getContentType(),
+                            evt.getMessage().getMessageUID());
                 }
             }
             else if (o instanceof FileRecord)
@@ -916,32 +1083,22 @@ public class ChatPanel
      */
     private void appendChatMessage(ChatMessage chatMessage)
     {
-        String processedMessage
-            = this.conversationPanel.processMessage(chatMessage,
+        String keyword = null;
+
+        if (chatSession instanceof ConferenceChatSession && Chat.INCOMING_MESSAGE.equals(chatMessage.getMessageType()))
+        {
+            keyword =
+                ((ChatRoomWrapper) chatSession.getDescriptor()).getChatRoom()
+                    .getUserNickname();
+        }
+
+        String processedMessage =
+            this.conversationPanel.processMessage(chatMessage, keyword,
                 chatSession.getCurrentChatTransport().getProtocolProvider(),
                 chatSession.getCurrentChatTransport().getName());
 
         if (chatSession instanceof ConferenceChatSession)
         {
-            if (chatMessage.getMessageType().equals(Chat.INCOMING_MESSAGE))
-            {
-                String keyWord =
-                    ((ChatRoomWrapper) chatSession.getDescriptor())
-                        .getChatRoom().getUserNickname();
-
-                try
-                {
-                    processedMessage =
-                        this.conversationPanel
-                            .processChatRoomHighlight(processedMessage,
-                                chatMessage.getContentType(), keyWord);
-                }
-                catch(Throwable t)
-                {
-                    logger.error("Error processing highlight", t);
-                }
-            }
-
             String meCommandMsg
                 = this.conversationPanel.processMeCommand(chatMessage);
 
@@ -1191,6 +1348,17 @@ public class ChatPanel
     }
 
     /**
+     * Sets the visibility of conferences panel to <tt>true</tt> or 
+     * <tt>false</tt>
+     * 
+     * @param isVisible if <tt>true</tt> the panel is visible.
+     */
+    public void setConferencesPanelVisible(boolean isVisible)
+    {
+        conferencePanel.setVisible(isVisible);
+    }
+    
+    /**
      * Implements the <tt>Chat.isChatFocused</tt> method. Returns TRUE if this
      * chat panel is the currently selected panel and if the chat window, where
      * it's contained is active.
@@ -1272,9 +1440,7 @@ public class ChatPanel
     private boolean isGreyHistoryStyleDisabled(
         ProtocolProviderService protocolProvider)
     {
-        boolean isProtocolHidden =
-            protocolProvider.getAccountID().getAccountPropertyBoolean(
-                ProtocolProviderFactory.IS_PROTOCOL_HIDDEN, false);
+        boolean isProtocolHidden = protocolProvider.getAccountID().isHidden();
         boolean isGreyHistoryDisabled = false;
 
         String greyHistoryProperty
@@ -1495,15 +1661,40 @@ public class ChatPanel
             return;
         }
 
-        smsChatTransport.addSmsMessageListener(
-                new SmsMessageListener(smsChatTransport));
-
         // We open the send SMS dialog.
         SendSmsDialog smsDialog
             = new SendSmsDialog(this, smsChatTransport, messageText);
 
-        smsDialog.setPreferredSize(new Dimension(400, 200));
-        smsDialog.setVisible(true);
+        if(smsChatTransport.askForSMSNumber())
+        {
+            Object desc =
+                smsChatTransport.getParentChatSession().getDescriptor();
+            // descriptor will be metacontact
+            if(desc instanceof MetaContact)
+            {
+                UIPhoneUtil contactPhoneUtil =
+                    UIPhoneUtil.getPhoneUtil((MetaContact) desc);
+
+                List<UIContactDetail> uiContactDetailList =
+                    contactPhoneUtil.getAdditionalMobileNumbers();
+
+                if(uiContactDetailList.size() != 0)
+                {
+                    SMSManager.sendSMS(
+                        this, uiContactDetailList, messageText, this);
+
+                    return;
+                }
+            }
+
+            smsDialog.setPreferredSize(new Dimension(400, 200));
+            smsDialog.setVisible(true);
+        }
+        else
+        {
+            smsDialog.sendSmsMessage(null, messageText);
+            smsDialog.dispose();
+        }
     }
 
     /**
@@ -1627,6 +1818,18 @@ public class ChatPanel
     }
 
     /**
+     * Sets the property which identifies whether the chat is private messaging 
+     * chat or not.
+     * 
+     * @param isPrivateMessagingChat if <tt>true</tt> the chat panel will be 
+     * private messaging chat panel.
+     */
+    public void setPrivateMessagingChat(boolean isPrivateMessagingChat)
+    {
+        this.isPrivateMessagingChat = isPrivateMessagingChat;
+    }
+
+    /**
      * Enters editing mode for the last sent message in this chat.
      */
     public void startLastMessageCorrection()
@@ -1709,105 +1912,6 @@ public class ChatPanel
     }
 
     /**
-     * Listens for SMS messages and shows them in the chat.
-     */
-    private class SmsMessageListener implements MessageListener
-    {
-        /**
-         * Initializes a new <tt>SmsMessageListener</tt> instance.
-         *
-         * @param chatTransport Currently unused
-         */
-        public SmsMessageListener(ChatTransport chatTransport)
-        {
-        }
-
-        public void messageDelivered(MessageDeliveredEvent evt)
-        {
-            Message msg = evt.getSourceMessage();
-
-            Contact contact = evt.getDestinationContact();
-
-            addMessage(
-                contact.getDisplayName(),
-                new Date(),
-                Chat.OUTGOING_MESSAGE,
-                msg.getContent(), msg.getContentType());
-
-            addMessage(
-                    contact.getDisplayName(),
-                    new Date(),
-                    Chat.ACTION_MESSAGE,
-                    GuiActivator.getResources().getI18NString(
-                        "service.gui.SMS_SUCCESSFULLY_SENT"),
-                    "text");
-        }
-
-        public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
-        {
-            logger.error(evt.getReason());
-
-            String errorMsg = null;
-
-            Message sourceMessage = (Message) evt.getSource();
-
-            Contact sourceContact = evt.getDestinationContact();
-
-            MetaContact metaContact = GuiActivator
-                .getContactListService().findMetaContactByContact(sourceContact);
-
-            if (evt.getErrorCode()
-                    == MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED)
-            {
-                errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_DELIVERY_NOT_SUPPORTED",
-                    new String[]{sourceContact.getDisplayName()});
-            }
-            else if (evt.getErrorCode()
-                    == MessageDeliveryFailedEvent.NETWORK_FAILURE)
-            {
-                errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_NOT_DELIVERED");
-            }
-            else if (evt.getErrorCode()
-                    == MessageDeliveryFailedEvent.PROVIDER_NOT_REGISTERED)
-            {
-                errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_SEND_CONNECTION_PROBLEM");
-            }
-            else if (evt.getErrorCode()
-                    == MessageDeliveryFailedEvent.INTERNAL_ERROR)
-            {
-                errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_DELIVERY_INTERNAL_ERROR");
-            }
-            else {
-                errorMsg = GuiActivator.getResources().getI18NString(
-                    "service.gui.MSG_DELIVERY_UNKNOWN_ERROR");
-            }
-
-            String reason = evt.getReason();
-            if (reason != null)
-                errorMsg += " " + GuiActivator.getResources().getI18NString(
-                    "service.gui.ERROR_WAS",
-                    new String[]{reason});
-
-            addMessage(
-                    metaContact.getDisplayName(),
-                    new Date(),
-                    Chat.OUTGOING_MESSAGE,
-                    sourceMessage.getContent(),
-                    sourceMessage.getContentType());
-
-            addErrorMessage(
-                    metaContact.getDisplayName(),
-                    errorMsg);
-        }
-
-        public void messageReceived(MessageReceivedEvent evt) {}
-    }
-
-    /**
      * Returns the date of the first message in history for this chat.
      *
      * @return the date of the first message in history for this chat.
@@ -1871,6 +1975,8 @@ public class ChatPanel
                 // Add incoming events accumulated while the history was loading
                 // at the end of the chat.
                 addIncomingEvents();
+
+                chatContainer.updateHistoryButtonState(ChatPanel.this);
             }
         };
 
@@ -1970,7 +2076,7 @@ public class ChatPanel
      * @param chatTransport the chat transport to be selected
      * @param isMessageOrFileTransferReceived Boolean telling us if this change
      * of the chat transport correspond to an effective switch to this new
-     * transform (a mesaage received from this transport, or a file transfer
+     * transform (a message received from this transport, or a file transfer
      * request received, or if the resource timeouted), or just a status update
      * telling us a new chatTransport is now available (i.e. another device has
      * startup).
@@ -2020,9 +2126,6 @@ public class ChatPanel
                     new String[]{chatTransport.getStatus().getStatusName()}),
                     "text/plain");
         }
-
-        setChatIcon(new ImageIcon(
-            Constants.getStatusIcon(chatTransport.getStatus())));
     }
 
     /**
@@ -2184,6 +2287,36 @@ public class ChatPanel
     {
         if (chatContactListPanel != null)
             chatContactListPanel.removeContact(chatContact);
+    }
+    
+    /**
+     * Adds the given <tt>conferenceDescription</tt> to the list of chat 
+     * conferences in this chat panel chat.
+     * @param conferenceDescription the conference to add.
+     */
+    @Override
+    public void addChatConferenceCall(
+        ConferenceDescription conferenceDescription)
+    {
+        if(chatConferencesDialog != null)
+        {
+            chatConferencesDialog.addConference(conferenceDescription);
+        }
+    }
+
+    /**
+     * Removes the given <tt>conferenceDescription</tt> from the list of chat 
+     * conferences in this chat panel chat.
+     * @param conferenceDescription the conference to remove.
+     */
+    @Override
+    public void removeChatConferenceCall(ConferenceDescription 
+        conferenceDescription)
+    {
+        if(chatConferencesDialog != null)
+        {
+            chatConferencesDialog.removeConference(conferenceDescription);
+        }
     }
 
     /**
@@ -2439,10 +2572,11 @@ public class ChatPanel
                     getOperationSet(OperationSetMultiUserChat.class) != null)
             {
                 ChatRoomWrapper chatRoomWrapper
-                    = conferenceChatManager.createChatRoom(
+                    = GuiActivator.getMUCService().createPrivateChatRoom(
                         inviteChatTransport.getProtocolProvider(),
                         chatContacts,
-                        reason);
+                        reason,
+                        false);
 
                 conferenceChatSession
                     = new ConferenceChatSession(this, chatRoomWrapper);
@@ -2929,5 +3063,21 @@ public class ChatPanel
     public void removeChatLinkClickedListener(ChatLinkClickedListener listener)
     {
         conversationPanel.removeChatLinkClickedListener(listener);
+    }
+
+    /**
+     * Changes the chat conference dialog layout. This method is called when the 
+     * local user publishes a <tt>ConferenceDescription</tt> instance.
+     * 
+     * @param conferenceDescription the <tt>ConferenceDescription</tt> instance 
+     * associated with the conference.
+     */
+    @Override
+    public void chatConferenceDescriptionSent(
+        ConferenceDescription conferenceDescription)
+    {
+        boolean available = conferenceDescription.isAvailable();
+        chatConferencesDialog.setCreatePanelEnabled(!available);
+        chatConferencesDialog.setEndConferenceButtonEnabled(available);
     }
 }

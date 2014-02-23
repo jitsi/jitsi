@@ -9,21 +9,18 @@ package net.java.sip.communicator.impl.gui.main.chatroomslist;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.util.List;
 
 import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.border.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
-import org.jitsi.util.*;
 
 /**
  * The dialog containing a list of all chat rooms of the user and
@@ -36,7 +33,7 @@ import org.jitsi.util.*;
  */
 public class ChatRoomTableDialog
     extends SIPCommDialog
-    implements  ActionListener
+    implements ActionListener
 {
     /**
      * The global/shared <code>ChatRoomTableDialog</code> currently showing.
@@ -49,27 +46,11 @@ public class ChatRoomTableDialog
     private JComboBox providersCombo;
 
     /**
-     * An editable JComboBox which will allow to set a room name, and gives
-     * suggestions regarding to its content.
-     */
-    private JComboBox roomsCombo = null;
-
-    /**
-     * The add chat room button.
-     */
-    private final JButton addButton = new JButton("+");
-
-    /**
-     * The remove chat room button.
-     */
-    private final JButton removeButton = new JButton("-");
-
-    /**
      * The ok button.
      */
     private final JButton okButton
         = new JButton(
-                GuiActivator.getResources().getI18NString("service.gui.OK"));
+                GuiActivator.getResources().getI18NString("service.gui.JOIN"));
 
     /**
      * The cancel button.
@@ -78,20 +59,43 @@ public class ChatRoomTableDialog
         = new JButton(
                 GuiActivator.getResources().getI18NString(
                         "service.gui.CANCEL"));
+    /**
+     * The list button. This button lists the existing chat rooms on the server.
+     */
+    private final JButton listButton
+        = new JButton(GuiActivator.getResources().getI18NString(
+                        "service.gui.LIST"));
 
     /**
      * The editor for the chat room name.
      */
-    private JTextField editor = null;
-
+    private JTextField chatRoomNameField = null;
+    
     /**
-     * The available chat rooms list.
+     * Label that hides and shows the more fields panel on click.
      */
-    private ChatRoomTableUI chatRoomsTableUI = null;
-
-    private final ChatRoomList chatRoomList
-        = GuiActivator.getUIService().getConferenceChatManager()
-                .getChatRoomList();
+    private JLabel cmdExpandMoreFields;
+    
+    /**
+     * Panel that holds the subject field and the nickname field.
+     */
+    private JPanel moreFieldsPannel = new JPanel(new BorderLayout(5, 5));
+    
+    /**
+     * The field for the nickname.
+     */
+    private JTextField nicknameField = new JTextField();
+    
+    /** 
+     * Text field for the subject.
+     */
+    private SIPCommTextField subject = new SIPCommTextField(DesktopUtilActivator
+        .getResources().getI18NString("service.gui.SUBJECT"));
+    
+    /**
+     * The dialog for the existing chat rooms on the server.
+     */
+    private ServerChatRoomsChoiceDialog serverChatRoomsChoiceDialog = null;
 
     /**
      * The <tt>ChatRoomList.ChatRoomProviderWrapperListener</tt> instance which
@@ -99,9 +103,9 @@ public class ChatRoomTableDialog
      * unregistered when this instance is disposed in order to prevent this
      * instance from leaking.
      */
-    private final ChatRoomList.ChatRoomProviderWrapperListener
+    private final ChatRoomProviderWrapperListener
         chatRoomProviderWrapperListener
-            = new ChatRoomList.ChatRoomProviderWrapperListener()
+            = new ChatRoomProviderWrapperListener()
             {
                 public void chatRoomProviderWrapperAdded(
                     ChatRoomProviderWrapper provider)
@@ -144,6 +148,7 @@ public class ChatRoomTableDialog
             });
         }
         chatRoomTableDialog.setVisible(true);
+        chatRoomTableDialog.pack();
     }
 
     /**
@@ -180,81 +185,44 @@ public class ChatRoomTableDialog
             .getI18NString("service.gui.ACCOUNT")));
         labels.add(new JLabel(GuiActivator.getResources()
             .getI18NString("service.gui.ROOM_NAME")));
+        
 
         JPanel valuesPanel = new TransparentPanel(new GridLayout(2, 2, 5, 5));
         providersCombo = createProvidersCombobox();
-
-        roomsCombo = new JComboBox();
-        roomsCombo.setEditable(true);
-        roomsCombo.setPreferredSize(providersCombo.getPreferredSize());
-        editor = ((JTextField)roomsCombo.getEditor().getEditorComponent());
-
-        // when provider is changed we load providers rooms list
-        // so we can show them in the combobox below
-        providersCombo.addItemListener(new ItemListener(){
-            public void itemStateChanged(ItemEvent e)
-            {
-                if(e.getStateChange() == ItemEvent.SELECTED)
-                    loadProviderRooms();
-            }
-        });
-
-        // if a room is selected enable buttons
-        roomsCombo.addItemListener(new ItemListener(){
-            public void itemStateChanged(ItemEvent e)
-            {
-                if(e.getStateChange() == ItemEvent.SELECTED
-                    && roomsCombo.getSelectedIndex() != -1)
-                {
-                    okButton.setEnabled(true);
-                    addButton.setEnabled(true);
-                }
-            }
-        });
+        
+        chatRoomNameField = new JTextField();
 
         valuesPanel.add(providersCombo);
-        valuesPanel.add(roomsCombo);
-
+        valuesPanel.add(chatRoomNameField);
+        
         northPanel.add(labels, BorderLayout.WEST);
         northPanel.add(valuesPanel, BorderLayout.CENTER);
-
+        northPanel.setPreferredSize(new Dimension(600, 80));
         JPanel buttonPanel = new TransparentPanel(new BorderLayout(5, 5));
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 15, 10, 15));
-        JPanel westButtonPanel = new TransparentPanel();
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 15, 0, 15));
         JPanel eastButtonPanel = new TransparentPanel();
+        JPanel westButtonPanel = new TransparentPanel();
 
-        addButton.addActionListener(this);
-        removeButton.addActionListener(this);
         okButton.addActionListener(this);
         cancelButton.addActionListener(this);
+        listButton.addActionListener(this);
 
-        addButton.setEnabled(false);
-        removeButton.setEnabled(false);
+        okButton.setToolTipText(GuiActivator.getResources()
+            .getI18NString("service.gui.JOIN_CHAT_ROOM"));
+        updateOKButtonEnableState();
 
-        westButtonPanel.add(addButton);
-        westButtonPanel.add(removeButton);
+
         eastButtonPanel.add(cancelButton);
         eastButtonPanel.add(okButton);
-
-        buttonPanel.add(westButtonPanel, BorderLayout.WEST);
+        westButtonPanel.add(listButton);
+        
         buttonPanel.add(eastButtonPanel, BorderLayout.EAST);
-
-        chatRoomsTableUI = new ChatRoomTableUI(this);
-        chatRoomsTableUI.setOpaque(false);
-        chatRoomsTableUI.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
-
-        // this controls and the whole dialog width
-        northPanel.setPreferredSize(new Dimension(600, 80));
-
+        buttonPanel.add(westButtonPanel, BorderLayout.WEST);
         this.getContentPane().add(northPanel, BorderLayout.NORTH);
+        this.getContentPane().add(initMoreFields(), BorderLayout.CENTER);
         this.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-        this.getContentPane().add(chatRoomsTableUI, BorderLayout.CENTER);
 
-        loadProviderRooms();
-
-        // when we are typing we clear any selection in the available and saved
-        // rooms
-        editor.addKeyListener(new KeyListener() {
+        KeyListener keyListener = new KeyListener() {
 
             public void keyTyped(KeyEvent e)
             {}
@@ -264,49 +232,128 @@ public class ChatRoomTableDialog
 
             public void keyReleased(KeyEvent e)
             {
-                chatRoomsTableUI.clearSelection();
-
-                if(editor.getText().trim().length() > 0)
-                {
-                    okButton.setEnabled(true);
-                    addButton.setEnabled(true);
-                }
-                else
-                {
-                    okButton.setEnabled(false);
-                    addButton.setEnabled(false);
-                }
+                updateOKButtonEnableState();
             }
-        });
-        // when we select a room from the available ones we clear anything
-        // typed for the room name and set the room we selected
-        chatRoomsTableUI.addSelectionListener(new ListSelectionListener() {
+        };
+        // when we are typing we clear any selection in the available and saved
+        // rooms
+        chatRoomNameField.addKeyListener(keyListener);
+        nicknameField.addKeyListener(keyListener);
+        
+        chatRoomNameField.addKeyListener(new KeyListener() {
 
-            public void valueChanged(ListSelectionEvent e)
+            public void keyTyped(KeyEvent e)
+            {}
+
+            public void keyPressed(KeyEvent e)
+            {}
+
+            public void keyReleased(KeyEvent e)
             {
-                if(!e.getValueIsAdjusting())
-                {
-                    ChatRoomWrapper room = chatRoomsTableUI.getSelectedRoom();
-
-                    if(room != null)
-                    {
-                        editor.setText(room.getChatRoomName());
-                        providersCombo.setSelectedItem(room.getParentProvider());
-                        okButton.setEnabled(true);
-                        removeButton.setEnabled(true);
-                    }
-                    else
-                        removeButton.setEnabled(false);
-                }
+                updateOKButtonEnableState();
             }
         });
-
+        
+        providersCombo.addItemListener(new ItemListener()
+        {
+            
+            @Override
+            public void itemStateChanged(ItemEvent event)
+            {
+                setNickname(
+                    (ChatRoomProviderWrapper)providersCombo.getSelectedItem());
+                if(serverChatRoomsChoiceDialog != null)
+                    serverChatRoomsChoiceDialog.changeProtocolProvider(
+                        getSelectedProvider());
+            }
+        });
         //register listener to listen for newly added chat room providers
         // and for removed ones
-        chatRoomList.addChatRoomProviderWrapperListener(
+        GuiActivator.getMUCService().addChatRoomProviderWrapperListener(
                 chatRoomProviderWrapperListener);
     }
+    
+    /**
+     * Updates the enable/disable state of the OK button.
+     */
+    private void updateOKButtonEnableState()
+    {
+        okButton.setEnabled(
+            (chatRoomNameField.getText() != null 
+                && chatRoomNameField.getText().trim().length() > 0) 
+            && (nicknameField.getText() != null 
+                && nicknameField.getText().trim().length() > 0));
+    }
+    /**
+     * Sets the default value in the nickname field based on chat room provider.
+     * @param provider the provider
+     */
+    private void setNickname(ChatRoomProviderWrapper provider)
+    {
+        if (provider == null)
+        {
+            return;
+        }
 
+        nicknameField.setText(
+            GuiActivator.getMUCService().getDefaultNickname(
+                provider.getProtocolProvider()));
+        updateOKButtonEnableState();
+    }
+
+    /**
+     * Constructs the more label and the fields related to the label and returns
+     * them.
+     * @return the more label and the fields related to the label
+     */
+    private Component initMoreFields()
+    {
+        JPanel morePanel = new TransparentPanel(new BorderLayout());
+        morePanel.setOpaque(false);
+        morePanel.setBorder(BorderFactory.createEmptyBorder(0, 15, 5, 15));
+        moreFieldsPannel.setBorder(
+            BorderFactory.createEmptyBorder(10, 30, 0, 0));
+        moreFieldsPannel.setOpaque(false);
+        moreFieldsPannel.setVisible(false);
+        JPanel subjectPanel = new TransparentPanel(new BorderLayout());
+        subject.setFont(getFont().deriveFont(12f));
+        subjectPanel.add(subject,BorderLayout.NORTH);
+        moreFieldsPannel.add(subjectPanel, BorderLayout.CENTER);
+        JPanel nicknamePanel = new TransparentPanel(new BorderLayout(5, 5));
+        setNickname((ChatRoomProviderWrapper)providersCombo.getSelectedItem());
+        nicknamePanel.add(nicknameField, BorderLayout.CENTER);
+        nicknamePanel.add(new JLabel(
+            GuiActivator.getResources().getI18NString("service.gui.NICKNAME")), 
+            BorderLayout.WEST);
+        moreFieldsPannel.add(nicknamePanel,BorderLayout.NORTH);
+        cmdExpandMoreFields = new JLabel();
+        cmdExpandMoreFields.setBorder(new EmptyBorder(0, 5, 0, 0));
+        cmdExpandMoreFields.setIcon(DesktopUtilActivator.getResources()
+            .getImage("service.gui.icons.RIGHT_ARROW_ICON"));
+        cmdExpandMoreFields.setText(DesktopUtilActivator
+            .getResources().getI18NString("service.gui.MORE_LABEL"));
+        cmdExpandMoreFields.addMouseListener(new MouseAdapter()
+        {
+            @Override
+            public void mouseClicked(MouseEvent e)
+            {
+                cmdExpandMoreFields.setIcon(
+                        GuiActivator.getResources().getImage(
+                            moreFieldsPannel.isVisible()
+                                    ? "service.gui.icons.RIGHT_ARROW_ICON"
+                                    : "service.gui.icons.DOWN_ARROW_ICON"));
+
+                moreFieldsPannel.setVisible(
+                    !moreFieldsPannel.isVisible());
+
+                pack();
+            }
+        });
+        morePanel.add(cmdExpandMoreFields,BorderLayout.NORTH);
+        morePanel.add(moreFieldsPannel,BorderLayout.CENTER);
+        return morePanel;
+    }
+    
     /**
      * Creates the providers combobox and filling its content.
      * @return
@@ -314,7 +361,7 @@ public class ChatRoomTableDialog
     private JComboBox createProvidersCombobox()
     {
         Iterator<ChatRoomProviderWrapper> providers
-            = chatRoomList.getChatRoomProviders();
+            = GuiActivator.getMUCService().getChatRoomProviders();
         JComboBox chatRoomProvidersCombobox = new JComboBox();
 
         while (providers.hasNext())
@@ -331,175 +378,56 @@ public class ChatRoomTableDialog
      */
     public void actionPerformed(ActionEvent e)
     {
+        String subject = null;
         JButton sourceButton = (JButton) e.getSource();
-        if(sourceButton.equals(addButton))
+        if(sourceButton.equals(okButton))
         {
-            String chatRoomName = editor.getText();
 
-            if(StringUtils.isNullOrEmpty(chatRoomName))
-                return;
-
-            ChatRoomWrapper chatRoomWrapper =
-                GuiActivator
-                    .getUIService()
-                    .getConferenceChatManager()
-                    .createChatRoom(chatRoomName,
+            if((chatRoomNameField.getText() != null
+                    && chatRoomNameField.getText().trim().length() > 0)
+                && (nicknameField.getText() != null 
+                    && nicknameField.getText().trim().length() > 0))
+            {
+                ChatRoomWrapper chatRoomWrapper =
+                    GuiActivator.getMUCService().createChatRoom(
+                        chatRoomNameField.getText().trim(),
                         getSelectedProvider().getProtocolProvider(),
-                        new ArrayList<String>(), "", false, true);
+                        new ArrayList<String>(),
+                        "",
+                        false,
+                        false,
+                        false);
 
-            String nickName = null;
+                String nickName = nicknameField.getText().trim();
+                
+                if(!chatRoomWrapper.isPersistent())
+                {
+                    chatRoomWrapper.setPersistent(true);
 
-            ChatOperationReasonDialog reasonDialog =
-                new ChatOperationReasonDialog(GuiActivator.getResources()
-                    .getI18NString("service.gui.CHANGE_NICKNAME"), GuiActivator
-                    .getResources().getI18NString(
-                        "service.gui.CHANGE_NICKNAME_LABEL"));
-
-            reasonDialog.setReasonFieldText("");
-
-            int result = reasonDialog.showDialog();
-
-            if (result == MessageDialog.OK_RETURN_CODE)
-            {
-                nickName = reasonDialog.getReason().trim();
-
+                    ConfigurationUtils.saveChatRoom(
+                        chatRoomWrapper.getParentProvider()
+                            .getProtocolProvider(),
+                        chatRoomWrapper.getChatRoomID(),
+                        chatRoomWrapper.getChatRoomID(),
+                        chatRoomWrapper.getChatRoomName());
+                }
+                
                 ConfigurationUtils.updateChatRoomProperty(
-                    getSelectedProvider().getProtocolProvider(),
+                    chatRoomWrapper.getParentProvider().getProtocolProvider(),
                     chatRoomWrapper.getChatRoomID(), "userNickName", nickName);
-            }
+                subject = this.subject.getText();
+                if(nickName == null)
+                    return;
 
-        }
-        else if(sourceButton.equals(removeButton))
-        {
-            chatRoomsTableUI.removeSelectedRoom();
-        }
-        else if(sourceButton.equals(okButton))
-        {
-            ChatRoomWrapper selectedRoom = chatRoomsTableUI.getSelectedRoom();
+                GuiActivator.getMUCService()
+                    .joinChatRoom(chatRoomWrapper, nickName, null, subject);
 
-            if(selectedRoom == null)
-            {
-                if(editor.getText() != null
-                        && editor.getText().trim().length() > 0)
-                {
-                    ChatRoomWrapper chatRoomWrapper =
-                    GuiActivator.getUIService().getConferenceChatManager()
-                        .createChatRoom(
-                            editor.getText(),
-                            getSelectedProvider().getProtocolProvider(),
-                            new ArrayList<String>(),
-                            "",
-                            false,
-                            false);
+                ChatWindowManager chatWindowManager =
+                    GuiActivator.getUIService().getChatWindowManager();
+                ChatPanel chatPanel =
+                    chatWindowManager.getMultiChat(chatRoomWrapper, true);
 
-                    String nickName = null;
-
-                    ChatOperationReasonDialog reasonDialog =
-                        new ChatOperationReasonDialog(GuiActivator
-                            .getResources().getI18NString(
-                                "service.gui.CHANGE_NICKNAME"), GuiActivator
-                            .getResources().getI18NString(
-                                "service.gui.CHANGE_NICKNAME_LABEL"));
-
-                    reasonDialog.setReasonFieldText(chatRoomWrapper
-                        .getChatRoom().getUserNickname());
-
-                    int result = reasonDialog.showDialog();
-
-                    if (result == MessageDialog.OK_RETURN_CODE)
-                    {
-                        nickName = reasonDialog.getReason().trim();
-
-                        ConfigurationUtils.updateChatRoomProperty(
-                            getSelectedProvider().getProtocolProvider(),
-                            chatRoomWrapper.getChatRoomID(), "userNickName",
-                            nickName);
-                    }
-
-                    GuiActivator.getUIService().getConferenceChatManager()
-                        .joinChatRoom(chatRoomWrapper);
-
-                    ChatWindowManager chatWindowManager =
-                        GuiActivator.getUIService().getChatWindowManager();
-                    ChatPanel chatPanel =
-                        chatWindowManager.getMultiChat(chatRoomWrapper, true);
-
-                    chatWindowManager.openChat(chatPanel, true);
-                }
-            }
-            else
-            {
-                if(selectedRoom.getChatRoom() != null)
-                {
-                    if (!selectedRoom.getChatRoom().isJoined())
-                    {
-                        String savedNick =
-                            ConfigurationUtils.getChatRoomProperty(
-                                selectedRoom.getParentProvider()
-                                    .getProtocolProvider(), selectedRoom
-                                    .getChatRoomID(), "userNickName");
-
-                            GuiActivator.getUIService()
-                                .getConferenceChatManager()
-                                .joinChatRoom(selectedRoom, savedNick, null);
-                    }
-                    else
-                        chatRoomsTableUI.openChatForSelection();
-                }
-                else
-                {
-                    // this is not a server persistent room we must create it
-                    // and join
-                    ChatRoomWrapper chatRoomWrapper =
-                    GuiActivator.getUIService().getConferenceChatManager()
-                        .createChatRoom(
-                            selectedRoom.getChatRoomName(),
-                            getSelectedProvider().getProtocolProvider(),
-                            new ArrayList<String>(),
-                            "",
-                            false,
-                            true);
-
-                    String savedNick =
-                        ConfigurationUtils.getChatRoomProperty(
-                            chatRoomWrapper.getParentProvider()
-                                .getProtocolProvider(), chatRoomWrapper
-                                .getChatRoomID(), "userNickName");
-
-                    if (savedNick == null)
-                    {
-                        String nickName = null;
-
-                        ChatOperationReasonDialog reasonDialog =
-                            new ChatOperationReasonDialog(GuiActivator
-                                .getResources().getI18NString(
-                                    "service.gui.CHANGE_NICKNAME"),
-                                GuiActivator.getResources().getI18NString(
-                                    "service.gui.CHANGE_NICKNAME_LABEL"));
-
-                        reasonDialog.setReasonFieldText(chatRoomWrapper
-                            .getChatRoom().getUserNickname());
-
-                        int result = reasonDialog.showDialog();
-
-                        if (result == MessageDialog.OK_RETURN_CODE)
-                        {
-                            nickName = reasonDialog.getReason().trim();
-
-                            ConfigurationUtils.updateChatRoomProperty(
-                                getSelectedProvider().getProtocolProvider(),
-                                chatRoomWrapper.getChatRoomID(),
-                                "userNickName", nickName);
-                        }
-
-                        GuiActivator.getUIService().getConferenceChatManager()
-                        .joinChatRoom(chatRoomWrapper,nickName,null);
-                    }
-                    else
-                        GuiActivator.getUIService().getConferenceChatManager()
-                            .joinChatRoom(chatRoomWrapper,savedNick,null);
-
-                }
+                chatWindowManager.openChat(chatPanel, true);
             }
 
             // in all cases we dispose this dialog
@@ -508,6 +436,15 @@ public class ChatRoomTableDialog
         else if(sourceButton.equals(cancelButton))
         {
             dispose();
+        }
+        else if(sourceButton.equals(listButton))
+        {
+            if(serverChatRoomsChoiceDialog == null)
+            {
+                serverChatRoomsChoiceDialog = new ServerChatRoomsChoiceDialog(
+                    getTitle(), getSelectedProvider());
+            }
+            serverChatRoomsChoiceDialog.setVisible(true);
         }
     }
 
@@ -527,54 +464,17 @@ public class ChatRoomTableDialog
         if (chatRoomTableDialog == this)
             chatRoomTableDialog = null;
 
-        chatRoomList.removeChatRoomProviderWrapperListener(
+        GuiActivator.getMUCService().removeChatRoomProviderWrapperListener(
                 chatRoomProviderWrapperListener);
-        chatRoomsTableUI.dispose();
-
+        if(serverChatRoomsChoiceDialog != null)
+        {
+            serverChatRoomsChoiceDialog.dispose();
+            serverChatRoomsChoiceDialog = null;
+        }
+        
         super.dispose();
     }
 
-    /**
-     * Loads the rooms hosted on the selected provider.
-     * Loads it in different thread so it won't block the caller.
-     */
-    public void loadProviderRooms()
-    {
-        new Thread()
-        {
-            @Override
-            public void run()
-            {
-                okButton.setEnabled(false);
-                roomsCombo.setEnabled(false);
-
-                List<String> rooms = GuiActivator.getUIService()
-                    .getConferenceChatManager()
-                        .getExistingChatRooms(getSelectedProvider());
-
-                roomsCombo.removeAllItems();
-
-                // if there is no room list comming from provider
-                if(rooms == null)
-                {
-                    roomsCombo.setEnabled(true);
-                    //okButton.setEnabled(true);
-                    return;
-                }
-
-                Collections.sort(rooms);
-
-                for(String room : rooms)
-                    roomsCombo.addItem(room);
-
-                // select nothing
-                roomsCombo.setSelectedIndex(-1);
-
-                roomsCombo.setEnabled(true);
-                //okButton.setEnabled(true);
-            }
-        }.start();
-    }
 
     /**
      * Returns the selected provider in the providers combo box.
@@ -584,6 +484,29 @@ public class ChatRoomTableDialog
     public ChatRoomProviderWrapper getSelectedProvider()
     {
         return (ChatRoomProviderWrapper)providersCombo.getSelectedItem();
+    }
+    
+    /**
+     * Sets the value of chat room name field.
+     * @param chatRoom the chat room name.
+     */
+    public void setChatRoomNameField(String chatRoom)
+    {
+        this.chatRoomNameField.setText(chatRoom);
+        updateOKButtonEnableState();
+    }
+    
+    /**
+     * Sets the value of chat room name field in the current 
+     * <tt>ChatRoomTableDialog</tt> instance.
+     * @param chatRoom the chat room name.
+     */
+    public static void setChatRoomField(String chatRoom)
+    {
+        if(chatRoomTableDialog != null)
+        {
+            chatRoomTableDialog.setChatRoomNameField(chatRoom);
+        }
     }
 
     /**
@@ -625,7 +548,7 @@ public class ChatRoomTableDialog
             }
 
             setText(provider.getProtocolProvider()
-                .getAccountID().getAccountAddress());
+                .getAccountID().getDisplayName());
 
             setIcon(new ImageIcon(provider.getProtocolProvider()
                     .getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16)));

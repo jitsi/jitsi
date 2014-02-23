@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.usersearch.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.packet.*;
@@ -99,8 +100,8 @@ public class ProviderManagerExt
             DiscoverInfoProvider.class);
 
         //<!-- Data Forms-->
-        //addExtProvider("x", "jabber:x:data",
-        //    org.jivesoftware.smackx.provider.DataFormProvider.class);
+        addExtProvider("x", "jabber:x:data",
+            org.jivesoftware.smackx.provider.DataFormProvider.class);
 
         //<!-- MUC User -->
         addExtProvider("x", "http://jabber.org/protocol/muc#user",
@@ -139,8 +140,7 @@ public class ProviderManagerExt
             LastActivity.class);
 
         //<!-- User Search -->
-        //addProvider("query", "jabber:iq:search",
-        //    org.jivesoftware.smackx.search.UserSearch.Provider.class);
+        addProvider("query", "jabber:iq:search",UserSearchProvider.class);
 
         //<!-- SharedGroupsInfo -->
         //addProvider("sharedgroup", "http://www.jivesoftware.org/protocol/sharedgroup",

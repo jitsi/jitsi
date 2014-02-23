@@ -103,7 +103,7 @@ public class SmileysSelectorBox
      */
     private Dimension calculateGridDimensions(int itemsCount)
     {
-        int gridRowCount = (int) Math.round(Math.sqrt(itemsCount));
+        int gridColCount = (int) Math.ceil(Math.sqrt(itemsCount));
 
         /*
          * FIXME The original code was "(int)Math.ceil(itemsCount/gridRowCount)".
@@ -111,8 +111,8 @@ public class SmileysSelectorBox
          * integers and, consequently, itemsCount/gridRowCount gives an integer.
          * Was the intention to have the division produce a real number?
          */
-        int gridColCount = itemsCount / gridRowCount;
-
+        int gridRowCount = itemsCount / gridColCount;
+        
         return new Dimension(gridColCount, gridRowCount);
     }
 
@@ -270,7 +270,25 @@ public class SmileysSelectorBox
      * nothing.
      * @param e the <tt>PopupMenuEvent</tt>
      */
-    public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {}
+    public void popupMenuWillBecomeInvisible(PopupMenuEvent e)
+    {
+        // fixes a leak where gif images leak "Image Animator" threads
+        JPopupMenu popupMenu = (JPopupMenu) e.getSource();
+
+        for(Component c : popupMenu.getComponents())
+        {
+            if(c instanceof SmileyMenuItem)
+            {
+                SmileyMenuItem si = (SmileyMenuItem)c;
+                if(si.getIcon() instanceof ImageIcon)
+                {
+                    ImageIcon ii = (ImageIcon)si.getIcon();
+                    if(ii != null && ii.getImage() != null)
+                        ii.getImage().flush();
+                }
+            }
+        }
+    }
 
     /**
      * Implements PopupMenuListener#popupMenuWillBecomeVisible(PopupMenuEvent).
@@ -306,7 +324,7 @@ public class SmileysSelectorBox
 
             gridBagConstraints.anchor = GridBagConstraints.EAST;
             gridBagConstraints.gridx = smileyIndex % gridColCount;
-            gridBagConstraints.gridy = smileyIndex % gridRowCount;
+            gridBagConstraints.gridy = (int)(Math.floor(smileyIndex / gridColCount)) % gridRowCount;
 
             popupMenu.add(smileyItem, gridBagConstraints);
 

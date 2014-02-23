@@ -221,10 +221,18 @@ public class BrandingActivator
         helpMenuFilter.put( Container.CONTAINER_ID,
                             Container.CONTAINER_HELP_MENU.getID());
 
-        bundleContext.registerService(  PluginComponent.class.getName(),
-                                        new AboutWindowPluginComponent(
-                                            Container.CONTAINER_HELP_MENU),
-                                        helpMenuFilter);
+        bundleContext.registerService(
+            PluginComponentFactory.class.getName(),
+            new PluginComponentFactory(
+                    Container.CONTAINER_HELP_MENU)
+            {
+                @Override
+                protected PluginComponent getPluginInstance()
+                {
+                    return new AboutWindowPluginComponent(getContainer(), this);
+                }
+            },
+            helpMenuFilter);
 
         if (logger.isInfoEnabled())
             logger.info("ABOUT WINDOW ... [REGISTERED]");
@@ -235,10 +243,18 @@ public class BrandingActivator
         chatHelpMenuFilter.put( Container.CONTAINER_ID,
                                 Container.CONTAINER_CHAT_HELP_MENU.getID());
 
-        bundleContext.registerService(  PluginComponent.class.getName(),
-                                        new AboutWindowPluginComponent(
-                                            Container.CONTAINER_CHAT_HELP_MENU),
-                                        chatHelpMenuFilter);
+        bundleContext.registerService(
+            PluginComponentFactory.class.getName(),
+            new PluginComponentFactory(
+                    Container.CONTAINER_CHAT_HELP_MENU)
+            {
+                @Override
+                protected PluginComponent getPluginInstance()
+                {
+                    return new AboutWindowPluginComponent(getContainer(), this);
+                }
+            },
+            chatHelpMenuFilter);
 
         if (logger.isInfoEnabled())
             logger.info("CHAT ABOUT WINDOW ... [REGISTERED]");

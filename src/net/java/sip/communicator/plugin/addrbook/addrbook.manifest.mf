@@ -3,6 +3,7 @@ Bundle-Description: OS-specific Address Book support
 Bundle-Name: OS-specific Address Book support
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
+Bundle-SymbolicName: net.java.sip.communicator.plugin.addrbook
 Import-Package: javax.swing,
  org.jitsi.service.configuration,
  org.jitsi.util,
@@ -13,4 +14,3 @@ Import-Package: javax.swing,
  net.java.sip.communicator.util,
  net.java.sip.communicator.plugin.desktoputil,
  org.osgi.framework
-System-Bundle: yes

@@ -23,6 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Yana Stamcheva
  * @author Valentin Martinet
+ * @author Damian Minkov
  */
 @SuppressWarnings("serial")
 public class ChatRoomConfigurationWindow
@@ -40,14 +41,9 @@ public class ChatRoomConfigurationWindow
     private JScrollPane generalScrollPane = new JScrollPane();
 
     /**
-     * The scroll pane contained in the "Options" tab.
-     */
-    private JScrollPane optionsScrollPane = new JScrollPane();
-
-    /**
      * The main panel.
      */
-    private JPanel mainPanel = new JPanel();
+    private JPanel mainPanel = new TransparentPanel();
 
     /**
      * The button that stores the data.
@@ -62,19 +58,10 @@ public class ChatRoomConfigurationWindow
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
     /**
-     * The panel contained in the "Options" tab.
-     */
-    private JPanel roomOptionsPanel = new JPanel(new GridLayout(0, 1));
-
-    /**
      * The panel containing all buttons.
      */
-    private JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-
-    /**
-     * The tabbed pane containing the "General" and "Options" tabs.
-     */
-    private final JTabbedPane tabbedPane = new SIPCommTabbedPane();
+    private JPanel buttonsPanel =
+        new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
     /**
      * The panel containing the title.
@@ -107,18 +94,17 @@ public class ChatRoomConfigurationWindow
             new String[]{chatRoomName}));
 
         titlePanel.setTitleText(GuiActivator.getResources().getI18NString(
-            "service.gui.SETTINGS"));
+            "service.gui.CHAT_ROOM_OPTIONS"));
 
         this.generalScrollPane.setPreferredSize(new Dimension(820, 520));
         this.generalScrollPane.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        this.optionsScrollPane.setHorizontalScrollBarPolicy(
-            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        this.generalScrollPane.setOpaque(false);
+        this.generalScrollPane.getViewport().setOpaque(false);
 
         this.mainPanel.setBorder(
             BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        this.tabbedPane.setBorder(
-            BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         this.mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         this.saveButton.addActionListener(this);
@@ -128,34 +114,15 @@ public class ChatRoomConfigurationWindow
         this.buttonsPanel.add(cancelButton);
 
         this.generalScrollPane.getViewport().add(mainPanel);
-        this.optionsScrollPane.getViewport().add(roomOptionsPanel,
-            BorderLayout.NORTH);
-
-        this.tabbedPane.add(
-            GuiActivator.getResources().getI18NString("service.gui.GENERAL"),
-            generalScrollPane);
-
-        this.tabbedPane.add(
-            GuiActivator.getResources().getI18NString("service.gui.OPTIONS"),
-            optionsScrollPane);
 
         this.getContentPane().add(titlePanel, BorderLayout.NORTH);
-        this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
+        this.getContentPane().add(generalScrollPane, BorderLayout.CENTER);
         this.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 
         titlePanel.setOpaque(false);
-        tabbedPane.setOpaque(false);
         buttonsPanel.setOpaque(false);
-        roomOptionsPanel.setOpaque(false);
-        optionsScrollPane.setOpaque(false);
         mainPanel.setOpaque(false);
         generalScrollPane.setOpaque(false);
-
-        this.roomOptionsPanel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createEmptyBorder(15, 15, 15, 15),
-            BorderFactory.createTitledBorder(
-                GuiActivator.getResources()
-                    .getI18NString("service.gui.CHAT_ROOM_OPTIONS"))));
 
         this.loadConfigurationForm();
     }
@@ -176,7 +143,7 @@ public class ChatRoomConfigurationWindow
             Iterator<?> values = formField.getValues();
             Iterator<String> options = formField.getOptions();
 
-            JComponent field = null;
+            JComponent field;
             JLabel label = new JLabel("", JLabel.RIGHT);
 
             if(formField.getLabel() != null)
@@ -188,11 +155,12 @@ public class ChatRoomConfigurationWindow
             {
                 // Create a check box when the field is of type boolean.
                 field = new SIPCommCheckBox(formField.getLabel());
+                label.setText("");
 
                 if(values.hasNext())
                 {
                     ((JCheckBox)field)
-                        .setSelected(((Boolean)values.next()).booleanValue());
+                        .setSelected((Boolean)values.next());
                 }
             }
             else if(fieldType.equals(
@@ -205,14 +173,14 @@ public class ChatRoomConfigurationWindow
                     String value = values.next().toString();
 
                     ((JLabel) field).setText(value);
-                    ((JLabel) field).setFont(new Font(null, Font.ITALIC, 9));
-                    ((JLabel) field).setForeground(Color.GRAY);
+                    field.setFont(new Font(null, Font.ITALIC, 10));
+                    field.setForeground(Color.GRAY);
                 }
             }
             else if(fieldType.equals(
                 ChatRoomConfigurationFormField.TYPE_LIST_MULTI))
             {
-                field = new JPanel(new GridLayout(0, 1));
+                field = new TransparentPanel(new GridLayout(0, 1));
 
                 field.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 
@@ -263,7 +231,9 @@ public class ChatRoomConfigurationWindow
                 }
             }
             else if(fieldType.equals(
-                ChatRoomConfigurationFormField.TYPE_TEXT_SINGLE))
+                ChatRoomConfigurationFormField.TYPE_TEXT_SINGLE)
+                    || fieldType.equals(
+                            ChatRoomConfigurationFormField.TYPE_ID_SINGLE))
             {
                 field = new JTextField();
 
@@ -285,6 +255,21 @@ public class ChatRoomConfigurationWindow
 
                     ((JPasswordField) field).setText(value);
                 }
+            }
+            else if(fieldType.equals(
+                ChatRoomConfigurationFormField.TYPE_ID_MULTI))
+            {
+                StringBuffer buff = new StringBuffer();
+
+                while(values.hasNext())
+                {
+                    String value = values.next().toString();
+                    buff.append(value);
+
+                    if(values.hasNext())
+                        buff.append(System.getProperty("line.separator"));
+                }
+                field = new JTextArea(buff.toString());
             }
             else
             {
@@ -310,29 +295,20 @@ public class ChatRoomConfigurationWindow
                 uiFieldsTable.put(formField.getName(), field);
             }
 
-            // If the field is of type boolean we would like to separate it in
-            // the options panel.
-            if(fieldType.equals(ChatRoomConfigurationFormField.TYPE_BOOLEAN))
-            {
-                roomOptionsPanel.add(field);
-            }
+            JPanel fieldPanel = new TransparentPanel(new GridLayout(1,2));
+            fieldPanel.setOpaque(false);
+
+            if(!(field instanceof JLabel))
+                fieldPanel.setBorder(
+                    BorderFactory.createEmptyBorder(0, 0, 8, 0));
             else
-            {
-                JPanel fieldPanel = new JPanel(new GridLayout(1,2));
-                fieldPanel.setOpaque(false);
+                fieldPanel.setBorder(
+                    BorderFactory.createEmptyBorder(0, 0, 1, 0));
 
-                if(!(field instanceof JLabel))
-                    fieldPanel.setBorder(
-                        BorderFactory.createEmptyBorder(0, 0, 10, 0));
+            fieldPanel.add(label);
+            fieldPanel.add(field);
 
-                label.setPreferredSize(
-                    new Dimension(computeLabelWidth(configForm), 30));
-
-                fieldPanel.add(label);
-                fieldPanel.add(field);
-
-                this.mainPanel.add(fieldPanel);
-            }
+            this.mainPanel.add(fieldPanel);
         }
     }
 
@@ -402,13 +378,25 @@ public class ChatRoomConfigurationWindow
                 {
                     String newValue = ((JTextComponent)c).getText();
 
-                    formField.addValue(newValue);
+                    if(formField.getType().equals(
+                        ChatRoomConfigurationFormField.TYPE_ID_MULTI))
+                    {
+                        // extract values
+                        StringTokenizer idTokens = new StringTokenizer(
+                            newValue, System.getProperty("line.separator"));
+                        while(idTokens.hasMoreTokens())
+                        {
+                            formField.addValue(idTokens.nextToken());
+                        }
+                    }
+                    else
+                        formField.addValue(newValue);
                 }
                 else if (c instanceof AbstractButton)
                 {
                     boolean isSelected = ((AbstractButton)c).isSelected();
 
-                    formField.addValue(Boolean.valueOf(isSelected));
+                    formField.addValue(isSelected);
                 }
                 else if (c instanceof JComboBox)
                 {
@@ -420,12 +408,12 @@ public class ChatRoomConfigurationWindow
                 {
                     Component[] components = c.getComponents();
 
-                    for(int i = 0; i < components.length; i++)
+                    for(Component comp : components)
                     {
-                        if(!(components[i] instanceof JCheckBox))
+                        if(!(comp instanceof JCheckBox))
                             continue;
 
-                        JCheckBox checkBox = (JCheckBox) components[i];
+                        JCheckBox checkBox = (JCheckBox) comp;
 
                         formField.addValue(checkBox.getText());
                     }

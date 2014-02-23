@@ -99,11 +99,15 @@ public class SystemActivityNotifications
     {
         try
         {
-            System.loadLibrary("sysactivitynotifications");
+            // Don't load native library on Android to prevent the exception
+            if(!org.jitsi.util.OSUtils.IS_ANDROID)
+            {
+                System.loadLibrary("sysactivitynotifications");
 
-            ptr = allocAndInit();
-            if (ptr == -1)
-                ptr = 0;
+                ptr = allocAndInit();
+                if (ptr == -1)
+                    ptr = 0;
+            }
         }
         catch (Throwable t)
         {

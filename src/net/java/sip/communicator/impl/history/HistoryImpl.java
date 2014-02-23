@@ -162,7 +162,7 @@ public class HistoryImpl
         return this.historyServiceImpl;
     }
 
-    private void reloadDocumentList()
+    void reloadDocumentList()
     {
         synchronized (this.historyDocuments)
         {

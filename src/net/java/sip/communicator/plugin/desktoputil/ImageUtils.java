@@ -503,9 +503,7 @@ public class ImageUtils
         Image image = null;
         try
         {
-            image = ImageIO.read(
-                    new ByteArrayInputStream(imageBytes));
-
+            image = ImageIO.read(new ByteArrayInputStream(imageBytes));
         }
         catch (Exception e)
         {
@@ -523,48 +521,51 @@ public class ImageUtils
      * @return the composed image.
      */
     public static Image getComposedImage(
-                    Image leftImage, Image rightImage,
-                    ImageObserver imageObserver)
+            Image leftImage, Image rightImage,
+            ImageObserver imageObserver)
     {
-        int height = 0;
-        if(leftImage == null && rightImage == null)
-            return null;
-        if(leftImage != null && rightImage != null)
-            height = Math.max(leftImage.getHeight(imageObserver),
-                              rightImage.getHeight(imageObserver));
-        else if(leftImage == null)
-            height = rightImage.getHeight(imageObserver);
-        else
+        int height;
+        int leftWidth;
+        int width;
+
+        if (leftImage == null)
+        {
+            if (rightImage == null)
+            {
+                return null;
+            }
+            else
+            {
+                height = rightImage.getHeight(imageObserver);
+                leftWidth = rightImage.getWidth(imageObserver);
+                width = leftWidth * 2;
+            }
+        }
+        else if (rightImage == null)
+        {
             height = leftImage.getHeight(imageObserver);
-
-        int width = 0;
-        int leftWidth = 0;
-        if(leftImage != null && rightImage != null)
-        {
             leftWidth = leftImage.getWidth(imageObserver);
-            width = leftWidth +
-                     rightImage.getWidth(imageObserver);
-        }
-        else if(leftImage == null)
-        {
-            leftWidth = rightImage.getWidth(imageObserver);
-            width = leftWidth*2;
+            width = leftWidth * 2;
         }
         else
         {
+            height
+                = Math.max(
+                        leftImage.getHeight(imageObserver),
+                        rightImage.getHeight(imageObserver));
             leftWidth = leftImage.getWidth(imageObserver);
-            width = leftWidth*2;
+            width = leftWidth + rightImage.getWidth(imageObserver);
         }
 
-        BufferedImage buffImage =
-            new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage buffImage
+            = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = (Graphics2D) buffImage.getGraphics();
 
         AntialiasingManager.activateAntialiasing(g);
         g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
-        if(leftImage != null)
+        if (leftImage != null)
             g.drawImage(leftImage, 0, 0, null);
-        if(rightImage != null)
+        if (rightImage != null)
             g.drawImage(rightImage, leftWidth + 1, 0, null);
 
         return buffImage;

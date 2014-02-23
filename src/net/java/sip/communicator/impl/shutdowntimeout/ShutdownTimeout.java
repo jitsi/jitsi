@@ -7,21 +7,23 @@
 package net.java.sip.communicator.impl.shutdowntimeout;
 
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.launchutils.*;
 
 import org.osgi.framework.*;
 
 /**
- * In order to shut down SIP Communicator we kill the Felix system bundle.
- * However, this sometimes doesn't work for reason of running non-daemon
- * threads (such as the javasound event dispatcher). This results in having
- * instances of SIP Communicator running in the background.
+ * In order to shut down Jitsi, we kill the Felix system bundle. However, this
+ * sometimes doesn't work for reason of running non-daemon threads (such as the
+ * Java Sound event dispatcher). This results in having instances of Jitsi
+ * running in the background.
  *
- * We use this shutdown timout bundle in order to fix this problem. When our
+ * We use this shutdown timeout bundle in order to fix this problem. When our
  * stop method is called, we assume that a shutdown is executed and start a 15
  * seconds daemon thread. If the application is still running once these 15
  * seconds expire, we System.exit() the application.
  *
  * @author Emil Ivov
+ * @author Lyubomir Marinov
  */
 public class ShutdownTimeout
     implements BundleActivator
@@ -32,25 +34,90 @@ public class ShutdownTimeout
     /**
      * The system property which can be used to set custom timeout.
      */
-    public static String SHUTDOWN_TIMEOUT_PROP =
-        "org.jitsi.shutdown.SHUTDOWN_TIMEOUT";
+    private static final String SHUTDOWN_TIMEOUT_PNAME
+        = "org.jitsi.shutdown.SHUTDOWN_TIMEOUT";
 
     /**
-     * The number of miliseconds that we wait before we force a shutdown.
+     * The number of milliseconds that we wait before we force a shutdown.
      */
-    public static final long SHUTDOWN_TIMEOUT_DEFAULT = 5000;//ms
+    private static final long SHUTDOWN_TIMEOUT_DEFAULT = 5000;//ms
 
     /**
      * The code that we exit with if the application is not down in 15 seconds.
      */
-    public static final int SYSTEM_EXIT_CODE = 500;
+    private static final int SYSTEM_EXIT_CODE = 500;
+
+    /**
+     * Runs in a daemon thread started by {@link #stop(BundleContext)} and
+     * forcibly terminates the currently running Java virtual machine after
+     * {@link #SHUTDOWN_TIMEOUT_DEFAULT} (or {@link #SHUTDOWN_TIMEOUT_PNAME})
+     * milliseconds.
+     */
+    private static void runInShutdownTimeoutThread()
+    {
+        long shutdownTimeout = SHUTDOWN_TIMEOUT_DEFAULT;
+
+        // Check for a custom value specified through a System property.
+        try
+        {
+            String s = System.getProperty(SHUTDOWN_TIMEOUT_PNAME);
+
+            if ((s != null) && (s.length() > 0))
+            {
+                long l = Long.valueOf(s);
+
+                // Make sure custom is not 0 to prevent waiting forever.
+                if (l > 0)
+                    shutdownTimeout = l;
+            }
+        }
+        catch(Throwable t)
+        {
+        }
+
+        if (logger.isTraceEnabled())
+        {
+            logger.trace(
+                    "Starting shutdown countdown of " + shutdownTimeout
+                        + "ms.");
+        }
+        try
+        {
+            Thread.sleep(shutdownTimeout);
+        }
+        catch (InterruptedException ex)
+        {
+            if (logger.isDebugEnabled())
+                logger.debug("Interrupted shutdown timer.");
+            return;
+        }
+
+        /*
+         * We are going to forcibly terminate the currently running Java virtual
+         * machine so it will not run DeleteOnExitHook. But the currently
+         * running Java virtual machine is still going to terminate because of
+         * our intention, not because it has crashed. Make sure that we delete
+         * any files registered for deletion when Runtime.halt(int) is to be
+         * invoked.
+         */
+        try
+        {
+            DeleteOnHaltHook.runHooks();
+        }
+        catch (Throwable t)
+        {
+            logger.warn("Failed to delete files on halt.", t);
+        }
+
+        logger.error("Failed to gently shutdown. Forcing exit.");
+        Runtime.getRuntime().halt(SYSTEM_EXIT_CODE);
+    }
 
     /**
      * Dummy impl of the bundle activator start method.
      *
      * @param context unused
-     * @throws Exception If this method throws an exception
-     * (which won't happen).
+     * @throws Exception if this method throws an exception (which won't happen)
      */
     public void start(BundleContext context)
         throws Exception
@@ -64,63 +131,26 @@ public class ShutdownTimeout
      * bundle-specific activities necessary to stop the bundle.
      *
      * @param context The execution context of the bundle being stopped.
-     * @throws Exception If this method throws an exception, the bundle is
-     *   still marked as stopped, and the Framework will remove the bundle's
-     *   listeners, unregister all services registered by the bundle, and
-     *   release all services used by the bundle.
+     * @throws Exception If this method throws an exception, the bundle is still
+     * marked as stopped, and the Framework will remove the bundle's listeners,
+     * unregister all services registered by the bundle, and release all
+     * services used by the bundle.
      */
     public void stop(BundleContext context)
         throws Exception
     {
-        Thread shutdownTimeoutThread = new Thread()
-        {
-            @Override
-            public void run()
+        Thread shutdownTimeoutThread
+            = new Thread()
             {
-                synchronized(this)
+                @Override
+                public void run()
                 {
-                    try
-                    {
-
-                        long shutDownTimeout = SHUTDOWN_TIMEOUT_DEFAULT;
-
-                        // check for custom value available through system
-                        // property
-                        try
-                        {
-                            String shutdownCustomValue =
-                                System.getProperty(SHUTDOWN_TIMEOUT_PROP);
-
-                            if(shutdownCustomValue != null
-                                && shutdownCustomValue.length() > 0)
-                            {
-                                long custom =
-                                    Long.valueOf(shutdownCustomValue);
-
-                                // make sure custom is not 0, or it will
-                                // wait forever
-                                if(custom > 0)
-                                    shutDownTimeout = custom;
-                            }
-                        }
-                        catch(Throwable t){}
-
-                        if (logger.isTraceEnabled())
-                            logger.trace("Starting shutdown countdown of "
-                                     + shutDownTimeout + "ms.");
-                        wait(shutDownTimeout);
-                        logger.error("Failed to gently shutdown. Forcing exit.");
-                        Runtime.getRuntime().halt(SYSTEM_EXIT_CODE);
-                    }catch (InterruptedException ex){
-                        if (logger.isDebugEnabled())
-                            logger.debug("Interrupted shutdown timer.");
-                    }
+                    runInShutdownTimeoutThread();
                 }
-            }
-        };
-        if (logger.isTraceEnabled())
-            logger.trace("Created the shutdown timer thread.");
+            };
+
         shutdownTimeoutThread.setDaemon(true);
+        shutdownTimeoutThread.setName(ShutdownTimeout.class.getName());
         shutdownTimeoutThread.start();
     }
 }

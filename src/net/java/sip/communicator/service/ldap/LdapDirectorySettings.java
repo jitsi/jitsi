@@ -264,6 +264,55 @@ public interface LdapDirectorySettings
     public void setGlobalPhonePrefix(String prefix);
 
     /**
+     * Gets the mode how the LDAP query is constructed.
+     * @return the mode how the LDAP query is constructed.
+     */
+    public String getQueryMode();
+
+    /**
+     * Sets the mode how the LDAP query is constructed.
+     * @param queryMode the mode how the LDAP query is constructed.
+     */
+    public void setQueryMode(String queryMode);
+
+    /**
+     * Gets the user-defined LDAP query.
+     * @return the user-defined LDAP query.
+     */
+    public String getCustomQuery();
+
+    /**
+     * Sets the user-defined LDAP query.
+     * @param query the user-defined LDAP query.
+     */
+    public void setCustomQuery(String query);
+
+    /**
+     * Gets whether the query term gets mangled with wildcards.
+     * @return whether the query term gets mangled with wildcards.
+     */
+    public boolean isMangleQuery();
+
+    /**
+     * Sets whether the query term gets mangled with wildcards.
+     * @param mangle whether the query term gets mangled with wildcards.
+     */
+    public void setMangleQuery(boolean mangle);
+
+    /**
+     * Gets whether photos are retrieved along with the other attributes.
+     * @return whether photos are retrieved along with the other attributes.
+     */
+    public boolean isPhotoInline();
+
+    /**
+     * Sets whether photos are retrieved along with the other attributes.
+     * @param inline whether photos are retrieved along with the other
+     *            attributes.
+     */
+    public void setPhotoInline(boolean inline);
+
+    /**
      * Saves these settings through the configuration service
      *
      * @see LdapDirectorySettings#persistentSave
@@ -285,26 +334,6 @@ public interface LdapDirectorySettings
      *
      */
     public void persistentRemove();
-
-    /**
-     * Checks if both LdapDirectorySettings instance have the same content
-     *
-     * @param other object to compare
-     * @return whether both LdapDirectorySettings instance have the same content
-     *
-     * @see java.lang.Object#equals
-     */
-    public boolean equals(LdapDirectorySettings other);
-
-    /**
-     * Returns the hash code for this instance.
-     * It has to be consistent with equals.
-     *
-     * @return the hash code dor this instance
-     *
-     * @see java.lang.Object#hashCode
-     */
-    public int hashCode();
 
     /**
      * Clone this object.

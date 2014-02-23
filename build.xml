@@ -66,9 +66,13 @@
         </and>
     </condition>
 
-    <!-- Make sure we use the windows-64 natives if this is 64-bit Windows -->
+    <!-- Make sure we use the windows-64 natives if this is 64-bit Windows. Note
+         that properties are case-sensitive even if the environment variables on
+         the operating system are not. For example, Windows's system path
+         variable may be set to an Ant property "system.Path" rather than
+         "system.PATH". -->
     <condition property="path"
-            value="${lib}/native/windows-64:${system.PATH}">
+            value="${lib}/native/windows-64:${system.PATH}:${system.Path}">
         <and>
             <isset property="is.running.windows"/>
             <os arch="amd64" />
@@ -77,7 +81,7 @@
     <!-- Otherwise and if this is still Windows, go for the windows natives
          (i.e. os.arch==i386) -->
     <condition property="path"
-            value="${lib}/native/windows:${system.PATH}">
+            value="${lib}/native/windows:${system.PATH}:${system.Path}">
         <isset property="is.running.windows"/>
     </condition>
     <!-- At last i.e. if this is not Windows, use the system PATH environment
@@ -784,8 +788,6 @@
             <sysproperty key="java.net.preferIPv6Addresses"
                          value="${java.net.preferIPv6Addresses}"/>
 
-            <sysproperty key="gtalktesting" value="${gtalktesting}"/>
-
             <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
                 value="${user.home}"/>
             <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_NAME"
@@ -838,7 +840,7 @@
     </target>
 
     <!--RUN-JITSI -->
-    <target name="run" depends="deploy-os-specific-bundles"
+    <target name="run" depends="deploy-os-specific-bundles,load-properties"
         description="Starts felix and runs sip-comunicator gui (use latest build).">
 
         <!-- we allow users to pass command line args using the "args" system
@@ -847,12 +849,24 @@
              the value ${args}-->
         <property name="args" value=""/>
 
-        <!-- Jitsi on Mac OS X uses a JVMTI agent to handle kAEGetURL
-             AppleScript events. -->
         <condition property="jvmarg.line"
-                value="-agentlib:AEGetURLEventHandlerAgent -Xdock:name='Jitsi' -Xdock:icon='resources/images/logo/sc_logo_128x128.icns'"
+                value="-Xdock:name='${application.name}' -Xdock:icon='resources/images/logo/sc_logo_128x128.icns'"
                 else="">
             <isset property="is.running.macos"/>
+        </condition>
+
+        <condition property="jvmarg.splash"
+            value="-splash:resources/install/resources/splash.gif"
+            else="">
+            <isset property="splashscreen.enable"/>
+        </condition>
+
+        <!-- Jitsi on Mac OS X uses a JVMTI agent to handle kAEGetURL
+             AppleScript events. To enable it use jvmarg.aegeturl property -->
+        <condition property="jvmarg.aegeturl"
+            value="-agentlib:AEGetURLEventHandlerAgent"
+            else="">
+            <isset property="aegeturl.enable"/>
         </condition>
 
         <condition property="jvm.maxheapsize"
@@ -880,8 +894,6 @@
 
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="${java.net.preferIPv6Addresses}"/>
-
-            <sysproperty key="gtalktesting" value="${gtalktesting}"/>
 
             <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
                 value="${user.home}"/>
@@ -924,7 +936,7 @@
                  detection because -server uses much more memory for 32-bit OS
                  (64-bit always used -server) -->
             <jvmarg line="${profiler.args} ${jvmarg.line}
-              -client ${jvm.maxheapsize}"/>
+              -client ${jvm.maxheapsize} ${jvmarg.splash} ${jvmarg.aegeturl}"/>
 
             <sysproperty key="apple.laf.useScreenMenuBar" value="true" />
         </java>
@@ -1022,6 +1034,7 @@
     <target name="bundles"
         depends="bundle-sc-launcher,bundle-util,bundle-service-dns,
         bundle-impl-dns,bundle-dns-config,
+        bundle-splash-screen,
         bundle-configuration,bundle-configuration-slick,
         bundle-history,bundle-history-slick,bundle-messagehistory, bundle-msghistory-slick,
         bundle-callhistory, bundle-callhistory-slick, bundle-popupmessagehandler-slick,
@@ -1040,7 +1053,7 @@
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
         bundle-plugin-yahooaccregwizz,bundle-plugin-aimaccregwizz,
-        bundle-commons-codec,bundle-httputil,bundle-plugin-spellcheck,
+        bundle-commons-codec,bundle-commons-lang,bundle-httputil,bundle-plugin-spellcheck,
         bundle-version-impl,bundle-shutdown-timeout,bundle-windows-clean-shutdown,
         bundle-growlnotification,bundle-swingnotification,bundle-galagonotification,
         bundle-sparkle, bundle-plugin-branding,
@@ -1074,14 +1087,27 @@
         bundle-plugin-contactsourceconfig,bundle-plugin-certconfig,
         bundle-globalshortcut,bundle-plugin-msofficecomm,bundle-libjitsi,
         bundle-customcontactactions, bundle-phonenumbercontactsource,
-        bundle-demuxcontactsource, bundle-desktoputil,
-        bundle-globaldisplaydetails"/>
+        bundle-demuxcontactsource, bundle-muc,
+        bundle-desktoputil,bundle-globaldisplaydetails, 
+    	bundle-usersearch,
+        bundle-plugin-propertieseditor,bundle-plugin-accountinfo,
+        bundle-guava,bundle-hsql"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
         <jar compress="false" destfile="${bundles.dest}/sc-launcher.jar">
             <zipfileset dir="${dest}/net/java/sip/communicator/launcher"
                 prefix="net/java/sip/communicator/launcher"/>
+        </jar>
+    </target>
+
+    <!--BUNDLE-SPLASH-SCREEN-->
+    <target name="bundle-splash-screen">
+        <jar compress="false"
+             destfile="${bundles.dest}/splash-screen.jar"
+             manifest="${src}/net/java/sip/communicator/impl/splashscreen/splashscreen.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/splashscreen"
+                prefix="net/java/sip/communicator/impl/splashscreen"/>
         </jar>
     </target>
 
@@ -1282,6 +1308,8 @@
 
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/libjitsi"
                 prefix="net/java/sip/communicator/impl/libjitsi"/>
+            <zipfileset src="${lib.noinst}/bcpkix-jdk15on-150.jar" prefix=""
+                excludes="META-INF/BCKEY.*"/>
             <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/libjitsi.jar" prefix=""/>
         </jar>
@@ -1340,7 +1368,6 @@
                 prefix="net/java/sip/communicator/service/googlecontacts"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/googlecontacts"
                 prefix="net/java/sip/communicator/impl/googlecontacts" />
-            <zipfileset src="${lib.noinst}/google-collect-1.0-rc1.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/gdata-core-1.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/gdata-contacts-3.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/gdata-contacts-meta-3.0.jar" prefix=""/>
@@ -1348,6 +1375,7 @@
             <zipfileset src="${lib.noinst}/gdata-client-meta-1.0.jar" prefix=""/>
         </jar>
     </target>
+
     <!--BUNDLE-GOOGLECONTACTS-SERVICE-->
     <target name="bundle-googlecontacts-service">
         <jar compress="false" destfile="${bundles.dest}/googlecontacts-service.jar"
@@ -1355,6 +1383,14 @@
             <zipfileset dir="${dest}/net/java/sip/communicator/service/googlecontacts"
                 prefix="net/java/sip/communicator/service/googlecontacts"/>
         </jar>
+    </target>
+
+    <target name="bundle-guava">
+        <copy file="${lib.noinst}/guava-15.0.jar" tofile="${bundles.dest}/guava.jar"/>
+    </target>
+
+    <target name="bundle-hsql">
+        <copy file="${lib.noinst}/hsqldb.jar" tofile="${bundles.dest}/hsqldb.jar"/>
     </target>
 
     <!--BUNDLE-SERVICEBINDER -->
@@ -1685,9 +1721,9 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/gui/swing.ui.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
                 prefix="net/java/sip/communicator/impl/gui"/>
-            <zipfileset src="lib/installer-exclude/swing-worker-1.2.jar" prefix=""/>
-            <zipfileset src="lib/installer-exclude/mac_widgets-0.9.5.jar" prefix=""/>
-            <zipfileset src="lib/installer-exclude/forms-1.2.1.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/swing-worker-1.2.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/mac_widgets-0.9.5.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/forms-1.2.1.jar" prefix=""/>
         </jar>
     </target>
 
@@ -2010,45 +2046,6 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!-- BUNDLE-RSS -->
-    <target name="bundle-rss">
-        <!-- Creates a bundle containing the Rss impl of the protocol provider.-->
-        <jar compress="false" destfile="${bundles.dest}/protocol-rss.jar"
-             manifest="${src}/net/java/sip/communicator/impl/protocol/rss/rss.provider.manifest.mf">
-        <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/rss"
-                    prefix="net/java/sip/communicator/impl/protocol/rss"/>
-
-        <!-- LIBRARIES FOR RSS PROTOCOL, INCLUDING JDOM-1.0 AND ROME-0.9/-->
-        <zipfileset src="${lib.noinst}/jdom.jar" prefix=""/>
-        <zipfileset src="${lib.noinst}/rome-0.9.jar" prefix=""/>
-
-        <!-- LIBRARY FOR FAVICON SUPPORT -->
-        <zipfileset src="${lib.noinst}/aclibico-2.1.jar" prefix=""/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-RSS-SLICK -->
-    <!-- Creates a bundle containing the slick for the Gibberish protocol
-         provider.-->
-    <target name="bundle-rss-slick">
-        <jar compress="false" destfile="${bundles.dest}/protocol-rss-slick.jar"
-            manifest="${testsrc}/net/java/sip/communicator/slick/protocol/rss/rss.provider.slick.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/rss"
-                prefix="net/java/sip/communicator/slick/protocol/rss"/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-PLUGIN-RSSACCREGWIZZ -->
-    <target name="bundle-plugin-rssaccregwizz">
-        <!-- Creates a bundle for the plugin Rss Account Registration
-             Wizard.-->
-        <jar compress="false" destfile="${bundles.dest}/rssaccregwizz.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/rssaccregwizz/rssaccregwizz.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/rssaccregwizz"
-                prefix="net/java/sip/communicator/plugin/rssaccregwizz"/>
-        </jar>
-    </target>
-
     <!-- BUNDLE-ZEROCONF -->
     <target name="bundle-zeroconf">
         <!-- Creates a bundle containing the Zeroconf impl of the protocol provider.-->
@@ -2091,31 +2088,16 @@ javax.swing.event, javax.swing.border"/>
             </jar>
     </target>
 
-    <!--BUNDLE-LOG4J -->
-    <target name="bundle-log4j">
-        <jar compress="true" destfile="lib/bundle/log4j.jar"
-            filesetmanifest="merge">
-
-            <zipfileset src="${lib.noinst}/log4j-1.2.8.jar" prefix=""/>
-            <manifest>
-                <attribute name="Export-Package" value="org.apache.log4j"/>
-                <attribute name="Bundle-Name" value="Apache log4j logging system"/>
-                <attribute name="Bundle-Description" value="Logging system."/>
-                <attribute name="System-Bundle" value="yes"/>
-            </manifest>
-        </jar>
-    </target>
-
     <!--BUNDLE-COMMONS-CODEC -->
     <target name="bundle-commons-codec">
-        <jar compress="true" destfile="${bundles.dest}/commons-codec.jar"
-            filesetmanifest="merge">
+        <copy file="${lib.noinst}/commons-codec-1.4.jar"
+            tofile="${bundles.dest}/commons-codec.jar"/>
+    </target>
 
-            <zipfileset src="${lib.noinst}/commons-codec-1.4.jar" prefix=""/>
-            <manifest>
-                <attribute name="System-Bundle" value="yes"/>
-            </manifest>
-        </jar>
+    <!--BUNDLE-COMMONS-LANG -->
+    <target name="bundle-commons-lang">
+        <copy file="${lib.noinst}/commons-lang3-3.1.jar"
+            tofile="${bundles.dest}/commons-lang.jar"/>
     </target>
 
     <!--BUNDLE-HTTPUTIL -->
@@ -2126,20 +2108,11 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/service/httputil"
                 prefix="net/java/sip/communicator/service/httputil"/>
         </jar>
-        <!--
-            Re-packaging into new bundle as original having wrong paths in osgi
-            bundle manifest and getting exceptions
-            'No paths specified in header' while loading
-         -->
-        <jar
-            compress="false" destfile="${bundles.dest}/httpclient.jar"
-            manifest="${lib.noinst}/httpclient.manifest.mf">
-            <zipfileset src="${lib.noinst}/httpclient-osgi-4.2.3.jar"
-                        prefix=""/>
-            <zipfileset src="${lib.noinst}/httpcore-osgi-4.2.3.jar"
-                        prefix=""/>
-        </jar>
 
+        <copy file="${lib.noinst}/httpclient-osgi-4.2.3.jar"
+            tofile="${bundles.dest}/httpclient.jar"/>
+        <copy file="${lib.noinst}/httpcore-osgi-4.2.3.jar"
+            tofile="${bundles.dest}/httpcore.jar"/>
     </target>
 
     <!-- BUNDLE-NOTIFICATION -->
@@ -2219,6 +2192,7 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/accountinfo/accountinfo.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/accountinfo"
                 prefix="net/java/sip/communicator/plugin/accountinfo"/>
+            <zipfileset src="${lib.noinst}/jcalendar-1.4.jar"/>
         </jar>
     </target>
 
@@ -2459,7 +2433,7 @@ javax.swing.event, javax.swing.border"/>
                 <attribute name="Bundle-Name" value="ZRTP4J"/>
                 <attribute name="Bundle-Description" value="ZRTP for Java library."/>
                 <attribute name="Bundle-Version" value="1.4.5"/>
-                <attribute name="System-Bundle" value="yes"/>
+                <attribute name="Bundle-SymbolicName" value="gnu.java.zrtp4j"/>
             </manifest>
         </jar>
     </target>
@@ -2513,7 +2487,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!--BUNDLE-BOUNCYCASTLE -->
     <target name="bundle-bouncycastle">
-        <copy file="${lib.noinst}/bcprov-jdk15on-148.jar" tofile="${bundles.dest}/bouncycastle.jar"/>
+        <copy file="${lib.noinst}/bcprov-jdk15on-150.jar" tofile="${bundles.dest}/bouncycastle.jar"/>
         <copy file="${lib.noinst}/bccontrib-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/bccontrib.jar"/>
     </target>
 
@@ -2892,7 +2866,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/customcontactactions"/>
         </jar>
     </target>
-
+	
     <!-- BUNDLE-PHONE-NUMBER-CONTACT-SOURCE -->
     <target name="bundle-phonenumbercontactsource">
         <!-- Creates a bundle containing the contact source interfaces.-->
@@ -2903,6 +2877,15 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+	<!-- BUNDLE-PHONE-NUMBER-CONTACT-SOURCE -->
+	<target name="bundle-usersearch">
+	    <!-- Creates a bundle containing the contact source interfaces.-->
+	    <jar compress="false" destfile="${bundles.dest}/usersearch.jar"
+	         manifest="${src}/net/java/sip/communicator/plugin/usersearch/usersearch.manifest.mf">
+	         <zipfileset dir="${dest}/net/java/sip/communicator/plugin/usersearch"
+	            prefix="net/java/sip/communicator/plugin/usersearch"/>
+	    </jar>
+	</target>
     <!-- BUNDLE-PHONE-NUMBER-CONTACT-SOURCE -->
     <target name="bundle-demuxcontactsource">
         <!-- Creates a bundle containing the contact source interfaces.-->
@@ -2910,6 +2893,18 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/demuxcontactsource/demuxcontactsource.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/demuxcontactsource"
                 prefix="net/java/sip/communicator/plugin/demuxcontactsource"/>
+        </jar>
+    </target>
+	
+	<!-- BUNDLE-CHAT-ROOM-CONTACT-SOURCE -->
+    <target name="bundle-muc">
+        <!-- Creates a bundle containing the contact source interfaces.-->
+        <jar compress="false" destfile="${bundles.dest}/muc.jar"
+            manifest="${src}/net/java/sip/communicator/impl/muc/muc.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/muc"
+                prefix="net/java/sip/communicator/impl/muc"/>
+        	<zipfileset dir="${dest}/net/java/sip/communicator/service/muc"
+        	                prefix="net/java/sip/communicator/service/muc" />
         </jar>
     </target>
 
@@ -2922,7 +2917,7 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/desktoputil">
                 <exclude name="dns/**"/>
             </zipfileset>
-            <zipfileset src="lib/installer-exclude/laf-widget.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/laf-widget.jar" prefix=""/>
         </jar>
     </target>
 
@@ -2935,6 +2930,16 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/service/globaldisplaydetails"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/globaldisplaydetails"
                 prefix="net/java/sip/communicator/impl/globaldisplaydetails" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-PLUGIN-PROPERTIESEDITOR-->
+    <target name="bundle-plugin-propertieseditor">
+        <!-- Creates a bundle for the plugin Configuration Properties Editor.-->
+        <jar compress="false" destfile="${bundles.dest}/propertieseditor.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/propertieseditor/propertieseditor.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/propertieseditor"
+                prefix="net/java/sip/communicator/plugin/propertieseditor"/>
         </jar>
     </target>
 </project>

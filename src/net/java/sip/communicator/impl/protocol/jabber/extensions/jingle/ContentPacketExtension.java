@@ -272,6 +272,8 @@ public class ContentPacketExtension extends AbstractPacketExtension
      */
     public void setSenders(SendersEnum senders)
     {
+        if (senders == null)
+            senders = SendersEnum.both;
         setAttribute(SENDERS_ATTR_NAME, senders.toString());
     }
 }

@@ -76,13 +76,14 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
             DWORD pathValueType;
             DWORD pathValueSize;
 
-            regEnumKeyEx
-                = RegEnumKeyEx(
+            regEnumKeyEx = RegEnumKeyEx(
                         regKey,
                         i,
-                        installRootKeyName, &subkeyNameLength,
+                        installRootKeyName,
+                        &subkeyNameLength,
                         NULL,
-                        NULL, NULL,
+                        NULL,
+                        NULL,
                         NULL);
             if (ERROR_NO_MORE_ITEMS == regEnumKeyEx)
                 break;
@@ -102,63 +103,64 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                             KEY_QUERY_VALUE,
                             &installRootKey))
             {
-            if ((ERROR_SUCCESS
-                    == RegQueryValueEx(
-                            installRootKey,
-                            _T("Path"),
-                            NULL,
-                            &pathValueType,
-                            NULL, &pathValueSize))
-                && (REG_SZ == pathValueType)
-                && pathValueSize)
-            {
-                LPTSTR pathValue;
-
-                // MSDN says "the string may not have been stored with the
-                // proper terminating null characters."
-                pathValueSize
-                    += sizeof(TCHAR)
-                        * (12 // \Outlook.exe
-                            + 1); // The terminating null character
-
-                if (pathValueSize <= sizeof(installRootKeyName))
-                    pathValue = installRootKeyName;
-                else
-                {
-                    pathValue = (LPTSTR)::malloc(pathValueSize);
-                    if (!pathValue)
-                        continue;
-                }
-
-                if (ERROR_SUCCESS
+                if ((ERROR_SUCCESS
                         == RegQueryValueEx(
                                 installRootKey,
                                 _T("Path"),
                                 NULL,
+                                &pathValueType,
                                 NULL,
-                                (LPBYTE) pathValue, &pathValueSize))
+                                &pathValueSize))
+                    && (REG_SZ == pathValueType)
+                    && pathValueSize)
                 {
-                    DWORD pathValueLength = pathValueSize / sizeof(TCHAR);
+                    LPTSTR pathValue;
 
-                    if (pathValueLength)
+                    // MSDN says "the string may not have been stored with the
+                    // proper terminating null characters."
+                    pathValueSize
+                        += sizeof(TCHAR)
+                            * (12 // \Outlook.exe
+                                + 1); // The terminating null character
+
+                    if (pathValueSize <= sizeof(installRootKeyName))
+                        pathValue = installRootKeyName;
+                    else
                     {
-                        DWORD fileAttributes;
-
-                        str = pathValue + (pathValueLength - 1);
-                        if (*str)
-                            str++;
-                        memcpy(str, _T("\\Outlook.exe"), 12 * sizeof(TCHAR));
-                        *(str + 12) = 0;
-
-                        fileAttributes = GetFileAttributes(pathValue);
-                        if (INVALID_FILE_ATTRIBUTES != fileAttributes)
-                            hResult = S_OK;
+                        pathValue = (LPTSTR)::malloc(pathValueSize);
+                        if (!pathValue)
+                            continue;
                     }
-                }
 
-                if (pathValue != installRootKeyName)
-                    free(pathValue);
-            }
+                    if (ERROR_SUCCESS
+                            == RegQueryValueEx(
+                                    installRootKey,
+                                    _T("Path"),
+                                    NULL,
+                                    NULL,
+                                    (LPBYTE) pathValue, &pathValueSize))
+                    {
+                        DWORD pathValueLength = pathValueSize / sizeof(TCHAR);
+
+                        if (pathValueLength)
+                        {
+                            DWORD fileAttributes;
+
+                            str = pathValue + (pathValueLength - 1);
+                            if (*str)
+                                str++;
+                            memcpy(str, _T("\\Outlook.exe"), 12 * sizeof(TCHAR));
+                            *(str + 12) = 0;
+
+                            fileAttributes = GetFileAttributes(pathValue);
+                            if (INVALID_FILE_ATTRIBUTES != fileAttributes)
+                                hResult = S_OK;
+                        }
+                    }
+
+                    if (pathValue != installRootKeyName)
+                        free(pathValue);
+                }
                 RegCloseKey(installRootKey);
             }
         }
@@ -187,13 +189,13 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                             &regKey))
             {
                 DWORD defaultValueSize = defaultValueCapacity;
-                LONG regQueryValueEx
-                    = RegQueryValueEx(
-                            regKey,
-                            NULL,
-                            NULL,
-                            &defaultValueType,
-                            (LPBYTE) defaultValue, &defaultValueSize);
+                LONG regQueryValueEx = RegQueryValueEx(
+                        regKey,
+                        NULL,
+                        NULL,
+                        &defaultValueType,
+                        (LPBYTE) defaultValue,
+                        &defaultValueSize);
 
                 switch (regQueryValueEx)
                 {
@@ -404,10 +406,13 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                                         | MAPI_NO_MAIL
                                         | MAPI_USE_DEFAULT,
                                     &mapiSession);
-                            // Register the notification of contact changed,
-                            // created and deleted.
-                            MAPINotification_registerNotifyAllMsgStores(
-                                    mapiSession);
+                            if(HR_SUCCEEDED(hResult))
+                            {
+                                // Register the notification of contact changed,
+                                // created and deleted.
+                                MAPINotification_registerNotifyAllMsgStores(
+                                        mapiSession);
+                            }
                         }
                         ::SetCurrentDirectory(lpszWorkingDir);
                         MAPISession_unlock();
@@ -451,9 +456,11 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer(void)
     MAPISession_lock();
 
     // Start COM service
-    hr = MsOutlookAddrBookContactSourceService_startComServer();
-    // Start COM client
-    ComClient_start();
+    if((hr = MsOutlookAddrBookContactSourceService_startComServer()) == S_OK)
+    {
+        // Start COM client
+        ComClient_start();
+    }
 
     MAPISession_unlock();
 
@@ -588,47 +595,51 @@ MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
  */
 HRESULT MsOutlookAddrBookContactSourceService_startComServer(void)
 {
-    // Start COM service
-    char applicationName32[] = "jmsoutlookaddrbookcomserver32.exe";
-    char applicationName64[] = "jmsoutlookaddrbookcomserver64.exe";
-    char * applicationName = applicationName32;
-    if(MAPIBitness_getOutlookBitnessVersion() == 64)
+    int bitness = MAPIBitness_getOutlookBitnessVersion();
+    if(bitness != -1)
     {
-        applicationName = applicationName64;
-    }
-    int applicationNameLength = strlen(applicationName);
-    char currentDirectory[FILENAME_MAX - applicationNameLength - 8];
-    GetCurrentDirectory(
-            FILENAME_MAX - applicationNameLength - 8,
-            currentDirectory);
-    char comServer[FILENAME_MAX];
-    sprintf(comServer, "%s/native/%s", currentDirectory, applicationName);
-
-    STARTUPINFO startupInfo;
-    PROCESS_INFORMATION processInfo;
-    memset(&startupInfo, 0, sizeof(startupInfo));
-    memset(&processInfo, 0, sizeof(processInfo));
-    startupInfo.dwFlags = STARTF_USESHOWWINDOW;
-    startupInfo.wShowWindow = SW_HIDE;
-
-    // Test 2 files: 0 for the build version, 1 for the git source version.
-    char * serverExec[2];
-    serverExec[0] = comServer;
-    serverExec[1] = applicationName;
-    for(int i = 0; i < 2; ++i)
-    {
-        // Create the COM server
-        if(CreateProcess(
-                    NULL,
-                    serverExec[i],
-                    NULL, NULL, false, 0, NULL, NULL,
-                    &startupInfo,
-                    &processInfo))
+        // Start COM service
+        char applicationName32[] = "jmsoutlookaddrbookcomserver32.exe";
+        char applicationName64[] = "jmsoutlookaddrbookcomserver64.exe";
+        char * applicationName = applicationName32;
+        if(bitness == 64)
         {
-            MsOutlookAddrBookContactSourceService_comServerHandle
-                = processInfo.hProcess;
+            applicationName = applicationName64;
+        }
+        int applicationNameLength = strlen(applicationName);
+        char currentDirectory[FILENAME_MAX - applicationNameLength - 8];
+        GetCurrentDirectory(
+                FILENAME_MAX - applicationNameLength - 8,
+                currentDirectory);
+        char comServer[FILENAME_MAX];
+        sprintf(comServer, "%s/native/%s", currentDirectory, applicationName);
 
-            return S_OK;
+        STARTUPINFO startupInfo;
+        PROCESS_INFORMATION processInfo;
+        memset(&startupInfo, 0, sizeof(startupInfo));
+        memset(&processInfo, 0, sizeof(processInfo));
+        startupInfo.dwFlags = STARTF_USESHOWWINDOW;
+        startupInfo.wShowWindow = SW_HIDE;
+
+        // Test 2 files: 0 for the build version, 1 for the git source version.
+        char * serverExec[2];
+        serverExec[0] = comServer;
+        serverExec[1] = applicationName;
+        for(int i = 0; i < 2; ++i)
+        {
+            // Create the COM server
+            if(CreateProcess(
+                        NULL,
+                        serverExec[i],
+                        NULL, NULL, false, 0, NULL, NULL,
+                        &startupInfo,
+                        &processInfo))
+            {
+                MsOutlookAddrBookContactSourceService_comServerHandle
+                    = processInfo.hProcess;
+
+                return S_OK;
+            }
         }
     }
 

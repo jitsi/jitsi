@@ -361,7 +361,7 @@ Export-Package: org.bouncycastle,org.bouncycastle.asn1;uses:="org.boun
  urity.auth.x500,org.bouncycastle.x509,org.bouncycastle.jce.provider,o
  rg.bouncycastle.util,org.bouncycastle.asn1,javax.naming,org.bouncycas
  tle.asn1.x509,org.bouncycastle.jce"
-Bundle-Version: 1.48
+Bundle-Version: 1.49
 Bundle-Name: bcprov
 Trusted-Library: true
 Ant-Version: Apache Ant 1.6.5
@@ -371,6 +371,6 @@ Bundle-SymbolicName: bcprov
 Tool: Bnd-1.30.0
 Specification-Vendor: BouncyCastle.org
 Extension-Name: org.bouncycastle.bcprovider
-Implementation-Version: 1.48.0
+Implementation-Version: 1.49.0
 Implementation-Vendor: BouncyCastle.org
 

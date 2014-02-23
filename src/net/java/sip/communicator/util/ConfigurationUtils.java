@@ -10,7 +10,7 @@ import java.awt.*;
 import java.beans.*;
 import java.io.*;
 import java.util.*;
-import java.util.List; /* disambiguation */
+import java.util.List;
 
 import javax.net.ssl.*;
 
@@ -100,11 +100,6 @@ public class ConfigurationUtils
      * Indicates whether we will leave chat room on window closing.
      */
     private static boolean isLeaveChatRoomOnWindowCloseEnabled;
-
-    /**
-     * Indicates if history logging is enabled.
-     */
-    private static boolean isHistoryLoggingEnabled;
 
     /**
      * Indicates if the history should be shown in the chat window.
@@ -292,6 +287,11 @@ public class ConfigurationUtils
     private static boolean hideAccountStatusSelectors = false;
 
     /**
+     * Hide extended away status.
+     */
+    private static boolean hideExtendedAwayStatus = false;
+
+    /**
      * Whether to disable creation of auto answer submenu.
      */
     private static boolean autoAnswerDisableSubmenu = false;
@@ -305,6 +305,32 @@ public class ConfigurationUtils
      * Indicates if the single window interface is enabled.
      */
     private static boolean isSingleWindowInterfaceEnabled = false;
+
+    /**
+     * Whether addresses will be shown in call history tooltips.
+     */
+    private static boolean isHideAddressInCallHistoryTooltipEnabled = false;
+
+    /**
+     * The name of the property, whether to show addresses in call history
+     * tooltip.
+     */
+    private static final String HIDE_ADDR_IN_CALL_HISTORY_TOOLTIP_PROPERTY
+        = "net.java.sip.communicator.impl.gui.contactlist" +
+                ".HIDE_ADDRESS_IN_CALL_HISTORY_TOOLTIP_ENABLED";
+
+    /**
+     * Whether domain will be shown in receive call dialog.
+     */
+    private static boolean isHideDomainInReceivedCallDialogEnabled = false;
+
+    /**
+     * The name of the property, whether to show addresses in call history
+     * tooltip.
+     */
+    private static final String HIDE_DOMAIN_IN_RECEIEVE_CALL_DIALOG_PROPERTY
+        = "net.java.sip.communicator.impl.gui.main.call." +
+            "HIDE_DOMAIN_IN_RECEIVE_CALL_DIALOG_ENABLED";
 
     /**
      * The name of the show smileys property.
@@ -491,13 +517,6 @@ public class ConfigurationUtils
                         isLeaveChatRoomOnWindowCloseEnabledString);
         }
 
-        // Load the "IS_MESSAGE_HISTORY_ENABLED" property.
-        isHistoryLoggingEnabled = configService.getBoolean(
-            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
-            Boolean.parseBoolean(UtilActivator
-                .getResources().getSettingsString(
-                    MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED))
-            );
 
         // Load the "isHistoryShown" property.
         String isHistoryShownStringProperty =
@@ -873,6 +892,28 @@ public class ConfigurationUtils
             = configService.getBoolean(
                     "impl.gui.ACCEPT_PHONE_NUMBER_WITH_ALPHA_CHARS",
                     true);
+
+        isHideAddressInCallHistoryTooltipEnabled = configService.getBoolean(
+            HIDE_ADDR_IN_CALL_HISTORY_TOOLTIP_PROPERTY,
+            isHideAddressInCallHistoryTooltipEnabled);
+
+        isHideDomainInReceivedCallDialogEnabled = configService.getBoolean(
+            HIDE_DOMAIN_IN_RECEIEVE_CALL_DIALOG_PROPERTY,
+            isHideDomainInReceivedCallDialogEnabled);
+
+        String hideExtendedAwayStatusProperty
+            = "net.java.sip.communicator.service.protocol" +
+                ".globalstatus.HIDE_EXTENDED_AWAY_STATUS";
+        String hideExtendedAwayStatusDefaultValue = UtilActivator.getResources()
+            .getSettingsString(hideExtendedAwayStatusProperty);
+
+        if(hideExtendedAwayStatusDefaultValue != null)
+            hideExtendedAwayStatus = Boolean.parseBoolean(
+                hideExtendedAwayStatusDefaultValue);
+
+        hideExtendedAwayStatus = configService.getBoolean(
+            hideExtendedAwayStatusProperty,
+            hideExtendedAwayStatus);
     }
 
     /**
@@ -1081,26 +1122,27 @@ public class ConfigurationUtils
      * Indicates to the user interface whether the history logging is enabled.
      * @return <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
      * property is true, otherwise - returns <code>false</code>.
+     *
+     * @deprecated Method will be removed once OTR bundle is updated on Android.
      */
+    @Deprecated
     public static boolean isHistoryLoggingEnabled()
     {
-        return isHistoryLoggingEnabled;
+        return configService.getBoolean(
+            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED, true);
     }
 
     /**
-     * Updates the "isHistoryLoggingEnabled" property through the
-     * <tt>ConfigurationService</tt>.
+     * Returns <code>true</code> if messages history is enabled.
+     * Parameter <tt>id</tt> is ignored as it's an adapter for Android version
+     * that has to work with old OTR bundle.
      *
-     * @param isEnabled indicates if the history logging is
-     * enabled.
+     * @deprecated Method will be removed once OTR bundle is updated on Android.
      */
-    public static void setHistoryLoggingEnabled(boolean isEnabled)
+    @Deprecated
+    public static boolean isHistoryLoggingEnabled(String id)
     {
-        isHistoryLoggingEnabled = isEnabled;
-
-        configService.setProperty(
-            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
-            Boolean.toString(isHistoryLoggingEnabled));
+        return isHistoryLoggingEnabled();
     }
 
     /**
@@ -1682,6 +1724,15 @@ public class ConfigurationUtils
     }
 
     /**
+     * Whether to hide extended away status from global menu.
+     * @return whether to hide extended away status.
+     */
+    public static boolean isHideExtendedAwayStatus()
+    {
+        return hideExtendedAwayStatus;
+    }
+
+    /**
      * Whether creation of separate submenu for auto answer is disabled.
      * @return whether creation of separate submenu for auto answer
      * is disabled.
@@ -1700,6 +1751,24 @@ public class ConfigurationUtils
     public static boolean isSingleWindowInterfaceEnabled()
     {
         return isSingleWindowInterfaceEnabled;
+    }
+
+    /**
+     * Whether addresses will be shown in call history tooltips.
+     * @return whether addresses will be shown in call history tooltips.
+     */
+    public static boolean isHideAddressInCallHistoryTooltipEnabled()
+    {
+        return isHideAddressInCallHistoryTooltipEnabled;
+    }
+
+    /**
+     * Whether domain will be shown in receive call dialog.
+     * @return whether domain will be shown in receive call dialog.
+     */
+    public static boolean isHideDomainInReceivedCallDialogEnabled()
+    {
+        return isHideDomainInReceivedCallDialogEnabled;
     }
 
     /**
@@ -2296,6 +2365,45 @@ public class ConfigurationUtils
     }
 
     /**
+     * Returns the chat room prefix saved in <tt>ConfigurationService</tt>
+     * associated with the <tt>accountID</tt> and <tt>chatRoomID</tt>.
+     *
+     * @param accountID the account id
+     * @param chatRoomId the chat room id
+     * @return the chat room prefix saved in <tt>ConfigurationService</tt>.
+     */
+    public static String getChatRoomPrefix(String accountID, String chatRoomId)
+    {
+        String prefix = "net.java.sip.communicator.impl.gui.accounts";
+        List<String> accounts = configService
+            .getPropertyNamesByPrefix(prefix, true);
+        for (String accountRootPropName : accounts)
+        {
+            String tmpAccountID
+                = configService.getString(accountRootPropName);
+
+            if(tmpAccountID.equals(accountID))
+            {
+                List<String> chatRooms = configService
+                    .getPropertyNamesByPrefix(
+                        accountRootPropName + ".chatRooms", true);
+
+                for (String chatRoomPropName : chatRooms)
+                {
+                    String tmpChatRoomID
+                        = configService.getString(chatRoomPropName);
+
+                    if(tmpChatRoomID.equals(chatRoomId))
+                    {
+                        return chatRoomPropName;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Returns the last chat room status, saved through the
      * <tt>ConfigurationService</tt>.
      *
@@ -2512,11 +2620,6 @@ public class ConfigurationUtils
             {
                 isLeaveChatRoomOnWindowCloseEnabled
                     = Boolean.parseBoolean(newValue);
-            }
-            else if (evt.getPropertyName().equals(
-                MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED))
-            {
-                isHistoryLoggingEnabled = Boolean.parseBoolean(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "service.gui.IS_MESSAGE_HISTORY_SHOWN"))

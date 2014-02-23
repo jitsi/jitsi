@@ -159,6 +159,15 @@ public interface OperationSetMultiUserChat
     public boolean isMultiChatSupportedByContact(Contact contact);
 
     /**
+     * Checks if the contact address is associated with private messaging 
+     * contact or not.
+     * 
+     * @return <tt>true</tt> if the contact address is associated with private
+     * messaging contact and <tt>false</tt> if not.
+     */
+    public boolean isPrivateMessagingContact(String contactAddress);
+
+    /**
      * Adds a listener that will be notified of changes in our participation in
      * a chat room such as us being kicked, joined, left.
      *

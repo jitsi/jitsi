@@ -25,6 +25,13 @@ public class CallHistorySourceContact
     implements SourceContact
 {
     /**
+     * Whether we need to strip saved addresses to numbers. We strip everything
+     * before '@', if it is absent nothing is changed from the saved address.
+     */
+    private static final String STRIP_ADDRESSES_TO_NUMBERS =
+        "net.java.sip.communicator.impl.callhistory.STRIP_ADDRESSES_TO_NUMBERS";
+
+    /**
      * The parent <tt>CallHistoryContactSource</tt>, where this contact is
      * contained.
      */
@@ -100,6 +107,14 @@ public class CallHistorySourceContact
      */
     private void initPeerDetails()
     {
+        boolean stripAddress = false;
+        String stripAddressProp = CallHistoryActivator.getResources()
+            .getSettingsString(STRIP_ADDRESSES_TO_NUMBERS);
+
+        if(stripAddressProp != null
+            && Boolean.parseBoolean(stripAddressProp))
+            stripAddress = true;
+
         Iterator<CallPeerRecord> recordsIter
             = callRecord.getPeerRecords().iterator();
 
@@ -108,10 +123,23 @@ public class CallHistorySourceContact
             CallPeerRecord peerRecord = recordsIter.next();
 
             String peerAddress = peerRecord.getPeerAddress();
+            String peerSecondaryAddress = peerRecord.getPeerSecondaryAddress();
 
             if (peerAddress != null)
             {
-                ContactDetail contactDetail = new ContactDetail(peerAddress);
+                if(stripAddress && !peerAddress.startsWith("@"))
+                {
+                    peerAddress = peerAddress.split("@")[0];
+                }
+
+                String peerRecordDisplayName = peerRecord.getDisplayName();
+
+                if(peerRecordDisplayName == null
+                    || peerRecordDisplayName.length() == 0)
+                    peerRecordDisplayName = peerAddress;
+
+                ContactDetail contactDetail =
+                    new ContactDetail(peerAddress, peerRecordDisplayName);
 
                 Map<Class<? extends OperationSet>, ProtocolProviderService>
                     preferredProviders = null;
@@ -192,6 +220,18 @@ public class CallHistorySourceContact
                 contactDetail.setSupportedOpSets(supportedOpSets);
 
                 contactDetails.add(contactDetail);
+
+                if(peerSecondaryAddress != null)
+                {
+                    ContactDetail secondaryContactDetail =
+                        new ContactDetail(peerSecondaryAddress);
+
+
+                    secondaryContactDetail.addSupportedOpSet(
+                        OperationSetPersistentPresence.class);
+
+                    contactDetails.add(secondaryContactDetail);
+                }
 
                 // Set the displayName.
                 String name = peerRecord.getDisplayName();
@@ -376,5 +416,39 @@ public class CallHistorySourceContact
     public int getIndex()
     {
         return -1;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    @Override
+    public String getContactAddress()
+    {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    @Override
+    public void setContactAddress(String contactAddress) { }
+
+    /**
+     * Whether the current image returned by @see #getImage() is the one
+     * provided by the SourceContact by default, or is a one used and obtained
+     * from external source.
+     *
+     * @return whether this is the default image for this SourceContact.
+     */
+    @Override
+    public boolean isDefaultImage()
+    {
+        // in this SourceContact we always show a default image based
+        // on the call direction (in, out or missed)
+        return true;
     }
 }

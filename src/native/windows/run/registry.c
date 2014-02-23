@@ -45,6 +45,8 @@ Run_getRegSzValue(HKEY key, LPCTSTR name, LPTSTR *data)
                     }
                 }
             }
+            else
+                error = ERROR_NOT_ENOUGH_MEMORY;
         }
         else
             error = ERROR_FILE_NOT_FOUND;

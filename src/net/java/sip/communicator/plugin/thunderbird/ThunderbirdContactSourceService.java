@@ -20,7 +20,7 @@ import net.java.sip.communicator.service.contactsource.*;
  * @author Ingo Bauersachs
  */
 public class ThunderbirdContactSourceService
-    implements ExtendedContactSourceService
+    implements ExtendedContactSourceService, PrefixedContactSourceService
 {
     /**
      * Name of the base-property for a Thunderbird address book configuration.
@@ -141,7 +141,7 @@ public class ThunderbirdContactSourceService
      * @see net.java.sip.communicator.service.contactsource
      * .ContactSourceService#queryContactSource(java.lang.String)
      */
-    public ContactQuery queryContactSource(String queryString)
+    public ContactQuery createContactQuery(String queryString)
     {
         Pattern pattern = null;
         try
@@ -157,7 +157,7 @@ public class ThunderbirdContactSourceService
 
         if(pattern != null)
         {
-            return queryContactSource(pattern);
+            return createContactQuery(pattern);
         }
         return null;
     }
@@ -169,11 +169,11 @@ public class ThunderbirdContactSourceService
      * net.java.sip.communicator.service.contactsource.ContactSourceService#
      * queryContactSource(java.lang.String, int)
      */
-    public ContactQuery queryContactSource(String queryString, int contactCount)
+    public ContactQuery createContactQuery(String queryString, int contactCount)
     {
         // XXX: The ThunderbirdContactQuery does not tqke a contactCount
         // argument yet. Thus, call the default queryContactSource function.
-        return queryContactSource(queryString);
+        return createContactQuery(queryString);
     }
 
     /*
@@ -183,7 +183,7 @@ public class ThunderbirdContactSourceService
      * net.java.sip.communicator.service.contactsource.ExtendedContactSourceService
      * #queryContactSource(java.util.regex.Pattern)
      */
-    public ContactQuery queryContactSource(Pattern queryPattern)
+    public ContactQuery createContactQuery(Pattern queryPattern)
     {
         return new ThunderbirdContactQuery(this, queryPattern);
     }
@@ -207,6 +207,7 @@ public class ThunderbirdContactSourceService
      * net.java.sip.communicator.service.contactsource.ExtendedContactSourceService
      * #getPhoneNumberPrefix()
      */
+    @Override
     public String getPhoneNumberPrefix()
     {
         return this.prefix;

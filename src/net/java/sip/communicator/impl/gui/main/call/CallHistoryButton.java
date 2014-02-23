@@ -171,8 +171,20 @@ public class CallHistoryButton
      * @param notificationGroups the list of unread notification groups
      */
     private void setNotificationView(
-        Collection<UINotificationGroup> notificationGroups)
+        final Collection<UINotificationGroup> notificationGroups)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    setNotificationView(notificationGroups);
+                }
+            });
+            return;
+        }
+
         int notificationCount = 0;
         isNotificationsView = true;
 

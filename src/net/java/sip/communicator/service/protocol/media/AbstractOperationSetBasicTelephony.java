@@ -111,6 +111,20 @@ public abstract class AbstractOperationSetBasicTelephony
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * Always throws an exception.
+     */
+    @Override
+    public Call createCall(ConferenceDescription cd, ChatRoom chatRoom)
+        throws OperationFailedException
+    {
+        throw new OperationFailedException("Creating a call with a" +
+                " ConferenceDescription is not implemented in " + getClass(),
+                OperationFailedException.INTERNAL_ERROR);
+    }
+
+    /**
      * Creates and dispatches a <tt>CallEvent</tt> notifying registered
      * listeners that an event with id <tt>eventID</tt> has occurred on
      * <tt>sourceCall</tt>.

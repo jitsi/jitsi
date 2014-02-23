@@ -36,7 +36,7 @@ public class NotificationWiringActivator
     /**
      * The image loader service.
      */
-    private static ImageLoaderService imageLoaderService;
+    private static ImageLoaderService<?> imageLoaderService;
 
     public void start(BundleContext bc) throws Exception
     {
@@ -134,13 +134,14 @@ public class NotificationWiringActivator
      * @return an instance of the <tt>ImageLoaderService</tt> obtained from the
      * bundle context
      */
-    public static ImageLoaderService getImageLoaderService()
+    public static ImageLoaderService<?> getImageLoaderService()
     {
         if (imageLoaderService == null)
         {
             imageLoaderService
                 = ServiceUtils.getService(
-                        bundleContext, ImageLoaderService.class);
+                        bundleContext,
+                        ImageLoaderService.class);
         }
         return imageLoaderService;
     }

@@ -6,6 +6,7 @@
 package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
+import java.awt.Container;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
@@ -18,15 +19,20 @@ import javax.swing.text.html.*;
 import javax.swing.undo.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.service.configuration.*;
+import org.osgi.framework.*;
 
 /**
  * The <tt>ChatWritePanel</tt> is the panel, where user writes her messages.
@@ -44,6 +50,7 @@ public class ChatWritePanel
                 MouseListener,
                 UndoableEditListener,
                 DocumentListener,
+                PluginComponentListener,
                 Skinnable
 {
     /**
@@ -64,7 +71,7 @@ public class ChatWritePanel
 
     private int typingState = OperationSetTypingNotifications.STATE_STOPPED;
 
-    private final WritePanelRightButtonMenu rightButtonMenu;
+    private WritePanelRightButtonMenu rightButtonMenu;
 
     private final ArrayList<ChatMenuListener> menuListeners
         = new ArrayList<ChatMenuListener>();
@@ -75,9 +82,7 @@ public class ChatWritePanel
 
     private final Container centerPanel;
 
-    private JLabel smsLabel;
-
-    private JCheckBoxMenuItem smsMenuItem;
+    private SIPCommToggleButton smsButton;
 
     private JLabel smsCharCountLabel;
 
@@ -91,7 +96,7 @@ public class ChatWritePanel
 
     /**
      * A timer used to reset the transport resource to the bare ID if there was
-     * no activity from this resource since a buch a time.
+     * no activity from this resource since a bunch of time.
      */
     private java.util.Timer outdatedResourceTimer = null;
 
@@ -260,66 +265,51 @@ public class ChatWritePanel
         constraints.weighty = 0f;
         constraints.insets = new Insets(0, 3, 0, 0);
 
-        final Icon smsIcon = GuiActivator.getResources()
-        .getImage("service.gui.icons.SEND_SMS");
+        ImageID smsIcon =
+            new ImageID("service.gui.icons.SEND_SMS");
 
-        final Icon selectedIcon = GuiActivator.getResources()
-            .getImage("service.gui.icons.SEND_SMS_SELECTED");
+        ImageID selectedIcon =
+            new ImageID("service.gui.icons.SEND_SMS_SELECTED");
 
-        smsLabel = new JLabel(smsIcon);
+        smsButton = new SIPCommToggleButton(
+                    ImageLoader.getImage(smsIcon),
+                    ImageLoader.getImage(selectedIcon),
+                    ImageLoader.getImage(smsIcon),
+                    ImageLoader.getImage(selectedIcon));
 
-        // We hide the sms label until we know if the chat supports sms.
-        smsLabel.setVisible(false);
-
-        smsMenuItem = new JCheckBoxMenuItem(GuiActivator.getResources()
-            .getI18NString("service.gui.VIA_SMS"));
-
-        smsMenuItem.addChangeListener(new ChangeListener()
+        smsButton.addActionListener(new ActionListener()
         {
-            public void stateChanged(ChangeEvent e)
+            @Override
+            public void actionPerformed(ActionEvent e)
             {
-                smsMode = smsMenuItem.isSelected();
+                smsMode = smsButton.isSelected();
 
                 Color bgColor;
                 if (smsMode)
                 {
-                    smsLabel.setIcon(selectedIcon);
                     bgColor = new Color(GuiActivator.getResources()
                         .getColor("service.gui.LIST_SELECTION_COLOR"));
+
+                    smsCharCountLabel.setVisible(true);
+                    smsNumberLabel.setVisible(true);
                 }
                 else
                 {
-                    smsLabel.setIcon(smsIcon);
                     bgColor = Color.WHITE;
+                    smsCharCountLabel.setVisible(false);
+                    smsNumberLabel.setVisible(false);
                 }
 
                 centerPanel.setBackground(bgColor);
                 editorPane.setBackground(bgColor);
-
-                smsLabel.repaint();
             }
         });
 
-        smsLabel.addMouseListener(new MouseAdapter()
-        {
-            @Override
-            public void mousePressed(MouseEvent mouseevent)
-            {
-                Point location = new Point(smsLabel.getX(),
-                    smsLabel.getY() + smsLabel.getHeight());
 
-                SwingUtilities.convertPointToScreen(location, smsLabel);
+        // We hide the sms label until we know if the chat supports sms.
+        smsButton.setVisible(false);
 
-                JPopupMenu smsPopupMenu = new JPopupMenu();
-                smsPopupMenu.setFocusable(true);
-                smsPopupMenu.setInvoker(ChatWritePanel.this);
-                smsPopupMenu.add(smsMenuItem);
-                smsPopupMenu.setLocation(location.x, location.y);
-                smsPopupMenu.setVisible(true);
-            }
-        });
-
-        centerPanel.add(smsLabel, constraints);
+        centerPanel.add(smsButton, constraints);
     }
 
     private void initTextArea(JPanel centerPanel)
@@ -380,6 +370,22 @@ public class ChatWritePanel
         stoppedTypingTimer.removeActionListener(this);
         if (typingState != OperationSetTypingNotifications.STATE_STOPPED)
             stopTypingTimer();
+
+        if(outdatedResourceTimer != null)
+        {
+            outdatedResourceTimer.cancel();
+            outdatedResourceTimer.purge();
+            outdatedResourceTimer = null;
+        }
+
+        editorPane.removeKeyListener(this);
+        menuListeners.clear();
+
+        if(rightButtonMenu != null)
+        {
+            rightButtonMenu.dispose();
+            rightButtonMenu = null;
+        }
 
         scrollPane.dispose();
     }
@@ -444,7 +450,11 @@ public class ChatWritePanel
      */
     public void setSmsSelected(boolean selected)
     {
-        smsMenuItem.setSelected(selected);
+        if((selected && !smsButton.isSelected())
+            || (!selected && smsButton.isSelected()))
+        {
+            smsButton.doClick();
+        }
     }
 
     /**
@@ -545,7 +555,7 @@ public class ChatWritePanel
      */
     public void keyTyped(KeyEvent e)
     {
-        if (ConfigurationUtils.isSendTypingNotifications())
+        if (ConfigurationUtils.isSendTypingNotifications() && !smsMode)
         {
             if (typingState != OperationSetTypingNotifications.STATE_TYPING)
             {
@@ -609,7 +619,14 @@ public class ChatWritePanel
                 position++;
 
             String sequence = message.substring(position, index);
-
+            
+            if (sequence.length() <= 0)
+            {
+                // Do not look for matching contacts if the matching pattern is
+                // 0 chars long, since all contacts will match.
+                return;
+            }
+            
             Iterator<ChatContact<?>> iter = chatPanel.getChatSession()
                                              .getParticipants();
             ArrayList<String> contacts = new ArrayList<String>();
@@ -888,6 +905,15 @@ public class ChatWritePanel
         {
             this.editorPane.getDocument()
                 .remove(0, editorPane.getDocument().getLength());
+
+            if(smsMode)
+            {
+                // use this to reset sms counter
+                setSmsLabelVisible(true);
+                // set the reset values
+                smsCharCountLabel.setText(String.valueOf(smsCharCount));
+                smsNumberLabel.setText(String.valueOf(smsNumberCount));
+            }
         }
         catch (BadLocationException e)
         {
@@ -1090,16 +1116,22 @@ public class ChatWritePanel
             // Schedules the timer.
             if(chatTransport.getResourceName() != null)
             {
-                OutdatedResourceTimerTask task 
+                OutdatedResourceTimerTask task
                     = new OutdatedResourceTimerTask();
                 outdatedResourceTimer = new java.util.Timer();
                 outdatedResourceTimer.schedule(task, timeout);
             }
         }
 
-        // Sets the new reousrce transport is really effective (i.e. we have
+        // Sets the new resource transport is really effective (i.e. we have
         // received a message from this resource).
-        if(transportSelectorBox != null && isMessageOrFileTransferReceived)
+        // if we do not have any selected resource, or the currently selected
+        // if offline
+        if(transportSelectorBox != null
+            && (isMessageOrFileTransferReceived
+                || (!transportSelectorBox.hasSelectedTransport()
+                    || !chatPanel.getChatSession().getCurrentChatTransport()
+                            .getStatus().isOnline())))
         {
             transportSelectorBox.setSelected(chatTransport);
         }
@@ -1201,7 +1233,8 @@ public class ChatWritePanel
         if (transportSelectorBox != null)
             transportSelectorBox.removeChatTransport(chatTransport);
 
-        if(transportSelectorBox.getMenu().getItemCount() == 1
+        if(transportSelectorBox != null
+            && transportSelectorBox.getMenu().getItemCount() == 1
             && ConfigurationUtils.isHideAccountSelectionWhenPossibleEnabled())
         {
             transportSelectorBox.setVisible(false);
@@ -1219,9 +1252,7 @@ public class ChatWritePanel
         smsCharCount = 160;
         smsNumberCount = 1;
 
-        smsLabel.setVisible(isVisible);
-        smsCharCountLabel.setVisible(isVisible);
-        smsNumberLabel.setVisible(isVisible);
+        smsButton.setVisible(isVisible);
 
         centerPanel.repaint();
     }
@@ -1398,7 +1429,7 @@ public class ChatWritePanel
     public void insertUpdate(DocumentEvent event)
     {
         // If we're in sms mode count the chars typed.
-        if (smsLabel.isVisible())
+        if (smsButton.isVisible())
         {
             if (smsCharCount == 0)
             {
@@ -1422,7 +1453,7 @@ public class ChatWritePanel
     public void removeUpdate(DocumentEvent event)
     {
         // If we're in sms mode count the chars typed.
-        if (smsLabel.isVisible())
+        if (smsButton.isVisible())
         {
             if (smsCharCount == 160 && smsNumberCount > 1)
             {
@@ -1476,7 +1507,9 @@ public class ChatWritePanel
 
                     // We found the bare ID, then set it as the current resource
                     // transport.
-                    if(transport.getResourceName() == null)
+                    // choose only online resources
+                    if(transport.getResourceName() == null
+                        && transport.getStatus().isOnline())
                     {
                         isOutdatedResource = false;
                         setSelectedChatTransport(transport, true);
@@ -1489,5 +1522,142 @@ public class ChatWritePanel
             // transport as outdated.
             isOutdatedResource = true;
         }
+    }
+
+    /**
+     * Initializes plug-in components for this container.
+     */
+    void initPluginComponents()
+    {
+        // Search for plugin components registered through the OSGI bundle
+        // context.
+        ServiceReference[] serRefs = null;
+
+        String osgiFilter = "("
+            + net.java.sip.communicator.service.gui.Container.CONTAINER_ID
+            + "="+net.java.sip.communicator.service.gui.Container.
+                    CONTAINER_CHAT_WRITE_PANEL.getID()+")";
+
+        try
+        {
+            serRefs = GuiActivator.bundleContext.getServiceReferences(
+                PluginComponentFactory.class.getName(),
+                osgiFilter);
+        }
+        catch (InvalidSyntaxException exc)
+        {
+            logger.error("Could not obtain plugin reference.", exc);
+        }
+        if (serRefs != null)
+        {
+            for (int i = 0; i < serRefs.length; i ++)
+            {
+                PluginComponentFactory factory =
+                    (PluginComponentFactory) GuiActivator
+                        .bundleContext.getService(serRefs[i]);
+
+                PluginComponent component =
+                    factory.getPluginComponentInstance(this);
+
+                ChatSession chatSession = chatPanel.getChatSession();
+                if (chatSession != null)
+                {
+                    ChatTransport currentTransport =
+                        chatSession.getCurrentChatTransport();
+                    Object currentDescriptor = currentTransport.getDescriptor();
+                    if (currentDescriptor instanceof Contact)
+                    {
+                        Contact contact = (Contact) currentDescriptor;
+
+                        component.setCurrentContact(
+                            contact, currentTransport.getResourceName());
+                    }
+                }
+                if (component.getComponent() == null)
+                    continue;
+
+                GridBagConstraints constraints = new GridBagConstraints();
+
+                constraints.anchor = GridBagConstraints.NORTHEAST;
+                constraints.fill = GridBagConstraints.NONE;
+                constraints.gridy = 0;
+                constraints.gridheight = 1;
+                constraints.weightx = 0f;
+                constraints.weighty = 0f;
+                constraints.insets = new Insets(0, 3, 0, 0);
+
+                centerPanel.add(
+                    (Component)component.getComponent(), constraints);
+            }
+        }
+        GuiActivator.getUIService().addPluginComponentListener(this);
+        this.centerPanel.repaint();
+    }
+
+    /**
+     * Indicates that a new plugin component has been added. Adds it to this
+     * container if it belongs to it.
+     *
+     * @param event the <tt>PluginComponentEvent</tt> that notified us
+     */
+    public void pluginComponentAdded(PluginComponentEvent event)
+    {
+        PluginComponentFactory factory = event.getPluginComponentFactory();
+        if (!factory.getContainer().equals(
+                net.java.sip.communicator.service.
+                    gui.Container.CONTAINER_CHAT_WRITE_PANEL))
+            return;
+
+        PluginComponent component = factory.getPluginComponentInstance(this);
+
+        ChatSession chatSession = chatPanel.getChatSession();
+        if (chatSession != null)
+        {
+            ChatTransport currentTransport =
+                chatSession.getCurrentChatTransport();
+            Object currentDescriptor = currentTransport.getDescriptor();
+            if (currentDescriptor instanceof Contact)
+            {
+                Contact contact = (Contact) currentDescriptor;
+
+                component.setCurrentContact(
+                    contact, currentTransport.getResourceName());
+            }
+        }
+
+        GridBagConstraints constraints = new GridBagConstraints();
+
+        constraints.anchor = GridBagConstraints.NORTHEAST;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridy = 0;
+        constraints.gridheight = 1;
+        constraints.weightx = 0f;
+        constraints.weighty = 0f;
+        constraints.insets = new Insets(0, 3, 0, 0);
+        centerPanel.add((Component) component.getComponent(), constraints);
+
+        this.centerPanel.repaint();
+    }
+
+    /**
+     * Removes the according plug-in component from this container.
+     * 
+     * @param event the <tt>PluginComponentEvent</tt> that notified us
+     */
+    public void pluginComponentRemoved(PluginComponentEvent event)
+    {
+        PluginComponentFactory factory = event.getPluginComponentFactory();
+
+        if (!factory.getContainer().equals(
+            net.java.sip.communicator.service.
+                gui.Container.CONTAINER_CHAT_WRITE_PANEL))
+            return;
+
+        Component c =
+            (Component)factory.getPluginComponentInstance(this)
+                .getComponent();
+
+        this.centerPanel.remove(c);
+        this.centerPanel.repaint();
     }
 }

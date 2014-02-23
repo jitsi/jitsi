@@ -24,7 +24,7 @@ import net.java.sip.communicator.service.ldap.*;
  * @author Sebastien Vincent
  */
 public class LdapContactSourceService
-    implements ExtendedContactSourceService
+    implements ContactSourceService, PrefixedContactSourceService
 {
     /**
      * The <tt>List</tt> of <tt>LdapContactQuery</tt> instances
@@ -49,56 +49,15 @@ public class LdapContactSourceService
     }
 
     /**
-     * Queries this search source for the given <tt>searchPattern</tt>.
-     *
-     * @param queryPattern the pattern to search for
-     * @return the created query
+     * Removes a query from the list.
+     * @param query the query
      */
-    public ContactQuery queryContactSource(Pattern queryPattern)
+    public synchronized void removeQuery(ContactQuery query)
     {
-        return queryContactSource(queryPattern,
-                LdapContactQuery.LDAP_MAX_RESULTS);
+        if (queries.remove(query))
+            queries.notify();
     }
-
-    /**
-     * Queries this search source for the given <tt>searchPattern</tt>.
-     *
-     * @param queryPattern the pattern to search for
-     * @param count maximum number of contact returned
-     * @return the created query
-     */
-    public ContactQuery queryContactSource(Pattern queryPattern, int count)
-    {
-        LdapContactQuery query = new LdapContactQuery(this, queryPattern,
-                count);
-
-        synchronized (queries)
-        {
-            queries.add(query);
-        }
-
-        boolean hasStarted = false;
-
-        try
-        {
-            query.start();
-            hasStarted = true;
-        }
-        finally
-        {
-            if (!hasStarted)
-            {
-                synchronized (queries)
-                {
-                    if (queries.remove(query))
-                        queries.notify();
-                }
-            }
-        }
-
-        return query;
-    }
-
+    
     /**
      * Returns a user-friendly string that identifies this contact source.
      * @return the display name of this contact source
@@ -120,23 +79,23 @@ public class LdapContactSourceService
     }
 
     /**
-     * Queries this search source for the given <tt>queryString</tt>.
+     * Creates query for the given <tt>query</tt>.
      * @param query the string to search for
      * @return the created query
      */
-    public ContactQuery queryContactSource(String query)
+    public ContactQuery createContactQuery(String query)
     {
-        return queryContactSource(query, LdapContactQuery.LDAP_MAX_RESULTS);
+        return createContactQuery(query, LdapContactQuery.LDAP_MAX_RESULTS);
     }
 
     /**
-     * Queries this search source for the given <tt>queryString</tt>.
+     * Creates query for the given <tt>query</tt>.
      *
      * @param query the string to search for
      * @param contactCount the maximum count of result contacts
      * @return the created query
      */
-    public ContactQuery queryContactSource(String query, int contactCount)
+    public ContactQuery createContactQuery(String query, int contactCount)
     {
         Pattern pattern = null;
         try
@@ -150,8 +109,17 @@ public class LdapContactSourceService
 
         if(pattern != null)
         {
-            return queryContactSource(pattern, contactCount);
+            LdapContactQuery ldapQuery = new LdapContactQuery(this, pattern,
+                contactCount);
+
+            synchronized (queries)
+            {
+                queries.add(ldapQuery);
+            }
+
+            return ldapQuery;
         }
+
         return null;
     }
 
@@ -199,6 +167,7 @@ public class LdapContactSourceService
      *
      * @return the phoneNumber prefix for all phone numbers
      */
+    @Override
     public String getPhoneNumberPrefix()
     {
         return ldapDirectory.getSettings().getGlobalPhonePrefix();

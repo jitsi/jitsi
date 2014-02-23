@@ -21,6 +21,8 @@ import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.main.configforms.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.notification.*;
@@ -29,18 +31,20 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.account.*;
 import net.java.sip.communicator.util.skin.*;
-import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
-
 import org.osgi.framework.*;
 
 /**
- * The <tt>FileMenu</tt> is a menu in the main application menu bar that
- * contains "New account".
+ * The <tt>ToolsMenu</tt> is a menu in the contact list / chat panel bars that
+ * contains "Tools". This menu is separated in different sections by
+ * <tt>JSeparator</tt>s. These sections are ordered in the following matter:
+ * 0 0 0 | 1 1 | 2 2... where numbers indicate the indices of the corresponding
+ * sections and | are separators. Currently, section 0 contains "Options",
+ * "Create a video bridge", "Create a conference call"... until the first
+ * <tt>JSeparator</tt> after which starts the next section - section 1.
  *
  * @author Yana Stamcheva
  * @author Lyubomir Marinov
@@ -68,6 +72,13 @@ public class ToolsMenu
      */
     private static final String AUTO_ANSWER_MENU_DISABLED_PROP =
         "net.java.sip.communicator.impl.gui.main.menus.AUTO_ANSWER_MENU_DISABLED";
+
+    /**
+     * Property to disable conference initialization.
+     */
+    private static final String CONFERENCE_CALL_DISABLED_PROP =
+        "net.java.sip.communicator.impl.gui.main.menus"
+            + ".CONFERENCE_CALL_MENU_ITEM_DISABLED";
 
    /**
     * Conference call menu item.
@@ -158,7 +169,7 @@ public class ToolsMenu
         try
         {
             serRefs = GuiActivator.bundleContext.getServiceReferences(
-                PluginComponent.class.getName(),
+                PluginComponentFactory.class.getName(),
                 osgiFilter);
         }
         catch (InvalidSyntaxException exc)
@@ -170,14 +181,18 @@ public class ToolsMenu
         {
             for (ServiceReference serRef : serRefs)
             {
-                final PluginComponent component = (PluginComponent) GuiActivator
+                final PluginComponentFactory f = (PluginComponentFactory) GuiActivator
                     .bundleContext.getService(serRef);
 
                 SwingUtilities.invokeLater(new Runnable()
                 {
                     public void run()
                     {
-                        add((Component) component.getComponent());
+                        PluginComponent pluginComponent =
+                            f.getPluginComponentInstance(ToolsMenu.this);
+                        insertInSection(
+                            (JMenuItem) pluginComponent.getComponent(),
+                            pluginComponent.getPositionIndex());
                     }
                 });
             }
@@ -293,7 +308,7 @@ public class ToolsMenu
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        final PluginComponent c = event.getPluginComponent();
+        final PluginComponentFactory c = event.getPluginComponentFactory();
 
         if(c.getContainer().equals(Container.CONTAINER_TOOLS_MENU))
         {
@@ -301,7 +316,11 @@ public class ToolsMenu
             {
                 public void run()
                 {
-                    add((Component) c.getComponent());
+                    PluginComponent pluginComponent =
+                        c.getPluginComponentInstance(ToolsMenu.this);
+                    insertInSection(
+                        (JMenuItem) pluginComponent.getComponent(),
+                        pluginComponent.getPositionIndex());
                 }
             });
 
@@ -317,7 +336,7 @@ public class ToolsMenu
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        final PluginComponent c = event.getPluginComponent();
+        final PluginComponentFactory c = event.getPluginComponentFactory();
 
         if(c.getContainer().equals(Container.CONTAINER_TOOLS_MENU))
         {
@@ -325,7 +344,7 @@ public class ToolsMenu
             {
                 public void run()
                 {
-                    remove((Component) c.getComponent());
+                    remove((Component) c.getPluginComponentInstance(ToolsMenu.this).getComponent());
                 }
             });
         }
@@ -358,14 +377,21 @@ public class ToolsMenu
 
         ResourceManagementService r = GuiActivator.getResources();
 
-        conferenceMenuItem
-            = new JMenuItem(
+        Boolean showConferenceMenuItemProp
+            = cfg.getBoolean(CONFERENCE_CALL_DISABLED_PROP,
+                            false);
+
+        if(!showConferenceMenuItemProp.booleanValue())
+        {
+            conferenceMenuItem
+                = new JMenuItem(
                     r.getI18NString("service.gui.CREATE_CONFERENCE_CALL"));
-        conferenceMenuItem.setMnemonic(
+            conferenceMenuItem.setMnemonic(
                 r.getI18nMnemonic("service.gui.CREATE_CONFERENCE_CALL"));
-        conferenceMenuItem.setName("conference");
-        conferenceMenuItem.addActionListener(this);
-        add(conferenceMenuItem);
+            conferenceMenuItem.setName("conference");
+            conferenceMenuItem.addActionListener(this);
+            add(conferenceMenuItem);
+        }
 
         // Add a service listener in order to be notified when a new protocol
         // provider is added or removed and the list should be refreshed.
@@ -421,6 +447,61 @@ public class ToolsMenu
     }
 
     /**
+     * Keeps track of the indices of <tt>JSeparator</tt>s
+     * that are places within this <tt>Container</tt>
+     */
+    private List<Integer> separatorIndices = new LinkedList<Integer>();
+
+    /**
+     * When a new separator is added to this <tt>Container</tt> its position
+     * will be saved in separatorIndices.
+     */
+    public void addSeparator()
+    {
+        super.addSeparator();
+        separatorIndices.add(this.getMenuComponentCount() - 1);
+    }
+
+    /**
+     * Inserts the given <tt>JMenuItem</tt> at the end of the specified section.
+     * Sections are ordered in the following matter: 0 0 0 | 1 1 | 2 2 ...
+     * 
+     * @param item The <tt>JMenuItem</tt> that we insert
+     * 
+     * @param section The section index in which we want to insert the specified
+     * <tt>JMenuItem</tt>. If section is < 0 or section is >= the
+     * <tt>JSeparator</tt>s count in this menu, this item will be inserted at
+     * the end of the menu.
+     * 
+     * @return The inserted <tt>JMenuItem</tt>
+     */
+    private JMenuItem insertInSection(JMenuItem item, int section)
+    {
+        if (section < 0 || section >= separatorIndices.size())
+        {
+            add(item);
+            return item;
+        }
+
+        // Gets the index of the separator so we can insert the JMenuItem
+        // before it.
+        int separatorIndex = separatorIndices.get(section);
+
+        // All following separators' positions must be incremented because we
+        // will insert a new JMenuItem before them.
+        ListIterator<Integer> it = separatorIndices.listIterator(section);
+        while (it.hasNext())
+        {
+            int i = it.next() + 1;
+            it.remove();
+            it.add(i);
+        }
+
+        insert(item, separatorIndex);
+        return item;
+    }
+
+    /**
      * Returns a list of all available video bridge providers.
      *
      * @return a list of all available video bridge providers
@@ -436,7 +517,7 @@ public class ToolsMenu
         {
             OperationSetVideoBridge videoBridgeOpSet
                 = videoBridgeProvider.getOperationSet(
-                    OperationSetVideoBridge.class);
+                        OperationSetVideoBridge.class);
 
             // Check if the video bridge is actually active before adding it to
             // the list of active providers.
@@ -715,8 +796,12 @@ public class ToolsMenu
     {
         ResourceManagementService r = GuiActivator.getResources();
 
-        conferenceMenuItem.setIcon(
-                r.getImage("service.gui.icons.CONFERENCE_CALL"));
+        if (conferenceMenuItem != null)
+        {
+            conferenceMenuItem.setIcon(
+                    r.getImage("service.gui.icons.CONFERENCE_CALL"));
+        }
+
         if (configMenuItem != null)
         {
             configMenuItem.setIcon(

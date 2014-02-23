@@ -114,12 +114,6 @@ public class UIFilterQuery
             {
                 ContactQuery externalQuery = (ContactQuery) contactQuery;
 
-                List<SourceContact> externalResults
-                    = externalQuery.getQueryResults();
-
-                if (externalResults != null && externalResults.size() > 0)
-                    queryResults = new ArrayList<SourceContact>(externalResults);
-
                 externalQuery.addContactQueryListener(this);
             }
             else if (contactQuery instanceof MetaContactQuery)
@@ -369,8 +363,7 @@ public class UIFilterQuery
         List<SourceContact> queryResults = filterQueries.get(query);
 
         queryResults.add(contact);
-
-        if (getMaxResultShown() > -1
+        if (getMaxResultShown() > -1 && event.isShowMoreEnabled()
             && queryResults.size() == getMaxResultShown())
         {
             query.removeContactQueryListener(contactList);

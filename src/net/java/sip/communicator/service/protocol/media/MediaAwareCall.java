@@ -527,6 +527,14 @@ public abstract class MediaAwareCall<
     public void setLocalVideoAllowed(boolean allowed, MediaUseCase useCase)
         throws OperationFailedException
     {
+        /*
+         * If the use case changes and we don't change the device, calls to
+         * getDefaultDevice() will return the device for the old use case (
+         * because it cached in MediaAwareCallConference)
+         */
+        if (mediaUseCase != useCase)
+            setVideoDevice(null, useCase);
+
         localVideoAllowed = allowed;
         mediaUseCase = useCase;
 
@@ -664,6 +672,10 @@ public abstract class MediaAwareCall<
                      */
                     public void callStateChanged(CallChangeEvent evt)
                     {
+                        if (!CallChangeEvent.CALL_STATE_CHANGE
+                                .equals(evt.getPropertyName()))
+                            return;
+
                         if (CallState.CALL_ENDED.equals(evt.getNewValue()))
                             recorder.stop();
                     }
@@ -767,13 +779,24 @@ public abstract class MediaAwareCall<
 
     /**
      * Sets the <tt>MediaDevice</tt> to be used by this <tt>Call</tt> for video
-     * capture and/or playback.
+     * capture and/or playback and the use case of the video streaming in this
+     * <tt>MediaAwareCall</tt>.
      *
      * @param videoDevice the <tt>MediaDevice</tt> to be used by this
      * <tt>Call</tt> for video capture and/or playback
+     * @param useCase the use case of the video streaming to be set on this
+     * <tt>MediaAwareCall</tt> such as webcam capture or desktop
+     * sharing/streaming
      */
-    public void setVideoDevice(MediaDevice videoDevice)
+    public void setVideoDevice(MediaDevice videoDevice, MediaUseCase useCase)
     {
+        /*
+         * XXX If the mediaUseCase is changing, it is important to realize the
+         * change prior to setting the specified videoDevice on the associated
+         * conference because the method MediaAwareCallConference.setDevice will
+         * indirectly utilize the mediaUseCase.
+         */
+        mediaUseCase = useCase;
         getConference().setDevice(MediaType.VIDEO, videoDevice);
     }
 
@@ -808,32 +831,32 @@ public abstract class MediaAwareCall<
      * Notifies this instance about a change of the value of a specific property
      * from a specific old value to a specific new value.
      *
-     * @param event a <tt>PropertyChangeEvent</tt> which specifies the name of
-     * the property which has its value changed and the old and new values
+     * @param ev a <tt>PropertyChangeEvent</tt> which specifies the name of the
+     * property which has its value changed and the old and new values
      */
-    public void propertyChange(PropertyChangeEvent event)
+    public void propertyChange(PropertyChangeEvent ev)
     {
         /*
          * Forward PropertyChangeEvents notifying about changes in the values of
          * MediaAwareCall properties which are delegated to
          * MediaAwareCallConference.
          */
-        if (event.getSource() instanceof CallConference)
+        if (ev.getSource() instanceof CallConference)
         {
-            String propertyName = event.getPropertyName();
+            String propertyName = ev.getPropertyName();
 
             if (CONFERENCE_FOCUS.equals(propertyName))
             {
                 conferenceFocusChanged(
-                        (Boolean) event.getOldValue(),
-                        (Boolean) event.getNewValue());
+                        (Boolean) ev.getOldValue(),
+                        (Boolean) ev.getNewValue());
             }
             else if (DEFAULT_DEVICE.equals(propertyName))
             {
                 firePropertyChange(
                         DEFAULT_DEVICE,
-                        event.getOldValue(),
-                        event.getNewValue());
+                        ev.getOldValue(),
+                        ev.getNewValue());
             }
         }
     }

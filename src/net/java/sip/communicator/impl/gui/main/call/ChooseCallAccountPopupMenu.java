@@ -44,7 +44,7 @@ public class ChooseCallAccountPopupMenu
     /**
      * The invoker component.
      */
-    private final JComponent invoker;
+    protected final JComponent invoker;
 
     /**
      * The call interface listener, which would be notified once the call
@@ -110,7 +110,7 @@ public class ChooseCallAccountPopupMenu
     {
         this.invoker = invoker;
         this.init(GuiActivator.getResources()
-                    .getI18NString("service.gui.CALL_VIA"));
+                    .getI18NString(getI18NKeyCallVia()));
 
         for (ProtocolProviderService provider : telephonyProviders)
         {
@@ -148,7 +148,7 @@ public class ChooseCallAccountPopupMenu
     {
         this.invoker = invoker;
         this.init(GuiActivator.getResources()
-                    .getI18NString("service.gui.CHOOSE_CONTACT"));
+                    .getI18NString(getI18NKeyChooseContact()));
 
         for (Object o : telephonyObjects)
         {
@@ -159,6 +159,26 @@ public class ChooseCallAccountPopupMenu
                 this.addTelephonyChatTransportItem((ChatTransport) o,
                         opSetClass);
         }
+    }
+
+    /**
+     * Returns the key to use for choose contact string. Can be overridden
+     * by extenders.
+     * @return the key to use for choose contact string.
+     */
+    protected String getI18NKeyChooseContact()
+    {
+        return "service.gui.CHOOSE_CONTACT";
+    }
+
+    /**
+     * Returns the key to use for choose contact string. Can be overridden
+     * by extenders.
+     * @return the key to use for choose contact string.
+     */
+    protected String getI18NKeyCallVia()
+    {
+        return "service.gui.CALL_VIA";
     }
 
     /**
@@ -200,13 +220,13 @@ public class ChooseCallAccountPopupMenu
             public void actionPerformed(ActionEvent e)
             {
                 if (uiContact != null)
-                    CallManager.createCall(
+                    itemSelected(
                         opSetClass,
                         providerItem.getProtocolProvider(),
                         contactString,
                         uiContact);
                 else
-                    CallManager.createCall(
+                    itemSelected(
                         opSetClass,
                         providerItem.getProtocolProvider(),
                         contactString);
@@ -258,13 +278,8 @@ public class ChooseCallAccountPopupMenu
                 }
                 else if (providers.size() > 1)
                 {
-                    ChooseCallAccountDialog callAccountDialog
-                        = new ChooseCallAccountDialog(
-                        telephonyContact.getAddress(), opSetClass, providers);
-
-                    if (uiContact != null)
-                        callAccountDialog.setUIContact(uiContact);
-                    callAccountDialog.setVisible(true);
+                    itemSelected(
+                        opSetClass, providers, telephonyContact.getAddress());
                 }
                 else // providersCount == 1
                 {
@@ -272,13 +287,13 @@ public class ChooseCallAccountPopupMenu
                     String contactAddress = telephonyContact.getAddress();
 
                     if (uiContact != null)
-                        CallManager.createCall(
+                        itemSelected(
                             opSetClass,
                             provider,
                             contactAddress,
                             uiContact);
                     else
-                        CallManager.createCall(
+                        itemSelected(
                             opSetClass,
                             provider,
                             contactAddress);
@@ -430,6 +445,63 @@ public class ChooseCallAccountPopupMenu
         infoLabel.setText("<html><b>" + infoString + "</b></html>");
 
         return infoLabel;
+    }
+
+    /**
+     * Item was selected, give a chance for extenders to override.
+     *
+     * @param opSetClass the operation set to use.
+     * @param protocolProviderService the protocol provider
+     * @param contact the contact address
+     *  @param uiContact the <tt>MetaContact</tt> selected
+     */
+    protected void itemSelected(
+                    Class<? extends OperationSet> opSetClass,
+                    ProtocolProviderService protocolProviderService,
+                    String contact,
+                    UIContactImpl uiContact)
+    {
+        CallManager.createCall(
+            opSetClass,
+            protocolProviderService,
+            contact,
+            uiContact);
+    }
+
+    /**
+     * Item was selected, give a chance for extenders to override.
+     *
+     * @param opSetClass the operation set to use.
+     * @param protocolProviderService the protocol provider
+     * @param contact the contact address selected
+     */
+    protected void itemSelected(Class<? extends OperationSet> opSetClass,
+                    ProtocolProviderService protocolProviderService,
+                    String contact)
+    {
+        CallManager.createCall(
+            opSetClass,
+            protocolProviderService,
+            contact);
+    }
+
+    /**
+     * Item was selected, give a chance for extenders to override.
+     *
+     * @param opSetClass the operation set to use.
+     * @param providers list of available protocol providers
+     * @param contact the contact address selected
+     */
+    protected void itemSelected(Class<? extends OperationSet> opSetClass,
+                                List<ProtocolProviderService> providers,
+                                String contact)
+    {
+        ChooseCallAccountDialog callAccountDialog
+            = new ChooseCallAccountDialog(contact, opSetClass, providers);
+
+        if (uiContact != null)
+            callAccountDialog.setUIContact(uiContact);
+        callAccountDialog.setVisible(true);
     }
 
     /**

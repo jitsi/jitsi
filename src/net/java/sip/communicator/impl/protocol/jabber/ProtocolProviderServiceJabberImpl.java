@@ -18,9 +18,9 @@ import javax.net.ssl.*;
 import net.java.sip.communicator.impl.protocol.jabber.debugger.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.carbon.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.coin.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.gtalk.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingleinfo.*;
@@ -33,9 +33,10 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
-
 import net.java.sip.communicator.util.Logger;
+
 import org.jitsi.service.configuration.*;
+import org.jitsi.service.neomedia.*;
 import org.jitsi.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
@@ -125,6 +126,13 @@ public class ProtocolProviderServiceJabberImpl
     public static final String URN_XMPP_JINGLE_COIN = "urn:xmpp:coin";
 
     /**
+     * Jingle's Discovery Info URN for &quot;XEP-0320: Use of DTLS-SRTP in
+     * Jingle Sessions&quot;.
+     */
+    public static final String URN_XMPP_JINGLE_DTLS_SRTP
+        = "urn:xmpp:jingle:apps:dtls:0";
+
+    /**
      * Discovery Info URN for classic RFC3264-style Offer/Answer negotiation
      * with no support for Trickle ICE and low tolerance to transport/payload
      * separation. Defined in XEP-0176
@@ -154,12 +162,6 @@ public class ProtocolProviderServiceJabberImpl
      * version.
      */
     public static final String CAPS_GTALK_WEB_CAMERA = "camera-v1";
-
-    /**
-     * Google P2P transport URN.
-     */
-    public static final String URN_GOOGLE_TRANSPORT_P2P
-        = "http://www.google.com/transport/p2p";
 
     /**
      * URN for Google voice.
@@ -217,6 +219,12 @@ public class ProtocolProviderServiceJabberImpl
      */
     private static final String XMPP_DSCP_PROPERTY =
         "net.java.sip.communicator.impl.protocol.XMPP_DSCP";
+
+    /**
+     * Indicates if user search is disabled.
+     */
+    private static final String IS_USER_SEARCH_ENABLED_PROPERTY
+        = "USER_SEARCH_ENABLED";
 
     /**
      * Google voice domain name.
@@ -471,8 +479,8 @@ public class ProtocolProviderServiceJabberImpl
                 inConnectAndLogin = true;
             }
 
-            connectAndLogin(authority,
-                            SecurityAuthority.AUTHENTICATION_REQUIRED);
+            initializeConnectAndLogin(authority,
+                SecurityAuthority.AUTHENTICATION_REQUIRED);
         }
         catch (XMPPException ex)
         {
@@ -528,7 +536,7 @@ public class ProtocolProviderServiceJabberImpl
             if (logger.isTraceEnabled())
                 logger.trace("Trying to reregister us!");
 
-            // sets this if any is tring to use us through registration
+            // sets this if any is trying to use us through registration
             // to know we are not registered
             this.unregister(false);
 
@@ -541,8 +549,7 @@ public class ProtocolProviderServiceJabberImpl
                 inConnectAndLogin = true;
             }
 
-            connectAndLogin(authority,
-                            authReasonCode);
+            initializeConnectAndLogin(authority, authReasonCode);
         }
         catch(OperationFailedException ex)
         {
@@ -639,12 +646,19 @@ public class ProtocolProviderServiceJabberImpl
      * @throws  OperationFailedException if login parameters
      *          as server port are not correct
      */
-    private void connectAndLogin(SecurityAuthority authority,
+    private void initializeConnectAndLogin(SecurityAuthority authority,
                                               int reasonCode)
         throws XMPPException, OperationFailedException
     {
         synchronized(initializationLock)
         {
+            // if a thread is waiting for initializationLock and enters
+            // lets check whether someone hasn't already tried login and
+            // have succeeded,
+            // should prevent "Trace possible duplicate connections" prints
+            if(isRegistered())
+                return;
+
             JabberLoginStrategy loginStrategy = createLoginStrategy();
             userCredentials = loginStrategy.prepareLogin(authority, reasonCode);
             if(!loginStrategy.loginPreparationSuccessful())
@@ -737,6 +751,8 @@ public class ProtocolProviderServiceJabberImpl
             if (addrs == null || addrs.length == 0)
             {
                 logger.error("No server addresses found");
+
+                eventDuringLogin = null;
 
                 fireRegistrationStateChanged(
                     getRegistrationState(),
@@ -869,8 +885,7 @@ public class ProtocolProviderServiceJabberImpl
                             ))
                         {
                             FailoverConnectionMonitor.getInstance(this)
-                                .setCurrent(serviceName,
-                                            srv.getTarget());
+                                .setCurrent(domain, srv.getTarget());
                         }
 
                         ConnectState state = connectAndLogin(
@@ -951,9 +966,19 @@ public class ProtocolProviderServiceJabberImpl
                 //as we got an exception not handled in connectAndLogin
                 //no state was set, so fire it here so we can continue
                 //with the re-register process
-                fireRegistrationStateChanged(getRegistrationState(),
+                //2013-08-07 do not fire event, if we have several
+                // addresses and we fire event will activate reconnect
+                // but we will continue connecting with other addresses
+                // and can register with address, then unregister and try again
+                // that is from reconnect plugin.
+                // Storing event for fire after all have failed and we have
+                // tried every address.
+                eventDuringLogin = new RegistrationStateChangeEvent(
+                    ProtocolProviderServiceJabberImpl.this,
+                    getRegistrationState(),
                     RegistrationState.CONNECTION_FAILED,
-                    RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND, null);
+                    RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND,
+                    null);
 
                 throw ex;
             }
@@ -1020,7 +1045,7 @@ public class ProtocolProviderServiceJabberImpl
     {
         String globalProxyType =
             JabberActivator.getConfigurationService()
-            .getString(ProxyInfo.CONNECTON_PROXY_TYPE_PROPERTY_NAME);
+            .getString(ProxyInfo.CONNECTION_PROXY_TYPE_PROPERTY_NAME);
         if(globalProxyType == null ||
            globalProxyType.equals(ProxyInfo.ProxyType.NONE.name()))
         {
@@ -1030,10 +1055,10 @@ public class ProtocolProviderServiceJabberImpl
         {
             String globalProxyAddress =
                 JabberActivator.getConfigurationService().getString(
-                ProxyInfo.CONNECTON_PROXY_ADDRESS_PROPERTY_NAME);
+                ProxyInfo.CONNECTION_PROXY_ADDRESS_PROPERTY_NAME);
             String globalProxyPortStr =
                 JabberActivator.getConfigurationService().getString(
-                ProxyInfo.CONNECTON_PROXY_PORT_PROPERTY_NAME);
+                ProxyInfo.CONNECTION_PROXY_PORT_PROPERTY_NAME);
             int globalProxyPort;
             try
             {
@@ -1050,10 +1075,10 @@ public class ProtocolProviderServiceJabberImpl
             }
             String globalProxyUsername =
                 JabberActivator.getConfigurationService().getString(
-                ProxyInfo.CONNECTON_PROXY_USERNAME_PROPERTY_NAME);
+                ProxyInfo.CONNECTION_PROXY_USERNAME_PROPERTY_NAME);
             String globalProxyPassword =
                 JabberActivator.getConfigurationService().getString(
-                ProxyInfo.CONNECTON_PROXY_PASSWORD_PROPERTY_NAME);
+                ProxyInfo.CONNECTION_PROXY_PASSWORD_PROPERTY_NAME);
             if(globalProxyAddress == null ||
                 globalProxyAddress.length() <= 0)
             {
@@ -1185,6 +1210,8 @@ public class ProtocolProviderServiceJabberImpl
 
             logger.error("Connection not established, server not found!");
 
+            eventDuringLogin = null;
+
             fireRegistrationStateChanged(getRegistrationState(),
                 RegistrationState.CONNECTION_FAILED,
                 RegistrationStateChangeEvent.REASON_SERVER_NOT_FOUND, null);
@@ -1213,6 +1240,7 @@ public class ProtocolProviderServiceJabberImpl
         if (!loginStrategy.login(connection, userName, resource))
         {
             disconnectAndCleanConnection();
+            eventDuringLogin = null;
             fireRegistrationStateChanged(
                 getRegistrationState(),
                 // not auth failed, or there would be no info-popup
@@ -1225,6 +1253,8 @@ public class ProtocolProviderServiceJabberImpl
 
         if(connection.isAuthenticated())
         {
+            eventDuringLogin = null;
+
             fireRegistrationStateChanged(
                 getRegistrationState(),
                 RegistrationState.REGISTERED,
@@ -1254,6 +1284,8 @@ public class ProtocolProviderServiceJabberImpl
         else
         {
             disconnectAndCleanConnection();
+
+            eventDuringLogin = null;
 
             fireRegistrationStateChanged(
                 getRegistrationState()
@@ -1334,12 +1366,11 @@ public class ProtocolProviderServiceJabberImpl
             discoveryManager.addFeature(URN_GOOGLE_VOICE);
             discoveryManager.addFeature(URN_GOOGLE_VIDEO);
             discoveryManager.addFeature(URN_GOOGLE_CAMERA);
-            discoveryManager.addFeature(URN_GOOGLE_TRANSPORT_P2P);
         }
 
         /*
          * Expose the discoveryManager as service-public through the
-         * OperationSetContactCapabilities of this ProtocolProviderSerivce.
+         * OperationSetContactCapabilities of this ProtocolProviderService.
          */
         if (opsetContactCapabilities != null)
             opsetContactCapabilities.setDiscoveryManager(discoveryManager);
@@ -1419,12 +1450,23 @@ public class ProtocolProviderServiceJabberImpl
     {
         synchronized(initializationLock)
         {
+            if(fireEvent)
+            {
+                eventDuringLogin = null;
+                fireRegistrationStateChanged(
+                    getRegistrationState()
+                    , RegistrationState.UNREGISTERING
+                    , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
+                    , null);
+            }
+
             disconnectAndCleanConnection();
 
             RegistrationState currRegState = getRegistrationState();
 
             if(fireEvent)
             {
+                eventDuringLogin = null;
                 fireRegistrationStateChanged(
                     currRegState,
                     RegistrationState.UNREGISTERED,
@@ -1469,8 +1511,8 @@ public class ProtocolProviderServiceJabberImpl
             // in case of modified account, we clear list of supported features
             // and every state change listeners, otherwise we can have two
             // OperationSet for same feature and it can causes problem (i.e.
-            // two OperationSetBasicTelephony can launch two ICE negociations
-            // (with different ufrag/passwd) and peer will failed call. And
+            // two OperationSetBasicTelephony can launch two ICE negotiations
+            // (with different ufrag/pwd) and peer will failed call. And
             // by the way user will see two dialog for answering/refusing the
             // call
             supportedFeatures.clear();
@@ -1515,27 +1557,12 @@ public class ProtocolProviderServiceJabberImpl
             String keepAliveStrValue
                 = accountID.getAccountPropertyString(
                     ProtocolProviderFactory.KEEP_ALIVE_METHOD);
-            String resourcePriority
-                = accountID.getAccountPropertyString(
-                        ProtocolProviderFactory.RESOURCE_PRIORITY);
 
             InfoRetreiver infoRetreiver = new InfoRetreiver(this, screenname);
 
-            //initialize the presence operationset
+            //initialize the presence OperationSet
             OperationSetPersistentPresenceJabberImpl persistentPresence =
                 new OperationSetPersistentPresenceJabberImpl(this, infoRetreiver);
-
-            if(resourcePriority != null)
-            {
-                persistentPresence
-                    .setResourcePriority(Integer.parseInt(resourcePriority));
-                // TODO : is this resource priority related to xep-0168
-                // (Resource Application Priority) ?
-                // see http://www.xmpp.org/extensions/xep-0168.html
-                // If the answer is no, comment the following lines please
-                supportedFeatures.add(
-                        "http://www.xmpp.org/extensions/xep-0168.html#ns");
-            }
 
             addSupportedOperationSet(
                 OperationSetPersistentPresence.class,
@@ -1548,6 +1575,15 @@ public class ProtocolProviderServiceJabberImpl
             addSupportedOperationSet(
                 OperationSetPresence.class,
                 persistentPresence);
+
+            if(accountID.getAccountPropertyString(
+                    ProtocolProviderFactory.ACCOUNT_READ_ONLY_GROUPS) != null)
+            {
+                addSupportedOperationSet(
+                    OperationSetPersistentPresencePermissions.class,
+                    new OperationSetPersistentPresencePermissionsJabberImpl(
+                            this));
+            }
 
             //initialize the IM operation set
             OperationSetBasicInstantMessagingJabberImpl basicInstantMessaging =
@@ -1662,33 +1698,33 @@ public class ProtocolProviderServiceJabberImpl
                                           new CoinIQProvider());
             supportedFeatures.add(URN_XMPP_JINGLE_COIN);
 
-            //register our GTalk dialect provider
-            providerManager.addIQProvider( SessionIQ.ELEMENT_NAME,
-                                           SessionIQ.NAMESPACE,
-                                           new SessionIQProvider());
-
             // register our JingleInfo provider
             providerManager.addIQProvider(JingleInfoQueryIQ.ELEMENT_NAME,
                                           JingleInfoQueryIQ.NAMESPACE,
                                           new JingleInfoQueryIQProvider());
 
-            // Jitsi VideoBridge IQProvider and PacketExtensionProvider
+            // Jitsi Videobridge IQProvider and PacketExtensionProvider
             providerManager.addIQProvider(
                     ColibriConferenceIQ.ELEMENT_NAME,
                     ColibriConferenceIQ.NAMESPACE,
                     new ColibriIQProvider());
+
             providerManager.addExtensionProvider(
-                    PayloadTypePacketExtension.ELEMENT_NAME,
-                    ColibriConferenceIQ.NAMESPACE,
-                    new DefaultPacketExtensionProvider<
-                                PayloadTypePacketExtension>(
-                            PayloadTypePacketExtension.class));
+                    ConferenceDescriptionPacketExtension.ELEMENT_NAME,
+                    ConferenceDescriptionPacketExtension.NAMESPACE,
+                    new ConferenceDescriptionPacketExtension.Provider());
+
             providerManager.addExtensionProvider(
-                    ParameterPacketExtension.ELEMENT_NAME,
-                    ColibriConferenceIQ.NAMESPACE,
-                    new DefaultPacketExtensionProvider<
-                                ParameterPacketExtension>(
-                            ParameterPacketExtension.class));
+                CarbonPacketExtension.RECEIVED_ELEMENT_NAME,
+                CarbonPacketExtension.NAMESPACE,
+                new CarbonPacketExtension.Provider(
+                    CarbonPacketExtension.RECEIVED_ELEMENT_NAME));
+
+            providerManager.addExtensionProvider(
+                CarbonPacketExtension.SENT_ELEMENT_NAME,
+                CarbonPacketExtension.NAMESPACE,
+                new CarbonPacketExtension.Provider(
+                    CarbonPacketExtension.SENT_ELEMENT_NAME));
 
             //initialize the telephony operation set
             boolean isCallingDisabled
@@ -1737,12 +1773,12 @@ public class ProtocolProviderServiceJabberImpl
                     new OperationSetResAwareTelephonyJabberImpl(basicTelephony));
 
                 // Only init video bridge if enabled
-                boolean isVideoBridgeDisabled
+                boolean isVideobridgeDisabled
                     = JabberActivator.getConfigurationService()
                       .getBoolean(OperationSetVideoBridge.
                           IS_VIDEO_BRIDGE_DISABLED, false);
 
-                if (!isVideoBridgeDisabled)
+                if (!isVideobridgeDisabled)
                 {
                     // init video bridge
                     addSupportedOperationSet(
@@ -1828,6 +1864,14 @@ public class ProtocolProviderServiceJabberImpl
             addSupportedOperationSet(OperationSetCusaxUtils.class,
                     opsetCusaxCusaxUtils);
 
+            boolean isUserSearchEnabled = accountID.getAccountPropertyBoolean(
+                IS_USER_SEARCH_ENABLED_PROPERTY, false);
+            if(isUserSearchEnabled)
+            {
+                addSupportedOperationSet(OperationSetUserSearch.class,
+                    new OperationSetUserSearchJabberImpl(this));
+            }
+
             isInitialized = true;
         }
     }
@@ -1870,6 +1914,16 @@ public class ProtocolProviderServiceJabberImpl
 
         // XEP-0251: Jingle Session Transfer
         supportedFeatures.add(URN_XMPP_JINGLE_TRANSFER_0);
+
+        // XEP-0320: Use of DTLS-SRTP in Jingle Sessions
+        if (accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                    true)
+                && accountID.isEncryptionProtocolEnabled(
+                        DtlsControl.PROTO_NAME))
+        {
+            supportedFeatures.add(URN_XMPP_JINGLE_DTLS_SRTP);
+        }
     }
 
     /**
@@ -1948,11 +2002,12 @@ public class ProtocolProviderServiceJabberImpl
         // we try determine the reason according to their message
         // all messages that were found in smack 3.1.0 were took in count
         return
-            (exMsg.indexOf("authentication failed") != -1)
-                || ((exMsg.indexOf("authentication") != -1)
-                        && (exMsg.indexOf("failed") != -1))
-                || (exMsg.indexOf("login failed") != -1)
-                || (exMsg.indexOf("unable to determine password") != -1);
+            ((exMsg.indexOf("sasl authentication") != -1)
+                    && (exMsg.indexOf("failed") != -1))
+            || (exMsg.indexOf(
+                    "does not support compatible authentication mechanism")
+                        != -1)
+            || (exMsg.indexOf("unable to determine password") != -1);
     }
 
     /**
@@ -2263,6 +2318,9 @@ public class ProtocolProviderServiceJabberImpl
 
         try
         {
+            if(discoveryManager == null)
+                return isFeatureListSupported;
+
             DiscoverInfo featureInfo =
                 discoveryManager.discoverInfoNonBlocking(jid);
 
@@ -2329,7 +2387,8 @@ public class ProtocolProviderServiceJabberImpl
     {
         XMPPConnection connection = getConnection();
 
-        if (connection != null)
+        // when we are not connected there is no full jid
+        if (connection != null && connection.isConnected())
         {
             Roster roster = connection.getRoster();
 
@@ -2400,10 +2459,19 @@ public class ProtocolProviderServiceJabberImpl
             }
             catch(CertificateException e)
             {
-                fireRegistrationStateChanged(getRegistrationState(),
+                // notify in a separate thread to avoid a deadlock when a
+                // reg state listener accesses a synchronized XMPPConnection
+                // method (like getRoster)
+                new Thread(new Runnable()
+                {
+                    public void run()
+                    {
+                        fireRegistrationStateChanged(getRegistrationState(),
                             RegistrationState.UNREGISTERED,
                             RegistrationStateChangeEvent.REASON_USER_REQUEST,
                             "Not trusted certificate");
+                    }
+                }).start();
                 throw e;
             }
 
@@ -2714,14 +2782,14 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
-     * Gets the entity ID of the first Jitsi VideoBridge associated with
+     * Gets the entity ID of the first Jitsi Videobridge associated with
      * {@link #connection} i.e. provided by the <tt>serviceName</tt> of
      * <tt>connection</tt>.
      *
-     * @return the entity ID of the first Jitsi VideoBridge associated with
+     * @return the entity ID of the first Jitsi Videobridge associated with
      * <tt>connection</tt>
      */
-    public String getJitsiVideoBridge()
+    public String getJitsiVideobridge()
     {
         XMPPConnection connection = getConnection();
 
@@ -2737,6 +2805,13 @@ public class ProtocolProviderServiceJabberImpl
             }
             catch (XMPPException xmppe)
             {
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug(
+                            "Failed to discover the items associated with"
+                                + " Jabber entity: " + serviceName,
+                            xmppe);
+                }
             }
             if (discoverItems != null)
             {
@@ -2755,6 +2830,10 @@ public class ProtocolProviderServiceJabberImpl
                     }
                     catch (XMPPException xmppe)
                     {
+                        logger.warn(
+                                "Failed to discover information about Jabber"
+                                    + " entity: " + entityID,
+                                xmppe);
                     }
                     if ((discoverInfo != null)
                             && discoverInfo.containsFeature(

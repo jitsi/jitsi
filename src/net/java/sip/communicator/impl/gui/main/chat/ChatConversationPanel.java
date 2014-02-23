@@ -22,6 +22,7 @@ import javax.swing.text.html.*;
 import javax.swing.text.html.HTML.*;
 
 import org.jitsi.service.configuration.*;
+import org.jitsi.service.fileaccess.FileCategory;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
@@ -33,6 +34,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.replacement.*;
+import net.java.sip.communicator.service.replacement.directimage.*;
 import net.java.sip.communicator.service.replacement.smilies.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
@@ -98,12 +100,12 @@ public class ChatConversationPanel
     /**
      * The editor kit used by the text component.
      */
-    private final HTMLEditorKit editorKit;
+    private final ChatConversationEditorKit editorKit;
 
     /**
      * The document used by the text component.
      */
-    private HTMLDocument document;
+    HTMLDocument document;
 
     /**
      * The parent container.
@@ -113,7 +115,7 @@ public class ChatConversationPanel
     /**
      * The menu shown on right button mouse click.
      */
-    private final ChatRightButtonMenu rightButtonMenu;
+    private ChatRightButtonMenu rightButtonMenu;
 
     /**
      * The currently shown href.
@@ -160,6 +162,9 @@ public class ChatConversationPanel
 
     private boolean isSimpleTheme = true;
 
+    private ShowPreviewDialog showPreview
+        = new ShowPreviewDialog(ChatConversationPanel.this);
+
     /**
      * The implementation of the routine which scrolls {@link #chatTextPane} to its
      * bottom.
@@ -180,7 +185,16 @@ public class ChatConversationPanel
                 // something (changed the caret) or when a new tab has been
                 // added or the window has been resized.
                 verticalScrollBar.setValue(verticalScrollBar.getMaximum());
-                chatTextPane.setCaretPosition(document.getLength());
+                Document doc = chatTextPane.getDocument();
+                if(doc != null)
+                {
+                    int pos = document.getLength();
+                    if (pos >= 0 &&
+                        pos <= chatTextPane.getDocument().getLength())
+                    {
+                        chatTextPane.setCaretPosition(pos);
+                    }
+                }
             }
         }
     };
@@ -192,7 +206,7 @@ public class ChatConversationPanel
      */
     public ChatConversationPanel(ChatConversationContainer chatContainer)
     {
-        editorKit = new SIPCommHTMLEditorKit(this);
+        editorKit = new ChatConversationEditorKit(this);
 
         this.chatContainer = chatContainer;
 
@@ -201,6 +215,8 @@ public class ChatConversationPanel
         this.rightButtonMenu = new ChatRightButtonMenu(this);
 
         this.document = (HTMLDocument) editorKit.createDefaultDocument();
+
+        this.document.addDocumentListener(editorKit);
 
         this.chatTextPane.setEditorKitForContentType("text/html", editorKit);
         this.chatTextPane.setEditorKit(editorKit);
@@ -217,6 +233,8 @@ public class ChatConversationPanel
         this.chatTextPane.addMouseListener(this);
         this.chatTextPane.setCursor(
             Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+
+        this.addChatLinkClickedListener(showPreview);
 
         this.setWheelScrollingEnabled(true);
 
@@ -424,16 +442,7 @@ public class ChatConversationPanel
         String chatString = "";
         String endHeaderTag = "";
 
-        String startSystemDivTag
-            = "<DIV id=\"systemMessage\" style=\"color:#627EB7;\">";
-        String endDivTag = "</DIV>";
-
         lastMessageUID = chatMessage.getMessageUID();
-
-        String startPlainTextTag
-            = ChatHtmlUtils.createStartPlainTextTag(contentType);
-        String endPlainTextTag
-            = ChatHtmlUtils.createEndPlainTextTag(contentType);
 
         if (messageType.equals(Chat.INCOMING_MESSAGE))
         {
@@ -525,6 +534,14 @@ public class ChatConversationPanel
         }
         else if (messageType.equals(Chat.SYSTEM_MESSAGE))
         {
+            String startSystemDivTag
+                = "<DIV id=\"systemMessage\" style=\"color:#627EB7;\">";
+            String endDivTag = "</DIV>";
+            String startPlainTextTag
+                = ChatHtmlUtils.createStartPlainTextTag(contentType);
+            String endPlainTextTag
+                = ChatHtmlUtils.createEndPlainTextTag(contentType);
+
             chatString
                 += startSystemDivTag + startPlainTextTag
                     + formatMessage(message, contentType, keyword)
@@ -543,9 +560,14 @@ public class ChatConversationPanel
                 + ImageLoader.getImageUri(ImageLoader.EXCLAMATION_MARK)
                 + "' </IMG>";
 
-            chatString += errorIcon
-                + messageTitle
-                + endHeaderTag + "<h5>" + message + "</h5>";
+            // If the message title is null do not show it and show the error
+            // icon on the same line as the actual error message.
+            if (messageTitle != null)
+                chatString += errorIcon + messageTitle + endHeaderTag
+                                + "<h5>" + message + "</h5>";
+            else
+                chatString += endHeaderTag
+                                + "<h5>" + errorIcon + " " + message + "</h5>";
         }
 
         return chatString;
@@ -810,6 +832,7 @@ public class ChatConversationPanel
         ConfigurationService cfg = GuiActivator.getConfigurationService();
 
         if (cfg.getBoolean(ReplacementProperty.REPLACEMENT_ENABLE, true)
+                ||cfg.getBoolean(ReplacementProperty.REPLACEMENT_PROPOSAL, true)
                 || cfg.getBoolean(
                         ReplacementProperty.getPropertyName("SMILEY"),
                         true))
@@ -825,12 +848,13 @@ public class ChatConversationPanel
     * video/image sources with their previews or any other substitution. Spawns
     * a separate thread for replacement.
     *
-    * @param elem the element in the HTML Document.
+    * @param messageID the messageID element.
     * @param chatString the message.
+    * @param contentType
     */
-    private void processReplacement(final String messageID,
-                                    final String chatString,
-                                    final String contentType)
+    void processReplacement(final String messageID,
+                            final String chatString,
+                            final String contentType)
     {
         SwingWorker worker = new SwingWorker()
         {
@@ -845,6 +869,8 @@ public class ChatConversationPanel
 
                 if (newMessage != null && !newMessage.equals(chatString))
                 {
+                    showPreview.getMsgIDToChatString().put(
+                        messageID, newMessage);
                     synchronized (scrollToBottomRunnable)
                     {
                         scrollToBottomIsPending = true;
@@ -875,6 +901,10 @@ public class ChatConversationPanel
                     = cfg.getBoolean(
                             ReplacementProperty.REPLACEMENT_ENABLE,
                             true);
+                boolean isProposalEnabled
+                    = cfg.getBoolean(
+                            ReplacementProperty.REPLACEMENT_PROPOSAL,
+                            true);
                 Matcher divMatcher = DIV_PATTERN.matcher(chatString);
                 String openingTag = "";
                 String msgStore = chatString;
@@ -886,6 +916,7 @@ public class ChatConversationPanel
                     closingTag = divMatcher.group(3);
                 }
 
+                int linkCounter = 0;
                 for (Map.Entry<String, ReplacementService> entry
                         : GuiActivator.getReplacementSources().entrySet())
                 {
@@ -893,13 +924,12 @@ public class ChatConversationPanel
 
                     boolean isSmiley
                         = source instanceof SmiliesReplacementService;
-
-                    if (!(cfg.getBoolean(
-                                ReplacementProperty.getPropertyName(
-                                        source.getSourceName()),
-                                true)
-                            && (isEnabled || isSmiley)))
-                        continue;
+                    boolean isDirectImage
+                        = source instanceof DirectImageReplacementService;
+                    boolean isEnabledForSource
+                        = cfg.getBoolean(
+                            ReplacementProperty.getPropertyName(
+                                source.getSourceName()), true);
 
                     String sourcePattern = source.getPattern();
                     Pattern p
@@ -907,7 +937,6 @@ public class ChatConversationPanel
                                 sourcePattern,
                                 Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
                     Matcher m = p.matcher(msgStore);
-
                     StringBuilder msgBuff = new StringBuilder();
                     int startPos = 0;
 
@@ -920,31 +949,86 @@ public class ChatConversationPanel
                         String temp = source.getReplacement(group);
                         String group0 = m.group(0);
 
-                        if(!temp.equals(group0)
-                                || source.getSourceName().equals("DIRECTIMAGE"))
+                        if(!temp.equals(group0) || isDirectImage)
                         {
-                            if(isSmiley)
+                            if (isSmiley)
                             {
+                                if (cfg.getBoolean(ReplacementProperty.
+                                                    getPropertyName("SMILEY"),
+                                                    true))
+                                {
+                                    msgBuff.append(
+                                            ChatHtmlUtils.createEndPlainTextTag(
+                                                    contentType));
+                                    msgBuff.append("<IMG SRC=\"");
+                                    msgBuff.append(temp);
+                                    msgBuff.append("\" BORDER=\"0\" ALT=\"");
+                                    msgBuff.append(group0);
+                                    msgBuff.append("\"></IMG>");
+                                    msgBuff.append(
+                                        ChatHtmlUtils.createStartPlainTextTag(
+                                            contentType));
+                                }
+                                else
+                                {
+                                    msgBuff.append(group);
+                                }
+                            }
+                            else if (isEnabled && isEnabledForSource)
+                            {
+                                if (isDirectImage)
+                                {
+                                    DirectImageReplacementService service
+                                        = (DirectImageReplacementService)source;
+                                    if (service.isDirectImage(group)
+                                        && service.getImageSize(group) != -1)
+                                    {
+                                        msgBuff.append(
+                                            "<IMG HEIGHT=\"90\" "
+                                            + "WIDTH=\"120\" SRC=\"");
+                                        msgBuff.append(temp);
+                                        msgBuff.append("\" BORDER=\"0\" ALT=\"");
+                                        msgBuff.append(group0);
+                                        msgBuff.append("\"></IMG>");
+                                    }
+                                    else
+                                    {
+                                        msgBuff.append(group);
+                                    }
+                                }
+                                else
+                                {
+                                    msgBuff.append(
+                                        "<IMG HEIGHT=\"90\" "
+                                        + "WIDTH=\"120\" SRC=\"");
+                                    msgBuff.append(temp);
+                                    msgBuff.append("\" BORDER=\"0\" ALT=\"");
+                                    msgBuff.append(group0);
+                                    msgBuff.append("\"></IMG>");
+                                }
+                            }
+                            else if (isProposalEnabled)
+                            {
+                                msgBuff.append(group);
                                 msgBuff.append(
-                                        ChatHtmlUtils.createEndPlainTextTag(
-                                                contentType));
-                                msgBuff.append("<IMG SRC=\"");
+                                    "</A> <A href=\"jitsi://"
+                                     + showPreview.getClass().getName()
+                                     + "/SHOWPREVIEW?" + messageID + "#"
+                                     + linkCounter + "\">"
+                                     + GuiActivator.getResources().
+                                     getI18NString("service.gui.SHOW_PREVIEW"));
+
+                                showPreview.getMsgIDandPositionToLink()
+                                    .put(
+                                        messageID + "#" + linkCounter++, group);
+                                showPreview.getLinkToReplacement()
+                                    .put(
+                                        group, temp);
                             }
                             else
                             {
-                                msgBuff.append(
-                                    "<IMG HEIGHT=\"90\" WIDTH=\"120\" SRC=\"");
+                                msgBuff.append(group);
                             }
-
-                            msgBuff.append(temp);
-                            msgBuff.append("\" BORDER=\"0\" ALT=\"");
-                            msgBuff.append(group0);
-                            msgBuff.append("\"></IMG>");
-
-                            if(isSmiley)
-                                msgBuff.append(
-                                    ChatHtmlUtils.createStartPlainTextTag(
-                                        contentType));
                         }
                         else
                         {
@@ -997,7 +1081,59 @@ public class ChatConversationPanel
             {
                 logger.error("Error removing messages from chat: ", e);
             }
+
+            if(firstMsgElement.getName().equals("table"))
+            {
+                // as we have removed a header for maybe several messages,
+                // delete all messages without header
+                deleteAllMessagesWithoutHeader();
+            }
         }
+    }
+
+    /**
+     * Deletes all messages "div"s that are missing their header the table tag.
+     * The method calls itself recursively.
+     */
+    private void deleteAllMessagesWithoutHeader()
+    {
+        String[] ids = new String[]
+            {ChatHtmlUtils.MESSAGE_TEXT_ID,
+                "statusMessage",
+                "systemMessage",
+                "actionMessage"};
+
+        Element firstMsgElement = findElement(Attribute.ID, ids);
+
+        if(firstMsgElement == null
+            || !firstMsgElement.getName().equals("div"))
+        {
+            return;
+        }
+
+        int startIndex = firstMsgElement.getStartOffset();
+        int endIndex = firstMsgElement.getEndOffset();
+
+        try
+        {
+            // Remove the message.
+            if(endIndex - startIndex < document.getLength())
+                this.document.remove(startIndex, endIndex - startIndex);
+            else
+            {
+                // currently there is a problem of deleting the last message
+                // if it is the last message on the view
+                return;
+            }
+        }
+        catch (BadLocationException e)
+        {
+            logger.error("Error removing messages from chat: ", e);
+
+            return;
+        }
+
+        deleteAllMessagesWithoutHeader();
     }
 
     /**
@@ -1012,6 +1148,9 @@ public class ChatConversationPanel
                                     String contentType,
                                     String keyword)
     {
+        if(message == null)
+            return message;
+
         Matcher m
             = Pattern.compile(Pattern.quote(keyword), Pattern.CASE_INSENSITIVE)
                 .matcher(message);
@@ -1056,6 +1195,8 @@ public class ChatConversationPanel
                                  String contentType,
                                  String keyword)
     {
+        if(message == null)
+            return "";
         // If the message content type is HTML we won't process links and
         // new lines, but only the smileys.
         if (!ChatHtmlUtils.HTML_CONTENT_TYPE.equals(contentType))
@@ -1264,7 +1405,8 @@ public class ChatConversationPanel
             }
             catch (URISyntaxException e1)
             {
-                logger.error("Invalid URL", e1);
+                logger.error("Failed to open hyperlink in chat window. " +
+                		"Error was: Invalid URL - " + currentHref);
                 return;
             }
             if("jitsi".equals(uri.getScheme()))
@@ -1760,7 +1902,7 @@ public class ChatConversationPanel
         try
         {
             avatarFile = GuiActivator.getFileAccessService()
-                .getPrivatePersistentFile(avatarPath);
+                .getPrivatePersistentFile(avatarPath, FileCategory.CACHE);
         }
         catch (Exception e)
         {
@@ -1793,7 +1935,7 @@ public class ChatConversationPanel
         try
         {
             avatarFile = GuiActivator.getFileAccessService()
-                .getPrivatePersistentFile(avatarPath);
+                .getPrivatePersistentFile(avatarPath, FileCategory.CACHE);
         }
         catch (Exception e)
         {
@@ -1862,7 +2004,24 @@ public class ChatConversationPanel
     @Override
     public void dispose()
     {
+        if(editorKit != null)
+        {
+            editorKit.dispose();
+        }
+
         super.dispose();
+
+        if(showPreview != null)
+        {
+            showPreview.dispose();
+            showPreview = null;
+        }
+
+        if(rightButtonMenu != null)
+        {
+            rightButtonMenu.dispose();
+            rightButtonMenu = null;
+        }
 
         clear();
     }
@@ -1882,10 +2041,9 @@ public class ChatConversationPanel
     }
 
     /**
-     *
-     * @param attribute
-     * @param matchStrings
-     * @return
+     * Finds the first element with <tt>name</tt>.
+     * @param name the name to search for.
+     * @return the first element with <tt>name</tt>.
      */
     private Element findFirstElement(String name)
     {
@@ -1926,11 +2084,11 @@ public class ChatConversationPanel
     }
 
     /**
-     *
-     * @param element
-     * @param attrName
-     * @param matchStrings
-     * @return
+     * Finds the first element with <tt>name</tt> among the child elements of
+     * <tt>element</tt>.
+     * @param element the element to searh for.
+     * @param name the name to search for.
+     * @return the first element with <tt>name</tt>.
      */
     private Element findFirstElement(   Element element,
                                         String name)
@@ -1974,5 +2132,125 @@ public class ChatConversationPanel
         }
 
         return null;
+    }
+
+    /**
+     * Extends SIPCommHTMLEditorKit to keeps track of created ImageView for
+     * the gif images in order to flush them whenever they are no longer visible
+     */
+    private class ChatConversationEditorKit
+        extends SIPCommHTMLEditorKit
+        implements DocumentListener
+    {
+        /**
+         * List of the image views.
+         */
+        private java.util.List<ImageView> imageViews =
+            new ArrayList<ImageView>();
+
+        /**
+         * Constructs.
+         * @param container
+         */
+        public ChatConversationEditorKit(JComponent container)
+        {
+            super(container);
+        }
+
+        /**
+         * Clears any left img view and removes any listener was added.
+         */
+        public void dispose()
+        {
+            if(document != null)
+            {
+                document.removeDocumentListener(this);
+            }
+
+            for(ImageView iv : imageViews)
+            {
+                Image img = iv.getImage();
+                if(img != null)
+                    img.flush();
+            }
+
+            imageViews.clear();
+        }
+
+        /**
+         * Inform view creation.
+         * @param view the newly created view.
+         */
+        protected void viewCreated(ViewFactory factory, View view)
+        {
+            if(view instanceof ImageView)
+            {
+                Element e = findFirstElement(view.getElement(), "img");
+
+                if(e == null)
+                    return;
+
+                Object src = e.getAttributes().getAttribute(Attribute.SRC);
+                if(src != null && src instanceof String
+                    && ((String)src).endsWith("gif"))
+                {
+                    imageViews.add((ImageView)view);
+                }
+            }
+        }
+
+        /**
+         * Not used.
+         * @param e
+         */
+        @Override
+        public void insertUpdate(DocumentEvent e)
+        {}
+
+        /**
+         * When something is removed from the current document we will check
+         * the stored image views for any element which si no longer visible.
+         * @param e the event.
+         */
+        @Override
+        public void removeUpdate(DocumentEvent e)
+        {
+            // will check if some image view is no longer visible
+            // will consider not visible when its length is 0
+            Iterator<ImageView> imageViewIterator = imageViews.iterator();
+            while(imageViewIterator.hasNext())
+            {
+                ImageView iv = imageViewIterator.next();
+
+                if((iv.getElement().getEndOffset()
+                    - iv.getElement().getStartOffset()) != 0)
+                    continue;
+
+                Image img = iv.getImage();
+                if(img != null)
+                    img.flush();
+
+                imageViewIterator.remove();
+            }
+        }
+
+        /**
+         * Not used.
+         * @param e
+         */
+        @Override
+        public void changedUpdate(DocumentEvent e)
+        {}
+
+        /**
+         * For debugging purposes, prints the content of the document
+         * in the console.
+         */
+        public void debug()
+        {
+            try {
+                write(System.out, document, 0, document.getLength());
+            } catch(Throwable t){}
+        }
     }
 }

@@ -11,6 +11,7 @@ import java.net.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -278,7 +279,7 @@ public class MetaContactChatTransport
      */
     public boolean allowsSmsMessage()
     {
-     // First try to ask the capabilities operation set if such is
+        // First try to ask the capabilities operation set if such is
         // available.
         OperationSetContactCapabilities capOpSet = getProtocolProvider()
             .getOperationSet(OperationSetContactCapabilities.class);
@@ -414,7 +415,8 @@ public class MetaContactChatTransport
             msg = mcOpSet.createMessage(message);
         }
 
-        mcOpSet.correctMessage(contact, msg, correctedMessageUID);
+        mcOpSet.correctMessage(
+            contact, contactResource, msg, correctedMessageUID);
     }
 
     /**
@@ -452,24 +454,39 @@ public class MetaContactChatTransport
         if (!allowsSmsMessage())
             return;
 
+        SMSManager.sendSMS(
+            contact.getProtocolProvider(),
+            phoneNumber,
+            messageText);
+    }
+
+    /**
+     * Whether a dialog need to be opened so the user can enter the destination
+     * number.
+     * @return <tt>true</tt> if dialog needs to be open.
+     */
+    public boolean askForSMSNumber()
+    {
+        // If this chat transport does not support sms messaging we do
+        // nothing here.
+        if (!allowsSmsMessage())
+            return false;
+
         OperationSetSmsMessaging smsOpSet
             = contact
                 .getProtocolProvider()
                     .getOperationSet(OperationSetSmsMessaging.class);
 
-        Message smsMessage = smsOpSet.createMessage(messageText);
-
-        smsOpSet.sendSmsMessage(phoneNumber, smsMessage);
+        return smsOpSet.askForNumber(contact);
     }
 
     /**
      * Sends the given sms message trough this chat transport.
      *
-     * @param contact the destination contact
      * @param message the message to send
      * @throws Exception if the send operation is interrupted
      */
-    public void sendSmsMessage(Contact contact, String message)
+    public void sendSmsMessage(String message)
         throws Exception
     {
         // If this chat transport does not support sms messaging we do
@@ -477,13 +494,7 @@ public class MetaContactChatTransport
         if (!allowsSmsMessage())
             return;
 
-        OperationSetSmsMessaging smsOpSet
-            = contact.getProtocolProvider()
-                .getOperationSet(OperationSetSmsMessaging.class);
-
-        Message smsMessage = smsOpSet.createMessage(message);
-
-        smsOpSet.sendSmsMessage(contact, smsMessage);
+        SMSManager.sendSMS(contact, message);
     }
 
     /**

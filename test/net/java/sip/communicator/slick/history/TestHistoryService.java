@@ -43,6 +43,7 @@ public class TestHistoryService extends TestCase {
         suite.addTest(new TestHistoryService("testWriteRecords"));
         suite.addTest(new TestHistoryService("testReadRecords"));
         suite.addTest(new TestHistoryService("testPurgeLocallyStoredHistory"));
+        suite.addTest(new TestHistoryService("testCreatingHistoryIDFromFS"));
 
         return suite;
     }
@@ -191,6 +192,39 @@ public class TestHistoryService extends TestCase {
         {
             fail("Cannot delete local history with id " + this.history.getID()
                  + " : " + ex.getMessage());
+        }
+    }
+
+    /**
+     * Test of method createFromRawStrings, used when we read history folders
+     * from FS and from their names want to recreate history.
+     */
+    public void testCreatingHistoryIDFromFS()
+    {
+        testHistoryIDCreate(new String[] { "test1", "alltests1" });
+
+        //test id which has special chars (accounts)
+        testHistoryIDCreate(new String[] { "test2", "alltests2",
+            "Jabber:mincho.penchev@jit.si@jit.si" });
+    }
+
+    private void testHistoryIDCreate(String[] strArr)
+    {
+        HistoryID testNoSpecialCharsID = HistoryID.createFromRawID(strArr);
+        HistoryID testNoSpecialCharsIDFSRead =
+            HistoryID.createFromRawStrings(testNoSpecialCharsID.getID());
+
+        assertEquals("Wrong length", testNoSpecialCharsID.getID().length,
+            testNoSpecialCharsIDFSRead.getID().length);
+
+        for(int i = 0; i < testNoSpecialCharsID.getID().length; i++)
+        {
+            /*System.err.println(
+                testNoSpecialCharsID.getID()[i] +
+                " ? " +
+                testNoSpecialCharsIDFSRead.getID()[i]);*/
+            assertEquals("Wrong id", testNoSpecialCharsID.getID()[i],
+                testNoSpecialCharsIDFSRead.getID()[i]);
         }
     }
 }

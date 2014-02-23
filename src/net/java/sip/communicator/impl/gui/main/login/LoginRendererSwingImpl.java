@@ -7,12 +7,12 @@
 package net.java.sip.communicator.impl.gui.main.login;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.authorization.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.account.*;
-import net.java.sip.communicator.util.account.LoginManager;
 
 /**
  * The <tt>LoginRendererSwingImpl</tt> provides a Swing base implementation of
@@ -85,7 +85,7 @@ public class LoginRendererSwingImpl
             = AccountStatusUtils.getProtocolPresenceOpSet(protocolProvider);
 
         OperationSetMultiUserChat multiUserChat =
-            mainFrame.getMultiUserChatOpSet(protocolProvider);
+            MUCService.getMultiUserChatOpSet(protocolProvider);
 
         if (presence != null)
         {
@@ -95,8 +95,7 @@ public class LoginRendererSwingImpl
 
         if(multiUserChat != null)
         {
-            GuiActivator.getUIService().getConferenceChatManager()
-                .getChatRoomList().synchronizeOpSetWithLocalContactList(
+            GuiActivator.getMUCService().synchronizeOpSetWithLocalContactList(
                     protocolProvider, multiUserChat);
         }
     }

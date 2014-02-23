@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.chatroomslist.joinforms;
 
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
+import net.java.sip.communicator.service.muc.*;
 
 /**
  * The <tt>NewChatRoom</tt> is meant to be used from the

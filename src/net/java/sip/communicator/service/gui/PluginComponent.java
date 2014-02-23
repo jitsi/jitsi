@@ -14,12 +14,17 @@ import net.java.sip.communicator.service.protocol.*;
  * all plugins that would like to add a user interface component to a particular
  * container in the graphical user interface (GUI). In order to appear in the
  * GUI all implementations of this interface should be registered through the
- * OSGI bundle context.
+ * OSGI bundle context using <tt>PluginComponentFactory</tt>.
  * <p>
  * All components interested in the current contact or group that they're
  * dealing with (i.g. the one selected in the contact list for example), should
  * implement the <tt>setCurrentContact</tt> and
  * <tt>setCurrentContactGroup</tt> methods.
+ * <p>
+ * <p>
+ * All components interested in the current account that they're dealing
+ * with (i.g. the one selected in the account list for example), should
+ * implement the <tt>setCurrentAccountID</tt> method.
  * <p>
  * Note that <tt>getComponent</tt> should return a valid AWT, SWT or Swing
  * control in order to appear properly in the GUI.
@@ -38,37 +43,6 @@ public interface PluginComponent
     public String getName();
 
     /**
-     * Returns the identifier of the container, where we would like to add
-     * our control. All possible container identifiers are defined in the
-     * <tt>Container</tt> class. If the <tt>Container</tt> returned by this
-     * method is not supported by the current UI implementation the plugin won't
-     * be added.
-     *
-     * @return the container, where we would like to add our control.
-     */
-    public Container getContainer();
-
-    /**
-     * Returns the constraints, which will indicate to the container, where this
-     * component should be added. All constraints are defined in the Container
-     * class and are as follows: START, END, TOP, BOTTOM, LEFT, RIGHT.
-     *
-     * @return the constraints, which will indicate to the container, where this
-     * component should be added.
-     */
-    public String getConstraints();
-
-    /**
-     * Returns the index position of this component in the container, where it
-     * will be added. An index of 0 would mean that this component should be
-     * added before all other components. An index of -1 would mean that the
-     * position of this component is not important.
-     * @return the index position of this component in the container, where it
-     * will be added.
-     */
-    public int getPositionIndex();
-
-    /**
      * Returns the component that should be added. This method should return a
      * valid AWT, SWT or Swing object in order to appear properly in the user
      * interface.
@@ -78,6 +52,15 @@ public interface PluginComponent
     public Object getComponent();
 
     /**
+     * Returns the position of this <tt>PluginComponent</tt> within its
+     * <tt>Container</tt>
+     * 
+     * @return The position of this <tt>PluginComponent</tt> within its
+     * <tt>Container</tt>
+     */
+    public int getPositionIndex();
+
+    /**
      * Sets the current contact. Meant to be used by plugin components that
      * are interested of the current contact. The current contact is the contact
      * for the currently selected chat transport.
@@ -85,6 +68,17 @@ public interface PluginComponent
      * @param contact the current contact
      */
     public void setCurrentContact(Contact contact);
+
+    /**
+     * Sets the current contact. Meant to be used by plugin components that
+     * are interested of the current contact. The current contact is the contact
+     * for the currently selected chat transport.
+     *
+     * @param contact the current contact
+     * @param resourceName the <tt>ContactResource</tt> name. Some components
+     * may be interested in a particular ContactResource of a contact.
+     */
+    public void setCurrentContact(Contact contact, String resourceName);
 
     /**
      * Sets the current meta contact. Meant to be used by plugin components that
@@ -108,12 +102,18 @@ public interface PluginComponent
     public void setCurrentContactGroup(MetaContactGroup metaGroup);
 
     /**
-     * Returns <code>true</code> to indicate that this component is a native
-     * component and <code>false</code> otherwise. This method is meant to be
-     * used by containers if a special treatment is needed for native components.
+     * Sets the current AccountID. Meant to be used by plugin components that are
+     * interested in the current AccountID. The current AccountID could be that
+     * of a currently selected account in the account list. It depends on the
+     * container, where this component is meant to be added.
      *
-     * @return <code>true</code> to indicate that this component is a native
-     * component and <code>false</code> otherwise.
+     * @param account the current account.
      */
-    public boolean isNativeComponent();
+    public void setCurrentAccountID(AccountID accountID);
+
+    /**
+     * Returns the factory that has created the component.
+     * @return the parent factory.
+     */
+    public PluginComponentFactory getParentFactory();
 }

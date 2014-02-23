@@ -32,12 +32,14 @@ public class ContactResourceJabberImpl
                                         Contact contact,
                                         String resourceName,
                                         PresenceStatus presenceStatus,
-                                        int priority)
+                                        int priority,
+                                        boolean isMobile)
     {
         super(  contact,
                 resourceName,
                 presenceStatus,
-                priority);
+                priority,
+                isMobile);
 
         this.fullJid = fullJid;
     }
@@ -60,5 +62,23 @@ public class ContactResourceJabberImpl
     protected void setPresenceStatus(PresenceStatus newStatus)
     {
         this.presenceStatus = newStatus;
+    }
+
+    /**
+     * Changed whether contact is mobile one. Logged in only from mobile device.
+     * @param isMobile whether contact is mobile one.
+     */
+    public void setMobile(boolean isMobile)
+    {
+        this.mobile = isMobile;
+    }
+
+    /**
+     * Changes resource priority.
+     * @param priority the new priority
+     */
+    public void setPriority(int priority)
+    {
+        this.priority = priority;
     }
 }

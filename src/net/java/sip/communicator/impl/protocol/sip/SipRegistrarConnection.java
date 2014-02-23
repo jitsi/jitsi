@@ -118,6 +118,12 @@ public class SipRegistrarConnection
     private static final int KEEP_ALIVE_INTERVAL_DEFAULT_VALUE = 25;
 
     /**
+     * An account property to force messaging even if MESSAGE method is not
+     * listed in AllowHeader.
+     */
+    private static final String FORCE_MESSAGING_PROP = "FORCE_MESSAGING";
+
+    /**
     * Specifies whether or not we should be using a route header in register
     * requests. This field is specified by the REGISTERS_USE_ROUTE account
     * property.
@@ -660,7 +666,7 @@ public class SipRegistrarConnection
     * {@link RegistrationStateChangeEvent}.
     * @param reason a reason String further explaining the reasonCode.
     */
-    void setRegistrationState(RegistrationState newState,
+    public void setRegistrationState(RegistrationState newState,
                                     int               reasonCode,
                                     String            reason)
     {
@@ -797,9 +803,13 @@ public class SipRegistrarConnection
 
         //Emil XXX: I am not sure how this would work out with most providers
         //so we are going to only start by implementing this feature for IM.
-        if ( !set.contains(Request.MESSAGE) )
+        if ( !set.contains(Request.MESSAGE)
+            && !sipProvider.getAccountID()
+                    .getAccountPropertyBoolean(FORCE_MESSAGING_PROP, false))
+        {
             sipProvider.removeSupportedOperationSet(
                             OperationSetBasicInstantMessaging.class);
+        }
     }
 
     /**
@@ -981,6 +991,13 @@ public class SipRegistrarConnection
                     RegistrationState.UNREGISTERED,
                     RegistrationStateChangeEvent.REASON_USER_REQUEST,
                     "User has canceled the authentication process.");
+            }
+            else if (exc.getErrorCode() == OperationFailedException.FORBIDDEN)
+            {
+                this.setRegistrationState(
+                    RegistrationState.CONNECTION_FAILED,
+                    RegistrationStateChangeEvent.REASON_AUTHENTICATION_FAILED,
+                    exc.getMessage());
             }
             else
             {

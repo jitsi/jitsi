@@ -10,6 +10,7 @@
 #include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService.h"
 #include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
 #include "MsOutlookAddrBookContactSourceService.h"
+#include "MsOutlookAddrBookContactQuery.h"
 
 #include <mapidefs.h>
 #include <stdio.h>
@@ -29,11 +30,14 @@ static ULONG MAPINotification_EVENT_MASK
     = fnevObjectCreated
         | fnevObjectDeleted
         | fnevObjectModified
-        | fnevObjectMoved;
+        | fnevObjectMoved
+        | fnevObjectCopied;
 
 static LPMDB * MAPINotification_msgStores = NULL;
+static LPMAPIADVISESINK * MAPINotification_adviseSinks = NULL;
 static ULONG * MAPINotification_msgStoresConnection = NULL;
 static LPMAPITABLE MAPINotification_msgStoresTable = NULL;
+static LPMAPIADVISESINK MAPINotification_msgStoresTableAdviseSink = NULL;
 static ULONG MAPINotification_msgStoresTableConnection = 0;
 static ULONG MAPINotification_nbMsgStores = 0;
 static jmethodID MAPINotification_notificationsDelegateMethodIdDeleted = NULL;
@@ -47,11 +51,10 @@ void (*MAPINotification_callDeletedMethod)(LPSTR iUnknown) = NULL;
 void (*MAPINotification_callInsertedMethod)(LPSTR iUnknown) = NULL;
 void (*MAPINotification_callUpdatedMethod)(LPSTR iUnknown) = NULL;
 
-LPUNKNOWN
-MAPINotification_openEntry
-    (ULONG cbEntryID, LPENTRYID lpEntryID, LPVOID lpvContext);
-ULONG MAPINotification_registerNotifyMessageDataBase(LPMDB iUnknown);
-ULONG MAPINotification_registerNotifyTable(LPMAPITABLE iUnknown);
+ULONG MAPINotification_registerNotifyMessageDataBase
+    (LPMDB iUnknown, LPMAPIADVISESINK * adviseSink);
+ULONG MAPINotification_registerNotifyTable
+    (LPMAPITABLE iUnknown, LPMAPIADVISESINK * adviseSink);
 LONG STDAPICALLTYPE MAPINotification_tableChanged
     (LPVOID lpvContext, ULONG cNotifications, LPNOTIFICATION lpNotifications);
 
@@ -100,6 +103,8 @@ boolean MAPINotification_callCallbackMethod(LPSTR iUnknown, void * object)
                             ptrOutlookContactCallbackMethodIdCallback,
                             value);
                 }
+
+                tmpJniEnv->DeleteLocalRef(callbackClass);
             }
         }
         MAPINotification_VM->DetachCurrentThread();
@@ -123,10 +128,12 @@ void MAPINotification_jniCallDeletedMethod(LPSTR iUnknown)
     {
         jstring value = tmpJniEnv->NewStringUTF(iUnknown);
 
-        tmpJniEnv->CallBooleanMethod(
+        tmpJniEnv->CallVoidMethod(
                 MAPINotification_notificationsDelegateObject,
                 MAPINotification_notificationsDelegateMethodIdDeleted,
                 value);
+
+        tmpJniEnv->DeleteLocalRef(value);
 
         MAPINotification_VM->DetachCurrentThread();
     }
@@ -146,10 +153,12 @@ void MAPINotification_jniCallInsertedMethod(LPSTR iUnknown)
     {
         jstring value = tmpJniEnv->NewStringUTF(iUnknown);
 
-        tmpJniEnv->CallBooleanMethod(
+        tmpJniEnv->CallVoidMethod(
                 MAPINotification_notificationsDelegateObject,
                 MAPINotification_notificationsDelegateMethodIdInserted,
                 value);
+
+        tmpJniEnv->DeleteLocalRef(value);
 
         MAPINotification_VM->DetachCurrentThread();
     }
@@ -169,10 +178,12 @@ void MAPINotification_jniCallUpdatedMethod(LPSTR iUnknown)
     {
         jstring value = tmpJniEnv->NewStringUTF(iUnknown);
 
-        tmpJniEnv->CallBooleanMethod(
+        tmpJniEnv->CallVoidMethod(
                 MAPINotification_notificationsDelegateObject,
                 MAPINotification_notificationsDelegateMethodIdUpdated,
                 value);
+
+        tmpJniEnv->DeleteLocalRef(value);
 
         MAPINotification_VM->DetachCurrentThread();
     }
@@ -191,22 +202,14 @@ STDAPICALLTYPE MAPINotification_onNotify
 {
     for(unsigned int i = 0; i < cNotifications; ++i)
     {
-        LPUNKNOWN iUnknown = NULL;
-        if(lpvContext != NULL)
-        {
-            iUnknown = MAPINotification_openEntry(
-                        lpNotifications[i].info.obj.cbEntryID,
-                        lpNotifications[i].info.obj.lpEntryID,
-                        lpvContext);
-        }
-
-        // A contact has been created
-        if(lpNotifications[i].ulEventType == fnevObjectCreated)
+        // A contact has been created (a new one or a copy).
+        if(lpNotifications[i].ulEventType == fnevObjectCreated
+                || lpNotifications[i].ulEventType == fnevObjectCopied)
         {
             if(lpvContext != NULL)
             {
                 LPSTR entryIdStr = (LPSTR)
-                    ::malloc(lpNotifications[i].info.obj.cbEntryID * 2 + 1);
+                    ::malloc((lpNotifications[i].info.obj.cbEntryID + 1) * 2);
 
                 HexFromBin(
                         (LPBYTE) lpNotifications[i].info.obj.lpEntryID,
@@ -229,7 +232,7 @@ STDAPICALLTYPE MAPINotification_onNotify
             if(lpvContext != NULL)
             {
                 LPSTR entryIdStr = (LPSTR)
-                    ::malloc(lpNotifications[i].info.obj.cbEntryID * 2 + 1);
+                    ::malloc((lpNotifications[i].info.obj.cbEntryID + 1) * 2);
 
                 HexFromBin(
                         (LPBYTE) lpNotifications[i].info.obj.lpEntryID,
@@ -244,6 +247,26 @@ STDAPICALLTYPE MAPINotification_onNotify
 
                 ::free(entryIdStr);
                 entryIdStr = NULL;
+
+                // If the entry identifier has changed, then deletes the old
+                // one.
+                if(lpNotifications[i].info.obj.lpOldID != NULL
+                        && lpNotifications[i].info.obj.cbOldID > 0)
+                {
+                    LPSTR oldEntryIdStr = (LPSTR)
+                        ::malloc((lpNotifications[i].info.obj.cbOldID + 1) * 2);
+                    HexFromBin(
+                            (LPBYTE) lpNotifications[i].info.obj.lpOldID,
+                            lpNotifications[i].info.obj.cbOldID,
+                            oldEntryIdStr);
+                    if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
+                            && MAPINotification_callDeletedMethod != NULL)
+                    {
+                        MAPINotification_callDeletedMethod(oldEntryIdStr);
+                    }
+                    ::free(oldEntryIdStr);
+                    oldEntryIdStr = NULL;
+                }
             }
         }
         // A contact has been deleted.
@@ -252,7 +275,7 @@ STDAPICALLTYPE MAPINotification_onNotify
             if(lpvContext != NULL)
             {
                 LPSTR entryIdStr = (LPSTR)
-                    ::malloc(lpNotifications[i].info.obj.cbEntryID * 2 + 1);
+                    ::malloc((lpNotifications[i].info.obj.cbEntryID + 1) * 2);
 
                 HexFromBin(
                         (LPBYTE) lpNotifications[i].info.obj.lpEntryID,
@@ -275,37 +298,31 @@ STDAPICALLTYPE MAPINotification_onNotify
             if(lpvContext != NULL)
             {
                 LPSTR entryIdStr = (LPSTR)
-                    ::malloc(lpNotifications[i].info.obj.cbEntryID * 2 + 1);
+                    ::malloc((lpNotifications[i].info.obj.cbEntryID + 1) * 2);
                 HexFromBin(
                         (LPBYTE) lpNotifications[i].info.obj.lpEntryID,
                         lpNotifications[i].info.obj.cbEntryID,
                         entryIdStr);
                 LPSTR parentEntryIdStr = (LPSTR)
-                    ::malloc(lpNotifications[i].info.obj.cbParentID * 2 + 1);
+                    ::malloc((lpNotifications[i].info.obj.cbParentID + 1) * 2);
                 HexFromBin(
                         (LPBYTE) lpNotifications[i].info.obj.lpParentID,
                         lpNotifications[i].info.obj.cbParentID,
                         parentEntryIdStr);
                 ULONG wasteBasketTags[] = {1, PR_IPM_WASTEBASKET_ENTRYID};  
                 ULONG wasteBasketNbValues = 0;  
-                LPSPropValue wasteBasketProps = NULL;  
+                LPSPropValue wasteBasketProps = NULL;
                 ((LPMDB)lpvContext)->GetProps(
                         (LPSPropTagArray) wasteBasketTags,
                         MAPI_UNICODE,
                         &wasteBasketNbValues,
                         &wasteBasketProps); 
-                LPSTR wasteBasketEntryIdStr
-                    = (LPSTR)::malloc(wasteBasketProps[0].Value.bin.cb * 2 + 1);
+                LPSTR wasteBasketEntryIdStr = (LPSTR)
+                    ::malloc((wasteBasketProps[0].Value.bin.cb + 1) * 2);
                 HexFromBin(
                         (LPBYTE) wasteBasketProps[0].Value.bin.lpb,
                         wasteBasketProps[0].Value.bin.cb,
                         wasteBasketEntryIdStr);
-
-                MAPINotification_openEntry(
-                        lpNotifications[i].info.obj.cbParentID,
-                        lpNotifications[i].info.obj.lpParentID,
-                        lpvContext);
-
 
                 if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
                         && strcmp(parentEntryIdStr, wasteBasketEntryIdStr) == 0
@@ -320,45 +337,33 @@ STDAPICALLTYPE MAPINotification_onNotify
                 parentEntryIdStr = NULL;
                 ::free(wasteBasketEntryIdStr);
                 wasteBasketEntryIdStr = NULL;
-            }
-        }
+                MAPIFreeBuffer(wasteBasketProps);
 
-        if(iUnknown != NULL)
-        {
-            iUnknown->Release();
+                // If the entry identifier has changed, then deletes the old
+                // one.
+                if(lpNotifications[i].info.obj.lpOldID != NULL
+                        && lpNotifications[i].info.obj.cbOldID > 0)
+                {
+                    LPSTR oldEntryIdStr = (LPSTR)
+                        ::malloc((lpNotifications[i].info.obj.cbOldID + 1) * 2);
+                    HexFromBin(
+                            (LPBYTE) lpNotifications[i].info.obj.lpOldID,
+                            lpNotifications[i].info.obj.cbOldID,
+                            oldEntryIdStr);
+                    if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
+                            && MAPINotification_callDeletedMethod != NULL)
+                    {
+                        MAPINotification_callDeletedMethod(oldEntryIdStr);
+                    }
+                    ::free(oldEntryIdStr);
+                    oldEntryIdStr = NULL;
+                }
+            }
         }
     }
 
     // A client must always return a S_OK.
     return S_OK;
-}
-
-/**
- * Opens an object from its entry id.
- */
-LPUNKNOWN
-MAPINotification_openEntry
-    (ULONG cbEntryID, LPENTRYID lpEntryID, LPVOID lpvContext)
-{
-    if(lpvContext != NULL)
-    {
-        LPUNKNOWN iUnknown;
-        ULONG objType;
-
-        HRESULT hResult = 
-            ((LPMDB) lpvContext)->OpenEntry(
-                cbEntryID,
-                lpEntryID,
-                NULL,
-                MAPINotification_openEntryUlFlags,
-                &objType,
-                &iUnknown);
-        if (HR_SUCCEEDED(hResult))
-        {
-            return iUnknown;
-        }
-    }
-    return NULL;
 }
 
 /**
@@ -413,6 +418,8 @@ MAPINotification_registerJniNotificationsDelegate
                 = MAPINotification_jniCallInsertedMethod;
             MAPINotification_callUpdatedMethod
                 = MAPINotification_jniCallUpdatedMethod;
+
+            jniEnv->DeleteLocalRef(callbackClass);
         }
     }
 }
@@ -454,7 +461,8 @@ void MAPINotification_registerNotifyAllMsgStores(LPMAPISESSION mapiSession)
     {
         MAPINotification_msgStoresTableConnection
             = MAPINotification_registerNotifyTable(
-                    MAPINotification_msgStoresTable);
+                    MAPINotification_msgStoresTable,
+                    &MAPINotification_msgStoresTableAdviseSink);
         hResult = MAPINotification_msgStoresTable->SeekRow(
                 BOOKMARK_BEGINNING,
                 0,
@@ -484,6 +492,12 @@ void MAPINotification_registerNotifyAllMsgStores(LPMAPISESSION mapiSession)
                         MAPINotification_msgStoresConnection,
                         0,
                         rows->cRows * sizeof(ULONG));
+                MAPINotification_adviseSinks = (LPMAPIADVISESINK*)
+                    malloc(rows->cRows * sizeof(LPMAPIADVISESINK));
+                memset(
+                        MAPINotification_adviseSinks,
+                        0,
+                        rows->cRows * sizeof(LPMAPIADVISESINK));
 
                 if(MAPINotification_msgStores != NULL
                         && MAPINotification_msgStoresConnection != NULL)
@@ -524,7 +538,8 @@ void MAPINotification_registerNotifyAllMsgStores(LPMAPISESSION mapiSession)
                             {
                                 MAPINotification_msgStoresConnection[r]
                                     = MAPINotification_registerNotifyMessageDataBase(
-                                            MAPINotification_msgStores[r]);
+                                            MAPINotification_msgStores[r],
+                                            &MAPINotification_adviseSinks[r]);
                             }
                         }
                     }
@@ -540,22 +555,25 @@ void MAPINotification_registerNotifyAllMsgStores(LPMAPISESSION mapiSession)
  * Registers to notification for the given message data base.
  *
  * @param iUnknown The data base to register to in order to receive events.
+ * @param adviseSink The advice sink that will be generated resulting o fthis
+ * function call.
  *
  * @return A unsigned long which is a token wich must be used to call the
  * unadvise function for the same message data base.
  */
-ULONG MAPINotification_registerNotifyMessageDataBase(LPMDB iUnknown)
+ULONG MAPINotification_registerNotifyMessageDataBase(
+        LPMDB iUnknown,
+        LPMAPIADVISESINK * adviseSink)
 {
-    LPMAPIADVISESINK adviseSink;
 
-    HrAllocAdviseSink(&MAPINotification_onNotify, iUnknown, &adviseSink);
+    HrAllocAdviseSink(&MAPINotification_onNotify, iUnknown, adviseSink);
 
     ULONG nbConnection = 0;
     iUnknown->Advise(
             (ULONG) 0,
             (LPENTRYID) NULL,
             MAPINotification_EVENT_MASK,
-            adviseSink,
+            *adviseSink,
             (ULONG *) &nbConnection);
 
     return nbConnection;
@@ -563,19 +581,22 @@ ULONG MAPINotification_registerNotifyMessageDataBase(LPMDB iUnknown)
 
 /**
  * Registers a callback function for when the message store table changes.
+ *
+ * @param iUnknown The message store table to register to in order to receive
+ * events.
+ * @param adviseSink The advice sink that will be generated resulting o fthis
+ * function call.
+ *
+ * @return A unsigned long which is a token wich must be used to call the
+ * unadvise function for the same message store table.
  */
-ULONG MAPINotification_registerNotifyTable(LPMAPITABLE iUnknown)
+ULONG MAPINotification_registerNotifyTable(
+        LPMAPITABLE iUnknown,
+        LPMAPIADVISESINK * adviseSink)
 {
-    LPMAPIADVISESINK adviseSink;
-    HrAllocAdviseSink(
-            &MAPINotification_tableChanged,
-            iUnknown,
-            &adviseSink);
+    HrAllocAdviseSink(&MAPINotification_tableChanged, iUnknown, adviseSink);
     ULONG nbConnection = 0;
-    iUnknown->Advise(
-            fnevTableModified,
-            adviseSink,
-            (ULONG *) &nbConnection);
+    iUnknown->Advise(fnevTableModified, *adviseSink, (ULONG *) &nbConnection);
 
     return nbConnection;
 }
@@ -642,10 +663,13 @@ void MAPINotification_unregisterNotifyAllMsgStores(void)
         {
             if(MAPINotification_msgStoresConnection[i] != 0)
             {
+                MAPINotification_adviseSinks[i]->Release();
                 MAPINotification_msgStores[i]->Unadvise(
                         MAPINotification_msgStoresConnection[i]);
             }
         }
+        free(MAPINotification_adviseSinks);
+        MAPINotification_adviseSinks = NULL;
         free(MAPINotification_msgStoresConnection);
         MAPINotification_msgStoresConnection = NULL;
     }
@@ -665,6 +689,8 @@ void MAPINotification_unregisterNotifyAllMsgStores(void)
 
     if(MAPINotification_msgStoresTable != NULL)
     {
+        MAPINotification_msgStoresTableAdviseSink->Release();
+        MAPINotification_msgStoresTableAdviseSink = NULL;
         MAPINotification_msgStoresTable->Unadvise(
                 MAPINotification_msgStoresTableConnection);
         MAPINotification_msgStoresTable->Release();

@@ -15,11 +15,13 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.Candidat
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 
 import org.ice4j.*;
 import org.ice4j.ice.*;
 import org.ice4j.ice.harvest.*;
+import org.ice4j.security.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.util.*;
 import org.jivesoftware.smack.packet.*;
@@ -64,6 +66,16 @@ public class IceUdpTransportManager
     protected final Agent iceAgent;
 
     /**
+     * Default STUN server address.
+     */
+    protected static final String DEFAULT_STUN_SERVER_ADDRESS = "stun.jitsi.net";
+
+    /**
+     * Default STUN server port.
+     */
+    protected static final int DEFAULT_STUN_SERVER_PORT = 3478;
+
+    /**
      * Creates a new instance of this transport manager, binding it to the
      * specified peer.
      *
@@ -77,70 +89,71 @@ public class IceUdpTransportManager
         iceAgent.addStateChangeListener(this);
     }
 
-
-
     /**
-     * Returns a list of servers that are specific to Jabber/XMPP and/or this
-     * account. These may includ Jingle Node relays or TURN servers using
-     * the credentials of the account. This list will be used by our
-     * {@link TransportManager} parent to populate ICE agents that it creates.
+     * Creates the ICE agent that we would be using in this transport manager
+     * for all negotiation.
      *
-     * @return a {@link List} of candidate harvesters specific to this account
-     * or to XMPP.
+     * @return the ICE agent to use for all the ICE negotiation that this
+     * transport manager would be going through
      */
-    protected List<CandidateHarvester> getProtocolSpecificHarvesters()
+    protected Agent createIceAgent()
     {
-        List<CandidateHarvester> harvesters
-            = new LinkedList<CandidateHarvester>();
-
+        long startGatheringHarvesterTime = System.currentTimeMillis();
         CallPeerJabberImpl peer = getCallPeer();
         ProtocolProviderServiceJabberImpl provider = peer.getProtocolProvider();
         NetworkAddressManagerService namSer = getNetAddrMgr();
+        boolean atLeastOneStunServer = false;
+        Agent agent = namSer.createIceAgent();
+
+        /*
+         * XEP-0176:  the initiator MUST include the ICE-CONTROLLING attribute,
+         * the responder MUST include the ICE-CONTROLLED attribute.
+         */
+        agent.setControlling(!peer.isInitiator());
 
         //we will now create the harvesters
         JabberAccountIDImpl accID
-                = (JabberAccountIDImpl)provider.getAccountID();
+            = (JabberAccountIDImpl) provider.getAccountID();
 
         if (accID.isStunServerDiscoveryEnabled())
         {
             //the default server is supposed to use the same user name and
             //password as the account itself.
-            String username = org.jivesoftware.smack.util.StringUtils.parseName(
-                    provider.getOurJID());
+            String username
+                = org.jivesoftware.smack.util.StringUtils.parseName(
+                        provider.getOurJID());
             String password
                 = JabberActivator.getProtocolProviderFactory().loadPassword(
                         accID);
+            UserCredentials credentials = provider.getUserCredentials();
 
-            if(provider.getUserCredentials() != null)
-                password = provider.getUserCredentials().getPasswordAsString();
+            if(credentials != null)
+                password = credentials.getPasswordAsString();
 
             // ask for password if not saved
             if (password == null)
             {
                 //create a default credentials object
-                UserCredentials credentials = new UserCredentials();
+                credentials = new UserCredentials();
                 credentials.setUserName(accID.getUserID());
-
                 //request a password from the user
-                credentials = provider.getAuthority().obtainCredentials(
-                    accID.getDisplayName(),
-                    credentials,
-                    SecurityAuthority.AUTHENTICATION_REQUIRED);
+                credentials
+                    = provider.getAuthority().obtainCredentials(
+                            accID.getDisplayName(),
+                            credentials,
+                            SecurityAuthority.AUTHENTICATION_REQUIRED);
 
                 // in case user has canceled the login window
                 if(credentials == null)
-                {
                     return null;
-                }
 
                 //extract the password the user passed us.
                 char[] pass = credentials.getPassword();
 
-                // the user didn't provide us a password (canceled the operation)
+                // the user didn't provide us a password (i.e. canceled the
+                // operation)
                 if(pass == null)
-                {
                     return null;
-                }
                 password = new String(pass);
 
                 if (credentials.isPasswordPersistent())
@@ -161,8 +174,67 @@ public class IceUdpTransportManager
 
             if (autoHarvester != null)
             {
-                harvesters.add(autoHarvester);
+                atLeastOneStunServer = true;
+                agent.addCandidateHarvester(autoHarvester);
             }
+        }
+
+        //now create stun server descriptors for whatever other STUN/TURN
+        //servers the user may have set.
+        for(StunServerDescriptor desc : accID.getStunServers())
+        {
+            TransportAddress addr
+                = new TransportAddress(
+                        desc.getAddress(),
+                        desc.getPort(),
+                        Transport.UDP);
+
+            // if we get STUN server from automatic discovery, it may just
+            // be server name (i.e. stun.domain.org) and it may be possible that
+            // it cannot be resolved
+            if(addr.getAddress() == null)
+            {
+                logger.info("Unresolved address for " + addr);
+                continue;
+            }
+
+            StunCandidateHarvester harvester;
+
+            if(desc.isTurnSupported())
+            {
+                //Yay! a TURN server
+                harvester
+                    = new TurnCandidateHarvester(
+                            addr,
+                            new LongTermCredential(
+                                    desc.getUsername(),
+                                    desc.getPassword()));
+            }
+            else
+            {
+                //this is a STUN only server
+                harvester = new StunCandidateHarvester(addr);
+            }
+
+            if (logger.isInfoEnabled())
+                logger.info("Adding pre-configured harvester " + harvester);
+
+            atLeastOneStunServer = true;
+            agent.addCandidateHarvester(harvester);
+        }
+
+        if(!atLeastOneStunServer && accID.isUseDefaultStunServer())
+        {
+            /* we have no configured or discovered STUN server so takes the
+             * default provided by us if user allows it
+             */
+            TransportAddress addr
+                = new TransportAddress(
+                        DEFAULT_STUN_SERVER_ADDRESS,
+                        DEFAULT_STUN_SERVER_PORT,
+                        Transport.UDP);
+
+            agent.addCandidateHarvester(new StunCandidateHarvester(addr));
         }
 
         /* Jingle nodes candidate */
@@ -171,43 +243,54 @@ public class IceUdpTransportManager
             /* this method is blocking until Jingle Nodes auto-discovery (if
              * enabled) finished
              */
-            SmackServiceNode serviceNode =
-                peer.getProtocolProvider().getJingleNodesServiceNode();
+            SmackServiceNode serviceNode = provider.getJingleNodesServiceNode();
 
             if(serviceNode != null)
             {
-                JingleNodesHarvester harvester = new JingleNodesHarvester(
-                        serviceNode);
-
-                if(harvester != null)
-                {
-                    harvesters.add(harvester);
-                }
+                agent.addCandidateHarvester(
+                        new JingleNodesHarvester(serviceNode));
             }
         }
 
-        return harvesters;
+        if(accID.isUPNPEnabled())
+            agent.addCandidateHarvester(new UPNPHarvester());
+
+        long stopGatheringHarvesterTime = System.currentTimeMillis();
+
+        if (logger.isInfoEnabled())
+        {
+            long gatheringHarvesterTime
+                = stopGatheringHarvesterTime - startGatheringHarvesterTime;
+
+            logger.info(
+                    "End gathering harvester within " + gatheringHarvesterTime
+                        + " ms");
+        }
+        return agent;
     }
 
-
     /**
-     * Initializes a new <tt>StreamConnector</tt> to be used as the
-     * <tt>connector</tt> of the <tt>MediaStream</tt> with a specific
-     * <tt>MediaType</tt>.
-     *
-     * @param mediaType the <tt>MediaType</tt> of the <tt>MediaStream</tt> which
-     * is to have its <tt>connector</tt> set to the returned
-     * <tt>StreamConnector</tt>
-     * @return a new <tt>StreamConnector</tt> to be used as the
-     * <tt>connector</tt> of the <tt>MediaStream</tt> with the specified
-     * <tt>MediaType</tt>
-     * @throws OperationFailedException if anything goes wrong while
-     * initializing the new <tt>StreamConnector</tt>
+     * {@inheritDoc}
      */
     @Override
-    protected StreamConnector createStreamConnector(MediaType mediaType)
+    protected StreamConnector doCreateStreamConnector(MediaType mediaType)
         throws OperationFailedException
     {
+        /*
+         * If this instance is participating in a telephony conference utilizing
+         * the Jitsi Videobridge server-side technology that is organized by the
+         * local peer, then there is a single MediaStream (of the specified
+         * mediaType) shared among multiple TransportManagers and its
+         * StreamConnector may be determined only by the TransportManager which
+         * is establishing the connectivity with the Jitsi Videobridge server
+         * (as opposed to a CallPeer).
+         */
+        TransportManagerJabberImpl delegate
+            = findTransportManagerEstablishingConnectivityWithJitsiVideobridge();
+
+        if ((delegate != null) && (delegate != this))
+            return delegate.doCreateStreamConnector(mediaType);
+
         DatagramSocket[] streamConnectorSockets
             = getStreamConnectorSockets(mediaType);
 
@@ -217,7 +300,7 @@ public class IceUdpTransportManager
          */
         return
             (streamConnectorSockets == null)
-                ? super.createStreamConnector(mediaType)
+                ? super.doCreateStreamConnector(mediaType)
                 : new DefaultStreamConnector(
                         streamConnectorSockets[0 /* RTP */],
                         streamConnectorSockets[1 /* RTCP */]);
@@ -336,6 +419,21 @@ public class IceUdpTransportManager
     @Override
     public MediaStreamTarget getStreamTarget(MediaType mediaType)
     {
+        /*
+         * If this instance is participating in a telephony conference utilizing
+         * the Jitsi Videobridge server-side technology that is organized by the
+         * local peer, then there is a single MediaStream (of the specified
+         * mediaType) shared among multiple TransportManagers and its
+         * MediaStreamTarget may be determined only by the TransportManager
+         * which is establishing the connectivity with the Jitsi Videobridge
+         * server (as opposed to a CallPeer).
+         */
+        TransportManagerJabberImpl delegate
+            = findTransportManagerEstablishingConnectivityWithJitsiVideobridge();
+
+        if ((delegate != null) && (delegate != this))
+            return delegate.getStreamTarget(mediaType);
+
         IceMediaStream stream = iceAgent.getStream(mediaType.toString());
         MediaStreamTarget streamTarget = null;
 
@@ -395,13 +493,80 @@ public class IceUdpTransportManager
     }
 
     /**
-     * Get the transport <tt>PacketExtension</tt> to add.
-     *
-     * @return <tt>PacketExtension</tt>
+     * {@inheritDoc}
      */
-    protected PacketExtension getTransportPacketExtension()
+    protected PacketExtension createTransportPacketExtension()
     {
         return new IceUdpTransportPacketExtension();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected PacketExtension startCandidateHarvest(
+            ContentPacketExtension theirContent,
+            ContentPacketExtension ourContent,
+            TransportInfoSender transportInfoSender,
+            String media)
+        throws OperationFailedException
+    {
+        PacketExtension pe;
+
+        // Report the gathered candidate addresses.
+        if (transportInfoSender == null)
+        {
+            pe = createTransportForStartCandidateHarvest(media);
+        }
+        else
+        {
+            /*
+             * The candidates will be sent in transport-info so the transport of
+             * session-accept just has to be present, not populated with
+             * candidates.
+             */
+            pe = createTransportPacketExtension();
+
+            /*
+             * Create the content to be sent in a transport-info. The transport
+             * is the only extension to be sent in transport-info so the content
+             * has the same attributes as in our answer and none of its
+             * non-transport extensions.
+             */
+            ContentPacketExtension transportInfoContent
+                = new ContentPacketExtension();
+
+            for (String name : ourContent.getAttributeNames())
+            {
+                Object value = ourContent.getAttribute(name);
+
+                if (value != null)
+                    transportInfoContent.setAttribute(name, value);
+            }
+            transportInfoContent.addChildExtension(
+                    createTransportForStartCandidateHarvest(media));
+
+            /*
+             * We send each media content in separate transport-info. It is
+             * absolutely not mandatory (we can simply send all content in one
+             * transport-info) but the XMPP Jingle client Empathy (via
+             * telepathy-gabble), which is present on many Linux distributions
+             * and N900 mobile phone, has a bug when it receives more than one
+             * content in transport-info. The related bug has been fixed in
+             * mainstream but the Linux distributions have not updated their
+             * packages yet. That's why we made this modification to be fully
+             * interoperable with Empathy right now. In the future, we will get
+             * back to the original behavior: sending all content in one
+             * transport-info.
+             */
+            Collection<ContentPacketExtension> transportInfoContents
+                = new LinkedList<ContentPacketExtension>();
+
+            transportInfoContents.add(transportInfoContent);
+
+            transportInfoSender.sendTransportInfo(transportInfoContents);
+        }
+
+        return pe;
     }
 
     /**
@@ -437,138 +602,9 @@ public class IceUdpTransportManager
             TransportInfoSender transportInfoSender)
         throws OperationFailedException
     {
-        //obviously we are NOT the controlling agent since the offer came from
-        //the remote party.
-        iceAgent.setControlling(false);
-
-        Collection<ContentPacketExtension> transportInfoContents
-            = (transportInfoSender == null)
-                ? null
-                : new LinkedList<ContentPacketExtension>();
-
-        for(ContentPacketExtension theirContent : theirOffer)
-        {
-            //now add our transport to our answer
-            ContentPacketExtension ourContent
-                = findContentByName(ourAnswer, theirContent.getName());
-
-            //it might be that we decided not to reply to this content
-            if(ourContent == null)
-                continue;
-
-            RtpDescriptionPacketExtension rtpDesc
-                = ourContent.getFirstChildOfType(
-                        RtpDescriptionPacketExtension.class);
-            IceMediaStream stream
-                = createIceStream(rtpDesc.getMedia(), iceAgent);
-
-            // Report the gathered candidate addresses.
-            if (transportInfoSender == null)
-            {
-                ourContent.addChildExtension(
-                        createTransport(stream));
-            }
-            else
-            {
-                /*
-                 * The candidates will be sent in transport-info so the
-                 * transport of session-accept just has to be present, not
-                 * populated with candidates.
-                 */
-                ourContent.addChildExtension(
-                        getTransportPacketExtension());
-
-                /*
-                 * Create the content to be sent in a transport-info. The
-                 * transport is the only extension to be sent in transport-info
-                 * so the content has the same attributes as in our answer and
-                 * none of its non-transport extensions.
-                 */
-                ContentPacketExtension transportInfoContent
-                    = new ContentPacketExtension();
-
-                for (String name : ourContent.getAttributeNames())
-                {
-                    Object value = ourContent.getAttribute(name);
-
-                    if (value != null)
-                        transportInfoContent.setAttribute(name, value);
-                }
-                transportInfoContent.addChildExtension(
-                        createTransport(stream));
-
-                /* We send each media content in separate transport-info.
-                 * It is absolutely not mandatory (we can simply send all
-                 * content in one transport-info) but the XMPP Jingle client
-                 * Empathy (via telepathy-gabble), which is present on many
-                 * Linux distributions and N900 mobile phone, has a bug when
-                 * it receives more than one content in transport-info.
-                 *
-                 * The related bug has been fixed in mainstream but the
-                 * Linux distributions have not updated their packages yet.
-                 * That's why we made this modification to be fully
-                 * interoperable with Empathy right now.
-                 *
-                 * In the future, we will get back to the original behavior:
-                 * sending all content in one transport-info.
-                 */
-                transportInfoContents.clear();
-                transportInfoContents.add(transportInfoContent);
-
-                transportInfoSender.sendTransportInfo(transportInfoContents);
-            }
-        }
-
-        //if (transportInfoSender != null)
-        //    transportInfoSender.sendTransportInfo(transportInfoContents);
-
         this.cpeList = ourAnswer;
-    }
 
-    /**
-     * Starts transport candidate harvest. This method should complete rapidly
-     * and, in case of lengthy procedures like STUN/TURN/UPnP candidate harvests
-     * are necessary, they should be executed in a separate thread. Candidate
-     * harvest would then need to be concluded in the
-     * {@link #wrapupCandidateHarvest()} method which would be called once we
-     * absolutely need the candidates.
-     *
-     * @param ourOffer the content list that should tell us how many stream
-     * connectors we actually need.
-     * @param transportInfoSender the <tt>TransportInfoSender</tt> to be used by
-     * this <tt>TransportManagerJabberImpl</tt> to send <tt>transport-info</tt>
-     * <tt>JingleIQ</tt>s from the local peer to the remote peer if this
-     * <tt>TransportManagerJabberImpl</tt> wishes to utilize
-     * <tt>transport-info</tt>. Local candidate addresses sent by this
-     * <tt>TransportManagerJabberImpl</tt> in <tt>transport-info</tt> are
-     * expected to not be included in the result of
-     * {@link #wrapupCandidateHarvest()}.
-     * @throws OperationFailedException in case we fail allocating ports
-     */
-    @Override
-    public void startCandidateHarvest(
-            List<ContentPacketExtension> ourOffer,
-            TransportInfoSender transportInfoSender)
-        throws OperationFailedException
-    {
-        //obviously we ARE the controlling agent since we are the ones creating
-        //the offer.
-        iceAgent.setControlling(true);
-
-        for(ContentPacketExtension ourContent : ourOffer)
-        {
-            RtpDescriptionPacketExtension rtpDesc
-                = ourContent.getFirstChildOfType(
-                        RtpDescriptionPacketExtension.class);
-
-            IceMediaStream stream
-                = createIceStream(rtpDesc.getMedia(), iceAgent);
-
-            //we now generate the XMPP code containing the candidates.
-            ourContent.addChildExtension(createTransport(stream));
-        }
-
-        this.cpeList = ourOffer;
+        super.startCandidateHarvest(theirOffer, ourAnswer, transportInfoSender);
     }
 
     /**
@@ -580,22 +616,36 @@ public class IceUdpTransportManager
      *
      * @return the {@link IceUdpTransportPacketExtension} that we
      */
-    public PacketExtension createTransport(IceMediaStream stream)
+    protected PacketExtension createTransport(IceMediaStream stream)
     {
-        IceUdpTransportPacketExtension trans
+        IceUdpTransportPacketExtension transport
             = new IceUdpTransportPacketExtension();
         Agent iceAgent = stream.getParentAgent();
 
-        trans.setUfrag(iceAgent.getLocalUfrag());
-        trans.setPassword(iceAgent.getLocalPassword());
+        transport.setUfrag(iceAgent.getLocalUfrag());
+        transport.setPassword(iceAgent.getLocalPassword());
 
         for(Component component : stream.getComponents())
         {
             for(Candidate<?> candidate : component.getLocalCandidates())
-                trans.addCandidate(createCandidate(candidate));
+                transport.addCandidate(createCandidate(candidate));
         }
 
-        return trans;
+        return transport;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected PacketExtension createTransport(String media)
+        throws OperationFailedException
+    {
+        IceMediaStream iceStream = iceAgent.getStream(media);
+
+        if (iceStream == null)
+            iceStream = createIceStream(media);
+
+        return createTransport(iceStream);
     }
 
     /**
@@ -647,6 +697,66 @@ public class IceUdpTransportManager
     }
 
     /**
+     * Creates an {@link IceMediaStream} with the specified <tt>media</tt>
+     * name.
+     *
+     * @param media the name of the stream we'd like to create.
+     *
+     * @return the newly created {@link IceMediaStream}
+     *
+     * @throws OperationFailedException if binding on the specified media stream
+     * fails for some reason.
+     */
+    protected IceMediaStream createIceStream(String media)
+        throws OperationFailedException
+    {
+        IceMediaStream stream;
+        PortTracker portTracker;
+
+        try
+        {
+            portTracker = getPortTracker(media);
+            //the following call involves STUN processing so it may take a while
+            stream
+                = getNetAddrMgr().createIceStream(
+                        portTracker.getPort(),
+                        media,
+                        iceAgent);
+        }
+        catch (Exception ex)
+        {
+            throw new OperationFailedException(
+                    "Failed to initialize stream " + media,
+                    OperationFailedException.INTERNAL_ERROR,
+                    ex);
+        }
+
+        //let's now update the next port var as best we can: we would assume
+        //that all local candidates are bound on the same port and set it
+        //to the one just above. if the assumption is wrong the next bind
+        //would simply include one more bind retry.
+        try
+        {
+            portTracker.setNextPort(
+                    1
+                        + stream
+                            .getComponent(Component.RTCP)
+                                .getLocalCandidates()
+                                    .get(0)
+                                        .getTransportAddress()
+                                            .getPort());
+        }
+        catch(Throwable t)
+        {
+            //hey, we were just trying to be nice. if that didn't work for
+            //some reason we really can't be held responsible!
+            logger.debug("Determining next port didn't work: ", t);
+        }
+
+        return stream;
+    }
+
+    /**
      * Simply returns the list of local candidates that we gathered during the
      * harvest.
      *
@@ -687,146 +797,21 @@ public class IceUdpTransportManager
     public synchronized boolean startConnectivityEstablishment(
             Iterable<ContentPacketExtension> remote)
     {
-        /* If ICE is already running, we try to update the checklists with
-         * the candidates. Note that this is a best effort.
-         */
-        if (IceProcessingState.RUNNING.equals(iceAgent.getState()))
-        {
-            if(logger.isInfoEnabled())
-            {
-                logger.info("Update ICE remote candidates");
-            }
-
-            for (ContentPacketExtension content : remote)
-            {
-                IceUdpTransportPacketExtension transport
-                    = content.getFirstChildOfType(
-                            IceUdpTransportPacketExtension.class);
-
-                List<CandidatePacketExtension> candidates
-                    = transport.getChildExtensionsOfType(
-                        CandidatePacketExtension.class);
-                // Sorts the remote candidates (host < reflexive < relayed) in
-                // order to create first host, then reflexive, the relayed
-                // candidates, to be able to set the relative-candidate matching
-                // the rel-addr/rel-port attribute.
-                Collections.sort(candidates);
-
-                if(candidates == null || candidates.size() == 0)
-                {
-                    return false;
-                }
-
-                RtpDescriptionPacketExtension description
-                    = content.getFirstChildOfType(
-                        RtpDescriptionPacketExtension.class);
-
-                if (description == null)
-                {
-                    ContentPacketExtension localContent
-                        = findContentByName(cpeList, content.getName());
-
-                    if (localContent != null)
-                    {
-                        description
-                            = localContent.getFirstChildOfType(
-                                    RtpDescriptionPacketExtension.class);
-                    }
-                }
-
-                if (description == null)
-                    continue;
-
-                IceMediaStream stream = iceAgent.getStream(
-                        description.getMedia());
-
-                /* Different stream may have different ufrag/password */
-                String ufrag = transport.getUfrag();
-
-                if (ufrag != null)
-                    stream.setRemoteUfrag(ufrag);
-
-                String password = transport.getPassword();
-
-                if (password != null)
-                    stream.setRemotePassword(password);
-
-                for (CandidatePacketExtension candidate : candidates)
-                {
-                    /*
-                     * Is the remote candidate from the current generation of
-                     * the iceAgent?
-                     */
-                    if (candidate.getGeneration() != iceAgent.getGeneration())
-                        continue;
-
-                    Component component
-                        = stream.getComponent(candidate.getComponent());
-
-                    TransportAddress relatedAddr = null;
-                    if(candidate.getRelAddr() != null
-                            && candidate.getRelPort() != -1)
-                    {
-                        relatedAddr = new TransportAddress(
-                                candidate.getRelAddr(),
-                                candidate.getRelPort(),
-                                Transport.parse(candidate.getProtocol()));
-                    }
-                    RemoteCandidate relatedCandidate
-                        = component.findRemoteCandidate(relatedAddr);
-                    component.addUpdateRemoteCandidate(
-                            new RemoteCandidate(
-                                    new TransportAddress(
-                                            candidate.getIP(),
-                                            candidate.getPort(),
-                                            Transport.parse(
-                                                    candidate.getProtocol())),
-                                    component,
-                                    org.ice4j.ice.CandidateType.parse(
-                                            candidate.getType().toString()),
-                                            candidate.getFoundation(),
-                                            candidate.getPriority(),
-                                            relatedCandidate));
-                }
-            }
-
-            /* update all components of all streams */
-            for(IceMediaStream stream : iceAgent.getStreams())
-            {
-                for(Component component : stream.getComponents())
-                {
-                    component.updateRemoteCandidate();
-                }
-            }
-
-            return false;
-        }
-
-        int generation = iceAgent.getGeneration();
-        boolean startConnectivityEstablishment = false;
+        Map<String,IceUdpTransportPacketExtension> map
+            = new LinkedHashMap<String,IceUdpTransportPacketExtension>();
 
         for (ContentPacketExtension content : remote)
         {
             IceUdpTransportPacketExtension transport
                 = content.getFirstChildOfType(
                         IceUdpTransportPacketExtension.class);
-
-            List<CandidatePacketExtension> candidates
-                = transport.getChildExtensionsOfType(
-                        CandidatePacketExtension.class);
-            // Sorts the remote candidates (host < reflexive < relayed) in order
-            // to create first host, then reflexive, the relayed candidates, to
-            // be able to set the relative-candidate matching the
-            // rel-addr/rel-port attribute.
-            Collections.sort(candidates);
-
             /*
              * If we cannot associate an IceMediaStream with the remote content,
              * we will not have anything to add the remote candidates to.
              */
             RtpDescriptionPacketExtension description
                 = content.getFirstChildOfType(
-                    RtpDescriptionPacketExtension.class);
+                        RtpDescriptionPacketExtension.class);
 
             if ((description == null) && (cpeList != null))
             {
@@ -840,12 +825,81 @@ public class IceUdpTransportManager
                                 RtpDescriptionPacketExtension.class);
                 }
             }
-            if (description == null)
-                continue;
+            if (description != null)
+            {
+                String media = description.getMedia();
 
-            IceMediaStream stream = iceAgent.getStream(description.getMedia());
+                map.put(media, transport);
+            }
+        }
 
-            /* Different stream may have different ufrag/password */
+        /*
+         * When the local peer is organizing a telephony conference using the
+         * Jitsi Videobridge server-side technology, it is establishing
+         * connectivity by using information from a colibri Channel and not from
+         * the offer/answer of the remote peer.
+         */
+        if (getCallPeer().isJitsiVideobridge())
+        {
+            sendTransportInfoToJitsiVideobridge(map);
+            return false;
+        }
+        else
+        {
+            return startConnectivityEstablishment(map);
+        }
+    }
+
+    /**
+     * Starts the connectivity establishment of the associated ICE
+     * <tt>Agent</tt>.
+     *
+     * @param remote a <tt>Map</tt> of
+     * media-<tt>IceUdpTransportPacketExtension</tt> pairs which represents the
+     * remote counterpart of the negotiation between the local and the remote
+     * peers
+     * @return <tt>true</tt> if connectivity establishment has been started in
+     * response to the call; otherwise, <tt>false</tt>
+     * @see TransportManagerJabberImpl#startConnectivityEstablishment(Map)
+     */
+    @Override
+    protected synchronized boolean startConnectivityEstablishment(
+            Map<String,IceUdpTransportPacketExtension> remote)
+    {
+        /*
+         * If ICE is running already, we try to update the checklists with the
+         * candidates. Note that this is a best effort.
+         */
+        boolean iceAgentStateIsRunning
+            = IceProcessingState.RUNNING.equals(iceAgent.getState());
+
+        if (iceAgentStateIsRunning && logger.isInfoEnabled())
+            logger.info("Update ICE remote candidates");
+
+        int generation = iceAgent.getGeneration();
+        boolean startConnectivityEstablishment = false;
+
+        for (Map.Entry<String, IceUdpTransportPacketExtension> e
+                : remote.entrySet())
+        {
+            IceUdpTransportPacketExtension transport = e.getValue();
+            List<CandidatePacketExtension> candidates
+                = transport.getChildExtensionsOfType(
+                        CandidatePacketExtension.class);
+
+            if (iceAgentStateIsRunning && (candidates.size() == 0))
+                return false;
+
+            // Sort the remote candidates (host < reflexive < relayed) in order
+            // to create first the host, then the reflexive, the relayed
+            // candidates and thus be able to set the relative-candidate
+            // matching the rel-addr/rel-port attribute.
+            Collections.sort(candidates);
+
+            String media = e.getKey();
+            IceMediaStream stream = iceAgent.getStream(media);
+
+            // Different stream may have different ufrag/password
             String ufrag = transport.getUfrag();
 
             if (ufrag != null)
@@ -867,35 +921,58 @@ public class IceUdpTransportManager
 
                 Component component
                     = stream.getComponent(candidate.getComponent());
+                String relAddr;
+                int relPort;
+                TransportAddress relatedAddress = null;
 
-                TransportAddress relatedAddr = null;
-                if(candidate.getRelAddr() != null
-                        && candidate.getRelPort() != -1)
+                if (((relAddr = candidate.getRelAddr()) != null)
+                        && ((relPort = candidate.getRelPort()) != -1))
                 {
-                    relatedAddr = new TransportAddress(
-                            candidate.getRelAddr(),
-                            candidate.getRelPort(),
-                            Transport.parse(candidate.getProtocol()));
+                    relatedAddress
+                        = new TransportAddress(
+                                relAddr,
+                                relPort,
+                                Transport.parse(candidate.getProtocol()));
                 }
+
                 RemoteCandidate relatedCandidate
-                    = component.findRemoteCandidate(relatedAddr);
-                component.addRemoteCandidate(
-                        new RemoteCandidate(
-                                new TransportAddress(
-                                        candidate.getIP(),
-                                        candidate.getPort(),
-                                        Transport.parse(
-                                                candidate.getProtocol())),
-                                component,
-                                org.ice4j.ice.CandidateType.parse(
-                                        candidate.getType().toString()),
-                                        candidate.getFoundation(),
-                                        candidate.getPriority(),
-                                        relatedCandidate));
-                startConnectivityEstablishment = true;
+                    = component.findRemoteCandidate(relatedAddress);
+                RemoteCandidate remoteCandidate
+                    = new RemoteCandidate(
+                            new TransportAddress(
+                                    candidate.getIP(),
+                                    candidate.getPort(),
+                                    Transport.parse(
+                                            candidate.getProtocol())),
+                            component,
+                            org.ice4j.ice.CandidateType.parse(
+                                    candidate.getType().toString()),
+                            candidate.getFoundation(),
+                            candidate.getPriority(),
+                            relatedCandidate);
+
+                if (iceAgentStateIsRunning)
+                {
+                    component.addUpdateRemoteCandidates(remoteCandidate);
+                }
+                else
+                {
+                    component.addRemoteCandidate(remoteCandidate);
+                    startConnectivityEstablishment = true;
+                }
             }
         }
-        if (startConnectivityEstablishment)
+
+        if (iceAgentStateIsRunning)
+        {
+            // update all components of all streams
+            for (IceMediaStream stream : iceAgent.getStreams())
+            {
+                for (Component component : stream.getComponents())
+                    component.updateRemoteCandidates();
+            }
+        }
+        else if (startConnectivityEstablishment)
         {
             /*
              * Once again because the ICE Agent does not support adding
@@ -918,13 +995,13 @@ public class IceUdpTransportManager
                 if (!startConnectivityEstablishment)
                     break;
             }
-
             if (startConnectivityEstablishment)
             {
                 iceAgent.startConnectivityEstablishment();
                 return true;
             }
         }
+
         return false;
     }
 
@@ -939,6 +1016,11 @@ public class IceUdpTransportManager
     public void wrapupConnectivityEstablishment()
         throws OperationFailedException
     {
+        TransportManagerJabberImpl delegate
+            = findTransportManagerEstablishingConnectivityWithJitsiVideobridge();
+
+        if ((delegate == null) || (delegate == this))
+        {
         final Object iceProcessingStateSyncRoot = new Object();
         PropertyChangeListener stateChangeListener
             = new PropertyChangeListener()
@@ -988,7 +1070,6 @@ public class IceUdpTransportManager
                 }
             }
         }
-
         if (interrupted)
             Thread.currentThread().interrupt();
 
@@ -999,11 +1080,16 @@ public class IceUdpTransportManager
         iceAgent.removeStateChangeListener(stateChangeListener);
 
         /* check the state of ICE processing and throw exception if failed */
-        if(iceAgent.getState().equals(IceProcessingState.FAILED))
+        if(IceProcessingState.FAILED.equals(iceAgent.getState()))
         {
             throw new OperationFailedException(
                     "Could not establish connection (ICE failed)",
                     OperationFailedException.GENERAL_ERROR);
+        }
+        }
+        else
+        {
+            delegate.wrapupConnectivityEstablishment();
         }
 
         /*
@@ -1027,7 +1113,8 @@ public class IceUdpTransportManager
                         transport.removeCandidate(candidate);
 
                     Collection<?> childExtensions
-                        = transport.getChildExtensions();
+                        = transport.getChildExtensionsOfType(
+                                CandidatePacketExtension.class);
 
                     if ((childExtensions == null) || childExtensions.isEmpty())
                     {
@@ -1102,9 +1189,8 @@ public class IceUdpTransportManager
     @Override
     public String getICECandidateExtendedType(String streamName)
     {
-        return TransportManager.getICECandidateExtendedType(
-                this.iceAgent,
-                streamName);
+        return
+            TransportManager.getICECandidateExtendedType(iceAgent, streamName);
     }
 
     /**
@@ -1131,12 +1217,11 @@ public class IceUdpTransportManager
     {
         if(iceAgent != null)
         {
-            LocalCandidate localCandidate =
-                iceAgent.getSelectedLocalCandidate(streamName);
+            LocalCandidate localCandidate
+                = iceAgent.getSelectedLocalCandidate(streamName);
+
             if(localCandidate != null)
-            {
                 return localCandidate.getHostAddress();
-            }
         }
         return null;
     }
@@ -1154,12 +1239,11 @@ public class IceUdpTransportManager
     {
         if(iceAgent != null)
         {
-            RemoteCandidate remoteCandidate =
-                iceAgent.getSelectedRemoteCandidate(streamName);
+            RemoteCandidate remoteCandidate
+                = iceAgent.getSelectedRemoteCandidate(streamName);
+
             if(remoteCandidate != null)
-            {
                 return remoteCandidate.getHostAddress();
-            }
         }
         return null;
     }
@@ -1178,12 +1262,11 @@ public class IceUdpTransportManager
     {
         if(iceAgent != null)
         {
-            LocalCandidate localCandidate =
-                iceAgent.getSelectedLocalCandidate(streamName);
+            LocalCandidate localCandidate
+                = iceAgent.getSelectedLocalCandidate(streamName);
+
             if(localCandidate != null)
-            {
                 return localCandidate.getReflexiveAddress();
-            }
         }
         return null;
     }
@@ -1202,12 +1285,11 @@ public class IceUdpTransportManager
     {
         if(iceAgent != null)
         {
-            RemoteCandidate remoteCandidate =
-                iceAgent.getSelectedRemoteCandidate(streamName);
+            RemoteCandidate remoteCandidate
+                = iceAgent.getSelectedRemoteCandidate(streamName);
+
             if(remoteCandidate != null)
-            {
                 return remoteCandidate.getReflexiveAddress();
-            }
         }
         return null;
     }
@@ -1226,12 +1308,11 @@ public class IceUdpTransportManager
     {
         if(iceAgent != null)
         {
-            LocalCandidate localCandidate =
-                iceAgent.getSelectedLocalCandidate(streamName);
+            LocalCandidate localCandidate
+                = iceAgent.getSelectedLocalCandidate(streamName);
+
             if(localCandidate != null)
-            {
                 return localCandidate.getRelayedAddress();
-            }
         }
         return null;
     }
@@ -1250,12 +1331,11 @@ public class IceUdpTransportManager
     {
         if(iceAgent != null)
         {
-            RemoteCandidate remoteCandidate =
-                iceAgent.getSelectedRemoteCandidate(streamName);
+            RemoteCandidate remoteCandidate
+                = iceAgent.getSelectedRemoteCandidate(streamName);
+
             if(remoteCandidate != null)
-            {
                 return remoteCandidate.getRelayedAddress();
-            }
         }
         return null;
     }
@@ -1269,11 +1349,7 @@ public class IceUdpTransportManager
     @Override
     public long getTotalHarvestingTime()
     {
-        if(iceAgent != null)
-        {
-            return iceAgent.getTotalHarvestingTime();
-        }
-        return 0;
+        return (iceAgent == null) ? 0 : iceAgent.getTotalHarvestingTime();
     }
 
     /**
@@ -1288,11 +1364,8 @@ public class IceUdpTransportManager
     @Override
     public long getHarvestingTime(String harvesterName)
     {
-        if(iceAgent != null)
-        {
-            return iceAgent.getHarvestingTime(harvesterName);
-        }
-        return 0;
+        return
+            (iceAgent == null) ? 0 : iceAgent.getHarvestingTime(harvesterName);
     }
 
     /**
@@ -1303,11 +1376,7 @@ public class IceUdpTransportManager
     @Override
     public int getNbHarvesting()
     {
-        if(iceAgent != null)
-        {
-            return iceAgent.getNbHarvesting();
-        }
-        return 0;
+        return (iceAgent == null) ? 0 : iceAgent.getHarvestCount();
     }
 
     /**
@@ -1319,14 +1388,9 @@ public class IceUdpTransportManager
      * @return The number of harvesting time for the harvester given in
      * parameter.
      */
-    @Override
     public int getNbHarvesting(String harvesterName)
     {
-        if(iceAgent != null)
-        {
-            return iceAgent.getNbHarvesting(harvesterName);
-        }
-        return 0;
+        return (iceAgent == null) ? 0 : iceAgent.getHarvestCount(harvesterName);
     }
 
     /**

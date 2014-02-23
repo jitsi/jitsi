@@ -13,6 +13,7 @@ import java.util.List;
 import javax.swing.*;
 
 import org.jitsi.service.resources.*;
+import org.jitsi.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
@@ -22,12 +23,14 @@ import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The <tt>SourceUIContact</tt> is the implementation of the UIContact for the
  * <tt>ExternalContactSource</tt>.
  *
  * @author Yana Stamcheva
+ * @author Hristo Terezov
  */
 public class SourceUIContact
     extends UIContactImpl
@@ -115,7 +118,10 @@ public class SourceUIContact
     @Override
     public int getSourceIndex()
     {
-        return sourceContact.getIndex();
+        int contactIndex = sourceContact.getIndex();
+        int groupIndex = getParentGroup().getSourceIndex();
+        return ((contactIndex == -1) ? -1 : 
+            ((groupIndex == -1) ? contactIndex : groupIndex + contactIndex));
     }
 
     /**
@@ -353,9 +359,9 @@ public class SourceUIContact
             ContactSourceService contactSource
                 = sourceContact.getContactSource();
 
-            if (contactSource instanceof ExtendedContactSourceService)
+            if (contactSource instanceof PrefixedContactSourceService)
             {
-                String prefix = ((ExtendedContactSourceService) contactSource)
+                String prefix = ((PrefixedContactSourceService) contactSource)
                     .getPhoneNumberPrefix();
 
                 if (prefix != null)
@@ -517,7 +523,20 @@ public class SourceUIContact
                 }
             }
 
-            jLabels[i] = new JLabel(contactDetail.getDetail());
+            String labelText;
+
+            if(ConfigurationUtils.isHideAddressInCallHistoryTooltipEnabled())
+            {
+                labelText = contactDetail.getDisplayName();
+                if(StringUtils.isNullOrEmpty(labelText))
+                    labelText = contactDetail.getDetail();
+            }
+            else
+            {
+                labelText = contactDetail.getDetail();
+            }
+
+            jLabels[i] = new JLabel(labelText);
 
             toolTip.addLine(jLabels);
         }
@@ -676,6 +695,23 @@ public class SourceUIContact
         if (sourceContact != null)
             return uiGroup.getParentUISource()
                     .getContactCustomActionButtons(sourceContact);
+
+        return null;
+    }
+    
+    /**
+     * Returns all custom action menu items for this contact.
+     *
+     * @param initActions if <tt>true</tt> the actions will be reloaded.
+     * @return a list of all custom action menu items for this contact.
+     */
+    @Override
+    public Collection<JMenuItem> getContactCustomActionMenuItems(
+        boolean initActions)
+    {
+        if (sourceContact != null)
+            return uiGroup.getParentUISource()
+                    .getContactCustomActionMenuItems(sourceContact, initActions);
 
         return null;
     }

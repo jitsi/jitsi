@@ -62,7 +62,8 @@ public class P2PTransportManager
      * @return the ICE agent to use for all the ICE negotiation that this
      * transport manager would be going through
      */
-    protected Agent createIceAgentPleaseDeleteMe()
+    @Override
+    protected Agent createIceAgent()
     {
         CallPeerJabberImpl peer = getCallPeer();
         ProtocolProviderServiceJabberImpl provider = peer.getProtocolProvider();
@@ -223,7 +224,7 @@ public class P2PTransportManager
 
                     IceMediaStream stream = null;
 
-                    stream = createIceStream(rtpDesc.getMedia(), iceAgent);
+                    stream = createIceStream(rtpDesc.getMedia());
 
                     //we now generate the XMPP code containing the candidates.
                     ourContent.addChildExtension(createTransport(stream));
@@ -259,8 +260,7 @@ public class P2PTransportManager
                         IceMediaStream stream = null;
                         try
                         {
-                            stream = createIceStream(
-                                rtpDesc.getMedia(), iceAgent);
+                            stream = createIceStream(rtpDesc.getMedia());
                         }
                         catch (OperationFailedException e)
                         {

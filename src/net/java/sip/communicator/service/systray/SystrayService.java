@@ -37,29 +37,34 @@ public interface SystrayService
     public static final int NONE_MESSAGE_TYPE = -1;
 
     /**
-     * Image type corresponding to the sip-communicator icon
+     * Image type corresponding to the jitsi icon
      */
     public static final int SC_IMG_TYPE = 0;
 
     /**
-     * Image type corresponding to the sip-communicator offline icon
+     * Image type corresponding to the jitsi offline icon
      */
     public static final int SC_IMG_OFFLINE_TYPE = 2;
 
     /**
-     * Image type corresponding to the sip-communicator away icon
+     * Image type corresponding to the jitsi away icon
      */
     public static final int SC_IMG_AWAY_TYPE = 3;
 
     /**
-     * Image type corresponding to the sip-communicator free for chat icon
+     * Image type corresponding to the jitsi free for chat icon
      */
     public static final int SC_IMG_FFC_TYPE = 4;
 
     /**
-     * Image type corresponding to the sip-communicator do not disturb icon
+     * Image type corresponding to the jitsi do not disturb icon
      */
     public static final int SC_IMG_DND_TYPE = 5;
+
+    /**
+     * Image type corresponding to the jitsi away icon
+     */
+    public static final int SC_IMG_EXTENDED_AWAY_TYPE = 6;
 
     /**
      * Image type corresponding to the envelope icon

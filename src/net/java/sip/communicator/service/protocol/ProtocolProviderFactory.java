@@ -308,6 +308,32 @@ public abstract class ProtocolProviderFactory
     public static final String IS_ACCOUNT_DISABLED = "IS_ACCOUNT_DISABLED";
 
     /**
+     * The name of the property that would indicate if a given account
+     * configuration form is currently hidden.
+     */
+    public static final String IS_ACCOUNT_CONFIG_HIDDEN = "IS_CONFIG_HIDDEN";
+
+    /**
+     * The name of the property that would indicate if a given account
+     * status menu is currently hidden.
+     */
+    public static final String IS_ACCOUNT_STATUS_MENU_HIDDEN =
+        "IS_STATUS_MENU_HIDDEN";
+
+    /**
+     * The name of the property that would indicate if a given account
+     * configuration is read only.
+     */
+    public static final String IS_ACCOUNT_READ_ONLY = "IS_READ_ONLY";
+
+    /**
+     * The name of the property that would indicate if a given account
+     * groups are readonly, values can be all or a comma separated
+     * group names including root.
+     */
+    public static final String ACCOUNT_READ_ONLY_GROUPS = "READ_ONLY_GROUPS";
+
+    /**
      * Indicates if ICE should be used.
      */
     public static final String IS_USE_ICE = "ICE_ENABLED";
@@ -331,7 +357,7 @@ public abstract class ProtocolProviderFactory
 
     /**
      * The name of the boolean account property which indicates whether Jitsi
-     * VideoBridge is to be used, if available and supported, for conference
+     * Videobridge is to be used, if available and supported, for conference
      * calls.
      */
     public static final String USE_JITSI_VIDEO_BRIDGE
@@ -532,6 +558,12 @@ public abstract class ProtocolProviderFactory
     public static final String SDES_CIPHER_SUITES = "SDES_CIPHER_SUITES";
 
     /**
+     * The name of the property that defines the enabled/disabled state of
+     * message carbons.
+     */
+    public static final String IS_CARBON_DISABLED = "CARBON_DISABLED";
+
+    /**
      * Creates a new <tt>ProtocolProviderFactory</tt>.
      *
      * @param bundleContext the bundle context reference of the service
@@ -634,7 +666,20 @@ public abstract class ProtocolProviderFactory
             registration =
                 registeredAccounts.get(accountID);
         }
-        return (registration == null) ? null : registration.getReference();
+
+        try
+        {
+            return (registration == null) ? null : registration.getReference();
+        }
+        catch (IllegalStateException ise)
+        {
+            synchronized (registeredAccounts)
+            {
+                registeredAccounts.remove(accountID);
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -835,6 +880,12 @@ public abstract class ProtocolProviderFactory
                         "CredentialsStorageService failed to storePassword",
                         OperationFailedException.GENERAL_ERROR);
         }
+
+        // Update password property also in the AccountID
+        // to prevent it from being removed during account reload
+        // in some cases.
+        accountID.setPassword(password);
+
     }
 
     /**

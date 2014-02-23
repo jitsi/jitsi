@@ -11,8 +11,8 @@ import java.util.*;
 
 import javax.swing.event.*;
 
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.muc.*;
 
 /**
  * The <tt>CreateChatRoomWizardPage1</tt> is the first page of the

@@ -47,6 +47,11 @@ public class OperationSetBasicInstantMessagingSipImpl
     private final ProtocolProviderServiceSipImpl sipProvider;
 
     /**
+     * Registration listener instance.
+     */
+    private final RegistrationStateListener registrationListener;
+
+    /**
      * A reference to the persistent presence operation set that we use
      * to match incoming messages to <tt>Contact</tt>s and vice versa.
      */
@@ -84,8 +89,9 @@ public class OperationSetBasicInstantMessagingSipImpl
     {
         this.sipProvider = provider;
 
-        provider.addRegistrationStateChangeListener(new
-            RegistrationStateListener());
+        registrationListener = new RegistrationStateListener();
+        provider.addRegistrationStateChangeListener(
+            registrationListener);
 
         offlineMessageSupported =
             provider.getAccountID().getAccountPropertyBoolean(
@@ -211,7 +217,8 @@ public class OperationSetBasicInstantMessagingSipImpl
         Request mes;
         try
         {
-            mes = createMessageRequest(to, message);
+            Message transformedMessage = transformSIPMessage(to, message);
+            mes = createMessageRequest(to, transformedMessage);
         }
         catch (OperationFailedException ex)
         {
@@ -468,6 +475,38 @@ public class OperationSetBasicInstantMessagingSipImpl
     }
 
     /**
+     * Transforms SIP message via transformation layer.
+     *
+     * @param to The <tt>Contact</tt> to send the <tt>message</tt> to.
+     * @param message The <tt>message</tt> to send.
+     *
+     * @return The new transformed <tt>Message</tt>
+     */
+    private Message transformSIPMessage(Contact to, Message message)
+    {
+        MessageDeliveredEvent msgDeliveryPendingEvt
+           = new MessageDeliveredEvent(message, to);
+
+        msgDeliveryPendingEvt
+            = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
+
+        if (msgDeliveryPendingEvt == null)
+            return null;
+
+        String content = msgDeliveryPendingEvt.getSourceMessage().getContent();
+
+        OperationSetBasicInstantMessaging opSetBasicIM =
+            (OperationSetBasicInstantMessaging) sipProvider
+                .getSupportedOperationSets().get(
+                    OperationSetBasicInstantMessaging.class.getName());
+        Message transformedMesssage =
+            opSetBasicIM.createMessage(content, message.getContentType(),
+                message.getEncoding(), message.getSubject());
+
+        return transformedMesssage;
+    }
+
+    /**
      * Parses the content type of a message and return the type
      *
      * @param msg the Message to scan
@@ -510,6 +549,14 @@ public class OperationSetBasicInstantMessagingSipImpl
             throw new IllegalStateException(
                 "The provider must be signed on the service before "
                 + "being able to communicate.");
+    }
+
+    /**
+     * Frees allocated resources.
+     */
+    void shutdown()
+    {
+        sipProvider.removeRegistrationStateChangeListener(registrationListener);
     }
 
     /**

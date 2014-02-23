@@ -92,7 +92,7 @@ public class HistoryServiceImpl
     public Iterator<HistoryID> getExistingIDs()
     {
         List<File> vect = new Vector<File>();
-        File histDir = null;
+        File histDir;
         try {
             String userSetDataDirectory
                 = System.getProperty("HistoryServiceDirectory");
@@ -101,7 +101,7 @@ public class HistoryServiceImpl
                 = getFileAccessService().getPrivatePersistentDirectory(
                         (userSetDataDirectory == null)
                             ? DATA_DIRECTORY
-                            : userSetDataDirectory);
+                            : userSetDataDirectory, FileCategory.PROFILE);
 
             findDatFiles(vect, histDir);
         } catch (Exception e)
@@ -160,9 +160,12 @@ public class HistoryServiceImpl
         return retVal;
     }
 
-    public History createHistory(HistoryID id,
-            HistoryRecordStructure recordStructure)
-            throws IllegalArgumentException, IOException {
+    public History createHistory(
+                        HistoryID id,
+                        HistoryRecordStructure recordStructure)
+            throws IllegalArgumentException,
+                   IOException
+    {
         History retVal = null;
 
         synchronized (this.histories)
@@ -246,24 +249,29 @@ public class HistoryServiceImpl
         throws IOException
     {
         String[] idComponents = id.getID();
-        String[] dirs = new String[idComponents.length + 1];
 
-        String userSetDataDirectory = System.getProperty("HistoryServiceDirectory");
-        if(userSetDataDirectory != null)
-            dirs[0] = userSetDataDirectory;
-        else
-            dirs[0] = DATA_DIRECTORY;
-
-        // escape chars in direcotory names
+        // escape chars in directory names
         escapeCharacters(idComponents);
 
-        System.arraycopy(idComponents, 0, dirs, 1, dirs.length - 1);
+        String userSetDataDirectory
+            = System.getProperty("HistoryServiceDirectory");
+
+        File dir = new File(userSetDataDirectory != null
+            ? userSetDataDirectory
+            : DATA_DIRECTORY);
+
+        for (String s : idComponents)
+        {
+            dir = new File(dir, s);
+        }
 
         File directory = null;
         try
         {
             directory
-                = getFileAccessService().getPrivatePersistentDirectory(dirs);
+                = getFileAccessService().getPrivatePersistentDirectory(
+                    dir.toString(),
+                    FileCategory.PROFILE);
         }
         catch (Exception e)
         {
@@ -308,6 +316,56 @@ public class HistoryServiceImpl
         if (logger.isTraceEnabled())
             logger.trace("Removing history directory " + dir);
         deleteDirAndContent(dir);
+
+        History history = histories.remove(id);
+        if(history == null)
+        {
+            // well this can be global delete, so lets remove all matching
+            // sub-histories
+            String[] ids = id.getID();
+
+            Iterator<Map.Entry<HistoryID, History>>
+                iter = histories.entrySet().iterator();
+            while(iter.hasNext())
+            {
+                Map.Entry<HistoryID, History> entry = iter.next();
+                if(isSubHistory(ids, entry.getKey()))
+                {
+                    iter.remove();
+                }
+            }
+        }
+    }
+
+    /**
+     * Clears locally(in memory) cached histories.
+     */
+    public void purgeLocallyCachedHistories()
+    {
+        histories.clear();
+    }
+
+    /**
+     * Checks the ids of the parent, do they exist in the supplied history ids.
+     * If it exist the history is sub history of the on with the supplied ids.
+     * @param parentIDs the parent ids
+     * @param hid the history to check
+     * @return whether history is sub one (contained) of the parent.
+     */
+    private boolean isSubHistory(String[] parentIDs, HistoryID hid)
+    {
+        String[] hids = hid.getID();
+
+        if(hids.length < parentIDs.length)
+            return false;
+
+        for(int i = 0; i < parentIDs.length; i++)
+        {
+            if(!parentIDs[i].equals(hids[i]))
+                return false;
+        }
+        // everything matches, return true
+        return true;
     }
 
     /**
@@ -433,7 +491,8 @@ public class HistoryServiceImpl
                 = getFileAccessService().getPrivatePersistentDirectory(
                         (userSetDataDirectory == null)
                             ? DATA_DIRECTORY
-                            : userSetDataDirectory);
+                            : userSetDataDirectory,
+                        FileCategory.PROFILE);
         }
         catch (Exception e)
         {
@@ -452,5 +511,98 @@ public class HistoryServiceImpl
     public boolean isHistoryCreated(HistoryID id)
     {
         return getDirForHistory(id).exists();
+    }
+
+    /**
+     * Enumerates existing histories.
+     * @param rawid the start of the HistoryID of all the histories that will be
+     * returned.
+     * @return list of histories which HistoryID starts with <tt>rawid</tt>.
+     * @throws IllegalArgumentException if the <tt>rawid</tt> contains ids
+     * which are missing in current history.
+     */
+    public List<HistoryID> getExistingHistories(
+                            String[] rawid)
+        throws IllegalArgumentException
+    {
+        File histDir = null;
+        try
+        {
+            histDir = getFileAccessService()
+                .getPrivatePersistentDirectory(
+                    DATA_DIRECTORY, FileCategory.PROFILE);
+        }
+        catch (Exception e)
+        {
+            logger.error("Error opening directory", e);
+        }
+
+        if(histDir == null || !histDir.exists())
+            return new ArrayList<HistoryID>();
+
+        StringBuilder folderPath = new StringBuilder();
+        for(String id : rawid)
+            folderPath.append(id).append(File.separator);
+
+        File srcFolder = new File(histDir, folderPath.toString());
+
+        if(!srcFolder.exists())
+            return new ArrayList<HistoryID>();
+
+        TreeMap<File, HistoryID> recentFiles =
+            new TreeMap<File, HistoryID>(new Comparator<File>()
+            {
+                @Override
+                public int compare(File o1, File o2)
+                {
+                    return o1.getName().compareTo(o2.getName());
+                }
+            });
+
+        getExistingFiles(srcFolder, Arrays.asList(rawid), recentFiles);
+
+        // return non duplicate
+        List<HistoryID> result = new ArrayList<HistoryID>();
+        for(Map.Entry<File, HistoryID> entry : recentFiles.entrySet())
+        {
+            HistoryID hid = entry.getValue();
+
+            if(result.contains(hid))
+                continue;
+
+            result.add(hid);
+        }
+
+        return result;
+    }
+
+    /**
+     * Get existing files in <tt>res</tt> and their corresponding historyIDs.
+     * @param sourceFolder the folder to search into.
+     * @param rawID the rawID.
+     * @param res the result map.
+     */
+    private void getExistingFiles(
+        File sourceFolder, List<String> rawID,
+        Map<File, HistoryID> res)
+    {
+        for(File f : sourceFolder.listFiles())
+        {
+            if(f.isDirectory())
+            {
+                List<String> newRawID = new ArrayList<String>(rawID);
+                newRawID.add(f.getName());
+
+                getExistingFiles(f, newRawID, res);
+            }
+            else
+            {
+                if(f.getName().equals(DATA_FILE))
+                    continue;
+
+                res.put(f, HistoryID.createFromRawStrings(
+                    rawID.toArray(new String[rawID.size()])));
+            }
+        }
     }
 }

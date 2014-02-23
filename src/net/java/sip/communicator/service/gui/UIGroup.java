@@ -27,6 +27,16 @@ public abstract class UIGroup
      * The display details of this group.
      */
     private String displayDetails = "";
+    
+    /**
+     * The maximum number of contacts in the contact source.
+     */
+    public static int MAX_GROUPS = 10000000;
+    
+    /**
+     * The maximum number of contacts in the group.
+     */
+    public static int MAX_CONTACTS = 10000;
 
     /**
      * Returns the descriptor of the group. This would be the underlying object

@@ -11,9 +11,11 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.skin.*;
 
@@ -94,6 +96,28 @@ public class ChatRoomMemberListPanel
                                     chatContact)
                                 .show(memberList, e.getX(), e.getY());
                     }
+                    else if(e.getButton() == MouseEvent.BUTTON1 
+                        && e.getClickCount() == 2)
+                    {
+                        memberList.setSelectedIndex(
+                            memberList.locationToIndex(e.getPoint()));
+
+                        ChatContact<?> chatContact
+                            = (ChatContact<?>) memberList.getSelectedValue();
+                        
+                        ChatRoom room 
+                            = ((ChatRoomWrapper) ChatRoomMemberListPanel.this
+                                .chatPanel.getChatSession().getDescriptor())
+                                    .getChatRoom();
+                        if(room.getUserNickname().equals(chatContact.getName()))
+                            return;
+                        ChatWindowManager chatWindowManager
+                            = GuiActivator.getUIService()
+                                .getChatWindowManager();
+                        chatWindowManager.openPrivateChatForChatRoomMember(room, 
+                            chatContact.getName());
+
+                    }
                 }
             });
         }
@@ -103,6 +127,7 @@ public class ChatRoomMemberListPanel
         contactsScrollPane.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         contactsScrollPane.setOpaque(false);
+        contactsScrollPane.setBorder(null);
 
         JViewport viewport = contactsScrollPane.getViewport();
         viewport.setOpaque(false);
@@ -156,6 +181,15 @@ public class ChatRoomMemberListPanel
     public void loadSkin()
     {
         ((ChatContactCellRenderer)memberList.getCellRenderer()).loadSkin();
+    }
+
+    /**
+     * Runs clean-up.
+     */
+    public void dispose()
+    {
+        if(memberListModel != null)
+            memberListModel.dispose();
     }
 
     /**

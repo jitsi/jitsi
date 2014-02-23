@@ -18,7 +18,6 @@ import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.filetransfer.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -27,6 +26,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.history.event.*;
 import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.msghistory.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -377,37 +377,6 @@ public class HistoryWindow
     public Window getConversationContainerWindow()
     {
         return this;
-    }
-
-    /**
-     * Indicates that the window is closing. Removes all message listeners when
-     * closing.
-     * @param e the <tt>WindowEvent</tt> that notified us
-     */
-    @Override
-    protected void windowClosing(WindowEvent e)
-    {
-        super.windowClosing(e);
-
-        /*
-         * Remove all listeners in order to have this instance ready for garbage
-         * collection.
-         */
-
-        history.removeSearchProgressListener(this);
-
-        if (basicInstantMessagings != null)
-        {
-            for (OperationSetBasicInstantMessaging basicInstantMessaging
-                    : basicInstantMessagings)
-                basicInstantMessaging.removeMessageListener(this);
-            basicInstantMessagings = null;
-        }
-        if (chatRoom != null)
-        {
-            chatRoom.removeMessageListener(this);
-            chatRoom = null;
-        }
     }
 
     /**
@@ -774,11 +743,33 @@ public class HistoryWindow
     @Override
     protected void close(boolean isEscaped)
     {
-        if(chatConvPanel.getRightButtonMenu().isVisible())
+        /*
+         * Remove all listeners in order to have this instance ready for garbage
+         * collection.
+         */
+        history.removeSearchProgressListener(this);
+
+        if (basicInstantMessagings != null)
+        {
+            for (OperationSetBasicInstantMessaging basicInstantMessaging
+                : basicInstantMessagings)
+                basicInstantMessaging.removeMessageListener(this);
+            basicInstantMessagings = null;
+        }
+
+        if (chatRoom != null)
+        {
+            chatRoom.removeMessageListener(this);
+            chatRoom = null;
+        }
+
+        if(chatConvPanel != null
+            && chatConvPanel.getRightButtonMenu() != null
+            && chatConvPanel.getRightButtonMenu().isVisible())
         {
             chatConvPanel.getRightButtonMenu().setVisible(false);
         }
-        else if(historyMenu.isPopupMenuVisible())
+        else if(historyMenu != null && historyMenu.isPopupMenuVisible())
         {
             MenuSelectionManager.defaultManager().clearSelectedPath();
         }
@@ -787,8 +778,11 @@ public class HistoryWindow
             GuiActivator.getUIService().getHistoryWindowManager()
                 .removeHistoryWindowForContact(historyContact);
 
-            datesPanel.dispose();
-            chatConvPanel.dispose();
+            if(datesPanel != null)
+                datesPanel.dispose();
+
+            if(chatConvPanel != null)
+                chatConvPanel.dispose();
 
             this.dispose();
         }

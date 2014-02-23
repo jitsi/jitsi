@@ -266,7 +266,31 @@ public abstract class AbstractCallPeer<T extends Call,
                             conferenceMember));
         }
     }
-
+    
+    /**
+     * Fires
+     * <tt>CallPeerConferenceEvent#CONFERENCE_MEMBER_ERROR_RECEIVED</tt> to
+     * the currently registered <tt>CallPeerConferenceListener</tt>s.
+     *
+     * @param errorMessage error message that can be displayed.
+     */
+    public void fireConferenceMemberErrorEvent(String errorMessge)
+    {
+        if(errorMessge == null || errorMessge.length() == 0)
+        {
+            logger.warn("The error message for " + this.getDisplayName()
+                + " null or empty string.");
+            return;
+        }
+        
+        fireCallPeerConferenceEvent(
+            new CallPeerConferenceEvent(
+                this, 
+                CallPeerConferenceEvent
+                    .CONFERENCE_MEMBER_ERROR_RECEIVED,
+                null,
+                errorMessge));
+    }
     /**
      * Finds the first <tt>ConferenceMember</tt> whose <tt>audioSsrc</tt> is
      * equals to a specific value. The method is meant for very frequent use so
@@ -436,6 +460,9 @@ public abstract class AbstractCallPeer<T extends Call,
             case CallPeerConferenceEvent.CONFERENCE_MEMBER_REMOVED:
                 eventIDString = "CONFERENCE_MEMBER_REMOVED";
                 break;
+            case CallPeerConferenceEvent.CONFERENCE_MEMBER_ERROR_RECEIVED:
+                eventIDString = "CONFERENCE_MEMBER_ERROR_RECEIVED";
+                break;
             default:
                 eventIDString = "UNKNOWN";
                 break;
@@ -460,6 +487,9 @@ public abstract class AbstractCallPeer<T extends Call,
                 break;
             case CallPeerConferenceEvent.CONFERENCE_MEMBER_REMOVED:
                 listener.conferenceMemberRemoved(conferenceEvent);
+                break;
+            case CallPeerConferenceEvent.CONFERENCE_MEMBER_ERROR_RECEIVED:
+                listener.conferenceMemberErrorReceived(conferenceEvent);
                 break;
             }
     }

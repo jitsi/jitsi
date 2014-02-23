@@ -13,6 +13,11 @@ package net.java.sip.communicator.impl.gui.main.chat;
 public interface ChatSessionChangeListener
 {
     /**
+     * The icon representing the ChatTransport has changed.
+     */
+    public static final int ICON_UPDATED = 1;
+
+    /**
      * Called when the current {@link ChatTransport} has
      * changed.
      *
@@ -20,4 +25,11 @@ public interface ChatSessionChangeListener
      * {@link ChatTransport} has changed
      */
     public void currentChatTransportChanged(ChatSession chatSession);
+
+    /**
+     * When a property of the chatTransport has changed.
+     * @param eventID the event id representing the property of the transport
+     * that has changed.
+     */
+    public void currentChatTransportUpdated(int eventID);
 }

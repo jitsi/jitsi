@@ -12,15 +12,18 @@ import java.util.regex.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * The <tt>PhoneNumberContactQuery</tt> is a query over the
  * <tt>PhoneNumberContactSource</tt>.
  *
  * @author Yana Stamcheva
+ * @author Damian Minkov
  */
 public class PhoneNumberContactQuery
     extends AsyncContactQuery<PhoneNumberContactSource>
+    implements ContactPresenceStatusListener
 {
     /**
      * The query string.
@@ -31,6 +34,14 @@ public class PhoneNumberContactQuery
      * The contact count.
      */
     private int contactCount;
+
+    /**
+     * The operations sets we use to listen for the presence that will be used
+     * for SourceContacts.
+     */
+    private List<OperationSetPersistentPresence> operationSetPersistentPresences
+        = Collections.synchronizedList(
+            new LinkedList<OperationSetPersistentPresence>());
 
     /**
      * Creates an instance of <tt>PhoneNumberContactQuery</tt> by specifying
@@ -78,6 +89,11 @@ public class PhoneNumberContactQuery
             // next protocol provider.
             if (persPresOpSet == null)
                 continue;
+
+            if(!operationSetPersistentPresences.contains(persPresOpSet))
+                operationSetPersistentPresences.add(persPresOpSet);
+
+            persPresOpSet.addContactPresenceStatusListener(this);
 
             ContactGroup rootGroup
                 = persPresOpSet.getServerStoredContactListRoot();
@@ -235,5 +251,67 @@ public class PhoneNumberContactQuery
     protected boolean phoneNumberMatches(String phoneNumber)
     {
         return false;
+    }
+
+    /**
+     * Cancels this <tt>ContactQuery</tt>.
+     *
+     * @see ContactQuery#cancel()
+     */
+    public void cancel()
+    {
+        clearListeners();
+
+        super.cancel();
+    }
+
+    /**
+     * Clears any listener we used.
+     */
+    private void clearListeners()
+    {
+        for(OperationSetPersistentPresence opSetPresence
+                : operationSetPersistentPresences)
+        {
+            opSetPresence.removeContactPresenceStatusListener(this);
+        }
+        operationSetPersistentPresences.clear();
+    }
+
+    /**
+     * Listens for contact status changes and updates it and inform for the
+     * change.
+     * @param evt the ContactPresenceStatusChangeEvent describing the status
+     */
+    public void contactPresenceStatusChanged(
+        ContactPresenceStatusChangeEvent evt)
+    {
+        for(SourceContact sc : getQueryResults())
+        {
+            if(!(sc instanceof PhoneNumberSourceContact))
+                continue;
+
+            Contact contact = ((PhoneNumberSourceContact)sc).getContact();
+
+            if(contact.equals(evt.getSource()))
+            {
+                ((PhoneNumberSourceContact) sc).setPresenceStatus(
+                    evt.getNewStatus());
+                fireContactChanged(sc);
+            }
+        }
+    }
+
+    /**
+     * If query has status changed to cancel, let's clear listeners.
+     * @param status {@link ContactQuery#QUERY_CANCELED},
+     * {@link ContactQuery#QUERY_COMPLETED}
+     */
+    public void setStatus(int status)
+    {
+        if(status == QUERY_CANCELED)
+            clearListeners();
+
+        super.setStatus(status);
     }
 }

@@ -2,5 +2,5 @@ Bundle-Description: Checks for software updates
 Bundle-Name: Update Service
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.service.update
 Export-Package: net.java.sip.communicator.service.update

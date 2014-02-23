@@ -40,42 +40,37 @@ public class AddContactDialog
                 WindowFocusListener,
                 Skinnable
 {
-    private final  JLabel accountLabel = new JLabel(
-        GuiActivator.getResources().getI18NString(
-            "service.gui.SELECT_ACCOUNT") + ": ");
+    private JLabel accountLabel;
 
-    private final JComboBox accountCombo = new JComboBox();
+    private JComboBox accountCombo;
 
-    private final JLabel groupLabel = new JLabel(
-        GuiActivator.getResources().getI18NString(
-            "service.gui.SELECT_GROUP") + ": ");
+    private JLabel groupLabel;
 
     private JComboBox groupCombo;
 
-    private final JLabel contactAddressLabel = new JLabel(
-        GuiActivator.getResources().getI18NString(
-            "service.gui.CONTACT_NAME") + ": ");
+    private JLabel contactAddressLabel;
 
-    private final JLabel displayNameLabel = new JLabel(
-        GuiActivator.getResources().getI18NString(
-            "service.gui.DISPLAY_NAME") + ": ");
+    private JLabel displayNameLabel;
 
-    private final JTextField contactAddressField = new JTextField();
+    private JTextField contactAddressField;
 
-    private final JTextField displayNameField = new JTextField();
+    private JTextField displayNameField;
 
-    private final JButton addButton = new JButton(
-        GuiActivator.getResources().getI18NString("service.gui.ADD"));
+    private JButton addButton;
 
-    private final JButton cancelButton = new JButton(
-        GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
+    private JButton cancelButton;
 
     private MetaContact metaContact;
 
     /**
+     * Whether dialog is initialized.
+     */
+    private boolean initialized = false;
+
+    /**
      * Image label.
      */
-    private JLabel imageLabel = new JLabel();
+    private JLabel imageLabel;
 
     /**
      * Creates an instance of <tt>AddContactDialog</tt> that represents a dialog
@@ -89,10 +84,6 @@ public class AddContactDialog
 
         this.setTitle(GuiActivator.getResources()
             .getI18NString("service.gui.ADD_CONTACT"));
-
-        groupCombo = createGroupCombo(this);
-
-        this.init();
     }
 
     /**
@@ -107,14 +98,9 @@ public class AddContactDialog
 
         this.metaContact = metaContact;
 
-        groupCombo.setEnabled(false);
-
-        this.setSelectedGroup(metaContact.getParentMetaContactGroup());
-
         this.setTitle(GuiActivator.getResources()
                         .getI18NString("service.gui.ADD_CONTACT_TO")
                          + " " + metaContact.getDisplayName());
-
     }
 
     /**
@@ -123,6 +109,9 @@ public class AddContactDialog
      */
     public void setSelectedAccount(ProtocolProviderService protocolProvider)
     {
+        if(!initialized)
+            init();
+
         accountCombo.setSelectedItem(protocolProvider);
     }
 
@@ -132,6 +121,9 @@ public class AddContactDialog
      */
     public void setSelectedGroup(MetaContactGroup group)
     {
+        if(!initialized)
+            init();
+
         groupCombo.setSelectedItem(group);
     }
 
@@ -141,6 +133,9 @@ public class AddContactDialog
      */
     public void setContactAddress(String contactAddress)
     {
+        if(!initialized)
+            init();
+
         contactAddressField.setText(contactAddress);
     }
 
@@ -150,6 +145,9 @@ public class AddContactDialog
      */
     public void setDisplayName(String displayName)
     {
+        if(!initialized)
+            init();
+
         displayNameField.setText(displayName);
     }
 
@@ -158,6 +156,45 @@ public class AddContactDialog
      */
     private void init()
     {
+        this.accountLabel = new JLabel(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.SELECT_ACCOUNT") + ": ");
+
+        this.accountCombo = new JComboBox();
+
+        this.groupLabel = new JLabel(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.SELECT_GROUP") + ": ");
+
+        this.contactAddressLabel = new JLabel(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.CONTACT_NAME") + ": ");
+
+        this.displayNameLabel = new JLabel(
+            GuiActivator.getResources().getI18NString(
+                "service.gui.DISPLAY_NAME") + ": ");
+
+        this.contactAddressField = new JTextField();
+
+        this.displayNameField = new JTextField();
+
+        this.addButton = new JButton(
+            GuiActivator.getResources().getI18NString("service.gui.ADD"));
+
+        this.cancelButton = new JButton(
+            GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
+
+        this.imageLabel = new JLabel();
+
+        this.groupCombo = createGroupCombo(this);
+
+        if(metaContact != null)
+        {
+            groupCombo.setEnabled(false);
+
+            groupCombo.setSelectedItem(metaContact.getParentMetaContactGroup());
+        }
+
         TransparentPanel labelsPanel
             = new TransparentPanel(new GridLayout(0, 1, 5, 5));
 
@@ -193,12 +230,12 @@ public class AddContactDialog
 
                 public void insertUpdate(DocumentEvent e)
                 {
-                    updateAddButtonState();
+                    updateAddButtonState(false);
                 }
 
                 public void removeUpdate(DocumentEvent e)
                 {
-                    updateAddButtonState();
+                    updateAddButtonState(false);
                 }
             });
 
@@ -228,6 +265,8 @@ public class AddContactDialog
 
         // All items are now instantiated and could safely load the skin.
         loadSkin();
+
+        this.initialized = true;
     }
 
     /**
@@ -273,7 +312,7 @@ public class AddContactDialog
         {
             public void itemStateChanged(ItemEvent e)
             {
-                updateAddButtonState();
+                updateAddButtonState(true);
             }
         });
 
@@ -281,10 +320,7 @@ public class AddContactDialog
         {
             ProtocolProviderService provider = providers.next();
 
-            boolean isHidden = provider.getAccountID().getAccountProperty(
-                    ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
-
-            if(isHidden)
+            if(provider.getAccountID().isHidden())
                 continue;
 
             OperationSet opSet
@@ -293,9 +329,19 @@ public class AddContactDialog
             if (opSet == null)
                 continue;
 
+            OperationSetPersistentPresencePermissions opSetPermissions
+                = provider.getOperationSet(
+                    OperationSetPersistentPresencePermissions.class);
+            if(opSetPermissions != null)
+            {
+                // let's check whether we can edit something
+                if(opSetPermissions.isReadOnly())
+                    continue;
+            }
+
             accountCombo.addItem(provider);
 
-            if (isPreferredProvider(provider.getAccountID()))
+            if (provider.getAccountID().isPreferredProvider())
                 accountCombo.setSelectedItem(provider);
         }
 
@@ -314,34 +360,17 @@ public class AddContactDialog
 
         groupCombo.setRenderer(new GroupComboRenderer());
 
-        groupCombo.addItem(GuiActivator.getContactListService().getRoot());
-
-        Iterator<MetaContactGroup> groupList
-            = GuiActivator.getContactListService().getRoot().getSubgroups();
-
-        while (groupList.hasNext())
-        {
-            MetaContactGroup group = groupList.next();
-
-            if (!group.isPersistent())
-                continue;
-
-            groupCombo.addItem(group);
-        }
+        updateGroupItems(groupCombo, null);
 
         final String newGroupString = GuiActivator.getResources()
             .getI18NString("service.gui.CREATE_GROUP");
-
-        if (!ConfigurationUtils.isCreateGroupDisabled())
-        {
-            groupCombo.addItem(newGroupString);
-        }
 
         groupCombo.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                if (groupCombo.getSelectedItem().equals(newGroupString))
+                if (groupCombo.getSelectedItem() != null
+                    && groupCombo.getSelectedItem().equals(newGroupString))
                 {
                     CreateGroupDialog dialog
                         = new CreateGroupDialog(parentDialog, false);
@@ -366,6 +395,85 @@ public class AddContactDialog
     }
 
     /**
+     * Update the group items in the combo supplied, by checking
+     * and the edit permissions
+     */
+    private static void updateGroupItems(JComboBox groupCombo,
+                                         ProtocolProviderService provider)
+    {
+        OperationSetPersistentPresencePermissions opsetPermissions = null;
+        OperationSetPersistentPresence opsetPresence;
+
+        boolean isRootReadOnly = false;
+
+        Object selectedItem = groupCombo.getSelectedItem();
+
+        if(provider != null)
+        {
+            groupCombo.removeAllItems();
+
+            opsetPermissions = provider.getOperationSet(
+                OperationSetPersistentPresencePermissions.class);
+            opsetPresence = provider.getOperationSet(
+                OperationSetPersistentPresence.class);
+
+            if(opsetPermissions != null
+                && opsetPresence != null)
+                isRootReadOnly =  opsetPermissions.isReadOnly(
+                    opsetPresence.getServerStoredContactListRoot());
+        }
+
+        if(!isRootReadOnly)
+        {
+            groupCombo.addItem(GuiActivator.getContactListService().getRoot());
+        }
+
+        Iterator<MetaContactGroup> groupList
+            = GuiActivator.getContactListService().getRoot().getSubgroups();
+
+        while (groupList.hasNext())
+        {
+            MetaContactGroup group = groupList.next();
+
+            if (!group.isPersistent())
+                continue;
+
+            if(provider != null && opsetPermissions != null)
+            {
+                Iterator<ContactGroup> protoGroupsIter =
+                    group.getContactGroupsForProvider(provider);
+                boolean foundWritableGroup = false;
+                while(protoGroupsIter.hasNext())
+                {
+                    ContactGroup gr = protoGroupsIter.next();
+                    if(!opsetPermissions.isReadOnly(gr))
+                    {
+                        foundWritableGroup = true;
+                        break;
+                    }
+                }
+
+                if(!foundWritableGroup)
+                    continue;
+            }
+
+            groupCombo.addItem(group);
+        }
+
+        final String newGroupString = GuiActivator.getResources()
+            .getI18NString("service.gui.CREATE_GROUP");
+
+        if (!ConfigurationUtils.isCreateGroupDisabled()
+            && !isRootReadOnly)
+        {
+            groupCombo.addItem(newGroupString);
+        }
+
+        if(selectedItem != null)
+            groupCombo.setSelectedItem(selectedItem);
+    }
+
+    /**
      * Indicates that the "Add" buttons has been pressed.
      * @param e the <tt>ActionEvent</tt> that notified us
      */
@@ -377,7 +485,7 @@ public class AddContactDialog
         {
             final ProtocolProviderService protocolProvider
                 = (ProtocolProviderService) accountCombo.getSelectedItem();
-            final String contactAddress = contactAddressField.getText();
+            final String contactAddress = contactAddressField.getText().trim();
             final String displayName = displayNameField.getText();
 
             if (!protocolProvider.isRegistered())
@@ -429,6 +537,56 @@ public class AddContactDialog
     }
 
     /**
+     * Overwrites the dispose method in order to clean instances
+     * of this window before closing it.
+     */
+    @Override
+    public void dispose()
+    {
+        super.dispose();
+
+        this.getContentPane().removeAll();
+
+        this.accountLabel = null;
+
+        this.accountCombo = null;
+
+        this.groupLabel = null;
+
+        this.contactAddressLabel = null;
+
+        this.displayNameLabel = null;
+
+        this.contactAddressField = null;
+
+        this.displayNameField = null;
+
+        this.addButton = null;
+
+        this.cancelButton = null;
+
+        this.imageLabel = null;
+
+        this.groupCombo = null;
+
+        this.initialized = false;
+    }
+
+    /**
+     * Overwrites the setVisible method in order to init window before opening
+     * it.
+     * @param isVisible indicates if the dialog should be visible
+     */
+    @Override
+    public void setVisible(boolean isVisible)
+    {
+        if(!initialized)
+            init();
+
+        super.setVisible(isVisible);
+    }
+
+    /**
      * Indicates that this dialog is about to be closed.
      * @param isEscaped indicates if the dialog is closed by pressing the
      * Esc key
@@ -446,6 +604,9 @@ public class AddContactDialog
      */
     public void windowGainedFocus(WindowEvent e)
     {
+        if(!initialized)
+            init();
+
         this.contactAddressField.requestFocus();
     }
 
@@ -463,6 +624,7 @@ public class AddContactDialog
                                                         boolean isSelected,
                                                         boolean cellHasFocus)
         {
+            this.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
             if (value instanceof String)
             {
                 setIcon(null);
@@ -519,18 +681,21 @@ public class AddContactDialog
             {
                 this.setBorder(BorderFactory.createCompoundBorder(
                     BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY),
-                    BorderFactory.createEmptyBorder(5, 0, 0, 0)));
+                    BorderFactory.createEmptyBorder(5, 5, 0, 0)));
                 this.setText((String) value);
             }
             else
             {
-                this.setBorder(null);
+                this.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
                 MetaContactGroup group = (MetaContactGroup) value;
 
-                if (group.equals(GuiActivator
-                    .getContactListService().getRoot()))
+                if (group == null
+                    || group.equals(GuiActivator
+                            .getContactListService().getRoot()))
+                {
                     this.setText(GuiActivator.getResources()
                         .getI18NString("service.gui.SELECT_NO_GROUP"));
+                }
                 else
                     this.setText(group.getGroupName());
             }
@@ -598,16 +763,20 @@ public class AddContactDialog
     /**
      * Updates the state of the add button.
      */
-    private void updateAddButtonState()
+    private void updateAddButtonState(boolean updateGroups)
     {
         String contactAddress = contactAddressField.getText();
 
-        if (accountCombo.getSelectedItem()
-            instanceof ProtocolProviderService
+        Object selectedItem = accountCombo.getSelectedItem();
+        if (selectedItem instanceof ProtocolProviderService
             && contactAddress != null && contactAddress.length() > 0)
             addButton.setEnabled(true);
         else
             addButton.setEnabled(false);
+
+        if(updateGroups && selectedItem instanceof ProtocolProviderService)
+            updateGroupItems(groupCombo,
+                (ProtocolProviderService)accountCombo.getSelectedItem());
     }
 
     /**
@@ -615,33 +784,13 @@ public class AddContactDialog
      */
     public void loadSkin()
     {
-        imageLabel.setIcon(GuiActivator.getResources().getImage(
-                "service.gui.icons.ADD_CONTACT_DIALOG_ICON"));
-
-        imageLabel.setVerticalAlignment(JLabel.TOP);
-    }
-
-    /**
-     * Returns the first <tt>ProtocolProviderService</tt> implementation
-     * corresponding to the preferred protocol
-     *
-     * @return the <tt>ProtocolProviderService</tt> corresponding to the
-     * preferred protocol
-     */
-    private boolean isPreferredProvider(AccountID accountID)
-    {
-        String preferredProtocolProp
-            = accountID.getAccountPropertyString(
-                ProtocolProviderFactory.IS_PREFERRED_PROTOCOL);
-
-        if (preferredProtocolProp != null
-            && preferredProtocolProp.length() > 0
-            && Boolean.parseBoolean(preferredProtocolProp))
+        if(initialized)
         {
-            return true;
-        }
+            imageLabel.setIcon(GuiActivator.getResources().getImage(
+                    "service.gui.icons.ADD_CONTACT_DIALOG_ICON"));
 
-        return false;
+            imageLabel.setVerticalAlignment(JLabel.TOP);
+        }
     }
 
     /**

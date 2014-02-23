@@ -74,6 +74,8 @@ public class OperationSetAutoAnswerSipImpl
             ProtocolProviderServiceSipImpl protocolProvider)
     {
         super(protocolProvider);
+
+        this.load();
     }
 
     /**
@@ -293,6 +295,12 @@ public class OperationSetAutoAnswerSipImpl
         Iterator<? extends CallPeer> peers = call.getCallPeers();
         CallPeer peer;
 
+        /*
+         * Check if the specific Call should be auto-answered.
+         */
+        if (call.isAutoAnswer())
+            return true;
+
         // lets check for headers
         if(answerConditional)
         {
@@ -329,8 +337,6 @@ public class OperationSetAutoAnswerSipImpl
      * Makes a check after creating call locally, should we answer it.
      *
      * @param call The new incoming call to auto-answer if needed.
-     * @param isVideoCall Indicates if the remote peer which has created this
-     * call wish to have a video call.
      *
      * @return <tt>true</tt> if we have processed and no further processing is
      *          needed, <tt>false</tt> otherwise.

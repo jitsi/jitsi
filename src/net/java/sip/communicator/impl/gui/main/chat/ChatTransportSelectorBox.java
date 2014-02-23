@@ -164,7 +164,14 @@ public class ChatTransportSelectorBox
             this.menu.add(menuItem);
 
             updateEnableStatus();
+
+            updateTransportStatus(chatTransport);
         }
+
+        if(!allowsInstantMessage() && allowsSmsMessage())
+            chatPanel.getChatWritePanel().setSmsSelected(true);
+        else
+            chatPanel.getChatWritePanel().setSmsSelected(false);
     }
 
     /**
@@ -176,7 +183,9 @@ public class ChatTransportSelectorBox
      */
     public void removeChatTransport(ChatTransport chatTransport)
     {
-        this.menu.remove(transportMenuItems.get(chatTransport));
+        JCheckBoxMenuItem menuItem = transportMenuItems.get(chatTransport);
+        this.menu.remove(menuItem);
+        this.buttonGroup.remove(menuItem);
         this.transportMenuItems.remove(chatTransport);
 
         updateEnableStatus();
@@ -249,13 +258,21 @@ public class ChatTransportSelectorBox
             ChatTransport newChatTransport
                 = getParentContactTransport(chatTransport);
 
-            ChatTransport onlineTransport = getOnlineTransport();
+            ChatTransport onlineTransport = getTransport(true);
 
             if(newChatTransport != null
                 && newChatTransport.getStatus().isOnline())
                 setSelected(newChatTransport);
             else if (onlineTransport != null)
                 setSelected(onlineTransport);
+            else
+            {
+                // update when going to offline
+                ChatTransport offlineTransport = getTransport(false);
+
+                if(offlineTransport != null)
+                    setSelected(offlineTransport);
+            }
         }
 
         menuItem = transportMenuItems.get(chatTransport);
@@ -269,9 +286,12 @@ public class ChatTransportSelectorBox
         icon = new ImageIcon(createTransportStatusImage(chatTransport));
 
         menuItem.setIcon(icon);
-        if(menu.getSelectedObject().equals(chatTransport))
+        if( menu.getSelectedObject() != null
+            && menu.getSelectedObject().equals(chatTransport))
         {
             this.menu.setIcon(icon);
+            this.chatSession.fireCurrentChatTransportUpdated(
+                    ChatSessionChangeListener.ICON_UPDATED);
         }
     }
 
@@ -294,6 +314,9 @@ public class ChatTransportSelectorBox
         SelectedObject selectedObject = new SelectedObject(icon, chatTransport);
 
         this.menu.setSelected(selectedObject);
+
+        this.chatSession.fireCurrentChatTransportUpdated(
+                ChatSessionChangeListener.ICON_UPDATED);
 
         String resourceName = (chatTransport.getResourceName() != null)
                                 ? " (" + chatTransport.getResourceName() + ")"
@@ -340,6 +363,21 @@ public class ChatTransportSelectorBox
     }
 
     /**
+     * Do we have a selected transport.
+     * @return do we have a selected transport.
+     */
+    boolean hasSelectedTransport()
+    {
+        for(JCheckBoxMenuItem item : transportMenuItems.values())
+        {
+            if(item.isSelected())
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Returns the protocol menu.
      *
      * @return the protocol menu
@@ -372,18 +410,58 @@ public class ChatTransportSelectorBox
     /**
      * Searches online contacts in the send via combo box.
      *
-     * @param chatTransport the chat transport to check
-     * @return TRUE if the send via combo box contains online contacts,
-     * otherwise returns FALSE.
+     * @param online if <tt>TRUE</tt> will return online transport, otherwise
+     *               will return offline one.
+     * @return online or offline contact transport from combo box.
      */
-    private ChatTransport getOnlineTransport()
+    private ChatTransport getTransport(boolean online)
     {
         for (ChatTransport comboChatTransport : transportMenuItems.keySet())
         {
-            if(comboChatTransport.getStatus().isOnline())
+            if(online && comboChatTransport.getStatus().isOnline())
+                return comboChatTransport;
+            else if(!online && !comboChatTransport.getStatus().isOnline())
                 return comboChatTransport;
         }
         return null;
+    }
+
+    /**
+     * Returns <code>true</code> if this contains a chat transport that
+     * supports instant messaging, otherwise returns <code>false</code>.
+     *
+     * @return <code>true</code> if this contains a chat transport that
+     * supports instant messaging, otherwise returns <code>false</code>
+     */
+    private boolean allowsInstantMessage()
+    {
+        for(ChatTransport tr : transportMenuItems.keySet())
+        {
+            if(tr.allowsInstantMessage())
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns <code>true</code> if this contains a chat transport that
+     * supports sms messaging, otherwise returns <code>false</code>.
+     *
+     * @return <code>true</code> if this contains a chat transport that
+     * supports sms messaging, otherwise returns <code>false</code>
+     */
+    private boolean allowsSmsMessage()
+    {
+        for(ChatTransport tr : transportMenuItems.keySet())
+        {
+            if(tr.allowsSmsMessage())
+                return true;
+        }
+
+        return false;
     }
 
     /**

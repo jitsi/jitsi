@@ -52,6 +52,11 @@ public class OperationSetTypingNotificationsSipImpl
      */
     private OperationSetBasicInstantMessagingSipImpl opSetBasicIm = null;
 
+    /**
+     * Registration listener instance.
+     */
+    private final RegistrationStateListener registrationListener;
+
     // XML documents types
     /**
      * The content type of the sent message.
@@ -123,8 +128,8 @@ public class OperationSetTypingNotificationsSipImpl
     {
         super(provider);
 
-        provider.addRegistrationStateChangeListener(new
-            RegistrationStateListener());
+        this.registrationListener = new RegistrationStateListener();
+        provider.addRegistrationStateChangeListener(registrationListener);
         this.opSetBasicIm = opSetBasicIm;
         opSetBasicIm.addMessageProcessor(this);
     }
@@ -552,6 +557,15 @@ public class OperationSetTypingNotificationsSipImpl
 
     public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
     {}
+
+    /**
+     * Frees allocated resources.
+     */
+    void shutdown()
+    {
+        parentProvider.removeRegistrationStateChangeListener(
+            registrationListener);
+    }
 
     /**
      * Task that will fire typing stopped when refresh time expires.

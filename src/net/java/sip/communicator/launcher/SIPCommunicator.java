@@ -25,41 +25,58 @@ import org.apache.felix.main.*;
 public class SIPCommunicator
 {
     /**
-     * The name of the property that stores our home dir location.
+     * Legacy home directory names that we can use if current dir name is the
+     * currently active name (overridableDirName).
      */
-    public static final String PNAME_SC_HOME_DIR_LOCATION =
-            "net.java.sip.communicator.SC_HOME_DIR_LOCATION";
+    private static final String[] LEGACY_DIR_NAMES
+        = { ".sip-communicator", "SIP Communicator" };
 
     /**
-     * The name of the property that stores our home dir name.
+     * The name of the property that stores the home dir for cache data, such
+     * as avatars and spelling dictionaries.
      */
-    public static final String PNAME_SC_HOME_DIR_NAME =
-            "net.java.sip.communicator.SC_HOME_DIR_NAME";
+    public static final String PNAME_SC_CACHE_DIR_LOCATION =
+            "net.java.sip.communicator.SC_CACHE_DIR_LOCATION";
 
     /**
-     * The currently active name.
+     * The name of the property that stores the home dir for application log
+     * files (not history).
      */
-    private static String overridableDirName = "Jitsi";
-
-    /**
-     * Legacy home directory names that we can use if current dir name
-     * is the currently active name (overridableDirName).
-     */
-    private static String[] legacyDirNames =
-        {".sip-communicator", "SIP Communicator"};
+    public static final String PNAME_SC_LOG_DIR_LOCATION =
+            "net.java.sip.communicator.SC_LOG_DIR_LOCATION";
 
     /**
      * Name of the possible configuration file names (used under macosx).
      */
-    private static String[] legacyConfigurationFileNames =
-        {"sip-communicator.properties", "jitsi.properties",
-         "sip-communicator.xml", "jitsi.xml"};
+    private static final String[] LEGACY_CONFIGURATION_FILE_NAMES
+        = {
+            "sip-communicator.properties",
+            "jitsi.properties",
+            "sip-communicator.xml",
+            "jitsi.xml"
+        };
+
+    /**
+     * The currently active name.
+     */
+    private static final String OVERRIDABLE_DIR_NAME = "Jitsi";
+
+    /**
+     * The name of the property that stores our home dir location.
+     */
+    public static final String PNAME_SC_HOME_DIR_LOCATION
+        = "net.java.sip.communicator.SC_HOME_DIR_LOCATION";
+
+    /**
+     * The name of the property that stores our home dir name.
+     */
+    public static final String PNAME_SC_HOME_DIR_NAME
+        = "net.java.sip.communicator.SC_HOME_DIR_NAME";
 
     /**
      * Starts the SIP Communicator.
      *
      * @param args command line args if any
-     *
      * @throws Exception whenever it makes sense.
      */
     public static void main(String[] args)
@@ -79,12 +96,18 @@ public class SIPCommunicator
         setScHomeDir(osName);
 
         // this needs to be set before any DNS lookup is run
-        File f = new File(System.getProperty(PNAME_SC_HOME_DIR_LOCATION),
-            System.getProperty(PNAME_SC_HOME_DIR_NAME)
-            + File.separator + ".usednsjava");
+        File f
+            = new File(
+                    System.getProperty(PNAME_SC_HOME_DIR_LOCATION),
+                    System.getProperty(PNAME_SC_HOME_DIR_NAME)
+                        + File.separator
+                        + ".usednsjava");
         if(f.exists())
+        {
             System.setProperty(
-                "sun.net.spi.nameservice.provider.1", "dns,dnsjava");
+                    "sun.net.spi.nameservice.provider.1",
+                    "dns,dnsjava");
+        }
 
         if (version.startsWith("1.4") || vmVendor.startsWith("Gnu") ||
                 vmVendor.startsWith("Free"))
@@ -162,7 +185,7 @@ public class SIPCommunicator
      * wrappers to call it.
      *
      * @param osName the name of the OS according to which the SC_HOME_DIR_*
-     *            properties are to be set
+     * properties are to be set
      */
     static void setScHomeDir(String osName)
     {
@@ -173,12 +196,17 @@ public class SIPCommunicator
          * ${user.home}/.sip-communicator if it exists (and the new path isn't
          * already in use).
          */
-        String location = System.getProperty(PNAME_SC_HOME_DIR_LOCATION);
+        String profileLocation = System.getProperty(PNAME_SC_HOME_DIR_LOCATION);
+        String cacheLocation = System.getProperty(PNAME_SC_CACHE_DIR_LOCATION);
+        String logLocation = System.getProperty(PNAME_SC_LOG_DIR_LOCATION);
         String name = System.getProperty(PNAME_SC_HOME_DIR_NAME);
 
         boolean isHomeDirnameForced = name != null;
 
-        if ((location == null) || (name == null))
+        if (profileLocation == null
+            || cacheLocation == null
+            || logLocation == null
+            || name == null)
         {
             String defaultLocation = System.getProperty("user.home");
             String defaultName = ".jitsi";
@@ -188,16 +216,27 @@ public class SIPCommunicator
             // 2) if such is forced and is the overridableDirName check it
             //      (the later is the case with name transition SIP Communicator
             //      -> Jitsi, check them only for Jitsi)
-            boolean chekLegacyDirNames = (name == null) ||
-                name.equals(overridableDirName);
+            boolean chekLegacyDirNames
+                = (name == null) || name.equals(OVERRIDABLE_DIR_NAME);
 
             if (osName.startsWith("Mac"))
             {
-                if (location == null)
-                    location =
+                if (profileLocation == null)
+                    profileLocation =
                             System.getProperty("user.home") + File.separator
                             + "Library" + File.separator
                             + "Application Support";
+                if (cacheLocation == null)
+                    cacheLocation = 
+                        System.getProperty("user.home") + File.separator
+                        + "Library" + File.separator
+                        + "Caches";
+                if (logLocation == null)
+                    logLocation = 
+                        System.getProperty("user.home") + File.separator
+                        + "Library" + File.separator
+                        + "Logs";
+
                 if (name == null)
                     name = "Jitsi";
             }
@@ -209,15 +248,23 @@ public class SIPCommunicator
                  * it may be a good idea to follow the OS recommendations and
                  * use APPDATA on pre-Vista systems as well.
                  */
-                if (location == null)
-                    location = System.getenv("APPDATA");
+                if (profileLocation == null)
+                    profileLocation = System.getenv("APPDATA");
+                if (cacheLocation == null)
+                    cacheLocation = System.getenv("LOCALAPPDATA");
+                if (logLocation == null)
+                    logLocation = System.getenv("LOCALAPPDATA");
                 if (name == null)
                     name = "Jitsi";
             }
 
             /* If there're no OS specifics, use the defaults. */
-            if (location == null)
-                location = defaultLocation;
+            if (profileLocation == null)
+                profileLocation = defaultLocation;
+            if (cacheLocation == null)
+                cacheLocation = profileLocation;
+            if (logLocation == null)
+                logLocation = profileLocation;
             if (name == null)
                 name = defaultName;
 
@@ -227,57 +274,57 @@ public class SIPCommunicator
              * doesn't look for the default dir.
              */
             if (!isHomeDirnameForced
-                && (new File(location, name).isDirectory() == false)
+                && (new File(profileLocation, name).isDirectory() == false)
                 && new File(defaultLocation, defaultName).isDirectory())
             {
-                location = defaultLocation;
+                profileLocation = defaultLocation;
                 name = defaultName;
             }
 
-            // if we need to check legacy names and there is no
-            // current home dir already created
+            // if we need to check legacy names and there is no current home dir
+            // already created
             if(chekLegacyDirNames
-               && !checkHomeFolderExist(location, name, osName))
+                    && !checkHomeFolderExist(profileLocation, name, osName))
             {
-                // now check whether some of the legacy dir names
-                // exists, and use it if exist
-                for(int i = 0; i < legacyDirNames.length; i++)
+                // now check whether a legacy dir name exists and use it
+                for(int i = 0; i < LEGACY_DIR_NAMES.length; i++)
                 {
+                    String dir = LEGACY_DIR_NAMES[i];
+
                     // check the platform specific directory
-                    if(checkHomeFolderExist(
-                            location, legacyDirNames[i], osName))
+                    if(checkHomeFolderExist(profileLocation, dir, osName))
                     {
-                        name = legacyDirNames[i];
+                        name = dir;
                         break;
                     }
 
                     // now check it and in the default location
-                    if(checkHomeFolderExist(
-                            defaultLocation, legacyDirNames[i], osName))
+                    if(checkHomeFolderExist(defaultLocation, dir, osName))
                     {
-                        name = legacyDirNames[i];
-                        location = defaultLocation;
+                        name = dir;
+                        profileLocation = defaultLocation;
                         break;
                     }
                 }
             }
 
-            System.setProperty(PNAME_SC_HOME_DIR_LOCATION, location);
+            System.setProperty(PNAME_SC_HOME_DIR_LOCATION, profileLocation);
+            System.setProperty(PNAME_SC_CACHE_DIR_LOCATION, cacheLocation);
+            System.setProperty(PNAME_SC_LOG_DIR_LOCATION, logLocation);
             System.setProperty(PNAME_SC_HOME_DIR_NAME, name);
         }
 
         // when we end up with the home dirs, make sure we have log dir
-        new File(location, name + File.separator + "log").mkdirs();
+        new File(new File(logLocation, name), "log").mkdirs();
     }
 
     /**
-     * Checks whether home folder exists.
-     * Special situation checked under macosx, due to created folder
-     * of the new version of the updater we may end up with our
-     * settings in 'SIP Communicator' folder and having 'Jitsi' folder
-     * created by the updater(its download location).
-     * So we check not only the folder exist but whether it contains
-     * any of the known configuration files in it.
+     * Checks whether home folder exists. Special situation checked under
+     * macosx, due to created folder of the new version of the updater we may
+     * end up with our settings in 'SIP Communicator' folder and having 'Jitsi'
+     * folder created by the updater(its download location). So we check not
+     * only the folder exist but whether it contains any of the known
+     * configuration files in it.
      *
      * @param parent the parent folder
      * @param name the folder name to check.
@@ -285,17 +332,17 @@ public class SIPCommunicator
      * @return whether folder exists.
      */
     static boolean checkHomeFolderExist(
-        String parent, String name, String osName)
+            String parent, String name, String osName)
     {
         if(osName.startsWith("Mac"))
         {
-            for(int i = 0; i < legacyConfigurationFileNames.length; i++)
+            for(int i = 0; i < LEGACY_CONFIGURATION_FILE_NAMES.length; i++)
             {
-                if(new File(new File(parent, name)
-                            , legacyConfigurationFileNames[i]).exists())
+                String f = LEGACY_CONFIGURATION_FILE_NAMES[i];
+
+                if(new File(new File(parent, name), f).exists())
                     return true;
             }
-
             return false;
         }
 

@@ -53,11 +53,18 @@ public class SearchFilter
                 + ".DISABLE_CALL_HISTORY_SEARCH_IN_CONTACT_LIST";
 
     /**
+     * Defines custom order for the contact sources.
+     */
+    private static Map<Integer, Integer> contactSourceOrder
+        = new HashMap<Integer, Integer>();
+
+    /**
      * Creates an instance of <tt>SearchFilter</tt>.
      */
     public SearchFilter(MetaContactListSource contactListSource)
     {
         this.mclSource = contactListSource;
+        initContactSourceOrder();
     }
 
     /**
@@ -67,6 +74,19 @@ public class SearchFilter
     {
         this.mclSource = null;
         this.sourceContactList = sourceContactList;
+        initContactSourceOrder();
+    }
+
+    /**
+     * Initializes the custom contact source order map.
+     */
+    private void initContactSourceOrder()
+    {
+        //This entry will be used to set the index for chat room contact sources
+        //The index is used to order the contact sources in the contact list.
+        //The chat room sources will be ordered after the meta contact list.
+        contactSourceOrder.put(ContactSourceService.CHAT_ROOM_TYPE,
+            GuiActivator.getContactListService().getSourceIndex() + 1);
     }
 
     /**
@@ -84,13 +104,14 @@ public class SearchFilter
         if (sourceContactList.getDefaultFilter()
                 .equals(TreeContactList.presenceFilter))
         {
-            MetaContactQuery defaultQuery
-                = mclSource.queryMetaContactSource(filterPattern);
+            final MetaContactQuery defaultQuery = new MetaContactQuery();
 
             defaultQuery.addContactQueryListener(sourceContactList);
 
             // First add the MetaContactListSource
             filterQuery.addContactQuery(defaultQuery);
+
+            mclSource.startQuery(defaultQuery, filterPattern);
         }
         else if (sourceContactList.getDefaultFilter()
                     .equals(TreeContactList.historyFilter))
@@ -102,6 +123,11 @@ public class SearchFilter
         // If we have stopped filtering in the mean time we return here.
         if (filterQuery.isCanceled())
             return;
+
+        if(sourceContactList instanceof TreeContactList)
+        {
+            ((TreeContactList) sourceContactList).setAutoSectionAllowed(true);
+        }
 
         // Then we apply the filter on all its contact sources.
         while (filterSources.hasNext())
@@ -119,21 +145,28 @@ public class SearchFilter
                     == ContactSourceService.HISTORY_TYPE)
                 continue;
 
+            if (sourceContactList.getDefaultFilter()
+                .equals(TreeContactList.presenceFilter))
+            {
+                Integer contactSourceIndex = contactSourceOrder.get(
+                    filterSource.getContactSourceService().getType());
+                if(contactSourceIndex != null)
+                {
+                    //We are setting the index from contactSourceOrder map. This
+                    //index is set to reorder the sources in the contact list.
+                    filterSource.setContactSourceIndex(contactSourceIndex);
+                }
+            }
             // If we have stopped filtering in the mean time we return here.
             if (filterQuery.isCanceled())
                 return;
 
-            ContactQuery query = applyFilter(filterSource);
-
-            if (query.getStatus() == ContactQuery.QUERY_IN_PROGRESS)
-                filterQuery.addContactQuery(query);
+            applyFilter(filterSource, filterQuery);
         }
 
         // Closes this filter to indicate that we finished adding queries to it.
         if (filterQuery.isRunning())
             filterQuery.close();
-        else if (!sourceContactList.isEmpty())
-            sourceContactList.selectFirstContact();
     }
 
     /**
@@ -141,9 +174,11 @@ public class SearchFilter
      *
      * @param contactSource the <tt>ExternalContactSource</tt> to apply the
      * filter to
+     * @param filterQuery the filter query object.
      * @return the <tt>ContactQuery</tt> that tracks this filter
      */
-    protected ContactQuery applyFilter(UIContactSource contactSource)
+    protected ContactQuery applyFilter(UIContactSource contactSource,
+        FilterQuery filterQuery)
     {
         ContactSourceService sourceService
             = contactSource.getContactSourceService();
@@ -152,14 +187,18 @@ public class SearchFilter
         if (sourceService instanceof ExtendedContactSourceService)
             contactQuery
                 = ((ExtendedContactSourceService) sourceService)
-                    .queryContactSource(filterPattern);
+                    .createContactQuery(filterPattern);
         else
-            contactQuery = sourceService.queryContactSource(filterString);
-
-        // Add first available results.
-        this.addMatching(contactQuery.getQueryResults());
+            contactQuery = sourceService.createContactQuery(filterString);
 
         contactQuery.addContactQueryListener(sourceContactList);
+
+        if (contactQuery.getStatus() == ContactQuery.QUERY_IN_PROGRESS)
+        {
+            filterQuery.addContactQuery(contactQuery);
+        }
+
+        contactQuery.start();
 
         return contactQuery;
     }
@@ -221,19 +260,6 @@ public class SearchFilter
     }
 
     /**
-     * Checks if the given <tt>contact</tt> is matching the current filter.
-     * A <tt>SourceContact</tt> would be matching the filter if its display
-     * name is matching the search string.
-     * @param contact the <tt>ContactListContactDescriptor</tt> to check
-     * @return <tt>true</tt> to indicate that the given <tt>contact</tt> is
-     * matching the current filter, otherwise returns <tt>false</tt>
-     */
-    private boolean isMatching(SourceContact contact)
-    {
-        return isMatching(contact.getDisplayName());
-    }
-
-    /**
      * Indicates if the given string matches this filter.
      * @param text the text to check
      * @return <tt>true</tt> to indicate that the given <tt>text</tt> matches
@@ -245,47 +271,5 @@ public class SearchFilter
             return filterPattern.matcher(text).find();
 
         return true;
-    }
-
-    /**
-     * Adds the list of <tt>sourceContacts</tt> to the contact list.
-     * @param sourceContacts the list of <tt>SourceContact</tt>s to add
-     */
-    protected void addMatching(List<SourceContact> sourceContacts)
-    {
-        Iterator<SourceContact> contactsIter = sourceContacts.iterator();
-
-        while (contactsIter.hasNext())
-            addSourceContact(contactsIter.next());
-    }
-
-    /**
-     * Adds the given <tt>sourceContact</tt> to the contact list.
-     * @param sourceContact the <tt>SourceContact</tt> to add
-     */
-    private void addSourceContact(SourceContact sourceContact)
-    {
-        ContactSourceService contactSource
-            = sourceContact.getContactSource();
-
-        UIContactSource sourceUI
-            = sourceContactList.getContactSource(contactSource);
-
-        if (sourceUI != null
-            // ExtendedContactSourceService has already matched the
-            // SourceContact over the pattern
-            && (contactSource instanceof ExtendedContactSourceService)
-                || isMatching(sourceContact))
-        {
-            boolean isSorted = (sourceContact.getIndex() > -1) ? true : false;
-
-            sourceContactList.addContact(
-                sourceUI.createUIContact(sourceContact),
-                sourceUI.getUIGroup(),
-                isSorted,
-                true);
-        }
-        else
-            sourceUI.removeUIContact(sourceContact);
     }
 }

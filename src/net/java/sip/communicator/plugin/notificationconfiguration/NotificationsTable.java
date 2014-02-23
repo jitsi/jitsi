@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.notificationconfiguration;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -94,20 +95,61 @@ public class NotificationsTable
             {
                 public void valueChanged(ListSelectionEvent e)
                 {
-                    if (e.getValueIsAdjusting())
-                        return;
+                    if (!e.getValueIsAdjusting())
+                    {
+                        int row = notifTable.getSelectedRow();
 
-                    int row = notifTable.getSelectedRow();
-
-                    if (row > -1)
-                        configPanel.setNotificationEntry(
-                            getNotificationEntry(row));
+                        if (row > -1)
+                        {
+                            configPanel.setNotificationEntry(
+                                    getNotificationEntry(row));
+                        }
+                    }
                 }
             });
 
         initTableData();
 
-        for(int i = 0; i< columns.length; i ++)
+        // Sort the table by description; otherwise, it looks chaotic.
+        if (columns.length != 0)
+        {
+            TableRowSorter<NotificationsTableModel> sorter
+                = new TableRowSorter<NotificationsTableModel>(model);
+            int column = columns.length - 1;
+            java.util.List<RowSorter.SortKey> sortKeys
+                = Arrays.asList(
+                        new RowSorter.SortKey(
+                                column,
+                                SortOrder.ASCENDING));
+
+            sorter.setComparator(
+                    column,
+                    new Comparator<NotificationEntry>()
+                    {
+                        public int compare(
+                                NotificationEntry ne1,
+                                NotificationEntry ne2)
+                        {
+                            String s1
+                                = Resources.getString(
+                                        "plugin.notificationconfig.event."
+                                            + ne1.getEvent());
+                            String s2
+                                = Resources.getString(
+                                        "plugin.notificationconfig.event."
+                                            + ne2.getEvent());
+
+                            if (s1 == null)
+                                return (s2 == null) ? 0 : -1;
+                            else
+                                return (s2 == null) ? 1 : s1.compareTo(s2);
+                        }
+                    });
+            sorter.setSortKeys(sortKeys);
+            notifTable.setRowSorter(sorter);
+        }
+
+        for(int i = 0; i < columns.length; i++)
         {
             TableColumn tmp = notifTable.getColumnModel().getColumn(i);
             if(columns[i].getClass() != strTmp.getClass())
@@ -187,7 +229,7 @@ public class NotificationsTable
     {
         Object row[] = new Object[7];
 
-        row[0] = new Boolean(entry.getEnabled());
+        row[0] = Boolean.valueOf(entry.getEnabled());
         row[1] = (entry.getProgram()) ? ENABLED : DISABLED;
         row[2] = entry.getPopup() ? ENABLED : DISABLED;
         row[3] = (entry.getSoundNotification()) ? ENABLED : DISABLED;
@@ -234,11 +276,8 @@ public class NotificationsTable
      */
     private void addLine(Object data[])
     {
-        if(data.length != model.getColumnCount())
-        {
-            return;
-        }
-        model.addRow(data);
+        if(data.length == model.getColumnCount())
+            model.addRow(data);
     }
 
     /**
@@ -767,10 +806,7 @@ public class NotificationsTable
      */
     public void clear()
     {
-        int numrows = model.getRowCount();
-        for(int i = numrows - 1; i >=0; i--)
-        {
+        for(int numrows = model.getRowCount(), i = numrows - 1; i >=0; i--)
             model.removeRow(i);
-        }
     }
 }

@@ -20,6 +20,7 @@ import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
+import org.jitsi.service.fileaccess.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
@@ -250,7 +251,8 @@ public class DnssecPanel
             try
             {
                 f = DnsConfigActivator.getFileAccessService()
-                    .getPrivatePersistentFile(".usednsjava");
+                    .getPrivatePersistentFile(".usednsjava",
+                        FileCategory.PROFILE);
                 if(chkEnabled.isSelected())
                 {
                     if(!f.createNewFile() && !f.exists())

@@ -42,6 +42,11 @@ public class SIPCommButton
     private Image iconImage;
 
     /**
+     * Custom tooltip to be used with this button.
+     */
+    private ExtendedTooltip extendedTooltip;
+
+    /**
      * The index of the button, used when we want to order our buttons.
      */
     private int index = -1;
@@ -269,6 +274,25 @@ public class SIPCommButton
                 this);
     }
 
+    /** 
+     * This method is called internally by Graphics.drawImage. This is necessary 
+     * for properly updating the icon image of this SIPCommButton.
+     *
+     * @param img the image to update
+     * @param x the x coordinate
+     * @param y the y coordinate
+     * @param width the image width
+     * @param height the image height
+     * @return true if the image is updated
+     */
+    @Override
+    public boolean imageUpdate(
+        Image img, int infoflags, int x, int y, int width, int height) 
+    {
+        repaint();
+        return true;
+    }
+
     /**
      * Returns the background image of this button.
      *
@@ -363,6 +387,24 @@ public class SIPCommButton
     public int getIndex()
     {
         return this.index;
+    }
+
+    /**
+     * Changes the custom tooltip for this button. By default no custom tip.
+     * @param extendedTooltip the new tooltip to use.
+     */
+    public void setTooltip(ExtendedTooltip extendedTooltip)
+    {
+        this.extendedTooltip = extendedTooltip;
+    }
+
+    /**
+     * Returns the custom tooltip.
+     * @returns the custom tooltip.
+     */
+    public ExtendedTooltip getTooltip()
+    {
+        return extendedTooltip;
     }
 
     /**

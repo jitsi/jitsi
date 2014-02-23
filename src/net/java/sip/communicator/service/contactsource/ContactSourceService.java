@@ -29,6 +29,11 @@ public interface ContactSourceService
      * Type of a history source. Queries only when history should be shown.
      */
     public static final int HISTORY_TYPE = 2;
+    
+    /**
+     * Type of a chat room source.
+     */
+    public static final int CHAT_ROOM_TYPE = 3;
 
     /**
      * Returns the type of this contact source.
@@ -45,22 +50,23 @@ public interface ContactSourceService
     public String getDisplayName();
 
     /**
-     * Queries this search source for the given <tt>queryString</tt>.
-     *
+     * Creates and returns new <tt>ContactQuery</tt> instance.
+     * 
      * @param queryString the string to search for
-     * @return the created query
+     * 
+     * @return new <tt>ContactQuery</tt> instance.
      */
-    public ContactQuery queryContactSource(String queryString);
-
+    public ContactQuery createContactQuery(String queryString);
+    
     /**
-     * Queries this search source for the given <tt>queryString</tt>.
-     *
+     * Creates and returns new <tt>ContactQuery</tt> instance.
+     * 
      * @param queryString the string to search for
      * @param contactCount the maximum count of result contacts
-     * @return the created query
+     * @return new <tt>ContactQuery</tt> instance.
      */
-    public ContactQuery queryContactSource(String queryString,
-            int contactCount);
+    public ContactQuery createContactQuery(String queryString,
+      int contactCount);
 
     /**
      * Returns the index of the contact source in the result list.

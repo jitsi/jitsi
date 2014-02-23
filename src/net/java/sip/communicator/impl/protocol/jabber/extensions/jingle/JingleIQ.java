@@ -303,7 +303,10 @@ public class JingleIQ extends IQ
      */
     public List<ContentPacketExtension> getContentList()
     {
-        return contentList;
+        synchronized(contentList)
+        {
+            return new ArrayList<ContentPacketExtension>(contentList);
+        }
     }
 
     /**

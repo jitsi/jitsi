@@ -141,25 +141,34 @@ public class GroupNode
      */
     public void removeContact(UIContactImpl uiContact)
     {
-        final ContactNode contactNode = uiContact.getContactNode();
-
-        if (contactNode != null)
+        final ContactNode contactNode;
+        int index;
+        synchronized (uiContact)
         {
-            int index = getIndex(contactNode);
-            int selectedIndex = getLeadSelectionRow();
+            contactNode = uiContact.getContactNode();
 
-            // We remove the node directly from the list, thus skipping all
-            // the checks verifying if the node belongs to this parent.
-            children.removeElementAt(index);
+            if (contactNode == null)
+                return;
+        
+            index = getIndex(contactNode);
+        }
+        
+        int selectedIndex = getLeadSelectionRow();
 
-            contactNode.setParent(null);
+        // We remove the node directly from the list, thus skipping all
+        // the checks verifying if the node belongs to this parent.
+        children.removeElementAt(index);
+
+        contactNode.setParent(null);
+        synchronized (uiContact)
+        {
             uiContact.setContactNode(null);
             uiContact = null;
-
-            fireNodeRemoved(contactNode, index);
-
-            refreshSelection(selectedIndex, getLeadSelectionRow());
         }
+
+        fireNodeRemoved(contactNode, index);
+
+        refreshSelection(selectedIndex, getLeadSelectionRow());
     }
 
     /**
@@ -172,8 +181,13 @@ public class GroupNode
     {
         int selectedIndex = getLeadSelectionRow();
 
-        GroupNode groupNode = new GroupNode(treeModel, uiGroup);
-        uiGroup.setGroupNode(groupNode);
+        GroupNode groupNode;
+        synchronized (uiGroup)
+        {
+            groupNode = new GroupNode(treeModel, uiGroup);
+            uiGroup.setGroupNode(groupNode);
+        }
+        
 
         add(groupNode);
 
@@ -194,24 +208,33 @@ public class GroupNode
      */
     public void removeContactGroup(UIGroupImpl uiGroup)
     {
-        GroupNode groupNode = uiGroup.getGroupNode();
-
-        if (groupNode != null)
+        GroupNode groupNode;
+        
+        synchronized (uiGroup)
         {
-            int index = getIndex(groupNode);
-            int selectedIndex = getLeadSelectionRow();
+            groupNode = uiGroup.getGroupNode();
 
-            // We remove the node directly from the list, thus skipping all the
-            // checks verifying if the node belongs to this parent.
-            children.removeElementAt(index);
-
-            groupNode.setParent(null);
-            uiGroup.setGroupNode(null);
-
-            fireNodeRemoved(groupNode, index);
-
-            refreshSelection(selectedIndex, getLeadSelectionRow());
+            if (groupNode == null)
+                return;
         }
+        
+            
+        int index = getIndex(groupNode);
+        int selectedIndex = getLeadSelectionRow();
+
+        // We remove the node directly from the list, thus skipping all the
+        // checks verifying if the node belongs to this parent.
+        children.removeElementAt(index);
+
+        groupNode.setParent(null);
+        synchronized (uiGroup)
+        {
+            uiGroup.setGroupNode(null);
+        }
+        
+        fireNodeRemoved(groupNode, index);
+
+        refreshSelection(selectedIndex, getLeadSelectionRow());
     }
 
     /**
@@ -223,9 +246,13 @@ public class GroupNode
     @SuppressWarnings("unchecked")
     public GroupNode sortedAddContactGroup(UIGroupImpl uiGroup)
     {
-        GroupNode groupNode = new GroupNode(treeModel, uiGroup);
+        GroupNode groupNode;
+        synchronized (uiGroup)
+        {
+            groupNode = new GroupNode(treeModel, uiGroup);
 
-        uiGroup.setGroupNode(groupNode);
+            uiGroup.setGroupNode(groupNode);
+        }
 
         add(groupNode);
 
@@ -327,14 +354,23 @@ public class GroupNode
 
             if (treeNode instanceof ContactNode)
             {
-                ((ContactNode) treeNode).getContactDescriptor()
-                    .setContactNode(null);
+                UIContactImpl  contact 
+                    = ((ContactNode) treeNode).getContactDescriptor();
+                synchronized (contact)
+                {
+                    contact.setContactNode(null);
+                }
+                    
             }
             else if (treeNode instanceof GroupNode)
             {
-                ((GroupNode) treeNode).getGroupDescriptor()
-                    .setGroupNode(null);
-
+                UIGroupImpl group
+                    = ((GroupNode) treeNode).getGroupDescriptor();
+                synchronized (group)
+                {
+                    group.setGroupNode(null);
+                }
+                    
                 ((GroupNode) treeNode).clear();
             }
         }
@@ -396,18 +432,6 @@ public class GroupNode
          */
         public int compare(ContactListNode node1, ContactListNode node2)
         {
-            // Child groups are shown after child contacts.
-            if (node1 instanceof GroupNode)
-            {
-                if (node2 instanceof ContactNode)
-                    return 1;
-            }
-            else if (node1 instanceof ContactNode)
-            {
-                if (node2 instanceof GroupNode)
-                    return -1;
-            }
-
             int index1 = node1.getSourceIndex();
             int index2 = node2.getSourceIndex();
 

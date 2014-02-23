@@ -11,6 +11,7 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.main.chat.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 /**
@@ -23,6 +24,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  */
 public class ChatContactListModel
     extends AbstractListModel
+    implements ChatRoomMemberPropertyChangeListener
 {
 
     /**
@@ -31,6 +33,11 @@ public class ChatContactListModel
      */
     private final List<ChatContact<?>> chatContacts
         = new ArrayList<ChatContact<?>>();
+
+    /**
+     * Current chat session.
+     */
+    private ChatSession chatSession;
 
     /**
      * The implementation of the sorting rules - the <tt>ChatContact</tt>s are
@@ -82,6 +89,8 @@ public class ChatContactListModel
      */
     public ChatContactListModel(ChatSession chatSession)
     {
+        this.chatSession = chatSession;
+
         // when something like rename on a member change update the UI to
         // reflect it
         Object descriptor = chatSession.getDescriptor();
@@ -89,42 +98,36 @@ public class ChatContactListModel
         if(descriptor instanceof ChatRoomWrapper)
         {
             ((ChatRoomWrapper) descriptor)
-                .getChatRoom()
-                    .addMemberPropertyChangeListener(
-                            new ChatRoomMemberPropertyChangeListener()
-                            {
-                                public void chatRoomPropertyChanged(
-                                        ChatRoomMemberPropertyChangeEvent ev)
-                                {
-                                    // Translate into
-                                    // ListDataListener.contentsChanged.
-                                    int chatContactCount = chatContacts.size();
-
-                                    for (int i = 0; i < chatContactCount; i++)
-                                    {
-                                        ChatContact<?> chatContact
-                                            = chatContacts.get(i);
-
-                                        if(chatContact.getDescriptor().equals(
-                                                ev.getSourceChatRoomMember()))
-                                        {
-                                            fireContentsChanged(
-                                                    chatContact,
-                                                    i, i);
-                                            /*
-                                             * TODO Can ev.sourceChatRoomMember
-                                             * equal more than one chatContacts
-                                             * element? If it cannot, it will be
-                                             * more efficient to break here.
-                                             */
-                                        }
-                                    }
-                                }
-                            });
+                .getChatRoom().addMemberPropertyChangeListener(this);
         }
     }
 
+    /**
+     * Listens for property change in chat room members.
+     * @param ev the event
+     */
+    public void chatRoomPropertyChanged(ChatRoomMemberPropertyChangeEvent ev)
+    {
+        // Translate into
+        // ListDataListener.contentsChanged.
+        int chatContactCount = chatContacts.size();
 
+        for (int i = 0; i < chatContactCount; i++)
+        {
+            ChatContact<?> chatContact = chatContacts.get(i);
+
+            if(chatContact.getDescriptor().equals(ev.getSourceChatRoomMember()))
+            {
+                fireContentsChanged(chatContact, i, i);
+                /*
+                 * TODO Can ev.sourceChatRoomMember
+                 * equal more than one chatContacts
+                 * element? If it cannot, it will be
+                 * more efficient to break here.
+                 */
+            }
+        }
+    }
 
     /**
      * Adds a specific <tt>ChatContact</tt> to this <tt>AbstractListModel</tt>
@@ -216,6 +219,20 @@ public class ChatContactListModel
             chatContacts.clear();
 
             fireIntervalRemoved(this, 0, contactsSize - 1);
+        }
+    }
+
+    /**
+     * Runs clean-up.
+     */
+    public void dispose()
+    {
+        Object descriptor = chatSession.getDescriptor();
+
+        if(descriptor instanceof ChatRoomWrapper)
+        {
+            ((ChatRoomWrapper) descriptor)
+                .getChatRoom().removeMemberPropertyChangeListener(this);
         }
     }
 }

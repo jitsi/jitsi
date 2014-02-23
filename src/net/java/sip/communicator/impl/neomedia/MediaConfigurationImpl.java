@@ -907,7 +907,7 @@ public class MediaConfigurationImpl
      * be added
      */
     public void createAudioSystemControls(
-            AudioSystem audioSystem,
+            final AudioSystem audioSystem,
             JComponent container)
     {
         GridBagConstraints cnstrnts = new GridBagConstraints();
@@ -991,56 +991,75 @@ public class MediaConfigurationImpl
             container.add(notifyCombo, cnstrnts);
         }
 
-        if ((AudioSystem.FEATURE_ECHO_CANCELLATION & audioSystemFeatures) != 0)
-        {
-            final SIPCommCheckBox echoCancelCheckBox
-                = new SIPCommCheckBox(
-                        NeomediaActivator.getResources().getI18NString(
-                                "impl.media.configform.ECHOCANCEL"));
-
-            /*
-             * First set the selected one, then add the listener in order to
-             * avoid saving the value when using the default one and only
-             * showing to user without modification.
-             */
-            echoCancelCheckBox.setSelected(
-                    mediaService.getDeviceConfiguration().isEchoCancel());
-            echoCancelCheckBox.addItemListener(
-                    new ItemListener()
+        int[] checkBoxAudioSystemFeatures
+            = new int[]
                     {
-                        public void itemStateChanged(ItemEvent e)
-                        {
-                            mediaService.getDeviceConfiguration().setEchoCancel(
-                                    echoCancelCheckBox.isSelected());
-                        }
-                    });
-            container.add(echoCancelCheckBox, cnstrnts);
-        }
+                        AudioSystem.FEATURE_ECHO_CANCELLATION,
+                        AudioSystem.FEATURE_DENOISE,
+                        AudioSystem.FEATURE_AGC
+                    };
 
-        if ((AudioSystem.FEATURE_DENOISE & audioSystemFeatures) != 0)
+        for (int i = 0; i < checkBoxAudioSystemFeatures.length; i++)
         {
-            final SIPCommCheckBox denoiseCheckBox
-                = new SIPCommCheckBox(
-                        NeomediaActivator.getResources().getI18NString(
-                                "impl.media.configform.DENOISE"));
+            final int f = checkBoxAudioSystemFeatures[i];
 
-            /*
-             * First set the selected one, then add the listener in order to
-             * avoid saving the value when using the default one and only
-             * showing to user without modification.
-             */
-            denoiseCheckBox.setSelected(
-                    mediaService.getDeviceConfiguration().isDenoise());
-            denoiseCheckBox.addItemListener(
-                    new ItemListener()
-                    {
-                        public void itemStateChanged(ItemEvent e)
+            if ((f & audioSystemFeatures) != 0)
+            {
+                String textKey;
+                boolean selected;
+
+                switch (f)
+                {
+                case AudioSystem.FEATURE_AGC:
+                    textKey = "impl.media.configform.AUTOMATICGAINCONTROL";
+                    selected = audioSystem.isAutomaticGainControl();
+                    break;
+                case AudioSystem.FEATURE_DENOISE:
+                    textKey = "impl.media.configform.DENOISE";
+                    selected = audioSystem.isDenoise();
+                    break;
+                case AudioSystem.FEATURE_ECHO_CANCELLATION:
+                    textKey = "impl.media.configform.ECHOCANCEL";
+                    selected = audioSystem.isEchoCancel();
+                    break;
+                default:
+                    continue;
+                }
+
+                final SIPCommCheckBox checkBox
+                    = new SIPCommCheckBox(
+                            NeomediaActivator.getResources().getI18NString(
+                                    textKey));
+
+                /*
+                 * First set the selected one, then add the listener in order to
+                 * avoid saving the value when using the default one and only
+                 * showing to user without modification.
+                 */
+                checkBox.setSelected(selected);
+                checkBox.addItemListener(
+                        new ItemListener()
                         {
-                            mediaService.getDeviceConfiguration().setDenoise(
-                                    denoiseCheckBox.isSelected());
-                        }
-                    });
-            container.add(denoiseCheckBox, cnstrnts);
+                            public void itemStateChanged(ItemEvent e)
+                            {
+                                boolean b = checkBox.isSelected();
+
+                                switch (f)
+                                {
+                                case AudioSystem.FEATURE_AGC:
+                                    audioSystem.setAutomaticGainControl(b);
+                                    break;
+                                case AudioSystem.FEATURE_DENOISE:
+                                    audioSystem.setDenoise(b);
+                                    break;
+                                case AudioSystem.FEATURE_ECHO_CANCELLATION:
+                                    audioSystem.setEchoCancel(b);
+                                    break;
+                                }
+                            }
+                        });
+                container.add(checkBox, cnstrnts);
+            }
         }
 
         // Adds the play buttons for testing playback and notification devices.
@@ -1152,7 +1171,7 @@ public class MediaConfigurationImpl
         {
         case DeviceConfigurationComboBoxModel.AUDIO:
             preferredDeviceAndPreviewPanelHeight
-                = (devicePanel == null) ? 180 : 225;
+                = (devicePanel == null) ? 200 : 245;
             break;
         case DeviceConfigurationComboBoxModel.VIDEO:
             preferredDeviceAndPreviewPanelHeight = 305;
@@ -1585,7 +1604,8 @@ public class MediaConfigurationImpl
                             != mediaServiceDeviceConfigurationAudioSystem)
                     {
                         logger.warn(
-                                "JComboBox.selectedItem is not identical to MediaService.deviceConfiguration.audioSystem!");
+                                "JComboBox.selectedItem is not identical to"
+                                    + " MediaService.deviceConfiguration.audioSystem!");
                     }
                 }
             }
@@ -1618,7 +1638,8 @@ public class MediaConfigurationImpl
                     {
                         String noAvailableAudioDevice
                             = NeomediaActivator.getResources().getI18NString(
-                                    "impl.media.configform.NO_AVAILABLE_AUDIO_DEVICE");
+                                    "impl.media.configform"
+                                        + ".NO_AVAILABLE_AUDIO_DEVICE");
 
                         preview = new TransparentPanel(new GridBagLayout());
                         preview.add(new JLabel(noAvailableAudioDevice));

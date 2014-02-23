@@ -122,47 +122,56 @@ public class OperationSetFileTransferJabberImpl
                 throw new IllegalArgumentException(
                     "File length exceeds the allowed one for this protocol");
 
+            String fullJid = null;
             // Find the jid of the contact which support file transfer
             // and is with highest priority if more than one found
             // if we have equals priorities
             // choose the one that is more available
-            Iterator<Presence> iter = jabberProvider.getConnection().getRoster()
-                .getPresences(toContact.getAddress());
-            int bestPriority = -1;
-            String fullJid = null;
-            PresenceStatus jabberStatus = null;
-
-            while(iter.hasNext())
+            if(jabberProvider.getOperationSet(OperationSetMultiUserChat.class)
+                .isPrivateMessagingContact(toContact.getAddress()))
             {
-                Presence presence = iter.next();
-
-                if(jabberProvider.isFeatureListSupported(presence.getFrom(),
-                    new String[]{"http://jabber.org/protocol/si",
-                        "http://jabber.org/protocol/si/profile/file-transfer"}))
+                fullJid = toContact.getAddress();
+            }
+            else
+            {
+                Iterator<Presence> iter = jabberProvider.getConnection().getRoster()
+                    .getPresences(toContact.getAddress());
+                int bestPriority = -1;
+                
+                PresenceStatus jabberStatus = null;
+    
+                while(iter.hasNext())
                 {
-
-                    int priority =
-                        (presence.getPriority() == Integer.MIN_VALUE) ?
-                            0 : presence.getPriority();
-
-                    if(priority > bestPriority)
+                    Presence presence = iter.next();
+    
+                    if(jabberProvider.isFeatureListSupported(presence.getFrom(),
+                        new String[]{"http://jabber.org/protocol/si",
+                            "http://jabber.org/protocol/si/profile/file-transfer"}))
                     {
-                        bestPriority = priority;
-                        fullJid = presence.getFrom();
-                        jabberStatus = OperationSetPersistentPresenceJabberImpl
-                            .jabberStatusToPresenceStatus(
-                                presence, jabberProvider);
-                    }
-                    else if(priority == bestPriority && jabberStatus != null)
-                    {
-                        PresenceStatus tempStatus =
-                            OperationSetPersistentPresenceJabberImpl
-                               .jabberStatusToPresenceStatus(
-                                   presence, jabberProvider);
-                        if(tempStatus.compareTo(jabberStatus) > 0)
+    
+                        int priority =
+                            (presence.getPriority() == Integer.MIN_VALUE) ?
+                                0 : presence.getPriority();
+    
+                        if(priority > bestPriority)
                         {
+                            bestPriority = priority;
                             fullJid = presence.getFrom();
-                            jabberStatus = tempStatus;
+                            jabberStatus = OperationSetPersistentPresenceJabberImpl
+                                .jabberStatusToPresenceStatus(
+                                    presence, jabberProvider);
+                        }
+                        else if(priority == bestPriority && jabberStatus != null)
+                        {
+                            PresenceStatus tempStatus =
+                                OperationSetPersistentPresenceJabberImpl
+                                   .jabberStatusToPresenceStatus(
+                                       presence, jabberProvider);
+                            if(tempStatus.compareTo(jabberStatus) > 0)
+                            {
+                                fullJid = presence.getFrom();
+                                jabberStatus = tempStatus;
+                            }
                         }
                     }
                 }

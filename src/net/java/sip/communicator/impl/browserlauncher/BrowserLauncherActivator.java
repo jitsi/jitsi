@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.browserlauncher;
 
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.util.*;
-
+import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
 /**
@@ -16,52 +16,70 @@ import org.osgi.framework.*;
  *
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Pawel Domas
  */
 public class BrowserLauncherActivator
-    implements BundleActivator
+    extends SimpleServiceActivator<BrowserLauncherImpl>
 {
+    /**
+     * The <tt>BundleContext</tt>
+     */
+    private static BundleContext bundleContext = null;
 
     /**
-     * The <tt>Logger</tt> instance used by the
-     * <tt>BrowserLauncherActivator</tt> class and its instances for logging
-     * output.
+     * The <tt>ServiceConfiguration</tt> to be used by this service.
      */
-    private static final Logger logger
-        = Logger.getLogger(BrowserLauncherActivator.class);
+    private static ConfigurationService configService = null;
 
     /**
-     * Initialize and start the service.
-     *
-     * @param bundleContext the <tt>BundleContext</tt>
-     * @throws Exception if initializing and starting this service fails
+     * Creates new instance of <tt>BrowserLauncherActivator</tt>.
      */
-    public void start(BundleContext bundleContext)
-        throws Exception
+    public BrowserLauncherActivator()
     {
-        //Create the browser launcher service
-        BrowserLauncherService browserLauncher = new BrowserLauncherImpl();
-
-        if (logger.isInfoEnabled())
-            logger.info("Browser Launcher Service STARTED");
-
-        bundleContext
-            .registerService(
-                BrowserLauncherService.class.getName(),
-                browserLauncher,
-                null);
-
-        if (logger.isInfoEnabled())
-            logger.info("Browser Launcher Service REGISTERED");
+        super(BrowserLauncherService.class, "Browser Launcher Service");
     }
 
     /**
-     * Stops this bundle.
-     *
-     * @param bundleContext the <tt>BundleContext</tt>
-     * @throws Exception if the stop operation goes wrong
+     * {@inheritDoc}
      */
-    public void stop(BundleContext bundleContext)
-        throws Exception
+    @Override
+    protected BrowserLauncherImpl createServiceImpl()
     {
+        return new BrowserLauncherImpl();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Saves <tt>bundleContext</tt> locally.
+     */
+    @Override
+    public void start(BundleContext bundleContext)
+            throws Exception
+    {
+        BrowserLauncherActivator.bundleContext = bundleContext;
+
+        super.start(bundleContext);
+    }
+
+    /**
+     * Returns the <tt>ConfigurationService</tt> obtained from the
+     * the <tt>BundleContext</tt>
+     *
+     * @return the <tt>ConfigurationService</tt> obtained from the
+     * the <tt>BundleContext</tt>
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if (configService == null && bundleContext != null)
+        {
+            ServiceReference serviceReference = bundleContext
+                    .getServiceReference(ConfigurationService.class.getName());
+
+            configService = (ConfigurationService)bundleContext
+                    .getService(serviceReference);
+        }
+
+        return configService;
     }
 }

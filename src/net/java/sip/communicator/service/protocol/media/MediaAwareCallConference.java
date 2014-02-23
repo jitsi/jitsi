@@ -66,6 +66,7 @@ public class MediaAwareCallConference
     private final PropertyChangeListener propertyChangeListener
         = new PropertyChangeListener()
         {
+            @Override
             public void propertyChange(PropertyChangeEvent ev)
             {
                 MediaAwareCallConference.this.propertyChange(ev);
@@ -90,16 +91,16 @@ public class MediaAwareCallConference
 
     /**
      * Initializes a new <tt>MediaAwareCallConference</tt> instance which is to
-     * optionally utilize the Jitsi VideoBridge server-side telephony
+     * optionally utilize the Jitsi Videobridge server-side telephony
      * conferencing technology.
      *
-     * @param jitsiVideoBridge <tt>true</tt> if the telephony conference
-     * represented by the new instance is to utilize the Jitsi VideoBridge
+     * @param jitsiVideobridge <tt>true</tt> if the telephony conference
+     * represented by the new instance is to utilize the Jitsi Videobridge
      * server-side telephony conferencing technology; otherwise, <tt>false</tt>
      */
-    public MediaAwareCallConference(boolean jitsiVideoBridge)
+    public MediaAwareCallConference(boolean jitsiVideobridge)
     {
-        super(jitsiVideoBridge);
+        super(jitsiVideobridge);
 
         int mediaTypeCount = MediaType.values().length;
 
@@ -213,22 +214,22 @@ public class MediaAwareCallConference
      *
      * @param mediaType the <tt>MediaType</tt> in which the retrieved
      * <tt>MediaDevice</tt> is to capture and/or play back media
-     * @param mediaUseCase the <tt>MediaUseCase</tt> associated with the
-     * intended utilization of the <tt>MediaDevice</tt> to be retrieved
+     * @param useCase the <tt>MediaUseCase</tt> associated with the intended
+     * utilization of the <tt>MediaDevice</tt> to be retrieved
      * @return a <tt>MediaDevice</tt> which is capable of capture and/or
      * playback of media of the specified <tt>mediaType</tt> and is the default
      * choice of the user with respect to such a <tt>MediaDevice</tt>
      */
     public MediaDevice getDefaultDevice(
             MediaType mediaType,
-            MediaUseCase mediaUseCase)
+            MediaUseCase useCase)
     {
         int mediaTypeIndex = mediaType.ordinal();
         MediaDevice device = devices[mediaTypeIndex];
         MediaService mediaService = ProtocolMediaActivator.getMediaService();
 
         if (device == null)
-            device = mediaService.getDefaultDevice(mediaType, mediaUseCase);
+            device = mediaService.getDefaultDevice(mediaType, useCase);
 
         /*
          * Make sure that the device is capable of mixing in order to support
@@ -534,6 +535,7 @@ public class MediaAwareCallConference
          * Notifies this instance about a <tt>PropertyChangeEvent</tt> fired by
          * {@link #notifier}.
          */
+        @Override
         public void propertyChange(PropertyChangeEvent ev)
         {
             PropertyChangeListener[] ls;

@@ -32,12 +32,6 @@ public class TestFileAccessService extends TestCase {
     private static final String dirName = "fileaccessservice.dir.tst";
 
     /**
-     * The persistent directory's name.
-     */
-    private static final String[] dirNames = { "fileaccessservice.dir.tst",
-            "subdir1", "subdir2" };
-
-    /**
      * The persistent file's name.
      */
     private static final String fileName = "fileaccessservice.tst";
@@ -128,8 +122,8 @@ public class TestFileAccessService extends TestCase {
     public void testCreatePersistentDirectory()
         throws Exception {
         try {
-            this.fileAccessService.getPrivatePersistentDirectory(dirName);
-            this.fileAccessService.getPrivatePersistentDirectory(dirNames);
+            this.fileAccessService.getPrivatePersistentDirectory(dirName,
+                FileCategory.PROFILE);
         } catch (IOException e)
         {
             fail("Error creating the temp directory: " + e.getMessage());
@@ -146,7 +140,8 @@ public class TestFileAccessService extends TestCase {
         File privateDir = null;
         try {
             privateDir = this.fileAccessService
-                    .getPrivatePersistentDirectory(dirName);
+                    .getPrivatePersistentDirectory(dirName,
+                        FileCategory.PROFILE);
         } catch (IOException e)
         {
             fail("Error creating the private directory: " + e.getMessage());
@@ -178,7 +173,7 @@ public class TestFileAccessService extends TestCase {
     {
         try {
             File file = this.fileAccessService
-                    .getPrivatePersistentFile(fileName);
+                    .getPrivatePersistentFile(fileName, FileCategory.PROFILE);
 
             if (!file.exists())
             {
@@ -201,7 +196,7 @@ public class TestFileAccessService extends TestCase {
     {
         try {
             File file = this.fileAccessService
-                    .getPrivatePersistentFile(fileName);
+                    .getPrivatePersistentFile(fileName, FileCategory.PROFILE);
 
             if (file.exists())
             {
@@ -221,7 +216,7 @@ public class TestFileAccessService extends TestCase {
 
         try {
             File file = this.fileAccessService
-                    .getPrivatePersistentFile(fileName);
+                    .getPrivatePersistentFile(fileName, FileCategory.PROFILE);
 
             if (!file.exists())
             {
@@ -243,7 +238,7 @@ public class TestFileAccessService extends TestCase {
 
         try {
             File file = this.fileAccessService
-                    .getPrivatePersistentFile(fileName);
+                    .getPrivatePersistentFile(fileName, FileCategory.PROFILE);
 
             if (!file.exists())
             {
@@ -253,7 +248,7 @@ public class TestFileAccessService extends TestCase {
             writeReadFile(file);
 
             File newFile = this.fileAccessService
-                    .getPrivatePersistentFile(fileName);
+                    .getPrivatePersistentFile(fileName, FileCategory.PROFILE);
 
             // Assert that those files are in fact the same
             assertEquals(file, newFile);

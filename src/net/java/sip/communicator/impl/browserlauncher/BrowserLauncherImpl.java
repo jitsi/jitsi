@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.browserlauncher;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.util.Logger;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.util.*;
 
 import com.apple.eio.*;
@@ -23,13 +24,23 @@ import com.apple.eio.*;
 public class BrowserLauncherImpl
     implements BrowserLauncherService
 {
-
+    /**
+     * The name of the property which holds the colon-separated list of browsers
+     * to try on linux.
+     */
+    private static String LINUX_BROWSERS_PROP_NAME
+            = "net.java.sip.communicator.impl.browserlauncher.LINUX_BROWSERS";
     /**
      * The <tt>Logger</tt> instance used by the <tt>BrowserLauncherImpl</tt>
      * class and its instances for logging output.
      */
     private static final Logger logger
         = Logger.getLogger(BrowserLauncherImpl.class);
+
+    /**
+     * The name of the browser executable to use on linux
+     */
+    private static String linuxBrowser = null;
 
     /**
      * Opens the specified URL in an OS-specific associated browser.
@@ -56,32 +67,54 @@ public class BrowserLauncherImpl
         }
         else
         {
-            String[] browsers
-                = new String[]
-                        {
-                            "google-chrome",
-                            "firefox",
-                            "iceweasel",
-                            "opera",
-                            "konqueror",
-                            "epiphany",
-                            "mozilla",
-                            "netscape",
-                            "gnome-open"
-                        };
-
-            Runtime runtime = Runtime.getRuntime();
-            String browser = null;
-
-            for (String b : browsers)
-                if (runtime.exec(new String[] { "which", b }).waitFor() == 0)
-                    browser = b;
+            String browser = getLinuxBrowser();
 
             if (browser == null)
-                throw new Exception("Could not find web browser");
+                logger.error("Could not find web browser");
             else
-                runtime.exec(new String[] { browser, url });
+                Runtime.getRuntime().exec(new String[]{browser, url});
         }
+    }
+
+    /**
+     * Gets the name (or absolute path) to the executable to use as a browser
+     * on linux.
+     *
+     * @return the name (or absolute path) to the executable to use as a browser
+     * on linux.
+     *
+     * @throws Exception on failure from <tt>Runtime.exec()</tt>
+     */
+    private String getLinuxBrowser()
+            throws Exception
+    {
+        if (linuxBrowser == null)
+        {
+            ConfigurationService cfg
+                    = BrowserLauncherActivator.getConfigurationService();
+            if (cfg != null)
+            {
+                String browsers= cfg.getString(LINUX_BROWSERS_PROP_NAME);
+                if (browsers== null)
+                {
+                    logger.error("Required property not set: " +
+                            LINUX_BROWSERS_PROP_NAME);
+                    return null;
+                }
+
+                Runtime runtime = Runtime.getRuntime();
+                for (String b : browsers.split(":"))
+                {
+                    if (runtime.exec(new String[] { "which", b }).waitFor() == 0)
+                    {
+                        linuxBrowser = b;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return linuxBrowser;
     }
 
     /**

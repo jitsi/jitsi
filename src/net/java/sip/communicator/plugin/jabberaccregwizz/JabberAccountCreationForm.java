@@ -168,7 +168,9 @@ public class JabberAccountCreationForm
         }
         catch (XMPPException exc)
         {
-            if (exc.getXMPPError().getCode() == 409)
+            logger.error(exc);
+            if (exc.getXMPPError() != null
+                && exc.getXMPPError().getCode() == 409)
             {
                 showErrorMessage(Resources.getString(
                         "plugin.jabberaccregwizz.USER_EXISTS_ERROR"));
@@ -179,9 +181,12 @@ public class JabberAccountCreationForm
             }
             else
             {
-                showErrorMessage(Resources.getString(
-                        "plugin.jabberaccregwizz.UNKNOWN_XMPP_ERROR"));
+                showErrorMessage(Resources.getResources().getI18NString(
+                        "plugin.jabberaccregwizz.UNKNOWN_XMPP_ERROR",
+                        new String[]{exc.getMessage()}
+                    ));
             }
+
             return false;
         }
     }
@@ -197,20 +202,29 @@ public class JabberAccountCreationForm
         char[] password = passField.getPassword();
         char[] password2 = pass2Field.getPassword();
         String server = serverField.getText();
-        String port = portField.getText();
+        int port = 5222; // default port 
+        try
+        {
+            // custom port, if exists
+            port = Integer.parseInt(portField.getText());
+        }
+        catch (NumberFormatException e){}
 
         if (new String(password).equals(new String(password2)))
         {
             // the two password fields are the same
             boolean result = createJabberAccount(server,
-                5222,
+                port,
                 userID,
                 new String(password));
 
             if (result == true)
             {
                 return new NewAccount(
-                    getCompleteUserID(userID, server), password, server, port);
+                    getCompleteUserID(userID, server),
+                    password,
+                    server, 
+                    String.valueOf(port));
             }
         }
         else
@@ -274,7 +288,9 @@ public class JabberAccountCreationForm
         if (errorPane.getParent() == null)
             userIDPassPanel.add(errorPane, BorderLayout.NORTH);
 
-        SwingUtilities.getWindowAncestor(this).pack();
+        Window ancestor = SwingUtilities.getWindowAncestor(this);
+        if (ancestor != null)
+            ancestor.pack();
     }
 
     /**

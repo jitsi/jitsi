@@ -15,6 +15,7 @@ import java.util.List;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.osdependent.*;
+import net.java.sip.communicator.plugin.desktoputil.presence.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
@@ -103,6 +104,10 @@ public class StatusSubMenu
         // initially it is offline
         selectItemFromStatus(offlineStatus.getStatus());
 
+        this.addSeparator();
+
+        addMenuItem(menu, new GlobalStatusMessageMenu(swing).getMenu());
+
         if(!hideAccountStatusSelectors)
             this.addSeparator();
 
@@ -169,6 +174,9 @@ public class StatusSubMenu
      */
     private void addAccount(ProtocolProviderService protocolProvider)
     {
+        if(protocolProvider.getAccountID().isStatusMenuHidden())
+            return;
+
         OperationSetPresence presence
             = protocolProvider.getOperationSet(OperationSetPresence.class);
 
@@ -219,6 +227,11 @@ public class StatusSubMenu
     {
         Object selector =
             this.accountSelectors.get(protocolProvider.getAccountID());
+
+        // no such provider added
+        if(selector == null)
+            return;
+
         Object selectorMenu;
         if (selector instanceof StatusSimpleSelector)
             selectorMenu = ((StatusSimpleSelector) selector).getMenu();
@@ -255,14 +268,7 @@ public class StatusSubMenu
 
         for(ProtocolProviderService provider : getProtocolProviders())
         {
-            boolean isHidden
-                = provider
-                        .getAccountID()
-                            .getAccountProperty(
-                                ProtocolProviderFactory.IS_PROTOCOL_HIDDEN)
-                    != null;
-
-            if(!isHidden)
+            if(!provider.getAccountID().isHidden())
                 this.addAccount(provider);
         }
     }
@@ -362,11 +368,7 @@ public class StatusSubMenu
         {
             // We do not show hidden protocols in our status bar, so we do not
             // care about their status here.
-            boolean isProtocolHidden =
-                protocolProvider.getAccountID().getAccountProperty(
-                    ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
-
-            if (isProtocolHidden)
+            if (protocolProvider.getAccountID().isHidden())
                 continue;
 
             if (!protocolProvider.isRegistered())
@@ -411,9 +413,13 @@ public class StatusSubMenu
         {
             nameToSelect = GlobalStatusEnum.OFFLINE_STATUS;
         }
-        else if(status < PresenceStatus.AWAY_THRESHOLD)
+        else if(status < PresenceStatus.EXTENDED_AWAY_THRESHOLD)
         {
             nameToSelect = GlobalStatusEnum.DO_NOT_DISTURB_STATUS;
+        }
+        else if(status < PresenceStatus.AWAY_THRESHOLD)
+        {
+            nameToSelect = GlobalStatusEnum.EXTENDED_AWAY_STATUS;
         }
         else if(status < PresenceStatus.AVAILABLE_THRESHOLD)
         {

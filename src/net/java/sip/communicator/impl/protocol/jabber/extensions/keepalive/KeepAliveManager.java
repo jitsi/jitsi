@@ -10,6 +10,7 @@ import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
+import org.jivesoftware.smack.util.*;
 
 /**
  * XEP-0199: XMPP Ping. Tracks received packets and if for some interval
@@ -187,11 +188,35 @@ public class KeepAliveManager
         extends TimerTask
     {
         /**
+         * Minimal sleep interval between calls to this <tt>TimerTask</tt>.
+         */
+        private final long MIN_WAKE_UP_INTERVAL = 5000L; // 5 sec
+
+        /**
+         * Remembers when it was woken up for the last time.
+         */
+        private long lastWakeUp;
+
+        /**
          * Sends a single <tt>KeepAliveEvent</tt>.
          */
         @Override
         public void run()
         {
+            /**
+             * Timers on Android when CPU is sleeping can often sleep for too
+             * long and then they try to catch up doing rapid callbacks.
+             * The intention here is to filter out such calls.
+             */
+            long sleepDuration = (System.currentTimeMillis() - lastWakeUp);
+            lastWakeUp = System.currentTimeMillis();
+
+            if(sleepDuration < MIN_WAKE_UP_INTERVAL)
+            {
+                logger.error( this + " woken up too early !");
+                return;
+            }
+
             // if we are not registered do nothing
             if(!parentProvider.isRegistered())
             {
@@ -232,11 +257,12 @@ public class KeepAliveManager
 
                 try
                 {
-                    // lets send a ping
+                    // lets send a ping to our service name,
+                    // the @service-name part of the user id
                     KeepAliveEvent ping = new KeepAliveEvent(
                         parentProvider.getOurJID(),
-                        parentProvider.getAccountID().getService()
-                    );
+                        StringUtils.parseServer(
+                            parentProvider.getAccountID().getAccountAddress()));
 
                     if (logger.isTraceEnabled())
                         logger.trace("send keepalive for acc: "

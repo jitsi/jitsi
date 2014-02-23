@@ -19,7 +19,6 @@ import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
-import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.configforms.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
@@ -29,7 +28,9 @@ import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.call.*;
 import net.java.sip.communicator.util.skin.*;
@@ -50,6 +51,7 @@ public class MainToolBar
     implements ActionListener,
                ChatChangeListener,
                ChatSessionChangeListener,
+               ChatRoomLocalUserRoleListener,
                Skinnable
 {
     /**
@@ -67,9 +69,7 @@ public class MainToolBar
     /**
      * The history button.
      */
-    private final ChatToolbarButton historyButton
-        = new ChatToolbarButton(
-                ImageLoader.getImage(ImageLoader.HISTORY_ICON));
+    private final HistorySelectorBox historyButton;
 
     /**
      * The send file button.
@@ -166,6 +166,8 @@ public class MainToolBar
     {
         this.chatContainer = chatContainer;
 
+        historyButton = new HistorySelectorBox(chatContainer);
+
         init();
 
         pluginContainer
@@ -199,10 +201,24 @@ public class MainToolBar
         if (chatPanel == null
             || !(chatPanel.getChatSession() instanceof MetaContactChatSession))
             sendFileButton.setEnabled(false);
+        
+        if(chatPanel != null && chatPanel.isPrivateMessagingChat())
+        {
+            inviteButton.setEnabled(false);
+        }
 
+        if (chatPanel == null
+            || !(chatPanel.getChatSession() instanceof ConferenceChatSession))
+            desktopSharingButton.setEnabled(false);
+        
         this.addSeparator();
 
-        this.add(historyButton);
+        SIPCommMenuBar historyMenuBar = new SIPCommMenuBar();
+        historyMenuBar.setOpaque(false);
+        historyMenuBar.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        historyMenuBar.add(historyButton);
+        this.add(historyMenuBar);
+
         this.add(previousButton);
         this.add(nextButton);
 
@@ -241,25 +257,13 @@ public class MainToolBar
         this.leaveChatRoomButton.setToolTipText(
             GuiActivator.getResources().getI18NString("service.gui.LEAVE"));
 
-        this.callButton.setName("call");
-        this.callButton.setToolTipText(
-            GuiActivator.getResources().getI18NString(
-                "service.gui.CALL_CONTACT"));
-
-        this.callVideoButton.setName("callVideo");
-        this.callVideoButton.setToolTipText(
-            GuiActivator.getResources().getI18NString(
-                "service.gui.CALL_CONTACT"));
-
+        setCallButtonsName();
+        setCallButtonsIcons();
+        
         this.desktopSharingButton.setName("desktop");
         this.desktopSharingButton.setToolTipText(
             GuiActivator.getResources().getI18NString(
                 "service.gui.SHARE_DESKTOP_WITH_CONTACT"));
-
-        this.historyButton.setName("history");
-        this.historyButton.setToolTipText(
-            GuiActivator.getResources().getI18NString("service.gui.HISTORY")
-            + " Ctrl-H");
 
         optionsButton.setName("options");
         optionsButton.setToolTipText(
@@ -282,7 +286,6 @@ public class MainToolBar
         callButton.addActionListener(this);
         callVideoButton.addActionListener(this);
         desktopSharingButton.addActionListener(this);
-        historyButton.addActionListener(this);
         optionsButton.addActionListener(this);
         sendFileButton.addActionListener(this);
         previousButton.addActionListener(this);
@@ -313,6 +316,8 @@ public class MainToolBar
     public void dispose()
     {
         pluginContainer.dispose();
+
+        historyButton.dispose();
     }
 
     /**
@@ -333,20 +338,44 @@ public class MainToolBar
             for (PluginComponent c : pluginContainer.getPluginComponents())
                 c.setCurrentContact(contact);
 
-            setChatSession(chatPanel.chatSession);
+            ChatSession chatSession = chatPanel.getChatSession();
+            setChatSession(chatSession);
 
             leaveChatRoomButton.setEnabled(
-                chatPanel.chatSession instanceof ConferenceChatSession);
+                chatSession instanceof ConferenceChatSession);
+            
+            desktopSharingButton.setEnabled(
+                !(chatSession instanceof ConferenceChatSession));
 
             inviteButton.setEnabled(
                 chatPanel.findInviteChatTransport() != null);
 
             sendFileButton.setEnabled(
                 chatPanel.findFileTransferChatTransport() != null);
+            inviteButton.setEnabled(!chatPanel.isPrivateMessagingChat());
 
-            new UpdateCallButtonWorker(contact).start();
+            if(chatSession instanceof ConferenceChatSession)
+            {
+                updateInviteContactButton();
+
+                callButton.setVisible(false);
+                callVideoButton.setVisible(false);
+                callButton.setEnabled(true);
+                callVideoButton.setEnabled(true);
+            }
+            else if(contact != null)
+            {
+                callButton.setVisible(true);
+                callVideoButton.setVisible(true);
+                new UpdateCallButtonWorker(contact).start();
+            }
 
             changeHistoryButtonsState(chatPanel);
+            
+            setCallButtonsName();
+            setCallButtonsIcons();
+
+            currentChatTransportChanged(chatSession);
         }
     }
 
@@ -417,9 +446,17 @@ public class MainToolBar
             Contact contact = (Contact) currentDescriptor;
 
             for (PluginComponent c : pluginContainer.getPluginComponents())
-                c.setCurrentContact(contact);
+                c.setCurrentContact(contact, currentTransport.getResourceName());
         }
     }
+
+    /**
+     * When a property of the chatTransport has changed.
+     * @param eventID the event id representing the property of the transport
+     * that has changed.
+     */
+    public void currentChatTransportUpdated(int eventID)
+    {}
 
     /**
      * Handles the <tt>ActionEvent</tt>, when one of the tool bar buttons is
@@ -454,38 +491,6 @@ public class MainToolBar
                 chatContainer.getCurrentChat().sendFile(selectedFile);
             }
         }
-        else if (buttonText.equals("history"))
-        {
-            HistoryWindow history;
-
-            HistoryWindowManager historyWindowManager
-                = GuiActivator.getUIService().getHistoryWindowManager();
-
-            ChatSession chatSession = chatPanel.getChatSession();
-
-            if(historyWindowManager
-                .containsHistoryWindowForContact(chatSession.getDescriptor()))
-            {
-                history = historyWindowManager
-                    .getHistoryWindowForContact(chatSession.getDescriptor());
-
-                if(history.getState() == JFrame.ICONIFIED)
-                    history.setState(JFrame.NORMAL);
-
-                history.toFront();
-            }
-            else
-            {
-                history = new HistoryWindow(
-                    chatPanel.getChatSession().getDescriptor());
-
-                history.setVisible(true);
-
-                historyWindowManager
-                    .addHistoryWindowForContact(chatSession.getDescriptor(),
-                                                    history);
-            }
-        }
         else if (buttonText.equals("invite"))
         {
             ChatInviteDialog inviteDialog = new ChatInviteDialog(chatPanel);
@@ -494,10 +499,14 @@ public class MainToolBar
         }
         else if (buttonText.equals("leave"))
         {
-            ConferenceChatManager conferenceManager
-                = GuiActivator.getUIService().getConferenceChatManager();
-            conferenceManager.leaveChatRoom(
-                (ChatRoomWrapper)chatPanel.getChatSession().getDescriptor());
+            ChatRoomWrapper chatRoomWrapper 
+                = (ChatRoomWrapper)chatPanel.getChatSession().getDescriptor();
+            ChatRoomWrapper leavedRoomWrapped 
+                = GuiActivator.getMUCService().leaveChatRoom(
+                    chatRoomWrapper);
+            if(leavedRoomWrapped != null)
+                GuiActivator.getUIService().closeChatRoomWindow(
+                    leavedRoomWrapped);
         }
         else if (buttonText.equals("call"))
         {
@@ -518,6 +527,10 @@ public class MainToolBar
         }
         else if (buttonText.equals("font"))
             chatPanel.showFontChooserDialog();
+        else if (buttonText.equals("createConference"))
+        {
+            chatPanel.showChatConferenceDialog();
+        }
     }
 
     /**
@@ -525,7 +538,7 @@ public class MainToolBar
      *
      * @return the button used to show the history window.
      */
-    public ChatToolbarButton getHistoryButton()
+    public HistorySelectorBox getHistoryButton()
     {
         return historyButton;
     }
@@ -585,10 +598,18 @@ public class MainToolBar
             if (this.chatSession instanceof MetaContactChatSession)
                 this.chatSession.removeChatTransportChangeListener(this);
 
+            if(this.chatSession instanceof ConferenceChatSession)
+                ((ConferenceChatSession) this.chatSession)
+                    .removeLocalUserRoleListener(this);
+
             this.chatSession = chatSession;
 
             if (this.chatSession instanceof MetaContactChatSession)
                 this.chatSession.addChatTransportChangeListener(this);
+
+            if(this.chatSession instanceof ConferenceChatSession)
+                ((ConferenceChatSession) this.chatSession)
+                    .addLocalUserRoleListener(this);
         }
     }
 
@@ -608,8 +629,7 @@ public class MainToolBar
         inviteButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.ADD_TO_CHAT_ICON));
 
-        historyButton.setIconImage(ImageLoader.getImage(
-                ImageLoader.HISTORY_ICON));
+        historyButton.loadSkin();
 
         sendFileButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.SEND_FILE_ICON));
@@ -626,14 +646,13 @@ public class MainToolBar
         leaveChatRoomButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.LEAVE_ICON));
 
-        callButton.setIconImage(ImageLoader.getImage(
-                ImageLoader.CHAT_CALL));
-
         desktopSharingButton.setIconImage(ImageLoader.getImage(
             ImageLoader.CHAT_DESKTOP_SHARING));
 
         optionsButton.setIconImage(ImageLoader.getImage(
                 ImageLoader.CHAT_CONFIGURE_ICON));
+        
+        setCallButtonsIcons();
     }
 
     /**
@@ -723,6 +742,90 @@ public class MainToolBar
     }
 
     /**
+     * Sets the names of the call buttons depending on the chat session type.
+     */
+    private void setCallButtonsName()
+    {
+        if(chatSession instanceof ConferenceChatSession)
+        {
+            callButton.setName("createConference");
+            callVideoButton.setName("createConference");
+            this.callButton.setToolTipText(
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CREATE_JOIN_VIDEO_CONFERENCE"));
+
+            this.callVideoButton.setToolTipText(
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CREATE_JOIN_VIDEO_CONFERENCE"));
+        }
+        else
+        {
+            callButton.setName("call");
+            callVideoButton.setName("callVideo");
+            this.callButton.setToolTipText(
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CALL_CONTACT"));
+
+            this.callVideoButton.setToolTipText(
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CALL_CONTACT"));
+        }
+    }
+
+    /**
+     * Sets the icons of the call buttons depending on the chat session type.
+     */
+    private void setCallButtonsIcons()
+    {
+        if(chatSession instanceof ConferenceChatSession)
+        {
+            callButton.setIconImage(ImageLoader.getImage(
+                ImageLoader.CHAT_ROOM_CALL));
+            callVideoButton.setIconImage(ImageLoader.getImage(
+                ImageLoader.CHAT_ROOM_VIDEO_CALL));
+            callButton.setPreferredSize(new Dimension(29, 25));
+            callVideoButton.setPreferredSize(new Dimension(29, 25));
+        }
+        else
+        {
+            callButton.setIconImage(ImageLoader.getImage(
+                ImageLoader.CHAT_CALL));
+            callVideoButton.setIconImage(ImageLoader.getImage(
+                ImageLoader.CHAT_VIDEO_CALL));
+            callButton.setPreferredSize(new Dimension(25, 25));
+            callVideoButton.setPreferredSize(new Dimension(25, 25));
+        }
+        callButton.repaint();
+        callVideoButton.repaint();
+    }
+
+    /**
+     * Fired when local user role has changed.
+     * @param evt the <tt>ChatRoomLocalUserRoleChangeEvent</tt> instance
+     */
+    @Override
+    public void localUserRoleChanged(ChatRoomLocalUserRoleChangeEvent evt)
+    {
+        updateInviteContactButton();
+    }
+
+    /**
+     * Updates invite contact button depending on the user role we have.
+     */
+    private void updateInviteContactButton()
+    {
+        if(chatSession instanceof ConferenceChatSession)
+        {
+            ChatRoomMemberRole role =
+                ((ChatRoomWrapper)chatSession.getDescriptor())
+                    .getChatRoom().getUserRole();
+
+            // it means we are at least a moderator
+            inviteButton.setEnabled(role.getRoleIndex() >= 50);
+        }
+    }
+
+    /**
      * Searches for phone numbers in <tt>MetaContact/tt> operation sets.
      * And changes the call button enable/disable state.
      */
@@ -787,7 +890,6 @@ public class MainToolBar
             callButton.setEnabled(isCallEnabled);
             callVideoButton.setEnabled(isVideoCallEnabled);
             desktopSharingButton.setEnabled(isDesktopSharingEnabled);
-
         }
 
     }

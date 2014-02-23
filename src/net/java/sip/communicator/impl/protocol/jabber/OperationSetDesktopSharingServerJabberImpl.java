@@ -254,11 +254,12 @@ public class OperationSetDesktopSharingServerJabberImpl
         }
 
         CallJabberImpl call = new CallJabberImpl(basicTelephony);
+        MediaUseCase useCase = getMediaUseCase();
 
         if (videoDevice != null)
-            call.setVideoDevice(videoDevice);
+            call.setVideoDevice(videoDevice, useCase);
         /* enable video */
-        call.setLocalVideoAllowed(true, getMediaUseCase());
+        call.setLocalVideoAllowed(true, useCase);
         /* enable remote-control */
         call.setLocalInputEvtAware(supported);
 
@@ -267,25 +268,6 @@ public class OperationSetDesktopSharingServerJabberImpl
         new CallPeerJabberImpl(calleeAddress, call);
 
         return call;
-    }
-
-    /**
-     * Implements OperationSetVideoTelephony#setLocalVideoAllowed(Call,
-     * boolean). Modifies the local media setup to reflect the requested setting
-     * for the streaming of the local video and then re-invites all
-     * CallPeers to re-negotiate the modified media setup.
-     *
-     * @param call the call where we'd like to allow sending local video.
-     * @param allowed <tt>true</tt> if local video transmission is allowed and
-     * <tt>false</tt> otherwise.
-     *
-     *  @throws OperationFailedException if video initialization fails.
-     */
-    @Override
-    public void setLocalVideoAllowed(Call call, boolean allowed)
-        throws OperationFailedException
-    {
-        this.setLocalVideoAllowed(call, null, allowed);
     }
 
     /**
@@ -371,6 +353,9 @@ public class OperationSetDesktopSharingServerJabberImpl
             PacketFilter packetFilter,
             Connection connection)
     {
+        if(connection == null)
+            return;
+
         if ((evt.getNewState() == RegistrationState.REGISTERING))
         {
             /* listen to specific inputevt IQ */

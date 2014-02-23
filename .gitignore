@@ -5,6 +5,7 @@ sc-bundles
 *.iws
 .gitignore
 jitsi.iml
+jitsi.ipr
 test-reports
 sip-communicator.utest.bin
 release

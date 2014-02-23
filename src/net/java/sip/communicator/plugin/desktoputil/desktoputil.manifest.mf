@@ -3,7 +3,7 @@ Bundle-Name: Jitsi Swing Utility Packages
 Bundle-Description: A bundle that export packages with swing related utility classes.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.plugin.desktoputil
 Import-Package: com.sun.awt,
  javax.accessibility,
  javax.imageio,
@@ -30,6 +30,8 @@ Import-Package: com.sun.awt,
  javax.xml.transform.dom,
  javax.xml.transform.stream,
  net.java.sip.communicator.util,
+ net.java.sip.communicator.util.account,
+ net.java.sip.communicator.util.call,
  net.java.sip.communicator.util.skin,
  net.java.sip.communicator.util.wizard,
  net.java.sip.communicator.service.certificate,
@@ -44,6 +46,7 @@ Import-Package: com.sun.awt,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.event,
  org.apache.xml.serialize,
+ org.jitsi.service.audionotifier,
  org.jitsi.service.configuration,
  org.jitsi.service.neomedia,
  org.jitsi.service.neomedia.codec,
@@ -58,11 +61,15 @@ Import-Package: com.sun.awt,
  org.xml.sax,
  sun.awt.shell,
  sun.net.dns,
- sun.net.util
+ sun.net.util,
+ net.java.sip.communicator.service.globaldisplaydetails,
+ net.java.sip.communicator.service.muc
 Export-Package: net.java.sip.communicator.plugin.desktoputil,
  net.java.sip.communicator.plugin.desktoputil.border,
  net.java.sip.communicator.plugin.desktoputil.event,
  net.java.sip.communicator.plugin.desktoputil.plaf,
  net.java.sip.communicator.plugin.desktoputil.presence,
+ net.java.sip.communicator.plugin.desktoputil.presence.avatar,
  net.java.sip.communicator.plugin.desktoputil.transparent,
- net.java.sip.communicator.plugin.desktoputil.wizard
+ net.java.sip.communicator.plugin.desktoputil.wizard,
+ net.java.sip.communicator.plugin.desktoputil.chat

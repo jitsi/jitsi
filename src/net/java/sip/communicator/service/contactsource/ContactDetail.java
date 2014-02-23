@@ -50,6 +50,12 @@ public class ContactDetail
 
         /**
          * The standard/well-known category of a <tt>ContactDetail</tt>
+         * representing personal details, like web address.
+         */
+        Web("Web"),
+
+        /**
+         * The standard/well-known category of a <tt>ContactDetail</tt>
          * representing organization details, like organization name and job
          * title.
          */
@@ -472,6 +478,14 @@ public class ContactDetail
         Map<Class<? extends OperationSet>, String> preferredProtocols)
     {
         this.preferredProtocols = preferredProtocols;
+
+        // protocol added so an opset is supported, add it if missing
+        for(Class<? extends OperationSet> opsetClass
+                : preferredProtocols.keySet())
+        {
+            if(supportedOpSets == null || !supportedOpSets.contains(opsetClass))
+                addSupportedOpSet(opsetClass);
+        }
     }
 
     /**

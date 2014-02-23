@@ -26,6 +26,8 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.MediaType; // disambiguate
 import org.jitsi.service.neomedia.control.*;
 
 /**
@@ -204,7 +206,6 @@ public class CallPeerSipImpl
             else
             {
                 URI peerURI = getPeerAddress().getURI();
-
                 if (peerURI instanceof SipURI)
                 {
                     String userName = ((SipURI) peerURI).getUser();
@@ -212,7 +213,8 @@ public class CallPeerSipImpl
                     if (userName != null && userName.length() > 0)
                         displayName = userName;
                 }
-                else
+
+                if (displayName == null)
                 {
                     displayName = peerURI.toString();
                 }
@@ -1680,5 +1682,35 @@ public class CallPeerSipImpl
             setState(CallPeerState.FAILED, reason);
         else
             setState(CallPeerState.DISCONNECTED, reason);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getEntity()
+    {
+        return AbstractOperationSetTelephonyConferencing
+                .stripParametersFromAddress(getURI());
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Uses the direction of the media stream as a fallback.
+     * TODO: return the direction negotiated via SIP
+     */
+    @Override
+    public MediaDirection getDirection(MediaType mediaType)
+    {
+        MediaStream stream = getMediaHandler().getStream(mediaType);
+        if (stream != null)
+        {
+            MediaDirection direction = stream.getDirection();
+            return direction == null
+                    ? MediaDirection.INACTIVE
+                    : direction;
+        }
+
+        return MediaDirection.INACTIVE;
     }
 }

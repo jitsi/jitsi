@@ -18,7 +18,8 @@ import org.jivesoftware.smack.packet.*;
  * @author Emil Ivov
  * @author Lyubomir Marinov
  */
-public class IceUdpTransportPacketExtension extends AbstractPacketExtension
+public class IceUdpTransportPacketExtension
+    extends AbstractPacketExtension
 {
     /**
      * The name of the "transport" element.
@@ -128,24 +129,22 @@ public class IceUdpTransportPacketExtension extends AbstractPacketExtension
     @Override
     public List<? extends PacketExtension> getChildExtensions()
     {
+        List<PacketExtension> childExtensions
+            = new ArrayList<PacketExtension>();
+        List<? extends PacketExtension> superChildExtensions
+            = super.getChildExtensions();
+
+        childExtensions.addAll(superChildExtensions);
+
         synchronized (candidateList)
         {
-            if(candidateList.size() > 0)
-            {
-                return candidateList;
-            }
+            if (candidateList.size() > 0)
+                childExtensions.addAll(candidateList);
             else if (remoteCandidate != null)
-            {
-                List<RemoteCandidatePacketExtension> list
-                    = new ArrayList<RemoteCandidatePacketExtension>();
-                list.add(remoteCandidate);
-
-                return list;
-            }
+                childExtensions.add(remoteCandidate);
         }
 
-        //there are apparently no child elements.
-        return null;
+        return childExtensions;
     }
 
     /**
@@ -191,7 +190,7 @@ public class IceUdpTransportPacketExtension extends AbstractPacketExtension
     {
         synchronized(candidateList)
         {
-            return new ArrayList<CandidatePacketExtension>(this.candidateList);
+            return new ArrayList<CandidatePacketExtension>(candidateList);
         }
     }
 
@@ -221,7 +220,7 @@ public class IceUdpTransportPacketExtension extends AbstractPacketExtension
      * CandidatePacketExtension}, a {@link RemoteCandidatePacketExtension} or
      * something else and then adds it as such.
      *
-     *  @param childExtension the extension we'd like to add here.
+     * @param childExtension the extension we'd like to add here.
      */
     @Override
     public void addChildExtension(PacketExtension childExtension)
@@ -232,5 +231,8 @@ public class IceUdpTransportPacketExtension extends AbstractPacketExtension
 
         else if(childExtension instanceof CandidatePacketExtension)
             addCandidate((CandidatePacketExtension) childExtension);
+
+        else if (childExtension instanceof DtlsFingerprintPacketExtension)
+            super.addChildExtension(childExtension);
     }
 }

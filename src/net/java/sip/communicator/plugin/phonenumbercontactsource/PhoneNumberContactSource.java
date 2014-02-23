@@ -6,8 +6,6 @@
  */
 package net.java.sip.communicator.plugin.phonenumbercontactsource;
 
-import java.util.*;
-
 import net.java.sip.communicator.service.contactsource.*;
 
 /**
@@ -20,13 +18,6 @@ import net.java.sip.communicator.service.contactsource.*;
 public class PhoneNumberContactSource
     implements ContactSourceService
 {
-    /**
-     * The <tt>List</tt> of <tt>PhoneNumberContactQuery</tt> instances
-     * which have been started and haven't stopped yet.
-     */
-    private final List<PhoneNumberContactQuery> queries
-        = new LinkedList<PhoneNumberContactQuery>();
-
     /**
      * Returns DEFAULT_TYPE to indicate that this contact source is a default
      * source.
@@ -50,24 +41,24 @@ public class PhoneNumberContactSource
     }
 
     /**
-     * Queries this contact source for the given <tt>queryString</tt>.
+     *  Creates query for the given <tt>queryString</tt>.
      *
      * @param queryString the string to search for
      * @return the created query
      */
-    public ContactQuery queryContactSource(String queryString)
+    public ContactQuery createContactQuery(String queryString)
     {
-        return queryContactSource(queryString, -1);
+        return createContactQuery(queryString, -1);
     }
 
     /**
-     * Queries this contact source for the given <tt>queryString</tt>.
+     *  Creates query for the given <tt>queryString</tt>.
      *
      * @param queryString the string to search for
      * @param contactCount the maximum count of result contacts
      * @return the created query
      */
-    public ContactQuery queryContactSource( String queryString,
+    public ContactQuery createContactQuery( String queryString,
                                             int contactCount)
     {
         if (queryString == null)
@@ -76,29 +67,6 @@ public class PhoneNumberContactSource
         PhoneNumberContactQuery contactQuery
             = new PhoneNumberContactQuery(this, queryString, contactCount);
 
-        synchronized (queries)
-        {
-            queries.add(contactQuery);
-        }
-
-        boolean queryHasStarted = false;
-
-        try
-        {
-            contactQuery.start();
-            queryHasStarted = true;
-        }
-        finally
-        {
-            if (!queryHasStarted)
-            {
-                synchronized (queries)
-                {
-                    if (queries.remove(contactQuery))
-                        queries.notify();
-                }
-            }
-        }
         return contactQuery;
     }
 

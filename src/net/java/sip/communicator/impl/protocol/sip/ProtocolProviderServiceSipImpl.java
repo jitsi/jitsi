@@ -186,6 +186,36 @@ public class ProtocolProviderServiceSipImpl
     private boolean forceLooseRouting = false;
 
     /**
+     * <tt>ClientCapabilities</tt> used by this instance.
+     */
+    private ClientCapabilities capabilities;
+
+    /**
+     * <tt>OperationSetPresenceSipImpl</tt> used by this instance.
+     */
+    private OperationSetPresenceSipImpl opSetPersPresence;
+
+    /**
+     * <tt>OperationSetBasicInstantMessagingSipImpl</tt> used by this instance.
+     */
+    private OperationSetBasicInstantMessagingSipImpl opSetBasicIM;
+
+    /**
+     * <tt>OperationSetMessageWaitingSipImpl</tt> used by this instance.
+     */
+    private OperationSetMessageWaitingSipImpl opSetMWI;
+
+    /**
+     * Used instance of <tt>OperationSetServerStoredAccountInfoSipImpl</tt>.
+     */
+    private OperationSetServerStoredAccountInfoSipImpl opSetSSAccountInfo;
+
+    /**
+     * <tt>OperationSetTypingNotificationsSipImpl</tt> used by this instance.
+     */
+    private OperationSetTypingNotificationsSipImpl opSetTypingNotif;
+
+    /**
      * Returns the AccountID that uniquely identifies the account represented by
      * this instance of the ProtocolProviderService.
      * @return the id of the account represented by this provider.
@@ -283,9 +313,9 @@ public class ProtocolProviderServiceSipImpl
          * Evaluate whether FORCE_PROXY_BYPASS is enabled for the account
          * before registering.
          */
-        forceLooseRouting = Boolean.valueOf((String)
-                getAccountID().getAccountProperty(
-                    ProtocolProviderFactory.FORCE_PROXY_BYPASS));
+        forceLooseRouting
+                = getAccountID().getAccountPropertyBoolean(
+                        ProtocolProviderFactory.FORCE_PROXY_BYPASS, false);
 
         sipStackSharing.addSipListener(this);
         // be warned when we will unregister, so that we can
@@ -500,7 +530,7 @@ public class ProtocolProviderServiceSipImpl
             if (enablePresence)
             {
                 //init presence op set.
-                OperationSetPersistentPresence opSetPersPresence
+                this.opSetPersPresence
                     = new OperationSetPresenceSipImpl(this, enablePresence,
                             forceP2P, pollingValue, subscriptionExpiration);
 
@@ -520,7 +550,7 @@ public class ProtocolProviderServiceSipImpl
                 if (!isMessagingDisabled)
                 {
                     // init instant messaging
-                    OperationSetBasicInstantMessagingSipImpl opSetBasicIM =
+                    this.opSetBasicIM =
                         new OperationSetBasicInstantMessagingSipImpl(this);
 
                     addSupportedOperationSet(
@@ -528,19 +558,23 @@ public class ProtocolProviderServiceSipImpl
                         opSetBasicIM);
 
                     // init typing notifications
+                    this.opSetTypingNotif
+                        = new OperationSetTypingNotificationsSipImpl(
+                            this, opSetBasicIM);
                     addSupportedOperationSet(
                         OperationSetTypingNotifications.class,
-                        new OperationSetTypingNotificationsSipImpl(
-                            this,
-                            opSetBasicIM));
+                        opSetTypingNotif);
+
+                    addSupportedOperationSet(
+                        OperationSetInstantMessageTransform.class,
+                        new OperationSetInstantMessageTransformImpl());
                 }
 
-                OperationSetServerStoredAccountInfoSipImpl opSetSSAccountInfo =
+                this.opSetSSAccountInfo =
                     new OperationSetServerStoredAccountInfoSipImpl(this);
 
                 // Set the display name.
-                if(opSetSSAccountInfo != null)
-                    opSetSSAccountInfo.setOurDisplayName(ourDisplayName);
+                opSetSSAccountInfo.setOurDisplayName(ourDisplayName);
 
                 // init avatar
                 addSupportedOperationSet(
@@ -557,16 +591,25 @@ public class ProtocolProviderServiceSipImpl
                     ProtocolProviderFactory.VOICEMAIL_ENABLED,
                     true))
             {
+                this.opSetMWI = new OperationSetMessageWaitingSipImpl(this);
                 addSupportedOperationSet(
                     OperationSetMessageWaiting.class,
-                    new OperationSetMessageWaitingSipImpl(this));
+                    opSetMWI);
+            }
+
+            if(getAccountID().getAccountPropertyString(
+                ProtocolProviderFactory.CUSAX_PROVIDER_ACCOUNT_PROP) != null)
+            {
+                addSupportedOperationSet(
+                    OperationSetCusaxUtils.class,
+                    new OperationSetCusaxUtilsSipImpl(this));
             }
 
             //initialize our OPTIONS handler
-            new ClientCapabilities(this);
+            this.capabilities = new ClientCapabilities(this);
 
             //init the security manager
-            this.sipSecurityManager = new SipSecurityManager(accountID);
+            this.sipSecurityManager = new SipSecurityManager(accountID, this);
             sipSecurityManager.setHeaderFactory(headerFactory);
 
             // register any available custom extensions
@@ -1022,6 +1065,43 @@ public class ProtocolProviderServiceSipImpl
                         + getAccountID()
                         , ex);
                 }
+            }
+
+            // Shutdown capabilities
+            if(capabilities != null)
+            {
+                capabilities.shutdown();
+                capabilities = null;
+            }
+            // Shutdown presence
+            if(opSetPersPresence != null)
+            {
+                opSetPersPresence.shutdown();
+                opSetPersPresence = null;
+            }
+            // Shutdown IM
+            if(opSetBasicIM != null)
+            {
+                opSetBasicIM.shutdown();
+                opSetBasicIM = null;
+            }
+            // Shutdown MWI
+            if(opSetMWI != null)
+            {
+                opSetMWI.shutdown();
+                opSetMWI = null;
+            }
+            // Shutdown server stored account info
+            if(opSetSSAccountInfo != null)
+            {
+                opSetSSAccountInfo.shutdown();
+                opSetSSAccountInfo = null;
+            }
+            // Shutdown typing notifications
+            if(opSetTypingNotif != null)
+            {
+                opSetTypingNotif.shutdown();
+                opSetTypingNotif = null;
             }
 
             headerFactory = null;
@@ -2211,7 +2291,7 @@ public class ProtocolProviderServiceSipImpl
      * Returns the current instance of <tt>SipRegistrarConnection</tt>.
      * @return SipRegistrarConnection
      */
-    SipRegistrarConnection getRegistrarConnection()
+    public SipRegistrarConnection getRegistrarConnection()
     {
         return sipRegistrarConnection;
     }
@@ -2565,45 +2645,5 @@ public class ProtocolProviderServiceSipImpl
         return ListeningPoint.UDP.equalsIgnoreCase(transport)
             || ListeningPoint.TLS.equalsIgnoreCase(transport)
             || ListeningPoint.TCP.equalsIgnoreCase(transport);
-    }
-
-    /**
-     * Returns the linked CUSAX provider for this SIP protocol provider.
-     *
-     * @return the linked CUSAX provider for this SIP protocol provider or null
-     * if such isn't specified
-     */
-    public ProtocolProviderService getLinkedCusaxProvider()
-    {
-        String cusaxProviderID = getAccountID()
-            .getAccountPropertyString(
-                ProtocolProviderFactory.CUSAX_PROVIDER_ACCOUNT_PROP);
-
-        if (cusaxProviderID == null)
-            return null;
-
-        AccountID acc
-            = ProtocolProviderActivator.getAccountManager()
-                .findAccountID(cusaxProviderID);
-
-        if(acc == null)
-        {
-            logger.warn("No connected cusax account found for "
-                + cusaxProviderID);
-            return null;
-        }
-        else
-        {
-            for (ProtocolProviderService pProvider :
-              ProtocolProviderActivator.getProtocolProviders())
-            {
-                if(pProvider.getAccountID().equals(acc))
-                {
-                    return pProvider;
-                }
-            }
-        }
-
-        return null;
     }
 }

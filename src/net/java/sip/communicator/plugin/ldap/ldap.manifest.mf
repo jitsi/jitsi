@@ -3,6 +3,7 @@ Bundle-Description: LDAP support
 Bundle-Name: LDAP support
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
+Bundle-SymbolicName: net.java.sip.communicator.plugin.ldap
 Import-Package: net.java.sip.communicator.service.contactsource,
  org.jitsi.service.resources, net.java.sip.communicator.service.resources,
  net.java.sip.communicator.service.protocol,
@@ -18,4 +19,3 @@ Import-Package: net.java.sip.communicator.service.contactsource,
  javax.swing.tree,
  javax.swing.text,
  org.osgi.framework
-System-Bundle: yes

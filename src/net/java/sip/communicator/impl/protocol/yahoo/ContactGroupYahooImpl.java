@@ -268,6 +268,9 @@ public class ContactGroupYahooImpl
         if(!((ContactGroup)obj).getGroupName().equals(getGroupName()))
             return false;
 
+        if(getProtocolProvider() != ((ContactGroup)obj).getProtocolProvider())
+            return false;
+
         //since Yahoo does not support having two groups with the same name
         // at this point we could bravely state that the groups are the same
         // and not bother to compare buddies. (gotta check that though)

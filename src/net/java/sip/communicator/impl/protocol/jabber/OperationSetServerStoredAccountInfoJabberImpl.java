@@ -6,11 +6,12 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import java.net.*;
+import java.text.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
@@ -22,6 +23,7 @@ import org.jivesoftware.smack.*;
  * provider.
  *
  * @author Damian Minkov
+ * @author Marin Dzhigarov
  */
 public class OperationSetServerStoredAccountInfoJabberImpl
     extends AbstractOperationSetServerStoredAccountInfo
@@ -41,6 +43,35 @@ public class OperationSetServerStoredAccountInfoJabberImpl
      * The jabber provider that created us.
      */
     private ProtocolProviderServiceJabberImpl jabberProvider = null;
+
+    /**
+     * List of all supported <tt>ServerStoredDetails</tt>
+     * for this implementation.
+     */
+    public static final List<Class<? extends GenericDetail>> supportedTypes
+        = new ArrayList<Class<? extends GenericDetail>>();
+
+    static {
+        supportedTypes.add(ImageDetail.class);
+        supportedTypes.add(FirstNameDetail.class);
+        supportedTypes.add(MiddleNameDetail.class);
+        supportedTypes.add(LastNameDetail.class);
+        supportedTypes.add(NicknameDetail.class);
+        supportedTypes.add(AddressDetail.class);
+        supportedTypes.add(CityDetail.class);
+        supportedTypes.add(ProvinceDetail.class);
+        supportedTypes.add(PostalCodeDetail.class);
+        supportedTypes.add(CountryDetail.class);
+        supportedTypes.add(EmailAddressDetail.class);
+        supportedTypes.add(WorkEmailAddressDetail.class);
+        supportedTypes.add(PhoneNumberDetail.class);
+        supportedTypes.add(WorkPhoneDetail.class);
+        supportedTypes.add(WorkOrganizationNameDetail.class);
+        supportedTypes.add(URLDetail.class);
+        supportedTypes.add(BirthDateDetail.class);
+        supportedTypes.add(JobTitleDetail.class);
+        supportedTypes.add(AboutMeDetail.class);
+    }
 
     /**
      * Our account UIN.
@@ -124,14 +155,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
      */
     public Iterator<Class<? extends GenericDetail>> getSupportedDetailTypes()
     {
-        List<GenericDetail> details = infoRetreiver.getContactDetails(uin);
-        List<Class<? extends GenericDetail>> result
-            = new Vector<Class<? extends GenericDetail>>();
-
-        for (GenericDetail obj : details)
-            result.add(obj.getClass());
-
-        return result.iterator();
+        return supportedTypes.iterator();
     }
 
     /**
@@ -150,12 +174,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
     public boolean isDetailClassSupported(
         Class<? extends GenericDetail> detailClass)
     {
-        List<GenericDetail> details = infoRetreiver.getContactDetails(uin);
-
-        for (GenericDetail obj : details)
-            if(detailClass.isAssignableFrom(obj.getClass()))
-                return true;
-        return false;
+        return supportedTypes.contains(detailClass);
     }
 
     /**
@@ -173,7 +192,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
     }
 
     /**
-     * Adds the specified detail to the list of details registered on-line
+     * Adds the specified detail to the list of details ready to be saved online
      * for this account. If such a detail already exists its max instance number
      * is consulted and if it allows it - a second instance is added or otherwise
      * and illegal argument exception is thrown. An IllegalArgumentException is
@@ -187,67 +206,50 @@ public class OperationSetServerStoredAccountInfoJabberImpl
      * max instances number has been attained or if the underlying
      * implementation does not support setting details of the corresponding
      * class.
-     * @throws OperationFailedException with code Network Failure if putting the
-     * new value online has failed
      * @throws java.lang.ArrayIndexOutOfBoundsException if the number of
      * instances currently registered by the application is already equal to the
      * maximum number of supported instances (@see getMaxDetailInstances())
      */
     public void addDetail(ServerStoredDetails.GenericDetail detail)
         throws IllegalArgumentException,
-               OperationFailedException,
                ArrayIndexOutOfBoundsException
     {
-        assertConnected();
-
-        /*
-        Currently as the function only provided the list of classes that
-        currently have data associated with them
-         in Jabber InfoRetreiver we have to skip this check*/
-        //if (!isDetailClassSupported(detail.getClass())) {
-        //    throw new IllegalArgumentException(
-        //            "implementation does not support such details " +
-        //            detail.getClass());
-        //}
+        if (!isDetailClassSupported(detail.getClass())) {
+            throw new IllegalArgumentException(
+                    "implementation does not support such details " +
+                    detail.getClass());
+        }
 
         Iterator<GenericDetail> iter = getDetails(detail.getClass());
         int currentDetailsSize = 0;
         while (iter.hasNext())
         {
             currentDetailsSize++;
+            iter.next();
         }
 
-        if (currentDetailsSize >= getMaxDetailInstances(detail.getClass()))
+        if (currentDetailsSize > getMaxDetailInstances(detail.getClass()))
         {
             throw new ArrayIndexOutOfBoundsException(
                     "Max count for this detail is already reached");
         }
 
-        if(detail instanceof ImageDetail)
-        {
-            // Push the avatar photo to the server.
-            this.uploadImageDetail(
-                    ServerStoredDetailsChangeEvent.DETAIL_ADDED,
-                    null,
-                    detail);
-        }
+        infoRetreiver.getCachedContactDetails(uin).add(detail);
     }
 
     /**
-     * Removes the specified detail from the list of details stored online for
-     * this account. The method returns a boolean indicating if such a detail
-     * was found (and removed) or not.
+     * Removes the specified detail from the list of details ready to be saved
+     * online this account. The method returns a boolean indicating if such a
+     * detail was found (and removed) or not.
      * <p>
      * @param detail the detail to remove
      * @return true if the specified detail existed and was successfully removed
      * and false otherwise.
-     * @throws OperationFailedException with code Network Failure if removing the
-     * detail from the server has failed
      */
     public boolean removeDetail(ServerStoredDetails.GenericDetail detail)
-        throws OperationFailedException
     {
-        return false;
+        
+        return infoRetreiver.getCachedContactDetails(uin).remove(detail);
     }
 
     /**
@@ -264,16 +266,12 @@ public class OperationSetServerStoredAccountInfoJabberImpl
      * call to addDetail is required).
      * @throws ClassCastException if newDetailValue is not an instance of the
      * same class as currentDetailValue.
-     * @throws OperationFailedException with code Network Failure if putting the
-     * new value back online has failed
      */
     public boolean replaceDetail(
                     ServerStoredDetails.GenericDetail currentDetailValue,
                     ServerStoredDetails.GenericDetail newDetailValue)
-        throws ClassCastException, OperationFailedException
+        throws ClassCastException
     {
-        assertConnected();
-
         if (!newDetailValue.getClass().equals(currentDetailValue.getClass()))
         {
             throw new ClassCastException(
@@ -304,22 +302,130 @@ public class OperationSetServerStoredAccountInfoJabberImpl
             return false;
         }
 
-        if(newDetailValue instanceof ImageDetail)
-        {
-            // Push the new avatar photo to the server.
-            return this.uploadImageDetail(
-                    ServerStoredDetailsChangeEvent.DETAIL_REPLACED,
-                    currentDetailValue,
-                    newDetailValue);
-        }
+        removeDetail(currentDetailValue);
+        addDetail(newDetailValue);
+        return true;
+    }
 
+    /**
+     * Saves the list of details for this account that were ready to be stored
+     * online on the server. This method performs the actual saving of details
+     * online on the server and is supposed to be invoked after addDetail(),
+     * replaceDetail() and/or removeDetail().
+     * <p>
+     * @throws OperationFailedException with code Network Failure if putting the
+     * new values back online has failed.
+     */
+    public void save() throws OperationFailedException
+    {
+        assertConnected();
+
+        List<GenericDetail> details = infoRetreiver.getContactDetails(uin);
+        VCardXEP0153 vCard = new VCardXEP0153();
+        for (GenericDetail detail : details)
+        {
+            if (detail instanceof ImageDetail)
+            {
+                byte[] avatar = ((ImageDetail) detail).getBytes();
+                if (avatar == null) vCard.setAvatar(new byte[0]);
+                else vCard.setAvatar(avatar);
+                fireServerStoredDetailsChangeEvent(
+                    jabberProvider,
+                    ServerStoredDetailsChangeEvent.DETAIL_ADDED,
+                    null,
+                    detail);
+            }
+            else if (detail.getClass().equals(FirstNameDetail.class))
+                vCard.setFirstName((String)detail.getDetailValue());
+            else if (detail.getClass().equals(MiddleNameDetail.class))
+                vCard.setMiddleName((String)detail.getDetailValue());
+            else if (detail.getClass().equals(LastNameDetail.class))
+                vCard.setLastName((String)detail.getDetailValue());
+            else if (detail.getClass().equals(NicknameDetail.class))
+                vCard.setNickName((String)detail.getDetailValue());
+            else if (detail.getClass().equals(URLDetail.class))
+            {
+                if (detail.getDetailValue() != null)
+                    vCard.setField(
+                        "URL", ((URL)detail.getDetailValue()).toString());
+            }
+            else if (detail.getClass().equals(BirthDateDetail.class))
+            {
+                if (detail.getDetailValue() != null)
+                {
+                    Calendar c = ((BirthDateDetail)detail).getCalendar();
+                    DateFormat dateFormat =
+                        new SimpleDateFormat(
+                            JabberActivator.getResources().getI18NString(
+                                "plugin.accountinfo.BDAY_FORMAT"));
+                    String strdate = dateFormat.format(c.getTime());
+                    vCard.setField("BDAY", strdate);
+                }
+            }
+            else if (detail.getClass().equals(AddressDetail.class))
+                vCard.setAddressFieldHome(
+                    "STREET", (String)detail.getDetailValue());
+            else if (detail.getClass().equals(CityDetail.class))
+                vCard.setAddressFieldHome(
+                    "LOCALITY", (String)detail.getDetailValue());
+            else if (detail.getClass().equals(ProvinceDetail.class))
+                vCard.setAddressFieldHome(
+                    "REGION", (String)detail.getDetailValue());
+            else if (detail.getClass().equals(PostalCodeDetail.class))
+                vCard.setAddressFieldHome(
+                    "PCODE", (String)detail.getDetailValue());
+            else if (detail.getClass().equals(CountryDetail.class))
+                vCard.setAddressFieldHome(
+                    "CTRY", (String)detail.getDetailValue());
+            else if (detail.getClass().equals(PhoneNumberDetail.class))
+                vCard.setPhoneHome("VOICE", (String)detail.getDetailValue());
+            else if (detail.getClass().equals(WorkPhoneDetail.class))
+                vCard.setPhoneWork("VOICE", (String)detail.getDetailValue());
+            else if (detail.getClass().equals(EmailAddressDetail.class))
+                vCard.setEmailHome((String)detail.getDetailValue());
+            else if (detail.getClass().equals(WorkEmailAddressDetail.class))
+                vCard.setEmailWork((String)detail.getDetailValue());
+            else if (detail.getClass().equals(WorkOrganizationNameDetail.class))
+                vCard.setOrganization((String)detail.getDetailValue());
+            else if (detail.getClass().equals(JobTitleDetail.class))
+                vCard.setField("TITLE", (String)detail.getDetailValue());
+            else if (detail.getClass().equals(AboutMeDetail.class))
+                vCard.setField("ABOUTME", (String)detail.getDetailValue());
+        }
+        try
+        {
+            vCard.save(jabberProvider.getConnection());
+        }
+        catch (XMPPException xmppe)
+        {
+            logger.error("Error loading/saving vcard: ", xmppe);
+            throw new OperationFailedException(
+                "Error loading/saving vcard: ", 1, xmppe);
+        }
+    }
+
+    /**
+     * Determines whether the underlying implementation supports edition
+     * of this detail class.
+     * <p>
+     * @param detailClass the class whose edition we'd like to determine if it's
+     * possible
+     * @return true if the underlying implementation supports edition of this
+     * type of detail and false otherwise.
+     */
+    public boolean isDetailClassEditable(
+        Class<? extends GenericDetail> detailClass)
+    {
+        if (isDetailClassSupported(detailClass)) {
+            return true;
+        }
         return false;
     }
 
     /**
-     * Utility method throwing an exception if the icq stack is not properly
+     * Utility method throwing an exception if the jabber stack is not properly
      * initialized.
-     * @throws java.lang.IllegalStateException if the underlying ICQ stack is
+     * @throws java.lang.IllegalStateException if the underlying jabber stack is
      * not registered and initialized.
      */
     private void assertConnected() throws IllegalStateException
@@ -332,74 +438,5 @@ public class OperationSetServerStoredAccountInfoJabberImpl
             throw new IllegalStateException(
                 "The jabber provider must be signed on before "
                 +"being able to communicate.");
-    }
-
-    /**
-     * Uploads the new avatar image to the server via the vCard mechanism
-     * (XEP-0153).
-     *
-     * @param changeEventID the int ID of the event to dispatch
-     * @param currentDetailValue the detail value we'd like to replace.
-     * @param newDetailValue the value of the detail that we'd like to replace
-     * currentDetailValue with. If ((ImageDetail) newDetailValue).getBytes() is
-     * null, then this function removes the current avatar from the server by
-     * sending a vCard with a "photo" tag without any content.
-     *
-     * @return "true" if the new avatar image has been uploaded (even if the
-     * current avatar image is removed). "false" if an XMPPException occurs.
-     */
-    private boolean uploadImageDetail(
-            int changeEventID,
-            ServerStoredDetails.GenericDetail currentDetailValue,
-            ServerStoredDetails.GenericDetail newDetailValue)
-    {
-        boolean isPhotoChanged = false;
-
-        try
-        {
-            byte[] newAvatar = ((ImageDetail) newDetailValue).getBytes();
-
-            VCardXEP0153 v1 = new VCardXEP0153();
-            // Retrieve the old vCard.
-            v1.load(jabberProvider.getConnection());
-            // Checks if the new avatar photo is diferent form the server one.
-            // If yes, then upload the new avatar photo.
-            if(!Arrays.equals(v1.getAvatar(), newAvatar))
-            {
-                if(newAvatar == null)
-                {
-                    v1.setAvatar(new byte[0]);
-                }
-                else
-                {
-                    v1.setAvatar(newAvatar);
-                }
-                // Saves the new vCard.
-                v1.save(jabberProvider.getConnection());
-            }
-
-            // Sets the new avatar photo advertised in all presence messages,
-            // and send one presence messge immediately.
-            ((OperationSetPersistentPresenceJabberImpl)
-             this.jabberProvider.getOperationSet(
-                 OperationSetPersistentPresence.class))
-                .updateAccountPhotoPresenceExtension(newAvatar);
-
-            // Advertises all detail change listeners, that the server stored
-            // details have changed.
-            fireServerStoredDetailsChangeEvent(
-                    jabberProvider,
-                    changeEventID,
-                    currentDetailValue,
-                    newDetailValue);
-
-            isPhotoChanged = true;
-        }
-        catch (XMPPException xmppe)
-        {
-            logger.error("Error loading/saving vcard: ", xmppe);
-        }
-
-        return isPhotoChanged;
     }
 }

@@ -118,7 +118,7 @@ public class SkinJarBuilder
     }
 
     /**
-     * Unzip given file to temp folder.
+     * Unzips a specified <tt>File</tt> to temp folder.
      *
      * @param zip ZIP <tt>File</tt> to be unzipped.
      * @return temporary directory with the content of the ZIP file.
@@ -130,45 +130,68 @@ public class SkinJarBuilder
         File dest = File.createTempFile("zip", null);
 
         if (!dest.delete())
-        {
             throw new IOException("Cannot unzip given zip file");
-        }
-
         if (!dest.mkdirs())
-        {
             throw new IOException("Cannot unzip given zip file");
-        }
 
         ZipFile archive = new ZipFile(zip);
-        Enumeration<? extends ZipEntry> e = archive.entries();
-        while (e.hasMoreElements())
+
+        try
         {
-            ZipEntry entry = e.nextElement();
-            File file = new File(dest, entry.getName());
-            if (entry.isDirectory() && !file.exists())
+            Enumeration<? extends ZipEntry> e = archive.entries();
+
+            if (e.hasMoreElements())
             {
-                file.mkdirs();
-            }
-            else
-            {
-                if (!file.getParentFile().exists())
-                {
-                    file.getParentFile().mkdirs();
-                }
-                InputStream in = archive.getInputStream(entry);
-                BufferedOutputStream out
-                    = new BufferedOutputStream(new FileOutputStream(file));
                 byte[] buffer = new byte[8192];
-                int read;
-                while (-1 != (read = in.read(buffer)))
+
+                while (e.hasMoreElements())
                 {
-                    out.write(buffer, 0, read);
+                    ZipEntry entry = e.nextElement();
+                    File file = new File(dest, entry.getName());
+
+                    if (entry.isDirectory() && !file.exists())
+                    {
+                        file.mkdirs();
+                    }
+                    else
+                    {
+                        File parentFile = file.getParentFile();
+
+                        if (!parentFile.exists())
+                            parentFile.mkdirs();
+
+                        InputStream in = archive.getInputStream(entry);
+
+                        try
+                        {
+                            BufferedOutputStream out
+                                = new BufferedOutputStream(
+                                        new FileOutputStream(file));
+
+                            try
+                            {
+                                int read;
+    
+                                while (-1 != (read = in.read(buffer)))
+                                    out.write(buffer, 0, read);
+                            }
+                            finally
+                            {
+                                out.close();
+                            }
+                        }
+                        finally
+                        {
+                            in.close();
+                        }
+                    }
                 }
-                in.close();
-                out.close();
             }
         }
-
+        finally
+        {
+            archive.close();
+        }
         return dest;
     }
 

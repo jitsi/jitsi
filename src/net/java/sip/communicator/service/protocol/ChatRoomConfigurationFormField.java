@@ -85,6 +85,18 @@ public interface ChatRoomConfigurationFormField
     public static final String TYPE_LIST_SINGLE = "ListSingleChoice";
 
     /**
+     * The multi id type means that the value of this field is a list of ids.
+     */
+    public static final String TYPE_ID_MULTI = "MultiIDChoice";
+
+    /**
+     * The id single type means that the value of this field is only one id
+     * that can be selected. As TYPE_TEXT_SINGLE but contains id,
+     * most probably in form of user@service.com.
+     */
+    public static final String TYPE_ID_SINGLE = "SingleIDChoice";
+
+    /**
      * Returns the name of the field to be filled out. This serves as an
      * identifier of the field.
      *

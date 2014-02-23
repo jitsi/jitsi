@@ -65,4 +65,14 @@ public interface OperationSetTelephonyConferencing
     public CallPeer inviteCalleeToCall(String uri, Call call)
         throws OperationFailedException,
                OperationNotSupportedException;
+
+    /**
+     * Sets up a conference with no participants, which members of
+     * <tt>chatRoom</tt> can join. Returns a <tt>ConferenceDescription</tt>
+     * that describes how the call can be joined.
+     * @param chatRoom the <tt>ChatRoom</tt> for which to set up a conference.
+     * @return a <tt>ConferenceDescription</tt> corresponding to the created
+     * conference.
+     */
+    public ConferenceDescription setupConference(ChatRoom chatRoom);
 }

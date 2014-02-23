@@ -655,9 +655,6 @@ public class NetworkUtils
      * @param domain the name of the domain we'd like to resolve.
      * @param service the service that we are trying to get a record for.
      * @param proto the protocol that we'd like <tt>service</tt> on.
-     * @param useDNSCache Tells the lookup to use (or not) the DNS cache to
-     * resolve the domain requested. i.e. it is useful to disable the DNS cache
-     * when doing requests for testing DNS connectivity.
      *
      * @return the InetSocketAddress[] containing records returned by the
      * DNS server - address and port .
@@ -1255,8 +1252,7 @@ public class NetworkUtils
     }
 
     /**
-     * Creates a new {@link Lookup} instance using our own {@link
-     * ParallelResolverImpl} if it is enabled and DNSSEC is not active.
+     * Creates a new {@link Lookup} instance.
      *
      * @param domain the domain we will be resolving
      * @param type the type of the record we will be trying to obtain.

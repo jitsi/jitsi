@@ -15,6 +15,7 @@ import javax.swing.*;
 import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -56,6 +57,13 @@ public class Constants
     public static Color CALL_HISTORY_EVEN_ROW_COLOR
         = new Color(GuiActivator.getResources().
             getColor("service.gui.CALL_HISTORY_EVEN_ROW_COLOR"));
+    
+    /**
+     * Background color for chat room contact rows.
+     */
+    public static Color CHAT_ROOM_ROW_COLOR
+        = new Color(GuiActivator.getResources().
+            getColor("service.gui.CHAT_ROOM_ROW_COLOR"));
 
     /**
      * The start color used to paint a gradient selected background of some
@@ -137,19 +145,24 @@ public class Constants
         String fontName = null;
         int fontSize = 0;
 
-        if ((laf != null)
-                && "com.sun.java.swing.plaf.windows.WindowsLookAndFeel".equals(
-                        laf.getClass().getName()))
+        if (laf != null)
         {
-            Object desktopPropertyValue
-                = Toolkit.getDefaultToolkit().getDesktopProperty(
-                        "win.messagebox.font");
+            String lafClassName = laf.getClass().getName();
 
-            if (desktopPropertyValue instanceof Font)
+            if ("com.sun.java.swing.plaf.windows.WindowsLookAndFeel".equals(
+                    lafClassName))
             {
-                font = (Font) desktopPropertyValue;
-                fontName = font.getFontName();
-                fontSize = font.getSize();
+                Object desktopPropertyValue
+                    = Toolkit.getDefaultToolkit().getDesktopProperty(
+                            "win.messagebox.font");
+
+                if (desktopPropertyValue instanceof Font)
+                    font = (Font) desktopPropertyValue;
+            }
+            else if ("com.sun.java.swing.plaf.gtk.GTKLookAndFeel".equals(
+                    lafClassName))
+            {
+                font = UIManager.getDefaults().getFont("Panel.font");
             }
         }
 
@@ -161,52 +174,6 @@ public class Constants
                         (fontSize == 0) ? 12 : fontSize)
                 : font;
     }
-
-    /*
-     * ======================================================================
-     * ------------------------ PROTOCOL NAMES -------------------------------
-     * ======================================================================
-     */
-    /**
-     * The ICQ protocol.
-     */
-    public static final String ICQ = "ICQ";
-
-    /**
-     * The MSN protocol.
-     */
-    public static final String MSN = "MSN";
-
-    /**
-     * The AIM protocol.
-     */
-    public static final String AIM = "AIM";
-
-    /**
-     * The Yahoo protocol.
-     */
-    public static final String YAHOO = "Yahoo";
-
-    /**
-     * The Jabber protocol.
-     */
-    public static final String JABBER = "Jabber";
-
-    /**
-     * The Skype protocol.
-     */
-    public static final String SKYPE = "Skype";
-
-    /**
-     * The Gibberish protocol.
-     */
-    public static final String GIBBERISH = "Gibberish";
-
-
-    /**
-     * The SIP protocol.
-     */
-    public static final String SIP = "SIP";
 
     /*
      * ======================================================================
@@ -266,17 +233,22 @@ public class Constants
                 return ImageLoader
                     .getImage(ImageLoader.USER_OFFLINE_ICON);
             }
-            else if(connectivity < PresenceStatus.AWAY_THRESHOLD)
+            else if(connectivity < PresenceStatus.EXTENDED_AWAY_THRESHOLD)
             {
                 return ImageLoader
                     .getImage(ImageLoader.USER_DND_ICON);
             }
-            else if(connectivity == PresenceStatus.AWAY_THRESHOLD)
+            else if(connectivity == PresenceStatus.EXTENDED_AWAY_THRESHOLD)
             {
                 // the special status On The Phone is state
-                // between DND and AWAY states.
+                // between DND and EXTENDED AWAY states.
                 return ImageLoader
                     .getImage(ImageLoader.USER_USER_ON_THE_PHONE_ICON);
+            }
+            else if(connectivity < PresenceStatus.AWAY_THRESHOLD)
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.USER_EXTENDED_AWAY_ICON);
             }
             else if(connectivity < PresenceStatus.AVAILABLE_THRESHOLD)
             {
@@ -289,10 +261,22 @@ public class Constants
                 return ImageLoader
                     .getImage(ImageLoader.USER_ONLINE_ICON);
             }
-            else if(connectivity < PresenceStatus.MAX_STATUS_VALUE)
+            else if(connectivity < 
+                ChatRoomPresenceStatus.CHAT_ROOM_ONLINE_THRESHOLD)
             {
                 return ImageLoader
                     .getImage(ImageLoader.USER_FFC_ICON);
+            }
+            else if(connectivity < 
+                ChatRoomPresenceStatus.CHAT_ROOM_OFFLINE_THRESHOLD)
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_ROOM_ONLINE_ICON);
+            }
+            else if(connectivity < PresenceStatus.MAX_STATUS_VALUE)
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_ROOM_OFFLINE_ICON);
             }
             else
             {
@@ -304,6 +288,68 @@ public class Constants
         {
             return ImageLoader
                 .getImage(ImageLoader.USER_OFFLINE_ICON);
+        }
+    }
+
+    /**
+     * Returns the image corresponding to the given presence status.
+     * @param status The presence status.
+     * @return the image corresponding to the given presence status.
+     */
+    public static BufferedImage getMessageStatusIcon(PresenceStatus status)
+    {
+        if(status != null)
+        {
+            int connectivity = status.getStatus();
+
+            if(connectivity < PresenceStatus.ONLINE_THRESHOLD)
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_BUTTON_OFFLINE_ICON);
+            }
+            else if(connectivity < PresenceStatus.EXTENDED_AWAY_THRESHOLD)
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_BUTTON_DND_ICON);
+            }
+            else if(connectivity == PresenceStatus.EXTENDED_AWAY_THRESHOLD)
+            {
+                // the special status On The Phone is state
+                // between DND and EXTENDED AWAY states.
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_BUTTON_ON_THE_PHONE_ICON);
+            }
+            else if(connectivity < PresenceStatus.AWAY_THRESHOLD)
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_BUTTON_EXTENDED_AWAY_ICON);
+            }
+            else if(connectivity < PresenceStatus.AVAILABLE_THRESHOLD)
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_BUTTON_AWAY_ICON);
+            }
+            else if(connectivity
+                        < PresenceStatus.EAGER_TO_COMMUNICATE_THRESHOLD)
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_BUTTON_ONLINE_ICON);
+            }
+            else if(connectivity < PresenceStatus.MAX_STATUS_VALUE)
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_BUTTON_FFC_ICON);
+            }
+            else
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.CHAT_BUTTON_OFFLINE_ICON);
+            }
+        }
+        else
+        {
+            return ImageLoader
+                .getImage(ImageLoader.CHAT_BUTTON_SMALL_WHITE);
         }
     }
 

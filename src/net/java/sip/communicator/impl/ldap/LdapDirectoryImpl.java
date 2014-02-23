@@ -54,7 +54,11 @@ public class LdapDirectoryImpl
     /**
      * Name of avatar attribute.
      */
-    private static final String PHOTO_ATTRIBUTE = "jpegPhoto";
+    private static final String[] PHOTO_ATTRIBUTES = new String[]
+    {
+        "jpegPhoto",
+        "thumbnailPhoto"
+    };
 
     /**
      * data structure used to store the LDAP attributes that
@@ -208,6 +212,12 @@ public class LdapDirectoryImpl
         {
             searchableAttrs.add(s);
         }
+
+        if (settings.isPhotoInline())
+        {
+            retrievableAttributes.add("jpegPhoto");
+            retrievableAttributes.add("thumbnailPhoto");
+        }
     }
 
     /**
@@ -350,7 +360,8 @@ public class LdapDirectoryImpl
             @Override
             public void run()
             {
-                logger.trace("starting search for " + realQueryString +
+                String filter = buildSearchFilter(realQueryString);
+                logger.trace("starting search for " + filter +
                         " (initial query: \"" + query.toString() +
                         "\") on directory \"" + LdapDirectoryImpl.this + "\"");
 
@@ -373,7 +384,7 @@ public class LdapDirectoryImpl
 
                     NamingEnumeration<?> results = dirContext.search(
                             LdapDirectoryImpl.this.settings.getBaseDN(),
-                            buildSearchFilter(realQueryString),
+                            filter,
                             searchControls
                             );
 
@@ -385,7 +396,7 @@ public class LdapDirectoryImpl
 
                         SearchResult searchResult =
                             (SearchResult) results.next();
-                        Map<String, Set<String>> retrievedAttributes =
+                        Map<String, Set<Object>> retrievedAttributes =
                             retrieveAttributes(searchResult);
                         LdapPersonFound person =
                             buildPerson(
@@ -401,7 +412,7 @@ public class LdapDirectoryImpl
                     }
 
                     long time1 = System.currentTimeMillis();
-                    logger.trace("search for real query \"" + realQueryString +
+                    logger.trace("search for real query \"" + filter +
                             "\" (initial query: \"" + query.toString() +
                             "\") on directory \"" + LdapDirectoryImpl.this +
                             "\" took " + (time1-time0) + "ms");
@@ -411,10 +422,10 @@ public class LdapDirectoryImpl
                 }
                 catch(OperationNotSupportedException e)
                 {
-                    logger.trace(
+                    logger.error(
                             "use bind DN without password during search" +
                             " for real query \"" +
-                            realQueryString + "\" (initial query: \"" +
+                            filter + "\" (initial query: \"" +
                             query.toString() + "\") on directory \"" +
                             LdapDirectoryImpl.this + "\": " + e);
                     endEvent = new LdapEvent(
@@ -425,10 +436,10 @@ public class LdapDirectoryImpl
                 }
                 catch(AuthenticationException e)
                 {
-                    logger.trace(
+                    logger.error(
                             "authentication failed during search" +
                             " for real query \"" +
-                            realQueryString + "\" (initial query: \"" +
+                            filter + "\" (initial query: \"" +
                             query.toString() + "\") on directory \"" +
                             LdapDirectoryImpl.this + "\": " + e);
                     endEvent = new LdapEvent(
@@ -439,10 +450,10 @@ public class LdapDirectoryImpl
                 }
                 catch(NamingException e)
                 {
-                    logger.trace(
+                    logger.error(
                             "an external exception was thrown during search" +
                             " for real query \"" +
-                            realQueryString + "\" (initial query: \"" +
+                            filter + "\" (initial query: \"" +
                             query.toString() + "\") on directory \"" +
                             LdapDirectoryImpl.this + "\": " + e);
                     endEvent = new LdapEvent(
@@ -453,7 +464,7 @@ public class LdapDirectoryImpl
                 }
                 catch(LdapQueryCancelledException e)
                 {
-                    logger.trace("search for real query \"" + realQueryString +
+                    logger.trace("search for real query \"" + filter +
                             "\" (initial query: \"" + query.toString() +
                             "\") on " + LdapDirectoryImpl.this +
                             " cancelled at state " + cancelState);
@@ -468,6 +479,19 @@ public class LdapDirectoryImpl
                 {
                     // whether sleep was interrupted
                     // is not that important
+                }
+                catch (Exception e)
+                {
+                    logger.error("search for real query \"" + filter +
+                            "\" (initial query: \"" + query.toString() +
+                            "\") on " + LdapDirectoryImpl.this +
+                            " cancelled at state " + cancelState, e);
+
+                    endEvent = new LdapEvent(
+                            LdapDirectoryImpl.this,
+                            LdapEvent.LdapEventCause.SEARCH_ERROR,
+                            query
+                            );
                 }
                 finally
                 {
@@ -504,9 +528,14 @@ public class LdapDirectoryImpl
         searchThread.start();
     }
 
-    private static String[]
+    private String[]
         buildIntermediateQueryStrings(String initialQueryString)
     {
+        if (!this.settings.isMangleQuery())
+        {
+            return new String[] { initialQueryString };
+        }
+
         // search for "doe john" as well "as john doe"
         String[] words = initialQueryString.split(" ");
         String[] intermediateQueryStrings;
@@ -534,28 +563,27 @@ public class LdapDirectoryImpl
      * @param searchResult the results to browse for attributes
      * @return the attributes in a Map
      */
-    private Map<String, Set<String>>
+    private Map<String, Set<Object>>
         retrieveAttributes(SearchResult searchResult)
         throws NamingException
     {
         Attributes attributes =
             searchResult.getAttributes();
-        Map<String, Set<String>> retrievedAttributes =
-            new HashMap<String, Set<String>>();
+        Map<String, Set<Object>> retrievedAttributes =
+            new HashMap<String, Set<Object>>();
         NamingEnumeration<String> ids = attributes.getIDs();
         while(ids.hasMore())
         {
             String id = ids.next();
             if(retrievableAttributes.contains(id) || containsAttribute(id))
             {
-                Set<String> valuesSet = new HashSet<String>();
+                Set<Object> valuesSet = new HashSet<Object>();
                 retrievedAttributes.put(id, valuesSet);
                 Attribute attribute = attributes.get(id);
                 NamingEnumeration<?> values = attribute.getAll();
                 while(values.hasMore())
                 {
-                    String value = (String) values.next();
-                    valuesSet.add(value);
+                    valuesSet.add(values.next());
                 }
             }
         }
@@ -574,7 +602,7 @@ public class LdapDirectoryImpl
                 LdapQuery query,
                 String dn,
                 Map<String,
-                Set<String>> retrievedAttributes
+                Set<Object>> retrievedAttributes
                 )
         {
             LdapPersonFound person =
@@ -584,19 +612,22 @@ public class LdapDirectoryImpl
             if(retrievedAttributes.get("givenname") != null)
             {
                 String firstName =
-                    retrievedAttributes.get("givenname").iterator().next();
+                    (String) retrievedAttributes.get("givenname")
+                        .iterator().next();
                 person.setFirstName(firstName);
             }
             else if(retrievedAttributes.get("givenName") != null)
             {
                 String firstName =
-                    retrievedAttributes.get("givenName").iterator().next();
+                    (String) retrievedAttributes.get("givenName")
+                        .iterator().next();
                 person.setFirstName(firstName);
             }
             else if(retrievedAttributes.get("gn") != null)
             {
                 String firstName =
-                    retrievedAttributes.get("gn").iterator().next();
+                    (String) retrievedAttributes.get("gn")
+                        .iterator().next();
                 person.setFirstName(firstName);
             }
 
@@ -604,13 +635,15 @@ public class LdapDirectoryImpl
             if(retrievedAttributes.get("sn") != null)
             {
                 String surname =
-                    retrievedAttributes.get("sn").iterator().next();
+                    (String) retrievedAttributes.get("sn")
+                        .iterator().next();
                 person.setSurname(surname);
             }
             else if(retrievedAttributes.get("surname") != null)
             {
                 String surname =
-                    retrievedAttributes.get("surname").iterator().next();
+                    (String) retrievedAttributes.get("surname")
+                        .iterator().next();
                 person.setSurname(surname);
             }
 
@@ -618,19 +651,22 @@ public class LdapDirectoryImpl
             if(retrievedAttributes.get("displayName") != null)
             {
                 String displayName =
-                    retrievedAttributes.get("displayName").iterator().next();
+                    (String) retrievedAttributes.get("displayName")
+                        .iterator().next();
                 person.setDisplayName(displayName);
             }
             else if(retrievedAttributes.get("cn") != null)
             {
                 String displayName =
-                    retrievedAttributes.get("cn").iterator().next();
+                    (String) retrievedAttributes.get("cn")
+                        .iterator().next();
                 person.setDisplayName(displayName);
             }
             else if(retrievedAttributes.get("commonname") != null)
             {
                 String displayName =
-                    retrievedAttributes.get("commonname").iterator().next();
+                    (String) retrievedAttributes.get("commonname")
+                        .iterator().next();
                 person.setDisplayName(displayName);
             }
             if(person.getDisplayName() == null)
@@ -648,20 +684,21 @@ public class LdapDirectoryImpl
             if(retrievedAttributes.get("o") != null)
             {
                 String organization =
-                    retrievedAttributes.get("o").iterator().next();
+                    (String) retrievedAttributes.get("o").iterator().next();
                 person.setOrganization(organization);
             }
             else if(retrievedAttributes.get("organizationName") != null)
             {
                 String organization =
-                    retrievedAttributes.get("organizationName").iterator()
-                    .next();
+                    (String) retrievedAttributes.get("organizationName")
+                        .iterator().next();
                 person.setOrganization(organization);
             }
             else if(retrievedAttributes.get("company") != null)
             {
                 String organization =
-                    retrievedAttributes.get("company").iterator().next();
+                    (String) retrievedAttributes.get("company")
+                        .iterator().next();
                 person.setOrganization(organization);
             }
 
@@ -669,40 +706,58 @@ public class LdapDirectoryImpl
             if(retrievedAttributes.get("company") != null)
             {
                 String department =
-                    retrievedAttributes.get("company").iterator().next();
+                    (String) retrievedAttributes.get("company")
+                        .iterator().next();
                 person.setDepartment(department);
             }
             else if(retrievedAttributes.get("ou") != null)
             {
                 String department =
-                    retrievedAttributes.get("ou").iterator().next();
+                    (String) retrievedAttributes.get("ou").iterator().next();
                 person.setDepartment(department);
             }
             else if(retrievedAttributes.get("orgunit") != null)
             {
                 String department =
-                    retrievedAttributes.get("orgunit").iterator().next();
+                    (String) retrievedAttributes.get("orgunit")
+                        .iterator().next();
                 person.setDepartment(department);
             }
             else if(retrievedAttributes.get("organizationalUnitName") != null)
             {
                 String department =
-                    retrievedAttributes.get("organizationalUnitName").
+                    (String) retrievedAttributes.get("organizationalUnitName").
                         iterator().next();
                 person.setDepartment(department);
             }
             else if(retrievedAttributes.get("department") != null)
             {
                 String department =
-                    retrievedAttributes.get("department").iterator().next();
+                    (String) retrievedAttributes.get("department")
+                        .iterator().next();
                 person.setDepartment(department);
             }
             else if(retrievedAttributes.get("departmentNumber") != null)
             {
                 String department =
-                    retrievedAttributes.get("departmentNumber").iterator().
-                    next();
+                    (String) retrievedAttributes.get("departmentNumber")
+                        .iterator().next();
                 person.setDepartment(department);
+            }
+
+            if(retrievedAttributes.get("jpegPhoto") != null)
+            {
+                byte[] photo =
+                    (byte[])retrievedAttributes.get("jpegPhoto")
+                        .iterator().next();
+                person.setPhoto(photo);
+            }
+            else if(retrievedAttributes.get("thumbnailPhoto") != null)
+            {
+                byte[] photo =
+                    (byte[])retrievedAttributes.get("thumbnailPhoto")
+                        .iterator().next();
+                person.setPhoto(photo);
             }
 
             // mail
@@ -712,8 +767,9 @@ public class LdapDirectoryImpl
             {
                 if(retrievedAttributes.get(attr) != null)
                 {
-                    for(String mail : retrievedAttributes.get(attr))
+                    for(Object o : retrievedAttributes.get(attr))
                     {
+                        String mail = o.toString();
                         if(!mail.contains("@"))
                         {
                             if(settings.getMailSuffix() != null)
@@ -736,7 +792,8 @@ public class LdapDirectoryImpl
                 if(retrievedAttributes.get(attr) != null)
                 {
                     String phone =
-                        retrievedAttributes.get(attr).iterator().next();
+                        (String) retrievedAttributes.get(attr)
+                            .iterator().next();
                     person.addWorkPhone(phone);
                 }
             }
@@ -748,9 +805,9 @@ public class LdapDirectoryImpl
             {
                 if(retrievedAttributes.get(attr) != null)
                 {
-                    for(String phone : retrievedAttributes.get(attr))
+                    for(Object phone : retrievedAttributes.get(attr))
                     {
-                        person.addMobilePhone(phone);
+                        person.addMobilePhone(phone.toString());
                     }
                 }
             }
@@ -762,9 +819,9 @@ public class LdapDirectoryImpl
             {
                 if(retrievedAttributes.get(attr) != null)
                 {
-                    for(String phone : retrievedAttributes.get(attr))
+                    for(Object phone : retrievedAttributes.get(attr))
                     {
-                        person.addHomePhone(phone);
+                        person.addHomePhone(phone.toString());
                     }
                 }
             }
@@ -836,27 +893,21 @@ public class LdapDirectoryImpl
     }
 
     /**
-     * Builds an LDAP search filter, base on the query string entered
-     * e.g. (&(|(mail=*)(telephoneNumber=*))(|(cn=*query*)(sn=*query*)(givenname=*query*)))
-     *
+     * Builds an LDAP search filter, based on the query string entered and the
+     * searchable fields defined in the static constructor. If a custom query is
+     * defined this is used instead. e.g.
+     * (|(|(mail=query)(telephoneNumber=query)))
+     * 
      * @return an LDAP search filter
      */
     private String buildSearchFilter(String query)
     {
-        StringBuffer searchFilter = new StringBuffer();
-
-        /*
-        searchFilter.append("(&(|");
-
-        for(String attribute : retrievableAttributes)
+        if ("custom".equals(settings.getQueryMode()))
         {
-            searchFilter.append("(");
-            searchFilter.append(attribute);
-            searchFilter.append("=*)");
+            return settings.getCustomQuery().replace("<query>", query);
         }
 
-        searchFilter.append(")(|");
-        */
+        StringBuffer searchFilter = new StringBuffer();
         searchFilter.append("(|");
 
         /* cn=*query* OR sn=*query* OR ... */
@@ -966,6 +1017,11 @@ public class LdapDirectoryImpl
      */
     byte[] fetchPhotoForPerson(String dn)
     {
+        if (this.settings.isPhotoInline())
+        {
+            return null;
+        }
+
         byte[] photo = null;
         InitialDirContext dirContext = null;
 
@@ -973,8 +1029,7 @@ public class LdapDirectoryImpl
 
         final SearchControls searchCtl = new SearchControls();
         searchCtl.setSearchScope(SearchControls.OBJECT_SCOPE);
-        String[] returningAttributes = { PHOTO_ATTRIBUTE };
-        searchCtl.setReturningAttributes(returningAttributes);
+        searchCtl.setReturningAttributes(PHOTO_ATTRIBUTES);
 
         logger.trace("starting photo retrieval...");
         try
@@ -991,13 +1046,16 @@ public class LdapDirectoryImpl
             {
                 SearchResult searchResult = (SearchResult) result.next();
                 Attributes attributes = searchResult.getAttributes();
-                Attribute attribute = attributes.get(PHOTO_ATTRIBUTE);
-                if(attribute != null)
+                for (String a : PHOTO_ATTRIBUTES)
                 {
-                    NamingEnumeration<?> values = attribute.getAll();
-                    if(values.hasMore())
+                    Attribute attribute = attributes.get(a);
+                    if(attribute != null)
                     {
-                        photo = (byte[]) values.next();
+                        NamingEnumeration<?> values = attribute.getAll();
+                        if(values.hasMore())
+                        {
+                            photo = (byte[]) values.next();
+                        }
                     }
                 }
             }

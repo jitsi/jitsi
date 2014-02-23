@@ -10,7 +10,6 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
-
 /**
  * Represents the <tt>payload-type</tt> elements described in XEP-0167.
  *
@@ -204,7 +203,7 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
     {
         //parameters are the only extensions we can have so let's use
         //super's list.
-        super.addChildExtension(parameter);
+        addChildExtension(parameter);
     }
 
     /**
@@ -214,9 +213,8 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
      * @return a <b>reference</b> to the the list of parameters currently
      * registered for this payload type.
      */
-    @SuppressWarnings("unchecked") // nothing we could do here.
     public List<ParameterPacketExtension> getParameters()
     {
-        return (List<ParameterPacketExtension>)super.getChildExtensions();
+        return getChildExtensionsOfType(ParameterPacketExtension.class);
     }
 }

@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  */
 public class ChatRoomIrcImpl
-    implements ChatRoom
+    extends AbstractChatRoom
 {
     /**
      * The object used for logging.
@@ -1170,4 +1170,73 @@ public class ChatRoomIrcImpl
     {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    public ConferenceDescription publishConference(ConferenceDescription cd,
+        String name)
+    {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    @Override
+    public Contact getPrivateContactByNickname(String name)
+    {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    @Override
+    public void updatePrivateContactPresenceStatus(String nickname) { }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Not implemented.
+     */
+    @Override
+    public void updatePrivateContactPresenceStatus(Contact sourceContact) { }
+
+    /**
+     * Destroys the chat room.
+     * @param reason the reason for destroying.
+     * @param alternateAddress the alternate address
+     * @return <tt>true</tt> if the room is destroyed.
+     */
+    public boolean destroy(String reason, String alternateAddress)
+    {
+        return true;
+    }
+
+    /**
+     * Returns the ids of the users that has the member role in the room.
+     * When the room is member only, this are the users allowed to join.
+     * @return the ids of the users that has the member role in the room.
+     */
+    @Override
+    public List<String> getMembersWhiteList()
+    {
+        return new ArrayList<String>();
+    }
+
+    /**
+     * Changes the list of users that has role member for this room.
+     * When the room is member only, this are the users allowed to join.
+     * @param members the ids of user to have member role.
+     */
+    @Override
+    public void setMembersWhiteList(List<String> members)
+    {}
 }

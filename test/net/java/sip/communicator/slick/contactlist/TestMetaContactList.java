@@ -606,7 +606,7 @@ public class TestMetaContactList
         evt = (MetaContactGroupEvent)mclEvtCollector
                 .collectedMetaContactGroupEvents.get(
                     mclEvtCollector
-                        .collectedMetaContactGroupEvents.size() - 1);
+                        .collectedMetaContactGroupEvents.size() - 2);
         mclEvtCollector.collectedMetaContactGroupEvents.clear();
 
         assertEquals("ID of the generated event",

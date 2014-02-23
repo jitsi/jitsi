@@ -5,6 +5,7 @@ import org.jitsi.service.packetlogging.*;
 
 /**
  * Logs Packets coming and going through ice4j stack.
+ *
  * @author Damian Minkov
  */
 public class Ice4jPacketLogger
@@ -20,37 +21,42 @@ public class Ice4jPacketLogger
      * @param packetContent the content of the packet.
      * @param sender whether we are sending or not the packet.
      */
-    public void logPacket(byte[] sourceAddress,
+    public void logPacket(
+            byte[] sourceAddress,
             int sourcePort,
             byte[] destinationAddress,
             int destinationPort,
             byte[] packetContent,
             boolean sender)
     {
-        if(isEnabled())
+        if (isEnabled())
         {
-            NetaddrActivator.getPacketLogging()
-                .logPacket(
-                        PacketLoggingService.ProtocolName.ICE4J,
-                        sourceAddress,
-                        sourcePort,
-                        destinationAddress,
-                        destinationPort,
-                        PacketLoggingService.TransportName.UDP,
-                        sender,
-                        packetContent
-                );
+            NetaddrActivator.getPacketLogging().logPacket(
+                    PacketLoggingService.ProtocolName.ICE4J,
+                    sourceAddress,
+                    sourcePort,
+                    destinationAddress,
+                    destinationPort,
+                    PacketLoggingService.TransportName.UDP,
+                    sender,
+                    packetContent);
         }
     }
 
     /**
      * Checks whether the logger is enabled.
-     * @return <tt>true</tt> if the logger is enabled, <tt>false</tt>
-     *  otherwise.
+     *
+     * @return <tt>true</tt> if the logger is enabled; <tt>false</tt>,
+     * otherwise
      */
     public boolean isEnabled()
     {
-        return NetaddrActivator.getPacketLogging()
-                .isLoggingEnabled(PacketLoggingService.ProtocolName.ICE4J);
+        PacketLoggingService packetLoggingService
+            = NetaddrActivator.getPacketLogging();
+
+        return
+            (packetLoggingService != null)
+                && packetLoggingService.isLoggingEnabled(
+                        PacketLoggingService.ProtocolName.ICE4J);
     }
 }

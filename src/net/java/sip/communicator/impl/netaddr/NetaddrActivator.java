@@ -103,11 +103,10 @@ public class NetaddrActivator
     {
         if (configurationService == null)
         {
-            ServiceReference confReference
-                = bundleContext.getServiceReference(
-                    ConfigurationService.class.getName());
             configurationService
-                = (ConfigurationService) bundleContext.getService(confReference);
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ConfigurationService.class);
         }
         return configurationService;
     }
@@ -125,12 +124,10 @@ public class NetaddrActivator
     {
         if (packetLoggingService == null)
         {
-            ServiceReference plReference
-                = bundleContext.getServiceReference(
-                        PacketLoggingService.class.getName());
-
             packetLoggingService
-                = (PacketLoggingService)bundleContext.getService(plReference);
+                = ServiceUtils.getService(
+                        bundleContext,
+                        PacketLoggingService.class);
         }
         return packetLoggingService;
     }

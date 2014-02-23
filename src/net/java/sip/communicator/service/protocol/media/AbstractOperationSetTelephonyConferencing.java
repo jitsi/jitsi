@@ -7,18 +7,15 @@
 package net.java.sip.communicator.service.protocol.media;
 
 import java.beans.*;
-import java.io.*;
 import java.util.*;
-
-import javax.xml.parsers.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
+import org.jitsi.util.xml.*;
 import org.w3c.dom.*;
-import org.xml.sax.*;
 
 /**
  * Represents a default implementation of
@@ -33,6 +30,7 @@ import org.xml.sax.*;
  * @param <CalleeAddressT>
  *
  * @author Lyubomir Marinov
+ * @author Boris Grozev
  */
 public abstract class AbstractOperationSetTelephonyConferencing<
         ProtocolProviderServiceT extends ProtocolProviderService,
@@ -102,6 +100,14 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      * The name of the conference-info XML element <tt>users</tt>.
      */
     protected static final String ELEMENT_USERS = "users";
+
+    /**
+     * The name of the account property which specifies whether we should
+     * generate and send RFC4575 partial notifications (as opposed to always
+     * sending 'full' documents)
+     */
+    private static final String PARTIAL_NOTIFICATIONS_PROP_NAME
+            = "RFC4575_PARTIAL_NOTIFICATIONS_ENABLED";
 
     /**
      * The <tt>OperationSetBasicTelephony</tt> implementation which this
@@ -210,11 +216,13 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         Iterator<? extends CallPeer> callPeerIter = call.getCallPeers();
 
         while (callPeerIter.hasNext())
+        {
             callPeerAdded(
-                new CallPeerEvent(
-                        callPeerIter.next(),
-                        call,
-                        CallPeerEvent.CALL_PEER_ADDED));
+                    new CallPeerEvent(
+                            callPeerIter.next(),
+                            call,
+                            CallPeerEvent.CALL_PEER_ADDED));
+        }
     }
 
     /**
@@ -235,11 +243,13 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         Iterator<? extends CallPeer> callPeerIter = call.getCallPeers();
 
         while (callPeerIter.hasNext())
+        {
             callPeerRemoved(
-                new CallPeerEvent(
-                        callPeerIter.next(),
-                        call,
-                        CallPeerEvent.CALL_PEER_REMOVED));
+                    new CallPeerEvent(
+                            callPeerIter.next(),
+                            call,
+                            CallPeerEvent.CALL_PEER_REMOVED));
+        }
 
         call.removeCallChangeListener(this);
     }
@@ -302,6 +312,11 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      */
     public void callStateChanged(CallChangeEvent event)
     {
+        if (CallChangeEvent.CALL_PARTICIPANTS_CHANGE
+                .equals(event.getPropertyName()))
+        {
+            notifyAll(event.getSourceCall());
+        }
     }
 
     /**
@@ -478,35 +493,6 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                 return child.getTextContent();
         }
         return null;
-    }
-
-    /**
-     * Gets the <tt>MediaDirection</tt> of the media RTP stream of a specific
-     * <tt>CallPeer</tt> with a specific <tt>MediaType</tt> from the point of
-     * view of the remote peer.
-     *
-     * @param callPeer
-     * @param mediaType
-     * @return the <tt>MediaDirection</tt> of the media RTP stream of a specific
-     * <tt>CallPeer</tt> with a specific <tt>MediaType</tt> from the point of
-     * view of the remote peer
-     */
-    protected MediaDirection getRemoteDirection(
-            MediaAwareCallPeer<?,?,?> callPeer,
-            MediaType mediaType)
-    {
-        MediaStream stream = callPeer.getMediaHandler().getStream(mediaType);
-        MediaDirection remoteDirection;
-
-        if (stream != null)
-        {
-            remoteDirection = stream.getDirection();
-            if (remoteDirection != null)
-                remoteDirection = remoteDirection.getReverseDirection();
-        }
-        else
-            remoteDirection = null;
-        return remoteDirection;
     }
 
     /**
@@ -748,21 +734,21 @@ public abstract class AbstractOperationSetTelephonyConferencing<
     /**
      * Updates the conference-related properties of a specific <tt>CallPeer</tt>
      * such as <tt>conferenceFocus</tt> and <tt>conferenceMembers</tt> with
-     * information received from it as a conference focus in the form of a
-     * conference-info XML document.
+     * the information described in <tt>confInfo</tt>.
+     * <tt>confInfo</tt> must be a document with "full" state.
      *
      * @param callPeer the <tt>CallPeer</tt> which is a conference focus and has
      * sent the specified conference-info XML document
-     * @param conferenceInfoDocument the conference-info XML document sent by
-     * <tt>callPeer</tt> in order to update the conference-related information
-     * of the local peer represented by the associated <tt>Call</tt>
+     * @param confInfo the conference-info XML document to use to update
+     * the conference-related information of the local peer represented
+     * by the associated <tt>Call</tt>. It must have a "full" state.
      */
-    private void setConferenceInfoDocument(
+    private int setConferenceInfoDocument(
             MediaAwareCallPeerT callPeer,
-            Document conferenceInfoDocument)
+            ConferenceInfoDocument confInfo)
     {
         NodeList usersList
-            = conferenceInfoDocument.getElementsByTagName(ELEMENT_USERS);
+            = confInfo.getDocument().getElementsByTagName(ELEMENT_USERS);
         ConferenceMember[] toRemove
             = callPeer.getConferenceMembers().toArray(
                     AbstractCallPeer.NO_CONFERENCE_MEMBERS);
@@ -888,6 +874,9 @@ public abstract class AbstractOperationSetTelephonyConferencing<
 
         if (changed)
             notifyAll(callPeer.getCall());
+
+        callPeer.setLastConferenceInfoReceived(confInfo);
+        return confInfo.getVersion();
     }
 
     /**
@@ -898,9 +887,6 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      *
      * @param callPeer the <tt>CallPeer</tt> which is a conference focus and has
      * sent the specified conference-info XML document
-     * @param version the value of the <tt>version</tt> attribute of the
-     * <tt>conference-info</tt> XML element currently represented in the
-     * specified <tt>callPeer</tt>
      * @param conferenceInfoXML the conference-info XML document sent by
      * <tt>callPeer</tt> in order to update the conference-related information
      * of the local peer represented by the associated <tt>Call</tt>
@@ -908,69 +894,88 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      * <tt>conference-info</tt> XML element of the specified
      * <tt>conferenceInfoXML</tt> if it was successfully parsed and represented
      * in the specified <tt>callPeer</tt>
+     *
+     * @throws XMLException If <tt>conferenceInfoXML</tt> couldn't be parsed as
+     * a <tt>ConferenceInfoDocument</tt>
      */
     protected int setConferenceInfoXML(
             MediaAwareCallPeerT callPeer,
-            int version,
             String conferenceInfoXML)
+        throws XMLException
     {
-        byte[] bytes;
+        ConferenceInfoDocument confInfo
+                = new ConferenceInfoDocument(conferenceInfoXML);
 
-        try
-        {
-            bytes = conferenceInfoXML.getBytes("UTF-8");
-        }
-        catch (UnsupportedEncodingException uee)
-        {
-            logger
-                .warn(
-                    "Failed to gets bytes from String for the UTF-8 charset",
-                    uee);
-            bytes = conferenceInfoXML.getBytes();
-        }
+        /*
+         * The CallPeer sent conference-info XML so we're sure it's a
+         * conference focus.
+         */
+        callPeer.setConferenceFocus(true);
 
-        Document doc = null;
-        Throwable exception = null;
+        /*
+         * The following implements the procedure outlined in section 4.6 of
+         * RFC4575 - Constructing Coherent State
+         */
+        int documentVersion = confInfo.getVersion();
+        int ourVersion = callPeer.getLastConferenceInfoReceivedVersion();
+        ConferenceInfoDocument.State documentState = confInfo.getState();
 
-        try
+        if (ourVersion == -1)
         {
-            doc
-                = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                        .parse(new ByteArrayInputStream(bytes));
-        }
-        catch (IOException ioe)
-        {
-            exception = ioe;
-        }
-        catch (ParserConfigurationException pce)
-        {
-            exception = pce;
-        }
-        catch (SAXException saxe)
-        {
-            exception = saxe;
-        }
-        if (exception != null)
-            logger.error("Failed to parse conference-info XML", exception);
-        else
-        {
-            /*
-             * The CallPeer sent conference-info XML so we're sure it's a
-             * conference focus.
-             */
-            callPeer.setConferenceFocus(true);
-
-            int documentVersion
-                = Integer.parseInt(
-                        doc.getDocumentElement().getAttribute("version"));
-
-            if ((version == -1) || (documentVersion >= version))
+            if (documentState == ConferenceInfoDocument.State.FULL)
             {
-                setConferenceInfoDocument(callPeer, doc);
-                return documentVersion;
+                return setConferenceInfoDocument(callPeer, confInfo);
+            }
+            else
+            {
+                logger.warn("Received a conference-info document with state '"
+                    + documentState + "'. Cannot apply it, because we haven't "
+                    + "initialized a local document yet. Sending peer: "
+                    + callPeer);
+                return -1;
             }
         }
-        return -1;
+        else if (documentVersion <= ourVersion)
+        {
+            if (logger.isInfoEnabled())
+            {
+                logger.info("Received a stale conference-info document. Local "
+                    + "version " + ourVersion + ", document version "
+                    + documentVersion + ". Sending peer: " + callPeer);
+            }
+            return -1;
+        }
+        else //ourVersion != -1 && ourVersion < documentVersion
+        {
+            if (documentState == ConferenceInfoDocument.State.FULL)
+                return setConferenceInfoDocument(callPeer, confInfo);
+            else if (documentState == ConferenceInfoDocument.State.DELETED)
+            {
+                logger.warn("Received a conference-info document with state" +
+                        "'deleted', can't handle. Sending peer: " + callPeer);
+                return -1;
+            }
+            else if (documentState == ConferenceInfoDocument.State.PARTIAL)
+            {
+                if (documentVersion == ourVersion+1)
+                    return updateConferenceInfoDocument(callPeer, confInfo);
+                else
+                {
+                    /*
+                     * According to RFC4575 we "MUST generate a subscription
+                     * refresh request to trigger a full state notification".
+                     */
+                    logger.warn("Received a Conference Information document "
+                        + "with state '" + documentState + "' and version "
+                        + documentVersion + ". Cannon apply it, because local "
+                        + "version is " + ourVersion + ". Sending peer: "
+                        + callPeer);
+                    return -1;
+                }
+            }
+            else
+                return -1; //unreachable
+        }
     }
 
     /**
@@ -982,7 +987,7 @@ public abstract class AbstractOperationSetTelephonyConferencing<
      * @return a <tt>String</tt> representing the specified <tt>address</tt>
      * without any parameters
      */
-    protected static String stripParametersFromAddress(String address)
+    public static String stripParametersFromAddress(String address)
     {
         if (address != null)
         {
@@ -992,5 +997,658 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                 address = address.substring(0, parametersBeginIndex);
         }
         return address;
+    }
+
+    /**
+     * Creates a <tt>ConferenceInfoDocument</tt> which describes the current
+     * state of the conference in which <tt>callPeer</tt> participates. The
+     * created document contains a "full" description (as opposed to a partial
+     * description, see RFC4575).
+     *
+     * @return a <tt>ConferenceInfoDocument</tt> which describes the current
+     * state of the conference in which this <tt>CallPeer</tt> participates.
+     */
+    protected ConferenceInfoDocument getCurrentConferenceInfo(
+            MediaAwareCallPeer<?,?,?> callPeer)
+    {
+        ConferenceInfoDocument confInfo;
+        try
+        {
+           confInfo = new ConferenceInfoDocument();
+        }
+        catch (XMLException e)
+        {
+            return null;
+        }
+        confInfo.setState(ConferenceInfoDocument.State.FULL);
+        confInfo.setEntity(getLocalEntity(callPeer));
+
+        Call call = callPeer.getCall();
+        if (call == null)
+            return null;
+
+        List<CallPeer> conferenceCallPeers = CallConference.getCallPeers(call);
+        confInfo.setUserCount(
+                1 /* the local peer/user */ + conferenceCallPeers.size());
+
+        /* The local user */
+        addPeerToConferenceInfo(confInfo, callPeer, false);
+
+        /* Remote users */
+        for (CallPeer conferenceCallPeer : conferenceCallPeers)
+        {
+            if (conferenceCallPeer instanceof MediaAwareCallPeer<?,?,?>)
+                addPeerToConferenceInfo(
+                        confInfo,
+                        (MediaAwareCallPeer<?,?,?>)conferenceCallPeer,
+                        true);
+        }
+
+        return confInfo;
+    }
+
+    /**
+     * Adds a <tt>user</tt> element to <tt>confInfo</tt> which describes
+     * <tt>callPeer</tt>, or the local peer if <tt>remote</tt> is <tt>false</tt>.
+     *
+     * @param confInfo the <tt>ConferenceInformationDocument</tt> to which to
+     * add a <tt>user</tt> element
+     * @param callPeer the <tt>CallPeer</tt> which should be described
+     * @param remote <tt>true</tt> to describe <tt>callPeer</tt>, or
+     * <tt>false</tt> to describe the local peer.
+     */
+    private void addPeerToConferenceInfo(
+            ConferenceInfoDocument confInfo,
+            MediaAwareCallPeer<?,?,?> callPeer,
+            boolean remote)
+    {
+        String entity
+                = remote
+                ? callPeer.getEntity()
+                : getLocalEntity(callPeer);
+        ConferenceInfoDocument.User user = confInfo.addNewUser(entity);
+
+        String displayName
+                = remote
+                ? callPeer.getDisplayName()
+                : getLocalDisplayName();
+        user.setDisplayText(displayName);
+
+        ConferenceInfoDocument.Endpoint endpoint
+                = user.addNewEndpoint(entity);
+
+        endpoint.setStatus(
+                remote
+                ? getEndpointStatus(callPeer)
+                : ConferenceInfoDocument.EndpointStatusType.connected);
+
+        CallPeerMediaHandler<?> mediaHandler
+                = callPeer.getMediaHandler();
+
+        for (MediaType mediaType : MediaType.values())
+        {
+            MediaStream stream = mediaHandler.getStream(mediaType);
+            if (stream != null || !remote)
+            {
+                long srcId = -1;
+                if (remote)
+                {
+                    srcId = getRemoteSourceID(callPeer, mediaType);
+                }
+                else if (stream != null)
+                {
+                    srcId = stream.getLocalSourceID();
+                }
+                else // stream == null && !remote
+                {
+                    /*
+                     * If we are describing the local peer, but we don't have
+                     * media streams with callPeer (which is the case when we
+                     * send conference-info while the other side is still
+                     * ringing), we can try to obtain our local SSRC from the
+                     * streams we have already set up with the other
+                     * participants in the conference.
+                     */
+                    for (MediaAwareCallPeer<?,?,?> otherCallPeer
+                            : callPeer.getCall().getCallPeerList())
+                    {
+                        MediaStream otherStream
+                            = otherCallPeer
+                                    .getMediaHandler().getStream(mediaType);
+                        if (otherStream != null)
+                        {
+                            srcId = otherStream.getLocalSourceID();
+                            break;
+                        }
+                    }
+                }
+
+                MediaDirection direction = MediaDirection.INACTIVE;
+                if (remote)
+                {
+                    direction
+                        = callPeer.getDirection(mediaType).getReverseDirection();
+                }
+                else
+                {
+                    if (mediaType == MediaType.AUDIO &&
+                            callPeer.getMediaHandler()
+                                    .isLocalAudioTransmissionEnabled())
+                        direction = direction.or(MediaDirection.SENDONLY);
+                    else if (mediaType == MediaType.VIDEO &&
+                            callPeer.isLocalVideoStreaming())
+                        direction = direction.or(MediaDirection.SENDONLY);
+
+                    if (callPeer.getDirection(mediaType).allowsReceiving())
+                        direction = direction.or(MediaDirection.RECVONLY);
+                }
+
+                if ((srcId != -1) || (direction != MediaDirection.INACTIVE))
+                {
+                    ConferenceInfoDocument.Media media
+                        = endpoint.addNewMedia(mediaType.toString());
+
+                    media.setType(mediaType.toString());
+                    if (srcId != -1)
+                        media.setSrcId(Long.toString(srcId));
+                    media.setStatus(direction.toString());
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns a string to be used for the <tt>entity</tt> attribute of the
+     * <tt>user</tt> element for the local peer, in a Conference Information
+     * document to be sent to <tt>callPeer</tt>
+     *
+     * @param callPeer The <tt>CallPeer</tt> for which we are creating a
+     * Conference Information document.
+     * @return a string to be used for the <tt>entity</tt> attribute of the
+     * <tt>user</tt> element for the local peer, in a Conference Information
+     * document to be sent to <tt>callPeer</tt>
+     */
+    protected abstract String getLocalEntity(CallPeer callPeer);
+
+    /**
+     * Returns the display name for the local peer, which is to be used when
+     * we send Conference Information.
+     * @return the display name for the local peer, which is to be used when
+     * we send Conference Information.
+     */
+    protected abstract String getLocalDisplayName();
+
+    /**
+     * Gets the <tt>EndpointStatusType</tt> to use when describing
+     * <tt>callPeer</tt> in a Conference Information document.
+     *
+     * @param callPeer the <tt>CallPeer</tt> which is to get its state described
+     * in a <tt>status</tt> XML element of an <tt>endpoint</tt> XML element
+     * @return the <tt>EndpointStatusType</tt> to use when describing
+     * <tt>callPeer</tt> in a Conference Information document.
+     */
+    private ConferenceInfoDocument.EndpointStatusType getEndpointStatus(
+        CallPeer callPeer)
+    {
+        CallPeerState callPeerState = callPeer.getState();
+
+        if (CallPeerState.ALERTING_REMOTE_SIDE.equals(callPeerState))
+            return ConferenceInfoDocument.EndpointStatusType.alerting;
+        if (CallPeerState.CONNECTING.equals(callPeerState)
+                || CallPeerState
+                .CONNECTING_WITH_EARLY_MEDIA.equals(callPeerState))
+            return ConferenceInfoDocument.EndpointStatusType.pending;
+        if (CallPeerState.DISCONNECTED.equals(callPeerState))
+            return ConferenceInfoDocument.EndpointStatusType.disconnected;
+        if (CallPeerState.INCOMING_CALL.equals(callPeerState))
+            return ConferenceInfoDocument.EndpointStatusType.dialing_in;
+        if (CallPeerState.INITIATING_CALL.equals(callPeerState))
+            return ConferenceInfoDocument.EndpointStatusType.dialing_out;
+
+        /*
+         * RFC4575 does not list an appropriate endpoint status for
+         * "remotely on hold", e.g. the endpoint is not "hearing" the conference
+         * mix, but it's media stream *is* being mixed into the conference.
+         *
+         * We use the on-hold status anyway, because it's the one that makes
+         * the most sense.
+         */
+        if (CallPeerState.ON_HOLD_REMOTELY.equals(callPeerState))
+            return ConferenceInfoDocument.EndpointStatusType.on_hold;
+
+        /*
+         * he/she is neither "hearing" the conference mix nor is his/her
+         * media being mixed in the conference
+         */
+        if (CallPeerState.ON_HOLD_LOCALLY.equals(callPeerState)
+                || CallPeerState.ON_HOLD_MUTUALLY.equals(callPeerState))
+            return ConferenceInfoDocument.EndpointStatusType.on_hold;
+        if (CallPeerState.CONNECTED.equals(callPeerState))
+            return ConferenceInfoDocument.EndpointStatusType.connected;
+        return null;
+    }
+
+    /**
+     * @param from A document with state <tt>full</tt> from which to generate a
+     * "diff".
+     * @param to A document with state <tt>full</tt> to which to generate a
+     * "diff"
+     * @return a <tt>ConferenceInfoDocument</tt>, such that when it is applied
+     * to <tt>from</tt> using the procedure defined in section 4.6 of RFC4575,
+     * the result is <tt>to</tt>. May return <tt>null</tt> if <tt>from</tt> and
+     * <tt>to</tt> are not found to be different (that is, in case no document
+     * needs to be sent)
+     */
+    protected ConferenceInfoDocument getConferenceInfoDiff(
+            ConferenceInfoDocument from,
+            ConferenceInfoDocument to)
+        throws IllegalArgumentException
+    {
+        if (from.getState() != ConferenceInfoDocument.State.FULL)
+            throw new IllegalArgumentException("The 'from' document needs to "
+                    + "have state=full");
+        if (to.getState() != ConferenceInfoDocument.State.FULL)
+            throw new IllegalArgumentException("The 'to' document needs to "
+                    + "have state=full");
+
+        if (!isPartialNotificationEnabled())
+        {
+            return conferenceInfoDocumentsMatch(from, to)
+                ? null
+                : to;
+        }
+
+        ConferenceInfoDocument diff;
+        try
+        {
+            diff = new ConferenceInfoDocument();
+        }
+        catch (XMLException e)
+        {
+            return conferenceInfoDocumentsMatch(from, to)
+                    ? null
+                    : to;
+        }
+
+        diff.setState(ConferenceInfoDocument.State.PARTIAL);
+        diff.setUsersState(ConferenceInfoDocument.State.PARTIAL);
+
+        //temporary, used for xmpp only
+        String sid = to.getSid();
+        if (sid != null && !sid.equals(""))
+            diff.setSid(to.getSid());
+
+        diff.setUserCount(to.getUserCount());
+        diff.setEntity(to.getEntity());
+
+        boolean needsPartial = false;
+        boolean hasDifference = false;
+        if (!from.getEntity().equals(to.getEntity())
+                || from.getUserCount() != to.getUserCount())
+        {
+            hasDifference = true;
+        }
+
+        // find users which have been removed in 'to'
+        for (ConferenceInfoDocument.User user : from.getUsers())
+        {
+            if(to.getUser(user.getEntity()) == null)
+            {
+                ConferenceInfoDocument.User deletedUser
+                        = diff.addNewUser(user.getEntity());
+                deletedUser.setState(ConferenceInfoDocument.State.DELETED);
+                hasDifference = true;
+                needsPartial = true;
+            }
+        }
+
+        for (ConferenceInfoDocument.User toUser : to.getUsers())
+        {
+            ConferenceInfoDocument.User fromUser
+                    = from.getUser(toUser.getEntity());
+            if (!usersMatch(toUser, fromUser))
+            {
+                hasDifference = true;
+                diff.addUser(toUser);
+            }
+            else
+            {
+                //if there is a "user" element which didn't change, we skip it
+                //and we need to send state=partial, because otherwise it will
+                //be removed by the recipient
+                needsPartial = true;
+            }
+        }
+
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("Generated partial notification. From: " + from
+                    + "\nTo: " + to + "\nDiff: " + diff + "(hasDifference: "
+                    + hasDifference + ")");
+        }
+
+        if (!hasDifference)
+            return null;
+
+        /*
+         * In some cases (when all the user elements have changed, and none have
+         * been removed) we are essentially generating a full document, but
+         * marking it 'partial'. In this case it is better to send the full
+         * document, just in case the receiver lost the previous document
+         * somehow.
+         */
+        if (!needsPartial)
+        {
+            diff.setState(ConferenceInfoDocument.State.FULL);
+            diff.setUsersState(ConferenceInfoDocument.State.FULL);
+        }
+
+        return diff;
+    }
+
+    /**
+     * Updates the conference-related properties of a specific <tt>CallPeer</tt>
+     * such as <tt>conferenceFocus</tt> and <tt>conferenceMembers</tt> with
+     * information received from it as a conference focus in the form of a
+     * partial conference-info XML document.
+     *
+     * @param callPeer the <tt>CallPeer</tt> which is a conference focus and has
+     * sent the specified partial conference-info XML document
+     * @param diff the partial conference-info XML document sent by
+     * <tt>callPeer</tt> in order to update the conference-related information
+     * of the local peer represented by the associated <tt>Call</tt>
+     * @return the value of the <tt>version</tt> attribute of the
+     * <tt>conference-info</tt> XML element of the specified
+     * <tt>conferenceInfoXML</tt> if it was successfully parsed and represented
+     * in the specified <tt>callPeer</tt>
+     */
+    private int updateConferenceInfoDocument(
+            MediaAwareCallPeerT callPeer,
+            ConferenceInfoDocument diff)
+    {
+        // "apply" diff to ourDocument, result is in newDocument
+        ConferenceInfoDocument ourDocument
+                = callPeer.getLastConferenceInfoReceived();
+        ConferenceInfoDocument newDocument;
+
+        ConferenceInfoDocument.State usersState = diff.getUsersState();
+        if (usersState == ConferenceInfoDocument.State.FULL)
+        {
+            //if users is 'full', all its children must be full
+            try
+            {
+                newDocument = new ConferenceInfoDocument(diff);
+            }
+            catch (XMLException e)
+            {
+                logger.error("Could not create a new ConferenceInfoDocument");
+                return -1;
+            }
+            newDocument.setState(ConferenceInfoDocument.State.FULL);
+        }
+        else if (usersState == ConferenceInfoDocument.State.DELETED)
+        {
+            try
+            {
+                newDocument = new ConferenceInfoDocument();
+            }
+            catch (XMLException e)
+            {
+                logger.error("Could not create a new ConferenceInfoDocument", e);
+                return -1;
+            }
+
+            newDocument.setVersion(diff.getVersion());
+            newDocument.setEntity(diff.getEntity());
+            newDocument.setUserCount(diff.getUserCount());
+        }
+        else //'partial'
+        {
+            try
+            {
+                newDocument = new ConferenceInfoDocument(ourDocument);
+            }
+            catch (XMLException e)
+            {
+                logger.error("Could not create a new ConferenceInfoDocument", e);
+                return -1;
+            }
+
+            newDocument.setVersion(diff.getVersion());
+            newDocument.setEntity(diff.getEntity());
+            newDocument.setUserCount(diff.getUserCount());
+
+            for (ConferenceInfoDocument.User user : diff.getUsers())
+            {
+                ConferenceInfoDocument.State userState = user.getState();
+                if (userState == ConferenceInfoDocument.State.FULL)
+                {
+                    newDocument.removeUser(user.getEntity());
+                    newDocument.addUser(user);
+                }
+                else if (userState == ConferenceInfoDocument.State.DELETED)
+                {
+                    newDocument.removeUser(user.getEntity());
+                }
+                else // partial
+                {
+                    ConferenceInfoDocument.User ourUser
+                            = newDocument.getUser(user.getEntity());
+                    ourUser.setDisplayText(user.getDisplayText());
+                    for (ConferenceInfoDocument.Endpoint endpoint
+                            : user.getEndpoints())
+                    {
+                        ConferenceInfoDocument.State endpointState
+                                = endpoint.getState();
+                        if (endpointState == ConferenceInfoDocument.State.FULL)
+                        {
+                            ourUser.removeEndpoint(endpoint.getEntity());
+                            ourUser.addEndpoint(endpoint);
+                        }
+                        else if (endpointState
+                                == ConferenceInfoDocument.State.DELETED)
+                        {
+                            ourUser.removeEndpoint(endpoint.getEntity());
+                        }
+                        else // partial
+                        {
+                            ConferenceInfoDocument.Endpoint ourEndpoint
+                                    = ourUser.getEndpoint(endpoint.getEntity());
+                            for (ConferenceInfoDocument.Media media
+                                        : endpoint.getMedias())
+                            {
+                                ourEndpoint.removeMedia(media.getId());
+                                ourEndpoint.addMedia(media);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (logger.isDebugEnabled())
+        {
+            logger.debug("Applied a partial conference-info notification. "
+                    + " Base: " + ourDocument + "\nDiff: " + diff + "\nResult:"
+                    + newDocument);
+        }
+        return setConferenceInfoDocument(callPeer, newDocument);
+    }
+
+    /**
+     * @param a A document with state <tt>full</tt> which to compare to
+     * <tt>b</tt>
+     * @param b A document with state <tt>full</tt> which to compare to
+     * <tt>a</tt>
+     * @return <tt>false</tt> if the two documents are found to be different,
+     * <tt>true</tt> otherwise (that is, it can return true for non-identical
+     * documents).
+     */
+    private boolean conferenceInfoDocumentsMatch(
+            ConferenceInfoDocument a,
+            ConferenceInfoDocument b)
+    {
+        if (a.getState() != ConferenceInfoDocument.State.FULL)
+            throw new IllegalArgumentException("The 'a' document needs to"
+                    + "have state=full");
+        if (b.getState() != ConferenceInfoDocument.State.FULL)
+            throw new IllegalArgumentException("The 'b' document needs to"
+                    + "have state=full");
+
+        if (!stringsMatch(a.getEntity(), b.getEntity()))
+            return false;
+        else if (a.getUserCount() != b.getUserCount())
+            return false;
+        else if (a.getUsers().size() != b.getUsers().size())
+            return false;
+
+        for(ConferenceInfoDocument.User aUser : a.getUsers())
+        {
+            if (!usersMatch(aUser, b.getUser(aUser.getEntity())))
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks whether two <tt>ConferenceInfoDocument.User</tt> instances
+     * match according to the needs of our implementation. Can return
+     * <tt>true</tt> for users which are not identical.
+     *
+     * @param a A <tt>ConferenceInfoDocument.User</tt> to compare
+     * @param b A <tt>ConferenceInfoDocument.User</tt> to compare
+     * @return <tt>false</tt> if <tt>a</tt> and <tt>b</tt> are found to be
+     * different in a way that is significant for our needs, <tt>true</tt>
+     * otherwise.
+     */
+    private boolean usersMatch(
+            ConferenceInfoDocument.User a,
+            ConferenceInfoDocument.User b)
+    {
+        if (a == null && b == null)
+            return true;
+        else if (a == null || b == null)
+            return false;
+        else if (!stringsMatch(a.getEntity(), b.getEntity()))
+            return false;
+        else if (!stringsMatch(a.getDisplayText(), b.getDisplayText()))
+            return false;
+        else if (a.getEndpoints().size() != b.getEndpoints().size())
+            return false;
+
+        for (ConferenceInfoDocument.Endpoint aEndpoint : a.getEndpoints())
+        {
+            if (!endpointsMatch(aEndpoint, b.getEndpoint(aEndpoint.getEntity())))
+                return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks whether two <tt>ConferenceInfoDocument.Endpoint</tt> instances
+     * match according to the needs of our implementation. Can return
+     * <tt>true</tt> for endpoints which are not identical.
+     *
+     * @param a A <tt>ConferenceInfoDocument.Endpoint</tt> to compare
+     * @param b A <tt>ConferenceInfoDocument.Endpoint</tt> to compare
+     * @return <tt>false</tt> if <tt>a</tt> and <tt>b</tt> are found to be
+     * different in a way that is significant for our needs, <tt>true</tt>
+     * otherwise.
+     */
+    private boolean endpointsMatch(
+            ConferenceInfoDocument.Endpoint a,
+            ConferenceInfoDocument.Endpoint b)
+    {
+        if (a == null && b == null)
+            return true;
+        else if (a == null || b == null)
+            return false;
+        else if (!stringsMatch(a.getEntity(), b.getEntity()))
+            return false;
+        else if (a.getStatus() != b.getStatus())
+            return false;
+        else if (a.getMedias().size() != b.getMedias().size())
+            return false;
+
+        for (ConferenceInfoDocument.Media aMedia : a.getMedias())
+        {
+            if (!mediasMatch(aMedia, b.getMedia(aMedia.getId())))
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * Checks whether two <tt>ConferenceInfoDocument.Media</tt> instances
+     * match according to the needs of our implementation. Can return
+     * <tt>true</tt> for endpoints which are not identical.
+     *
+     * @param a A <tt>ConferenceInfoDocument.Media</tt> to compare
+     * @param b A <tt>ConferenceInfoDocument.Media</tt> to compare
+     * @return <tt>false</tt> if <tt>a</tt> and <tt>b</tt> are found to be
+     * different in a way that is significant for our needs, <tt>true</tt>
+     * otherwise.
+     */
+    private boolean mediasMatch(
+            ConferenceInfoDocument.Media a,
+            ConferenceInfoDocument.Media b)
+    {
+        if (a == null && b == null)
+            return true;
+        else if (a == null || b == null)
+            return false;
+        else if (!stringsMatch(a.getId(), b.getId()))
+            return false;
+        else if (!stringsMatch(a.getSrcId(), b.getSrcId()))
+            return false;
+        else if (!stringsMatch(a.getType(), b.getType()))
+            return false;
+        else if (!stringsMatch(a.getStatus(), b.getStatus()))
+            return false;
+
+        return true;
+    }
+
+    /**
+     * @param a A <tt>String</tt> to compare to <tt>b</tt>
+     * @param b A <tt>String</tt> to compare to <tt>a</tt>
+     * @return <tt>true</tt> if and only if <tt>a</tt> and <tt>b</tt> are both
+     * <tt>null</tt>, or they are equal as <tt>String</tt>s
+     */
+    private boolean stringsMatch(String a, String b)
+    {
+        if (a == null && b == null)
+            return true;
+        else if (a == null || b == null)
+            return false;
+        return a.equals(b);
+    }
+
+    /**
+     * Checks whether sending of RFC4575 partial notifications is enabled in
+     * the configuration. If disabled, RFC4575 documents will always be sent
+     * with state 'full'.
+     * @return <tt>true</tt> if sending of RFC4575 partial notifications is
+     * enabled in the configuration.
+     */
+    private boolean isPartialNotificationEnabled()
+    {
+        String s = parentProvider.getAccountID()
+                        .getAccountProperties()
+                            .get(PARTIAL_NOTIFICATIONS_PROP_NAME);
+
+        return (s == null || Boolean.parseBoolean(s));
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Unimplemented by default, returns <tt>null</tt>.
+     */
+    @Override
+    public ConferenceDescription setupConference(ChatRoom chatRoom)
+    {
+        return null;
     }
 }

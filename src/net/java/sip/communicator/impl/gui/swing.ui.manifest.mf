@@ -3,7 +3,7 @@ Bundle-Name: UI Service Provider Implementation
 Bundle-Description: An implementation of the UI service.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.swingui
 Import-Package: com.apple.eawt,
  com.sun.jna.platform,
  javax.accessibility,
@@ -44,6 +44,7 @@ Import-Package: com.apple.eawt,
  net.java.sip.communicator.service.protocol.media,
  net.java.sip.communicator.service.replacement,
  net.java.sip.communicator.service.replacement.smilies,
+ net.java.sip.communicator.service.replacement.directimage,
  net.java.sip.communicator.service.resources,
  net.java.sip.communicator.service.shutdown,
  net.java.sip.communicator.service.systray,
@@ -57,6 +58,7 @@ Import-Package: com.apple.eawt,
  net.java.sip.communicator.plugin.desktoputil.event,
  net.java.sip.communicator.plugin.desktoputil.plaf,
  net.java.sip.communicator.plugin.desktoputil.presence,
+ net.java.sip.communicator.plugin.desktoputil.presence.avatar,
  net.java.sip.communicator.plugin.desktoputil.transparent,
  net.java.sip.communicator.service.customcontactactions,
  net.java.sip.communicator.service.globaldisplaydetails,
@@ -76,4 +78,7 @@ Import-Package: com.apple.eawt,
  org.jitsi.util.event,
  org.jitsi.util.swing,
  org.osgi.framework,
- say.swing
+ say.swing,
+ net.java.sip.communicator.service.credentialsstorage,
+ net.java.sip.communicator.service.muc,
+ net.java.sip.communicator.plugin.desktoputil.chat

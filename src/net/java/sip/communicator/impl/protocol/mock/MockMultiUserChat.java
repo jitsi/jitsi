@@ -177,4 +177,13 @@ public class MockMultiUserChat
     {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    /**
+     * Always returns <tt>false</tt>.
+     */
+    @Override
+    public boolean isPrivateMessagingContact(String contactAddress)
+    {
+        return false;
+    }
 }

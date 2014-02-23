@@ -59,6 +59,11 @@ public class InviteContactListFilter
         if (filterQuery.isCanceled())
             return;
 
+        if(sourceContactList instanceof TreeContactList)
+        {
+            ((TreeContactList) sourceContactList).setAutoSectionAllowed(true);
+        }
+
         // Then we apply the filter on all its contact sources.
         while (filterSourceIter.hasNext())
         {
@@ -69,16 +74,11 @@ public class InviteContactListFilter
             if (filterQuery.isCanceled())
                 return;
 
-            ContactQuery query = applyFilter(filterSource);
-
-            if (query.getStatus() == ContactQuery.QUERY_IN_PROGRESS)
-                filterQuery.addContactQuery(query);
+            applyFilter(filterSource, filterQuery);
         }
 
         // Closes this filter to indicate that we finished adding queries to it.
         if (filterQuery.isRunning())
             filterQuery.close();
-        else if (!sourceContactList.isEmpty())
-            sourceContactList.selectFirstContact();
     }
 }

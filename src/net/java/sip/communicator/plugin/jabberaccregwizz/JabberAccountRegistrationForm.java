@@ -11,6 +11,8 @@ import java.util.List;
 
 import javax.swing.*;
 
+import org.jitsi.util.StringUtils;
+
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.wizard.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
@@ -212,12 +214,8 @@ public class JabberAccountRegistrationForm
     public static String getUserFromUserName(String userName)
     {
         int delimIndex = userName.indexOf("@");
-        if (delimIndex != -1)
-        {
-            return userName.substring(0, delimIndex);
-        }
-
-        return userName;
+        return
+            (delimIndex == -1) ? userName : userName.substring(0, delimIndex);
     }
 
     /**
@@ -314,7 +312,7 @@ public class JabberAccountRegistrationForm
             registration.setServerPort(serverPort);
 
         String priority = connectionPanel.getPriority();
-        if (priority != null)
+        if (!StringUtils.isNullOrEmpty(priority))
             registration.setPriority(Integer.parseInt(priority));
 
         registration.setDTMFMethod(connectionPanel.getDTMFMethod());
@@ -356,6 +354,7 @@ public class JabberAccountRegistrationForm
         registration.setUseUPNP(iceConfigPanel.isUseUPNP());
 
         registration.setAllowNonSecure(connectionPanel.isAllowNonSecure());
+        registration.setDisableCarbon(connectionPanel.isCarbonDisabled());
 
         registration.setDisableJingle(
             telephonyConfigPanel.isJingleDisabled());
@@ -375,6 +374,7 @@ public class JabberAccountRegistrationForm
     public void loadAccount(JabberAccountRegistration accountReg)
     {
         accountPanel.setUsername(accountReg.getUserID());
+        accountPanel.userIDField.setEnabled(false);
 
         String password = accountReg.getPassword();
         accountPanel.setPassword(password);
@@ -448,6 +448,7 @@ public class JabberAccountRegistrationForm
         iceConfigPanel.setUseUPNP(accountReg.isUseUPNP());
 
         connectionPanel.setAllowNonSecure(accountReg.isAllowNonSecure());
+        connectionPanel.setDisableCarbon(accountReg.isCarbonDisabled());
 
         connectionPanel.setServerOverridden(accountReg.isServerOverridden());
 

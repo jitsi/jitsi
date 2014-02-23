@@ -29,4 +29,11 @@ public interface CustomContactActionsService<T>
      * @return an iterator over a list of <tt>ContactAction</tt>s
      */
     public Iterator<ContactAction<T>> getCustomContactActions();
+    
+    /**
+     * Returns all custom actions menu items defined by this service.
+     *
+     * @return an iterator over a list of <tt>ContactActionMenuItem</tt>s
+     */
+    public Iterator<ContactActionMenuItem<T>> getCustomContactActionsMenuItems();
 }

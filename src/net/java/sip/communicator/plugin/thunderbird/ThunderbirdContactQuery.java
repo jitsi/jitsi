@@ -41,7 +41,6 @@ public class ThunderbirdContactQuery
         Pattern query)
     {
         super(owner, query);
-        start();
     }
 
     /**

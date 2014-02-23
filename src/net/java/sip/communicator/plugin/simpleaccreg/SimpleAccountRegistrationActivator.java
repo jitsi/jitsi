@@ -25,7 +25,8 @@ import javax.swing.*;
  * @author Yana Stamcheva
  */
 public class SimpleAccountRegistrationActivator
-    implements BundleActivator
+    extends AbstractServiceDependentActivator
+    implements ServiceListener
 {
     private static final Logger logger
         = Logger.getLogger(SimpleAccountRegistrationActivator.class);
@@ -57,11 +58,12 @@ public class SimpleAccountRegistrationActivator
 
     private static ResourceManagementService resourcesService;
 
-    public void start(BundleContext bc)
-        throws Exception
-    {
-        bundleContext = bc;
+    private int numWizardsRegistered = 0;
 
+    private String[] protocolNames;
+
+    public void start(Object dependentService)
+    {
         if(!SwingUtilities.isEventDispatchThread())
         {
             SwingUtilities.invokeLater(new Runnable()
@@ -75,6 +77,40 @@ public class SimpleAccountRegistrationActivator
         }
 
         init();
+    }
+
+    /**
+     * The dependent class. We are waiting for the ui service.
+     * @return the ui service class.
+     */
+    @Override
+    public Class<?> getDependentServiceClass()
+    {
+        return UIService.class;
+    }
+
+    /**
+     * Sets the bundle context to use.
+     * @param context a reference to the currently active bundle context.
+     */
+    @Override
+    public void setBundleContext(BundleContext context)
+    {
+        bundleContext = context;
+    }
+
+    /**
+     * Handles registration of a new account wizard.
+     */
+    public void serviceChanged(ServiceEvent event)
+    {
+        if (event.getType() == ServiceEvent.REGISTERED)
+        {
+            if (++numWizardsRegistered == protocolNames.length)
+            {
+                showDialog();
+            }
+        }
     }
 
     /**
@@ -93,21 +129,73 @@ public class SimpleAccountRegistrationActivator
                 && !getConfigService().getBoolean(DISABLED_PROP, false))
         {
             // If no preferred wizard is specified we launch the default wizard.
-            InitialAccountRegistrationFrame accountRegFrame =
-                new InitialAccountRegistrationFrame();
+            String protocolOrder
+                = SimpleAccountRegistrationActivator.getConfigService()
+                    .getString("plugin.simpleaccreg.PROTOCOL_ORDER");
+            if (protocolOrder == null)
+            {
+                return;
+            }
 
-            accountRegFrame.pack();
+            String protocolFilter = "";
+            protocolNames = protocolOrder.split("\\|");
+            for (int i = 0; i < protocolNames.length; i++)
+            {
+                if (i > 0)
+                {
+                    protocolFilter = "(|" + protocolFilter;
+                }
 
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            accountRegFrame.setLocation(screenSize.width / 2
-                - accountRegFrame.getWidth() / 2, screenSize.height / 2
-                - accountRegFrame.getHeight() / 2);
+                protocolFilter += "(" + ProtocolProviderFactory.PROTOCOL
+                    + "=" + protocolNames[i] + ")";
+                if (i > 0)
+                {
+                    protocolFilter += ")";
+                }
+            }
 
-            accountRegFrame.setVisible(true);
+            try
+            {
+                ServiceReference[] refs = bundleContext.getAllServiceReferences(
+                    AccountRegistrationWizard.class.getName(), protocolFilter);
+                if (refs != null)
+                {
+                    numWizardsRegistered = refs.length;
+                }
+
+                // not all requested wizard are available, wait for them
+                if (numWizardsRegistered < protocolNames.length)
+                {
+                    bundleContext.addServiceListener(this, "(&(objectclass="
+                        + AccountRegistrationWizard.class.getName() + ")"
+                        + protocolFilter + ")");
+                }
+                else
+                {
+                    showDialog();
+                }
+            }
+            catch (InvalidSyntaxException e)
+            {
+                logger.error(e);
+            }
         }
 
         if (logger.isInfoEnabled())
             logger.info("SIMPLE ACCOUNT REGISTRATION ...[STARTED]");
+    }
+
+    private void showDialog()
+    {
+        InitialAccountRegistrationFrame accountRegFrame =
+            new InitialAccountRegistrationFrame();
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        accountRegFrame.setLocation(screenSize.width / 2
+            - accountRegFrame.getWidth() / 2, screenSize.height / 2
+            - accountRegFrame.getHeight() / 2);
+
+        accountRegFrame.setVisible(true);
     }
 
     public void stop(BundleContext bc) throws Exception
@@ -151,12 +239,8 @@ public class SimpleAccountRegistrationActivator
                         registeredAccountIter.hasNext();)
                 {
                     AccountID accountID = registeredAccountIter.next();
-                    boolean isHidden
-                        = accountID.getAccountProperty(
-                                ProtocolProviderFactory.IS_PROTOCOL_HIDDEN)
-                            != null;
 
-                    if (!isHidden)
+                    if (!accountID.isHidden())
                     {
                         hasRegisteredAccounts = true;
                         break;

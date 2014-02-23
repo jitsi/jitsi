@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.plaf.*;
 import javax.swing.plaf.metal.*;
 
@@ -19,9 +20,12 @@ import net.java.sip.communicator.util.*;
  * The tooltip shown over a contact in the contact list.
  *
  * @author Yana Stamcheva
+ * @author Damian Minkov
  */
 public class ExtendedTooltip
     extends JToolTip
+    implements AncestorListener,
+               WindowFocusListener
 {
     private static final Logger logger
         = Logger.getLogger(ExtendedTooltip.class);
@@ -54,6 +58,13 @@ public class ExtendedTooltip
     private int textHeight = 0;
 
     private boolean isListViewEnabled;
+
+    /**
+     * The parent window where this tooltip was created, not the one the
+     * component was added to, but where the focus is when the component is
+     * created/added.
+     */
+    private Window parentWindow = null;
 
     /**
      * Created a <tt>MetaContactTooltip</tt>.
@@ -99,42 +110,7 @@ public class ExtendedTooltip
         bottomTextArea.setFont(bottomTextArea.getFont().deriveFont(10f));
         mainPanel.add(bottomTextArea, BorderLayout.SOUTH);
 
-        final Window parentWindow
-            = KeyboardFocusManager.getCurrentKeyboardFocusManager()
-                .getActiveWindow();
-
-        // Hide the tooltip when the parent window hides.
-        /*
-         * FIXME The parentWindow will surely outlive this ExtendedTooltip so
-         * adding a WindowFocusListener without removing the same
-         * WindowFocusListener later on is guaranteed to cause a memory leak.
-         */
-        if (parentWindow != null)
-            parentWindow.addWindowFocusListener(new WindowFocusListener()
-            {
-                public void windowLostFocus(WindowEvent e)
-                {
-                    Window popupWindow
-                        = SwingUtilities.getWindowAncestor(
-                            ExtendedTooltip.this);
-
-                    if ((popupWindow != null)
-                        && popupWindow.isVisible()
-                        // The popup window should normally be a JWindow, so we
-                        // check here explicitly if for some reason we didn't
-                        // get something else.
-                        && (popupWindow instanceof JWindow))
-                    {
-                        if (logger.isInfoEnabled())
-                            logger.info("Tooltip window ancestor to hide: "
-                                + popupWindow);
-
-                        popupWindow.setVisible(false);
-                    }
-                }
-
-                public void windowGainedFocus(WindowEvent e) {}
-            });
+        this.addAncestorListener(this);
 
         this.add(mainPanel);
     }
@@ -171,12 +147,9 @@ public class ExtendedTooltip
      * @param icon the icon to show
      * @param text the name to show
      */
-    public void addLine(Icon icon,
-                        String text)
+    public void addLine(Icon icon, String text)
     {
-        JLabel lineLabel = new JLabel(  text,
-                                        icon,
-                                        JLabel.LEFT);
+        JLabel lineLabel = new JLabel(text, icon, JLabel.LEFT);
 
         linesPanel.add(lineLabel);
 
@@ -221,7 +194,7 @@ public class ExtendedTooltip
     public void addLine(JLabel[] labels)
     {
         Dimension lineSize = null;
-        JPanel labelPanel = null;
+        JPanel labelPanel;
 
         if (labels.length > 0)
         {
@@ -232,19 +205,19 @@ public class ExtendedTooltip
         else
             return;
 
-        if (labelPanel != null)
-            for (JLabel label : labels)
-            {
-                labelPanel.add(label);
-                if (lineSize == null)
-                    lineSize = calculateLabelSize(label);
-                else
-                    lineSize = new Dimension(
-                        lineSize.width + calculateLabelSize(label).width,
-                        lineSize.height);
-            }
+        for (JLabel label : labels)
+        {
+            labelPanel.add(label);
+            if (lineSize == null)
+                lineSize = calculateLabelSize(label);
+            else
+                lineSize = new Dimension(
+                    lineSize.width + calculateLabelSize(label).width,
+                    lineSize.height);
+        }
 
-        recalculateTooltipSize(lineSize.width, lineSize.height);
+        if (lineSize != null)
+            recalculateTooltipSize(lineSize.width, lineSize.height);
     }
 
     /**
@@ -312,6 +285,102 @@ public class ExtendedTooltip
     }
 
     /**
+     * When main windows focus is lost hide the tooltip.
+     * @param e window event.
+     */
+    @Override
+    public void windowLostFocus(WindowEvent e)
+    {
+        Window popupWindow
+            = SwingUtilities.getWindowAncestor(
+                ExtendedTooltip.this);
+
+        if ((popupWindow != null)
+            && popupWindow.isVisible()
+            // The popup window should normally be a JWindow, so we
+            // check here explicitly if for some reason we didn't
+            // get something else.
+            && (popupWindow instanceof JWindow))
+        {
+            if (logger.isInfoEnabled())
+                logger.info("Tooltip window ancestor to hide: "
+                    + popupWindow);
+
+            popupWindow.setVisible(false);
+        }
+    }
+
+    /**
+     * Not used.
+     * @param e window event
+     */
+    @Override
+    public void windowGainedFocus(WindowEvent e) {}
+
+    /**
+     * @param event ancestor event, something has become visible.
+     */
+    @Override
+    public void ancestorAdded(AncestorEvent event)
+    {
+        this.parentWindow
+            = KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                .getActiveWindow();
+
+        // Hide the tooltip when the parent window hides.
+        if (parentWindow != null)
+        {
+            parentWindow.addWindowFocusListener(this);
+        }
+        else
+        {
+            // well, no parent window, this is the case when we hovered over a
+            // contact and tooltip started creating and we switched to another
+            // window or another window stole our focus, we will hide the
+            // tooltip in order to avoid showing it over non jitsi window
+            // seems only a problem when using java 1.6 (under macosx),
+            // not reproducible with 1.7.
+            Window popupWindow
+                = SwingUtilities.getWindowAncestor(
+                ExtendedTooltip.this);
+
+            if ((popupWindow != null)
+                // The popup window should normally be a JWindow, so we
+                // check here explicitly if for some reason we didn't
+                // get something else.
+                && (popupWindow instanceof JWindow))
+            {
+                popupWindow.setVisible(false);
+            }
+        }
+    }
+
+    /**
+     * When the tooltip window is disposed elements are removed from it
+     * and this is the time to clear resources.
+     * @param event the component has become not visible
+     */
+    @Override
+    public void ancestorRemoved(AncestorEvent event)
+    {
+        if(this.parentWindow != null)
+        {
+            this.parentWindow.removeWindowFocusListener(this);
+            this.parentWindow = null;
+        }
+
+        this.removeAncestorListener(this);
+    }
+
+    /**
+     * Not used.
+     * @param event ancestor event.
+     */
+    @Override
+    public void ancestorMoved(AncestorEvent event)
+    {}
+
+    /**
      * Customized UI for this MetaContactTooltip.
      */
     public static class ImageToolTipUI extends MetalToolTipUI
@@ -320,8 +389,8 @@ public class ExtendedTooltip
 
         /**
          * Creates the UI.
-         * @param c
-         * @return
+         * @param c component
+         * @return ui shared instance.
          */
         public static ComponentUI createUI(JComponent c)
         {
@@ -381,7 +450,7 @@ public class ExtendedTooltip
             if (icon != null)
                 imageHeight = icon.getIconHeight();
 
-            int height = 0;
+            int height;
             if (tooltip.isListViewEnabled)
             {
                 height = imageHeight > tooltip.textHeight

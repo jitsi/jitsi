@@ -72,6 +72,7 @@ public class OperationSetContactCapabilitiesJabberImpl
     {
         OFFLINE_OPERATION_SETS.add(OperationSetBasicInstantMessaging.class);
         OFFLINE_OPERATION_SETS.add(OperationSetMessageCorrection.class);
+        OFFLINE_OPERATION_SETS.add(OperationSetServerStoredContactInfo.class);
 
         OPERATION_SETS_TO_FEATURES.put(
                 OperationSetBasicTelephony.class,

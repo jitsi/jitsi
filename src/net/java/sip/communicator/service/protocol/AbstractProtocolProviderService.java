@@ -53,6 +53,11 @@ public abstract class AbstractProtocolProviderService
     public void addRegistrationStateChangeListener(
         RegistrationStateChangeListener listener)
     {
+        if (listener == null)
+        {
+            throw new IllegalArgumentException("listener cannot be null");
+        }
+
         synchronized(registrationListeners)
         {
             if (!registrationListeners.contains(listener))

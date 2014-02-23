@@ -6,21 +6,114 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
+import org.jitsi.service.neomedia.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.xmlpull.v1.*;
 
 /**
  * Implements an <tt>org.jivesoftware.smack.provider.IQProvider</tt> for the
- * Jitsi VideoBridge extension <tt>ColibriConferenceIQ</tt>.
+ * Jitsi Videobridge extension <tt>ColibriConferenceIQ</tt>.
  *
  * @author Lyubomir Marinov
+ * @author Boris Grozev
  */
 public class ColibriIQProvider
     implements IQProvider
 {
+    /** Initializes a new <tt>ColibriIQProvider</tt> instance. */
+    public ColibriIQProvider()
+    {
+        ProviderManager providerManager = ProviderManager.getInstance();
+
+        providerManager.addExtensionProvider(
+                PayloadTypePacketExtension.ELEMENT_NAME,
+                ColibriConferenceIQ.NAMESPACE,
+                new DefaultPacketExtensionProvider<PayloadTypePacketExtension>(
+                        PayloadTypePacketExtension.class));
+        providerManager.addExtensionProvider(
+                SourcePacketExtension.ELEMENT_NAME,
+                SourcePacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<SourcePacketExtension>(
+                        SourcePacketExtension.class));
+
+        PacketExtensionProvider parameterProvider
+            = new DefaultPacketExtensionProvider<ParameterPacketExtension>(
+                    ParameterPacketExtension.class);
+
+        providerManager.addExtensionProvider(
+                ParameterPacketExtension.ELEMENT_NAME,
+                ColibriConferenceIQ.NAMESPACE,
+                parameterProvider);
+        providerManager.addExtensionProvider(
+                ParameterPacketExtension.ELEMENT_NAME,
+                SourcePacketExtension.NAMESPACE,
+                parameterProvider);
+    }
+
+    private void addChildExtension(
+            ColibriConferenceIQ.Channel channel,
+            PacketExtension childExtension)
+    {
+        if (childExtension instanceof PayloadTypePacketExtension)
+        {
+            PayloadTypePacketExtension payloadType
+                = (PayloadTypePacketExtension) childExtension;
+
+            if ("opus".equals(payloadType.getName())
+                    && (payloadType.getChannels() != 2))
+            {
+                /*
+                 * We only have a Format for opus with 2 channels, because it
+                 * MUST be advertised with 2 channels. Fixing the number of
+                 * channels here allows us to be compatible with agents who
+                 * advertise it with 1 channel.
+                 */
+                payloadType.setChannels(2);
+            }
+            channel.addPayloadType(payloadType);
+        }
+        else if (childExtension instanceof IceUdpTransportPacketExtension)
+        {
+            IceUdpTransportPacketExtension transport
+                = (IceUdpTransportPacketExtension) childExtension;
+
+            channel.setTransport(transport);
+        }
+    }
+
+    private PacketExtension parseExtension(
+            XmlPullParser parser,
+            String name,
+            String namespace)
+        throws Exception
+    {
+        PacketExtensionProvider extensionProvider
+            = (PacketExtensionProvider)
+                ProviderManager.getInstance().getExtensionProvider(
+                        name,
+                        namespace);
+        PacketExtension extension;
+
+        if (extensionProvider == null)
+        {
+            /*
+             * No PacketExtensionProvider for the specified name and namespace
+             * has been registered. Throw away the element.
+             */
+            throwAway(parser, name);
+            extension = null;
+        }
+        else
+        {
+            extension = extensionProvider.parseExtension(parser);
+        }
+        return extension;
+    }
+
     /**
      * Parses an IQ sub-document and creates an
      * <tt>org.jivesoftware.smack.packet.IQ</tt> instance.
@@ -31,6 +124,8 @@ public class ColibriIQProvider
      * sub-document
      * @see IQProvider#parseIQ(XmlPullParser)
      */
+    @SuppressWarnings("deprecation") // Compatibility with legacy Jitsi and
+                                     // Jitsi Videobridge
     public IQ parseIQ(XmlPullParser parser)
         throws Exception
     {
@@ -50,7 +145,6 @@ public class ColibriIQProvider
             boolean done = false;
             ColibriConferenceIQ.Channel channel = null;
             ColibriConferenceIQ.Content content = null;
-            PacketExtensionProvider payloadTypePacketExtensionProvider = null;
             StringBuilder ssrc = null;
 
             while (!done)
@@ -74,7 +168,23 @@ public class ColibriIQProvider
                     else if (ColibriConferenceIQ.Channel.SSRC_ELEMENT_NAME
                             .equals(name))
                     {
-                        channel.addSSRC(Long.parseLong(ssrc.toString().trim()));
+                        String s = ssrc.toString().trim();
+
+                        if (s.length() != 0)
+                        {
+                            int i;
+
+                            /*
+                             * Legacy versions of Jitsi and Jitsi Videobridge
+                             * may send a synchronization source (SSRC)
+                             * identifier as a negative integer.
+                             */
+                            if (s.startsWith("-"))
+                                i = Integer.parseInt(s);
+                            else
+                                i = (int) Long.parseLong(s);
+                            channel.addSSRC(i);
+                        }
                         ssrc = null;
                     }
                     else if (ColibriConferenceIQ.Content.ELEMENT_NAME.equals(
@@ -94,14 +204,40 @@ public class ColibriIQProvider
                     {
                         channel = new ColibriConferenceIQ.Channel();
 
-                        String channelID
+                        // direction
+                        String direction
                             = parser.getAttributeValue(
                                     "",
-                                    ColibriConferenceIQ.Channel.ID_ATTR_NAME);
+                                    ColibriConferenceIQ.Channel
+                                            .DIRECTION_ATTR_NAME);
 
-                        if ((channelID != null) && (channelID.length() != 0))
-                            channel.setID(channelID);
+                        if ((direction != null) && (direction.length() != 0))
+                        {
+                            channel.setDirection(
+                                    MediaDirection.parseString(direction));
+                        }
 
+                        // endpoint
+                        String endpoint
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.Channel
+                                            .ENDPOINT_ATTR_NAME);
+
+                        if ((endpoint != null) && (endpoint.length() != 0))
+                            channel.setEndpoint(endpoint);
+
+                        // expire
+                        String expire
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.Channel
+                                            .EXPIRE_ATTR_NAME);
+
+                        if ((expire != null) && (expire.length() != 0))
+                            channel.setExpire(Integer.parseInt(expire));
+
+                        // host
                         String host
                             = parser.getAttributeValue(
                                     "",
@@ -110,15 +246,36 @@ public class ColibriIQProvider
                         if ((host != null) && (host.length() != 0))
                             channel.setHost(host);
 
-                        String rtpPort
+                        // id
+                        String channelID
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.Channel.ID_ATTR_NAME);
+
+                        if ((channelID != null) && (channelID.length() != 0))
+                            channel.setID(channelID);
+
+                        // initiator
+                        String initiator
                             = parser.getAttributeValue(
                                     "",
                                     ColibriConferenceIQ.Channel
-                                            .RTP_PORT_ATTR_NAME);
+                                            .INITIATOR_ATTR_NAME);
 
-                        if ((rtpPort != null) && (rtpPort.length() != 0))
-                            channel.setRTPPort(Integer.parseInt(rtpPort));
+                        if ((initiator != null) && (initiator.length() != 0))
+                            channel.setInitiator(Boolean.valueOf(initiator));
 
+                        // lastN
+                        String lastN
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.Channel
+                                            .LAST_N_ATTR_NAME);
+
+                        if ((lastN != null) && (lastN.length() != 0))
+                            channel.setLastN(Integer.parseInt(lastN));
+
+                        // rtcpPort
                         String rtcpPort
                             = parser.getAttributeValue(
                                     "",
@@ -128,13 +285,28 @@ public class ColibriIQProvider
                         if ((rtcpPort != null) && (rtcpPort.length() != 0))
                             channel.setRTCPPort(Integer.parseInt(rtcpPort));
 
-                        String expire
+                        // rtpLevelRelayType
+                        String rtpLevelRelayType
                             = parser.getAttributeValue(
                                     "",
-                                    ColibriConferenceIQ.Channel.EXPIRE_ATTR_NAME);
+                                    ColibriConferenceIQ.Channel
+                                            .RTP_LEVEL_RELAY_TYPE_ATTR_NAME);
 
-                        if ((expire != null) && (expire.length() != 0))
-                            channel.setExpire(Integer.parseInt(expire));
+                        if ((rtpLevelRelayType != null)
+                                && (rtpLevelRelayType.length() != 0))
+                        {
+                            channel.setRTPLevelRelayType(rtpLevelRelayType);
+                        }
+
+                        // rtpPort
+                        String rtpPort
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.Channel
+                                            .RTP_PORT_ATTR_NAME);
+
+                        if ((rtpPort != null) && (rtpPort.length() != 0))
+                            channel.setRTPPort(Integer.parseInt(rtpPort));
                     }
                     else if (ColibriConferenceIQ.Channel.SSRC_ELEMENT_NAME
                             .equals(name))
@@ -155,40 +327,59 @@ public class ColibriIQProvider
                                 && (contentName.length() != 0))
                             content.setName(contentName);
                     }
-                    else if (PayloadTypePacketExtension.ELEMENT_NAME.equals(
-                            name))
+                    else if (channel != null)
                     {
-                        /*
-                         * The channel element of the Jitsi VideoBridge protocol
-                         * reuses the payload-type element defined in XEP-0167:
-                         * Jingle RTP Sessions.
-                         */
-                        if (payloadTypePacketExtensionProvider == null)
+                        String peName = null;
+                        String peNamespace = null;
+
+                        if (IceUdpTransportPacketExtension.ELEMENT_NAME
+                                    .equals(name)
+                                && IceUdpTransportPacketExtension.NAMESPACE
+                                        .equals(parser.getNamespace()))
                         {
-                            payloadTypePacketExtensionProvider
-                                = (PacketExtensionProvider)
-                                    ProviderManager.getInstance()
-                                        .getExtensionProvider(name, namespace);
+                            peName = name;
+                            peNamespace
+                                = IceUdpTransportPacketExtension.NAMESPACE;
                         }
-                        if (payloadTypePacketExtensionProvider == null)
+                        else if (PayloadTypePacketExtension.ELEMENT_NAME.equals(
+                                name))
                         {
                             /*
-                             * Well, the PacketExtensionProvider appears to have
-                             * not been registered. Throw away the payload-type
-                             * element.
+                             * The channel element of the Jitsi Videobridge
+                             * protocol reuses the payload-type element defined
+                             * in XEP-0167: Jingle RTP Sessions.
                              */
-                            while ((XmlPullParser.END_TAG != parser.next())
-                                    || !name.equals(parser.getName()));
+                            peName = name;
+                            peNamespace = namespace;
+                        }
+                        else if (RawUdpTransportPacketExtension.ELEMENT_NAME
+                                    .equals(name)
+                                && RawUdpTransportPacketExtension.NAMESPACE
+                                        .equals(parser.getNamespace()))
+                        {
+                            peName = name;
+                            peNamespace
+                                = RawUdpTransportPacketExtension.NAMESPACE;
+                        }
+                        else if (SourcePacketExtension.ELEMENT_NAME.equals(name)
+                                && SourcePacketExtension.NAMESPACE.equals(
+                                        parser.getNamespace()))
+                        {
+                            peName = name;
+                            peNamespace = SourcePacketExtension.NAMESPACE;
+                        }
+
+                        if (peName == null)
+                        {
+                            throwAway(parser, name);
                         }
                         else
                         {
-                            PayloadTypePacketExtension payloadType
-                                = (PayloadTypePacketExtension)
-                                    payloadTypePacketExtensionProvider
-                                        .parseExtension(parser);
+                            PacketExtension extension
+                                = parseExtension(parser, peName, peNamespace);
 
-                            if (payloadType != null)
-                                channel.addPayloadType(payloadType);
+                            if (extension != null)
+                                addChildExtension(channel, extension);
                         }
                     }
                     break;
@@ -209,5 +400,24 @@ public class ColibriIQProvider
             iq = null;
 
         return iq;
+    }
+
+    /**
+     * Parses using a specific <tt>XmlPullParser</tt> and ignores XML content
+     * presuming that the specified <tt>parser</tt> is currently at the start
+     * tag of an element with a specific name and throwing away until the end
+     * tag with the specified name is encountered.
+     *
+     * @param parser the <tt>XmlPullParser</tt> which parses the XML content
+     * @param name the name of the element at the start tag of which the
+     * specified <tt>parser</tt> is presumed to currently be and until the end
+     * tag of which XML content is to be thrown away
+     * @throws Exception if an errors occurs while parsing the XML content
+     */
+    private void throwAway(XmlPullParser parser, String name)
+        throws Exception
+    {
+        while ((XmlPullParser.END_TAG != parser.next())
+                || !name.equals(parser.getName()));
     }
 }

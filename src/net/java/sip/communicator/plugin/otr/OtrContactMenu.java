@@ -7,14 +7,15 @@
 package net.java.sip.communicator.plugin.otr;
 
 import java.awt.event.*;
-import java.lang.ref.*;
+import java.security.*;
 
 import javax.swing.*;
 
 import net.java.otr4j.*;
-import net.java.otr4j.session.*;
-import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.otr.OtrContactManager.OtrContact;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * A special {@link JMenu} that holds the menu items for controlling the
@@ -22,16 +23,21 @@ import net.java.sip.communicator.plugin.desktoputil.*;
  *
  * @author George Politis
  * @author Lyubomir Marinov
+ * @author Marin Dzhigarov
  */
 class OtrContactMenu
     implements ActionListener,
                ScOtrEngineListener,
                ScOtrKeyManagerListener
 {
+    private final Logger logger = Logger.getLogger(OtrContactMenu.class);
+
     private static final String ACTION_COMMAND_AUTHENTICATE_BUDDY =
         "AUTHENTICATE_BUDDY";
 
     private static final String ACTION_COMMAND_CB_AUTO = "CB_AUTO";
+
+    private static final String ACTION_COMMAND_CB_AUTO_ALL = "CB_AUTO_ALL";
 
     private static final String ACTION_COMMAND_CB_ENABLE = "CB_ENABLE";
 
@@ -45,7 +51,7 @@ class OtrContactMenu
 
     private static final String ACTION_COMMAND_START_OTR = "START_OTR";
 
-    private final Contact contact;
+    private final OtrContact contact;
 
     /**
      * The indicator which determines whether this <tt>JMenu</tt> is displayed
@@ -60,7 +66,7 @@ class OtrContactMenu
      */
     private OtrPolicy otrPolicy;
 
-    private SessionStatus sessionStatus;
+    private ScSessionStatus sessionStatus;
 
     private final JMenu parentMenu;
 
@@ -69,42 +75,48 @@ class OtrContactMenu
     /**
      * The OtrContactMenu constructor.
      *
-     * @param contact the Contact this menu refers to.
+     * @param otrContact the OtrContact this menu refers to.
      * @param inMacOSXScreenMenuBar <tt>true</tt> if the new menu is to be
      * displayed in the Mac OS X screen menu bar; <tt>false</tt>, otherwise
      * @param menu the parent menu
      */
-    public OtrContactMenu(  Contact contact,
+    public OtrContactMenu(  OtrContact otrContact,
                             boolean inMacOSXScreenMenuBar,
                             JMenu menu,
                             boolean isSeparateMenu)
     {
-        this.contact = contact;
+        this.contact = otrContact;
         this.inMacOSXScreenMenuBar = inMacOSXScreenMenuBar;
         this.parentMenu = menu;
-
+        String resourceName =
+            otrContact.resource != null
+                ? "/" + otrContact.resource.getResourceName()
+                : "";
         separateMenu
             = isSeparateMenu
-                ? new SIPCommMenu(contact.getDisplayName())
+                ? new SIPCommMenu(otrContact.contact.getDisplayName()
+                                    + resourceName)
                 : null;
 
         /*
          * XXX This OtrContactMenu instance cannot be added as a listener to
          * scOtrEngine and scOtrKeyManager without being removed later on
          * because the latter live forever. Unfortunately, the dispose() method
-         * of this instance is never executed. WeakListener will keep this
+         * of this instance is never executed. OtrWeakListener will keep this
          * instance as a listener of scOtrEngine and scOtrKeyManager for as long
          * as this instance is necessary. And this instance will be strongly
          * referenced by the JMenuItems which depict it. So when the JMenuItems
-         * are gone, this instance will become obsolete and WeakListener will
+         * are gone, this instance will become obsolete and OtrWeakListener will
          * remove it as a listener of scOtrEngine and scOtrKeyManager.
          */
-        new WeakListener(
+        new OtrWeakListener<OtrContactMenu>(
                 this,
                 OtrActivator.scOtrEngine, OtrActivator.scOtrKeyManager);
 
-        setSessionStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
-        setOtrPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
+        setSessionStatus(
+            OtrActivator.scOtrEngine.getSessionStatus(this.contact));
+        setOtrPolicy(
+            OtrActivator.scOtrEngine.getContactPolicy(otrContact.contact));
 
         buildMenu();
     }
@@ -117,12 +129,28 @@ class OtrContactMenu
         String actionCommand = e.getActionCommand();
 
         if (ACTION_COMMAND_END_OTR.equals(actionCommand))
+        {
+            OtrPolicy policy =
+                OtrActivator.scOtrEngine.getContactPolicy(contact.contact);
+            policy.setSendWhitespaceTag(false);
+            OtrActivator.scOtrEngine.setContactPolicy(contact.contact, policy);
+
             // End session.
             OtrActivator.scOtrEngine.endSession(contact);
+        }
 
         else if (ACTION_COMMAND_START_OTR.equals(actionCommand))
+        {
+            OtrPolicy policy =
+                OtrActivator.scOtrEngine.getContactPolicy(contact.contact);
+            OtrPolicy globalPolicy =
+                OtrActivator.scOtrEngine.getGlobalPolicy();
+            policy.setSendWhitespaceTag(globalPolicy.getSendWhitespaceTag());
+            OtrActivator.scOtrEngine.setContactPolicy(contact.contact, policy);
+
             // Start session.
             OtrActivator.scOtrEngine.startSession(contact);
+        }
 
         else if (ACTION_COMMAND_REFRESH_OTR.equals(actionCommand))
             // Refresh session.
@@ -130,45 +158,54 @@ class OtrContactMenu
 
         else if (ACTION_COMMAND_AUTHENTICATE_BUDDY.equals(actionCommand))
             // Launch auth buddy dialog.
-            OtrActionHandlers.openAuthDialog(contact);
+            SwingOtrActionHandler.openAuthDialog(contact);
 
         else if (ACTION_COMMAND_CB_ENABLE.equals(actionCommand))
         {
             OtrPolicy policy =
-                OtrActivator.scOtrEngine.getContactPolicy(contact);
+                OtrActivator.scOtrEngine.getContactPolicy(contact.contact);
             boolean state = ((JCheckBoxMenuItem) e.getSource()).isSelected();
 
             policy.setEnableManual(state);
-            OtrActivator.scOtrEngine.setContactPolicy(contact, policy);
+            OtrActivator.scOtrEngine.setContactPolicy(contact.contact, policy);
         }
 
         else if (ACTION_COMMAND_CB_AUTO.equals(actionCommand))
         {
             OtrPolicy policy =
-                OtrActivator.scOtrEngine.getContactPolicy(contact);
+                OtrActivator.scOtrEngine.getContactPolicy(contact.contact);
             boolean state = ((JCheckBoxMenuItem) e.getSource()).isSelected();
 
-            policy.setEnableAlways(state);
-            OtrActivator.configService.setProperty(
-                OtrActivator.AUTO_INIT_OTR_PROP,
-                Boolean.toString(state));
-            OtrActivator.scOtrEngine.setContactPolicy(contact, policy);
+            policy.setSendWhitespaceTag(state);
+
+            OtrActivator.scOtrEngine.setContactPolicy(contact.contact, policy);
+        }
+
+        else if (ACTION_COMMAND_CB_AUTO_ALL.equals(actionCommand))
+        {
+            OtrPolicy globalPolicy =
+                OtrActivator.scOtrEngine.getGlobalPolicy();
+            boolean state = ((JCheckBoxMenuItem) e.getSource()).isSelected();
+
+            globalPolicy.setSendWhitespaceTag(state);
+
+            OtrActivator.scOtrEngine.setGlobalPolicy(globalPolicy);
         }
 
         else if (ACTION_COMMAND_CB_REQUIRE.equals(actionCommand))
         {
             OtrPolicy policy =
-                OtrActivator.scOtrEngine.getContactPolicy(contact);
+                OtrActivator.scOtrEngine.getContactPolicy(contact.contact);
             boolean state = ((JCheckBoxMenuItem) e.getSource()).isSelected();
 
             policy.setRequireEncryption(state);
             OtrActivator.configService.setProperty(
                 OtrActivator.OTR_MANDATORY_PROP,
                 Boolean.toString(state));
-            OtrActivator.scOtrEngine.setContactPolicy(contact, policy);
+            OtrActivator.scOtrEngine.setContactPolicy(contact.contact, policy);
         }
         else if (ACTION_COMMAND_CB_RESET.equals(actionCommand))
-            OtrActivator.scOtrEngine.setContactPolicy(contact, null);
+            OtrActivator.scOtrEngine.setContactPolicy(contact.contact, null);
     }
 
     /*
@@ -177,7 +214,8 @@ class OtrContactMenu
     public void contactPolicyChanged(Contact contact)
     {
         // Update the corresponding to the contact menu.
-        if (contact.equals(OtrContactMenu.this.contact))
+        if (OtrContactMenu.this.contact != null &&
+            contact.equals(OtrContactMenu.this.contact.contact))
             setOtrPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
     }
 
@@ -185,10 +223,11 @@ class OtrContactMenu
      * Implements ScOtrKeyManagerListener#contactVerificationStatusChanged(
      * Contact).
      */
-    public void contactVerificationStatusChanged(Contact contact)
+    public void contactVerificationStatusChanged(OtrContact otrContact)
     {
-        if (contact.equals(OtrContactMenu.this.contact))
-            setSessionStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
+        if (otrContact.equals(OtrContactMenu.this.contact))
+            setSessionStatus(
+                OtrActivator.scOtrEngine.getSessionStatus(otrContact));
     }
 
     /**
@@ -208,7 +247,7 @@ class OtrContactMenu
      */
     public void globalPolicyChanged()
     {
-        setOtrPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact));
+        setOtrPolicy(OtrActivator.scOtrEngine.getContactPolicy(contact.contact));
     }
 
     /**
@@ -220,7 +259,8 @@ class OtrContactMenu
         if(separateMenu != null)
             separateMenu.removeAll();
 
-        OtrPolicy policy = OtrActivator.scOtrEngine.getContactPolicy(contact);
+        OtrPolicy policy =
+            OtrActivator.scOtrEngine.getContactPolicy(contact.contact);
 
         JMenuItem endOtr = new JMenuItem();
         endOtr.setText(OtrActivator.resourceService
@@ -235,16 +275,29 @@ class OtrContactMenu
         startOtr.setActionCommand(ACTION_COMMAND_START_OTR);
         startOtr.addActionListener(this);
 
+        JMenuItem refreshOtr = new JMenuItem();
+        refreshOtr.setText(OtrActivator.resourceService
+            .getI18NString("plugin.otr.menu.REFRESH_OTR"));
+        refreshOtr.setEnabled(policy.getEnableManual());
+        refreshOtr.setActionCommand(ACTION_COMMAND_REFRESH_OTR);
+        refreshOtr.addActionListener(this);
+
         switch (this.sessionStatus)
         {
-        case ENCRYPTED:
-            JMenuItem refreshOtr = new JMenuItem();
-            refreshOtr.setText(OtrActivator.resourceService
-                .getI18NString("plugin.otr.menu.REFRESH_OTR"));
-            refreshOtr.setEnabled(policy.getEnableManual());
-            refreshOtr.setActionCommand(ACTION_COMMAND_REFRESH_OTR);
-            refreshOtr.addActionListener(this);
+        case LOADING:
+            if (separateMenu != null)
+            {
+                separateMenu.add(endOtr);
+                separateMenu.add(refreshOtr);
+            }
+            else
+            {
+                parentMenu.add(endOtr);
+                parentMenu.add(refreshOtr);
+            }
+            break;
 
+        case ENCRYPTED:
             JMenuItem authBuddy = new JMenuItem();
             authBuddy.setText(OtrActivator.resourceService
                 .getI18NString("plugin.otr.menu.AUTHENTICATE_BUDDY"));
@@ -270,15 +323,16 @@ class OtrContactMenu
             if (separateMenu != null)
             {
                 separateMenu.add(endOtr);
-                separateMenu.add(startOtr);
+                separateMenu.add(refreshOtr);
             }
             else
             {
                 parentMenu.add(endOtr);
-                parentMenu.add(startOtr);
+                parentMenu.add(refreshOtr);
             }
             break;
 
+        case TIMED_OUT:
         case PLAINTEXT:
             if (separateMenu != null)
                 separateMenu.add(startOtr);
@@ -296,21 +350,31 @@ class OtrContactMenu
         cbEnable.addActionListener(this);
 
         JCheckBoxMenuItem cbAlways = new JCheckBoxMenuItem();
-        cbAlways.setText(OtrActivator.resourceService
-            .getI18NString("plugin.otr.menu.CB_AUTO"));
+        cbAlways.setText(String.format(
+                OtrActivator.resourceService
+                    .getI18NString(
+                        "plugin.otr.menu.CB_AUTO",
+                        new String[]
+                            {contact.contact.getDisplayName()})));
         cbAlways.setEnabled(policy.getEnableManual());
 
-        String autoInitPropValue
-            = OtrActivator.configService.getString(
-                OtrActivator.AUTO_INIT_OTR_PROP);
-        boolean isAutoInit = policy.getEnableAlways();
-        if (autoInitPropValue != null)
-            isAutoInit = Boolean.parseBoolean(autoInitPropValue);
-
-        cbAlways.setSelected(isAutoInit);
+        cbAlways.setSelected(policy.getEnableAlways());
 
         cbAlways.setActionCommand(ACTION_COMMAND_CB_AUTO);
         cbAlways.addActionListener(this);
+
+        JCheckBoxMenuItem cbAlwaysAll = new JCheckBoxMenuItem();
+        cbAlwaysAll.setText(OtrActivator.resourceService
+            .getI18NString("plugin.otr.menu.CB_AUTO_ALL"));
+        cbAlwaysAll.setEnabled(policy.getEnableManual());
+
+        boolean isAutoInit =
+            OtrActivator.scOtrEngine.getGlobalPolicy().getEnableAlways();
+
+        cbAlwaysAll.setSelected(isAutoInit);
+
+        cbAlwaysAll.setActionCommand(ACTION_COMMAND_CB_AUTO_ALL);
+        cbAlwaysAll.addActionListener(this);
 
         JCheckBoxMenuItem cbRequire = new JCheckBoxMenuItem();
         cbRequire.setText(OtrActivator.resourceService
@@ -346,6 +410,7 @@ class OtrContactMenu
             separateMenu.addSeparator();
             separateMenu.add(cbEnable);
             separateMenu.add(cbAlways);
+            separateMenu.add(cbAlwaysAll);
             separateMenu.add(cbRequire);
             separateMenu.addSeparator();
             separateMenu.add(cbReset);
@@ -357,6 +422,7 @@ class OtrContactMenu
             parentMenu.addSeparator();
             parentMenu.add(cbEnable);
             parentMenu.add(cbAlways);
+            parentMenu.add(cbAlwaysAll);
             parentMenu.add(cbRequire);
             parentMenu.addSeparator();
             parentMenu.add(cbReset);
@@ -366,10 +432,11 @@ class OtrContactMenu
     /*
      * Implements ScOtrEngineListener#sessionStatusChanged(Contact).
      */
-    public void sessionStatusChanged(Contact contact)
+    public void sessionStatusChanged(OtrContact otrContact)
     {
-        if (contact.equals(OtrContactMenu.this.contact))
-            setSessionStatus(OtrActivator.scOtrEngine.getSessionStatus(contact));
+        if (otrContact.equals(OtrContactMenu.this.contact))
+            setSessionStatus(
+                OtrActivator.scOtrEngine.getSessionStatus(otrContact));
     }
 
     /**
@@ -377,12 +444,15 @@ class OtrContactMenu
      * icon and, if necessary, rebuilds the menuitems to match the passed in
      * sessionStatus.
      *
-     * @param sessionStatus the {@link SessionStatus}.
+     * @param sessionStatus the {@link ScSessionStatus}.
      */
-    private void setSessionStatus(SessionStatus sessionStatus)
+    private void setSessionStatus(ScSessionStatus sessionStatus)
     {
         if (sessionStatus != this.sessionStatus)
         {
+            logger.debug(
+                "Setting session status of contact " + contact.contact +
+                " to " + sessionStatus + ". Was " + this.sessionStatus);
             this.sessionStatus = sessionStatus;
 
             if (separateMenu != null)
@@ -429,8 +499,14 @@ class OtrContactMenu
         switch (sessionStatus)
         {
         case ENCRYPTED:
+            PublicKey pubKey =
+                OtrActivator.scOtrEngine.getRemotePublicKey(contact);
+            String fingerprint =
+                OtrActivator.scOtrKeyManager.
+                    getFingerprintFromPublicKey(pubKey);
             imageID
-                = OtrActivator.scOtrKeyManager.isVerified(contact)
+                = OtrActivator.scOtrKeyManager.isVerified(
+                    contact.contact, fingerprint)
                     ? "plugin.otr.ENCRYPTED_ICON_16x16"
                     : "plugin.otr.ENCRYPTED_UNVERIFIED_ICON_16x16";
             break;
@@ -450,146 +526,14 @@ class OtrContactMenu
         separateMenu.setIcon(OtrActivator.resourceService.getImage(imageID));
     }
 
-    /**
-     * Implements a <tt>ScOtrEngineListener</tt> and
-     * <tt>ScOtrKeyManagerListener</tt> listener for the purposes of
-     * <tt>OtrContactMenu</tt> which listens to <tt>ScOtrEngine</tt> and
-     * <tt>ScOtrKeyManager</tt> while weakly referencing the
-     * <tt>OtrContactMenu</tt>. Fixes a memory leak of <tt>OtrContactMenu</tt>
-     * instances because these cannot determine when they are to be explicitly
-     * disposed.
-     *
-     * @author Lyubomir Marinov
-     */
-    private static class WeakListener
-        implements ScOtrEngineListener,
-                   ScOtrKeyManagerListener
+    @Override
+    public void multipleInstancesDetected(OtrContact contact) {}
+
+    @Override
+    public void outgoingSessionChanged(OtrContact otrContact)
     {
-        /**
-         * The <tt>ScOtrEngine</tt> the <tt>OtrContactMenu</tt> associated with
-         * this instance is to listen to.
-         */
-        private final ScOtrEngine engine;
-
-        /**
-         * The <tt>ScOtrKeyManager</tt> the <tt>OtrContactMenu</tt> associated
-         * with this instance is to listen to.
-         */
-        private final ScOtrKeyManager keyManager;
-
-        /**
-         * The <tt>OtrContactMenu</tt> which is associated with this instance
-         * and which is to listen to {@link #engine} and {@link #keyManager}.
-         */
-        private final WeakReference<OtrContactMenu> listener;
-
-        /**
-         * Initializes a new <tt>WeakListener</tt> instance which is to allow
-         * a specific <tt>OtrContactMenu</tt> to listener to a specific
-         * <tt>ScOtrEngine</tt> and a specific <tt>ScOtrKeyManager</tt> without
-         * being retained by them forever (because they live forever).
-         *
-         * @param listener the <tt>OtrContactMenu</tt> which is to listen to the
-         * specified <tt>engine</tt> and <tt>keyManager</tt>
-         * @param engine the <tt>ScOtrEngine</tt> which is to be listened to by
-         * the specified <tt>OtrContactMenu</tt>
-         * @param keyManager the <tt>ScOtrKeyManager</tt> which is to be
-         * listened to by the specified <tt>OtrContactMenu</tt>
-         */
-        public WeakListener(
-                OtrContactMenu listener,
-                ScOtrEngine engine, ScOtrKeyManager keyManager)
-        {
-            if (listener == null)
-                throw new NullPointerException("listener");
-
-            this.listener = new WeakReference<OtrContactMenu>(listener);
-            this.engine = engine;
-            this.keyManager = keyManager;
-
-            this.engine.addListener(this);
-            this.keyManager.addListener(this);
-        }
-
-        /**
-         * {@inheritDoc}
-         *
-         * Forwards the event/notification to the associated
-         * <tt>OtrContactMenu</tt> if it is still needed by the application.
-         */
-        public void contactPolicyChanged(Contact contact)
-        {
-            ScOtrEngineListener l = getListener();
-
-            if (l != null)
-                l.contactPolicyChanged(contact);
-        }
-
-        /**
-         * {@inheritDoc}
-         *
-         * Forwards the event/notification to the associated
-         * <tt>OtrContactMenu</tt> if it is still needed by the application.
-         */
-        public void contactVerificationStatusChanged(Contact contact)
-        {
-            ScOtrKeyManagerListener l = getListener();
-
-            if (l != null)
-                l.contactVerificationStatusChanged(contact);
-        }
-
-        /**
-         * Gets the <tt>OtrContactMenu</tt> which is listening to
-         * {@link #engine} and {@link #keyManager}. If the
-         * <tt>OtrContactMenu</tt> is no longer needed by the application, this
-         * instance seizes listening to <tt>engine</tt> and <tt>keyManager</tt>
-         * and allows the memory used by this instance to be reclaimed by the
-         * Java virtual machine.
-         *
-         * @return the <tt>OtrContactMenu</tt> which is listening to
-         * <tt>engine</tt> and <tt>keyManager</tt> if it is still needed by the
-         * application; otherwise, <tt>null</tt>
-         */
-        private OtrContactMenu getListener()
-        {
-            OtrContactMenu l = this.listener.get();
-
-            if (l == null)
-            {
-                engine.removeListener(this);
-                keyManager.removeListener(this);
-            }
-
-            return l;
-        }
-
-        /**
-         * {@inheritDoc}
-         *
-         * Forwards the event/notification to the associated
-         * <tt>OtrContactMenu</tt> if it is still needed by the application.
-         */
-        public void globalPolicyChanged()
-        {
-            ScOtrEngineListener l = getListener();
-
-            if (l != null)
-                l.globalPolicyChanged();
-        }
-
-        /**
-         * {@inheritDoc}
-         *
-         * Forwards the event/notification to the associated
-         * <tt>OtrContactMenu</tt> if it is still needed by the application.
-         */
-        public void sessionStatusChanged(Contact contact)
-        {
-            ScOtrEngineListener l = getListener();
-
-            if (l != null)
-                l.sessionStatusChanged(contact);
-        }
+        if (otrContact.equals(OtrContactMenu.this.contact))
+            setSessionStatus(
+                OtrActivator.scOtrEngine.getSessionStatus(otrContact));
     }
 }

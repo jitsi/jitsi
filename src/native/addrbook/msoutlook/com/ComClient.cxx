@@ -94,6 +94,7 @@ void ComClient_stop(void)
 
     if(ComClient_classFactory)
     {
+        ComClient_classFactory->revokeClassObject();
         ComClient_classFactory->Release();
         ComClient_classFactory = NULL;
     }
@@ -102,6 +103,8 @@ void ComClient_stop(void)
         TypeLib_releaseTypeLib(ComClient_typeLib);
         ComClient_typeLib = NULL;
     }
+
+    CoUninitialize();
 }
 
 /**

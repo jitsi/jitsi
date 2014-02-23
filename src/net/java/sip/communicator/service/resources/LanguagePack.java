@@ -28,6 +28,15 @@ public interface LanguagePack
     public Map<String, String> getResources(Locale locale);
 
     /**
+     * Returns a Set of the keys contained only in the ResourceBundle for
+     * locale.
+     * @param locale the locale for which the keys are requested
+     * @return a Set of the keys contained only in the ResourceBundle for
+     * locale
+     */
+    public Set<String> getResourceKeys(Locale locale);
+
+    /**
      * All the locales in the language pack.
      * @return all the locales this Language pack contains.
      */

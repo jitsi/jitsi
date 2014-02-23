@@ -254,17 +254,6 @@ public abstract class AccountID
      * Returns the specific account property.
      *
      * @param key property key
-     * @return property value corresponding to property key
-     */
-    public Object getAccountProperty(Object key)
-    {
-        return accountProperties.get(key);
-    }
-
-    /**
-     * Returns the specific account property.
-     *
-     * @param key property key
      * @param defaultValue default value if the property does not exist
      * @return property value corresponding to property key
      */
@@ -344,10 +333,10 @@ public abstract class AccountID
      */
     public String getAccountPropertyString(Object key, String defValue)
     {
-        Object value = getAccountProperty(key);
+        String value = accountProperties.get(key);
         if(value == null)
             value = getDefaultString(key.toString());
-        return (value == null) ? defValue : value.toString();
+        return (value == null) ? defValue : value;
     }
 
     /**
@@ -711,6 +700,73 @@ public abstract class AccountID
     }
 
     /**
+     * Checks if the account is hidden.
+     * @return <tt>true</tt> if this account is hidden or <tt>false</tt>
+     * otherwise.
+     */
+    public boolean isHidden()
+    {
+        return getAccountPropertyString(
+                ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
+    }
+
+    /**
+     * Checks if the account config is hidden.
+     * @return <tt>true</tt> if the account config is hidden or <tt>false</tt>
+     * otherwise.
+     */
+    public boolean isConfigHidden()
+    {
+        return getAccountPropertyString(
+                ProtocolProviderFactory.IS_ACCOUNT_CONFIG_HIDDEN) != null;
+    }
+
+    /**
+     * Checks if the account status menu is hidden.
+     * @return <tt>true</tt> if the account status menu is hidden or
+     * <tt>false</tt> otherwise.
+     */
+    public boolean isStatusMenuHidden()
+    {
+        return getAccountPropertyString(
+            ProtocolProviderFactory.IS_ACCOUNT_STATUS_MENU_HIDDEN) != null;
+    }
+
+    /**
+     * Checks if the account is marked as readonly.
+     * @return <tt>true</tt> if the account is marked as readonly or
+     * <tt>false</tt> otherwise.
+     */
+    public boolean isReadOnly()
+    {
+        return getAccountPropertyString(
+                ProtocolProviderFactory.IS_ACCOUNT_READ_ONLY) != null;
+    }
+
+    /**
+     * Returns the first <tt>ProtocolProviderService</tt> implementation
+     * corresponding to the preferred protocol
+     *
+     * @return the <tt>ProtocolProviderService</tt> corresponding to the
+     * preferred protocol
+     */
+    public boolean isPreferredProvider()
+    {
+        String preferredProtocolProp
+                = getAccountPropertyString(
+                        ProtocolProviderFactory.IS_PREFERRED_PROTOCOL);
+
+        if (preferredProtocolProp != null
+                && preferredProtocolProp.length() > 0
+                && Boolean.parseBoolean(preferredProtocolProp))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Set the account properties.
      *
      * @param accountProperties the properties of the account
@@ -729,12 +785,14 @@ public abstract class AccountID
     public boolean isEncryptionProtocolEnabled(String encryptionProtocolName)
     {
         // The default value is false, except for ZRTP.
-        boolean defaultValue = (encryptionProtocolName.equals("ZRTP"));
-        return getAccountPropertyBoolean(
-                ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
-                    + "."
-                    + encryptionProtocolName,
-                defaultValue);
+        boolean defaultValue = "ZRTP".equals(encryptionProtocolName);
+
+        return
+            getAccountPropertyBoolean(
+                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
+                        + "."
+                        + encryptionProtocolName,
+                    defaultValue);
     }
 
     /**
@@ -896,9 +954,9 @@ public abstract class AccountID
                     true);
         Map<String, Boolean> encryptionProtocolStatus
             = getBooleanPropertiesByPrefix(
-                ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS,
-                true,
-                false);
+                    ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS,
+                    true,
+                    false);
 
         // If the account is not yet configured, then ZRTP is activated by
         // default.
@@ -933,7 +991,7 @@ public abstract class AccountID
             }
         }
 
-        // Second: remove all disabled protocol.
+        // Second: remove all disabled protocols.
         int namePrefixLength
             = ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length() + 1;
 
@@ -1195,33 +1253,11 @@ public abstract class AccountID
         if(accountIconPath != null)
             setAccountIconPath(accountIconPath);
 
-        ensureDefaultValuePresent(ProtocolProviderFactory.DTMF_METHOD);
-
-        ensureDefaultValuePresent(
-                ProtocolProviderFactory.DTMF_MINIMAL_TONE_DURATION);
-
         mergeProperties(this.accountProperties, accountProperties);
 
         // Removes encrypted password property, as it will be restored during
         // account storage, but only if the password property is present.
         accountProperties.remove("ENCRYPTED_PASSWORD");
-    }
-
-    /**
-     * Ensures that there is value bound to given property key. If there isn't
-     * the default one will be used.
-     *
-     * @param key the property key
-     */
-    public void ensureDefaultValuePresent(String key)
-    {
-        String value = accountProperties.get(key);
-
-        if(value != null && value.trim().isEmpty())
-            value = null;
-
-        if(value == null)
-            accountProperties.put(key, getDefaultString(key));
     }
 
     /**

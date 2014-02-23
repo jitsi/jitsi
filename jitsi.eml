@@ -7,9 +7,6 @@
 	<lib name="junit.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/bundle/junit.jar!/"/>
 	</lib>
-	<lib name="aclibico-2.1.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/aclibico-2.1.jar!/"/>
-	</lib>
 	<lib name="apache-ant-1.7.0.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/apache-ant-1.7.0.jar!/"/>
 	</lib>
@@ -83,9 +80,6 @@
 	<lib name="jdic_misc.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jdic_misc.jar!/"/>
 	</lib>
-	<lib name="jdom.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jdom.jar!/"/>
-	</lib>
 	<lib name="jfontchooser-1.0.5.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jfontchooser-1.0.5.jar!/"/>
 	</lib>
@@ -153,9 +147,6 @@
 	</lib>
 	<lib name="profiler4j-1.0-beta3-SC.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/profiler4j-1.0-beta3-SC.jar!/"/>
-	</lib>
-	<lib name="rome-0.9.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/rome-0.9.jar!/"/>
 	</lib>
 	<lib name="sdes4j.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/sdes4j.jar!/"/>

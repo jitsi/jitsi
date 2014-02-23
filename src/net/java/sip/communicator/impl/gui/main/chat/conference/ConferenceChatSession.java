@@ -13,6 +13,7 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.service.metahistory.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
@@ -24,11 +25,13 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  * @author Valentin Martinet
+ * @author Boris Grozev
  */
 public class ConferenceChatSession
     extends ChatSession
     implements  ChatRoomMemberPresenceListener,
-                ChatRoomPropertyChangeListener
+                ChatRoomPropertyChangeListener,
+                ChatRoomConferencePublishedListener
 {
     /**
      * The current chat transport used for messaging.
@@ -44,14 +47,6 @@ public class ConferenceChatSession
      * The object used for rendering.
      */
     private final ChatSessionRenderer sessionRenderer;
-
-    /**
-     * The list of all <tt>ChatSessionChangeListener</tt>-s registered to listen
-     * for transport modifications.
-     */
-    private final java.util.List<ChatSessionChangeListener>
-        chatTransportChangeListeners
-            = new Vector<ChatSessionChangeListener>();
 
     /**
      * Creates an instance of <tt>ConferenceChatSession</tt>, by specifying the
@@ -73,12 +68,16 @@ public class ConferenceChatSession
             = new ConferenceChatTransport(this, chatRoomWrapper.getChatRoom());
 
         chatTransports.add(currentChatTransport);
-
-        this.initChatParticipants();
+        
+        synchronized(this.chatParticipants)
+        {
+            this.initChatParticipants();
+        }
 
         ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
         chatRoom.addMemberPresenceListener(this);
         chatRoom.addPropertyChangeListener(this);
+        chatRoom.addConferencePublishedListener(this);
     }
 
     /**
@@ -98,11 +97,13 @@ public class ConferenceChatSession
     @Override
     public void dispose()
     {
+        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+        chatRoom.removeMemberPresenceListener(this);
+        chatRoom.removePropertyChangeListener(this);
+        chatRoom.removeConferencePublishedListener(this);
+
         if(ConfigurationUtils.isLeaveChatRoomOnWindowCloseEnabled())
         {
-            ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
-            chatRoom.removeMemberPresenceListener(this);
-            chatRoom.removePropertyChangeListener(this);
             chatRoom.leave();
         }
     }
@@ -352,10 +353,8 @@ public class ConferenceChatSession
     public void setCurrentChatTransport(ChatTransport chatTransport)
     {
         this.currentChatTransport = chatTransport;
-        for (ChatSessionChangeListener l : chatTransportChangeListeners)
-        {
-            l.currentChatTransportChanged(this);
-        }
+
+        fireCurrentChatTransportChange();
     }
 
     /**
@@ -388,8 +387,22 @@ public class ConferenceChatSession
      * @param evt the <tt>ChatRoomMemberPresenceChangeEvent</tt> that notified
      * us
      */
-    public void memberPresenceChanged(ChatRoomMemberPresenceChangeEvent evt)
+    public void memberPresenceChanged(
+        final ChatRoomMemberPresenceChangeEvent evt)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    memberPresenceChanged(evt);
+                }
+            });
+            return;
+        }
+
         ChatRoom sourceChatRoom = (ChatRoom) evt.getSource();
 
         if(!sourceChatRoom.equals(chatRoomWrapper.getChatRoom()))
@@ -414,7 +427,13 @@ public class ConferenceChatSession
                     chatParticipants.add(chatContact);
                     sessionRenderer.addChatContact(chatContact);
             }
-
+            
+            ChatRoom room = chatRoomWrapper.getChatRoom();
+            if(room != null)
+            {
+                room.updatePrivateContactPresenceStatus(
+                    chatRoomMember.getName());
+            }
             /*
              * When the whole list of members of a given chat room is reported,
              * it doesn't make sense to see "ChatContact has joined #ChatRoom"
@@ -458,15 +477,34 @@ public class ConferenceChatSession
                     new String[] {sourceChatRoom.getName()});
             }
 
+            ChatContact<?> contact = null;
             for (ChatContact<?> chatContact : chatParticipants)
             {
                 if(chatContact.getDescriptor().equals(chatRoomMember))
                 {
+                    contact = chatContact;
                     sessionRenderer.updateChatContactStatus(
                         chatContact, statusMessage);
 
                     sessionRenderer.removeChatContact(chatContact);
+                    ChatRoom room = chatRoomWrapper.getChatRoom();
+                    if(room != null)
+                    {
+                        room.updatePrivateContactPresenceStatus(
+                            chatRoomMember.getName());
+                    }
                     break;
+                }
+            }
+            
+            if (contact != null)
+            {
+                // If contact found, remove from chat participants.
+                // Keeping this list current is required in order to get good
+                // member name tab-completion.
+                synchronized (chatParticipants)
+                {
+                    chatParticipants.remove(contact);
                 }
             }
         }
@@ -516,13 +554,19 @@ public class ConferenceChatSession
         chatTransports.clear();
         chatTransports.add(currentChatTransport);
 
-        // Remove all existing contacts.
-        sessionRenderer.removeAllChatContacts();
-
-        // Add the new list of members.
-        for (ChatRoomMember member : chatRoom.getMembers())
+        synchronized(this.chatParticipants)
         {
-            sessionRenderer.addChatContact(new ConferenceChatContact(member));
+            // Remove all existing contacts.
+            sessionRenderer.removeAllChatContacts();
+            this.chatParticipants.clear();
+            // Add the new list of members.
+            for (ChatRoomMember member : chatRoom.getMembers())
+            {
+                ConferenceChatContact contact =
+                    new ConferenceChatContact(member);
+                chatParticipants.add(contact);
+                sessionRenderer.addChatContact(contact);
+            }
         }
 
         // Add all listeners to the new chat room.
@@ -562,7 +606,8 @@ public class ConferenceChatSession
     }
 
     /**
-     * Initializes the list of participants.
+     * Initializes the list of participants.(It is assumed that
+     * <tt>chatParticipants</tt> is locked.)
      */
     private void initChatParticipants()
     {
@@ -586,36 +631,7 @@ public class ConferenceChatSession
 
         return
             !chatRoom.isSystem()
-                && !ConferenceChatManager.isPrivate(chatRoom);
-    }
-
-    /**
-     * Adds the given <tt>ChatSessionChangeListener</tt> to the list of
-     * transport listeners.
-     * @param l the listener to add
-     */
-    @Override
-    public void addChatTransportChangeListener(ChatSessionChangeListener l)
-    {
-        synchronized (chatTransportChangeListeners)
-        {
-            if (!chatTransportChangeListeners.contains(l))
-                chatTransportChangeListeners.add(l);
-        }
-    }
-
-    /**
-     * Removes the given <tt>ChatSessionChangeListener</tt> from contained
-     * transport listeners.
-     * @param l the listener to remove
-     */
-    @Override
-    public void removeChatTransportChangeListener(ChatSessionChangeListener l)
-    {
-        synchronized (chatTransportChangeListeners)
-        {
-            chatTransportChangeListeners.remove(l);
-        }
+                && !MUCService.isPrivate(chatRoom);
     }
 
     /**
@@ -636,5 +652,112 @@ public class ConferenceChatSession
     public void addLocalUserRoleListener(ChatRoomLocalUserRoleListener l)
     {
         chatRoomWrapper.getChatRoom().addLocalUserRoleListener(l);
+    }
+
+    /**
+     * Removes the given <tt>ChatRoomMemberRoleListener</tt> from the contained
+     * chat room role listeners.
+     * @param l the listener to remove
+     */
+    public void removeMemberRoleListener(ChatRoomMemberRoleListener l)
+    {
+        chatRoomWrapper.getChatRoom().removeMemberRoleListener(l);
+    }
+
+    /**
+     * Removes the given <tt>ChatRoomLocalUserRoleListener</tt> from the
+     * contained chat room role listeners.
+     * @param l the listener to remove
+     */
+    public void removeLocalUserRoleListener(ChatRoomLocalUserRoleListener l)
+    {
+        chatRoomWrapper.getChatRoom().removelocalUserRoleListener(l);
+    }
+
+    /**
+     * Acts upon a <tt>ChatRoomConferencePublishedEvent</tt>, dispatched when
+     * a member of a chat room publishes a <tt>ConferenceDescription</tt>.
+     *
+     * @param evt the event received, which contains the <tt>ChatRoom</tt>,
+     * <tt>ChatRoomMember</tt> and <tt>ConferenceDescription</tt> involved.
+     */
+    public void conferencePublished(final ChatRoomConferencePublishedEvent evt)
+    {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    conferencePublished(evt);
+                }
+            });
+            return;
+        }
+        
+        ChatRoom room = evt.getChatRoom();
+        if(!room.equals(chatRoomWrapper.getChatRoom()))
+            return;
+        
+        ConferenceDescription cd = evt.getConferenceDescription();
+        if(evt.getType() 
+            == ChatRoomConferencePublishedEvent.CONFERENCE_DESCRIPTION_SENT)
+        {
+            sessionRenderer.chatConferenceDescriptionSent(cd);
+        }
+        else if(evt.getType() 
+            == ChatRoomConferencePublishedEvent.CONFERENCE_DESCRIPTION_RECEIVED)
+        {
+            updateChatConferences(room, evt.getMember(), cd , 
+                room.getCachedConferenceDescriptionSize());
+            
+        }
+        
+    }
+    
+    /**
+     * Adds/Removes the announced conference to the interface.
+     * 
+     * @param chatRoom the chat room where the conference is announced.
+     * @param chatRoomMember the chat room member who announced the conference.
+     * @param cd the <tt>ConferenceDescription</tt> instance which represents 
+     * the conference.
+     */
+    private void updateChatConferences(ChatRoom chatRoom, 
+        ChatRoomMember chatRoomMember, 
+        ConferenceDescription cd, 
+        int activeConferencesCount)
+    {
+        boolean isAvailable = cd.isAvailable();
+        
+        for (ChatContact<?> chatContact : chatParticipants)
+        {
+            if(chatContact.getDescriptor().equals(chatRoomMember))
+            {
+                /*
+                 * TODO: we want more things to happen, e.g. the
+                 * ConferenceDescription being added to a list in the GUI
+                 * TODO: i13ze the string, if we decide to keep it at all
+                 */
+                sessionRenderer.updateChatContactStatus(
+                        chatContact, (isAvailable ? "published" : "removed") + 
+                        " a conference " + cd);
+                break;
+            }
+        }
+        
+        if(isAvailable)
+        {
+            sessionRenderer.addChatConferenceCall(cd);
+            if(activeConferencesCount == 1)
+                sessionRenderer.setConferencesPanelVisible(true);
+        }
+        else
+        {
+            sessionRenderer.removeChatConferenceCall(cd);
+            if(activeConferencesCount == 0)
+                sessionRenderer.setConferencesPanelVisible(false);
+        }
     }
 }

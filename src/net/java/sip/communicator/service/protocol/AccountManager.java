@@ -151,6 +151,7 @@ public class AccountManager
                         bundleContext,
                         CredentialsStorageService.class);
 
+            int prefLen = storedAccount.length() + 1;
             for (Iterator<String> storedAccountPropertyIter
                         = storedAccountProperties.iterator();
                     storedAccountPropertyIter.hasNext();)
@@ -159,7 +160,10 @@ public class AccountManager
                 String value = configService.getString(property);
 
                 //strip the package prefix
-                property = property.substring(storedAccount.length() + 1);
+                if(prefLen > property.length())
+                    continue;
+
+                property = property.substring(prefLen);
 
                 if (ProtocolProviderFactory.IS_ACCOUNT_DISABLED.equals(property))
                     disabled = Boolean.parseBoolean(value);
@@ -317,7 +321,8 @@ public class AccountManager
                 String factoryPackage = getFactoryImplPackageName(factory);
                 List<String> storedAccounts
                     = configService
-                        .getPropertyNamesByPrefix(factoryPackage, true);
+                        .getPropertyNamesByPrefix(factoryPackage + ".acc",
+                            false);
 
                 /* Ignore the hidden accounts. */
                 for (Iterator<String> storedAccountIter =
@@ -660,7 +665,7 @@ public class AccountManager
             = ProtocolProviderActivator.getConfigurationService();
         String factoryPackage = getFactoryImplPackageName(factory);
 
-       String accountNodeName
+        String accountNodeName
                = getAccountNodeName( factory,
                                      accountID.getAccountUniqueID() );
 
@@ -743,7 +748,12 @@ public class AccountManager
 
         // clear the password if missing property, modification can request
         // password delete
-        if(!accountProperties.containsKey(ProtocolProviderFactory.PASSWORD))
+        if(!accountProperties.containsKey(ProtocolProviderFactory.PASSWORD)
+                && // And only if it's not stored already in encrypted form.
+                   // Account registration object clears also this property
+                   // in order to forget the password
+                !configurationProperties.containsKey(
+                    factoryPackage+"."+accountNodeName+".ENCRYPTED_PASSWORD"))
         {
             CredentialsStorageService credentialsStorage
                     = ServiceUtils.getService(
@@ -796,6 +806,9 @@ public class AccountManager
             String storedAccountUID
                 = configurationService.getString(
                     storedAccount + "." + ProtocolProviderFactory.ACCOUNT_UID);
+
+            if(storedAccountUID == null)
+                continue;
 
             if (storedAccountUID.equals(accountUID))
                 accountNodeName = configurationService.getString(storedAccount);
@@ -865,7 +878,7 @@ public class AccountManager
                 accountRootPropertyName //node id
                 + "." + ProtocolProviderFactory.ACCOUNT_UID); // propname
 
-            if (accountUID.equals(accountID.getAccountUniqueID()))
+            if (accountID.getAccountUniqueID().equals(accountUID))
             {
                 //retrieve the names of all properties registered for the
                 //current account.

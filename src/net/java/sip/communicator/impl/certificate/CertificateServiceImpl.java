@@ -180,7 +180,8 @@ public class CertificateServiceImpl
             && !"meta:default".equals(tsType)
             && OSUtils.IS_WINDOWS)
         {
-            config.setProperty(PNAME_TRUSTSTORE_TYPE, "Windows-ROOT");
+            tsType = "Windows-ROOT";
+            config.setProperty(PNAME_TRUSTSTORE_TYPE, tsType);
         }
 
         if(tsType != null && !"meta:default".equals(tsType))

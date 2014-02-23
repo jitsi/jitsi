@@ -17,6 +17,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
+import org.jitsi.util.OSUtils;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
@@ -63,7 +64,8 @@ public class EntityCapsManager
     /**
      * The node value to advertise.
      */
-    private static String entityNode = "http://jitsi.org";
+    private static String entityNode
+        = OSUtils.IS_ANDROID ? "http://android.jitsi.org" : "http://jitsi.org";
 
     /**
      * The <tt>Map</tt> of <tt>Caps</tt> to <tt>DiscoverInfo</tt> which
@@ -1018,6 +1020,30 @@ public class EntityCapsManager
                 }
             }
             return false;
+        }
+
+        @Override
+        public boolean equals(Object o)
+        {
+            if(this == o) return true;
+            if(o == null || getClass() != o.getClass()) return false;
+
+            Caps caps = (Caps) o;
+
+            if(!hash.equals(caps.hash)) return false;
+            if(!node.equals(caps.node)) return false;
+            if(!ver.equals(caps.ver)) return false;
+
+            return true;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            int result = hash.hashCode();
+            result = 31 * result + node.hashCode();
+            result = 31 * result + ver.hashCode();
+            return result;
         }
     }
 }

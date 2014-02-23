@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.util.*;
@@ -78,6 +79,7 @@ public class ReceivedCallDialog
         boolean hasMorePeers = false;
         String textDisplayName = "";
         String textAddress = "";
+        String textAccount = "";
 
         ImageIcon imageIcon =
             ImageUtils.scaleIconWithinBounds(ImageLoader
@@ -87,34 +89,34 @@ public class ReceivedCallDialog
         {
             final CallPeer peer = peersIter.next();
 
+            String peerAddress = getPeerDisplayAddress(peer);
+
+            textAccount = peer.getProtocolProvider().getAccountID()
+                .getDisplayName();
+
             // More peers.
             if (peersIter.hasNext())
             {
                 textDisplayName = callLabel[1].getText()
                     + CallManager.getPeerDisplayName(peer) + ", ";
 
-                String peerAddress = getPeerDisplayAddress(peer);
-
                 if(!StringUtils.isNullOrEmpty(peerAddress))
                     textAddress = callLabel[2].getText()
-                        + peerAddress + ", ";
+                        + trimPeerAddressToUsername(peerAddress) + ", ";
 
                 hasMorePeers = true;
             }
             // Only one peer.
             else
             {
-                textDisplayName = callLabel[1].getText()
-                    + CallManager.getPeerDisplayName(peer)
-                    + " "
-                    + GuiActivator.getResources()
-                        .getI18NString("service.gui.IS_CALLING");
-
-                String peerAddress = getPeerDisplayAddress(peer);
+                textDisplayName = GuiActivator.getResources()
+                        .getI18NString("service.gui.IS_CALLING",
+                            new String[]{
+                                CallManager.getPeerDisplayName(peer) });
 
                 if(!StringUtils.isNullOrEmpty(peerAddress))
                     textAddress = callLabel[2].getText()
-                        + peerAddress ;
+                        + trimPeerAddressToUsername(peerAddress);
 
                 byte[] image = CallManager.getPeerImage(peer);
 
@@ -137,8 +139,9 @@ public class ReceivedCallDialog
         }
 
         if (hasMorePeers)
-            textDisplayName += GuiActivator.getResources()
-                .getI18NString("service.gui.ARE_CALLING");
+            textDisplayName = GuiActivator.getResources()
+                .getI18NString("service.gui.ARE_CALLING",
+                    new String[]{textDisplayName});
 
         callLabel[0].setIcon(imageIcon);
 
@@ -146,6 +149,13 @@ public class ReceivedCallDialog
 
         callLabel[2].setText(textAddress);
         callLabel[2].setForeground(Color.GRAY);
+
+        if(textAccount != null)
+        {
+            callLabel[3].setText(
+                GuiActivator.getResources().getI18NString("service.gui.TO")
+                + " " + textAccount);
+        }
     }
 
     /**
@@ -246,5 +256,23 @@ public class ReceivedCallDialog
                     ? null
                     : peerAddress;
         }
+    }
+
+    /**
+     * Removes the domain/server part from the address only if it is enabled.
+     * @param peerAddress peer address to change.
+     * @return username part of the address.
+     */
+    private String trimPeerAddressToUsername(String peerAddress)
+    {
+        if(ConfigurationUtils.isHideDomainInReceivedCallDialogEnabled())
+        {
+            if(peerAddress != null && !peerAddress.startsWith("@"))
+            {
+                return peerAddress.split("@")[0];
+            }
+        }
+
+        return peerAddress;
     }
 }

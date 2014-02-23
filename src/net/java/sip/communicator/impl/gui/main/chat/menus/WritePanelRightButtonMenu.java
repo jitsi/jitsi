@@ -180,4 +180,16 @@ public class WritePanelRightButtonMenu
 
         return rightMenu;
     }
+
+    /**
+     * Clear resources.
+     */
+    public void dispose()
+    {
+        chatContainer = null;
+        cutMenuItem = null;
+        copyMenuItem = null;
+        pasteMenuItem = null;
+        closeMenuItem = null;
+    }
 }

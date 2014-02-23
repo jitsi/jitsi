@@ -19,6 +19,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
@@ -32,6 +33,7 @@ import org.jitsi.util.*;
  * @author Yana Stamcheva
  * @author Valentin Martinet
  * @author Lyubomir Marinov
+ * @author Hristo Terezov
  */
 public class ChatWindowManager
 {
@@ -84,6 +86,66 @@ public class ChatWindowManager
         }
     }
 
+    /**
+     * Opens the specified <tt>ChatPanel</tt> and optionally brings it to the
+     * front.
+     * 
+     * @param room the chat room associated with the contact.
+     * @param nickname the nickname of the contact in the chat room.
+     */
+    public void openPrivateChatForChatRoomMember(final ChatRoom room,
+        final String nickname)
+    {
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    openPrivateChatForChatRoomMember(room, nickname);
+                }
+            });
+            return;
+        }
+        
+        Contact sourceContact = room.getPrivateContactByNickname(
+            nickname);
+        
+        openPrivateChatForChatRoomMember(room, sourceContact);
+    }
+    
+    /**
+     * Opens the specified <tt>ChatPanel</tt> and optionally brings it to the
+     * front.
+     * @param room the chat room associated with the contact.
+     * @param sourceContact the contact.
+     */
+    public void openPrivateChatForChatRoomMember(final ChatRoom room, 
+        final Contact sourceContact)
+    {
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    openPrivateChatForChatRoomMember(room, sourceContact);
+                }
+            });
+            return;
+        }
+        
+        MetaContact metaContact
+            = GuiActivator.getContactListService()
+                .findMetaContactByContact(sourceContact);
+        
+        room.updatePrivateContactPresenceStatus(sourceContact);
+        
+        ChatPanel chatPanel = getContactChat(metaContact, sourceContact);
+        chatPanel.setPrivateMessagingChat(true);
+    
+        openChat(chatPanel, true);
+    }
     /**
      * Returns <tt>true</tt> if there is an opened <tt>ChatPanel</tt> for the
      * given <tt>MetaContact</tt>.
@@ -478,6 +540,7 @@ public class ChatWindowManager
                         protocolContact,
                         contactResource,
                         escapedMessageID);
+
             return chatPanel;
         }
     }
@@ -693,26 +756,9 @@ public class ChatWindowManager
     {
         synchronized (chatSyncRoot)
         {
-            ChatRoomList chatRoomList
-                = GuiActivator
-                    .getUIService()
-                        .getConferenceChatManager().getChatRoomList();
-
-            // Search in the chat room's list for a chat room that correspond
-            // to the given one.
             ChatRoomWrapper chatRoomWrapper
-                = chatRoomList.findChatRoomWrapperFromChatRoom(chatRoom);
-
-            if ((chatRoomWrapper == null) && create)
-            {
-                ChatRoomProviderWrapper parentProvider
-                    = chatRoomList.findServerWrapperFromProvider(
-                        chatRoom.getParentProvider());
-
-                chatRoomWrapper = new ChatRoomWrapper(parentProvider, chatRoom);
-
-                chatRoomList.addChatRoom(chatRoomWrapper);
-            }
+                = GuiActivator.getMUCService().getChatRoomWrapperByChatRoom(
+                    chatRoom, create);
 
             ChatPanel chatPanel = null;
 
@@ -1040,8 +1086,8 @@ public class ChatWindowManager
      * <tt>ChatPanel</tt>; <tt>null</tt> to select the default <tt>Contact</tt>
      * of <tt>metaContact</tt> if it is online or one of its <tt>Contact</tt>s
      * which supports offline messaging
-     * @param the <tt>ContactResource</tt>, to be selected in the newly created
-     * <tt>ChatPanel</tt>
+     * @param contactResource the <tt>ContactResource</tt>, to be selected in
+     * the newly created <tt>ChatPanel</tt>
      * @param escapedMessageID the message ID of the message that should be
      * excluded from the history when the last one is loaded in the chat.
      * @return The <code>ChatPanel</code> newly created.
@@ -1237,11 +1283,14 @@ public class ChatWindowManager
      */
     private void fireChatClosed(Chat chat)
     {
+        List <ChatListener> listeners;
         synchronized (chatListeners)
         {
-            for (ChatListener listener : chatListeners)
-                listener.chatClosed(chat);
+            listeners = new ArrayList<ChatListener>(chatListeners);
         }
+
+        for(ChatListener listener : listeners)
+            listener.chatClosed(chat);
     }
 
     /**
@@ -1254,11 +1303,14 @@ public class ChatWindowManager
      */
     private void fireChatCreated(Chat chat)
     {
+        List <ChatListener> listeners;
         synchronized (chatListeners)
         {
-            for (ChatListener listener : chatListeners)
-                listener.chatCreated(chat);
+            listeners = new ArrayList<ChatListener>(chatListeners);
         }
+
+        for(ChatListener listener : listeners)
+            listener.chatCreated(chat);
     }
 
     /**
@@ -1286,7 +1338,7 @@ public class ChatWindowManager
 
         private Contact protocolContact;
 
-        private boolean isSmsSelected = false;
+        private Boolean isSmsSelected = null;
 
         /**
          * Creates an instance of <tt>RunMessageWindow</tt> by specifying the
@@ -1335,7 +1387,10 @@ public class ChatWindowManager
             ChatPanel chatPanel
                 = getContactChat(metaContact, protocolContact);
 
-            chatPanel.setSmsSelected(isSmsSelected);
+            // if not explicitly set, do not set it, leave it to default
+            // or internally make the decision
+            if(isSmsSelected != null)
+                chatPanel.setSmsSelected(isSmsSelected);
 
             openChat(chatPanel, true);
         }

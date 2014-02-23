@@ -5,7 +5,9 @@
  */
 package net.java.sip.communicator.plugin.spellcheck;
 
+import java.beans.*;
 import java.io.*;
+import java.lang.ref.*;
 import java.net.*;
 import java.util.*;
 
@@ -15,6 +17,7 @@ import net.java.sip.communicator.util.*;
 
 import org.dts.spell.dictionary.*;
 import org.jitsi.service.fileaccess.*;
+import org.jitsi.util.OSUtils;
 import org.osgi.framework.*;
 
 import javax.swing.*;
@@ -49,6 +52,12 @@ class SpellChecker
     // filename of custom dictionary (added words)
     private static final String PERSONAL_DICT_NAME = "custom.per";
 
+    /**
+     * System directory for hunspell-dictionaries.
+     */
+    private static final String SYSTEM_HUNSPELL_DIR
+        = "net.java.sip.communicator.plugin.spellcheck.SYSTEM_HUNSPELL_DIR";
+
     /*-
      * Dictionary resources.
      * Note: Dictionary needs to be created with input streams that AREN'T CLOSED
@@ -69,6 +78,15 @@ class SpellChecker
 
     private boolean enabled = true;
 
+    static final String LOCALE_CHANGED_PROP = "LocaleChanged";
+
+    /**
+     * Listeners waiting for spell checker locale update.
+     */
+    private final List<WeakReference<PropertyChangeListener>>
+            propertyListeners
+                = new ArrayList<WeakReference<PropertyChangeListener>>();
+
     /**
      * Associates spell checking capabilities with all chats. This doesn't do
      * anything if this is already running.
@@ -87,42 +105,18 @@ class SpellChecker
             SpellCheckActivator.getFileAccessService();
 
         // checks if DICT_DIR exists to see if this is the first run
-        File dictionaryDir = faService.getPrivatePersistentFile(DICT_DIR);
+        File dictionaryDir = faService.getPrivatePersistentFile(DICT_DIR,
+            FileCategory.CACHE);
 
         if (!dictionaryDir.exists())
         {
             dictionaryDir.mkdir();
-
-            // copy default dictionaries so they don't need to be downloaded
-            @SuppressWarnings ("unchecked")
-            Enumeration<URL> dictUrls
-                = SpellCheckActivator.bundleContext.getBundle()
-                    .findEntries(DEFAULT_DICT_PATH,
-                                "*.zip",
-                                false);
-
-            if (dictUrls != null)
-            {
-                while (dictUrls.hasMoreElements())
-                {
-                    URL dictUrl = dictUrls.nextElement();
-
-                    InputStream source = dictUrl.openStream();
-
-                    int filenameStart = dictUrl.getPath().lastIndexOf('/') + 1;
-                    String filename = dictUrl.getPath().substring(filenameStart);
-
-                    File dictLocation =
-                        faService.getPrivatePersistentFile(DICT_DIR + filename);
-
-                    copyDictionary(source, dictLocation);
-                }
-            }
         }
 
         // gets resource for personal dictionary
         this.personalDictLocation =
-            faService.getPrivatePersistentFile(DICT_DIR + PERSONAL_DICT_NAME);
+            faService.getPrivatePersistentFile(DICT_DIR + PERSONAL_DICT_NAME,
+                FileCategory.PROFILE);
 
         if (!personalDictLocation.exists())
             personalDictLocation.createNewFile();
@@ -151,14 +145,7 @@ class SpellChecker
         {
             public void run()
             {
-                // initializes dictionary and saves locale config
-                // use the worker to set the locale if it fails
-                // will still show spellcheck and will not fail
-                // starting spell check plugin
-                LanguageMenuBar.makeSelectionField(SpellChecker.this)
-                    .createSpellCheckerWorker(locale).start();
-
-                // attaches to uiService so this'll be attached to future chats
+                // attaches to uiService so we'll be attached to future chats
                 SpellCheckActivator.getUIService()
                     .addChatListener(SpellChecker.this);
 
@@ -204,6 +191,10 @@ class SpellChecker
                 attachedChats.remove(wrapper);
                 wrapper.detachListeners();
             }
+
+            // this is the last chat, window is closed
+            if(attachedChats.size() == 0)
+                stop();
         }
     }
 
@@ -361,30 +352,89 @@ class SpellChecker
     {
         synchronized (this.locale)
         {
-            String path = locale.getDictUrl().getFile();
+            if(this.locale.equals(locale)
+                && this.dict != null)
+                return;
 
-            int filenameStart = path.lastIndexOf('/') + 1;
-            String filename = path.substring(filenameStart);
+            File dictLocation = getLocalDictForLocale(locale);
+            InputStream dictInput = null;
+            InputStream affInput = null;
 
-            File dictLocation =
-                SpellCheckActivator.getFileAccessService()
-                    .getPrivatePersistentFile(DICT_DIR + filename);
+            if (OSUtils.IS_LINUX && !dictLocation.exists())
+            {
+                String sysDir =
+                    SpellCheckActivator.getConfigService().getString(
+                        SYSTEM_HUNSPELL_DIR);
+                File systemDict =
+                    new File(sysDir, locale.getIcuLocale() + ".dic");
+                if (systemDict.exists())
+                {
+                    dictInput = new FileInputStream(systemDict);
+                    affInput = new FileInputStream(new File(sysDir,
+                            locale.getIcuLocale() + ".aff"));
+                }
+            }
 
-            // downloads dictionary if unavailable (not cached)
-            if (!dictLocation.exists())
-                copyDictionary(locale.getDictUrl().openStream(), dictLocation);
+            if (!dictLocation.exists() && dictInput == null)
+            {
+                boolean dictFound = false;
+
+                // see if the requested locale is a built-in that doesn't
+                // need to be downloaded
+                @SuppressWarnings ("unchecked")
+                Enumeration<URL> dictUrls
+                    = SpellCheckActivator.bundleContext.getBundle()
+                        .findEntries(DEFAULT_DICT_PATH,
+                                    "*.zip",
+                                    false);
+
+                if (dictUrls != null)
+                {
+                    while (dictUrls.hasMoreElements())
+                    {
+                        URL dictUrl = dictUrls.nextElement();
+                        if (new File(dictUrl.getFile()).getName().equals(
+                            new File(locale.getDictUrl().getFile()).getName()))
+                        {
+                            dictInput = dictUrl.openStream();
+                            dictFound = true;
+                            break;
+                        }
+                    }
+                }
+
+                // downloads dictionary if unavailable (not cached)
+                if (!dictFound)
+                {
+                    copyDictionary(locale.getDictUrl().openStream(),
+                        dictLocation);
+                }
+            }
+
+            if (dictInput == null)
+            {
+                dictInput = new FileInputStream(dictLocation);
+            }
 
             // resets dictionary being used to include changes
             synchronized (this.attachedChats)
             {
-                InputStream dictInput = new FileInputStream(dictLocation);
-
-                SpellDictionary dict =
-                    new OpenOfficeSpellDictionary(dictInput,
+                SpellDictionary dict;
+                if (affInput == null)
+                {
+                    dict = new OpenOfficeSpellDictionary(dictInput,
                         this.personalDictLocation);
+                }
+                else
+                {
+                    dict =
+                        new OpenOfficeSpellDictionary(affInput, dictInput,
+                            personalDictLocation, true);
+                }
 
                 this.dict = dict;
                 this.dictLocation = dictLocation;
+                Parameters.Locale oldLocale = this.locale;
                 this.locale = locale;
 
                 // saves locale choice to configuration properties
@@ -394,8 +444,31 @@ class SpellChecker
                 // updates chats
                 for (ChatAttachments chat : this.attachedChats)
                     chat.setDictionary(this.dict);
+
+                firePropertyChangedEvent(
+                    LOCALE_CHANGED_PROP, oldLocale, this.locale);
             }
         }
+    }
+
+    /**
+     * Gets the file object for user-installed dictionaries.
+     * 
+     * @param locale The locale whose filename is needed.
+     * @return The file object of the locale.
+     * @throws Exception 
+     */
+    File getLocalDictForLocale(Parameters.Locale locale) throws Exception
+    {
+        String path = locale.getDictUrl().getFile();
+        int filenameStart = path.lastIndexOf('/') + 1;
+        String filename = path.substring(filenameStart);
+        File dictLocation =
+            SpellCheckActivator.getFileAccessService()
+                .getPrivatePersistentFile(DICT_DIR + filename,
+                    FileCategory.CACHE);
+
+        return dictLocation;
     }
 
     /**
@@ -415,7 +488,8 @@ class SpellChecker
 
             File dictLocation =
                 SpellCheckActivator.getFileAccessService()
-                    .getPrivatePersistentFile(DICT_DIR + filename);
+                    .getPrivatePersistentFile(DICT_DIR + filename,
+                        FileCategory.CACHE);
 
             if (dictLocation.exists())
                 dictLocation.delete();
@@ -427,7 +501,7 @@ class SpellChecker
     }
 
     /**
-     * Determines if locale's dictionary is locally available or not.
+     * Determines if locale's dictionary is locally available or a system.
      *
      * @param locale locale to be checked
      * @return true if local resources for dictionary are available and
@@ -435,16 +509,55 @@ class SpellChecker
      */
     boolean isLocaleAvailable(Parameters.Locale locale)
     {
-        String path = locale.getDictUrl().getFile();
-        int filenameStart = path.lastIndexOf('/') + 1;
-        String filename = path.substring(filenameStart);
         try
         {
-            File dictLocation =
-                SpellCheckActivator.getFileAccessService()
-                    .getPrivatePersistentFile(DICT_DIR + filename);
+            if (getLocalDictForLocale(locale).exists())
+            {
+                return true;
+            }
+            else
+            {
+                @SuppressWarnings ("unchecked")
+                Enumeration<URL> dictUrls
+                    = SpellCheckActivator.bundleContext.getBundle()
+                        .findEntries(DEFAULT_DICT_PATH,
+                                    "*.zip",
+                                    false);
 
-            return dictLocation.exists();
+                if (dictUrls != null)
+                {
+                    while (dictUrls.hasMoreElements())
+                    {
+                        URL dictUrl = dictUrls.nextElement();
+                        if (new File(dictUrl.getFile()).getName().equals(
+                            new File(locale.getDictUrl().getFile()).getName()))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
+        }
+        catch (Exception exc)
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Determines if locale's dictionary is locally available or a system.
+     *
+     * @param locale locale to be checked
+     * @return true if local resources for dictionary are available and
+     *         accessible, false otherwise
+     */
+    boolean isUserLocale(Parameters.Locale locale)
+    {
+        try
+        {
+            return getLocalDictForLocale(locale).exists();
         }
         catch (Exception exc)
         {
@@ -508,6 +621,92 @@ class SpellChecker
         {
             logger.error("Dictionary validation failed", exc);
             return false;
+        }
+    }
+
+    /**
+     * Adds a PropertyChangeListener to the listener list.
+     * <p>
+     * @param listener the PropertyChangeListener to be added
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener)
+    {
+        synchronized (propertyListeners)
+        {
+            Iterator<WeakReference<PropertyChangeListener>> i
+                = propertyListeners.iterator();
+            boolean contains = false;
+
+            while (i.hasNext())
+            {
+                PropertyChangeListener l = i.next().get();
+
+                if (l == null)
+                    i.remove();
+                else if (l.equals(listener))
+                    contains = true;
+            }
+            if (!contains)
+                propertyListeners.add(
+                        new WeakReference<PropertyChangeListener>(listener));
+        }
+    }
+
+    /**
+     * Removes a PropertyChangeListener from the listener list.
+     * <p>
+     * @param listener the PropertyChangeListener to be removed
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener)
+    {
+        synchronized (propertyListeners)
+        {
+            Iterator<WeakReference<PropertyChangeListener>> i
+                = propertyListeners.iterator();
+
+            while (i.hasNext())
+            {
+                PropertyChangeListener l = i.next().get();
+
+                if ((l == null) || l.equals(listener))
+                    i.remove();
+            }
+        }
+    }
+
+    /**
+     * Fires event.
+     * @param property
+     * @param oldValue
+     * @param newValue
+     */
+    private void firePropertyChangedEvent(String property,
+                                          Object oldValue,
+                                          Object newValue)
+    {
+        PropertyChangeEvent evt = new PropertyChangeEvent(
+            this, property, oldValue, newValue);
+
+        if (logger.isDebugEnabled())
+            logger.debug("Will dispatch the following plugin component event: "
+            + evt);
+
+        synchronized (propertyListeners)
+        {
+            Iterator<WeakReference<PropertyChangeListener>> i
+                = propertyListeners.iterator();
+
+            while (i.hasNext())
+            {
+                PropertyChangeListener l = i.next().get();
+
+                if (l == null)
+                    i.remove();
+                else
+                {
+                    l.propertyChange(evt);
+                }
+            }
         }
     }
 }

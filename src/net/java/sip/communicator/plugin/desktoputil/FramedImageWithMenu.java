@@ -35,11 +35,6 @@ public class FramedImageWithMenu
     private JPopupMenu popupMenu;
 
     /**
-     * The parent frame.
-     */
-    private JFrame mainFrame;
-
-    /**
      * Should we currently draw overlay.
      */
     private boolean drawOverlay = false;
@@ -62,14 +57,12 @@ public class FramedImageWithMenu
      * @param height height of component.
      */
     public FramedImageWithMenu(
-        JFrame mainFrame,
         ImageIcon imageIcon,
         int width,
         int height)
     {
         super(imageIcon, width, height);
 
-        this.mainFrame = mainFrame;
         this.addMouseListener(this);
     }
 
@@ -97,6 +90,20 @@ public class FramedImageWithMenu
         this.isDefaultImage = false;
 
         this.currentImage = imageIcon.getImage();
+    }
+
+    /**
+     * Sets the image to display in the frame.
+     *
+     * @param image the image to display in the frame
+     */
+    public void setImageIcon(byte[] image)
+    {
+        // Intercept the action to validate the user icon and not the default
+        super.setImageIcon(image);
+        this.isDefaultImage = false;
+
+        this.currentImage = super.getImage();
     }
 
     /**
@@ -175,9 +182,9 @@ public class FramedImageWithMenu
         if (show)
         {
             Point imageLoc = this.getLocationOnScreen();
-            Point rootPaneLoc = mainFrame.getRootPane().getLocationOnScreen();
+            Point rootPaneLoc = this.getRootPane().getLocationOnScreen();
 
-            this.popupMenu.setSize(mainFrame.getRootPane().getWidth(),
+            this.popupMenu.setSize(this.getRootPane().getWidth(),
                     this.popupMenu.getHeight());
 
             this.popupMenu.show(this, (rootPaneLoc.x - imageLoc.x),
@@ -192,7 +199,7 @@ public class FramedImageWithMenu
 
     public void mouseEntered(MouseEvent e)
     {
-        if (this.drawOverlay)
+        if (this.drawOverlay || !this.isEnabled())
             return;
 
         this.drawOverlay = true;
@@ -208,7 +215,7 @@ public class FramedImageWithMenu
     public void mouseExited(MouseEvent e)
     {
         // Remove overlay only if the dialog isn't visible
-        if (!popupMenu.isVisible())
+        if (!popupMenu.isVisible() && this.isEnabled())
         {
             this.drawOverlay = false;
             this.repaint();
@@ -217,7 +224,8 @@ public class FramedImageWithMenu
 
     public void mouseReleased(MouseEvent e)
     {
-        showDialog(e, !popupMenu.isVisible());
+        if (this.isEnabled())
+            showDialog(e, !popupMenu.isVisible());
     }
 
     /**

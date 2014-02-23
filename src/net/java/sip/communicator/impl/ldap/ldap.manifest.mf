@@ -3,7 +3,7 @@ Bundle-Name: LDAP service provider
 Bundle-Description: A bundle that implements LDAP service.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.ldap
 Import-Package: org.osgi.framework,
  javax.naming,
  javax.naming.directory,

@@ -8,13 +8,12 @@ package net.java.sip.communicator.impl.gui.main.chat;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -114,54 +113,17 @@ public class SendSmsDialog
      * Sends the given message to the given phoneNumber, using the current
      * SMS operation set.
      *
-     * @param phoneNumber the phone number to which the message should be sent.
+     * @param phoneNumber the phone number to which the message should be sent,
+     * if is null, will leave transport to choose
      * @param message the message to send.
      */
-    private void sendSmsMessage(String phoneNumber, String message)
+    public void sendSmsMessage(String phoneNumber, String message)
     {
-        chatTransport.getParentChatSession().setDefaultSmsNumber(phoneNumber);
+        if(phoneNumber != null)
+            chatTransport.getParentChatSession()
+                .setDefaultSmsNumber(phoneNumber);
 
-        try
-        {
-            chatTransport.sendSmsMessage(phoneNumber, message);
-        }
-        catch (IllegalStateException ex)
-        {
-            logger.error("Failed to send SMS.", ex);
-
-            chatPanel.refreshWriteArea();
-
-            chatPanel.addMessage(
-                phoneNumber,
-                new Date(),
-                Chat.OUTGOING_MESSAGE,
-                message,
-                "text/plain");
-
-            chatPanel.addErrorMessage(
-                phoneNumber,
-                GuiActivator.getResources()
-                    .getI18NString("service.gui.SMS_SEND_CONNECTION_PROBLEM"));
-        }
-        catch (Exception ex)
-        {
-            logger.error("Failed to send SMS.", ex);
-
-            chatPanel.refreshWriteArea();
-
-            chatPanel.addMessage(
-                phoneNumber,
-                new Date(),
-                Chat.OUTGOING_MESSAGE,
-                message,
-                "text/plain");
-
-            chatPanel.addErrorMessage(
-                phoneNumber,
-                GuiActivator.getResources()
-                    .getI18NString("service.gui.MSG_DELIVERY_ERROR",
-                    new String[]{ex.getMessage()}));
-        }
+        SMSManager.sendSMS(phoneNumber, message, chatTransport, chatPanel);
 
         this.dispose();
     }

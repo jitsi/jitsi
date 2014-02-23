@@ -20,9 +20,11 @@ import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contacteventhandler.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
 import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -35,6 +37,7 @@ import org.osgi.framework.*;
  * all typing notifications. Here are managed all contact list mouse events.
  *
  * @author Yana Stamcheva
+ * @author Hristo Terezov
  */
 public class ContactListPane
     extends SIPCommScrollPane
@@ -152,61 +155,72 @@ public class ContactListPane
         UIContact descriptor = evt.getSourceContact();
 
         // We're currently only interested in MetaContacts.
-        if (!(descriptor.getDescriptor() instanceof MetaContact))
-            return;
-
-        MetaContact metaContact = (MetaContact) descriptor.getDescriptor();
-
-        // Searching for the right proto contact to use as default for the
-        // chat conversation.
-        Contact defaultContact = metaContact.getDefaultContact(
-                                    OperationSetBasicInstantMessaging.class);
-
-        // do nothing
-        if(defaultContact == null)
-            return;
-
-        ProtocolProviderService defaultProvider
-            = defaultContact.getProtocolProvider();
-
-        OperationSetBasicInstantMessaging
-            defaultIM = defaultProvider.getOperationSet(
-                          OperationSetBasicInstantMessaging.class);
-
-        ProtocolProviderService protoContactProvider;
-        OperationSetBasicInstantMessaging protoContactIM;
-
-        boolean isOfflineMessagingSupported
-            = defaultIM != null && !defaultIM.isOfflineMessagingSupported();
-
-        if (defaultContact.getPresenceStatus().getStatus() < 1
-                && (!isOfflineMessagingSupported
-                    || !defaultProvider.isRegistered()))
+        if (descriptor.getDescriptor() instanceof MetaContact)
         {
-            Iterator<Contact> protoContacts = metaContact.getContacts();
+            MetaContact metaContact = (MetaContact) descriptor.getDescriptor();
 
-            while(protoContacts.hasNext())
+            // Searching for the right proto contact to use as default for the
+            // chat conversation.
+            Contact defaultContact = metaContact.getDefaultContact(
+                                        OperationSetBasicInstantMessaging.class);
+
+            // do nothing
+            if(defaultContact == null)
+                return;
+
+            ProtocolProviderService defaultProvider
+                = defaultContact.getProtocolProvider();
+    
+            OperationSetBasicInstantMessaging
+                defaultIM = defaultProvider.getOperationSet(
+                              OperationSetBasicInstantMessaging.class);
+    
+            ProtocolProviderService protoContactProvider;
+            OperationSetBasicInstantMessaging protoContactIM;
+    
+            boolean isOfflineMessagingSupported
+                = defaultIM != null && !defaultIM.isOfflineMessagingSupported();
+    
+            if (defaultContact.getPresenceStatus().getStatus() < 1
+                    && (!isOfflineMessagingSupported
+                        || !defaultProvider.isRegistered()))
             {
-                Contact contact = protoContacts.next();
-
-                protoContactProvider = contact.getProtocolProvider();
-
-                protoContactIM = protoContactProvider.getOperationSet(
-                                    OperationSetBasicInstantMessaging.class);
-
-                if(protoContactIM != null
-                        && protoContactIM.isOfflineMessagingSupported()
-                        && protoContactProvider.isRegistered())
+                Iterator<Contact> protoContacts = metaContact.getContacts();
+    
+                while(protoContacts.hasNext())
                 {
-                    defaultContact = contact;
+                    Contact contact = protoContacts.next();
+    
+                    protoContactProvider = contact.getProtocolProvider();
+    
+                    protoContactIM = protoContactProvider.getOperationSet(
+                                        OperationSetBasicInstantMessaging.class);
+    
+                    if(protoContactIM != null
+                            && protoContactIM.isOfflineMessagingSupported()
+                            && protoContactProvider.isRegistered())
+                    {
+                        defaultContact = contact;
+                    }
                 }
             }
+
+            ContactEventHandler contactHandler = mainFrame
+                .getContactHandler(defaultContact.getProtocolProvider());
+
+            contactHandler.contactClicked(defaultContact, evt.getClickCount());
         }
-
-        ContactEventHandler contactHandler = mainFrame
-            .getContactHandler(defaultContact.getProtocolProvider());
-
-        contactHandler.contactClicked(defaultContact, evt.getClickCount());
+        else if(((SourceContact) descriptor.getDescriptor())
+            .getContactDetails(OperationSetMultiUserChat.class) != null)
+        {
+            SourceContact contact = (SourceContact)
+                descriptor.getDescriptor();
+            ChatRoomWrapper room 
+                = GuiActivator.getMUCService()
+                    .findChatRoomWrapperFromSourceContact(contact);
+            if(room != null)
+                GuiActivator.getMUCService().openChatRoom(room);
+        }
     }
 
     /**
@@ -255,7 +269,9 @@ public class ContactListPane
                             message,
                             eventType,
                             evt.getTimestamp(),
-                            evt.getCorrectedMessageUID());
+                            evt.getCorrectedMessageUID(),
+                            evt.isPrivateMessaging(),
+                            evt.getPrivateMessagingContactRoom());
         }
         else
         {
@@ -279,6 +295,10 @@ public class ContactListPane
      * @param eventType the event type
      * @param timestamp the timestamp of the event
      * @param correctedMessageUID the identifier of the corrected message
+     * @param isPrivateMessaging if <tt>true</tt> the message is received from 
+     * private messaging contact.
+     * @param privateContactRoom the chat room associated with the private 
+     * messaging contact.
      */
     private void messageReceived(final Contact protocolContact,
                                  final ContactResource contactResource,
@@ -286,7 +306,9 @@ public class ContactListPane
                                  final Message message,
                                  final int eventType,
                                  final Date timestamp,
-                                 final String correctedMessageUID)
+                                 final String correctedMessageUID, 
+                                 final boolean isPrivateMessaging,
+                                 final ChatRoom privateContactRoom)
     {
         if(!SwingUtilities.isEventDispatchThread())
         {
@@ -300,7 +322,9 @@ public class ContactListPane
                                     message,
                                     eventType,
                                     timestamp,
-                                    correctedMessageUID);
+                                    correctedMessageUID,
+                                    isPrivateMessaging,
+                                    privateContactRoom);
                 }
             });
             return;
@@ -350,12 +374,21 @@ public class ContactListPane
             message.getMessageUID(),
             correctedMessageUID);
 
-        chatWindowManager.openChat(chatPanel, false);
-
         String resourceName = (contactResource != null)
                                 ? contactResource.getResourceName()
                                 : null;
 
+        if(isPrivateMessaging)
+        {
+            chatWindowManager.openPrivateChatForChatRoomMember(
+                privateContactRoom, 
+                protocolContact);
+        }
+        else
+        {
+            chatWindowManager.openChat(chatPanel, false);
+        }
+        
         ChatTransport chatTransport
             = chatPanel.getChatSession()
                 .findChatTransportForDescriptor(protocolContact, resourceName);
@@ -401,6 +434,17 @@ public class ContactListPane
                 msg.getContentType(),
                 msg.getMessageUID(),
                 evt.getCorrectedMessageUID());
+
+            if(evt.isSmsMessage())
+            {
+                chatPanel.addMessage(
+                        contact.getDisplayName(),
+                        new Date(),
+                        Chat.ACTION_MESSAGE,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.SMS_SUCCESSFULLY_SENT"),
+                        "text");
+            }
         }
     }
 
@@ -712,7 +756,7 @@ public class ContactListPane
         try
         {
             serRefs = GuiActivator.bundleContext.getServiceReferences(
-                PluginComponent.class.getName(),
+                PluginComponentFactory.class.getName(),
                 osgiFilter);
         }
         catch (InvalidSyntaxException exc)
@@ -724,9 +768,11 @@ public class ContactListPane
         {
             for (ServiceReference serRef : serRefs)
             {
-                PluginComponent component
-                    = (PluginComponent)
+                PluginComponentFactory factory =
+                    (PluginComponentFactory)
                         GuiActivator.bundleContext.getService(serRef);
+                PluginComponent component =
+                    factory.getPluginComponentInstance(this);
 
                 Object selectedValue = getContactList().getSelectedValue();
 
@@ -740,8 +786,8 @@ public class ContactListPane
                         .setCurrentContactGroup((MetaContactGroup)selectedValue);
                 }
 
-                String pluginConstraints = component.getConstraints();
-                Object constraints = null;
+                String pluginConstraints = factory.getConstraints();
+                Object constraints;
 
                 if (pluginConstraints != null)
                     constraints = UIServiceImpl
@@ -766,22 +812,22 @@ public class ContactListPane
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        PluginComponent pluginComponent = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
         // If the container id doesn't correspond to the id of the plugin
         // container we're not interested.
-        if(!pluginComponent.getContainer()
-                .equals(Container.CONTAINER_CONTACT_LIST))
+        if(!factory.getContainer().equals(Container.CONTAINER_CONTACT_LIST))
             return;
 
         Object constraints = UIServiceImpl
-            .getBorderLayoutConstraintsFromContainer(
-                    pluginComponent.getConstraints());
+            .getBorderLayoutConstraintsFromContainer(factory.getConstraints());
 
         if (constraints == null)
             constraints = BorderLayout.SOUTH;
 
-        this.add((Component) pluginComponent.getComponent(), constraints);
+        PluginComponent pluginComponent =
+            factory.getPluginComponentInstance(this);
+        this.add((Component)pluginComponent.getComponent(), constraints);
 
         Object selectedValue = getContactList().getSelectedValue();
 
@@ -807,14 +853,15 @@ public class ContactListPane
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
         // If the container id doesn't correspond to the id of the plugin
         // container we're not interested.
-        if(!c.getContainer()
+        if(!factory.getContainer()
                 .equals(Container.CONTAINER_CONTACT_LIST))
             return;
 
-        this.remove((Component) c.getComponent());
+        this.remove(
+            (Component)factory.getPluginComponentInstance(this).getComponent());
     }
 }

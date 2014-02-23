@@ -139,7 +139,8 @@ public interface OperationSetPersistentPresence
      * @throws IllegalStateException if the underlying protocol provider is not
      *             registered/signed on a public service.
      */
-    public void removeServerStoredContactGroup(ContactGroup group);
+    public void removeServerStoredContactGroup(ContactGroup group)
+        throws OperationFailedException;
 
     /**
      * Renames the specified group from the server stored contact list. This
@@ -167,8 +168,11 @@ public interface OperationSetPersistentPresence
      * @param contactToMove the <tt>Contact</tt> to move
      * @param newParent the <tt>ContactGroup</tt> where <tt>Contact</tt> would
      *            be placed.
+     * @throws OperationFailedException when the operation didn't finished
+     * successfully.
      */
-    public void moveContactToGroup(Contact contactToMove, ContactGroup newParent);
+    public void moveContactToGroup(Contact contactToMove, ContactGroup newParent)
+        throws OperationFailedException;
 
     /**
      * Returns the root group of the server stored contact list. Most often this

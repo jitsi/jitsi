@@ -38,4 +38,25 @@ public interface EditableContactSourceService
      * @param id The ID of the contact to remove.
      */
     public void deleteContact(String id);
+
+    /**
+     * Returns the bitness of this contact source service.
+     *
+     * @return The bitness of this contact source service.
+     */
+    public int getBitness();
+
+    /**
+     * Returns the version of this contact source service.
+     *
+     * @return The version of this contact source service.
+     */
+    public int getVersion();
+
+    /**
+     * Returns the number of contact notifications to deal with.
+     *
+     * @return The number of contact notifications to deal with.
+     */
+    public int getNbRemainingNotifications();
 }

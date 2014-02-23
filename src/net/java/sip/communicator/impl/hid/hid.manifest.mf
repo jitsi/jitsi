@@ -3,7 +3,7 @@ Bundle-Name: HID Service Implementation
 Bundle-Description: A bundle that offers Human Interaction features.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.hid
 Import-Package: org.osgi.framework,
  org.jitsi.util,
  net.java.sip.communicator.util,

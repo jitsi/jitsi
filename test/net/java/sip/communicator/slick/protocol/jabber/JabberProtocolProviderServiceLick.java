@@ -111,7 +111,9 @@ public class JabberProtocolProviderServiceLick
 
             /** @todo UNCOMMENT */
 //            addTest(TestOperationSetMultiUserChat.suite());
-            addTest(TestOperationSetMultiUserChat2.suite());
+
+            // temporally disable multiuser chats
+            //addTest(TestOperationSetMultiUserChat2.suite());
 
             addTestSuite(TestOperationSetFileTransferImpl.class);
         }

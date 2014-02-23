@@ -57,6 +57,19 @@ public class AccountList
     private final JButton editButton;
 
     /**
+     * The menu that appears when right click on account is detected.
+     */
+    private final AccountRightButtonMenu rightButtonMenu
+        = new AccountRightButtonMenu();
+
+    /**
+     * Used to prevent from running two enable account threads at the same time.
+     * This field is set when new worker is created and cleared once it finishes
+     * it's job.
+     */
+    private EnableAccountWorker enableAccountWorker;
+
+    /**
      * Creates an instance of this account list by specifying the parent
      * container of the list.
      *
@@ -69,11 +82,39 @@ public class AccountList
 
         this.addMouseListener(this);
 
+        this.addMouseListener(new MouseAdapter()
+        {
+            public void mousePressed(MouseEvent e)
+            {
+                if (SwingUtilities.isRightMouseButton(e))
+                {
+                    Point point = e.getPoint();
+
+                    AccountList.this.setSelectedIndex(getRow(point));
+
+                    rightButtonMenu.setAccount(getSelectedAccount());
+
+                    SwingUtilities.convertPointToScreen(
+                        point, AccountList.this);
+
+                    ((JPopupMenu) rightButtonMenu).setInvoker(AccountList.this);
+
+                    rightButtonMenu.setLocation(point.x, point.y);
+                    rightButtonMenu.setVisible(true);
+                }
+            }
+        });
+
         this.accountsInit();
 
         GuiActivator.bundleContext.addServiceListener(this);
 
         this.editButton = parentConfigPanel.getEditButton();
+    }
+
+    private int getRow(Point point)
+    {
+        return locationToIndex(point);
     }
 
     /**
@@ -90,10 +131,8 @@ public class AccountList
         {
             AccountID accountID = storedAccounts.next();
 
-            boolean isHidden = accountID.getAccountPropertyBoolean(
-                ProtocolProviderFactory.IS_PROTOCOL_HIDDEN, false);
-
-            if (isHidden)
+            if (accountID.isHidden()
+                || accountID.isConfigHidden())
                 continue;
 
             Account uiAccount = null;
@@ -193,11 +232,8 @@ public class AccountList
 
         // If the protocol provider is hidden we don't want to show it in the
         // list.
-        boolean isHidden
-            = (protocolProvider.getAccountID().getAccountProperty
-                (ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null);
-
-        if (isHidden)
+        if (protocolProvider.getAccountID().isHidden()
+            && protocolProvider.getAccountID().isConfigHidden())
             return;
 
         // Add or remove the protocol provider from our accounts list.
@@ -360,6 +396,12 @@ public class AccountList
      */
     private void dispatchEventToCheckBox(MouseEvent event)
     {
+        if(enableAccountWorker != null)
+        {
+            logger.warn("Enable account worker is already running");
+            return;
+        }
+
         int mouseIndex = this.locationToIndex(event.getPoint());
 
         if (logger.isTraceEnabled())
@@ -406,7 +448,10 @@ public class AccountList
 
             checkBox.setSelected(!checkBox.isSelected());
 
-            new EnableAccountWorker(account, checkBox.isSelected()).start();
+            this.enableAccountWorker
+                = new EnableAccountWorker(account, checkBox.isSelected());
+
+            enableAccountWorker.start();
         }
     }
 
@@ -509,6 +554,8 @@ public class AccountList
         @Override
         protected void finished()
         {
+            enableAccountWorker = null;
+
             AccountList.this.repaint();
         }
     }

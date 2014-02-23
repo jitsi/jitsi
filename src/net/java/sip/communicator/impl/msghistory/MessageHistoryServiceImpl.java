@@ -25,6 +25,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
+import net.java.sip.communicator.util.account.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
@@ -84,6 +85,12 @@ public class MessageHistoryServiceImpl
     private MessageHistoryPropertyChangeListener msgHistoryPropListener;
 
     private static ResourceManagementService resourcesService;
+
+    /**
+     * Indicates if history logging is enabled.
+     */
+    private static boolean isHistoryLoggingEnabled;
+
 
     /**
      * Returns the history service.
@@ -312,8 +319,7 @@ public class MessageHistoryServiceImpl
                 while (recs.hasNext())
                 {
                     result.add(
-                        convertHistoryRecordToMessageEvent(recs.next(),
-                            item));
+                        convertHistoryRecordToMessageEvent(recs.next(), item));
 
                 }
             } catch (IOException e)
@@ -330,6 +336,114 @@ public class MessageHistoryServiceImpl
             startIndex = 0;
 
         return resultAsList.subList(startIndex, resultAsList.size());
+    }
+
+    /**
+     * Returns the messages for the recently contacted <tt>count</tt> contacts.
+     *
+     * @param count contacts count
+     * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
+     * @throws RuntimeException
+     */
+    Collection<EventObject> findRecentMessagesPerContact(int count)
+        throws RuntimeException
+    {
+        TreeSet<EventObject> result
+            = new TreeSet<EventObject>(
+            new MessageEventComparator<EventObject>());
+
+        List<HistoryID> historyIDs=
+            this.historyService.getExistingHistories(
+                new String[]{"messages", "default"});
+
+        for(HistoryID id : historyIDs)
+        {
+            if(result.size() >= count)
+                break;
+
+            try
+            {
+                // find contact for historyID
+                Contact contact = getContactForHistory(id);
+
+                // skip not found contacts, disabled accounts and hidden one
+                if(contact == null)
+                    continue;
+
+                History history;
+                if (this.historyService.isHistoryExisting(id))
+                {
+                    history = this.historyService.getHistory(id);
+                }
+                else
+                {
+                    history = this.historyService.createHistory(id,
+                        recordStructure);
+                }
+
+                HistoryReader reader = history.getReader();
+
+                Iterator<HistoryRecord> recs = reader.findLast(1);
+                while (recs.hasNext())
+                {
+                    result.add(convertHistoryRecordToMessageEvent(
+                        recs.next(), contact));
+                    break;
+                }
+            }
+            catch(IOException ex)
+            {
+                logger.error("Could not read history", ex);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Founds the contact corresponding this HistoryID. Checks the account and
+     * then searches for the contact.
+     * Will skip hidden and disabled accounts.
+     *
+     * @param id the history id.
+     * @return
+     */
+    private Contact getContactForHistory(HistoryID id)
+    {
+        // this history id is: "messages", localId, account, remoteId
+        if(id.getID().length != 4)
+            return null;
+
+        String accountID = id.getID()[2].replace('_', ':');
+
+        AccountID account = null;
+        for(AccountID acc : AccountUtils.getStoredAccounts())
+        {
+            if( !acc.isHidden()
+                && acc.isEnabled()
+                && accountID.startsWith(acc.getAccountUniqueID()))
+            {
+                account = acc;
+                break;
+            }
+        }
+
+        if(account == null)
+            return null;
+
+        ProtocolProviderService pps =
+            AccountUtils.getRegisteredProviderForAccount(account);
+
+        if(pps == null)
+            return null;
+
+        OperationSetPersistentPresence opSetPresence =
+            pps.getOperationSet(OperationSetPersistentPresence.class);
+
+        if(opSetPresence == null)
+            return null;
+
+        return opSetPresence.findContactByID(id.getID()[3]);
     }
 
     /**
@@ -808,6 +922,14 @@ public class MessageHistoryServiceImpl
         // We're adding a property change listener in order to
         // listen for modifications of the isMessageHistoryEnabled property.
         msgHistoryPropListener = new MessageHistoryPropertyChangeListener();
+        
+        // Load the "IS_MESSAGE_HISTORY_ENABLED" property.
+        isHistoryLoggingEnabled = configService.getBoolean(
+            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
+            Boolean.parseBoolean(UtilActivator
+                .getResources().getSettingsString(
+                    MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED))
+            );
 
         configService.addPropertyChangeListener(
             MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
@@ -859,6 +981,13 @@ public class MessageHistoryServiceImpl
 
     public void messageReceived(ChatRoomMessageReceivedEvent evt)
     {
+        if(!isHistoryLoggingEnabled(
+                evt.getSourceChatRoom().getIdentifier()))
+        {
+            // logging is switched off for this particular chat room
+            return;
+        }
+
         try
         {
             // ignore non conversation messages
@@ -868,6 +997,43 @@ public class MessageHistoryServiceImpl
 
             History history = this.getHistoryForMultiChat(
                 evt.getSourceChatRoom());
+
+            // if this is chat room message history on every room enter
+            // we can receive the same latest history messages and this
+            // will just fill the history on every join
+            if(evt.isHistoryMessage())
+            {
+                Collection<EventObject> c =
+                    findFirstMessagesAfter(evt.getSourceChatRoom(),
+                        evt.getTimestamp(),
+                        10);
+
+                Iterator<EventObject> iter = c.iterator();
+                boolean isPresent = false;
+                while(iter.hasNext())
+                {
+                    EventObject e = iter.next();
+
+                    if(e instanceof ChatRoomMessageReceivedEvent)
+                    {
+                        ChatRoomMessageReceivedEvent cev =
+                            (ChatRoomMessageReceivedEvent)e;
+
+                        if( evt.getSourceChatRoomMember().getContactAddress()
+                                .equals(cev.getSourceChatRoomMember()
+                                                .getContactAddress())
+                            && evt.getTimestamp() != null
+                            && evt.getTimestamp().equals(cev.getTimestamp()))
+                        {
+                            isPresent = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (isPresent)
+                    return;
+            }
 
             writeMessage(history, "in", evt.getSourceChatRoomMember(),
                 evt.getMessage(), evt.getTimestamp());
@@ -881,9 +1047,48 @@ public class MessageHistoryServiceImpl
     {
         try
         {
-            History history = this.
-                getHistoryForMultiChat(
+            if(!isHistoryLoggingEnabled(
+                    evt.getSourceChatRoom().getIdentifier()))
+            {
+                // logging is switched off for this particular chat room
+                return;
+            }
+
+            History history = this.getHistoryForMultiChat(
                 evt.getSourceChatRoom());
+
+            // if this is chat room message history on every room enter
+            // we can receive the same latest history messages and this
+            // will just fill the history on every join
+            if(evt.isHistoryMessage())
+            {
+                Collection<EventObject> c =
+                    findFirstMessagesAfter(evt.getSourceChatRoom(),
+                        evt.getTimestamp(),
+                        10);
+
+                Iterator<EventObject> iter = c.iterator();
+                boolean isPresent = false;
+                while(iter.hasNext())
+                {
+                    EventObject e = iter.next();
+                    if(e instanceof  ChatRoomMessageDeliveredEvent)
+                    {
+                        ChatRoomMessageDeliveredEvent cev =
+                            (ChatRoomMessageDeliveredEvent)e;
+
+                        if(evt.getTimestamp() != null
+                            && evt.getTimestamp().equals(cev.getTimestamp()))
+                        {
+                            isPresent = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (isPresent)
+                    return;
+            }
 
             writeMessage(history, "out", evt.getMessage(), evt.getTimestamp());
         } catch (IOException e)
@@ -908,7 +1113,18 @@ public class MessageHistoryServiceImpl
     private void writeMessage(String direction, Contact source,
             Contact destination, Message message, Date messageTimestamp)
     {
-        try {
+        try
+        {
+            MetaContact metaContact = MessageHistoryActivator
+                .getContactListService().findMetaContactByContact(destination);
+            if(metaContact != null
+                && !isHistoryLoggingEnabled(
+                        metaContact.getMetaUID()))
+            {
+                // logging is switched off for this particular contact
+                return;
+            }
+
             History history = this.getHistory(source, destination);
 
             writeMessage(history, direction, message, messageTimestamp);
@@ -1109,6 +1325,19 @@ public class MessageHistoryServiceImpl
                 logger.trace("Service did not have a im op. set.");
         }
 
+        OperationSetSmsMessaging opSetSMS =
+            provider.getOperationSet(OperationSetSmsMessaging.class);
+
+        if (opSetSMS != null)
+        {
+            opSetSMS.addMessageListener(this);
+        }
+        else
+        {
+            if (logger.isTraceEnabled())
+                logger.trace("Service did not have a sms op. set.");
+        }
+
         OperationSetMultiUserChat opSetMultiUChat =
             provider.getOperationSet(OperationSetMultiUserChat.class);
 
@@ -1146,6 +1375,14 @@ public class MessageHistoryServiceImpl
         if (opSetIm != null)
         {
             opSetIm.removeMessageListener(this);
+        }
+
+        OperationSetSmsMessaging opSetSMS =
+            provider.getOperationSet(OperationSetSmsMessaging.class);
+
+        if (opSetSMS != null)
+        {
+            opSetSMS.removeMessageListener(this);
         }
 
         OperationSetMultiUserChat opSetMultiUChat =
@@ -1922,7 +2159,7 @@ public class MessageHistoryServiceImpl
         /**
          * Calculates the progress according the count of the records
          * we will search
-         * @param historyProgress int
+         * @param evt the progress event
          * @return int
          */
         private int getProgressMapping(ProgressEvent evt)
@@ -2104,6 +2341,16 @@ public class MessageHistoryServiceImpl
         {
             return null;
         }
+
+        public ConferenceDescription getConferenceDescription()
+        {
+            return null;
+        }
+
+        public void setConferenceDescription(ConferenceDescription cd)
+        {
+            return;
+        }
     }
 
     /**
@@ -2116,12 +2363,11 @@ public class MessageHistoryServiceImpl
         public void propertyChange(PropertyChangeEvent evt)
         {
             String newPropertyValue = (String) evt.getNewValue();
-
-            boolean isMessageHistoryEnabled
+            isHistoryLoggingEnabled
                 = new Boolean(newPropertyValue).booleanValue();
 
             // If the message history is not enabled we stop here.
-            if (isMessageHistoryEnabled)
+            if (isHistoryLoggingEnabled)
                 loadMessageHistoryService();
             else
                 stop(bundleContext);
@@ -2212,6 +2458,13 @@ public class MessageHistoryServiceImpl
 
     public void messageDelivered(AdHocChatRoomMessageDeliveredEvent evt)
     {
+        if(!isHistoryLoggingEnabled(
+                evt.getSourceAdHocChatRoom().getIdentifier()))
+        {
+            // logging is switched off for this particular chat room
+            return;
+        }
+
         try
         {
             History history = this.
@@ -2234,6 +2487,13 @@ public class MessageHistoryServiceImpl
 
     public void messageReceived(AdHocChatRoomMessageReceivedEvent evt)
     {
+        if(!isHistoryLoggingEnabled(
+                evt.getSourceChatRoom().getIdentifier()))
+        {
+            // logging is switched off for this particular chat room
+            return;
+        }
+
          try
             {
                 History history = this.getHistoryForAdHocMultiChat(
@@ -2267,5 +2527,118 @@ public class MessageHistoryServiceImpl
         {
             evt.getAdHocChatRoom().removeMessageListener(this);
         }
+    }
+
+    /**
+     * Permanently removes all locally stored message history.
+     *
+     * @throws java.io.IOException
+     *         Thrown if the history could not be removed due to a IO error.
+     */
+    public void eraseLocallyStoredHistory()
+        throws IOException
+    {
+        HistoryID historyId = HistoryID.createFromRawID(
+                    new String[] {  "messages" });
+        historyService.purgeLocallyStoredHistory(historyId);
+    }
+
+    /**
+     * Permanently removes locally stored message history for the metacontact.
+     *
+     * @throws java.io.IOException
+     *         Thrown if the history could not be removed due to a IO error.
+     */
+    public void eraseLocallyStoredHistory(MetaContact contact)
+        throws IOException
+    {
+        Iterator<Contact> iter = contact.getContacts();
+        while (iter.hasNext())
+        {
+            Contact item = iter.next();
+
+            History history = this.getHistory(null, item);
+            historyService.purgeLocallyStoredHistory(history.getID());
+        }
+    }
+
+    /**
+     * Permanently removes locally stored message history for the chatroom.
+     *
+     * @throws java.io.IOException
+     *         Thrown if the history could not be removed due to a IO error.
+     */
+    public void eraseLocallyStoredHistory(ChatRoom room)
+        throws IOException
+    {
+        History history = this.getHistoryForMultiChat(room);
+        historyService.purgeLocallyStoredHistory(history.getID());
+    }
+    
+    /**
+     * Returns <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+     * property is true, otherwise - returns <code>false</code>.
+     * Indicates to the user interface whether the history logging is enabled.
+     * @return <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+     * property is true, otherwise - returns <code>false</code>.
+     */
+    public boolean isHistoryLoggingEnabled()
+    {
+        return isHistoryLoggingEnabled;
+    }
+
+    /**
+     * Updates the "isHistoryLoggingEnabled" property through the
+     * <tt>ConfigurationService</tt>.
+     *
+     * @param isEnabled indicates if the history logging is
+     * enabled.
+     */
+    public void setHistoryLoggingEnabled(boolean isEnabled)
+    {
+        isHistoryLoggingEnabled = isEnabled;
+
+        configService.setProperty(
+            MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
+            Boolean.toString(isHistoryLoggingEnabled));
+    }
+
+    /**
+     * Returns <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+     * property is true for the <tt>id</tt>, otherwise - returns
+     * <code>false</code>.
+     * Indicates to the user interface whether the history logging is enabled
+     * for the supplied id (id for metacontact or for chat room).
+     * @return <code>true</code> if the "IS_MESSAGE_HISTORY_ENABLED"
+     * property is true for the <tt>id</tt>, otherwise - returns
+     * <code>false</code>.
+     */
+    public boolean isHistoryLoggingEnabled(String id)
+    {
+        return configService.getBoolean(MessageHistoryService
+                    .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX
+                        + "." + id, true);
+    }
+
+    /**
+     * Updates the "isHistoryLoggingEnabled" property through the
+     * <tt>ConfigurationService</tt> for the contact.
+     *
+     * @param isEnabled indicates if the history logging is
+     * enabled for the contact.
+     */
+    public void setHistoryLoggingEnabled(
+        boolean isEnabled, String id)
+    {
+        if(isEnabled)
+            configService.setProperty(
+                MessageHistoryService
+                    .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX
+                + "." + id, null);
+        else
+            configService.setProperty(
+                MessageHistoryService
+                    .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX
+                + "." + id, isEnabled);
     }
 }

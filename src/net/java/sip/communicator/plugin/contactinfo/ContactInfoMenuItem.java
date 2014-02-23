@@ -38,17 +38,18 @@ public class ContactInfoMenuItem
     /**
      * Creates a <tt>ContactInfoMenuItem</tt>.
      */
-    public ContactInfoMenuItem()
+    public ContactInfoMenuItem(PluginComponentFactory parentFactory)
     {
-        this(Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
+        this(Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU, parentFactory);
     }
 
     /**
      * Creates a <tt>ContactInfoMenuItem</tt>.
      */
-    public ContactInfoMenuItem(Container container)
+    public ContactInfoMenuItem(Container container,
+                               PluginComponentFactory parentFactory)
     {
-        super(container);
+        super(container, parentFactory);
     }
 
     /**

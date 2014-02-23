@@ -52,6 +52,7 @@ public class AccountUtils
     public static AccountID getAccountForID(String accountID)
     {
         Collection<AccountID> allAccounts = getStoredAccounts();
+
         for(AccountID account : allAccounts)
         {
             if(account.getAccountUniqueID().equals(accountID))
@@ -70,29 +71,30 @@ public class AccountUtils
      * given <tt>operationSetClass</tt>
      */
     public static List<ProtocolProviderService> getRegisteredProviders(
-        Class<? extends OperationSet> opSetClass)
+            Class<? extends OperationSet> opSetClass)
     {
         List<ProtocolProviderService> opSetProviders
             = new LinkedList<ProtocolProviderService>();
 
-        for (ProtocolProviderFactory providerFactory : UtilActivator
-            .getProtocolProviderFactories().values())
+        for (ProtocolProviderFactory providerFactory
+                : UtilActivator.getProtocolProviderFactories().values())
         {
-            ServiceReference serRef;
-            ProtocolProviderService protocolProvider;
-
             for (AccountID accountID : providerFactory.getRegisteredAccounts())
             {
-                serRef = providerFactory.getProviderForAccount(accountID);
+                ServiceReference ref
+                    = providerFactory.getProviderForAccount(accountID);
 
-                protocolProvider
-                    = (ProtocolProviderService) UtilActivator.bundleContext
-                        .getService(serRef);
-
-                if (protocolProvider.getOperationSet(opSetClass) != null
-                    && protocolProvider.isRegistered())
+                if (ref != null)
                 {
-                    opSetProviders.add(protocolProvider);
+                    ProtocolProviderService protocolProvider
+                        = (ProtocolProviderService)
+                            UtilActivator.bundleContext.getService(ref);
+
+                    if ((protocolProvider.getOperationSet(opSetClass) != null)
+                            && protocolProvider.isRegistered())
+                    {
+                        opSetProviders.add(protocolProvider);
+                    }
                 }
             }
         }
@@ -104,38 +106,38 @@ public class AccountUtils
      * Returns a list of all currently registered telephony providers for the
      * given protocol name.
      * @param protocolName the protocol name
-     * @param operationSetClass the operation set class for which we're looking
-     * for providers
+     * @param opSetClass the operation set class for which we're looking for
+     * providers
      * @return a list of all currently registered providers for the given
      * <tt>protocolName</tt> and supporting the given <tt>operationSetClass</tt>
      */
     public static List<ProtocolProviderService> getRegisteredProviders(
-        String protocolName,
-        Class<? extends OperationSet> operationSetClass)
+            String protocolName,
+            Class<? extends OperationSet> opSetClass)
     {
         List<ProtocolProviderService> opSetProviders
             = new LinkedList<ProtocolProviderService>();
-
         ProtocolProviderFactory providerFactory
             = getProtocolProviderFactory(protocolName);
 
         if (providerFactory != null)
         {
-            ServiceReference serRef;
-            ProtocolProviderService protocolProvider;
-
             for (AccountID accountID : providerFactory.getRegisteredAccounts())
             {
-                serRef = providerFactory.getProviderForAccount(accountID);
+                ServiceReference ref
+                    = providerFactory.getProviderForAccount(accountID);
 
-                protocolProvider
-                    = (ProtocolProviderService) UtilActivator.bundleContext
-                        .getService(serRef);
-
-                if (protocolProvider.getOperationSet(operationSetClass) != null
-                    && protocolProvider.isRegistered())
+                if (ref != null)
                 {
-                    opSetProviders.add(protocolProvider);
+                    ProtocolProviderService protocolProvider
+                        = (ProtocolProviderService)
+                            UtilActivator.bundleContext.getService(ref);
+
+                    if ((protocolProvider.getOperationSet(opSetClass) != null)
+                            && protocolProvider.isRegistered())
+                    {
+                        opSetProviders.add(protocolProvider);
+                    }
                 }
             }
         }
@@ -155,9 +157,9 @@ public class AccountUtils
      * for the operation given by the operation set
      */
     public static List<ProtocolProviderService> getOpSetRegisteredProviders(
-        Class<? extends OperationSet> opSet,
-        ProtocolProviderService preferredProvider,
-        String                  preferredProtocolName)
+            Class<? extends OperationSet> opSet,
+            ProtocolProviderService preferredProvider,
+            String preferredProtocolName)
     {
         List<ProtocolProviderService> providers
             = new ArrayList<ProtocolProviderService>();
@@ -165,8 +167,9 @@ public class AccountUtils
         if (preferredProvider != null)
         {
             if (preferredProvider.isRegistered())
+            {
                 providers.add(preferredProvider);
-
+            }
             // If we have a provider, but it's not registered we try to
             // obtain all registered providers for the same protocol as the
             // given preferred provider.
@@ -174,7 +177,8 @@ public class AccountUtils
             {
                 providers
                     = getRegisteredProviders(
-                        preferredProvider.getProtocolName(), opSet);
+                            preferredProvider.getProtocolName(),
+                            opSet);
             }
         }
         // If we don't have a preferred provider we try to obtain a
@@ -182,13 +186,16 @@ public class AccountUtils
         else
         {
             if (preferredProtocolName != null)
+            {
                 providers
-                    = getRegisteredProviders(
-                        preferredProtocolName, opSet);
+                    = getRegisteredProviders(preferredProtocolName, opSet);
+            }
             // If the protocol name is null we simply obtain all telephony
             // providers.
             else
+            {
                 providers = getRegisteredProviders(opSet);
+            }
         }
 
         return providers;
@@ -209,14 +216,14 @@ public class AccountUtils
         {
             if (factory.getRegisteredAccounts().contains(accountID))
             {
-                ServiceReference serRef
+                ServiceReference ref
                     = factory.getProviderForAccount(accountID);
 
-                if (serRef != null)
+                if (ref != null)
                 {
                     return
                         (ProtocolProviderService)
-                            UtilActivator.bundleContext.getService(serRef);
+                            UtilActivator.bundleContext.getService(ref);
                 }
             }
         }
@@ -247,27 +254,28 @@ public class AccountUtils
     public static ProtocolProviderFactory getProtocolProviderFactory(
             String protocolName)
     {
-        String osgiFilter = "("
-            + ProtocolProviderFactory.PROTOCOL
-            + "="+protocolName+")";
-
+        String osgiFilter
+            = "(" + ProtocolProviderFactory.PROTOCOL + "=" + protocolName + ")";
         ProtocolProviderFactory protocolProviderFactory = null;
+
         try
         {
-            ServiceReference[] serRefs
+            ServiceReference[] refs
                 = UtilActivator.bundleContext.getServiceReferences(
-                    ProtocolProviderFactory.class.getName(), osgiFilter);
+                        ProtocolProviderFactory.class.getName(),
+                        osgiFilter);
 
-            if (serRefs != null && serRefs.length > 0)
+            if ((refs != null) && (refs.length > 0))
+            {
                 protocolProviderFactory
-                    = (ProtocolProviderFactory) UtilActivator.bundleContext
-                        .getService(serRefs[0]);
+                    = (ProtocolProviderFactory)
+                        UtilActivator.bundleContext.getService(refs[0]);
+            }
         }
         catch (InvalidSyntaxException ex)
         {
             logger.error("AccountUtils : " + ex);
         }
-
         return protocolProviderFactory;
     }
 
@@ -282,21 +290,22 @@ public class AccountUtils
         List<ProtocolProviderService> registeredProviders
             = new LinkedList<ProtocolProviderService>();
 
-        for (ProtocolProviderFactory providerFactory : UtilActivator
-            .getProtocolProviderFactories().values())
+        for (ProtocolProviderFactory providerFactory
+                : UtilActivator.getProtocolProviderFactories().values())
         {
-            ServiceReference serRef;
-            ProtocolProviderService protocolProvider;
-
             for (AccountID accountID : providerFactory.getRegisteredAccounts())
             {
-                serRef = providerFactory.getProviderForAccount(accountID);
+                ServiceReference ref
+                    = providerFactory.getProviderForAccount(accountID);
 
-                protocolProvider
-                    = (ProtocolProviderService) UtilActivator.bundleContext
-                        .getService(serRef);
+                if (ref != null)
+                {
+                    ProtocolProviderService protocolProvider
+                        = (ProtocolProviderService)
+                            UtilActivator.bundleContext.getService(ref);
 
-                registeredProviders.add(protocolProvider);
+                    registeredProviders.add(protocolProvider);
+                }
             }
         }
         return registeredProviders;

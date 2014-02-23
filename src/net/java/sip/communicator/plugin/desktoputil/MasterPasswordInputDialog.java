@@ -97,6 +97,7 @@ public class MasterPasswordInputDialog
         // info text
         infoTextArea = new JTextArea();
         infoTextArea.setEditable(false);
+        infoTextArea.setFocusable(false);
         infoTextArea.setOpaque(false);
         infoTextArea.setFont(infoTextArea.getFont().deriveFont(Font.BOLD));
         infoTextArea.setText(resources
@@ -105,6 +106,7 @@ public class MasterPasswordInputDialog
         // error text
         errorTextArea = new JTextArea();
         errorTextArea.setEditable(false);
+        errorTextArea.setFocusable(false);
         errorTextArea.setOpaque(false);
         errorTextArea.setForeground(Color.red);
         errorTextArea.setFont(errorTextArea.getFont().deriveFont(Font.BOLD));

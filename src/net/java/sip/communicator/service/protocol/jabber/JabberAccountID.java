@@ -95,6 +95,14 @@ public class JabberAccountID
     }
 
     /**
+     * Default constructor for serialization purposes.
+     */
+    public JabberAccountID()
+    {
+        this(null, new HashMap<String, String>());
+    }
+
+    /**
      * Returns the override phone suffix.
      *
      * @return the phone suffix
@@ -466,6 +474,28 @@ public class JabberAccountID
     {
         putAccountProperty(
                 ProtocolProviderFactory.IS_ALLOW_NON_SECURE, isAllowNonSecure);
+    }
+
+    /**
+     * Indicates if message carbons are allowed for this account
+     * @return <tt>true</tt> if message carbons are allowed for this account,
+     * otherwise returns <tt>false</tt>
+     */
+    public boolean isCarbonDisabled()
+    {
+        return getAccountPropertyBoolean(
+                ProtocolProviderFactory.IS_CARBON_DISABLED, false);
+    }
+
+    /**
+     * Sets the <tt>IS_CARBON_DISABLED</tt> property.
+     * @param isCarbonEnabled <tt>true</tt> to indicate that message carbons are
+     * allowed for this account, <tt>false</tt> - otherwise.
+     */
+    public void setDisableCarbon(boolean isCarbonEnabled)
+    {
+        putAccountProperty(
+                ProtocolProviderFactory.IS_CARBON_DISABLED, isCarbonEnabled);
     }
 
     /**

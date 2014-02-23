@@ -13,6 +13,7 @@ import java.util.List;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.event.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.account.*;
 
@@ -22,7 +23,7 @@ import net.java.sip.communicator.util.account.*;
  * <p>
  * Through the <tt>UIService</tt> all modules can add their own components in
  * different menus, toolbars, etc. within the ui. Each <tt>UIService</tt>
- * implementation should export its supported "plugable" containers - a set of
+ * implementation should export its supported "pluggable" containers - a set of
  * <tt>Container</tt>s corresponding to different "places" in the application,
  * where a module can add a component.
  * <p>
@@ -49,6 +50,7 @@ import net.java.sip.communicator.util.account.*;
  * @author Dmitri Melnikov
  * @author Adam Netocny
  * @author Lyubomir Marinov
+ * @author Hristo Terezov
  */
 public interface UIService
 {
@@ -473,4 +475,33 @@ public interface UIService
      * @return the login manager used by the current UI implementation
      */
     public LoginManager getLoginManager();
+    
+    /**
+     * Opens a chat room window for the given <tt>ChatRoomWrapper</tt> instance.
+     * 
+     * @param chatRoom the chat room associated with the chat room window
+     */
+    public void openChatRoomWindow(ChatRoomWrapper chatRoom);
+    
+    /**
+     * Closes the chat room window for the given <tt>ChatRoomWrapper</tt> 
+     * instance.
+     * 
+     * @param chatRoom the chat room associated with the chat room window
+     */
+    public void closeChatRoomWindow(ChatRoomWrapper chatRoom);
+    
+    /**
+     * Shows Add chat room dialog.
+     */
+    public void showAddChatRoomDialog();
+    
+    /**
+     * Shows chat room open automatically configuration dialog.
+     * @param chatRoomId the chat room id of the chat room associated with the 
+     * dialog 
+     * @param pps the protocol provider service of the chat room
+     */
+    public void showChatRoomAutoOpenConfigDialog(
+        ProtocolProviderService pps, String chatRoomId);
 }

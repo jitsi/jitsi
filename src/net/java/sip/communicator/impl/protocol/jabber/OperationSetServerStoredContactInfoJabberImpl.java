@@ -41,6 +41,15 @@ public class OperationSetServerStoredContactInfoJabberImpl
     }
 
     /**
+     * Returns the info retriever.
+     * @return the info retriever.
+     */
+    InfoRetreiver getInfoRetriever()
+    {
+        return infoRetreiver;
+    }
+
+    /**
      * returns the user details from the specified class or its descendants
      * the class is one from the
      * net.java.sip.communicator.service.protocol.ServerStoredDetails

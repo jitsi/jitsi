@@ -44,8 +44,6 @@ public class JabberServerChooserDialog
     private static final Logger logger = Logger
         .getLogger(JabberServerChooserDialog.class);
 
-    private static final String DEFAULT_FILE_NAME = "jabberservers.xml";
-
     // Servers Table
     private JTable serversTable;
 
@@ -211,54 +209,33 @@ public class JabberServerChooserDialog
 
         faService = (FileAccessService) bc.getService(faServiceReference);
 
+        File localServersListFile = null;
         try
         {
-            File localServersListFile = faService
-                .getPrivatePersistentFile(DEFAULT_FILE_NAME);
-
-            // Get the file containing the servers list.
-            if (!localServersListFile.exists())
-            {
-                try
-                {
-                    localServersListFile.createNewFile();
-                }
-                catch (IOException e)
-                {
-                    logger.error("Failed to create file"
-                        + localServersListFile.getAbsolutePath(), e);
-                }
-            }
+            localServersListFile = faService.getTemporaryFile();
+            URL file = new URL("http://xmpp.net/services.xml");
+            InputStream stream = file.openStream();
 
             try
             {
-                URL file = new URL("http://www.jabber.org/servers.xml");
-                InputStream stream = file.openStream();
-
-                try
+                // Copy the remote file to the disk
+                byte[] buf = new byte[2048];
+                int len;
+                if (stream.available() > 0)
                 {
-                    // Copy the remote file to the disk
-                    byte[] buf = new byte[2048];
-                    int len;
-                    if (stream.available() > 0)
+                    FileOutputStream fos
+                        = new FileOutputStream(localServersListFile);
+
+                    while ((len = stream.read(buf)) > 0)
                     {
-                        FileOutputStream fos
-                            = new FileOutputStream(localServersListFile);
-
-                        while ((len = stream.read(buf)) > 0)
-                        {
-                            fos.write(buf, 0, len);
-                        }
-                        fos.close();
+                        fos.write(buf, 0, len);
                     }
-                } finally
-                {
-                    stream.close();
+                    fos.close();
                 }
             }
-            catch (Exception e)
+            finally
             {
-                logger.error("");
+                stream.close();
             }
 
             FileInputStream fis = new FileInputStream(localServersListFile);
@@ -283,6 +260,13 @@ public class JabberServerChooserDialog
         {
             logger.error(
                 "Failed to get a reference to the Jabber servers list file.", e);
+        }
+        finally
+        {
+            if (localServersListFile != null)
+            {
+                localServersListFile.delete();
+            }
         }
     }
 
@@ -338,22 +322,19 @@ public class JabberServerChooserDialog
             }
             catch (SAXException e)
             {
-                logger.error("Failed to parse: " + DEFAULT_FILE_NAME, e);
+                logger.error("Failed to parse server comments.", e);
             }
             catch (ParserConfigurationException e)
             {
-                logger.error("Failed to parse: " + DEFAULT_FILE_NAME, e);
+                logger.error("Failed to parse server comments.", e);
             }
             catch (IOException e)
             {
-                logger.error("Failed to parse: " + DEFAULT_FILE_NAME, e);
+                logger.error("Failed to parse server comments.", e);
             }
 
-
             Element root = serverComments.getDocumentElement();
-
             commentsList = root.getElementsByTagName("item");
-
         }
 
         public int getColumnCount()

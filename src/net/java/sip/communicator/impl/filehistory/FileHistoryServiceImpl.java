@@ -876,6 +876,39 @@ public class FileHistoryServiceImpl
     }
 
     /**
+     * Permanently removes all locally stored file history.
+     *
+     * @throws java.io.IOException
+     *         Thrown if the history could not be removed due to a IO error.
+     */
+    public void eraseLocallyStoredHistory()
+        throws IOException
+    {
+        HistoryID historyId = HistoryID.createFromRawID(
+            new String[] { "filehistory" });
+        historyService.purgeLocallyStoredHistory(historyId);
+    }
+
+    /**
+     * Permanently removes locally stored file history for the metacontact.
+     *
+     * @throws java.io.IOException
+     *         Thrown if the history could not be removed due to a IO error.
+     */
+    public void eraseLocallyStoredHistory(MetaContact contact)
+        throws IOException
+    {
+        Iterator<Contact> iter = contact.getContacts();
+        while (iter.hasNext())
+        {
+            Contact item = iter.next();
+
+            History history = this.getHistory(null, item);
+            historyService.purgeLocallyStoredHistory(history.getID());
+        }
+    }
+
+    /**
      * Used to compare FileRecords
      * and to be ordered in TreeSet according their timestamp
      */

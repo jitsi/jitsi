@@ -25,20 +25,35 @@ public class MessageDeliveredEvent
     private static final long serialVersionUID = 0L;
 
     /**
-      * The contact that has sent this message.
-      */
-     private Contact to = null;
+     * The contact that has sent this message.
+     */
+    private Contact to = null;
 
-     /**
-      * A timestamp indicating the exact date when the event occurred.
-      */
-     private final Date timestamp;
+    /**
+     * The <tt>ContactResource</tt>, to which the message was sent.
+     */
+    private ContactResource toResource = null;
 
-     /**
-      * The ID of the message being corrected, or null if this was a new message
-      * and not a message correction.
-      */
-     private String correctedMessageUID;
+    /**
+     * A timestamp indicating the exact date when the event occurred.
+     */
+    private final Date timestamp;
+
+    /**
+     * The ID of the message being corrected, or null if this was a new message
+     * and not a message correction.
+     */
+    private String correctedMessageUID;
+
+    /**
+     * Whether the delivered message is a sms message.
+     */
+    private boolean smsMessage = false;
+    
+    /**
+     * Whether the delivered message is encrypted or not.
+     */
+    private boolean isMessageEncrypted = false;
 
      /**
       * Constructor.
@@ -81,6 +96,42 @@ public class MessageDeliveredEvent
 
          this.to = to;
          this.timestamp = timestamp;
+     }
+
+     /**
+      * Creates a <tt>MessageDeliveredEvent</tt> representing delivery of the
+      * <tt>source</tt> message to the specified <tt>to</tt> contact.
+      *
+      * @param source the <tt>Message</tt> whose delivery this event represents.
+      * @param to the <tt>Contact</tt> that this message was sent to.
+      * @param timestamp a date indicating the exact moment when the event
+      * ocurred
+      */
+     public MessageDeliveredEvent(
+         Message source, Contact to, ContactResource toResource, Date timestamp)
+     {
+         super(source);
+
+         this.to = to;
+         this.toResource = toResource;
+         this.timestamp = timestamp;
+     }
+
+     /**
+      * Creates a <tt>MessageDeliveredEvent</tt> representing delivery of the
+      * <tt>source</tt> message to the specified <tt>to</tt> contact.
+      *
+      * @param source the <tt>Message</tt> whose delivery this event represents.
+      * @param to the <tt>Contact</tt> that this message was sent to.
+      * @param timestamp a date indicating the exact moment when the event
+      * ocurred
+      */
+     public MessageDeliveredEvent(
+         Message source, Contact to, ContactResource toResource)
+     {
+         this(source, to, new Date());
+
+         this.toResource = toResource;
      }
 
      /**
@@ -136,4 +187,53 @@ public class MessageDeliveredEvent
         this.correctedMessageUID = correctedMessageUID;
     }
 
+    /**
+     * Sets whether the message is a sms one.
+     * @param smsMessage whether it is a sms one.
+     */
+    public void setSmsMessage(boolean smsMessage)
+    {
+        this.smsMessage = smsMessage;
+    }
+
+    /**
+     * Returns whether the delivered message is a sms one.
+     * @return whether the delivered message is a sms one.
+     */
+    public boolean isSmsMessage()
+    {
+        return smsMessage;
+    }
+
+    /**
+     * Returns a reference to the <tt>ContactResource</tt> that has sent the
+     * <tt>Message</tt> whose reception this event represents.
+     *
+     * @return a reference to the <tt>ContactResource</tt> that has sent the
+     * <tt>Message</tt> whose reception this event represents.
+     */
+    public ContactResource getContactResource()
+    {
+        return toResource;
+    }
+
+    /**
+     * Returns <tt>true</tt> if the message is encrypted and <tt>false</tt> if 
+     * not.
+     * @return <tt>true</tt> if the message is encrypted and <tt>false</tt> if 
+     * not.
+     */
+    public boolean isMessageEncrypted()
+    {
+        return isMessageEncrypted;
+    }
+
+    /**
+     * Sets the message encrypted flag of the event.
+     * @param isMessageEncrypted the value to be set.
+     */
+    public void setMessageEncrypted(boolean isMessageEncrypted)
+    {
+        this.isMessageEncrypted = isMessageEncrypted;
+    }
 }

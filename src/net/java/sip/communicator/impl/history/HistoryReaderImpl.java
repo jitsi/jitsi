@@ -89,7 +89,8 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet<HistoryRecord> findByPeriod(Date startDate, Date endDate)
+    public synchronized QueryResultSet<HistoryRecord>
+        findByPeriod(Date startDate, Date endDate)
             throws RuntimeException
     {
         return find(startDate, endDate, null, null, false);
@@ -105,8 +106,9 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet<HistoryRecord> findByKeyword(String keyword, String field)
-        throws RuntimeException
+    public synchronized QueryResultSet<HistoryRecord>
+        findByKeyword(String keyword, String field)
+            throws RuntimeException
     {
         return findByKeywords(new String[] { keyword }, field);
     }
@@ -121,10 +123,11 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet<HistoryRecord> findByKeywords(String[] keywords, String field)
+    public synchronized QueryResultSet<HistoryRecord>
+        findByKeywords(String[] keywords, String field)
             throws RuntimeException
     {
-            return find(null, null, keywords, field, false);
+        return find(null, null, keywords, field, false);
     }
 
     /**
@@ -140,8 +143,12 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet<HistoryRecord> findByPeriod(Date startDate, Date endDate,
-            String[] keywords, String field) throws UnsupportedOperationException
+    public synchronized QueryResultSet<HistoryRecord>
+        findByPeriod(Date startDate,
+                     Date endDate,
+                     String[] keywords,
+                     String field)
+            throws UnsupportedOperationException
     {
         return find(startDate, endDate, keywords, field, false);
     }
@@ -155,7 +162,8 @@ public class HistoryReaderImpl
      * @return QueryResultSet
      * @throws RuntimeException
      */
-    public synchronized QueryResultSet<HistoryRecord> findLast(int count) throws RuntimeException
+    public synchronized QueryResultSet<HistoryRecord> findLast(int count)
+        throws RuntimeException
     {
         // the files are supposed to be ordered from oldest to newest
         Vector<String> filelist =
@@ -179,7 +187,7 @@ public class HistoryReaderImpl
             }
 
             // will get nodes and construct a List of nodes
-            // so we can easyly get sublist of it
+            // so we can easily get sublist of it
             List<Node> nodes = new ArrayList<Node>();
             NodeList nodesList = doc.getElementsByTagName("record");
             for (int i = 0; i < nodesList.getLength(); i++)
@@ -269,9 +277,9 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet<HistoryRecord> findByKeyword(String keyword, String field,
-                                        boolean caseSensitive)
-        throws RuntimeException
+    public synchronized QueryResultSet<HistoryRecord>
+        findByKeyword(String keyword, String field, boolean caseSensitive)
+            throws RuntimeException
     {
         return findByKeywords(new String[] { keyword }, field, caseSensitive);
     }
@@ -287,9 +295,9 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet<HistoryRecord> findByKeywords(String[] keywords, String field,
-                                         boolean caseSensitive)
-        throws RuntimeException
+    public synchronized QueryResultSet<HistoryRecord>
+        findByKeywords(String[] keywords, String field, boolean caseSensitive)
+            throws RuntimeException
     {
         return find(null, null, keywords, field, caseSensitive);
     }
@@ -308,10 +316,13 @@ public class HistoryReaderImpl
      *             Thrown if an exception occurs during the execution of the
      *             query, such as internal IO error.
      */
-    public synchronized QueryResultSet<HistoryRecord> findByPeriod(Date startDate, Date endDate,
-                                       String[] keywords, String field,
-                                       boolean caseSensitive)
-        throws UnsupportedOperationException
+    public synchronized QueryResultSet<HistoryRecord>
+        findByPeriod(Date startDate,
+                     Date endDate,
+                     String[] keywords,
+                     String field,
+                     boolean caseSensitive)
+            throws UnsupportedOperationException
     {
         return find(startDate, endDate, keywords, field, caseSensitive);
     }
@@ -324,8 +335,9 @@ public class HistoryReaderImpl
      * @return QueryResultSet the found records
      * @throws RuntimeException
      */
-    public QueryResultSet<HistoryRecord> findFirstRecordsAfter(Date date, int count) throws
-        RuntimeException
+    public QueryResultSet<HistoryRecord>
+        findFirstRecordsAfter(Date date, int count)
+            throws RuntimeException
     {
         TreeSet<HistoryRecord> result
             = new TreeSet<HistoryRecord>(new HistoryRecordComparator());
@@ -427,8 +439,9 @@ public class HistoryReaderImpl
      * @return QueryResultSet the found records
      * @throws RuntimeException
      */
-    public QueryResultSet<HistoryRecord> findLastRecordsBefore(Date date, int count) throws
-        RuntimeException
+    public QueryResultSet<HistoryRecord>
+        findLastRecordsBefore(Date date, int count)
+            throws RuntimeException
     {
         // the files are supposed to be ordered from oldest to newest
         Vector<String> filelist =
@@ -602,7 +615,7 @@ public class HistoryReaderImpl
             }
         }
 
-//      if maximum value is not reached fire an event
+        // if maximum value is not reached fire an event
         if((int)currentProgress
                 < HistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE)
         {
@@ -624,21 +637,21 @@ public class HistoryReaderImpl
      */
     static boolean isInPeriod(Date timestamp, Date startDate, Date endDate)
     {
+        Long startLong;
+        Long endLong;
+        Long tsLong = timestamp.getTime();
+
         if(startDate == null)
-        {
-            if(endDate == null)
-                return true;
-            else
-                return timestamp.before(endDate);
-        }
+            startLong = Long.MIN_VALUE;
         else
-        {
-            if(endDate == null)
-                return timestamp.after(startDate);
-            else
-                return
-                    timestamp.after(startDate) && timestamp.before(endDate);
-        }
+            startLong = startDate.getTime();
+
+        if(endDate == null)
+            endLong = Long.MAX_VALUE;
+        else
+            endLong = endDate.getTime();
+
+        return startLong <= tsLong && tsLong < endLong;
     }
 
     /**
@@ -661,6 +674,7 @@ public class HistoryReaderImpl
     {
         ArrayList<String> nameVals = new ArrayList<String>();
         int len = propertyNodes.getLength();
+        boolean targetNodeFound = false;
         for (int j = 0; j < len; j++)
         {
             Node propertyNode = propertyNodes.item(j);
@@ -676,11 +690,13 @@ public class HistoryReaderImpl
                 // Get nested TEXT node's value
                 String nodeValue = nestedNode.getNodeValue();
 
-                if(field != null && field.equals(nodeName)
-                   && !matchKeyword(nodeValue, keywords, caseSensitive))
+                if(field != null && field.equals(nodeName))
                 {
-                    return null; // doesn't match the given keyword(s)
-                                // so return nothing
+                    targetNodeFound = true;
+
+                    if(!matchKeyword(nodeValue, keywords, caseSensitive))
+                        return null; // doesn't match the given keyword(s)
+                                    // so return nothing
                 }
 
                 nameVals.add(nodeName);
@@ -688,6 +704,13 @@ public class HistoryReaderImpl
                 nameVals.add(nodeValue);
 
             }
+        }
+
+        // if we need to find a particular record but the target node is not
+        // present skip this record
+        if(keywords != null && keywords.length > 0 && !targetNodeFound)
+        {
+            return null;
         }
 
         String[] propertyNames = new String[nameVals.size() / 2];
@@ -803,70 +826,40 @@ public class HistoryReaderImpl
         // Temporary fix of a NoSuchElementException
         if(files.size() == 0)
         {
-            Vector<String> result = new Vector<String>();
-            Iterator<Long> iter = resultAsLong.iterator();
-
-            while (iter.hasNext())
-            {
-                Long item = iter.next();
-                result.add(item.toString() + ".xml");
-            }
-            return result;
+            return new Vector<String>();
         }
 
-        // if there is no startDate limit only to end date
+        Long startLong;
+        Long endLong;
+
         if(startDate == null)
-        {
-            Long endLong = Long.valueOf(endDate.getTime());
-            files.add(endLong);
-
-            resultAsLong.addAll(files.subSet(files.first(), endLong));
-
-            resultAsLong.remove(endLong);
-        }
-        else if(endDate == null)
-        {
-            // end date is null get all the inclusive the one record before the startdate
-            Long startLong = Long.valueOf(startDate.getTime());
-
-            if(files.size() > 0 &&
-               (startLong.longValue() < (files.first()).longValue()))
-            {
-                // if the start date is before any existing file date
-                // then return all the files
-                resultAsLong = files;
-            }
-            else
-            {
-                files.add(startLong);
-
-                resultAsLong.addAll(files.subSet(startLong, files.last()));
-                resultAsLong.add(files.last());
-
-                // here we must get and the element before startLong
-                resultAsLong.add(files.subSet(files.first(), startLong).last());
-                resultAsLong.remove(startLong);
-            }
-        }
+            startLong = Long.MIN_VALUE;
         else
+            startLong = startDate.getTime();
+
+        if(endDate == null)
+            endLong = Long.MAX_VALUE;
+        else
+            endLong = endDate.getTime();
+
+        // get all records inclusive the one before the startdate
+        for(Long f : files)
         {
-            // if both are present we must return all the elements between
-            // the two dates and the one before the start date
-            Long startLong = Long.valueOf(startDate.getTime());
-            Long endLong = Long.valueOf(endDate.getTime());
-            files.add(startLong);
-            files.add(endLong);
+            if(startLong <= f
+               && f <= endLong)
+            {
+                resultAsLong.add(f);
+            }
+        }
 
-            resultAsLong.addAll(files.subSet(startLong, endLong));
-
-            // here we must get and the element before startLong
-            SortedSet<Long> theFirstToStart
-                = files.subSet(files.first(), startLong);
-            if(!theFirstToStart.isEmpty())
-                resultAsLong.add(theFirstToStart.last());
-
-            resultAsLong.remove(startLong);
-            resultAsLong.remove(endLong);
+        // get the subset before the start date, to get its last element
+        // if exists
+        if(!files.isEmpty() && files.first() <= startLong)
+        {
+            SortedSet<Long> setBeforeTheInterval =
+                files.subSet(files.first(), true, startLong, true);
+            if(!setBeforeTheInterval.isEmpty())
+                resultAsLong.add(setBeforeTheInterval.last());
         }
 
         Vector<String> result = new Vector<String>();

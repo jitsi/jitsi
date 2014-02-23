@@ -34,6 +34,14 @@ public interface SourceContact
      */
     public static final String DATA_ID = SourceContact.class.getName() + ".id";
 
+
+    /**
+     * Returns the address of the contact.
+     * 
+     * @return the contact address.
+     */
+    public String getContactAddress();
+
     /**
      * Returns the parent <tt>ContactSourceService</tt> from which this contact
      * came from.
@@ -100,6 +108,15 @@ public interface SourceContact
     public byte[] getImage();
 
     /**
+     * Whether the current image returned by @see #getImage() is the one
+     * provided by the SourceContact by default, or is a one used and obtained
+     * from external source.
+     *
+     * @return whether this is the default image for this SourceContact.
+     */
+    public boolean isDefaultImage();
+
+    /**
      * Gets the user data associated with this instance and a specific key.
      *
      * @param key the key of the user data associated with this instance to be
@@ -109,6 +126,13 @@ public interface SourceContact
      * association with the specified <tt>key</tt> exists in this instance
      */
     public Object getData(Object key);
+
+    /**
+     * Sets the address of the contact.
+     * 
+     * @param contactAddress the address to set.
+     */
+    public void setContactAddress(String contactAddress);
 
     /**
      * Sets a user-specific association in this instance in the form of a

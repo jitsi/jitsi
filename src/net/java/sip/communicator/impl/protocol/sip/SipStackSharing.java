@@ -389,12 +389,19 @@ public class SipStackSharing
     {
         try
         {
-            this.secureJainSipProvider.removeSipListener(this);
-            this.stack.deleteSipProvider(this.secureJainSipProvider);
-            this.secureJainSipProvider = null;
-            this.clearJainSipProvider.removeSipListener(this);
-            this.stack.deleteSipProvider(this.clearJainSipProvider);
-            this.clearJainSipProvider = null;
+            if (this.secureJainSipProvider != null)
+            {
+                this.secureJainSipProvider.removeSipListener(this);
+                this.stack.deleteSipProvider(this.secureJainSipProvider);
+                this.secureJainSipProvider = null;
+            }
+
+            if (this.clearJainSipProvider != null)
+            {
+                this.clearJainSipProvider.removeSipListener(this);
+                this.stack.deleteSipProvider(this.clearJainSipProvider);
+                this.clearJainSipProvider = null;
+            }
 
             Iterator<ListeningPoint> it = this.stack.getListeningPoints();
             Vector<ListeningPoint> lpointsToRemove = new Vector<ListeningPoint>();
@@ -694,7 +701,8 @@ public class SipStackSharing
 
             if(transaction == null)
             {
-                logger.warn("Transaction is null, probably already expired!");
+                logger.warn("Transaction is null, probably already expired! "
+                    + "Status=" + event.getResponse().getStatusCode());
                 return;
             }
 

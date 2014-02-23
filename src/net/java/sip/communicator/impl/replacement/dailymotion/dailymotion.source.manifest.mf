@@ -3,7 +3,7 @@ Bundle-Name: Dailymotion Replacement Source
 Bundle-Description: A bundle providing replacement for dailymotion links.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 1.0.0
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.replacement.dailymotion
 Import-Package: org.osgi.framework,
  org.jitsi.service.version,
  net.java.sip.communicator.service.replacement,

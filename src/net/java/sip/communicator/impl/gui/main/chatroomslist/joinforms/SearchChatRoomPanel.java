@@ -15,9 +15,9 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.muc.*;
 
 /**
  * This panel allows to search chat rooms on the considered provider, and to
@@ -136,7 +136,7 @@ public class SearchChatRoomPanel
      */
     public void loadChatRoomsList()
     {
-        serverRooms = GuiActivator.getUIService().getConferenceChatManager()
+        serverRooms = GuiActivator.getMUCService()
                 .getExistingChatRooms(chatRoomProvider);
 
         if(serverRooms != null)
@@ -231,8 +231,8 @@ public class SearchChatRoomPanel
     public void setChatRoomProvider(ChatRoomProviderWrapper provider)
     {
         this.chatRoomProvider = provider;
-        serverRooms = GuiActivator.getUIService().getConferenceChatManager()
-            .getExistingChatRooms(chatRoomProvider);
+        serverRooms = GuiActivator.getMUCService().getExistingChatRooms(
+            chatRoomProvider);
     }
 
     /**

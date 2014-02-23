@@ -41,10 +41,6 @@ public class MetaContactChatSession
 
     private final ChatSessionRenderer sessionRenderer;
 
-    private final java.util.List<ChatSessionChangeListener>
-            chatTransportChangeListeners
-                = new Vector<ChatSessionChangeListener>();
-
     /**
      * Creates an instance of <tt>MetaContactChatSession</tt> by specifying the
      * renderer, which gives the connection with the UI, the meta contact
@@ -65,6 +61,8 @@ public class MetaContactChatSession
     {
         this.sessionRenderer = sessionRenderer;
         this.metaContact = metaContact;
+        persistableAddress 
+            = protocolContact.getPersistableAddress();
 
         ChatContact<?> chatContact = new MetaContactChatContact(metaContact);
 
@@ -360,8 +358,7 @@ public class MetaContactChatSession
     {
         this.currentChatTransport = chatTransport;
 
-        for (ChatSessionChangeListener l : chatTransportChangeListeners)
-            l.currentChatTransportChanged(this);
+        fireCurrentChatTransportChange();
     }
 
     public void childContactsReordered(MetaContactGroupEvent evt)
@@ -451,7 +448,13 @@ public class MetaContactChatSession
         {
             Contact protoContact = evt.getProtoContact();
 
-            for (ChatTransport chatTransport : chatTransports)
+            List<ChatTransport> transports;
+            synchronized (chatTransports)
+            {
+                transports = new ArrayList<ChatTransport>(chatTransports);
+            }
+
+            for (ChatTransport chatTransport : transports)
             {
                 if(((MetaContactChatTransport) chatTransport).getContact()
                         .equals(protoContact))
@@ -589,8 +592,22 @@ public class MetaContactChatSession
     @Override
     public ImageIcon getChatStatusIcon()
     {
-        PresenceStatus status
-            = this.metaContact.getDefaultContact().getPresenceStatus();
+        if (this.metaContact == null)
+        {
+            return null;
+        }
+
+        Contact c = this.metaContact.getDefaultContact();
+        if (c == null)
+        {
+            return null;
+        }
+
+        PresenceStatus status = c.getPresenceStatus();
+        if (status == null)
+        {
+            return null;
+        }
 
         return new ImageIcon(Constants.getStatusIcon(status));
     }
@@ -616,25 +633,6 @@ public class MetaContactChatSession
     public boolean isContactListSupported()
     {
         return false;
-    }
-
-    @Override
-    public void addChatTransportChangeListener(ChatSessionChangeListener l)
-    {
-        synchronized (chatTransportChangeListeners)
-        {
-            if (!chatTransportChangeListeners.contains(l))
-                chatTransportChangeListeners.add(l);
-        }
-    }
-
-    @Override
-    public void removeChatTransportChangeListener(ChatSessionChangeListener l)
-    {
-        synchronized (chatTransportChangeListeners)
-        {
-            chatTransportChangeListeners.remove(l);
-        }
     }
 
     /**
@@ -701,10 +699,24 @@ public class MetaContactChatSession
             sessionRenderer.setSelectedChatTransport(chatTransport, false);
         }
 
-        // If no current transport is set we choose the first one in the list.
+        // If no current transport is set we choose
+        // the first online from the list.
         if (currentChatTransport == null)
         {
-            currentChatTransport = chatTransports.get(0);
+            for(ChatTransport ct : chatTransports)
+            {
+                if(ct.getStatus() != null
+                    && ct.getStatus().isOnline())
+                {
+                    currentChatTransport = ct;
+                    break;
+                }
+            }
+
+            // if still nothing selected, choose the first one
+            if (currentChatTransport == null)
+                currentChatTransport = chatTransports.get(0);
+
             sessionRenderer
                 .setSelectedChatTransport(currentChatTransport, false);
         }
@@ -736,6 +748,10 @@ public class MetaContactChatSession
             chatTransports.remove(chatTransport);
         }
         sessionRenderer.removeChatTransport(chatTransport);
+        chatTransport.dispose();
+
+        if(chatTransport.equals(currentChatTransport))
+            currentChatTransport = null;
     }
 
     /**
@@ -762,6 +778,7 @@ public class MetaContactChatSession
         }
 
         contact.removeResourceListener(this);
+
     }
 
     /**

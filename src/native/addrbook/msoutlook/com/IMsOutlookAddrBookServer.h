@@ -4,7 +4,7 @@
 
 
  /* File created by MIDL compiler version 8.00.0595 */
-/* at Tue May 07 03:41:42 2013
+/* at Wed Jun 19 15:47:56 2013
  */
 /* Compiler settings for IMsOutlookAddrBookServer.idl:
     Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 8.00.0595 
@@ -110,6 +110,11 @@ EXTERN_C const IID IID_IMsOutlookAddrBookServer;
             /* [in] */ BSTR value,
             /* [in] */ BSTR entryId) = 0;
         
+        virtual HRESULT STDMETHODCALLTYPE compareEntryIds( 
+            /* [in] */ BSTR id1,
+            /* [in] */ BSTR id2,
+            /* [out] */ int *result) = 0;
+        
     };
     
     
@@ -164,6 +169,12 @@ EXTERN_C const IID IID_IMsOutlookAddrBookServer;
             /* [in] */ BSTR value,
             /* [in] */ BSTR entryId);
         
+        HRESULT ( STDMETHODCALLTYPE *compareEntryIds )( 
+            IMsOutlookAddrBookServer * This,
+            /* [in] */ BSTR id1,
+            /* [in] */ BSTR id2,
+            /* [out] */ int *result);
+        
         END_INTERFACE
     } IMsOutlookAddrBookServerVtbl;
 
@@ -204,6 +215,9 @@ EXTERN_C const IID IID_IMsOutlookAddrBookServer;
 
 #define IMsOutlookAddrBookServer_IMAPIProp_SetPropString(This,propId,value,entryId)	\
     ( (This)->lpVtbl -> IMAPIProp_SetPropString(This,propId,value,entryId) ) 
+
+#define IMsOutlookAddrBookServer_compareEntryIds(This,id1,id2,result)	\
+    ( (This)->lpVtbl -> compareEntryIds(This,id1,id2,result) ) 
 
 #endif /* COBJMACROS */
 

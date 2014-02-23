@@ -30,11 +30,11 @@ public class MsOutlookAddrBookContactQuery
     private static final Logger logger
         = Logger.getLogger(MsOutlookAddrBookContactQuery.class);
 
-    private static final int dispidEmail1EmailAddress = 12;
+    public static final int dispidEmail1EmailAddress = 12;
 
-    private static final int dispidEmail2EmailAddress = 13;
+    public static final int dispidEmail2EmailAddress = 13;
 
-    private static final int dispidEmail3EmailAddress = 14;
+    public static final int dispidEmail3EmailAddress = 14;
 
     /**
      * The object type of a <tt>SourceContact</tt> in the Address Book of
@@ -61,9 +61,9 @@ public class MsOutlookAddrBookContactQuery
             0x3A1C /* PR_MOBILE_TELEPHONE_NUMBER */,
             0x3A1F /* PR_OTHER_TELEPHONE_NUMBER */,
             0x0FFE /* PR_OBJECT_TYPE */,
-            0x00008083 /* dispidEmail1EmailAddress */,
-            0x00008093 /* dispidEmail2EmailAddress */,
-            0x000080A3 /* dispidEmail3EmailAddress */,
+            0x00008084 /* dispidEmail1OriginalDisplayName */,
+            0x00008094 /* dispidEmail2OriginalDisplayName */,
+            0x000080A4 /* dispidEmail3OriginalDisplayName */,
             0x3A16 /* PR_COMPANY_NAME */,
             0x0FFF /* PR_ORIGINAL_ENTRYID */,
             0x3A24 /* dispidFax1EmailAddress */,
@@ -84,7 +84,9 @@ public class MsOutlookAddrBookContactQuery
             0x3A5A, // PR_HOME_ADDRESS_COUNTRY
             0x3A5B, // PR_HOME_ADDRESS_POSTAL_CODE
             0x3A5C, // PR_HOME_ADDRESS_STATE_OR_PROVINCE
-            0x3A5D // PR_HOME_ADDRESS_STREET
+            0x3A5D, // PR_HOME_ADDRESS_STREET
+            0x0000801A, // dispidHomeAddress
+            0x0000801B // dispidWorkAddress
         };
 
     /**
@@ -102,189 +104,199 @@ public class MsOutlookAddrBookContactQuery
     /**
      * The id of the <tt>PR_ATTACHMENT_CONTACTPHOTO</tt> MAPI property.
      */
-    private static final long PR_ATTACHMENT_CONTACTPHOTO = 0x7FFF;
+    public static final long PR_ATTACHMENT_CONTACTPHOTO = 0x7FFF;
 
     /**
      * The index of the id of the <tt>PR_BUSINESS_TELEPHONE_NUMBER</tt> property
      * in {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_BUSINESS_TELEPHONE_NUMBER = 5;
+    public static final int PR_BUSINESS_TELEPHONE_NUMBER = 5;
 
     /**
      * The index of the id of the <tt>PR_BUSINESS2_TELEPHONE_NUMBER</tt>
      * property in {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_BUSINESS2_TELEPHONE_NUMBER = 6;
+    public static final int PR_BUSINESS2_TELEPHONE_NUMBER = 6;
 
-    private static final int PR_COMPANY_NAME = 15;
+    public static final int PR_COMPANY_NAME = 15;
 
     /**
      * The index of the id of the <tt>PR_DISPLAY_NAME</tt> property in
      * {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_DISPLAY_NAME = 0;
+    public static final int PR_DISPLAY_NAME = 0;
 
     /**
      * The index of the id of the <tt>PR_EMAIL_ADDRESS</tt> property in
      * {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_EMAIL_ADDRESS = 1;
+    public static final int PR_EMAIL_ADDRESS = 1;
 
     /**
      * The index of the id of the <tt>PR_GIVEN_NAME</tt> property in
      * {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_GIVEN_NAME = 2;
+    public static final int PR_GIVEN_NAME = 2;
 
     /**
      * The index of the id of the <tt>PR_HOME_TELEPHONE_NUMBER</tt> property in
      * {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_HOME_TELEPHONE_NUMBER = 7;
+    public static final int PR_HOME_TELEPHONE_NUMBER = 7;
 
     /**
      * The index of the id of the <tt>PR_HOME2_TELEPHONE_NUMBER</tt> property in
      * {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_HOME2_TELEPHONE_NUMBER = 8;
+    public static final int PR_HOME2_TELEPHONE_NUMBER = 8;
 
     /**
      * The index of the id of the <tt>PR_MIDDLE_NAME</tt> property in
      * {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_MIDDLE_NAME = 3;
+    public static final int PR_MIDDLE_NAME = 3;
 
     /**
      * The index of the id of the <tt>PR_MOBILE_TELEPHONE_NUMBER</tt> property
      * in {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_MOBILE_TELEPHONE_NUMBER = 9;
+    public static final int PR_MOBILE_TELEPHONE_NUMBER = 9;
 
     /**
      * The index of the id of the <tt>PR_OTHER_TELEPHONE_NUMBER</tt> property
      * in {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_OTHER_TELEPHONE_NUMBER = 10;
+    public static final int PR_OTHER_TELEPHONE_NUMBER = 10;
 
     /**
      * The index of the id of the <tt>PR_OBJECT_TYPE</tt> property in
      * {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_OBJECT_TYPE = 11;
+    public static final int PR_OBJECT_TYPE = 11;
 
     /**
      * The index of the id of the <tt>PR_SURNAME</tt> property in
      * {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_SURNAME = 4;
+    public static final int PR_SURNAME = 4;
 
     /**
      * The index of the id of the <tt>PR_ORIGINAL_ENTRYID</tt> property
      * in {@link #MAPI_MAILUSER_PROP_IDS}.
      */
-    private static final int PR_ORIGINAL_ENTRYID = 16;
+    public static final int PR_ORIGINAL_ENTRYID = 16;
 
     /**
      * The index of the 1st fax telephone number (business fax).
      */
-    private static final int dispidFax1EmailAddress = 17;
+    public static final int dispidFax1EmailAddress = 17;
 
     /**
      * The index of the 2nd fax telephone number (home fax).
      */
-    private static final int dispidFax2EmailAddress = 18;
+    public static final int dispidFax2EmailAddress = 18;
 
     /**
      * The index of the 3rd fax telephone number (other fax).
      */
-    private static final int dispidFax3EmailAddress = 19;
+    public static final int dispidFax3EmailAddress = 19;
 
     /**
      * The index of the nickname.
      */
-    private static final int PR_NICKNAME = 20;
+    public static final int PR_NICKNAME = 20;
 
     /**
      * The index of the name prefix.
      */
-    private static final int PR_DISPLAY_NAME_PREFIX = 21;
+    public static final int PR_DISPLAY_NAME_PREFIX = 21;
 
     /**
      * The index of the personnal home page
      */
-    private static final int PR_PERSONAL_HOME_PAGE = 22;
+    public static final int PR_PERSONAL_HOME_PAGE = 22;
 
     /**
      * The index of the business home page
      */
-    private static final int PR_BUSINESS_HOME_PAGE = 23;
+    public static final int PR_BUSINESS_HOME_PAGE = 23;
 
     /**
      * The index of the job title.
      */
-    private static final int PR_TITLE = 24;
+    public static final int PR_TITLE = 24;
 
     /**
      * The index of the instant messaging address.
      */
-    private static final int dispidInstMsg = 25;
+    public static final int dispidInstMsg = 25;
 
     /**
      * The index of the business city of the postal address.
      */
-    private static final int PR_BUSINESS_ADDRESS_CITY = 26;
+    public static final int PR_BUSINESS_ADDRESS_CITY = 26;
 
     /**
      * The index of the business country of the postal address.
      */
-    private static final int PR_BUSINESS_ADDRESS_COUNTRY = 27;
+    public static final int PR_BUSINESS_ADDRESS_COUNTRY = 27;
 
     /**
      * The index of the business postal code of the postal address.
      */
-    private static final int PR_BUSINESS_ADDRESS_POSTAL_CODE = 28;
+    public static final int PR_BUSINESS_ADDRESS_POSTAL_CODE = 28;
 
     /**
      * The index of the business state or province of the postal address.
      */
-    private static final int PR_BUSINESS_ADDRESS_STATE_OR_PROVINCE = 29;
+    public static final int PR_BUSINESS_ADDRESS_STATE_OR_PROVINCE = 29;
 
     /**
      * The index of the business street of the postal address.
      */
-    private static final int PR_BUSINESS_ADDRESS_STREET = 30;
+    public static final int PR_BUSINESS_ADDRESS_STREET = 30;
 
     /**
      * The index of the home city of the postal address.
      */
-    private static final int PR_HOME_ADDRESS_CITY = 31;
+    public static final int PR_HOME_ADDRESS_CITY = 31;
 
     /**
      * The index of the home country of the postal address.
      */
-    private static final int PR_HOME_ADDRESS_COUNTRY = 32;
+    public static final int PR_HOME_ADDRESS_COUNTRY = 32;
 
     /**
      * The index of the home postal code of the postal address.
      */
-    private static final int PR_HOME_ADDRESS_POSTAL_CODE = 33;
+    public static final int PR_HOME_ADDRESS_POSTAL_CODE = 33;
 
     /**
      * The index of the home state or province of the postal address.
      */
-    private static final int PR_HOME_ADDRESS_STATE_OR_PROVINCE = 34;
+    public static final int PR_HOME_ADDRESS_STATE_OR_PROVINCE = 34;
 
     /**
      * The index of the home street of the postal address.
      */
-    private static final int PR_HOME_ADDRESS_STREET = 35;
+    public static final int PR_HOME_ADDRESS_STREET = 35;
+
+    /**
+     * The index of the display for the home postal address.
+     */
+    public static final int dispidHomeAddress = 36;
+
+    /**
+     * The index of the display for the work postal address.
+     */
+    public static final int dispidWorkAddress = 37;
 
     /**
      * The indexes in {@link #MAPI_MAILUSER_PROP_IDS} of the property IDs which
      * are to be represented in <tt>SourceContact</tt> as
      * <tt>ContactDetail</tt>s.
      */
-    private static final int[] CONTACT_DETAIL_PROP_INDEXES
+    public static final int[] CONTACT_DETAIL_PROP_INDEXES
         = new int[]
         {
             PR_EMAIL_ADDRESS,
@@ -319,7 +331,9 @@ public class MsOutlookAddrBookContactQuery
             PR_HOME_ADDRESS_COUNTRY,
             PR_HOME_ADDRESS_POSTAL_CODE,
             PR_HOME_ADDRESS_STATE_OR_PROVINCE,
-            PR_HOME_ADDRESS_STREET
+            PR_HOME_ADDRESS_STREET,
+            dispidHomeAddress,
+            dispidWorkAddress
         };
 
     /**
@@ -362,7 +376,7 @@ public class MsOutlookAddrBookContactQuery
 
     /**
      * Boolea used to defined if we already get and logged a read contact
-     * property error. 
+     * property error.
      */
     private boolean firstIMAPIPropGetPropFailureLogged = false;
 
@@ -381,10 +395,6 @@ public class MsOutlookAddrBookContactQuery
             Pattern query)
     {
         super(msoabcss, query);
-        if(logger.isDebugEnabled())
-        {
-            logger.debug("Creating new query: " + query.toString());
-        }
     }
 
     /**
@@ -402,7 +412,7 @@ public class MsOutlookAddrBookContactQuery
             String query,
             PtrOutlookContactCallback callback);
 
-    private static ContactDetail.Category getCategory(int propIndex)
+    public static ContactDetail.Category getCategory(int propIndex)
     {
         switch (propIndex)
         {
@@ -444,6 +454,8 @@ public class MsOutlookAddrBookContactQuery
         case PR_HOME_ADDRESS_POSTAL_CODE:
         case PR_HOME_ADDRESS_STATE_OR_PROVINCE:
         case PR_HOME_ADDRESS_STREET:
+        case dispidHomeAddress:
+        case dispidWorkAddress:
             return ContactDetail.Category.Address;
         default:
             return null;
@@ -459,7 +471,7 @@ public class MsOutlookAddrBookContactQuery
      * @return the set of <tt>ContactDetail</tt> labels to be assigned to the
      * property specified by its index in <tt>MAPI_MAILUSER_PROP_IDS</tt>
      */
-    private static ContactDetail.SubCategory[] getSubCategories(int propIndex)
+    public static ContactDetail.SubCategory[] getSubCategories(int propIndex)
     {
         switch (propIndex)
         {
@@ -600,6 +612,18 @@ public class MsOutlookAddrBookContactQuery
                             ContactDetail.SubCategory.Home,
                             ContactDetail.SubCategory.Street
                         };
+        case dispidHomeAddress:
+            return
+                new ContactDetail.SubCategory[]
+                        {
+                            ContactDetail.SubCategory.Home,
+                        };
+        case dispidWorkAddress:
+            return
+                new ContactDetail.SubCategory[]
+                        {
+                            ContactDetail.SubCategory.Work,
+                        };
         default:
             return null;
         }
@@ -695,6 +719,10 @@ public class MsOutlookAddrBookContactQuery
                 {
                     return MAPI_MAILUSER_PROP_IDS[PR_BUSINESS_ADDRESS_STREET];
                 }
+                else
+                {
+                    return MAPI_MAILUSER_PROP_IDS[dispidWorkAddress];
+                }
             }
             else if(subCategories.contains(ContactDetail.SubCategory.Home))
             {
@@ -721,6 +749,10 @@ public class MsOutlookAddrBookContactQuery
                             ContactDetail.SubCategory.Street))
                 {
                     return MAPI_MAILUSER_PROP_IDS[PR_HOME_ADDRESS_STREET];
+                }
+                else
+                {
+                    return MAPI_MAILUSER_PROP_IDS[dispidHomeAddress];
                 }
             }
         }
@@ -757,6 +789,18 @@ public class MsOutlookAddrBookContactQuery
      * failed.
      */
     public static native String createContact();
+
+    /**
+     * Compares two identifiers to determine if they are part of the same
+     * Outlook contact.
+     *
+     * @param id1 The first identifier.
+     * @param id2 The second identifier.
+     *
+     * @return True if id1 and id2 are two identifiers of the same contact.
+     * False otherwise.
+     */
+    public static native boolean compareEntryIds(String id1, String id2);
 
     /**
      * Determines whether a specific index in {@link #MAPI_MAILUSER_PROP_IDS}
@@ -811,14 +855,9 @@ public class MsOutlookAddrBookContactQuery
      * @throws MsOutlookMAPIHResultException if anything goes wrong while
      * getting the properties of the specified <tt>MAPI_MAILUSER</tt>
      */
-    private boolean onMailUser(String id)
+    private synchronized boolean onMailUser(String id)
         throws MsOutlookMAPIHResultException
     {
-        if(logger.isDebugEnabled())
-        {
-            logger.debug("Found contact id: " + id);
-        }
-
         Object[] props = null;
         try
         {
@@ -876,11 +915,6 @@ public class MsOutlookAddrBookContactQuery
 
         if (matches)
         {
-            if(logger.isDebugEnabled())
-            {
-                logger.debug("Contact matches: " + id
-                        + ", displayName: " + getDisplayName(props));
-            }
             List<ContactDetail> contactDetails = getContactDetails(props);
 
             // What's the point of showing a contact who has no contact details?
@@ -997,10 +1031,6 @@ public class MsOutlookAddrBookContactQuery
     @Override
     protected void run()
     {
-        if(logger.isDebugEnabled())
-        {
-            logger.debug("run query: " + query.toString());
-        }
         synchronized (MsOutlookAddrBookContactQuery.class)
         {
             foreachMailUser(
@@ -1016,18 +1046,46 @@ public class MsOutlookAddrBookContactQuery
      */
     public void inserted(String id)
     {
-        if(logger.isDebugEnabled())
+        synchronized (MsOutlookAddrBookContactQuery.class)
         {
-            logger.debug("inserted: " + id);
+            insertedOrUpdated(id, 0);
         }
-        SourceContact sourceContact = findSourceContactByID(id);
+    }
+
+    /**
+     * Callback method when receiving notifications for updated items.
+     *
+     * @param id The outlook contact identifier.
+     */
+    public void updated(String id)
+    {
+        synchronized (MsOutlookAddrBookContactQuery.class)
+        {
+            insertedOrUpdated(id, 1);
+        }
+    }
+
+    /**
+     * Callback method when receiving notifications for updated items.
+     *
+     * @param id The outlook contact identifier.
+     * @param maxLevel The maximum level for comparing ids: 0 cached ids only, 1
+     * cached ids and outlook database ids.
+     */
+    public void insertedOrUpdated(String id, int maxLevel)
+    {
+        SourceContact sourceContact = findSourceContactByID(id, maxLevel);
+
         if(sourceContact != null
                 && sourceContact instanceof MsOutlookAddrBookSourceContact)
         {
-            updated(id);
+            // updated
+            ((MsOutlookAddrBookSourceContact) sourceContact).updated();
+            fireContactChanged(sourceContact);
         }
         else
         {
+            // inserted
             try
             {
                 onMailUser(id);
@@ -1046,43 +1104,22 @@ public class MsOutlookAddrBookContactQuery
     }
 
     /**
-     * Callback method when receiving notifications for updated items.
-     *
-     * @param id The outlook contact identifier.
-     */
-    public void updated(String id)
-    {
-        if(logger.isDebugEnabled())
-        {
-            logger.debug("updated: " + id);
-        }
-        SourceContact sourceContact = findSourceContactByID(id);
-        if(sourceContact != null
-                && sourceContact instanceof MsOutlookAddrBookSourceContact)
-        {
-            ((MsOutlookAddrBookSourceContact) sourceContact).updated();
-            fireContactChanged(sourceContact);
-        }
-    }
-
-    /**
      * Callback method when receiving notifications for deleted items.
      *
      * @param id The outlook contact identifier.
      */
     public void deleted(String id)
     {
-        if(logger.isDebugEnabled())
-        {
-            logger.debug("deleted: " + id);
-        }
         if(id != null)
         {
-            SourceContact sourceContact = findSourceContactByID(id);
-
-            if(sourceContact != null)
+            synchronized (MsOutlookAddrBookContactQuery.class)
             {
-                fireContactRemoved(sourceContact);
+                SourceContact sourceContact = findSourceContactByID(id, 1);
+
+                if(sourceContact != null)
+                {
+                    fireContactRemoved(sourceContact);
+                }
             }
         }
     }
@@ -1128,10 +1165,6 @@ public class MsOutlookAddrBookContactQuery
      */
     public void addEmptyContact(String id)
     {
-        if(logger.isDebugEnabled())
-        {
-            logger.debug("Add empty contact: " + id);
-        }
         if(id != null)
         {
             final MsOutlookAddrBookSourceContact sourceContact
@@ -1202,5 +1235,36 @@ public class MsOutlookAddrBookContactQuery
     public static String getOrganization(Object[] values)
     {
         return (String) values[PR_COMPANY_NAME];
+    }
+
+    /**
+     * Searches for source contact with the specified id.
+     *
+     * @param id the id to search for.
+     * @param maxLevel The maximum level for comparing ids: 0 cached ids only, 1
+     * cached ids and outlook database ids.
+     *
+     * @return the source contact found or null.
+     */
+    protected SourceContact findSourceContactByID(String id, int maxLevel)
+    {
+        synchronized(sourceContacts)
+        {
+            for(int level = 0; level <= maxLevel; ++level)
+            {
+                for(SourceContact sc : sourceContacts)
+                {
+                    if(sc instanceof MsOutlookAddrBookSourceContact
+                        && ((MsOutlookAddrBookSourceContact) sc)
+                                .match(id, level))
+                    {
+                        return sc;
+                    }
+                }
+            }
+        }
+
+        // not found
+        return null;
     }
 }

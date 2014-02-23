@@ -3180,7 +3180,9 @@ public class OperationSetPresenceSipImpl
                 }
             }
         }
-        else if (evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
+        else if (evt.getNewState().equals(RegistrationState.CONNECTION_FAILED)
+            || evt.getNewState().equals(
+                        RegistrationState.AUTHENTICATION_FAILED))
         {
             if (logger.isDebugEnabled())
             {
@@ -3279,6 +3281,14 @@ public class OperationSetPresenceSipImpl
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
             return null;//unreachable but necessary.
         }
+    }
+
+    /**
+     * Frees allocated resources.
+     */
+    void shutdown()
+    {
+        parentProvider.removeRegistrationStateChangeListener(this);
     }
 
     /**

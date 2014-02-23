@@ -3,7 +3,7 @@ Bundle-Name: Notification-Wiring
 Bundle-Description: Wires events from various bundles to the notification service
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.plugin.notificationwiring
 Import-Package: javax.imageio,
  net.java.sip.communicator.service.contactlist,
  net.java.sip.communicator.service.gui,

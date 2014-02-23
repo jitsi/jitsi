@@ -11,12 +11,15 @@ import java.util.*;
 import junit.framework.*;
 import net.java.sip.communicator.impl.protocol.mock.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
+
+import com.google.common.xml.*;
 
 /**
  * Tests message history.
@@ -53,6 +56,8 @@ public class TestMsgHistoryService
     private static ServiceReference msgHistoryServiceRef = null;
     public static MessageHistoryService msgHistoryService = null;
 
+    public static HistoryService historyService = null;
+
     private static MockContact testContact = null;
 
     private static ServiceReference metaCLref = null;
@@ -69,6 +74,8 @@ public class TestMsgHistoryService
 
     private static Date controlDate1 = null;
     private static Date controlDate2 = null;
+    
+    private static Object lock = new Object();
 
     public TestMsgHistoryService(String name)
     {
@@ -136,6 +143,14 @@ public class TestMsgHistoryService
             (MessageHistoryService)MsgHistoryServiceLick.bc.
                 getService(msgHistoryServiceRef);
 
+        ServiceReference historyServiceRef =
+            MsgHistoryServiceLick.bc.
+            getServiceReference(HistoryService.class.getName());
+
+        historyService =
+            (HistoryService)MsgHistoryServiceLick.bc.
+                getService(historyServiceRef);
+
         // fill in a contact to comunicate with
         MockContactGroup root =
             (MockContactGroup)mockPresOpSet.getServerStoredContactListRoot();
@@ -178,7 +193,8 @@ public class TestMsgHistoryService
                 mockBImOpSet.createMessage("test message word2" + Math.random()),
                 mockBImOpSet.createMessage("test message word3" + Math.random()),
                 mockBImOpSet.createMessage("test message word4" + Math.random()),
-                mockBImOpSet.createMessage("test message word5" + Math.random())
+                mockBImOpSet.createMessage("test message word5" + Math.random()),
+                mockBImOpSet.createMessage("Hello \u0002World\u0002!")
             };
     }
 
@@ -196,37 +212,23 @@ public class TestMsgHistoryService
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[0]);
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_2, messagesToSend[0]);
 
-        TestMsgHistoryService.controlDate1 = new Date();
+        waitWrite(100);
 
-        Object lock = new Object();
-        synchronized (lock)
-        {
-            // wait a moment
-            try
-            {
-                lock.wait(200);
-            }
-            catch (InterruptedException ex)
-            {
-            }
-        }
+        TestMsgHistoryService.controlDate1 = new Date();
+        logger.info("controlDate1:" + controlDate1.getTime());
+
+        waitWrite(100);
 
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[1]);
 
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_2, messagesToSend[2]);
 
+        waitWrite(100);
+
         TestMsgHistoryService.controlDate2 = new Date();
-        synchronized (lock)
-        {
-            // wait a moment
-            try
-            {
-                lock.wait(200);
-            }
-            catch (InterruptedException ex)
-            {
-            }
-        }
+        logger.info("controlDate2:" + controlDate2.getTime());
+
+        waitWrite(100);
 
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[3]);
 
@@ -312,7 +314,7 @@ public class TestMsgHistoryService
 
         msgs = getMessages(rs);
 
-        assertEquals("Messages must be 2", msgs.size(), 2);
+        assertEquals("Messages must be 2", 2, msgs.size());
 
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[1].getContent()));
@@ -329,7 +331,7 @@ public class TestMsgHistoryService
 
         msgs = getMessages(rs);
 
-        assertEquals("Messages must be 1", msgs.size(), 1);
+        assertEquals("Messages must be 1", 1, msgs.size());
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[1].getContent()));
 
@@ -340,7 +342,7 @@ public class TestMsgHistoryService
 
         assertTrue("Nothing found findByStartDate", !rs.isEmpty());
         msgs = getMessages(rs);
-        assertEquals("Messages must be 2", msgs.size(), 2);
+        assertEquals("Messages must be 2", 2, msgs.size());
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[3].getContent()));
         assertTrue("Message no found",
@@ -353,7 +355,7 @@ public class TestMsgHistoryService
 
         assertTrue("Nothing found 8", !rs.isEmpty());
         msgs = getMessages(rs);
-        assertEquals("Messages must be 3", msgs.size(), 3);
+        assertEquals("Messages must be 3", 3, msgs.size());
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[2].getContent()));
         assertTrue("Message no found",
@@ -368,7 +370,7 @@ public class TestMsgHistoryService
 
         assertTrue("Nothing found 9", !rs.isEmpty());
         msgs = getMessages(rs);
-        assertEquals("Messages must be 3", msgs.size(), 3);
+        assertEquals("Messages must be 3", 3, msgs.size());
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[1].getContent()));
         assertTrue("Message no found",
@@ -383,13 +385,60 @@ public class TestMsgHistoryService
 
         assertTrue("Nothing found 10", !rs.isEmpty());
         msgs = getMessages(rs);
-        assertEquals("Messages must be 3", msgs.size(), 3);
+        assertEquals("Messages must be 3", 3, msgs.size());
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[0].getContent()));
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[1].getContent()));
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[2].getContent()));
+    }
+
+    /**
+     * Tests some special chars insert and read.
+     */
+    public void specialChars()
+    {
+        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[5]);
+
+        waitWrite(500);
+
+        historyService.purgeLocallyCachedHistories();
+
+        /**
+         * Must return exactly the last 3 messages
+         */
+        Collection<EventObject> rs
+            = msgHistoryService.findLast(testMetaContact, 3);
+
+        assertTrue("Nothing found 8", !rs.isEmpty());
+        List<String> msgs = getMessages(rs);
+        assertEquals("Messages must be 3", 3, msgs.size());
+        assertTrue("Message no found",
+            msgs.contains(messagesToSend[3].getContent()));
+        assertTrue("Message no found",
+            msgs.contains(messagesToSend[4].getContent()));
+
+        // For now we are stripping in history the special content chars
+        // in order to avoid breaking the history records in the xml
+        assertTrue("Message no found",
+            msgs.contains(XmlEscapers.xmlContentEscaper().escape(
+                          messagesToSend[5].getContent())));
+    }
+
+    private static void waitWrite(long timeout)
+    {
+        synchronized (lock)
+        {
+            // wait a moment
+            try
+            {
+                lock.wait(timeout);
+            }
+            catch (InterruptedException ex)
+            {
+            }
+        }
     }
 
     public void writeRecordsToMultiChat()
@@ -405,41 +454,33 @@ public class TestMsgHistoryService
             // First deliver message, so they are stored by the message history service
             room.sendMessage(messagesToSend[0]);
 
-            TestMsgHistoryService.controlDate1 = new Date();
+            waitWrite(100);
 
-            Object lock = new Object();
-            synchronized (lock)
-            {
-                // wait a moment
-                try
-                {
-                    lock.wait(200);
-                }
-                catch (InterruptedException ex)
-                {
-                }
-            }
+            TestMsgHistoryService.controlDate1 = new Date();
+            logger.info("controlDate1:" + controlDate1.getTime());
+
+            waitWrite(100);
 
             room.sendMessage(messagesToSend[1]);
 
+            waitWrite(100);
+
             room.sendMessage(messagesToSend[2]);
 
+            waitWrite(100);
+
             TestMsgHistoryService.controlDate2 = new Date();
-            synchronized (lock)
-            {
-                // wait a moment
-                try
-                {
-                    lock.wait(200);
-                }
-                catch (InterruptedException ex)
-                {
-                }
-            }
+            logger.info("controlDate2:" + controlDate2.getTime());
+
+            waitWrite(100);
 
             room.sendMessage(messagesToSend[3]);
 
+            waitWrite(100);
+
             room.sendMessage(messagesToSend[4]);
+
+            waitWrite(100);
         }
         catch(OperationFailedException ex)
         {
@@ -538,7 +579,7 @@ public class TestMsgHistoryService
 
         msgs = getChatMessages(rs);
 
-        assertEquals("Messages must be 2", msgs.size(), 2);
+        assertEquals("Messages must be 2",  2, msgs.size());
 
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[1].getContent()));
@@ -555,7 +596,7 @@ public class TestMsgHistoryService
 
         msgs = getChatMessages(rs);
 
-        assertEquals("Messages must be 1", msgs.size(), 1);
+        assertEquals("Messages must be 1", 1, msgs.size());
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[1].getContent()));
 
@@ -566,7 +607,7 @@ public class TestMsgHistoryService
 
         assertTrue("Nothing found findByStartDate", !rs.isEmpty());
         msgs = getChatMessages(rs);
-        assertEquals("Messages must be 2", msgs.size(), 2);
+        assertEquals("Messages must be 2", 2, msgs.size());
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[3].getContent()));
         assertTrue("Message no found",
@@ -579,7 +620,7 @@ public class TestMsgHistoryService
 
         assertTrue("Nothing found 8", !rs.isEmpty());
         msgs = getChatMessages(rs);
-        assertEquals("Messages must be 3", msgs.size(), 3);
+        assertEquals("Messages must be 3", 3, msgs.size());
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[2].getContent()));
         assertTrue("Message no found",
@@ -594,7 +635,7 @@ public class TestMsgHistoryService
 
         assertTrue("Nothing found 9", !rs.isEmpty());
         msgs = getChatMessages(rs);
-        assertEquals("Messages must be 3", msgs.size(), 3);
+        assertEquals("Messages must be 3", 3, msgs.size());
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[1].getContent()));
         assertTrue("Message no found",
@@ -609,7 +650,7 @@ public class TestMsgHistoryService
 
         assertTrue("Nothing found 10", !rs.isEmpty());
         msgs = getChatMessages(rs);
-        assertEquals("Messages must be 3", msgs.size(), 3);
+        assertEquals("Messages must be 3", 3, msgs.size());
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[0].getContent()));
         assertTrue("Message no found",

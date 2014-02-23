@@ -212,14 +212,18 @@ public class SIPCommSmartComboBox<E>
 
         public void setItem(Object item)
         {
-            if(filtering)
-                return;
-
-            setting = true;
-            String newText = (item == null) ? "" : item.toString();
-
-            text.setText(newText);
-            setting = false;
+            if (!filtering)
+            {
+                setting = true;
+                try
+                {
+                    text.setText((item == null) ? "" : item.toString());
+                }
+                finally
+                {
+                    setting = false;
+                }
+            }
         }
 
         public Object getItem()

@@ -145,8 +145,9 @@ public abstract class AccountRegistrationWizard
      * new account
      * @throws OperationFailedException if the operation didn't succeed
      */
-    public abstract ProtocolProviderService signin(  String userName,
-                                            String password)
+    public abstract ProtocolProviderService signin(
+            String userName,
+            String password)
         throws OperationFailedException;
 
     /**

@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
  * @author Sebastien Vincent
  */
 public class GoogleContactsSourceService
-    implements ExtendedContactSourceService
+    implements ExtendedContactSourceService, PrefixedContactSourceService
 {
     /**
      * Logger.
@@ -126,25 +126,25 @@ public class GoogleContactsSourceService
     }
 
     /**
-     * Queries this search source for the given <tt>searchPattern</tt>.
+     * Creates query for the given <tt>searchPattern</tt>.
      *
      * @param queryPattern the pattern to search for
      * @return the created query
      */
-    public ContactQuery queryContactSource(Pattern queryPattern)
+    public ContactQuery createContactQuery(Pattern queryPattern)
     {
-        return queryContactSource(queryPattern,
+        return createContactQuery(queryPattern,
                 GoogleContactsQuery.GOOGLECONTACTS_MAX_RESULTS);
     }
 
     /**
-     * Queries this search source for the given <tt>searchPattern</tt>.
+     * Creates query for the given <tt>searchPattern</tt>.
      *
      * @param queryPattern the pattern to search for
      * @param count maximum number of contact returned
      * @return the created query
      */
-    public ContactQuery queryContactSource(Pattern queryPattern, int count)
+    public ContactQuery createContactQuery(Pattern queryPattern, int count)
     {
         GoogleContactsQuery query = new GoogleContactsQuery(this, queryPattern,
                 count);
@@ -154,28 +154,20 @@ public class GoogleContactsSourceService
             queries.add(query);
         }
 
-        boolean hasStarted = false;
-
-        try
-        {
-            query.start();
-            hasStarted = true;
-        }
-        finally
-        {
-            if (!hasStarted)
-            {
-                synchronized (queries)
-                {
-                    if (queries.remove(query))
-                        queries.notify();
-                }
-            }
-        }
-
         return query;
     }
 
+    /**
+     * Removes query from the list of queries.
+     * 
+     * @param query the query that will be removed.
+     */
+    public synchronized void removeQuery(ContactQuery query)
+    {
+        if (queries.remove(query))
+            queries.notify();
+    }
+    
     /**
      * Returns the Google Contacts connection.
      *
@@ -331,21 +323,21 @@ public class GoogleContactsSourceService
      * @param query the string to search for
      * @return the created query
      */
-    public ContactQuery queryContactSource(String query)
+    public ContactQuery createContactQuery(String query)
     {
-        return queryContactSource(
+        return createContactQuery(
                 query,
                 GoogleContactsQuery.GOOGLECONTACTS_MAX_RESULTS);
     }
 
     /**
-     * Queries this search source for the given <tt>queryString</tt>.
+     *Creates query for the given <tt>queryString</tt>.
      *
      * @param query the string to search for
      * @param contactCount the maximum count of result contacts
      * @return the created query
      */
-    public ContactQuery queryContactSource(String query, int contactCount)
+    public ContactQuery createContactQuery(String query, int contactCount)
     {
         Pattern pattern = null;
         try
@@ -360,7 +352,7 @@ public class GoogleContactsSourceService
 
         if(pattern != null)
         {
-            return queryContactSource(pattern, contactCount);
+            return createContactQuery(pattern, contactCount);
         }
         return null;
     }
@@ -414,6 +406,7 @@ public class GoogleContactsSourceService
      *
      * @return the phoneNumber prefix for all phone numbers
      */
+    @Override
     public String getPhoneNumberPrefix()
     {
         return phoneNumberprefix;

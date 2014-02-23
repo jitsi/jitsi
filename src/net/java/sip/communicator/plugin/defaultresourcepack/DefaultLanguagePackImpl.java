@@ -5,6 +5,7 @@
  */
 package net.java.sip.communicator.plugin.defaultresourcepack;
 
+import java.lang.reflect.*;
 import java.net.*;
 import java.util.*;
 
@@ -92,7 +93,28 @@ public class DefaultLanguagePackImpl
         }
 
         ResourceBundle resourceBundle
-            = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH, locale);
+            = ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH, locale,
+                new ResourceBundle.Control(){
+                // work around Java's backwards compatibility
+                @Override
+                public String toBundleName(String baseName, Locale locale)
+                {
+                    if (locale.equals(new Locale("he")))
+                    {
+                        return baseName + "_he";
+                    }
+                    else if (locale.equals(new Locale("yi")))
+                    {
+                        return baseName + "_yi";
+                    }
+                    else if (locale.equals(new Locale("id")))
+                    {
+                        return baseName + "_id";
+                    }
+
+                    return super.toBundleName(baseName, locale);
+                }
+            });
 
         Map<String, String> resources = new Hashtable<String, String>();
 
@@ -105,6 +127,31 @@ public class DefaultLanguagePackImpl
         lastResourcesAsked = resources;
 
         return resources;
+    }
+
+    /**
+     * Returns a Set of the keys contained only in the ResourceBundle for
+     * locale.
+     * @param locale the locale for which the keys are requested
+     * @return a Set of the keys contained only in the ResourceBundle for
+     * locale
+     */
+    @SuppressWarnings("unchecked")
+    public Set<String> getResourceKeys(Locale locale)
+    {
+        try
+        {
+            Method handleKeySet = ResourceBundle.class
+                .getDeclaredMethod("handleKeySet");
+            handleKeySet.setAccessible(true);
+            return (Set<String>)handleKeySet.invoke(
+                ResourceBundle.getBundle(DEFAULT_RESOURCE_PATH, locale));
+        }
+        catch (Exception e)
+        {
+        }
+
+        return new HashSet<String>();
     }
 
     /**

@@ -33,6 +33,12 @@ public class ContactPresenceStatusChangeEvent extends PropertyChangeEvent
     private ContactGroup parentGroup = null;
 
     /**
+     * When not the status but just the resource of the contact has changed,
+     * for those protocols that support resources.
+     */
+    private boolean resourceChanged = false;
+
+    /**
      * Creates an event instance indicating that the specified source contact
      * has changed status from <tt>oldValue</tt> to <tt>newValue</tt>.
      * @param source the provider that generated the event
@@ -50,12 +56,35 @@ public class ContactPresenceStatusChangeEvent extends PropertyChangeEvent
                                 PresenceStatus oldValue,
                                 PresenceStatus newValue)
     {
+        this(source, sourceProvider, parentGroup, oldValue, newValue, false);
+    }
+
+    /**
+     * Creates an event instance indicating that the specified source contact
+     * has changed status from <tt>oldValue</tt> to <tt>newValue</tt>.
+     * @param source the provider that generated the event
+     * @param sourceProvider the protocol provider that the contact belongs to.
+     * @param parentGroup the group containing the contact that caused this
+     * event (to be set as null in cases where groups are not supported);
+     * @param oldValue the status the source countact was in before enetering
+     * the new state.
+     * @param newValue the status the source contact is currently in.
+     */
+    public ContactPresenceStatusChangeEvent(
+                                Contact source,
+                                ProtocolProviderService sourceProvider,
+                                ContactGroup parentGroup,
+                                PresenceStatus oldValue,
+                                PresenceStatus newValue,
+                                boolean resourceChanged)
+    {
         super( source,
                ContactPresenceStatusChangeEvent.class.getName(),
                oldValue,
                newValue);
         this.sourceProvider = sourceProvider;
         this.parentGroup = parentGroup;
+        this.resourceChanged = resourceChanged;
     }
 
     /**
@@ -127,4 +156,14 @@ public class ContactPresenceStatusChangeEvent extends PropertyChangeEvent
             .append(", NewStatus=").append(getNewStatus()).append("]").toString();
     }
 
+    /**
+     * When the event fired is change in the resource of the contact will
+     * return <tt>true</tt>.
+     * @return the event fired is only for change in the resource of
+     * the contact.
+     */
+    public boolean isResourceChanged()
+    {
+        return resourceChanged;
+    }
 }

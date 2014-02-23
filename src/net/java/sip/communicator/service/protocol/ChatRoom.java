@@ -425,6 +425,15 @@ public interface ChatRoom
     public boolean isPersistent();
 
     /**
+     * Finds private messaging contact by nickname. If the contact doesn't 
+     * exists a new volatile contact is created.
+     * 
+     * @param name the nickname of the contact.
+     * @return the contact instance.
+     */
+    public Contact getPrivateContactByNickname(String name);
+
+    /**
     * Grants administrator privileges to another user. Room owners may grant
     * administrator privileges to a member or unaffiliated user. An
     * administrator is allowed to perform administrative functions such as
@@ -533,4 +542,80 @@ public interface ChatRoom
     * (e.g. "john").
     */
     public void revokeVoice(String nickname);
+
+    /**
+     * Publishes a <tt>ConferenceDescription</tt> to the chat room.
+     *
+     * @param cd the description to publish
+     * @param name the name of the conference
+     * @return the published conference
+     */
+    public ConferenceDescription publishConference(ConferenceDescription cd,
+        String name);
+
+    /**
+     * Updates the presence status of private messaging contact.
+     *
+     * @param nickname the nickname of the contact.
+     */
+    public void updatePrivateContactPresenceStatus(String nickname);
+
+    /**
+     * Updates the presence status of private messaging contact.
+     *
+     * @param contact the contact.
+     */
+    public void updatePrivateContactPresenceStatus(Contact contact);
+
+    /**
+     * Adds a listener that will be notified when a member of this chat room
+     * has published a <tt>ConferenceDescription</tt> to the room.
+     *
+     * @param listener the listener to add.
+     */
+    public void addConferencePublishedListener(
+            ChatRoomConferencePublishedListener listener);
+
+    /**
+     * Removes a listener that was being notified when a member of this chat
+     * room had published a <tt>ConferenceDescription</tt> to the room.
+     *
+     * @param listener the listener to remove.
+     */
+    public void removeConferencePublishedListener(
+            ChatRoomConferencePublishedListener listener);
+
+    /**
+     * Returns cached <tt>ConferenceDescription</tt> instances.
+     * @return the cached <tt>ConferenceDescription</tt> instances.
+     */
+    public Map<String, ConferenceDescription> getCachedConferenceDescriptions();
+
+    /**
+     * Returns the number of cached <tt>ConferenceDescription</tt> instances.
+     * @return the number of cached <tt>ConferenceDescription</tt> instances.
+     */
+    public int getCachedConferenceDescriptionSize();
+
+    /**
+     * Destroys the chat room.
+     * @param reason the reason for destroying.
+     * @param alternateAddress the alternate address
+     * @return <tt>true</tt> if the room is destroyed.
+     */
+    public boolean destroy(String reason, String alternateAddress);
+
+    /**
+     * Returns the ids of the users that has the member role in the room.
+     * When the room is member only, this are the users allowed to join.
+     * @return the ids of the users that has the member role in the room.
+     */
+    public List<String> getMembersWhiteList();
+
+    /**
+     * Changes the list of users that has role member for this room.
+     * When the room is member only, this are the users allowed to join.
+     * @param members the ids of user to have member role.
+     */
+    public void setMembersWhiteList(List<String> members);
 }

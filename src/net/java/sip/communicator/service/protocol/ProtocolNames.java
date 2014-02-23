@@ -78,11 +78,6 @@ public interface ProtocolNames
     public static final String ZEROCONF  = "Zeroconf";
 
     /**
-     * The RSS protocol.
-     */
-    public static final String RSS = "RSS";
-
-    /**
      * The SSH protocol.
      */
     public static final String SSH = "SSH";

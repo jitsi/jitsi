@@ -195,9 +195,9 @@ public abstract class AbstractOperationSetVideoTelephony<
         throws OperationFailedException
     {
         MediaAwareCall<?, ?, ?> mediaAwareCall = (MediaAwareCall<?, ?, ?>) call;
+        MediaUseCase useCase = MediaUseCase.CALL;
 
-        mediaAwareCall.setVideoDevice(null);
-        mediaAwareCall.setLocalVideoAllowed(allowed, MediaUseCase.CALL);
+        mediaAwareCall.setLocalVideoAllowed(allowed, useCase);
     }
 
     /**

@@ -1,8 +1,8 @@
 Source: _PACKAGE_NAME_
 Section: net
 Priority: optional
-Maintainer: Damian Minkov <damencho@jitsi.org>
-Uploaders: Emil Ivov <emcho@jitsi.org>
+Maintainer: Jitsi Team <dev@jitsi.org>
+Uploaders: Emil Ivov <emcho@jitsi.org>, Damian Minkov <damencho@jitsi.org>
 Homepage: _APP_WEB_
 Build-Depends: debhelper (>= 9), javahelper,
                dpkg-dev (>= 1.16.1),
@@ -24,6 +24,7 @@ Build-Depends: debhelper (>= 9), javahelper,
                libbcprov-java,
                libjna-java,
                libcommons-codec-java,
+               libcommons-lang3-java,
                liblog4j1.2-java,
                libjgoodies-forms-java,
                libjmdns-java,
@@ -56,10 +57,11 @@ Build-Depends: debhelper (>= 9), javahelper,
                libgtk2.0-dev,
                libglib2.0-dev,
                libpulse-dev,
-               libgoogle-collections-java,
+               libguava-java,
                glassfish-activation,
                glassfish-mail,
-               libbcpkix-java
+               libbcpkix-java,
+               libjcalendar-java
 Standards-Version: 3.9.4
 
 Package: _PACKAGE_NAME_
@@ -79,6 +81,7 @@ Depends: ${misc:Depends},
          libhttpmime-java,
          libcommons-logging-java,
          libcommons-codec-java,
+         libcommons-lang3-java,
          liblaf-widget-java,
          libdbus-java,
          libxpp3-java,
@@ -86,7 +89,8 @@ Depends: ${misc:Depends},
          libbcprov-java,
          libjna-java,
          libjgoodies-forms-java,
-         libjson-simple-java
+         libjson-simple-java,
+         libjcalendar-java
 Recommends: ${java:Recommends}
 Description: VoIP and Instant Messaging client
  _APP_NAME_ is an application that allows you to do audio/video

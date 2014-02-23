@@ -45,6 +45,17 @@ public interface CallPeerConferenceListener
      */
     public void conferenceMemberAdded(
         CallPeerConferenceEvent conferenceEvent);
+    
+    /**
+     * Notifies this listener about an error packet received from specific 
+     * <tt>CallPeer</tt>.
+     *
+     * @param conferenceEvent a <tt>CallPeerConferenceEvent</tt> with ID
+     *        <tt>CallPeerConferenceEvent#CONFERENCE_MEMBER_ERROR_RECEIVED</tt> 
+     *        and the error message associated with the packet.
+     */
+    public void conferenceMemberErrorReceived(
+        CallPeerConferenceEvent conferenceEvent);
 
     /**
      * Notifies this listener about the removal of a specific

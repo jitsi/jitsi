@@ -3,7 +3,7 @@ Bundle-Name: Network Address Management service
 Bundle-Description: A bundle that provides local address selection and negotiation via ice4j.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.netaddr
 Import-Package: org.jitsi.service.configuration,
  org.jitsi.service.packetlogging,
  org.jitsi.util,

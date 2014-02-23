@@ -3,7 +3,7 @@ Bundle-Name: Youtube Replacement Source
 Bundle-Description: A bundle providing replacement for youtube links.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 1.0.0
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.replacement.youtube
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.replacement,
  org.jitsi.service.configuration,

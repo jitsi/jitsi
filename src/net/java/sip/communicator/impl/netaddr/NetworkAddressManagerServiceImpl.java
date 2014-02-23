@@ -582,9 +582,7 @@ public class NetworkAddressManagerServiceImpl
       */
      public Agent createIceAgent()
      {
-         Agent a = new Agent();
-//         a.getStunStack().
-         return a;
+         return new Agent();
      }
 
      /**
@@ -698,11 +696,12 @@ public class NetworkAddressManagerServiceImpl
 
          //rtp
          agent.createComponent(
-                 stream, Transport.UDP, rtpPort, rtpPort, rtpPort + 100);
-
-         //rtcpComp
-         agent.createComponent(stream, Transport.UDP,
-                         rtpPort + 1, rtpPort + 1, rtpPort + 101);
+                 stream, Transport.UDP,
+                 rtpPort, rtpPort, rtpPort + 100);
+         //rtcp
+         agent.createComponent(
+                 stream, Transport.UDP,
+                 rtpPort + 1, rtpPort + 1, rtpPort + 101);
 
          return stream;
      }

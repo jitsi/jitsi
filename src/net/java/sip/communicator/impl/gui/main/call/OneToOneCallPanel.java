@@ -145,8 +145,11 @@ public class OneToOneCallPanel
             peerPanel = new OneToOneCallPeerPanel(this, peer, uiVideoHandler);
 
             /* Create the main Components of the UI. */
+            // use already obtained peer name to avoid double querying and
+            // checking may result and
+            // network search (ldap, various contact sources)
             nameLabel.setText(
-                getPeerDisplayText(peer, CallManager.getPeerDisplayName(peer)));
+                getPeerDisplayText(peer, peerPanel.getPeerName()));
 
             topBar = createTopComponent();
             topBar.setVisible(!isFullScreen());
@@ -285,15 +288,6 @@ public class OneToOneCallPanel
 
         if (peerPanel != null)
             peerPanel.dispose();
-    }
-
-    /**
-     * Returns the call represented by this call renderer.
-     * @return the call represented by this call renderer
-     */
-    public Call getCall()
-    {
-        return call;
     }
 
     /**

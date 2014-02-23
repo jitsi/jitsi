@@ -41,17 +41,17 @@ public class PluginComponentEvent
      * notify about a specific <tt>PluginComponent</tt> and which is to be of a
      * nature indicated by a specific ID.
      *
-     * @param pluginComponent the <tt>PluginComponent</tt> about which the new
-     * instance is to notify
+     * @param pluginComponentProvider the <tt>PluginComponentFactory</tt> about
+     * which the new instance is to notify
      * @param eventID one of the <tt>PLUGIN_COMPONENT_XXX</tt> constants defined
      * by the <tt>PluginComponentEvent</tt> class which indicates the very
      * nature of the event that the new instance is to represent
      */
     public PluginComponentEvent(
-            PluginComponent pluginComponent,
+            PluginComponentFactory pluginComponentProvider,
             int eventID)
     {
-        super(pluginComponent);
+        super(pluginComponentProvider);
 
         this.eventID = eventID;
     }
@@ -70,12 +70,12 @@ public class PluginComponentEvent
     }
 
     /**
-     * Returns the <tt>PluginComponent</tt> associated with this event.
+     * Returns the <tt>PluginComponentFactory</tt> associated with this event.
      *
-     * @return the <tt>PluginComponent</tt> associated with this event
+     * @return the <tt>PluginComponentFactory</tt> associated with this event
      */
-    public PluginComponent getPluginComponent()
+    public PluginComponentFactory getPluginComponentFactory()
     {
-        return (PluginComponent) getSource();
+        return (PluginComponentFactory) getSource();
     }
 }

@@ -58,8 +58,9 @@ public class ProtocolProviderFactorySipImpl
         // property in the account properties provided.
         // if xcap password property exist, store it through credentialsStorage
         // service
-        Object password
-                = accountID.getAccountProperty(SipAccountID.OPT_CLIST_PASSWORD);
+        String password
+                = accountID.getAccountPropertyString(
+                        SipAccountID.OPT_CLIST_PASSWORD);
         if (password != null)
         {
             CredentialsStorageService credentialsStorage
@@ -67,7 +68,7 @@ public class ProtocolProviderFactorySipImpl
                 getBundleContext(),
                 CredentialsStorageService.class);
             String accountPrefix = accountID.getAccountUniqueID() + ".xcap";
-            credentialsStorage.storePassword(accountPrefix, (String)password);
+            credentialsStorage.storePassword(accountPrefix, password);
             // remove unsecured property
             accountID.removeAccountProperty(
                     SipAccountIDImpl.OPT_CLIST_PASSWORD);

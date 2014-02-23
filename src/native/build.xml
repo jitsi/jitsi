@@ -877,6 +877,11 @@
       <arg value="${src}/native/addrbook/msoutlook/com/*.tlb"/>
       <arg value="${native_install_dir}/"/>
     </exec>
+    <exec executable="windres">
+      <arg value="--target=pe-i386"/>
+      <arg value="${src}/native/addrbook/msoutlook/com/Resources32.rc" />
+      <arg value="${obj}/Resources.o"/>
+    </exec>
     <cc
         name="g++"
         objdir="${obj}"
@@ -890,6 +895,7 @@
 
       <linkerarg value="-ojmsoutlookaddrbookcomserver32.exe" />
       <linkerarg value="-m32" />
+      <linkerarg value="${obj}/Resources.o" location="mid" />
       <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.windows" />
       <libset libs="uuid, ole32, oleaut32, msi, stdc++" />
 
@@ -901,6 +907,12 @@
     <exec executable="strip">
       <arg value="-x"/>
       <arg value="${native_install_dir}/jmsoutlookaddrbookcomserver32.exe"/>
+    </exec>
+
+    <exec executable="windres">
+      <arg value="--target=pe-x86-64"/>
+      <arg value="${src}/native/addrbook/msoutlook/com/Resources64.rc" />
+      <arg value="${obj}/Resources.o"/>
     </exec>
     <cc
         name="g++"
@@ -915,6 +927,7 @@
 
       <linkerarg value="-ojmsoutlookaddrbookcomserver64.exe" />
       <linkerarg value="-m64" />
+      <linkerarg value="${obj}/Resources.o" location="mid" />
       <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.windows" />
       <libset libs="uuid, ole32, oleaut32, msi, stdc++" />
 
@@ -927,5 +940,39 @@
       <arg value="-x"/>
       <arg value="${native_install_dir}/jmsoutlookaddrbookcomserver64.exe"/>
     </exec>
+  </target>
+
+  <!-- compile launcher for Mac OS X (32-bit/64-bit) -->
+  <target name="macosx-launcher"
+          description="Build macosx launcher shared library for Mac OS X"
+          if="is.running.macos"
+          depends="init-native">
+    <cc name="gcc"
+        outfile="${src}/native/macosx/launcher/JavaApplicationStub"
+        objdir="${obj}">
+
+        <compilerarg value="-Wall" />
+        <compilerarg value="-O2" />
+        <compilerarg value="-arch" />
+        <compilerarg value="x86_64" />
+        <compilerarg value="-arch" />
+        <compilerarg value="i386" />
+        <compilerarg value="-I${system.JAVA_HOME}/include" />
+        <compilerarg value="-I${system.JAVA_HOME}/include/darwin" />
+        <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers" />
+        <compilerarg value="-mmacosx-version-min=10.6"/>
+
+        <linkerarg value="-arch" />
+        <linkerarg value="x86_64" />
+        <linkerarg value="-arch" />
+        <linkerarg value="i386" />
+        <linkerarg value="-framework" />
+        <linkerarg value="Cocoa" />
+
+        <fileset dir="${src}/native/macosx/launcher" includes="*.m"/>
+    </cc>
+
+    <delete dir="${obj}" failonerror="false" />
+    <delete file="${src}/native/macosx/launcher/history.xml" failonerror="false" />
   </target>
 </project>

@@ -18,7 +18,7 @@ import net.java.sip.communicator.service.contactsource.*;
  */
 public class MacOSXAddrBookContactSourceService
     extends AsyncContactSourceService
-    implements EditableContactSourceService
+    implements EditableContactSourceService, PrefixedContactSourceService
 {
     /**
      * the Mac OS X address book prefix.
@@ -91,7 +91,7 @@ public class MacOSXAddrBookContactSourceService
     }
 
     /**
-     * Queries this <tt>ContactSourceService</tt> for <tt>SourceContact</tt>s
+     * Creates query that searches for <tt>SourceContact</tt>s
      * which match a specific <tt>query</tt> <tt>Pattern</tt>.
      *
      * @param query the <tt>Pattern</tt> which this
@@ -102,14 +102,13 @@ public class MacOSXAddrBookContactSourceService
      * any) will be returned
      * @see ExtendedContactSourceService#queryContactSource(Pattern)
      */
-    public ContactQuery queryContactSource(Pattern query)
+    public ContactQuery createContactQuery(Pattern query)
     {
         if(latestQuery != null)
             latestQuery.clear();
 
         latestQuery = new MacOSXAddrBookContactQuery(this, query);
 
-        latestQuery.start();
         return latestQuery;
     }
 
@@ -149,6 +148,7 @@ public class MacOSXAddrBookContactSourceService
      *
      * @return the global phone number prefix
      */
+    @Override
     public String getPhoneNumberPrefix()
     {
         return AddrBookActivator.getConfigService()
@@ -279,5 +279,35 @@ public class MacOSXAddrBookContactSourceService
     {
         return !AddrBookActivator.getConfigService().getBoolean(
                     PNAME_MACOSX_ADDR_BOOK_SEARCH_FIELD_DISABLED, false);
+    }
+
+    /**
+     * Returns the bitness of this contact source service.
+     *
+     * @return The bitness of this contact source service.
+     */
+    public int getBitness()
+    {
+        return -1;
+    }
+
+    /**
+     * Returns the version of this contact source service.
+     *
+     * @return The version of this contact source service.
+     */
+    public int getVersion()
+    {
+        return -1;
+    }
+
+    /**
+     * Returns the number of contact notifications to deal with.
+     *
+     * @return The number of contact notifications to deal with.
+     */
+    public int getNbRemainingNotifications()
+    {
+        return 0;
     }
 }

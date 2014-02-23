@@ -117,7 +117,7 @@ public class GroupRightButtonMenu
         {
             serRefs =
                 GuiActivator.bundleContext.getServiceReferences(
-                    PluginComponent.class.getName(), osgiFilter);
+                    PluginComponentFactory.class.getName(), osgiFilter);
         }
         catch (InvalidSyntaxException exc)
         {
@@ -128,10 +128,11 @@ public class GroupRightButtonMenu
         {
             for (int i = 0; i < serRefs.length; i++)
             {
-                PluginComponent component =
-                    (PluginComponent) GuiActivator.bundleContext
+                PluginComponentFactory factory =
+                    (PluginComponentFactory) GuiActivator.bundleContext
                         .getService(serRefs[i]);
-                ;
+                PluginComponent component =
+                    factory.getPluginComponentInstance(this);
 
                 component.setCurrentContactGroup(group);
 
@@ -198,11 +199,13 @@ public class GroupRightButtonMenu
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
-        if (!c.getContainer().equals(
-            Container.CONTAINER_GROUP_RIGHT_BUTTON_MENU))
+        if (!factory.getContainer().equals(
+                Container.CONTAINER_GROUP_RIGHT_BUTTON_MENU))
             return;
+
+        PluginComponent c = factory.getPluginComponentInstance(this);
 
         this.add((Component) c.getComponent());
 
@@ -219,12 +222,13 @@ public class GroupRightButtonMenu
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
-        if (c.getContainer()
+        if (factory.getContainer()
             .equals(Container.CONTAINER_GROUP_RIGHT_BUTTON_MENU))
         {
-            this.remove((Component) c.getComponent());
+            this.remove((Component)factory.getPluginComponentInstance(this)
+                    .getComponent());
         }
     }
 

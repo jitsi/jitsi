@@ -116,6 +116,18 @@ public interface OperationSetServerStoredAccountInfo
         Class<? extends GenericDetail> detailClass);
 
     /**
+     * Determines whether the underlying implementation supports edition
+     * of this detail class.
+     * <p>
+     * @param detailClass the class whose edition we'd like to determine if it's
+     * possible
+     * @return true if the underlying implementation supports edition of this
+     * type of detail and false otherwise.
+     */
+    public boolean isDetailClassEditable(
+        Class<? extends GenericDetail> detailClass);
+
+    /**
      * The method returns the number of instances supported for a particular
      * detail type. Some protocols offer storing mutliple values for a
      * particular detail type. Spoken languages are a good example.
@@ -128,7 +140,7 @@ public interface OperationSetServerStoredAccountInfo
         Class<? extends GenericDetail> detailClass);
 
     /**
-     * Adds the specified detail to the list of details registered on-line
+     * Adds the specified detail to the list of details ready to be saved online
      * for this account. If such a detail already exists its max instance number
      * is consulted and if it allows it - a second instance is added or otherwise
      * and illegal argument exception is thrown. An IllegalArgumentException is
@@ -139,11 +151,9 @@ public interface OperationSetServerStoredAccountInfo
      * @param detail the detail that we'd like registered on the server.
      * <p>
      * @throws IllegalArgumentException if such a detail already exists and its
-     * max instances number has been atteined or if the underlying
+     * max instances number has been attained or if the underlying
      * implementation does not support setting details of the corresponding
      * class.
-     * @throws OperationFailedException with code Network Failure if putting the
-     * new value online has failed
      * @throws java.lang.ArrayIndexOutOfBoundsException if the number of
      * instances currently registered by the application is already equal to the
      * maximum number of supported instances (@see getMaxDetailInstances())
@@ -154,15 +164,13 @@ public interface OperationSetServerStoredAccountInfo
                ArrayIndexOutOfBoundsException;
 
     /**
-     * Removes the specified detail from the list of details stored online for
-     * this account. The method returns a boolean indicating if such a detail
-     * was found (and removed) or not.
+     * Removes the specified detail from the list of details ready to be saved
+     * online this account. The method returns a boolean indicating if such a
+     * detail was found (and removed) or not.
      * <p>
      * @param detail the detail to remove
      * @return true if the specified detail existed and was successfully removed
      * and false otherwise.
-     * @throws OperationFailedException with code Network Failure if removing the
-     * detail from the server has failed
      */
     public boolean removeDetail(ServerStoredDetails.GenericDetail detail)
         throws OperationFailedException;
@@ -185,6 +193,17 @@ public interface OperationSetServerStoredAccountInfo
                     ServerStoredDetails.GenericDetail currentDetailValue,
                     ServerStoredDetails.GenericDetail newDetailValue)
         throws ClassCastException, OperationFailedException;
+
+    /**
+     * Saves the list of details for this account that were ready to be stored
+     * online on the server. This method performs the actual saving of details
+     * online on the server and is supposed to be invoked after addDetail(),
+     * replaceDetail() and/or removeDetail().
+     * <p>
+     * @throws OperationFailedException with code Network Failure if putting the
+     * new values back online has failed.
+     */
+    public void save() throws OperationFailedException;
 
     /**
      * Registers a ServerStoredDetailsChangeListener with this operation set so

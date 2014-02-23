@@ -3,7 +3,7 @@ Bundle-Name: ReconnectPlugin
 Bundle-Description: A bundle that implements the Reconnect Plugin Package.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.plugin.reconnectplugin
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.netaddr,
  net.java.sip.communicator.service.netaddr.event,
@@ -13,5 +13,6 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.event,
  org.jitsi.service.resources, net.java.sip.communicator.service.resources,
+ org.jitsi.util,
  net.java.sip.communicator.util,
  net.java.sip.communicator.plugin.desktoputil

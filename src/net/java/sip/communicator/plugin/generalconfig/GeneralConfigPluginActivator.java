@@ -15,6 +15,7 @@ import javax.swing.border.*;
 import net.java.sip.communicator.plugin.generalconfig.autoaway.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.systray.*;
@@ -74,6 +75,11 @@ public class GeneralConfigPluginActivator
      * The resource management service.
      */
     private static ResourceManagementService resourceService;
+
+    /**
+     * The message history service.
+     */
+    private static MessageHistoryService messageHistoryService;
 
     /**
      * Indicates if the general configuration form should be disabled, i.e.
@@ -350,7 +356,7 @@ public class GeneralConfigPluginActivator
 
         if (serRefs == null || serRefs[0] == null)
         {
-            return null;
+            return new ProtocolProviderService[0];
         }
 
         Set<ProtocolProviderService> pps = new HashSet<ProtocolProviderService>();
@@ -377,6 +383,19 @@ public class GeneralConfigPluginActivator
             resourceService
                 = ResourceManagementServiceUtils.getService(bundleContext);
         return resourceService;
+    }
+    
+    /**
+     * Gets the service giving access to message history.
+     *
+     * @return the service giving access to message history.
+     */
+    public static MessageHistoryService getMessageHistoryService()
+    {
+        if (messageHistoryService == null)
+            messageHistoryService = ServiceUtils.getService(bundleContext, 
+                MessageHistoryService.class);
+        return messageHistoryService;
     }
 
     /**

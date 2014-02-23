@@ -7,16 +7,12 @@
 package net.java.sip.communicator.service.protocol.media;
 
 import java.net.*;
-import java.util.*;
 
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
-import org.ice4j.*;
 import org.ice4j.ice.*;
-import org.ice4j.ice.harvest.*;
-import org.ice4j.security.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
 
@@ -97,16 +93,6 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      * Number of empty UDP packets to send for NAT hole punching.
      */
     private static final int DEFAULT_HOLE_PUNCH_PKT_COUNT = 3;
-
-    /**
-     * Default STUN server address.
-     */
-    protected static final String DEFAULT_STUN_SERVER_ADDRESS = "stun.jitsi.net";
-
-    /**
-     * Default STUN server port.
-     */
-    protected static final int DEFAULT_STUN_SERVER_PORT = 3478;
 
     /**
      * The {@link MediaAwareCallPeer} whose traffic we will be taking care of.
@@ -233,14 +219,15 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     }
 
     /**
-     * Creates a media <tt>StreamConnector</tt>. The method takes into account
-     * the minimum and maximum media port boundaries.
+     * Creates a media <tt>StreamConnector</tt> for a stream of a specific
+     * <tt>MediaType</tt>. The minimum and maximum of the media port boundaries
+     * are taken into account.
      *
-     * @param mediaType the <tt>MediaType</tt> of the stream for which a new
+     * @param mediaType the <tt>MediaType</tt> of the stream for which a
      * <tt>StreamConnector</tt> is to be created
-     * @return a new <tt>StreamConnector</tt>.
-     *
-     * @throws OperationFailedException if the binding of the sockets fails.
+     * @return a <tt>StreamConnector</tt> for the stream of the specified
+     * <tt>mediaType</tt>
+     * @throws OperationFailedException if the binding of the sockets fails
      */
     protected StreamConnector createStreamConnector(MediaType mediaType)
         throws OperationFailedException
@@ -299,55 +286,63 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     /**
      * (Re)Sets the all the port allocators to reflect current values specified
      * in the <tt>ConfigurationService</tt>. Calling this method may very well
-     * result in creating new port allocators or destroying exising ones.
+     * result in creating new port allocators or destroying existing ones.
      */
     protected static void initializePortNumbers()
     {
         //try the default tracker first
-        ConfigurationService configuration
+        ConfigurationService cfg
             = ProtocolMediaActivator.getConfigurationService();
-        String minPortNumberStr = configuration.getString(
-            OperationSetBasicTelephony.MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME);
-
-        String maxPortNumberStr = configuration.getString(
-                OperationSetBasicTelephony.MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME);
+        String minPortNumberStr
+            = cfg.getString(
+                    OperationSetBasicTelephony
+                        .MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME);
+        String maxPortNumberStr
+            = cfg.getString(
+                    OperationSetBasicTelephony
+                        .MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME);
 
         //try to send the specified range. If there's no specified range in
         //configuration, we'll just leave the tracker as it is: [5000 to 6000]
         defaultPortTracker.tryRange(minPortNumberStr, maxPortNumberStr);
 
-
         //try the VIDEO tracker
-        minPortNumberStr = configuration.getString(
-            OperationSetBasicTelephony.MIN_VIDEO_PORT_NUMBER_PROPERTY_NAME);
-
-        maxPortNumberStr = configuration.getString(
-            OperationSetBasicTelephony.MAX_VIDEO_PORT_NUMBER_PROPERTY_NAME);
-
+        minPortNumberStr
+            = cfg.getString(
+                    OperationSetBasicTelephony
+                        .MIN_VIDEO_PORT_NUMBER_PROPERTY_NAME);
+        maxPortNumberStr
+            = cfg.getString(
+                    OperationSetBasicTelephony
+                        .MAX_VIDEO_PORT_NUMBER_PROPERTY_NAME);
         //try to send the specified range. If there's no specified range in
         //configuration, we'll just leave this tracker to null
         videoPortTracker
             = PortTracker.createTracker(minPortNumberStr, maxPortNumberStr);
 
-
         //try the AUDIO tracker
-        minPortNumberStr = configuration.getString(
-            OperationSetBasicTelephony.MIN_AUDIO_PORT_NUMBER_PROPERTY_NAME);
-
-        maxPortNumberStr = configuration.getString(
-            OperationSetBasicTelephony.MAX_AUDIO_PORT_NUMBER_PROPERTY_NAME);
-
+        minPortNumberStr
+            = cfg.getString(
+                    OperationSetBasicTelephony
+                        .MIN_AUDIO_PORT_NUMBER_PROPERTY_NAME);
+        maxPortNumberStr
+            = cfg.getString(
+                    OperationSetBasicTelephony
+                        .MAX_AUDIO_PORT_NUMBER_PROPERTY_NAME);
         //try to send the specified range. If there's no specified range in
         //configuration, we'll just leave this tracker to null
         audioPortTracker
             = PortTracker.createTracker(minPortNumberStr, maxPortNumberStr);
 
         //try the DATA CHANNEL tracker
-        minPortNumberStr = configuration.getString(OperationSetBasicTelephony
-            .MIN_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME);
-
-        maxPortNumberStr = configuration.getString(OperationSetBasicTelephony
-            .MAX_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME);
+        minPortNumberStr
+            = cfg.getString(
+                    OperationSetBasicTelephony
+                        .MIN_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME);
+        maxPortNumberStr
+            = cfg.getString(
+                    OperationSetBasicTelephony
+                        .MAX_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME);
 
         //try to send the specified range. If there's no specified range in
         //configuration, we'll just leave this tracker to null
@@ -391,60 +386,69 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     }
 
     /**
-     * Send empty UDP packets to target destination data/control ports
-     * in order to open ports on NATs or and help RTP proxies latch onto our
-     * RTP ports.
+     * Sends empty UDP packets to target destination data/control ports in order
+     * to open ports on NATs or and help RTP proxies latch onto our RTP ports.
      *
      * @param target <tt>MediaStreamTarget</tt>
-     * @param type the {@link MediaType} of the connector we'd like to send
-     * the hole punching packet through.
+     * @param type the {@link MediaType} of the connector we'd like to send the
+     * hole punching packet through.
      */
     public void sendHolePunchPacket(MediaStreamTarget target, MediaType type)
     {
         logger.info("Send NAT hole punch packets");
 
         //check how many hole punch packets we would be supposed to send:
-        int packetCount = ProtocolMediaActivator.getConfigurationService()
-                    .getInt(HOLE_PUNCH_PKT_COUNT_PROPERTY,
-                        DEFAULT_HOLE_PUNCH_PKT_COUNT);
+        int packetCount
+            = ProtocolMediaActivator.getConfigurationService().getInt(
+                    HOLE_PUNCH_PKT_COUNT_PROPERTY,
+                    DEFAULT_HOLE_PUNCH_PKT_COUNT);
 
         if (packetCount < 0)
             packetCount = DEFAULT_HOLE_PUNCH_PKT_COUNT;
+        if (packetCount == 0)
+            return;
 
         try
         {
             StreamConnector connector = getStreamConnector(type);
 
+            if(connector.getProtocol() == StreamConnector.Protocol.TCP)
+                return;
+
+            byte[] buf = new byte[0];
+
             synchronized(connector)
             {
-                if(connector.getProtocol() == StreamConnector.Protocol.TCP)
-                    return;
-
-                DatagramSocket socket;
-
                 //we may want to send more than one packet in case they get lost
                 for(int i=0; i < packetCount; i++)
                 {
-                    /* data port (RTP) */
+                    DatagramSocket socket;
+
+                    // data/RTP
                     if((socket = connector.getDataSocket()) != null)
                     {
+                        InetSocketAddress dataAddress = target.getDataAddress();
+
                         socket.send(
-                            new DatagramPacket(
-                                new byte[0],
-                                0,
-                                target.getDataAddress().getAddress(),
-                                target.getDataAddress().getPort()));
+                                new DatagramPacket(
+                                        buf,
+                                        buf.length,
+                                        dataAddress.getAddress(),
+                                        dataAddress.getPort()));
                     }
 
-                    /* control port (RTCP) */
+                    // control/RTCP
                     if((socket = connector.getControlSocket()) != null)
                     {
+                        InetSocketAddress controlAddress
+                            = target.getControlAddress();
+
                         socket.send(
-                            new DatagramPacket(
-                                new byte[0],
-                                0,
-                                target.getControlAddress().getAddress(),
-                                target.getControlAddress().getPort()));
+                                new DatagramPacket(
+                                        buf,
+                                        buf.length,
+                                        controlAddress.getAddress(),
+                                        controlAddress.getPort()));
                     }
                 }
             }
@@ -585,11 +589,16 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      */
     protected static PortTracker getPortTracker(MediaType mediaType)
     {
-        if(MediaType.AUDIO == mediaType && audioPortTracker != null)
-            return audioPortTracker;
-
-        if(MediaType.VIDEO == mediaType && videoPortTracker != null)
-            return videoPortTracker;
+        if (MediaType.AUDIO == mediaType)
+        {
+            if (audioPortTracker != null)
+                return audioPortTracker;
+        }
+        else if (MediaType.VIDEO == mediaType)
+        {
+            if (videoPortTracker != null)
+                return videoPortTracker;
+        }
 
         return defaultPortTracker;
     }
@@ -611,214 +620,16 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     {
         try
         {
-            MediaType mediaType = MediaType.parseString(mediaTypeStr);
-
-            return getPortTracker(mediaType);
+            return getPortTracker(MediaType.parseString(mediaTypeStr));
         }
-        catch (Exception exc)
+        catch (Exception e)
         {
             logger.info(
                 "Returning default port tracker for unrecognized media type: "
-                + mediaTypeStr);
+                    + mediaTypeStr);
 
             return defaultPortTracker;
         }
-    }
-
-    /**
-     * Creates the ICE agent that we would be using in this transport manager
-     * for all negotiation.
-     *
-     * @return the ICE agent to use for all the ICE negotiation that this
-     * transport manager would be going through
-     */
-    protected Agent createIceAgent()
-    {
-        long startGatheringHarvesterTime = System.currentTimeMillis();
-        CallPeer peer = getCallPeer();
-        ProtocolProviderService provider = peer.getProtocolProvider();
-        NetworkAddressManagerService namSer
-                    = ProtocolMediaActivator.getNetworkAddressManagerService();
-        boolean atLeastOneStunServer = false;
-        Agent agent = namSer.createIceAgent();
-
-        //we will now create the harvesters
-        AccountID accID = provider.getAccountID();
-
-        //now create stun server descriptors for whatever other STUN/TURN
-        //servers the user may have set.
-        for(CandidateHarvester harvester : getStunHarvesters(accID))
-        {
-            if(harvester instanceof StunCandidateHarvester)
-                atLeastOneStunServer = true;
-
-            agent.addCandidateHarvester(harvester);
-        }
-
-        if(!atLeastOneStunServer)
-        {
-            /* we have no configured or discovered STUN server so takes the
-             * default provided by us if user allows it
-             */
-            if(accID.isUseDefaultStunServer())
-            {
-                TransportAddress address = new TransportAddress(
-                        DEFAULT_STUN_SERVER_ADDRESS,
-                        DEFAULT_STUN_SERVER_PORT,
-                        Transport.UDP);
-                StunCandidateHarvester harvester =
-                    new StunCandidateHarvester(address);
-
-                if(harvester != null)
-                {
-                    agent.addCandidateHarvester(harvester);
-                }
-            }
-        }
-
-        if(accID.isUPNPEnabled())
-        {
-            UPNPHarvester upnpHarvester = new UPNPHarvester();
-
-            if(upnpHarvester != null)
-            {
-                agent.addCandidateHarvester(upnpHarvester);
-            }
-        }
-
-        long stopGatheringHarvesterTime = System.currentTimeMillis();
-        long  gatheringHarvesterTime
-            = stopGatheringHarvesterTime - startGatheringHarvesterTime;
-        if (logger.isInfoEnabled())
-            logger.info("End gathering harvester within "
-                    + gatheringHarvesterTime + " ms");
-        return agent;
-    }
-
-    /**
-     * Creates and returns a list of candidate STUN/TURN harvesters as per the
-     * account configuration contained in the specified account ID.
-     *
-     * @param accID the ID of the account whose configuration we should search
-     * for STUN servers.
-     *
-     * @return a list of {@StunCandidateHarvester}s configured for the account
-     * with the specified ID.
-     */
-    protected List<CandidateHarvester> getStunHarvesters(AccountID accID)
-    {
-        List<StunServerDescriptor> stunServerDescriptors
-            = accID.getStunServers(ProtocolMediaActivator.bundleContext);
-        List<CandidateHarvester> stunHarvesters
-            = new ArrayList<CandidateHarvester>(stunServerDescriptors.size());
-
-
-        for(StunServerDescriptor desc : stunServerDescriptors)
-        {
-            TransportAddress address = new TransportAddress(
-                            desc.getAddress(), desc.getPort(), Transport.UDP);
-
-            // if we get STUN server from automatic discovery, it may just
-            // be server name (i.e. stun.domain.org) and it may be possible that
-            // it cannot be resolved
-            if(address.getAddress() == null)
-            {
-                logger.info("Unresolved address for " + address);
-                continue;
-            }
-
-            StunCandidateHarvester harvester;
-
-            if(desc.isTurnSupported())
-            {
-                //Yay! a TURN server
-                harvester
-                    = new TurnCandidateHarvester(
-                            address,
-                            new LongTermCredential(
-                                    desc.getUsername(),
-                                    desc.getPassword()));
-            }
-            else
-            {
-                //this is a STUN only server
-                harvester = new StunCandidateHarvester(address);
-            }
-
-            if (logger.isInfoEnabled())
-                logger.info("Adding pre-configured harvester " + harvester);
-
-            stunHarvesters.add(harvester);
-        }
-
-        return stunHarvesters;
-    }
-
-    /**
-     * Creates an {@link IceMediaStream} with the specified <tt>media</tt>
-     * name.
-     *
-     * @param media the name of the stream we'd like to create.
-     * @param iceAgent the ICE agent that will create and handle th stream.
-     *
-     * @return the newly created {@link IceMediaStream}
-     *
-     * @throws OperationFailedException if binding on the specified media stream
-     * fails for some reason.
-     */
-    protected IceMediaStream createIceStream(String media, Agent iceAgent)
-        throws OperationFailedException
-    {
-        NetworkAddressManagerService namSer
-                    = ProtocolMediaActivator.getNetworkAddressManagerService();
-        IceMediaStream stream;
-        try
-        {
-            //the following call involves STUN processing so it may take a while
-            stream = namSer.createIceStream(
-                        getPortTracker(media).getPort(), media, iceAgent);
-        }
-        catch (Exception ex)
-        {
-            throw new OperationFailedException(
-                    "Failed to initialize stream " + media,
-                    OperationFailedException.INTERNAL_ERROR,
-                    ex);
-        }
-
-        //let's now update the next port var as best we can: we would assume
-        //that all local candidates are bound on the same port and set it
-        //to the one just above. if the assumption is wrong the next bind
-        //would simply include one more bind retry.
-        try
-        {
-            getPortTracker(media).setNextPort(
-                1 + stream.getComponent(Component.RTCP).getLocalCandidates()
-                    .get(0).getTransportAddress() .getPort());
-        }
-        catch(Throwable t)
-        {
-            //hey, we were just trying to be nice. if that didn't work for
-            //some reason we really can't be held responsible!
-            logger.debug("Determining next port didn't work: ", t);
-        }
-
-        return stream;
-    }
-
-
-    /**
-     * Returns a list of servers that are specific to the implementing protocol.
-     * Such servers include Jingle Node relays (XMPP only), or TurnServers using
-     * the credentials of the protocol. This list is added to all ICE
-     * {@link Agent}s created by this manager.
-     *
-     * @return a {@link List} of candidate harvesters to add to all newly
-     * created ICE {@link Agent}s or <tt>null</tt> if there are none.
-     */
-    protected List<CandidateHarvester> getProtocolSpecificHarvesters()
-    {
-        return null;
     }
 
     /**
@@ -963,12 +774,11 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     {
         if(iceAgent != null)
         {
-            LocalCandidate localCandidate =
-                iceAgent.getSelectedLocalCandidate(streamName);
+            LocalCandidate localCandidate
+                = iceAgent.getSelectedLocalCandidate(streamName);
+
             if(localCandidate != null)
-            {
                 return localCandidate.getExtendedType().toString();
-            }
         }
         return null;
     }

@@ -3,7 +3,14 @@ Bundle-Name: Configuration Service Implementation
 Bundle-Description: A bundle that offers configuration utilities
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.configuration
 Import-Package: org.jitsi.service.configuration,
+ org.jitsi.service.fileaccess,
  org.jitsi.service.libjitsi,
- org.osgi.framework
+ net.java.sip.communicator.util,
+ org.jitsi.util,
+ com.sun.jna,
+ org.osgi.framework,
+ org.hsqldb,
+ org.hsqldb.jdbc,
+ com.google.common.collect

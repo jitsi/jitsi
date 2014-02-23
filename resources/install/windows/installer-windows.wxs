@@ -132,6 +132,7 @@
   <ComponentRef Id="Component_StartupShortcut" />
 
   <ComponentGroupRef Id="ComponentGroup_RegistryEntries" />
+  <ComponentGroupRef Id="ComponentGroup_DefaultOverrides" />
 </Feature>
 
 <!--
@@ -205,12 +206,6 @@
 
                 <Control Id="RegistryGroup" Type="GroupBox" X="20" Y="130" Width="330" Height="50" Text="!(loc.ShortcutsAndRegistryDlg_AssociateProtocols)" />
                 <Control Id="SipRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="145" Width="320" Height="15" Property="CREATE_SIP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;SIP" />
-<!--
-  The RSS plug-in has been removed from SIP Communicator so it no longer makes
-  sense to associate SIP Communicator with the FEED protocol.
-
-                <Control Id="FeedRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="160" Width="320" Height="15" Property="CREATE_FEED_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;FEED" />
--->
                 <Control Id="XmppRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="160" Width="320" Height="15" Property="CREATE_XMPP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;XMPP" />
             </Dialog>
 
@@ -468,11 +463,6 @@
     CREATE_STARTUP_SHORTCUT to 0 in order to remove the old shortcut on update.
 -->
 <Property Id="CREATE_STARTUP_SHORTCUT" Value="0" />
-<!--
-  The RSS plug-in has been removed from SIP Communicator so it no longer makes
-  sense to associate SIP Communicator with the FEED protocol.
--->
-<Property Id="CREATE_FEED_REGISTRY_ENTRIES" Value="0" />
 <Property Id="CREATE_MSOFFICECOMM_REGISTRY_ENTRIES" Value="1" />
 <Property Id="CREATE_SIP_REGISTRY_ENTRIES" Value="1" />
 <Property Id="CREATE_XMPP_REGISTRY_ENTRIES" Value="1" />
@@ -682,5 +672,6 @@
     </Fragment>
 
 <?include SCRegistrySpec.wxi ?>
+<?include DefaultOverridesProps.wxi ?>
 
 </Wix>

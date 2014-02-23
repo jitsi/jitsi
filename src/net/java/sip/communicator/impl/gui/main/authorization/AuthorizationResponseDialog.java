@@ -88,15 +88,15 @@ public class AuthorizationResponseDialog
 
         if(responseCode.equals(AuthorizationResponse.ACCEPT))
         {
-            infoTextArea.setText(contact.getDisplayName() + " "
-                + GuiActivator.getResources().getI18NString(
-                    "service.gui.AUTHORIZATION_ACCEPTED"));
+            infoTextArea.setText(GuiActivator.getResources().getI18NString(
+                    "service.gui.AUTHORIZATION_ACCEPTED",
+                    new String[]{contact.getDisplayName()}));
         }
         else if(responseCode.equals(AuthorizationResponse.REJECT))
         {
-            infoTextArea.setText(contact.getDisplayName() + " "
-                + GuiActivator.getResources()
-                    .getI18NString("service.gui.AUTHENTICATION_REJECTED"));
+            infoTextArea.setText(GuiActivator.getResources()
+                    .getI18NString("service.gui.AUTHENTICATION_REJECTED",
+                        new String[]{contact.getDisplayName()}));
         }
 
         if(response.getReason() != null && !response.getReason().equals(""))

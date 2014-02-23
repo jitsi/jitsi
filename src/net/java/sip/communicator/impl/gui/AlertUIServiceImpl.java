@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.gui;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.systray.*;
@@ -40,8 +42,19 @@ public class AlertUIServiceImpl
      * @param title the title of the dialog
      * @param message the message to be displayed
      */
-    public void showAlertDialog(String title, String message)
+    public void showAlertDialog(final String title, final String message)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    showAlertDialog(title, message);
+                }
+            });
+            return;
+        }
         new ErrorDialog(GuiActivator.getUIService().getMainFrame(),
                         title,
                         message).showDialog();
@@ -55,8 +68,20 @@ public class AlertUIServiceImpl
      * @param message the message to be displayed
      * @param e the exception corresponding to the error
      */
-    public void showAlertDialog(String title, String message, Throwable e)
+    public void showAlertDialog(final String title, final String message, 
+        final Throwable e)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    showAlertDialog(title, message, e);
+                }
+            });
+            return;
+        }
         new ErrorDialog(GuiActivator.getUIService().getMainFrame(),
             title,
             message,
@@ -70,8 +95,20 @@ public class AlertUIServiceImpl
      * @param message the message to be displayed
      * @param type the dialog type (warning or error)
      */
-    public void showAlertDialog(String title, String message, int type)
+    public void showAlertDialog(final String title, final String message, 
+        final int type)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    showAlertDialog(title, message, type);
+                }
+            });
+            return;
+        }
         new ErrorDialog(GuiActivator.getUIService().getMainFrame(),
             title,
             message,
@@ -131,9 +168,22 @@ public class AlertUIServiceImpl
      * @param errorDialogMessage the message of the error dialog
      * @param e the exception that can be shown in the error dialog
      */
-    public void showAlertPopup(String title, String message,
-        String errorDialogTitle, String errorDialogMessage, Throwable e)
+    public void showAlertPopup(final String title, final String message,
+        final String errorDialogTitle, final String errorDialogMessage, 
+        final Throwable e)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    showAlertPopup(title, message, errorDialogTitle, 
+                        errorDialogMessage, e);
+                }
+            });
+            return;
+        }
         SystrayService systray = GuiActivator.getSystrayService();
         if(systray == null)
         {

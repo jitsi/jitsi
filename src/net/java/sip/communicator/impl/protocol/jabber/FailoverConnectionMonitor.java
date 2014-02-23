@@ -161,7 +161,7 @@ public class FailoverConnectionMonitor
      */
     private SRVRecord getPrimaryServerRecord(SRVRecord[] recs)
     {
-        if(recs.length > 1)
+        if(recs.length >= 1)
         {
             SRVRecord primary = recs[0];
             for(SRVRecord srv : recs)

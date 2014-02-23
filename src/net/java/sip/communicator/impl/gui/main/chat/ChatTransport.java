@@ -150,6 +150,13 @@ public interface ChatTransport
     public boolean isContentTypeSupported(String contentType);
 
     /**
+     * Whether a dialog need to be opened so the user can enter the destination
+     * number.
+     * @return <tt>true</tt> if dialog needs to be open.
+     */
+    public boolean askForSMSNumber();
+
+    /**
      * Sends the given SMS message trough this chat transport.
      *
      * @param phoneNumber the phone number to which to send the message
@@ -160,13 +167,13 @@ public interface ChatTransport
         throws Exception;
 
     /**
-     * Sends the given SMS message trough this chat transport.
+     * Sends the given SMS message trough this chat transport, leaving
+     * the transport to choose the destination.
      *
-     * @param contact the phone number to which to send the message
      * @param message The message to send.
      * @throws Exception if the send doesn't succeed
      */
-    public void sendSmsMessage(Contact contact, String message)
+    public void sendSmsMessage(String message)
         throws Exception;
 
     /**

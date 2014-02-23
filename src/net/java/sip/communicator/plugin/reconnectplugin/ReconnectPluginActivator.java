@@ -174,6 +174,17 @@ public class ReconnectPluginActivator
             "ATLEAST_ONE_SUCCESSFUL_CONNECTION";
 
     /**
+     * Timer used to filter out too frequent "network down" notifications
+     * on Android.
+     */
+    private Timer delayedNetworkDown;
+
+    /**
+     * Delay used for filtering out "network down" notifications.
+     */
+    private static final long NETWORK_DOWN_THRESHOLD = 30 * 1000;
+
+    /**
      * Starts this bundle.
      *
      * @param bundleContext the <tt>BundleContext</tt> in which this bundle is
@@ -453,6 +464,8 @@ public class ReconnectPluginActivator
             // no connection so one is up, lets connect
             if(connectedInterfaces.isEmpty())
             {
+                onNetworkUp();
+
                 Iterator<ProtocolProviderService> iter =
                     needsReconnection.iterator();
                 while (iter.hasNext())
@@ -532,9 +545,7 @@ public class ReconnectPluginActivator
 
                 connectedInterfaces.clear();
 
-                if (logger.isTraceEnabled())
-                    logger.trace("Network is down!");
-                notify("", "plugin.reconnectplugin.NETWORK_DOWN", new String[0]);
+                onNetworkDown();
             }
         }
 
@@ -595,9 +606,10 @@ public class ReconnectPluginActivator
 
                             currentlyReconnecting.put(pp, task);
 
-                            if (logger.isTraceEnabled())
-                                logger.trace("Reconnect " + pp +
-                                    " after " + task.delay + " ms.");
+                            if (logger.isInfoEnabled())
+                                logger.info("Reconnect " +
+                                    pp.getAccountID().getDisplayName()
+                                    + " after " + task.delay + " ms.");
 
                             timer.schedule(task, task.delay);
                         }
@@ -635,14 +647,23 @@ public class ReconnectPluginActivator
      * @param title the title.
      * @param i18nKey the resource key of the notification.
      * @param params and parameters in any.
+     * @param tag extra notification tag object
      */
-    private void notify(String title, String i18nKey, String[] params)
+    private void notify(String title, String i18nKey, String[] params,
+                        Object tag)
     {
+        Map<String,Object> extras = new HashMap<String,Object>();
+
+        extras.put(
+                NotificationData.POPUP_MESSAGE_HANDLER_TAG_EXTRA,
+                tag);
+
         getNotificationService().fireNotification(
                     NETWORK_NOTIFICATIONS,
                     title,
                     getResources().getI18NString(i18nKey, params),
-                    null);
+                    null,
+                    extras);
     }
 
     /**
@@ -682,7 +703,8 @@ public class ReconnectPluginActivator
                         notify(
                             getResources().getI18NString("service.gui.ERROR"),
                             "service.gui.NON_EXISTING_USER_ID",
-                            new String[]{pp.getAccountID().getService()});
+                            new String[]{pp.getAccountID().getService()},
+                            pp.getAccountID());
                     }
                     else
                     {
@@ -691,7 +713,8 @@ public class ReconnectPluginActivator
                             "plugin.reconnectplugin.CONNECTION_FAILED_MSG",
                             new String[]
                             {   pp.getAccountID().getUserID(),
-                                pp.getAccountID().getService() });
+                                pp.getAccountID().getService() },
+                            pp.getAccountID());
                     }
 
                     return;
@@ -846,9 +869,10 @@ public class ReconnectPluginActivator
 
                              currentlyReconnecting.put(pp, task);
 
-                             if (logger.isTraceEnabled())
-                                 logger.trace("Reconnect " + pp +
-                                         " after " + task.delay + " ms.");
+                             if (logger.isInfoEnabled())
+                                 logger.info("Reconnect " +
+                                     pp.getAccountID().getDisplayName() +
+                                     " after " + task.delay + " ms.");
 
                              timer.schedule(task, task.delay);
                          }
@@ -963,5 +987,59 @@ public class ReconnectPluginActivator
            ATLEAST_ONE_CONNECTION_PROP + "."
             + pp.getAccountID().getAccountUniqueID(),
            Boolean.valueOf(value).toString());
+    }
+
+    /**
+     * Called when first connected interface is added to
+     * {@link #connectedInterfaces} list.
+     */
+    private void onNetworkUp()
+    {
+        if(delayedNetworkDown != null)
+        {
+            delayedNetworkDown.cancel();
+            delayedNetworkDown = null;
+        }
+    }
+
+    /**
+     * Called when first there are no more connected interface present in
+     * {@link #connectedInterfaces} list.
+     */
+    private void onNetworkDown()
+    {
+        if(!org.jitsi.util.OSUtils.IS_ANDROID)
+        {
+            notifyNetworkDown();
+        }
+        else
+        {
+            // Android never keeps two active connection at the same time
+            // and it may take some time to attach next connection
+            // even if it was already enabled by user
+            if(delayedNetworkDown == null)
+            {
+                delayedNetworkDown = new Timer();
+                delayedNetworkDown.schedule(new TimerTask()
+                {
+                    @Override
+                    public void run()
+                    {
+                        notifyNetworkDown();
+                    }
+                }, NETWORK_DOWN_THRESHOLD);
+            }
+        }
+    }
+
+    /**
+     * Posts "network is down" notification.
+     */
+    private void notifyNetworkDown()
+    {
+        if (logger.isTraceEnabled())
+            logger.trace("Network is down!");
+        notify("", "plugin.reconnectplugin.NETWORK_DOWN",
+               new String[0], this);
     }
 }

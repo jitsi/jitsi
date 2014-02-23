@@ -3,7 +3,7 @@ Bundle-Name: OTR (Off-the-Record) Messaging
 Bundle-Description: Support for secure, Off The Record messaging in SIP Communicator
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.plugin.otr
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.browserlauncher,
  org.jitsi.service.configuration,
@@ -12,7 +12,7 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.event,
  org.jitsi.service.resources, net.java.sip.communicator.service.resources,
- net.java.sip.communicator.util,
+ org.jitsi.util, net.java.sip.communicator.util,
  net.java.sip.communicator.plugin.desktoputil,
  javax.imageio,
  javax.swing,
@@ -20,6 +20,8 @@ Import-Package: org.osgi.framework,
  javax.swing.table,
  javax.swing.text,
  javax.swing.event,
+ javax.swing.plaf,
+ javax.swing.plaf.basic,
  javax.crypto,
  javax.crypto.interfaces,
  javax.crypto.spec,
@@ -30,4 +32,5 @@ Import-Package: org.osgi.framework,
  org.bouncycastle.crypto.engines,
  org.bouncycastle.crypto.modes,
  org.bouncycastle.util,
- org.bouncycastle.util.encoders
+ org.bouncycastle.util.encoders,
+ net.java.sip.communicator.service.msghistory

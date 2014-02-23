@@ -3,7 +3,7 @@ Bundle-Name: Desktop Notifications Provider
 Bundle-Description: A bundle which implements notifications according to the freedesktop.org Desktop Notifications spec.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.galagonotification
 Import-Package: javax.imageio,
  net.java.sip.communicator.service.systray,
  org.jitsi.service.resources, net.java.sip.communicator.service.resources,

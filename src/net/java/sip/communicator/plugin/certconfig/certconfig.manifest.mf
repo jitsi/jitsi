@@ -3,7 +3,7 @@ Bundle-Name: Certificate Configuration Plugin
 Bundle-Description: Allows the configuration of general X.509 certificate settings.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: no
+Bundle-SymbolicName: net.java.sip.communicator.plugin.certconfig
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.certificate,
  org.jitsi.service.configuration,

@@ -16,6 +16,7 @@ import net.java.sip.communicator.service.contactlist.*;
  *
  * @author Alexander Pelov
  * @author Damian Minkov
+ * @author Hristo Terezov
  */
 public interface CallHistoryService
 {
@@ -143,4 +144,30 @@ public interface CallHistoryService
     */
     public void removeSearchProgressListener(
         CallHistorySearchProgressListener listener);
+
+    /**
+     * Updates the secondary address field of call record.
+     * @param date the start date of the record which will be updated.
+     * @param peer the peer of the record which will be updated.
+     * @param address the value of the secondary address .
+     */
+    public void updateCallRecordPeerSecondaryAddress(final Date date,
+        final String peerAddress,
+        final String address);
+
+    /**
+     * Adding <tt>CallHistoryRecordListener</tt> listener to the list.
+     *
+     * @param listener CallHistoryRecordListener
+     */
+    public void addCallHistoryRecordListener(
+        CallHistoryPeerRecordListener listener);
+
+    /**
+     * Removing <tt>CallHistoryRecordListener</tt> listener
+     *
+     * @param listener CallHistoryRecordListener
+     */
+    public void removeCallHistoryRecordListener(
+        CallHistoryPeerRecordListener listener);
 }

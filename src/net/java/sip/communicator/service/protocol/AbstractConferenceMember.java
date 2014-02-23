@@ -222,7 +222,7 @@ public class AbstractConferenceMember
         return videoStatus;
     }
 
-    private static long parseMediaSssrc(Object value)
+    private static long parseMediaSSRC(Object value)
     {
         long ssrc;
 
@@ -376,7 +376,7 @@ public class AbstractConferenceMember
 
             if (AUDIO_SSRC_PROPERTY_NAME.equals(key))
             {
-                long ssrc = parseMediaSssrc(value);
+                long ssrc = parseMediaSSRC(value);
 
                 if (getAudioSsrc() != ssrc)
                 {
@@ -396,7 +396,7 @@ public class AbstractConferenceMember
             }
             else if (VIDEO_SSRC_PROPERTY_NAME.equals(key))
             {
-                long ssrc = parseMediaSssrc(value);
+                long ssrc = parseMediaSSRC(value);
 
                 if (getVideoSsrc() != ssrc)
                 {

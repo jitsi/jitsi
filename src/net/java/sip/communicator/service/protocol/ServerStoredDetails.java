@@ -306,6 +306,12 @@ public class ServerStoredDetails
         {
             super("Country", locale);
         }
+
+        public CountryDetail(String country)
+        {
+            super("Country", null);
+            value = country;
+        }
     }
 
     /**
@@ -316,6 +322,11 @@ public class ServerStoredDetails
         public WorkCountryDetail(Locale locale)
         {
             super(locale);
+        }
+
+        public WorkCountryDetail(String country)
+        {
+            super(country);
         }
     }
 
@@ -447,6 +458,43 @@ public class ServerStoredDetails
         {
             return (URL)getDetailValue();
         }
+
+        /**
+         * Compares two URLDetails according their name
+         * and URLs
+         *
+         * @param obj Object expected URLDetail otherwise return false
+         * @return <tt>true</tt> if this object has the same name and
+         * URL value as <tt>obj</tt> and false otherwise
+         */
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (!(obj instanceof URLDetail))
+                return false;
+
+            if (this == obj)
+            {
+                return true;
+            }
+
+            URLDetail other = (URLDetail)obj;
+            boolean equalsDisplayName =
+                this.detailDisplayName != null
+                && other.getDetailDisplayName() != null
+                && this.detailDisplayName.equals(other.getDetailDisplayName());
+            boolean equalValues =
+                this.value != null
+                && other.getDetailValue() != null
+                && this.value.equals(other.getDetailValue());
+
+            boolean bothNullValues =
+                this.value == null && other.value == null;
+            if (equalsDisplayName && (equalValues || bothNullValues))
+                return true;
+            else
+                return false;
+        }
     }
 
     /**
@@ -486,6 +534,44 @@ public class ServerStoredDetails
         public byte[] getBytes()
         {
             return (byte[])getDetailValue();
+        }
+
+        /**
+         * Compares two BinaryDetails according their DetailDisplayName
+         * and the result of invoking their getBytes() methods.
+         *
+         * @param obj Object expected BinaryDetail otherwise return false
+         * @return <tt>true</tt> if this object has the same display name and
+         * value as <tt>obj</tt> and false otherwise
+         */
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (!(obj instanceof BinaryDetail))
+                return false;
+
+            if (this == obj)
+            {
+                return true;
+            }
+
+            BinaryDetail other = (BinaryDetail)obj;
+            boolean equalsDisplayName =
+                this.detailDisplayName != null
+                && other.getDetailDisplayName() != null
+                && this.detailDisplayName.equals(other.getDetailDisplayName());
+            boolean equalsNotNull =
+                this.value != null
+                && other.getDetailValue() != null
+                && Arrays.equals(this.getBytes(), other.getBytes());
+            boolean nullOrEmpty =
+                (this.value == null || this.getBytes().length == 0)
+                && (other.getDetailValue() == null
+                    || other.getBytes().length == 0);
+            if (equalsDisplayName && (equalsNotNull || nullOrEmpty))
+                return true;
+            else
+                return false;
         }
     }
 
@@ -641,6 +727,48 @@ public class ServerStoredDetails
         {
             super("Birth Date", date);
         }
+
+        /**
+         * Compares two BirthDateDetails according to their
+         * Calender's year, month and day.
+         *
+         * @param obj Object expected BirthDateDetail otherwise return false
+         * @return <tt>true</tt> if this object has the same value as
+         * <tt>obj</tt> and false otherwise
+         */
+        @Override
+        public boolean equals(Object obj)
+        {
+            if(!(obj instanceof BirthDateDetail))
+                return false;
+
+            if(this == obj)
+            {
+                return true;
+            }
+
+            BirthDateDetail other = (BirthDateDetail)obj;
+
+            // both null dates
+            if (this.value == null && other.getDetailValue() == null)
+                return true;
+
+            if (this.value != null && other.getDetailValue() != null)
+            {
+                boolean yearEquals =
+                    ((Calendar)this.value).get(Calendar.YEAR) ==
+                    ((Calendar)other.value).get(Calendar.YEAR);
+                boolean monthEquals =
+                    ((Calendar)this.value).get(Calendar.MONTH) ==
+                    ((Calendar)other.value).get(Calendar.MONTH);
+                boolean dayEquals =
+                    ((Calendar)this.value).get(Calendar.DAY_OF_MONTH) ==
+                    ((Calendar)other.value).get(Calendar.DAY_OF_MONTH);
+                return yearEquals && monthEquals && dayEquals;
+            }
+            else
+                return false;
+        }
     }
 
     /**
@@ -745,6 +873,29 @@ public class ServerStoredDetails
         public boolean getBoolean()
         {
             return ((Boolean)getDetailValue()).booleanValue();
+        }
+    }
+
+//---------------------------- Others ------------------------------------------
+    /**
+     * A job title.
+     */
+    public static class JobTitleDetail extends StringDetail
+    {
+        public JobTitleDetail(String jobTitle)
+        {
+            super("Job Title", jobTitle);
+        }
+    }
+
+    /**
+     * Represents a (personal) "about me" short description.
+     */
+    public static class AboutMeDetail extends StringDetail
+    {
+        public AboutMeDetail(String description)
+        {
+            super("Description", description);
         }
     }
 }

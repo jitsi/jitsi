@@ -248,7 +248,8 @@ public class OperationSetGenericNotificationsJabberImpl
         Contact sender = opSetPersPresence.findContactByID(fromUserID);
 
         if(sender == null)
-            sender = opSetPersPresence.createVolatileContact(fromUserID);
+            sender = opSetPersPresence.createVolatileContact(
+                notifyEvent.getFrom());
 
         if(notifyEvent.getType() == Type.GET)
             fireNewEventNotification(
@@ -291,7 +292,7 @@ public class OperationSetGenericNotificationsJabberImpl
                 opSetPersPresence.findContactByID(sourceUserID);
         if(sourceContact == null)
             sourceContact = opSetPersPresence
-                    .createVolatileContact(sourceUserID);
+                    .createVolatileContact(source);
 
         GenericEvent
             event = new GenericEvent(

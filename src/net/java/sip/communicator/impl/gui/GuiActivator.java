@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.gui;
 
 import java.util.*;
 
+import javax.swing.*;
+
 import net.java.sip.communicator.impl.gui.main.account.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -15,16 +17,20 @@ import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.customcontactactions.*;
 import net.java.sip.communicator.service.desktop.*;
 import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
 import net.java.sip.communicator.service.metahistory.*;
+import net.java.sip.communicator.service.msghistory.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.service.replacement.*;
+import net.java.sip.communicator.service.replacement.directimage.*;
 import net.java.sip.communicator.service.replacement.smilies.*;
 import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.service.systray.*;
@@ -36,8 +42,6 @@ import org.jitsi.service.fileaccess.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
-
-import javax.swing.*;
 
 /**
  * The GUI Activator class.
@@ -85,6 +89,8 @@ public class GuiActivator implements BundleActivator
 
     private static SmiliesReplacementService smiliesService;
 
+    private static DirectImageReplacementService directImageService;
+
     private static GlobalStatusService globalStatusService;
 
     private static AccountManager accountManager;
@@ -102,6 +108,12 @@ public class GuiActivator implements BundleActivator
     private static GlobalDisplayDetailsService globalDisplayDetailsService;
 
     private static AlertUIService alertUIService;
+    
+    private static CredentialsStorageService credentialsService;
+    
+    private static MUCService mucService;
+    
+    private static MessageHistoryService messageHistoryService;
 
     private static final Map<Object, ProtocolProviderFactory>
         providerFactoriesMap = new Hashtable<Object, ProtocolProviderFactory>();
@@ -151,6 +163,7 @@ public class GuiActivator implements BundleActivator
 
             SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     uiService.loadApplicationGui();
@@ -160,31 +173,31 @@ public class GuiActivator implements BundleActivator
 
                     bundleContext.addServiceListener(uiService);
 
-                    // don't block the ui thread
-                    // with registering services, as they are executed
-                    // in the same thread as registering
-                    new Thread(new Runnable()
+                    // don't block the ui thread with registering services, as
+                    // they are executed in the same thread as registering
+                    new Thread()
                     {
+                        @Override
                         public void run()
                         {
                             if (logger.isInfoEnabled())
                                 logger.info("UI Service...[  STARTED ]");
 
                             bundleContext.registerService(
-                                UIService.class.getName(),
-                                uiService,
-                                null);
+                                    UIService.class.getName(),
+                                    uiService,
+                                    null);
 
                             if (logger.isInfoEnabled())
                                 logger.info("UI Service ...[REGISTERED]");
 
                             // UIServiceImpl also implements ShutdownService.
                             bundleContext.registerService(
-                                ShutdownService.class.getName(),
-                                uiService,
-                                null);
+                                    ShutdownService.class.getName(),
+                                    uiService,
+                                    null);
                         }
-                    }).start();
+                    }.start();
                 }
             });
 
@@ -645,6 +658,24 @@ public class GuiActivator implements BundleActivator
     }
 
     /**
+     * Returns the <tt>DirectImageReplacementService</tt> obtained from the
+     * bundle context.
+     * 
+     * @return the <tt>DirectImageReplacementService</tt> implementation
+     * obtained from the bundle context
+     */
+    public static DirectImageReplacementService getDirectImageReplacementSource()
+    {
+        if (directImageService == null)
+        {
+            directImageService
+                = ServiceUtils.getService(bundleContext,
+                    DirectImageReplacementService.class);
+        }
+        return directImageService;
+    }
+
+    /**
      * Returns the <tt>SecurityAuthority</tt> implementation registered to
      * handle security authority events.
      *
@@ -669,16 +700,13 @@ public class GuiActivator implements BundleActivator
      */
     public static NotificationService getNotificationService()
     {
-        if(notificationService == null)
+        if (notificationService == null)
         {
-            // Get the notification service implementation
-            ServiceReference notifReference = bundleContext
-                .getServiceReference(NotificationService.class.getName());
-
-            notificationService = (NotificationService) bundleContext
-                .getService(notifReference);
+            notificationService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        NotificationService.class);
         }
-
         return notificationService;
     }
 
@@ -828,5 +856,60 @@ public class GuiActivator implements BundleActivator
             }
         }
         return null;
+    }
+
+    /**
+     * Returns a reference to a CredentialsStorageService implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a currently valid implementation of the
+     * CredentialsStorageService.
+     */
+    public static CredentialsStorageService getCredentialsStorageService()
+    {
+        if (credentialsService == null)
+        {
+            ServiceReference credentialsReference
+                = bundleContext.getServiceReference(
+                    CredentialsStorageService.class.getName());
+            credentialsService
+                = (CredentialsStorageService) bundleContext
+                                        .getService(credentialsReference);
+        }
+        return credentialsService;
+    }
+    
+    /**
+     * Returns a reference to a MUCService implementation
+     * currently registered in the bundle context or null if no such
+     * implementation was found.
+     *
+     * @return a currently valid implementation of the
+     * MUCService.
+     */
+    public static MUCService getMUCService()
+    {
+        if (mucService == null)
+        {
+            ServiceReference mucServiceReference
+                = bundleContext.getServiceReference(MUCService.class.getName());
+            mucService
+                = (MUCService) bundleContext.getService(mucServiceReference);
+        }
+        return mucService;
+    }
+    
+    /**
+     * Gets the service giving access to message history.
+     *
+     * @return the service giving access to message history.
+     */
+    public static MessageHistoryService getMessageHistoryService()
+    {
+        if (messageHistoryService == null)
+            messageHistoryService = ServiceUtils.getService(bundleContext, 
+                MessageHistoryService.class);
+        return messageHistoryService;
     }
 }

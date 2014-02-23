@@ -25,6 +25,12 @@ JNIEXPORT void JNICALL
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIUninitialize
   (JNIEnv *, jclass);
 
+JNIEXPORT int JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_getOutlookBitnessVersion
+    (JNIEnv *jniEnv, jclass clazz);
+
+JNIEXPORT int JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_getOutlookVersion
+    (JNIEnv *jniEnv, jclass clazz);
+
 #ifdef __cplusplus
 }
 #endif

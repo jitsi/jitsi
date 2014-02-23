@@ -23,7 +23,6 @@ import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
-// disambiguates Contact
 
 /**
  * Implements all call management logic and exports basic telephony support by
@@ -2036,9 +2035,9 @@ public class OperationSetBasicTelephonySipImpl
         if(!protocolProvider.isRegistered())
         {
             throw new OperationFailedException(
-                "The protocol provider should be registered "
-                +"before placing an outgoing call.",
-                OperationFailedException.PROVIDER_NOT_REGISTERED);
+                    "The protocol provider should be registered before placing"
+                        + " an outgoing call.",
+                    OperationFailedException.PROVIDER_NOT_REGISTERED);
         }
     }
 

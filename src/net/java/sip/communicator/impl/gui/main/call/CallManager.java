@@ -7,14 +7,15 @@
 package net.java.sip.communicator.impl.gui.main.call;
 
 import java.awt.*;
+import java.lang.ref.*;
 import java.text.*;
 import java.util.*;
 import java.util.List;
+import java.util.regex.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
@@ -43,6 +44,7 @@ import org.jitsi.util.*;
  *
  * @author Yana Stamcheva
  * @author Lyubomir Marinov
+ * @author Boris Grozev
  */
 public class CallManager
 {
@@ -59,6 +61,14 @@ public class CallManager
     private static final String desktopSharingWarningProperty
         = "net.java.sip.communicator.impl.gui.main"
             + ".call.SHOW_DESKTOP_SHARING_WARNING";
+
+    /**
+     * The name of the property which indicates whether the preferred provider
+     * will be used when calling UIContact (call history).
+     */
+    private static final String IGNORE_PREFERRED_PROVIDER_PROP
+        = "net.java.sip.communicator.impl.gui.main"
+            + ".call.IGNORE_PREFERRED_PROVIDER_PROP";
 
     /**
      * The <tt>CallPanel</tt>s opened by <tt>CallManager</tt> (because
@@ -84,6 +94,33 @@ public class CallManager
         extends SwingCallListener
     {
         /**
+         * Maps for incoming call handlers. The handlers needs to be created
+         * in the protocol thread while their method
+         * incomingCallReceivedInEventDispatchThread will be called on EDT.
+         * On the protocol thread a call state changed listener is added,
+         * if this is done on the EDT there is a almost no gap between incoming
+         * CallEvent and call state changed when doing auto answer and we
+         * end up with call answered and dialog for incoming call.
+         */
+        private Map<CallEvent,WeakReference<IncomingCallHandler>>
+            inCallHandlers = Collections.synchronizedMap(
+                new WeakHashMap<CallEvent,
+                                WeakReference<IncomingCallHandler>>());
+
+        /**
+         * Delivers the <tt>CallEvent</tt> in the protocol thread.
+         */
+        public void incomingCallReceived(CallEvent ev)
+        {
+            inCallHandlers.put(
+                ev,
+                new WeakReference<IncomingCallHandler>(
+                        new IncomingCallHandler(ev.getSourceCall())));
+
+            super.incomingCallReceived(ev);
+        }
+
+        /**
          * Implements {@link CallListener#incomingCallReceived(CallEvent)}. When
          * a call is received, creates a <tt>ReceivedCallDialog</tt> and plays
          * the ring phone sound to the user.
@@ -93,104 +130,13 @@ public class CallManager
         @Override
         public void incomingCallReceivedInEventDispatchThread(CallEvent ev)
         {
-            Call sourceCall = ev.getSourceCall();
-            boolean isVideoCall
-                = ev.isVideoCall()
-                    && ConfigurationUtils.hasEnabledVideoFormat(
-                            sourceCall.getProtocolProvider());
-            final ReceivedCallDialog receivedCallDialog
-                = new ReceivedCallDialog(
-                        sourceCall,
-                        isVideoCall,
-                        (CallManager.getInProgressCalls().size() > 0));
+            WeakReference<IncomingCallHandler> ihRef
+                = inCallHandlers.remove(ev);
 
-            receivedCallDialog.setVisible(true);
-
-            Iterator<? extends CallPeer> peerIter = sourceCall.getCallPeers();
-
-            if(!peerIter.hasNext())
+            if(ihRef != null)
             {
-                if (receivedCallDialog.isVisible())
-                    receivedCallDialog.setVisible(false);
-                return;
+                ihRef.get().incomingCallReceivedInEventDispatchThread(ev);
             }
-
-            final String peerName = peerIter.next().getDisplayName();
-            final long callTime = System.currentTimeMillis();
-
-            sourceCall.addCallChangeListener(new CallChangeAdapter()
-            {
-                @Override
-                public void callStateChanged(final CallChangeEvent ev)
-                {
-                    if(!SwingUtilities.isEventDispatchThread())
-                    {
-                        SwingUtilities.invokeLater(
-                                new Runnable()
-                                {
-                                    public void run()
-                                    {
-                                        callStateChanged(ev);
-                                    }
-                                });
-                        return;
-                    }
-
-                    // When the call state changes, we ensure here that the
-                    // received call notification dialog is closed.
-                    if (receivedCallDialog.isVisible())
-                        receivedCallDialog.setVisible(false);
-
-                    // Ensure that the CallDialog is created, because it is the
-                    // one that listens for CallPeers.
-                    Object newValue = ev.getNewValue();
-                    Call call = ev.getSourceCall();
-
-                    if (CallState.CALL_INITIALIZATION.equals(newValue)
-                            || CallState.CALL_IN_PROGRESS.equals(newValue))
-                    {
-                        openCallContainerIfNecessary(call);
-                    }
-                    else if (CallState.CALL_ENDED.equals(newValue))
-                    {
-                        if (ev.getOldValue().equals(
-                                CallState.CALL_INITIALIZATION))
-                        {
-                            // If the call was answered elsewhere, don't mark it
-                            // as missed.
-                            CallPeerChangeEvent cause = ev.getCause();
-
-                            if ((cause == null)
-                                    || (cause.getReasonCode()
-                                            != CallPeerChangeEvent
-                                                    .NORMAL_CALL_CLEARING))
-                            {
-                                addMissedCallNotification(peerName, callTime);
-                            }
-                        }
-
-                        call.removeCallChangeListener(this);
-
-                        // If we're currently in the call history view, refresh
-                        // it.
-                        TreeContactList contactList
-                            = GuiActivator.getContactList();
-
-                        if (contactList.getCurrentFilter().equals(
-                                TreeContactList.historyFilter))
-                        {
-                            contactList.applyFilter(
-                                    TreeContactList.historyFilter);
-                        }
-                    }
-                }
-            });
-
-            /*
-             * Notify the existing CallPanels about the CallEvent (in case they
-             * need to update their UI, for example).
-             */
-            forwardCallEventToCallPanels(ev);
         }
 
         /**
@@ -213,6 +159,18 @@ public class CallManager
              * they need to update their UI, for example).
              */
             forwardCallEventToCallPanels(ev);
+
+            // If we're currently in the call history view, refresh
+            // it.
+            TreeContactList contactList
+                = GuiActivator.getContactList();
+
+            if (contactList.getCurrentFilter().equals(
+                    TreeContactList.historyFilter))
+            {
+                contactList.applyFilter(
+                        TreeContactList.historyFilter);
+            }
         }
 
         /**
@@ -227,6 +185,142 @@ public class CallManager
             Call sourceCall = ev.getSourceCall();
 
             openCallContainerIfNecessary(sourceCall);
+
+            /*
+             * Notify the existing CallPanels about the CallEvent (in case they
+             * need to update their UI, for example).
+             */
+            forwardCallEventToCallPanels(ev);
+        }
+    }
+
+    /**
+     * Handles incoming calls. Must be created on the protocol thread while the
+     * method incomingCallReceivedInEventDispatchThread is executed on the EDT.
+     */
+    private static class IncomingCallHandler
+        extends CallChangeAdapter
+    {
+        /**
+         * The dialog shown
+         */
+        private ReceivedCallDialog receivedCallDialog;
+
+        /**
+         * Peer name.
+         */
+        private String peerName;
+
+        /**
+         * The time of the incoming call.
+         */
+        private long callTime;
+
+        /**
+         * Construct
+         * @param sourceCall
+         */
+        IncomingCallHandler(Call sourceCall)
+        {
+            Iterator<? extends CallPeer> peerIter = sourceCall.getCallPeers();
+
+            if(!peerIter.hasNext())
+            {
+                return;
+            }
+
+            peerName = peerIter.next().getDisplayName();
+            callTime = System.currentTimeMillis();
+
+            sourceCall.addCallChangeListener(this);
+        }
+
+        /**
+         * State has changed.
+         * @param ev
+         */
+        @Override
+        public void callStateChanged(final CallChangeEvent ev)
+        {
+            if(!SwingUtilities.isEventDispatchThread())
+            {
+                SwingUtilities.invokeLater(
+                        new Runnable()
+                        {
+                            public void run()
+                            {
+                                callStateChanged(ev);
+                            }
+                        });
+                return;
+            }
+            if (!CallChangeEvent.CALL_STATE_CHANGE
+                    .equals(ev.getPropertyName()))
+                return;
+
+            // When the call state changes, we ensure here that the
+            // received call notification dialog is closed.
+            if (receivedCallDialog != null && receivedCallDialog.isVisible())
+                receivedCallDialog.setVisible(false);
+
+            // Ensure that the CallDialog is created, because it is the
+            // one that listens for CallPeers.
+            Object newValue = ev.getNewValue();
+            Call call = ev.getSourceCall();
+
+            if (CallState.CALL_INITIALIZATION.equals(newValue)
+                    || CallState.CALL_IN_PROGRESS.equals(newValue))
+            {
+                openCallContainerIfNecessary(call);
+            }
+            else if (CallState.CALL_ENDED.equals(newValue))
+            {
+                if (ev.getOldValue().equals(
+                        CallState.CALL_INITIALIZATION))
+                {
+                    // If the call was answered elsewhere, don't mark it
+                    // as missed.
+                    CallPeerChangeEvent cause = ev.getCause();
+
+                    if ((cause == null)
+                            || (cause.getReasonCode()
+                                    != CallPeerChangeEvent
+                                            .NORMAL_CALL_CLEARING))
+                    {
+                        addMissedCallNotification(peerName, callTime);
+                    }
+                }
+
+                call.removeCallChangeListener(this);
+            }
+        }
+
+        /**
+         * Executed on EDT cause will create dialog and will show it.
+         * @param ev
+         */
+        public void incomingCallReceivedInEventDispatchThread(CallEvent ev)
+        {
+            Call sourceCall = ev.getSourceCall();
+            boolean isVideoCall
+                = ev.isVideoCall()
+                    && ConfigurationUtils.hasEnabledVideoFormat(
+                            sourceCall.getProtocolProvider());
+            receivedCallDialog = new ReceivedCallDialog(
+                sourceCall,
+                isVideoCall,
+                (CallManager.getInProgressCalls().size() > 0));
+
+            receivedCallDialog.setVisible(true);
+
+            Iterator<? extends CallPeer> peerIter = sourceCall.getCallPeers();
+
+            if(!peerIter.hasNext())
+            {
+                if (receivedCallDialog.isVisible())
+                    receivedCallDialog.setVisible(false);
+                return;
+            }
 
             /*
              * Notify the existing CallPanels about the CallEvent (in case they
@@ -359,7 +453,7 @@ public class CallManager
                                     UIContactImpl uiContact)
     {
         new CreateCallThread(protocolProvider, null, null, uiContact,
-            contact, false /* audio-only */).start();
+            contact, null, null, false /* audio-only */).start();
     }
 
     /**
@@ -387,7 +481,7 @@ public class CallManager
                                         UIContactImpl uiContact)
     {
         new CreateCallThread(protocolProvider, null, null, uiContact,
-            contact, true /* video */).start();
+            contact, null, null, true /* video */).start();
     }
 
     /**
@@ -815,8 +909,11 @@ public class CallManager
         callString = callString.trim();
 
         // Removes special characters from phone numbers.
-        if (ConfigurationUtils.isNormalizePhoneNumber())
+        if (ConfigurationUtils.isNormalizePhoneNumber()
+            && !NetworkUtils.isValidIPAddress(callString))
+        {
             callString = PhoneNumberI18nService.normalize(callString);
+        }
 
         List<ProtocolProviderService> telephonyProviders
             = CallManager.getTelephonyProviders();
@@ -997,7 +1094,7 @@ public class CallManager
      * @param callees the list of participants/callees to invite to the
      * newly-created video bridge conference <tt>Call</tt>
      */
-    public static void createVideoBridgeConfCall(
+    public static void createJitsiVideobridgeConfCall(
                                         ProtocolProviderService callProvider,
                                         String[] callees)
     {
@@ -1011,7 +1108,7 @@ public class CallManager
      * @param callees the list of contacts to invite
      * @param call the protocol provider to which this call belongs
      */
-    public static void inviteToVideoBridgeConfCall(String[] callees, Call call)
+    public static void inviteToJitsiVideobridgeConfCall(String[] callees, Call call)
     {
         new InviteToConferenceBridgeThread( call.getProtocolProvider(),
                                             callees,
@@ -1319,8 +1416,21 @@ public class CallManager
         UIContactImpl uiContact
             = CallManager.getCallUIContact(peer.getCall());
 
-        if (uiContact != null)
-            displayName = uiContact.getDisplayName();
+        if(uiContact != null)
+        {
+            if(uiContact.getDescriptor() instanceof SourceContact)
+            {
+                // if it is source contact (history record)
+                // search for cusax contact match
+                Contact contact = getPeerCusaxContact(peer,
+                    (SourceContact)uiContact.getDescriptor());
+                if(contact != null)
+                    displayName = contact.getDisplayName();
+            }
+
+            if(StringUtils.isNullOrEmpty(displayName, true))
+                displayName = uiContact.getDisplayName();
+        }
 
         // We search for a contact corresponding to this call peer and
         // try to get its display name.
@@ -1410,7 +1520,22 @@ public class CallManager
                 = CallManager.getCallUIContact(peer.getCall());
 
             if (uiContact != null)
-                image = uiContact.getAvatar();
+            {
+                if(uiContact.getDescriptor() instanceof SourceContact
+                    && ((SourceContact)uiContact.getDescriptor())
+                        .isDefaultImage())
+                {
+                    // if it is source contact (history record)
+                    // search for cusax contact match
+                    Contact contact = getPeerCusaxContact(peer,
+                        (SourceContact)uiContact.getDescriptor());
+
+                    if(contact != null)
+                        image = contact.getImage();
+                }
+                else
+                    image = uiContact.getAvatar();
+            }
         }
 
         // We try to find the an alternative peer address.
@@ -1468,6 +1593,40 @@ public class CallManager
      */
     public static Contact getIMCapableCusaxContact(CallPeer peer)
     {
+        // We try to find the <tt>UIContact</tt>, to which the call was
+        // created if this was an outgoing call.
+        UIContactImpl uiContact
+            = CallManager.getCallUIContact(peer.getCall());
+
+        if (uiContact != null)
+        {
+            if(uiContact.getDescriptor() instanceof MetaContact)
+            {
+                MetaContact metaContact =
+                    (MetaContact)uiContact.getDescriptor();
+                Iterator<Contact> iter = metaContact.getContacts();
+                while(iter.hasNext())
+                {
+                    Contact contact = iter.next();
+                    if(contact.getProtocolProvider()
+                        .getOperationSet(
+                            OperationSetBasicInstantMessaging.class) != null)
+                        return contact;
+                }
+            }
+            else if(uiContact.getDescriptor() instanceof SourceContact)
+            {
+                // if it is source contact (history record)
+                // search for cusax contact match
+                Contact contact = getPeerCusaxContact(peer,
+                            (SourceContact)uiContact.getDescriptor());
+                if(contact != null
+                    && contact.getProtocolProvider().getOperationSet(
+                            OperationSetBasicInstantMessaging.class) != null)
+                    return contact;
+            }
+        }
+
         // We try to find the an alternative peer address.
         String imppAddress = peer.getAlternativeIMPPAddress();
 
@@ -1500,6 +1659,128 @@ public class CallManager
                     return contact;
                 }
             }
+        }
+
+        return null;
+    }
+
+    /**
+     * Find is there a linked cusax protocol provider for this source contact,
+     * if it exist we try to resolve current peer to one of its contacts
+     * or details of a contact (numbers).
+     * @param peer the peer to check
+     * @param sourceContact the currently selected source contact.
+     * @return matching cusax contact.
+     */
+    private static Contact getPeerCusaxContact(
+        CallPeer peer, SourceContact sourceContact)
+    {
+        ProtocolProviderService linkedCusaxProvider = null;
+        for(ContactDetail detail : sourceContact.getContactDetails())
+        {
+            ProtocolProviderService pps
+                = detail.getPreferredProtocolProvider(
+                OperationSetBasicTelephony.class);
+
+            if(pps != null)
+            {
+                OperationSetCusaxUtils cusaxOpSet =
+                    pps.getOperationSet(OperationSetCusaxUtils.class);
+
+                if(cusaxOpSet != null)
+                {
+                    linkedCusaxProvider
+                        = cusaxOpSet.getLinkedCusaxProvider();
+                    break;
+                }
+            }
+        }
+
+        // if we do not have preferred protocol, lets check the one
+        // used to dial the peer
+        if(linkedCusaxProvider == null)
+        {
+            ProtocolProviderService pps = peer.getProtocolProvider();
+
+            OperationSetCusaxUtils cusaxOpSet =
+                pps.getOperationSet(OperationSetCusaxUtils.class);
+
+            if(cusaxOpSet != null)
+            {
+                linkedCusaxProvider
+                    = cusaxOpSet.getLinkedCusaxProvider();
+            }
+        }
+
+        if(linkedCusaxProvider != null)
+        {
+            OperationSetPersistentPresence opSetPersistentPresence
+                = linkedCusaxProvider.getOperationSet(
+                        OperationSetPersistentPresence.class);
+
+            if(opSetPersistentPresence != null)
+            {
+                String peerAddress = peer.getAddress();
+
+                // will strip the @server-address part, as the regular expression
+                // will match it
+                int index = peerAddress.indexOf("@");
+                String peerUserID =
+                    (index > -1) ? peerAddress.substring(0, index) : peerAddress;
+
+                // searches for the whole number/username or with the @serverpart
+                String peerUserIDQ = Pattern.quote(peerUserID);
+
+                Pattern pattern = Pattern.compile(
+                    "^(" + peerUserIDQ + "|" + peerUserIDQ + "@.*)$");
+
+                return findContactByPeer(
+                    peerUserID,
+                    pattern,
+                    opSetPersistentPresence.getServerStoredContactListRoot(),
+                    linkedCusaxProvider.getOperationSet(
+                        OperationSetCusaxUtils.class));
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Finds a matching cusax contact.
+     * @param peerUserID the userID of the call peer to search for
+     * @param searchPattern the pattern (userID | userID@...)
+     * @param parent the parent group of the groups and contacts to search in
+     * @param cusaxOpSet the opset of the provider which will be used to match
+     *                   contact's details to peer userID (stored numbers).
+     * @return a cusax matching contac
+     */
+    private static Contact findContactByPeer(
+        String peerUserID,
+        Pattern searchPattern,
+        ContactGroup parent,
+        OperationSetCusaxUtils cusaxOpSet)
+    {
+        Iterator<Contact> contactIterator = parent.contacts();
+        while(contactIterator.hasNext())
+        {
+            Contact contact = contactIterator.next();
+
+            if(searchPattern.matcher(contact.getAddress()).find()
+                || cusaxOpSet.doesDetailBelong(contact, peerUserID))
+            {
+                return contact;
+            }
+        }
+
+        Iterator<ContactGroup> groupsIterator = parent.subgroups();
+        while(groupsIterator.hasNext())
+        {
+            ContactGroup gr = groupsIterator.next();
+            Contact contact = findContactByPeer(
+                peerUserID, searchPattern, gr, cusaxOpSet);
+            if(contact != null)
+                return contact;
         }
 
         return null;
@@ -1579,6 +1860,28 @@ public class CallManager
         if(peer.getContact() != null)
             return GuiActivator.getContactListService()
                 .findMetaContactByContact(peer.getContact());
+
+        // We try to find the <tt>UIContact</tt>, to which the call was
+        // created if this was an outgoing call.
+        UIContactImpl uiContact
+            = CallManager.getCallUIContact(peer.getCall());
+
+        if (uiContact != null)
+        {
+            if(uiContact.getDescriptor() instanceof MetaContact)
+            {
+                return (MetaContact)uiContact.getDescriptor();
+            }
+            else if(uiContact.getDescriptor() instanceof SourceContact)
+            {
+                // if it is a source contact check for matching cusax contact
+                Contact contact = getPeerCusaxContact(peer,
+                    (SourceContact)uiContact.getDescriptor());
+                if(contact != null)
+                    return GuiActivator.getContactListService()
+                                .findMetaContactByContact(contact);
+            }
+        }
 
         String imppAddress = peer.getAlternativeIMPPAddress();
 
@@ -2044,11 +2347,21 @@ public class CallManager
         private final String stringContact;
 
         /**
+         * The description of a conference to call, if any.
+         */
+        private final ConferenceDescription conferenceDescription;
+
+        /**
          * The indicator which determines whether this instance is to create a
          * new video (as opposed to audio-only) <tt>Call</tt>.
          */
         private final boolean video;
 
+        /**
+         * The chat room associated with the call.
+         */
+        private final ChatRoom chatRoom;
+        
         /**
          * Creates an instance of <tt>CreateCallThread</tt>.
          *
@@ -2065,7 +2378,8 @@ public class CallManager
                 ContactResource contactResource,
                 boolean video)
         {
-            this(protocolProvider, contact, contactResource, null, null, video);
+            this(protocolProvider, contact, contactResource, null, null, null,
+                null, video);
         }
 
         /**
@@ -2081,7 +2395,27 @@ public class CallManager
                 String contact,
                 boolean video)
         {
-            this(protocolProvider, null, null, null, contact, video);
+            this(protocolProvider, null, null, null, contact, null, null, video);
+        }
+
+        /**
+         * Initializes a new <tt>CreateCallThread</tt> instance which is to
+         * create a new <tt>Call</tt> to a conference specified via a
+         * <tt>ConferenceDescription</tt>.
+         * @param protocolProvider the <tt>ProtocolProviderService</tt> which is
+         * to perform the establishment of the new <tt>Call</tt>.
+         * @param conferenceDescription the description of the conference to
+         * call.
+         * @param chatRoom the chat room associated with the call.
+         */
+        public CreateCallThread(
+                ProtocolProviderService protocolProvider,
+                ConferenceDescription conferenceDescription,
+                ChatRoom chatRoom)
+        {
+            this(protocolProvider, null, null, null, null,
+                    conferenceDescription, chatRoom,
+                    false /* video */);
         }
 
         /**
@@ -2102,6 +2436,8 @@ public class CallManager
          * @param stringContact the string to call
          * @param video <tt>true</tt> if this instance is to create a new video
          * (as opposed to audio-only) <tt>Call</tt>
+         * @param conferenceDescription the description of a conference to call
+         * @param chatRoom the chat room associated with the call.
          */
         public CreateCallThread(
                 ProtocolProviderService protocolProvider,
@@ -2109,6 +2445,8 @@ public class CallManager
                 ContactResource contactResource,
                 UIContactImpl uiContact,
                 String stringContact,
+                ConferenceDescription conferenceDescription,
+                ChatRoom chatRoom,
                 boolean video)
         {
             this.protocolProvider = protocolProvider;
@@ -2117,6 +2455,8 @@ public class CallManager
             this.uiContact = uiContact;
             this.stringContact = stringContact;
             this.video = video;
+            this.conferenceDescription = conferenceDescription;
+            this.chatRoom = chatRoom;
         }
 
         @Override
@@ -2165,7 +2505,8 @@ public class CallManager
             Contact contact = this.contact;
             String stringContact = this.stringContact;
 
-            if (ConfigurationUtils.isNormalizePhoneNumber())
+            if (ConfigurationUtils.isNormalizePhoneNumber()
+                && !NetworkUtils.isValidIPAddress(stringContact))
             {
                 if (contact != null)
                 {
@@ -2173,25 +2514,38 @@ public class CallManager
                     contact = null;
                 }
 
-                stringContact = PhoneNumberI18nService.normalize(stringContact);
+                if (stringContact != null)
+                {
+                    stringContact
+                            = PhoneNumberI18nService.normalize(stringContact);
+                }
             }
 
             try
             {
-                if (video)
+                if (conferenceDescription != null)
                 {
-                    internalCallVideo(  protocolProvider,
-                                        contact,
-                                        uiContact,
-                                        stringContact);
+                    internalCall(  protocolProvider,
+                                   conferenceDescription,
+                                   chatRoom);
                 }
                 else
                 {
-                    internalCall(   protocolProvider,
-                                    contact,
-                                    stringContact,
-                                    contactResource,
-                                    uiContact);
+                    if (video)
+                    {
+                        internalCallVideo(  protocolProvider,
+                                            contact,
+                                            uiContact,
+                                            stringContact);
+                    }
+                    else
+                    {
+                        internalCall(   protocolProvider,
+                                        contact,
+                                        stringContact,
+                                        contactResource,
+                                        uiContact);
+                    }
                 }
             }
             catch (Throwable t)
@@ -2310,6 +2664,29 @@ public class CallManager
 
         if (uiContact != null && createdCall != null)
             addUIContactCall(uiContact, createdCall);
+    }
+
+    /**
+     * Creates a call through the given <tt>protocolProvider</tt>.
+     *
+     * @param protocolProvider the <tt>ProtocolProviderService</tt> through
+     * which to make the call
+     * @param conferenceDescription the description of the conference to call
+     * @param chatRoom the chat room associated with the call.
+     */
+    private static void internalCall(ProtocolProviderService protocolProvider,
+                                     ConferenceDescription conferenceDescription,
+                                     ChatRoom chatRoom)
+            throws OperationFailedException
+    {
+        OperationSetBasicTelephony<?> telephony
+                = protocolProvider.getOperationSet(
+                OperationSetBasicTelephony.class);
+
+        if (telephony != null)
+        {
+            telephony.createCall(conferenceDescription, chatRoom);
+        }
     }
 
     /**
@@ -2507,9 +2884,7 @@ public class CallManager
                     catch (OperationFailedException ofe)
                     {
                         logger.error(
-                                "Could not answer "
-                                    + peer
-                                    + " with video"
+                                "Could not answer " + peer + " with video"
                                     + " because of the following exception: "
                                     + ofe);
                     }
@@ -2526,8 +2901,7 @@ public class CallManager
                     catch (OperationFailedException ofe)
                     {
                         logger.error(
-                                "Could not answer "
-                                    + peer
+                                "Could not answer " + peer
                                     + " because of the following exception: ",
                                 ofe);
                     }
@@ -2931,40 +3305,45 @@ public class CallManager
         @Override
         public void run()
         {
-            OperationSetVideoTelephony telephony
-                = call.getProtocolProvider()
-                    .getOperationSet(OperationSetVideoTelephony.class);
+            OperationSetVideoTelephony videoTelephony
+                = call.getProtocolProvider().getOperationSet(
+                        OperationSetVideoTelephony.class);
             boolean enableSucceeded = false;
 
-            if (telephony != null)
+            if (videoTelephony != null)
             {
                 // First make sure the desktop sharing is disabled.
                 if (enable && isDesktopSharingEnabled(call))
                 {
                     JFrame frame = DesktopSharingFrame.getFrameForCall(call);
 
-                    if(frame != null)
+                    if (frame != null)
                         frame.dispose();
                 }
 
                 try
                 {
-                    telephony.setLocalVideoAllowed(call, enable);
+                    videoTelephony.setLocalVideoAllowed(call, enable);
                     enableSucceeded = true;
                 }
                 catch (OperationFailedException ex)
                 {
                     logger.error(
-                        "Failed to toggle the streaming of local video.",
-                        ex);
-                    ResourceManagementService resources
-                        = GuiActivator.getResources();
-                    String title = resources.getI18NString(
-                        "service.gui.LOCAL_VIDEO_ERROR_TITLE");
-                    String message = resources.getI18NString(
-                        "service.gui.LOCAL_VIDEO_ERROR_MESSAGE");
+                            "Failed to toggle the streaming of local video.",
+                            ex);
+
+                    ResourceManagementService r = GuiActivator.getResources();
+                    String title
+                        = r.getI18NString(
+                                "service.gui.LOCAL_VIDEO_ERROR_TITLE");
+                    String message
+                        = r.getI18NString(
+                                "service.gui.LOCAL_VIDEO_ERROR_MESSAGE");
+
                     GuiActivator.getAlertUIService().showAlertPopup(
-                        title, message, ex);
+                            title,
+                            message,
+                            ex);
                 }
             }
 
@@ -3361,6 +3740,23 @@ public class CallManager
     }
 
     /**
+     * Creates a call to the conference described in
+     * <tt>conferenceDescription</tt> through <tt>protocolProvider</tt>
+     *
+     * @param protocolProvider the protocol provider through which to create
+     * the call
+     * @param conferenceDescription the description of the conference to call
+     * @param chatRoom the chat room associated with the call.
+     */
+    public static void call(ProtocolProviderService protocolProvider,
+                            ConferenceDescription conferenceDescription,
+                            ChatRoom chatRoom)
+    {
+        new CreateCallThread(protocolProvider, conferenceDescription, chatRoom)
+            .start();
+    }
+
+    /**
      * A particular contact has been selected no options to select
      * will just call it.
      * @param contact the contact to call
@@ -3495,6 +3891,36 @@ public class CallManager
                             JComponent invoker,
                             Point location)
     {
+        call(uiContactDetailList,
+            uiContact,
+            isVideo,
+            isDesktop,
+            invoker,
+            location,
+            true);
+    }
+
+    /**
+     * Call any of the supplied details.
+     *
+     * @param uiContactDetailList the list with details to choose for calling
+     * @param uiContact the <tt>UIContactImpl</tt> to check what is enabled,
+     * available.
+     * @param isVideo if <tt>true</tt> will create video call.
+     * @param isDesktop if <tt>true</tt> will share the desktop.
+     * @param invoker the invoker component
+     * @param location the location where this was invoked.
+     * @param usePreferredProvider whether to use the <tt>uiContact</tt>
+     * preferredProvider if provided.
+     */
+    private static void call(List<UIContactDetail> uiContactDetailList,
+                            UIContactImpl uiContact,
+                            boolean isVideo,
+                            boolean isDesktop,
+                            JComponent invoker,
+                            Point location,
+                            boolean usePreferredProvider)
+    {
         ChooseCallAccountPopupMenu chooseCallAccountPopupMenu = null;
 
         Class<? extends OperationSet> opsetClass =
@@ -3540,8 +3966,11 @@ public class CallManager
         {
             UIContactDetail detail = uiContactDetailList.get(0);
 
-            ProtocolProviderService preferredProvider
-                = detail.getPreferredProtocolProvider(opsetClass);
+            ProtocolProviderService preferredProvider = null;
+
+            if(usePreferredProvider)
+                preferredProvider =
+                    detail.getPreferredProtocolProvider(opsetClass);
 
             List<ProtocolProviderService> providers = null;
             String protocolName = null;
@@ -3656,12 +4085,17 @@ public class CallManager
             = uiContact.getContactDetailsForOperationSet(
                 getOperationSetForCall(isVideo, isDesktop));
 
+        boolean ignorePreferredProvider =
+            GuiActivator.getConfigurationService().getBoolean(
+                IGNORE_PREFERRED_PROVIDER_PROP, false);
+
         call(   telephonyContacts,
                 uiContactImpl,
                 isVideo,
                 isDesktop,
                 invoker,
-                location);
+                location,
+                !ignorePreferredProvider);
     }
 
     /**
@@ -3684,15 +4118,36 @@ public class CallManager
                 = new Vector<ResolveAddressToDisplayNameContactQueryListener>
                     (1, 1);
 
+            // will strip the @server-address part, as the regular expression
+            // will match it
+            int index = peerAddress.indexOf("@");
+            String peerUserID =
+                (index > -1) ? peerAddress.substring(0, index) : peerAddress;
+
+            // searches for the whole number/username or with the @serverpart
+            String quotedPeerUserID = Pattern.quote(peerUserID);
+            Pattern pattern = Pattern.compile(
+                "^(" + quotedPeerUserID + "|" + quotedPeerUserID + "@.*)$");
+
             // Queries all available resolvers
-            for(ContactSourceService contactSourceService:
-                    GuiActivator.getContactSources())
+            for(ContactSourceService css : GuiActivator.getContactSources())
             {
-                ContactQuery query
-                    = contactSourceService.queryContactSource(peerAddress, 1);
+                ContactQuery query;
+                if(css instanceof ExtendedContactSourceService)
+                {
+                    // use the pattern method of (ExtendedContactSourceService)
+                    query = ((ExtendedContactSourceService)css)
+                                .createContactQuery(pattern);
+                }
+                else
+                {
+                    query = css.createContactQuery(peerUserID);
+                }
+
                 resolvers.add(
                         new ResolveAddressToDisplayNameContactQueryListener(
                             query));
+                query.start();
             }
 
             long startTime = System.currentTimeMillis();

@@ -35,9 +35,9 @@ public class ExamplePluginMenuItem
     /**
      * Creates an instance of <tt>ExamplePluginMenuItem</tt>.
      */
-    public ExamplePluginMenuItem()
+    public ExamplePluginMenuItem(PluginComponentFactory parentFactory)
     {
-        super(Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU);
+        super(Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU, parentFactory);
     }
 
     /**

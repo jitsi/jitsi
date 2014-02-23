@@ -47,6 +47,7 @@ public class RawUdpTransportPacketExtension
     @Override
     public List<? extends PacketExtension> getChildExtensions()
     {
-        return getCandidateList();
+        // TODO Auto-generated method stub
+        return super.getChildExtensions();
     }
 }

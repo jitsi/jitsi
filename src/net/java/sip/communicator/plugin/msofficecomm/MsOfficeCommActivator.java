@@ -18,6 +18,13 @@ public class MsOfficeCommActivator
     implements BundleActivator
 {
     /**
+     * The <tt>Logger</tt> used by the <tt>MsOfficeCommActivator</tt> class and
+     * its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(MsOfficeCommActivator.class);
+
+    /**
      * Starts the <tt>msofficecomm</tt> bundle in a specific
      * {@link BundleContext}.
      *
@@ -33,6 +40,9 @@ public class MsOfficeCommActivator
         if (!OSUtils.IS_WINDOWS)
             return;
 
+        if (logger.isInfoEnabled())
+            logger.info("MsOfficeComm plugin ... [STARTED]");
+
         Messenger.start(bundleContext);
 
         boolean stopMessenger = true;
@@ -40,6 +50,10 @@ public class MsOfficeCommActivator
         try
         {
             int hresult = OutOfProcessServer.start();
+
+            if(logger.isInfoEnabled())
+                logger.info("MsOfficeComm started OutOfProcessServer HRESULT:"
+                    + hresult);
 
             if (hresult < 0)
                 throw new RuntimeException("HRESULT " + hresult);
@@ -80,5 +94,8 @@ public class MsOfficeCommActivator
         {
             Messenger.stop(bundleContext);
         }
+
+        if (logger.isInfoEnabled())
+            logger.info("MsOfficeComm plugin ... [UNREGISTERED]");
     }
 }

@@ -26,13 +26,6 @@ public interface CallRenderer
     public void dispose();
 
     /**
-     * Returns the <tt>Call</tt> depicted by this renderer.
-     *
-     * @return the <tt>Call</tt> depicted by this renderer
-     */
-    public Call getCall();
-
-    /**
      * Returns the <tt>CallPeerRenderer</tt> corresponding to the given
      * <tt>callPeer</tt>.
      *

@@ -154,9 +154,18 @@ public class MetaUIContact
     {
         MetaContactGroup parentMetaContactGroup =
                 metaContact.getParentMetaContactGroup();
+        int groupSourceIndex = 0;
         if (parentMetaContactGroup == null)
             return -1;
-        return parentMetaContactGroup.indexOf(metaContact);
+        MetaContactGroup parentGroup 
+            = parentMetaContactGroup.getParentMetaContactGroup();
+       
+        if(parentGroup != null)
+            groupSourceIndex = parentGroup.indexOf(parentMetaContactGroup) 
+                * UIGroup.MAX_CONTACTS;
+        return  GuiActivator.getContactListService().getSourceIndex() 
+            * UIGroup.MAX_GROUPS + groupSourceIndex +
+            parentMetaContactGroup.indexOf(metaContact) + 1;
     }
 
     /**
@@ -462,19 +471,26 @@ public class MetaUIContact
             protocolContact = i.next();
 
             // Set the first found status message.
-            if (statusMessage == null
-                && protocolContact.getStatusMessage() != null
-                && protocolContact.getStatusMessage().length() > 0)
+            if (statusMessage == null)
+            {
                 statusMessage = protocolContact.getStatusMessage();
+                if ((statusMessage != null) && (statusMessage.length() == 0))
+                    statusMessage = null;
+            }
 
             if(ConfigurationUtils.isHideAccountStatusSelectorsEnabled())
                 break;
 
             ImageIcon protocolStatusIcon
-                = ImageLoader.getIndexedProtocolIcon(
-                    ImageUtils.getBytesInImage(
-                        protocolContact.getPresenceStatus().getStatusIcon()),
-                    protocolContact.getProtocolProvider());
+                = getContactPresenceStatusIcon(protocolContact);
+
+            if (protocolStatusIcon != null)
+            {
+                protocolStatusIcon
+                    = ImageLoader.getIndexedProtocolIcon(
+                            protocolStatusIcon.getImage(),
+                            protocolContact.getProtocolProvider());
+            }
 
             String contactAddress = protocolContact.getAddress();
             //String statusMessage = protocolContact.getStatusMessage();
@@ -572,6 +588,12 @@ public class MetaUIContact
                                     + " (" + contactResource.getPriority() + ")"
                                     : contactResource.getResourceName();
 
+            if(contactResource.isMobile())
+            {
+                resourceName += " " + GuiActivator.getResources()
+                    .getI18NString("service.gui.ON_MOBILE_TOOLTIP");
+            }
+
             if (protocolStatusIcon == null)
                 tip.addSubLine( protocolStatusIcon,
                                 resourceName,
@@ -667,14 +689,13 @@ public class MetaUIContact
         {
             super(  contact.getAddress(),
                     contact.getDisplayName(),
-                    new ImageIcon(contact.getPresenceStatus().getStatusIcon()),
+                    getContactPresenceStatusIcon(contact),
                     contact);
 
             this.contact = contact;
 
             ProtocolProviderService parentProvider
                 = contact.getProtocolProvider();
-
             Iterator<Class<? extends OperationSet>> opSetClasses
                 = parentProvider.getSupportedOperationSetClasses().iterator();
 
@@ -720,5 +741,12 @@ public class MetaUIContact
     public Collection<SIPCommButton> getContactCustomActionButtons()
     {
         return MetaContactListSource.getContactCustomActionButtons(this);
+    }
+
+    private static ImageIcon getContactPresenceStatusIcon(Contact contact)
+    {
+        byte[] bytes = contact.getPresenceStatus().getStatusIcon();
+
+        return (bytes == null) ? null : new ImageIcon(bytes);
     }
 }

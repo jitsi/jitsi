@@ -61,6 +61,11 @@ class MsOutlookAddrBookServer:
                 BSTR value,
                 BSTR entryId);
 
+        HRESULT STDMETHODCALLTYPE compareEntryIds(
+                BSTR id1,
+                BSTR id2,
+                int *result);
+
     protected:
             virtual ~MsOutlookAddrBookServer();
 

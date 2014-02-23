@@ -50,6 +50,18 @@ public class PopupMessage
     private Object tag;
 
     /**
+     * Suggested timeout value in ms for hiding the popup if not clicked
+     * (-1 for infinity)
+     */
+    private long timeout;
+
+    /**
+     * Name of the popup group to which this popup will belong.
+     * Used to group notifications on Android.
+     */
+    private String group;
+
+    /**
      * Creates a <tt>PopupMessage</tt> with the given title and message inside.
      *
      * @param title title of the message
@@ -255,5 +267,42 @@ public class PopupMessage
     public void setTag(Object tag)
     {
         this.tag = tag;
+    }
+
+    /**
+     * Sets suggested timeout for hiding the popup if not clicked by the user.
+     * @param timeout time value in ms for hiding the popup, -1 for infinity.
+     */
+    public void setTimeout(long timeout)
+    {
+        this.timeout = timeout;
+    }
+
+    /**
+     * Returns suggested timeout value in ms for hiding the popup if not clicked
+     * by the user.
+     * @return timeout for hiding the popup if not clicked by the user in ms.
+     */
+    public long getTimeout()
+    {
+        return timeout;
+    }
+
+    /**
+     * Returns name of the popup group.
+     * @return name of the popup group.
+     */
+    public String getGroup()
+    {
+        return group;
+    }
+
+    /**
+     * Set name of the group to which this popup will belong.
+     * @param group the popup group name to set.
+     */
+    public void setGroup(String group)
+    {
+        this.group = group;
     }
 }

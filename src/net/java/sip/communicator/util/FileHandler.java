@@ -41,7 +41,7 @@ public class FileHandler
      *  %t, %h, %g, %u.
      * Also adds the special component :
      * %s sip-communicator's home directory, typically -
-     * ${net.java.sip.communicator.SC_HOME_DIR_LOCATION}/
+     * ${net.java.sip.communicator.SC_LOG_DIR_LOCATION}/
      * ${net.java.sip.communicator.SC_HOME_DIR_NAME}.
      * <p>
      * The field is public so that our <tt>Logger</tt> could reset it if
@@ -135,9 +135,9 @@ public class FileHandler
                     FileHandler.class.getName() + ".pattern");
 
             String homeLocation = System.getProperty(
-                            "net.java.sip.communicator.SC_HOME_DIR_LOCATION");
+                "net.java.sip.communicator.SC_LOG_DIR_LOCATION");
             String dirName = System.getProperty(
-                            "net.java.sip.communicator.SC_HOME_DIR_NAME");
+                "net.java.sip.communicator.SC_HOME_DIR_NAME");
 
             if(homeLocation != null && dirName != null)
             {
@@ -149,7 +149,7 @@ public class FileHandler
                         homeLocation + "/" + dirName);
             }
 
-            // if pattern is missing and both dir name and home lcation
+            // if pattern is missing and both dir name and home location
             // properties are also not defined its most probably running from
             // source or testing - lets create log directory in working dir.
             if(pattern == null)

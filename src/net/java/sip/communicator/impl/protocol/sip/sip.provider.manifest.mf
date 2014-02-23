@@ -3,7 +3,7 @@ Bundle-Name: SIP Communicator SIP Protocol Provider
 Bundle-Description: A bundle that implements the Protocol Provider package over SIP.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.protocol.sip
 Import-Package:  ch.imvs.sdes4j.srtp,
  javax.net,
  javax.net.ssl,

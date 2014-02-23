@@ -2,5 +2,5 @@ Bundle-Name: Google Contacts Service
 Bundle-Description: A service accessing Google Contacts
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.service.googlecontacts
 Export-Package: net.java.sip.communicator.service.googlecontacts

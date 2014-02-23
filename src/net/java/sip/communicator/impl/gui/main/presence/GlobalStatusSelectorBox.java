@@ -8,20 +8,21 @@ package net.java.sip.communicator.impl.gui.main.presence;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
+import java.beans.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
-import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.presence.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.account.*;
+import org.jitsi.util.*;
 
 /**
  * The <tt>GlobalStatusSelectorBox</tt> is a global status selector box, which
@@ -69,11 +70,6 @@ public class GlobalStatusSelectorBox
         = ImageLoader.getImage(ImageLoader.DOWN_ARROW_ICON);
 
     /**
-     * The main application window.
-     */
-    private final MainFrame mainFrame;
-
-    /**
      * The width of the text.
      */
     private int textWidth = 0;
@@ -87,17 +83,15 @@ public class GlobalStatusSelectorBox
      * Take care for global status items, that only one is selected.
      */
     private ButtonGroup group = new ButtonGroup();
+    
+    private final GlobalStatusMessageMenu globalStatusMessageMenu;
 
     /**
      * Creates an instance of <tt>SimpleStatusSelectorBox</tt>.
-     *
-     * @param mainFrame The main application window.
      */
-    public GlobalStatusSelectorBox(MainFrame mainFrame)
+    public GlobalStatusSelectorBox()
     {
         super();
-
-        this.mainFrame = mainFrame;
 
         JLabel titleLabel = new JLabel(GuiActivator.getResources()
                         .getI18NString("service.gui.SET_GLOBAL_STATUS"));
@@ -117,6 +111,23 @@ public class GlobalStatusSelectorBox
                 offlineStatus = status;
         }
 
+        this.addSeparator();
+
+        globalStatusMessageMenu = new GlobalStatusMessageMenu(true);
+        globalStatusMessageMenu.addPropertyChangeListener(new PropertyChangeListener()
+        {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt)
+            {
+                if(evt.getPropertyName().equals(
+                    GlobalStatusMessageMenu.STATUS_MESSAGE_UPDATED_PROP))
+                {
+                    changeTooltip((String)evt.getNewValue());
+                }
+            }
+        });
+        this.add((JMenu)globalStatusMessageMenu.getMenu());
+
         if(!ConfigurationUtils.isHideAccountStatusSelectorsEnabled())
             this.addSeparator();
 
@@ -128,16 +139,35 @@ public class GlobalStatusSelectorBox
         this.setIconTextGap(2);
         this.setOpaque(false);
         this.setText("Offline");
-        this.setToolTipText("<html><b>" + GuiActivator.getResources()
-                        .getI18NString("service.gui.SET_GLOBAL_STATUS")
-                        + "</b></html>");
+        changeTooltip(null);
 
         fitSizeToText();
     }
 
     /**
+     * Changes the tooltip to default or the current set status message.
+     * @param message
+     */
+    private void changeTooltip(String message)
+    {
+        if(StringUtils.isNullOrEmpty(message))
+        {
+            globalStatusMessageMenu.clearSelectedItems();
+            this.setToolTipText("<html><b>" + GuiActivator.getResources()
+                .getI18NString("service.gui.SET_GLOBAL_STATUS")
+                + "</b></html>");
+        }
+        else
+        {
+            this.setToolTipText("<html><b>" + message + "</b></html>");
+        }
+    }
+
+    /**
      * Creates a menu item with the given <tt>textKey</tt>, <tt>iconID</tt> and
      * <tt>name</tt>.
+     *
+     * @param status the global status
      * @return the created <tt>JCheckBoxMenuItem</tt>
      */
     private JCheckBoxMenuItem createMenuItem(GlobalStatusEnum status)
@@ -162,31 +192,34 @@ public class GlobalStatusSelectorBox
      */
     public void addAccount(ProtocolProviderService protocolProvider)
     {
-        boolean isHidden
-            = protocolProvider
-                    .getAccountID()
-                        .getAccountProperty(
-                            ProtocolProviderFactory.IS_PROTOCOL_HIDDEN)
-                != null;
-
-        if (isHidden)
+        if (protocolProvider.getAccountID().isHidden())
             return;
 
         OperationSetPersistentPresence presenceOpSet
             = (OperationSetPersistentPresence)
                 protocolProvider.getOperationSet(OperationSetPresence.class);
-        StatusSelectorMenu statusSelectorMenu
-            = (presenceOpSet != null)
+
+        JMenuItem itemToAdd;
+
+        if(protocolProvider.getAccountID().isStatusMenuHidden())
+        {
+            itemToAdd = new ReadonlyStatusItem(protocolProvider);
+        }
+        else
+        {
+            itemToAdd = (presenceOpSet != null)
                 ? new PresenceStatusMenu(protocolProvider)
                 : new SimpleStatusMenu(protocolProvider);
 
+        }
+
         if(ConfigurationUtils.isHideAccountStatusSelectorsEnabled())
-            statusSelectorMenu.setVisible(false);
+            itemToAdd.setVisible(false);
 
         // If this is the first account in our menu.
         if (isFirstAccount)
         {
-            add(statusSelectorMenu);
+            add(itemToAdd);
             isFirstAccount = false;
             return;
         }
@@ -196,11 +229,12 @@ public class GlobalStatusSelectorBox
         // If we already have other accounts.
         for (Component c : getPopupMenu().getComponents())
         {
-            if (!(c instanceof StatusSelectorMenu))
+            if (!(c instanceof StatusEntry))
                 continue;
 
-            StatusSelectorMenu menu = (StatusSelectorMenu) c;
-            int menuIndex = getPopupMenu().getComponentIndex(menu);
+            StatusEntry menu = (StatusEntry) c;
+            int menuIndex = getPopupMenu().getComponentIndex(
+                    menu.getEntryComponent());
 
             AccountID menuAccountID = menu.getProtocolProvider().getAccountID();
 
@@ -211,7 +245,7 @@ public class GlobalStatusSelectorBox
             // we insert the new account before the given menu.
             if (protocolCompare < 0)
             {
-                insert(statusSelectorMenu, menuIndex);
+                insert(itemToAdd, menuIndex);
                 isMenuAdded = true;
                 break;
             }
@@ -221,7 +255,7 @@ public class GlobalStatusSelectorBox
                 if (accountId.getDisplayName()
                         .compareTo(menuAccountID.getDisplayName()) < 0)
                 {
-                    insert( statusSelectorMenu, menuIndex);
+                    insert( itemToAdd, menuIndex);
                     isMenuAdded = true;
                     break;
                 }
@@ -229,7 +263,7 @@ public class GlobalStatusSelectorBox
         }
 
         if (!isMenuAdded)
-            add(statusSelectorMenu);
+            add(itemToAdd);
     }
 
     /**
@@ -240,10 +274,13 @@ public class GlobalStatusSelectorBox
      */
     public void removeAccount(ProtocolProviderService protocolProvider)
     {
-        StatusSelectorMenu menu = getStatusSelectorMenu(protocolProvider);
+        StatusEntry menu = getStatusEntry(protocolProvider);
 
         if (menu != null)
-            remove(menu);
+        {
+            menu.dispose();
+            remove(menu.getEntryComponent());
+        }
     }
 
     /**
@@ -255,12 +292,7 @@ public class GlobalStatusSelectorBox
      */
     public boolean containsAccount(ProtocolProviderService protocolProvider)
     {
-        StatusSelectorMenu menu = getStatusSelectorMenu(protocolProvider);
-
-        if (menu != null)
-            return true;
-
-        return false;
+        return getStatusEntry(protocolProvider) != null;
     }
 
     /**
@@ -270,7 +302,7 @@ public class GlobalStatusSelectorBox
      */
     public void startConnecting(ProtocolProviderService protocolProvider)
     {
-        StatusSelectorMenu menu = getStatusSelectorMenu(protocolProvider);
+        StatusEntry menu = getStatusEntry(protocolProvider);
 
         if (menu != null)
             menu.startConnecting();
@@ -283,7 +315,7 @@ public class GlobalStatusSelectorBox
      */
     public void stopConnecting(ProtocolProviderService protocolProvider)
     {
-        StatusSelectorMenu menu = getStatusSelectorMenu(protocolProvider);
+        StatusEntry menu = getStatusEntry(protocolProvider);
 
         if (menu != null)
             menu.stopConnecting();
@@ -299,10 +331,10 @@ public class GlobalStatusSelectorBox
     {
         for (Component c : getComponents())
         {
-            if (!(c instanceof StatusSelectorMenu))
+            if (!(c instanceof StatusEntry))
                 continue;
 
-            StatusSelectorMenu menu = (StatusSelectorMenu) c;
+            StatusEntry menu = (StatusEntry) c;
 
             if (menu.isSelected())
                 return true;
@@ -332,33 +364,24 @@ public class GlobalStatusSelectorBox
      */
     public void updateStatus(ProtocolProviderService protocolProvider)
     {
-        StatusSelectorMenu accountMenu = getStatusSelectorMenu(protocolProvider);
+        StatusEntry accountMenu = getStatusEntry(protocolProvider);
 
         if (accountMenu == null)
             return;
 
-        if (accountMenu instanceof PresenceStatusMenu)
-        {
-            PresenceStatusMenu presenceStatusMenu
-                = (PresenceStatusMenu) accountMenu;
             PresenceStatus presenceStatus;
 
             if (!protocolProvider.isRegistered())
-                presenceStatus = presenceStatusMenu.getOfflineStatus();
+                presenceStatus = accountMenu.getOfflineStatus();
             else
             {
                 presenceStatus
                     = AccountStatusUtils.getLastPresenceStatus(protocolProvider);
                 if (presenceStatus == null)
-                    presenceStatus = presenceStatusMenu.getOnlineStatus();
+                    presenceStatus = accountMenu.getOnlineStatus();
             }
 
-            presenceStatusMenu.updateStatus(presenceStatus);
-        }
-        else
-        {
-            ((SimpleStatusMenu) accountMenu).updateStatus();
-        }
+        accountMenu.updateStatus(presenceStatus);
 
         accountMenu.repaint();
 
@@ -375,13 +398,12 @@ public class GlobalStatusSelectorBox
     public void updateStatus(ProtocolProviderService protocolProvider,
                              PresenceStatus presenceStatus)
     {
-        StatusSelectorMenu accountMenu = getStatusSelectorMenu(protocolProvider);
+        StatusEntry accountMenu = getStatusEntry(protocolProvider);
 
         if (accountMenu == null)
             return;
 
-        if (accountMenu instanceof PresenceStatusMenu)
-            ((PresenceStatusMenu) accountMenu).updateStatus(presenceStatus);
+        accountMenu.updateStatus(presenceStatus);
 
         this.updateGlobalStatus();
     }
@@ -392,66 +414,30 @@ public class GlobalStatusSelectorBox
      */
     private void updateGlobalStatus()
     {
-        int status = 0;
+        PresenceStatus globalStatus
+            = GuiActivator.getGlobalStatusService().getGlobalPresenceStatus();
 
-        Iterator<ProtocolProviderService> pProviders
-            = mainFrame.getProtocolProviders();
-        boolean hasAvailableProvider = false;
-
-        while (pProviders.hasNext())
-        {
-            ProtocolProviderService protocolProvider = pProviders.next();
-
-            // We do not show hidden protocols in our status bar, so we do not
-            // care about their status here.
-            boolean isProtocolHidden =
-                protocolProvider.getAccountID().getAccountProperty(
-                    ProtocolProviderFactory.IS_PROTOCOL_HIDDEN) != null;
-
-            if (isProtocolHidden)
-                continue;
-
-            if (!protocolProvider.isRegistered())
-                continue;
-
-            OperationSetPresence presence
-                = protocolProvider.getOperationSet(OperationSetPresence.class);
-
-            if(presence == null)
-            {
-                hasAvailableProvider = true;
-                continue;
-            }
-
-            int presenceStatus
-                = (presence == null)
-                    ? PresenceStatus.AVAILABLE_THRESHOLD
-                    : presence.getPresenceStatus().getStatus();
-
-            if (status < presenceStatus)
-                status = presenceStatus;
-        }
-
-        // if we have at least one online provider
-        if(status == 0 && hasAvailableProvider)
-            status = PresenceStatus.AVAILABLE_THRESHOLD;
-
-        JCheckBoxMenuItem item = getItemFromStatus(status);
+        JCheckBoxMenuItem item = getItemFromStatus(globalStatus);
         item.setSelected(true);
 
         setSelected(new SelectedObject(item.getText(), item.getIcon(), item));
         fitSizeToText();
 
         this.revalidate();
-        setSystrayIcon(status);
+        setSystrayIcon(globalStatus);
+        
+        if(!globalStatus.isOnline())
+        {
+            changeTooltip(null);
+        }
     }
 
     /**
      * Sets the systray icon corresponding to the given status.
      *
-     * @param status the status, for which we're setting the systray icon.
+     * @param globalStatus the status, for which we're setting the systray icon.
      */
-    private void setSystrayIcon(int status)
+    private void setSystrayIcon(PresenceStatus globalStatus)
     {
         SystrayService trayService = GuiActivator.getSystrayService();
         if(trayService == null)
@@ -459,23 +445,27 @@ public class GlobalStatusSelectorBox
 
         int imgType = SystrayService.SC_IMG_OFFLINE_TYPE;
 
-        if(status < PresenceStatus.ONLINE_THRESHOLD)
+        if (globalStatus.equals(GlobalStatusEnum.OFFLINE))
         {
             imgType = SystrayService.SC_IMG_OFFLINE_TYPE;
         }
-        else if(status < PresenceStatus.AWAY_THRESHOLD)
+        else if (globalStatus.equals(GlobalStatusEnum.DO_NOT_DISTURB))
         {
             imgType = SystrayService.SC_IMG_DND_TYPE;
         }
-        else if(status < PresenceStatus.AVAILABLE_THRESHOLD)
+        else if (globalStatus.equals(GlobalStatusEnum.AWAY))
         {
             imgType = SystrayService.SC_IMG_AWAY_TYPE;
         }
-        else if(status < PresenceStatus.EAGER_TO_COMMUNICATE_THRESHOLD)
+        else if (globalStatus.equals(GlobalStatusEnum.EXTENDED_AWAY))
+        {
+            imgType = SystrayService.SC_IMG_EXTENDED_AWAY_TYPE;
+        }
+        else if (globalStatus.equals(GlobalStatusEnum.ONLINE))
         {
             imgType = SystrayService.SC_IMG_TYPE;
         }
-        else if(status < PresenceStatus.MAX_STATUS_VALUE)
+        else if (globalStatus.equals(GlobalStatusEnum.FREE_FOR_CHAT))
         {
             imgType = SystrayService.SC_IMG_FFC_TYPE;
         }
@@ -488,53 +478,17 @@ public class GlobalStatusSelectorBox
      * For status constants we use here the values defined in the
      * <tt>PresenceStatus</tt>, but this is only for convenience.
      *
-     * @param status the status to which the item should correspond
+     * @param globalStatus the status to which the item should correspond
      * @return the <tt>JCheckBoxMenuItem</tt> corresponding to the given status
      */
-    private JCheckBoxMenuItem getItemFromStatus(int status)
-    {
-        if(status < PresenceStatus.ONLINE_THRESHOLD)
-        {
-            return getItemFromName(GlobalStatusEnum.OFFLINE_STATUS);
-        }
-        else if(status < PresenceStatus.AWAY_THRESHOLD)
-        {
-            return getItemFromName(GlobalStatusEnum.DO_NOT_DISTURB_STATUS);
-        }
-        else if(status < PresenceStatus.AVAILABLE_THRESHOLD)
-        {
-            return getItemFromName(GlobalStatusEnum.AWAY_STATUS);
-        }
-        else if(status < PresenceStatus.EAGER_TO_COMMUNICATE_THRESHOLD)
-        {
-            return getItemFromName(GlobalStatusEnum.ONLINE_STATUS);
-        }
-        else if(status < PresenceStatus.MAX_STATUS_VALUE)
-        {
-            return getItemFromName(GlobalStatusEnum.FREE_FOR_CHAT_STATUS);
-        }
-        else
-        {
-            return getItemFromName(GlobalStatusEnum.OFFLINE_STATUS);
-        }
-    }
-
-    /**
-     * Returns the <tt>JCheckBoxMenuItem</tt> corresponding to the given status
-     * name.
-     *
-     * @param statusName the status name to which the item should correspond
-     * @return the <tt>JCheckBoxMenuItem</tt> corresponding to the given status
-     * name.
-     */
-    private JCheckBoxMenuItem getItemFromName(String statusName)
+    private JCheckBoxMenuItem getItemFromStatus(PresenceStatus globalStatus)
     {
         for(Component c : getMenuComponents())
         {
             if(c instanceof JCheckBoxMenuItem
-                && statusName.equals(c.getName()))
+                && globalStatus.getStatusName().equals(c.getName()))
             {
-                return (JCheckBoxMenuItem)c;
+                return (JCheckBoxMenuItem) c;
             }
         }
 
@@ -591,22 +545,21 @@ public class GlobalStatusSelectorBox
     }
 
     /**
-     * Returns the <tt>StatusSelectorMenu</tt> corresponding to the given
+     * Returns the <tt>StatusEntry</tt> corresponding to the given
      * <tt>protocolProvider</tt>.
      * @param protocolProvider the <tt>ProtocolProviderService</tt>, which
      * corresponding menu we're looking for
-     * @return the <tt>StatusSelectorMenu</tt> corresponding to the given
+     * @return the <tt>StatusEntry</tt> corresponding to the given
      * <tt>protocolProvider</tt>
      */
-    private StatusSelectorMenu getStatusSelectorMenu(
-                                    ProtocolProviderService protocolProvider)
+    private StatusEntry getStatusEntry(ProtocolProviderService protocolProvider)
     {
         for (Component c : getPopupMenu().getComponents())
         {
-            if (!(c instanceof StatusSelectorMenu))
+            if (!(c instanceof StatusEntry))
                 continue;
 
-            StatusSelectorMenu menu = (StatusSelectorMenu) c;
+            StatusEntry menu = (StatusEntry) c;
 
             if (menu.getProtocolProvider() != null
                 && menu.getProtocolProvider().equals(protocolProvider))
@@ -641,4 +594,12 @@ public class GlobalStatusSelectorBox
     {
         return uiClassID;
     }
+
+    /**
+     * Not used.
+     * @param presenceStatus the <tt>PresenceStatus</tt> to be selected in this
+     */
+    @Override
+    public void updateStatus(PresenceStatus presenceStatus)
+    {}
 }

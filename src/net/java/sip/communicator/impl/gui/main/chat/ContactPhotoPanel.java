@@ -76,7 +76,8 @@ public class ContactPhotoPanel extends JLayeredPane
 
                     // this is the current contact address we want to add
                     dialog.setContactAddress(
-                        chatSession.getCurrentChatTransport().getName());
+                        chatSession.getPersistableAddress()
+                        );
 
                     dialog.setVisible(true);
                 }
@@ -125,7 +126,8 @@ public class ContactPhotoPanel extends JLayeredPane
         // cannot be saved with add contact dialog
         if (!chatSession.isDescriptorPersistent()
             && !(chatSession instanceof ConferenceChatSession)
-            && !ConfigurationUtils.isAddContactDisabled())
+            && !ConfigurationUtils.isAddContactDisabled()
+            && !(chatSession.getPersistableAddress() == null))
             this.add(addContactButton, 0);
         else
             this.remove(addContactButton);

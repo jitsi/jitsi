@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.util;
 
-//import java.awt.image.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;

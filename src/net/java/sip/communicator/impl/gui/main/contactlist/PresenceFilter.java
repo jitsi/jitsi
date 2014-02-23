@@ -11,6 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.contactsource.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -43,11 +44,32 @@ public class PresenceFilter
     private static final int INITIAL_CONTACT_COUNT = 30;
 
     /**
+     * Preferences for the external contact sources. Lists the type of contact
+     * contact sources that will be displayed in the filter and the order of the
+     * contact sources.
+     */
+    private static Map<Integer, Integer> contactSourcePreferences
+        = new HashMap<Integer, Integer>();
+
+    /**
      * Creates an instance of <tt>PresenceFilter</tt>.
      */
     public PresenceFilter()
     {
         isShowOffline = ConfigurationUtils.isShowOffline();
+        initContactSourcePreferences();
+    }
+
+    /**
+     * Initializes the contact source preferences. The preferences are for the
+     * visibility of the contact source and their order.
+     */
+    private void initContactSourcePreferences()
+    {
+        //This entry will be used to set the index for chat room contact sources
+        //The index is used to order the contact sources in the contact list.
+        //The chat room sources will be ordered before the meta contact list.
+        contactSourcePreferences.put(ContactSourceService.CHAT_ROOM_TYPE, 0);
     }
 
     /**
@@ -63,20 +85,54 @@ public class PresenceFilter
 
         // Add this query to the filterQuery.
         filterQuery.addContactQuery(query);
+
+        for(int cssType : contactSourcePreferences.keySet())
+        {
+            Iterator<UIContactSource> filterSources
+                = GuiActivator.getContactList().getContactSources(cssType)
+                    .iterator();
+
+            while (filterSources.hasNext())
+            {
+                UIContactSource filterSource = filterSources.next();
+
+                Integer prefValue = contactSourcePreferences.get(cssType);
+                //We are setting the index from contactSourcePreferences map to
+                //the contact source. This index is set to reorder the sources
+                //in the contact list.
+                if(prefValue != null)
+                    filterSource.setContactSourceIndex(prefValue);
+
+                ContactSourceService sourceService
+                    = filterSource.getContactSourceService();
+
+                ContactQuery contactQuery
+                    = sourceService.createContactQuery(null);
+
+                // Add this query to the filterQuery.
+                filterQuery.addContactQuery(contactQuery);
+
+                contactQuery.addContactQueryListener(
+                    GuiActivator.getContactList());
+
+                contactQuery.start();
+            }
+        }
+
         // Closes this filter to indicate that we finished adding queries to it.
         filterQuery.close();
 
         query.addContactQueryListener(GuiActivator.getContactList());
-
         int resultCount = 0;
+
         addMatching(GuiActivator.getContactListService().getRoot(),
                     query,
                     resultCount);
 
-        if (!query.isCanceled())
-            query.fireQueryEvent(MetaContactQueryStatusEvent.QUERY_COMPLETED);
-        else
-            query.fireQueryEvent(MetaContactQueryStatusEvent.QUERY_CANCELED);
+        query.fireQueryEvent(
+                query.isCanceled()
+                    ? MetaContactQueryStatusEvent.QUERY_CANCELED
+                    : MetaContactQueryStatusEvent.QUERY_COMPLETED);
     }
 
     /**
@@ -89,10 +145,13 @@ public class PresenceFilter
     public boolean isMatching(UIContact uiContact)
     {
         Object descriptor = uiContact.getDescriptor();
+
         if (descriptor instanceof MetaContact)
             return isMatching((MetaContact) descriptor);
-
-        return false;
+        else if (descriptor instanceof SourceContact)
+            return isMatching((SourceContact)descriptor);
+        else
+            return false;
     }
 
     /**
@@ -105,10 +164,11 @@ public class PresenceFilter
     public boolean isMatching(UIGroup uiGroup)
     {
         Object descriptor = uiGroup.getDescriptor();
+
         if (descriptor instanceof MetaContactGroup)
             return isMatching((MetaContactGroup) descriptor);
-
-        return false;
+        else
+            return false;
     }
 
     /**
@@ -150,6 +210,22 @@ public class PresenceFilter
 
     /**
      * Returns <tt>true</tt> if offline contacts are shown or if the given
+     * <tt>MetaContact</tt> is online, otherwise returns false.
+     *
+     * @param metaContact the <tt>MetaContact</tt> to check
+     * @return <tt>true</tt> if the given <tt>MetaContact</tt> is matching this
+     * filter
+     */
+    public boolean isMatching(SourceContact contact)
+    {
+        return
+            isShowOffline
+                || contact.getPresenceStatus().isOnline()
+                || GuiActivator.getMUCService().isMUCSourceContact(contact);
+    }
+
+    /**
+     * Returns <tt>true</tt> if offline contacts are shown or if the given
      * <tt>MetaContactGroup</tt> contains online contacts.
      *
      * @param metaGroup the <tt>MetaContactGroup</tt> to check
@@ -158,10 +234,10 @@ public class PresenceFilter
      */
     private boolean isMatching(MetaContactGroup metaGroup)
     {
-        return (isShowOffline || metaGroup.countOnlineChildContacts() > 0
-                              || MetaContactListSource.isNewGroup(metaGroup))
-                ? true
-                : false;
+        return
+            isShowOffline
+                || (metaGroup.countOnlineChildContacts() > 0)
+                || MetaContactListSource.isNewGroup(metaGroup);
     }
 
     /**
@@ -207,17 +283,18 @@ public class PresenceFilter
 
             if(isMatching(metaContact))
             {
+
                 resultCount++;
                 if (resultCount <= INITIAL_CONTACT_COUNT)
                 {
                     UIGroup uiGroup = null;
+
                     if (!MetaContactListSource.isRootGroup(metaGroup))
                     {
                         synchronized (metaGroup)
                         {
                             uiGroup = MetaContactListSource
                                 .getUIGroup(metaGroup);
-
                             if (uiGroup == null)
                                 uiGroup = MetaContactListSource
                                     .createUIGroup(metaGroup);
@@ -228,23 +305,31 @@ public class PresenceFilter
                         logger.debug("Presence filter contact added: "
                                 + metaContact.getDisplayName());
 
-                    UIContact newUIContact;
+                    UIContactImpl newUIContact;
                     synchronized (metaContact)
                     {
-                        newUIContact = MetaContactListSource
-                            .createUIContact(metaContact);
+                        newUIContact
+                            = MetaContactListSource.getUIContact(metaContact);
+
+                        if (newUIContact == null)
+                        {
+                            newUIContact = MetaContactListSource
+                                .createUIContact(metaContact);
+                        }
                     }
 
                     GuiActivator.getContactList().addContact(
-                            newUIContact,
-                            uiGroup,
-                            true,
-                            true);
+                        newUIContact,
+                        uiGroup,
+                        true,
+                        true);
 
                     query.setInitialResultCount(resultCount);
                 }
                 else
+                {
                     query.fireQueryEvent(metaContact);
+                }
             }
         }
 

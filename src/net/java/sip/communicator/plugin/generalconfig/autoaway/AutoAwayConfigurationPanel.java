@@ -130,7 +130,15 @@ public class AutoAwayConfigurationPanel
         this.enable.setSelected(enabled);
         this.timer.setEnabled(enabled);
 
-        this.timer.setValue(Preferences.getTimer());
+        int timerValue = Preferences.getTimer();
+        SpinnerNumberModel model = (SpinnerNumberModel)this.timer.getModel();
+        if (timerValue < (Integer)model.getMinimum()
+            || timerValue > (Integer)model.getMaximum())
+        {
+            timerValue = Preferences.DEFAULT_TIMER;
+        }
+
+        this.timer.setValue(timerValue);
     }
 
     /**

@@ -98,4 +98,19 @@ public interface OperationSetSmsMessaging
      * <tt>false</tt> otherwise.
      */
     public boolean isContentTypeSupported(String contentType);
+
+    /**
+     * Returns the contact to send sms to.
+     * @param to the number to send sms.
+     * @return the contact representing the receiver of the sms.
+     */
+    public Contact getContact(String to);
+
+    /**
+     * Whether the implementation do not know how to send sms to the supplied
+     * contact and should as for number.
+     * @param to the contact to send sms.
+     * @return whether user needs to enter number for the sms recipient.
+     */
+    public boolean askForNumber(Contact to);
 }

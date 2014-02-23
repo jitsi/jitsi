@@ -154,6 +154,57 @@ public class TestConfigurationService extends TestCase
     }
 
     /**
+     * Tests whether removing and getting properties works correctly.
+     * @throws PropertyVetoException in case someone wrongfully vetoes the
+     * property change.
+     */
+    public void testRemoveProperty() throws PropertyVetoException
+    {
+        String propertyName = "my.test.property.acc1234";
+        Object property = new String("my.test.property's value");
+        configurationService.setProperty(propertyName, property);
+
+        Object actualReturn = configurationService.getProperty(propertyName);
+        assertEquals("a property was not properly stored",
+            property, actualReturn);
+
+        configurationService.removeProperty(propertyName);
+        Object actualReturn2 = configurationService.getProperty(propertyName);
+
+        assertNull("a property was not properly removed",
+            actualReturn2);
+    }
+
+    /**
+     * Tests whether removing and getting properties works correctly.
+     * @throws PropertyVetoException in case someone wrongfully vetoes the
+     * property change.
+     */
+    public void testRemovePrefixedProperty() throws PropertyVetoException
+    {
+        // this one is used in provisioning, if we have account info like:
+        // net.java.sip.communicator.impl.protocol.sip.acc1sip1322067404000=acc1sip1322067404000
+        // we need to remove it by provisioning this:
+        // net.java.sip.communicator.impl.protocol.sip.acc1sip=${null}
+
+        String propertyName = "my.test.property.acc1234";
+        String propertyPrefixName = "my.test.property.acc";
+
+        Object property = new String("my.test.property's value");
+        configurationService.setProperty(propertyName, property);
+
+        Object actualReturn = configurationService.getProperty(propertyName);
+        assertEquals("a property was not properly stored",
+            property, actualReturn);
+
+        configurationService.removeProperty(propertyPrefixName);
+        Object actualReturn2 = configurationService.getProperty(propertyName);
+
+        assertNull("a property was not properly removed by prefix",
+            actualReturn2);
+    }
+
+    /**
      * Tests whether setting and getting works alright for properties declared
      * as system and whether resolving and retrieving from the system property
      * set are done right.

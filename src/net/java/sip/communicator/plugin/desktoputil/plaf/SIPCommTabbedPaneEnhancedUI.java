@@ -412,17 +412,96 @@ public class SIPCommTabbedPaneEnhancedUI
             // Draw the arrow
             size = Math.min((h - 4) / 3, (w - 4) / 3);
             size = Math.max(size, 2);
-            paintTriangle(g, (w - size) / 2, (h - size) / 2, size, direction,
-                    isEnabled);
+
+            boolean highlight = false;
+
+            if(!highlightedTabs.isEmpty() &&
+                ((direction == WEST
+                    && tabScroller.scrollBackwardButton.isEnabled())
+                || (direction == EAST
+                    && tabScroller.scrollForwardButton.isEnabled())))
+            {
+                Rectangle viewRect = tabScroller.viewport.getViewRect();
+
+                if(direction == WEST)
+                {
+                    int leadingTabIndex = getClosestTab(viewRect.x, viewRect.y);
+
+                    for(int i = 0; i < leadingTabIndex; i++)
+                    {
+                        if(highlightedTabs.contains(i)
+                           && !isScrollTabVisible(i))
+                        {
+                            highlight = true;
+                            break;
+                        }
+                    }
+                }
+                else
+                {
+                    int leadingTabIndex =
+                        getClosestTab(viewRect.x + viewRect.y, viewRect.y);
+
+                    for(int i = leadingTabIndex; i < tabPane.getTabCount(); i++)
+                    {
+                        if(highlightedTabs.contains(i)
+                            && !isScrollTabVisible(i))
+                        {
+                            highlight = true;
+                            break;
+                        }
+                    }
+                }
+
+                if(highlight)
+                {
+                    Image img = DesktopUtilActivator.getImage(
+                        direction == WEST ?
+                            "service.gui.icons.TAB_UNREAD_BACKWARD_ICON"
+                            : "service.gui.icons.TAB_UNREAD_FORWARD_ICON");
+
+                    int wi = img.getWidth(null);
+
+                    g.drawImage(img,
+                                (w - wi)/2,
+                                (h - size) / 2 - 2/* 2 borders 1px width*/,
+                                null);
+                }
+            }
+
+            if(!highlight)
+                paintTriangle(g, (w - size) / 2, (h - size) / 2,
+                    size, direction, isEnabled);
 
             // Reset the Graphics back to it's original settings
             if (isPressed) {
                 g.translate(-1, -1);
             }
             g.setColor(origColor);
-
         }
+    }
 
+    /**
+     * Checks whether the <tt>tabIndex</tt> is visible in the scrollable
+     * tabs list.
+     *
+     * @param tabIndex the tab index to check.
+     * @return whether <tt>tabIndex</tt> is visible in the list of scrollable
+     * tabs.
+     */
+    private boolean isScrollTabVisible(int tabIndex)
+    {
+        Rectangle tabRect = rects[tabIndex];
+        Rectangle viewRect = tabScroller.viewport.getViewRect();
+        if ((tabRect.x + tabRect.width - BUTTONSIZE < viewRect.x)
+            || (tabRect.x + BUTTONSIZE > viewRect.x + viewRect.width))
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 
     @Override

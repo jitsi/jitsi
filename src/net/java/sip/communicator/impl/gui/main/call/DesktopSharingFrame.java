@@ -181,11 +181,7 @@ public class DesktopSharingFrame
      */
     public static JFrame getFrameForCall(Call call)
     {
-        if(callDesktopFrames.containsKey(call))
-        {
-            return callDesktopFrames.get(call);
-        }
-        return null;
+        return callDesktopFrames.get(call);
     }
 
     /**
@@ -197,35 +193,38 @@ public class DesktopSharingFrame
      */
     private static void addCallListener(Call call, JFrame frame)
     {
-        OperationSetBasicTelephony<?> telOpSet = call.getProtocolProvider()
-            .getOperationSet(OperationSetBasicTelephony.class);
+        OperationSetBasicTelephony<?> basicTelephony
+            = call.getProtocolProvider().getOperationSet(
+                    OperationSetBasicTelephony.class);
 
-        if (telOpSet != null) // This should be always true.
+        if (basicTelephony != null) // This should always be true.
         {
-            telOpSet.addCallListener(new CallListener()
-            {
-                /**
-                 * Implements CallListener.callEnded. Disposes the frame
-                 * related to the ended call.
-                 *
-                 * @param event the <tt>CallEvent</tt> that notified us
-                 */
-                public void callEnded(CallEvent event)
-                {
-                    Call call = event.getSourceCall();
-                    JFrame desktopFrame = callDesktopFrames.get(call);
-
-                    if (desktopFrame != null)
+            basicTelephony.addCallListener(
+                    new CallListener()
                     {
-                        desktopFrame.dispose();
-                        callDesktopFrames.remove(call);
-                    }
-                }
+                        /**
+                         * Implements {@link CallListener#callEnded(CallEvent)}.
+                         * Disposes of the frame related to the ended call.
+                         *
+                         * @param ev a <tt>CallEvent</tt> which identifies the
+                         * ended call 
+                         */
+                        public void callEnded(CallEvent ev)
+                        {
+                            Call call = ev.getSourceCall();
+                            JFrame desktopFrame = callDesktopFrames.get(call);
 
-                public void incomingCallReceived(CallEvent event) {}
+                            if (desktopFrame != null)
+                            {
+                                desktopFrame.dispose();
+                                callDesktopFrames.remove(call);
+                            }
+                        }
 
-                public void outgoingCallCreated(CallEvent event) {}
-            });
+                        public void incomingCallReceived(CallEvent ev) {}
+
+                        public void outgoingCallCreated(CallEvent ev) {}
+                    });
         }
     }
 
@@ -237,28 +236,31 @@ public class DesktopSharingFrame
      */
     private static void addDesktopSharingListener(final Call call, JFrame frame)
     {
-        OperationSetVideoTelephony videoOpSet =
-            call.getProtocolProvider()
-                .getOperationSet(OperationSetVideoTelephony.class);
+        OperationSetVideoTelephony videoTelephony
+            = call.getProtocolProvider().getOperationSet(
+                    OperationSetVideoTelephony.class);
 
-        videoOpSet.addPropertyChangeListener(call, new PropertyChangeListener()
-        {
-            public void propertyChange(PropertyChangeEvent evt)
-            {
-                if (OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING
-                        .equals(evt.getPropertyName())
-                    && evt.getNewValue().equals(MediaDirection.RECVONLY))
+        videoTelephony.addPropertyChangeListener(
+                call,
+                new PropertyChangeListener()
                 {
-                    JFrame desktopFrame = callDesktopFrames.get(call);
-
-                    if (desktopFrame != null)
+                    public void propertyChange(PropertyChangeEvent ev)
                     {
-                        desktopFrame.dispose();
-                        callDesktopFrames.remove(call);
+                        if (OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING
+                                    .equals(ev.getPropertyName())
+                                && MediaDirection.RECVONLY.equals(
+                                        ev.getNewValue()))
+                        {
+                            JFrame desktopFrame = callDesktopFrames.get(call);
+
+                            if (desktopFrame != null)
+                            {
+                                desktopFrame.dispose();
+                                callDesktopFrames.remove(call);
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
     }
 
     /**

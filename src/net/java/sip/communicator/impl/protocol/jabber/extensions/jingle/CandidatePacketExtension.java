@@ -134,7 +134,7 @@ public class CandidatePacketExtension extends AbstractPacketExtension
      *
      * @param foundation the candidate foundation as defined in ICE-CORE.
      */
-    public void setFoundation(String foundation)
+    public void setFoundation(int foundation)
     {
         super.setAttribute(FOUNDATION_ATTR_NAME, foundation);
     }
@@ -144,9 +144,9 @@ public class CandidatePacketExtension extends AbstractPacketExtension
      *
      * @return the candidate foundation as defined in ICE-CORE.
      */
-    public String getFoundation()
+    public int getFoundation()
     {
-        return super.getAttributeAsString(FOUNDATION_ATTR_NAME);
+        return super.getAttributeAsInt(FOUNDATION_ATTR_NAME);
     }
 
     /**

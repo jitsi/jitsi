@@ -77,7 +77,7 @@ public class SIPCommMenu
             @Override
             public void componentResized(ComponentEvent evt)
             {
-                Window parentWindow;
+                final Window parentWindow;
 
                 Component parent = SIPCommMenu.this.getParent();
 
@@ -103,6 +103,16 @@ public class SIPCommMenu
 
                         if (popupMenu != null && popupMenu.isVisible())
                             popupMenu.setVisible(false);
+                    }
+
+                    /**
+                     * Invoked when a window has been closed.
+                     * Remove the listener as we do not need it any more.
+                     */
+                    @Override
+                    public void windowClosed(WindowEvent e)
+                    {
+                        parentWindow.removeWindowListener(this);
                     }
                 });
             }

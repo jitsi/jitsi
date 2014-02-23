@@ -9,6 +9,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.gui.*;
 
+import net.java.sip.communicator.util.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;
 import org.osgi.framework.*;
@@ -21,11 +22,15 @@ import javax.swing.*;
  * @author Damian Johnson
  */
 public class SpellCheckActivator
-    implements BundleActivator
+    extends AbstractServiceDependentActivator
 {
-    static BundleContext bundleContext;
+    /**
+     * Our Logger.
+     */
+    private static final Logger logger = Logger
+            .getLogger(SpellCheckActivator.class);
 
-    private SpellChecker checker = new SpellChecker();
+    static BundleContext bundleContext;
 
     private static UIService uiService;
 
@@ -33,43 +38,115 @@ public class SpellCheckActivator
 
     private static ConfigurationService configService;
 
+    private static SpellChecker checker = null;
+
     /**
      * Called when this bundle is started.
      *
-     * @param context The execution context of the bundle being started.
+     * @param dependentService the service we depend on.
      */
-    public void start(BundleContext context) throws Exception
+    @Override
+    public void start(Object dependentService)
+    {
+        // UI-Service started.
+
+         // adds button to toggle spell checker
+        Hashtable<String, String> containerFilter =
+            new Hashtable<String, String>();
+        containerFilter.put(Container.CONTAINER_ID,
+            Container.CONTAINER_CHAT_TOOL_BAR.getID());
+
+        // adds field to change language
+        bundleContext.registerService(
+            PluginComponentFactory.class.getName(),
+            new PluginComponentFactory(Container.CONTAINER_CHAT_TOOL_BAR,
+                                       Container.RIGHT,
+                                       -1,
+                                       false)
+            {
+                @Override
+                protected PluginComponent getPluginInstance()
+                {
+                    LanguageMenuBarCreator creator =
+                        new LanguageMenuBarCreator(this);
+
+                    try
+                    {
+                        if(!SwingUtilities.isEventDispatchThread())
+                            SwingUtilities.invokeAndWait(creator);
+                        else
+                            creator.run();
+
+                        return creator.menuBar;
+                    }
+                    catch(Throwable t)
+                    {
+                        logger.error("Error creating LanguageMenuBar", t);
+                    }
+
+                    return null;
+                }
+            },
+            containerFilter);
+
+    }
+
+    /**
+     * Setting context to the activator, as soon as we have one.
+     *
+     * @param context the context to set.
+     */
+    @Override
+    public void setBundleContext(BundleContext context)
     {
         bundleContext = context;
+    }
 
-        this.checker.start(context);
+    /**
+     * This activator depends on UIService.
+     * @return the class name of uiService.
+     */
+    @Override
+    public Class<?> getDependentServiceClass()
+    {
+        return UIService.class;
+    }
 
-        SwingUtilities.invokeLater(new Runnable()
+    /**
+     * Creates and loads everything when needed.
+     */
+    private class LanguageMenuBarCreator
+        implements Runnable
+    {
+        LanguageMenuBar menuBar;
+        final PluginComponentFactory parentFactory;
+
+        LanguageMenuBarCreator(PluginComponentFactory parentFactory)
         {
-            public void run()
+            this.parentFactory = parentFactory;
+        }
+
+        public void run()
+        {
+            synchronized(SpellCheckActivator.this)
             {
-                final LanguageMenuBar menuBar =
-                    LanguageMenuBar.makeSelectionField(checker);
-
-                new Thread(new Runnable()
+                if(checker == null)
                 {
-                    public void run()
-                    {
-                        // adds button to toggle spell checker
-                        Hashtable<String, String> containerFilter =
-                            new Hashtable<String, String>();
-                        containerFilter.put(Container.CONTAINER_ID,
-                            Container.CONTAINER_CHAT_TOOL_BAR.getID());
-
-                        // adds field to change language
-                        bundleContext.registerService(
-                            PluginComponent.class.getName(),
-                            menuBar,
-                            containerFilter);
-                    }
-                }).start();
+                    checker = new SpellChecker();
+                }
             }
-        });
+
+            try
+            {
+                checker.start(bundleContext);
+            }
+            catch(Exception ex)
+            {
+                logger.error("Error starting SpellChecker", ex);
+            }
+            menuBar = new LanguageMenuBar(checker, parentFactory);
+            menuBar.createSpellCheckerWorker(checker.getLocale()).start();
+        }
     }
 
     /**
@@ -135,6 +212,5 @@ public class SpellCheckActivator
      */
     public void stop(BundleContext arg0) throws Exception
     {
-        this.checker.stop();
     }
 }

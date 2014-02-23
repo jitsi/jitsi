@@ -8,7 +8,8 @@ package net.java.sip.communicator.plugin.accountinfo;
 
 import java.util.*;
 
-import net.java.sip.communicator.service.browserlauncher.*;
+import net.java.sip.communicator.service.globaldisplaydetails.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -18,6 +19,7 @@ import org.osgi.framework.*;
  * Starts the account info bundle.
  *
  * @author Adam Glodstein
+ * @author Marin Dzhigarov
  */
 public class AccountInfoActivator
     implements BundleActivator
@@ -30,21 +32,52 @@ public class AccountInfoActivator
      */
     public static BundleContext bundleContext;
 
-    private static BrowserLauncherService browserLauncherService;
+    private static GlobalDisplayDetailsService globalDisplayDetailsService;
 
     public void start(BundleContext bc) throws Exception
     {
         AccountInfoActivator.bundleContext = bc;
 
-//        new LazyConfigurationForm(
-//            "net.java.sip.communicator.plugin.accountinfo.AccountInfoPanel",
-//            getClass().getClassLoader(), "plugin.accountinfo.PLUGIN_ICON",
-//            "plugin.accountinfo.TITLE");
+        Hashtable<String, String> containerFilter
+            = new Hashtable<String, String>();
+        containerFilter.put(
+            Container.CONTAINER_ID,
+            Container.CONTAINER_TOOLS_MENU.getID());
+
+        bundleContext.registerService(
+            PluginComponentFactory.class.getName(),
+            new PluginComponentFactory(Container.CONTAINER_TOOLS_MENU)
+            {
+                @Override
+                protected PluginComponent getPluginInstance()
+                {
+                    return new AccountInfoMenuItemComponent(
+                        getContainer(), this);
+                }
+            },
+            containerFilter);
+
+        containerFilter = new Hashtable<String, String>();
+        containerFilter.put(
+            Container.CONTAINER_ID,
+            Container.CONTAINER_ACCOUNT_RIGHT_BUTTON_MENU.getID());
+
+        bundleContext.registerService(
+            PluginComponentFactory.class.getName(),
+            new PluginComponentFactory(
+                Container.CONTAINER_ACCOUNT_RIGHT_BUTTON_MENU)
+            {
+                @Override
+                protected PluginComponent getPluginInstance()
+                {
+                    return new AccountInfoMenuItemComponent(
+                        getContainer(), this);
+                }
+            },
+            containerFilter);
     }
 
-    public void stop(BundleContext bc) throws Exception
-    {
-    }
+    public void stop(BundleContext bc) throws Exception {}
 
     /**
      * Returns all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
@@ -53,7 +86,8 @@ public class AccountInfoActivator
      * @return all <tt>ProtocolProviderFactory</tt>s obtained from the bundle
      *         context
      */
-    public static Map<Object, ProtocolProviderFactory> getProtocolProviderFactories()
+    public static Map<Object, ProtocolProviderFactory>
+        getProtocolProviderFactories()
     {
         Map<Object, ProtocolProviderFactory> providerFactoriesMap =
             new Hashtable<Object, ProtocolProviderFactory>();
@@ -87,23 +121,21 @@ public class AccountInfoActivator
     }
 
     /**
-     * Returns the <tt>BrowserLauncherService</tt> currently registered.
+     * Returns the <tt>GlobalDisplayDetailsService</tt> obtained from the bundle
+     * context.
      *
-     * @return the <tt>BrowserLauncherService</tt>
+     * @return the <tt>GlobalDisplayDetailsService</tt> obtained from the bundle
+     * context
      */
-    public static BrowserLauncherService getBrowserLauncher()
+    public static GlobalDisplayDetailsService getGlobalDisplayDetailsService()
     {
-        if (browserLauncherService == null)
+        if (globalDisplayDetailsService == null)
         {
-            ServiceReference serviceReference =
-                bundleContext.getServiceReference(BrowserLauncherService.class
-                    .getName());
-
-            browserLauncherService =
-                (BrowserLauncherService) bundleContext
-                    .getService(serviceReference);
+            globalDisplayDetailsService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        GlobalDisplayDetailsService.class);
         }
-
-        return browserLauncherService;
+        return globalDisplayDetailsService;
     }
 }

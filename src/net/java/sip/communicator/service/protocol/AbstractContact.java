@@ -169,4 +169,23 @@ public abstract class AbstractContact
                 listenersIter.next().contactResourceModified(event);
         }
     }
+    
+    /**
+     * Returns the same as <tt>getAddress</tt> function.
+     * 
+     * @return the address of the contact.
+     */
+    public String getPersistableAddress()
+    {
+        return getAddress();
+    }
+
+    /**
+     * Whether contact is mobile one. Logged in only from mobile device.
+     * @return whether contact is mobile one.
+     */
+    public boolean isMobile()
+    {
+        return false;
+    }
 }

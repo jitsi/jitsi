@@ -51,6 +51,11 @@ public class GenericSourceContact
      * The image/avatar of this <tt>SourceContact</tt>
      */
     private byte[] image;
+    
+    /**
+     * The address of the contact.
+     */
+    private String contactAddress = null;
 
     /**
      * Initializes a new <tt>AddrBookSourceContact</tt> instance.
@@ -68,6 +73,16 @@ public class GenericSourceContact
         this.contactSource = contactSource;
         this.displayName = displayName;
         this.contactDetails = contactDetails;
+    }
+
+    /**
+     * Returns the address of the contact.
+     * 
+     * @return the contact address.
+     */
+    public String getContactAddress()
+    {
+        return contactAddress;
     }
 
     /**
@@ -158,6 +173,16 @@ public class GenericSourceContact
     }
 
     /**
+     * Sets the address of the contact.
+     * 
+     * @param contactAddress the address to set.
+     */
+    public void setContactAddress(String contactAddress)
+    {
+        this.contactAddress = contactAddress;
+    }
+
+    /**
      * Sets the display details of this <tt>SourceContact</tt>.
      *
      * @param displayDetails the display details of this <tt>SourceContact</tt>
@@ -225,6 +250,20 @@ public class GenericSourceContact
     public void setImage(byte[] image)
     {
         this.image = image;
+    }
+
+    /**
+     * Whether the current image returned by @see #getImage() is the one
+     * provided by the SourceContact by default, or is a one used and obtained
+     * from external source.
+     *
+     * @return whether this is the default image for this SourceContact.
+     */
+    @Override
+    public boolean isDefaultImage()
+    {
+        // in this SourceContact we always show an externally set image or null
+        return false;
     }
 
     /**

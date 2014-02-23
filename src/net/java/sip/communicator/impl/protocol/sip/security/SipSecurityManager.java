@@ -18,6 +18,7 @@ import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -60,14 +61,22 @@ public class SipSecurityManager
     private final AccountID accountID;
 
     /**
+     * The protocol provider that creates our instance.
+     */
+    private final ProtocolProviderServiceSipImpl protocolProvider;
+
+    /**
      * Default constructor for the security manager.
      *
      * @param accountID the id of the account that this security manager is
      * going to serve.
      */
-    public SipSecurityManager(AccountID accountID)
+    public SipSecurityManager(
+            AccountID accountID,
+            ProtocolProviderServiceSipImpl protocolProvider)
     {
         this.accountID = accountID;
+        this.protocolProvider = protocolProvider;
     }
 
     /**
@@ -246,6 +255,14 @@ public class SipSecurityManager
                     SipActivator.getProtocolProviderFactory().storePassword(
                         accountID, null);
 
+                    protocolProvider.getRegistrarConnection()
+                        .setRegistrationState(
+                            RegistrationState.AUTHENTICATION_FAILED,
+                            RegistrationStateChangeEvent
+                                .REASON_AUTHENTICATION_FAILED,
+                            null
+                        );
+
                     ccEntry = createCcEntryWithNewCredentials(
                         realm, SecurityAuthority.WRONG_PASSWORD);
 
@@ -367,13 +384,14 @@ public class SipSecurityManager
      * containing user credentials.
      * @throws TransactionUnavailableException if we get an exception white
      * creating the new transaction
+     * @throws OperationFailedException 
      */
     public synchronized ClientTransaction handleForbiddenResponse(
                                     Response          forbidden,
                                     ClientTransaction endedTransaction,
                                     SipProvider       transactionCreator)
         throws InvalidArgumentException,
-               TransactionUnavailableException
+               TransactionUnavailableException, OperationFailedException
 
     {
         //now empty the cache because the request we previously sent was
@@ -396,6 +414,12 @@ public class SipSecurityManager
         //extract the realms that we tried to authenticate with the previous
         //request and remove the authorization headers.
         List<String> realms = removeAuthHeaders(reoriginatedRequest);
+        if (realms.size() == 0)
+        {
+            throw new OperationFailedException(
+                "No realms present, cannot authenticate",
+                OperationFailedException.FORBIDDEN);
+        }
 
         //rfc 3261 says that the cseq header should be augmented for the new
         //request. do it here so that the new dialog (created together with

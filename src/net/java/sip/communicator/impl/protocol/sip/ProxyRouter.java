@@ -128,9 +128,10 @@ public class ProxyRouter
 
             String proxy = sipProvider.getConnection().getOutboundProxyString();
 
-            boolean forceLooseRouting = Boolean.valueOf((String)
-                sipProvider.getAccountID().getAccountProperty(
-                    ProtocolProviderFactory.FORCE_PROXY_BYPASS));
+            boolean forceLooseRouting
+                = sipProvider.getAccountID()
+                    .getAccountPropertyBoolean(
+                        ProtocolProviderFactory.FORCE_PROXY_BYPASS, false);
 
             // P2P case
             if (proxy == null || forceLooseRouting )

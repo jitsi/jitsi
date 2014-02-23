@@ -26,6 +26,7 @@ import net.java.sip.communicator.util.*;
  * @author Yana Stamcheva
  * @author Lubomir Marinov
  * @author Adam Netocny
+ * @author Hristo Terezov
  */
 public class ImageLoader
 {
@@ -160,6 +161,12 @@ public class ImageLoader
         = new ImageID("service.gui.icons.RIGHT_ARROW_ICON");
 
     /**
+     * The edit icon that is shown when account is right clicked on.
+     */
+    public static final ImageID ACCOUNT_EDIT_ICON
+        = new ImageID("service.gui.buttons.ACCOUNT_EDIT_ICON");
+
+    /**
      * The call button image.
      */
     public static final ImageID INCOMING_CALL_BUTTON_BG
@@ -248,6 +255,12 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.CONTACT_LIST_BUTTON_SEPARATOR");
 
     /**
+     * The mobile indicator for contacts in contact list.
+     */
+    public static final ImageID CONTACT_LIST_MOBILE_INDICATOR
+        = new ImageID("service.gui.buttons.CONTACT_LIST_MOBILE_INDICATOR");
+
+    /**
      * The call button small image.
      */
     public static final ImageID CALL_BUTTON_SMALL
@@ -329,6 +342,24 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.ADD_CONTACT_BUTTON_SMALL_PRESSED");
 
     /**
+     * The web button image.
+     */
+    public static final ImageID WEB_BUTTON
+        = new ImageID("service.gui.buttons.WEB_BUTTON");
+
+    /**
+     * The call web pressed image.
+     */
+    public static final ImageID WEB_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.WEB_BUTTON_ROLLOVER");
+
+    /**
+     * The web button pressed image.
+     */
+    public static final ImageID WEB_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.WEB_BUTTON_PRESSED");
+
+    /**
      * The chat button small image.
      */
     public static final ImageID CHAT_BUTTON_SMALL
@@ -357,12 +388,24 @@ public class ImageLoader
      */
     public static final ImageID CHAT_CALL
         = new ImageID("service.gui.buttons.CHAT_CALL");
+    
+    /**
+     * The chat room call button image.
+     */
+    public static final ImageID CHAT_ROOM_CALL
+        = new ImageID("service.gui.buttons.CHAT_ROOM_CALL");
 
     /**
      * The chat video call button image.
      */
     public static final ImageID CHAT_VIDEO_CALL
         = new ImageID("service.gui.buttons.CHAT_VIDEO_CALL");
+    
+    /**
+     * The chat room video call button image.
+     */
+    public static final ImageID CHAT_ROOM_VIDEO_CALL
+        = new ImageID("service.gui.buttons.CHAT_ROOM_VIDEO_CALL");
 
     /**
      * The chat call button image.
@@ -735,6 +778,20 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.SHOW_LOCAL_VIDEO_BUTTON_PRESSED");
 
     /**
+     * A show/hide local video button icon. The icon shown in the CallPeer
+     * panel.
+     */
+    public static final ImageID SHOW_HIDE_PEERS_BUTTON
+        = new ImageID("service.gui.buttons.SHOW_HIDE_PEERS_BUTTON");
+
+    /**
+     * A show/hide local video button pressed icon. The icon shown in the
+     * CallPeer panel.
+     */
+    public static final ImageID SHOW_HIDE_PEERS_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.SHOW_HIDE_PEERS_BUTTON_PRESSED");
+
+    /**
      * The resize video button.
      */
     public static final ImageID HD_VIDEO_BUTTON
@@ -834,6 +891,12 @@ public class ImageLoader
         new ImageID("service.gui.buttons.CALL_INFO");
 
     /**
+     * The call information button icon used in the call panel.
+     */
+    public static final ImageID CRM =
+        new ImageID("service.gui.buttons.CRM");
+
+    /**
      * The image used, when a contact has no photo specified.
      */
     public static final ImageID DEFAULT_USER_PHOTO
@@ -915,10 +978,22 @@ public class ImageLoader
         = new ImageID("service.gui.icons.CLOSED_GROUP");
 
     /**
-     * The image used for chat rooms.
+     * The image used for chat rooms presence status.
      */
-    public static final ImageID CHAT_ROOM_16x16_ICON
+    public static final ImageID CHAT_ROOM_OFFLINE_ICON
+        = new ImageID("service.gui.icons.CHAT_ROOM_ICON");
+    
+    /**
+     * The image used for chat rooms presence status.
+     */
+    public static final ImageID CHAT_ROOM_MENU_ICON
         = new ImageID("service.gui.icons.CHAT_ROOM_16x16_ICON");
+    
+    /**
+     * The image used for joined chat rooms.
+     */
+    public static final ImageID CHAT_ROOM_ONLINE_ICON
+        = new ImageID("service.gui.icons.CHAT_ROOM_JOINED_ICON");
 
     /**
      * The image used for multi user chat servers.
@@ -998,6 +1073,12 @@ public class ImageLoader
      */
     public static final ImageID CHAT_ROOM_CONFIG
         = new ImageID("service.gui.buttons.CHAT_ROOM_CONFIG");
+
+    /**
+     * The icon used for the chat room configuration button.
+     */
+    public static final ImageID CHAT_ROOM_MEMBERS_LIST_CONFIG
+        = new ImageID("service.gui.buttons.CHAT_ROOM_MEMBERS_LIST_CONFIG");
 
     /**
      * The video call menu item icon.
@@ -1125,6 +1206,18 @@ public class ImageLoader
         = new ImageID("service.gui.icons.HISTORY_ICON");
 
     /**
+     * Clock icon on.
+     */
+    public static final ImageID HISTORY_ICON_ON
+        = new ImageID("service.gui.icons.HISTORY_ICON_ON");
+
+    /**
+     * Clock icon off.
+     */
+    public static final ImageID HISTORY_ICON_OFF
+        = new ImageID("service.gui.icons.HISTORY_ICON_OFF");
+
+    /**
      * Send file icon.
      */
     public static final ImageID SEND_FILE_ICON
@@ -1135,6 +1228,12 @@ public class ImageLoader
      */
     public static final ImageID FONT_ICON
         = new ImageID("service.gui.icons.FONT_ICON");
+
+    /**
+     * Invite to conference icon
+     */
+    public static final ImageID CONFERENCE_ICON
+        = new ImageID("service.gui.icons.CONFERENCE_CALL");
 
     /*
      * =======================================================================
@@ -1217,12 +1316,6 @@ public class ImageLoader
             "service.gui.icons.TOOLBAR_DRAG_ICON");
 
     /**
-     * The background image of the <tt>AuthenticationWindow</tt>.
-     */
-    public static final ImageID AUTH_WINDOW_BACKGROUND = new ImageID(
-            "service.gui.AUTH_WINDOW_BACKGROUND");
-
-    /**
      * The icon used to indicate a search.
      */
     public static final ImageID SEARCH_ICON
@@ -1259,6 +1352,12 @@ public class ImageLoader
         = new ImageID("service.gui.statusicons.USER_AWAY_ICON");
 
     /**
+     * Contact "away" icon.
+     */
+    public static final ImageID USER_EXTENDED_AWAY_ICON
+        = new ImageID("service.gui.statusicons.USER_EXTENDED_AWAY_ICON");
+
+    /**
      * Contact "free for chat" icon.
      */
     public static final ImageID USER_FFC_ICON
@@ -1275,6 +1374,48 @@ public class ImageLoader
      */
     public static final ImageID USER_USER_ON_THE_PHONE_ICON
         = new ImageID("service.gui.statusicons.USER_ON_THE_PHONE_ICON");
+
+    /**
+     * Chat button "online" icon.
+     */
+    public static final ImageID CHAT_BUTTON_ONLINE_ICON
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_ONLINE_ICON");
+
+    /**
+     * Chat button "offline" icon.
+     */
+    public static final ImageID CHAT_BUTTON_OFFLINE_ICON
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_OFFLINE_ICON");
+
+    /**
+     * Chat button "away" icon.
+     */
+    public static final ImageID CHAT_BUTTON_AWAY_ICON
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_AWAY_ICON");
+
+    /**
+     * Chat button "away" icon.
+     */
+    public static final ImageID CHAT_BUTTON_EXTENDED_AWAY_ICON
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_EXTENDED_AWAY_ICON");
+
+    /**
+     * Chat button "free for chat" icon.
+     */
+    public static final ImageID CHAT_BUTTON_FFC_ICON
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_FFC_ICON");
+
+    /**
+     * Chat button "do not disturb" icon.
+     */
+    public static final ImageID CHAT_BUTTON_DND_ICON
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_DND_ICON");
+
+    /**
+     * Chat button "on the phone" icon.
+     */
+    public static final ImageID CHAT_BUTTON_ON_THE_PHONE_ICON
+        = new ImageID("service.gui.buttons.CHAT_BUTTON_ON_THE_PHONE_ICON");
 
    /**
     * Owner chatroom member.
@@ -1323,6 +1464,12 @@ public class ImageLoader
      */
     public static final ImageID CHANGE_NICKNAME_ICON_16x16
         = new ImageID("service.gui.icons.CHANGE_NICKNAME_16x16");
+
+    /**
+     * Change nickname icon
+     */
+    public static final ImageID CHANGE_NICKNAME_ICON
+        = new ImageID("service.gui.icons.CHANGE_NICKNAME");
 
     /**
      * Ban icon.
@@ -1414,16 +1561,13 @@ public class ImageLoader
      */
     public static ImageIcon getAccountStatusImage(ProtocolProviderService pps)
     {
-        ImageIcon statusIcon;
-
         OperationSetPresence presence
             = pps.getOperationSet(OperationSetPresence.class);
-
+        byte[] protocolStatusIcon
+            = (presence == null)
+                ? null
+                : presence.getPresenceStatus().getStatusIcon();
         Image statusImage;
-        byte[] protocolStatusIcon = null;
-
-        if(presence != null)
-            protocolStatusIcon = presence.getPresenceStatus().getStatusIcon();
 
         if (presence != null && protocolStatusIcon != null)
         {
@@ -1431,21 +1575,22 @@ public class ImageLoader
         }
         else
         {
-            statusImage
-                = ImageUtils.getBytesInImage(pps.getProtocolIcon().getIcon(
-                    ProtocolIcon.ICON_SIZE_16x16));
+            byte[] bytes
+                = pps.getProtocolIcon().getIcon(ProtocolIcon.ICON_SIZE_16x16);
 
-            if (!pps.isRegistered())
+            statusImage
+                = (bytes == null) ? null : ImageUtils.getBytesInImage(bytes);
+            if (!pps.isRegistered() && (statusImage != null))
             {
                 statusImage
                     = LightGrayFilter.createDisabledImage(statusImage);
             }
         }
 
-        statusIcon = new ImageIcon(
-            getIndexedProtocolImage(statusImage, pps));
-
-        return statusIcon;
+        return
+            (statusImage == null)
+                ? null
+                : new ImageIcon(getIndexedProtocolImage(statusImage, pps));
     }
 
     /**
@@ -1614,35 +1759,5 @@ public class ImageLoader
     public static void clearCache()
     {
         getImageLoaderService().clearCache();
-    }
-
-    /**
-     * Returns the icon corresponding to the given <tt>protocolProvider</tt>.
-     *
-     * @param protocolProvider the <tt>ProtocolProviderService</tt>, which icon
-     * we're looking for
-     * @return the icon to show on the authentication window
-     */
-    public static ImageIcon getAuthenticationWindowIcon(
-        ProtocolProviderService protocolProvider)
-    {
-        Image image = null;
-
-        if(protocolProvider != null)
-        {
-            ProtocolIcon protocolIcon = protocolProvider.getProtocolIcon();
-
-            if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_64x64))
-                image = ImageUtils.getBytesInImage(
-                    protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_64x64));
-            else if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_48x48))
-                image = ImageUtils.getBytesInImage(
-                    protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_48x48));
-        }
-
-        if (image != null)
-            return new ImageIcon(image);
-
-        return null;
     }
 }

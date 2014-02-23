@@ -15,6 +15,7 @@ import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.event.*;
+import org.jitsi.service.protocol.event.*;
 
 /**
  * A utility class implementing media control code shared between current
@@ -33,6 +34,7 @@ import org.jitsi.service.neomedia.event.*;
  *
  * @author Emil Ivov
  * @author Lyubomir Marinov
+ * @author Boris Grozev
  */
 public abstract class MediaAwareCallPeer
                           <T extends MediaAwareCall<?, ?, V>,
@@ -122,6 +124,38 @@ public abstract class MediaAwareCallPeer
         = new LinkedList<PropertyChangeListener>();
 
     /**
+     * Represents the last Conference Information (RFC4575) document sent to
+     * this <tt>CallPeer</tt>. This is always a document with state "full", even
+     * if the last document actually sent was a "partial"
+     */
+    private ConferenceInfoDocument lastConferenceInfoSent = null;
+
+    /**
+     * The time (as obtained by <tt>System.currentTimeMillis()</tt>) at which
+     * a Conference Information (RFC4575) document was last sent to this
+     * <tt>CallPeer</tt>.
+     */
+    private long lastConferenceInfoSentTimestamp = -1;
+
+    /**
+     * The last Conference Information (RFC4575) document sent to us by this
+     * <tt>CallPeer</tt>. This is always a document with state "full", which is
+     * only gets updated by "partial" or "deleted" documents.
+     */
+    private ConferenceInfoDocument lastConferenceInfoReceived = null;
+
+    /**
+     * Whether a conference-info document has been scheduled to be sent to this
+     * <tt>CallPeer</tt>
+     */
+    private boolean confInfoScheduled = false;
+
+    /**
+     * Synchronization object for confInfoScheduled
+     */
+    private final Object confInfoScheduledSyncRoot = new Object();
+
+    /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param owningCall the call that contains this call peer.
@@ -191,11 +225,11 @@ public abstract class MediaAwareCallPeer
             {
                 CallPeerMediaHandler<?> mediaHandler = getMediaHandler();
 
-                if (isJitsiVideoBridge())
+                if (isJitsiVideobridge())
                 {
                     /*
                      * When the local user/peer has organized a telephony
-                     * conference utilizing the Jitsi VideoBridge server-side
+                     * conference utilizing the Jitsi Videobridge server-side
                      * technology, the server will calculate the audio levels
                      * and not the client.
                      */
@@ -343,10 +377,10 @@ public abstract class MediaAwareCallPeer
     {
         /*
          * When the local user/peer has organized a telephony conference
-         * utilizing the Jitsi VideoBridge server-side technology, the server
+         * utilizing the Jitsi Videobridge server-side technology, the server
          * will calculate the audio levels and not the client.
          */
-        if (isJitsiVideoBridge())
+        if (isJitsiVideobridge())
         {
             long audioRemoteSSRC
                 = getMediaHandler().getRemoteSSRC(MediaType.AUDIO);
@@ -448,6 +482,14 @@ public abstract class MediaAwareCallPeer
             mediaHandler.setCsrcAudioLevelListener(this);
         }
     }
+    
+    /**
+     * Dummy implementation of {@link CallPeerConferenceListener
+     * #conferenceMemberErrorReceived(CallPeerConferenceEvent)}.
+     *
+     * @param ev the event
+     */
+    public void conferenceMemberErrorReceived(CallPeerConferenceEvent ev) {};
 
     /**
      * Called when this peer stops being a mixer. The method add removes this
@@ -585,13 +627,13 @@ public abstract class MediaAwareCallPeer
     /**
      * Determines whether this <tt>CallPeer</tt> is participating in a telephony
      * conference organized by the local user/peer utilizing the Jitsi
-     * VideoBridge server-side technology.
+     * Videobridge server-side technology.
      *
      * @return <tt>true</tt> if this <tt>CallPeer</tt> is participating in a
      * telephony conference organized by the local user/peer utilizing the Jitsi
-     * VideoBridge server-side technology; otherwise, <tt>false</tt>
+     * Videobridge server-side technology; otherwise, <tt>false</tt>
      */
-    public final boolean isJitsiVideoBridge()
+    public final boolean isJitsiVideobridge()
     {
         Call call = getCall();
 
@@ -600,7 +642,7 @@ public abstract class MediaAwareCallPeer
             CallConference conference = call.getConference();
 
             if (conference != null)
-                return conference.isJitsiVideoBridge();
+                return conference.isJitsiVideobridge();
         }
         return false;
     }
@@ -811,7 +853,9 @@ public abstract class MediaAwareCallPeer
      * @param severity severity level
      */
     public void securityMessageReceived(
-        String messageType, String i18nMessage, int severity)
+            String messageType,
+            String i18nMessage,
+            int severity)
     {
         fireCallPeerSecurityMessageEvent(messageType,
                                          i18nMessage,
@@ -822,60 +866,72 @@ public abstract class MediaAwareCallPeer
      * Indicates that the other party has timeouted replying to our
      * offer to secure the connection.
      *
-     * @param sessionType the type of the call session - audio or video.
+     * @param mediaType the <tt>MediaType</tt> of the call session
      * @param sender the security controller that caused the event
      */
-    public void securityNegotiationStarted(int sessionType, SrtpControl sender)
+    public void securityNegotiationStarted(
+            MediaType mediaType,
+            SrtpControl sender)
     {
-        CallPeerSecurityNegotiationStartedEvent evt =
-            new CallPeerSecurityNegotiationStartedEvent(this, sessionType, sender);
-        fireCallPeerSecurityNegotiationStartedEvent(evt);
+        fireCallPeerSecurityNegotiationStartedEvent(
+                new CallPeerSecurityNegotiationStartedEvent(
+                        this,
+                        toSessionType(mediaType),
+                        sender));
     }
 
     /**
      * Indicates that the other party has timeouted replying to our
      * offer to secure the connection.
      *
-     * @param sessionType the type of the call session - audio or video.
+     * @param mediaType the <tt>MediaType</tt> of the call session
      */
-    public void securityTimeout(int sessionType)
+    public void securityTimeout(MediaType mediaType)
     {
-        CallPeerSecurityTimeoutEvent evt =
-            new CallPeerSecurityTimeoutEvent(this, sessionType);
-        fireCallPeerSecurityTimeoutEvent(evt);
+        fireCallPeerSecurityTimeoutEvent(
+                new CallPeerSecurityTimeoutEvent(
+                        this,
+                        toSessionType(mediaType)));
     }
 
     /**
      * Sets the security status to OFF for this call peer.
      *
-     * @param sessionType the type of the call session - audio or video.
+     * @param mediaType the <tt>MediaType</tt> of the call session
      */
-    public void securityTurnedOff(int sessionType)
+    public void securityTurnedOff(MediaType mediaType)
     {
         // If this event has been triggered because of a call end event and the
         // call is already ended we don't need to alert the user for
         // security off.
         if((call != null) && !call.getCallState().equals(CallState.CALL_ENDED))
         {
-            CallPeerSecurityOffEvent event
-                = new CallPeerSecurityOffEvent( this, sessionType);
-            fireCallPeerSecurityOffEvent(event);
+            fireCallPeerSecurityOffEvent(
+                    new CallPeerSecurityOffEvent(
+                            this,
+                            toSessionType(mediaType)));
         }
     }
 
     /**
      * Sets the security status to ON for this call peer.
      *
-     * @param sessionType the type of the call session - audio or video.
+     * @param mediaType the <tt>MediaType</tt> of the call session
      * @param cipher the cipher
      * @param sender the security controller that caused the event
      */
-    public void securityTurnedOn(int sessionType, String cipher,
-        SrtpControl sender)
+    public void securityTurnedOn(
+            MediaType mediaType,
+            String cipher,
+            SrtpControl sender)
     {
         getMediaHandler().startSrtpMultistream(sender);
         fireCallPeerSecurityOnEvent(
-                new CallPeerSecurityOnEvent(this, sessionType, cipher, sender));
+                new CallPeerSecurityOnEvent(
+                        this,
+                        toSessionType(mediaType),
+                        cipher,
+                        sender));
     }
 
     /**
@@ -1001,6 +1057,195 @@ public abstract class MediaAwareCallPeer
                         || CallPeerState.FAILED.equals(newState))
                     mediaHandler.close();
             }
+        }
+    }
+
+    /**
+     * Returns the last <tt>ConferenceInfoDocument</tt> sent by us to this
+     * <tt>CallPeer</tt>. It is a document with state <tt>full</tt>
+     * @return the last <tt>ConferenceInfoDocument</tt> sent by us to this
+     * <tt>CallPeer</tt>. It is a document with state <tt>full</tt>
+     */
+    public ConferenceInfoDocument getLastConferenceInfoSent()
+    {
+        return lastConferenceInfoSent;
+    }
+
+    /**
+     * Sets the last <tt>ConferenceInfoDocument</tt> sent by us to this
+     * <tt>CallPeer</tt>.
+     * @param confInfo the document to set.
+     */
+    public void setLastConferenceInfoSent(ConferenceInfoDocument confInfo)
+    {
+        lastConferenceInfoSent = confInfo;
+    }
+
+    /**
+     * Gets the time (as obtained by <tt>System.currentTimeMillis()</tt>)
+     * at which we last sent a <tt>ConferenceInfoDocument</tt> to this
+     * <tt>CallPeer</tt>.
+     * @return the time (as obtained by <tt>System.currentTimeMillis()</tt>)
+     * at which we last sent a <tt>ConferenceInfoDocument</tt> to this
+     * <tt>CallPeer</tt>.
+     */
+    public long getLastConferenceInfoSentTimestamp()
+    {
+        return lastConferenceInfoSentTimestamp;
+    }
+
+    /**
+     * Sets the time (as obtained by <tt>System.currentTimeMillis()</tt>)
+     * at which we last sent a <tt>ConferenceInfoDocument</tt> to this
+     * <tt>CallPeer</tt>.
+     * @param newTimestamp the time to set
+     */
+    public void setLastConferenceInfoSentTimestamp(long newTimestamp)
+    {
+        lastConferenceInfoSentTimestamp = newTimestamp;
+    }
+
+    /**
+     * Gets the last <tt>ConferenceInfoDocument</tt> sent to us by this
+     * <tt>CallPeer</tt>.
+     * @return the last <tt>ConferenceInfoDocument</tt> sent to us by this
+     * <tt>CallPeer</tt>.
+     */
+    public ConferenceInfoDocument getLastConferenceInfoReceived()
+    {
+        return lastConferenceInfoReceived;
+    }
+
+    /**
+     * Gets the last <tt>ConferenceInfoDocument</tt> sent to us by this
+     * <tt>CallPeer</tt>.
+     * @return the last <tt>ConferenceInfoDocument</tt> sent to us by this
+     * <tt>CallPeer</tt>.
+     */
+    public void setLastConferenceInfoReceived(ConferenceInfoDocument confInfo)
+    {
+        lastConferenceInfoReceived = confInfo;
+    }
+
+    /**
+     * Gets the <tt>version</tt> of the last <tt>ConferenceInfoDocument</tt>
+     * sent to us by this <tt>CallPeer</tt>, or -1 if we haven't (yet) received
+     * a <tt>ConferenceInformationDocument</tt> from this <tt>CallPeer</tt>.
+     * @return
+     */
+    public int getLastConferenceInfoReceivedVersion()
+    {
+        return (lastConferenceInfoReceived == null)
+                ? -1
+                : lastConferenceInfoReceived.getVersion();
+    }
+
+    /**
+     * Gets the <tt>String</tt> to be used for this <tt>CallPeer</tt> when
+     * we describe it in a <tt>ConferenceInfoDocument</tt> (e.g. the
+     * <tt>entity</tt> key attribute which to use for the <tt>user</tt>
+     * element corresponding to this <tt>CallPeer</tt>)
+     *
+     * @return the <tt>String</tt> to be used for this <tt>CallPeer</tt> when
+     * we describe it in a <tt>ConferenceInfoDocument</tt> (e.g. the
+     * <tt>entity</tt> key attribute which to use for the <tt>user</tt>
+     * element corresponding to this <tt>CallPeer</tt>)
+     */
+    public abstract String getEntity();
+
+    /**
+     * Check whether a conference-info document is scheduled to be sent to
+     * this <tt>CallPeer</tt> (i.e. there is a thread which will eventually
+     * (after sleeping a certain amount of time) trigger a document to be sent)
+     * @return <tt>true</tt> if there is a conference-info document  scheduled
+     * to be sent to this <tt>CallPeer</tt> and <tt>false</tt> otherwise.
+     */
+    public boolean isConfInfoScheduled()
+    {
+        synchronized (confInfoScheduledSyncRoot)
+        {
+            return confInfoScheduled;
+        }
+    }
+
+    /**
+     * Sets the property which indicates whether a conference-info document
+     * is scheduled to be sent to this <tt>CallPeer</tt>.
+     * @param confInfoScheduled
+     */
+    public void setConfInfoScheduled(boolean confInfoScheduled)
+    {
+        synchronized (confInfoScheduledSyncRoot)
+        {
+            this.confInfoScheduled = confInfoScheduled;
+        }
+    }
+
+    /**
+     * Returns the direction of the session for media of type <tt>mediaType</tt>
+     * that we have with this <tt>CallPeer</tt>. This is the direction of the
+     * session negotiated in the signaling protocol, and it may or may not
+     * coincide with the direction of the media stream.
+     * For example, if we are the focus of a videobridge conference and another
+     * peer is sending video to us, we have a <tt>RECVONLY</tt> video stream,
+     * but <tt>SENDONLY</tt> or <tt>SENDRECV</tt> (Jingle) sessions with the
+     * rest of the conference members.
+     * Should always return non-null.
+     *
+     * @param mediaType the <tt>MediaType</tt> to use
+     * @return Returns the direction of the session for media of type
+     * <tt>mediaType</tt> that we have with this <tt>CallPeer</tt>.
+     */
+    public abstract MediaDirection getDirection(MediaType mediaType);
+
+    /**
+     * {@inheritDoc}
+     *
+     * When a <tt>ConferenceMember</tt> is removed from a conference with a
+     * Jitsi-videobridge, an RTCP BYE packet is not always sent. Therefore,
+     * if the <tt>ConferenceMember</tt> had an associated video SSRC, the stream
+     * isn't be removed until it times out, leaving a blank video container in
+     * the interface for a few seconds.
+     * TODO: This works around the problem by removing the
+     * <tt>ConferenceMember</tt>'s <tt>ReceiveStream</tt> when the
+     * <tt>ConferenceMember</tt> is removed. The proper solution is to ensure
+     * that RTCP BYEs are sent whenever necessary, and when it is deployed this
+     * code should be removed.
+     *
+     * @param conferenceMember a <tt>ConferenceMember</tt> to be removed from
+     * the list of <tt>ConferenceMember</tt> reported by this peer. If the
+     * specified <tt>ConferenceMember</tt> is no contained in the list, no event
+     */
+    @Override
+    public void removeConferenceMember(ConferenceMember conferenceMember)
+    {
+        MediaStream videoStream = getMediaHandler().getStream(MediaType.VIDEO);
+        if (videoStream != null)
+            videoStream.removeReceiveStreamForSsrc(
+                    conferenceMember.getVideoSsrc());
+
+        super.removeConferenceMember(conferenceMember);
+    }
+
+    /**
+     * Converts a specific <tt>MediaType</tt> into a <tt>sessionType</tt> value
+     * in the terms of the <tt>CallPeerSecurityStatusEvent</tt> class.
+     *
+     * @param mediaType the <tt>MediaType</tt> to be converted
+     * @return the <tt>sessionType</tt> value in the terms of the
+     * <tt>CallPeerSecurityStatusEvent</tt> class that is equivalent to the
+     * specified <tt>mediaType</tt>
+     */
+    private static int toSessionType(MediaType mediaType)
+    {
+        switch (mediaType)
+        {
+        case AUDIO:
+            return CallPeerSecurityStatusEvent.AUDIO_SESSION;
+        case VIDEO:
+            return CallPeerSecurityStatusEvent.VIDEO_SESSION;
+        default:
+            throw new IllegalArgumentException("mediaType");
         }
     }
 }

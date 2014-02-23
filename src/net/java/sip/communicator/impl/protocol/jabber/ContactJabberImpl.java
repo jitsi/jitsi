@@ -14,8 +14,6 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.util.*;
 
 /**
  * The Jabber implementation of the service.protocol.Contact interface.
@@ -78,6 +76,11 @@ public class ContactJabberImpl
      * The contact resources list.
      */
     private Map<String, ContactResourceJabberImpl> resources = null;
+
+    /**
+     * Whether this contact is a mobile one.
+     */
+    private boolean mobile = false;
 
     /**
      * Creates an JabberContactImpl
@@ -498,94 +501,59 @@ public class ContactJabberImpl
         return resources.get(jid);
     }
 
-    /**
-     * Updates the resources for this contact.
-     */
-    void updateResources()
+    Map<String, ContactResourceJabberImpl> getResourcesMap()
     {
-        if (jid == null)
-            return;
-
         if (resources == null)
             resources
                 = new ConcurrentHashMap<String, ContactResourceJabberImpl>();
 
-        Iterator<Presence> it
-            = ((ProtocolProviderServiceJabberImpl) getProtocolProvider())
-                .getConnection().getRoster().getPresences(jid);
+        return this.resources;
+    }
 
-        // Choose the resource which has the highest priority AND supports
-        // Jingle, if we have two resources with same priority take
-        // the most available.
-        while(it.hasNext())
-        {
-            Presence presence = it.next();
+    /**
+     * Notifies all registered <tt>ContactResourceListener</tt>s that an event
+     * has occurred.
+     *
+     * @param event the <tt>ContactResourceEvent</tt> to fire notification for
+     */
+    public void fireContactResourceEvent(ContactResourceEvent event)
+    {
+        super.fireContactResourceEvent(event);
+    }
 
-            String resource = StringUtils.parseResource(presence.getFrom());
+    /**
+     * Used from volatile contacts to handle jid and resources.
+     * Volatile contacts are always unavailable so do not remove their
+     * resources from the contact as it will be the only resource we will use.
+     * @param fullJid the full jid of the contact.
+     */
+    protected void setJid(String fullJid)
+    {
+        this.jid = fullJid;
 
-            if (resource != null && resource.length() > 0)
-            {
-                String fullJid = presence.getFrom();
-                ContactResourceJabberImpl contactResource
-                    = resources.get(fullJid);
+        if (resources == null)
+            resources
+                = new ConcurrentHashMap<String, ContactResourceJabberImpl>();
+    }
 
-                PresenceStatus newPresenceStatus
-                    = OperationSetPersistentPresenceJabberImpl
-                        .jabberStatusToPresenceStatus(
-                            presence,
-                            (ProtocolProviderServiceJabberImpl)
-                            getProtocolProvider());
+    /**
+     * Whether contact is mobile one. Logged in from mobile device.
+     * @return whether contact is mobile one.
+     */
+    public boolean isMobile()
+    {
+        if(!getPresenceStatus().isOnline())
+            return false;
 
-                if (contactResource == null)
-                {
-                    contactResource = new ContactResourceJabberImpl(
-                                                    fullJid,
-                                                    this,
-                                                    resource,
-                                                    newPresenceStatus,
-                                                    presence.getPriority());
+        return mobile;
+    }
 
-                    resources.put(fullJid, contactResource);
-
-                    fireContactResourceEvent(
-                        new ContactResourceEvent(this, contactResource,
-                            ContactResourceEvent.RESOURCE_ADDED));
-                }
-                else
-                {
-                    if (contactResource.getPresenceStatus().getStatus()
-                        != newPresenceStatus.getStatus())
-                    {
-                        contactResource.setPresenceStatus(newPresenceStatus);
-
-                        fireContactResourceEvent(
-                            new ContactResourceEvent(this, contactResource,
-                                ContactResourceEvent.RESOURCE_MODIFIED));
-                    }
-                }
-            }
-        }
-
-        Iterator<String> resourceIter = resources.keySet().iterator();
-        while (resourceIter.hasNext())
-        {
-            String fullJid = resourceIter.next();
-
-            if(!((ProtocolProviderServiceJabberImpl) getProtocolProvider())
-                .getConnection().getRoster().getPresenceResource(fullJid)
-                    .isAvailable())
-            {
-                ContactResource removedResource = resources.get(fullJid);
-
-                if (resources.containsKey(fullJid))
-                {
-                    resources.remove(fullJid);
-
-                    fireContactResourceEvent(
-                        new ContactResourceEvent(this, removedResource,
-                            ContactResourceEvent.RESOURCE_REMOVED));
-                }
-            }
-        }
+    /**
+     * Changes the mobile indicator value.
+     * @param mobile is mobile
+     */
+    void setMobile(boolean mobile)
+    {
+        this.mobile = mobile;
     }
 }

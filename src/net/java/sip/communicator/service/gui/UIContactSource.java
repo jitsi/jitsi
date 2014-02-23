@@ -57,4 +57,11 @@ public interface UIContactSource
      * @return the corresponding <tt>ContactSourceService</tt>
      */
     public ContactSourceService getContactSourceService();
+    
+    /**
+     * Sets the contact source index.
+     * 
+     * @param contactSourceIndex the contact source index to set
+     */
+    public void setContactSourceIndex(int contactSourceIndex);
 }

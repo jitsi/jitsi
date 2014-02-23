@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.generalconfig;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
 import java.io.*;
 import java.util.*;
 
@@ -17,6 +18,8 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.plugin.generalconfig.autoaway.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.msghistory.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
@@ -338,19 +341,31 @@ public class GeneralConfigurationPanel
         // Log history check box.
         final JCheckBox logHistoryCheckBox = new SIPCommCheckBox();
         logHistoryPanel.add(logHistoryCheckBox, BorderLayout.NORTH);
+        final MessageHistoryService mhs
+            = GeneralConfigPluginActivator.getMessageHistoryService();
         logHistoryCheckBox.setText(
             Resources.getString("plugin.generalconfig.LOG_HISTORY"));
-        logHistoryCheckBox.setSelected(
-            ConfigurationUtils.isHistoryLoggingEnabled());
+        logHistoryCheckBox.setSelected(mhs.isHistoryLoggingEnabled());
 
         logHistoryCheckBox.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
-                ConfigurationUtils.setHistoryLoggingEnabled(
-                    logHistoryCheckBox.isSelected());
+                mhs.setHistoryLoggingEnabled(logHistoryCheckBox.isSelected());
             }
         });
+        GeneralConfigPluginActivator.getConfigurationService()
+            .addPropertyChangeListener(
+                MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
+                new PropertyChangeListener()
+                {
+                    @Override
+                    public void propertyChange(PropertyChangeEvent evt)
+                    {
+                        logHistoryCheckBox.setSelected(
+                            mhs.isHistoryLoggingEnabled());
+                    }
+                });
 
         // Show history check box.
         JPanel showHistoryPanel = new TransparentPanel();
@@ -419,7 +434,7 @@ public class GeneralConfigurationPanel
         historySizeLabel.setText(
             Resources.getString("plugin.generalconfig.HISTORY_SIZE"));
 
-        if (!ConfigurationUtils.isHistoryLoggingEnabled())
+        if (!mhs.isHistoryLoggingEnabled())
         {
             showHistoryCheckBox.setEnabled(false);
             historySizeSpinner.setEnabled(false);
@@ -622,6 +637,81 @@ public class GeneralConfigurationPanel
     }
 
     /**
+     * Model for the language combobox.
+     */
+    private static class LocaleItem
+        implements Comparable<LocaleItem>
+    {
+        private Locale locale;
+        private int translated;
+
+        public LocaleItem(Locale locale, int translated)
+        {
+            this.locale = locale;
+            this.translated = translated;
+        }
+
+        @Override
+        public int compareTo(LocaleItem o)
+        {
+            return locale.getDisplayLanguage().compareTo(
+                o.locale.getDisplayLanguage());
+        }
+    }
+
+    /**
+     * 3-column layout to show the language in the current locale, the
+     * locale of the language itself and the percentage of translation.
+     */
+    @SuppressWarnings("serial")
+    private static class LanguageDropDownRenderer
+        extends JPanel
+        implements ListCellRenderer
+    {
+        JLabel[] labels = new JLabel[3];
+
+        public LanguageDropDownRenderer()
+        {
+            setLayout(new GridLayout(0, 3));
+            for (int i = 0; i < labels.length; i++)
+            {
+                labels[i] = new JLabel();
+                add(labels[i]);
+            }
+
+            labels[2].setHorizontalAlignment(JLabel.RIGHT);
+        }
+
+        public Component getListCellRendererComponent(JList list, Object value,
+            int index, boolean isSelected, boolean cellHasFocus)
+        {
+            LocaleItem lm = (LocaleItem)value;
+            if (value != null)
+            {
+                labels[0].setText(lm.locale.getDisplayLanguage());
+                labels[1].setText(lm.locale.getDisplayLanguage(lm.locale));
+                labels[2].setText(Resources.getString(
+                    "plugin.generalconfig.DEFAULT_LANGUAGE_TRANSLATED",
+                    new String[]{
+                        Integer.toString(lm.translated)
+                    }));
+            }
+            else
+            {
+                labels[0].setText("");
+                labels[1].setText("");
+                labels[2].setText("");
+            }
+
+            this.setBackground(isSelected
+                ? list.getSelectionBackground()
+                : list.getBackground());
+
+            return this;
+        }
+    } 
+
+    /**
      * Initializes the local configuration panel.
      * @return the created component
      */
@@ -631,21 +721,49 @@ public class GeneralConfigurationPanel
             createConfigSectionComponent(
                 Resources.getString("plugin.generalconfig.DEFAULT_LANGUAGE"));
 
-        final JComboBox localesConfigComboBox = new JComboBox();
+        LanguagePack lp = ServiceUtils.getService(
+            GeneralConfigPluginActivator.bundleContext,
+            LanguagePack.class);
+        Map<String, String> defaultRes = lp.getResources(Locale.ENGLISH);
 
-        Iterator<Locale> iter =
-                Resources.getResources().getAvailableLocales();
+        Locale currentLocale = ConfigurationUtils.getCurrentLanguage();
+        LocaleItem currentLocaleItem = null;
+        java.util.List<LocaleItem> languages = new ArrayList<LocaleItem>();
+        Iterator<Locale> iter = Resources.getResources().getAvailableLocales();
         while (iter.hasNext())
         {
             Locale locale = iter.next();
-            localesConfigComboBox.addItem(
-                locale.getDisplayLanguage(locale));
-        }
-        Locale currLocale =
-            ConfigurationUtils.getCurrentLanguage();
-        localesConfigComboBox.setSelectedItem(currLocale
-            .getDisplayLanguage(currLocale));
 
+            // count the number of translated strings
+            Set<String> res = lp.getResourceKeys(locale);
+            int count = 0;
+            for (String key : defaultRes.keySet())
+            {
+                if (res.contains(key))
+                {
+                    count++;
+                }
+            }
+
+            LocaleItem li = new LocaleItem(
+                locale,
+                count * 100 / defaultRes.size());
+            languages.add(li);
+            if (locale.equals(currentLocale))
+            {
+                currentLocaleItem = li;
+            }
+        }
+
+        Collections.sort(languages);
+        final JComboBox localesConfigComboBox = new JComboBox();
+        localesConfigComboBox.setRenderer(new LanguageDropDownRenderer());
+        for (LocaleItem li : languages)
+        {
+            localesConfigComboBox.addItem(li);
+        }
+
+        localesConfigComboBox.setSelectedItem(currentLocaleItem);
         localesConfigComboBox.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
@@ -654,20 +772,9 @@ public class GeneralConfigurationPanel
                     showMessagePopupDialog(Resources.getString(
                     "plugin.generalconfig.DEFAULT_LANGUAGE_RESTART_WARN"));
 
-                String language =
-                        (String)localesConfigComboBox.getSelectedItem();
-                Iterator<Locale> iter =
-                    Resources.getResources().getAvailableLocales();
-                while (iter.hasNext())
-                {
-                    Locale locale = iter.next();
-                    if(locale.getDisplayLanguage(locale)
-                        .equals(language))
-                    {
-                        ConfigurationUtils.setLanguage(locale);
-                        break;
-                    }
-                }
+                LocaleItem li =
+                        (LocaleItem)localesConfigComboBox.getSelectedItem();
+                ConfigurationUtils.setLanguage(li.locale);
             }
         });
         localeConfigPanel.add(localesConfigComboBox);

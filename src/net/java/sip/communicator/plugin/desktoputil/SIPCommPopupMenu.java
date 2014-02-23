@@ -61,6 +61,16 @@ public class SIPCommPopupMenu
                                     && SIPCommPopupMenu.this.isVisible())
                                 SIPCommPopupMenu.this.setVisible(false);
                         }
+
+                        /**
+                         * Invoked when a window has been closed.
+                         * Remove the listener as we do not need it any more.
+                         */
+                        @Override
+                        public void windowClosed(WindowEvent e)
+                        {
+                            parentWindow.removeWindowListener(this);
+                        }
                     });
                 }
             }

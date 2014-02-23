@@ -18,7 +18,6 @@ import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.format.*;
-//disambiguates with ice4j's network utils.
 
 /**
  * The class contains a number of utility methods that are meant to facilitate
@@ -383,10 +382,22 @@ public class JingleUtils
      * candidates.
      */
     public static MediaStreamTarget extractDefaultTarget(
-                    ContentPacketExtension content)
+            ContentPacketExtension content)
+    {
+        IceUdpTransportPacketExtension transport
+            = content.getFirstChildOfType(IceUdpTransportPacketExtension.class);
+
+        return (transport == null) ? null : extractDefaultTarget(transport);
+    }
+
+    public static MediaStreamTarget extractDefaultTarget(
+            IceUdpTransportPacketExtension transport)
     {
         //extract the default rtp candidate:
-        CandidatePacketExtension rtpCand = getFirstCandidate(content, 1);
+        CandidatePacketExtension rtpCand
+            = getFirstCandidate(
+                    transport,
+                    CandidatePacketExtension.RTP_COMPONENT_ID);
 
         if (rtpCand == null)
             return null;
@@ -406,14 +417,16 @@ public class JingleUtils
 
         //rtp port
         int rtpPort = rtpCand.getPort();
-
         InetSocketAddress rtpTarget
-                                = new InetSocketAddress(rtpAddress, rtpPort);
+            = new InetSocketAddress(rtpAddress, rtpPort);
 
         //extract the RTCP candidate
-        CandidatePacketExtension rtcpCand = getFirstCandidate(content, 2);
-
+        CandidatePacketExtension rtcpCand
+            = getFirstCandidate(
+                    transport,
+                    CandidatePacketExtension.RTCP_COMPONENT_ID);
         InetSocketAddress rtcpTarget;
+
         if( rtcpCand == null)
         {
             rtcpTarget = new InetSocketAddress(rtpAddress, rtpPort + 1);
@@ -455,26 +468,33 @@ public class JingleUtils
      * null if no such component exists.
      */
     public static CandidatePacketExtension getFirstCandidate(
-                                            ContentPacketExtension content,
-                                            int                    componentID)
+            ContentPacketExtension content,
+            int componentID)
     {
         //passing IceUdp would also return RawUdp transports as one extends
         //the other.
         IceUdpTransportPacketExtension transport
             = content.getFirstChildOfType(IceUdpTransportPacketExtension.class);
 
-        if ( transport == null)
-            return null;
+        return
+            (transport == null)
+                ? null
+                : getFirstCandidate(transport, componentID);
+    }
 
+    public static CandidatePacketExtension getFirstCandidate(
+            IceUdpTransportPacketExtension transport,
+            int componentID)
+    {
         for(CandidatePacketExtension cand : transport.getCandidateList())
         {
             //we don't care about remote candidates!
-            if (cand instanceof RemoteCandidatePacketExtension )
-                continue;
-            if (cand.getComponent() == componentID)
+            if (!(cand instanceof RemoteCandidatePacketExtension)
+                    && (cand.getComponent() == componentID))
+            {
                 return cand;
+            }
         }
-
         return null;
     }
 
@@ -613,4 +633,29 @@ public class JingleUtils
 
         return ptExt;
     }
+
+    /**
+     * Returns the <tt>MediaType</tt> for <tt>content</tt> by looking for it
+     * in the <tt>content</tt>'s <tt>description</tt>, if any.
+     *
+     * @param content the content to return the <tt>MediaType</tt> of
+     * @return the <tt>MediaType</tt> for <tt>content</tt> by looking for it
+     * in the <tt>content</tt>'s <tt>description</tt>, if any.
+     * <tt>contentName</tt>
+     */
+    public static MediaType getMediaType(ContentPacketExtension content)
+    {
+        if (content == null)
+            return null;
+        RtpDescriptionPacketExtension desc = getRtpDescription(content);
+        if (desc != null)
+        {
+            String mediaTypeStr = desc.getMedia();
+            if (mediaTypeStr != null)
+                return MediaType.parseString(mediaTypeStr);
+        }
+
+        return null;
+    }
+
 }

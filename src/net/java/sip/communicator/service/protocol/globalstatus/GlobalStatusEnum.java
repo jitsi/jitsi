@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.protocol.globalstatus;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * The global statuses available to the system.
@@ -32,6 +33,11 @@ public class GlobalStatusEnum
     public static final String AWAY_STATUS = "Away";
 
     /**
+     * Indicates that the user is extended away.
+     */
+    public static final String EXTENDED_AWAY_STATUS = "Extended Away";
+
+    /**
      * Indicates that the user is connected and eager to communicate.
      */
     public static final String FREE_FOR_CHAT_STATUS = "Free For Chat";
@@ -47,7 +53,7 @@ public class GlobalStatusEnum
      */
     public static final GlobalStatusEnum ONLINE
         = new GlobalStatusEnum(
-                85,
+                65,
                 ONLINE_STATUS,
                 loadIcon("service.gui.statusicons.USER_ONLINE_ICON"),
                 "service.gui.ONLINE");
@@ -58,7 +64,7 @@ public class GlobalStatusEnum
      */
     public static final GlobalStatusEnum FREE_FOR_CHAT
         = new GlobalStatusEnum(
-                65,
+                85,
                 FREE_FOR_CHAT_STATUS,
                 loadIcon("service.gui.statusicons.USER_FFC_ICON"),
                 "service.gui.FFC_STATUS");
@@ -74,6 +80,17 @@ public class GlobalStatusEnum
                 AWAY_STATUS,
                 loadIcon("service.gui.statusicons.USER_AWAY_ICON"),
                 "service.gui.AWAY_STATUS");
+
+    /**
+     * The Away status. Indicates that the user has connectivity but might
+     * not be able to immediately act upon initiation of communication.
+     */
+    public static final GlobalStatusEnum EXTENDED_AWAY
+        = new GlobalStatusEnum(
+                35,
+                EXTENDED_AWAY_STATUS,
+                loadIcon("service.gui.statusicons.USER_EXTENDED_AWAY_ICON"),
+                "service.gui.EXTENDED_AWAY_STATUS");
 
     /**
      * The DND status. Indicates that the user has connectivity but prefers
@@ -107,6 +124,10 @@ public class GlobalStatusEnum
         globalStatusSet.add(ONLINE);
         globalStatusSet.add(FREE_FOR_CHAT);
         globalStatusSet.add(AWAY);
+
+        if(!ConfigurationUtils.isHideExtendedAwayStatus())
+            globalStatusSet.add(EXTENDED_AWAY);
+
         globalStatusSet.add(DO_NOT_DISTURB);
         globalStatusSet.add(OFFLINE);
     }

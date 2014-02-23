@@ -52,6 +52,12 @@ public class ChatRoomMemberJabberImpl
     private byte[] avatar;
 
     /**
+     * The <tt>ConferenceDescription</tt> published by this
+     * <tt>ChatRoomMember</tt>
+     */
+    private ConferenceDescription conferenceDescription = null;
+
+    /**
      * Creates a jabber chat room member with the specified containing chat
      * room parent.
      * @param containingChatRoom the room that this
@@ -81,10 +87,6 @@ public class ChatRoomMemberJabberImpl
         if (contact != null)
         {
             this.avatar = contact.getImage();
-            String displayName = this.contact.getDisplayName();
-
-            if(displayName != null && displayName.length() > 0)
-                this.nickName = displayName;
         }
 
         // just query the stack for role, if its present will be set
@@ -100,6 +102,14 @@ public class ChatRoomMemberJabberImpl
         return containingRoom;
     }
 
+    /**
+     * Returns the jabber id of the member.
+     * @return the jabber id.
+     */
+    public String getJabberID()
+    {
+        return jabberID;
+    }
     /**
      * Returns the contact identifier representing this contact.
      *
@@ -167,7 +177,8 @@ public class ChatRoomMemberJabberImpl
                 return ChatRoomMemberRole.GUEST;
             }
             else
-                role = ChatRoomJabberImpl.smackRoleToScRole(o.getRole());
+                role = ChatRoomJabberImpl.smackRoleToScRole(
+                    o.getRole(), o.getAffiliation());
         }
 
         return role;

@@ -61,13 +61,26 @@ public class OperationSetCusaxUtilsJabberImpl
         while (phonesIter.hasNext())
         {
             String phone = phonesIter.next();
+            String normalizedPhone = PhoneNumberI18nService.normalize(phone);
 
             if (phone.equals(detailAddress)
-                || PhoneNumberI18nService.normalize(phone)
-                    .equals(detailAddress))
+                || normalizedPhone.equals(detailAddress)
+                || detailAddress.contains(phone)
+                || detailAddress.contains(normalizedPhone))
                 return true;
         }
 
         return false;
+    }
+
+    /**
+     * Returns the linked CUSAX provider for this protocol provider.
+     *
+     * @return the linked CUSAX provider for this protocol provider or null
+     * if such isn't specified
+     */
+    public ProtocolProviderService getLinkedCusaxProvider()
+    {
+        return null;
     }
 }

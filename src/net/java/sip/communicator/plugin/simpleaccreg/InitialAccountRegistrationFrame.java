@@ -34,7 +34,6 @@ import org.osgi.framework.*;
  */
 public class InitialAccountRegistrationFrame
     extends SIPCommFrame
-    implements ServiceListener
 {
     /**
      * Serial version UID.
@@ -56,6 +55,9 @@ public class InitialAccountRegistrationFrame
     private final TransparentPanel accountsPanel
         = new TransparentPanel(new GridLayout(0, 2, 10, 10));
 
+    private final TransparentPanel southPanel
+        = new TransparentPanel(new BorderLayout());
+
     private final JButton signinButton
         = new JButton(Resources.getString("service.gui.SIGN_IN"));
 
@@ -67,6 +69,7 @@ public class InitialAccountRegistrationFrame
      */
     public InitialAccountRegistrationFrame()
     {
+        super(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         TransparentPanel mainPanel
@@ -74,6 +77,7 @@ public class InitialAccountRegistrationFrame
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        southPanel.add(buttonPanel, BorderLayout.EAST);
         JButton cancelButton
             = new JButton(Resources.getString("service.gui.CANCEL"));
 
@@ -92,8 +96,11 @@ public class InitialAccountRegistrationFrame
         this.getContentPane().add(mainPanel);
 
         mainPanel.add(createTitleComponent(), BorderLayout.NORTH);
-        mainPanel.add(mainAccountsPanel, BorderLayout.CENTER);
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+        JScrollPane scroller = new JScrollPane(mainAccountsPanel);
+        scroller.setOpaque(false);
+        scroller.getViewport().setOpaque(false);
+        mainPanel.add(scroller, BorderLayout.CENTER);
+        mainPanel.add(southPanel, BorderLayout.SOUTH);
 
         mainAccountsPanel.add(accountsPanel, BorderLayout.CENTER);
 
@@ -140,6 +147,25 @@ public class InitialAccountRegistrationFrame
                     "net.java.sip.communicator.impl.gui.addcontact.lastContactParent",
                     groupName);
         }
+
+        this.getRootPane().validate();
+        this.pack();
+
+        // if the screen height is sufficiently large, expand the window size
+        // so that no scrolling is needed
+        if (scroller.getViewport().getHeight()
+            < Toolkit.getDefaultToolkit().getScreenSize().getHeight() - 230)
+        {
+            this.setSize(scroller.getViewport().getWidth() + 100,
+                scroller.getViewport().getHeight() + 150);
+        }
+        else
+        {
+            // otherwise add some width so that no horizontal scrolling is
+            // needed
+            this.setSize(this.getSize().width + 20,
+                this.getSize().height - 10);
+        }
     }
 
     /**
@@ -147,8 +173,6 @@ public class InitialAccountRegistrationFrame
      */
     private void initProvisioningPanel()
     {
-        JPanel provisioningPanel = new TransparentPanel();
-
         String isInitialProv = SimpleAccountRegistrationActivator.getResources()
             .getSettingsString(
                 "plugin.provisioning.IS_INITIAL_PROVISIONING_LINK");
@@ -202,15 +226,14 @@ public class InitialAccountRegistrationFrame
             }
         });
 
-        provisioningPanel.add(provisioningLabel);
-
-        mainAccountsPanel.add(provisioningPanel, BorderLayout.SOUTH);
+        southPanel.add(provisioningLabel, BorderLayout.WEST);
     }
 
     private void initAccountWizards()
     {
         String simpleWizards
-            = Resources.getLoginProperty("plugin.simpleaccreg.PROTOCOL_ORDER");
+            = SimpleAccountRegistrationActivator.getConfigService()
+                .getString("plugin.simpleaccreg.PROTOCOL_ORDER");
 
         StringTokenizer tokenizer = new StringTokenizer(simpleWizards, "|");
 
@@ -245,9 +268,6 @@ public class InitialAccountRegistrationFrame
                 logger.error("GuiActivator : ", ex);
             }
         }
-
-        SimpleAccountRegistrationActivator.bundleContext
-            .addServiceListener(this);
     }
 
     /**
@@ -476,27 +496,6 @@ public class InitialAccountRegistrationFrame
                     .getPassword()));
 
             saveAccountWizard(protocolProvider, wizard);
-        }
-    }
-
-    /**
-     * Handles registration of a new account wizard.
-     */
-    public void serviceChanged(ServiceEvent event)
-    {
-        Object sService = SimpleAccountRegistrationActivator.bundleContext.
-            getService(event.getServiceReference());
-
-        // we don't care if the source service is not a plugin component
-        if (! (sService instanceof AccountRegistrationWizard))
-            return;
-
-        AccountRegistrationWizard wizard
-            = (AccountRegistrationWizard) sService;
-
-        if (event.getType() == ServiceEvent.REGISTERED)
-        {
-            this.addAccountRegistrationForm(wizard);
         }
     }
 

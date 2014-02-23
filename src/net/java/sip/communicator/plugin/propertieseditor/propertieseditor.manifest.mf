@@ -1,0 +1,24 @@
+Bundle-Activator: net.java.sip.communicator.plugin.propertieseditor.PropertiesEditorActivator
+Bundle-Name: Properties Editor
+Bundle-Description: A panel that allows users to configure properties
+Bundle-Vendor: jitsi.org
+Bundle-Version: 0.0.1
+Bundle-SymbolicName: net.java.sip.communicator.plugin.propertieseditor
+Import-Package: org.osgi.framework,
+ org.jitsi.service.configuration,
+ org.jitsi.service.resources,
+ org.apache.commons.lang3,
+ net.java.sip.communicator.service.resources,
+ net.java.sip.communicator.service.gui,
+ net.java.sip.communicator.service.gui.event,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.util.skin,
+ net.java.sip.communicator.plugin.desktoputil,
+ net.java.sip.communicator.plugin.desktoputil.event,
+ net.java.sip.communicator.plugin.desktoputil.plaf,
+ javax.swing,
+ javax.swing.event,
+ javax.swing.table,
+ javax.swing.text,
+ javax.swing.border,
+ javax.swing.plaf

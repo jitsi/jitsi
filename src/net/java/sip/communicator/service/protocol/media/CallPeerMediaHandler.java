@@ -13,8 +13,8 @@ import java.util.*;
 import java.util.List;
 
 import net.java.sip.communicator.service.protocol.*;
-
 import net.java.sip.communicator.util.*;
+
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.codec.*;
 import org.jitsi.service.neomedia.control.*;
@@ -45,6 +45,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     private static final Logger logger
                 = Logger.getLogger(CallPeerMediaHandler.class);
+
     /**
      * The name of the <tt>CallPeerMediaHandler</tt> property which specifies
      * the local SSRC of its audio <tt>MediaStream</tt>.
@@ -134,7 +135,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
     /**
      * Determines whether we have placed the call on hold locally.
      */
-    private boolean locallyOnHold = false;
+    protected boolean locallyOnHold = false;
 
     /**
      * The listener that the <tt>CallPeer</tt> registered for local user audio
@@ -339,14 +340,16 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      * <tt>Call</tt> of {@link #peer} has changed from a specific old value to a
      * specific new value.
      *
-     * @param event a <tt>PropertyChangeEvent</tt> which specified the property
+     * @param ev a <tt>PropertyChangeEvent</tt> which specified the property
      * which had its value changed and the old and new values of that property
      */
-    private void callPropertyChange(PropertyChangeEvent event)
+    private void callPropertyChange(PropertyChangeEvent ev)
     {
-        String propertyName = event.getPropertyName();
+        String propertyName = ev.getPropertyName();
+        boolean callConferenceChange
+            = MediaAwareCall.CONFERENCE.equals(propertyName);
 
-        if (MediaAwareCall.CONFERENCE.equals(propertyName)
+        if (callConferenceChange
                 || MediaAwareCall.DEFAULT_DEVICE.equals(propertyName))
         {
             MediaAwareCall<?,?,?> call = getPeer().getCall();
@@ -361,23 +364,34 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
                 if (stream == null)
                     continue;
 
-                /*
-                 * Update the stream device, if necessary
-                 */
+                // Update the stream device, if necessary.
                 MediaDevice oldDevice = stream.getDevice();
+
                 if (oldDevice != null)
                 {
-                    if (oldDevice instanceof MediaDeviceWrapper)
-                        oldDevice = ((MediaDeviceWrapper) oldDevice)
-                                        .getWrappedDevice();
-
+                    /*
+                     * DEFAULT_DEVICE signals that the actual/hardware device
+                     * has been changed and we will make sure that is the case
+                     * in order to avoid unnecessary changes. CONFERENCE signals
+                     * that the associated Call has been moved to a new
+                     * telephony conference and we have to move its MediaStreams
+                     * to the respective mixers.
+                     */
+                    MediaDevice oldValue
+                        = (!callConferenceChange
+                                && (oldDevice instanceof MediaDeviceWrapper))
+                            ? ((MediaDeviceWrapper) oldDevice)
+                                .getWrappedDevice()
+                            : oldDevice;
                     MediaDevice newDevice = getDefaultDevice(mediaType);
-                    MediaDevice wrappedNewDevice = newDevice;
-                    if (newDevice instanceof MediaDeviceWrapper)
-                        wrappedNewDevice = ((MediaDeviceWrapper) newDevice)
-                                                .getWrappedDevice();
+                    MediaDevice newValue
+                        = (!callConferenceChange
+                                && (newDevice instanceof MediaDeviceWrapper))
+                            ? ((MediaDeviceWrapper) newDevice)
+                                .getWrappedDevice()
+                            : newDevice;
 
-                    if (oldDevice != wrappedNewDevice)
+                    if (oldValue != newValue)
                         stream.setDevice(newDevice);
                 }
 
@@ -441,7 +455,10 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
         if (mediaHandlerCloseStream)
             mediaHandler.closeStream(this, mediaType);
 
-        getTransportManager().closeStreamConnector(mediaType);
+        TransportManager<?> transportManager = queryTransportManager();
+
+        if (transportManager != null)
+            transportManager.closeStreamConnector(mediaType);
     }
 
     /**
@@ -646,7 +663,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public long getHarvestingTime(String harvesterName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -665,7 +682,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public String getICECandidateExtendedType(String streamName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -683,7 +700,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public InetSocketAddress getICELocalHostAddress(String streamName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -702,7 +719,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public InetSocketAddress getICELocalReflexiveAddress(String streamName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -721,7 +738,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public InetSocketAddress getICELocalRelayedAddress(String streamName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -739,7 +756,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public InetSocketAddress getICERemoteHostAddress(String streamName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -758,7 +775,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public InetSocketAddress getICERemoteReflexiveAddress(String streamName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -777,7 +794,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public InetSocketAddress getICERemoteRelayedAddress(String streamName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -793,7 +810,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public String getICEState()
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -866,7 +883,6 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
             encodingConfiguration.loadProperties(
                     accountProperties,
                     ProtocolProviderFactory.ENCODING_PROP_PREFIX);
-
             return
                 mediaDevice.getSupportedFormats(
                         sendPreset, receivePreset,
@@ -908,7 +924,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public int getNbHarvesting()
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -927,7 +943,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public int getNbHarvesting(String harvesterName)
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -976,7 +992,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      * @return the <tt>SrtpControl</tt>s of the <tt>MediaStream</tt>s of this
      * instance
      */
-    protected Map<MediaTypeSrtpControl, SrtpControl> getSrtpControls()
+    public SrtpControls getSrtpControls()
     {
         return mediaHandler.getSrtpControls(this);
     }
@@ -1013,7 +1029,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     public long getTotalHarvestingTime()
     {
-        TransportManager<?> transportManager = getTransportManager();
+        TransportManager<?> transportManager = queryTransportManager();
 
         return
             (transportManager == null)
@@ -1023,12 +1039,23 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
 
     /**
      * Gets the <tt>TransportManager</tt> implementation handling our address
-     * management.
+     * management. If the <tt>TransportManager</tt> does not exist yet, it is
+     * created.
      *
      * @return the <tt>TransportManager</tt> implementation handling our address
      * management
      */
     protected abstract TransportManager<T> getTransportManager();
+
+    /**
+     * Gets the <tt>TransportManager</tt> implementation handling our address
+     * management. If the <tt>TransportManager</tt> does not exist yet, it is
+     * not created.
+     *
+     * @return the <tt>TransportManager</tt> implementation handling our address
+     * management
+     */
+    protected abstract TransportManager<T> queryTransportManager();
 
     /**
      * Gets the visual <tt>Component</tt> in which video from the remote peer is
@@ -1440,6 +1467,35 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
     }
 
     /**
+     * Removes from this instance and cleans up the <tt>SrtpControl</tt> which
+     * are not of a specific <tt>SrtpControlType</tt>.
+     * 
+     * @param mediaType the <tt>MediaType</tt> of the <tt>SrtpControl</tt> to be
+     * examined
+     * @param srtpControlType the <tt>SrtpControlType</tt> of the
+     * <tt>SrtpControl</tt>s to not be removed from this instance and cleaned
+     * up. If <tt>null</tt>, all <tt>SrtpControl</tt>s are removed from this
+     * instance and cleaned up
+     */
+    protected void removeAndCleanupOtherSrtpControls(
+            MediaType mediaType,
+            SrtpControlType srtpControlType)
+    {
+        SrtpControls srtpControls = getSrtpControls();
+
+        for (SrtpControlType i : SrtpControlType.values())
+        {
+            if (!i.equals(srtpControlType))
+            {
+                SrtpControl e = srtpControls.remove(mediaType, i);
+
+                if (e != null)
+                    e.cleanup();
+            }
+        }
+    }
+
+    /**
      * Unregisters a specific <tt>VideoListener</tt> from this instance so that
      * it stops receiving notifications from it about changes in the
      * availability of visual <tt>Component</tt>s displaying video.
@@ -1534,7 +1590,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      * (according to the value of <tt>locallyOnHold</tt>). This would also be
      * taken into account when the next update offer is generated.
      *
-     * @param locallyOnHold <tt>true</tt> if we are to make our audio stream
+     * @param locallyOnHold <tt>true</tt> if we are to make our streams
      * stop transmitting and <tt>false</tt> if we are to start transmitting
      * again.
      */
@@ -1549,23 +1605,30 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
         if(locallyOnHold)
         {
             MediaStream audioStream = getStream(MediaType.AUDIO);
+            MediaDirection direction
+                    = getPeer().getCall().isConferenceFocus()
+                    ? MediaDirection.INACTIVE
+                    : audioStream.getDirection().and(MediaDirection.SENDONLY);
 
             if(audioStream != null)
             {
-                audioStream.setDirection(
-                        audioStream.getDirection().and(
-                                MediaDirection.SENDONLY));
-                audioStream.setMute(locallyOnHold);
+                audioStream.setDirection(direction);
+                audioStream.setMute(true);
             }
 
             MediaStream videoStream = getStream(MediaType.VIDEO);
-
             if(videoStream != null)
             {
-                videoStream.setDirection(
-                        videoStream.getDirection().and(
-                                MediaDirection.SENDONLY));
-                videoStream.setMute(locallyOnHold);
+                direction = getPeer().getCall().isConferenceFocus()
+                        ? MediaDirection.INACTIVE
+                        : videoStream.getDirection().and(MediaDirection.SENDONLY);
+                /*
+                 * Set the video direction to INACTIVE, because currently we
+                 * cannot mute video streams.
+                 */
+                videoStream.setDirection(MediaDirection.INACTIVE);
+                //videoStream.setDirection(direction);
+                //videoStream.setMute(true);
             }
         }
         /*
@@ -1580,7 +1643,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
             {
                 audioStream.setDirection(
                         audioStream.getDirection().or(MediaDirection.SENDONLY));
-                audioStream.setMute(locallyOnHold);
+                audioStream.setMute(false);
             }
 
             MediaStream videoStream = getStream(MediaType.VIDEO);
@@ -1590,7 +1653,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
             {
                 videoStream.setDirection(
                         videoStream.getDirection().or(MediaDirection.SENDONLY));
-                videoStream.setMute(locallyOnHold);
+                videoStream.setMute(false);
             }
         }
     }
@@ -1807,6 +1870,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
     {
         if (logger.isInfoEnabled())
             logger.info("Starting");
+
         MediaStream stream;
 
         stream = getStream(MediaType.AUDIO);
@@ -1841,13 +1905,12 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
                 stream.start();
 
                 /*
-                 * Send an empty packet to unblock some kinds of RTP proxies.
-                 * Do not consult whether the local video should be streamed and
+                 * Send an empty packet to unblock some kinds of RTP proxies. Do
+                 * not consult whether the local video should be streamed and
                  * send the hole-punch packet anyway to let the remote video
                  * reach this local peer.
                  */
-                if (stream instanceof VideoMediaStream)
-                    sendHolePunchPacket(stream.getTarget());
+                sendHolePunchPacket(stream.getTarget());
             }
         }
     }

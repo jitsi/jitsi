@@ -32,16 +32,23 @@ public class ProfilerActivator implements BundleActivator {
     public void start(BundleContext bc) throws Exception {
         bundleContext = bc;
 
-        SettingsWindowMenuEntry menuEntry = new SettingsWindowMenuEntry(
-                Container.CONTAINER_TOOLS_MENU);
-
         Hashtable<String, String> toolsMenuFilter =
             new Hashtable<String, String>();
         toolsMenuFilter.put(Container.CONTAINER_ID,
                 Container.CONTAINER_TOOLS_MENU.getID());
 
-        menuRegistration = bc.registerService(PluginComponent.class
-                .getName(), menuEntry, toolsMenuFilter);
+        menuRegistration = bc.registerService(
+            PluginComponentFactory.class.getName(),
+            new PluginComponentFactory(Container.CONTAINER_TOOLS_MENU)
+            {
+                @Override
+                protected PluginComponent getPluginInstance()
+                {
+                    return new SettingsWindowMenuEntry(
+                                    Container.CONTAINER_TOOLS_MENU, this);
+                }
+            },
+            toolsMenuFilter);
 
         if (logger.isInfoEnabled())
             logger.info("PROFILER4J [REGISTERED]");

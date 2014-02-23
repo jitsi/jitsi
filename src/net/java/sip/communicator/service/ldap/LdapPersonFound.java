@@ -48,12 +48,22 @@ public interface LdapPersonFound
     public String getDisplayName();
 
     /**
-     * Tries to fetch the photo in the the directory for this person
-     *
-     * @return the photo found in the the directory for this person
-     * or null if not found
+     * Tries to fetch the photo in the the directory for this person. If
+     * successful, the binary photo is available from {@link #getPhoto()}
      */
-    public byte[] fetchPhoto();
+    public void fetchPhoto();
+
+    /**
+     * Gets the photo found in the directory for this person.
+     * @return the photo found in the directory for this person.
+     */
+    public byte[] getPhoto();
+
+    /**
+     * Set the photo found in the directory for this person.
+     * @param photo the photo found in the directory for this person.
+     */
+    public void setPhoto(byte[] photo);
 
     /**
      * Sets the first name found in the the directory for this person

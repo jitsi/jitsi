@@ -1,0 +1,99 @@
+<?xml version="1.0" ?>
+<Include xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<!--
+  Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+
+  Distributable under LGPL license.
+  See terms of license at gnu.org.
+-->
+	<Fragment>
+		<ComponentGroup Id="ComponentGroup_DefaultOverrides">
+			<Component
+				Id="ComponentGroup_DefaultOverrides_Provisioning_Method"
+				Directory="@@lib"
+				Guid="A1D53A23-11C6-4886-BB34-E70B68CF8CF4"
+				Win64="$(var.Win64)">
+				<Condition><![CDATA[PROV_METHOD]]></Condition>
+				<IniFile
+					Id="DefaultOverrides_ProvisioningMethodOnly"
+					Action="addLine"
+					Directory="@@lib"
+					Name="jitsi-default-overrides.properties"
+					Section="#dummy"
+					Key="net.java.sip.communicator.plugin.provisioning.METHOD"
+					Value="[PROV_METHOD]"
+				/>
+				<CreateFolder/>
+			</Component>
+			<Component
+				Id="ComponentGroup_DefaultOverrides_Provisioning_URL"
+				Directory="@@lib"
+				Guid="36516208-617E-4901-B52C-E35D25FDC2C8"
+				Win64="$(var.Win64)">
+				<Condition><![CDATA[PROV_URL]]></Condition>
+				<IniFile
+					Id="DefaultOverrides_ProvisioningManualMethodForUrl"
+					Action="addLine"
+					Directory="@@lib"
+					Name="jitsi-default-overrides.properties"
+					Section="#dummy"
+					Key="net.java.sip.communicator.plugin.provisioning.METHOD"
+					Value="Manual"
+				/>
+				<IniFile
+					Id="DefaultOverrides_ProvisioningUrl"
+					Action="addLine"
+					Directory="@@lib"
+					Name="jitsi-default-overrides.properties"
+					Section="#dummy"
+					Key="net.java.sip.communicator.plugin.provisioning.URL"
+					Value="[PROV_URL]"
+				/>
+				<CreateFolder/>
+			</Component>
+			<Component
+				Id="ComponentGroup_DefaultOverrides_MandatoryProvisioning_Method"
+				Directory="@@lib"
+				Guid="BCE0A574-8852-45FA-90AD-07D5CDC1ED2C"
+				Win64="$(var.Win64)">
+				<Condition><![CDATA[MPROV_METHOD]]></Condition>
+				<IniFile
+					Id="DefaultOverrides_MandatoryProvisioningMethodOnly"
+					Action="addLine"
+					Directory="@@lib"
+					Name="jitsi-default-overrides.properties"
+					Section="#dummy"
+					Key="*net.java.sip.communicator.plugin.provisioning.METHOD"
+					Value="[MPROV_METHOD]"
+				/>
+				<CreateFolder/>
+			</Component>
+			<Component
+				Id="ComponentGroup_DefaultOverrides_MandatoryProvisioning_URL"
+				Directory="@@lib"
+				Guid="57FD10F7-324B-42B9-A3A3-F2ED97A518FC"
+				Win64="$(var.Win64)">
+				<Condition><![CDATA[MPROV_URL]]></Condition>
+				<IniFile
+					Id="DefaultOverrides_MandatoryProvisioningManualMethodForUrl"
+					Action="addLine"
+					Directory="@@lib"
+					Name="jitsi-default-overrides.properties"
+					Section="#dummy"
+					Key="*net.java.sip.communicator.plugin.provisioning.METHOD"
+					Value="Manual"
+				/>
+				<IniFile
+					Id="DefaultOverrides_MandatoryProvisioningUrl"
+					Action="addLine"
+					Directory="@@lib"
+					Name="jitsi-default-overrides.properties"
+					Section="#dummy"
+					Key="*net.java.sip.communicator.plugin.provisioning.URL"
+					Value="[MPROV_URL]"
+				/>
+				<CreateFolder/>
+			</Component>
+		</ComponentGroup>
+	</Fragment>
+</Include>

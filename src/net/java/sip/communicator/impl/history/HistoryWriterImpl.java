@@ -20,6 +20,8 @@ import net.java.sip.communicator.service.history.records.*;
 import org.jitsi.util.xml.XMLUtils;
 import org.w3c.dom.*;
 
+import com.google.common.xml.*;
+
 /**
  * @author Alexander Pelov
  */
@@ -122,13 +124,17 @@ public class HistoryWriterImpl
                     {
                         if (propertyValues[i] != null)
                         {
-                            propertyName = propertyName.replaceFirst(CDATA_SUFFIX, "");
+                            propertyName =
+                                propertyName.replaceFirst(CDATA_SUFFIX, "");
 
                             Element propertyElement = this.currentDoc
                                 .createElement(propertyName);
 
                             Text value = this.currentDoc
-                                .createCDATASection(propertyValues[i].replaceAll("\0", " "));
+                                .createCDATASection(
+                                    XmlEscapers.xmlContentEscaper().escape(
+                                        propertyValues[i].replaceAll("\0", " ")
+                                    ));
                             propertyElement.appendChild(value);
 
                             elem.appendChild(propertyElement);
@@ -142,7 +148,10 @@ public class HistoryWriterImpl
                                 .createElement(propertyName);
 
                             Text value = this.currentDoc
-                                .createTextNode(propertyValues[i].replaceAll("\0", " "));
+                                .createTextNode(
+                                    XmlEscapers.xmlContentEscaper().escape(
+                                        propertyValues[i].replaceAll("\0", " ")
+                                    ));
                             propertyElement.appendChild(value);
 
                             elem.appendChild(propertyElement);
@@ -217,8 +226,8 @@ public class HistoryWriterImpl
     }
 
     /**
-     * Updates a record by searching for record with idProperty which have idValue
-     * and updating/creating the property with newValue.
+     * Updates a record by searching for record with idProperty which have
+     * idValue and updating/creating the property with newValue.
      *
      * @param idProperty name of the id property
      * @param idValue value of the id property
@@ -307,5 +316,101 @@ public class HistoryWriterImpl
                 break;
             }
         }
+    }
+
+    /**
+     * Updates history record using given <tt>HistoryRecordUpdater</tt> instance
+     * to find which is the record to be updated and to get the new values for
+     * the fields
+     * @param updater the <tt>HistoryRecordUpdater</tt> instance.
+     */
+    public void updateRecord(HistoryRecordUpdater updater) throws IOException
+    {
+        Iterator<String> fileIterator = this.historyImpl.getFileList();
+        String filename = null;
+        while (fileIterator.hasNext())
+        {
+            filename = fileIterator.next();
+
+            Document doc = this.historyImpl.getDocumentForFile(filename);
+
+            if(doc == null)
+                continue;
+
+            NodeList nodes = doc.getElementsByTagName("record");
+
+            boolean changed = false;
+
+            Node node;
+            for (int i = 0; i < nodes.getLength(); i++)
+            {
+                node = nodes.item(i);
+                updater.setHistoryRecord(createHistoryRecordFromNode(node));
+                if(!updater.isMatching())
+                    continue;
+
+                Map<String, String> updates = updater.getUpdateChanges();
+                for(String nodeName : updates.keySet())
+                {
+                    Element changedNode =
+                        XMLUtils.findChild((Element)node, nodeName);
+
+                    if(changedNode != null)
+                    {
+                        Node changedNestedNode = changedNode.getFirstChild();
+
+                        changedNestedNode.setNodeValue(updates.get(nodeName));
+                        changed = true;
+                    }
+                }
+            }
+
+            if(changed)
+            {
+                // write changes
+                synchronized (this.docWriteLock)
+                {
+                    this.historyImpl.writeFile(filename, doc);
+                }
+
+                // this prevents that the current writer, which holds
+                // instance for the last document he is editing will not
+                // override our last changes to the document
+                if(filename.equals(this.currentFile))
+                {
+                    this.currentDoc = doc;
+                }
+
+                break;
+            }
+        }
+    }
+
+    /**
+     * Creates <tt>HistoryRecord</tt> instance from <tt>Node</tt> object.
+     * @param node the node
+     * @return the <tt>HistoryRecord</tt> instance
+     */
+    private HistoryRecord createHistoryRecordFromNode(Node node)
+    {
+
+        HistoryRecordStructure structure
+            = historyImpl.getHistoryRecordsStructure();
+        String propertyValues[] = new String[structure.getPropertyCount()];
+
+        int i = 0;
+        for(String propertyName : structure.getPropertyNames())
+        {
+            Element childNode = XMLUtils.findChild((Element)node, propertyName);
+            if(childNode == null)
+            {
+                i++;
+                continue;
+            }
+            propertyValues[i] = childNode.getTextContent();
+            i++;
+        }
+
+        return new HistoryRecord(structure, propertyValues);
     }
 }

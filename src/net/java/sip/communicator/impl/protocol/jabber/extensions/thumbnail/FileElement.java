@@ -30,26 +30,8 @@ public class FileElement
 {
     private static final Logger logger = Logger.getLogger(FileElement.class);
 
-    private static final List<DateFormat> dateFormats =
-        new ArrayList<DateFormat>(3){{
-            // XEP-0091
-            add(DelayInformation.XEP_0091_UTC_FORMAT);
-            add(new SimpleDateFormat("yyyyMd'T'HH:mm:ss'Z'"){{
-                setTimeZone(TimeZone.getTimeZone("UTC"));
-            }});
-
-            // XEP-0082
-            add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'"){{
-                setTimeZone(TimeZone.getTimeZone("UTC"));
-            }});
-            add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"){{
-                setTimeZone(TimeZone.getTimeZone("UTC"));
-            }});
-            add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"));
-            add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
-        }};
-
-    private ThumbnailElement thumbnail;
+    private static final List<DateFormat> DATE_FORMATS
+        = new ArrayList<DateFormat>();
 
     /**
      * The element name of this <tt>IQProvider</tt>.
@@ -60,6 +42,30 @@ public class FileElement
      * The namespace of this <tt>IQProvider</tt>.
      */
     public static final String NAMESPACE = "http://jabber.org/protocol/si";
+
+    static
+    {
+        // DATE_FORMATS
+        DateFormat fmt;
+
+        // XEP-0091
+        DATE_FORMATS.add(DelayInformation.XEP_0091_UTC_FORMAT);
+        fmt = new SimpleDateFormat("yyyyMd'T'HH:mm:ss'Z'");
+        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+        DATE_FORMATS.add(fmt);
+
+        // XEP-0082
+        fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+        DATE_FORMATS.add(fmt);
+        fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+        DATE_FORMATS.add(fmt);
+        DATE_FORMATS.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"));
+        DATE_FORMATS.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
+    }
+
+    private ThumbnailElement thumbnail;
 
     /**
      * An empty constructor used to initialize this class as an
@@ -291,7 +297,7 @@ public class FileElement
                                 + date.substring(
                                     timeZoneColon+1, date.length());
                         }
-                        for (DateFormat fmt : dateFormats)
+                        for (DateFormat fmt : DATE_FORMATS)
                         {
                             try
                             {

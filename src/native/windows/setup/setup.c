@@ -861,7 +861,16 @@ Setup_findProductIdByPackageCode(LPCTSTR packageCode, LPTSTR *productId)
                 free(packageCodeOfProductId);
             }
             else
-                LastError_setLastError(error, _T(__FILE__), __LINE__);
+            {
+                /*
+                 * We failed to read one PackageCode out of many while looking
+                 * for ours. Eventually, it makes no difference whether the
+                 * failed one was ours or not. Most importantly, we cannot give
+                 * up the search because the failed one may have not been ours
+                 * anyway.
+                 */
+                error = ERROR_SUCCESS;
+            }
             RegCloseKey(subKey);
             if (ERROR_SUCCESS != error)
                 break;

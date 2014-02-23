@@ -104,12 +104,15 @@ public class PluginContainer
      * Adds the component of a specific <tt>PluginComponent</tt> to the
      * associated <tt>Container</tt>.
      *
-     * @param c the <tt>PluginComponent</tt> which is to have its component
-     * added to the <tt>Container</tt> associated with this
-     * <tt>PluginContainer</tt>
+     * @param factory the <tt>PluginComponentFactory</tt> which is to have its
+     *          component added to the <tt>Container</tt> associated with this
+     *          <tt>PluginContainer</tt>
      */
-    private synchronized void addPluginComponent(PluginComponent c)
+    private synchronized void addPluginComponent(PluginComponentFactory factory)
     {
+        PluginComponent c =
+            factory.getPluginComponentInstance(PluginContainer.this);
+
         if (logger.isInfoEnabled())
             logger.info("Will add plugin component: " + c);
 
@@ -119,7 +122,7 @@ public class PluginContainer
          * these with positionIndex equal to -1 follow them and then go these
          * with positionIndex greater than 0.
          */
-        int cIndex = c.getPositionIndex();
+        int cIndex = factory.getPositionIndex();
         int index = -1;
         int i = 0;
 
@@ -130,7 +133,7 @@ public class PluginContainer
 
             if (-1 == index)
             {
-                int pluginComponentIndex = pluginComponent.getPositionIndex();
+                int pluginComponentIndex = factory.getPositionIndex();
 
                 if ((0 == cIndex) || (-1 == cIndex))
                 {
@@ -238,7 +241,7 @@ public class PluginContainer
                 = GuiActivator
                     .bundleContext
                         .getServiceReferences(
-                            PluginComponent.class.getName(),
+                            PluginComponentFactory.class.getName(),
                             "("
                                 + Container.CONTAINER_ID
                                 + "="
@@ -254,11 +257,11 @@ public class PluginContainer
         {
             for (ServiceReference serRef : serRefs)
             {
-                PluginComponent component
-                    = (PluginComponent)
+                PluginComponentFactory factory
+                    = (PluginComponentFactory)
                         GuiActivator.bundleContext.getService(serRef);
 
-                addPluginComponent(component);
+                addPluginComponent(factory);
             }
         }
     }
@@ -272,10 +275,10 @@ public class PluginContainer
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
-        if (c.getContainer().equals(containerId))
-            addPluginComponent(c);
+        if (factory.getContainer().equals(containerId))
+            addPluginComponent(factory);
     }
 
     /**
@@ -287,23 +290,32 @@ public class PluginContainer
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        PluginComponent c = event.getPluginComponent();
+        PluginComponentFactory factory = event.getPluginComponentFactory();
 
-        if (c.getContainer().equals(containerId))
-            removePluginComponent(c);
+        if (factory.getContainer().equals(containerId))
+            removePluginComponent(factory);
     }
 
     /**
      * Removes the component of a specific <code>PluginComponent</code> from
      * this <code>PluginContainer</code>.
      *
-     * @param c
+     * @param factory
      *            the <code>PluginComponent</code> which is to have its
      *            component removed from this <code>PluginContainer</code>
      */
-    private synchronized void removePluginComponent(PluginComponent c)
+    private synchronized void removePluginComponent(
+        PluginComponentFactory factory)
     {
-        container.remove((Component) c.getComponent());
-        pluginComponents.remove(c);
+        Iterator<PluginComponent> iterator = pluginComponents.iterator();
+        while(iterator.hasNext())
+        {
+            PluginComponent c = iterator.next();
+            if(c.getParentFactory().equals(factory))
+            {
+                iterator.remove();
+                container.remove((Component)c.getComponent());
+            }
+        }
     }
 }

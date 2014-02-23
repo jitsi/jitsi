@@ -994,7 +994,15 @@ public class MetaContactGroupImpl
      */
     boolean removeSubgroup(MetaContactGroup group)
     {
-        return subgroups.remove(group);
+        if(subgroups.contains(group))
+        {
+            removeSubgroup(subgroupsOrderedCopy.indexOf(group));
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     /**

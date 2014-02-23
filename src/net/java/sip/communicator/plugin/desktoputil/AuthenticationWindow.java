@@ -12,6 +12,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.util.*;
@@ -222,7 +223,7 @@ public class AuthenticationWindow
         else
             this.uinValue = new JTextField();
 
-        this.init();
+        this.init(isUserNameEditable);
 
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -400,8 +401,9 @@ public class AuthenticationWindow
 
     /**
      * Constructs the <tt>LoginWindow</tt>.
+     * @param isUserNameEditable indicates if the user name is editable
      */
-    private void init()
+    private void init(boolean isUserNameEditable)
     {
         String title;
 
@@ -420,8 +422,18 @@ public class AuthenticationWindow
                         new String[]{server});
 
         String uinText;
+        boolean showUsernameInDialog = true;
         if(usernameLabelText != null)
+        {
+            // if username is not editable and username label text is empty
+            // we do not want to display it
+            if(usernameLabelText.length() == 0
+                && !isUserNameEditable)
+            {
+                showUsernameInDialog = false;
+            }
             uinText = usernameLabelText;
+        }
         else
             uinText = DesktopUtilActivator.getResources().getI18NString(
                             "service.gui.IDENTIFIER");
@@ -453,13 +465,17 @@ public class AuthenticationWindow
         TransparentPanel labelsPanel
             = new TransparentPanel(new GridLayout(0, 1, 8, 8));
 
-        labelsPanel.add(uinLabel);
+        if(showUsernameInDialog)
+            labelsPanel.add(uinLabel);
+
         labelsPanel.add(passwdLabel);
 
         TransparentPanel textFieldsPanel
             = new TransparentPanel(new GridLayout(0, 1, 8, 8));
 
-        textFieldsPanel.add(uinValue);
+        if(showUsernameInDialog)
+            textFieldsPanel.add(uinValue);
+
         textFieldsPanel.add(passwdField);
 
         JPanel southFieldsPanel = new TransparentPanel(new GridLayout(1, 2));
@@ -741,6 +757,37 @@ public class AuthenticationWindow
             }
         });
         return subscribeLabel;
+    }
+    
+
+    /**
+     * Returns the icon corresponding to the given <tt>protocolProvider</tt>.
+     *
+     * @param protocolProvider the <tt>ProtocolProviderService</tt>, which icon
+     * we're looking for
+     * @return the icon to show on the authentication window
+     */
+    public static ImageIcon getAuthenticationWindowIcon(
+        ProtocolProviderService protocolProvider)
+    {
+        Image image = null;
+
+        if(protocolProvider != null)
+        {
+            ProtocolIcon protocolIcon = protocolProvider.getProtocolIcon();
+
+            if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_64x64))
+                image = ImageUtils.getBytesInImage(
+                    protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_64x64));
+            else if(protocolIcon.isSizeSupported(ProtocolIcon.ICON_SIZE_48x48))
+                image = ImageUtils.getBytesInImage(
+                    protocolIcon.getIcon(ProtocolIcon.ICON_SIZE_48x48));
+        }
+
+        if (image != null)
+            return new ImageIcon(image);
+
+        return null;
     }
 
 }

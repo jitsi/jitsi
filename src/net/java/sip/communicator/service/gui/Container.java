@@ -72,11 +72,22 @@ public class Container
             = new Container("CONTAINER_CONTACT_RIGHT_BUTTON_MENU");
 
     /**
+     * Accounts window "right button menu" over an account.
+     */
+    public static final Container CONTAINER_ACCOUNT_RIGHT_BUTTON_MENU
+            = new Container("CONTAINER_ACCOUNT_RIGHT_BUTTON_MENU");
+
+    /**
      * Main application window "right button menu" over a group container.
      */
     public static final Container CONTAINER_GROUP_RIGHT_BUTTON_MENU
             = new Container("CONTAINER_GROUP_RIGHT_BUTTON_MENU");
 
+    /**
+     * Chat write panel container.
+     */
+    public static final Container CONTAINER_CHAT_WRITE_PANEL
+            = new Container("CONTAINER_CHAT_WRITE_PANEL");
     /**
      * Chat window "menu bar" container.
      */

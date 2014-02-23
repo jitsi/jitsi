@@ -12,10 +12,10 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.customcontrols.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.chat.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
@@ -29,6 +29,7 @@ import net.java.sip.communicator.util.skin.*;
  * @author Valentin Martinet
  * @author Adam Netocny
  * @author Ingo Bauersachs
+ * @author Boris Grozev
  */
 public class ChatContactRightButtonMenu
     extends SIPCommPopupMenu
@@ -84,6 +85,9 @@ public class ChatContactRightButtonMenu
     private final JMenuItem revokeVoiceItem
         = new JMenuItem(GuiActivator.getResources().getI18NString(
             "service.gui.REVOKE_VOICE"));
+    private final JMenuItem sendPrivateMessageItem
+    = new JMenuItem(GuiActivator.getResources().getI18NString(
+        "service.gui.SEND_PRIVATE_MESSAGE"));
 
     private final ChatPanel chatPanel;
 
@@ -166,6 +170,9 @@ public class ChatContactRightButtonMenu
         this.changeRoomSubjectItem.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic(
             "service.gui.CHANGE_ROOM_SUBJECT"));
+        this.sendPrivateMessageItem.setMnemonic(
+            GuiActivator.getResources().getI18nMnemonic(
+            "service.gui.SEND_PRIVATE_MESSAGE"));
 
         this.kickItem.addActionListener(this);
         this.banItem.addActionListener(this);
@@ -181,6 +188,7 @@ public class ChatContactRightButtonMenu
         this.revokeModeratorItem.addActionListener(this);
         this.revokeOwnershipItem.addActionListener(this);
         this.revokeVoiceItem.addActionListener(this);
+        this.sendPrivateMessageItem.addActionListener(this);
 
         this.kickItem.setName("kickItem");
         this.banItem.setName("banItem");
@@ -196,6 +204,7 @@ public class ChatContactRightButtonMenu
         this.revokeModeratorItem.setName("revokeModeratorItem");
         this.revokeOwnershipItem.setName("revokeOwnershipItem");
         this.revokeVoiceItem.setName("revokeVoiceItem");
+        this.sendPrivateMessageItem.setName("sendPrivateMessageItem");
 
         loadSkin();
 
@@ -227,6 +236,7 @@ public class ChatContactRightButtonMenu
         }
         else
         {
+            this.add(this.sendPrivateMessageItem);
             if(room.getUserRole().getRoleIndex() >= 50)
             {
                 if(roleIndex <= 40)
@@ -352,25 +362,47 @@ public class ChatContactRightButtonMenu
                     GuiActivator.getResources().getI18NString(
                     "service.gui.CHANGE_NICKNAME_LABEL"),
                     "Ok",
-                    false);
+                    false, true);
 
-           // reasonDialog.setIconImage(ImageLoader.getImage(
-           //   ImageLoader.CHANGE_NICKNAME_ICON_16x16));
+            reasonDialog.setIconImage(ImageLoader.getImage(
+              ImageLoader.CHANGE_NICKNAME_ICON));
             reasonDialog.setReasonFieldText(chatContact.getName());
 
             int result = reasonDialog.showDialog();
 
             if (result == MessageDialog.OK_RETURN_CODE)
             {
+                String nickname = reasonDialog.getReason().trim();
                 try
                 {
-                    room.setUserNickname(reasonDialog.getReason().trim());
+                    room.setUserNickname(nickname);
+                    ConfigurationUtils.updateChatRoomProperty(
+                        room.getParentProvider(),
+                        room.getIdentifier(),
+                        "userNickName", nickname);
                 }
                 catch (OperationFailedException ex)
                 {
-                    ex.printStackTrace();
-                }
-            }
+                    String errorMessage = null;
+                    if(ex.getErrorCode()
+                        == OperationFailedException.IDENTIFICATION_CONFLICT)
+                    {
+                        errorMessage = GuiActivator.getResources()
+                            .getI18NString(
+                                "service.gui.CHANGE_NICKNAME_CONFLICT_ERROR");
+                    }
+                    else
+                    {
+                        errorMessage = ex.getLocalizedMessage();
+                    }
+
+                    chatPanel.addErrorMessage(
+                        nickname,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.CHANGE_NICKNAME_ERROR"),
+                        errorMessage);
+               }
+           }
         }
         else if (menuItemName.equals("grantVoiceItem"))
         {
@@ -437,6 +469,14 @@ public class ChatContactRightButtonMenu
             room.revokeVoice(chatContact.getName());
             ((ChatRoomMember)chatContact.getDescriptor()).setRole(
                 ChatRoomMemberRole.SILENT_MEMBER);
+        }
+        else if(menuItemName.equals("sendPrivateMessageItem"))
+        {
+            ChatWindowManager chatWindowManager
+                = GuiActivator.getUIService()
+                    .getChatWindowManager();
+            chatWindowManager.openPrivateChatForChatRoomMember(room, 
+                chatContact.getName());
         }
     }
 

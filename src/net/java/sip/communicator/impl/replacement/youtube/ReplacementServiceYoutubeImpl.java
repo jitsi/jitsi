@@ -5,13 +5,10 @@
  */
 package net.java.sip.communicator.impl.replacement.youtube;
 
-import java.io.*;
-import java.net.*;
+import java.util.regex.*;
 
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.util.*;
-
-import org.json.simple.*;
 
 /**
  * Implements the {@link ReplacementService} to provide previews for Youtube
@@ -61,37 +58,31 @@ public class ReplacementServiceYoutubeImpl
      */
     public String getReplacement(String sourceString)
     {
-        try
+        final String pattern = "https?:\\/\\/(?:[0-9A-Z-]+\\.)?(?:youtu\\"
+            + ".be\\/|youtube\\.com\\S*[^\\w\\-\\s])([\\w\\-]{11})(?=[^\\"
+            + "w\\-]|$)(?![?=&+%\\w]*(?:['\"][^<>]*>|<\\/a>))[?=&+%\\w]*";
+        final Pattern compiledPattern
+            = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+        Matcher matcher = compiledPattern.matcher(sourceString);
+        String thumbUrl = sourceString;
+        
+        while (matcher.find())
         {
-            String url = "http://youtube.com/oembed/?url=" + sourceString;
-            URL sourceURL = new URL(url);
-            URLConnection conn = sourceURL.openConnection();
-
-            BufferedReader in =
-                new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
-            String inputLine, holder = "";
-
-            while ((inputLine = in.readLine()) != null)
-                holder = inputLine;
-            in.close();
-
-            JSONObject wrapper = (JSONObject)JSONValue
-                .parseWithException(holder);
-
-            String thumbUrl = (String)wrapper.get("thumbnail_url");
-
-            if (thumbUrl != null)
+            String videoID = "";
+            try
             {
+                videoID = matcher.group(1);
+            }
+            catch (Exception e)
+            {
+                logger.debug("Replacement failed for " + getSourceName(), e);
                 return thumbUrl;
             }
-        }
-        catch (Throwable e)
-        {
-            logger.error("Error parsing", e);
+                thumbUrl
+                    = "https://img.youtube.com/vi/" + videoID + "/3.jpg";
         }
 
-        return sourceString;
+        return thumbUrl;
     }
 
     /**

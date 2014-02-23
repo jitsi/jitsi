@@ -21,6 +21,7 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.*;
+import org.jivesoftware.smackx.packet.*;
 
 /**
  * Implements a Jabber <tt>CallPeer</tt>.
@@ -72,6 +73,22 @@ public class CallPeerJabberImpl
     private final Object sidSyncRoot = new Object();
 
     /**
+     * The current value of the 'senders' field of the audio content in the
+     * Jingle session with this <tt>CallPeer</tt>.
+     * <tt>null</tt> should be interpreted as 'both', which is the default in
+     * Jingle if the XML attribute is missing.
+     */
+    private SendersEnum audioSenders = SendersEnum.none;
+
+    /**
+     * The current value of the 'senders' field of the video content in the
+     * Jingle session with this <tt>CallPeer</tt>.
+     * <tt>null</tt> should be interpreted as 'both', which is the default in
+     * Jingle if the XML attribute is missing.
+     */
+    private SendersEnum videoSenders = SendersEnum.none;
+
+    /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param peerAddress the Jabber address of the new call peer.
@@ -90,7 +107,9 @@ public class CallPeerJabberImpl
      *
      * @param peerAddress the Jabber address of the new call peer.
      * @param owningCall the call that contains this call peer.
-     * @param sessionIQ Session initiate IQ
+     * @param sessionIQ The session-initiate <tt>JingleIQ</tt> which was
+     * received from <tt>peerAddress</tt> and caused the creation of this
+     * <tt>CallPeerJabberImpl</tt>
      */
     public CallPeerJabberImpl(String         peerAddress,
                               CallJabberImpl owningCall,
@@ -101,12 +120,7 @@ public class CallPeerJabberImpl
     }
 
     /**
-     * Indicates a user request to answer an incoming call from this
-     * <tt>CallPeer</tt>.
-     *
-     * Sends an OK response to <tt>callPeer</tt>. Make sure that the call
-     * peer contains an SDP description when you call this method.
-     *
+     * Send a session-accept <tt>JingleIQ</tt> to this <tt>CallPeer</tt>
      * @throws OperationFailedException if we fail to create or send the
      * response.
      */
@@ -114,14 +128,16 @@ public class CallPeerJabberImpl
         throws OperationFailedException
     {
         Iterable<ContentPacketExtension> answer;
+        CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
 
         try
         {
-            CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
-
             mediaHandler
-                .getTransportManager().wrapupConnectivityEstablishment();
+                .getTransportManager()
+                    .wrapupConnectivityEstablishment();
             answer = mediaHandler.generateSessionAccept();
+            for (ContentPacketExtension c : answer)
+                setSenders(getMediaType(c), c.getSenders());
         }
         catch(Exception exc)
         {
@@ -149,13 +165,13 @@ public class CallPeerJabberImpl
                     getSID(),
                     answer);
 
-        //send the packet first and start the stream later  in case the media
+        //send the packet first and start the stream later in case the media
         //relay needs to see it before letting hole punching techniques through.
         getProtocolProvider().getConnection().sendPacket(response);
 
         try
         {
-            getMediaHandler().start();
+            mediaHandler.start();
         }
         catch(UndeclaredThrowableException e)
         {
@@ -178,7 +194,7 @@ public class CallPeerJabberImpl
             return;
         }
 
-        //tell everyone we are connecting so that the audio notifications would
+        //tell everyone we are connected so that the audio notifications would
         //stop
         setState(CallPeerState.CONNECTED);
     }
@@ -223,17 +239,17 @@ public class CallPeerJabberImpl
                        String reasonText,
                        PacketExtension reasonOtherExtension)
     {
+        CallPeerState prevPeerState = getState();
+
         // do nothing if the call is already ended
-        if (CallPeerState.DISCONNECTED.equals(getState())
-            || CallPeerState.FAILED.equals(getState()))
+        if (CallPeerState.DISCONNECTED.equals(prevPeerState)
+            || CallPeerState.FAILED.equals(prevPeerState))
         {
             if (logger.isDebugEnabled())
                 logger.debug("Ignoring a request to hangup a call peer "
                         + "that is already DISCONNECTED");
             return;
         }
-
-        CallPeerState prevPeerState = getState();
 
         setState(
                 failed ? CallPeerState.FAILED : CallPeerState.DISCONNECTED,
@@ -310,9 +326,7 @@ public class CallPeerJabberImpl
     }
 
     /**
-     * Processes the session initiation {@link JingleIQ} that we were created
-     * with, passing its content to the media handler and then sends either a
-     * "session-info/ringing" or a "session-terminate" response.
+     * Creates and sends a session-initiate {@link JingleIQ}.
      *
      * @param sessionInitiateExtensions a collection of additional and optional
      * <tt>PacketExtension</tt>s to be added to the <tt>session-initiate</tt>
@@ -329,10 +343,6 @@ public class CallPeerJabberImpl
         //Create the media description that we'd like to send to the other side.
         List<ContentPacketExtension> offer
             = getMediaHandler().createContentList();
-
-        //send a ringing response
-        if (logger.isTraceEnabled())
-            logger.trace("will send ringing response: ");
 
         ProtocolProviderServiceJabberImpl protocolProvider
             = getProtocolProvider();
@@ -380,7 +390,7 @@ public class CallPeerJabberImpl
     {
         /*
          * CallPeerJabberImpl does not itself/directly know the specifics
-         * related to the channels allocated on the Jitsi VideoBridge server.
+         * related to the channels allocated on the Jitsi Videobridge server.
          * The channels contain transport and media-related information so
          * forward the notification to CallPeerMediaHandlerJabberImpl.
          */
@@ -396,14 +406,16 @@ public class CallPeerJabberImpl
     public void processContentAccept(JingleIQ content)
     {
         List<ContentPacketExtension> contents = content.getContentList();
+        CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
 
         try
         {
-            CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
-
             mediaHandler
-                .getTransportManager().wrapupConnectivityEstablishment();
+                .getTransportManager()
+                    .wrapupConnectivityEstablishment();
             mediaHandler.processAnswer(contents);
+            for (ContentPacketExtension c : contents)
+                setSenders(getMediaType(c), c.getSenders());
         }
         catch (Exception e)
         {
@@ -413,8 +425,8 @@ public class CallPeerJabberImpl
             String reason = "Error: " + e.getMessage();
             JingleIQ errResp
                 = JinglePacketFactory.createSessionTerminate(
-                    sessionInitIQ.getTo(),
-                    sessionInitIQ.getFrom(),
+                    getProtocolProvider().getOurJID(),
+                    peerJID,
                     sessionInitIQ.getSID(),
                     Reason.INCOMPATIBLE_PARAMETERS,
                     reason);
@@ -424,7 +436,7 @@ public class CallPeerJabberImpl
             return;
         }
 
-        getMediaHandler().start();
+        mediaHandler.start();
     }
 
     /**
@@ -496,8 +508,9 @@ public class CallPeerJabberImpl
                 return;
             }
 
-            mediaHandler.getTransportManager().
-                wrapupConnectivityEstablishment();
+            mediaHandler
+                .getTransportManager()
+                    .wrapupConnectivityEstablishment();
             if(logger.isInfoEnabled())
                 logger.info("Wrapping up connectivity establishment");
             answerContents = mediaHandler.generateSessionAccept();
@@ -526,8 +539,7 @@ public class CallPeerJabberImpl
                         getSID(),
                         answerContents);
             for (ContentPacketExtension c : answerContents)
-                mediaHandler.setSenders(MediaType.parseString(c.getName()),
-                        c.getSenders());
+                setSenders(getMediaType(c), c.getSenders());
         }
 
         getProtocolProvider().getConnection().sendPacket(contentIQ);
@@ -567,6 +579,7 @@ public class CallPeerJabberImpl
     public void processContentModify(JingleIQ content)
     {
         ContentPacketExtension ext = content.getContentList().get(0);
+        MediaType mediaType = getMediaType(ext);
 
         try
         {
@@ -575,7 +588,10 @@ public class CallPeerJabberImpl
                     != null);
 
             getMediaHandler().reinitContent(ext.getName(), ext, modify);
-            if (MediaType.VIDEO.toString().equals(ext.getName()))
+
+            setSenders(mediaType, ext.getSenders());
+
+            if (MediaType.VIDEO.equals(mediaType))
                 getCall().modifyVideoContent();
         }
         catch(Exception e)
@@ -586,8 +602,8 @@ public class CallPeerJabberImpl
             String reason = "Error: " + e.getMessage();
             JingleIQ errResp
                 = JinglePacketFactory.createSessionTerminate(
-                        sessionInitIQ.getTo(),
-                        sessionInitIQ.getFrom(),
+                        getProtocolProvider().getOurJID(),
+                        peerJID,
                         sessionInitIQ.getSID(),
                         Reason.INCOMPATIBLE_PARAMETERS,
                         reason);
@@ -628,13 +644,22 @@ public class CallPeerJabberImpl
     public void processContentRemove(JingleIQ content)
     {
         List<ContentPacketExtension> contents = content.getContentList();
+        boolean videoContentRemoved = false;
 
         if (!contents.isEmpty())
         {
             CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
 
             for(ContentPacketExtension c : contents)
+            {
                 mediaHandler.removeContent(c.getName());
+
+                MediaType mediaType = getMediaType(c);
+                setSenders(mediaType, SendersEnum.none);
+
+                if (MediaType.VIDEO.equals(mediaType))
+                    videoContentRemoved = true;
+            }
 
             /*
              * TODO XEP-0166: Jingle says: If the content-remove results in zero
@@ -644,23 +669,26 @@ public class CallPeerJabberImpl
              * void).
              */
         }
-        try
+
+        if (videoContentRemoved)
         {
-            getCall().modifyVideoContent();
-        }
-        catch (Exception e)
-        {
-            logger.warn("Failed to update Jingle sessions");
+            // removing of the video content might affect the other sessions
+            // in the call
+            try
+            {
+                getCall().modifyVideoContent();
+            }
+            catch (Exception e)
+            {
+                logger.warn("Failed to update Jingle sessions");
+            }
         }
     }
 
     /**
-     * Processes the session initiation {@link JingleIQ} that we were created
-     * with, passing its content to the media handler and then sends either a
-     * "session-info/ringing" or a "session-terminate" response.
+     * Processes a session-accept {@link JingleIQ}.
      *
-     * @param sessionInitIQ The {@link JingleIQ} that created the session that
-     * we are handling here.
+     * @param sessionInitIQ The session-accept {@link JingleIQ} to process.
      */
     public void processSessionAccept(JingleIQ sessionInitIQ)
     {
@@ -672,8 +700,11 @@ public class CallPeerJabberImpl
         try
         {
             mediaHandler
-                .getTransportManager().wrapupConnectivityEstablishment();
+                .getTransportManager()
+                    .wrapupConnectivityEstablishment();
             mediaHandler.processAnswer(answer);
+            for (ContentPacketExtension c : answer)
+                setSenders(getMediaType(c), c.getSenders());
         }
         catch(Exception exc)
         {
@@ -691,11 +722,18 @@ public class CallPeerJabberImpl
             return;
         }
 
-        //tell everyone we are connecting so that the audio notifications would
+        //tell everyone we are connected so that the audio notifications would
         //stop
         setState(CallPeerState.CONNECTED);
 
         mediaHandler.start();
+
+        /*
+         * If video was added to the call after we sent the session-initiate
+         * to this peer, it needs to be added to this peer's session with a
+         * content-add.
+         */
+        sendModifyVideoContent();
     }
 
     /**
@@ -810,17 +848,17 @@ public class CallPeerJabberImpl
         //if this is a 3264 initiator, let's give them an early peek at our
         //answer so that they could start ICE (SIP-2-Jingle gateways won't
         //be able to send their candidates unless they have this)
-        if(    getDiscoveryInfo() != null
-            && getDiscoveryInfo().containsFeature(
+        DiscoverInfo discoverInfo = getDiscoveryInfo();
+        if ((discoverInfo != null)
+                && discoverInfo.containsFeature(
                         ProtocolProviderServiceJabberImpl.URN_IETF_RFC_3264))
         {
             getProtocolProvider().getConnection().sendPacket(
-                            JinglePacketFactory.createDescriptionInfo(
-                                sessionInitIQ.getTo(),
-                                sessionInitIQ.getFrom(),
-                                sessionInitIQ.getSID(),
-                                getMediaHandler().getLocalContentList()
-                            ));
+                    JinglePacketFactory.createDescriptionInfo(
+                            sessionInitIQ.getTo(),
+                            sessionInitIQ.getFrom(),
+                            sessionInitIQ.getSID(),
+                            getMediaHandler().getLocalContentList()));
         }
     }
 
@@ -945,7 +983,7 @@ public class CallPeerJabberImpl
             }
 
             getMediaHandler().processTransportInfo(
-                jingleIQ.getContentList());
+                    jingleIQ.getContentList());
         }
         catch (OperationFailedException ofe)
         {
@@ -955,8 +993,8 @@ public class CallPeerJabberImpl
             String reasonText = "Error: " + ofe.getMessage();
             JingleIQ errResp
                 = JinglePacketFactory.createSessionTerminate(
-                        sessionInitIQ.getTo(),
-                        sessionInitIQ.getFrom(),
+                        getProtocolProvider().getOurJID(),
+                        peerJID,
                         sessionInitIQ.getSID(),
                         Reason.GENERAL_ERROR,
                         reasonText);
@@ -1060,7 +1098,7 @@ public class CallPeerJabberImpl
     }
 
     /**
-     * Returns the <tt>MediaDirection</tt> that should be used for the content
+     * Returns the <tt>MediaDirection</tt> that should be set for the content
      * of type <tt>mediaType</tt> in the Jingle session for this
      * <tt>CallPeer</tt>.
      * If we are the focus of a conference and are doing RTP translation,
@@ -1072,7 +1110,7 @@ public class CallPeerJabberImpl
      * of type <tt>mediaType</tt> in the Jingle session for this
      * <tt>CallPeer</tt>.
      */
-    private MediaDirection getJingleDirection(MediaType mediaType)
+    private MediaDirection getDirectionForJingle(MediaType mediaType)
     {
         MediaDirection direction = MediaDirection.INACTIVE;
         CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
@@ -1086,21 +1124,21 @@ public class CallPeerJabberImpl
 
         // If we are receiving media from this CallPeer, the direction should
         // allow receiving
-        SendersEnum senders = mediaHandler.getSenders(mediaType);
+        SendersEnum senders = getSenders(mediaType);
         if (senders == null || senders == SendersEnum.both ||
                     (isInitiator() && senders == SendersEnum.initiator) ||
                     (!isInitiator() && senders == SendersEnum.responder))
             direction = direction.or(MediaDirection.RECVONLY);
 
-        // If RTP translation is enabled and we are receiving media from another
-        // CallPeer in the same Call, the direction should allow sending
-        if (mediaHandler.isRTPTranslationEnabled(mediaType))
+        // If we are the focus of a conference and we are receiving media from
+        // another CallPeer in the same Call, the direction should allow sending
+        if (getCall().isConferenceFocus())
         {
             for (CallPeerJabberImpl peer : getCall().getCallPeerList())
             {
                 if (peer != this)
                 {
-                    senders = peer.getMediaHandler().getSenders(mediaType);
+                    senders = peer.getSenders(mediaType);
                     if (senders == null || senders == SendersEnum.both ||
                             (peer.isInitiator()
                                     && senders == SendersEnum.initiator) ||
@@ -1118,17 +1156,20 @@ public class CallPeerJabberImpl
     }
 
     /**
-     * Send a <tt>content</tt> message to reflect change in video setup (start
-     * or stop). Message can be content-modify if video content exists,
-     * content-add if we start video, but video is not enabled for the
-     * <tt>CallPeer</tt>, or content-remove if we stop video and video is
-     * enabled for the <tt>CallPeer</tt>.
+     * Send, if necessary, a jingle <tt>content</tt> message to reflect change
+     * in video setup. Whether the jingle session should have a video content,
+     * and if so, the value of the <tt>senders</tt> field is determined
+     * based on whether we are streaming local video and, if we are the focus
+     * of a conference, on the other peers in the conference.
+     * The message can be content-modify if video content exists (and the
+     * <tt>senders</tt> field changes), content-add or content-remove.
      *
+     * @return <tt>true</tt> if a jingle <tt>content</tt> message was sent.
      */
-    public void sendModifyVideoContent()
+    public boolean sendModifyVideoContent()
     {
         CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
-        MediaDirection direction = getJingleDirection(MediaType.VIDEO);
+        MediaDirection direction = getDirectionForJingle(MediaType.VIDEO);
 
         ContentPacketExtension remoteContent
             = mediaHandler.getLocalContent(MediaType.VIDEO.toString());
@@ -1138,28 +1179,30 @@ public class CallPeerJabberImpl
             if (direction == MediaDirection.INACTIVE)
             {
                 // no video content, none needed
-                return;
+                return false;
             }
             else
             {
-                if (logger.isInfoEnabled())
-                    logger.info("Adding video content for " + this);
-                sendAddVideoContent();
-                return;
+                if (getState() == CallPeerState.CONNECTED)
+                {
+                    if (logger.isInfoEnabled())
+                        logger.info("Adding video content for " + this);
+                    sendAddVideoContent();
+                    return true;
+                }
+                return false;
             }
         }
         else
         {
             if (direction == MediaDirection.INACTIVE)
             {
-                // We could send a content-remove in this case, but instead
-                // we just set senders=none
-                //sendRemoveVideoContent();
-                //return;
+                sendRemoveVideoContent();
+                return true;
             }
         }
 
-        SendersEnum senders = mediaHandler.getSenders(MediaType.VIDEO);
+        SendersEnum senders = getSenders(MediaType.VIDEO);
         if (senders == null)
             senders = SendersEnum.both;
 
@@ -1209,6 +1252,8 @@ public class CallPeerJabberImpl
         {
             logger.warn("Exception occurred during media reinitialization", e);
         }
+
+        return (newSenders != senders);
     }
 
     /**
@@ -1275,6 +1320,8 @@ public class CallPeerJabberImpl
         ContentPacketExtension content = new ContentPacketExtension();
         ContentPacketExtension remoteContent
             = mediaHandler.getRemoteContent(MediaType.VIDEO.toString());
+        if (remoteContent == null)
+            return;
         String remoteContentName = remoteContent.getName();
 
         content.setName(remoteContentName);
@@ -1292,7 +1339,7 @@ public class CallPeerJabberImpl
 
         protocolProvider.getConnection().sendPacket(contentIQ);
         mediaHandler.removeContent(remoteContentName);
-        mediaHandler.setSenders(MediaType.VIDEO, SendersEnum.none);
+        setSenders(MediaType.VIDEO, SendersEnum.none);
     }
 
     /**
@@ -1336,13 +1383,14 @@ public class CallPeerJabberImpl
     @Override
     public void setState(CallPeerState newState, String reason, int reasonCode)
     {
+        CallPeerState oldState = getState();
         try
         {
             /*
              * We need to dispose of the transport manager before the
-             * 'call' field is set to null, because if Jitsi VideoBridge is in
+             * 'call' field is set to null, because if Jitsi Videobridge is in
              * use, it (the call) is needed in order to expire the
-             * VideoBridge channels.
+             * Videobridge channels.
              */
             if (CallPeerState.DISCONNECTED.equals(newState)
                     || CallPeerState.FAILED.equals(newState))
@@ -1351,6 +1399,20 @@ public class CallPeerJabberImpl
         finally
         {
             super.setState(newState, reason, reasonCode);
+        }
+
+        if (CallPeerState.isOnHold(oldState)
+                && CallPeerState.CONNECTED.equals(newState))
+        {
+            try
+            {
+                getCall().modifyVideoContent();
+            }
+            catch (OperationFailedException ofe)
+            {
+                logger.error("Failed to update call video state after " +
+                        "'hold' status removed for "+this);
+            }
         }
     }
 
@@ -1452,5 +1514,114 @@ public class CallPeerJabberImpl
                     message,
                     new TransferredPacketExtension()));
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getEntity()
+    {
+        return getAddress();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * In Jingle there isn't an actual "direction" parameter. We use the
+     * <tt>senders</tt> field to calculate the direction.
+     */
+    @Override
+    public MediaDirection getDirection(MediaType mediaType)
+    {
+        SendersEnum senders = getSenders(mediaType);
+        if (senders == SendersEnum.none)
+            return MediaDirection.INACTIVE;
+        else if (senders == null || senders == SendersEnum.both)
+            return MediaDirection.SENDRECV;
+        else if (senders == SendersEnum.initiator)
+            return isInitiator()
+                ? MediaDirection.RECVONLY
+                : MediaDirection.SENDONLY;
+        else //senders == SendersEnum.responder
+            return isInitiator()
+                ? MediaDirection.SENDONLY
+                : MediaDirection.RECVONLY;
+    }
+
+    /**
+     * Get the current value of the <tt>senders</tt> field of the content with
+     * name <tt>mediaType</tt> in the Jingle session with this <tt>CallPeer</tt>
+     * @param mediaType the <tt>MediaType</tt> for which to get the current
+     * value of the <tt>senders</tt> field.
+     * @return the current value of the <tt>senders</tt> field of the content
+     * with name <tt>mediaType</tt> in the Jingle session with this
+     * <tt>CallPeer</tt>.
+     */
+    public SendersEnum getSenders(MediaType mediaType)
+    {
+        if (MediaType.AUDIO.equals(mediaType))
+            return audioSenders;
+        else if (MediaType.VIDEO.equals(mediaType))
+            return videoSenders;
+        else
+            throw new IllegalArgumentException("mediaType");
+    }
+
+    /**
+     * Set the current value of the <tt>senders</tt> field of the content with
+     * name <tt>mediaType</tt> in the Jingle session with this <tt>CallPeer</tt>
+     * @param mediaType the <tt>MediaType</tt> for which to get the current
+     * value of the <tt>senders</tt> field.
+     * @param senders the value to set
+     */
+    public void setSenders(MediaType mediaType, SendersEnum senders)
+    {
+        if (mediaType == null)
+            return;
+        else if (MediaType.AUDIO.equals(mediaType))
+            this.audioSenders = senders;
+        else if (MediaType.VIDEO.equals(mediaType))
+            this.videoSenders = senders;
+        else
+            throw new IllegalArgumentException("mediaType");
+    }
+
+    /**
+     * Gets the <tt>MediaType</tt> of <tt>content</tt>. If <tt>content</tt>
+     * does not have a <tt>description</tt> child and therefore not
+     * <tt>MediaType</tt> can be associated with it, tries to take the
+     * <tt>MediaType</tt> from the session's already established contents with
+     * the same name as <tt>content</tt>
+     * @param content the <tt>ContentPacketExtention</tt> for which to get the
+     * <tt>MediaType</tt>
+     * @return the <tt>MediaType</tt> of <tt>content</tt>.
+     */
+    public MediaType getMediaType(ContentPacketExtension content)
+    {
+        String contentName = content.getName();
+        if (contentName == null)
+            return null;
+
+        MediaType mediaType = JingleUtils.getMediaType(content);
+        if (mediaType == null)
+        {
+            CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
+            for (MediaType m : MediaType.values())
+            {
+                ContentPacketExtension sessionContent
+                        = mediaHandler.getRemoteContent(m.toString());
+                if (sessionContent == null)
+                    sessionContent = mediaHandler.getLocalContent(m.toString());
+
+                if (sessionContent != null
+                        && contentName.equals(sessionContent.getName()))
+                {
+                    mediaType = m;
+                    break;
+                }
+            }
+        }
+
+        return mediaType;
     }
 }

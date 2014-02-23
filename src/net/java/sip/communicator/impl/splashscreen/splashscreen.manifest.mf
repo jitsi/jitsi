@@ -1,0 +1,8 @@
+Bundle-Activator: net.java.sip.communicator.impl.splashscreen.SplashScreenActivator
+Bundle-Name: Splash Screen
+Bundle-Description: A bundle that updates splash screen if present
+Bundle-Vendor: jitsi.org
+Bundle-Version: 0.0.1
+Bundle-SymbolicName: net.java.sip.communicator.impl.splashscreen
+Import-Package: org.osgi.framework,
+ org.osgi.service.startlevel

@@ -14,9 +14,9 @@ import javax.swing.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.lookandfeel.*;
-import net.java.sip.communicator.impl.gui.main.*;
-import net.java.sip.communicator.impl.gui.main.presence.avatar.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.presence.avatar.*;
 import net.java.sip.communicator.service.globaldisplaydetails.event.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
@@ -24,8 +24,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
-
-import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.jitsi.util.*;
 
@@ -126,15 +124,13 @@ public class AccountStatusPanel
     /**
      * Creates an instance of <tt>AccountStatusPanel</tt> by specifying the
      * main window, where this panel is added.
-     * @param mainFrame the main window, where this panel is added
      */
-    public AccountStatusPanel(MainFrame mainFrame)
+    public AccountStatusPanel()
     {
         super(new BorderLayout(10, 0));
 
         FramedImageWithMenu imageWithMenu
             = new FramedImageWithMenu(
-                    mainFrame,
                     new ImageIcon(
                             ImageLoader
                                 .getImage(ImageLoader.DEFAULT_USER_PHOTO)),
@@ -147,7 +143,7 @@ public class AccountStatusPanel
             accountNameLabel.getFont().deriveFont(12f));
         accountNameLabel.setOpaque(false);
 
-        statusComboBox = new GlobalStatusSelectorBox(mainFrame);
+        statusComboBox = new GlobalStatusSelectorBox();
         // Align status combo box with account name field.
         statusComboBox.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
@@ -399,7 +395,8 @@ public class AccountStatusPanel
      */
     public void pluginComponentAdded(PluginComponentEvent event)
     {
-        PluginComponent pluginComponent = event.getPluginComponent();
+        PluginComponentFactory pluginComponent =
+            event.getPluginComponentFactory();
         Container containerID = pluginComponent.getContainer();
         /*
         // avoid early creating of components by calling getComponent
@@ -425,7 +422,8 @@ public class AccountStatusPanel
      */
     public void pluginComponentRemoved(PluginComponentEvent event)
     {
-        PluginComponent pluginComponent = event.getPluginComponent();
+        PluginComponentFactory pluginComponent =
+            event.getPluginComponentFactory();
         Container pluginContainer = pluginComponent.getContainer();
         /*Object component = pluginComponent.getComponent();
 

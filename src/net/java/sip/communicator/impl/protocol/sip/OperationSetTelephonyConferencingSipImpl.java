@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import gov.nist.javax.sip.header.*;
+
 import java.io.*;
 import java.text.*;
 import java.util.*;
@@ -22,14 +24,13 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
-import org.jitsi.service.neomedia.*;
-import org.jitsi.service.neomedia.MediaType;
 import org.jitsi.util.xml.*;
 
 /**
  * Implements <tt>OperationSetTelephonyConferencing</tt> for SIP.
  *
  * @author Lyubomir Marinov
+ * @author Boris Grozev
  */
 public class OperationSetTelephonyConferencingSipImpl
     extends AbstractOperationSetTelephonyConferencing<
@@ -40,7 +41,6 @@ public class OperationSetTelephonyConferencingSipImpl
             Address>
     implements MethodProcessorListener
 {
-
     /**
      * The <tt>Logger</tt> used by the
      * <tt>OperationSetTelephonyConferencingSipImpl</tt> class and its instances
@@ -54,28 +54,6 @@ public class OperationSetTelephonyConferencingSipImpl
      * by <tt>OperationSetTelephonyConferencingSipImpl</tt>.
      */
     private static final String CONTENT_SUB_TYPE = "conference-info+xml";
-
-    /**
-     * The name of the conference-info XML element
-     * <tt>conference-description</tt>.
-     */
-    private static final String ELEMENT_CONFERENCE_DESCRIPTION
-        = "conference-description";
-
-    /**
-     * The name of the conference-info XML element <tt>conference-info</tt>.
-     */
-    private static final String ELEMENT_CONFERENCE_INFO = "conference-info";
-
-    /**
-     * The name of the conference-info XML element <tt>conference-state</tt>.
-     */
-    private static final String ELEMENT_CONFERENCE_STATE = "conference-state";
-
-    /**
-     * The name of the conference-info XML element <tt>user-count</tt>.
-     */
-    private static final String ELEMENT_USER_COUNT = "user-count";
 
     /**
      * The name of the event package supported by
@@ -99,10 +77,10 @@ public class OperationSetTelephonyConferencingSipImpl
     private static final int SUBSCRIPTION_DURATION = 3600;
 
     /**
-     * The utility which encodes text so that it's acceptable as the text of an
-     * XML element or attribute.
+     * The minimum interval in milliseconds between conference-info NOTIFYs
+     * sent to a single <tt>CallPeer</tt>.
      */
-    private DOMElementWriter domElementWriter = new DOMElementWriter();
+    private static final int MIN_NOTIFY_INTERVAL = 200;
 
     /**
      * The <tt>EventPackageNotifier</tt> which implements conference
@@ -194,24 +172,8 @@ public class OperationSetTelephonyConferencingSipImpl
                         this.timer,
                         REFRESH_MARGIN);
         this.notifier
-                = new EventPackageNotifier(
-                        this.parentProvider,
-                        EVENT_PACKAGE,
-                        SUBSCRIPTION_DURATION,
-                        CONTENT_SUB_TYPE,
-                        this.timer)
-                {
-                    @Override
-                    protected Subscription createSubscription(
-                            Address fromAddress,
-                            String eventId)
-                    {
-                        return
-                            new ConferenceNotifierSubscription(
-                                    fromAddress,
-                                    eventId);
-                    }
-                };
+                = new ConferenceEventPackageNotifier(this.parentProvider,
+                    this.timer);
     }
 
     /**
@@ -281,278 +243,13 @@ public class OperationSetTelephonyConferencingSipImpl
     }
 
     /**
-     * Generates the conference-info XML to be sent to a specific
-     * <tt>CallPeer</tt> in order to notify it of the current state of the
-     * conference managed by the local peer.
      *
-     * @param callPeer the <tt>CallPeer</tt> to generate conference-info XML for
-     * @param version the value of the version attribute of the
-     * <tt>conference-info</tt> root element of the conference-info XML to be
-     * generated
-     * @return the conference-info XML to be sent to the specified
-     * <tt>callPeer</tt> in order to notify it of the current state of the
-     * conference managed by the local peer
-     */
-    private String getConferenceInfoXML(CallPeerSipImpl callPeer, int version)
-    {
-        Dialog dialog = callPeer.getDialog();
-        String localParty = null;
-
-        if (dialog != null)
-        {
-            Address localPartyAddress = dialog.getLocalParty();
-
-            if (localPartyAddress != null)
-                localParty
-                    = stripParametersFromAddress(
-                        localPartyAddress.getURI().toString());
-        }
-
-        StringBuffer xml = new StringBuffer();
-
-        xml.append( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n");
-        // <conference-info>
-        append(xml, "<", ELEMENT_CONFERENCE_INFO);
-        // entity
-        append(xml, " entity=\"", domElementWriter.encode(localParty), "\"");
-        // state
-        xml.append(" state=\"full\"");
-        // version
-        append(xml, " version=\"", Integer.toString(version), "\">");
-        // <conference-description/>
-        append(xml, "<", ELEMENT_CONFERENCE_DESCRIPTION, "/>");
-        // <conference-state>
-        append(xml, "<", ELEMENT_CONFERENCE_STATE, ">");
-        // <user-count>
-        append(xml, "<", ELEMENT_USER_COUNT, ">");
-
-        CallSipImpl call = callPeer.getCall();
-        List<CallPeer> conferenceCallPeers = CallConference.getCallPeers(call);
-
-        xml.append(1 /* the local peer/user */ + conferenceCallPeers.size());
-        // </user-count>
-        append(xml, "</", ELEMENT_USER_COUNT, ">");
-        // </conference-state>
-        append(xml, "</", ELEMENT_CONFERENCE_STATE, ">");
-        // <users>
-        append(xml, "<", ELEMENT_USERS, ">");
-
-        // <user>
-        append(xml, "<", ELEMENT_USER);
-        // entity
-        append(xml, " entity=\"", domElementWriter.encode(localParty), "\"");
-        // state
-        xml.append(" state=\"full\">");
-
-        String ourDisplayName = parentProvider.getOurDisplayName();
-
-        if (ourDisplayName != null)
-        {
-            // <display-text>
-            append(xml, "<", ELEMENT_DISPLAY_TEXT, ">");
-            xml.append(domElementWriter.encode(ourDisplayName));
-            // </display-text>
-            append(xml, "</", ELEMENT_DISPLAY_TEXT, ">");
-        }
-        // <endpoint>
-        append(xml, "<", ELEMENT_ENDPOINT, ">");
-        // <status>
-        append(xml, "<", ELEMENT_STATUS, ">");
-        // We are the conference focus so we're connected to the conference.
-        xml.append(AbstractConferenceMember.CONNECTED);
-        // </status>
-        append(xml, "</", ELEMENT_STATUS, ">");
-        getMediaXML(callPeer, false, xml);
-        // </endpoint>
-        append(xml, "</", ELEMENT_ENDPOINT, ">");
-        // </user>
-        append(xml, "</", ELEMENT_USER, ">");
-
-        for (CallPeer conferenceCallPeer : conferenceCallPeers)
-            getUserXML(conferenceCallPeer, xml);
-
-        // </users>
-        append(xml, "</", ELEMENT_USERS, ">");
-        // </conference-info>
-        append(xml, "</", ELEMENT_CONFERENCE_INFO, ">");
-        return xml.toString();
-    }
-
-    /**
-     * Generates the text content to be put in the <tt>status</tt> XML element
-     * of an <tt>endpoint</tt> XML element and which describes the state of a
-     * specific <tt>CallPeer</tt>.
-     *
-     * @param callPeer the <tt>CallPeer</tt> which is to get its state described
-     * in a <tt>status</tt> XML element of an <tt>endpoint</tt> XML element
-     * @return the text content to be put in the <tt>status</tt> XML element of
-     * an <tt>endpoint</tt> XML element and which describes the state of the
-     * specified <tt>callPeer</tt>
-     */
-    private String getEndpointStatusXML(CallPeer callPeer)
-    {
-        CallPeerState callPeerState = callPeer.getState();
-
-        if (CallPeerState.ALERTING_REMOTE_SIDE.equals(callPeerState))
-            return AbstractConferenceMember.ALERTING;
-        if (CallPeerState.CONNECTING.equals(callPeerState)
-                || CallPeerState
-                    .CONNECTING_WITH_EARLY_MEDIA.equals(callPeerState))
-            return AbstractConferenceMember.PENDING;
-        if (CallPeerState.DISCONNECTED.equals(callPeerState))
-            return AbstractConferenceMember.DISCONNECTED;
-        if (CallPeerState.INCOMING_CALL.equals(callPeerState))
-            return AbstractConferenceMember.DIALING_IN;
-        if (CallPeerState.INITIATING_CALL.equals(callPeerState))
-            return AbstractConferenceMember.DIALING_OUT;
-
-        /*
-         * he/she is neither "hearing" the conference mix nor is his/her media
-         * being mixed in the conference
-         */
-        if (CallPeerState.ON_HOLD_LOCALLY.equals(callPeerState)
-                || CallPeerState.ON_HOLD_MUTUALLY.equals(callPeerState))
-            return AbstractConferenceMember.ON_HOLD;
-        if (CallPeerState.CONNECTED.equals(callPeerState))
-            return AbstractConferenceMember.CONNECTED;
-        return null;
-    }
-
-    /**
-     * Appends to a specific <tt>StringBuffer</tt> <tt>media</tt> XML element
-     * trees which describe the state of the media streaming between a specific
-     * <tt>CallPeer</tt> and its local peer represented by an associated
-     * <tt>Call</tt>.
-     *
-     * @param callPeer the <tt>CallPeer</tt> which is to get its media streaming
-     * state described in <tt>media</tt> XML element trees appended to the
-     * specified <tt>StringBuffer</tt>
-     * @param remote <tt>true</tt> if the streaming from the <tt>callPeer</tt>
-     * to the local peer is to be described or <tt>false</tt> if the streaming
-     * from the local peer to the remote <tt>callPeer</tt> is to be described
-     * @param xml the <tt>StringBuffer</tt> to append the <tt>media</tt> XML
-     * trees describing the media streaming state of the specified
-     * <tt>callPeer</tt>
-     */
-    private void getMediaXML(
-            MediaAwareCallPeer<?,?,?> callPeer,
-            boolean remote,
-            StringBuffer xml)
-    {
-        CallPeerMediaHandler<?> mediaHandler = callPeer.getMediaHandler();
-
-        for (MediaType mediaType : MediaType.values())
-        {
-            MediaStream stream = mediaHandler.getStream(mediaType);
-
-            if (stream != null)
-            {
-                // <media>
-                append(xml, "<", ELEMENT_MEDIA, ">");
-                // <type>
-                append(xml, "<", ELEMENT_TYPE, ">");
-                xml.append(mediaType.toString());
-                // </type>
-                append(xml, "</", ELEMENT_TYPE, ">");
-
-                long srcId
-                    = remote
-                        ? getRemoteSourceID(callPeer, mediaType)
-                        : stream.getLocalSourceID();
-
-                if (srcId != -1)
-                {
-                    // <src-id>
-                    append(xml, "<", ELEMENT_SRC_ID, ">");
-                    xml.append(srcId);
-                    // </src-id>
-                    append(xml, "</", ELEMENT_SRC_ID, ">");
-                }
-
-                MediaDirection direction
-                    = remote
-                        ? getRemoteDirection(callPeer, mediaType)
-                        : stream.getDirection();
-
-                if (direction == null)
-                    direction = MediaDirection.INACTIVE;
-
-                // <status>
-                append(xml, "<", ELEMENT_STATUS, ">");
-                xml.append(direction.toString());
-                // </status>
-                append(xml, "</", ELEMENT_STATUS, ">");
-                // </media>
-                append(xml, "</", ELEMENT_MEDIA, ">");
-            }
-        }
-    }
-
-    /**
-     * Appends to a specific <tt>StringBuffer</tt> a <tt>user</tt> XML element
-     * tree which describes the participation of a specific <tt>CallPeer</tt> in
-     * a conference managed by the local peer represented by its associated
-     * <tt>Call</tt>.
-     *
-     * @param callPeer the <tt>CallPeer</tt> which is to get its conference
-     * participation describes in a <tt>user</tt> XML element tree appended to
-     * the specified <tt>StringBuffer</tt>
-     * @param xml the <tt>StringBuffer</tt> to append the <tt>user</tt> XML
-     * tree describing the conference participation of the specified
-     * <tt>callPeer</tt> to
-     */
-    private void getUserXML(CallPeer callPeer, StringBuffer xml)
-    {
-        // <user>
-        append(xml, "<", ELEMENT_USER);
-        // entity
-        append(
-                xml,
-                " entity=\"",
-                domElementWriter.encode(
-                        stripParametersFromAddress(callPeer.getURI())),
-                "\"");
-        // state
-        xml.append(" state=\"full\">");
-
-        String displayName = callPeer.getDisplayName();
-
-        if (displayName != null)
-        {
-            // <display-text>
-            append(xml, "<", ELEMENT_DISPLAY_TEXT, ">");
-            xml.append(domElementWriter.encode(displayName));
-            // </display-text>
-            append(xml, "</", ELEMENT_DISPLAY_TEXT, ">");
-        }
-        // <endpoint>
-        append(xml, "<", ELEMENT_ENDPOINT, ">");
-
-        String status = getEndpointStatusXML(callPeer);
-
-        if (status != null)
-        {
-            // <status>
-            append(xml, "<", ELEMENT_STATUS, ">");
-            xml.append(status);
-            // </status>
-            append(xml, "</", ELEMENT_STATUS, ">");
-        }
-        if (callPeer instanceof MediaAwareCallPeer<?,?,?>)
-            getMediaXML((MediaAwareCallPeer<?,?,?>) callPeer, true, xml);
-        // </endpoint>
-        append(xml, "</", ELEMENT_ENDPOINT, ">");
-        // </user>
-        append(xml, "</", ELEMENT_USER, ">");
-    }
-
-    /**
      * {@inheritDoc}
      *
      * Implements the protocol-dependent part of the logic of inviting a callee
      * to a <tt>Call</tt>. The protocol-independent part of that logic is
      * implemented by
-     * {@link AbstractOperationSetTelephonyConferencing#inviteCalleToCall(String,Call)}.
+     * {@link AbstractOperationSetTelephonyConferencing#inviteCalleeToCall(String,Call)}.
      */
     @Override
     protected CallPeerSipImpl doInviteCalleeToCall(
@@ -715,10 +412,10 @@ public class OperationSetTelephonyConferencingSipImpl
         {
             ProtocolProviderServiceSipImpl
                 .throwOperationFailedException(
-                    "Failed to parse callee address " + calleeAddressString,
-                    OperationFailedException.ILLEGAL_ARGUMENT,
-                    pe,
-                    logger);
+                        "Failed to parse callee address " + calleeAddressString,
+                        OperationFailedException.ILLEGAL_ARGUMENT,
+                        pe,
+                        logger);
             return null;
         }
     }
@@ -779,6 +476,37 @@ public class OperationSetTelephonyConferencingSipImpl
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getLocalEntity(CallPeer callPeer)
+    {
+        if (callPeer instanceof CallPeerSipImpl)
+        {
+            Dialog dialog = ((CallPeerSipImpl)callPeer).getDialog();
+
+            if (dialog != null)
+            {
+                Address localPartyAddress = dialog.getLocalParty();
+
+                if (localPartyAddress != null)
+                    return stripParametersFromAddress(
+                            localPartyAddress.getURI().toString());
+            }
+        }
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected String getLocalDisplayName()
+    {
+        return parentProvider.getOurDisplayName();
+    }
+
+    /**
      * Implements <tt>EventPackageNotifier.Subscription</tt> in order to
      * represent a conference subscription created by a remote <tt>CallPeer</tt>
      * to the conference event package of a local <tt>Call</tt>.
@@ -786,13 +514,6 @@ public class OperationSetTelephonyConferencingSipImpl
     private class ConferenceNotifierSubscription
         extends EventPackageNotifier.Subscription
     {
-
-        /**
-         * The value of the <tt>version</tt> attribute to be specified in the
-         * outgoing <tt>conference-info</tt> root XML elements.
-         */
-        private int version = 1;
-
         /**
          * Initializes a new <tt>ConferenceNotifierSubscription</tt> instance
          * with a specific subscription <tt>Address</tt>/Request URI and a
@@ -845,29 +566,52 @@ public class OperationSetTelephonyConferencingSipImpl
                 return null;
             }
 
-            String conferenceInfoXML = getConferenceInfoXML(callPeer, version);
-            byte[] notifyContent;
+            ConferenceInfoDocument currentConfInfo
+                    = getCurrentConferenceInfo(callPeer);
+            ConferenceInfoDocument lastSentConfInfo
+                    = callPeer.getLastConferenceInfoSent();
 
-            if (conferenceInfoXML == null)
-                notifyContent = null;
+            //Uncomment this when the rest of the code can handle a return value
+            //of null in case no NOTIFY needs to be sent.
+            /*
+            ConferenceInfoDocument diff
+                    = lastSentConfInfo == null
+                      ? currentConfInfo
+                      :getConferenceInfoDiff(lastSentConfInfo, currentConfInfo);
+            */
+            ConferenceInfoDocument diff = currentConfInfo;
+
+            if (diff == null)
+                return null;
             else
             {
+                int newVersion
+                        = lastSentConfInfo == null
+                        ? 1
+                        : lastSentConfInfo.getVersion() + 1;
+                diff.setVersion(newVersion);
+                currentConfInfo.setVersion(newVersion);
+
+                // We save currentConfInfo, because it is of state "full", while
+                // diff could be a partial
+                callPeer.setLastConferenceInfoSent(currentConfInfo);
+                callPeer.setLastConferenceInfoSentTimestamp(
+                        System.currentTimeMillis());
+
+                String xml = diff.toXml();
+                byte[] notifyContent;
                 try
                 {
-                    notifyContent = conferenceInfoXML.getBytes("UTF-8");
+                    notifyContent = xml.getBytes("UTF-8");
                 }
                 catch (UnsupportedEncodingException uee)
                 {
-                    logger
-                        .warn(
-                            "Failed to gets bytes from String for the UTF-8 " +
-                            "charset",
-                            uee);
-                    notifyContent = conferenceInfoXML.getBytes();
+                    logger.warn("Failed to gets bytes from String for the "
+                            + "UTF-8 charset", uee);
+                    notifyContent = xml.getBytes();
                 }
-                ++ version;
+                return notifyContent;
             }
-            return notifyContent;
         }
 
         /**
@@ -998,14 +742,17 @@ public class OperationSetTelephonyConferencingSipImpl
         {
             if (rawContent != null)
             {
-                int contentVersion
-                    = setConferenceInfoXML(
+                try
+                {
+                    setConferenceInfoXML(
                         callPeer,
-                        version,
                         SdpUtils.getContentAsString(requestEvent.getRequest()));
-
-                if (contentVersion >= version)
-                    version = contentVersion;
+                }
+                catch (XMLException e)
+                {
+                    logger.error("Could not handle conference-info NOTIFY sent"
+                            + " to us by " + callPeer);
+                }
             }
         }
 
@@ -1106,6 +853,183 @@ public class OperationSetTelephonyConferencingSipImpl
                                 + this,
                             ofe);
                 }
+        }
+    }
+
+    /**
+     * An implementation of <tt>EventPackageNotifier</tt> which sends RFC4575
+     * NOTIFYs
+     */
+    private class ConferenceEventPackageNotifier
+            extends EventPackageNotifier
+    {
+        ConferenceEventPackageNotifier(
+                ProtocolProviderServiceSipImpl protocolProvider,
+                TimerScheduler timer)
+        {
+            super(protocolProvider,
+                    EVENT_PACKAGE,
+                    SUBSCRIPTION_DURATION,
+                    CONTENT_SUB_TYPE,
+                    timer);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected EventPackageNotifier.Subscription createSubscription(
+            Address fromAddress,
+            String eventId)
+        {
+            return
+                    new ConferenceNotifierSubscription(
+                            fromAddress,
+                            eventId);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * Overrides the default implementation in order to send RFC4575
+         * (conference information) NOTIFYs
+         */
+        @Override
+        public void notify( final Subscription subscription,
+                            final String subscriptionState,
+                            final String reason)
+                throws OperationFailedException
+        {
+            ConferenceNotifierSubscription conferenceSubscription
+                    = (ConferenceNotifierSubscription) subscription;
+
+            Dialog dialog = conferenceSubscription.getDialog();
+            CallPeerSipImpl callPeer = conferenceSubscription.getCallPeer();
+            if (callPeer == null)
+            {
+                throw new OperationFailedException("Failed to find the CallPeer"
+                            + " of the conference subscription "
+                            + conferenceSubscription,
+                        OperationFailedException.INTERNAL_ERROR);
+            }
+
+            final long timeSinceLastNotify = System.currentTimeMillis()
+                    - callPeer.getLastConferenceInfoSentTimestamp();
+            if (timeSinceLastNotify < MIN_NOTIFY_INTERVAL)
+            {
+                if (callPeer.isConfInfoScheduled())
+                    return;
+
+                logger.info("Scheduling to send a conference-info NOTIFY to "
+                        + callPeer);
+                callPeer.setConfInfoScheduled(true);
+                new Thread(new Runnable(){
+                    @Override
+                    public void run()
+                    {
+                        try
+                        {
+                            Thread.sleep(1 + MIN_NOTIFY_INTERVAL
+                                         - timeSinceLastNotify);
+                        }
+                        catch (InterruptedException ie) {}
+
+                        try
+                        {
+                            ConferenceEventPackageNotifier.this.notify(
+                                    subscription, subscriptionState, reason);
+                        }
+                        catch (OperationFailedException e)
+                        {
+                            logger.error("Failed to send NOTIFY request");
+                        }
+                    }
+                }).start();
+
+                return;
+            }
+
+            ConferenceInfoDocument currentConfInfo
+                    = getCurrentConferenceInfo(callPeer);
+            ConferenceInfoDocument lastSentConfInfo
+                    = callPeer.getLastConferenceInfoSent();
+
+            ConferenceInfoDocument diff
+                    = lastSentConfInfo == null
+                      ? currentConfInfo
+                      :getConferenceInfoDiff(lastSentConfInfo, currentConfInfo);
+
+            if (diff == null)
+            {
+                callPeer.setConfInfoScheduled(false);
+                return; //no change -- no need to send NOTIFY
+            }
+
+            int newVersion
+                    = lastSentConfInfo == null
+                    ? 1
+                    : lastSentConfInfo.getVersion() + 1;
+            diff.setVersion(newVersion);
+
+            String xml = diff.toXml();
+            byte[] notifyContent;
+            try
+            {
+                notifyContent = xml.getBytes("UTF-8");
+            }
+            catch (UnsupportedEncodingException uee)
+            {
+                logger.warn("Failed to gets bytes from String for the "
+                        + "UTF-8 charset", uee);
+                notifyContent = xml.getBytes();
+            }
+
+            String callId;
+
+            /*
+             * If sending a notify is requested too quickly (and in different
+             * threads, of course), a second notify may be created prior to
+             * sending a previous one and the Dialog implementation may mess up
+             * the CSeq which will lead to "500 Request out of order".
+             */
+            synchronized (dialog)
+            {
+                ClientTransaction transac = createNotify(dialog, notifyContent,
+                                subscriptionState, reason);
+
+                callId = dialog.getCallId().getCallId();
+
+                try
+                {
+                    if (logger.isInfoEnabled())
+                    {
+                        logger.info("Sending conference-info NOTIFY (version "
+                                + newVersion +") to " + callPeer);
+                    }
+                    dialog.sendRequest(transac);
+
+                    // We save currentConfInfo, because it is of state "full",
+                    // while diff could be a partial
+                    currentConfInfo.setVersion(newVersion);
+                    callPeer.setLastConferenceInfoSent(currentConfInfo);
+                    callPeer.setLastConferenceInfoSentTimestamp(
+                            System.currentTimeMillis());
+                }
+                catch (SipException sex)
+                {
+                    logger.error("Failed to send NOTIFY request.", sex);
+                    throw
+                            new OperationFailedException(
+                                    "Failed to send NOTIFY request.",
+                                    OperationFailedException.NETWORK_FAILURE,
+                                    sex);
+                }
+            }
+
+            if (SubscriptionState.TERMINATED.equals(subscriptionState))
+                removeSubscription(callId, subscription);
+
+            callPeer.setConfInfoScheduled(false);
         }
     }
 }

@@ -11,6 +11,8 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.sip.*;
 
 /**
  * The <tt>PresencePanel</tt> is the one containing presence information.
@@ -51,9 +53,13 @@ public class PresencePanel
     private JLabel subscribeExpiresLabel = new JLabel(
             Resources.getString("plugin.sipaccregwizz.SUBSCRIPTION_EXPIRATION"));
 
-    private JTextField pollPeriodField = new JTextField();
+    private JTextField pollPeriodField
+            = new JTextField(SipAccountID.getDefaultStr(
+                    ProtocolProviderFactory.POLLING_PERIOD));
 
-    private JTextField subscribeExpiresField = new JTextField();
+    private JTextField subscribeExpiresField
+            = new JTextField(SipAccountID.getDefaultStr(
+                    ProtocolProviderFactory.SUBSCRIPTION_EXPIRATION));
 
     private JTextField clistOptionServerUriValue = new JTextField();
 

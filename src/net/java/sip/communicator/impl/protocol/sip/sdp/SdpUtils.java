@@ -32,7 +32,7 @@ import org.jitsi.util.*;
  * creating and parsing SDP descriptions.
  *
  * @author Emil Ivov
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class SdpUtils
 {
@@ -200,8 +200,10 @@ public class SdpUtils
             // it could be we were unable to open device or some problem
             // with hostnames
             ProtocolProviderServiceSipImpl.throwOperationFailedException(
-                "An error occurred while creating session description",
-                OperationFailedException.INTERNAL_ERROR, exc, logger);
+                    "An error occurred while creating session description",
+                    OperationFailedException.INTERNAL_ERROR,
+                    exc,
+                    logger);
         }
 
         return sessDescr;
@@ -1385,16 +1387,20 @@ public class SdpUtils
                     numChannelsStr = "/" + channels;
             }
 
-            Attribute rtpmap = sdpFactory.createAttribute(SdpConstants.RTPMAP,
-                payloadType + " " + format.getEncoding() + "/"
-                + format.getClockRateString() + numChannelsStr);
+            Attribute rtpmap
+                = sdpFactory.createAttribute(
+                        SdpConstants.RTPMAP,
+                        payloadType + " " + format.getEncoding() + "/"
+                            + format.getClockRateString() + numChannelsStr);
 
             mediaAttributes.add(rtpmap);
 
             // a=fmtp:
             if( format.getFormatParameters().size() > 0)
             {
-                Attribute fmtp = sdpFactory.createAttribute("fmtp",
+                Attribute fmtp
+                    = sdpFactory.createAttribute(
+                            "fmtp",
                             payloadType + " " + encodeFmtp(format));
 
                 mediaAttributes.add(fmtp);
@@ -1421,8 +1427,11 @@ public class SdpUtils
 
         if ((rtpPort + 1) != rtcpPort)
         {
-            Attribute rtcpAttr = sdpFactory.createAttribute(RTCP_ATTR, Integer
-                            .toString(rtcpPort));
+            Attribute rtcpAttr
+                = sdpFactory.createAttribute(
+                        RTCP_ATTR,
+                        Integer.toString(rtcpPort));
+
             mediaAttributes.add(rtcpAttr);
         }
 
@@ -1433,34 +1442,38 @@ public class SdpUtils
             {
                 byte extID
                     = rtpExtensionsRegistry.obtainExtensionMapping(extension);
-
                 String uri = extension.getURI().toString();
                 MediaDirection extDirection = extension.getDirection();
                 String attributes = extension.getExtensionAttributes();
-
                 //this is what our extmap value should look like:
                 //extmap:<value>["/"<direction>] <URI> <extensionattributes>
                 String attrValue
                     = Byte.toString(extID)
-                    + ((extDirection == MediaDirection.SENDRECV)
-                                    ? ""
-                                    : ("/" + extDirection.toString()))
-                    + " " + uri
-                    + (attributes == null? "" : (" " + attributes));
+                        + ((extDirection == MediaDirection.SENDRECV)
+                                ? ""
+                                : ("/" + extDirection.toString()))
+                        + " "
+                        + uri
+                        + (attributes == null? "" : (" " + attributes));
 
-                Attribute extMapAttr = sdpFactory.createAttribute(
-                                EXTMAP_ATTR, attrValue);
+                Attribute extMapAttr
+                    = sdpFactory.createAttribute(EXTMAP_ATTR, attrValue);
+
                 mediaAttributes.add(extMapAttr);
             }
         }
 
         MediaDescription mediaDesc = null;
+
         try
         {
-            mediaDesc = sdpFactory.createMediaDescription(mediaType.toString(),
-                            connector.getDataSocket().getLocalPort(), 1,
-                            transport, payloadTypesArray);
-
+            mediaDesc
+                = sdpFactory.createMediaDescription(
+                        mediaType.toString(),
+                        connector.getDataSocket().getLocalPort(),
+                        1,
+                        transport,
+                        payloadTypesArray);
             // add all the attributes we have created above
             mediaDesc.setAttributes(mediaAttributes);
         }
@@ -1472,7 +1485,6 @@ public class SdpUtils
                             OperationFailedException.INTERNAL_ERROR, cause,
                             logger);
         }
-
         return mediaDesc;
     }
 
@@ -1558,13 +1570,14 @@ public class SdpUtils
         {
             return MediaType.parseString(description.getMedia().getMediaType());
         }
-        catch (SdpException exc)
+        catch (SdpException e)
         {
             // impossible to happen for reasons mentioned many times here :)
+            String message = "Invalid media type in m= line: " + description;
+
             if (logger.isDebugEnabled())
-                logger.debug("Invalid media type in m= line: " + description, exc);
-            throw new IllegalArgumentException(
-                         "Invalid media type in m= line: " + description, exc);
+                logger.debug(message, e);
+            throw new IllegalArgumentException(message, e);
         }
     }
 
@@ -1584,24 +1597,27 @@ public class SdpUtils
     @SuppressWarnings("unchecked") // legacy jain-sdp code
     public static boolean containsAttribute(MediaDescription description,
                                             String attributeName)
-        throws  IllegalArgumentException
+        throws IllegalArgumentException
     {
         try
         {
             Vector<Attribute> atts = description.getAttributes(false);
+
             for(Attribute a : atts)
+            {
                 if(a.getName().equals(attributeName))
                     return true;
-
+            }
             return false;
         }
-        catch (SdpException exc)
+        catch (SdpException e)
         {
             // impossible to happen for reasons mentioned many times here :)
+            String message = "Invalid media type in a= line: " + description;
+
             if (logger.isDebugEnabled())
-                logger.debug("Invalid media type in a= line: " + description, exc);
-            throw new IllegalArgumentException(
-                         "Invalid media type in a= line: " + description, exc);
+                logger.debug(message, e);
+            throw new IllegalArgumentException(message, e);
         }
     }
 
@@ -1647,8 +1663,9 @@ public class SdpUtils
         }
         catch (Exception e)
         {
-            throw new IllegalArgumentException("Could not create a disabling " +
-                    "answer", e);
+            throw new IllegalArgumentException(
+                    "Could not create a disabling answer",
+                    e);
         }
     }
 
@@ -1684,7 +1701,7 @@ public class SdpUtils
         if(remoteDescriptions == null || remoteDescriptions.size() == 0)
         {
             throw new IllegalArgumentException(
-                "Could not find any media descriptions.");
+                    "Could not find any media descriptions.");
         }
 
         return remoteDescriptions;
@@ -1721,8 +1738,7 @@ public class SdpUtils
         }
         catch (UnsupportedEncodingException uee)
         {
-            logger
-                .warn(
+            logger.warn(
                     "SIP message with unsupported charset of its content",
                     uee);
 

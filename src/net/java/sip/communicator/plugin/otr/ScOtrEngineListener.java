@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.plugin.otr;
 
+import net.java.sip.communicator.plugin.otr.OtrContactManager.OtrContact;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -18,5 +19,9 @@ public interface ScOtrEngineListener
 
     public void globalPolicyChanged();
 
-    public void sessionStatusChanged(Contact contact);
+    public void sessionStatusChanged(OtrContact contact);
+
+    public void multipleInstancesDetected(OtrContact contact);
+
+    public void outgoingSessionChanged(OtrContact contact);
 }

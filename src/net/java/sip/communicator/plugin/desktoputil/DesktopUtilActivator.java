@@ -10,12 +10,17 @@ import javax.swing.*;
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
+import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.audionotifier.*;
 import org.jitsi.service.configuration.*;
+import org.jitsi.service.fileaccess.*;
+import org.jitsi.service.neomedia.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
@@ -39,6 +44,16 @@ public class DesktopUtilActivator
     private static BrowserLauncherService browserLauncherService;
 
     private static UIService uiService;
+
+    private static AccountManager accountManager;
+
+    private static FileAccessService fileAccessService;
+
+    private static MediaService mediaService;
+
+    private static AudioNotifierService audioNotifierService;
+
+    private static GlobalDisplayDetailsService globalDisplayDetailsService;
 
     static BundleContext bundleContext;
 
@@ -246,5 +261,89 @@ public class DesktopUtilActivator
         Certificate[] certs, String title, String message)
     {
         return new VerifyCertificateDialogImpl(certs, title, message);
+    }
+
+    /**
+     * Returns the <tt>AccountManager</tt> obtained from the bundle context.
+     * @return the <tt>AccountManager</tt> obtained from the bundle context
+     */
+    public static AccountManager getAccountManager()
+    {
+        if(accountManager == null)
+        {
+            accountManager
+                = ServiceUtils.getService(bundleContext, AccountManager.class);
+        }
+        return accountManager;
+    }
+
+    /**
+     * Returns the <tt>FileAccessService</tt> obtained from the bundle context.
+     *
+     * @return the <tt>FileAccessService</tt> obtained from the bundle context
+     */
+    public static FileAccessService getFileAccessService()
+    {
+        if (fileAccessService == null)
+        {
+            fileAccessService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        FileAccessService.class);
+        }
+        return fileAccessService;
+    }
+
+    /**
+     * Returns an instance of the <tt>MediaService</tt> obtained from the
+     * bundle context.
+     * @return an instance of the <tt>MediaService</tt> obtained from the
+     * bundle context
+     */
+    public static MediaService getMediaService()
+    {
+        if (mediaService == null)
+        {
+            mediaService
+                = ServiceUtils.getService(bundleContext, MediaService.class);
+        }
+        return mediaService;
+    }
+
+    /**
+     * Returns the <tt>AudioNotifierService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>AudioNotifierService</tt> obtained from the bundle
+     * context
+     */
+    public static AudioNotifierService getAudioNotifier()
+    {
+        if (audioNotifierService == null)
+        {
+            audioNotifierService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        AudioNotifierService.class);
+        }
+        return audioNotifierService;
+    }
+    
+    /**
+     * Returns the <tt>GlobalDisplayDetailsService</tt> obtained from the bundle
+     * context.
+     *
+     * @return the <tt>GlobalDisplayDetailsService</tt> obtained from the bundle
+     * context
+     */
+    public static GlobalDisplayDetailsService getGlobalDisplayDetailsService()
+    {
+        if (globalDisplayDetailsService == null)
+        {
+            globalDisplayDetailsService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        GlobalDisplayDetailsService.class);
+        }
+        return globalDisplayDetailsService;
     }
 }

@@ -2,6 +2,7 @@ Bundle-Name: Replacement Service
 Bundle-Description: Replacement Service.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.service.replacement
 Export-Package: net.java.sip.communicator.service.replacement,
- net.java.sip.communicator.service.replacement.smilies
+ net.java.sip.communicator.service.replacement.smilies,
+ net.java.sip.communicator.service.replacement.directimage

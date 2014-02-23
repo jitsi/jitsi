@@ -3,7 +3,7 @@ Bundle-Name: Example plugin
 Bundle-Description: An example showing how to make plugins for the ui.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-System-Bundle: yes
+Bundle-SymbolicName: net.java.sip.communicator.plugin.exampleplugin
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.service.contactlist,
  net.java.sip.communicator.service.contactlist.event,

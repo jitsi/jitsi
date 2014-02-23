@@ -66,6 +66,11 @@ public class OneToOneCallPeerPanel
     private final CallPeer callPeer;
 
     /**
+     * The <tt>Call</tt>, which is rendered in this panel.
+     */
+    private final Call call;
+
+    /**
      * The <tt>CallPeerAdapter</tt> which implements common
      * <tt>CallPeer</tt>-related listeners on behalf of this instance.
      */
@@ -257,6 +262,9 @@ public class OneToOneCallPeerPanel
     {
         this.callRenderer = callRenderer;
         this.callPeer = callPeer;
+        // we need to obtain call as soon as possible
+        // cause if it fails too quickly we may fail to show it
+        this.call = callPeer.getCall();
         this.uiVideoHandler = uiVideoHandler;
 
         peerName = CallManager.getPeerDisplayName(callPeer);
@@ -351,7 +359,6 @@ public class OneToOneCallPeerPanel
             = new TransparentPanel(new BorderLayout(5, 0));
         TransparentPanel remoteLevelPanel
             = new TransparentPanel(new BorderLayout(5, 0));
-        Call call = callPeer.getCall();
 
         localLevel
             = new InputVolumeControlButton(
@@ -609,13 +616,10 @@ public class OneToOneCallPeerPanel
             @Override
             public void mousePressed(MouseEvent e)
             {
-                CallPeerSecurityStatusEvent securityEvt
-                    = callPeer.getCurrentSecuritySettings();
-
                 // Only show the security details if the security is on.
-                if (securityEvt instanceof CallPeerSecurityOnEvent
-                    && ((CallPeerSecurityOnEvent) securityEvt)
-                        .getSecurityController() instanceof ZrtpControl)
+                SrtpControl ctrl = securityPanel.getSecurityControl();
+                if (ctrl instanceof ZrtpControl
+                    && ctrl.getSecureCommunicationStatus())
                 {
                     setSecurityPanelVisible(!callRenderer.getCallContainer()
                         .getCallWindow().getFrame().getGlassPane().isVisible());
@@ -796,11 +800,14 @@ public class OneToOneCallPeerPanel
             return;
         }
 
-        securityStatusLabel.setText("");
-        securityStatusLabel.setSecurityOff();
-        if (securityStatusLabel.getBorder() == null)
-            securityStatusLabel.setBorder(
-                BorderFactory.createEmptyBorder(2, 5, 2, 3));
+        if (evt.getSessionType() == CallPeerSecurityOffEvent.AUDIO_SESSION)
+        {
+            securityStatusLabel.setText("");
+            securityStatusLabel.setSecurityOff();
+            if (securityStatusLabel.getBorder() == null)
+                securityStatusLabel.setBorder(
+                    BorderFactory.createEmptyBorder(2, 5, 2, 3));
+        }
 
         securityPanel.securityOff(evt);
     }
@@ -836,11 +843,8 @@ public class OneToOneCallPeerPanel
 
         SrtpControl srtpControl = evt.getSecurityController();
 
-        if ((srtpControl.requiresSecureSignalingTransport()
-                    && callPeer
-                        .getProtocolProvider()
-                            .isSignalingTransportSecure())
-                || !srtpControl.requiresSecureSignalingTransport())
+        if (!srtpControl.requiresSecureSignalingTransport()
+                || callPeer.getProtocolProvider().isSignalingTransportSecure())
         {
             if (srtpControl instanceof ZrtpControl)
             {

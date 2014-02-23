@@ -71,10 +71,10 @@ public class OpusConfigForm
 
     /**
      * The index of the default value for the 'complexity' setting. Index 0
-     * corresponds to complexity 10.
+     * corresponds to the default complexity set by the opus_encoder_create
+     * function/method.
      */
     private static final int COMPLEXITY_DEFAULT_INDEX = 0;
-
 
     /**
      * The "audio bandwidth" combobox
@@ -214,11 +214,15 @@ public class OpusConfigForm
         //Complexity
         labelPanel.add(new JLabel(Resources.getString(
                         "plugin.generalconfig.OPUS_COMPLEXITY")));
+        /*
+         * Unless the user explicitly assigns a complexity value, let the
+         * opus_encoder_create function/method set the default complexity.
+         */
+        complexityCombobox.addItem("");
         for(int i = 10; i > 0; i--)
-            complexityCombobox.addItem(((Integer)i).toString());
+            complexityCombobox.addItem(Integer.toString(i));
         complexityCombobox.addActionListener(this);
         valuePanel.add(complexityCombobox);
-
 
         restoreButton.addActionListener(this);
         southPanel.add(restoreButton);
@@ -251,9 +255,7 @@ public class OpusConfigForm
                 MIN_EXPECTED_PL_DEFAULT);
 
         complexityCombobox.setSelectedIndex(COMPLEXITY_DEFAULT_INDEX);
-        configurationService.setProperty(
-                Constants.PROP_OPUS_COMPLEXITY,
-                complexityCombobox.getItemAt(COMPLEXITY_DEFAULT_INDEX));
+        configurationService.removeProperty(Constants.PROP_OPUS_COMPLEXITY);
     }
 
     /**
@@ -286,9 +288,21 @@ public class OpusConfigForm
         }
         else if(source == complexityCombobox)
         {
-            configurationService.setProperty(
-                    Constants.PROP_OPUS_COMPLEXITY,
-                    complexityCombobox.getSelectedItem());
+            Object selectedItem = complexityCombobox.getSelectedItem();
+            String complexity
+                = (selectedItem == null) ? null : selectedItem.toString();
+
+            if ((complexity == null) || (complexity.length() == 0))
+            {
+                configurationService.removeProperty(
+                        Constants.PROP_OPUS_COMPLEXITY);
+            }
+            else
+            {
+                configurationService.setProperty(
+                        Constants.PROP_OPUS_COMPLEXITY,
+                        complexity);
+            }
         }
     }
 

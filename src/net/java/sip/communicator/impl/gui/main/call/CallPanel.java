@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.Container;
 import java.awt.event.*;
 import java.beans.*;
+import java.io.*;
 import java.util.*;
 import java.util.List;
 
@@ -20,6 +21,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.event.*;
 import net.java.sip.communicator.impl.gui.main.call.conference.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
@@ -67,7 +69,8 @@ public class CallPanel
     implements ActionListener,
                PluginComponentListener,
                Skinnable,
-               ConferencePeerViewListener
+               ConferencePeerViewListener,
+               ContactPresenceStatusListener
 {
     /**
      * The chat button name.
@@ -88,6 +91,11 @@ public class CallPanel
      * The info button name.
      */
     private static final String INFO_BUTTON = "INFO_BUTTON";
+
+    /**
+     * The info button name.
+     */
+    private static final String CRM_BUTTON = "CRM_BUTTON";
 
     /**
      * The logger for this class.
@@ -111,10 +119,84 @@ public class CallPanel
         = "net.java.sip.communicator.impl.gui.main.call.HIDE_CALL_INFO_BUTTON";
 
     /**
+     * Property to enable the CRM button.
+     */
+    private static final String SHOW_CRM_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.SHOW_CRM_BUTTON";
+
+    /**
+     * Property to disable the conference "add to call" button.
+     */
+    private static final String HIDE_CONFERENCE_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_CONFERENCE_BUTTON";
+
+    /**
      * Property to disable the record button.
      */
     private static final String HIDE_CALL_RECORD_BUTON_PROP
         = "net.java.sip.communicator.impl.gui.main.call.HIDE_CALL_RECORD_BUTTON";
+
+    /**
+     * Property to disable the "call merge" button.
+     */
+    private static final String HIDE_CALL_MERGE_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_CALL_MERGE_BUTTON";
+
+    /**
+     * Property to disable the "call merge" button.
+     */
+    private static final String HIDE_CALL_TRANSFER_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_CALL_TRANSFER_BUTTON";
+
+    /**
+     * Property to disable the "hold" button.
+     */
+    private static final String HIDE_CALL_HOLD_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_CALL_HOLD_BUTTON";
+
+    /**
+     * Property to disable the dial button.
+     */
+    private static final String HIDE_DIAL_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_DIAL_BUTTON";
+
+    /**
+     * Property to disable the video button.
+     */
+    private static final String HIDE_VIDEO_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_VIDEO_BUTTON";
+
+    /**
+     * Property to disable the button, which shows/hides participants in video
+     * conferences.
+     */
+    private static final String HIDE_PEERS_LIST_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_PEERS_LIST_BUTTON";
+
+    /**
+     * Indicates if the participants list in a video conference is visible by
+     * default.
+     */
+    private static final String PEERS_LIST_HIDDEN_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.PEERS_LIST_HIDDEN";
+
+    /**
+     * Property to disable the desktop sharing button.
+     */
+    private static final String HIDE_DESKTOP_SHARING_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_DESKTOP_SHARING_BUTTON"; 
+
+    /**
+     * Property to disable the full screen button.
+     */
+    private static final String HIDE_FULL_SCREEN_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_FULL_SCREEN_BUTTON";
+
+    /**
+     * Property to disable the "show/hide local video" button.
+     */
+    private static final String HIDE_TOGGLE_VIDEO_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_TOGGLE_VIDEO_BUTTON";
 
     /**
      * The <tt>Component</tt> which is at the bottom of this view and contains
@@ -176,6 +258,12 @@ public class CallPanel
     private SIPCommButton chatButton;
 
     /**
+     * The operation set that will be used to update chatButton icon and
+     * the corresponding contact.
+     */
+    private OperationSetPresence operationSetPresence;
+
+    /**
      * The conference button.
      */
     private CallToolBarButton conferenceButton;
@@ -228,6 +316,11 @@ public class CallPanel
     private SIPCommButton infoButton;
 
     /**
+     * CRM button.
+     */
+    private CallToolBarButton crmButton;
+
+    /**
      * Indicates if the call timer has been started.
      */
     private boolean isCallTimerStarted = false;
@@ -267,6 +360,12 @@ public class CallPanel
      * The button responsible for hiding/showing the local video.
      */
     private ShowHideVideoButton showHideVideoButton;
+
+    /**
+     * The button, which shows / hides the participants list in a video
+     * conference.
+     */
+    private ShowHidePeersButton showHidePeersButton;
 
     /**
      * The title of this call container.
@@ -444,7 +543,7 @@ public class CallPanel
         {
             ConferenceInviteDialog inviteDialog;
 
-            if (callConference.isJitsiVideoBridge())
+            if (callConference.isJitsiVideobridge())
             {
                 inviteDialog
                     = new ConferenceInviteDialog(
@@ -489,6 +588,34 @@ public class CallPanel
             }
             callInfoFrame.setVisible(
                     callInfoFrame.hasCallInfo() && !callInfoFrame.isVisible());
+        }
+        else if (buttonName.equals(CRM_BUTTON))
+        {
+            String command =
+                GuiActivator.getConfigurationService().getString(
+                    "net.java.sip.communicator.impl.gui.main.call.CRM_COMMAND");
+            if (command == null)
+            {
+                return;
+            }
+
+            List<CallPeer> callPeers = callConference.getCallPeers();
+            if (callPeers.isEmpty())
+            {
+                logger.info("No CallPeer for CRM application found.");
+                return;
+            }
+
+            command = String.format(command, callPeers.get(0).getAddress());
+            try
+            {
+                logger.info("Launching CRM application: " + command);
+                Runtime.getRuntime().exec(command);
+            }
+            catch (IOException e)
+            {
+                logger.error("Unable launch CRM application", e);
+            }
         }
     }
 
@@ -685,6 +812,11 @@ public class CallPanel
             ((CallRenderer) callPanel).dispose();
         }
 
+        // clears the contact status listener
+        if(operationSetPresence != null)
+        {
+            operationSetPresence.removeContactPresenceStatusListener(this);
+        }
     }
 
     /**
@@ -746,8 +878,22 @@ public class CallPanel
          * telephony conference at this time so we do not want the chatButton
          * visible in such a scenario.
          */
+        List<Contact> imContacts = getIMCapableCallPeers(1);
         chatButton.setVisible(
-                !isConference && (getIMCapableCallPeers(1).size() == 1));
+                !isConference && (imContacts.size() == 1));
+        if(chatButton.isVisible() && operationSetPresence == null)
+        {
+            Contact contact = imContacts.get(0);
+            operationSetPresence =
+                contact.getProtocolProvider()
+                    .getOperationSet(OperationSetPresence.class);
+            if(operationSetPresence != null)
+                operationSetPresence.addContactPresenceStatusListener(this);
+
+            chatButton.setIconImage(
+                Constants.getMessageStatusIcon(contact.getPresenceStatus()));
+            chatButton.repaint();
+        }
 
         updateHoldButtonState();
         updateMergeButtonState();
@@ -844,34 +990,55 @@ public class CallPanel
             }
         }
 
-        conferenceButton.setEnabled(telephonyConferencing);
-        transferCallButton.setEnabled(advancedTelephony);
-        transferCallButton.setVisible(!callConference.isConferenceFocus());
+        if(conferenceButton != null)
+            conferenceButton.setEnabled(telephonyConferencing);
+
+        if(transferCallButton != null)
+        {
+            transferCallButton.setEnabled(advancedTelephony);
+            transferCallButton.setVisible(!callConference.isConferenceFocus());
+        }
 
         /*
          * The videoButton is a beast of its own kind because it depends not
          * only on the state of the depicted telephony conference but also on
          * the global application state.
          */
-        videoButton.setEnabled(allCallsConnected && videoTelephony);
-        videoButton.setSelected(videoTelephonyIsLocalVideoAllowed);
+        if(videoButton != null)
+        {
+            videoButton.setEnabled(allCallsConnected && videoTelephony);
+            videoButton.setSelected(videoTelephonyIsLocalVideoAllowed);
 
-        /*
-         * Consequently, the showHideVideoButton which depends on videoButton
-         * has to be updated depending on the state of the videoButton as well.
-         */
-        showHideVideoButton.setEnabled(
-                videoButton.isEnabled()
-                    && videoTelephonyIsLocalVideoAllowed);
-        showHideVideoButton.setSelected(
-                showHideVideoButton.isEnabled()
-                    && uiVideoHandler.isLocalVideoVisible());
-        showHideVideoButton.setVisible(showHideVideoButton.isEnabled());
+            /*
+             * Consequently, the showHideVideoButton which depends on videoButton
+             * has to be updated depending on the state of the videoButton as well.
+             */
+            if(showHideVideoButton != null)
+            {
+                showHideVideoButton.setEnabled(
+                        videoButton.isEnabled()
+                            && videoTelephonyIsLocalVideoAllowed);
+                showHideVideoButton.setSelected(
+                        showHideVideoButton.isEnabled()
+                            && uiVideoHandler.isLocalVideoVisible());
+                showHideVideoButton.setVisible(showHideVideoButton.isEnabled());
+            }
+        }
+
+        if (showHidePeersButton != null)
+        {
+            showHidePeersButton.setVisible(isConference
+                && CallManager.isVideoStreaming(callConference));
+        }
 
         // The desktop sharing button depends on the operation set desktop
         // sharing server.
-        desktopSharingButton.setEnabled(desktopSharing);
-        desktopSharingButton.setSelected(desktopSharingIsStreamed);
+        if(desktopSharingButton != null)
+        {
+            desktopSharingButton.setEnabled(desktopSharing);
+            desktopSharingButton.setSelected(desktopSharingIsStreamed);
+        }
+
         if (callPanel instanceof OneToOneCallPanel)
         {
             OneToOneCallPanel oneToOneCallPanel = (OneToOneCallPanel) callPanel;
@@ -1227,26 +1394,42 @@ public class CallPanel
      */
     private void initButtonIndexes()
     {
-        dialButton.setIndex(0);
-        conferenceButton.setIndex(1);
-        holdButton.setIndex(2);
+        if (dialButton != null)
+            dialButton.setIndex(0);
+        if (conferenceButton != null)
+            conferenceButton.setIndex(1);
+        if (holdButton != null)
+            holdButton.setIndex(2);
         if (recordButton != null)
             recordButton.setIndex(3);
-        mergeButton.setIndex(4);
-        transferCallButton.setIndex(5);
+        if (mergeButton != null)
+            mergeButton.setIndex(4);
+        if (transferCallButton != null)
+            transferCallButton.setIndex(5);
 
         localLevel.setIndex(6);
         if (remoteLevel instanceof OrderedComponent)
             ((OrderedComponent) remoteLevel).setIndex(7);
 
-        desktopSharingButton.setIndex(8);
-        fullScreenButton.setIndex(10);
-        videoButton.setIndex(11);
-        showHideVideoButton.setIndex(12);
+        if (desktopSharingButton != null)
+            desktopSharingButton.setIndex(8);
+
+        if (fullScreenButton != null)
+            fullScreenButton.setIndex(10);
+
+        if (videoButton != null)
+            videoButton.setIndex(11);
+        if (showHideVideoButton != null)
+            showHideVideoButton.setIndex(12);
+        if (showHidePeersButton != null)
+            showHidePeersButton.setIndex(13);
+
         chatButton.setIndex(19);
 
+        if (crmButton != null)
+            crmButton.setIndex(30);
         if (infoButton != null)
-            infoButton.setIndex(20);
+            infoButton.setIndex(50);
 
         hangupButton.setIndex(100);
     }
@@ -1272,7 +1455,7 @@ public class CallPanel
         {
             serRefs
                 = GuiActivator.bundleContext.getServiceReferences(
-                        PluginComponent.class.getName(),
+                        PluginComponentFactory.class.getName(),
                         osgiFilter);
         }
         catch (InvalidSyntaxException ise)
@@ -1284,9 +1467,12 @@ public class CallPanel
         {
             for (ServiceReference serRef : serRefs)
             {
-                PluginComponent component
-                    = (PluginComponent)
+                PluginComponentFactory factory
+                    = (PluginComponentFactory)
                         GuiActivator.bundleContext.getService(serRef);
+
+                PluginComponent component =
+                    factory.getPluginComponentInstance(CallPanel.this);
 
                 component.setCurrentContact(
                     CallManager.getPeerMetaContact(
@@ -1334,25 +1520,45 @@ public class CallPanel
                     CHAT_BUTTON,
                     GuiActivator.getResources().getI18NString(
                             "service.gui.CHAT"));
-        conferenceButton
-            = new CallToolBarButton(
+
+        if(isButtonEnabled(HIDE_CONFERENCE_BUTON_PROP))
+        {
+            conferenceButton
+                = new CallToolBarButton(
                     ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON),
                     CONFERENCE_BUTTON,
                     GuiActivator.getResources().getI18NString(
-                            "service.gui.CREATE_CONFERENCE_CALL"));
-        desktopSharingButton = new DesktopSharingButton(aCall);
-        dialButton
-            = new CallToolBarButton(
-                    ImageLoader.getImage(ImageLoader.DIAL_BUTTON),
-                    DIAL_BUTTON,
-                    GuiActivator.getResources().getI18NString(
-                            "service.gui.DIALPAD"));
-        fullScreenButton = new FullScreenButton(this);
+                        "service.gui.CREATE_CONFERENCE_CALL"));
+        }
+
+        if(isButtonEnabled(HIDE_DESKTOP_SHARING_BUTON_PROP))
+        {
+            desktopSharingButton = new DesktopSharingButton(aCall);
+        }
+
+        if(isButtonEnabled(HIDE_DIAL_BUTON_PROP))
+        {
+            dialButton
+                = new CallToolBarButton(
+                        ImageLoader.getImage(ImageLoader.DIAL_BUTTON),
+                        DIAL_BUTTON,
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.DIALPAD"));
+        }
+
+        if(isButtonEnabled(HIDE_FULL_SCREEN_BUTON_PROP))
+        {
+            fullScreenButton = new FullScreenButton(this);
+        }
+
         hangupButton = new HangupButton(this);
-        holdButton = new HoldButton(aCall);
-        if(!GuiActivator.getConfigurationService().getBoolean(
-                HIDE_CALL_INFO_BUTON_PROP,
-                false))
+
+        if(isButtonEnabled(HIDE_CALL_HOLD_BUTON_PROP))
+        {
+            holdButton = new HoldButton(aCall);
+        }
+
+        if(isButtonEnabled(HIDE_CALL_INFO_BUTON_PROP))
         {
             infoButton
                 = new CallToolBarButton(
@@ -1361,22 +1567,55 @@ public class CallPanel
                         GuiActivator.getResources().getI18NString(
                                 "service.gui.PRESS_FOR_CALL_INFO"));
         }
-        mergeButton
-            = new CallToolBarButton(
-                    ImageLoader.getImage(ImageLoader.MERGE_CALL_BUTTON),
-                    MERGE_BUTTON,
-                    GuiActivator.getResources().getI18NString(
-                            "service.gui.MERGE_TO_CALL"));
 
-        if(!GuiActivator.getConfigurationService().getBoolean(
-            HIDE_CALL_RECORD_BUTON_PROP,
-            false))
+        if(!isButtonEnabled(SHOW_CRM_BUTON_PROP))
+        {
+            crmButton
+                = new CallToolBarButton(
+                        ImageLoader.getImage(ImageLoader.CRM),
+                        CRM_BUTTON,
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.PRESS_TO_OPEN_CRM"));
+        }
+
+        if(isButtonEnabled(HIDE_CALL_MERGE_BUTON_PROP))
+        {
+            mergeButton
+                = new CallToolBarButton(
+                        ImageLoader.getImage(ImageLoader.MERGE_CALL_BUTTON),
+                        MERGE_BUTTON,
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.MERGE_TO_CALL"));
+
+        }
+
+        if(isButtonEnabled(HIDE_CALL_RECORD_BUTON_PROP))
         {
             recordButton = new RecordButton(aCall);
         }
-        showHideVideoButton = new ShowHideVideoButton(uiVideoHandler);
-        transferCallButton = new TransferCallButton(aCall);
-        videoButton = new LocalVideoButton(aCall);
+
+        if(isButtonEnabled(HIDE_TOGGLE_VIDEO_BUTON_PROP))
+        {
+            showHideVideoButton = new ShowHideVideoButton(uiVideoHandler);
+        }
+
+        if(isButtonEnabled(HIDE_CALL_TRANSFER_BUTON_PROP))
+        {
+            transferCallButton = new TransferCallButton(aCall);
+        }
+
+        if(isButtonEnabled(HIDE_VIDEO_BUTON_PROP))
+        {
+            videoButton = new LocalVideoButton(aCall);
+        }
+
+        if (isButtonEnabled(HIDE_PEERS_LIST_BUTON_PROP))
+        {
+            // If the PEERS_LIST_HIDDEN_PROP isn't specified we show the list
+            // by default.
+            showHidePeersButton = new ShowHidePeersButton(this,
+                isButtonEnabled(PEERS_LIST_HIDDEN_PROP));
+        }
 
         localLevel
             = new InputVolumeControlButton(
@@ -1400,30 +1639,66 @@ public class CallPanel
         initButtonIndexes();
 
         chatButton.addActionListener(this);
-        conferenceButton.addActionListener(this);
-        dialButton.addActionListener(this);
+        if (conferenceButton != null)
+            conferenceButton.addActionListener(this);
+        if (dialButton != null)
+            dialButton.addActionListener(this);
+        if (crmButton != null)
+            crmButton.addActionListener(this);
         if (infoButton != null)
             infoButton.addActionListener(this);
-        mergeButton.addActionListener(this);
+        if (mergeButton != null)
+            mergeButton.addActionListener(this);
 
         settingsPanel.add(chatButton);
-        settingsPanel.add(conferenceButton);
-        settingsPanel.add(desktopSharingButton);
-        settingsPanel.add(dialButton);
-        settingsPanel.add(fullScreenButton);
+        if (conferenceButton != null)
+            settingsPanel.add(conferenceButton);
+        if (desktopSharingButton != null)
+            settingsPanel.add(desktopSharingButton);
+        if (dialButton != null)
+            settingsPanel.add(dialButton);
+        if (fullScreenButton != null)
+            settingsPanel.add(fullScreenButton);
+
         settingsPanel.add(hangupButton);
-        settingsPanel.add(holdButton);
+
+        if (holdButton != null)
+            settingsPanel.add(holdButton);
+        if (crmButton != null)
+            settingsPanel.add(crmButton);
         if (infoButton != null)
             settingsPanel.add(infoButton);
-        settingsPanel.add(mergeButton);
+        if (mergeButton != null)
+            settingsPanel.add(mergeButton);
         if (recordButton != null)
             settingsPanel.add(recordButton);
-        settingsPanel.add(showHideVideoButton);
-        settingsPanel.add(transferCallButton);
-        settingsPanel.add(videoButton);
+        if (showHideVideoButton != null)
+            settingsPanel.add(showHideVideoButton);
+        if (mergeButton != null)
+            settingsPanel.add(transferCallButton);
+        if (videoButton != null)
+            settingsPanel.add(videoButton);
+        if (showHidePeersButton != null)
+            settingsPanel.add(showHidePeersButton);
 
         // The bottom bar will contain the settingsPanel.
         add(createBottomBar(), BorderLayout.SOUTH);
+    }
+
+    /**
+     * Tests a provided boolean property name, returning false if it should be
+     * hidden.
+     * 
+     * Used in {@link #initializeUserInterfaceHierarchy()} 
+     * @param buttonHidePropertyName the name of the boolean property to check.
+     * @return false if the button should be hidden, true otherwise.
+     * 
+     */
+    private boolean isButtonEnabled(String buttonHidePropertyName)
+    {
+        return !GuiActivator.getConfigurationService().getBoolean(
+            buttonHidePropertyName,
+            false);
     }
 
     /**
@@ -1512,15 +1787,21 @@ public class CallPanel
      */
     public void loadSkin()
     {
-        dialButton.setBackgroundImage(
+        if (dialButton != null)
+        {
+            dialButton.setBackgroundImage(
                 ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG));
-        dialButton.setIconImage(
-                ImageLoader.getImage(ImageLoader.DIAL_BUTTON));
+            dialButton.setIconImage(
+                    ImageLoader.getImage(ImageLoader.DIAL_BUTTON));
+        }
 
-        conferenceButton.setBackgroundImage(
+        if (conferenceButton != null)
+        {
+            conferenceButton.setBackgroundImage(
                 ImageLoader.getImage(ImageLoader.CALL_SETTING_BUTTON_BG));
-        conferenceButton.setIconImage(
-                ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON));
+            conferenceButton.setIconImage(
+                    ImageLoader.getImage(ImageLoader.ADD_TO_CALL_BUTTON));
+        }
 
         if (hangupButton != null)
             hangupButton.setBackgroundImage(
@@ -1685,25 +1966,26 @@ public class CallPanel
      */
     protected void onPluginComponentEvent(PluginComponentEvent ev)
     {
-        PluginComponent pc = ev.getPluginComponent();
-        Object c;
+        PluginComponentFactory pc = ev.getPluginComponentFactory();
 
         if (pc.getContainer().equals(
                     net.java.sip.communicator.service.gui.Container
-                            .CONTAINER_CALL_DIALOG)
-                && ((c = pc.getComponent()) instanceof Component))
+                            .CONTAINER_CALL_DIALOG))
         {
-            pc.setCurrentContact(
+            PluginComponent plugin =
+                pc.getPluginComponentInstance(CallPanel.this);
+            Component c = (Component)plugin.getComponent();
+            plugin.setCurrentContact(
                 CallManager.getPeerMetaContact(
                     callConference.getCallPeers().get(0)));
 
             switch (ev.getEventID())
             {
             case PluginComponentEvent.PLUGIN_COMPONENT_ADDED:
-                settingsPanel.add((Component) c);
+                settingsPanel.add(c);
                 break;
             case PluginComponentEvent.PLUGIN_COMPONENT_REMOVED:
-                settingsPanel.remove((Component) c);
+                settingsPanel.remove(c);
                 break;
             }
 
@@ -1831,6 +2113,22 @@ public class CallPanel
     void setFullScreen(boolean fullScreen)
     {
         callWindow.setFullScreen(fullScreen);
+    }
+
+    /**
+     * Shows/hides the thumbnails list in the case of video conference.
+     *
+     * @param show <tt>true</tt> to show the thumbnails list, <tt>false</tt>
+     * to hide it
+     */
+    public void showThumbnailsList(boolean show)
+    {
+        // This shouldn't happen, but if we aren't in a video conference we
+        // have nothing to do here.
+        if (!(callPanel instanceof VideoConferenceCallPanel))
+            return;
+
+        ((VideoConferenceCallPanel) callPanel).showThumbnailsList(show);
     }
 
     /**
@@ -1967,6 +2265,11 @@ public class CallPanel
      */
     public void updateHoldButtonState()
     {
+        // If the hold button has been disabled by its configuration property we
+        // have nothing more to do here.
+        if (holdButton == null)
+            return;
+
         if(!SwingUtilities.isEventDispatchThread())
         {
             SwingUtilities.invokeLater(new Runnable()
@@ -2016,10 +2319,16 @@ public class CallPanel
     }
 
     /**
-     * Updates the <tt>visible</tt> state/property of {@link #mergeButton}.
+     * Updates the <tt>visible</tt> state/property of {@link #mergeButton} if
+     * the merge button is present.
      */
     private void updateMergeButtonState()
     {
+        // If the merge button isn't present, for example if it's hidden by
+        // its configuration property we have nothing more to do here.
+        if (mergeButton == null)
+            return;
+
         List<CallConference> conferences = new ArrayList<CallConference>();
         int cpt = 0;
 
@@ -2166,6 +2475,24 @@ public class CallPanel
                         this,
                         newPrefSize.width, newPrefSize.height);
             }
+        }
+    }
+
+    /**
+     * Listens for contact status changes and updates the image of the
+     * chat message button.
+     * @param evt the ContactPresenceStatusChangeEvent describing the status
+     */
+    @Override
+    public void contactPresenceStatusChanged(ContactPresenceStatusChangeEvent evt)
+    {
+        Contact contact = getIMCapableCallPeers(1).get(0);
+
+        if(contact != null && contact.equals(evt.getSourceContact()))
+        {
+            chatButton.setIconImage(
+                Constants.getMessageStatusIcon(contact.getPresenceStatus()));
+            chatButton.repaint();
         }
     }
 

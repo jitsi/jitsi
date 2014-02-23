@@ -142,4 +142,15 @@ public class OperationSetTelephonyConferencingGibberishImpl
              telephonyOpSet.fireCallEvent(CallEvent.CALL_ENDED, sourceCall);
          }
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Unimplemented, returns <tt>null</tt>
+     */
+    @Override
+    public ConferenceDescription setupConference(ChatRoom chatRoom)
+    {
+        return null;
+    }
 }

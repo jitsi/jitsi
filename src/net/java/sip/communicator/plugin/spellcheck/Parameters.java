@@ -237,6 +237,19 @@ class Parameters
         }
 
         /**
+         * Gets the ICU locale, which is a combination of the ISO code and the
+         * country variant. English for the United States is therefore en_US,
+         * German for Switzerland de_CH.
+         * 
+         * @return ICU locale
+         */
+        public String getIcuLocale()
+        {
+            String[] parts = this.isoCode.split(",");
+            return parts[0].toLowerCase() + "_" + parts[1].toUpperCase();
+        }
+
+        /**
          * Provides the url where the dictionary resource can be found for this
          * language.
          *

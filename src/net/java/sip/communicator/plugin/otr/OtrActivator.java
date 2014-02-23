@@ -8,78 +8,33 @@ package net.java.sip.communicator.plugin.otr;
 
 import java.util.*;
 
+import net.java.sip.communicator.plugin.otr.authdialog.*;
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**
  * @author George Politis
+ * @author Pawel Domas
  */
 public class OtrActivator
     extends AbstractServiceDependentActivator
     implements ServiceListener
 {
-    /**
-     * A property used in configuration to disable the OTR plugin.
-     */
-    public static final String OTR_DISABLED_PROP =
-        "net.java.sip.communicator.plugin.otr.DISABLED";
-
-    /**
-     * Indicates if the security/chat config form should be disabled, i.e.
-     * not visible to the user.
-     */
-    private static final String OTR_CHAT_CONFIG_DISABLED_PROP
-        = "net.java.sip.communicator.plugin.otr.otrchatconfig.DISABLED";
-
-    /**
-     * A property specifying whether private messaging should be made mandatory.
-     */
-    public static final String OTR_MANDATORY_PROP =
-        "net.java.sip.communicator.plugin.otr.PRIVATE_MESSAGING_MANDATORY";
-
-    /**
-     * A property specifying whether private messaging should be automatically
-     * initiated.
-     */
-    public static final String AUTO_INIT_OTR_PROP =
-        "net.java.sip.communicator.plugin.otr.AUTO_INIT_PRIVATE_MESSAGING";
 
     /**
      * The {@link BundleContext} of the {@link OtrActivator}.
      */
     public static BundleContext bundleContext;
-
-    private OtrTransformLayer otrTransformLayer;
-
-    /**
-     * The {@link ScOtrEngine} of the {@link OtrActivator}.
-     */
-    public static ScOtrEngine scOtrEngine;
-
-    /**
-     * The {@link ScOtrKeyManager} of the {@link OtrActivator}.
-     */
-    public static ScOtrKeyManager scOtrKeyManager = new ScOtrKeyManagerImpl();
-
-    /**
-     * The {@link ResourceManagementService} of the {@link OtrActivator}. Can
-     * also be obtained from the {@link OtrActivator#bundleContext} on demand,
-     * but we add it here for convenience.
-     */
-    public static ResourceManagementService resourceService;
-
-    /**
-     * The {@link UIService} of the {@link OtrActivator}. Can also be obtained
-     * from the {@link OtrActivator#bundleContext} on demand, but we add it here
-     * for convenience.
-     */
-    public static UIService uiService;
 
     /**
      * The {@link ConfigurationService} of the {@link OtrActivator}. Can also be
@@ -93,6 +48,231 @@ public class OtrActivator
      * instances for logging output.
      */
     private static final Logger logger = Logger.getLogger(OtrActivator.class);
+
+    /**
+     * Indicates if the security/chat config form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String OTR_CHAT_CONFIG_DISABLED_PROP
+        = "net.java.sip.communicator.plugin.otr.otrchatconfig.DISABLED";
+
+    /**
+     * A property used in configuration to disable the OTR plugin.
+     */
+    public static final String OTR_DISABLED_PROP =
+        "net.java.sip.communicator.plugin.otr.DISABLED";
+
+    /**
+     * A property specifying whether private messaging should be made mandatory.
+     */
+    public static final String OTR_MANDATORY_PROP =
+        "net.java.sip.communicator.plugin.otr.PRIVATE_MESSAGING_MANDATORY";
+
+    /**
+     * The {@link ResourceManagementService} of the {@link OtrActivator}. Can
+     * also be obtained from the {@link OtrActivator#bundleContext} on demand,
+     * but we add it here for convenience.
+     */
+    public static ResourceManagementService resourceService;
+
+    /**
+     * The {@link ScOtrEngine} of the {@link OtrActivator}.
+     */
+    public static ScOtrEngine scOtrEngine;
+
+    /**
+     * The {@link ScOtrKeyManager} of the {@link OtrActivator}.
+     */
+    public static ScOtrKeyManager scOtrKeyManager = new ScOtrKeyManagerImpl();
+
+    /**
+     * The {@link UIService} of the {@link OtrActivator}. Can also be obtained
+     * from the {@link OtrActivator#bundleContext} on demand, but we add it here
+     * for convenience.
+     */
+    public static UIService uiService;
+
+    /**
+     * The <tt>MetaContactListService</tt> reference.
+     */
+    private static MetaContactListService metaCListService;
+    
+    /**
+     * The message history service.
+     */
+    private static MessageHistoryService messageHistoryService;
+
+    /**
+     * Gets an {@link AccountID} by its UID.
+     *
+     * @param uid The {@link AccountID} UID.
+     * @return The {@link AccountID} with the requested UID or null.
+     */
+    public static AccountID getAccountIDByUID(String uid)
+    {
+        if (uid == null || uid.length() < 1)
+            return null;
+
+        Map<Object, ProtocolProviderFactory> providerFactoriesMap =
+            OtrActivator.getProtocolProviderFactories();
+
+        if (providerFactoriesMap == null)
+            return null;
+
+        for (ProtocolProviderFactory providerFactory
+                : providerFactoriesMap.values())
+        {
+            for (AccountID accountID : providerFactory.getRegisteredAccounts())
+            {
+                if (accountID.getAccountUniqueID().equals(uid))
+                    return accountID;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Gets all the available accounts in SIP Communicator.
+     *
+     * @return a {@link List} of {@link AccountID}.
+     */
+    public static List<AccountID> getAllAccountIDs()
+    {
+        Map<Object, ProtocolProviderFactory> providerFactoriesMap =
+            OtrActivator.getProtocolProviderFactories();
+
+        if (providerFactoriesMap == null)
+            return null;
+
+        List<AccountID> accountIDs = new Vector<AccountID>();
+
+        for (ProtocolProviderFactory providerFactory
+                : providerFactoriesMap.values())
+        {
+            for (AccountID accountID : providerFactory.getRegisteredAccounts())
+                accountIDs.add(accountID);
+        }
+
+        return accountIDs;
+    }
+
+    private static Map<Object, ProtocolProviderFactory>
+        getProtocolProviderFactories()
+    {
+        ServiceReference[] serRefs = null;
+        try
+        {
+            // get all registered provider factories
+            serRefs =
+                bundleContext.getServiceReferences(
+                    ProtocolProviderFactory.class.getName(), null);
+
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            logger.error("Error while retrieving service refs", ex);
+            return null;
+        }
+
+        Map<Object, ProtocolProviderFactory> providerFactoriesMap =
+            new Hashtable<Object, ProtocolProviderFactory>();
+        if (serRefs != null)
+        {
+            for (ServiceReference serRef : serRefs)
+            {
+                ProtocolProviderFactory providerFactory =
+                    (ProtocolProviderFactory) bundleContext.getService(serRef);
+
+                providerFactoriesMap.put(serRef
+                    .getProperty(ProtocolProviderFactory.PROTOCOL),
+                    providerFactory);
+            }
+        }
+        return providerFactoriesMap;
+    }
+
+    private OtrTransformLayer otrTransformLayer;
+
+    /**
+     * The dependent class. We are waiting for the ui service.
+     * @return the ui service class.
+     */
+    @Override
+    public Class<?> getDependentServiceClass()
+    {
+        return UIService.class;
+    }
+
+    private void handleProviderAdded(ProtocolProviderService provider)
+    {
+        OperationSetInstantMessageTransform opSetMessageTransform
+            = provider.getOperationSet(
+                    OperationSetInstantMessageTransform.class);
+
+        if (opSetMessageTransform != null)
+            opSetMessageTransform.addTransformLayer(this.otrTransformLayer);
+        else if (logger.isTraceEnabled())
+            logger.trace("Service did not have a transform op. set.");
+    }
+
+    private void handleProviderRemoved(ProtocolProviderService provider)
+    {
+        // check whether the provider has a basic im operation set
+        OperationSetInstantMessageTransform opSetMessageTransform
+            = provider.getOperationSet(
+                    OperationSetInstantMessageTransform.class);
+
+        if (opSetMessageTransform != null)
+            opSetMessageTransform.removeTransformLayer(this.otrTransformLayer);
+    }
+
+    /*
+     * Implements ServiceListener#serviceChanged(ServiceEvent).
+     */
+    public void serviceChanged(ServiceEvent serviceEvent)
+    {
+        Object sService =
+            bundleContext.getService(serviceEvent.getServiceReference());
+
+        if (logger.isTraceEnabled())
+        {
+            logger.trace(
+                    "Received a service event for: "
+                        + sService.getClass().getName());
+        }
+
+        // we don't care if the source service is not a protocol provider
+        if (!(sService instanceof ProtocolProviderService))
+            return;
+
+        if (logger.isDebugEnabled())
+            logger.debug("Service is a protocol provider.");
+        if (serviceEvent.getType() == ServiceEvent.REGISTERED)
+        {
+            if (logger.isDebugEnabled())
+            {
+                logger.debug(
+                        "Handling registration of a new Protocol Provider.");
+            }
+            this.handleProviderAdded((ProtocolProviderService) sService);
+        }
+        else if (serviceEvent.getType() == ServiceEvent.UNREGISTERING)
+        {
+            this.handleProviderRemoved((ProtocolProviderService) sService);
+        }
+
+    }
+
+    /**
+     * The bundle context to use.
+     * @param context the context to set.
+     */
+    @Override
+    public void setBundleContext(BundleContext context)
+    {
+        bundleContext = context;
+    }
 
     /*
      * Implements AbstractServiceDependentActivator#start(UIService).
@@ -127,116 +307,105 @@ public class OtrActivator
 
         // Register Transformation Layer
         bundleContext.addServiceListener(this);
+        bundleContext.addServiceListener((ServiceListener) scOtrEngine);
+        bundleContext.addServiceListener(new OtrContactManager());
 
-        ServiceReference[] protocolProviderRefs = null;
-        try
-        {
-            protocolProviderRefs =
-                bundleContext.getServiceReferences(
-                    ProtocolProviderService.class.getName(), null);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            logger.error("Error while retrieving service refs", ex);
-            return;
-        }
+        ServiceReference[] protocolProviderRefs
+            = ServiceUtils.getServiceReferences(
+                    bundleContext,
+                    ProtocolProviderService.class);
 
         if (protocolProviderRefs != null && protocolProviderRefs.length > 0)
         {
             if (logger.isDebugEnabled())
-                logger.debug("Found " + protocolProviderRefs.length
-                + " already installed providers.");
+            {
+                logger.debug(
+                        "Found " + protocolProviderRefs.length
+                            + " already installed providers.");
+            }
             for (ServiceReference protocolProviderRef : protocolProviderRefs)
             {
-                ProtocolProviderService provider =
-                    (ProtocolProviderService) bundleContext
-                        .getService(protocolProviderRef);
+                ProtocolProviderService provider
+                    = (ProtocolProviderService)
+                        bundleContext.getService(protocolProviderRef);
 
                 this.handleProviderAdded(provider);
             }
         }
 
-        Hashtable<String, String> containerFilter
-            = new Hashtable<String, String>();
+        if(!OSUtils.IS_ANDROID)
+        {
+            Hashtable<String, String> containerFilter
+                = new Hashtable<String, String>();
 
-        // Register the right-click menu item.
-        containerFilter.put(Container.CONTAINER_ID,
-            Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU.getID());
+            // Register the right-click menu item.
+            containerFilter.put(Container.CONTAINER_ID,
+                Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU.getID());
 
-        bundleContext
-            .registerService(PluginComponent.class.getName(),
-                new OtrMetaContactMenu(
-                    Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU),
+            bundleContext.registerService(
+                PluginComponentFactory.class.getName(),
+                new OtrPluginComponentFactory(
+                        Container.CONTAINER_CONTACT_RIGHT_BUTTON_MENU),
                 containerFilter);
 
-        // Register the chat window menu bar item.
+            // Register the chat window menu bar item.
+            containerFilter.put(Container.CONTAINER_ID,
+                                Container.CONTAINER_CHAT_MENU_BAR.getID());
+
+            bundleContext.registerService(
+                PluginComponentFactory.class.getName(),
+                new OtrPluginComponentFactory(
+                        Container.CONTAINER_CHAT_MENU_BAR),
+                containerFilter);
+
+            // Register the chat button bar default-action-button.
+            containerFilter.put(Container.CONTAINER_ID,
+                                Container.CONTAINER_CHAT_TOOL_BAR.getID());
+
+            bundleContext.registerService(
+                PluginComponentFactory.class.getName(),
+                new OtrPluginComponentFactory(
+                        Container.CONTAINER_CHAT_TOOL_BAR),
+                containerFilter);
+
+            // Register Swing OTR action handler
+            bundleContext.registerService(
+                OtrActionHandler.class.getName(),
+                new SwingOtrActionHandler(), null);
+
         containerFilter.put(Container.CONTAINER_ID,
-            Container.CONTAINER_CHAT_MENU_BAR.getID());
-
-        bundleContext.registerService(PluginComponent.class.getName(),
-            new OtrMetaContactMenu(Container.CONTAINER_CHAT_MENU_BAR),
+                            Container.CONTAINER_CHAT_WRITE_PANEL.getID());
+        bundleContext.registerService(
+            PluginComponentFactory.class.getName(),
+            new PluginComponentFactory( Container.CONTAINER_CHAT_WRITE_PANEL)
+            {
+                protected PluginComponent getPluginInstance()
+                {
+                    return new OTRv3OutgoingSessionSwitcher(
+                        getContainer(), this);
+                }
+            },
             containerFilter);
-
-        // Register the chat button bar default-action-button.
-        containerFilter.put(Container.CONTAINER_ID,
-            Container.CONTAINER_CHAT_TOOL_BAR.getID());
-
-        bundleContext.registerService(PluginComponent.class.getName(),
-            new OtrMetaContactButton(Container.CONTAINER_CHAT_TOOL_BAR),
-            containerFilter);
+        }
 
         // If the general configuration form is disabled don't register it.
-        if (!configService.getBoolean(OTR_CHAT_CONFIG_DISABLED_PROP, false))
+        if (!configService.getBoolean(OTR_CHAT_CONFIG_DISABLED_PROP, false)
+                && !OSUtils.IS_ANDROID)
         {
             Dictionary<String, String> properties
                 = new Hashtable<String, String>();
+
             properties.put( ConfigurationForm.FORM_TYPE,
                             ConfigurationForm.SECURITY_TYPE);
             // Register the configuration form.
             bundleContext.registerService(ConfigurationForm.class.getName(),
                 new LazyConfigurationForm(
-                    "net.java.sip.communicator.plugin.otr.OtrConfigurationPanel",
+                    "net.java.sip.communicator.plugin.otr.authdialog." +
+                        "OtrConfigurationPanel",
                     getClass().getClassLoader(),
                     "plugin.otr.configform.ICON",
                     "service.gui.CHAT", 1),
                     properties);
-        }
-    }
-
-    /**
-     * The dependent class. We are waiting for the ui service.
-     * @return the ui service class.
-     */
-    @Override
-    public Class<?> getDependentServiceClass()
-    {
-        return UIService.class;
-    }
-
-    /**
-     * The bundle context to use.
-     * @param context the context to set.
-     */
-    @Override
-    public void setBundleContext(BundleContext context)
-    {
-        bundleContext = context;
-    }
-
-    private void handleProviderAdded(ProtocolProviderService provider)
-    {
-        OperationSetInstantMessageTransform opSetMessageTransform
-            = provider
-                .getOperationSet(OperationSetInstantMessageTransform.class);
-
-        if (opSetMessageTransform != null)
-        {
-            opSetMessageTransform.addTransformLayer(this.otrTransformLayer);
-        }
-        else
-        {
-            if (logger.isTraceEnabled())
-                logger.trace("Service did not have a transform op. set.");
         }
     }
 
@@ -278,138 +447,57 @@ public class OtrActivator
         }
     }
 
-    private void handleProviderRemoved(ProtocolProviderService provider)
-    {
-        // check whether the provider has a basic im operation set
-        OperationSetInstantMessageTransform opSetMessageTransform
-            = provider
-                .getOperationSet(OperationSetInstantMessageTransform.class);
-
-        if (opSetMessageTransform != null)
-        {
-            opSetMessageTransform.removeTransformLayer(this.otrTransformLayer);
-        }
-    }
-
-    /*
-     * Implements ServiceListener#serviceChanged(ServiceEvent).
+    /**
+     * Returns the <tt>MetaContactListService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>MetaContactListService</tt> obtained from the bundle
+     * context
      */
-    public void serviceChanged(ServiceEvent serviceEvent)
+    public static MetaContactListService getContactListService()
     {
-        Object sService =
-            bundleContext.getService(serviceEvent.getServiceReference());
-
-        if (logger.isTraceEnabled())
-            logger.trace("Received a service event for: "
-            + sService.getClass().getName());
-
-        // we don't care if the source service is not a protocol provider
-        if (!(sService instanceof ProtocolProviderService))
-            return;
-
-        if (logger.isDebugEnabled())
-            logger.debug("Service is a protocol provider.");
-        if (serviceEvent.getType() == ServiceEvent.REGISTERED)
+        if (metaCListService == null)
         {
-            if (logger.isDebugEnabled())
-                logger.debug("Handling registration of a new Protocol Provider.");
-
-            this.handleProviderAdded((ProtocolProviderService) sService);
+            metaCListService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        MetaContactListService.class);
         }
-        else if (serviceEvent.getType() == ServiceEvent.UNREGISTERING)
-        {
-            this.handleProviderRemoved((ProtocolProviderService) sService);
-        }
-
+        return metaCListService;
     }
 
     /**
-     * Gets all the available accounts in SIP Communicator.
+     * Gets the service giving access to message history.
      *
-     * @return a {@link List} of {@link AccountID}.
+     * @return the service giving access to message history.
      */
-    public static List<AccountID> getAllAccountIDs()
+    public static MessageHistoryService getMessageHistoryService()
     {
-        Map<Object, ProtocolProviderFactory> providerFactoriesMap =
-            OtrActivator.getProtocolProviderFactories();
-
-        if (providerFactoriesMap == null)
-            return null;
-
-        List<AccountID> accountIDs = new Vector<AccountID>();
-        for (ProtocolProviderFactory providerFactory : providerFactoriesMap
-            .values())
-        {
-            for (AccountID accountID : providerFactory.getRegisteredAccounts())
-            {
-                accountIDs.add(accountID);
-            }
-        }
-
-        return accountIDs;
+        if (messageHistoryService == null)
+            messageHistoryService = ServiceUtils.getService(bundleContext, 
+                MessageHistoryService.class);
+        return messageHistoryService;
     }
-
+    
     /**
-     * Gets an {@link AccountID} by its UID.
-     *
-     * @param uid The {@link AccountID} UID.
-     * @return The {@link AccountID} with the requested UID or null.
+     * The factory that will be registered in OSGi and will create
+     * otr menu instances.
      */
-    public static AccountID getAccountIDByUID(String uid)
+    private class OtrPluginComponentFactory
+        extends PluginComponentFactory
     {
-        if (uid == null || uid.length() < 1)
-            return null;
-
-        Map<Object, ProtocolProviderFactory> providerFactoriesMap =
-            OtrActivator.getProtocolProviderFactories();
-
-        if (providerFactoriesMap == null)
-            return null;
-
-        for (ProtocolProviderFactory providerFactory : providerFactoriesMap
-            .values())
+        OtrPluginComponentFactory(Container c)
         {
-            for (AccountID accountID : providerFactory.getRegisteredAccounts())
-            {
-                if (accountID.getAccountUniqueID().equals(uid))
-                    return accountID;
-            }
+            super(c);
         }
 
-        return null;
-    }
-
-    private static Map<Object, ProtocolProviderFactory> getProtocolProviderFactories()
-    {
-        ServiceReference[] serRefs = null;
-        try
+        @Override
+        protected PluginComponent getPluginInstance()
         {
-            // get all registered provider factories
-            serRefs =
-                bundleContext.getServiceReferences(
-                    ProtocolProviderFactory.class.getName(), null);
-
+            Container container = getContainer();
+            if(container.equals(Container.CONTAINER_CHAT_TOOL_BAR))
+                return new OtrMetaContactButton(container, this);
+            else
+                return new OtrMetaContactMenu(container, this);
         }
-        catch (InvalidSyntaxException ex)
-        {
-            logger.error("Error while retrieving service refs", ex);
-            return null;
-        }
-
-        Map<Object, ProtocolProviderFactory> providerFactoriesMap =
-            new Hashtable<Object, ProtocolProviderFactory>();
-        if (serRefs != null)
-        {
-            for (ServiceReference serRef : serRefs)
-            {
-                ProtocolProviderFactory providerFactory =
-                    (ProtocolProviderFactory) bundleContext.getService(serRef);
-
-                providerFactoriesMap.put(serRef
-                    .getProperty(ProtocolProviderFactory.PROTOCOL),
-                    providerFactory);
-            }
-        }
-        return providerFactoriesMap;
     }
 }
