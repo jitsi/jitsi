@@ -149,6 +149,16 @@ public class SipAccountIDImpl
     }
 
     /**
+     * Returns the actual name of this protocol: {@link ProtocolNames#SIP}.
+     *
+     * @return SIP: the name of this protocol.
+     */
+    public String getSystemProtocolName()
+    {
+        return ProtocolNames.SIP;
+    }
+
+    /**
      * Indicates whether some other object is "equal to" this account id.
      * <p>
      * @param   obj   the reference object with which to compare.
