@@ -317,16 +317,6 @@ public class SipAccountID
     }
 
     /**
-     * Returns the actual name of this protocol: {@link ProtocolNames#SIP}.
-     *
-     * @return SIP: the name of this protocol.
-     */
-    public String getSystemProtocolName()
-    {
-        return ProtocolNames.SIP;
-    }
-
-    /**
      * Checks if XCAP is enabled.
      *
      * @return true if XCAP is enabled otherwise false.
