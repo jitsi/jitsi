@@ -35,6 +35,11 @@ import com.ircclouds.irc.api.state.*;
 public class IrcStack
 {
     /**
+     * Expiration time for chat room list cache.
+     */
+    private static final long CHAT_ROOM_LIST_CACHE_EXPIRATION = 60000000000L;
+
+    /**
      * Logger
      */
     private static final Logger LOGGER = Logger.getLogger(IrcStack.class);
@@ -192,8 +197,7 @@ public class IrcStack
                 while (!result.isDone())
                 {
                     LOGGER
-                        .trace("Waiting for the connection to be established "
-                            + "...");
+                        .trace("Waiting for the connection to be established ...");
                     result.wait();
                 }
 
@@ -364,14 +368,16 @@ public class IrcStack
     public List<String> getServerChatRoomList()
     {
         LOGGER.trace("Start retrieve server chat room list.");
-        // FIXME Currently, not using an API library method for listing
+        // TODO Currently, not using an API library method for listing
         // channels, since it isn't available.
         synchronized (this.channellist)
         {
-            // TODO time out channel list cache and refresh it regularly (every
-            // minute?)
-            if (this.channellist.instance == null)
+            List<String> list =
+                this.channellist.get(CHAT_ROOM_LIST_CACHE_EXPIRATION);
+            if (list == null)
             {
+                LOGGER
+                    .trace("Chat room list null or outdated. Start retrieving new chat room list.");
                 Result<List<String>, Exception> listSignal =
                     new Result<List<String>, Exception>(
                         new LinkedList<String>());
@@ -394,14 +400,15 @@ public class IrcStack
                         LOGGER.warn("INTERRUPTED while waiting for list.", e);
                     }
                 }
-                this.channellist.instance = listSignal.getValue();
+                list = listSignal.getValue();
+                this.channellist.set(list);
                 LOGGER.trace("Finished retrieve server chat room list.");
             }
             else
             {
                 LOGGER.trace("Using cached list of server chat rooms.");
             }
-            return Collections.unmodifiableList(this.channellist.instance);
+            return Collections.unmodifiableList(list);
         }
     }
 
@@ -453,8 +460,7 @@ public class IrcStack
         synchronized (joinSignal)
         {
             LOGGER
-                .trace("Issue join channel command to IRC library and wait "
-                    + "for join operation to complete (un)successfully.");
+                .trace("Issue join channel command to IRC library and wait for join operation to complete (un)successfully.");
             // TODO Refactor this ridiculous nesting of functions and
             // classes.
             this.irc.joinChannel(chatroom.getIdentifier(), password,
@@ -465,8 +471,7 @@ public class IrcStack
                     public void onSuccess(IRCChannel channel)
                     {
                         LOGGER
-                            .trace("Started callback for successful join of "
-                                + "channel '"
+                            .trace("Started callback for successful join of channel '"
                                 + chatroom.getIdentifier() + "'.");
                         ChatRoomIrcImpl actualChatRoom = chatroom;
                         synchronized (joinSignal)
@@ -1245,7 +1250,7 @@ public class IrcStack
                     }
                     else
                     {
-                        // FIXME "server" is now easily fakeable if someone
+                        // TODO "server" is now easily fakeable if someone
                         // calls himself server. There should be some other way
                         // to represent the server if a message comes from
                         // something other than a normal chat room member.
@@ -1625,9 +1630,6 @@ public class IrcStack
      * Simplest possible container that we can use for locking while we're
      * checking/modifying the contents.
      * 
-     * FIXME I would love to get rid of this thing. Is there something similar
-     * in Java stdlib?
-     * 
      * @param <T> The type of instance to store in the container
      */
     private static class Container<T>
@@ -1635,7 +1637,12 @@ public class IrcStack
         /**
          * The stored instance. (Can be null)
          */
-        public T instance;
+        private T instance;
+
+        /**
+         * Time of stored instance.
+         */
+        private long time;
 
         /**
          * Constructor that immediately sets the instance.
@@ -1645,6 +1652,34 @@ public class IrcStack
         private Container(T instance)
         {
             this.instance = instance;
+            this.time = System.nanoTime();
+        }
+
+        /**
+         * Conditionally get the stored instance. Get the instance when time
+         * difference is within specified bound. Otherwise return null.
+         * 
+         * @param bound maximum time difference that is allowed.
+         * @return returns instance if within bounds, or null otherwise
+         */
+        public T get(long bound)
+        {
+            if (System.nanoTime() - this.time > bound)
+            {
+                return null;
+            }
+            return this.instance;
+        }
+
+        /**
+         * Set an instance
+         * 
+         * @param instance the instance
+         */
+        public void set(T instance)
+        {
+            this.instance = instance;
+            this.time = System.nanoTime();
         }
     }
 }
