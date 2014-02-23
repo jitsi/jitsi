@@ -14,7 +14,6 @@ import java.util.*;
 import javax.sdp.*;
 import javax.sip.header.*;
 
-import gov.nist.javax.sdp.fields.*;
 import net.java.sip.communicator.impl.protocol.sip.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
