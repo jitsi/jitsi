@@ -9,13 +9,11 @@ package net.java.sip.communicator.service.protocol.jabber;
 import java.io.*;
 import java.util.*;
 
-import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
-
 import org.osgi.framework.*;
 
 /**
