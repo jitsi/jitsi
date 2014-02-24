@@ -391,7 +391,6 @@ public class JabberAccountRegistration
                 break;
 
             String stunPassword = loadStunPassword(
-                    bundleContext,
                     account,
                     ProtocolProviderFactory.STUN_PREFIX + i);
 
