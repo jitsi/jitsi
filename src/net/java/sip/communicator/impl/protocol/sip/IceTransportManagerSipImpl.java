@@ -84,7 +84,6 @@ public class IceTransportManagerSipImpl
         throws OperationFailedException
     {
         iceAgent = createIceAgent();
-        iceAgent.setControlling(true);
 
         //obviously we ARE the controlling agent since we are the ones creating
         //the offer.

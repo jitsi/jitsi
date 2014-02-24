@@ -12,9 +12,14 @@ import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+import net.java.sip.communicator.util.Logger;
+import org.ice4j.*;
 import org.ice4j.ice.*;
+import org.ice4j.ice.harvest.*;
+import org.ice4j.security.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
+import org.jitsi.util.*;
 
 /**
  * <tt>TransportManager</tt>s are responsible for allocating ports, gathering
@@ -35,6 +40,16 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      */
     private static final Logger logger
         = Logger.getLogger(TransportManager.class);
+
+    /**
+     * Default STUN server address.
+     */
+    protected static final String DEFAULT_STUN_SERVER_ADDRESS = "stun.jitsi.net";
+
+    /**
+     * Default STUN server port.
+     */
+    protected static final int DEFAULT_STUN_SERVER_PORT = 3478;
 
     /**
      * The port tracker that we should use when binding generic media streams.
@@ -783,6 +798,22 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         return null;
     }
 
+    /**
+     * Discovers and returns a list of dynamically obtained (as opposed to
+     * statically configured) STUN/TURN servers for use with this account. This
+     * specific implementation would only implement DNS-based discovery on the
+     * domain of the service that is currently in use. Protocol-specific
+     * implementations can provide additional discovery methods, such as
+     * XEP-0215 for example.
+     *
+     * @return
+     */
+    protected StunCandidateHarvester discoverStunServerForAccount()
+    {
+        //TODO: add a default implementation here.
+        return null;
+    }
+
 
     /**
      * Creates the ICE agent that we would be using in this transport manager
@@ -793,9 +824,97 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      */
     protected Agent createIceAgent()
     {
-        //work in progress
-        return null;
+        ProtocolProviderService provider = getCallPeer().getProtocolProvider();
+        NetworkAddressManagerService namSer = getNetAddrMgr();
+        boolean atLeastOneStunServer = false;
+        Agent agent = namSer.createIceAgent();
+
+        //we will now create the harvesters
+        AccountID accID = provider.getAccountID();
+
+        if (accID.isStunServerDiscoveryEnabled())
+        {
+            StunCandidateHarvester autoHarvester
+                                            = discoverStunServerForAccount();
+
+            if(autoHarvester != null)
+            {
+
+                if (logger.isInfoEnabled())
+                    logger.info("Auto discovered harvester: " + autoHarvester);
+
+                if (autoHarvester != null)
+                {
+                    atLeastOneStunServer = true;
+                    agent.addCandidateHarvester(autoHarvester);
+                }
+            }
+        }
+
+        //now create stun server descriptors for whatever other STUN/TURN
+        //servers the user may have set.
+        for(StunServerDescriptor desc : accID.getStunServers())
+        {
+            TransportAddress addr
+                = new TransportAddress(
+                        desc.getAddress(),
+                        desc.getPort(),
+                        Transport.UDP);
+
+            // if we get STUN server from automatic discovery, it may just
+            // be server name (i.e. stun.domain.org) and it may be possible that
+            // it cannot be resolved
+            if(addr.getAddress() == null)
+            {
+                logger.info("Unresolved address for " + addr);
+                continue;
+            }
+
+            StunCandidateHarvester harvester;
+
+            if(desc.isTurnSupported())
+            {
+                //Yay! a TURN server
+                harvester
+                    = new TurnCandidateHarvester(
+                            addr,
+                            new LongTermCredential(
+                                    desc.getUsername(),
+                                    desc.getPassword()));
+            }
+            else
+            {
+                //this is a STUN only server
+                harvester = new StunCandidateHarvester(addr);
+            }
+
+            if (logger.isInfoEnabled())
+                logger.info("Adding pre-configured harvester " + harvester);
+
+            atLeastOneStunServer = true;
+            agent.addCandidateHarvester(harvester);
+        }
+
+        if(!atLeastOneStunServer && accID.isUseDefaultStunServer())
+        {
+            /* we have no configured or discovered STUN server so takes the
+             * default provided by us if user allows it
+             */
+            TransportAddress addr
+                = new TransportAddress(
+                        DEFAULT_STUN_SERVER_ADDRESS,
+                        DEFAULT_STUN_SERVER_PORT,
+                        Transport.UDP);
+
+            agent.addCandidateHarvester(new StunCandidateHarvester(addr));
+        }
+
+        if(accID.isUPNPEnabled())
+            agent.addCandidateHarvester(new UPNPHarvester());
+
+        return agent;
     }
+
 
     /**
      * Creates an {@link IceMediaStream} with the specified <tt>media</tt>
@@ -814,5 +933,17 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         throws OperationFailedException
     {
         return null;
+    }
+
+    /**
+     * Returns a reference to the {@link NetworkAddressManagerService}. This is
+     * only a convenience method.
+     *
+     * @return  a reference to the {@link NetworkAddressManagerService}
+     * currently in use in our environment.
+     */
+    public static NetworkAddressManagerService getNetAddrMgr()
+    {
+        return ProtocolMediaActivator.getNetworkAddressManagerService();
     }
 }

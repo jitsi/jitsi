@@ -66,16 +66,6 @@ public class IceUdpTransportManager
     protected final Agent iceAgent;
 
     /**
-     * Default STUN server address.
-     */
-    protected static final String DEFAULT_STUN_SERVER_ADDRESS = "stun.jitsi.net";
-
-    /**
-     * Default STUN server port.
-     */
-    protected static final int DEFAULT_STUN_SERVER_PORT = 3478;
-
-    /**
      * Creates a new instance of this transport manager, binding it to the
      * specified peer.
      *
@@ -86,187 +76,85 @@ public class IceUdpTransportManager
     {
         super(callPeer);
         iceAgent = createIceAgent();
+
+        //FIXME: initiator == controlling is only true the first time in a call
+        //and not for ice restarts. ICE is smart so this isn't breaking anything
+        //but it still sucks.
+        iceAgent.setControlling(!callPeer.isInitiator());
+
         iceAgent.addStateChangeListener(this);
     }
 
+
     /**
-     * Creates the ICE agent that we would be using in this transport manager
-     * for all negotiation.
+     * Discovers and returns a list of dynamically obtained (as opposed to
+     * statically configured) STUN/TURN servers for use with this account. This
+     * specific implementation would only implement DNS-based discovery on the
+     * domain of the service that is currently in use.
+     * <p>
+     * It is meant to later provide additional discovery methods.
+     * XEP-0215 for example.
      *
-     * @return the ICE agent to use for all the ICE negotiation that this
-     * transport manager would be going through
+     * @return
      */
-    protected Agent createIceAgent()
+    protected StunCandidateHarvester discoverStunServerForAccount()
     {
-        long startGatheringHarvesterTime = System.currentTimeMillis();
         CallPeerJabberImpl peer = getCallPeer();
         ProtocolProviderServiceJabberImpl provider = peer.getProtocolProvider();
         NetworkAddressManagerService namSer = getNetAddrMgr();
-        boolean atLeastOneStunServer = false;
-        Agent agent = namSer.createIceAgent();
-
-        /*
-         * XEP-0176:  the initiator MUST include the ICE-CONTROLLING attribute,
-         * the responder MUST include the ICE-CONTROLLED attribute.
-         */
-        agent.setControlling(!peer.isInitiator());
-
-        //we will now create the harvesters
         JabberAccountIDImpl accID
             = (JabberAccountIDImpl) provider.getAccountID();
 
-        if (accID.isStunServerDiscoveryEnabled())
+        //the default server is supposed to use the same user name and
+        //password as the account itself.
+        String username
+            = org.jivesoftware.smack.util.StringUtils.parseName(
+                    provider.getOurJID());
+        String password
+            = JabberActivator.getProtocolProviderFactory().loadPassword(
+                    accID);
+        UserCredentials credentials = provider.getUserCredentials();
+
+        if(credentials != null)
+            password = credentials.getPasswordAsString();
+
+        // ask for password if not saved
+        if (password == null)
         {
-            //the default server is supposed to use the same user name and
-            //password as the account itself.
-            String username
-                = org.jivesoftware.smack.util.StringUtils.parseName(
-                        provider.getOurJID());
-            String password
-                = JabberActivator.getProtocolProviderFactory().loadPassword(
-                        accID);
-            UserCredentials credentials = provider.getUserCredentials();
+            //create a default credentials object
+            credentials = new UserCredentials();
+            credentials.setUserName(accID.getUserID());
+            //request a password from the user
+            credentials
+                = provider.getAuthority().obtainCredentials(
+                        accID.getDisplayName(),
+                        credentials,
+                        SecurityAuthority.AUTHENTICATION_REQUIRED);
 
-            if(credentials != null)
-                password = credentials.getPasswordAsString();
+            // in case user has canceled the login window
+            if(credentials == null)
+                return null;
 
-            // ask for password if not saved
-            if (password == null)
+            //extract the password the user passed us.
+            char[] pass = credentials.getPassword();
+
+            // the user didn't provide us a password (i.e. canceled the
+            // operation)
+            if(pass == null)
+                return null;
+            password = new String(pass);
+
+            if (credentials.isPasswordPersistent())
             {
-                //create a default credentials object
-                credentials = new UserCredentials();
-                credentials.setUserName(accID.getUserID());
-                //request a password from the user
-                credentials
-                    = provider.getAuthority().obtainCredentials(
-                            accID.getDisplayName(),
-                            credentials,
-                            SecurityAuthority.AUTHENTICATION_REQUIRED);
-
-                // in case user has canceled the login window
-                if(credentials == null)
-                    return null;
-
-                //extract the password the user passed us.
-                char[] pass = credentials.getPassword();
-
-                // the user didn't provide us a password (i.e. canceled the
-                // operation)
-                if(pass == null)
-                    return null;
-                password = new String(pass);
-
-                if (credentials.isPasswordPersistent())
-                {
-                    JabberActivator.getProtocolProviderFactory()
-                        .storePassword(accID, password);
-                }
-            }
-
-            StunCandidateHarvester autoHarvester
-                = namSer.discoverStunServer(
-                        accID.getService(),
-                        StringUtils.getUTF8Bytes(username),
-                        StringUtils.getUTF8Bytes(password));
-
-            if (logger.isInfoEnabled())
-                logger.info("Auto discovered harvester is " + autoHarvester);
-
-            if (autoHarvester != null)
-            {
-                atLeastOneStunServer = true;
-                agent.addCandidateHarvester(autoHarvester);
+                JabberActivator.getProtocolProviderFactory()
+                    .storePassword(accID, password);
             }
         }
 
-        //now create stun server descriptors for whatever other STUN/TURN
-        //servers the user may have set.
-        for(StunServerDescriptor desc : accID.getStunServers())
-        {
-            TransportAddress addr
-                = new TransportAddress(
-                        desc.getAddress(),
-                        desc.getPort(),
-                        Transport.UDP);
-
-            // if we get STUN server from automatic discovery, it may just
-            // be server name (i.e. stun.domain.org) and it may be possible that
-            // it cannot be resolved
-            if(addr.getAddress() == null)
-            {
-                logger.info("Unresolved address for " + addr);
-                continue;
-            }
-
-            StunCandidateHarvester harvester;
-
-            if(desc.isTurnSupported())
-            {
-                //Yay! a TURN server
-                harvester
-                    = new TurnCandidateHarvester(
-                            addr,
-                            new LongTermCredential(
-                                    desc.getUsername(),
-                                    desc.getPassword()));
-            }
-            else
-            {
-                //this is a STUN only server
-                harvester = new StunCandidateHarvester(addr);
-            }
-
-            if (logger.isInfoEnabled())
-                logger.info("Adding pre-configured harvester " + harvester);
-
-            atLeastOneStunServer = true;
-            agent.addCandidateHarvester(harvester);
-        }
-
-        if(!atLeastOneStunServer && accID.isUseDefaultStunServer())
-        {
-            /* we have no configured or discovered STUN server so takes the
-             * default provided by us if user allows it
-             */
-            TransportAddress addr
-                = new TransportAddress(
-                        DEFAULT_STUN_SERVER_ADDRESS,
-                        DEFAULT_STUN_SERVER_PORT,
-                        Transport.UDP);
-
-            agent.addCandidateHarvester(new StunCandidateHarvester(addr));
-        }
-
-        /* Jingle nodes candidate */
-        if(accID.isJingleNodesRelayEnabled())
-        {
-            /* this method is blocking until Jingle Nodes auto-discovery (if
-             * enabled) finished
-             */
-            SmackServiceNode serviceNode = provider.getJingleNodesServiceNode();
-
-            if(serviceNode != null)
-            {
-                agent.addCandidateHarvester(
-                        new JingleNodesHarvester(serviceNode));
-            }
-        }
-
-        if(accID.isUPNPEnabled())
-            agent.addCandidateHarvester(new UPNPHarvester());
-
-        long stopGatheringHarvesterTime = System.currentTimeMillis();
-
-        if (logger.isInfoEnabled())
-        {
-            long gatheringHarvesterTime
-                = stopGatheringHarvesterTime - startGatheringHarvesterTime;
-
-            logger.info(
-                    "End gathering harvester within " + gatheringHarvesterTime
-                        + " ms");
-        }
-        return agent;
+        return namSer.discoverStunServer(
+                    accID.getService(),
+                    StringUtils.getUTF8Bytes(username),
+                    StringUtils.getUTF8Bytes(password));
     }
 
     /**
@@ -603,7 +491,6 @@ public class IceUdpTransportManager
         throws OperationFailedException
     {
         this.cpeList = ourAnswer;
-
         super.startCandidateHarvest(theirOffer, ourAnswer, transportInfoSender);
     }
 
@@ -767,19 +654,6 @@ public class IceUdpTransportManager
     public List<ContentPacketExtension> wrapupCandidateHarvest()
     {
         return cpeList;
-    }
-
-    /**
-     * Returns a reference to the {@link NetworkAddressManagerService}. The only
-     * reason this method exists is that {@link JabberActivator
-     * #getNetworkAddressManagerService()} is too long to write and makes code
-     * look clumsy.
-     *
-     * @return  a reference to the {@link NetworkAddressManagerService}.
-     */
-    private static NetworkAddressManagerService getNetAddrMgr()
-    {
-        return JabberActivator.getNetworkAddressManagerService();
     }
 
     /**

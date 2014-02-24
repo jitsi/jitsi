@@ -802,8 +802,7 @@ public abstract class AccountID
      * @return the list of STUN servers that this account is currently
      * configured to use.
      */
-    public List<StunServerDescriptor> getStunServers(
-                                                    BundleContext bundleContext)
+    public List<StunServerDescriptor> getStunServers()
     {
         Map<String, String> accountProperties = getAccountProperties();
         List<StunServerDescriptor> stunServerList
@@ -823,7 +822,6 @@ public abstract class AccountID
                 break;
 
             String password = this.loadStunPassword(
-                                bundleContext,
                                 this,
                                 ProtocolProviderFactory.STUN_PREFIX + i);
 
@@ -839,20 +837,17 @@ public abstract class AccountID
     /**
      * Returns the password for the STUN server with the specified prefix.
      *
-     * @param bundleContext the OSGi bundle context that we are currently
-     * running in.
      * @param accountID account ID
      * @param namePrefix name prefix
      *
      * @return password or null if empty
      */
-    protected static String loadStunPassword(BundleContext bundleContext,
-                                             AccountID     accountID,
+    protected static String loadStunPassword(AccountID     accountID,
                                              String        namePrefix)
     {
         ProtocolProviderFactory providerFactory
                 = ProtocolProviderFactory.getProtocolProviderFactory(
-                        bundleContext,
+                        ProtocolProviderActivator.getBundleContext(),
                         accountID.getSystemProtocolName());
 
         String password = null;
@@ -861,12 +856,12 @@ public abstract class AccountID
                 = className.substring(0, className.lastIndexOf('.'));
 
         String accountPrefix = ProtocolProviderFactory.findAccountPrefix(
-                bundleContext,
+                ProtocolProviderActivator.getBundleContext(),
                 accountID, packageSourceName);
 
         CredentialsStorageService credentialsService
                 = ServiceUtils.getService(
-                bundleContext,
+                ProtocolProviderActivator.getBundleContext(),
                 CredentialsStorageService.class);
 
         try
