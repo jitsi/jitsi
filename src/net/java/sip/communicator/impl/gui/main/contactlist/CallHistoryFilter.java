@@ -17,6 +17,7 @@ import net.java.sip.communicator.service.gui.*;
  * The <tt>CallHistoryFilter</tt> is a filter over the history contact sources.
  *
  * @author Yana Stamcheva
+ * @author Hristo Terezov
  */
 public class CallHistoryFilter
     implements  ContactListFilter
@@ -40,6 +41,8 @@ public class CallHistoryFilter
             = GuiActivator.getContactList()
                 .getContactSources(ContactSourceService.HISTORY_TYPE);
 
+        TreeContactList contactList = GuiActivator.getContactList();
+
         // Then add Call history contact source.
         for (UIContactSource contactSource : contactSources)
         {
@@ -48,17 +51,10 @@ public class CallHistoryFilter
                 = contactSource.getContactSourceService()
                     .createContactQuery("", 50);
 
-            query.start();
-            
+            query.addContactQueryListener(contactList);
             filterQuery.addContactQuery(query);
+            query.start();
 
-            // Add first available results.
-            addMatching(query.getQueryResults(),
-                        contactSource);
-
-            // We know that this query should be finished here and we do not
-            // expect any further results from it.
-            filterQuery.removeQuery(query);
         }
         // Closes this filter to indicate that we finished adding queries to it.
         filterQuery.close();
@@ -127,26 +123,5 @@ public class CallHistoryFilter
             }
         }
     }
-    
-    /**
-     * Adds matching <tt>sourceContacts</tt> to the result tree model.
-     *
-     * @param sourceContacts the list of <tt>SourceContact</tt>s to add
-     * @param uiSource the <tt>ExternalContactSource</tt>, which contacts
-     * we're adding
-     */
-    private void addMatching(   List<SourceContact> sourceContacts,
-                                UIContactSource uiSource)
-    {
-        Iterator<SourceContact> contactsIter = sourceContacts.iterator();
 
-        while (contactsIter.hasNext())
-        {
-            GuiActivator.getContactList().addContact(
-                    uiSource.createUIContact(contactsIter.next()),
-                    uiSource.getUIGroup(),
-                    false,
-                    true);
-        }
-    }
 }
