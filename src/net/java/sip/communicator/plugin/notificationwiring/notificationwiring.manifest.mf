@@ -14,6 +14,7 @@ Import-Package: javax.imageio,
  net.java.sip.communicator.util,
  net.java.sip.communicator.plugin.desktoputil,
  org.jitsi.service.neomedia,
+ org.jitsi.service.neomedia.recording,
  org.jitsi.service.protocol.event,
  org.jitsi.service.resources,
  org.osgi.framework

@@ -19,6 +19,7 @@ import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.recording.*;
 import org.jitsi.service.protocol.event.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
