@@ -916,8 +916,8 @@ public class ChatWindowManager
                             Contact protocolContact,
                             boolean isSmsMessage)
     {
-        SwingUtilities.invokeLater(new RunChatWindow(
-            metaContact, protocolContact, isSmsMessage));
+        SwingUtilities.invokeLater(
+                new RunChatWindow(metaContact, protocolContact, isSmsMessage));
     }
 
     public void startChat(String contactString)
@@ -1334,11 +1334,11 @@ public class ChatWindowManager
      */
     private class RunChatWindow implements Runnable
     {
-        private MetaContact metaContact;
+        private final MetaContact metaContact;
 
-        private Contact protocolContact;
+        private final Contact protocolContact;
 
-        private Boolean isSmsSelected = null;
+        private final Boolean isSmsSelected;
 
         /**
          * Creates an instance of <tt>RunMessageWindow</tt> by specifying the
@@ -1347,7 +1347,7 @@ public class ChatWindowManager
          */
         public RunChatWindow(MetaContact metaContact)
         {
-            this.metaContact = metaContact;
+            this(metaContact, null);
         }
 
         /**
@@ -1359,8 +1359,7 @@ public class ChatWindowManager
         public RunChatWindow(   MetaContact metaContact,
                                 Contact protocolContact)
         {
-            this.metaContact = metaContact;
-            this.protocolContact = protocolContact;
+            this(metaContact, protocolContact, null);
         }
 
         /**
@@ -1372,7 +1371,7 @@ public class ChatWindowManager
          */
         public RunChatWindow(   MetaContact metaContact,
                                 Contact protocolContact,
-                                boolean isSmsSelected)
+                                Boolean isSmsSelected)
         {
             this.metaContact = metaContact;
             this.protocolContact = protocolContact;
@@ -1382,13 +1381,13 @@ public class ChatWindowManager
         /**
          * Opens a chat window
          */
+        @Override
         public void run()
         {
-            ChatPanel chatPanel
-                = getContactChat(metaContact, protocolContact);
+            ChatPanel chatPanel = getContactChat(metaContact, protocolContact);
 
-            // if not explicitly set, do not set it, leave it to default
-            // or internally make the decision
+            // if not explicitly set, do not set it, leave it to default or
+            // internally make the decision
             if(isSmsSelected != null)
                 chatPanel.setSmsSelected(isSmsSelected);
 
