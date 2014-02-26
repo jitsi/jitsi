@@ -251,13 +251,13 @@ public class ContactListTreeCellRenderer
 
         loadSkin();
 
-        this.setOpaque(true);
-        this.nameLabel.setOpaque(false);
+        setOpaque(true);
+        nameLabel.setOpaque(false);
 
-        this.displayDetailsLabel.setFont(getFont().deriveFont(9f));
-        this.displayDetailsLabel.setForeground(Color.GRAY);
+        displayDetailsLabel.setFont(getFont().deriveFont(9f));
+        displayDetailsLabel.setForeground(Color.GRAY);
 
-        this.rightLabel.setHorizontalAlignment(JLabel.RIGHT);
+        rightLabel.setHorizontalAlignment(JLabel.RIGHT);
 
         // !! IMPORTANT: General insets used for all components if not
         // overwritten!
@@ -270,7 +270,7 @@ public class ContactListTreeCellRenderer
         constraints.gridheight = 1;
         constraints.weightx = 0f;
         constraints.weighty = 1f;
-        this.add(statusLabel, constraints);
+        add(statusLabel, constraints);
 
         addLabels(1);
 
@@ -366,7 +366,7 @@ public class ContactListTreeCellRenderer
         });
 
         initButtonToolTips();
-        this.setToolTipText("");
+        setToolTipText("");
     }
 
     /**
@@ -391,7 +391,7 @@ public class ContactListTreeCellRenderer
         this.isSelected = selected;
         this.treeNode = (TreeNode) value;
 
-        this.rightLabel.setIcon(null);
+        rightLabel.setIcon(null);
 
         DefaultTreeContactList contactList = (DefaultTreeContactList) tree;
 
@@ -418,7 +418,7 @@ public class ContactListTreeCellRenderer
         }
 
         // clear icon if any (mobile indicator)
-        this.nameLabel.setIcon(null);
+        nameLabel.setIcon(null);
 
         // Make appropriate adjustments for contact nodes and group nodes.
         if (value instanceof ContactNode)
@@ -441,7 +441,7 @@ public class ContactListTreeCellRenderer
                     .getI18NString("service.gui.UNKNOWN");
             }
 
-            this.nameLabel.setText(displayName);
+            nameLabel.setText(displayName);
 
             if(statusIcon != null
                 && contactList.isContactActive(contact)
@@ -450,29 +450,45 @@ public class ContactListTreeCellRenderer
             else
                 statusIcon = contact.getStatusIcon();
 
-            this.statusLabel.setIcon(statusIcon);
+            statusLabel.setIcon(statusIcon);
 
-            this.nameLabel.setFont(
-                this.nameLabel.getFont().deriveFont(Font.PLAIN, 13f));
+            /*
+             * FIXME A hard-coded absolute font size is surely not appropriate
+             * because it is completely oblivious of the default system font
+             * size. A JLabel will very likely use the closest to the default
+             * system font (size) so there is no reason to specify any font size
+             * here, let alone a hard-coded absolute one. Anyway, use a
+             * hard-coded absolute font size but at least do not fall bellow the
+             * default system font size.
+             */
+            Font nameLabelFont = nameLabel.getFont();
+
+            nameLabel.setFont(
+                    nameLabelFont.deriveFont(
+                            Font.PLAIN,
+                            Math.max(nameLabelFont.getSize2D(), 13f)));
 
             if (contactForegroundColor != null)
                 nameLabel.setForeground(contactForegroundColor);
 
             // Initializes status message components if the given meta contact
             // contains a status message.
-            this.initDisplayDetails(contact.getDisplayDetails());
+            initDisplayDetails(contact.getDisplayDetails());
 
             // Checks and set mobile indicator
             if (contact.getDescriptor() instanceof MetaContact
                 && isMobile((MetaContact)contact.getDescriptor()))
             {
-                this.nameLabel.setIcon(new ImageIcon(ImageLoader.getImage(
-                    ImageLoader.CONTACT_LIST_MOBILE_INDICATOR)));
-                this.nameLabel.setHorizontalTextPosition(SwingConstants.LEFT);
+                nameLabel.setIcon(
+                        new ImageIcon(
+                                ImageLoader.getImage(
+                                        ImageLoader
+                                            .CONTACT_LIST_MOBILE_INDICATOR)));
+                nameLabel.setHorizontalTextPosition(SwingConstants.LEFT);
             }
 
-            if (this.treeContactList.isContactButtonsVisible())
-                this.initButtonsPanel(contact);
+            if (treeContactList.isContactButtonsVisible())
+                initButtonsPanel(contact);
 
             int avatarWidth, avatarHeight;
 
@@ -488,12 +504,12 @@ public class ContactListTreeCellRenderer
             }
 
             Icon avatar
-                = contact.getScaledAvatar(isSelected, avatarWidth, avatarHeight);
+                = contact.getScaledAvatar(
+                        isSelected,
+                        avatarWidth, avatarHeight);
 
             if (avatar != null)
-            {
-                this.rightLabel.setIcon(avatar);
-            }
+                rightLabel.setIcon(avatar);
 
             if (contact instanceof ShowMoreContact)
             {
@@ -507,28 +523,40 @@ public class ContactListTreeCellRenderer
                 rightLabel.setText("");
             }
 
-            this.setToolTipText(contact.getDescriptor().toString());
+            setToolTipText(contact.getDescriptor().toString());
         }
         else if (value instanceof GroupNode)
         {
             UIGroupImpl groupItem
                 = ((GroupNode) value).getGroupDescriptor();
 
-            this.nameLabel.setText(groupItem.getDisplayName());
+            /*
+             * FIXME A hard-coded absolute font size is surely not appropriate
+             * because it is completely oblivious of the default system font
+             * size. A JLabel will very likely use the closest to the default
+             * system font (size) so there is no reason to specify any font size
+             * here, let alone a hard-coded absolute one. Anyway, use a
+             * hard-coded absolute font size but at least do not fall bellow the
+             * default system font size.
+             */
+            Font nameLabelFont = nameLabel.getFont();
 
-            this.nameLabel.setFont(
-                this.nameLabel.getFont().deriveFont(Font.BOLD, 13f));
+            nameLabel.setFont(
+                    nameLabelFont.deriveFont(
+                            Font.BOLD,
+                            Math.max(nameLabelFont.getSize2D(), 13f)));
+            nameLabel.setText(groupItem.getDisplayName());
 
             if (groupForegroundColor != null)
-                this.nameLabel.setForeground(groupForegroundColor);
+                nameLabel.setForeground(groupForegroundColor);
 
-            this.remove(displayDetailsLabel);
-            this.remove(callButton);
-            this.remove(callVideoButton);
-            this.remove(desktopSharingButton);
-            this.remove(chatButton);
-            this.remove(addContactButton);
-            this.remove(webButton);
+            remove(displayDetailsLabel);
+            remove(callButton);
+            remove(callVideoButton);
+            remove(desktopSharingButton);
+            remove(chatButton);
+            remove(addContactButton);
+            remove(webButton);
 
             clearCustomActionButtons();
 
@@ -538,33 +566,40 @@ public class ContactListTreeCellRenderer
 
             if(groupItem != treeContactList.getRootUIGroup())
             {
-                this.statusLabel.setIcon(
+                statusLabel.setIcon(
                         expanded
-                        ? openedGroupIcon
-                        : closedGroupIcon);
+                            ? openedGroupIcon
+                            : closedGroupIcon);
             }
             else
             {
-                this.statusLabel.setIcon(null);
+                statusLabel.setIcon(null);
             }
 
             // We have no photo icon for groups.
-            this.rightLabel.setIcon(null);
-            this.rightLabel.setText("");
+            rightLabel.setIcon(null);
+            rightLabel.setText("");
 
-            if (groupItem.countChildContacts() >= 0)
+            int groupItemCountChildContacts = groupItem.countChildContacts();
+
+            if (groupItemCountChildContacts >= 0)
             {
                 rightLabel.setFont(rightLabel.getFont().deriveFont(9f));
-                this.rightLabel.setForeground(Color.BLACK);
-                this.rightLabel.setText( groupItem.countOnlineChildContacts()
-                                        + "/" + groupItem.countChildContacts());
+                rightLabel.setForeground(Color.BLACK);
+                rightLabel.setText(
+                        groupItem.countOnlineChildContacts() + "/"
+                            + groupItemCountChildContacts);
             }
 
-            this.initDisplayDetails(groupItem.getDisplayDetails());
-            this.initButtonsPanel(groupItem);
-            this.setToolTipText((groupItem.getDescriptor() != null) ?
-                groupItem.getDescriptor().toString() :
-                    groupItem.getDisplayName());
+            initDisplayDetails(groupItem.getDisplayDetails());
+            initButtonsPanel(groupItem);
+
+            Object groupItemDescriptor = groupItem.getDescriptor();
+
+            setToolTipText(
+                    (groupItemDescriptor != null)
+                        ? groupItemDescriptor.toString()
+                        : groupItem.getDisplayName());
         }
 
         return this;
@@ -751,7 +786,7 @@ public class ContactListTreeCellRenderer
         constraints.weighty = 0f;
         constraints.gridheight = 1;
         constraints.gridwidth = nameLabelGridWidth;
-        this.add(nameLabel, constraints);
+        add(nameLabel, constraints);
 
         constraints.anchor = GridBagConstraints.NORTHEAST;
         constraints.fill = GridBagConstraints.VERTICAL;
@@ -760,7 +795,7 @@ public class ContactListTreeCellRenderer
         constraints.gridheight = 3;
         constraints.weightx = 0f;
         constraints.weighty = 1f;
-        this.add(rightLabel, constraints);
+        add(rightLabel, constraints);
 
         if (treeNode != null && treeNode instanceof ContactNode)
         {
@@ -773,7 +808,7 @@ public class ContactListTreeCellRenderer
             constraints.gridwidth = nameLabelGridWidth;
             constraints.gridheight = 1;
 
-            this.add(displayDetailsLabel, constraints);
+            add(displayDetailsLabel, constraints);
         }
         else if (treeNode != null && treeNode instanceof GroupNode)
         {
@@ -786,7 +821,7 @@ public class ContactListTreeCellRenderer
             constraints.gridwidth = nameLabelGridWidth;
             constraints.gridheight = 1;
 
-            this.add(displayDetailsLabel, constraints);
+            add(displayDetailsLabel, constraints);
         }
     }
 
@@ -818,7 +853,7 @@ public class ContactListTreeCellRenderer
         constraints.gridwidth = 1;
         constraints.gridheight = 1;
 
-        this.add(displayDetailsLabel, constraints);
+        add(displayDetailsLabel, constraints);
     }
 
     /**
@@ -828,12 +863,12 @@ public class ContactListTreeCellRenderer
      */
     private void initButtonsPanel(UIContact uiContact)
     {
-        this.remove(chatButton);
-        this.remove(callButton);
-        this.remove(callVideoButton);
-        this.remove(desktopSharingButton);
-        this.remove(addContactButton);
-        this.remove(webButton);
+        remove(chatButton);
+        remove(callButton);
+        remove(callVideoButton);
+        remove(desktopSharingButton);
+        remove(addContactButton);
+        remove(webButton);
 
         clearCustomActionButtons();
 
@@ -996,8 +1031,7 @@ public class ContactListTreeCellRenderer
         if (lastAddedButton != null)
             setButtonBg(lastAddedButton, lastGridX, true);
 
-        this.setBounds(0, 0, treeContactList.getWidth(),
-                        getPreferredSize().height);
+        setBounds(0, 0, treeContactList.getWidth(), getPreferredSize().height);
     }
 
     /**
@@ -1033,8 +1067,7 @@ public class ContactListTreeCellRenderer
         if (lastAddedButton != null)
             setButtonBg(lastAddedButton, lastGridX, true);
 
-        this.setBounds(0, 0, treeContactList.getWidth(),
-                        getPreferredSize().height);
+        setBounds(0, 0, treeContactList.getWidth(), getPreferredSize().height);
     }
 
     /**
@@ -1879,7 +1912,7 @@ public class ContactListTreeCellRenderer
         constraints.gridheight = 1;
         constraints.weightx = 0f;
         constraints.weighty = 0f;
-        this.add(button, constraints);
+        add(button, constraints);
 
         int yBounds = TOP_BORDER + BOTTOM_BORDER + 2*V_GAP
                 + ComponentUtils.getStringSize(
@@ -1940,22 +1973,24 @@ public class ContactListTreeCellRenderer
          * correctly calculated problems may occur when clicking buttons!
          */
         if (treeNode instanceof ContactNode
-            && !(((ContactNode) treeNode).getContactDescriptor() instanceof
-                    ShowMoreContact))
+                && !(((ContactNode) treeNode).getContactDescriptor() instanceof
+                        ShowMoreContact))
         {
-                this.setBorder(BorderFactory
-                    .createEmptyBorder( TOP_BORDER,
-                                        LEFT_BORDER,
-                                        BOTTOM_BORDER,
-                                        RIGHT_BORDER));
+            setBorder(
+                    BorderFactory.createEmptyBorder(
+                            TOP_BORDER,
+                            LEFT_BORDER,
+                            BOTTOM_BORDER,
+                            RIGHT_BORDER));
         }
         else // GroupNode || ShowMoreContact
         {
-            this.setBorder(BorderFactory
-                .createEmptyBorder( 0,
-                                    LEFT_BORDER,
-                                    0,
-                                    RIGHT_BORDER));
+            setBorder(
+                    BorderFactory.createEmptyBorder(
+                            0,
+                            LEFT_BORDER,
+                            0,
+                            RIGHT_BORDER));
         }
     }
 
@@ -2029,7 +2064,7 @@ public class ContactListTreeCellRenderer
          */
         private void clearLinks()
         {
-            this.links = null;
+            links = null;
         }
 
         /**
