@@ -822,10 +822,11 @@ public abstract class AccountID
             if (stunServer == null)
                 break;
 
-            String password = this.loadStunPassword(
-                                bundleContext,
-                                this,
-                                ProtocolProviderFactory.STUN_PREFIX + i);
+            String password
+                = loadStunPassword(
+                        bundleContext,
+                        this,
+                        ProtocolProviderFactory.STUN_PREFIX + i);
 
             if(password != null)
                 stunServer.setPassword(password);
