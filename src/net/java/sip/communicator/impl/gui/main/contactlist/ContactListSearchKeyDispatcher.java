@@ -12,6 +12,7 @@ import java.awt.event.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.service.gui.*;
 
 /**
@@ -77,22 +78,31 @@ public class ContactListSearchKeyDispatcher
      */
     public boolean dispatchKeyEvent(KeyEvent e)
     {
+        // If this window is not the focus window or if the event is not of type
+        // PRESSED, we have nothing more to do here. Also don't re-dispatch any
+        // events if the menu is active.
+        if (!contactListContainer.isFocused())
+            return false;
+
+        int id = e.getID();
+
+        if (id != KeyEvent.KEY_PRESSED && id != KeyEvent.KEY_TYPED)
+            return false;
+
+        SingleWindowContainer singleWindowContainer
+            = GuiActivator.getUIService().getSingleWindowContainer();
+
+        if ((singleWindowContainer != null)
+                && singleWindowContainer.containsFocusOwner())
+            return false;
+
         Component focusOwner = keyManager.getFocusOwner();
 
-        // If this window is not the focus window  or if the event is not
-        // of type PRESSED we have nothing more to do here.
-        // Also don't re-dispatch any events if the menu is active.
-        if (!contactListContainer.isFocused()
-            || (e.getID() != KeyEvent.KEY_PRESSED
-                && e.getID() != KeyEvent.KEY_TYPED)
-            || (GuiActivator.getUIService()
-                    .getSingleWindowContainer() != null)
-                && GuiActivator.getUIService()
-                    .getSingleWindowContainer().containsFocus()
-            || (focusOwner != null
+        if (focusOwner != null
                 && !searchField.isFocusOwner()
                 && focusOwner instanceof JTextComponent)
-            || contactListContainer.isMenuSelected())
+            return false;
+        if (contactListContainer.isMenuSelected())
             return false;
 
         // Ctrl-Enter || Cmd-Enter typed when this window is the focused
@@ -106,15 +116,16 @@ public class ContactListSearchKeyDispatcher
         // This is why we need to do it here and to check if the
         // permanent focus owner is equal to the focus owner, which is not
         // the case when a popup menu is opened.
-        if (e.getKeyCode() == KeyEvent.VK_ENTER
-            && (e.isControlDown() || e.isMetaDown()))
+        int keyCode = e.getKeyCode();
+
+        if (keyCode == KeyEvent.VK_ENTER
+                && (e.isControlDown() || e.isMetaDown()))
         {
             contactListContainer.ctrlEnterKeyTyped();
             return false;
         }
-        else if (e.getKeyCode() == KeyEvent.VK_ENTER
-            && keyManager.getFocusOwner()
-            .equals(keyManager.getPermanentFocusOwner()))
+        else if (keyCode == KeyEvent.VK_ENTER
+                && focusOwner.equals(keyManager.getPermanentFocusOwner()))
         {
             contactListContainer.enterKeyTyped();
             return false;
@@ -122,10 +133,10 @@ public class ContactListSearchKeyDispatcher
 
         // If the search field is the focus owner.
         if (searchField.isFocusOwner()
-            && (e.getKeyCode() == KeyEvent.VK_UP
-                || e.getKeyCode() == KeyEvent.VK_DOWN
-                || e.getKeyCode() == KeyEvent.VK_PAGE_UP
-                || e.getKeyCode() == KeyEvent.VK_PAGE_DOWN))
+                && (keyCode == KeyEvent.VK_UP
+                        || keyCode == KeyEvent.VK_DOWN
+                        || keyCode == KeyEvent.VK_PAGE_UP
+                        || keyCode == KeyEvent.VK_PAGE_DOWN))
         {
             contactList.selectFirstContact();
             contactList.getComponent().requestFocus();
@@ -134,54 +145,51 @@ public class ContactListSearchKeyDispatcher
 
         // If the contact list is the focus owner.
         if (contactList.getComponent().isFocusOwner()
-            && e.getKeyCode() == KeyEvent.VK_ESCAPE)
+                && keyCode == KeyEvent.VK_ESCAPE)
         {
             // Removes all current selections.
             contactList.removeSelection();
 
             if (searchField.getText() != null)
-            {
                 searchField.requestFocus();
-            }
+
             return false;
         }
 
+        char keyChar = e.getKeyChar();
         UIGroup selectedGroup = contactList.getSelectedGroup();
 
         // No matter who is the focus owner.
-        if (e.getKeyChar() == KeyEvent.CHAR_UNDEFINED
-            || e.getKeyCode() == KeyEvent.VK_ENTER
-            || e.getKeyCode() == KeyEvent.VK_DELETE
-            || e.getKeyCode() == KeyEvent.VK_BACK_SPACE
-            || e.getKeyCode() == KeyEvent.VK_TAB
-            || e.getKeyChar() == '\t'
-            || e.getKeyCode() == KeyEvent.VK_SPACE
-            || (selectedGroup != null
-                && (e.getKeyChar() == '+'
-                    || e.getKeyChar() == '-')))
+        if (keyChar == KeyEvent.CHAR_UNDEFINED
+                || keyCode == KeyEvent.VK_ENTER
+                || keyCode == KeyEvent.VK_DELETE
+                || keyCode == KeyEvent.VK_BACK_SPACE
+                || keyCode == KeyEvent.VK_TAB
+                || e.getKeyChar() == '\t'
+                || keyCode == KeyEvent.VK_SPACE
+                || (selectedGroup != null
+                        && (keyChar == '+' || keyChar == '-')))
         {
             return false;
         }
 
         boolean singleWindowRule
-            = GuiActivator.getUIService().getSingleWindowContainer() == null
+            = singleWindowContainer == null
                 || contactList.getComponent().isFocusOwner();
 
         if (!searchField.isFocusOwner()
-            && keyManager.getFocusOwner() != null
-            && singleWindowRule
-            && keyManager.getFocusOwner()
-                .equals(keyManager.getPermanentFocusOwner()))
+                && focusOwner != null
+                && singleWindowRule
+                && focusOwner.equals(keyManager.getPermanentFocusOwner()))
         {
             // Request the focus in the search field if a letter is typed.
             searchField.requestFocusInWindow();
-
             // We re-dispatch the event to search field.
             keyManager.redispatchEvent(searchField, e);
-
             // We don't want to dispatch further this event.
             return true;
         }
+
         return false;
     }
 }

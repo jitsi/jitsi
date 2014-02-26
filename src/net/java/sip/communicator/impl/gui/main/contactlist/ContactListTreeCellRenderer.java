@@ -8,13 +8,14 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.event.*;
-
 import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
 import javax.swing.JPopupMenu.Separator;
 import javax.swing.tree.*;
+
+import org.jitsi.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
@@ -459,14 +460,18 @@ public class ContactListTreeCellRenderer
              * system font (size) so there is no reason to specify any font size
              * here, let alone a hard-coded absolute one. Anyway, use a
              * hard-coded absolute font size but at least do not fall bellow the
-             * default system font size.
+             * default system font size. On second thought, we are pretty sure
+             * that we are using the default system font on Windows and it makes
+             * no sense whatsoever to change its size.
              */
             Font nameLabelFont = nameLabel.getFont();
 
             nameLabel.setFont(
                     nameLabelFont.deriveFont(
                             Font.PLAIN,
-                            Math.max(nameLabelFont.getSize2D(), 13f)));
+                            Math.max(
+                                    nameLabelFont.getSize2D(),
+                                    OSUtils.IS_WINDOWS ? 0F : 13F)));
 
             if (contactForegroundColor != null)
                 nameLabel.setForeground(contactForegroundColor);
@@ -537,14 +542,18 @@ public class ContactListTreeCellRenderer
              * system font (size) so there is no reason to specify any font size
              * here, let alone a hard-coded absolute one. Anyway, use a
              * hard-coded absolute font size but at least do not fall bellow the
-             * default system font size.
+             * default system font size. On second thought, we are pretty sure
+             * that we are using the default system font on Windows and it makes
+             * no sense whatsoever to change its size.
              */
             Font nameLabelFont = nameLabel.getFont();
 
             nameLabel.setFont(
                     nameLabelFont.deriveFont(
                             Font.BOLD,
-                            Math.max(nameLabelFont.getSize2D(), 13f)));
+                            Math.max(
+                                    nameLabelFont.getSize2D(),
+                                    OSUtils.IS_WINDOWS ? 0F : 13F)));
             nameLabel.setText(groupItem.getDisplayName());
 
             if (groupForegroundColor != null)
