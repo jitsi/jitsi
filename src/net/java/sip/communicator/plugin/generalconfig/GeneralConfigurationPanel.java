@@ -463,14 +463,14 @@ public class GeneralConfigurationPanel
         sendMessageLabel.setText(
             Resources.getString("plugin.generalconfig.SEND_MESSAGES_WITH"));
 
-        ComboBoxModel sendMessageComboBoxModel
-            = new DefaultComboBoxModel(
+        ComboBoxModel<String> sendMessageComboBoxModel
+            = new DefaultComboBoxModel<String>(
                     new String[]
                             {
                                 ConfigurationUtils.ENTER_COMMAND,
                                 ConfigurationUtils.CTRL_ENTER_COMMAND
                             });
-        final JComboBox sendMessageComboBox = new JComboBox();
+        final JComboBox<String> sendMessageComboBox = new JComboBox<String>();
         sendMessagePanel.add(sendMessageComboBox);
         sendMessageComboBox.setModel(sendMessageComboBoxModel);
         sendMessageComboBox.setSelectedItem(
@@ -673,10 +673,10 @@ public class GeneralConfigurationPanel
         public LanguageDropDownRenderer()
         {
             setLayout(new GridLayout(0, 3));
-            for (int i = 0; i < labels.length; i++)
+            for (JLabel label : labels)
             {
-                labels[i] = new JLabel();
-                add(labels[i]);
+                label = new JLabel();
+                add(label);
             }
 
             labels[2].setHorizontalAlignment(JLabel.RIGHT);
@@ -709,7 +709,7 @@ public class GeneralConfigurationPanel
 
             return this;
         }
-    } 
+    }
 
     /**
      * Initializes the local configuration panel.
@@ -756,7 +756,7 @@ public class GeneralConfigurationPanel
         }
 
         Collections.sort(languages);
-        final JComboBox localesConfigComboBox = new JComboBox();
+        final JComboBox<LocaleItem> localesConfigComboBox = new JComboBox<LocaleItem>();
         localesConfigComboBox.setRenderer(new LanguageDropDownRenderer());
         for (LocaleItem li : languages)
         {

@@ -96,11 +96,11 @@ public class ContactSourceConfigForm
 
         if(confFormsRefs != null)
         {
-            for (int i = 0; i < confFormsRefs.length; i++)
+            for (ServiceReference confFormsRef : confFormsRefs)
             {
                 ConfigurationForm form
                     = (ConfigurationForm) ContactSourceConfigActivator
-                        .bundleContext.getService(confFormsRefs[i]);
+                        .bundleContext.getService(confFormsRef);
 
                 Object formComponent = form.getForm();
                 if (formComponent instanceof Component)

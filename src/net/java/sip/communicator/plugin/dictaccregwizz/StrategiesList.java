@@ -114,7 +114,7 @@ public class StrategiesList
      * @author ROTH Damien
      */
     static class ListModel
-        extends AbstractListModel
+        extends AbstractListModel<Strategy>
     {
         /**
          * Serial version UID.
@@ -173,7 +173,7 @@ public class StrategiesList
          */
         public int indexOf(String strategyCode)
         {
-            for (int i = 0, size = data.size(); i < size; i++)
+            for (int i = 0, size = data.size(); i < size; ++i)
             {
                 if (data.get(i).getCode().equals(strategyCode))
                     return i;

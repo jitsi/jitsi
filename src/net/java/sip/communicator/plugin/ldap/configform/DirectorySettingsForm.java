@@ -146,7 +146,7 @@ public class DirectorySettingsForm
     /**
      * Component holding the connection method
      */
-    private JComboBox authList = new JComboBox(authStrings);
+    private JComboBox<String> authList = new JComboBox<String>(authStrings);
 
     /**
      * Strings of the connection method combobox
@@ -891,7 +891,7 @@ public class DirectorySettingsForm
         }
 
         // auth simple/none
-        switch(authList.getSelectedIndex())
+        switch(this.authList.getSelectedIndex())
         {
             case 0:
                 settings.setAuth(Auth.NONE);

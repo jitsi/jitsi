@@ -104,7 +104,7 @@ public class LanguageMenuBar
         this.setOpaque(false);
 
         final DefaultListModel model = new DefaultListModel();
-        list = new JList(model);
+        this.list = new JList(model);
 
         this.languageSelectionRenderer = new LanguageListRenderer();
 
@@ -664,7 +664,7 @@ public class LanguageMenuBar
         {
             if (!e.getValueIsAdjusting())
             {
-                JList source = (JList) e.getSource();
+                JList<Locale> source = (JList<Locale>) e.getSource();
                 Parameters.Locale locale
                     = (Parameters.Locale) source.getSelectedValue();
 

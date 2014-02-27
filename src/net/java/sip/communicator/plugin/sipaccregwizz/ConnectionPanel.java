@@ -53,18 +53,18 @@ public class ConnectionPanel
 
     private final JComboBox certificate = new JComboBox();
 
-    private JComboBox transportCombo
-        = new JComboBox(new String[] { "UDP", "TCP", "TLS" });
+    private JComboBox<String> transportCombo
+        = new JComboBox<String>(new String[] { "UDP", "TCP", "TLS" });
 
-    private JComboBox keepAliveMethodBox
-        = new JComboBox(new String[] { "NONE", "REGISTER", "OPTIONS", "CRLF" });
+    private JComboBox<String> keepAliveMethodBox
+        = new JComboBox<String>(new String[] { "NONE", "REGISTER", "OPTIONS", "CRLF" });
 
     private JTextField keepAliveIntervalValue
             = new JTextField(SipAccountID.getDefaultStr(
                     ProtocolProviderFactory.KEEP_ALIVE_INTERVAL));
 
-    private JComboBox dtmfMethodBox
-        = new JComboBox(
+    private JComboBox<String> dtmfMethodBox
+        = new JComboBox<String>(
                 new String[]
                         {
                             Resources.getString(
@@ -860,7 +860,7 @@ public class ConnectionPanel
                 && proxyPortField.getText() != null
                     && proxyPortField.getText().length() > 0;
         }
-
+        
         return true;
     }
 }
