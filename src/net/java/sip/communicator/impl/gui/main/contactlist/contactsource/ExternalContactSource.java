@@ -61,7 +61,7 @@ public class ExternalContactSource
      */
     private static Map<ContactAction<SourceContact>, SIPCommButton>
                                     customContactActionButtons;
-    
+
     /**
      * The list of right menu action items for this source contact.
      */
@@ -75,7 +75,7 @@ public class ExternalContactSource
                                     customServiceActionButtons;
 
     private final JTree contactListTree;
-    
+
     /**
      * The index of the contact source used to order the contact sources.
      */
@@ -85,9 +85,9 @@ public class ExternalContactSource
      * The list of right menu action items for this group.
      */
     private Map
-        <ContactActionMenuItem<ContactSourceService>, JMenuItem> 
+        <ContactActionMenuItem<ContactSourceService>, JMenuItem>
             customGroupActionMenuItems;
-    
+
     /**
      * Creates an <tt>ExternalContactSource</tt> based on the given
      * <tt>ContactSourceService</tt>.
@@ -203,7 +203,7 @@ public class ExternalContactSource
 
         return availableCustomActionButtons;
     }
-    
+
     /**
      * Returns all custom action menu items for this contact.
      *
@@ -295,7 +295,7 @@ public class ExternalContactSource
 
         return false;
     }
-    
+
     /**
      * Indicates if the given <tt>ContactAction</tt> should be visible for the
      * given <tt>ContactSourceService</tt>.
@@ -315,14 +315,14 @@ public class ExternalContactSource
 
         return false;
     }
-    
+
     /**
-     * Indicates if the given <tt>ContactActionMenuItem</tt> should be visible 
+     * Indicates if the given <tt>ContactActionMenuItem</tt> should be visible
      * for the given <tt>SourceContact</tt>.
      *
      * @param contactAction the <tt>ContactActionMenuItem</tt> to verify
      * if the given action should be visible
-     * @return <tt>true</tt> if the given <tt>ContactActionMenuItem</tt> is 
+     * @return <tt>true</tt> if the given <tt>ContactActionMenuItem</tt> is
      * visible for the given <tt>SourceContact</tt>, <tt>false</tt> - otherwise
      */
     private static boolean isContactActionVisible(
@@ -359,7 +359,7 @@ public class ExternalContactSource
             }
         }
     }
-    
+
     /**
      * Initializes custom action menu items for this contact source.
      */
@@ -384,7 +384,7 @@ public class ExternalContactSource
             }
         }
     }
-    
+
     /**
      * Initializes custom action menu items for this contact source.
      */
@@ -533,7 +533,7 @@ public class ExternalContactSource
             }
         }
     }
-    
+
     /**
      * Initializes an action menu item.
      *
@@ -560,12 +560,12 @@ public class ExternalContactSource
             actionMenuItem.setText(ca.getText(customActionContact));
 
             actionMenuItem.setMnemonic(ca.getMnemonics());
-            
+
             byte[] icon = ca.getIcon();
             if(icon != null)
                 actionMenuItem.setIcon(
                     new ImageIcon(icon));
-            
+
             actionMenuItem.setSelected(ca.isSelected(customActionContact));
             actionMenuItem.setEnabled(ca.isEnabled(customActionContact));
 
@@ -590,7 +590,7 @@ public class ExternalContactSource
             customContactActionMenuItems.put(ca, actionMenuItem);
         }
     }
-    
+
     /**
      * Initializes an action menu item.
      *
@@ -617,12 +617,12 @@ public class ExternalContactSource
             actionMenuItem.setText(ca.getText(contactSource));
 
             actionMenuItem.setMnemonic(ca.getMnemonics());
-            
+
             byte[] icon = ca.getIcon();
             if(icon != null)
                 actionMenuItem.setIcon(
                     new ImageIcon(icon));
-            
+
             actionMenuItem.setSelected(ca.isSelected(contactSource));
             actionMenuItem.setEnabled(ca.isEnabled(contactSource));
 
@@ -679,7 +679,7 @@ public class ExternalContactSource
                 CustomContactActionsService<?> customActionService
                     = (CustomContactActionsService<?>)
                             GuiActivator.bundleContext.getService(serRef);
-                
+
                 if (customActionService.getContactSourceClass()
                         .equals(SourceContact.class))
                 {
@@ -694,7 +694,7 @@ public class ExternalContactSource
 
         return contactActionsServices;
     }
-    
+
     /**
      * Returns a list of all custom contact action services.
      *
@@ -726,7 +726,7 @@ public class ExternalContactSource
                 CustomContactActionsService<?> customActionService
                     = (CustomContactActionsService<?>)
                             GuiActivator.bundleContext.getService(serRef);
-                
+
                 if (customActionService.getContactSourceClass()
                         .equals(ContactSourceService.class))
                 {
@@ -743,7 +743,7 @@ public class ExternalContactSource
 
         return contactActionsServices;
     }
-    
+
     /**
      * Returns a list of all custom contact action services.
      *
@@ -795,7 +795,7 @@ public class ExternalContactSource
 
     /**
      * Sets the contact source index.
-     * 
+     *
      * @param contactSourceIndex the contact source index to set
      */
     public void setContactSourceIndex(int contactSourceIndex)
@@ -861,9 +861,9 @@ public class ExternalContactSource
                 return contactSourceIndex * MAX_GROUPS;
 
             if (contactSource.getType() == ContactSourceService.HISTORY_TYPE)
-                return Integer.MAX_VALUE;
+                return Integer.MAX_VALUE - MAX_GROUPS;
 
-            return Integer.MAX_VALUE - 1;
+            return Integer.MAX_VALUE - MAX_GROUPS - 1;
         }
 
         /**
@@ -994,7 +994,7 @@ public class ExternalContactSource
     }
 
     /**
-     * Class for the external contact sources right button menu. It shows only 
+     * Class for the external contact sources right button menu. It shows only
      * the defined custom actions.
      */
     private class SourceGroupRightButtonMenu extends SIPCommPopupMenu
@@ -1003,7 +1003,7 @@ public class ExternalContactSource
          * Serial version UID.
          */
         private static final long serialVersionUID = 0L;
-        
+
         /**
          * Creates an instance of <tt>SourceContactRightButtonMenu</tt> by
          * specifying the <tt>SourceUIContact</tt>, for which this menu is created.

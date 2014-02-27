@@ -6,10 +6,9 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
-
 import java.util.*;
+
+import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * An abstract class with a default implementation of some of the methods of
@@ -20,12 +19,6 @@ import java.util.*;
 public abstract class AbstractChatRoom
     implements ChatRoom
 {
-    /**
-     * The logger of this class.
-     */
-    private static final Logger logger
-        = Logger.getLogger(AbstractChatRoom.class);
-    
     /**
      * The list of listeners to be notified when a member of the chat room
      * publishes a <tt>ConferenceDescription</tt>

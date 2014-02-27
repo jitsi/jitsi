@@ -202,7 +202,7 @@ public class SingleWindowContainer
      * @return <tt>true</tt> to indicate that a component contained in this
      * container currently owns the keyboard focus, <tt>false</tt> - otherwise
      */
-    public boolean containsFocus()
+    public boolean containsFocusOwner()
     {
         ChatPanel chat = getCurrentChat();
 

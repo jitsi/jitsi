@@ -576,13 +576,15 @@ public class TreeContactList
                     else
                         groupNode = parentNode.addContactGroup(contactImpl);
 
+                    TreeNode node
+                        = treeModel.getRoot().getChildAfter(groupNode);
                     // do not show the contacts group in history filter
                     if( group.getSourceIndex()
                             < GuiActivator.getContactListService()
                                 .getSourceIndex()
                         && rootUIGroup == null
-                        && (!(treeModel.getRoot().getChildAfter(groupNode)
-                            instanceof GroupNode))
+                        && (!(node instanceof GroupNode))
+                        && (node != null)
                         && !currentFilter.equals(historyFilter))
                     {
                         createMetaUIRootGroup();

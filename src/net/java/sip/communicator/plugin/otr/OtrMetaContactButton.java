@@ -122,6 +122,7 @@ public class OtrMetaContactButton
      * @return the <code>SIPCommButton</code> which is the component of this
      *         plugin
      */
+    @SuppressWarnings("fallthrough")
     private SIPCommButton getButton()
     {
         if (button == null)

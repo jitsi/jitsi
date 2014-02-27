@@ -2572,7 +2572,14 @@ public class ConfigurationUtils
             else if (evt.getPropertyName().equals(
                 "service.gui.AUTO_POPUP_NEW_MESSAGE"))
             {
-                autoPopupNewMessage = Boolean.parseBoolean(newValue);
+                if("yes".equalsIgnoreCase(newValue))
+                {
+                    autoPopupNewMessage = true;
+                }
+                else
+                {
+                    autoPopupNewMessage = false;
+                }
             }
             else if (evt.getPropertyName().equals(
                 "service.gui.SEND_MESSAGE_COMMAND"))
