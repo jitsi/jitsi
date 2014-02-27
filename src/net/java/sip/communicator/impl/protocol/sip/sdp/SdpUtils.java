@@ -1658,7 +1658,8 @@ public class SdpUtils
             String[] formatsArray = new String[formatsVec.size()];
 
             return sdpFactory.createMediaDescription(mediaType, 0, 1,
-                SdpConstants.RTP_AVP, formatsVec.toArray(formatsArray));
+                offer.getMedia().getProtocol(),
+                formatsVec.toArray(formatsArray));
         }
         catch (Exception e)
         {
