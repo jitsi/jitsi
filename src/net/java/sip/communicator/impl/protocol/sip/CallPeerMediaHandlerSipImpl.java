@@ -1691,7 +1691,7 @@ public class CallPeerMediaHandlerSipImpl
                             SrtpCryptoAttribute.create(a.getValue()));
                 }
             }
-            catch (SdpParseException e)
+            catch (Exception e)
             {
                 logger.error("received an unparsable sdp attribute", e);
             }
