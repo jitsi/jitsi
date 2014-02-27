@@ -340,74 +340,85 @@ public class CallInfoFrame
                 }
 
                 stringBuffer.append("<br/>");
-                // ICE state
-                String iceState = callPeerMediaHandler.getICEState();
-                if(iceState != null && !iceState.equals("Terminated"))
-                {
-                    stringBuffer.append(getLineString(
-                        resources.getI18NString(
-                            "service.gui.callinfo.ICE_STATE"),
-                        resources.getI18NString(
-                            "service.gui.callinfo.ICE_STATE."
-                                + iceState.toUpperCase())));
-                }
 
-                stringBuffer.append("<br/>");
-                // Total harvesting time.
-                long harvestingTime
-                    = callPeerMediaHandler.getTotalHarvestingTime();
-                if(harvestingTime != 0)
-                {
-                    stringBuffer.append(getLineString(resources.getI18NString(
-                                    "service.gui.callinfo.TOTAL_HARVESTING_TIME"
-                                    ),
-                                harvestingTime
-                                + " "
-                                + resources.getI18NString(
-                                    "service.gui.callinfo.HARVESTING_MS_FOR")
-                                + " "
-                                + callPeerMediaHandler.getNbHarvesting()
-                                + " "
-                                + resources.getI18NString(
-                                    "service.gui.callinfo.HARVESTS")));
-                }
+                IceStats iceStats = callPeerMediaHandler.getIceStats();
 
-                // Current harvester time if ICE agent is harvesting.
-                String[] harvesterNames =
+                if (iceStats != null)
                 {
-                    "GoogleTurnCandidateHarvester",
-                    "GoogleTurnSSLCandidateHarvester",
-                    "HostCandidateHarvester",
-                    "JingleNodesHarvester",
-                    "StunCandidateHarvester",
-                    "TurnCandidateHarvester",
-                    "UPNPHarvester"
-                };
-                for(int i = 0; i < harvesterNames.length; ++i)
-                {
-                    harvestingTime = callPeerMediaHandler.getHarvestingTime(
-                            harvesterNames[i]);
-                    if(harvestingTime != 0)
-                    {
-                        stringBuffer.append(getLineString(
-                                    resources.getI18NString(
-                                        "service.gui.callinfo.HARVESTING_TIME")
-                                    + " " + harvesterNames[i],
-                                    harvestingTime
-                                    + " "
-                                    + resources.getI18NString(
-                                        "service.gui.callinfo.HARVESTING_MS_FOR"
-                                        )
-                                    + " "
-                                    + callPeerMediaHandler.getNbHarvesting(
-                                        harvesterNames[i])
-                                    + " "
-                                    + resources.getI18NString(
-                                        "service.gui.callinfo.HARVESTS")));
-                    }
+                    stringBuffer.append(constructGenericIceStats(iceStats));
                 }
             }
         }
+    }
+
+    /**
+     * Constructs a String with generic ICE information such as harvesting time.
+     *
+     * @param iceStats the {@link IceStats} that we should construct the string
+     * upon.
+     *
+     * @return a string with generic ICE stats
+     */
+    private String constructGenericIceStats(IceStats iceStats)
+    {
+        StringBuffer statsBuff = new StringBuffer("");
+
+        // ICE state
+        String iceState = iceStats.getICEState();
+        if(iceState != null && !iceState.equals("Terminated"))
+        {
+            statsBuff.append(getLineString(
+                resources.getI18NString(
+                    "service.gui.callinfo.ICE_STATE"),
+                resources.getI18NString(
+                    "service.gui.callinfo.ICE_STATE."
+                        + iceState.toUpperCase())));
+        }
+
+        statsBuff.append("<br/>");
+        // Total harvesting time.
+        long harvestingTime = iceStats.getTotalHarvestingTime();
+        if(harvestingTime != 0)
+        {
+            statsBuff.append(getLineString(resources.getI18NString(
+                            "service.gui.callinfo.TOTAL_HARVESTING_TIME"
+                            ),
+                        harvestingTime + " " + resources.getI18NString(
+                            "service.gui.callinfo.HARVESTING_MS_FOR")
+                        + " " + iceStats.getNbHarvesting()
+                        + " " + resources.getI18NString(
+                            "service.gui.callinfo.HARVESTS")));
+        }
+
+        // Current harvester time if ICE agent is harvesting.
+        String[] harvesterNames =
+        {
+            "GoogleTurnCandidateHarvester",
+            "GoogleTurnSSLCandidateHarvester",
+            "HostCandidateHarvester",
+            "JingleNodesHarvester",
+            "StunCandidateHarvester",
+            "TurnCandidateHarvester",
+            "UPNPHarvester"
+        };
+        for(int i = 0; i < harvesterNames.length; ++i)
+        {
+            harvestingTime = iceStats.getHarvestingTime(harvesterNames[i]);
+            if(harvestingTime != 0)
+            {
+                statsBuff.append(getLineString(
+                    resources.getI18NString(
+                        "service.gui.callinfo.HARVESTING_TIME")
+                    + " " + harvesterNames[i], harvestingTime
+                    + " " + resources.getI18NString(
+                                    "service.gui.callinfo.HARVESTING_MS_FOR")
+                    + " " + iceStats.getNbHarvesting(harvesterNames[i])
+                    + " " + resources.getI18NString(
+                                            "service.gui.callinfo.HARVESTS")));
+            }
+        }
+
+        return statsBuff.toString();
     }
 
     /**
@@ -465,103 +476,15 @@ public class CallInfoFrame
                 mediaStreamStats.getEncoding()
                 + " / " + mediaStreamStats.getEncodingClockRate() + " Hz"));
 
-        boolean displayedIpPort = false;
+        IceStats iceStats = callPeerMediaHandler.getIceStats();
 
-        // ICE candidate type
-        String iceCandidateExtendedType =
-            callPeerMediaHandler.getICECandidateExtendedType(
-                    mediaType.toString());
-        if(iceCandidateExtendedType != null)
+        if(iceStats != null)
         {
-            stringBuffer.append(getLineString(resources.getI18NString(
-                    "service.gui.callinfo.ICE_CANDIDATE_EXTENDED_TYPE"),
-                        iceCandidateExtendedType));
-            displayedIpPort = true;
+            constructIceAddressingInfo(iceStats, mediaType);
         }
-
-        // Local host address
-        InetSocketAddress iceLocalHostAddress =
-            callPeerMediaHandler.getICELocalHostAddress(mediaType.toString());
-        if(iceLocalHostAddress != null)
+        else
         {
-            stringBuffer.append(getLineString(resources.getI18NString(
-                    "service.gui.callinfo.ICE_LOCAL_HOST_ADDRESS"),
-                    iceLocalHostAddress.getAddress().getHostAddress()
-                        + "/" + iceLocalHostAddress.getPort()));
-            displayedIpPort = true;
-        }
-
-        // Local reflexive address
-        InetSocketAddress iceLocalReflexiveAddress =
-            callPeerMediaHandler.getICELocalReflexiveAddress(
-                    mediaType.toString());
-        if(iceLocalReflexiveAddress != null)
-        {
-            stringBuffer.append(getLineString(resources.getI18NString(
-                    "service.gui.callinfo.ICE_LOCAL_REFLEXIVE_ADDRESS"),
-                    iceLocalReflexiveAddress.getAddress()
-                        .getHostAddress()
-                        + "/" + iceLocalReflexiveAddress.getPort()));
-            displayedIpPort = true;
-        }
-
-        // Local relayed address
-        InetSocketAddress iceLocalRelayedAddress =
-            callPeerMediaHandler.getICELocalRelayedAddress(
-                    mediaType.toString());
-        if(iceLocalRelayedAddress != null)
-        {
-            stringBuffer.append(getLineString(resources.getI18NString(
-                    "service.gui.callinfo.ICE_LOCAL_RELAYED_ADDRESS"),
-                    iceLocalRelayedAddress.getAddress()
-                        .getHostAddress()
-                        + "/" + iceLocalRelayedAddress.getPort()));
-            displayedIpPort = true;
-        }
-
-        // Remote relayed address
-        InetSocketAddress iceRemoteRelayedAddress =
-            callPeerMediaHandler.getICERemoteRelayedAddress(
-                    mediaType.toString());
-        if(iceRemoteRelayedAddress != null)
-        {
-            stringBuffer.append(getLineString(resources.getI18NString(
-                    "service.gui.callinfo.ICE_REMOTE_RELAYED_ADDRESS"),
-                    iceRemoteRelayedAddress.getAddress()
-                        .getHostAddress()
-                        + "/" + iceRemoteRelayedAddress.getPort()));
-            displayedIpPort = true;
-        }
-
-        // Remote reflexive address
-        InetSocketAddress iceRemoteReflexiveAddress =
-            callPeerMediaHandler.getICERemoteReflexiveAddress(
-                    mediaType.toString());
-        if(iceRemoteReflexiveAddress != null)
-        {
-            stringBuffer.append(getLineString(resources.getI18NString(
-                    "service.gui.callinfo.ICE_REMOTE_REFLEXIVE_ADDRESS"),
-                    iceRemoteReflexiveAddress.getAddress()
-                        .getHostAddress()
-                        + "/" + iceRemoteReflexiveAddress.getPort()));
-            displayedIpPort = true;
-        }
-
-        // Remote host address
-        InetSocketAddress iceRemoteHostAddress =
-            callPeerMediaHandler.getICERemoteHostAddress(mediaType.toString());
-        if(iceRemoteHostAddress != null)
-        {
-            stringBuffer.append(getLineString(resources.getI18NString(
-                    "service.gui.callinfo.ICE_REMOTE_HOST_ADDRESS"),
-                    iceRemoteHostAddress.getAddress().getHostAddress()
-                        + "/" + iceRemoteHostAddress.getPort()));
-            displayedIpPort = true;
-        }
-
-        // If the stream does not use ICE, then show the transport IP/port.
-        if(!displayedIpPort)
-        {
+            // If the stream does not use ICE, then show the transport IP/port.
             stringBuffer.append(
                 getLineString(
                     resources.getI18NString("service.gui.callinfo.LOCAL_IP"),
@@ -642,6 +565,102 @@ public class CallInfoFrame
                 "&darr; " + (int) mediaStreamStats.getDownloadJitterMs()
                 + " ms &uarr; "
                 + (int) mediaStreamStats.getUploadJitterMs() + " ms"));
+    }
+
+    /**
+     * Returns a string that contains formatted ICE stats information.
+     *
+     * @param iceStats the stats that we will be using to construct the info.
+     *
+     * @return the newly created string.
+     */
+    private String constructIceAddressingInfo(IceStats iceStats,
+                                              MediaType mediaType)
+    {
+        StringBuffer stringBuffer = new StringBuffer();
+
+        // ICE candidate type
+        String iceCandidateExtendedType =
+            iceStats.getICECandidateExtendedType(
+                    mediaType.toString());
+        if(iceCandidateExtendedType != null)
+        {
+            stringBuffer.append(getLineString(resources.getI18NString(
+                    "service.gui.callinfo.ICE_CANDIDATE_EXTENDED_TYPE"),
+                        iceCandidateExtendedType));
+        }
+
+        // Local host address
+        InetSocketAddress iceLocalHostAddress
+            = iceStats.getICELocalHostAddress(mediaType.toString());
+        if(iceLocalHostAddress != null)
+        {
+            stringBuffer.append(getLineString(resources.getI18NString(
+                    "service.gui.callinfo.ICE_LOCAL_HOST_ADDRESS"),
+                    iceLocalHostAddress.getAddress().getHostAddress()
+                        + "/" + iceLocalHostAddress.getPort()));
+        }
+
+        // Local reflexive address
+        InetSocketAddress iceLocalReflexiveAddress
+            = iceStats.getICELocalReflexiveAddress( mediaType.toString());
+        if(iceLocalReflexiveAddress != null)
+        {
+            stringBuffer.append(getLineString(resources.getI18NString(
+                    "service.gui.callinfo.ICE_LOCAL_REFLEXIVE_ADDRESS"),
+                    iceLocalReflexiveAddress.getAddress()
+                        .getHostAddress()
+                        + "/" + iceLocalReflexiveAddress.getPort()));
+        }
+
+        // Local relayed address
+        InetSocketAddress iceLocalRelayedAddress
+            = iceStats.getICELocalRelayedAddress(mediaType.toString());
+        if(iceLocalRelayedAddress != null)
+        {
+            stringBuffer.append(getLineString(resources.getI18NString(
+                    "service.gui.callinfo.ICE_LOCAL_RELAYED_ADDRESS"),
+                    iceLocalRelayedAddress.getAddress()
+                        .getHostAddress()
+                        + "/" + iceLocalRelayedAddress.getPort()));
+        }
+
+        // Remote relayed address
+        InetSocketAddress iceRemoteRelayedAddress
+            = iceStats.getICERemoteRelayedAddress( mediaType.toString());
+        if(iceRemoteRelayedAddress != null)
+        {
+            stringBuffer.append(getLineString(resources.getI18NString(
+                    "service.gui.callinfo.ICE_REMOTE_RELAYED_ADDRESS"),
+                    iceRemoteRelayedAddress.getAddress()
+                        .getHostAddress()
+                        + "/" + iceRemoteRelayedAddress.getPort()));
+        }
+
+        // Remote reflexive address
+        InetSocketAddress iceRemoteReflexiveAddress
+            = iceStats.getICERemoteReflexiveAddress(mediaType.toString());
+        if(iceRemoteReflexiveAddress != null)
+        {
+            stringBuffer.append(getLineString(resources.getI18NString(
+                    "service.gui.callinfo.ICE_REMOTE_REFLEXIVE_ADDRESS"),
+                    iceRemoteReflexiveAddress.getAddress()
+                        .getHostAddress()
+                        + "/" + iceRemoteReflexiveAddress.getPort()));
+        }
+
+        // Remote host address
+        InetSocketAddress iceRemoteHostAddress
+            = iceStats.getICERemoteHostAddress(mediaType.toString());
+        if(iceRemoteHostAddress != null)
+        {
+            stringBuffer.append(getLineString(resources.getI18NString(
+                    "service.gui.callinfo.ICE_REMOTE_HOST_ADDRESS"),
+                    iceRemoteHostAddress.getAddress().getHostAddress()
+                        + "/" + iceRemoteHostAddress.getPort()));
+        }
+
+        return stringBuffer.toString();
     }
 
     /**

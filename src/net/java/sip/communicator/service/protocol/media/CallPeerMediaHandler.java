@@ -653,169 +653,18 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
     }
 
     /**
-     * Returns the harvesting time (in ms) for the harvester given in parameter.
+     * Returns the current instance of {@link IceStats} collecting information
+     * about how ICE negotiation went.
      *
-     * @param harvesterName The class name if the harvester.
-     *
-     * @return The harvesting time (in ms) for the harvester given in parameter.
-     * 0 if this harvester does not exists, if the ICE agent is null, or if the
-     * agent has never harvested with this harvester.
+     * @return the instance of {@link IceStats} that we are currently using.
      */
-    public long getHarvestingTime(String harvesterName)
+    public IceStats getIceStats()
     {
         TransportManager<?> transportManager = queryTransportManager();
 
-        return
-            (transportManager == null)
+        return (transportManager == null)
                 ? null
-                : transportManager.getHarvestingTime(harvesterName);
-    }
-
-    /**
-     * Returns the extended type of the candidate selected if this transport
-     * manager is using ICE.
-     *
-     * @param streamName The stream name (AUDIO, VIDEO);
-     *
-     * @return The extended type of the candidate selected if this transport
-     * manager is using ICE. Otherwise, returns null.
-     */
-    public String getICECandidateExtendedType(String streamName)
-    {
-        TransportManager<?> transportManager = queryTransportManager();
-
-        return
-            (transportManager == null)
-                ? null
-                : transportManager.getICECandidateExtendedType(streamName);
-    }
-
-    /**
-     * Returns the ICE local host address.
-     *
-     * @param streamName The stream name (AUDIO, VIDEO);
-     *
-     * @return the ICE local host address if this transport
-     * manager is using ICE. Otherwise, returns null.
-     */
-    public InetSocketAddress getICELocalHostAddress(String streamName)
-    {
-        TransportManager<?> transportManager = queryTransportManager();
-
-        return
-            (transportManager == null)
-                ? null
-                : transportManager.getICELocalHostAddress(streamName);
-    }
-
-    /**
-     * Returns the ICE local reflexive address (server or peer reflexive).
-     *
-     * @param streamName The stream name (AUDIO, VIDEO);
-     *
-     * @return the ICE local reflexive address. May be null if this transport
-     * manager is not using ICE or if there is no reflexive address for the
-     * local candidate used.
-     */
-    public InetSocketAddress getICELocalReflexiveAddress(String streamName)
-    {
-        TransportManager<?> transportManager = queryTransportManager();
-
-        return
-            (transportManager == null)
-                ? null
-                : transportManager.getICELocalReflexiveAddress(streamName);
-    }
-
-    /**
-     * Returns the ICE local relayed address (server or peer relayed).
-     *
-     * @param streamName The stream name (AUDIO, VIDEO);
-     *
-     * @return the ICE local relayed address. May be null if this transport
-     * manager is not using ICE or if there is no relayed address for the
-     * local candidate used.
-     */
-    public InetSocketAddress getICELocalRelayedAddress(String streamName)
-    {
-        TransportManager<?> transportManager = queryTransportManager();
-
-        return
-            (transportManager == null)
-                ? null
-                : transportManager.getICELocalRelayedAddress(streamName);
-    }
-
-    /**
-     * Returns the ICE remote host address.
-     *
-     * @param streamName The stream name (AUDIO, VIDEO);
-     *
-     * @return the ICE remote host address if this transport
-     * manager is using ICE. Otherwise, returns null.
-     */
-    public InetSocketAddress getICERemoteHostAddress(String streamName)
-    {
-        TransportManager<?> transportManager = queryTransportManager();
-
-        return
-            (transportManager == null)
-                ? null
-                : transportManager.getICERemoteHostAddress(streamName);
-    }
-
-    /**
-     * Returns the ICE remote reflexive address (server or peer reflexive).
-     *
-     * @param streamName The stream name (AUDIO, VIDEO);
-     *
-     * @return the ICE remote reflexive address. May be null if this transport
-     * manager is not using ICE or if there is no reflexive address for the
-     * remote candidate used.
-     */
-    public InetSocketAddress getICERemoteReflexiveAddress(String streamName)
-    {
-        TransportManager<?> transportManager = queryTransportManager();
-
-        return
-            (transportManager == null)
-                ? null
-                : transportManager.getICERemoteReflexiveAddress(streamName);
-    }
-
-    /**
-     * Returns the ICE remote relayed address (server or peer relayed).
-     *
-     * @param streamName The stream name (AUDIO, VIDEO);
-     *
-     * @return the ICE remote relayed address. May be null if this transport
-     * manager is not using ICE or if there is no relayed address for the
-     * remote candidate used.
-     */
-    public InetSocketAddress getICERemoteRelayedAddress(String streamName)
-    {
-        TransportManager<?> transportManager = queryTransportManager();
-
-        return
-            (transportManager == null)
-                ? null
-                : transportManager.getICERemoteRelayedAddress(streamName);
-    }
-
-    /**
-     * Returns the current state of ICE processing.
-     *
-     * @return the current state of ICE processing if this transport
-     * manager is using ICE. Otherwise, returns null.
-     */
-    public String getICEState()
-    {
-        TransportManager<?> transportManager = queryTransportManager();
-
-        return
-            (transportManager == null)
-                ? null
-                : transportManager.getICEState();
+                : transportManager.getIceStats();
     }
 
     /**
@@ -918,40 +767,6 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
     }
 
     /**
-     * Returns the number of harvesting for this agent.
-     *
-     * @return The number of harvesting for this agent.
-     */
-    public int getNbHarvesting()
-    {
-        TransportManager<?> transportManager = queryTransportManager();
-
-        return
-            (transportManager == null)
-                ? null
-                : transportManager.getNbHarvesting();
-    }
-
-    /**
-     * Returns the number of harvesting time for the harvester given in
-     * parameter.
-     *
-     * @param harvesterName The class name if the harvester.
-     *
-     * @return The number of harvesting time for the harvester given in
-     * parameter.
-     */
-    public int getNbHarvesting(String harvesterName)
-    {
-        TransportManager<?> transportManager = queryTransportManager();
-
-        return
-            (transportManager == null)
-                ? null
-                : transportManager.getNbHarvesting(harvesterName);
-    }
-
-    /**
      * Returns the peer that is this media handler's "raison d'etre".
      *
      * @return the {@link MediaAwareCallPeer} that this handler is servicing.
@@ -1019,22 +834,6 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
         default:
             throw new IllegalArgumentException("mediaType");
         }
-    }
-
-    /**
-     * Returns the total harvesting time (in ms) for all harvesters.
-     *
-     * @return The total harvesting time (in ms) for all the harvesters. 0 if
-     * the ICE agent is null, or if the agent has nevers harvested.
-     */
-    public long getTotalHarvestingTime()
-    {
-        TransportManager<?> transportManager = queryTransportManager();
-
-        return
-            (transportManager == null)
-                ? null
-                : transportManager.getTotalHarvestingTime();
     }
 
     /**

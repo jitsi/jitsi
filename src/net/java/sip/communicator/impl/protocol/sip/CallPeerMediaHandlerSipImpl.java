@@ -44,6 +44,10 @@ public class CallPeerMediaHandlerSipImpl
      */
     private static final String DTLS_SRTP_FINGERPRINT_ATTR = "fingerprint";
 
+    /**
+     * The name of the SDP attribute which specifies the role of the local
+     * agent in DTLS/SRTP negotiation.
+     */
     private static final String DTLS_SRTP_SETUP_ATTR = "setup";
 
     /**
@@ -99,7 +103,11 @@ public class CallPeerMediaHandlerSipImpl
     {
         super(peer, peer);
 
-        transportManager = new TransportManagerSipImpl(peer);
+        if(isUseIce())
+            transportManager = new IceTransportManagerSipImpl(peer);
+        else
+            transportManager = new TransportManagerSipImpl(peer);
+
         qualityControls = new QualityControlWrapper(peer);
     }
 
@@ -156,9 +164,10 @@ public class CallPeerMediaHandlerSipImpl
                     userName,
                     mediaDescs);
 
-        //ICE HACK - please fix
-        new IceTransportManagerSipImpl(getPeer()).startCandidateHarvest(
-            sDes, null, false, false, false, false, false );
+        //in case we are using ICE, start the harvest now. this would have
+        //no effect otherwise.
+        //getTransportManager().startCandidateHarvest(
+        //    sDes, null, false, false, false, false, false);
 
         this.localSess = sDes;
         return localSess;
@@ -1837,5 +1846,18 @@ public class CallPeerMediaHandlerSipImpl
             }
         }
         return dtls;
+    }
+
+    /**
+     * Determines if this account is supposed to use ICE.
+     *
+     * @return <tt>true</tt> if this account is supposed to use ICE and
+     * <tt>false</tt> otherwise.
+     */
+    private boolean isUseIce()
+    {
+        return getPeer().getProtocolProvider().getAccountID()
+            .getAccountPropertyBoolean(
+                ProtocolProviderFactory.IS_USE_ICE, false);
     }
 }
