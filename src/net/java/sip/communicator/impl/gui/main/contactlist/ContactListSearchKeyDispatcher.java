@@ -139,6 +139,10 @@ public class ContactListSearchKeyDispatcher
                         || keyCode == KeyEvent.VK_PAGE_DOWN))
         {
             contactList.selectFirstContact();
+            if(contactList instanceof TreeContactList)
+            {
+                ((TreeContactList) contactList).setAutoSectionAllowed(false);
+            }
             contactList.getComponent().requestFocus();
             return false;
         }
@@ -150,6 +154,10 @@ public class ContactListSearchKeyDispatcher
             // Removes all current selections.
             contactList.removeSelection();
 
+            if(contactList instanceof TreeContactList)
+            {
+                ((TreeContactList) contactList).setAutoSectionAllowed(false);
+            }
             if (searchField.getText() != null)
                 searchField.requestFocus();
 
