@@ -523,15 +523,16 @@ public class CallPeerMediaHandlerSipImpl
                         e);
             }
 
-            /*
-             * Ignore a RTP/AVP(F) stream when RTP/SAVP(F) is mandatory. At the
-             * time of this writing we support ZRTP, SDES and DTLS-SRTP.
-             */
+            // Disable and ignore a RTP/AVP(F) stream when RTP/SAVP(F) is
+            // mandatory. Set the flag that we had such a stream to fail the
+            // complete offer if it was the only stream.
             if ((savpOption == ProtocolProviderFactory.SAVP_MANDATORY)
                     && !(proto.endsWith(SrtpControl.RTP_SAVP)
                             || proto.endsWith(SrtpControl.RTP_SAVPF)))
             {
                 rejectedAvpOfferDueToSavpMandatory = true;
+                answerDescriptions.add(
+                        SdpUtils.createDisablingAnswer(mediaDescription));
                 continue;
             }
 
@@ -1700,7 +1701,7 @@ public class CallPeerMediaHandlerSipImpl
                             SrtpCryptoAttribute.create(a.getValue()));
                 }
             }
-            catch (SdpParseException e)
+            catch (Exception e)
             {
                 logger.error("received an unparsable sdp attribute", e);
             }

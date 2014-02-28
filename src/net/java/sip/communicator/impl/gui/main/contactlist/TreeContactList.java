@@ -1448,7 +1448,9 @@ public class TreeContactList
             fireContactListEvent(
                 ((GroupNode) lastComponent).getGroupDescriptor(),
                 ContactListEvent.GROUP_CLICKED, e.getClickCount());
+            setAutoSectionAllowed(false);
         }
+
     }
 
     /**
