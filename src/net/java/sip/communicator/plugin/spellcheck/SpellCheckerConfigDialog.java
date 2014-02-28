@@ -77,7 +77,7 @@ public class SpellCheckerConfigDialog
     public SpellCheckerConfigDialog(Chat chat, Word clickedWord,
         SpellDictionary dict)
     {
-
+        
         super(false);
 
         this.dict = dict;
@@ -109,7 +109,7 @@ public class SpellCheckerConfigDialog
         if (!currentWord.getText().equals("  ")
             && this.dict.isCorrect(currentWord.getText()))
         {
-            nextButton.doClick();
+            this.nextButton.doClick();
         }
     }
 
@@ -405,7 +405,6 @@ public class SpellCheckerConfigDialog
      */
     public Object getCorrection()
     {
-
         return suggestionList.getSelectedValue();
     }
 

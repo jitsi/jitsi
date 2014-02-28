@@ -170,6 +170,7 @@ public class ChatContactListModel
     }
 
     /* Implements ListModel#getElementAt(int). */
+    @Override
     public ChatContact<?> getElementAt(int index)
     {
         synchronized(chatContacts)
@@ -179,6 +180,7 @@ public class ChatContactListModel
     }
 
     /* Implements ListModel#getSize(). */
+    @Override
     public int getSize()
     {
         synchronized(chatContacts)

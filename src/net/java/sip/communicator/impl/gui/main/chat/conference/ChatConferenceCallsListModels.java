@@ -21,7 +21,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Hristo Terezov
  */
 public class ChatConferenceCallsListModels
-    extends AbstractListModel
+    extends AbstractListModel<ConferenceDescription>
 {
 
     /**
@@ -48,7 +48,7 @@ public class ChatConferenceCallsListModels
      */
     public void initConferences()
     {
-        Object descriptor = chatSession.getDescriptor();
+        Object descriptor = this.chatSession.getDescriptor();
         
         if(descriptor instanceof ChatRoomWrapper)
         {

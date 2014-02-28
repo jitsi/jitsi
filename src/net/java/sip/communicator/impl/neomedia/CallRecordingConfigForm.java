@@ -203,6 +203,7 @@ public class CallRecordingConfigForm
                 }
             }
         });
+        
         return formatsComboBox;
     }
 

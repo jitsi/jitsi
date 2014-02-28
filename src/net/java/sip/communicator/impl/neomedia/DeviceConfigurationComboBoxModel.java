@@ -452,6 +452,7 @@ public class DeviceConfigurationComboBoxModel
                         s += " (" + transportType + ")";
                 }
             }
+            
             return s;
         }
     }

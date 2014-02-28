@@ -214,6 +214,7 @@ public class ContactListModel
                         + (parentGroup.indexOf(contact) + 1);
             }
         }
+        
         return index;
     }
 
@@ -249,6 +250,7 @@ public class ContactListModel
                 }
             }
         }
+        
         return index;
     }
 
@@ -289,6 +291,7 @@ public class ContactListModel
                 count += countContactsAndSubgroups(subgroup);
             }
         }
+        
         return count;
     }
 

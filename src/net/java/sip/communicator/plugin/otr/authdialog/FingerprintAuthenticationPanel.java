@@ -15,6 +15,7 @@ import javax.swing.event.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.otr.*;
 import net.java.sip.communicator.plugin.otr.OtrContactManager.OtrContact;
+import net.java.sip.communicator.plugin.otr.authdialog.FingerprintAuthenticationPanel.ActionComboBoxItem;
 
 /**
  * @author George Politis
@@ -46,7 +47,7 @@ public class FingerprintAuthenticationPanel
     /**
      * The "I have" / "I have not" combo box.
      */
-    private JComboBox cbAction;
+    private JComboBox<ActionComboBoxItem> cbAction;
 
     private ActionComboBoxItem actionIHave =
         new ActionComboBoxItem(ActionComboBoxItemIndex.I_HAVE);
@@ -105,7 +106,7 @@ public class FingerprintAuthenticationPanel
         c.insets = new Insets(5, 5, 5, 5);
         c.weightx = 0.0;
 
-        cbAction = new JComboBox();
+        cbAction = new JComboBox<ActionComboBoxItem>();
         cbAction.addItem(actionIHave);
         cbAction.addItem(actionIHaveNot);
 
@@ -139,9 +140,9 @@ public class FingerprintAuthenticationPanel
         c.gridy = 0;
     }
 
-    public JComboBox getCbAction()
+    public JComboBox<ActionComboBoxItem> getCbAction()
     {
-        return cbAction;
+        return this.cbAction;
     }
 
     /**

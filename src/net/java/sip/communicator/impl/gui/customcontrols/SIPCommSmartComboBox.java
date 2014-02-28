@@ -25,7 +25,7 @@ import net.java.sip.communicator.util.skin.*;
  * @author Adam Netocny
  */
 public class SIPCommSmartComboBox<E>
-    extends JComboBox
+    extends JComboBox<E>
 {
     private static final long serialVersionUID = 0L;
 

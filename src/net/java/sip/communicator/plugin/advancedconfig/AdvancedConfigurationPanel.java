@@ -44,7 +44,7 @@ public class AdvancedConfigurationPanel
     /**
      * The configuration list.
      */
-    private final JList configList = new JList();
+    private final JList<ConfigurationForm> configList = new JList<ConfigurationForm>();
 
     /**
      * The center panel.
@@ -190,7 +190,7 @@ public class AdvancedConfigurationPanel
         if (configForm == null)
             throw new IllegalArgumentException("configForm");
 
-        DefaultListModel listModel = (DefaultListModel) configList.getModel();
+        DefaultListModel<ConfigurationForm> listModel = (DefaultListModel<ConfigurationForm>) configList.getModel();
 
         int i = 0;
         int count = listModel.getSize();
@@ -238,7 +238,7 @@ public class AdvancedConfigurationPanel
             return;
         }
 
-        DefaultListModel listModel = (DefaultListModel) configList.getModel();
+        DefaultListModel<ConfigurationForm> listModel = (DefaultListModel<ConfigurationForm>) configList.getModel();
 
         for(int count = listModel.getSize(), i = count - 1; i >= 0; i--)
         {
