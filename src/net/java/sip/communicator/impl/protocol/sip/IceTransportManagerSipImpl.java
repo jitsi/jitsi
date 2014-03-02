@@ -11,6 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
+import net.java.sip.communicator.util.*;
 import org.ice4j.ice.*;
 import org.ice4j.ice.sdp.*;
 import org.jitsi.service.neomedia.*;
@@ -26,6 +27,12 @@ import javax.sdp.*;
 public class IceTransportManagerSipImpl
     extends TransportManagerSipImpl
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>IceTransportManagerSipImpl</tt>
+     * class and its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(IceTransportManagerSipImpl.class);
 
     /**
      * Ths ICE {@link Agent} that this transport manager is using for
@@ -74,6 +81,7 @@ public class IceTransportManagerSipImpl
      *
      * @throws OperationFailedException if we fail to allocate a port number.
      */
+    @Override
     public void startCandidateHarvest(SessionDescription ourOffer,
                                       Object             trickleCallback,
                                       boolean            advertiseTrickle,
@@ -98,6 +106,8 @@ public class IceTransportManagerSipImpl
 
         //now that our iceAgent is ready, reflect it on our offer.
         IceSdpUtils.initSessionDescription(ourOffer, iceAgent);
+
+logger.fatal("our offer:"+ourOffer);
     }
 
     /**

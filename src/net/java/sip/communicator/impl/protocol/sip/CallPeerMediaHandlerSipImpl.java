@@ -104,9 +104,15 @@ public class CallPeerMediaHandlerSipImpl
         super(peer, peer);
 
         if(isUseIce())
+        {
+logger.fatal("WITH ICE :)");
             transportManager = new IceTransportManagerSipImpl(peer);
+        }
         else
+        {
+logger.fatal("WITHOUT ICE :)");
             transportManager = new TransportManagerSipImpl(peer);
+        }
 
         qualityControls = new QualityControlWrapper(peer);
     }
@@ -166,8 +172,8 @@ public class CallPeerMediaHandlerSipImpl
 
         //in case we are using ICE, start the harvest now. this would have
         //no effect otherwise.
-        //getTransportManager().startCandidateHarvest(
-        //    sDes, null, false, false, false, false, false);
+        getTransportManager().startCandidateHarvest(
+            sDes, null, false, false, false, false, false);
 
         this.localSess = sDes;
         return localSess;

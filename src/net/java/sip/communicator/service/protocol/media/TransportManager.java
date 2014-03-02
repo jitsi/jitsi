@@ -787,7 +787,49 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     protected IceMediaStream createIceStream(String media, Agent agent)
         throws OperationFailedException
     {
-        return null;
+        IceMediaStream stream;
+        PortTracker portTracker;
+
+        try
+        {
+            portTracker = getPortTracker(media);
+            //the following call involves STUN processing so it may take a while
+            stream = getNetAddrMgr().createIceStream(
+                        portTracker.getPort(),
+                        media,
+                        agent);
+        }
+        catch (Exception ex)
+        {
+            throw new OperationFailedException(
+                    "Failed to initialize stream " + media,
+                    OperationFailedException.INTERNAL_ERROR,
+                    ex);
+        }
+
+        //let's now update the next port var as best we can: we would assume
+        //that all local candidates are bound on the same port and set it
+        //to the one just above. if the assumption is wrong the next bind
+        //would simply include one more bind retry.
+        try
+        {
+            portTracker.setNextPort(
+                    1
+                        + stream
+                            .getComponent(Component.RTCP)
+                                .getLocalCandidates()
+                                    .get(0)
+                                        .getTransportAddress()
+                                            .getPort());
+        }
+        catch(Throwable t)
+        {
+            //hey, we were just trying to be nice. if that didn't work for
+            //some reason we really can't be held responsible!
+            logger.debug("Determining next port didn't work: ", t);
+        }
+
+        return stream;
     }
 
     /**
