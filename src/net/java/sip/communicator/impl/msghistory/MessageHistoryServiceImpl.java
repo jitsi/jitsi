@@ -2310,6 +2310,7 @@ public class MessageHistoryServiceImpl
 
     /**
      * Simple ChatRoomMember implementation.
+     * Searches and for contact matches, to use its display name.
      */
     static class ChatRoomMemberImpl
         implements ChatRoomMember
@@ -2317,6 +2318,10 @@ public class MessageHistoryServiceImpl
         private final ChatRoom chatRoom;
         private final String name;
         private ChatRoomMemberRole role;
+
+        private Contact contact = null;
+
+        private OperationSetPersistentPresence opsetPresence = null;
 
         public ChatRoomMemberImpl(String name, ChatRoom chatRoom,
             ChatRoomMemberRole role)
@@ -2343,6 +2348,13 @@ public class MessageHistoryServiceImpl
 
         public String getName()
         {
+            String name = this.name;
+            if(getContact() != null
+                && getContact().getDisplayName() != null)
+            {
+                name = getContact().getDisplayName();
+            }
+
             return name;
         }
 
@@ -2363,7 +2375,19 @@ public class MessageHistoryServiceImpl
 
         public Contact getContact()
         {
-            return null;
+            if(contact == null && opsetPresence == null)
+            {
+                opsetPresence = getProtocolProvider().getOperationSet(
+                    OperationSetPersistentPresence.class);
+
+                if(opsetPresence != null)
+                {
+                    contact
+                        = opsetPresence.findContactByID(getContactAddress());
+                }
+            }
+
+            return contact;
         }
 
         public ConferenceDescription getConferenceDescription()
