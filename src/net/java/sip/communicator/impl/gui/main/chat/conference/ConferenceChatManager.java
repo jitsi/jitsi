@@ -280,6 +280,15 @@ public class ConferenceChatManager
                             break;
                         }
                     }
+
+                    Message m2 = evt.getMessage();
+
+                    if(m2 != null
+                        && m2.getContent().equals(messageContent))
+                    {
+                        isPresent = true;
+                        break;
+                    }
                 }
 
                 if (isPresent)

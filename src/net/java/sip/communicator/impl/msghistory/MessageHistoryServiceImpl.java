@@ -1005,8 +1005,8 @@ public class MessageHistoryServiceImpl
             {
                 Collection<EventObject> c =
                     findFirstMessagesAfter(evt.getSourceChatRoom(),
-                        evt.getTimestamp(),
-                        10);
+                        new Date(evt.getTimestamp().getTime() - 10000),
+                        20);
 
                 Iterator<EventObject> iter = c.iterator();
                 boolean isPresent = false;
@@ -1024,6 +1024,17 @@ public class MessageHistoryServiceImpl
                                                 .getContactAddress())
                             && evt.getTimestamp() != null
                             && evt.getTimestamp().equals(cev.getTimestamp()))
+                        {
+                            isPresent = true;
+                            break;
+                        }
+
+                        // also check and message content
+                        Message m1 = cev.getMessage();
+                        Message m2 = evt.getMessage();
+
+                        if(m1 != null && m2 != null
+                           && m1.getContent().equals(m2.getContent()))
                         {
                             isPresent = true;
                             break;
@@ -1064,8 +1075,8 @@ public class MessageHistoryServiceImpl
             {
                 Collection<EventObject> c =
                     findFirstMessagesAfter(evt.getSourceChatRoom(),
-                        evt.getTimestamp(),
-                        10);
+                        new Date(evt.getTimestamp().getTime() - 10000),
+                        20);
 
                 Iterator<EventObject> iter = c.iterator();
                 boolean isPresent = false;
@@ -1079,6 +1090,17 @@ public class MessageHistoryServiceImpl
 
                         if(evt.getTimestamp() != null
                             && evt.getTimestamp().equals(cev.getTimestamp()))
+                        {
+                            isPresent = true;
+                            break;
+                        }
+
+                        // also check and message content
+                        Message m1 = cev.getMessage();
+                        Message m2 = evt.getMessage();
+
+                        if(m1 != null && m2 != null
+                            && m1.getContent().equals(m2.getContent()))
                         {
                             isPresent = true;
                             break;
