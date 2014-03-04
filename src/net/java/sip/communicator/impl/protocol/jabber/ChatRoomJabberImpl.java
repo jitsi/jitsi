@@ -16,6 +16,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
+import org.apache.commons.lang3.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
@@ -1166,7 +1167,7 @@ public class ChatRoomJabberImpl
             //smack returns fully qualified occupant names.
             ChatRoomMemberJabberImpl member = new ChatRoomMemberJabberImpl(
                   ChatRoomJabberImpl.this,
-                  occupant.getNick(),
+                  StringEscapeUtils.unescapeXml(occupant.getNick()),
                   occupant.getJid());
 
             members.put(participantName, member);
