@@ -1020,6 +1020,8 @@ public class MessageHistoryServiceImpl
                             (ChatRoomMessageReceivedEvent)e;
 
                         if( evt.getSourceChatRoomMember().getContactAddress()
+                                != null
+                            && evt.getSourceChatRoomMember().getContactAddress()
                                 .equals(cev.getSourceChatRoomMember()
                                                 .getContactAddress())
                             && evt.getTimestamp() != null

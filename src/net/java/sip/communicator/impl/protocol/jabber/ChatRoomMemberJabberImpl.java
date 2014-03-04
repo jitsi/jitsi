@@ -110,6 +110,7 @@ public class ChatRoomMemberJabberImpl
     {
         return jabberID;
     }
+
     /**
      * Returns the contact identifier representing this contact.
      *
@@ -119,7 +120,7 @@ public class ChatRoomMemberJabberImpl
      */
     public String getContactAddress()
     {
-        return StringUtils.parseBareAddress(jabberID);
+        return nickName;
     }
 
     /**
