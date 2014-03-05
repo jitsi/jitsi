@@ -209,6 +209,17 @@ public abstract class AccountID
     }
 
     /**
+     * Sets {@link ProtocolProviderFactory#DISPLAY_NAME} property value.
+     *
+     * @param displayName the display name value to set.
+     */
+    public void setDisplayName(String displayName)
+    {
+        setOrRemoveIfEmpty(ProtocolProviderFactory.DISPLAY_NAME,
+            displayName);
+    }
+
+    /**
      * Returns the display name of the protocol.
      *
      * @return the display name of the protocol
