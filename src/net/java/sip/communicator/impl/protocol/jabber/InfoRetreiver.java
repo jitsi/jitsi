@@ -14,6 +14,7 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
 
+import org.apache.commons.lang3.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
@@ -158,23 +159,28 @@ public class InfoRetreiver
 
             tmp = checkForFullName(card);
             if(tmp != null)
-                result.add(new DisplayNameDetail(tmp));
+                result.add(new DisplayNameDetail(
+                    StringEscapeUtils.unescapeXml(tmp)));
 
             tmp = card.getFirstName();
             if(tmp != null)
-                result.add(new FirstNameDetail(tmp));
+                result.add(new FirstNameDetail(
+                    StringEscapeUtils.unescapeXml(tmp)));
 
             tmp = card.getMiddleName();
             if(tmp != null)
-                result.add(new MiddleNameDetail(tmp));
+                result.add(new MiddleNameDetail(
+                    StringEscapeUtils.unescapeXml(tmp)));
 
             tmp = card.getLastName();
             if(tmp != null)
-                result.add(new LastNameDetail(tmp));
+                result.add(new LastNameDetail(
+                    StringEscapeUtils.unescapeXml(tmp)));
 
             tmp = card.getNickName();
             if(tmp != null)
-                result.add(new NicknameDetail(tmp));
+                result.add(new NicknameDetail(
+                    StringEscapeUtils.unescapeXml(tmp)));
 
             tmp = card.getField("BDAY");
             if (tmp != null)
