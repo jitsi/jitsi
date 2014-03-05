@@ -40,7 +40,6 @@ public class BaseChatRoomSourceContact
      * @param chatRoomID the id of the chat room associated with the room.
      * @param query the query associated with the contact.
      * @param pps the protocol provider of the contact.
-     * @param isAutoJoin the auto join state.
      */
     public BaseChatRoomSourceContact(String chatRoomName, 
         String chatRoomID, ContactQuery query, ProtocolProviderService pps)

@@ -23,8 +23,9 @@ import net.java.sip.communicator.service.protocol.event.*;
  */
 public class ChatRoomQuery
     extends AsyncContactQuery<ContactSourceService>
-    implements LocalUserChatRoomPresenceListener, ChatRoomListChangeListener, 
-    ChatRoomProviderWrapperListener
+    implements LocalUserChatRoomPresenceListener,
+               ChatRoomListChangeListener,
+               ChatRoomProviderWrapperListener
 {
     /**
      * The query string.
