@@ -41,20 +41,20 @@ public class AddrBookActivator
      */
     public static final String PNAME_ENABLE_MACOSX_ADDRESS_BOOK_SEARCH =
         "plugin.addrbook.ENABLE_MACOSX_ADDRESS_BOOK_SEARCH";
-    
+
     /**
      * Boolean property that defines whether changing the default IM application
      * is enabled or not.
      */
-    public static final String PNAME_ENABLE_DEFAULT_IM_APPLICATION_CHANGE = 
+    public static final String PNAME_ENABLE_DEFAULT_IM_APPLICATION_CHANGE =
         "plugin.addrbook.ENABLE_DEFAULT_IM_APPLICATION_CHANGE";
-    
+
     /**
-     * Boolean property that defines whether Jitsi should be the default IM 
+     * Boolean property that defines whether Jitsi should be the default IM
      * Application or not.
      */
-    public static final String PNAME_MAKE_JITSI_DEFAULT_IM_APPLICATION = 
-        "plugin.addrbook.MAKE_JITSI_DEFAULT_IM_APPLICATION";
+    public static final String PNAME_MAKE_JITSI_DEFAULT_IM_APPLICATION =
+        "plugin.addrbook.REGISTER_AS_DEFAULT_IM_PROVIDER";
 
     /**
      * The <tt>Logger</tt> used by the <tt>AddrBookActivator</tt> class and its
@@ -62,7 +62,7 @@ public class AddrBookActivator
      */
     private static final Logger logger
         = Logger.getLogger(AddrBookActivator.class);
-    
+
     /**
      * The <tt>BundleContext</tt> in which the addrbook plug-in is started.
      */
@@ -215,7 +215,7 @@ public class AddrBookActivator
         }
         else
             return;
-        
+
         if (OSUtils.IS_WINDOWS
             && configService.getBoolean(
                 PNAME_ENABLE_DEFAULT_IM_APPLICATION_CHANGE, true))
@@ -225,12 +225,12 @@ public class AddrBookActivator
             if(isDefaultIMAppString == null)
             {
                 configService.setProperty(
-                    PNAME_MAKE_JITSI_DEFAULT_IM_APPLICATION, 
+                    PNAME_MAKE_JITSI_DEFAULT_IM_APPLICATION,
                     DefaultIMApp.isJitsiDefaultIMApp());
             }
             else
             {
-                boolean isDefaultIMApp 
+                boolean isDefaultIMApp
                     = Boolean.parseBoolean(isDefaultIMAppString);
                 if(DefaultIMApp.isJitsiDefaultIMApp() != isDefaultIMApp)
                 {
