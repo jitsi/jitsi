@@ -242,6 +242,7 @@ public class GeneralConfigurationPanel
         configPanel.add(createBringToFrontCheckBox());
         configPanel.add(createChatAlertsOnMessageCheckbox());
         configPanel.add(createMultichatCheckbox());
+        configPanel.add(createRecentMessagesCheckbox());
 
         return configPanel;
     }
@@ -325,6 +326,33 @@ public class GeneralConfigurationPanel
         });
 
         return leaveChatroomCheckBox;
+    }
+
+    /**
+     * Initializes the recent messages check box.
+     * @return the created check box
+     */
+    private Component createRecentMessagesCheckbox()
+    {
+        final JCheckBox recentMessagesCheckBox = new SIPCommCheckBox();
+        recentMessagesCheckBox.setText(
+            Resources.getString(
+                "plugin.generalconfig.SHOW_RECENT_MESSAGES"));
+
+        recentMessagesCheckBox.setAlignmentX(JCheckBox.LEFT_ALIGNMENT);
+        recentMessagesCheckBox.setSelected(
+            ConfigurationUtils.isRecentMessagesShown());
+
+        recentMessagesCheckBox.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                ConfigurationUtils.setRecentMessagesShown(
+                    recentMessagesCheckBox.isSelected());
+            }
+        });
+
+        return recentMessagesCheckBox;
     }
 
     /**

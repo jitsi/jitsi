@@ -107,6 +107,11 @@ public class ConfigurationUtils
     private static boolean isHistoryShown;
 
     /**
+     * Indicates if the recent messages should be shown.
+     */
+    private static boolean isRecentMessagesShown = true;
+
+    /**
      * The size of the chat history to show in chat window.
      */
     private static int chatHistorySize;
@@ -536,6 +541,12 @@ public class ConfigurationUtils
             isHistoryShown
                 = Boolean.parseBoolean(isHistoryShownString);
         }
+
+        // Load the "isRecentMessagesShown" property.
+        isRecentMessagesShown
+            = !configService.getBoolean(
+                    MessageHistoryService.PNAME_IS_RECENT_MESSAGES_DISABLED,
+                    !isRecentMessagesShown);
 
         // Load the "chatHistorySize" property.
         String chatHistorySizeStringProperty =
@@ -1158,6 +1169,18 @@ public class ConfigurationUtils
     }
 
     /**
+     * Returns <code>true</code> if the "isRecentMessagesShown" property is
+     * true, otherwise - returns <code>false</code>. Indicates to the user
+     * whether the recent messages are shown.
+     * @return <code>true</code> if the "isRecentMessagesShown" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isRecentMessagesShown()
+    {
+        return isRecentMessagesShown;
+    }
+
+    /**
      * Updates the "isHistoryShown" property through the
      * <tt>ConfigurationService</tt>.
      *
@@ -1170,6 +1193,21 @@ public class ConfigurationUtils
         configService.setProperty(
             "service.gui.IS_MESSAGE_HISTORY_SHOWN",
             Boolean.toString(isHistoryShown));
+    }
+
+    /**
+     * Updates the "isRecentMessagesShown" property through the
+     * <tt>ConfigurationService</tt>.
+     *
+     * @param isShown indicates if the recent messages is shown
+     */
+    public static void setRecentMessagesShown(boolean isShown)
+    {
+        isRecentMessagesShown = isShown;
+
+        configService.setProperty(
+            MessageHistoryService.PNAME_IS_RECENT_MESSAGES_DISABLED,
+            Boolean.toString(!isRecentMessagesShown));
     }
 
     /**
