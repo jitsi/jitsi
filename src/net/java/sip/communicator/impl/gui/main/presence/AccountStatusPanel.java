@@ -449,6 +449,7 @@ public class AccountStatusPanel
             final GlobalDisplayNameChangeEvent event)
     {
         if (!SwingUtilities.isEventDispatchThread())
+        {
             SwingUtilities.invokeLater(new Runnable()
             {
                 public void run()
@@ -457,6 +458,8 @@ public class AccountStatusPanel
                     return;
                 }
             });
+            return;
+        }
 
         String displayName = event.getNewDisplayName();
 

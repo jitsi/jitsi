@@ -182,8 +182,21 @@ public class AccountInfoPanel
     private class RegistrationStateChangeListenerImpl
         implements RegistrationStateChangeListener
     {
-        public void registrationStateChanged(RegistrationStateChangeEvent evt)
+        public void registrationStateChanged(
+            final RegistrationStateChangeEvent evt)
         {
+            if(!SwingUtilities.isEventDispatchThread())
+            {
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    public void run()
+                    {
+                        registrationStateChanged(evt);
+                    }
+                });
+                return;
+            }
+
             ProtocolProviderService protocolProvider = evt.getProvider();
 
             if (evt.getNewState() == RegistrationState.REGISTERED)
@@ -229,8 +242,20 @@ public class AccountInfoPanel
      * @param event
      */
     @Override
-    public void serviceChanged(ServiceEvent event)
+    public void serviceChanged(final ServiceEvent event)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    serviceChanged(event);
+                }
+            });
+            return;
+        }
+
         // Get the service from the event.
         Object service
             = AccountInfoActivator.bundleContext.getService(

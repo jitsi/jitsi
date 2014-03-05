@@ -14,6 +14,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
+import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 import org.jitsi.util.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
@@ -676,6 +677,22 @@ public class AccountDetailsPanel
     {
         if (accountInfoOpSet != null)
         {
+            new DetailsLoadWorker().start();
+        }
+    }
+
+    /**
+     * Loads details in separate thread.
+     */
+    private class DetailsLoadWorker
+        extends SwingWorker
+    {
+
+        @Override
+        protected Object construct()
+            throws
+            Exception
+        {
             Iterator<GenericDetail> allDetails =
                 accountInfoOpSet.getAllAvailableDetails();
 
@@ -685,9 +702,19 @@ public class AccountDetailsPanel
                 loadDetail(detail);
             }
 
+            return null;
+        }
+
+        /**
+         * Called on the event dispatching thread (not on the worker thread)
+         * after the <code>construct</code> method has returned.
+         */
+        @Override
+        protected void finished()
+        {
             boolean isAnyDetailEditable = false;
             for (Class<? extends GenericDetail> editable :
-                    detailToTextField.keySet())
+                detailToTextField.keySet())
             {
                 if (accountInfoOpSet.isDetailClassEditable(editable))
                 {

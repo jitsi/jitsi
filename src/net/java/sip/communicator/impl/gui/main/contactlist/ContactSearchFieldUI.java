@@ -236,11 +236,23 @@ public class ContactSearchFieldUI
     {
 
         @Override
-        public void registrationStateChanged(RegistrationStateChangeEvent evt)
+        public void registrationStateChanged(
+            final RegistrationStateChangeEvent evt)
         {
+            if(!SwingUtilities.isEventDispatchThread())
+            {
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    public void run()
+                    {
+                        registrationStateChanged(evt);
+                    }
+                });
+                return;
+            }
+
             setCallButtonEnabled(isCallButtonEnabled);
         }
-        
     }
 
     /**
