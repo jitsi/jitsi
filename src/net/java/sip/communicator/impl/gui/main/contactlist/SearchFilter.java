@@ -191,6 +191,9 @@ public class SearchFilter
         else
             contactQuery = sourceService.createContactQuery(filterString);
 
+        if(contactQuery == null)
+            return null;
+
         contactQuery.addContactQueryListener(sourceContactList);
 
         if (contactQuery.getStatus() == ContactQuery.QUERY_IN_PROGRESS)

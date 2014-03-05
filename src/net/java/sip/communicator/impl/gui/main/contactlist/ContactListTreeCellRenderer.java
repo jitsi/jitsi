@@ -324,17 +324,45 @@ public class ContactListTreeCellRenderer
                             .startChat(
                                 (MetaContact) contactDescriptor.getDescriptor());
                     }
-                    else if(((SourceContact) contactDescriptor.getDescriptor())
-                        .getContactDetails(OperationSetMultiUserChat.class)
-                            != null)
+                    else if(contactDescriptor.getDescriptor()
+                            instanceof SourceContact)
                     {
                         SourceContact contact = (SourceContact)
                             contactDescriptor.getDescriptor();
-                        ChatRoomWrapper room
-                            = GuiActivator.getMUCService()
+
+                        List<ContactDetail> imDetails
+                            = contact.getContactDetails(
+                                OperationSetBasicInstantMessaging.class);
+                        List<ContactDetail> mucDetails
+                            = contact.getContactDetails(
+                                OperationSetMultiUserChat.class);
+
+                        if(imDetails != null && imDetails.size() > 0)
+                        {
+                            GuiActivator.getUIService().getChatWindowManager()
+                                .startChat(contact.getContactAddress());
+                        }
+                        else if(mucDetails != null && mucDetails.size() > 0)
+                        {
+                            ChatRoomWrapper room = GuiActivator.getMUCService()
                                 .findChatRoomWrapperFromSourceContact(contact);
-                        if(room != null)
-                            GuiActivator.getMUCService().openChatRoom(room);
+
+                            if(room == null)
+                            {
+                                // lets check by id
+                                ProtocolProviderService pps =
+                                    mucDetails.get(0)
+                                        .getPreferredProtocolProvider(
+                                            OperationSetMultiUserChat.class);
+
+                                room = GuiActivator.getMUCService()
+                                    .findChatRoomWrapperFromChatRoomID(
+                                        contact.getContactAddress(), pps);
+                            }
+
+                            if(room != null)
+                                GuiActivator.getMUCService().openChatRoom(room);
+                        }
                     }
                 }
             }
@@ -427,8 +455,9 @@ public class ContactListTreeCellRenderer
             UIContactImpl contact
                 = ((ContactNode) value).getContactDescriptor();
 
-            if((contact.getDescriptor() instanceof SourceContact) &&
-                GuiActivator.getMUCService().isMUCSourceContact((SourceContact)contact.getDescriptor()))
+            if((contact.getDescriptor() instanceof SourceContact)
+                && GuiActivator.getMUCService().isMUCSourceContact(
+                        (SourceContact) contact.getDescriptor()))
             {
                 setBackground(Constants.CHAT_ROOM_ROW_COLOR);
             }

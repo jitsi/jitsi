@@ -68,8 +68,11 @@ public class PresenceFilter
     {
         //This entry will be used to set the index for chat room contact sources
         //The index is used to order the contact sources in the contact list.
+        // And recent messages first in the list
+        contactSourcePreferences.put(
+            ContactSourceService.RECENT_MESSAGES_TYPE, 0);
         //The chat room sources will be ordered before the meta contact list.
-        contactSourcePreferences.put(ContactSourceService.CHAT_ROOM_TYPE, 0);
+        contactSourcePreferences.put(ContactSourceService.CHAT_ROOM_TYPE, 1);
     }
 
     /**
@@ -212,7 +215,7 @@ public class PresenceFilter
      * Returns <tt>true</tt> if offline contacts are shown or if the given
      * <tt>MetaContact</tt> is online, otherwise returns false.
      *
-     * @param metaContact the <tt>MetaContact</tt> to check
+     * @param contact the <tt>MetaContact</tt> to check
      * @return <tt>true</tt> if the given <tt>MetaContact</tt> is matching this
      * filter
      */

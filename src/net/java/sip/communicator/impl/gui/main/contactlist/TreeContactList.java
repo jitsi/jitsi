@@ -668,7 +668,8 @@ public class TreeContactList
             @Override
             public int getSourceIndex()
             {
-                return GuiActivator.getContactListService().getSourceIndex();
+                return GuiActivator.getContactListService().getSourceIndex()
+                    * net.java.sip.communicator.service.gui.UIGroup.MAX_GROUPS;
             }
 
             @Override
@@ -1808,17 +1809,42 @@ public class TreeContactList
                 GuiActivator.getUIService().getChatWindowManager()
                     .startChat((MetaContact) uiContact.getDescriptor());
             }
-            else if(((SourceContact) uiContact.getDescriptor())
-                .getContactDetails(OperationSetMultiUserChat.class)
-                != null)
+            else if(uiContact.getDescriptor() instanceof SourceContact)
             {
-                SourceContact contact = (SourceContact)
-                    uiContact.getDescriptor();
-                ChatRoomWrapper room
-                    = GuiActivator.getMUCService()
+                SourceContact contact
+                    = (SourceContact)uiContact.getDescriptor();
+
+                List<ContactDetail> imDetails = contact.getContactDetails(
+                    OperationSetBasicInstantMessaging.class);
+                List<ContactDetail> mucDetails = contact.getContactDetails(
+                    OperationSetMultiUserChat.class);
+
+                if(imDetails != null && imDetails.size() > 0)
+                {
+                    GuiActivator.getUIService().getChatWindowManager()
+                        .startChat(contact.getContactAddress());
+                }
+                else if(mucDetails != null && mucDetails.size() > 0)
+                {
+                    ChatRoomWrapper room
+                        = GuiActivator.getMUCService()
                         .findChatRoomWrapperFromSourceContact(contact);
-                if(room != null)
-                    GuiActivator.getMUCService().openChatRoom(room);
+
+                    if(room == null)
+                    {
+                        // lets check by id
+                        ProtocolProviderService pps =
+                            mucDetails.get(0).getPreferredProtocolProvider(
+                                OperationSetMultiUserChat.class);
+
+                        room = GuiActivator.getMUCService()
+                            .findChatRoomWrapperFromChatRoomID(
+                                contact.getContactAddress(), pps);
+                    }
+
+                    if(room != null)
+                        GuiActivator.getMUCService().openChatRoom(room);
+                }
             }
         }
     }
@@ -2442,9 +2468,7 @@ public class TreeContactList
                 break;
             }
 
-            // We don't need to refresh the filter if this is the presence
-            // filter, because it doesn't depend on any contact sources.
-            if(changed && !currentFilter.equals(presenceFilter))
+            if(changed)
             {
                 if(currentFilter.equals(defaultFilter))
                     applyDefaultFilter();
