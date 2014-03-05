@@ -283,9 +283,16 @@ public class IrcStack
         synchronized (this.irc)
         {
             // Disconnect and clean up
-            // FIXME Currently might throw ChannelClosedException since this is
-            // not correctly handled inside irc-api.
-            this.irc.disconnect();
+            try
+            {
+                this.irc.disconnect();
+            }
+            catch (RuntimeException e)
+            {
+                // Disconnect might throw ChannelClosedException. Shouldn't be a
+                // problem, but for now lets log it just to be sure.
+                LOGGER.debug("exception occurred while disconnecting", e);
+            }
             this.irc = null;
             this.connectionState = null;
         }
