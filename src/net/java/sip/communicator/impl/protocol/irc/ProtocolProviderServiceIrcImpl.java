@@ -185,7 +185,7 @@ public class ProtocolProviderServiceIrcImpl
             accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactory.AUTO_CHANGE_USER_NAME, true);
         boolean passwordRequired =
-            accountID.getAccountPropertyBoolean(
+            !accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactory.NO_PASSWORD_REQUIRED, true);
         boolean secureConnection =
             accountID.getAccountPropertyBoolean(
