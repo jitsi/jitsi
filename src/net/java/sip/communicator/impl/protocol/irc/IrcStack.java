@@ -31,6 +31,7 @@ import com.ircclouds.irc.api.state.*;
  * @author Danny van Heumen
  * 
  * TODO Make irc-api OSGi aware.
+ * FIXME Surround expensive LOGGER calls with if-conditions.
  */
 public class IrcStack
 {
