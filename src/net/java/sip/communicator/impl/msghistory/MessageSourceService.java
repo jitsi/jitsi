@@ -299,7 +299,7 @@ public class MessageSourceService
             SimpleDateFormat sdf
                 = new SimpleDateFormat(HistoryService.DATE_FORMAT);
 
-            for(MessageSourceContact msc : recentMessages)
+            for(MessageSourceContact msc : getRecentMessages())
             {
                 writer.addRecord(
                     new String[]
@@ -324,7 +324,7 @@ public class MessageSourceService
      */
     int getIndex(MessageSourceContact messageSourceContact)
     {
-        return recentMessages.indexOf(messageSourceContact);
+        return getRecentMessages().indexOf(messageSourceContact);
     }
 
     /**
@@ -381,7 +381,7 @@ public class MessageSourceService
                 null);
 
         List<String> recentMessagesForProvider = new LinkedList<String>();
-        for(MessageSourceContact msc : recentMessages)
+        for(MessageSourceContact msc : getRecentMessages())
         {
             if(msc.getProtocolProviderService().equals(evt.getProvider()))
                 recentMessagesForProvider.add(msc.getContactAddress());
@@ -477,7 +477,7 @@ public class MessageSourceService
                         String id)
     {
         // check if provider - contact exist update message content
-        for(MessageSourceContact msc : recentMessages)
+        for(MessageSourceContact msc : getRecentMessages())
         {
             if(msc.getProtocolProviderService().equals(provider)
                 && msc.getContactAddress().equals(id))
