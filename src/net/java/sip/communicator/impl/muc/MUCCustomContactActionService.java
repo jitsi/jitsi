@@ -41,7 +41,7 @@ public class MUCCustomContactActionService
      *
      */
     private static final String OWNER_CANT_REMOVE_CHATROOM_PROPERTY
-        = "net.sip.communicator.impl.muc.OWNER_CANT_REMOVE_CHATROOM";
+        = "net.java.sip.communicator.impl.muc.OWNER_CANT_REMOVE_CHATROOM";
 
     /**
      * Array of names for the custom actions.
@@ -675,11 +675,17 @@ public class MUCCustomContactActionService
                 if(room == null || room.getChatRoom() == null)
                     return true;
 
+                boolean ownerCannotRemoveRoom
+                    = MUCActivator.getConfigurationService().getBoolean(
+                            OWNER_CANT_REMOVE_CHATROOM_PROPERTY, false);
+
+                if(ownerCannotRemoveRoom && !room.getChatRoom().isJoined())
+                    return false;
+
                 if(room.getChatRoom().getUserRole().equals(
                     ChatRoomMemberRole.OWNER))
                 {
-                    if(MUCActivator.getConfigurationService().getBoolean(
-                        OWNER_CANT_REMOVE_CHATROOM_PROPERTY, false))
+                    if(ownerCannotRemoveRoom)
                     {
                         return false;
                     }
