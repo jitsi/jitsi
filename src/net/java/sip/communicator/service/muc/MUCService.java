@@ -279,6 +279,17 @@ public abstract class MUCService
     }
 
     /**
+     * Finds the <tt>ChatRoomWrapper</tt> instance associated with the
+     * chat room.
+     * @param chatRoomID the id of the chat room.
+     * @param pps the provider of the chat room.
+     * @return the <tt>ChatRoomWrapper</tt> instance.
+     */
+    public abstract ChatRoomWrapper findChatRoomWrapperFromChatRoomID(
+        String chatRoomID,
+        ProtocolProviderService pps);
+
+    /**
      * Goes through the locally stored chat rooms list and for each
      * {@link ChatRoomWrapper} tries to find the corresponding server stored
      * {@link ChatRoom} in the specified operation set. Joins automatically all

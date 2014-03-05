@@ -15,6 +15,7 @@ import java.text.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.event.*;
 import net.java.sip.communicator.service.history.event.ProgressEvent;
@@ -27,7 +28,6 @@ import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.account.*;
 import org.jitsi.service.configuration.*;
-import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**
@@ -84,13 +84,20 @@ public class MessageHistoryServiceImpl
 
     private MessageHistoryPropertyChangeListener msgHistoryPropListener;
 
-    private static ResourceManagementService resourcesService;
-
     /**
      * Indicates if history logging is enabled.
      */
     private static boolean isHistoryLoggingEnabled;
 
+    /**
+     * The message source service, can be null if not enabled.
+     */
+    private MessageSourceService messageSourceService;
+
+    /**
+     * The message source service registration.
+     */
+    private ServiceRegistration messageSourceServiceReg = null;
 
     /**
      * Returns the history service.
@@ -342,15 +349,20 @@ public class MessageHistoryServiceImpl
      * Returns the messages for the recently contacted <tt>count</tt> contacts.
      *
      * @param count contacts count
+     * @param providerToFilter can be filtered by provider, or <tt>null</tt> to
+     * search for all providers
+     * @param contactToFilter can be filtered by contac, or <tt>null</tt> to
+     * search for all contacts
      * @return Collection of MessageReceivedEvents or MessageDeliveredEvents
      * @throws RuntimeException
      */
-    Collection<EventObject> findRecentMessagesPerContact(int count)
+    Collection<EventObject> findRecentMessagesPerContact(
+            int count, String providerToFilter, String contactToFilter)
         throws RuntimeException
     {
         TreeSet<EventObject> result
             = new TreeSet<EventObject>(
-            new MessageEventComparator<EventObject>());
+                    new MessageEventComparator<EventObject>(true));
 
         List<HistoryID> historyIDs=
             this.historyService.getExistingHistories(
@@ -363,11 +375,31 @@ public class MessageHistoryServiceImpl
 
             try
             {
-                // find contact for historyID
-                Contact contact = getContactForHistory(id);
+                // this history id is: "messages", localId, account, remoteId
+                if(id.getID().length != 4)
+                    continue;
+
+                // filter by protocol provider
+                String accountID = id.getID()[2].replace('_', ':');
+                if(providerToFilter != null
+                    && !accountID.startsWith(providerToFilter))
+                {
+                    continue;
+                }
+
+                if(contactToFilter != null
+                    && !contactToFilter.equals(id.getID()[3]))
+                {
+                    continue;
+                }
+
+                // find contact or chatroom for historyID
+                Object descriptor = getContactOrRoomByID(
+                    accountID,
+                    id.getID()[3]);
 
                 // skip not found contacts, disabled accounts and hidden one
-                if(contact == null)
+                if(descriptor == null)
                     continue;
 
                 History history;
@@ -386,8 +418,20 @@ public class MessageHistoryServiceImpl
                 Iterator<HistoryRecord> recs = reader.findLast(1);
                 while (recs.hasNext())
                 {
-                    result.add(convertHistoryRecordToMessageEvent(
-                        recs.next(), contact));
+                    if(descriptor instanceof Contact)
+                    {
+                        EventObject o = convertHistoryRecordToMessageEvent(
+                            recs.next(), (Contact) descriptor);
+
+                        result.add(o);
+                    }
+                    if(descriptor instanceof ChatRoom)
+                    {
+                        EventObject o = convertHistoryRecordToMessageEvent(
+                            recs.next(), (ChatRoom) descriptor);
+
+                        result.add(o);
+                    }
                     break;
                 }
             }
@@ -401,21 +445,16 @@ public class MessageHistoryServiceImpl
     }
 
     /**
-     * Founds the contact corresponding this HistoryID. Checks the account and
-     * then searches for the contact.
+     * Founds the contact or chat room corresponding this HistoryID. Checks the
+     * account and then searches for the contact or chat room.
      * Will skip hidden and disabled accounts.
      *
-     * @param id the history id.
-     * @return
+     * @param accountID the account id.
+     * @param id the contact or room id.
+     * @return contact or chat room.
      */
-    private Contact getContactForHistory(HistoryID id)
+    private Object getContactOrRoomByID(String accountID, String id)
     {
-        // this history id is: "messages", localId, account, remoteId
-        if(id.getID().length != 4)
-            return null;
-
-        String accountID = id.getID()[2].replace('_', ':');
-
         AccountID account = null;
         for(AccountID acc : AccountUtils.getStoredAccounts())
         {
@@ -443,7 +482,29 @@ public class MessageHistoryServiceImpl
         if(opSetPresence == null)
             return null;
 
-        return opSetPresence.findContactByID(id.getID()[3]);
+        Contact contact = opSetPresence.findContactByID(id);
+
+        if(contact != null)
+            return contact;
+
+        OperationSetMultiUserChat opSetMuc =
+            pps.getOperationSet(OperationSetMultiUserChat.class);
+
+        if(opSetMuc == null)
+            return null;
+
+        try
+        {
+            // will remove the server part
+            id = id.substring(0, id.lastIndexOf('@'));
+
+            return opSetMuc.findRoom(id);
+        }
+        catch(Exception e)
+        {
+            //logger.error("Cannot find room", e);
+            return null;
+        }
     }
 
     /**
@@ -915,7 +976,8 @@ public class MessageHistoryServiceImpl
         // service, and if not do not register the service.
         boolean isMessageHistoryEnabled = configService.getBoolean(
             MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED,
-            Boolean.parseBoolean(getResources().getSettingsString(
+            Boolean.parseBoolean(
+                MessageHistoryActivator.getResources().getSettingsString(
                 MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED))
             );
 
@@ -941,6 +1003,31 @@ public class MessageHistoryServiceImpl
                 logger.debug("Starting the msg history implementation.");
 
             this.loadMessageHistoryService();
+        }
+    }
+
+    /**
+     * Loads and registers the contact source service.
+     */
+    private void loadRecentMessages()
+    {
+        this.messageSourceService = new MessageSourceService();
+        messageSourceServiceReg = bundleContext.registerService(
+            ContactSourceService.class.getName(),
+            messageSourceService, null);
+    }
+
+    /**
+     * Unloads the contact source service.
+     */
+    private void stopRecentMessages()
+    {
+        if(messageSourceServiceReg != null)
+        {
+            messageSourceServiceReg.unregister();
+            messageSourceServiceReg = null;
+
+            this.messageSourceService = null;
         }
     }
 
@@ -1342,6 +1429,9 @@ public class MessageHistoryServiceImpl
         if (opSetIm != null)
         {
             opSetIm.addMessageListener(this);
+
+            if(this.messageSourceService != null)
+                opSetIm.addMessageListener(messageSourceService);
         }
         else
         {
@@ -1355,6 +1445,9 @@ public class MessageHistoryServiceImpl
         if (opSetSMS != null)
         {
             opSetSMS.addMessageListener(this);
+
+            if(this.messageSourceService != null)
+                opSetIm.addMessageListener(messageSourceService);
         }
         else
         {
@@ -1377,11 +1470,25 @@ public class MessageHistoryServiceImpl
             }
 
             opSetMultiUChat.addPresenceListener(this);
+
+            if(messageSourceService != null)
+                opSetMultiUChat.addPresenceListener(messageSourceService);
         }
         else
         {
             if (logger.isTraceEnabled())
                 logger.trace("Service did not have a multi im op. set.");
+        }
+
+        OperationSetPresence opSetPresence =
+            provider.getOperationSet(OperationSetPresence.class);
+
+        if (opSetPresence != null && messageSourceService != null)
+        {
+            opSetPresence
+                .addContactPresenceStatusListener(messageSourceService);
+            opSetPresence
+                .addProviderPresenceStatusListener(messageSourceService);
         }
     }
 
@@ -1399,6 +1506,9 @@ public class MessageHistoryServiceImpl
         if (opSetIm != null)
         {
             opSetIm.removeMessageListener(this);
+
+            if(this.messageSourceService != null)
+                opSetIm.removeMessageListener(messageSourceService);
         }
 
         OperationSetSmsMessaging opSetSMS =
@@ -1407,6 +1517,9 @@ public class MessageHistoryServiceImpl
         if (opSetSMS != null)
         {
             opSetSMS.removeMessageListener(this);
+
+            if(this.messageSourceService != null)
+                opSetIm.removeMessageListener(messageSourceService);
         }
 
         OperationSetMultiUserChat opSetMultiUChat =
@@ -1422,6 +1535,22 @@ public class MessageHistoryServiceImpl
                 ChatRoom room = iter.next();
                 room.removeMessageListener(this);
             }
+
+            opSetMultiUChat.removePresenceListener(this);
+
+            if(messageSourceService != null)
+                opSetMultiUChat.removePresenceListener(messageSourceService);
+        }
+
+        OperationSetPresence opSetPresence =
+            provider.getOperationSet(OperationSetPresence.class);
+
+        if (opSetPresence != null && messageSourceService != null)
+        {
+            opSetPresence
+                .removeContactPresenceStatusListener(messageSourceService);
+            opSetPresence
+                .removeProviderPresenceStatusListener(messageSourceService);
         }
     }
 
@@ -1438,11 +1567,19 @@ public class MessageHistoryServiceImpl
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED)
         {
             if (!evt.getChatRoom().isSystem())
+            {
                 evt.getChatRoom().addMessageListener(this);
+
+                if(this.messageSourceService != null)
+                    evt.getChatRoom().addMessageListener(messageSourceService);
+            }
         }
         else
         {
             evt.getChatRoom().removeMessageListener(this);
+
+            if(this.messageSourceService != null)
+                evt.getChatRoom().removeMessageListener(messageSourceService);
         }
     }
 
@@ -2117,30 +2254,6 @@ public class MessageHistoryServiceImpl
     }
 
     /**
-     * Get <tt>ResourceManagementService<tt> registered.
-     *
-     * @return <tt>ResourceManagementService</tt>
-     */
-    public static ResourceManagementService getResources()
-    {
-        if (resourcesService == null)
-        {
-            ServiceReference serviceReference
-                = MessageHistoryActivator.bundleContext
-                .getServiceReference(ResourceManagementService.class.getName());
-
-            if(serviceReference == null)
-                return null;
-
-            resourcesService = (ResourceManagementService)
-                MessageHistoryActivator.bundleContext
-                .getService(serviceReference);
-        }
-
-        return resourcesService;
-    }
-
-    /**
      * A wrapper around HistorySearchProgressListener
      * that fires events for MessageHistorySearchProgressListener
      */
@@ -2254,6 +2367,18 @@ public class MessageHistoryServiceImpl
     private static class MessageEventComparator<T>
         implements Comparator<T>
     {
+        private final boolean reverseOrder;
+
+        MessageEventComparator(boolean reverseOrder)
+        {
+            this.reverseOrder = reverseOrder;
+        }
+
+        MessageEventComparator()
+        {
+            this(false);
+        }
+
         public int compare(T o1, T o2)
         {
             Date date1;
@@ -2263,6 +2388,10 @@ public class MessageHistoryServiceImpl
                 date1 = ((MessageDeliveredEvent)o1).getTimestamp();
             else if(o1 instanceof MessageReceivedEvent)
                 date1 = ((MessageReceivedEvent)o1).getTimestamp();
+            else if(o1 instanceof ChatRoomMessageDeliveredEvent)
+                date1 = ((ChatRoomMessageDeliveredEvent)o1).getTimestamp();
+            else if(o1 instanceof ChatRoomMessageReceivedEvent)
+                date1 = ((ChatRoomMessageReceivedEvent)o1).getTimestamp();
             else
                 return 0;
 
@@ -2270,10 +2399,17 @@ public class MessageHistoryServiceImpl
                 date2 = ((MessageDeliveredEvent)o2).getTimestamp();
             else if(o2 instanceof MessageReceivedEvent)
                 date2 = ((MessageReceivedEvent)o2).getTimestamp();
+            else if(o2 instanceof ChatRoomMessageDeliveredEvent)
+                date2 = ((ChatRoomMessageDeliveredEvent)o2).getTimestamp();
+            else if(o2 instanceof ChatRoomMessageReceivedEvent)
+                date2 = ((ChatRoomMessageReceivedEvent)o2).getTimestamp();
             else
                 return 0;
 
-            return date1.compareTo(date2);
+            if(reverseOrder)
+                return date2.compareTo(date1);
+            else
+                return date1.compareTo(date2);
         }
     }
 
@@ -2410,15 +2546,35 @@ public class MessageHistoryServiceImpl
     {
         public void propertyChange(PropertyChangeEvent evt)
         {
-            String newPropertyValue = (String) evt.getNewValue();
-            isHistoryLoggingEnabled
-                = new Boolean(newPropertyValue).booleanValue();
+            if(evt.getPropertyName()
+                .equals(MessageHistoryService.PNAME_IS_MESSAGE_HISTORY_ENABLED))
+            {
+                String newPropertyValue = (String) evt.getNewValue();
+                isHistoryLoggingEnabled
+                    = new Boolean(newPropertyValue).booleanValue();
 
-            // If the message history is not enabled we stop here.
-            if (isHistoryLoggingEnabled)
-                loadMessageHistoryService();
-            else
-                stop(bundleContext);
+                // If the message history is not enabled we stop here.
+                if (isHistoryLoggingEnabled)
+                    loadMessageHistoryService();
+                else
+                    stop(bundleContext);
+            }
+            else if(evt.getPropertyName().equals(
+                MessageHistoryService.PNAME_IS_RECENT_MESSAGES_DISABLED))
+            {
+                String newPropertyValue = (String) evt.getNewValue();
+                boolean isDisabled
+                    = new Boolean(newPropertyValue).booleanValue();
+
+                if(isDisabled)
+                {
+                    stopRecentMessages();
+                }
+                else if(isHistoryLoggingEnabled)
+                {
+                    loadRecentMessages();
+                }
+            }
         }
     }
 
@@ -2429,6 +2585,17 @@ public class MessageHistoryServiceImpl
      */
     private void loadMessageHistoryService()
     {
+        configService.addPropertyChangeListener(
+            MessageHistoryService.PNAME_IS_RECENT_MESSAGES_DISABLED,
+            msgHistoryPropListener);
+
+        boolean isRecentMessagesDisabled = configService.getBoolean(
+            MessageHistoryService.PNAME_IS_RECENT_MESSAGES_DISABLED,
+            false);
+
+        if(!isRecentMessagesDisabled)
+            loadRecentMessages();
+
         // start listening for newly register or removed protocol providers
         bundleContext.addServiceListener(this);
 

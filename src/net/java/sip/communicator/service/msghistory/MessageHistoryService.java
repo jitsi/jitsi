@@ -30,6 +30,14 @@ public interface MessageHistoryService
             + "IS_MESSAGE_HISTORY_ENABLED";
 
     /**
+     * Name of the property that indicates whether the recent messages is
+     * enabled.
+     */
+    public static final String PNAME_IS_RECENT_MESSAGES_DISABLED
+        = "net.java.sip.communicator.service.msghistory."
+            + "IS_RECENT_MESSAGES_DISABLED";
+
+    /**
      * Name of the property that indicates whether the logging of messages is
      * enabled.
      */

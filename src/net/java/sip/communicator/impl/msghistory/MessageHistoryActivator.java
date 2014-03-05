@@ -11,6 +11,8 @@ import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**
@@ -32,12 +34,22 @@ public class MessageHistoryActivator
     /**
      * The <tt>MessageHistoryService</tt> reference.
      */
-    private MessageHistoryServiceImpl msgHistoryService = null;
+    private static MessageHistoryServiceImpl msgHistoryService = null;
+
+    /**
+     * The <tt>ResourceManagementService</tt> reference.
+     */
+    private static ResourceManagementService resourcesService;
 
     /**
      * The <tt>MetaContactListService</tt> reference.
      */
     private static MetaContactListService metaCListService;
+
+    /**
+     * The <tt>ConfigurationService</tt> reference.
+     */
+    private static ConfigurationService configService;
 
     /**
      * The <tt>BundleContext</tt> of the service.
@@ -113,5 +125,53 @@ public class MessageHistoryActivator
                         MetaContactListService.class);
         }
         return metaCListService;
+    }
+
+    /**
+     * Returns the <tt>MessageHistoryService</tt> registered to the bundle
+     * context.
+     * @return the <tt>MessageHistoryService</tt> registered to the bundle
+     * context
+     */
+    public static MessageHistoryServiceImpl getMessageHistoryService()
+    {
+        return msgHistoryService;
+    }
+
+    /**
+     * Returns the <tt>ResourceManagementService</tt>, through which we will
+     * access all resources.
+     *
+     * @return the <tt>ResourceManagementService</tt>, through which we will
+     * access all resources.
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            resourcesService
+                = ServiceUtils.getService(
+                bundleContext,
+                ResourceManagementService.class);
+        }
+        return resourcesService;
+    }
+
+    /**
+     * Returns the <tt>ConfigurationService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>ConfigurationService</tt> obtained from the bundle
+     * context
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if(configService == null)
+        {
+            configService
+                = ServiceUtils.getService(
+                bundleContext,
+                ConfigurationService.class);
+        }
+        return configService;
     }
 }

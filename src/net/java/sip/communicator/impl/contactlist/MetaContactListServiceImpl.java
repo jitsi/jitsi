@@ -3668,6 +3668,6 @@ public class MetaContactListServiceImpl
      */
     public int getSourceIndex()
     {
-        return 1;
+        return 2;
     }
 }
