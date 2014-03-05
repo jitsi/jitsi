@@ -199,14 +199,16 @@
                 <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
                 <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
 
-                <Control Id="ShortcutGroup" Type="GroupBox" X="20" Y="60" Width="330" Height="65" Text="!(loc.ShortcutsAndRegistryDlg_CreateShortcuts)" />
+                <Control Id="ShortcutGroup" Type="GroupBox" X="20" Y="60" Width="330" Height="80" Text="!(loc.ShortcutsAndRegistryDlg_CreateShortcuts)" />
                 <Control Id="StartMenuShortcutCheckBox" Type="CheckBox" X="25" Y="75" Width="320" Height="15" Property="CREATE_START_MENU_SHORTCUT" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateStartMenu)" />
                 <Control Id="DesktopShortcutCheckBox" Type="CheckBox" X="25" Y="90" Width="320" Height="15" Property="CREATE_DESKTOP_SHORTCUT" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateDesktop)" />
                 <Control Id="StartupShortcutCheckBox" Type="CheckBox" X="25" Y="105" Width="320" Height="15" Property="HAS_STARTUP_REGISTRY" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateAutoStart)" />
+                <Control Id="DefaultIMApplicationCheckBox" Type="CheckBox" X="25" Y="120" Width="320" Height="15" Property="SET_DEFAULT_IM_APP" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_DefaultIMApp)" />
 
-                <Control Id="RegistryGroup" Type="GroupBox" X="20" Y="130" Width="330" Height="50" Text="!(loc.ShortcutsAndRegistryDlg_AssociateProtocols)" />
-                <Control Id="SipRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="145" Width="320" Height="15" Property="CREATE_SIP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;SIP" />
-                <Control Id="XmppRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="160" Width="320" Height="15" Property="CREATE_XMPP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;XMPP" />
+                <Control Id="RegistryGroup" Type="GroupBox" X="20" Y="145" Width="330" Height="50" Text="!(loc.ShortcutsAndRegistryDlg_AssociateProtocols)" />
+                <Control Id="SipRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="160" Width="320" Height="15" Property="CREATE_SIP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;SIP" />
+                <Control Id="XmppRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="175" Width="320" Height="15" Property="CREATE_XMPP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;XMPP" />
+                
             </Dialog>
 
             <Dialog Id="CleanSweepDlg" Width="370" Height="270" Title="!(loc.CleanSweepDlg_Title)">
@@ -440,6 +442,14 @@
 <SetProperty Id="HAS_STARTUP_REGISTRY" After="AppSearch" Value="[HAS_STARTUP_SHORTCUT]">
      HAS_STARTUP_SHORTCUT
 </SetProperty>
+<Property Id="IS_DEFAULT_IM_APP">
+  <RegistrySearch
+      Id="RegistrySearch_IsDefaultIMApp"
+      Key="Software\IM Providers"
+      Name="DefaultIMApp"
+      Root="HKCU"
+      Type="raw" />
+</Property>
 <Property Id="JRE_VERSION">
 <?ifdef JRESetup ?>
   <RegistrySearch
@@ -453,7 +463,7 @@
   1.5
 <?endif?>
 </Property>
-
+<Property Id="SET_DEFAULT_IM_APP" Value="1" />
 <Property Id="ARPCONTACT" Value="@APP_EMAIL@" />
 <Property Id="ARPHELPLINK" Value="@APP_WEB@" />
 <Property Id="ARPPRODUCTICON" Value="Icon.ico" />

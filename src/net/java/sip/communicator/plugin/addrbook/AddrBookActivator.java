@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.addrbook;
 
 import java.util.*;
 
+import net.java.sip.communicator.plugin.addrbook.msoutlook.DefaultIMApp;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.util.*;
@@ -23,6 +24,7 @@ import org.osgi.framework.*;
  * support for OS-specific Address Book.
  *
  * @author Lyubomir Marinov
+ * @author Hristo Terezov
  */
 public class AddrBookActivator
     implements BundleActivator
@@ -39,6 +41,20 @@ public class AddrBookActivator
      */
     public static final String PNAME_ENABLE_MACOSX_ADDRESS_BOOK_SEARCH =
         "plugin.addrbook.ENABLE_MACOSX_ADDRESS_BOOK_SEARCH";
+    
+    /**
+     * Boolean property that defines whether changing the default IM application
+     * is enabled or not.
+     */
+    public static final String PNAME_ENABLE_DEFAULT_IM_APPLICATION_CHANGE = 
+        "plugin.addrbook.ENABLE_DEFAULT_IM_APPLICATION_CHANGE";
+    
+    /**
+     * Boolean property that defines whether Jitsi should be the default IM 
+     * Application or not.
+     */
+    public static final String PNAME_MAKE_JITSI_DEFAULT_IM_APPLICATION = 
+        "plugin.addrbook.MAKE_JITSI_DEFAULT_IM_APPLICATION";
 
     /**
      * The <tt>Logger</tt> used by the <tt>AddrBookActivator</tt> class and its
@@ -46,7 +62,7 @@ public class AddrBookActivator
      */
     private static final Logger logger
         = Logger.getLogger(AddrBookActivator.class);
-
+    
     /**
      * The <tt>BundleContext</tt> in which the addrbook plug-in is started.
      */
@@ -179,9 +195,9 @@ public class AddrBookActivator
     {
         /* Register the ContactSourceService implementation (if any). */
         String cssClassName;
-
+        ConfigurationService configService = getConfigService();
         if (OSUtils.IS_WINDOWS
-            && getConfigService().getBoolean(
+            && configService.getBoolean(
                 PNAME_ENABLE_MICROSOFT_OUTLOOK_SEARCH, true))
 
         {
@@ -190,7 +206,7 @@ public class AddrBookActivator
                     + ".msoutlook.MsOutlookAddrBookContactSourceService";
         }
         else if (OSUtils.IS_MAC
-                    && getConfigService().getBoolean(
+                    && configService.getBoolean(
                         PNAME_ENABLE_MACOSX_ADDRESS_BOOK_SEARCH, true))
         {
             cssClassName
@@ -199,6 +215,36 @@ public class AddrBookActivator
         }
         else
             return;
+        
+        if (OSUtils.IS_WINDOWS
+            && configService.getBoolean(
+                PNAME_ENABLE_DEFAULT_IM_APPLICATION_CHANGE, true))
+        {
+            String isDefaultIMAppString = configService.getString(
+                PNAME_MAKE_JITSI_DEFAULT_IM_APPLICATION);
+            if(isDefaultIMAppString == null)
+            {
+                configService.setProperty(
+                    PNAME_MAKE_JITSI_DEFAULT_IM_APPLICATION, 
+                    DefaultIMApp.isJitsiDefaultIMApp());
+            }
+            else
+            {
+                boolean isDefaultIMApp 
+                    = Boolean.parseBoolean(isDefaultIMAppString);
+                if(DefaultIMApp.isJitsiDefaultIMApp() != isDefaultIMApp)
+                {
+                    if(isDefaultIMApp)
+                    {
+                        setAsDefaultIMApplication();
+                    }
+                    else
+                    {
+                        unsetDefaultIMApplication();
+                    }
+                }
+            }
+        }
 
         try
         {
@@ -270,6 +316,28 @@ public class AddrBookActivator
 
                 css = null;
             }
+        }
+    }
+
+    /**
+     * Sets Jitsi as Default IM application.
+     */
+    public static void setAsDefaultIMApplication()
+    {
+        if (OSUtils.IS_WINDOWS)
+        {
+            DefaultIMApp.setJitsiAsDefaultApp();
+        }
+    }
+
+    /**
+     * Unsets Jitsi as Default IM application.
+     */
+    public static void unsetDefaultIMApplication()
+    {
+        if (OSUtils.IS_WINDOWS)
+        {
+            DefaultIMApp.unsetDefaultApp();
         }
     }
 }

@@ -7,6 +7,7 @@ Bundle-SymbolicName: net.java.sip.communicator.plugin.addrbook
 Import-Package: javax.swing,
  org.jitsi.service.configuration,
  org.jitsi.util,
+ com.sun.jna.platform.win32,
  net.java.sip.communicator.service.contactsource,
  net.java.sip.communicator.service.gui,
  net.java.sip.communicator.service.protocol,
