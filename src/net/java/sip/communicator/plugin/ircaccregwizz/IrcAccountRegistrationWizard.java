@@ -144,6 +144,8 @@ public class IrcAccountRegistrationWizard
         summaryTable.put("Password", pass);
         summaryTable.put("Nickname", registration.getUserID());
         summaryTable.put("Server IRC", registration.getServer() + port);
+        summaryTable.put("Secure connection",
+            registration.isSecureConnection() ? "yes" : "no");
 
         return summaryTable.entrySet().iterator();
     }
