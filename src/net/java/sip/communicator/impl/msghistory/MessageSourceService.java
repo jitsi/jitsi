@@ -299,15 +299,20 @@ public class MessageSourceService
             SimpleDateFormat sdf
                 = new SimpleDateFormat(HistoryService.DATE_FORMAT);
 
-            for(MessageSourceContact msc : getRecentMessages())
+            List<MessageSourceContact> messages = getRecentMessages();
+
+            synchronized(messages)
             {
-                writer.addRecord(
-                    new String[]
-                        {
-                            msc.getProtocolProviderService()
-                                .getAccountID().getAccountUniqueID(),
-                            msc.getContactAddress()
-                        });
+                for(MessageSourceContact msc : messages)
+                {
+                    writer.addRecord(
+                        new String[]
+                            {
+                                msc.getProtocolProviderService()
+                                    .getAccountID().getAccountUniqueID(),
+                                msc.getContactAddress()
+                            });
+                }
             }
         }
         catch(IOException ex)
@@ -324,7 +329,12 @@ public class MessageSourceService
      */
     int getIndex(MessageSourceContact messageSourceContact)
     {
-        return getRecentMessages().indexOf(messageSourceContact);
+        List<MessageSourceContact> messages = getRecentMessages();
+
+        synchronized(messages)
+        {
+            return messages.indexOf(messageSourceContact);
+        }
     }
 
     /**
@@ -354,13 +364,18 @@ public class MessageSourceService
         if(recentQuery == null)
             return;
 
-        for(MessageSourceContact msgSC : getRecentMessages())
+        List<MessageSourceContact> messages = getRecentMessages();
+
+        synchronized(messages)
         {
-            if(msgSC.getContact() != null
-                && msgSC.getContact().equals(evt.getSourceContact()))
+            for(MessageSourceContact msgSC : messages)
             {
-                msgSC.setStatus(evt.getNewStatus());
-                recentQuery.fireContactChanged(msgSC);
+                if(msgSC.getContact() != null
+                    && msgSC.getContact().equals(evt.getSourceContact()))
+                {
+                    msgSC.setStatus(evt.getNewStatus());
+                    recentQuery.fireContactChanged(msgSC);
+                }
             }
         }
     }
@@ -381,40 +396,46 @@ public class MessageSourceService
                 null);
 
         List<String> recentMessagesForProvider = new LinkedList<String>();
-        for(MessageSourceContact msc : getRecentMessages())
+        List<MessageSourceContact> messages = getRecentMessages();
+        synchronized(messages)
         {
-            if(msc.getProtocolProviderService().equals(evt.getProvider()))
-                recentMessagesForProvider.add(msc.getContactAddress());
-        }
-
-        List<MessageSourceContact> newContactSources
-            = new LinkedList<MessageSourceContact>();
-        for(EventObject obj : res)
-        {
-            if(obj instanceof ChatRoomMessageDeliveredEvent
-                || obj instanceof ChatRoomMessageReceivedEvent)
+            for(MessageSourceContact msc : messages)
             {
-                MessageSourceContact msc
-                    = new MessageSourceContact(obj, MessageSourceService.this);
-
-                if(recentMessagesForProvider.contains(msc.getContactAddress()))
-                    continue;
-
-                recentMessages.add(msc);
-                newContactSources.add(msc);
-
+                if(msc.getProtocolProviderService().equals(evt.getProvider()))
+                    recentMessagesForProvider.add(msc.getContactAddress());
             }
-        }
 
-        // sort
-        Collections.sort(recentMessages);
-
-        // and now fire events to update ui
-        if(recentQuery != null)
-        {
-            for(MessageSourceContact msc : newContactSources)
+            List<MessageSourceContact> newContactSources
+                = new LinkedList<MessageSourceContact>();
+            for(EventObject obj : res)
             {
-                recentQuery.addQueryResult(msc);
+                if(obj instanceof ChatRoomMessageDeliveredEvent
+                    || obj instanceof ChatRoomMessageReceivedEvent)
+                {
+                    MessageSourceContact msc
+                        = new MessageSourceContact(obj,
+                                                   MessageSourceService.this);
+
+                    if(recentMessagesForProvider
+                            .contains(msc.getContactAddress()))
+                        continue;
+
+                    messages.add(msc);
+                    newContactSources.add(msc);
+
+                }
+            }
+
+            // sort
+            Collections.sort(messages);
+
+            // and now fire events to update ui
+            if(recentQuery != null)
+            {
+                for(MessageSourceContact msc : newContactSources)
+                {
+                    recentQuery.addQueryResult(msc);
+                }
             }
         }
     }
@@ -431,13 +452,19 @@ public class MessageSourceService
             return;
 
         MessageSourceContact srcContact = null;
-        for(MessageSourceContact msg : getRecentMessages())
+
+        List<MessageSourceContact> messages = getRecentMessages();
+
+        synchronized(messages)
         {
-            if(msg.getRoom() != null
-                && msg.getRoom().equals(evt.getChatRoom()))
+            for(MessageSourceContact msg : messages)
             {
-                srcContact = msg;
-                break;
+                if(msg.getRoom() != null
+                    && msg.getRoom().equals(evt.getChatRoom()))
+                {
+                    srcContact = msg;
+                    break;
+                }
             }
         }
 
@@ -477,56 +504,60 @@ public class MessageSourceService
                         String id)
     {
         // check if provider - contact exist update message content
-        for(MessageSourceContact msc : getRecentMessages())
+        List<MessageSourceContact> messages = getRecentMessages();
+        synchronized(messages)
         {
-            if(msc.getProtocolProviderService().equals(provider)
-                && msc.getContactAddress().equals(id))
+            for(MessageSourceContact msc : messages)
             {
-                // update
-                msc.update(obj);
+                if(msc.getProtocolProviderService().equals(provider)
+                    && msc.getContactAddress().equals(id))
+                {
+                    // update
+                    msc.update(obj);
 
-                if(recentQuery != null)
-                    recentQuery.fireContactChanged(msc);
+                    if(recentQuery != null)
+                        recentQuery.fireContactChanged(msc);
 
+                    return;
+                }
+            }
+
+            // if missing create source contact
+            // and update recent messages, trim and sort
+            MessageSourceContact newSourceContact =
+                new MessageSourceContact(obj, MessageSourceService.this);
+            messages.add(newSourceContact);
+
+            Collections.sort(messages);
+
+            // trim
+            List<MessageSourceContact> removedItems = null;
+            if(messages.size() > numberOfMessages)
+            {
+                removedItems = messages.subList(
+                    numberOfMessages, messages.size());
+
+                messages.removeAll(removedItems);
+            }
+
+            // save
+            saveRecentMessagesToHistory();
+
+            // no query nothing to fire
+            if(recentQuery == null)
                 return;
-            }
-        }
 
-        // if missing create source contact
-        // and update recent messages, trim and sort
-        MessageSourceContact newSourceContact =
-            new MessageSourceContact(obj, MessageSourceService.this);
-        recentMessages.add(newSourceContact);
-
-        Collections.sort(recentMessages);
-
-        // trim
-        List<MessageSourceContact> removedItems = null;
-        if(recentMessages.size() > numberOfMessages)
-        {
-            removedItems = recentMessages.subList(
-                numberOfMessages, recentMessages.size());
-
-            recentMessages = recentMessages.subList(0, numberOfMessages);
-        }
-
-        // save
-        saveRecentMessagesToHistory();
-
-        // no query nothing to fire
-        if(recentQuery == null)
-            return;
-
-        // now fire
-        if(removedItems != null)
-        {
-            for(MessageSourceContact msc : removedItems)
+            // now fire
+            if(removedItems != null)
             {
-                recentQuery.fireContactRemoved(msc);
+                for(MessageSourceContact msc : removedItems)
+                {
+                    recentQuery.fireContactRemoved(msc);
+                }
             }
-        }
 
-        recentQuery.fireContactReceived(newSourceContact);
+            recentQuery.fireContactReceived(newSourceContact);
+        }
     }
 
     @Override
@@ -618,9 +649,13 @@ public class MessageSourceService
         @Override
         public void run()
         {
-            for(MessageSourceContact rm : getRecentMessages())
+            List<MessageSourceContact> messages = getRecentMessages();
+            synchronized(messages)
             {
-                addQueryResult(rm);
+                for(MessageSourceContact rm : messages)
+                {
+                    addQueryResult(rm);
+                }
             }
         }
 
