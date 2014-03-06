@@ -2239,6 +2239,9 @@ public class TreeContactList
                 ContactQuery query = ((ExtendedContactSourceService)
                     contactSource).createContactQuery(filterPattern);
 
+                if(query == null)
+                    continue;
+
                 loadedQueries.add(query);
 
                 query.start();

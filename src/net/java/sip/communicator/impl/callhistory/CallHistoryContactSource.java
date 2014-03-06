@@ -35,7 +35,6 @@ public class CallHistoryContactSource
     /**
      * Creates query for the given <tt>searchString</tt>.
      * @param queryString the string to search for
-     * @param listener the listener that receives the found contacts
      * @return the created query
      */
     public ContactQuery createContactQuery(String queryString)

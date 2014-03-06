@@ -4144,9 +4144,11 @@ public class CallManager
                     query = css.createContactQuery(peerUserID);
                 }
 
+                if(query == null)
+                    continue;
+
                 resolvers.add(
-                        new ResolveAddressToDisplayNameContactQueryListener(
-                            query));
+                    new ResolveAddressToDisplayNameContactQueryListener(query));
                 query.start();
             }
 

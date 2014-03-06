@@ -112,6 +112,9 @@ public class PresenceFilter
                 ContactQuery contactQuery
                     = sourceService.createContactQuery(null);
 
+                if(contactQuery == null)
+                    continue;
+
                 // Add this query to the filterQuery.
                 filterQuery.addContactQuery(contactQuery);
 

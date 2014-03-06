@@ -51,6 +51,9 @@ public class CallHistoryFilter
                 = contactSource.getContactSourceService()
                     .createContactQuery("", 50);
 
+            if(query == null)
+                continue;
+
             query.addContactQueryListener(contactList);
             filterQuery.addContactQuery(query);
             query.start();
