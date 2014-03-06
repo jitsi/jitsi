@@ -7,8 +7,10 @@
 package net.java.sip.communicator.impl.msghistory;
 
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
 
 import java.util.*;
@@ -43,9 +45,9 @@ public class MessageSourceContact
     private ProtocolProviderService ppService = null;
 
     /**
-     * The status.
+     * The status. Will reuse global status offline.
      */
-    private PresenceStatus status = null;
+    private PresenceStatus status = GlobalStatusEnum.OFFLINE;
 
     /**
      * The image.
@@ -164,7 +166,9 @@ public class MessageSourceContact
             this.displayName = room.getName();
             this.ppService = room.getParentProvider();
             this.image = null;
-            this.status = null;
+            this.status = room.isJoined()
+                ? ChatRoomPresenceStatus.CHAT_ROOM_ONLINE
+                : ChatRoomPresenceStatus.CHAT_ROOM_OFFLINE;
             this.messageContent = e.getMessage().getContent();
             this.timestamp = e.getTimestamp();
         }
@@ -179,7 +183,9 @@ public class MessageSourceContact
             this.displayName = room.getName();
             this.ppService = room.getParentProvider();
             this.image = null;
-            this.status = null;
+            this.status = room.isJoined()
+                ? ChatRoomPresenceStatus.CHAT_ROOM_ONLINE
+                : ChatRoomPresenceStatus.CHAT_ROOM_OFFLINE;
             this.messageContent = e.getMessage().getContent();
             this.timestamp = e.getTimestamp();
         }

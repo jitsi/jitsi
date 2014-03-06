@@ -19,6 +19,7 @@ Import-Package: org.osgi.framework,
  net.java.sip.communicator.util.account,
  net.java.sip.communicator.service.protocol,
  net.java.sip.communicator.service.protocol.icqconstants,
+ net.java.sip.communicator.service.protocol.globalstatus,
  net.java.sip.communicator.service.protocol.event
 Export-Package: net.java.sip.communicator.service.msghistory,
  net.java.sip.communicator.service.msghistory.event
