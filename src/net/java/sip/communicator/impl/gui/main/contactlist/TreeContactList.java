@@ -302,7 +302,29 @@ public class TreeContactList
         UIContact uiContact
             = sourceUI.getUIContact(sourceContact);
 
-        if(uiContact == null || !(uiContact instanceof UIContactImpl))
+        if(uiContact == null)
+        {
+            // ui contact source maybe added,
+            // but no contact shown as it is offline and
+            // current filter is presence
+            uiContact = sourceUI.createUIContact(sourceContact);
+
+            if((contactSource instanceof ExtendedContactSourceService)
+                || currentFilter.isMatching(uiContact))
+            {
+                addContact(event.getQuerySource(),
+                    uiContact,
+                    sourceUI.getUIGroup(), (sourceContact.getIndex() > -1));
+            }
+            else
+            {
+                sourceUI.removeUIContact(sourceContact);
+            }
+
+            return;
+        }
+
+        if(!(uiContact instanceof UIContactImpl))
             return;
 
         ContactNode contactNode;
