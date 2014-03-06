@@ -538,8 +538,8 @@ public class MessageSourceService
             List<MessageSourceContact> removedItems = null;
             if(messages.size() > numberOfMessages)
             {
-                removedItems = messages.subList(
-                    numberOfMessages, messages.size());
+                removedItems = new ArrayList<MessageSourceContact>(
+                    messages.subList(numberOfMessages, messages.size()));
 
                 messages.removeAll(removedItems);
             }
