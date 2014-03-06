@@ -147,12 +147,12 @@
           Value="@APP_LAUNCHER_NAME@.exe" />
     </RegistryKey>
     <RegistryKey
-        Key="SOFTWARE\IM Providers\Jitsi"
+        Key="SOFTWARE\IM Providers\@APP_NAME@"
         Root="HKLM" Action="createAndRemoveOnUninstall">
         <RegistryValue
           Name="FriendlyName"
           Type="string"
-          Value="Jisti" />
+          Value="@APP_NAME@" />
       <RegistryValue
           Name="GUID"
           Type="string"
