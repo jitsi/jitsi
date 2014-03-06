@@ -213,6 +213,10 @@ public class MessageSourceService
             = MessageHistoryActivator.getMessageHistoryService();
         HistoryService historyService = msgService.getHistoryService();
 
+        // if not existing, return to search for initial load
+        if (!historyService.isHistoryCreated(historyID))
+            return null;
+
         List<MessageSourceContact> res
             = new LinkedList<MessageSourceContact>();
 
@@ -589,6 +593,11 @@ public class MessageSourceService
     @Override
     public void messageReceived(ChatRoomMessageReceivedEvent evt)
     {
+        // ignore non conversation messages
+        if(evt.getEventType() !=
+            ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED)
+            return;
+
         handle(
             evt,
             evt.getSourceChatRoom().getParentProvider(),
