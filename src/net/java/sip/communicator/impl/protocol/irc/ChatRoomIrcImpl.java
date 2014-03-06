@@ -1070,7 +1070,8 @@ public class ChatRoomIrcImpl
         // TODO Since we cannot change the chat room name/identifier maybe we
         // should compute this upon construction and save the result, instead of
         // doing a string operation every time the method is called.
-        return !this.chatRoomName.startsWith("#");
+        return !this.chatRoomName.startsWith("#")
+            && !this.chatRoomName.startsWith("&");
     }
 
     /**
