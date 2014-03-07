@@ -453,6 +453,12 @@ public abstract class ProtocolProviderFactory
         = "DESKTOP_STREAMING_DISABLED";
 
     /**
+     * Indicates if desktop remote control is disabled for a certain account.
+     */
+    public static final String IS_DESKTOP_REMOTE_CONTROL_DISABLED
+        = "DESKTOP_REMOTE_CONTROL_DISABLED";
+
+    /**
      * The sms default server address.
      */
     public static final String SMS_SERVER_ADDRESS = "SMS_SERVER_ADDRESS";

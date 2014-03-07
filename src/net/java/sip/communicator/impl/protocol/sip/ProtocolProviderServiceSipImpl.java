@@ -514,16 +514,22 @@ public class ProtocolProviderServiceSipImpl
                         new OperationSetDesktopStreamingSipImpl(
                                 opSetBasicTelephonySipImpl));
 
-                    // OperationSetDesktopSharingServer
-                    addSupportedOperationSet(
-                       OperationSetDesktopSharingServer.class,
-                       new OperationSetDesktopSharingServerSipImpl(
-                               opSetBasicTelephonySipImpl));
+                    if(!accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory
+                            .IS_DESKTOP_REMOTE_CONTROL_DISABLED,
+                        false))
+                    {
+                        // OperationSetDesktopSharingServer
+                        addSupportedOperationSet(
+                           OperationSetDesktopSharingServer.class,
+                           new OperationSetDesktopSharingServerSipImpl(
+                                   opSetBasicTelephonySipImpl));
 
-                    // OperationSetDesktopSharingClient
-                    addSupportedOperationSet(
-                        OperationSetDesktopSharingClient.class,
-                        new OperationSetDesktopSharingClientSipImpl(this));
+                        // OperationSetDesktopSharingClient
+                        addSupportedOperationSet(
+                            OperationSetDesktopSharingClient.class,
+                            new OperationSetDesktopSharingClientSipImpl(this));
+                    }
                 }
             }
 

@@ -1813,23 +1813,29 @@ public class ProtocolProviderServiceJabberImpl
                             new OperationSetDesktopStreamingJabberImpl(
                                 basicTelephony));
 
-                    // initialize desktop sharing OperationSets
-                    addSupportedOperationSet(
+                    if(!accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory
+                            .IS_DESKTOP_REMOTE_CONTROL_DISABLED,
+                        false))
+                    {
+                        // initialize desktop sharing OperationSets
+                        addSupportedOperationSet(
                             OperationSetDesktopSharingServer.class,
                             new OperationSetDesktopSharingServerJabberImpl(
                                 basicTelephony));
 
-                    // Adds extension to support remote control as a sharing
-                    // server (sharer).
-                    supportedFeatures.add(InputEvtIQ.NAMESPACE_SERVER);
+                        // Adds extension to support remote control as a sharing
+                        // server (sharer).
+                        supportedFeatures.add(InputEvtIQ.NAMESPACE_SERVER);
 
-                    addSupportedOperationSet(
+                        addSupportedOperationSet(
                             OperationSetDesktopSharingClient.class,
                             new OperationSetDesktopSharingClientJabberImpl(this)
                             );
-                    // Adds extension to support remote control as a sharing
-                    // client (sharee).
-                    supportedFeatures.add(InputEvtIQ.NAMESPACE_CLIENT);
+                        // Adds extension to support remote control as a sharing
+                        // client (sharer).
+                        supportedFeatures.add(InputEvtIQ.NAMESPACE_CLIENT);
+                    }
                 }
             }
 
