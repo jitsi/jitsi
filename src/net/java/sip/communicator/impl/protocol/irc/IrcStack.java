@@ -890,6 +890,7 @@ public class IrcStack
     private class ChatRoomListener
         extends VariousMessageListenerAdapter
     {
+        private static final int IRC_ERR_NOTONCHANNEL = 442;
         /**
          * Chat room for which this listener is working.
          */
@@ -967,11 +968,7 @@ public class IrcStack
 
             if (isMe(msg.getSource()))
             {
-                IrcStack.this.irc.deleteListener(this);
-                IrcStack.this.joined.remove(this.chatroom);
-                IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
-                    this.chatroom,
-                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT, null);
+                leaveChatRoom();
             }
             else
             {
@@ -987,11 +984,40 @@ public class IrcStack
                 }
                 catch (NullPointerException e)
                 {
+                    LOGGER.warn(
+                        "This should not have happened. Please report this "
+                            + "as it is a bug.", e);
+                }
+            }
+        }
+
+        /**
+         * Some of the generic message are relevant to us, so keep an eye on
+         * general numeric messages.
+         * 
+         * @param msg IRC server numeric message
+         */
+        public void onServerNumericMessage(ServerNumericMessage msg)
+        {
+            Integer code = msg.getNumericCode();
+            if (code == null)
+            {
+                return;
+            }
+            String raw = msg.getText();
+            if (code.intValue() == IRC_ERR_NOTONCHANNEL)
+            {
+                String channel = raw.substring(0, raw.indexOf(" "));
+                if (isThisChatRoom(channel))
+                {
                     LOGGER
-                        .warn(
-                            "This should not have happened. Please report this "
-                            + "as it is a bug.",
-                            e);
+                        .warn("Just discovered that we are no longer joined to channel "
+                            + channel
+                            + ". Leaving quietly. (This is most likely due to a bug in the implementation.)");
+                    // If for some reason we missed the message that we aren't
+                    // joined (anymore) to this particular chat room, correct
+                    // our problem ASAP.
+                    leaveChatRoom();
                 }
             }
         }
@@ -1095,6 +1121,18 @@ public class IrcStack
                 ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
         }
 
+        /**
+         * Leave this chat room.
+         */
+        private void leaveChatRoom()
+        {
+            IrcStack.this.irc.deleteListener(this);
+            IrcStack.this.joined.remove(this.chatroom);
+            IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
+                this.chatroom,
+                LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT, null);
+        }
+        
         /**
          * Process mode changes.
          * 
