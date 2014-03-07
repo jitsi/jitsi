@@ -87,6 +87,11 @@ public class MessageSourceService
         new String[] {  "recent_messages"});
 
     /**
+     * The cache for recent messages.
+     */
+    private History history = null;
+
+    /**
      * List of recent messages.
      */
     private List<MessageSourceContact> recentMessages = null;
@@ -162,7 +167,7 @@ public class MessageSourceService
         return recentQuery;
     }
 
-    private List<MessageSourceContact> getRecentMessages()
+    private synchronized List<MessageSourceContact> getRecentMessages()
     {
         if(recentMessages == null)
         {
@@ -204,6 +209,38 @@ public class MessageSourceService
     }
 
     /**
+     * Returns the cached recent messages history.
+     * @return
+     * @throws IOException
+     */
+    private History getHistory()
+        throws IOException
+    {
+        synchronized(historyID)
+        {
+            MessageHistoryServiceImpl msgService
+                = MessageHistoryActivator.getMessageHistoryService();
+            HistoryService historyService = msgService.getHistoryService();
+
+            // if not existing, return to search for initial load
+            if (history == null
+                && !historyService.isHistoryCreated(historyID))
+                return null;
+
+            if(history == null)
+            {
+                if (historyService.isHistoryExisting(historyID))
+                    history = historyService.getHistory(historyID);
+                else
+                    history = historyService.createHistory(
+                        historyID, recordStructure);
+            }
+
+            return history;
+        }
+    }
+
+    /**
      * Loads recent messages if saved in history.
      * @return
      */
@@ -211,27 +248,17 @@ public class MessageSourceService
     {
         MessageHistoryServiceImpl msgService
             = MessageHistoryActivator.getMessageHistoryService();
-        HistoryService historyService = msgService.getHistoryService();
-
-        // if not existing, return to search for initial load
-        if (!historyService.isHistoryCreated(historyID))
-            return null;
-
-        List<MessageSourceContact> res
-            = new LinkedList<MessageSourceContact>();
 
         // and load it
         try
         {
-            SimpleDateFormat sdf
-                = new SimpleDateFormat(HistoryService.DATE_FORMAT);
+            History history = getHistory();
 
-            History history;
-            if (historyService.isHistoryExisting(historyID))
-                history = historyService.getHistory(historyID);
-            else
-                history
-                    = historyService.createHistory(historyID, recordStructure);
+            if(history == null)
+                return null;
+
+            List<MessageSourceContact> res
+                = new LinkedList<MessageSourceContact>();
 
             Iterator<HistoryRecord> recs
                 = history.getReader().findLast(numberOfMessages);
@@ -261,14 +288,14 @@ public class MessageSourceService
                     res.add(new MessageSourceContact(ev, this));
                 }
             }
+
+            return res;
         }
         catch(IOException ex)
         {
             logger.error("cannot create recent_messages history", ex);
             return null;
         }
-
-        return res;
     }
 
     /**
@@ -276,53 +303,54 @@ public class MessageSourceService
      */
     private void saveRecentMessagesToHistory()
     {
-        HistoryService historyService = MessageHistoryActivator
-            .getMessageHistoryService().getHistoryService();
-
-        if (historyService.isHistoryExisting(historyID))
+        synchronized(historyID)
         {
-            // delete it
+            HistoryService historyService = MessageHistoryActivator
+                .getMessageHistoryService().getHistoryService();
+
+            if (historyService.isHistoryExisting(historyID))
+            {
+                // delete it
+                try
+                {
+                    historyService.purgeLocallyStoredHistory(historyID);
+                }
+                catch(IOException ex)
+                {
+                    logger.error("Cannot delete recent_messages history", ex);
+                    return;
+                }
+            }
+
+            // and create it
             try
             {
-                historyService.purgeLocallyStoredHistory(historyID);
+                history = historyService.createHistory(
+                    historyID, recordStructure);
+
+                HistoryWriter writer = history.getWriter();
+
+                List<MessageSourceContact> messages = getRecentMessages();
+
+                synchronized(messages)
+                {
+                    for(MessageSourceContact msc : messages)
+                    {
+                        writer.addRecord(
+                            new String[]
+                                {
+                                    msc.getProtocolProviderService()
+                                        .getAccountID().getAccountUniqueID(),
+                                    msc.getContactAddress()
+                                });
+                    }
+                }
             }
             catch(IOException ex)
             {
-                logger.error("Cannot delete recent_messages history", ex);
+                logger.error("cannot create recent_messages history", ex);
                 return;
             }
-        }
-
-        // and create it
-        try
-        {
-            History history = historyService.createHistory(
-                historyID, recordStructure);
-
-            HistoryWriter writer = history.getWriter();
-            SimpleDateFormat sdf
-                = new SimpleDateFormat(HistoryService.DATE_FORMAT);
-
-            List<MessageSourceContact> messages = getRecentMessages();
-
-            synchronized(messages)
-            {
-                for(MessageSourceContact msc : messages)
-                {
-                    writer.addRecord(
-                        new String[]
-                            {
-                                msc.getProtocolProviderService()
-                                    .getAccountID().getAccountUniqueID(),
-                                msc.getContactAddress()
-                            });
-                }
-            }
-        }
-        catch(IOException ex)
-        {
-            logger.error("cannot create recent_messages history", ex);
-            return;
         }
     }
 
