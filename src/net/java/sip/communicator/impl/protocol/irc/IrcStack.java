@@ -488,7 +488,7 @@ public class IrcStack
                         {
                             try
                             {
-                                if (!channel.getName().equals(
+                                if (!channel.getName().equalsIgnoreCase(
                                     actualChatRoom.getIdentifier()))
                                 {
                                     // If the channel name is not the
@@ -1334,7 +1334,7 @@ public class IrcStack
          */
         private boolean isThisChatRoom(String chatRoomName)
         {
-            return this.chatroom.getIdentifier().equals(chatRoomName);
+            return this.chatroom.getIdentifier().equalsIgnoreCase(chatRoomName);
         }
 
         /**
