@@ -693,16 +693,7 @@ public class AccountDetailsPanel
             throws
             Exception
         {
-            Iterator<GenericDetail> allDetails =
-                accountInfoOpSet.getAllAvailableDetails();
-
-            while (allDetails.hasNext())
-            {
-                GenericDetail detail = allDetails.next();
-                loadDetail(detail);
-            }
-
-            return null;
+            return accountInfoOpSet.getAllAvailableDetails();
         }
 
         /**
@@ -712,6 +703,17 @@ public class AccountDetailsPanel
         @Override
         protected void finished()
         {
+            Iterator<GenericDetail> allDetails = (Iterator<GenericDetail>)get();
+
+            if(allDetails == null)
+                return;
+
+            while (allDetails.hasNext())
+            {
+                GenericDetail detail = allDetails.next();
+                loadDetail(detail);
+            }
+
             boolean isAnyDetailEditable = false;
             for (Class<? extends GenericDetail> editable :
                 detailToTextField.keySet())
