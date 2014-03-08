@@ -212,6 +212,8 @@ public class IrcStack
                     // if connecting succeeded, set state to registered
                     this.provider.setCurrentRegistrationState(
                         RegistrationState.REGISTERED);
+                    // TODO Check and handle actual nick name used in connection
+                    // in case one of the alternate nick names was needed.
                 }
                 else
                 {
@@ -690,7 +692,17 @@ public class IrcStack
      */
     private void leave(String chatRoomName)
     {
-        this.irc.leaveChannel(chatRoomName);
+        if (this.connectionState == null || !this.connectionState.isConnected())
+            return;
+
+        try
+        {
+            this.irc.leaveChannel(chatRoomName);
+        }
+        catch (ApiException e)
+        {
+            LOGGER.warn("exception occurred while leaving channel", e);
+        }
     }
 
     public void banParticipant(ChatRoomIrcImpl chatroom, ChatRoomMember member,
