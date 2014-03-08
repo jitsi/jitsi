@@ -176,3 +176,33 @@ index 105b509..68dd46b 100644
 +	    return customContext;
 +	}
  }
+
+commit f7d5d330e98607e54f7eea24c34ed28cc3e702f6
+Author: Danny van Heumen <danny@dannyvanheumen.nl>
+Date:   Fri Mar 7 23:28:23 2014 +0100
+
+    Check if channel is open before closing.
+
+diff --git a/src/main/java/com/ircclouds/irc/api/comms/SSLSocketChannelConnection.java b/src/main/java/com/ircclouds/irc/api/comms/SSLSocketChannelConnection.java
+index abec187..d9e3f30 100644
+--- a/src/main/java/com/ircclouds/irc/api/comms/SSLSocketChannelConnection.java
++++ b/src/main/java/com/ircclouds/irc/api/comms/SSLSocketChannelConnection.java
+@@ -106,7 +106,10 @@ public class SSLSocketChannelConnection implements IConnection
+ 		}
+ 		finally
+ 		{
+-			sChannel.close();
++			if (sChannel.isOpen())
++			{
++				sChannel.close();
++			}
+ 		}
+ 	}
+ 
+@@ -227,4 +230,4 @@ public class SSLSocketChannelConnection implements IConnection
+ 
+ 		return _sslCtx;
+ 	}
+-}
+\ No newline at end of file
++}
