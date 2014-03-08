@@ -31,7 +31,6 @@ import com.ircclouds.irc.api.state.*;
  * @author Danny van Heumen
  * 
  * TODO Make irc-api OSGi aware.
- * FIXME Surround expensive LOGGER calls with if-conditions.
  */
 public class IrcStack
 {
@@ -187,18 +186,20 @@ public class IrcStack
                     {
                         synchronized (result)
                         {
-                            LOGGER.trace("IRC connection FAILED! ("
-                                + e.getMessage() + ")");
+                            LOGGER.trace("IRC connection FAILED!", e);
                             result.setDone(e);
                             result.notifyAll();
                         }
                     }
                 });
 
+                this.provider
+                    .setCurrentRegistrationState(RegistrationState.REGISTERING);
+                
                 while (!result.isDone())
                 {
-                    LOGGER
-                        .trace("Waiting for the connection to be established ...");
+                    LOGGER.trace("Waiting for the connection to be "
+                        + "established ...");
                     result.wait();
                 }
 
@@ -470,7 +471,8 @@ public class IrcStack
         synchronized (joinSignal)
         {
             LOGGER
-                .trace("Issue join channel command to IRC library and wait for join operation to complete (un)successfully.");
+                .trace("Issue join channel command to IRC library and wait for"
+                    + " join operation to complete (un)successfully.");
             // TODO Refactor this ridiculous nesting of functions and
             // classes.
             this.irc.joinChannel(chatroom.getIdentifier(), password,
@@ -480,9 +482,13 @@ public class IrcStack
                     @Override
                     public void onSuccess(IRCChannel channel)
                     {
-                        LOGGER
-                            .trace("Started callback for successful join of channel '"
-                                + chatroom.getIdentifier() + "'.");
+                        if (LOGGER.isTraceEnabled())
+                        {
+                            LOGGER
+                                .trace("Started callback for successful join "
+                                    + "of channel '" + chatroom.getIdentifier()
+                                    + "'.");
+                        }
                         ChatRoomIrcImpl actualChatRoom = chatroom;
                         synchronized (joinSignal)
                         {
@@ -613,11 +619,14 @@ public class IrcStack
                             }
                             finally
                             {
-                                LOGGER
-                                    .trace("Finished callback for failed "
-                                        + "attempt to join channel '"
-                                        + chatroom.getIdentifier()
-                                        + "'. Waking up original thread.");
+                                if (LOGGER.isTraceEnabled())
+                                {
+                                    LOGGER
+                                        .trace("Finished callback for failed "
+                                            + "attempt to join channel '"
+                                            + chatroom.getIdentifier()
+                                            + "'. Waking up original thread.");
+                                }
                                 // Notify waiting threads of finished
                                 // execution
                                 joinSignal.setDone(e);
@@ -798,8 +807,11 @@ public class IrcStack
         @Override
         public void onServerNumericMessage(ServerNumericMessage msg)
         {
-            LOGGER.debug("NUM MSG: " + msg.getNumericCode() + ": "
-                + msg.getText());
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("NUM MSG: " + msg.getNumericCode() + ": "
+                    + msg.getText());
+            }
         }
 
         /**
@@ -811,7 +823,11 @@ public class IrcStack
         @Override
         public void onError(ErrorMessage msg)
         {
-            LOGGER.debug("ERROR: " + msg.getSource() + ": " + msg.getText());
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER
+                    .debug("ERROR: " + msg.getSource() + ": " + msg.getText());
+            }
         }
 
         /**
@@ -1011,9 +1027,11 @@ public class IrcStack
                 if (isThisChatRoom(channel))
                 {
                     LOGGER
-                        .warn("Just discovered that we are no longer joined to channel "
+                        .warn("Just discovered that we are no longer joined to "
+                            + "channel "
                             + channel
-                            + ". Leaving quietly. (This is most likely due to a bug in the implementation.)");
+                            + ". Leaving quietly. (This is most likely due to a"
+                            + " bug in the implementation.)");
                     // If for some reason we missed the message that we aren't
                     // joined (anymore) to this particular chat room, correct
                     // our problem ASAP.
@@ -1291,7 +1309,7 @@ public class IrcStack
                         }
                         catch (NumberFormatException e)
                         {
-                            LOGGER.warn("server sent incorrect limit, "
+                            LOGGER.warn("server sent incorrect limit: "
                                 + "limit is not a number", e);
                             break;
                         }
@@ -1315,14 +1333,21 @@ public class IrcStack
                         ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
                     break;
                 case UNKNOWN:
-                    LOGGER.info("Unknown mode: " + (mode.isAdded() ? "+" : "-")
-                        + mode.getParams()[0] + ". Original mode string: '"
-                        + msg.getModeStr() + "'");
+                    if (LOGGER.isInfoEnabled())
+                    {
+                        LOGGER.info("Unknown mode: "
+                            + (mode.isAdded() ? "+" : "-")
+                            + mode.getParams()[0] + ". Original mode string: '"
+                            + msg.getModeStr() + "'");
+                    }
                     break;
                 default:
-                    LOGGER.info("Unsupported mode '"
-                        + (mode.isAdded() ? "+" : "-") + mode.getMode()
-                        + "' (from modestring '" + msg.getModeStr() + "')");
+                    if (LOGGER.isInfoEnabled())
+                    {
+                        LOGGER.info("Unsupported mode '"
+                            + (mode.isAdded() ? "+" : "-") + mode.getMode()
+                            + "' (from modestring '" + msg.getModeStr() + "')");
+                    }
                     break;
                 }
             }
