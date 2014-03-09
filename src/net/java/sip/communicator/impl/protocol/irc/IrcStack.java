@@ -1583,6 +1583,13 @@ public class IrcStack
         {
             this.nick = checkNick(nickName);
             this.alternativeNicks.add(nickName + "_");
+            this.alternativeNicks.add(nickName + "__");
+            this.alternativeNicks.add(nickName + "___");
+            this.alternativeNicks.add(nickName + "____");
+            for (int i = 1; i < 10; i++)
+            {
+                this.alternativeNicks.add(nickName + i);
+            }
             this.real = realName;
             this.ident = ident;
             this.server = server;
