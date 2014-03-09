@@ -221,7 +221,7 @@ public class IrcStack
                     // the exception if one exists
                     this.provider
                         .setCurrentRegistrationState(
-                            RegistrationState.UNREGISTERED);
+                            RegistrationState.CONNECTION_FAILED);
                     Exception e = result.getException();
                     if (e != null)
                         throw e;
@@ -229,9 +229,10 @@ public class IrcStack
             }
             catch (IOException e)
             {
+                // Also SSL exceptions will be caught here.
                 this.provider
                     .setCurrentRegistrationState(
-                        RegistrationState.UNREGISTERED);
+                        RegistrationState.CONNECTION_FAILED);
                 throw e;
             }
             catch (InterruptedException e)
