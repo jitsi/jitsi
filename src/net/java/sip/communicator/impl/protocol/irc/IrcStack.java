@@ -1630,9 +1630,9 @@ public class IrcStack
             if (nick == null)
                 throw new IllegalArgumentException(
                     "a nick name must be provided");
-            if (nick.startsWith("#"))
+            if (nick.startsWith("#") || nick.startsWith("&"))
                 throw new IllegalArgumentException(
-                    "the nick name must not start with '#' "
+                    "the nick name must not start with '#' or '&' "
                         + "since this is reserved for IRC channels");
             return nick;
         }
