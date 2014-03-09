@@ -1066,7 +1066,7 @@ public class IrcStack
             if (isMe(kickedUser))
             {
                 IrcStack.this.irc.deleteListener(this);
-                IrcStack.this.joined.remove(this.chatroom);
+                IrcStack.this.joined.remove(this.chatroom.getIdentifier());
                 IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
                     this.chatroom,
                     LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_KICKED,
@@ -1158,7 +1158,7 @@ public class IrcStack
         private void leaveChatRoom()
         {
             IrcStack.this.irc.deleteListener(this);
-            IrcStack.this.joined.remove(this.chatroom);
+            IrcStack.this.joined.remove(this.chatroom.getIdentifier());
             IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
                 this.chatroom,
                 LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT, null);
