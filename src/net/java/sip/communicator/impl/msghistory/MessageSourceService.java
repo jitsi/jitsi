@@ -64,6 +64,12 @@ public class MessageSourceService
         = "net.java.sip.communicator.impl.msghistory.contactsrc.MSG_NUMBER";
 
     /**
+     * Property to control messages type. Can query for message sub type.
+     */
+    private static final String IS_MESSAGE_SUBTYPE_SMS_PROP
+        = "net.java.sip.communicator.impl.msghistory.contactsrc.IS_SMS_ENABLED";
+
+    /**
      * Number of messages to show.
      */
     private int numberOfMessages = 10;
@@ -102,6 +108,11 @@ public class MessageSourceService
     private MessageHistoryContactQuery recentQuery = null;
 
     /**
+     * The message subtype if any.
+     */
+    private boolean isSMSEnabled = false;
+
+    /**
      * Constructs MessageSourceService.
      */
     MessageSourceService()
@@ -117,6 +128,9 @@ public class MessageSourceService
 
         numberOfMessages = MessageHistoryActivator.getConfigurationService()
             .getInt(NUMBER_OF_RECENT_MSGS_PROP, numberOfMessages);
+
+        isSMSEnabled = MessageHistoryActivator.getConfigurationService()
+            .getBoolean(IS_MESSAGE_SUBTYPE_SMS_PROP, isSMSEnabled);
     }
 
     /**
@@ -192,7 +206,8 @@ public class MessageSourceService
             MessageHistoryServiceImpl msgHistoryService =
                 MessageHistoryActivator.getMessageHistoryService();
             Collection<EventObject> res = msgHistoryService
-                .findRecentMessagesPerContact(numberOfMessages, null, null);
+                .findRecentMessagesPerContact(
+                    numberOfMessages, null, null, isSMSEnabled);
 
             for(EventObject obj : res)
             {
@@ -218,9 +233,9 @@ public class MessageSourceService
     {
         synchronized(historyID)
         {
-            MessageHistoryServiceImpl msgService
-                = MessageHistoryActivator.getMessageHistoryService();
-            HistoryService historyService = msgService.getHistoryService();
+            HistoryService historyService =
+                MessageHistoryActivator.getMessageHistoryService()
+                    .getHistoryService();
 
             // if not existing, return to search for initial load
             if (history == null
@@ -282,8 +297,9 @@ public class MessageSourceService
                 if(provider == null || contact == null)
                     return res;
 
-                for(EventObject ev : msgService.findRecentMessagesPerContact(
-                                        numberOfMessages, provider, contact))
+                for(EventObject ev
+                        : msgService.findRecentMessagesPerContact(
+                            numberOfMessages, provider, contact, isSMSEnabled))
                 {
                     res.add(new MessageSourceContact(ev, this));
                 }
@@ -425,7 +441,8 @@ public class MessageSourceService
             .findRecentMessagesPerContact(
                 numberOfMessages,
                 evt.getProvider().getAccountID().getAccountUniqueID(),
-                null);
+                null,
+                isSMSEnabled);
 
         List<String> recentMessagesForProvider = new LinkedList<String>();
         List<MessageSourceContact> messages = getRecentMessages();
@@ -595,6 +612,12 @@ public class MessageSourceService
     @Override
     public void messageReceived(MessageReceivedEvent evt)
     {
+        if(isSMSEnabled
+            && evt.getEventType() != MessageReceivedEvent.SMS_MESSAGE_RECEIVED)
+        {
+            return;
+        }
+
         handle(
             evt,
             evt.getSourceContact().getProtocolProvider(),
@@ -604,6 +627,9 @@ public class MessageSourceService
     @Override
     public void messageDelivered(MessageDeliveredEvent evt)
     {
+        if(isSMSEnabled && !evt.isSmsMessage())
+            return;
+
         handle(
             evt,
             evt.getDestinationContact().getProtocolProvider(),
@@ -621,6 +647,9 @@ public class MessageSourceService
     @Override
     public void messageReceived(ChatRoomMessageReceivedEvent evt)
     {
+        if(isSMSEnabled)
+            return;
+
         // ignore non conversation messages
         if(evt.getEventType() !=
             ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED)
@@ -635,6 +664,9 @@ public class MessageSourceService
     @Override
     public void messageDelivered(ChatRoomMessageDeliveredEvent evt)
     {
+        if(isSMSEnabled)
+            return;
+
         handle(
             evt,
             evt.getSourceChatRoom().getParentProvider(),

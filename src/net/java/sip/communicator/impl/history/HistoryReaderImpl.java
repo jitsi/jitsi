@@ -165,6 +165,27 @@ public class HistoryReaderImpl
     public synchronized QueryResultSet<HistoryRecord> findLast(int count)
         throws RuntimeException
     {
+        return findLast(count, null, null, false);
+    }
+
+    /**
+     * Returns the supplied number of recent messages
+     * containing all <tt>keywords</tt>.
+     *
+     * @param count messages count
+     * @param keywords array of keywords we search for
+     * @param field the field where to look for the keyword
+     * @param caseSensitive is keywords search case sensitive
+     * @return the found records
+     * @throws RuntimeException
+     */
+    public synchronized QueryResultSet<HistoryRecord> findLast(
+        int count,
+        String[] keywords,
+        String field,
+        boolean caseSensitive)
+        throws RuntimeException
+    {
         // the files are supposed to be ordered from oldest to newest
         Vector<String> filelist =
             filterFilesByDate(this.historyImpl.getFileList(), null, null);
@@ -227,37 +248,14 @@ public class HistoryReaderImpl
                     timestamp = new Date(Long.parseLong(ts));
                 }
 
-                ArrayList<String> nameVals = new ArrayList<String>();
+                HistoryRecord record =
+                    filterByKeyword(propertyNodes, timestamp,
+                        keywords, field, caseSensitive);
 
-                int len = propertyNodes.getLength();
-                for (int j = 0; j < len; j++)
+                if(record != null)
                 {
-                    Node propertyNode = propertyNodes.item(j);
-                    if (propertyNode.getNodeType() == Node.ELEMENT_NODE)
-                    {
-                        // Get nested TEXT node's value
-                        Node nodeValue = propertyNode.getFirstChild();
-
-                        if(nodeValue == null)
-                            continue;
-
-                        nameVals.add(propertyNode.getNodeName());
-                        nameVals.add(nodeValue.getNodeValue());
-                    }
+                    result.add(record);
                 }
-
-                String[] propertyNames = new String[nameVals.size() / 2];
-                String[] propertyValues = new String[propertyNames.length];
-                for (int j = 0; j < propertyNames.length; j++)
-                {
-                    propertyNames[j] = nameVals.get(j * 2);
-                    propertyValues[j] = nameVals.get(j * 2 + 1);
-                }
-
-                HistoryRecord record = new HistoryRecord(propertyNames,
-                    propertyValues, timestamp);
-
-                result.add(record);
             }
 
             currentFile--;

@@ -56,15 +56,22 @@ public class MessageHistoryServiceImpl
     private static Logger logger = Logger
             .getLogger(MessageHistoryServiceImpl.class);
 
-    private static String[] STRUCTURE_NAMES
+    static String[] STRUCTURE_NAMES
         = new String[] { "dir", "msg_CDATA", "msgTyp", "enc", "uid", "sub",
-            "receivedTimestamp" };
+            "receivedTimestamp", "msgSubTyp" };
 
     private static HistoryRecordStructure recordStructure =
         new HistoryRecordStructure(STRUCTURE_NAMES);
 
-    // the field used to search by keywords
+    /**
+     * the field used to search by keywords
+     */
     private static final String SEARCH_FIELD = "msg";
+
+    /**
+     * Subtype sms to mark sms messages.
+     */
+    static final String MSG_SUBTYPE_SMS = "sms";
 
     /**
      * The BundleContext that we got from the OSGI bus.
@@ -346,6 +353,39 @@ public class MessageHistoryServiceImpl
     }
 
     /**
+     * Checks whether this historyID contains messages of certain type.
+     * @param historyID
+     * @param keywords
+     * @param field
+     * @param caseSensitive
+     * @return
+     * @throws IOException
+     */
+    private boolean hasMessages(HistoryID historyID,
+                                String[] keywords,
+                                String field,
+                                boolean caseSensitive)
+        throws IOException
+    {
+        if(!this.historyService.isHistoryCreated(historyID))
+            return false;
+
+        History history;
+        if (this.historyService.isHistoryExisting(historyID))
+        {
+            history = this.historyService.getHistory(historyID);
+        }
+        else
+        {
+            history = this.historyService.createHistory(historyID,
+                recordStructure);
+        }
+
+        return history.getReader().findLast(
+            1, keywords, field, caseSensitive).hasNext();
+    }
+
+    /**
      * Returns the messages for the recently contacted <tt>count</tt> contacts.
      *
      * @param count contacts count
@@ -357,7 +397,8 @@ public class MessageHistoryServiceImpl
      * @throws RuntimeException
      */
     Collection<EventObject> findRecentMessagesPerContact(
-            int count, String providerToFilter, String contactToFilter)
+            int count, String providerToFilter, String contactToFilter,
+            boolean isSMSEnabled)
         throws RuntimeException
     {
         TreeSet<EventObject> result
@@ -396,7 +437,9 @@ public class MessageHistoryServiceImpl
                 // find contact or chatroom for historyID
                 Object descriptor = getContactOrRoomByID(
                     accountID,
-                    id.getID()[3]);
+                    id.getID()[3],
+                    id,
+                    isSMSEnabled);
 
                 // skip not found contacts, disabled accounts and hidden one
                 if(descriptor == null)
@@ -415,7 +458,22 @@ public class MessageHistoryServiceImpl
 
                 HistoryReader reader = history.getReader();
 
-                Iterator<HistoryRecord> recs = reader.findLast(1);
+                // find last by type
+                Iterator<HistoryRecord> recs;
+
+                if(isSMSEnabled)
+                {
+                    recs = reader.findLast(
+                        1,
+                        new String[]{MessageHistoryServiceImpl.MSG_SUBTYPE_SMS},
+                        MessageHistoryServiceImpl.STRUCTURE_NAMES[7],
+                        true);
+                }
+                else
+                {
+                    recs = reader.findLast(1);
+                }
+
                 while (recs.hasNext())
                 {
                     if(descriptor instanceof Contact)
@@ -453,7 +511,11 @@ public class MessageHistoryServiceImpl
      * @param id the contact or room id.
      * @return contact or chat room.
      */
-    private Object getContactOrRoomByID(String accountID, String id)
+    private Object getContactOrRoomByID(String accountID,
+                                        String id,
+                                        HistoryID historyID,
+                                        boolean isSMSEnabled)
+        throws IOException
     {
         AccountID account = null;
         for(AccountID acc : AccountUtils.getStoredAccounts())
@@ -483,6 +545,37 @@ public class MessageHistoryServiceImpl
             return null;
 
         Contact contact = opSetPresence.findContactByID(id);
+
+        if(isSMSEnabled)
+        {
+            //lets check if we have a contact and it has sms messages return it
+            if(contact != null
+                && hasMessages(
+                        historyID,
+                        new String[]{MessageHistoryServiceImpl.MSG_SUBTYPE_SMS},
+                        MessageHistoryServiceImpl.STRUCTURE_NAMES[7],
+                        true))
+            {
+                return contact;
+            }
+
+            // we will check only for sms contacts
+            OperationSetSmsMessaging opSetSMS =
+                pps.getOperationSet(OperationSetSmsMessaging.class);
+
+            // return the contact only if it has stored sms messages
+            if(opSetSMS == null
+                || !hasMessages(
+                        historyID,
+                        new String[]{MessageHistoryServiceImpl.MSG_SUBTYPE_SMS},
+                        MessageHistoryServiceImpl.STRUCTURE_NAMES[7],
+                        true))
+            {
+                return null;
+            }
+
+            return opSetSMS.getContact(id);
+        }
 
         if(contact != null)
             return contact;
@@ -831,16 +924,36 @@ public class MessageHistoryServiceImpl
 
         if(msg.isOutgoing)
         {
-            return new MessageDeliveredEvent(
-                    msg,
-                    contact,
-                    timestamp);
-        }
-        else
-            return new MessageReceivedEvent(
+            MessageDeliveredEvent evt
+                = new MessageDeliveredEvent(
                         msg,
                         contact,
                         timestamp);
+
+            if(msg.getMsgSubType() != null
+                && msg.getMsgSubType().equals(MSG_SUBTYPE_SMS))
+            {
+                evt.setSmsMessage(true);
+            }
+
+            return evt;
+        }
+        else
+        {
+            int eventType = MessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED;
+
+            if(msg.getMsgSubType() != null
+                && msg.getMsgSubType().equals(MSG_SUBTYPE_SMS))
+            {
+                eventType = MessageReceivedEvent.SMS_MESSAGE_RECEIVED;
+            }
+
+            return new MessageReceivedEvent(
+                        msg,
+                        contact,
+                        timestamp,
+                        eventType);
+        }
     }
 
     /**
@@ -910,6 +1023,7 @@ public class MessageHistoryServiceImpl
         // 4- uid
         // 5 - sub
         // 6 - receivedTimestamp
+        // 7 - msgSubType
         String textContent = null;
         String contentType = null;
         String contentEncoding = null;
@@ -917,6 +1031,7 @@ public class MessageHistoryServiceImpl
         String subject = null;
         boolean isOutgoing = false;
         Date messageReceivedDate = new Date(0);
+        String msgSubType = null;
         SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
         for (int i = 0; i < hr.getPropertyNames().length; i++)
         {
@@ -951,9 +1066,13 @@ public class MessageHistoryServiceImpl
                         new Date(Long.parseLong(hr.getPropertyValues()[i]));
                 }
             }
+            else if (propName.equals(STRUCTURE_NAMES[7]))
+            {
+                msgSubType = hr.getPropertyValues()[i];
+            }
         }
         return new MessageImpl(textContent, contentType, contentEncoding,
-            subject, messageUID, isOutgoing, messageReceivedDate);
+            subject, messageUID, isOutgoing, messageReceivedDate, msgSubType);
     }
 
     /**
@@ -1049,14 +1168,24 @@ public class MessageHistoryServiceImpl
 
     public void messageReceived(MessageReceivedEvent evt)
     {
-        this.writeMessage("in", null, evt.getSourceContact(), evt
-                .getSourceMessage(), evt.getTimestamp());
+        this.writeMessage(
+            "in",
+            null,
+            evt.getSourceContact(),
+            evt.getSourceMessage(),
+            evt.getTimestamp(),
+            evt.getEventType() == MessageReceivedEvent.SMS_MESSAGE_RECEIVED);
     }
 
     public void messageDelivered(MessageDeliveredEvent evt)
     {
-        this.writeMessage("out", null, evt.getDestinationContact(), evt
-                .getSourceMessage(), evt.getTimestamp());
+        this.writeMessage(
+            "out",
+            null,
+            evt.getDestinationContact(),
+            evt.getSourceMessage(),
+            evt.getTimestamp(),
+            evt.isSmsMessage());
     }
 
     public void messageDeliveryFailed(MessageDeliveryFailedEvent evt)
@@ -1201,7 +1330,8 @@ public class MessageHistoryServiceImpl
                     return;
             }
 
-            writeMessage(history, "out", evt.getMessage(), evt.getTimestamp());
+            writeMessage(
+                history, "out", evt.getMessage(), evt.getTimestamp(), false);
         } catch (IOException e)
         {
             logger.error("Could not add message to history", e);
@@ -1218,11 +1348,17 @@ public class MessageHistoryServiceImpl
      * @param source The source Contact
      * @param destination The destination Contact
      * @param message Message message to be written
-     * @param messageTimestamp Date this is the timestamp when was message received
-     *                          that came from the protocol provider
+     * @param messageTimestamp Date this is the timestamp when was message
+     * received that came from the protocol provider
+     * @param isSmsSubtype whether message to write is an sms
      */
-    private void writeMessage(String direction, Contact source,
-            Contact destination, Message message, Date messageTimestamp)
+    private void writeMessage(
+        String direction,
+        Contact source,
+        Contact destination,
+        Message message,
+        Date messageTimestamp,
+        boolean isSmsSubtype)
     {
         try
         {
@@ -1238,7 +1374,8 @@ public class MessageHistoryServiceImpl
 
             History history = this.getHistory(source, destination);
 
-            writeMessage(history, direction, message, messageTimestamp);
+            writeMessage(
+                history, direction, message, messageTimestamp, isSmsSubtype);
         } catch (IOException e)
         {
             logger.error("Could not add message to history", e);
@@ -1250,11 +1387,11 @@ public class MessageHistoryServiceImpl
      * @param history The history to which will write the message
      * @param direction coming from
      * @param message Message
-     * @param messageTimestamp Date this is the timestamp when was message received
-     *                          that came from the protocol provider
+     * @param messageTimestamp Date this is the timestamp when was message
+     * received that came from the protocol provider
      */
     private void writeMessage(History history, String direction,
-            Message message, Date messageTimestamp)
+            Message message, Date messageTimestamp, boolean isSmsSubtype)
     {
         try {
             HistoryWriter historyWriter = history.getWriter();
@@ -1263,7 +1400,8 @@ public class MessageHistoryServiceImpl
             historyWriter.addRecord(new String[] { direction,
                     message.getContent(), message.getContentType(),
                     message.getEncoding(), message.getMessageUID(),
-                    message.getSubject(), sdf.format(messageTimestamp) },
+                    message.getSubject(), sdf.format(messageTimestamp),
+                    isSmsSubtype ? MSG_SUBTYPE_SMS : null},
                     new Date()); // this date is when the history record is written
         } catch (IOException e)
         {
@@ -2344,19 +2482,27 @@ public class MessageHistoryServiceImpl
 
         private final Date messageReceivedDate;
 
+        private String msgSubType;
+
         MessageImpl(String content, String contentType, String encoding,
             String subject, String messageUID, boolean isOutgoing,
-            Date messageReceivedDate)
+            Date messageReceivedDate, String msgSubType)
         {
             super(content, contentType, encoding, subject, messageUID);
 
             this.isOutgoing = isOutgoing;
             this.messageReceivedDate = messageReceivedDate;
+            this.msgSubType = msgSubType;
         }
 
         public Date getMessageReceivedDate()
         {
             return messageReceivedDate;
+        }
+
+        public String getMsgSubType()
+        {
+            return msgSubType;
         }
     }
 
@@ -2686,7 +2832,8 @@ public class MessageHistoryServiceImpl
             getHistoryForAdHocMultiChat(
                     evt.getSourceAdHocChatRoom());
 
-            writeMessage(history, "out", evt.getMessage(), evt.getTimestamp());
+            writeMessage(
+                history, "out", evt.getMessage(), evt.getTimestamp(), false);
         }
         catch (IOException e)
         {

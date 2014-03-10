@@ -167,7 +167,25 @@ public interface HistoryReader {
      * @return the found records
      * @throws RuntimeException
      */
-    QueryResultSet<HistoryRecord> findLast(int count) throws RuntimeException;
+    QueryResultSet<HistoryRecord> findLast(int count)
+        throws RuntimeException;
+
+    /**
+     * Returns the supplied number of recent messages
+     * containing all <tt>keywords</tt>.
+     *
+     * @param count messages count
+     * @param keywords array of keywords we search for
+     * @param field the field where to look for the keyword
+     * @param caseSensitive is keywords search case sensitive
+     * @return the found records
+     * @throws RuntimeException
+     */
+    QueryResultSet<HistoryRecord> findLast( int count,
+                                            String[] keywords,
+                                            String field,
+                                            boolean caseSensitive)
+        throws RuntimeException;
 
     /**
      * Returns the supplied number of recent messages after the given date
