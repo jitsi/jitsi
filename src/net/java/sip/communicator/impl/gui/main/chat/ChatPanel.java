@@ -174,6 +174,12 @@ public class ChatPanel
     protected ChatConferenceCallDialog chatConferencesDialog = null;
 
     /**
+     * Whether to use all numbers when sending sms, or just the mobiles.
+     */
+    private static final String USE_ADDITIONAL_NUMBERS_PROP
+        = "service.gui.IS_SEND_SMS_USING_ADDITIONAL_NUMBERS";
+
+    /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
      *
      * @param chatContainer The parent window of this chat panel.
@@ -1675,8 +1681,18 @@ public class ChatPanel
                 UIPhoneUtil contactPhoneUtil =
                     UIPhoneUtil.getPhoneUtil((MetaContact) desc);
 
-                List<UIContactDetail> uiContactDetailList =
-                    contactPhoneUtil.getAdditionalMobileNumbers();
+                List<UIContactDetail> uiContactDetailList;
+
+                boolean useAllNumbers =
+                    GuiActivator.getConfigurationService().getBoolean(
+                        USE_ADDITIONAL_NUMBERS_PROP, false);
+
+                if(useAllNumbers)
+                    uiContactDetailList
+                        = contactPhoneUtil.getAdditionalNumbers();
+                else
+                    uiContactDetailList
+                        = contactPhoneUtil.getAdditionalMobileNumbers();
 
                 if(uiContactDetailList.size() != 0)
                 {
