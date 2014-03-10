@@ -482,11 +482,9 @@ public class SearchFieldUI
         int x = evt.getX();
         int y = evt.getY();
 
-        Rectangle callButtonRect = getCallButtonRect();
-
         boolean outsideButtons = true;
 
-        if (isCallIconVisible && callButtonRect.contains(x, y))
+        if (isCallIconVisible && getCallButtonRect().contains(x, y))
         {
             JTextComponent c = getComponent();
             String searchText = c.getText();
