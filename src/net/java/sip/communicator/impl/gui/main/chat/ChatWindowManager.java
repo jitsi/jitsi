@@ -922,6 +922,11 @@ public class ChatWindowManager
 
     public void startChat(String contactString)
     {
+        startChat(contactString, false);
+    }
+
+    public void startChat(String contactString, boolean isSmsEnabled)
+    {
         List<ProtocolProviderService> imProviders
             = AccountUtils.getRegisteredProviders(
                     OperationSetBasicInstantMessaging.class);
@@ -965,7 +970,34 @@ public class ChatWindowManager
             }
         }
         if (startChat)
-            startChat(metaContact, contact, false);
+            startChat(metaContact, contact, isSmsEnabled);
+        else if(isSmsEnabled)
+        {
+            // nothing found but we want to send sms, lets check and create
+            // the contact as it may not exist
+            List<ProtocolProviderService> smsProviders
+                = AccountUtils.getRegisteredProviders(
+                        OperationSetSmsMessaging.class);
+
+            if(smsProviders == null || smsProviders.size() == 0)
+                return;
+
+            OperationSetSmsMessaging smsOpSet
+                = smsProviders.get(0)
+                        .getOperationSet(OperationSetSmsMessaging.class);
+
+            contact = smsOpSet.getContact(contactString);
+
+            if (contact != null)
+            {
+                metaContact
+                    = metaContactListService.findMetaContactByContact(contact);
+                if (metaContact != null)
+                {
+                    startChat(metaContact, contact, isSmsEnabled);
+                }
+            }
+        }
     }
 
     /**

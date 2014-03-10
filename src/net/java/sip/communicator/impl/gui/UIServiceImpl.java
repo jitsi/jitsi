@@ -1539,8 +1539,20 @@ public class UIServiceImpl
      */
     public void startChat(String[] participants)
     {
+        startChat(participants, false);
+    }
+
+    /**
+     * Starts a new <tt>Chat</tt> with a specific set of participants.
+     *
+     * @param participants an array of <tt>String</tt> values specifying the
+     * participants to be included into the newly created <tt>Chat</tt>
+     * @param isSmsEnabled whether sms option should be enabled if possible
+     */
+    public void startChat(String[] participants, boolean isSmsEnabled)
+    {
         if (participants.length == 1)
-            getChatWindowManager().startChat(participants[0]);
+            getChatWindowManager().startChat(participants[0], isSmsEnabled);
         else
             throw new IllegalArgumentException("participants");
     }
