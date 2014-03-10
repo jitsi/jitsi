@@ -1447,7 +1447,7 @@ public class MessageHistoryServiceImpl
             opSetSMS.addMessageListener(this);
 
             if(this.messageSourceService != null)
-                opSetIm.addMessageListener(messageSourceService);
+                opSetSMS.addMessageListener(messageSourceService);
         }
         else
         {
@@ -1519,7 +1519,7 @@ public class MessageHistoryServiceImpl
             opSetSMS.removeMessageListener(this);
 
             if(this.messageSourceService != null)
-                opSetIm.removeMessageListener(messageSourceService);
+                opSetSMS.removeMessageListener(messageSourceService);
         }
 
         OperationSetMultiUserChat opSetMultiUChat =
