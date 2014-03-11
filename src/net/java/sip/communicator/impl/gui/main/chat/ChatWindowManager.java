@@ -925,6 +925,35 @@ public class ChatWindowManager
         startChat(contactString, false);
     }
 
+    /**
+     * Start the chat with contact which is using the supplied protocol 
+     *provider.
+     * @param contactID the contact id to start chat with
+     * @param pps the protocol provider
+     */
+    public void startChat(String contactID, ProtocolProviderService pps)
+    {
+        OperationSetPersistentPresence opSet
+            = pps.getOperationSet(OperationSetPersistentPresence.class);
+
+        if (opSet != null)
+        {
+            Contact c = opSet.findContactByID(contactID);
+
+            if (c != null)
+            {
+                MetaContact metaContact = GuiActivator.getContactListService()
+                    .findMetaContactByContact(c);
+
+                startChat(metaContact, c, false);
+                return;
+            }
+        }
+
+        logger.error("Cannot start chat for " + contactID + " for "
+            + pps.getAccountID().getAccountAddress());
+    }
+
     public void startChat(String contactString, boolean isSmsEnabled)
     {
         List<ProtocolProviderService> imProviders

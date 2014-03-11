@@ -339,8 +339,13 @@ public class ContactListTreeCellRenderer
 
                         if(imDetails != null && imDetails.size() > 0)
                         {
+                            ProtocolProviderService pps
+                                = imDetails.get(0).getPreferredProtocolProvider(
+                                    OperationSetBasicInstantMessaging.class);
+
                             GuiActivator.getUIService().getChatWindowManager()
-                                .startChat(contact.getContactAddress());
+                                .startChat(contact.getContactAddress(),
+                                           pps);
                         }
                         else if(mucDetails != null && mucDetails.size() > 0)
                         {
@@ -448,6 +453,8 @@ public class ContactListTreeCellRenderer
 
         // clear icon if any (mobile indicator)
         nameLabel.setIcon(null);
+        // TODO: remove debugging
+        nameLabel.setText(value.toString());
 
         // Make appropriate adjustments for contact nodes and group nodes.
         if (value instanceof ContactNode)

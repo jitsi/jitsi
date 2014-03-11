@@ -222,8 +222,12 @@ public class ContactListPane
 
             if(imDetails != null && imDetails.size() > 0)
             {
+                ProtocolProviderService pps
+                    = imDetails.get(0).getPreferredProtocolProvider(
+                            OperationSetBasicInstantMessaging.class);
+
                 GuiActivator.getUIService().getChatWindowManager()
-                    .startChat(contact.getContactAddress());
+                    .startChat(contact.getContactAddress(), pps);
             }
             else if(mucDetails != null && mucDetails.size() > 0)
             {
