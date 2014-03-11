@@ -112,6 +112,15 @@ public class MessageSourceContact
 
         this.service = service;
 
+        updateMessageContent();
+    }
+
+    /**
+     * Make sure the content of the message is not too long,
+     * as it will fill up tooltips and ui components.
+     */
+    private void updateMessageContent()
+    {
         if(this.messageContent != null
             && this.messageContent.length() > 60)
         {
@@ -189,6 +198,8 @@ public class MessageSourceContact
             this.messageContent = e.getMessage().getContent();
             this.timestamp = e.getTimestamp();
         }
+
+        updateMessageContent();
     }
 
     /**
