@@ -226,6 +226,20 @@ public class PresenceStatusMenu
      */
     private void updateTitleArea()
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    updateTitleArea();
+                }
+            });
+
+            return;
+        }
+
         StringBuilder txt = new StringBuilder();
         txt.append("<html>").append("<b>");
         txt.append(protocolProvider.getAccountID().getDisplayName())

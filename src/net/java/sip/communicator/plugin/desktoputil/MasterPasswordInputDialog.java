@@ -10,6 +10,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.util.*;
 import org.jitsi.service.resources.*;
 
 /**
@@ -22,6 +23,13 @@ public class MasterPasswordInputDialog
     implements ActionListener,
                KeyListener
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>MasterPasswordInputDialog</tt> class
+     * and its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(MasterPasswordInputDialog.class);
+
     /**
      * Serial version UID.
      */
@@ -185,16 +193,30 @@ public class MasterPasswordInputDialog
      * @return the master password obtained from the user or <tt>null</tt> if
      * none was provided
      */
-    public static String showInput(boolean prevSuccess)
+    public static String showInput(final boolean prevSuccess)
     {
-        if (dialog == null)
-            dialog = new MasterPasswordInputDialog();
+        try
+        {
+            SwingUtilities.invokeAndWait(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    if (dialog == null)
+                        dialog = new MasterPasswordInputDialog();
 
-        dialog.rebuildMainPanel(!prevSuccess);
-        dialog.resetPassword();
+                    dialog.rebuildMainPanel(!prevSuccess);
+                    dialog.resetPassword();
 
-        // blocks until user performs an action
-        dialog.setVisible(true);
+                    // blocks until user performs an action
+                    dialog.setVisible(true);
+                }
+            });
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error showing dialog", t);
+        }
 
         return dialog.password;
     }
