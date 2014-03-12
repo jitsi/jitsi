@@ -1544,7 +1544,29 @@
 
     </target>
 
-    <target name="macosx-sparkle-files" if="sparkle.signiture.location">
+    <!-- a set of targets to load the properties needed to execute
+        just macosx-sparkle-files and macosx-sparkle-files-finish to
+        re-generate files if we accidentally delete them :)
+     -->
+    <target name="macosx-sparkle-params"
+            depends="version-params,load-props-params">
+        <property   name="macosx.dmg.name"
+                    value="${package.name}-${sip-communicator.version}.dmg"/>
+    </target>
+    <target name="version-params"
+            unless="sip-communicator.version">
+        <ant target="version"/>
+    </target>
+    <target name="load-props-params"
+            unless="sparkle.signiture.location">
+
+        <ant target="load-properties"/>
+    </target>
+    <!-- -->
+
+    <target name="macosx-sparkle-files"
+            depends="macosx-sparkle-params"
+            if="sparkle.signiture.location">
 
         <exec executable="bash" os="Mac OS X" failonerror="true"
               outputproperty="signature.base64">
@@ -1610,6 +1632,7 @@
 
     <!-- task only finishes generating sparkle files if needed -->
     <target name="macosx-sparkle-files-finish"
+            depends="macosx-sparkle-params"
             if="sparkle.signiture.location">
         <!-- To be able to insert deltas in the updates xml
             we use the token @SPARKLE_DELTAS@. And when finished
