@@ -57,10 +57,8 @@ public interface GlobalStatusService
      * @param protocolProvider the protocol provider to which we
      * change the status.
      * @param status the status to publish.
-     * @param rememberStatus whether to remember the status for future restore.
      */
     public void publishStatus(
             ProtocolProviderService protocolProvider,
-            PresenceStatus status,
-            boolean rememberStatus);
+            PresenceStatus status);
 }

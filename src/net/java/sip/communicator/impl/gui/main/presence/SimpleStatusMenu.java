@@ -133,12 +133,12 @@ public class SimpleStatusMenu
         if (itemName.equals(GlobalStatusEnum.ONLINE_STATUS))
         {
             GuiActivator.getGlobalStatusService()
-                .publishStatus(protocolProvider, GlobalStatusEnum.ONLINE, true);
+                .publishStatus(protocolProvider, GlobalStatusEnum.ONLINE);
         }
         else
         {
             GuiActivator.getGlobalStatusService()
-                .publishStatus(protocolProvider, GlobalStatusEnum.OFFLINE, true);
+                .publishStatus(protocolProvider, GlobalStatusEnum.OFFLINE);
         }
     }
 

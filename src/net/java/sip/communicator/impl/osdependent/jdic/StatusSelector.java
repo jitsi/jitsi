@@ -168,7 +168,7 @@ public class StatusSelector
             if (status.getStatusName().equals(statusName))
             {
                 OsDependentActivator.getGlobalStatusService()
-                    .publishStatus(provider, status, true);
+                    .publishStatus(provider, status);
 
                 break;
             }

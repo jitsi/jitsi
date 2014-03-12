@@ -237,15 +237,15 @@ public class AutoAwayWatcher
                 continue;
             }
 
-            addProviderToLastStates(protocolProvider, status);
-
             PresenceStatus newStatus
                 = StatusUpdateThread.findAwayStatus(presence);
 
             try
             {
-                if (newStatus != null)
+                if (newStatus != null && !status.equals(newStatus))
                 {
+                    addProviderToLastStates(protocolProvider, status);
+
                     presence.publishPresenceStatus(
                             newStatus,
                             newStatus.getStatusName());

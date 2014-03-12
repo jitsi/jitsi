@@ -280,21 +280,11 @@ public class ReadonlyStatusItem
      */
     public void updateStatus(PresenceStatus presenceStatus)
     {
-        OperationSetPresence presence
-            = AccountStatusUtils.getProtocolPresenceOpSet(protocolProvider);
-
         if (logger.isTraceEnabled())
             logger.trace("Update status for provider: "
                 + protocolProvider.getAccountID().getAccountAddress()
                 + ". The new status will be: " + presenceStatus.getStatusName());
 
         this.setSelectedStatus(presenceStatus);
-
-        if (protocolProvider.isRegistered()
-            && !presence.getPresenceStatus().equals(presenceStatus))
-        {
-            GuiActivator.getGlobalStatusService()
-                .publishStatus(protocolProvider, presenceStatus, false);
-        }
     }
 }

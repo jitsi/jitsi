@@ -261,12 +261,11 @@ public class GlobalStatusServiceImpl
      *
      * @param protocolProvider the protocol provider to which we
      * change the status.
-     * @param status the status tu publish.
+     * @param status the status to publish.
      */
     public void publishStatus(
             ProtocolProviderService protocolProvider,
-            PresenceStatus status,
-            boolean rememberStatus)
+            PresenceStatus status)
     {
         OperationSetPresence presence
                 = protocolProvider.getOperationSet(OperationSetPresence.class);
@@ -309,10 +308,9 @@ public class GlobalStatusServiceImpl
             LoginManager.logoff(protocolProvider);
         }
 
-        if(rememberStatus)
-            saveStatusInformation(
-                protocolProvider,
-                status.getStatusName());
+        saveStatusInformation(
+            protocolProvider,
+            status.getStatusName());
     }
 
     /**
