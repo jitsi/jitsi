@@ -6,19 +6,19 @@
  */
 package net.java.sip.communicator.impl.msghistory;
 
+import java.beans.*;
+import java.io.*;
+import java.util.*;
+import java.util.regex.*;
+
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import org.jitsi.util.*;
 
-import java.beans.*;
-import java.io.*;
-import java.text.*;
-import java.util.*;
-import java.util.regex.*;
+import org.jitsi.util.*;
 
 /**
  * The source contact service. The will show most recent messages.
