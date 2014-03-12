@@ -357,6 +357,8 @@ public class SipStackSharing
                 if (tlsLP != null)
                     this.stack.deleteListeningPoint(tlsLP);
 
+                Set<ListeningPoint> lpsToDelete = new HashSet<ListeningPoint>();
+
                 @SuppressWarnings("rawtypes")
                 Iterator lps = this.stack.getListeningPoints();
                 while (lps.hasNext())
@@ -365,8 +367,13 @@ public class SipStackSharing
                     if (ListeningPoint.TLS.equalsIgnoreCase(lp.getTransport())
                         && lp.getPort() == preferredPort)
                     {
-                        this.stack.deleteListeningPoint(lp);
+                        lpsToDelete.add(lp);
                     }
+                }
+
+                for (ListeningPoint lp : lpsToDelete)
+                {
+                    this.stack.deleteListeningPoint(lp);
                 }
             }
 
