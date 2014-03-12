@@ -419,17 +419,20 @@ public class ParallelResolverImpl
             return true;
         }
 
+        int rcode = response.getRcode();
         //we didn't find any responses and unless the answer is NXDOMAIN then
         //we may want to check with the backup resolver for a second opinion
-        if(response.getRcode() == Rcode.NXDOMAIN)
+        if(rcode == Rcode.NXDOMAIN)
             return true;
 
         //if we received NODATA (same as NOERROR and no response records) for
         // an AAAA or a NAPTR query then it makes sense since many existing
         //domains come without those two.
-        if( response.getRcode() == Rcode.NOERROR
-            && (response.getQuestion().getType() == Type.AAAA
-                || response.getQuestion().getType() == Type.NAPTR))
+        Record question = response.getQuestion();
+        int questionType = (question == null) ? 0 : question.getType();
+        if( rcode == Rcode.NOERROR
+            && question != null
+            && (questionType == Type.AAAA || questionType == Type.NAPTR))
         {
             return true;
         }
