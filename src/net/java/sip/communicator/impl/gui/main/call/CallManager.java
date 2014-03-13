@@ -773,9 +773,9 @@ public class CallManager
                                             MediaDevice mediaDevice,
                                             boolean enable)
     {
-        OperationSetDesktopSharingServer desktopOpSet
+        OperationSetDesktopStreaming desktopOpSet
             = call.getProtocolProvider().getOperationSet(
-                    OperationSetDesktopSharingServer.class);
+                OperationSetDesktopStreaming.class);
         boolean enableSucceeded = false;
 
         // This shouldn't happen at this stage, because we disable the button
