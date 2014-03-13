@@ -128,6 +128,15 @@ public class ProtocolProviderServiceSipImpl
         = "net.java.sip.communicator.impl.protocol.sip.MESSAGING_DISABLED";
 
     /**
+     * The name of the property which, if enabled, will cause a session-level
+     * attribute for the session direction (e.g. a=sendonly, a=recvonly) to be
+     * added to SDP offers/answers which we send.
+     */
+    public static final String USE_SESSION_LEVEL_DIRECTION_IN_SDP
+            = "net.java.sip.communicator.impl.protocol.sip."
+                    + "USE_SESSION_LEVEL_DIRECTION_IN_SDP";
+
+    /**
      * Default number of times that our requests can be forwarded.
      */
     private static final int  MAX_FORWARDS = 70;

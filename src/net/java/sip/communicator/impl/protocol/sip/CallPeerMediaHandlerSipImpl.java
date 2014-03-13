@@ -105,7 +105,7 @@ public class CallPeerMediaHandlerSipImpl
 
     /**
      * Creates a session description <tt>String</tt> representing the
-     * <tt>MediaStream</tt>s that this <tt>MediaHandler</tt> is prepare to
+     * <tt>MediaStream</tt>s that this <tt>MediaHandler</tt> is prepared to
      * exchange. The offer takes into account user preferences such as whether
      * or not local user would be transmitting video, whether any or all streams
      * are put on hold, etc. The method is also taking into account any previous
@@ -126,6 +126,14 @@ public class CallPeerMediaHandlerSipImpl
             = (localSess == null)
                 ? createFirstOffer()
                 : createUpdateOffer(localSess);
+
+        if (getConfigurationService().getBoolean(
+                ProtocolProviderServiceSipImpl
+                        .USE_SESSION_LEVEL_DIRECTION_IN_SDP,
+                false))
+        {
+            SdpUtils.setSessionDirection(offer);
+        }
 
         return offer.toString();
     }
@@ -378,10 +386,19 @@ public class CallPeerMediaHandlerSipImpl
 
         synchronized (offerAnswerLock)
         {
-            if (localSess == null)
-                return processFirstOffer(offer).toString();
-            else
-                return processUpdateOffer(offer, localSess).toString();
+            SessionDescription answer = (localSess == null)
+                    ? processFirstOffer(offer)
+                    : processUpdateOffer(offer, localSess);
+
+            if (getConfigurationService().getBoolean(
+                    ProtocolProviderServiceSipImpl
+                            .USE_SESSION_LEVEL_DIRECTION_IN_SDP,
+                    false))
+            {
+                SdpUtils.setSessionDirection(answer);
+            }
+
+            return answer.toString();
         }
     }
 

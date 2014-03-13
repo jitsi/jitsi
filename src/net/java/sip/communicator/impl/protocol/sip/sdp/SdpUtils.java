@@ -1581,11 +1581,10 @@ public class SdpUtils
     }
 
     /**
-     * Returns the media type (e.g. audio or video) for the specified media
-     * whether it contains the specified <tt>attributeName</tt>.
+     * Returns whether <tt>description</tt> contains the specified
+     * <tt>attributeName</tt>.
      *
-     * @param description the <tt>MediaDescription</tt> whose media type we'd
-     * like to extract.
+     * @param description the <tt>MediaDescription</tt>
      * @param attributeName name of the attribute to check
      * @return the media type (e.g. audio or video) for the specified media
      * <tt>description</tt>.
@@ -1768,5 +1767,88 @@ public class SdpUtils
                                          String             pwd)
     {
         IceSdpUtils.setIceCredentials(sDes, uFrag, pwd);
+    }
+
+    /**
+     * Adds an inactive|sendonly|recvonly|sendrecv session-level attribute to
+     * <tt>sdp</tt>, according to the directions of the media descriptions in
+     * <tt>sdp</tt>.
+     *
+     * @param sdp the <tt>SessionDescription</tt> to which to add an attribute.
+     */
+    public static void setSessionDirection(SessionDescription sdp)
+    {
+        MediaDirection direction = MediaDirection.INACTIVE;
+
+        //find out what direction we should use for the session
+        try
+        {
+            Vector medias = sdp.getMediaDescriptions(false);
+            if (medias != null)
+            {
+                for (Object o : medias)
+                {
+                    if (o instanceof MediaDescription)
+                    {
+                        MediaDescription md = (MediaDescription) o;
+
+                        // consider medias with port 0 inactive
+                        if (md.getMedia().getMediaPort() != 0)
+                        {
+                            direction = direction.or(
+                                    getDirection((MediaDescription) o));
+                        }
+                    }
+                }
+            }
+        }
+        catch (SdpException se)
+        {
+            logger.warn("Failed to get media descriptions.");
+        }
+
+
+        // now set the session-level attribute
+        Vector attributes = sdp.getAttributes(true);
+        Iterator iter = attributes.iterator();
+
+        // first clear previous direction attributes
+        while (iter.hasNext())
+        {
+            Object o = iter.next();
+            if (o instanceof Attribute)
+            {
+                try
+                {
+                    String name = ((Attribute) o).getName();
+                    if ("inactive".equals(name)
+                            || "sendonly".equals(name)
+                            || "recvonly".equals(name)
+                            || "sendrecv".equals(name))
+                    {
+                        iter.remove();
+                    }
+                }
+                catch (SdpException se)
+                {
+                    if (logger.isDebugEnabled())
+                        logger.debug("Failed to get attribute name: ", se);
+
+                }
+            }
+        }
+
+        // By RFC4566 section 6, if we skip "sendrecv", it SHOULD be assumed.
+        if (!MediaDirection.SENDRECV.equals(direction))
+            attributes.add(createDirectionAttribute(direction));
+
+        try
+        {
+            sdp.setAttributes(attributes);
+        }
+        catch (SdpException se)
+        {
+            logger.warn("Failed to set session direction attribute.");
+        }
     }
 }
