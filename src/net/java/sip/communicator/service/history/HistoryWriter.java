@@ -44,6 +44,21 @@ public interface HistoryWriter {
      *
      * @param propertyValues
      *            The values of the record.
+     * @param maxNumberOfRecords the maximum number of records to keep or
+     * value of -1 to ignore this param.
+     *
+     * @throws IOException
+     */
+    public void addRecord(String[] propertyValues,
+                   int maxNumberOfRecords)
+        throws IOException;
+
+    /**
+     * Stores the passed propertyValues complying with the
+     * historyRecordStructure.
+     *
+     * @param propertyValues
+     *            The values of the record.
      * @param timestamp
      *            The timestamp of the record.
      *

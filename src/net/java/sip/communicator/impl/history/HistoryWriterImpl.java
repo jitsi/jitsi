@@ -61,22 +61,44 @@ public class HistoryWriterImpl
     public void addRecord(HistoryRecord record)
         throws IOException
     {
-        this.addRecord(record.getPropertyNames(), record.getPropertyValues(),
-                record.getTimestamp());
+        this.addRecord(
+            record.getPropertyNames(),
+            record.getPropertyValues(),
+            record.getTimestamp(),
+            -1);
     }
 
     public void addRecord(String[] propertyValues)
         throws IOException
     {
-        addRecord(
-                structPropertyNames,
-                propertyValues,
-                new Date());
+        addRecord(structPropertyNames, propertyValues, new Date(), -1);
     }
 
     public void addRecord(String[] propertyValues, Date timestamp)
             throws IOException {
-        this.addRecord(structPropertyNames, propertyValues, timestamp);
+        this.addRecord(structPropertyNames, propertyValues, timestamp, -1);
+    }
+
+    /**
+     * Stores the passed propertyValues complying with the
+     * historyRecordStructure.
+     *
+     * @param propertyValues
+     *            The values of the record.
+     * @param maxNumberOfRecords the maximum number of records to keep or
+     * value of -1 to ignore this param.
+     *
+     * @throws IOException
+     */
+    public void addRecord(String[] propertyValues,
+                   int maxNumberOfRecords)
+        throws IOException
+    {
+        addRecord(
+            structPropertyNames,
+            propertyValues,
+            new Date(),
+            maxNumberOfRecords);
     }
 
     /**
@@ -87,12 +109,15 @@ public class HistoryWriterImpl
      * @param propertyNames String[]
      * @param propertyValues String[]
      * @param date Date
+     * @param maxNumberOfRecords the maximum number of records to keep or
+     * value of -1 to ignore this param.
      * @throws InvalidParameterException
      * @throws IOException
      */
     private void addRecord(String[] propertyNames,
                            String[] propertyValues,
-                           Date date)
+                           Date date,
+                           int maxNumberOfRecords)
         throws InvalidParameterException, IOException
     {
         // Synchronized to assure that two concurrent threads can insert records
@@ -111,6 +136,15 @@ public class HistoryWriterImpl
             Node root = this.currentDoc.getFirstChild();
             synchronized (root)
             {
+                // if we have setting for max number of records,
+                // check the number and when exceed them, remove the first one
+                if( maxNumberOfRecords > -1
+                    && this.currentDocElements >= maxNumberOfRecords)
+                {
+                    // lets remove the first one
+                    removeFirstRecord(root);
+                }
+
                 Element elem = this.currentDoc.createElement("record");
                 SimpleDateFormat sdf
                     = new SimpleDateFormat(DATE_FORMAT);
@@ -173,6 +207,51 @@ public class HistoryWriterImpl
                 this.historyImpl.writeFile(this.currentFile, this.currentDoc);
         }
     }
+
+    /**
+     * Finds the oldest node by timestamp in current root and deletes it.
+     * @param root where to search for records
+     */
+    private void removeFirstRecord(Node root)
+    {
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+
+        NodeList nodes = ((Element)root).getElementsByTagName("record");
+
+        Node oldestNode = null;
+        Date oldestTimeStamp = null;
+
+        Node node;
+        for (int i = 0; i < nodes.getLength(); i++)
+        {
+            node = nodes.item(i);
+
+            Date timestamp;
+            String ts
+                = node.getAttributes().getNamedItem("timestamp").getNodeValue();
+            try
+            {
+                timestamp = sdf.parse(ts);
+            }
+            catch (ParseException e)
+            {
+                timestamp = new Date(Long.parseLong(ts));
+            }
+
+            if(oldestNode == null
+                || (oldestTimeStamp.after(timestamp)))
+            {
+                oldestNode = node;
+                oldestTimeStamp = timestamp;
+                continue;
+            }
+
+        }
+
+        if(oldestNode != null)
+            root.removeChild(oldestNode);
+    }
+
 
     /**
      * If no file is currently loaded loads the last opened file. If it does not
@@ -293,6 +372,12 @@ public class HistoryWriterImpl
                     node.appendChild(propertyElement);
                 }
 
+                // change the timestamp, to reflect there was a change
+                SimpleDateFormat sdf
+                    = new SimpleDateFormat(DATE_FORMAT);
+                ((Element)node).setAttribute("timestamp",
+                    sdf.format(new Date()));
+
                 changed = true;
                 break;
             }
@@ -348,6 +433,12 @@ public class HistoryWriterImpl
                 updater.setHistoryRecord(createHistoryRecordFromNode(node));
                 if(!updater.isMatching())
                     continue;
+
+                // change the timestamp, to reflect there was a change
+                SimpleDateFormat sdf
+                    = new SimpleDateFormat(DATE_FORMAT);
+                ((Element)node).setAttribute("timestamp",
+                    sdf.format(new Date()));
 
                 Map<String, String> updates = updater.getUpdateChanges();
                 for(String nodeName : updates.keySet())

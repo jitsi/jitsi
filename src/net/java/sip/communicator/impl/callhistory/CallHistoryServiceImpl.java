@@ -1138,7 +1138,8 @@ public class CallHistoryServiceImpl
         }
         HistoryWriter historyWriter = history.getWriter();
 
-        HistoryWriter.HistoryRecordUpdater updater = new HistoryWriter.HistoryRecordUpdater()
+        HistoryWriter.HistoryRecordUpdater updater
+            = new HistoryWriter.HistoryRecordUpdater()
         {
             private HistoryRecord record;
 
