@@ -429,7 +429,7 @@ public class MessageHistoryServiceImpl
                 }
 
                 if(contactToFilter != null
-                    && !contactToFilter.equals(id.getID()[3]))
+                    && !id.getID()[3].startsWith(contactToFilter))
                 {
                     continue;
                 }
@@ -1130,7 +1130,7 @@ public class MessageHistoryServiceImpl
      */
     private void loadRecentMessages()
     {
-        this.messageSourceService = new MessageSourceService();
+        this.messageSourceService = new MessageSourceService(this);
         messageSourceServiceReg = bundleContext.registerService(
             ContactSourceService.class.getName(),
             messageSourceService, null);
@@ -1628,6 +1628,9 @@ public class MessageHistoryServiceImpl
             opSetPresence
                 .addProviderPresenceStatusListener(messageSourceService);
         }
+
+        if(messageSourceService != null)
+            messageSourceService.handleProviderAdded(provider);
     }
 
     /**
@@ -1690,6 +1693,9 @@ public class MessageHistoryServiceImpl
             opSetPresence
                 .removeProviderPresenceStatusListener(messageSourceService);
         }
+
+        if(messageSourceService != null)
+            messageSourceService.handleProviderRemoved(provider);
     }
 
     /**
@@ -2745,6 +2751,21 @@ public class MessageHistoryServiceImpl
         // start listening for newly register or removed protocol providers
         bundleContext.addServiceListener(this);
 
+        for (ProtocolProviderService pps : getCurrentlyAvailableProviders())
+        {
+            this.handleProviderAdded(pps);
+        }
+    }
+
+    /**
+     * Returns currently registered in osgi ProtocolProviderServices.
+     * @return currently registered in osgi ProtocolProviderServices.
+     */
+    List<ProtocolProviderService> getCurrentlyAvailableProviders()
+    {
+        List<ProtocolProviderService> res
+            = new ArrayList<ProtocolProviderService>();
+
         ServiceReference[] protocolProviderRefs = null;
         try
         {
@@ -2758,7 +2779,7 @@ public class MessageHistoryServiceImpl
             // but let's log just in case.
             logger.error(
                 "Error while retrieving service refs", ex);
-            return;
+            return res;
         }
 
         // in case we found any
@@ -2772,11 +2793,13 @@ public class MessageHistoryServiceImpl
             {
                 ProtocolProviderService provider
                     = (ProtocolProviderService) bundleContext
-                        .getService(protocolProviderRefs[i]);
+                    .getService(protocolProviderRefs[i]);
 
-                this.handleProviderAdded(provider);
+                res.add(provider);
             }
         }
+
+        return res;
     }
 
     /**

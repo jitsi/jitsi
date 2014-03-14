@@ -203,6 +203,34 @@ public class MessageSourceContact
     }
 
     /**
+     * Updates fields.
+     * @param msc the object
+     */
+    void update(MessageSourceContact msc)
+    {
+        this.contact = msc.contact;
+
+        this.address = contact.getAddress();
+        this.displayName = contact.getDisplayName();
+        this.ppService = contact.getProtocolProvider();
+        this.image = contact.getImage();
+        this.status = contact.getPresenceStatus();
+        this.messageContent = msc.messageContent;
+        this.timestamp = msc.timestamp;
+
+        updateMessageContent();
+    }
+
+    @Override
+    public String toString()
+    {
+        return "MessageSourceContact{" +
+            "address='" + address + '\'' +
+            ", ppService=" + ppService +
+            '}';
+    }
+
+    /**
      * We will the details for this source contact.
      * Will skip OperationSetBasicInstantMessaging for chat rooms.
      * @param isChatRoom is current source contact a chat room.
@@ -429,5 +457,27 @@ public class MessageSourceContact
 
         return o.getTimestamp()
             .compareTo(getTimestamp());
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if(this == o) return true;
+        if(o == null || getClass() != o.getClass()) return false;
+
+        MessageSourceContact that = (MessageSourceContact) o;
+
+        if(!address.equals(that.address)) return false;
+        if(!ppService.equals(that.ppService)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = address.hashCode();
+        result = 31 * result + ppService.hashCode();
+        return result;
     }
 }
