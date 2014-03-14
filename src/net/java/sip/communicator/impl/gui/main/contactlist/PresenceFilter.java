@@ -224,10 +224,13 @@ public class PresenceFilter
      */
     public boolean isMatching(SourceContact contact)
     {
+        // make sure we always show chat rooms and recent messages
         return
             isShowOffline
                 || contact.getPresenceStatus().isOnline()
-                || GuiActivator.getMUCService().isMUCSourceContact(contact);
+                || GuiActivator.getMUCService().isMUCSourceContact(contact)
+                || contact.getContactSource().getType()
+                        == ContactSourceService.RECENT_MESSAGES_TYPE;
     }
 
     /**
