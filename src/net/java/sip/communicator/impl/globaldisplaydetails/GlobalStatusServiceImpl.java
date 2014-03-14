@@ -6,6 +6,7 @@
 package net.java.sip.communicator.impl.globaldisplaydetails;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.account.*;
@@ -22,7 +23,8 @@ import java.util.*;
  * @author Damian Minkov
  */
 public class GlobalStatusServiceImpl
-    implements GlobalStatusService
+    implements GlobalStatusService,
+               RegistrationStateChangeListener
 {
     /**
      * The object used for logging.
@@ -623,6 +625,34 @@ public class GlobalStatusServiceImpl
             configService.setProperty(
                 accountPackage + ".lastAccountStatus",
                 statusName);
+        }
+    }
+
+    /**
+     * Waits for providers to register and then checks for its last status
+     * saved if any and used it to restore its status.
+     * @param evt a <tt>RegistrationStateChangeEvent</tt> which describes the
+    */
+    @Override
+    public void registrationStateChanged(RegistrationStateChangeEvent evt)
+    {
+        if(!evt.getNewState().equals(RegistrationState.REGISTERED))
+            return;
+
+        ProtocolProviderService pps = evt.getProvider();
+
+        PresenceStatus status = getLastPresenceStatus(pps);
+
+        if(status == null)
+        {
+            // lets publish just online
+            status = AccountStatusUtils.getOnlineStatus(pps);
+        }
+
+        if (status != null
+            && status.getStatus() >= PresenceStatus.ONLINE_THRESHOLD)
+        {
+            publishStatus(pps, status);
         }
     }
 

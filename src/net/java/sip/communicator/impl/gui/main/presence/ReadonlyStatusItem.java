@@ -74,29 +74,10 @@ public class ReadonlyStatusItem
 
         this.setToolTipText(tooltip);
 
-        OperationSetPresence presence
-            = protocolProvider.getOperationSet(OperationSetPresence.class);
-
-        Iterator<PresenceStatus> statusIterator
-            = presence.getSupportedStatusSet();
-
-        while (statusIterator.hasNext())
-        {
-            PresenceStatus status = statusIterator.next();
-            int connectivity = status.getStatus();
-
-            if (connectivity < 1)
-            {
-                this.offlineStatus = status;
-            }
-            else if ((onlineStatus != null
-                && (onlineStatus.getStatus() < connectivity))
-                || (onlineStatus == null
-                && (connectivity > 50 && connectivity < 80)))
-            {
-                this.onlineStatus = status;
-            }
-        }
+        this.offlineStatus
+            = AccountStatusUtils.getOfflineStatus(protocolProvider);
+        this.onlineStatus
+            = AccountStatusUtils.getOnlineStatus(protocolProvider);
 
         this.setSelectedStatus(offlineStatus);
         updateStatus(offlineStatus);

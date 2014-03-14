@@ -912,12 +912,6 @@ public class OperationSetPersistentPresenceJabberImpl
             }
             else if(evt.getNewState() == RegistrationState.REGISTERED)
             {
-                fireProviderStatusChangeEvent(
-                    currentStatus,
-                    parentProvider
-                        .getJabberStatusEnum()
-                            .getStatus(JabberStatusEnum.AVAILABLE));
-
                 createContactPhotoPresenceListener();
                 createAccountPhotoPresenceInterceptor();
             }

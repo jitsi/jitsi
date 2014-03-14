@@ -54,6 +54,8 @@ public class GlobalDisplayDetailsActivator
      */
     static GlobalDisplayDetailsImpl displayDetailsImpl;
 
+    static GlobalStatusServiceImpl globalStatusService;
+
     /**
      * Initialize and start file service
      *
@@ -74,9 +76,10 @@ public class GlobalDisplayDetailsActivator
                 displayDetailsImpl,
                 null);
 
+        globalStatusService = new GlobalStatusServiceImpl();
         bundleContext.registerService(
                 GlobalStatusService.class.getName(),
-                new GlobalStatusServiceImpl(),
+                globalStatusService,
                 null);
     }
 
@@ -191,15 +194,17 @@ public class GlobalDisplayDetailsActivator
             return;
         }
 
+        ProtocolProviderService pps = (ProtocolProviderService) service;
+
         switch (event.getType())
         {
         case ServiceEvent.REGISTERED:
-            ((ProtocolProviderService) service)
-                .addRegistrationStateChangeListener(displayDetailsImpl);
+            pps.addRegistrationStateChangeListener(displayDetailsImpl);
+            pps.addRegistrationStateChangeListener(globalStatusService);
             break;
         case ServiceEvent.UNREGISTERING:
-            ((ProtocolProviderService) service)
-                .removeRegistrationStateChangeListener(displayDetailsImpl);
+            pps.removeRegistrationStateChangeListener(displayDetailsImpl);
+            pps.removeRegistrationStateChangeListener(globalStatusService);
             break;
         }
     }

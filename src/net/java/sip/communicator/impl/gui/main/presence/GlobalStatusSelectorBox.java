@@ -369,17 +369,18 @@ public class GlobalStatusSelectorBox
         if (accountMenu == null)
             return;
 
-            PresenceStatus presenceStatus;
+        PresenceStatus presenceStatus;
 
-            if (!protocolProvider.isRegistered())
-                presenceStatus = accountMenu.getOfflineStatus();
-            else
-            {
-                presenceStatus
-                    = AccountStatusUtils.getLastPresenceStatus(protocolProvider);
-                if (presenceStatus == null)
-                    presenceStatus = accountMenu.getOnlineStatus();
-            }
+        if (!protocolProvider.isRegistered())
+            presenceStatus = accountMenu.getOfflineStatus();
+        else
+        {
+            presenceStatus
+                = AccountStatusUtils.getPresenceStatus(protocolProvider);
+
+            if (presenceStatus == null)
+                presenceStatus = accountMenu.getOnlineStatus();
+        }
 
         accountMenu.updateStatus(presenceStatus);
 

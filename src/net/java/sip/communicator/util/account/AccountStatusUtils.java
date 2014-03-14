@@ -10,6 +10,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
 
+import java.util.*;
+
 /**
  * The <tt>AccountStatusUtils</tt> provides utility methods for account status
  * management.
@@ -73,6 +75,95 @@ public class AccountStatusUtils
                 protocolProvider);
 
         return null;
+    }
+
+    /**
+     * Returns the current status for protocol provider.
+     *
+     * @param protocolProvider the protocol provider
+     * @return the current status for protocol provider
+     */
+    public static PresenceStatus getPresenceStatus(
+        ProtocolProviderService protocolProvider)
+    {
+        PresenceStatus status = null;
+
+        OperationSetPresence opSet
+            = protocolProvider.getOperationSet(OperationSetPresence.class);
+
+        if(opSet != null)
+            status = opSet.getPresenceStatus();
+
+        return status;
+    }
+
+    /**
+     * Returns the online status of provider.
+     * @param protocolProvider the protocol provider
+     * @return the online status of provider.
+     */
+    public static PresenceStatus getOnlineStatus(
+        ProtocolProviderService protocolProvider)
+    {
+        PresenceStatus onlineStatus = null;
+
+        OperationSetPresence presence
+            = protocolProvider.getOperationSet(OperationSetPresence.class);
+
+        // presence can be not supported
+        if(presence != null)
+        {
+            Iterator<PresenceStatus> statusIterator
+                = presence.getSupportedStatusSet();
+            while (statusIterator.hasNext())
+            {
+                PresenceStatus status = statusIterator.next();
+                int connectivity = status.getStatus();
+
+                if ((onlineStatus != null
+                    && (onlineStatus.getStatus() < connectivity))
+                    || (onlineStatus == null
+                    && (connectivity > 50 && connectivity < 80)))
+                {
+                    onlineStatus = status;
+                }
+            }
+        }
+
+        return onlineStatus;
+    }
+
+    /**
+     * Returns the offline status of provider.
+     * @param protocolProvider the protocol provider
+     * @return the offline status of provider.
+     */
+    public static PresenceStatus getOfflineStatus(
+        ProtocolProviderService protocolProvider)
+    {
+        PresenceStatus offlineStatus = null;
+
+        OperationSetPresence presence
+            = protocolProvider.getOperationSet(OperationSetPresence.class);
+
+        // presence can be not supported
+        if(presence != null)
+        {
+            Iterator<PresenceStatus> statusIterator
+                = presence.getSupportedStatusSet();
+            while (statusIterator.hasNext())
+            {
+                PresenceStatus status = statusIterator.next();
+                int connectivity = status.getStatus();
+
+                if (connectivity < 1)
+                {
+                    offlineStatus = status;
+                }
+            }
+        }
+
+        return offlineStatus;
     }
 
     /**
