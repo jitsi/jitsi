@@ -398,8 +398,6 @@ public class ChatRoomTableDialog
                         false,
                         false);
 
-                String nickName = nicknameField.getText().trim();
-                
                 if(!chatRoomWrapper.isPersistent())
                 {
                     chatRoomWrapper.setPersistent(true);
@@ -411,7 +409,9 @@ public class ChatRoomTableDialog
                         chatRoomWrapper.getChatRoomID(),
                         chatRoomWrapper.getChatRoomName());
                 }
-                
+
+                String nickName = nicknameField.getText().trim();
+
                 ConfigurationUtils.updateChatRoomProperty(
                     chatRoomWrapper.getParentProvider().getProtocolProvider(),
                     chatRoomWrapper.getChatRoomID(), "userNickName", nickName);

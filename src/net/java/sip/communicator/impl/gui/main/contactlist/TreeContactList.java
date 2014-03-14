@@ -842,7 +842,7 @@ public class TreeContactList
     {
         if (!SwingUtilities.isEventDispatchThread())
         {
-            SwingUtilities.invokeLater(new Runnable()
+            LowPriorityEventQueue.invokeLater(new Runnable()
             {
                 public void run()
                 {
@@ -1866,6 +1866,18 @@ public class TreeContactList
                         room = GuiActivator.getMUCService()
                             .findChatRoomWrapperFromChatRoomID(
                                 contact.getContactAddress(), pps);
+
+                        if(room == null)
+                        {
+                            GuiActivator.getMUCService().createChatRoom(
+                                contact.getContactAddress(),
+                                pps,
+                                new ArrayList<String>(),
+                                "",
+                                false,
+                                false,
+                                false);
+                        }
                     }
 
                     if(room != null)

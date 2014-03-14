@@ -141,6 +141,10 @@ public class GroupNode
      */
     public void removeContact(UIContactImpl uiContact)
     {
+        if (logger.isDebugEnabled())
+            logger.debug("Group node remove contact: "
+                + uiContact.getDisplayName());
+
         final ContactNode contactNode;
         int index;
         synchronized (uiContact)

@@ -363,6 +363,18 @@ public class ContactListTreeCellRenderer
                                 room = GuiActivator.getMUCService()
                                     .findChatRoomWrapperFromChatRoomID(
                                         contact.getContactAddress(), pps);
+
+                                if(room == null)
+                                {
+                                    GuiActivator.getMUCService().createChatRoom(
+                                        contact.getContactAddress(),
+                                        pps,
+                                        new ArrayList<String>(),
+                                        "",
+                                        false,
+                                        false,
+                                        false);
+                                }
                             }
 
                             if(room != null)
