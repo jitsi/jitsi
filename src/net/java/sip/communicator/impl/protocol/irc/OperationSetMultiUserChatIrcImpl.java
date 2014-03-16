@@ -136,23 +136,28 @@ public class OperationSetMultiUserChatIrcImpl
         throws OperationFailedException,
                OperationNotSupportedException
     {
-        return findRoom(roomName);
+        if (this.chatRoomCache.containsKey(roomName))
+        {
+            throw new OperationFailedException("room already exists",
+                OperationFailedException.IDENTIFICATION_CONFLICT);
+        }
+        return createLocalChatRoomInstance(roomName);
     }
 
     /**
-     * Returns a reference to a chatRoom named <tt>roomName</tt>. The room is
-     * created if it doesn't exists
-     * <p>
+     * Returns a reference to a chatRoom named <tt>roomName</tt>.
+     * 
+     * Originally, this method would create the room if it doesn't exist. This
+     * is not acceptable anymore, since rebuilding the chat room list would
+     * create new instances without the IRC stack being prepared for this or
+     * having corresponding instances.
+     * 
      * @param roomName the name of the <tt>ChatRoom</tt> that we're looking for.
      * @return the <tt>ChatRoom</tt> named <tt>roomName</tt>.
      */
     public ChatRoom findRoom(String roomName)
     {
-        //first check whether we have already initialized the room.
-        ChatRoom room = chatRoomCache.get(roomName);
-
-        //if yes - we return it. if not, we create it.
-        return (room != null) ? room : createLocalChatRoomInstance(roomName);
+        return chatRoomCache.get(roomName);
     }
 
     /**
