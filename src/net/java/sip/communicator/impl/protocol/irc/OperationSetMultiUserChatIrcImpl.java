@@ -33,8 +33,8 @@ public class OperationSetMultiUserChatIrcImpl
      * we have not necessarily joined these rooms, we might have simply been
      * searching through them.
      */
-    private final Map<String, ChatRoom> chatRoomCache
-        = new Hashtable<String, ChatRoom>();
+    private final Map<String, ChatRoomIrcImpl> chatRoomCache
+        = new Hashtable<String, ChatRoomIrcImpl>();
 
     /**
      * The <tt>ChatRoom</tt> corresponding to the IRC server channel. This chat
@@ -155,9 +155,26 @@ public class OperationSetMultiUserChatIrcImpl
      * @param roomName the name of the <tt>ChatRoom</tt> that we're looking for.
      * @return the <tt>ChatRoom</tt> named <tt>roomName</tt>.
      */
-    public ChatRoom findRoom(String roomName)
+    public ChatRoomIrcImpl findRoom(String roomName)
     {
         return chatRoomCache.get(roomName);
+    }
+    
+    /**
+     * Find an existing room with the provided name, or create a new room with
+     * this name.
+     * 
+     * @param roomName name of the chat room
+     * @return returns a chat room
+     */
+    public ChatRoomIrcImpl findOrCreateRoom(String roomName)
+    {
+        ChatRoomIrcImpl room = chatRoomCache.get(roomName);
+        if (room == null)
+        {
+            room = createLocalChatRoomInstance(roomName);
+        }
+        return room;
     }
 
     /**
@@ -206,7 +223,7 @@ public class OperationSetMultiUserChatIrcImpl
      *
      * @return ChatRoom the chat room that we've just created.
      */
-    private ChatRoom createLocalChatRoomInstance(String chatRoomName)
+    private ChatRoomIrcImpl createLocalChatRoomInstance(String chatRoomName)
     {
         synchronized(chatRoomCache)
         {

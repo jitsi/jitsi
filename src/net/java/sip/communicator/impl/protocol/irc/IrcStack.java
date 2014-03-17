@@ -948,9 +948,8 @@ public class IrcStack
          */
         private ChatRoomIrcImpl initiatePrivateChatRoom(String user)
         {
-            ChatRoomIrcImpl chatroom =
-                (ChatRoomIrcImpl) IrcStack.this.provider.getMUC()
-                    .findRoom(user);
+            OperationSetMultiUserChatIrcImpl muc = IrcStack.this.provider.getMUC();
+            ChatRoomIrcImpl chatroom = muc.findOrCreateRoom(user);
             IrcStack.this.joined.put(chatroom.getIdentifier(), chatroom);
             ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(IrcStack.this.provider, chatroom,
