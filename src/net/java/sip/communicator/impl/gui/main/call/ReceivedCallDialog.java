@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.call;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -38,6 +39,12 @@ public class ReceivedCallDialog
      * The incoming call to render.
      */
     private final Call incomingCall;
+
+    /**
+     * The list of resolvers.
+     */
+    private List<DisplayNameAndImageChangeListener> detailsResolvers
+        = new ArrayList<DisplayNameAndImageChangeListener>();
 
     /**
      * Creates a <tt>ReceivedCallDialog</tt> by specifying the associated call.
@@ -76,14 +83,18 @@ public class ReceivedCallDialog
     {
         Iterator<? extends CallPeer> peersIter = incomingCall.getCallPeers();
 
-        boolean hasMorePeers = false;
-        String textDisplayName = "";
         String textAddress = "";
         String textAccount = "";
 
         ImageIcon imageIcon =
             ImageUtils.scaleIconWithinBounds(ImageLoader
                 .getImage(ImageLoader.DEFAULT_USER_PHOTO), 40, 45);
+
+        // we use a table to store peers and so far resolved names
+        // in order to be able to reconstruct the text to display if we
+        // receive the display name later
+        Hashtable<CallPeer, String> peerNamesTable
+            = new Hashtable<CallPeer, String>();
 
         while (peersIter.hasNext())
         {
@@ -94,58 +105,38 @@ public class ReceivedCallDialog
             textAccount = peer.getProtocolProvider().getAccountID()
                 .getDisplayName();
 
+            DisplayNameAndImageChangeListener listener
+                = new DisplayNameAndImageChangeListener(peer, peerNamesTable);
+            detailsResolvers.add(listener);
+
+            String displayName =
+                CallManager.getPeerDisplayName(peer, listener);
+
+            if(displayName != null)
+                peerNamesTable.put(peer, displayName);
+
+            if(!StringUtils.isNullOrEmpty(peerAddress))
+                textAddress = callLabel[2].getText()
+                    + trimPeerAddressToUsername(peerAddress);
+
             // More peers.
             if (peersIter.hasNext())
             {
-                textDisplayName = callLabel[1].getText()
-                    + CallManager.getPeerDisplayName(peer) + ", ";
-
-                if(!StringUtils.isNullOrEmpty(peerAddress))
-                    textAddress = callLabel[2].getText()
-                        + trimPeerAddressToUsername(peerAddress) + ", ";
-
-                hasMorePeers = true;
+                textAddress += ", ";
             }
-            // Only one peer.
             else
             {
-                textDisplayName = GuiActivator.getResources()
-                        .getI18NString("service.gui.IS_CALLING",
-                            new String[]{
-                                CallManager.getPeerDisplayName(peer) });
-
-                if(!StringUtils.isNullOrEmpty(peerAddress))
-                    textAddress = callLabel[2].getText()
-                        + trimPeerAddressToUsername(peerAddress);
-
                 byte[] image = CallManager.getPeerImage(peer);
 
                 if (image != null && image.length > 0)
                     imageIcon = ImageUtils.getScaledRoundedIcon(image, 50, 50);
-                else
-                    // Try to find an image in one of the available contact
-                    // sources.
-                    new Thread(new Runnable()
-                    {
-                        public void run()
-                        {
-                            GuiActivator.getContactList()
-                                .setSourceContactImage( peer.getAddress(),
-                                                        callLabel[0],
-                                                        50, 50);
-                        }
-                    }).start();
             }
         }
 
-        if (hasMorePeers)
-            textDisplayName = GuiActivator.getResources()
-                .getI18NString("service.gui.ARE_CALLING",
-                    new String[]{textDisplayName});
+        // will update callLabel[1] with the already found names
+        updateTextDisplayName(peerNamesTable);
 
         callLabel[0].setIcon(imageIcon);
-
-        callLabel[1].setText(textDisplayName);
 
         callLabel[2].setText(textAddress);
         callLabel[2].setForeground(Color.GRAY);
@@ -156,6 +147,62 @@ public class ReceivedCallDialog
                 GuiActivator.getResources().getI18NString("service.gui.TO")
                 + " " + textAccount);
         }
+    }
+
+    /**
+     * Uses a table mapping peer to name to update call label display name.
+     * @param peerNamesTable the peer to name mapping
+     */
+    private void updateTextDisplayName(
+        final Hashtable<CallPeer, String> peerNamesTable)
+    {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    updateTextDisplayName(peerNamesTable);
+                }
+            });
+            return;
+        }
+
+        boolean hasMorePeers = false;
+        String textDisplayName = "";
+
+        Iterator<? extends CallPeer> peersIter = incomingCall.getCallPeers();
+
+        JLabel label = getCallLabels()[1];
+
+        while (peersIter.hasNext())
+        {
+            final CallPeer peer = peersIter.next();
+
+            // More peers.
+            if (peersIter.hasNext())
+            {
+                textDisplayName = label.getText()
+                    + peerNamesTable.get(peer) + ", ";
+
+                hasMorePeers = true;
+            }
+            // Only one peer.
+            else
+            {
+                textDisplayName = GuiActivator.getResources()
+                    .getI18NString("service.gui.IS_CALLING",
+                        new String[]{ peerNamesTable.get(peer) });
+            }
+        }
+
+        if (hasMorePeers)
+            textDisplayName = GuiActivator.getResources()
+                .getI18NString("service.gui.ARE_CALLING",
+                    new String[]{textDisplayName});
+
+        label.setText(textDisplayName);
     }
 
     /**
@@ -176,6 +223,12 @@ public class ReceivedCallDialog
     @Override
     public void dispose()
     {
+        // no more queries needed, if they are still running
+        for(DisplayNameAndImageChangeListener listener : detailsResolvers)
+        {
+            listener.setInterested(false);
+        }
+
         try
         {
             OperationSetBasicTelephony<?> basicTelephony
@@ -274,5 +327,80 @@ public class ReceivedCallDialog
         }
 
         return peerAddress;
+    }
+
+    /**
+     * Listens for display name update and image update, some searches for
+     * display name are slow, so we add a listener to update them when
+     * result comes in.
+     */
+    private class DisplayNameAndImageChangeListener
+        implements CallManager.DetailsResolveListener
+    {
+        /**
+         * The call peer we are interested in.
+         */
+        private CallPeer peer;
+
+        /**
+         * The table with all discovered peer names.
+         */
+        private Hashtable<CallPeer, String> peerNamesTable;
+
+        /**
+         * By default we are interested in events.
+         */
+        private boolean interested = true;
+
+        /**
+         * Constructs.
+         * @param peer
+         * @param peerNamesTable
+         */
+        private DisplayNameAndImageChangeListener(
+            CallPeer peer,
+            Hashtable<CallPeer, String> peerNamesTable)
+        {
+            this.peer = peer;
+            this.peerNamesTable = peerNamesTable;
+        }
+
+        @Override
+        public void displayNameUpdated(String displayName)
+        {
+            if(displayName != null)
+            {
+                peerNamesTable.put(peer, displayName);
+
+                updateTextDisplayName(peerNamesTable);
+            }
+        }
+
+        @Override
+        public void imageUpdated(byte[] image)
+        {
+            if(image != null)
+                ImageUtils.setScaledLabelImage(
+                    getCallLabels()[0], image, 50, 50);
+        }
+
+        /**
+         * Are we interested.
+         * @return
+         */
+        @Override
+        public boolean isInterested()
+        {
+            return interested;
+        }
+
+        /**
+         * Changes the interested value.
+         * @param value
+         */
+        public void setInterested(boolean value)
+        {
+            this.interested = value;
+        }
     }
 }

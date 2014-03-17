@@ -1405,9 +1405,12 @@ public class CallManager
      * A informative text to show for the peer. If display name is missing
      * return the address.
      * @param peer the peer.
+     * @param listener the listener to fire change events for later resolutions
+     * of display name and image, if exist.
      * @return the text contain display name.
      */
-    public static String getPeerDisplayName(CallPeer peer)
+    public static String getPeerDisplayName(CallPeer peer,
+                                            DetailsResolveListener listener)
     {
         String displayName = null;
 
@@ -1486,7 +1489,7 @@ public class CallManager
                             : peer.getAddress();
 
             // Try to resolve the display name
-            String resolvedName = resolveContactSource(displayName);
+            String resolvedName = queryContactSource(displayName, listener);
             if(resolvedName != null)
             {
                 displayName = resolvedName;
@@ -4104,15 +4107,58 @@ public class CallManager
      * first match.
      *
      * @param peerAddress The peer address.
-     *
+     * @param listener the listener to fire change events for later resolutions
+     * of display name and image, if exist.
      * @return The corresponding display name, if there is a match. Null
      * otherwise.
      */
-    private static String resolveContactSource(String peerAddress)
+    private static String queryContactSource(
+        String peerAddress,
+        DetailsResolveListener listener)
     {
         String displayName = null;
 
         if(!StringUtils.isNullOrEmpty(peerAddress))
+        {
+            ContactSourceSearcher searcher
+                = new ContactSourceSearcher(peerAddress, listener);
+
+            if(listener == null)
+            {
+                searcher.run();
+                displayName = searcher.displayName;
+            }
+            else
+                new Thread(searcher, searcher.getClass().getName()).start();
+        }
+
+        return displayName;
+    }
+
+    /**
+     * Runnable that will search for a source contact and when found will
+     * fire events to inform that display name or contact image is found.
+     */
+    private static class ContactSourceSearcher
+        implements Runnable
+    {
+        private final DetailsResolveListener listener;
+
+        private final String peerAddress;
+
+        private String displayName;
+        private byte[] displayImage;
+
+        private ContactSourceSearcher(
+            String peerAddress,
+            DetailsResolveListener listener)
+        {
+            this.peerAddress = peerAddress;
+            this.listener = listener;
+        }
+
+        @Override
+        public void run()
         {
             Vector<ResolveAddressToDisplayNameContactQueryListener> resolvers
                 = new Vector<ResolveAddressToDisplayNameContactQueryListener>
@@ -4137,7 +4183,7 @@ public class CallManager
                 {
                     // use the pattern method of (ExtendedContactSourceService)
                     query = ((ExtendedContactSourceService)css)
-                                .createContactQuery(pattern);
+                        .createContactQuery(pattern);
                 }
                 else
                 {
@@ -4153,20 +4199,28 @@ public class CallManager
             }
 
             long startTime = System.currentTimeMillis();
-            long currentTime = startTime;
+
             // The detault timeout is set to 500ms.
-            long timeout = 500;
-            // Loops until we found a valid display name, or waits for timeout.
-            while(displayName == null
-                    && currentTime - startTime < timeout)
+            long timeout = listener == null ? 500 : -1;
+            boolean hasRunningResolver = true;
+            // Loops until we found a valid display name and image,
+            // or waits for timeout if any.
+            while((displayName == null || displayImage == null)
+                    && hasRunningResolver
+                    && (listener == null || listener.isInterested()))
             {
-                for(int i = 0; i < resolvers.size() && displayName == null; ++i)
+                hasRunningResolver = false;
+
+                for(int i = 0; i < resolvers.size()
+                    && (displayName == null || displayImage == null)
+                    && (listener == null || listener.isInterested()); ++i)
                 {
                     ResolveAddressToDisplayNameContactQueryListener resolver
                         = resolvers.get(i);
                     if(!resolver.isRunning())
                     {
-                        if(resolver.isFound())
+                        if(displayName == null
+                            && resolver.isFoundName())
                         {
                             displayName = resolver.getResolvedName();
                             // If this is the same result as the peer address,
@@ -4176,11 +4230,42 @@ public class CallManager
                             {
                                 displayName = null;
                             }
+
+                            if(listener != null && displayName != null)
+                            {
+                                // fire
+                                listener.displayNameUpdated(displayName);
+                            }
+                        }
+
+                        if(displayImage == null
+                            && resolver.isFoundImage())
+                        {
+                            displayImage = resolver.getResolvedImage();
+
+                            String name = resolver.getResolvedName();
+                            // If this is the same result as the peer address,
+                            // then that is not what we are looking for. Then,
+                            // continue the search.
+                            if(name != null && name.equals(peerAddress))
+                            {
+                                displayImage = null;
+                            }
+                            else if(listener != null && displayImage != null)
+                            {
+                                // fire
+                                listener.imageUpdated(displayImage);
+                            }
                         }
                     }
+                    else
+                        hasRunningResolver = true;
                 }
                 Thread.yield();
-                currentTime = System.currentTimeMillis();
+
+                if( timeout > 0 &&
+                    System.currentTimeMillis() - startTime >= timeout)
+                    break;
             }
 
             // Free lasting resolvers.
@@ -4194,7 +4279,31 @@ public class CallManager
                 }
             }
         }
+    }
 
-        return displayName;
+    /**
+     * A listener that will be notified for found source contacts details.
+     */
+    public static interface DetailsResolveListener
+    {
+        /**
+         * When a display name is found.
+         * @param displayName the name that was found.
+         */
+        public void displayNameUpdated(String displayName);
+
+        /**
+         * The image that was found.
+         * @param image the image that was found.
+         */
+        public void imageUpdated(byte[] image);
+
+        /**
+         * Whether the listener is still interested in the events.
+         * When the window/panel using this resolver listener is closed
+         * will return false;
+         * @return whether the listener is still interested in the events.
+         */
+        public boolean isInterested();
     }
 }

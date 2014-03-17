@@ -166,6 +166,11 @@ public class OneToOneCallPeerPanel
     private final JLabel photoLabel;
 
     /**
+     * The listener that will listen when retrieving contact details.
+     */
+    private DisplayNameAndImageChangeListener detailsChangeListener = null;
+
+    /**
      * Sound remote level label.
      */
     private Component remoteLevel;
@@ -267,7 +272,9 @@ public class OneToOneCallPeerPanel
         this.call = callPeer.getCall();
         this.uiVideoHandler = uiVideoHandler;
 
-        peerName = CallManager.getPeerDisplayName(callPeer);
+        detailsChangeListener = new DisplayNameAndImageChangeListener();
+        peerName = CallManager.getPeerDisplayName(callPeer,
+            detailsChangeListener);
         securityPanel = SecurityPanel.create(this, callPeer, null);
 
         photoLabel = new JLabel(getPhotoLabelIcon());
@@ -523,6 +530,9 @@ public class OneToOneCallPeerPanel
     public void dispose()
     {
         disposed = true;
+
+        if(detailsChangeListener != null)
+            detailsChangeListener.setInterested(false);
 
         callPeerAdapter.dispose();
         uiVideoHandler.deleteObserver(uiVideoHandlerObserver);
@@ -1082,8 +1092,8 @@ public class OneToOneCallPeerPanel
         // available contact sources.
         if (image == null || image.length <= 0)
         {
-            GuiActivator.getContactList().setSourceContactImage(
-                peerName, photoLabel, 100, 100);
+            // will do nothing, as querying for display name will also
+            // set and image if it exist
         }
         else
         {
@@ -1525,6 +1535,51 @@ public class OneToOneCallPeerPanel
             {
                 g.dispose();
             }
+        }
+    }
+
+    /**
+     * Listens for display name update and image update, some searches for
+     * display name are slow, so we add a listener to update them when
+     * result comes in.
+     */
+    private class DisplayNameAndImageChangeListener
+        implements CallManager.DetailsResolveListener
+    {
+        /**
+         * By default we are interested in events.
+         */
+        private boolean interested = true;
+
+        @Override
+        public void displayNameUpdated(String displayName)
+        {
+            setPeerName(displayName);
+        }
+
+        @Override
+        public void imageUpdated(byte[] image)
+        {
+            setPeerImage(image);
+        }
+
+        /**
+         * Are we interested.
+         * @return
+         */
+        @Override
+        public boolean isInterested()
+        {
+            return interested;
+        }
+
+        /**
+         * Changes the interested value.
+         * @param value
+         */
+        public void setInterested(boolean value)
+        {
+            this.interested = value;
         }
     }
 }
