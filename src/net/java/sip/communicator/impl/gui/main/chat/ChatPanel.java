@@ -2376,8 +2376,22 @@ public class ChatPanel
      * Sets the given <tt>subject</tt> to this chat.
      * @param subject the subject to set
      */
-    public void setChatSubject(String subject)
+    public void setChatSubject(final String subject)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    setChatSubject(subject);
+                }
+            });
+
+            return;
+        }
+
         if (subjectPanel != null)
         {
             // Don't do anything if the subject doesn't really change.
