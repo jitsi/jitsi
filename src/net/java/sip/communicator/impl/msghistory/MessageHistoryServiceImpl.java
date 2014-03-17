@@ -1435,7 +1435,8 @@ public class MessageHistoryServiceImpl
                     message.getContent(), message.getContentType(),
                     message.getEncoding(), message.getMessageUID(),
                     from.getContactAddress(),
-                    sdf.format(messageTimestamp) },
+                    sdf.format(messageTimestamp),
+                    null},
                     new Date()); // this date is when the history record is written
         } catch (IOException e)
         {
@@ -1465,7 +1466,8 @@ public class MessageHistoryServiceImpl
                     message.getContent(), message.getContentType(),
                     message.getEncoding(), message.getMessageUID(),
                     from.getAddress(),
-                    sdf.format(messageTimestamp) },
+                    sdf.format(messageTimestamp),
+                    null},
                     new Date()); // this date is when the history record is written
         } catch (IOException e)
         {
