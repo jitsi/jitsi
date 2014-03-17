@@ -663,6 +663,8 @@ public class MUCCustomContactActionService
                 .findChatRoomWrapperFromSourceContact(contact);
             if(name.equals("autojoin") || name.equals("autojoin_pressed"))
             {
+                if(room == null)
+                    return true;
 
                 if(name.equals("autojoin"))
                     return !room.isAutojoin();
