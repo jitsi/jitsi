@@ -233,12 +233,21 @@ public class DnsUtilActivator
         if(logger.isInfoEnabled())
         {
             StringBuilder sb = new StringBuilder();
-            sb.append("Reloaded resolver config, default DNS servers are: ");
-            for(String s : ResolverConfig.getCurrentConfig().servers())
+            sb.append("Reloading resolver config, default DNS servers are: ");
+            ResolverConfig config = ResolverConfig.getCurrentConfig();
+            if (config != null)
             {
-                sb.append(s);
-                sb.append(", ");
+                for(String s : config.servers())
+                {
+                    sb.append(s);
+                    sb.append(", ");
+                }
             }
+            else
+            {
+                sb.append("undefined");
+            }
+
             logger.info(sb.toString());
         }
 
