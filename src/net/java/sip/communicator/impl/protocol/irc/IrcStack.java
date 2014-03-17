@@ -318,6 +318,18 @@ public class IrcStack
     {
         disconnect();
     }
+    
+    /**
+     * Get a set of channel type indicators.
+     * 
+     * @return returns set of channel type indicators.
+     */
+    public Set<Character> getChannelTypes()
+    {
+        if (!isConnected())
+            throw new IllegalStateException("not connected to IRC server");
+        return this.connectionState.getServerOptions().getChanTypes();
+    }
 
     /**
      * Get the nick name of the user.
