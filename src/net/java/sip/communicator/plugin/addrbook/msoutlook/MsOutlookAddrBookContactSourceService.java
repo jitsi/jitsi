@@ -174,7 +174,7 @@ public class MsOutlookAddrBookContactSourceService
      * <tt>ContactSourceService</tt> implementation for the specified
      * <tt>Pattern</tt> and via which the matching <tt>SourceContact</tt>s (if
      * any) will be returned
-     * @see ExtendedContactSourceService#queryContactSource(Pattern)
+     * @see ExtendedContactSourceService#createContactQuery(Pattern)
      */
     public ContactQuery createContactQuery(Pattern query)
     {
@@ -344,7 +344,6 @@ public class MsOutlookAddrBookContactSourceService
     private class NotificationThread
         extends Thread
     {
-
         /**
          * The list of notification collected.
          */
@@ -364,7 +363,7 @@ public class MsOutlookAddrBookContactSourceService
          */
         public void run()
         {
-            boolean hasMore = false;
+            boolean hasMore;
             NotificationIdFunction idFunction = null;
             String id;
             char function;
@@ -404,6 +403,15 @@ public class MsOutlookAddrBookContactSourceService
                     {
                         idFunction = contactIds.get(0);
                     }
+                    else
+                    {
+                        // inform query that we had finished delivering
+                        // all notifications
+                        if(latestQuery != null)
+                        {
+                            latestQuery.finishedNotifications();
+                        }
+                    }
                 }
             }
         }
@@ -436,6 +444,17 @@ public class MsOutlookAddrBookContactSourceService
         public int getNbRemainingNotifications()
         {
             return contactIds.size();
+        }
+
+        /**
+         * Clear the current results.
+         */
+        public void clear()
+        {
+            synchronized(notificationThreadMutex)
+            {
+                contactIds.clear();
+            }
         }
     }
 
@@ -554,5 +573,16 @@ public class MsOutlookAddrBookContactSourceService
         }
 
         return nbNotifications;
+    }
+
+    /**
+     * Cancels the contact notifications.
+     */
+    public void clearRemainingNotifications()
+    {
+        if(notificationThread != null)
+        {
+            notificationThread.clear();
+        }
     }
 }

@@ -961,8 +961,7 @@ public class MsOutlookAddrBookContactQuery
 
     /**
      * Gets the <tt>contactDetails</tt> to be set on a <tt>SourceContact</tt>
-     * which is to represent an <tt>ABPerson</tt> specified by the values of its
-     * {@link #ABPERSON_PROPERTIES}.
+     * which is to represent an <tt>ABPerson</tt>.
      *
      * @param values the values of the <tt>ABPERSON_PROPERTIES</tt> which
      * represent the <tt>ABPerson</tt> to get the <tt>contactDetails</tt> of
@@ -1062,6 +1061,18 @@ public class MsOutlookAddrBookContactQuery
         synchronized (MsOutlookAddrBookContactQuery.class)
         {
             insertedOrUpdated(id, 1);
+        }
+    }
+
+    /**
+     * Callback method when receiving notifications for query,
+     * finished all items.
+     */
+    public void finishedNotifications()
+    {
+        synchronized (MsOutlookAddrBookContactQuery.class)
+        {
+            super.stopped(true);
         }
     }
 
@@ -1266,5 +1277,31 @@ public class MsOutlookAddrBookContactQuery
 
         // not found
         return null;
+    }
+
+    @Override
+    protected void stopped(boolean completed)
+    {
+        // don't stop will stop when the thread that notifies about found
+        // contact ids stop notifying us
+    }
+
+    /**
+     * When canceled clear all contact id that are in progress for notify.
+     *
+     * @param status {@link ContactQuery#QUERY_CANCELED},
+     * {@link ContactQuery#QUERY_COMPLETED}, or
+     */
+    @Override
+    public void setStatus(int status)
+    {
+        // first set status, so we don't end up with completed query, where
+        // it was canceled
+        super.setStatus(status);
+
+        if (status == QUERY_CANCELED)
+        {
+            getContactSource().clearRemainingNotifications();
+        }
     }
 }
