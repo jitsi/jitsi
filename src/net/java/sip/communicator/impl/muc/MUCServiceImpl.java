@@ -943,6 +943,17 @@ public class MUCServiceImpl
                 chatRoomWrapper);
             chatRoomList.removeChatRoom(chatRoomWrapper);
         }
+        else
+        {
+            // if we leave a chat room which is not persistent
+            // the room can be destroyed on the server, and error is returned
+            // when we try to destroy it not-authorized(401)
+            if(!chatRoomWrapper.getChatRoom().isPersistent()
+                && !chatRoomWrapper.getChatRoom().isJoined())
+            {
+                chatRoomList.removeChatRoom(chatRoomWrapper);
+            }
+        }
 
     }
 
