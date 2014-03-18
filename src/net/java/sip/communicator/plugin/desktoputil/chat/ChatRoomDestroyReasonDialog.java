@@ -7,10 +7,14 @@
 package net.java.sip.communicator.plugin.desktoputil.chat;
 
 import java.awt.*;
+import java.io.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.util.*;
+import org.jitsi.service.resources.*;
+import sun.util.logging.resources.*;
 
 /**
  * Dialog with fields for reason and alternate address.
@@ -19,6 +23,13 @@ import net.java.sip.communicator.plugin.desktoputil.*;
  */
 public class ChatRoomDestroyReasonDialog extends MessageDialog
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>ChatRoomDestroyReasonDialog</tt>
+     * class and its instances for logging output.
+     */
+    private static Logger logger
+        = Logger.getLogger(ChatRoomDestroyReasonDialog.class);
+
     /**
      * Serial id.
      */
@@ -108,11 +119,32 @@ public class ChatRoomDestroyReasonDialog extends MessageDialog
     */
    public static String[] getDestroyOptions()
    {
-       ChatRoomDestroyReasonDialog reasonDialog =
-           new ChatRoomDestroyReasonDialog(DesktopUtilActivator.getResources()
-               .getI18NString("service.gui.DESTROY_CHATROOM"),
-               DesktopUtilActivator.getResources().getI18NString(
-                   "service.gui.DESTROY_MESSAGE"));
+       final ChatRoomDestroyReasonDialog[] res
+           = new ChatRoomDestroyReasonDialog[1];
+
+       try
+       {
+           SwingUtilities.invokeAndWait(new Runnable()
+           {
+               @Override
+               public void run()
+               {
+                   ResourceManagementService R
+                       = DesktopUtilActivator.getResources();
+
+                   res[0] = new ChatRoomDestroyReasonDialog(
+                       R.getI18NString("service.gui.DESTROY_CHATROOM"),
+                       R.getI18NString("service.gui.DESTROY_MESSAGE"));
+               }
+           });
+       }
+       catch(Throwable t)
+       {
+           logger.error("Error creating dialog", t);
+           return null;
+       }
+
+       ChatRoomDestroyReasonDialog reasonDialog = res[0];
 
        int result = reasonDialog.showDialog();
 
