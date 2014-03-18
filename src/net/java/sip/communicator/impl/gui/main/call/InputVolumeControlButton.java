@@ -149,9 +149,16 @@ public class InputVolumeControlButton
             public void mouseReleased(MouseEvent mouseevent)
             {
                 if (!sliderMenuIsVisible)
-                    timerTask.cancel();
+                {
+                    if (timerTask != null)
+                    {
+                        timerTask.cancel();
+                    }
+                }
                 else
+                {
                     setSelected(!isSelected());
+                }
             }
         });
     }
