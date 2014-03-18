@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import org.jitsi.util.*;
 
 /**
  * The <tt>PhoneNumberContactQuery</tt> is a query over the
@@ -200,13 +201,10 @@ public class PhoneNumberContactQuery
                         String contactAddress = contact.getAddress();
                         String numberString = pnd.getNumber();
 
-                        if(queryString == null
-                            || (queryString != null
-                                && (numberString.startsWith(
-                                            queryString)
-                                    || contactName.startsWith(queryString)
-                                    || contactAddress.startsWith(queryString)
-                                    )))
+                        if(StringUtils.isNullOrEmpty(queryString)
+                            || query.matcher(numberString).find()
+                            || query.matcher(contactName).find()
+                            || query.matcher(contactAddress).find())
                         {
                             ArrayList<ContactDetail> contactDetails
                                 = new ArrayList<ContactDetail>();
