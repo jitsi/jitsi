@@ -51,7 +51,7 @@ public class CallHistoryServiceImpl
     private static HistoryRecordStructure recordStructure =
         new HistoryRecordStructure(STRUCTURE_NAMES);
 
-    private static final String DELIM = ",";
+    private static final char DELIM = ',';
 
     /**
      * The BundleContext that we got from the OSGI bus.
@@ -525,11 +525,28 @@ public class CallHistoryServiceImpl
         if(str == null)
             return result;
 
-        StringTokenizer toks = new StringTokenizer(str, DELIM);
-        while(toks.hasMoreTokens())
+
+        StreamTokenizer stt = new StreamTokenizer(new StringReader(str));
+        stt.resetSyntax();
+        stt.wordChars('\u0000','\uFFFF');
+        stt.eolIsSignificant(false);
+        stt.quoteChar('"');
+        stt.whitespaceChars(DELIM, DELIM);
+        try
         {
-            result.add(toks.nextToken());
+            while(stt.nextToken() != StreamTokenizer.TT_EOF)
+            {
+                if (stt.sval != null)
+                {
+                    result.add(stt.sval.trim());
+                }
+            }
         }
+        catch (IOException e)
+        {
+            logger.error("failed to parse " + str, e);
+        }
+
         return result;
     }
 
@@ -716,7 +733,18 @@ public class CallHistoryServiceImpl
                 }
 
                 callPeerIDs.append(item.getPeerAddress());
-                callPeerNames.append(item.getDisplayName());
+                String dn = item.getDisplayName();
+                if (dn != null)
+                {
+                    //escape quotes
+                    dn = dn.replace("\"", "\\\"");
+
+                    //then insert the quoted string
+                    callPeerNames.append('"');
+                    callPeerNames.append(dn);
+                    callPeerNames.append('"');
+                }
+
                 callPeerStartTime.append(sdf.format(item.getStartTime()));
                 callPeerEndTime.append(sdf.format(item.getEndTime()));
                 callPeerStates.append(item.getState().getStateString());
