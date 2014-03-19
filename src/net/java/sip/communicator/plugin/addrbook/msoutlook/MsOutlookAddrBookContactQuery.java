@@ -395,6 +395,9 @@ public class MsOutlookAddrBookContactQuery
             Pattern query)
     {
         super(msoabcss, query);
+
+        if(logger.isTraceEnabled())
+            logger.trace("Creating new query:" + query);
     }
 
     /**
@@ -953,6 +956,11 @@ public class MsOutlookAddrBookContactQuery
                     }
                 }
 
+                if(logger.isTraceEnabled())
+                    logger.trace("For query: " + query + " found contact:"
+                        + sourceContact.getDisplayName() + ", "
+                        + sourceContact.getContactAddress());
+
                 addQueryResult(sourceContact);
             }
         }
@@ -1295,6 +1303,9 @@ public class MsOutlookAddrBookContactQuery
     @Override
     public void setStatus(int status)
     {
+        if(logger.isTraceEnabled())
+            logger.trace("Query: " + query + " setStatus " + status);
+
         // first set status, so we don't end up with completed query, where
         // it was canceled
         super.setStatus(status);
