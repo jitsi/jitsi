@@ -10,7 +10,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.util.List;
-import java.util.regex.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -28,9 +27,7 @@ import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
 
-import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**

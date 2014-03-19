@@ -19,7 +19,6 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.presence.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.Logger;
-import net.java.sip.communicator.util.account.*;
 
 import org.jitsi.util.*;
 

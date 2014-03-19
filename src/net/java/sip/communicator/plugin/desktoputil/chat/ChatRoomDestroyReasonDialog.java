@@ -7,14 +7,13 @@
 package net.java.sip.communicator.plugin.desktoputil.chat;
 
 import java.awt.*;
-import java.io.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.*;
+
 import org.jitsi.service.resources.*;
-import sun.util.logging.resources.*;
 
 /**
  * Dialog with fields for reason and alternate address.

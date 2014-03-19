@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.gui.main.presence;
 
 import java.awt.*;
 import java.awt.image.*;
-import java.util.*;
 
 import javax.swing.*;
 
