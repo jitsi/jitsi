@@ -33,6 +33,29 @@ public class GlobalStatusServiceImpl
         = Logger.getLogger(GlobalStatusServiceImpl.class);
 
     /**
+     * Handles newly added providers.
+     * @param pps
+     */
+    void handleProviderAdded(ProtocolProviderService pps)
+    {
+        pps.addRegistrationStateChangeListener(this);
+
+        if(pps.isRegistered())
+        {
+            handleProviderRegistered(pps);
+        }
+    }
+
+    /**
+     * Handles removed providers.
+     * @param pps the provider.
+     */
+    void handleProviderRemoved(ProtocolProviderService pps)
+    {
+        pps.removeRegistrationStateChangeListener(this);
+    }
+
+    /**
      * Returns the global presence status.
      *
      * @return the current global presence status
@@ -513,9 +536,9 @@ public class GlobalStatusServiceImpl
         if (!protocolProvider.isRegistered())
             return;
 
-        PresenceStatus status = getPresenceStatus(  protocolProvider,
-                                                    floorStatusValue,
-                                                    ceilStatusValue);
+        PresenceStatus status = getPresenceStatus(protocolProvider,
+            floorStatusValue,
+            ceilStatusValue);
 
         if (status != null)
         {
@@ -639,8 +662,17 @@ public class GlobalStatusServiceImpl
         if(!evt.getNewState().equals(RegistrationState.REGISTERED))
             return;
 
-        ProtocolProviderService pps = evt.getProvider();
+        handleProviderRegistered(evt.getProvider());
+    }
 
+    /**
+     * Handles registered providers. If provider has a stored last status
+     * publish that status, otherwise we just publish that they
+     * are Online/Available/
+     * @param pps the provider
+     */
+    private void handleProviderRegistered(ProtocolProviderService pps)
+    {
         PresenceStatus status = getLastPresenceStatus(pps);
 
         if(status == null)

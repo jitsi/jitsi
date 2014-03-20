@@ -68,19 +68,50 @@ public class GlobalDisplayDetailsActivator
         bundleContext = bc;
 
         displayDetailsImpl = new GlobalDisplayDetailsImpl();
+        globalStatusService = new GlobalStatusServiceImpl();
 
         bundleContext.addServiceListener(this);
+
+        handleAlreadyRegisteredProviders();
 
         bundleContext.registerService(
                 GlobalDisplayDetailsService.class.getName(),
                 displayDetailsImpl,
                 null);
 
-        globalStatusService = new GlobalStatusServiceImpl();
         bundleContext.registerService(
                 GlobalStatusService.class.getName(),
                 globalStatusService,
                 null);
+    }
+
+    /**
+     * Searches and processes already registered providers.
+     */
+    private void handleAlreadyRegisteredProviders()
+    {
+        for (ServiceReference protocolProviderRef :
+                ServiceUtils.getServiceReferences(
+                    bundleContext, ProtocolProviderService.class))
+        {
+            ProtocolProviderService provider
+                = (ProtocolProviderService)
+                    bundleContext.getService(protocolProviderRef);
+
+            this.handleProviderAdded(provider);
+        }
+    }
+
+    /**
+     * Used to attach the listeners to existing or
+     * just registered protocol provider.
+     *
+     * @param pps ProtocolProviderService
+     */
+    private void handleProviderAdded(ProtocolProviderService pps)
+    {
+        pps.addRegistrationStateChangeListener(displayDetailsImpl);
+        globalStatusService.handleProviderAdded(pps);
     }
 
     /**
@@ -199,12 +230,11 @@ public class GlobalDisplayDetailsActivator
         switch (event.getType())
         {
         case ServiceEvent.REGISTERED:
-            pps.addRegistrationStateChangeListener(displayDetailsImpl);
-            pps.addRegistrationStateChangeListener(globalStatusService);
+            this.handleProviderAdded(pps);
             break;
         case ServiceEvent.UNREGISTERING:
             pps.removeRegistrationStateChangeListener(displayDetailsImpl);
-            pps.removeRegistrationStateChangeListener(globalStatusService);
+            globalStatusService.handleProviderRemoved(pps);
             break;
         }
     }
