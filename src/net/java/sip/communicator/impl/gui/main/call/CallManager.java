@@ -4177,6 +4177,9 @@ public class CallManager
             // Queries all available resolvers
             for(ContactSourceService css : GuiActivator.getContactSources())
             {
+                if(css.getType() != ContactSourceService.SEARCH_TYPE)
+                    continue;
+
                 ContactQuery query;
                 if(css instanceof ExtendedContactSourceService)
                 {
