@@ -672,7 +672,7 @@ public class MainToolBar
         if(isVideo)
         {
             if(isDesktopSharing)
-                opSetClass = OperationSetDesktopSharingServer.class;
+                opSetClass = OperationSetDesktopStreaming.class;
             else
                 opSetClass = OperationSetVideoTelephony.class;
         }

@@ -822,9 +822,9 @@ public class CallManager
      */
     public static boolean isDesktopSharingEnabled(Call call)
     {
-        OperationSetDesktopSharingServer desktopOpSet
+        OperationSetDesktopStreaming desktopOpSet
             = call.getProtocolProvider().getOperationSet(
-                    OperationSetDesktopSharingServer.class);
+                OperationSetDesktopStreaming.class);
 
         if (desktopOpSet != null
             && desktopOpSet.isLocalVideoAllowed(call))
@@ -844,9 +844,9 @@ public class CallManager
      */
     public static boolean isRegionDesktopSharingEnabled(Call call)
     {
-        OperationSetDesktopSharingServer desktopOpSet
+        OperationSetDesktopStreaming desktopOpSet
             = call.getProtocolProvider().getOperationSet(
-                    OperationSetDesktopSharingServer.class);
+                OperationSetDesktopStreaming.class);
 
         if (desktopOpSet != null
             && desktopOpSet.isPartialStreaming(call))
@@ -2776,13 +2776,13 @@ public class CallManager
         @Override
         public void run()
         {
-            OperationSetDesktopSharingServer desktopSharingOpSet
+            OperationSetDesktopStreaming desktopSharingOpSet
                 = protocolProvider.getOperationSet(
-                        OperationSetDesktopSharingServer.class);
+                    OperationSetDesktopStreaming.class);
 
             /*
              * XXX If we are here and we just discover that
-             * OperationSetDesktopSharingServer is not supported, then we're
+             * OperationSetDesktopStreaming is not supported, then we're
              * already in trouble - we've already started a whole new thread
              * just to check that a reference is null.
              */
@@ -3676,8 +3676,7 @@ public class CallManager
         {
             createVideoCall(protocolProviderService, contact, uiContact);
         }
-        else if (opSetClass.equals(
-            OperationSetDesktopSharingServer.class))
+        else if (opSetClass.equals(OperationSetDesktopStreaming.class))
         {
             createDesktopSharing(
                 protocolProviderService, contact, uiContact);
@@ -3859,7 +3858,7 @@ public class CallManager
     /**
      * Obtain operation set checking the params.
      * @param isVideo if <tt>true</tt> use OperationSetVideoTelephony.
-     * @param isDesktop if <tt>true</tt> use OperationSetDesktopSharingServer.
+     * @param isDesktop if <tt>true</tt> use OperationSetDesktopStreaming.
      * @return the operation set, default is OperationSetBasicTelephony.
      */
     private static Class<? extends OperationSet> getOperationSetForCall(
@@ -3868,7 +3867,7 @@ public class CallManager
         if(isVideo)
         {
             if(isDesktop)
-                return OperationSetDesktopSharingServer.class;
+                return OperationSetDesktopStreaming.class;
             else
                 return OperationSetVideoTelephony.class;
         }

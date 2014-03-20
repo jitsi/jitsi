@@ -654,9 +654,9 @@ public class DesktopSharingFrame
 
             public void componentMoved(ComponentEvent e)
             {
-                OperationSetDesktopSharingServer desktopOpSet
+                OperationSetDesktopStreaming desktopOpSet
                     = call.getProtocolProvider().getOperationSet(
-                            OperationSetDesktopSharingServer.class);
+                        OperationSetDesktopStreaming.class);
 
                 if (desktopOpSet == null)
                     return;
