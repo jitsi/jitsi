@@ -127,6 +127,9 @@ public class SimpleStatusMenu
      */
     public void actionPerformed(ActionEvent e)
     {
+        if(GuiActivator.getGlobalStatusService() == null)
+            return;
+
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
 

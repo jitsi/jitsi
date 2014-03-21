@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.lookandfeel.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.presence.avatar.*;
+import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.globaldisplaydetails.event.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.Container;
@@ -181,15 +182,18 @@ public class AccountStatusPanel
         loadSkin();
 
         GuiActivator.getUIService().addPluginComponentListener(this);
-        GuiActivator.getGlobalDisplayDetailsService()
-            .addGlobalDisplayDetailsListener(this);
 
-        String globalDisplayName
-            = GuiActivator.getGlobalDisplayDetailsService()
-                .getGlobalDisplayName();
+        GlobalDisplayDetailsService gDService
+            = GuiActivator.getGlobalDisplayDetailsService();
+        if(gDService != null)
+        {
+            gDService.addGlobalDisplayDetailsListener(this);
 
-        if(!StringUtils.isNullOrEmpty(globalDisplayName))
-            accountNameLabel.setText(globalDisplayName);
+            String globalDisplayName = gDService.getGlobalDisplayName();
+
+            if(!StringUtils.isNullOrEmpty(globalDisplayName))
+                accountNameLabel.setText(globalDisplayName);
+        }
     }
 
     /**
@@ -545,8 +549,14 @@ public class AccountStatusPanel
 
         GuiActivator.getUIService().addPluginComponentListener(this);
 
-        byte[] avatar = GuiActivator.getGlobalDisplayDetailsService()
-            .getGlobalDisplayAvatar();
+        byte[] avatar = null;
+
+        if(GuiActivator.getGlobalDisplayDetailsService() != null)
+        {
+            avatar = GuiActivator.getGlobalDisplayDetailsService()
+                .getGlobalDisplayAvatar();
+        }
+
         if (avatar == null || avatar.length <= 0)
             accountImageLabel.setImageIcon(ImageLoader
                 .getImage(ImageLoader.DEFAULT_USER_PHOTO));

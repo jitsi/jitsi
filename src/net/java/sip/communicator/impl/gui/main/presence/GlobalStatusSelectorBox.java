@@ -352,8 +352,11 @@ public class GlobalStatusSelectorBox
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
 
-        GuiActivator.getGlobalStatusService().publishStatus(
-            GlobalStatusEnum.getStatusByName(itemName));
+        if(GuiActivator.getGlobalStatusService() != null)
+        {
+            GuiActivator.getGlobalStatusService().publishStatus(
+                GlobalStatusEnum.getStatusByName(itemName));
+        }
     }
 
     /**
@@ -415,6 +418,9 @@ public class GlobalStatusSelectorBox
      */
     private void updateGlobalStatus()
     {
+        if(GuiActivator.getGlobalStatusService() == null)
+            return;
+
         PresenceStatus globalStatus
             = GuiActivator.getGlobalStatusService().getGlobalPresenceStatus();
 

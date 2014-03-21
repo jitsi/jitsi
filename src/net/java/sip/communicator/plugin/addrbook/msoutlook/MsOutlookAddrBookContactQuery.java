@@ -960,6 +960,9 @@ public class MsOutlookAddrBookContactQuery
                     logger.trace("For query: " + query + " found contact:"
                         + sourceContact.getDisplayName() + ", "
                         + sourceContact.getContactAddress());
+                long l = System.currentTimeMillis();
+logger.info("Found match " + (l - previousMatch));
+                previousMatch = l;
 
                 addQueryResult(sourceContact);
             }
@@ -1040,9 +1043,13 @@ public class MsOutlookAddrBookContactQuery
     {
         synchronized (MsOutlookAddrBookContactQuery.class)
         {
+            long l1 = System.currentTimeMillis();
+            previousMatch = l1;
             foreachMailUser(
                 query.toString(),
                 new PtrOutlookContactCallback());
+            logger.info("Query For Ids for: " + query + " execution "
+                + (System.currentTimeMillis() - l1));
         }
     }
 
@@ -1083,6 +1090,8 @@ public class MsOutlookAddrBookContactQuery
             super.stopped(true);
         }
     }
+
+    long previousMatch = 0;
 
     /**
      * Callback method when receiving notifications for updated items.

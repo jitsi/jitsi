@@ -90,9 +90,14 @@ public class GlobalDisplayDetailsActivator
      */
     private void handleAlreadyRegisteredProviders()
     {
-        for (ServiceReference protocolProviderRef :
-                ServiceUtils.getServiceReferences(
-                    bundleContext, ProtocolProviderService.class))
+        ServiceReference[] providerRefs
+            = ServiceUtils.getServiceReferences(
+                bundleContext, ProtocolProviderService.class);
+
+        if(providerRefs == null)
+            return;
+
+        for (ServiceReference protocolProviderRef : providerRefs)
         {
             ProtocolProviderService provider
                 = (ProtocolProviderService)
