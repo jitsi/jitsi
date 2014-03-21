@@ -235,7 +235,7 @@ public class DnsUtilActivator
             StringBuilder sb = new StringBuilder();
             sb.append("Reloading resolver config, default DNS servers are: ");
             ResolverConfig config = ResolverConfig.getCurrentConfig();
-            if (config != null)
+            if (config != null && config.servers() != null)
             {
                 for(String s : config.servers())
                 {
