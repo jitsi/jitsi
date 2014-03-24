@@ -101,36 +101,15 @@ STDMETHODIMP_(ULONG) MsOutlookAddrBookServer::Release()
  * Starts a search for contact using MAPI.A
  *
  * @param query The search pattern (unused).
+ * @param callbackAddress The address of the callback.
  *
  * @return S_OK.
  */
-HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::foreachMailUser(BSTR query)
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::foreachMailUser(
+        BSTR query, long callbackAddress)
 {
     char * charQuery = StringUtils::WideCharToMultiByte(query);
 
-    MsOutlookAddrBookContactQuery_foreachMailUser(
-            charQuery,
-            (void *) MsOutlookAddrBookServer::foreachMailUserCallback,
-            NULL);
-
-    free(charQuery);
-
-    return S_OK;
-}
-
-/**
- * Calls back the java side to list a contact.
- *
- * @param iUnknown The string representation of the entry id of the contact.
- * @param object Not used. Must be set to NULL.
- *
- * @return True everything works fine and that we must continue to list the
- * other contacts. False otherwise.
- */
-boolean MsOutlookAddrBookServer::foreachMailUserCallback(
-        LPSTR iUnknown,
-        void * object)
-{
     HRESULT hr =  E_FAIL;
 
     IMsOutlookAddrBookClient * msOutlookAddrBookClient = NULL;
@@ -141,14 +120,48 @@ boolean MsOutlookAddrBookServer::foreachMailUserCallback(
             IID_IMsOutlookAddrBookClient,
             (void**) &msOutlookAddrBookClient)) == S_OK)
     {
+        hr = MsOutlookAddrBookContactQuery_foreachMailUser(
+                charQuery,
+                (void *) MsOutlookAddrBookServer::foreachMailUserCallback,
+                (void *) msOutlookAddrBookClient,
+                callbackAddress);
+
+        msOutlookAddrBookClient->Release();
+    }
+
+    free(charQuery);
+
+    return hr == S_OK;
+}
+
+/**
+ * Calls back the java side to list a contact.
+ *
+ * @param iUnknown The string representation of the entry id of the contact.
+ * @param callbackClient the client object to call the callback and pass the
+ * result and the callbackAddress we have received.
+ * @param callbackAddress the address of the callback function.
+ *
+ * @return True everything works fine and that we must continue to list the
+ * other contacts. False otherwise.
+ */
+boolean MsOutlookAddrBookServer::foreachMailUserCallback(
+        LPSTR iUnknown,
+        void * callbackClient,
+        long callbackAddress)
+{
+    HRESULT hr =  E_FAIL;
+
+    if(callbackClient)
+    {
         LPWSTR iUnknownW = StringUtils::MultiByteToWideChar(iUnknown);
         BSTR res = SysAllocString(iUnknownW);
 
-        hr = msOutlookAddrBookClient->foreachMailUserCallback(res);
+        hr = ((IMsOutlookAddrBookClient *)callbackClient)
+                    ->foreachMailUserCallback(res, callbackAddress);
 
         SysFreeString(res);
         free(iUnknownW);
-        msOutlookAddrBookClient->Release();
     }
 
     return (hr == S_OK);

@@ -47,7 +47,10 @@ typedef
     jboolean (*MsOutlookAddrBookContactQuery_ForeachRowInTableCallback)
         (LPUNKNOWN iUnknown,
         ULONG entryIDByteCount, LPENTRYID entryID, ULONG objType,
-        const char * query, void * callback, void * callbackObject);
+        const char * query,
+        void * callbackMethod,
+        void * callbackClient,
+        long callbackAddress);
 
 static ULONG MsOutlookAddrBookContactQuery_rdOpenEntryUlFlags = 0x0;
 static ULONG MsOutlookAddrBookContactQuery_rwOpenEntryUlFlags
@@ -65,18 +68,27 @@ HRESULT MsOutlookAddrBookContactQuery_createEmailAddress
      LONG providerArrayType, ULONG propIds[], int nbPropId);
 static jboolean MsOutlookAddrBookContactQuery_foreachContactInMsgStoresTable
     (LPMAPISESSION mapiSession, const char * query,
-     void * callback, void * callbackObject);
+     void * callbackMethod, void * callbackClient, long callbackAddress);
 static jboolean MsOutlookAddrBookContactQuery_foreachMailUser
     (ULONG objType, LPUNKNOWN iUnknown,
-     const char * query, void * callback, void * callbackObject);
+     const char * query,
+     void * callbackMethod,
+     void * callbackClient,
+     long callbackAddress);
 static jboolean MsOutlookAddrBookContactQuery_foreachMailUserInContainerTable
     (LPMAPICONTAINER mapiContainer, LPMAPITABLE mapiTable,
-    const char * query, void * callback, void * callbackObject);
+    const char * query,
+    void * callbackMethod,
+    void * callbackClient,
+    long callbackAddress);
 static jboolean MsOutlookAddrBookContactQuery_foreachRowInTable
     (LPMAPITABLE mapiTable,
     MsOutlookAddrBookContactQuery_ForeachRowInTableCallback rowCallback,
     LPUNKNOWN iUnknown,
-    const char * query, void * callback, void * callbackObject);
+    const char * query,
+    void * callbackMethod,
+    void * callbackClient,
+    long callbackAddress);
 static void MsOutlookAddrBookContactQuery_freeSRowSet(LPSRowSet rows);
 static void* MsOutlookAddrBookContactQuery_getAttachmentContactPhoto
     (LPMESSAGE message, ULONGLONG * length);
@@ -100,11 +112,17 @@ static jboolean MsOutlookAddrBookContactQuery_mailUserMatches
 static jboolean MsOutlookAddrBookContactQuery_onForeachContactInMsgStoresTableRow
     (LPUNKNOWN mapiSession,
     ULONG entryIDByteCount, LPENTRYID entryID, ULONG objType,
-    const char * query, void * callback, void * callbackObject);
+    const char * query,
+    void * callbackMethod,
+    void * callbackClient,
+    long callbackAddress);
 static jboolean MsOutlookAddrBookContactQuery_onForeachMailUserInContainerTableRow
     (LPUNKNOWN mapiContainer,
     ULONG entryIDByteCount, LPENTRYID entryID, ULONG objType,
-    const char * query, void * callback, void * callbackObject);
+    const char * query,
+    void * callbackMethod,
+    void * callbackClient,
+    long callbackAddress);
 LPUNKNOWN MsOutlookAddrBookContactQuery_openEntryId
     (ULONG entryIdSize, LPENTRYID entryId, ULONG flags);
 LPUNKNOWN MsOutlookAddrBookContactQuery_openEntryIdStr
@@ -395,30 +413,40 @@ int MsOutlookAddrBookContactQuery_deleteContact(const char * nativeEntryId)
     return res;
 }
 
-void MsOutlookAddrBookContactQuery_foreachMailUser(
-        const char * query, void * callback, void * callbackObject)
+HRESULT MsOutlookAddrBookContactQuery_foreachMailUser(
+        const char * query,
+        void * callbackMethod,
+        void * callbackClient,
+        long callbackAddress)
 {
     MAPISession_lock();
     LPMAPISESSION mapiSession = MAPISession_getMapiSession();
     if (!mapiSession)
     {
         MAPISession_unlock();
-        return;
+        return E_ABORT;
     }
 
-    MsOutlookAddrBookContactQuery_foreachContactInMsgStoresTable(
+    boolean proceed =
+        MsOutlookAddrBookContactQuery_foreachContactInMsgStoresTable(
             mapiSession,
             query,
-            callback,
-            callbackObject);
+            callbackMethod,
+            callbackClient,
+            callbackAddress);
 
     MAPISession_unlock();
+
+    return proceed ? S_OK : E_ABORT;
 }
 
 static jboolean
 MsOutlookAddrBookContactQuery_foreachContactInMsgStoresTable
     (LPMAPISESSION mapiSession,
-    const char * query, void * callback, void * callbackObject)
+    const char * query,
+    void * callbackMethod,
+    void * callbackClient,
+    long callbackAddress)
 {
     HRESULT hResult;
     LPMAPITABLE msgStoresTable = NULL;
@@ -432,7 +460,10 @@ MsOutlookAddrBookContactQuery_foreachContactInMsgStoresTable
                     msgStoresTable,
                     MsOutlookAddrBookContactQuery_onForeachContactInMsgStoresTableRow,
                     (LPUNKNOWN) mapiSession,
-                    query, callback, callbackObject);
+                    query,
+                    callbackMethod,
+                    callbackClient,
+                    callbackAddress);
         msgStoresTable->Release();
     }
 
@@ -442,7 +473,10 @@ MsOutlookAddrBookContactQuery_foreachContactInMsgStoresTable
 static jboolean
 MsOutlookAddrBookContactQuery_foreachMailUser
     (ULONG objType, LPUNKNOWN iUnknown,
-    const char * query, void * callback, void * callbackObject)
+    const char * query,
+    void * callbackMethod,
+    void * callbackClient,
+    long callbackAddress)
 {
     jboolean proceed = JNI_TRUE;
 
@@ -464,7 +498,10 @@ MsOutlookAddrBookContactQuery_foreachMailUser
             proceed
                 = MsOutlookAddrBookContactQuery_foreachMailUserInContainerTable(
                         mapiContainer, mapiTable,
-                        query, callback, callbackObject);
+                        query,
+                        callbackMethod,
+                        callbackClient,
+                        callbackAddress);
             mapiTable->Release();
         }
 
@@ -478,7 +515,10 @@ MsOutlookAddrBookContactQuery_foreachMailUser
                 proceed
                     = MsOutlookAddrBookContactQuery_foreachMailUserInContainerTable(
                             mapiContainer, mapiTable,
-                            query, callback, callbackObject);
+                            query,
+                            callbackMethod,
+                            callbackClient,
+                            callbackAddress);
                 mapiTable->Release();
             }
         }
@@ -495,8 +535,9 @@ MsOutlookAddrBookContactQuery_foreachMailUser
             LPSTR contactId = MsOutlookAddrBookContactQuery_getContactId(
                     (LPMAPIPROP) iUnknown);
 
-            boolean(*cb)(LPSTR, void*) = (boolean(*)(LPSTR, void*)) callback;
-            proceed = cb(contactId, callbackObject);
+            boolean(*cb)(LPSTR, void *, long)
+                = (boolean(*)(LPSTR, void *, long)) callbackMethod;
+            proceed = cb(contactId, callbackClient, callbackAddress);
 
             ::free(contactId);
             contactId = NULL;
@@ -510,14 +551,20 @@ MsOutlookAddrBookContactQuery_foreachMailUser
 static jboolean
 MsOutlookAddrBookContactQuery_foreachMailUserInContainerTable
     (LPMAPICONTAINER mapiContainer, LPMAPITABLE mapiTable,
-    const char * query, void * callback, void * callbackObject)
+    const char * query,
+    void * callbackMethod,
+    void * callbackClient,
+    long callbackAddress)
 {
     return
         MsOutlookAddrBookContactQuery_foreachRowInTable(
             mapiTable,
             MsOutlookAddrBookContactQuery_onForeachMailUserInContainerTableRow,
             (LPUNKNOWN) mapiContainer,
-            query, callback, callbackObject);
+            query,
+            callbackMethod,
+            callbackClient,
+            callbackAddress);
 }
 
 static jboolean
@@ -525,7 +572,10 @@ MsOutlookAddrBookContactQuery_foreachRowInTable
     (LPMAPITABLE mapiTable,
     MsOutlookAddrBookContactQuery_ForeachRowInTableCallback rowCallback,
     LPUNKNOWN iUnknown,
-    const char * query, void * callback, void * callbackObject)
+    const char * query,
+    void * callbackMethod,
+    void * callbackClient,
+    long callbackAddress)
 {
     HRESULT hResult;
     // In case,  that we have failed but other parts of the hierarchy may still
@@ -590,7 +640,10 @@ MsOutlookAddrBookContactQuery_foreachRowInTable
                             = rowCallback(
                                     iUnknown,
                                     entryIDBinary.cb, entryID, objType,
-                                    query, callback, callbackObject);
+                                    query,
+                                    callbackMethod,
+                                    callbackClient,
+                                    callbackAddress);
 
                         MAPIFreeBuffer(entryID);
                     }
@@ -1558,7 +1611,10 @@ static jboolean
 MsOutlookAddrBookContactQuery_onForeachContactInMsgStoresTableRow
     (LPUNKNOWN mapiSession,
     ULONG entryIDByteCount, LPENTRYID entryID, ULONG objType,
-    const char * query, void * callback, void * callbackObject)
+    const char * query,
+    void * callbackMethod,
+    void * callbackClient,
+    long callbackAddress)
 {
     HRESULT hResult;
     LPMDB msgStore;
@@ -1623,8 +1679,9 @@ MsOutlookAddrBookContactQuery_onForeachContactInMsgStoresTableRow
                             contactsFolderObjType,
                             contactsFolder,
                             query,
-                            callback,
-                            callbackObject);
+                            callbackMethod,
+                            callbackClient,
+                            callbackAddress);
                 contactsFolder->Release();
             }
             MAPIFreeBuffer(contactsFolderEntryID);
@@ -1639,7 +1696,10 @@ static jboolean
 MsOutlookAddrBookContactQuery_onForeachMailUserInContainerTableRow
     (LPUNKNOWN mapiContainer,
     ULONG entryIDByteCount, LPENTRYID entryID, ULONG objType,
-    const char * query, void * callback, void * callbackObject)
+    const char * query,
+    void * callbackMethod,
+    void * callbackClient,
+    long callbackAddress)
 {
     HRESULT hResult;
     LPUNKNOWN iUnknown;
@@ -1659,8 +1719,9 @@ MsOutlookAddrBookContactQuery_onForeachMailUserInContainerTableRow
                     objType,
                     iUnknown,
                     query,
-                    callback,
-                    callbackObject);
+                    callbackMethod,
+                    callbackClient,
+                    callbackAddress);
         iUnknown->Release();
     }
     else

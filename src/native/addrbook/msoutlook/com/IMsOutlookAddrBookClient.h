@@ -3,11 +3,11 @@
 /* this ALWAYS GENERATED file contains the definitions for the interfaces */
 
 
- /* File created by MIDL compiler version 8.00.0595 */
-/* at Tue May 07 03:41:40 2013
+ /* File created by MIDL compiler version 8.00.0603 */
+/* at Mon Mar 24 09:03:06 2014
  */
 /* Compiler settings for IMsOutlookAddrBookClient.idl:
-    Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 8.00.0595 
+    Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 8.00.0603 
     protocol : dce , ms_ext, c_ext, robust
     error checks: allocation ref bounds_check enum stub_data 
     VC __declspec() decoration level: 
@@ -84,7 +84,8 @@ EXTERN_C const IID IID_IMsOutlookAddrBookClient;
     {
     public:
         virtual HRESULT STDMETHODCALLTYPE foreachMailUserCallback( 
-            /* [in] */ BSTR id) = 0;
+            /* [in] */ BSTR id,
+            /* [in] */ long callback) = 0;
         
         virtual HRESULT STDMETHODCALLTYPE deleted( 
             /* [in] */ BSTR id) = 0;
@@ -118,7 +119,8 @@ EXTERN_C const IID IID_IMsOutlookAddrBookClient;
         
         HRESULT ( STDMETHODCALLTYPE *foreachMailUserCallback )( 
             IMsOutlookAddrBookClient * This,
-            /* [in] */ BSTR id);
+            /* [in] */ BSTR id,
+            /* [in] */ long callback);
         
         HRESULT ( STDMETHODCALLTYPE *deleted )( 
             IMsOutlookAddrBookClient * This,
@@ -155,8 +157,8 @@ EXTERN_C const IID IID_IMsOutlookAddrBookClient;
     ( (This)->lpVtbl -> Release(This) ) 
 
 
-#define IMsOutlookAddrBookClient_foreachMailUserCallback(This,id)	\
-    ( (This)->lpVtbl -> foreachMailUserCallback(This,id) ) 
+#define IMsOutlookAddrBookClient_foreachMailUserCallback(This,id,callback)	\
+    ( (This)->lpVtbl -> foreachMailUserCallback(This,id,callback) ) 
 
 #define IMsOutlookAddrBookClient_deleted(This,id)	\
     ( (This)->lpVtbl -> deleted(This,id) ) 

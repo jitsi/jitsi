@@ -23,7 +23,7 @@ extern "C" {
  * @author Vincent Lucas
  */
 
-boolean MAPINotification_callCallbackMethod(LPSTR iUnknown, void * object);
+boolean MAPINotification_callCallbackMethod(LPSTR iUnknown, long objectAddr);
 
 void MAPINotification_jniCallDeletedMethod(LPSTR iUnknown);
 void MAPINotification_jniCallInsertedMethod(LPSTR iUnknown);

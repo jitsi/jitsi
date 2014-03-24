@@ -10,7 +10,8 @@ import "Unknwn.idl", "oaidl.idl";
 interface IMsOutlookAddrBookServer : IUnknown
 {
     HRESULT foreachMailUser(
-            [in] BSTR query);
+            [in] BSTR query,
+            [in] long callback);
 
     HRESULT IMAPIProp_GetProps(
             [in] BSTR entryId,

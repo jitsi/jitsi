@@ -3,11 +3,11 @@
 /* this ALWAYS GENERATED file contains the definitions for the interfaces */
 
 
- /* File created by MIDL compiler version 8.00.0595 */
-/* at Wed Jun 19 15:47:56 2013
+ /* File created by MIDL compiler version 8.00.0603 */
+/* at Mon Mar 24 09:03:14 2014
  */
 /* Compiler settings for IMsOutlookAddrBookServer.idl:
-    Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 8.00.0595 
+    Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 8.00.0603 
     protocol : dce , ms_ext, c_ext, robust
     error checks: allocation ref bounds_check enum stub_data 
     VC __declspec() decoration level: 
@@ -84,7 +84,8 @@ EXTERN_C const IID IID_IMsOutlookAddrBookServer;
     {
     public:
         virtual HRESULT STDMETHODCALLTYPE foreachMailUser( 
-            /* [in] */ BSTR query) = 0;
+            /* [in] */ BSTR query,
+            /* [in] */ long callback) = 0;
         
         virtual HRESULT STDMETHODCALLTYPE IMAPIProp_GetProps( 
             /* [in] */ BSTR entryId,
@@ -138,7 +139,8 @@ EXTERN_C const IID IID_IMsOutlookAddrBookServer;
         
         HRESULT ( STDMETHODCALLTYPE *foreachMailUser )( 
             IMsOutlookAddrBookServer * This,
-            /* [in] */ BSTR query);
+            /* [in] */ BSTR query,
+            /* [in] */ long callback);
         
         HRESULT ( STDMETHODCALLTYPE *IMAPIProp_GetProps )( 
             IMsOutlookAddrBookServer * This,
@@ -198,8 +200,8 @@ EXTERN_C const IID IID_IMsOutlookAddrBookServer;
     ( (This)->lpVtbl -> Release(This) ) 
 
 
-#define IMsOutlookAddrBookServer_foreachMailUser(This,query)	\
-    ( (This)->lpVtbl -> foreachMailUser(This,query) ) 
+#define IMsOutlookAddrBookServer_foreachMailUser(This,query,callback)	\
+    ( (This)->lpVtbl -> foreachMailUser(This,query,callback) ) 
 
 #define IMsOutlookAddrBookServer_IMAPIProp_GetProps(This,entryId,nbPropIds,propIds,flags,props,propsLength,propsType)	\
     ( (This)->lpVtbl -> IMAPIProp_GetProps(This,entryId,nbPropIds,propIds,flags,props,propsLength,propsType) ) 

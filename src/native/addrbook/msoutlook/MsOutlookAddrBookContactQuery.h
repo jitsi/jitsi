@@ -28,8 +28,11 @@ char* MsOutlookAddrBookContactQuery_createContact(void);
 
 int MsOutlookAddrBookContactQuery_deleteContact(const char * nativeEntryId);
 
-void MsOutlookAddrBookContactQuery_foreachMailUser
-    (const char * query, void * callback, void * callbackObject);
+HRESULT MsOutlookAddrBookContactQuery_foreachMailUser
+    (const char * query,
+     void * callbackMethod,
+     void * callbackClient,
+     long callbackAddress);
 
 char* MsOutlookAddrBookContactQuery_getStringUnicodeProp
     (LPUNKNOWN entry, ULONG propId);

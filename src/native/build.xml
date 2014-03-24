@@ -824,6 +824,11 @@
   </target>
 
   <!-- compile jmsoutlookaddrbook library for Windows -->
+  <!-- install tdm-gcc both 32 and 64 bit with command line tools and
+       can directly use command prompt
+       When changing idl file in visual studio console execute
+       midl <idl file>.
+  -->
   <target
       name="msoutlookaddrbook"
       description="Build jmsoutlookaddrbook shared library for Windows"

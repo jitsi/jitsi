@@ -100,17 +100,21 @@ STDMETHODIMP_(ULONG) MsOutlookAddrBookClient::Release()
  * a search via the foreachMailUser function.
  *
  * @param id The contact identifier.
+ * @param callback the callback address
  *
  * @return S_OK.
  */
 HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::foreachMailUserCallback(
-        BSTR id)
+        BSTR id, long callback)
 {
     char * charId = StringUtils::WideCharToMultiByte(id);
-    MAPINotification_callCallbackMethod(charId, NULL);
+    boolean res = MAPINotification_callCallbackMethod(charId, callback);
     free(charId);
 
-    return S_OK;
+    if(res)
+        return S_OK;
+    else
+        return E_ABORT;
 }
 
 /**

@@ -68,9 +68,9 @@ LONG STDAPICALLTYPE MAPINotification_tableChanged
  * @return True everything works fine and that we must continue to list the
  * other contacts. False otherwise.
  */
-boolean MAPINotification_callCallbackMethod(LPSTR iUnknown, void * object)
+boolean MAPINotification_callCallbackMethod(LPSTR iUnknown, long objectAddr)
 {
-    if(object == NULL)
+    if(objectAddr <= 0)
     {
         MAPINotification_jniCallInsertedMethod(iUnknown);
         return true;
@@ -82,9 +82,10 @@ boolean MAPINotification_callCallbackMethod(LPSTR iUnknown, void * object)
     if(MAPINotification_VM
             ->AttachCurrentThreadAsDaemon((void**) &tmpJniEnv, NULL) == 0)
     {
-        if(object != NULL)
+        if(objectAddr > 0)
         {
-            jclass callbackClass = tmpJniEnv->GetObjectClass((jobject) object);
+            jobject object = (jobject)(intptr_t)objectAddr;
+            jclass callbackClass = tmpJniEnv->GetObjectClass(object);
             if(callbackClass)
             {
                 jmethodID ptrOutlookContactCallbackMethodIdCallback
@@ -99,7 +100,7 @@ boolean MAPINotification_callCallbackMethod(LPSTR iUnknown, void * object)
 
                     // Report the MAPI_MAILUSER to the callback.
                     proceed = tmpJniEnv->CallBooleanMethod(
-                            (jobject) object,
+                            object,
                             ptrOutlookContactCallbackMethodIdCallback,
                             value);
                 }

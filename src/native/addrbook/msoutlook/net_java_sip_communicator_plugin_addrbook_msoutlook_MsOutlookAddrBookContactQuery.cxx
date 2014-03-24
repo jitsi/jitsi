@@ -100,7 +100,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
         LPWSTR unicodeQuery = StringUtils::MultiByteToWideChar(nativeQuery);
         BSTR comQuery = SysAllocString(unicodeQuery);
 
-        iServer->foreachMailUser(comQuery);
+        iServer->foreachMailUser(comQuery, (long)(intptr_t)callback);
         SysFreeString(comQuery);
         free(unicodeQuery);
     }

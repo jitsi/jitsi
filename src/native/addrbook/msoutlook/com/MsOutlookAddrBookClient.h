@@ -35,7 +35,8 @@ class MsOutlookAddrBookClient:
         STDMETHODIMP_(ULONG) Release();
 
         // IMsOutlookAddrBookClient
-        HRESULT STDMETHODCALLTYPE foreachMailUserCallback(BSTR id);
+        HRESULT STDMETHODCALLTYPE foreachMailUserCallback(
+                BSTR id, long callback);
 
         HRESULT STDMETHODCALLTYPE deleted(BSTR id);
         HRESULT STDMETHODCALLTYPE inserted(BSTR id);

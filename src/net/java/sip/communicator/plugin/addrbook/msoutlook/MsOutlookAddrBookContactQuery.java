@@ -1040,9 +1040,15 @@ public class MsOutlookAddrBookContactQuery
     {
         synchronized (MsOutlookAddrBookContactQuery.class)
         {
+            long start = System.currentTimeMillis();
+
             foreachMailUser(
                 query.toString(),
                 new PtrOutlookContactCallback());
+
+            if(logger.isTraceEnabled())
+                logger.trace("Query " + query + " took "
+                    + (System.currentTimeMillis() - start) + " ms.");
         }
     }
 
@@ -1069,18 +1075,6 @@ public class MsOutlookAddrBookContactQuery
         synchronized (MsOutlookAddrBookContactQuery.class)
         {
             insertedOrUpdated(id, 1);
-        }
-    }
-
-    /**
-     * Callback method when receiving notifications for query,
-     * finished all items.
-     */
-    public void finishedNotifications()
-    {
-        synchronized (MsOutlookAddrBookContactQuery.class)
-        {
-            super.stopped(true);
         }
     }
 
@@ -1285,34 +1279,5 @@ public class MsOutlookAddrBookContactQuery
 
         // not found
         return null;
-    }
-
-    @Override
-    protected void stopped(boolean completed)
-    {
-        // don't stop will stop when the thread that notifies about found
-        // contact ids stop notifying us
-    }
-
-    /**
-     * When canceled clear all contact id that are in progress for notify.
-     *
-     * @param status {@link ContactQuery#QUERY_CANCELED},
-     * {@link ContactQuery#QUERY_COMPLETED}, or
-     */
-    @Override
-    public void setStatus(int status)
-    {
-        if(logger.isTraceEnabled())
-            logger.trace("Query: " + query + " setStatus " + status);
-
-        // first set status, so we don't end up with completed query, where
-        // it was canceled
-        super.setStatus(status);
-
-        if (status == QUERY_CANCELED)
-        {
-            getContactSource().clearRemainingNotifications();
-        }
     }
 }

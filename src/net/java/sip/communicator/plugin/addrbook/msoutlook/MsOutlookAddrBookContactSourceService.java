@@ -403,15 +403,6 @@ public class MsOutlookAddrBookContactSourceService
                     {
                         idFunction = contactIds.get(0);
                     }
-                    else
-                    {
-                        // inform query that we had finished delivering
-                        // all notifications
-                        if(latestQuery != null)
-                        {
-                            latestQuery.finishedNotifications();
-                        }
-                    }
                 }
             }
         }
