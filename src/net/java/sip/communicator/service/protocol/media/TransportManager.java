@@ -237,9 +237,6 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         InetAddress intendedDestination = getIntendedDestination(getCallPeer());
         InetAddress localHostForPeer = nam.getLocalHost(intendedDestination);
 
-        //make sure our port numbers reflect the configuration service settings
-        initializePortNumbers();
-
         PortTracker portTracker = getPortTracker(mediaType);
 
         //create the RTP socket.
@@ -589,15 +586,19 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      */
     protected static PortTracker getPortTracker(MediaType mediaType)
     {
-        if (MediaType.AUDIO == mediaType)
+        //make sure our port numbers reflect the configuration service settings
+        initializePortNumbers();
+
+        switch (mediaType)
         {
+        case AUDIO:
             if (audioPortTracker != null)
                 return audioPortTracker;
-        }
-        else if (MediaType.VIDEO == mediaType)
-        {
+            break;
+        case VIDEO:
             if (videoPortTracker != null)
                 return videoPortTracker;
+            break;
         }
 
         return defaultPortTracker;
