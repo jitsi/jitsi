@@ -93,7 +93,7 @@ public class MessageSourceService
      * The current version of recent messages. When changed the recent messages
      * are recreated.
      */
-    private static final String RECENT_MSGS_VER = "1";
+    private static final String RECENT_MSGS_VER = "2";
 
     /**
      * The structure.
@@ -375,7 +375,10 @@ public class MessageSourceService
 
                 addNewRecentMessages(newMsc);
 
-                saveRecentMessagesToHistory();
+                for(MessageSourceContact msc : newMsc)
+                {
+                    saveRecentMessageToHistory(msc);
+                }
 
             }
             else
@@ -565,53 +568,6 @@ public class MessageSourceService
             }
 
             return history;
-        }
-    }
-
-    /**
-     * Saves cached list of recent messages in history.
-     */
-    private void saveRecentMessagesToHistory()
-    {
-        synchronized(historyID)
-        {
-            if(history == null)
-            {
-                return;
-            }
-
-            HistoryService historyService
-                = messageHistoryService.getHistoryService();
-
-
-            // and create it
-            try
-            {
-                HistoryWriter writer = history.getWriter();
-
-                synchronized(recentMessages)
-                {
-                    SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
-                    for(MessageSourceContact msc : recentMessages)
-                    {
-                        writer.addRecord(
-                            new String[]
-                                {
-                                    msc.getProtocolProviderService()
-                                        .getAccountID().getAccountUniqueID(),
-                                    msc.getContactAddress(),
-                                    sdf.format(msc.getTimestamp()),
-                                    RECENT_MSGS_VER
-                                },
-                            NUMBER_OF_MSGS_IN_HISTORY);
-                    }
-                }
-            }
-            catch(IOException ex)
-            {
-                logger.error("cannot create recent_messages history", ex);
-                return;
-            }
         }
     }
 
