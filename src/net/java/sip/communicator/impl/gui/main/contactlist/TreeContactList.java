@@ -228,7 +228,16 @@ public class TreeContactList
             return;
 
         UIContact uiContact
-            = sourceUI.createUIContact(sourceContact);
+            = sourceUI.getUIContact(sourceContact);
+
+        if(uiContact != null)
+        {
+            // UI contact is already existing, just update it
+            contactChanged(sourceContact, uiContact, sourceUI);
+            return;
+        }
+
+        uiContact = sourceUI.createUIContact(sourceContact);
 
         // ExtendedContactSourceService has already matched the
         // SourceContact over the pattern
@@ -321,6 +330,21 @@ public class TreeContactList
             return;
         }
 
+        contactChanged(sourceContact, uiContact, sourceUI);
+    }
+
+    /**
+     * To indicate contact changed to an existing UIContact.
+     * Used from contactChanged and from contactReceived, when the UIContact
+     * already exist.
+     * @param sourceContact the contact triggering the event
+     * @param uiContact the existing UIContact
+     * @param sourceUI the contact source service UI representation
+     */
+    private void contactChanged(SourceContact sourceContact,
+                                UIContact uiContact,
+                                UIContactSource sourceUI)
+    {
         if(!(uiContact instanceof UIContactImpl))
             return;
 
