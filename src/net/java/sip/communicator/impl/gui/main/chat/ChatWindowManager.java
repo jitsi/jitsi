@@ -945,6 +945,15 @@ public class ChatWindowManager
                 MetaContact metaContact = GuiActivator.getContactListService()
                     .findMetaContactByContact(c);
 
+                if(metaContact == null)
+                {
+                    logger.error(
+                        "Chat not started. Cannot find metacontact for "
+                        + contactID + " and protocol:" + pps);
+
+                    return;
+                }
+
                 startChat(metaContact, c, false);
                 return;
             }
