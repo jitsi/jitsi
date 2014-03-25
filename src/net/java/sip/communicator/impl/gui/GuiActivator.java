@@ -892,10 +892,8 @@ public class GuiActivator implements BundleActivator
     {
         if (mucService == null)
         {
-            ServiceReference mucServiceReference
-                = bundleContext.getServiceReference(MUCService.class.getName());
             mucService
-                = (MUCService) bundleContext.getService(mucServiceReference);
+                = ServiceUtils.getService(bundleContext, MUCService.class);
         }
         return mucService;
     }

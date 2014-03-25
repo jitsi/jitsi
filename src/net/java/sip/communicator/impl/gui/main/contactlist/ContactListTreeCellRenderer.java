@@ -474,14 +474,16 @@ public class ContactListTreeCellRenderer
             UIContactImpl contact
                 = ((ContactNode) value).getContactDescriptor();
 
+            MUCService mucService;
             if((contact.getDescriptor() instanceof SourceContact)
-                && GuiActivator.getMUCService().isMUCSourceContact(
+                && (mucService = GuiActivator.getMUCService()) != null
+                && mucService.isMUCSourceContact(
                         (SourceContact) contact.getDescriptor()))
             {
                 setBackground(Constants.CHAT_ROOM_ROW_COLOR);
             }
-            String displayName = contact.getDisplayName();
 
+            String displayName = contact.getDisplayName();
             if ((displayName == null
                 || displayName.trim().length() < 1)
                 && !(contact instanceof ShowMoreContact))

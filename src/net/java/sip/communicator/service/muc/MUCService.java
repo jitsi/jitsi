@@ -21,6 +21,12 @@ import net.java.sip.communicator.util.*;
 public abstract class MUCService
 {
     /**
+     * The configuration property to disable
+     */
+    public static final String DISABLED_PROPERTY
+        = "net.java.sip.communicator.impl.muc.MUC_SERVICE_DISABLED";
+
+    /**
      * The value for chat room configuration property to open automatically on
      * activity
      */
