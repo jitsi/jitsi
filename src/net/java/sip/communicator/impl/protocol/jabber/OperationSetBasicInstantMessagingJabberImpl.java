@@ -936,6 +936,13 @@ public class OperationSetBasicInstantMessagingJabberImpl
                         XMPPError error = packet.getError();
                         int errorResultCode
                             = ChatRoomMessageDeliveryFailedEvent.UNKNOWN_ERROR;
+
+                        if(error != null && error.getCode() == 403)
+                        {
+                            errorResultCode
+                                = ChatRoomMessageDeliveryFailedEvent.FORBIDDEN;
+                        }
+
                         String errorReason = error.getMessage();
 
                         ChatRoomMessageDeliveryFailedEvent evt =

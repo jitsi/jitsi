@@ -362,6 +362,12 @@ public class ConferenceChatManager
             errorMsg = GuiActivator.getResources().getI18NString(
                 "service.gui.MSG_DELIVERY_INTERNAL_ERROR");
         }
+        else if (evt.getErrorCode()
+            == ChatRoomMessageDeliveryFailedEvent.FORBIDDEN)
+        {
+            errorMsg = GuiActivator.getResources().getI18NString(
+                "service.gui.CHAT_ROOM_SEND_MSG_FORBIDDEN");
+        }
         else
         {
             errorMsg = GuiActivator.getResources().getI18NString(
