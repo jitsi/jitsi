@@ -163,8 +163,11 @@ public class PresenceStatusMenu
 
                 if (status.getStatusName().equals(menuItemText))
                 {
-                    GuiActivator.getGlobalStatusService()
-                        .publishStatus(protocolProvider, status);
+                    if(GuiActivator.getGlobalStatusService() != null)
+                    {
+                        GuiActivator.getGlobalStatusService()
+                            .publishStatus(protocolProvider, status);
+                    }
 
                     setSelectedStatus(status);
 

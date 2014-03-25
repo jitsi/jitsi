@@ -639,6 +639,10 @@ public class ChatPanel
                 = GuiActivator.getResources().getI18NString(
                     "service.gui.SILENT_MEMBER");
             break;
+            case OUTCAST: roleDescription
+                = GuiActivator.getResources().getI18NString(
+                    "service.gui.BANNED");
+            break;
             default:;
         }
 

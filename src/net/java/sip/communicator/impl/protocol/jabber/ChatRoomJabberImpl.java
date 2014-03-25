@@ -1562,7 +1562,9 @@ public class ChatRoomJabberImpl
     {
         try
         {
-            multiUserChat.banUser(chatRoomMember.getContactAddress(), reason);
+            multiUserChat.banUser(
+                ((ChatRoomMemberJabberImpl)chatRoomMember).getJabberID(),
+                reason);
         }
         catch (XMPPException e)
         {
