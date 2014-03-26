@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import org.jitsi.util.event.*;
 
 /**
  * The <tt>ChatRoomWrapper</tt> is the representation of the <tt>ChatRoom</tt>
@@ -23,6 +24,7 @@ import net.java.sip.communicator.util.*;
  * @author Damian Minkov
  */
 public class ChatRoomWrapperImpl
+    extends PropertyChangeNotifier
     implements ChatRoomWrapper
 {
     /**
@@ -323,5 +325,14 @@ public class ChatRoomWrapperImpl
                 .PNAME_IS_MESSAGE_HISTORY_PER_CONTACT_ENABLED_PREFIX + "."
                     + getChatRoomID(),
             propertyListener);
+    }
+
+    /**
+     * Fire property change.
+     * @param property
+     */
+    public void firePropertyChange(String property)
+    {
+        super.firePropertyChange(property, null, null);
     }
 }

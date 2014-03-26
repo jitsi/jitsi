@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.chatroomslist;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -35,6 +36,13 @@ public class ChatRoomTableDialog
     extends SIPCommDialog
     implements ActionListener
 {
+    /**
+     * Whether we should remove the room if it fails to join when adding it.
+     */
+    private static final String REMOVE_ROOM_ON_FIRST_JOIN_FAILED
+         = "net.java.sip.communicator.impl.gui.main.chatroomslist." +
+                "REMOVE_ROOM_ON_FIRST_JOIN_FAILED";
+
     /**
      * The global/shared <code>ChatRoomTableDialog</code> currently showing.
      */
@@ -388,7 +396,7 @@ public class ChatRoomTableDialog
                 && (nicknameField.getText() != null 
                     && nicknameField.getText().trim().length() > 0))
             {
-                ChatRoomWrapper chatRoomWrapper =
+                final ChatRoomWrapper chatRoomWrapper =
                     GuiActivator.getMUCService().createChatRoom(
                         chatRoomNameField.getText().trim(),
                         getSelectedProvider().getProtocolProvider(),
@@ -418,6 +426,34 @@ public class ChatRoomTableDialog
                 subject = this.subject.getText();
                 if(nickName == null)
                     return;
+
+                if(GuiActivator.getConfigurationService()
+                    .getBoolean(REMOVE_ROOM_ON_FIRST_JOIN_FAILED, false))
+                {
+                    chatRoomWrapper.addPropertyChangeListener(
+                        new PropertyChangeListener()
+                        {
+                            @Override
+                            public void propertyChange(PropertyChangeEvent evt)
+                            {
+                                if(evt.getPropertyName()
+                                    .equals(ChatRoomWrapper.JOIN_SUCCESS_PROP))
+                                    return;
+
+                                // if we failed for some reason we want to
+                                // remove the room
+
+                                // close the room
+                                GuiActivator.getUIService()
+                                    .closeChatRoomWindow(chatRoomWrapper);
+
+                                // remove it
+                                GuiActivator.getMUCService()
+                                    .removeChatRoom(chatRoomWrapper);
+                            }
+                        }
+                    );
+                }
 
                 GuiActivator.getMUCService()
                     .joinChatRoom(chatRoomWrapper, nickName, null, subject);

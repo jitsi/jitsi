@@ -15,6 +15,7 @@ import net.java.sip.communicator.plugin.desktoputil.chat.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.muc.*;
+import static net.java.sip.communicator.service.muc.ChatRoomWrapper.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
@@ -88,7 +89,6 @@ public class MUCServiceImpl
         chatRoomList.fireChatRoomListChangedEvent(chatRoomWrapper, eventID);
     }
 
-
     /**
      * Joins the given chat room with the given password and manages all the
      * exceptions that could occur during the join process.
@@ -121,8 +121,14 @@ public class MUCServiceImpl
             return;
         }
 
-        new JoinChatRoomTask(chatRoomWrapper, nickName, password,
-            rememberPassword, isFirstAttempt, subject).start();
+        new JoinChatRoomTask(
+                (ChatRoomWrapperImpl)chatRoomWrapper,
+                nickName,
+                password,
+                rememberPassword,
+                isFirstAttempt,
+                subject)
+            .start();
     }
 
     /**
@@ -149,7 +155,9 @@ public class MUCServiceImpl
             return;
         }
 
-        new JoinChatRoomTask(chatRoomWrapper, nickName, password).start();
+        new JoinChatRoomTask(
+                (ChatRoomWrapperImpl)chatRoomWrapper, nickName, password)
+            .start();
     }
 
     /**
@@ -180,7 +188,13 @@ public class MUCServiceImpl
             return;
         }
 
-        new JoinChatRoomTask(chatRoomWrapper, nickName, password, subject)
+        // join from add chat room dialog
+
+        new JoinChatRoomTask(
+                (ChatRoomWrapperImpl)chatRoomWrapper,
+                nickName,
+                password,
+                subject)
             .start();
     }
 
@@ -204,7 +218,8 @@ public class MUCServiceImpl
             return;
         }
 
-        new JoinChatRoomTask(chatRoomWrapper, null, null).start();
+        new JoinChatRoomTask((ChatRoomWrapperImpl)chatRoomWrapper, null, null)
+                .start();
     }
 
 
@@ -578,24 +593,7 @@ public class MUCServiceImpl
     private class JoinChatRoomTask
         extends Thread
     {
-        private static final String SUCCESS = "Success";
-
-        private static final String AUTHENTICATION_FAILED
-            = "AuthenticationFailed";
-
-        private static final String REGISTRATION_REQUIRED
-            = "RegistrationRequired";
-
-        private static final String PROVIDER_NOT_REGISTERED
-            = "ProviderNotRegistered";
-
-        private static final String SUBSCRIPTION_ALREADY_EXISTS
-            = "SubscriptionAlreadyExists";
-
-        private static final String UNKNOWN_ERROR
-            = "UnknownError";
-
-        private final ChatRoomWrapper chatRoomWrapper;
+        private final ChatRoomWrapperImpl chatRoomWrapper;
 
         private final String nickName;
 
@@ -610,7 +608,7 @@ public class MUCServiceImpl
         private ResourceManagementService resources
             = MUCActivator.getResources();
 
-        JoinChatRoomTask(   ChatRoomWrapper chatRoomWrapper,
+        JoinChatRoomTask(   ChatRoomWrapperImpl chatRoomWrapper,
                             String nickName,
                             byte[] password,
                             boolean rememberPassword,
@@ -641,14 +639,14 @@ public class MUCServiceImpl
             this.rememberPassword = rememberPassword;
         }
 
-        JoinChatRoomTask(   ChatRoomWrapper chatRoomWrapper,
+        JoinChatRoomTask(   ChatRoomWrapperImpl chatRoomWrapper,
             String nickName,
             byte[] password)
         {
             this(chatRoomWrapper, nickName, password, false, true, null);
         }
 
-        JoinChatRoomTask(   ChatRoomWrapper chatRoomWrapper,
+        JoinChatRoomTask(   ChatRoomWrapperImpl chatRoomWrapper,
             String nickName,
             byte[] password,
             String subject)
@@ -674,7 +672,7 @@ public class MUCServiceImpl
                 else
                     chatRoom.join();
 
-                done(SUCCESS);
+                done(JOIN_SUCCESS_PROP);
             }
             catch (OperationFailedException e)
             {
@@ -685,19 +683,19 @@ public class MUCServiceImpl
                 switch (e.getErrorCode())
                 {
                 case OperationFailedException.AUTHENTICATION_FAILED:
-                    done(AUTHENTICATION_FAILED);
+                    done(JOIN_AUTHENTICATION_FAILED_PROP);
                     break;
                 case OperationFailedException.REGISTRATION_REQUIRED:
-                    done(REGISTRATION_REQUIRED);
+                    done(JOIN_REGISTRATION_REQUIRED_PROP);
                     break;
                 case OperationFailedException.PROVIDER_NOT_REGISTERED:
-                    done(PROVIDER_NOT_REGISTERED);
+                    done(JOIN_PROVIDER_NOT_REGISTERED_PROP);
                     break;
                 case OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS:
-                    done(SUBSCRIPTION_ALREADY_EXISTS);
+                    done(JOIN_SUBSCRIPTION_ALREADY_EXISTS_PROP);
                     break;
                 default:
-                    done(UNKNOWN_ERROR);
+                    done(JOIN_UNKNOWN_ERROR_PROP);
                 }
             }
         }
@@ -708,14 +706,13 @@ public class MUCServiceImpl
          */
         private void done(String returnCode)
         {
-
             ConfigurationUtils.updateChatRoomStatus(
                 chatRoomWrapper.getParentProvider().getProtocolProvider(),
                 chatRoomWrapper.getChatRoomID(),
                 GlobalStatusEnum.ONLINE_STATUS);
 
             String errorMessage = null;
-            if(AUTHENTICATION_FAILED.equals(returnCode))
+            if(JOIN_AUTHENTICATION_FAILED_PROP.equals(returnCode))
             {
                 chatRoomWrapper.removePassword();
 
@@ -760,7 +757,7 @@ public class MUCServiceImpl
                             subject);
                 }
             }
-            else if(REGISTRATION_REQUIRED.equals(returnCode))
+            else if(JOIN_REGISTRATION_REQUIRED_PROP.equals(returnCode))
             {
                 errorMessage
                     = resources
@@ -768,14 +765,14 @@ public class MUCServiceImpl
                             "service.gui.CHAT_ROOM_REGISTRATION_REQUIRED",
                             new String[]{chatRoomWrapper.getChatRoomName()});
             }
-            else if(PROVIDER_NOT_REGISTERED.equals(returnCode))
+            else if(JOIN_PROVIDER_NOT_REGISTERED_PROP.equals(returnCode))
             {
                 errorMessage
                     = resources
                         .getI18NString("service.gui.CHAT_ROOM_NOT_CONNECTED",
                         new String[]{chatRoomWrapper.getChatRoomName()});
             }
-            else if(SUBSCRIPTION_ALREADY_EXISTS.equals(returnCode))
+            else if(JOIN_SUBSCRIPTION_ALREADY_EXISTS_PROP.equals(returnCode))
             {
                 errorMessage
                     = resources
@@ -790,14 +787,14 @@ public class MUCServiceImpl
                             new String[]{chatRoomWrapper.getChatRoomName()});
             }
 
-            if (!SUCCESS.equals(returnCode) &&
-                !AUTHENTICATION_FAILED.equals(returnCode))
+            if (!JOIN_SUCCESS_PROP.equals(returnCode) &&
+                !JOIN_AUTHENTICATION_FAILED_PROP.equals(returnCode))
             {
                 MUCActivator.getAlertUIService().showAlertPopup(
                     resources.getI18NString("service.gui.ERROR"), errorMessage);
             }
 
-            if (SUCCESS.equals(returnCode))
+            if (JOIN_SUCCESS_PROP.equals(returnCode))
             {
                 if(rememberPassword)
                 {
@@ -816,6 +813,8 @@ public class MUCServiceImpl
                     }
                 }
             }
+
+            chatRoomWrapper.firePropertyChange(returnCode);
         }
     }
 
