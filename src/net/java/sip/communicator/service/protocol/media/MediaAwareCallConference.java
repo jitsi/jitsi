@@ -176,11 +176,19 @@ public class MediaAwareCallConference
         if (oldValue && !newValue)
         {
             Arrays.fill(mixers, null);
+
+            /* Disposing the video translator is not needed when the conference
+               changes as we have video and we will want to continue with
+               the video
+               Removed when chasing a bug where video call becomes conference
+               call and then back again video call and the video from the
+               conference focus side is not transmitted.
             if (videoRTPTranslator != null)
             {
                 videoRTPTranslator.dispose();
                 videoRTPTranslator = null;
             }
+            */
         }
 
         super.conferenceFocusChanged(oldValue, newValue);
