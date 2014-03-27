@@ -17,10 +17,6 @@ import net.java.sip.communicator.service.protocol.*;
 public class ChatRoomMemberIrcImpl
     implements ChatRoomMember
 {
-    // TODO Since we instantiate new instances for every chat room, we should
-    // override equals() and hashCode() to make sure that we can compare users
-    // that are actually the same.
-    
     /**
      * The ChatRoom.
      */
@@ -34,7 +30,7 @@ public class ChatRoomMemberIrcImpl
     /**
      * The provider that created us.
      */
-    private final ProtocolProviderServiceIrcImpl parentProvider;
+    private final ProtocolProviderService parentProvider;
 
     /**
      * The role of this member.
@@ -54,14 +50,24 @@ public class ChatRoomMemberIrcImpl
      * @param chatRoomMemberRole the role that this member has in the
      * corresponding chat room
      */
-    public ChatRoomMemberIrcImpl(ProtocolProviderServiceIrcImpl parentProvider,
+    public ChatRoomMemberIrcImpl(ProtocolProviderService parentProvider,
                                  ChatRoom chatRoom,
                                  String contactID,
                                  ChatRoomMemberRole chatRoomMemberRole)
     {
+        if (parentProvider == null)
+            throw new IllegalArgumentException(
+                "parent protocol provider cannot be null");
         this.parentProvider = parentProvider;
+        if (chatRoom == null)
+            throw new IllegalArgumentException(
+                "chat room instance cannot be null");
         this.chatRoom = chatRoom;
+        if (contactID == null)
+            throw new IllegalArgumentException("contact ID cannot be null");
         this.contactID = contactID;
+        if (chatRoomMemberRole == null)
+            throw new IllegalArgumentException("member role cannot be null");
         this.chatRoomMemberRole = chatRoomMemberRole;
     }
 
@@ -92,7 +98,7 @@ public class ChatRoomMemberIrcImpl
      * this method returns the same as getName().
      *
      * @return a String (contact address), uniquely representing the contact
-     * over the service being used by the associated protocol provider instance/
+     * over the service being used by the associated protocol provider instance
      */
     public String getContactAddress()
     {
@@ -103,7 +109,7 @@ public class ChatRoomMemberIrcImpl
      * Returns the name of this member as it is known in its containing
      * chat room (i.e. a nickname). The name returned by this method, may
      * sometimes match the string returned by getContactID() which is actually
-     * the address of  a contact in the realm of the corresponding protocol.
+     * the address of a contact in the realm of the corresponding protocol.
      *
      * @return the name of this member as it is known in the containing chat
      * room (i.e. a nickname).
@@ -112,7 +118,7 @@ public class ChatRoomMemberIrcImpl
     {
         return this.contactID;
     }
-    
+
     /**
      * Set a new name for this ChatRoomMember.
      * 
@@ -143,6 +149,8 @@ public class ChatRoomMemberIrcImpl
      */
     public void setRole(ChatRoomMemberRole chatRoomMemberRole)
     {
+        if (chatRoomMemberRole == null)
+            throw new IllegalArgumentException("role cannot be null");
         this.chatRoomMemberRole = chatRoomMemberRole;
     }
 
@@ -152,19 +160,61 @@ public class ChatRoomMemberIrcImpl
      *
      * @return null
      */
-     public byte[] getAvatar()
-     {
-         return null;
-     }
+    public byte[] getAvatar()
+    {
+        return null;
+    }
 
-     /**
-      * Returns null to indicate that there's no contact corresponding to the
-      * IRC member.
-      *
-      * @return null
-      */
-     public Contact getContact()
-     {
-         return null;
-     }
+    /**
+     * Returns null to indicate that there's no contact corresponding to the
+     * IRC member.
+     *
+     * @return null
+     */
+    public Contact getContact()
+    {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = 1;
+        result =
+            prime * result + ((contactID == null) ? 0 : contactID.hashCode());
+        result =
+            prime * result
+                + ((parentProvider == null) ? 0 : parentProvider.hashCode());
+        return result;
+    }
+
+    /**
+     * equality by provider protocol instance and contact ID.
+     * 
+     * Enables the possibility to check if chat room member is same member in
+     * different chat rooms. Values are only reliable for the same connection,
+     * so also check protocol provider instance.
+     * 
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ChatRoomMemberIrcImpl other = (ChatRoomMemberIrcImpl) obj;
+        if (!contactID.equals(other.contactID))
+            return false;
+        if (!parentProvider.equals(other.parentProvider))
+            return false;
+        return true;
+    }
 }
