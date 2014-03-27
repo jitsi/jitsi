@@ -82,7 +82,7 @@ public class RootContactGroupJabberImpl
      * Adds the specified contact to the end of this group.
      * @param contact the new contact to add to this group
      */
-    void addContact(ContactJabberImpl contact)
+    public void addContact(ContactJabberImpl contact)
     {
         contacts.put(contact.getAddress(), contact);
     }

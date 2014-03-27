@@ -396,13 +396,13 @@ public class OperationSetPersistentPresenceJabberImpl
             throw new IllegalArgumentException(
                 "The specified contact is not an jabber contact." +
                 contactToMove);
-        if( !(newParent instanceof ContactGroupJabberImpl) )
+        if( !(newParent instanceof AbstractContactGroupJabberImpl) )
             throw new IllegalArgumentException(
                 "The specified group is not an jabber contact group."
                 + newParent);
 
         ssContactList.moveContact((ContactJabberImpl)contactToMove,
-                                  (ContactGroupJabberImpl)newParent);
+                                  (AbstractContactGroupJabberImpl)newParent);
     }
 
     /**

@@ -1282,7 +1282,13 @@ public class MetaContactListServiceImpl
                 }
                 else
                 {
-                    opSetPresence.moveContactToGroup(protoContact, protoGroup);
+                    if(newMetaGroup.equals(getRoot()))
+                        opSetPresence.moveContactToGroup(
+                            protoContact,
+                            opSetPresence.getServerStoredContactListRoot());
+                    else
+                        opSetPresence.moveContactToGroup(
+                            protoContact, protoGroup);
                 }
             }
         }

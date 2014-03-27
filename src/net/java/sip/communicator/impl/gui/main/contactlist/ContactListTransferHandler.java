@@ -108,7 +108,10 @@ public class ContactListTransferHandler
     @Override
     public boolean canImport(JComponent comp, DataFlavor flavor[])
     {
-        Object selectedObject = ((UIContact)((ContactNode)transferredObject)
+        if(!(transferredObject instanceof ContactNode))
+            return false;
+
+        Object selectedObject = (((ContactNode)transferredObject)
             .getContactDescriptor()).getDescriptor();
         if (selectedObject instanceof MetaContact)
         {
@@ -307,10 +310,14 @@ public class ContactListTransferHandler
                         = ((GroupNode) dest).getGroupDescriptor();
 
                     // We support darg&drop for MetaContacts only for now.
-                    if (!(destGroup instanceof MetaUIGroup))
+                    if (!(destGroup instanceof MetaUIGroup)
+                        && !destGroup.equals(list.getRootUIGroup()))
+                    {
                         return false;
+                    }
 
-                    if (!transferredContact
+                    if (destGroup instanceof MetaUIGroup
+                        && !transferredContact
                             .getParentGroup().equals(destGroup)
                         && !(ConfigurationUtils.isContactMoveDisabled()
                             && ConfigurationUtils.isCreateGroupDisabled()))
@@ -319,6 +326,13 @@ public class ContactListTransferHandler
                             (MetaContact) transferredContact.getDescriptor(),
                             (MetaContactGroup) destGroup.getDescriptor());
                     }
+                    else if(destGroup.equals(list.getRootUIGroup()))
+                    {
+                        MetaContactListManager.moveMetaContactToGroup(
+                            (MetaContact) transferredContact.getDescriptor(),
+                            GuiActivator.getContactListService().getRoot());
+                    }
+
                     return true;
                 }
             }

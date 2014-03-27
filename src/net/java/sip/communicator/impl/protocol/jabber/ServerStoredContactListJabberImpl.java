@@ -464,7 +464,7 @@ public class ServerStoredContactListJabberImpl
         {
             String[] parentNames = null;
 
-            if(parent != null)
+            if(parent != null && parent != getRootGroup())
                 parentNames = new String[]{parent.getGroupName()};
 
             // modify our reply timeout because some XMPP may send "result" IQ
@@ -749,7 +749,7 @@ public class ServerStoredContactListJabberImpl
      * @param newParent the group where we'd like the parent placed.
      */
     public void moveContact(ContactJabberImpl contact,
-                            ContactGroupJabberImpl newParent)
+                            AbstractContactGroupJabberImpl newParent)
         throws OperationFailedException
     {
         // when the contact is not persistent, coming
@@ -1032,8 +1032,6 @@ public class ServerStoredContactListJabberImpl
                 }
             }
         }
-
-
     }
 
     /**

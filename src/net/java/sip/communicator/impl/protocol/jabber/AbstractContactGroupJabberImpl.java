@@ -24,6 +24,5 @@ import net.java.sip.communicator.service.protocol.*;
 public abstract class AbstractContactGroupJabberImpl
     implements ContactGroup
 {
-
-
+    public abstract void addContact(ContactJabberImpl contact);
 }
