@@ -22,7 +22,8 @@ public enum Mode
     LIMIT('l', null),
     PRIVATE('p', null),
     SECRET('s', null),
-    INVITE('i', null);
+    INVITE('i', null),
+    BAN('b', null);
 
     /**
      * Find Mode instance by mode char.

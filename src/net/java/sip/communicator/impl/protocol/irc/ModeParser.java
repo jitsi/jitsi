@@ -105,15 +105,21 @@ public class ModeParser
         case 'v':
             return new ModeEntry(add, Mode.VOICE, this.params[this.index++]);
         case 'l':
-            String[] params = (add ? new String[]
-            { this.params[this.index++] } : new String[] {});
-            return new ModeEntry(add, Mode.LIMIT, params);
+            String[] limitparams;
+            if (add)
+                limitparams = new String[]
+                { this.params[this.index++] };
+            else
+                limitparams = new String[] {};
+            return new ModeEntry(add, Mode.LIMIT, limitparams);
         case 'p':
             return new ModeEntry(add, Mode.PRIVATE);
         case 's':
             return new ModeEntry(add, Mode.SECRET);
         case 'i':
             return new ModeEntry(add, Mode.INVITE);
+        case 'b':
+            return new ModeEntry(add, Mode.BAN, this.params[this.index++]);
         default:
             return new ModeEntry(add, Mode.UNKNOWN, ""+mode);
         }

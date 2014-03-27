@@ -195,6 +195,19 @@ public class ModeParserTest
         Assert.assertEquals(0, modes.get(0).getParams().length);
     }
     
+    public void testModeBan()
+    {
+        ModeParser parser = new ModeParser("+b *!*@some-ip.dynamicIP.provider.net");
+        List<ModeEntry> modes = parser.getModes();
+        Assert.assertNotNull(modes);
+        Assert.assertEquals(1, modes.size());
+        ModeEntry entry = modes.get(0);
+        Assert.assertTrue(entry instanceof ModeEntry);
+        Assert.assertEquals(Mode.BAN, entry.getMode());
+        Assert.assertEquals(1, entry.getParams().length);
+        Assert.assertEquals("*!*@some-ip.dynamicIP.provider.net", entry.getParams()[0]);
+    }
+    
     protected void tearDown() throws Exception
     {
         super.tearDown();
