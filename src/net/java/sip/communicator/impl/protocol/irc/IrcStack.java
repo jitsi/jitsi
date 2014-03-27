@@ -1232,7 +1232,7 @@ public class IrcStack
             // *!*@some-ip.dynamicIP.provider.net)
             ChatRoomMemberIrcImpl sourceMember = extractChatRoomMember(msg);
 
-            ModeParser parser = new ModeParser(msg);
+            ModeParser parser = new ModeParser(msg.getModeStr());
             for (ModeEntry mode : parser.getModes())
             {
                 switch (mode.getMode())

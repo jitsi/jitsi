@@ -37,16 +37,6 @@ public class ModeParser
     private String[] params;
 
     /**
-     * Constructor for parsing based on an irc-api ChannelModeMessage.
-     * 
-     * @param message ChannelModeMessage describing mode changes
-     */
-    public ModeParser(ChannelModeMessage message)
-    {
-        this(message.getModeStr());
-    }
-
-    /**
      * Constructor for initiating mode parser and parsing mode string.
      * 
      * @param modestring mode string that should be parsed

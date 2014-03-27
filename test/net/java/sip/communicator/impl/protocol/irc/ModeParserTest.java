@@ -4,8 +4,6 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.irc.ModeParser.ModeEntry;
 
-import com.ircclouds.irc.api.domain.messages.*;
-
 import junit.framework.*;
 
 public class ModeParserTest
@@ -16,19 +14,7 @@ public class ModeParserTest
     {
         super.setUp();
     }
-    
-    public void testConstructionModeMessageNull()
-    {
-        try
-        {
-            new ModeParser((ChannelModeMessage) null);
-            Assert.fail("Expected NPE");
-        }
-        catch (NullPointerException e)
-        {
-        }
-    }
-    
+        
     public void testConstructionStringNull()
     {
         try
