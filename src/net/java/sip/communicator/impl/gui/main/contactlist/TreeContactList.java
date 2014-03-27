@@ -592,9 +592,9 @@ public class TreeContactList
         }
 
         GroupNode groupNode = null;
-        if (group == null ||
-            (ConfigurationUtils.isFlattenGroupEnabled() &&
-                group instanceof MetaUIGroup))
+        if (group == null
+            || (ConfigurationUtils.isFlattenGroupEnabled()
+                    && group instanceof MetaUIGroup))
         {
             // When contact groups are flattened, force all contacts that are
             // in a MetaUI group into the root so they don't appear to be
@@ -623,8 +623,8 @@ public class TreeContactList
                         = treeModel.getRoot().getChildAfter(groupNode);
                     // do not show the contacts group in history filter
                     if( group.getSourceIndex()
-                            < GuiActivator.getContactListService()
-                                .getSourceIndex()
+                            < (GuiActivator.getContactListService()
+                                .getSourceIndex() * UIGroup.MAX_GROUPS)
                         && rootUIGroup == null
                         && (!(node instanceof GroupNode))
                         && (node != null)
@@ -634,7 +634,6 @@ public class TreeContactList
                     }
                 }
             }
-
         }
 
         if (groupNode == null)
