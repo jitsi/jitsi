@@ -31,9 +31,11 @@ import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetExtendedAuthorizations.SubscriptionStatus;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.call.*;
 import net.java.sip.communicator.util.skin.*;
 
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**
@@ -349,6 +351,19 @@ public class MetaContactRightButtonMenu
 
             this.moveToMenu.add(infoLabel);
             this.moveToMenu.addSeparator();
+        }
+
+        if(GuiActivator.getContactList().getRootUIGroup() != null)
+        {
+            // adds contacts group if it is visible
+            JMenuItem menuItem = new JMenuItem(
+                GuiActivator.getContactList().getRootUIGroup()
+                    .getDisplayName());
+            menuItem.setName(moveToPrefix
+                + GuiActivator.getContactListService().getRoot().getMetaUID());
+            menuItem.addActionListener(this);
+
+            this.moveToMenu.add(menuItem);
         }
 
         while (groups.hasNext())
