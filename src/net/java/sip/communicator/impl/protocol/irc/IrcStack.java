@@ -283,6 +283,8 @@ public class IrcStack
         if (this.connectionState == null && this.irc == null)
             return;
 
+        // TODO Handle aborting joining attempts registered in this.joining.
+        
         synchronized (this.joined)
         {
             // Leave all joined channels.
@@ -842,7 +844,10 @@ public class IrcStack
 
             Integer code = msg.getNumericCode();
             if (code == null)
+            {
+                LOGGER.trace("No 'code' in numeric message event.");
                 return;
+            }
 
             switch (code.intValue())
             {
@@ -851,7 +856,11 @@ public class IrcStack
                 String channelName = text.substring(0, text.indexOf(' '));
                 if (IrcStack.this.joining.containsKey(channelName)
                     || IrcStack.this.joined.containsKey(channelName))
+                {
+                    LOGGER.trace("Chat room join event was announced. Stop "
+                        + "handling this event.");
                     break;
+                }
                 // We aren't currently attempting to join, so this join is
                 // unannounced.
                 LOGGER.trace("Starting unannounced join of chat room '"
@@ -872,6 +881,10 @@ public class IrcStack
                     null);
                 LOGGER.trace("Unannounced join of chat room '" + channelName
                     + "' completed.");
+                break;
+            default:
+                LOGGER.trace("This ServerNumericMessage (" + code
+                    + ") will not be handled.");
                 break;
             }
         }
