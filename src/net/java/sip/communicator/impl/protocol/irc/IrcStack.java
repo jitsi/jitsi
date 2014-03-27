@@ -884,7 +884,7 @@ public class IrcStack
                 break;
             default:
                 LOGGER.trace("This ServerNumericMessage (" + code
-                    + ") will not be handled.");
+                    + ") will not be handled by the ServerListener.");
                 break;
             }
         }
