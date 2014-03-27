@@ -6,205 +6,106 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import java.util.*;
-
 import static net.java.sip.communicator.service.protocol.OperationSetBasicTelephony.*;
+
+import java.util.*;
+import java.util.regex.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
 /**
  * Imposes the policy to have one call in progress i.e. to put existing calls on
  * hold when a new call enters in progress.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
+ * @author Damian Minkov
  */
 public class SingleCallInProgressPolicy
 {
-
     /**
-     * The name of the configuration property which specifies whether
-     * <code>SingleCallInProgressPolicy</code> is enabled i.e. whether it should
-     * put existing calls on hold when a new call enters in progress.
-     */
-    private static final String PNAME_SINGLE_CALL_IN_PROGRESS_POLICY_ENABLED
-        = "net.java.sip.communicator.impl.protocol.SingleCallInProgressPolicy.enabled";
-
-    /**
-     * The name of the configuration property which specifies whether
-     * call waiting is disabled i.e. whether it should
-     * reject new incoming calls when there are other calls already in progress.
-     */
-    private static final String PNAME_CALL_WAITING_DISABLED
-        = "net.java.sip.communicator.impl.protocol.CallWaitingDisabled";
-
-    /**
-     * Account property to enable per account rejecting calls if the
-     * account presence is in DND or OnThePhone status.
+     * Account property to enable per account rejecting calls if the account
+     * presence is in DND or OnThePhone status.
      */
     private static final String ACCOUNT_PROPERTY_REJECT_IN_CALL_ON_DND
         = "RejectIncomingCallsWhenDnD";
 
     /**
-     * Global property which will enable rejecting incoming calls for
-     * all accounts, if the account is in DND or OnThePhone status.
+     * Our class logger
+     */
+    private static final Logger logger
+        = Logger.getLogger(SingleCallInProgressPolicy.class);
+
+    /**
+     * The name of the configuration property which specifies whether call
+     * waiting is disabled i.e. whether it should reject new incoming calls when
+     * there are other calls already in progress.
+     */
+    private static final String PNAME_CALL_WAITING_DISABLED
+        = "net.java.sip.communicator.impl.protocol.CallWaitingDisabled";
+
+    /**
+     * The name of the configuration property which specifies whether
+     * <tt>OnThePhoneStatusPolicy</tt> is enabled i.e. whether it should set the
+     * presence statuses of online accounts to &quot;On the phone&quot; when at
+     * least one <tt>Call</tt> is in progress.
+     */
+    private static final String PNAME_ON_THE_PHONE_STATUS_ENABLED
+        = "net.java.sip.communicator.impl.protocol.OnThePhoneStatusPolicy"
+            + ".enabled";
+
+    /**
+     * Global property which will enable rejecting incoming calls for all
+     * accounts, if the account is in DND or OnThePhone status.
      */
     private static final String PNAME_REJECT_IN_CALL_ON_DND
         = "net.java.sip.communicator.impl.protocol."
-                + ACCOUNT_PROPERTY_REJECT_IN_CALL_ON_DND;
+            + ACCOUNT_PROPERTY_REJECT_IN_CALL_ON_DND;
 
     /**
-     * Implements the listeners interfaces used by this policy.
+     * The name of the configuration property which specifies whether
+     * <tt>SingleCallInProgressPolicy</tt> is enabled i.e. whether it should put
+     * existing calls on hold when a new call enters in progress.
      */
-    private class SingleCallInProgressPolicyListener
-        implements CallChangeListener,
-                   CallListener,
-                   ServiceListener
-    {
-        /**
-         * Stops tracking the state of a specific <code>Call</code> and no
-         * longer tries to put it on hold when it ends.
-         *
-         * @see CallListener#callEnded(CallEvent)
-         */
-        public void callEnded(CallEvent callEvent)
-        {
-            SingleCallInProgressPolicy.this.handleCallEvent(
-                CallEvent.CALL_ENDED, callEvent);
-        }
-
-        /**
-         * Does nothing because adding <code>CallPeer<code>s to
-         * <code>Call</code>s isn't related to the policy to put existing calls
-         * on hold when a new call becomes in-progress and just implements
-         * <code>CallChangeListener</code>.
-         *
-         * @see CallChangeListener#callPeerAdded(CallPeerEvent)
-         */
-        public void callPeerAdded( CallPeerEvent callPeerEvent)
-        {
-
-            /*
-             * Not of interest, just implementing CallChangeListener in which
-             * only #callStateChanged(CallChangeEvent) is of interest.
-             */
-        }
-
-        /**
-         * Does nothing because removing <code>CallPeer<code>s to
-         * <code>Call</code>s isn't related to the policy to put existing calls
-         * on hold when a new call becomes in-progress and just implements
-         * <code>CallChangeListener</code>.
-         *
-         * @see CallChangeListener#callPeerRemoved(CallPeerEvent)
-         */
-        public void callPeerRemoved( CallPeerEvent callPeerEvent)
-        {
-            /*
-             * Not of interest, just implementing CallChangeListener in which
-             * only #callStateChanged(CallChangeEvent) is of interest.
-             */
-        }
-
-        /**
-         * Upon a <code>Call</code> changing its state to
-         * <code>CallState.CALL_IN_PROGRESS</code>, puts the other existing
-         * <code>Call</code>s on hold.
-         *
-         * @param callChangeEvent the <tt>CallChangeEvent</tt> that we are to
-         * deliver.
-         *
-         * @see CallChangeListener#callStateChanged(CallChangeEvent)
-         */
-        public void callStateChanged(CallChangeEvent callChangeEvent)
-        {
-            // we are interested only in CALL_STATE_CHANGEs
-            if(!callChangeEvent.getEventType().equals(CallChangeEvent.CALL_STATE_CHANGE))
-                return;
-
-            SingleCallInProgressPolicy.this.callStateChanged(callChangeEvent);
-        }
-
-        /**
-         * Remembers an incoming <code>Call</code> so that it can put the other
-         * existing <code>Call</code>s on hold when it changes its state to
-         * <code>CallState.CALL_IN_PROGRESS</code>.
-         *
-         * @see CallListener#incomingCallReceived(CallEvent)
-         */
-        public void incomingCallReceived(CallEvent callEvent)
-        {
-            SingleCallInProgressPolicy.this.handleCallEvent(
-                CallEvent.CALL_RECEIVED, callEvent);
-        }
-
-        /**
-         * Remembers an outgoing <code>Call</code> so that it can put the other
-         * existing <code>Call</code>s on hold when it changes its state to
-         * <code>CallState.CALL_IN_PROGRESS</code>.
-         *
-         * @see CallListener#outgoingCallCreated(CallEvent)
-         */
-        public void outgoingCallCreated(CallEvent callEvent)
-        {
-            SingleCallInProgressPolicy.this.handleCallEvent(
-                CallEvent.CALL_INITIATED, callEvent);
-        }
-
-        /**
-         * Starts/stops tracking the new <code>Call</code>s originating from a
-         * specific <code>ProtocolProviderService</code> when it
-         * registers/unregisters in order to take them into account when putting
-         * existing calls on hold upon a new call entering its in-progress
-         * state.
-         *
-         * @param serviceEvent
-         *            the <code>ServiceEvent</code> event describing a change in
-         *            the state of a service registration which may be a
-         *            <code>ProtocolProviderService</code> supporting
-         *            <code>OperationSetBasicTelephony</code> and thus being
-         *            able to create new <code>Call</code>s
-         */
-        public void serviceChanged(ServiceEvent serviceEvent)
-        {
-            SingleCallInProgressPolicy.this.serviceChanged(serviceEvent);
-        }
-    }
+    private static final String PNAME_SINGLE_CALL_IN_PROGRESS_POLICY_ENABLED
+        = "net.java.sip.communicator.impl.protocol.SingleCallInProgressPolicy"
+            + ".enabled";
 
     /**
-     * Our class logger
-     */
-    private static final Logger logger =
-        Logger.getLogger(SingleCallInProgressPolicy.class);
-
-    /**
-     * The <code>BundleContext</code> to the Calls of which this policy applies.
+     * The <tt>BundleContext</tt> to the Calls of which this policy applies.
      */
     private final BundleContext bundleContext;
 
     /**
-     * The <code>Call</code>s this policy manages i.e. put on hold when one of
-     * them enters in progress.
+     * The <tt>Call</tt>s this policy manages i.e. put on hold when one of them
+     * enters in progress.
      */
     private final List<Call> calls = new ArrayList<Call>();
 
     /**
-     * The listener utilized by this policy to discover new <code>Call</code>
-     * and track their in-progress state.
+     * The listener utilized by this policy to discover new <tt>Call</tt> and
+     * track their in-progress state.
      */
-    private final SingleCallInProgressPolicyListener listener =
-        new SingleCallInProgressPolicyListener();
+    private final SingleCallInProgressPolicyListener listener
+        = new SingleCallInProgressPolicyListener();
 
     /**
-     * Initializes a new <code>SingleCallInProgressPolicy</code> instance which
-     * will apply to the <code>Call</code>s of a specific
-     * <code>BundleContext</code>.
+     * The implementation of the policy to have the presence statuses of online
+     * accounts (i.e. registered <tt>ProtocolProviderService</tt>s) set to
+     * &quot;On the phone&quot; when at least one <tt>Call</tt> is in progress.
+     */
+    private final OnThePhoneStatusPolicy onThePhoneStatusPolicy
+        = new OnThePhoneStatusPolicy();
+
+    /**
+     * Initializes a new <tt>SingleCallInProgressPolicy</tt> instance which
+     * will apply to the <tt>Call</tt>s of a specific <tt>BundleContext</tt>.
      *
-     * @param bundleContext
-     *            the <code>BundleContext</code> to the
-     *            <code>Call<code>s of which the new policy should apply
+     * @param bundleContext the <tt>BundleContext</tt> to the <tt>Call<tt>s of
+     * which the new policy should apply
      */
     public SingleCallInProgressPolicy(BundleContext bundleContext)
     {
@@ -214,12 +115,11 @@ public class SingleCallInProgressPolicy
     }
 
     /**
-     * Registers a specific <code>Call</code> with this policy in order to have
-     * the rules of the latter apply to the former.
+     * Registers a specific <tt>Call</tt> with this policy in order to have the
+     * rules of the latter apply to the former.
      *
-     * @param call
-     *            the <code>Call</code> to register with this policy in order to
-     *            have the rules of the latter apply to the former
+     * @param call the <tt>Call</tt> to register with this policy in order to
+     * have the rules of the latter apply to the former
      */
     private void addCallListener(Call call)
     {
@@ -230,7 +130,7 @@ public class SingleCallInProgressPolicy
                 CallState callState = call.getCallState();
 
                 if ((callState != null)
-                    && !callState.equals(CallState.CALL_ENDED))
+                        && !callState.equals(CallState.CALL_ENDED))
                 {
                     calls.add(call);
                 }
@@ -241,41 +141,40 @@ public class SingleCallInProgressPolicy
     }
 
     /**
-     * Registers a specific <code>OperationSetBasicTelephony</code> with this
-     * policy in order to have the rules of the latter apply to the
-     * <code>Call</code>s created by the former.
+     * Registers a specific <tt>OperationSetBasicTelephony</tt> with this policy
+     * in order to have the rules of the latter apply to the <tt>Call</tt>s
+     * created by the former.
      *
-     * @param telephony
-     *            the <code>OperationSetBasicTelephony</code> to register with
-     *            this policy in order to have the rules of the latter apply to
-     *            the <code>Call</code>s created by the former
+     * @param telephony the <tt>OperationSetBasicTelephony</tt> to register with
+     * this policy in order to have the rules of the latter apply to the
+     * <tt>Call</tt>s created by the former
      */
     private void addOperationSetBasicTelephonyListener(
-        OperationSetBasicTelephony<? extends ProtocolProviderService> telephony)
+            OperationSetBasicTelephony<? extends ProtocolProviderService>
+                telephony)
     {
         telephony.addCallListener(listener);
     }
 
     /**
-     * Handles changes in the state of a <code>Call</code> this policy applies
-     * to in order to detect when new calls become in-progress and when the
-     * other calls should be put on hold.
+     * Handles changes in the state of a <tt>Call</tt> this policy applies to in
+     * order to detect when new calls become in-progress and when the other
+     * calls should be put on hold.
      *
-     * @param callChangeEvent
-     *            a <code>CallChangeEvent</code> value which describes the
-     *            <code>Call</code> and the change in its state
+     * @param ev a <tt>CallChangeEvent</tt> value which describes the
+     * <tt>Call</tt> and the change in its state
      */
-    private void callStateChanged(CallChangeEvent callChangeEvent)
+    private void callStateChanged(CallChangeEvent ev)
     {
-        Call call = callChangeEvent.getSourceCall();
+        Call call = ev.getSourceCall();
 
-        if (CallState.CALL_INITIALIZATION.equals(callChangeEvent.getOldValue())
+        if (CallState.CALL_INITIALIZATION.equals(ev.getOldValue())
                 && CallState.CALL_IN_PROGRESS.equals(call.getCallState())
                 && ProtocolProviderActivator
                     .getConfigurationService()
                         .getBoolean(
-                            PNAME_SINGLE_CALL_IN_PROGRESS_POLICY_ENABLED,
-                            true))
+                                PNAME_SINGLE_CALL_IN_PROGRESS_POLICY_ENABLED,
+                                true))
         {
             CallConference conference = call.getConference();
 
@@ -307,6 +206,12 @@ public class SingleCallInProgressPolicy
                 }
             }
         }
+
+        /*
+         * Forward to onThePhoneStatusPolicy for which we are proxying the
+         * Call-related events.
+         */
+        onThePhoneStatusPolicy.callStateChanged(ev);
     }
 
     /**
@@ -319,25 +224,23 @@ public class SingleCallInProgressPolicy
     }
 
     /**
-     * Handles the start and end of the <code>Call</code>s this policy applies
-     * to in order to have them or stop having them put the other existing calls
-     * on hold when the former change their states to
-     * <code>CallState.CALL_IN_PROGRESS</code>.
+     * Handles the start and end of the <tt>Call</tt>s this policy applies to in
+     * order to have them or stop having them put the other existing calls on
+     * hold when the former change their states to
+     * <tt>CallState.CALL_IN_PROGRESS</tt>.
+     * <p>
      * Also handles call rejection via "busy here" according to the call policy.
+     * </p>
      *
-     * @param type
-     *            one of {@link CallEvent#CALL_ENDED},
-     *            {@link CallEvent#CALL_INITIATED} and
-     *            {@link CallEvent#CALL_RECEIVED} which described the type of
-     *            the event to be handled
-     * @param callEvent
-     *            a <code>CallEvent</code> value which describes the change and
-     *            the <code>Call</code> associated with it
+     * @param type one of {@link CallEvent#CALL_ENDED},
+     * {@link CallEvent#CALL_INITIATED} and {@link CallEvent#CALL_RECEIVED}
+     * which describes the type of the event to be handled
+     * @param ev a <tt>CallEvent</tt> value which describes the change and the
+     * <tt>Call</tt> associated with it
      */
-    private void handleCallEvent(int type, CallEvent callEvent)
+    private void handleCallEvent(int type, CallEvent ev)
     {
-        Call call = callEvent.getSourceCall();
-        ProtocolProviderService provider = call.getProtocolProvider();
+        Call call = ev.getSourceCall();
 
         switch (type)
         {
@@ -347,35 +250,64 @@ public class SingleCallInProgressPolicy
 
         case CallEvent.CALL_INITIATED:
         case CallEvent.CALL_RECEIVED:
-            // check whether we should hangup this call saying we are busy
-            // already on call
-            if(type == CallEvent.CALL_RECEIVED
-                && CallState.CALL_INITIALIZATION.equals(call.getCallState())
-                && ProtocolProviderActivator.getConfigurationService()
-                        .getBoolean(PNAME_CALL_WAITING_DISABLED, false))
+            addCallListener(call);
+            break;
+        }
+
+        /*
+         * Forward to onThePhoneStatusPolicy for which we are proxying the
+         * Call-related events.
+         */
+        onThePhoneStatusPolicy.handleCallEvent(type, ev);
+    }
+
+    /**
+     * Notifies this instance that an incoming <tt>Call</tt> has been received.
+     *
+     * @param ev a <tt>CallEvent</tt> which describes the received incoming
+     * <tt>Call</tt>
+     */
+    private void incomingCallReceived(CallEvent ev)
+    {
+        Call call = ev.getSourceCall();
+
+        // check whether we should hangup this call saying we are busy
+        // already on call
+        if (CallState.CALL_INITIALIZATION.equals(call.getCallState()))
+        {
+            ConfigurationService config
+                = ProtocolProviderActivator.getConfigurationService();
+
+            if (config.getBoolean(PNAME_CALL_WAITING_DISABLED, false))
             {
+                boolean rejectCallWithBusyHere = false;
+
                 synchronized (calls)
                 {
                     for (Call otherCall : calls)
                     {
                         if (!call.equals(otherCall)
-                                && CallState.CALL_IN_PROGRESS
-                                    .equals(otherCall.getCallState()))
+                                && CallState.CALL_IN_PROGRESS.equals(
+                                        otherCall.getCallState()))
                         {
-                            rejectCallWithBusyHere(call);
-                            return;
+                            rejectCallWithBusyHere = true;
+                            break;
                         }
                     }
                 }
+                if (rejectCallWithBusyHere)
+                {
+                    rejectCallWithBusyHere(call);
+                    return;
+                }
             }
 
-            if(type == CallEvent.CALL_RECEIVED
-                    && CallState.CALL_INITIALIZATION.equals(call.getCallState())
-                    && (ProtocolProviderActivator.getConfigurationService()
-                        .getBoolean(PNAME_REJECT_IN_CALL_ON_DND,
-                                    false)
-                        || provider.getAccountID().getAccountPropertyBoolean(
-                                ACCOUNT_PROPERTY_REJECT_IN_CALL_ON_DND, false)))
+            ProtocolProviderService provider = call.getProtocolProvider();
+
+            if (config.getBoolean(PNAME_REJECT_IN_CALL_ON_DND, false)
+                    || provider.getAccountID().getAccountPropertyBoolean(
+                            ACCOUNT_PROPERTY_REJECT_IN_CALL_ON_DND,
+                            false))
             {
                 OperationSetPresence presence
                     = provider.getOperationSet(OperationSetPresence.class);
@@ -384,10 +316,11 @@ public class SingleCallInProgressPolicy
                 // connected provider which will have
                 if(presence == null)
                 {
-                    // there is no presence opset let's check
-                    // the connected cusax provider if available
-                    OperationSetCusaxUtils cusaxOpSet =
-                        provider.getOperationSet(OperationSetCusaxUtils.class);
+                    // There is no presence OpSet. Let's check the connected
+                    // CUSAX provider if available
+                    OperationSetCusaxUtils cusaxOpSet
+                        = provider.getOperationSet(
+                                OperationSetCusaxUtils.class);
 
                     if(cusaxOpSet != null)
                     {
@@ -396,10 +329,11 @@ public class SingleCallInProgressPolicy
 
                         if(linkedCusaxProvider != null)
                         {
-                            // we found the provider, lets take its
-                            // presence opset
-                            presence = linkedCusaxProvider.getOperationSet(
-                                OperationSetPresence.class);
+                            // we found the provider, let's take its presence
+                            // opset
+                            presence
+                                = linkedCusaxProvider.getOperationSet(
+                                        OperationSetPresence.class);
                         }
 
                     }
@@ -423,34 +357,72 @@ public class SingleCallInProgressPolicy
                     }
                 }
             }
+        }
 
-            addCallListener(call);
-            break;
+        handleCallEvent(CallEvent.CALL_RECEIVED, ev);
+    }
+
+    /**
+     * Puts the <tt>CallPeer</tt>s of a specific <tt>Call</tt> on hold.
+     *
+     * @param call the <tt>Call</tt> the <tt>CallPeer</tt>s of which are to be
+     * put on hold
+     */
+    private void putOnHold(Call call)
+    {
+        OperationSetBasicTelephony<?> telephony
+            = call.getProtocolProvider().getOperationSet(
+                    OperationSetBasicTelephony.class);
+
+        if (telephony != null)
+        {
+            for (Iterator<? extends CallPeer> peerIter = call.getCallPeers();
+                    peerIter.hasNext();)
+            {
+                CallPeer peer = peerIter.next();
+                CallPeerState peerState = peer.getState();
+
+                if (!CallPeerState.DISCONNECTED.equals(peerState)
+                        && !CallPeerState.FAILED.equals(peerState)
+                        && !CallPeerState.isOnHold(peerState))
+                {
+                    try
+                    {
+                        telephony.putOnHold(peer);
+                    }
+                    catch (OperationFailedException ex)
+                    {
+                        logger.error("Failed to put " + peer + " on hold.", ex);
+                    }
+                }
+            }
         }
     }
 
     /**
      * Rejects a <tt>call</tt> with busy here code.
+     *
      * @param call the call to reject.
      */
     private void rejectCallWithBusyHere(Call call)
     {
-        // we interested in one to one incoming calls
+        // We're interested in one-to-one incoming calls.
         if(call.getCallPeerCount() == 1)
         {
             CallPeer peer = call.getCallPeers().next();
 
-            OperationSetBasicTelephony<?> telephony =
-                call.getProtocolProvider().getOperationSet(
+            OperationSetBasicTelephony<?> telephony
+                = call.getProtocolProvider().getOperationSet(
                         OperationSetBasicTelephony.class);
+
             if (telephony != null)
             {
                 try
                 {
                     telephony.hangupCallPeer(
-                        peer,
-                        HANGUP_REASON_BUSY_HERE,
-                        null);
+                            peer,
+                            HANGUP_REASON_BUSY_HERE,
+                            null);
                 }
                 catch (OperationFailedException ex)
                 {
@@ -461,52 +433,11 @@ public class SingleCallInProgressPolicy
     }
 
     /**
-     * Puts the <code>CallPeer</code>s of a specific <code>Call</code> on
-     * hold.
+     * Unregisters a specific <tt>Call</tt> from this policy in order to have
+     * the rules of the latter no longer applied to the former.
      *
-     * @param call
-     *            the <code>Call</code> the <code>CallPeer</code>s of
-     *            which are to be put on hold
-     */
-    private void putOnHold(Call call)
-    {
-        OperationSetBasicTelephony<?> telephony =
-            call.getProtocolProvider()
-                .getOperationSet(OperationSetBasicTelephony.class);
-
-        if (telephony != null)
-        {
-            for (Iterator<? extends CallPeer> peerIter =
-                call.getCallPeers(); peerIter.hasNext();)
-            {
-                CallPeer peer = peerIter.next();
-                CallPeerState peerState = peer.getState();
-
-                if (!CallPeerState.DISCONNECTED.equals(peerState)
-                    && !CallPeerState.FAILED.equals(peerState)
-                    && !CallPeerState.isOnHold(peerState))
-                {
-                    try
-                    {
-                        telephony.putOnHold(peer);
-                    }
-                    catch (OperationFailedException ex)
-                    {
-                        logger.error("Failed to put " + peer
-                            + " on hold.", ex);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Unregisters a specific <code>Call</code> from this policy in order to
-     * have the rules of the latter no longer applied to the former.
-     *
-     * @param call
-     *            the <code>Call</code> to unregister from this policy in order
-     *            to have the rules of the latter no longer apply to the former
+     * @param call the <tt>Call</tt> to unregister from this policy in order to
+     * have the rules of the latter no longer apply to the former
      */
     private void removeCallListener(Call call)
     {
@@ -519,47 +450,45 @@ public class SingleCallInProgressPolicy
     }
 
     /**
-     * Unregisters a specific <code>OperationSetBasicTelephony</code> from this
+     * Unregisters a specific <tt>OperationSetBasicTelephony</tt> from this
      * policy in order to have the rules of the latter no longer apply to the
-     * <code>Call</code>s created by the former.
+     * <tt>Call</tt>s created by the former.
      *
-     * @param telephony
-     *            the <code>OperationSetBasicTelephony</code> to unregister from
-     *            this policy in order to have the rules of the latter apply to
-     *            the <code>Call</code>s created by the former
+     * @param telephony the <tt>OperationSetBasicTelephony</tt> to unregister
+     * from this policy in order to have the rules of the latter apply to the
+     * <tt>Call</tt>s created by the former
      */
     private void removeOperationSetBasicTelephonyListener(
-        OperationSetBasicTelephony<? extends ProtocolProviderService> telephony)
+            OperationSetBasicTelephony<? extends ProtocolProviderService>
+                telephony)
     {
         telephony.removeCallListener(listener);
     }
 
     /**
      * Handles the registering and unregistering of
-     * <code>OperationSetBasicTelephony</code> instances in order to apply or
-     * unapply the rules of this policy to the <code>Call</code>s originating
-     * from them.
+     * <tt>OperationSetBasicTelephony</tt> instances in order to apply or
+     * unapply the rules of this policy to the <tt>Call</tt>s originating from
+     * them.
      *
-     * @param serviceEvent
-     *            a <code>ServiceEvent</code> value which described a change in
-     *            a OSGi service and which is to be examined for the registering
-     *            or unregistering of a <code>ProtocolProviderService</code> and
-     *            thus a <code>OperationSetBasicTelephony</code>
+     * @param ev a <tt>ServiceEvent</tt> value which described a change in an
+     * OSGi service and which is to be examined for the registering or
+     * unregistering of a <tt>ProtocolProviderService</tt> and thus a
+     * <tt>OperationSetBasicTelephony</tt>
      */
-    private void serviceChanged(ServiceEvent serviceEvent)
+    private void serviceChanged(ServiceEvent ev)
     {
-        Object service =
-            bundleContext.getService(serviceEvent.getServiceReference());
+        Object service = bundleContext.getService(ev.getServiceReference());
 
         if (service instanceof ProtocolProviderService)
         {
-            OperationSetBasicTelephony<?> telephony =
-                ((ProtocolProviderService) service)
-                    .getOperationSet(OperationSetBasicTelephony.class);
+            OperationSetBasicTelephony<?> telephony
+                = ((ProtocolProviderService) service).getOperationSet(
+                        OperationSetBasicTelephony.class);
 
             if (telephony != null)
             {
-                switch (serviceEvent.getType())
+                switch (ev.getType())
                 {
                 case ServiceEvent.REGISTERED:
                     addOperationSetBasicTelephonyListener(telephony);
@@ -569,6 +498,414 @@ public class SingleCallInProgressPolicy
                     break;
                 }
             }
+        }
+    }
+
+    /**
+     * Implements the policy to have the presence statuses of online accounts
+     * (i.e. registered <tt>ProtocolProviderService</tt>s) set to
+     * &quot;On the phone&quot; when at least one <tt>Call</tt> is in progress.
+     *
+     * @author Lyubomir Marinov
+     */
+    private class OnThePhoneStatusPolicy
+    {
+        /**
+         * The regular expression which removes whitespace from the
+         * <tt>statusName</tt> property value of <tt>PresenceStatus</tt>
+         * instances in order to recognize the <tt>PresenceStatus</tt> which
+         * represents &quot;On the phone&quot;.
+         */
+        private final Pattern onThePhonePresenceStatusNameWhitespace
+            = Pattern.compile("\\p{Space}");
+
+        /**
+         * The <tt>PresenceStatus</tt>es of <tt>ProtocolProviderService</tt>s
+         * before they were changed to &quot;On the phone&quot; remembered so
+         * that they can be restored after the last <tt>Call</tt> in progress
+         * ends.
+         */
+        private final Map<ProtocolProviderService,PresenceStatus>
+            presenceStatuses
+                = Collections.synchronizedMap(
+                        new WeakHashMap<ProtocolProviderService,PresenceStatus>());
+
+        /**
+         * Notifies this instance that the <tt>callState</tt> of a specific
+         * <tt>Call</tt> has changed.
+         *
+         * @param ev a <tt>CallChangeEvent</tt> which represents the details of
+         * the notification such as the affected <tt>Call</tt> and its old and
+         * new <tt>CallState</tt>s
+         */
+        public void callStateChanged(CallChangeEvent ev)
+        {
+            Call call = ev.getSourceCall();
+            Object oldCallState = ev.getOldValue();
+            Object newCallState = call.getCallState();
+
+            if ((CallState.CALL_INITIALIZATION.equals(oldCallState)
+                        && CallState.CALL_IN_PROGRESS.equals(newCallState))
+                    || (CallState.CALL_IN_PROGRESS.equals(oldCallState)
+                            && CallState.CALL_ENDED.equals(newCallState)))
+            {
+                run();
+            }
+        }
+
+        /**
+         * Finds the first <tt>PresenceStatus</tt> among the set of
+         * <tt>PresenceStatus</tt>es supported by a specific
+         * <tt>OperationSetPresence</tt> which represents
+         * &quot;On the phone&quot;.
+         *
+         * @param presence the <tt>OperationSetPresence</tt> which represents
+         * the set of supported <tt>PresenceStatus</tt>es
+         * @return the first <tt>PresenceStatus</tt> among the set of
+         * <tt>PresenceStatus</tt>es supported by <tt>presence</tt> which
+         * represents &quot;On the phone&quot; if such a <tt>PresenceStatus</tt>
+         * was found; otherwise, <tt>null</tt>
+         */
+        private PresenceStatus findOnThePhonePresenceStatus(
+                OperationSetPresence presence)
+        {
+            for (Iterator<PresenceStatus> i = presence.getSupportedStatusSet();
+                    i.hasNext();)
+            {
+                PresenceStatus presenceStatus = i.next();
+
+                if (onThePhonePresenceStatusNameWhitespace
+                        .matcher(presenceStatus.getStatusName())
+                            .replaceAll("")
+                                .equalsIgnoreCase("OnThePhone"))
+                {
+                    return presenceStatus;
+                }
+            }
+            return null;
+        }
+
+        private PresenceStatus forgetPresenceStatus(ProtocolProviderService pps)
+        {
+            return presenceStatuses.remove(pps);
+        }
+
+        private void forgetPresenceStatuses()
+        {
+            presenceStatuses.clear();
+        }
+
+        /**
+         * Notifies this instance that a new outgoing <tt>Call</tt> was
+         * initiated, an incoming <tt>Call</tt> was received or an existing
+         * <tt>Call</tt> ended.
+         *
+         * @param type one of {@link CallEvent#CALL_ENDED},
+         * {@link CallEvent#CALL_INITIATED} and {@link CallEvent#CALL_RECEIVED}
+         * which describes the type of the event to be handled
+         * @param ev a <tt>CallEvent</tt> value which describes the change and
+         * the <tt>Call</tt> associated with it
+         */
+        public void handleCallEvent(int type, CallEvent ev)
+        {
+            run();
+        }
+
+        /**
+         * Determines whether there is at least one existing <tt>Call</tt> which
+         * is currently in progress i.e. determines whether the local user is
+         * currently on the phone.
+         *
+         * @return <tt>true</tt> if there is at least one existing <tt>Call</tt>
+         * which is currently in progress i.e. if the local user is currently on
+         * the phone; otherwise, <tt>false</tt>
+         */
+        private boolean isOnThePhone()
+        {
+            synchronized (calls)
+            {
+                for (Call call : calls)
+                {
+                    if (CallState.CALL_IN_PROGRESS.equals(call.getCallState()))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        /**
+         * Invokes
+         * {@link OperationSetPresence#publishPresenceStatus(PresenceStatus,
+         * String)} on a specific <tt>OperationSetPresence</tt> with a specific
+         * <tt>PresenceStatus</tt> and catches any exceptions.
+         *
+         * @param presence the <tt>OperationSetPresence</tt> on which the method
+         * is to be invoked
+         * @param presenceStatus the <tt>PresenceStatus</tt> to provide as the
+         * respective method argument value
+         */
+        private void publishPresenceStatus(
+                OperationSetPresence presence,
+                PresenceStatus presenceStatus)
+        {
+            try
+            {
+                presence.publishPresenceStatus(presenceStatus, null);
+            }
+            catch (Throwable t)
+            {
+                if (t instanceof InterruptedException)
+                    Thread.currentThread().interrupt();
+                else if (t instanceof ThreadDeath)
+                    throw (ThreadDeath) t;
+            }
+        }
+
+        private PresenceStatus rememberPresenceStatus(
+                ProtocolProviderService pps,
+                PresenceStatus presenceStatus)
+        {
+            return presenceStatuses.put(pps, presenceStatus);
+        }
+
+        /**
+         * Applies this policy to the current state of the application.
+         */
+        private void run()
+        {
+            if (!ProtocolProviderActivator.getConfigurationService().getBoolean(
+                    PNAME_ON_THE_PHONE_STATUS_ENABLED,
+                    false))
+            {
+                forgetPresenceStatuses();
+                return;
+            }
+
+            ServiceReference[] ppsRefs;
+
+            try
+            {
+                ppsRefs
+                    = bundleContext.getServiceReferences(
+                            ProtocolProviderService.class.getName(),
+                            null);
+            }
+            catch (InvalidSyntaxException ise)
+            {
+                ppsRefs = null;
+            }
+            if ((ppsRefs == null) || (ppsRefs.length == 0))
+            {
+                forgetPresenceStatuses();
+            }
+            else
+            {
+                boolean isOnThePhone = isOnThePhone();
+
+                for (ServiceReference ppsRef : ppsRefs)
+                {
+                    ProtocolProviderService pps
+                        = (ProtocolProviderService)
+                            bundleContext.getService(ppsRef);
+
+                    if (pps == null)
+                        continue;
+
+                    OperationSetPresence presence
+                        = pps.getOperationSet(OperationSetPresence.class);
+
+                    if (presence == null)
+                    {
+                        /*
+                         * "On the phone" is a PresenceStatus so it is available
+                         * only to accounts which support presence in the first
+                         * place.
+                         */
+                        forgetPresenceStatus(pps);
+                    }
+                    else if (pps.isRegistered())
+                    {
+                        PresenceStatus onThePhonePresenceStatus
+                            = findOnThePhonePresenceStatus(presence);
+
+                        if (onThePhonePresenceStatus == null)
+                        {
+                            /*
+                             * If do not know how to define "On the phone" for
+                             * an OperationSetPresence, then we'd better not
+                             * mess with it in the first place.
+                             */
+                            forgetPresenceStatus(pps);
+                        }
+                        else if (isOnThePhone)
+                        {
+                            PresenceStatus presenceStatus
+                                = presence.getPresenceStatus();
+
+                            if (presenceStatus == null)
+                            {
+                                /*
+                                 * It is strange that an OperationSetPresence
+                                 * does not have a PresenceStatus so it may be
+                                 * safer to not mess with it.
+                                 */
+                                forgetPresenceStatus(pps);
+                            }
+                            else if (!onThePhonePresenceStatus.equals(
+                                    presenceStatus))
+                            {
+                                publishPresenceStatus(
+                                        presence,
+                                        onThePhonePresenceStatus);
+                                if (onThePhonePresenceStatus.equals(
+                                        presence.getPresenceStatus()))
+                                {
+                                    rememberPresenceStatus(pps, presenceStatus);
+                                }
+                                else
+                                {
+                                    forgetPresenceStatus(pps);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            PresenceStatus presenceStatus
+                                = forgetPresenceStatus(pps);
+
+                            if ((presenceStatus != null)
+                                    && onThePhonePresenceStatus.equals(
+                                            presence.getPresenceStatus()))
+                            {
+                                publishPresenceStatus(presence, presenceStatus);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        /*
+                         * Offline accounts do not get their PresenceStatus
+                         * modified for the purposes of "On the phone".
+                         */
+                        forgetPresenceStatus(pps);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Implements the listeners interfaces used by this policy.
+     *
+     * @author Lyubomir Marinov
+     */
+    private class SingleCallInProgressPolicyListener
+        implements CallChangeListener,
+                   CallListener,
+                   ServiceListener
+    {
+        /**
+         * Stops tracking the state of a specific <tt>Call</tt> and no longer
+         * tries to put it on hold when it ends.
+         *
+         * @see CallListener#callEnded(CallEvent)
+         */
+        public void callEnded(CallEvent ev)
+        {
+            SingleCallInProgressPolicy.this.handleCallEvent(
+                    CallEvent.CALL_ENDED,
+                    ev);
+        }
+
+        /**
+         * Does nothing because adding <tt>CallPeer<tt>s to <tt>Call</tt>s isn't
+         * related to the policy to put existing calls on hold when a new call
+         * becomes in-progress and just implements <tt>CallChangeListener</tt>.
+         *
+         * @see CallChangeListener#callPeerAdded(CallPeerEvent)
+         */
+        public void callPeerAdded(CallPeerEvent ev)
+        {
+            /*
+             * Not of interest, just implementing CallChangeListener in which
+             * only #callStateChanged(CallChangeEvent) is of interest.
+             */
+        }
+
+        /**
+         * Does nothing because removing <tt>CallPeer<tt>s to <tt>Call</tt>s
+         * isn't related to the policy to put existing calls on hold when a new
+         * call becomes in-progress and just implements
+         * <tt>CallChangeListener</tt>.
+         *
+         * @see CallChangeListener#callPeerRemoved(CallPeerEvent)
+         */
+        public void callPeerRemoved(CallPeerEvent ev)
+        {
+            /*
+             * Not of interest, just implementing CallChangeListener in which
+             * only #callStateChanged(CallChangeEvent) is of interest.
+             */
+        }
+
+        /**
+         * Upon a <tt>Call</tt> changing its state to
+         * <tt>CallState.CALL_IN_PROGRESS</tt>, puts the other existing
+         * <tt>Call</tt>s on hold.
+         *
+         * @param ev the <tt>CallChangeEvent</tt> that we are to deliver.
+         *
+         * @see CallChangeListener#callStateChanged(CallChangeEvent)
+         */
+        public void callStateChanged(CallChangeEvent ev)
+        {
+            // we are interested only in CALL_STATE_CHANGEs
+            if (ev.getEventType().equals(CallChangeEvent.CALL_STATE_CHANGE))
+                SingleCallInProgressPolicy.this.callStateChanged(ev);
+        }
+
+        /**
+         * Remembers an incoming <tt>Call</tt> so that it can put the other
+         * existing <tt>Call</tt>s on hold when it changes its state to
+         * <tt>CallState.CALL_IN_PROGRESS</tt>.
+         *
+         * @see CallListener#incomingCallReceived(CallEvent)
+         */
+        public void incomingCallReceived(CallEvent ev)
+        {
+            SingleCallInProgressPolicy.this.incomingCallReceived(ev);
+        }
+
+        /**
+         * Remembers an outgoing <tt>Call</tt> so that it can put the other
+         * existing <tt>Call</tt>s on hold when it changes its state to
+         * <tt>CallState.CALL_IN_PROGRESS</tt>.
+         *
+         * @see CallListener#outgoingCallCreated(CallEvent)
+         */
+        public void outgoingCallCreated(CallEvent ev)
+        {
+            SingleCallInProgressPolicy.this.handleCallEvent(
+                    CallEvent.CALL_INITIATED,
+                    ev);
+        }
+
+        /**
+         * Starts/stops tracking the new <tt>Call</tt>s originating from a
+         * specific <tt>ProtocolProviderService</tt> when it
+         * registers/unregisters in order to take them into account when putting
+         * existing calls on hold upon a new call entering its in-progress
+         * state.
+         *
+         * @param ev the <tt>ServiceEvent</tt> event describing a change in the
+         * state of a service registration which may be a
+         * <tt>ProtocolProviderService</tt> supporting
+         * <tt>OperationSetBasicTelephony</tt> and thus being able to create new
+         * <tt>Call</tt>s
+         */
+        public void serviceChanged(ServiceEvent ev)
+        {
+            SingleCallInProgressPolicy.this.serviceChanged(ev);
         }
     }
 }
