@@ -681,22 +681,22 @@ public class MUCCustomContactActionService
                     = MUCActivator.getConfigurationService().getBoolean(
                             OWNER_CANT_REMOVE_CHATROOM_PROPERTY, false);
 
-                if(ownerCannotRemoveRoom && !room.getChatRoom().isJoined())
-                    return false;
-
+                // when joined role will be owner or member
+                // when not joined and if we never has entered the room role
+                // will be guest, if we joined and left the room the role
+                // will be owner or member
                 if(room.getChatRoom().getUserRole().equals(
-                    ChatRoomMemberRole.OWNER))
+                    ChatRoomMemberRole.MEMBER))
+                {
+                    return true;
+                }
+                else
                 {
                     if(ownerCannotRemoveRoom)
-                    {
                         return false;
-                    }
                     else
-                    {
                         return true;
-                    }
                 }
-                return true;
             }
             else if(name.equals("destroy_chatroom"))
             {
