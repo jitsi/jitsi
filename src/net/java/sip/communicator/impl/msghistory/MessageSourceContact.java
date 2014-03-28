@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
 
+import java.text.*;
 import java.util.*;
 
 /**
@@ -81,6 +82,16 @@ public class MessageSourceContact
     private Date timestamp = null;
 
     /**
+     * Date format used to mark today messages.
+     */
+    public static final String TODAY_DATE_FORMAT = "HH:mm', '";
+
+    /**
+     * Date format used to mark past messages.
+     */
+    public static final String PAST_DATE_FORMAT = "MMM d', '";
+
+    /**
      * The protocol provider.
      * @return the protocol provider.
      */
@@ -111,8 +122,6 @@ public class MessageSourceContact
         }
 
         this.service = service;
-
-        updateMessageContent();
     }
 
     /**
@@ -121,6 +130,22 @@ public class MessageSourceContact
      */
     private void updateMessageContent()
     {
+        if(isToday(timestamp))
+        {
+            // just hour
+            this.messageContent =
+                new SimpleDateFormat(TODAY_DATE_FORMAT).format(timestamp)
+                + this.messageContent;
+
+        }
+        else
+        {
+            // just date
+            this.messageContent =
+                new SimpleDateFormat(PAST_DATE_FORMAT).format(timestamp)
+                + this.messageContent;
+        }
+
         if(this.messageContent != null
             && this.messageContent.length() > 60)
         {
@@ -128,6 +153,23 @@ public class MessageSourceContact
             this.messageContent = this.messageContent.substring(0, 60);
             this.messageContent += "...";
         }
+    }
+
+    /**
+     * Checks whether <tt>timestamp</tt> is today.
+     * @param timestamp the date to check
+     * @return whether <tt>timestamp</tt> is today.
+     */
+    private boolean isToday(Date timestamp)
+    {
+        Calendar today = Calendar.getInstance();
+        Calendar tsCalendar = Calendar.getInstance();
+        tsCalendar.setTime(timestamp);
+
+        return today.get(Calendar.YEAR)
+                    == tsCalendar.get(Calendar.YEAR) &&
+               today.get(Calendar.DAY_OF_YEAR)
+                    == tsCalendar.get(Calendar.DAY_OF_YEAR);
     }
 
     /**
