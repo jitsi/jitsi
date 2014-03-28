@@ -1241,8 +1241,6 @@ public class IrcStack
          */
         private void processModeMessage(ChannelModeMessage msg)
         {
-            // TODO Handle or ignore ban channel mode (MODE STRING: +b
-            // *!*@some-ip.dynamicIP.provider.net)
             ChatRoomMemberIrcImpl sourceMember = extractChatRoomMember(msg);
 
             ModeParser parser = new ModeParser(msg.getModeStr());
@@ -1376,12 +1374,12 @@ public class IrcStack
                     }
                     break;
                 case LIMIT:
-                    MessageIrcImpl message;
+                    MessageIrcImpl limitMessage;
                     if (mode.isAdded())
                     {
                         try
                         {
-                            message =
+                            limitMessage =
                                 new MessageIrcImpl("channel limit set to "
                                     + Integer.parseInt(mode.getParams()[0])
                                     + " by "
@@ -1403,7 +1401,7 @@ public class IrcStack
                         // calls himself server. There should be some other way
                         // to represent the server if a message comes from
                         // something other than a normal chat room member.
-                        message =
+                        limitMessage =
                             new MessageIrcImpl(
                                 "channel limit removed by "
                                     + (sourceMember.getContactAddress()
@@ -1411,7 +1409,23 @@ public class IrcStack
                                         : sourceMember.getContactAddress()),
                                 "text/plain", "UTF-8", null);
                     }
-                    this.chatroom.fireMessageReceivedEvent(message,
+                    this.chatroom.fireMessageReceivedEvent(limitMessage,
+                        sourceMember, new Date(),
+                        ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+                    break;
+                case BAN:
+                    MessageIrcImpl banMessage =
+                        new MessageIrcImpl(
+                            "channel ban mask was "
+                                + (mode.isAdded() ? "added" : "removed")
+                                + ": "
+                                + mode.getParams()[0]
+                                + " by "
+                                + (sourceMember.getContactAddress()
+                                    .length() == 0 ? "server"
+                                    : sourceMember.getContactAddress()),
+                            "text/plain", "UTF-8", null);
+                    this.chatroom.fireMessageReceivedEvent(banMessage,
                         sourceMember, new Date(),
                         ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
                     break;
