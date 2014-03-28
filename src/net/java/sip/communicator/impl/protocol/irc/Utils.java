@@ -162,13 +162,13 @@ public final class Utils
         {
             // No background color defined, ignoring ...
             throw new IllegalArgumentException(
-                "value isn't a background color code");
+                "value isn't a background color code: " + text.substring(1, 3));
         }
         catch (ArrayIndexOutOfBoundsException e)
         {
             LOGGER.info("Specified IRC color is not a known color code.", e);
-            throw new IllegalArgumentException(
-                "background color value is not a known color");
+            throw new IllegalArgumentException("background color value "
+                + text.substring(1, 3) + " is not a known color");
         }
     }
 
@@ -196,13 +196,14 @@ public final class Utils
         {
             // Invalid text color value
             LOGGER.trace("Invalid foreground color code encountered.");
-            throw new IllegalArgumentException("invalid foreground color code");
+            throw new IllegalArgumentException(
+                "invalid foreground color code: " + text.substring(0, 2));
         }
         catch (ArrayIndexOutOfBoundsException e)
         {
             LOGGER.info("Specified IRC color is not a known color code.", e);
-            throw new IllegalArgumentException(
-                "foreground color value is not a known color");
+            throw new IllegalArgumentException("foreground color value "
+                + text.substring(0, 2) + " is not a known color");
         }
     }
 }
