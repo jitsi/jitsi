@@ -477,7 +477,8 @@ public class ContactListPane
                 msg.getMessageUID(),
                 evt.getCorrectedMessageUID());
 
-            if(evt.isSmsMessage())
+            if(evt.isSmsMessage()
+                && !ConfigurationUtils.isSmsNotifyTextDisabled())
             {
                 chatPanel.addMessage(
                         contact.getDisplayName(),

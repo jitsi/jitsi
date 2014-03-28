@@ -325,6 +325,18 @@ public class ConfigurationUtils
                 ".HIDE_ADDRESS_IN_CALL_HISTORY_TOOLTIP_ENABLED";
 
     /**
+     * Texts to notify that sms has been sent or sms has been received.
+     */
+    private static boolean isSmsNotifyTextDisabled = false;
+
+    /**
+     * To disable displaying sms delivered message or sms received.
+     */
+    private static final String SMS_MSG_NOTIFY_TEXT_DISABLED_PROP
+        = "net.java.sip.communicator.impl.gui.main.contactlist."
+        + "SMS_MSG_NOTIFY_TEXT_DISABLED_PROP";
+
+    /**
      * Whether domain will be shown in receive call dialog.
      */
     private static boolean isHideDomainInReceivedCallDialogEnabled = false;
@@ -925,6 +937,11 @@ public class ConfigurationUtils
         hideExtendedAwayStatus = configService.getBoolean(
             hideExtendedAwayStatusProperty,
             hideExtendedAwayStatus);
+
+        isSmsNotifyTextDisabled = configService.getBoolean(
+            SMS_MSG_NOTIFY_TEXT_DISABLED_PROP,
+            isSmsNotifyTextDisabled
+        );
     }
 
     /**
@@ -1798,6 +1815,16 @@ public class ConfigurationUtils
     public static boolean isHideAddressInCallHistoryTooltipEnabled()
     {
         return isHideAddressInCallHistoryTooltipEnabled;
+    }
+
+    /**
+     * Whether to display or not the text notifying that a message is
+     * a incoming or outgoing sms message.
+     * @return whether to display the text notifying that a message is sms.
+     */
+    public static boolean isSmsNotifyTextDisabled()
+    {
+        return isSmsNotifyTextDisabled;
     }
 
     /**

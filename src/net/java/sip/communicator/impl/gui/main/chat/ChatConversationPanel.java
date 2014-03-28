@@ -506,7 +506,9 @@ public class ChatConversationPanel
                 contactDisplayName,
                 getContactAvatar(protocolProvider, contactAddress),
                 date,
-                formatMessage("SMS: " + message, contentType, keyword),
+                ConfigurationUtils.isSmsNotifyTextDisabled() ?
+                    formatMessage(message, contentType, keyword)
+                    : formatMessage("SMS: " + message, contentType, keyword),
                 contentType,
                 false,
                 isSimpleTheme);
