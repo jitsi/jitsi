@@ -19,6 +19,7 @@ import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.util.*;
 
 import static net.java.sip.communicator.service.history.HistoryService.DATE_FORMAT;
@@ -67,6 +68,12 @@ public class MessageSourceService
         = "net.java.sip.communicator.impl.msghistory.contactsrc.MSG_NUMBER";
 
     /**
+     * Property to control version of recent messages.
+     */
+    private static final String VER_OF_RECENT_MSGS_PROP
+        = "net.java.sip.communicator.impl.msghistory.contactsrc.MSG_VER";
+
+    /**
      * Property to control messages type. Can query for message sub type.
      */
     private static final String IS_MESSAGE_SUBTYPE_SMS_PROP
@@ -93,7 +100,7 @@ public class MessageSourceService
      * The current version of recent messages. When changed the recent messages
      * are recreated.
      */
-    private static final String RECENT_MSGS_VER = "2";
+    private static String RECENT_MSGS_VER = "2";
 
     /**
      * The structure.
@@ -145,8 +152,10 @@ public class MessageSourceService
     {
         this.messageHistoryService = messageHistoryService;
 
-        if(MessageHistoryActivator.getConfigurationService()
-            .getBoolean(IN_HISTORY_PROPERTY , false))
+        ConfigurationService conf
+            = MessageHistoryActivator.getConfigurationService();
+
+        if(conf.getBoolean(IN_HISTORY_PROPERTY , false))
         {
             sourceServiceType = HISTORY_TYPE;
         }
@@ -154,11 +163,14 @@ public class MessageSourceService
         MESSAGE_HISTORY_NAME = MessageHistoryActivator.getResources()
             .getI18NString("service.gui.RECENT_MESSAGES");
 
-        numberOfMessages = MessageHistoryActivator.getConfigurationService()
-            .getInt(NUMBER_OF_RECENT_MSGS_PROP, numberOfMessages);
+        numberOfMessages
+            = conf.getInt(NUMBER_OF_RECENT_MSGS_PROP, numberOfMessages);
 
-        isSMSEnabled = MessageHistoryActivator.getConfigurationService()
-            .getBoolean(IS_MESSAGE_SUBTYPE_SMS_PROP, isSMSEnabled);
+        isSMSEnabled
+            = conf.getBoolean(IS_MESSAGE_SUBTYPE_SMS_PROP, isSMSEnabled);
+
+        RECENT_MSGS_VER
+            = conf.getString(VER_OF_RECENT_MSGS_PROP, RECENT_MSGS_VER);
     }
 
     /**

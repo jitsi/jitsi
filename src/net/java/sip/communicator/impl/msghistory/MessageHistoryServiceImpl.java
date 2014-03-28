@@ -409,6 +409,12 @@ public class MessageHistoryServiceImpl
             this.historyService.getExistingHistories(
                 new String[]{"messages", "default"});
 
+        // make the filter provider string to reflect those that were
+        // used when creating folders
+        String providerFilterStr = null;
+        if(providerToFilter != null)
+            providerFilterStr = HistoryID.readableHash(providerToFilter);
+
         for(HistoryID id : historyIDs)
         {
             if(result.size() >= count)
@@ -421,9 +427,8 @@ public class MessageHistoryServiceImpl
                     continue;
 
                 // filter by protocol provider
-                String accountID = id.getID()[2].replace('_', ':');
-                if(providerToFilter != null
-                    && !accountID.startsWith(providerToFilter))
+                if(providerFilterStr != null
+                    && !id.getID()[2].startsWith(providerFilterStr))
                 {
                     continue;
                 }
@@ -436,7 +441,7 @@ public class MessageHistoryServiceImpl
 
                 // find contact or chatroom for historyID
                 Object descriptor = getContactOrRoomByID(
-                    accountID,
+                    providerToFilter,
                     id.getID()[3],
                     id,
                     isSMSEnabled);
