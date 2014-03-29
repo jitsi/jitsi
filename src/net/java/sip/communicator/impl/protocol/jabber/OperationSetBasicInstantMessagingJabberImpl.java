@@ -70,13 +70,16 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * Contains the complete jid of a specific user and the time that it was
      * last used so that we could remove it after a certain point.
      */
-    private class TargetAddress
+    public static class TargetAddress
     {
         /** The last complete JID (including resource) that we got a msg from*/
         String jid;
 
         /** The time that we last sent or received a message from this jid */
         long lastUpdatedTime;
+
+        /** The last chat used, this way we will reuse the thread-id */
+        Chat chat;
     }
 
     /**
@@ -263,7 +266,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
             return true;
         else if(contentType.equals(HTML_MIME_TYPE))
         {
-            String toJID = getJidForAddress(contact.getAddress());
+            String toJID = null;
+
+            TargetAddress ta = getJidForAddress(contact.getAddress());
+            if(ta != null)
+                toJID = ta.jid;
 
             if (toJID == null)
                 toJID = contact.getAddress();
@@ -280,20 +287,27 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * Returns a reference to an open chat with the specified
      * <tt>jid</tt> if one exists or creates a new one otherwise.
      *
+     * @param toAddress the address without the resource, we used to put
+     * a reference in jids table.
      * @param jid the Jabber ID that we'd like to obtain a chat instance for.
      *
      * @return a reference to an open chat with the specified
      * <tt>jid</tt> if one exists or creates a new one otherwise.
      */
-    public Chat obtainChatInstance(String jid)
+    public Chat obtainChatInstance(String toAddress,
+                                   String jid)
     {
         XMPPConnection jabberConnection
             = jabberProvider.getConnection();
 
-        Chat chat = jabberConnection.getChatManager().getThreadChat(jid);
+        TargetAddress ta = getJidForAddress(toAddress);
 
-        if (chat != null)
-            return chat;
+        if (ta != null
+            && ta.chat != null
+            && ta.jid.equals(jid))
+        {
+            return ta.chat;
+        }
 
         org.jivesoftware.smack.MessageListener msgListener
             = new org.jivesoftware.smack.MessageListener()
@@ -312,7 +326,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
 
         //we don't have a thread for this chat, so let's create one.
-        chat = jabberConnection.getChatManager()
+        Chat chat = jabberConnection.getChatManager()
                 .createChat(jid, msgListener);
 
         return chat;
@@ -323,7 +337,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * activity (i.e. neither outgoing nor incoming messags) for more than
      * JID_INACTIVITY_TIMEOUT. Note that this method is not synchronous and that
      * it is only meant for use by the {@link #getJidForAddress(String)} and
-     * {@link #putJidForAddress(String, String)}
+     * {@link #putJidForAddress(String, String, Chat)}
      */
     private void purgeOldJids()
     {
@@ -357,7 +371,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * contacted us from or <tt>null</tt> if we don't have a jid for the
      * specified <tt>address</tt> yet.
      */
-    String getJidForAddress(String address)
+    TargetAddress getJidForAddress(String address)
     {
         synchronized(jids)
         {
@@ -369,7 +383,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             ta.lastUpdatedTime = System.currentTimeMillis();
 
-            return ta.jid;
+            return ta;
         }
     }
 
@@ -384,7 +398,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * @param jid the jid (i.e. address/resource) that the contact with the
      * specified <tt>address</tt> last contacted us from.
      */
-    private void putJidForAddress(String address, String jid)
+    private void putJidForAddress(String address, String jid, Chat chat)
     {
         synchronized(jids)
         {
@@ -400,6 +414,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             ta.jid = jid;
             ta.lastUpdatedTime = System.currentTimeMillis();
+            ta.chat = chat;
         }
     }
 
@@ -449,7 +464,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
             }
 
             if (toJID == null)
-                toJID = getJidForAddress(to.getAddress());
+            {
+                TargetAddress ta = getJidForAddress(to.getAddress());
+                if(ta != null)
+                    toJID = ta.jid;
+            }
 
             if (toJID == null)
             {
@@ -457,7 +476,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 toJID = to.getAddress();
             }
 
-            Chat chat = obtainChatInstance(toJID);
+            Chat chat = obtainChatInstance(to.getAddress(), toJID);
 
             msg.setPacketID(message.getMessageUID());
             msg.setTo(toJID);
@@ -517,8 +536,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             chat.sendMessage(msg);
 
-            if(sendToBaseResource)
-                putJidForAddress(to.getAddress(), to.getAddress());
+            putJidForAddress(to.getAddress(), toJID, chat);
 
             MessageDeliveredEvent msgDeliveredEvt
                 = new MessageDeliveredEvent(message, to, toResource);
@@ -1004,7 +1022,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
                             userBareID} );
             }
 
-            putJidForAddress(address, userFullId);
+            Chat chat =
+                jabberProvider.getConnection().getChatManager()
+                    .getThreadChat(msg.getThread());
+            putJidForAddress(address, userFullId, chat);
 
             if (logger.isTraceEnabled())
                 logger.trace("just mapped: " + userBareID

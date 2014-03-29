@@ -144,13 +144,19 @@ public class OperationSetTypingNotificationsJabberImpl
      */
     private void sendXep85ChatState(Contact contact, int state)
     {
+        if(opSetBasicIM == null
+            || parentProvider.getConnection() == null)
+            return;
+
         String toJID = null;
 
         // find the currently contacted jid to send typing info to him
         // or if we do not have a jid and we have already sent message to the
         // bare jid we will also send typing info there
-        if (toJID == null)
-            toJID = opSetBasicIM.getJidForAddress(contact.getAddress());
+        OperationSetBasicInstantMessagingJabberImpl.TargetAddress ta
+            = opSetBasicIM.getJidForAddress(contact.getAddress());
+        if (ta != null)
+            toJID = ta.jid;
 
         // if we haven't sent a message yet, do not send typing notifications
         if(toJID == null)
@@ -160,8 +166,13 @@ public class OperationSetTypingNotificationsJabberImpl
             logger.trace("Sending XEP-0085 chat state=" + state
                 + " to " + toJID);
 
-        Chat chat = parentProvider.getConnection()
-            .getChatManager().createChat(toJID, null);
+        Chat chat;
+
+        if(ta != null && ta.chat != null)
+            chat = ta.chat;
+        else
+            chat = parentProvider.getConnection()
+                .getChatManager().createChat(toJID, null);
 
         ChatState chatState = null;
 
