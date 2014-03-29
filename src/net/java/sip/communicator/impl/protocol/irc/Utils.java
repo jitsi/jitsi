@@ -98,10 +98,6 @@ public final class Utils
                             adds.toArray(new String[adds.size()]));
                     }
                     break;
-                default:
-                    LOGGER.warn("Unsupported IRC control code encountered: "
-                        + control);
-                    break;
                 }
             }
             else
