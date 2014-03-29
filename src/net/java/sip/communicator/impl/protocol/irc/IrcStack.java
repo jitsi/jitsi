@@ -520,8 +520,6 @@ public class IrcStack
                             .equalsIgnoreCase(chatroom.getIdentifier());
                         synchronized (joinSignal)
                         {
-                            IrcStack.this.joining.remove(chatroom
-                                .getIdentifier());
                             if (!isRequestedChatRoom)
                             {
                                 if (LOGGER.isTraceEnabled())
