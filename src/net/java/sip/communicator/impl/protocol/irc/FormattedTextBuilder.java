@@ -46,24 +46,16 @@ public class FormattedTextBuilder
      */
     public void apply(ControlChar c, String... addition)
     {
-        if (c == ControlChar.NORMAL)
+        if (formatting.contains(c))
         {
-            // Special case: NORMAL resets/cancels all active formatting
-            cancelAll();
+            // cancel active control char
+            cancel(c);
         }
         else
         {
-            if (formatting.contains(c))
-            {
-                // cancel active control char
-                cancel(c);
-            }
-            else
-            {
-                // start control char formatting
-                this.formatting.add(c);
-                this.text.append(c.getHtmlStart(addition));
-            }
+            // start control char formatting
+            this.formatting.add(c);
+            this.text.append(c.getHtmlStart(addition));
         }
     }
     
@@ -110,9 +102,9 @@ public class FormattedTextBuilder
     }
 
     /**
-     * Cancel all remaining control chars.
+     * Cancel all active formatting.
      */
-    private void cancelAll()
+    public void cancelAll()
     {
         while (!this.formatting.empty())
         {

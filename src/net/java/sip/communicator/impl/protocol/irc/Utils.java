@@ -55,8 +55,10 @@ public final class Utils
                 case ITALICS:
                 case UNDERLINE:
                 case BOLD:
-                case NORMAL:
                     builder.apply(control);
+                    break;
+                case NORMAL:
+                    builder.cancelAll();
                     break;
                 case COLOR:
                     if (builder.isActive(control))
