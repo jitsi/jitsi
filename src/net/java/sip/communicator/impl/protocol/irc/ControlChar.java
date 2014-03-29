@@ -15,7 +15,7 @@ public enum ControlChar
     BOLD('\u0002', "b"),
     COLOR('\u0003', "font"),
     NORMAL('\u000F', null),
-    ITALICS('\u001D', "i"),
+    ITALICS('\u0016', "i"),
     UNDERLINE('\u001F', "u");
 
     /**

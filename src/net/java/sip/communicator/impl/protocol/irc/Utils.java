@@ -42,9 +42,7 @@ public final class Utils
         if (text == null)
             return null;
 
-        final Stack<ControlChar> formatting = new Stack<ControlChar>();
-
-        final StringBuilder builder = new StringBuilder();
+        FormattedTextBuilder builder = new FormattedTextBuilder();
         for (int i = 0; i < text.length(); i++)
         {
             char val = text.charAt(i);
@@ -57,29 +55,13 @@ public final class Utils
                 case ITALICS:
                 case UNDERLINE:
                 case BOLD:
-                    if (formatting.size() > 0 && formatting.peek() == control)
-                    {
-                        formatting.pop();
-                        builder.append(control.getHtmlEnd());
-                    }
-                    else
-                    {
-                        formatting.push(control);
-                        builder.append(control.getHtmlStart());
-                    }
-                    break;
                 case NORMAL:
-                    while (formatting.size() > 0)
-                    {
-                        ControlChar c = formatting.pop();
-                        builder.append(c.getHtmlEnd());
-                    }
+                    builder.apply(control);
                     break;
                 case COLOR:
-                    if (formatting.size() > 0 && formatting.peek() == control)
+                    if (builder.isActive(control))
                     {
-                        formatting.pop();
-                        builder.append(control.getHtmlEnd());
+                        builder.apply(control);
                     }
                     else
                     {
@@ -95,18 +77,23 @@ public final class Utils
                             // parse background color code
                             final Color background =
                                 parseBackgroundColor(text.substring(i + 1));
-                            adds.add("bgcolor=\"" + background.getHtml() + "\"");
+                            adds.add(
+                                "bgcolor=\"" + background.getHtml() + "\"");
                             i += 3;
                         }
                         catch (IllegalArgumentException e)
                         {
-                            LOGGER.trace("Invalid color code.", e);
+                            LOGGER.debug(
+                                "Invalid color code: "
+                                    + text.substring(i + 1), e);
                         }
-                        formatting.push(control);
-                        String htmlTag =
-                            control.getHtmlStart(adds.toArray(new String[adds
-                                .size()]));
-                        builder.append(htmlTag);
+                        catch (ArrayIndexOutOfBoundsException e)
+                        {
+                            LOGGER.debug("Unknown color code referenced: "
+                                + text.substring(i + 1), e);
+                        }
+                        builder.apply(control,
+                            adds.toArray(new String[adds.size()]));
                     }
                     break;
                 default:
@@ -122,13 +109,7 @@ public final class Utils
             }
         }
 
-        // Finish any outstanding formatting.
-        while (formatting.size() > 0)
-        {
-            builder.append(formatting.pop().getHtmlEnd());
-        }
-
-        return builder.toString();
+        return builder.done();
     }
 
     /**

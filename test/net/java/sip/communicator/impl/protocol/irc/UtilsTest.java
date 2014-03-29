@@ -51,7 +51,7 @@ public class UtilsTest
     public void testParseStringWithItalicsCode()
     {
         final String ircMessage =
-            "My \u001Ditalics\u001D message \u001DITALICS!\u001D.";
+            "My \u0016italics\u0016 message \u0016ITALICS!\u0016.";
         final String htmlMessage = "My <i>italics</i> message <i>ITALICS!</i>.";
         Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
     }
@@ -125,7 +125,7 @@ public class UtilsTest
     public void testParseSringAndNeutralizeWithNormalControlCode()
     {
         final String ircMessage =
-            "My \u0002\u001D\u001F\u000304,12RED on Light Blue\u000F message.";
+            "My \u0002\u0016\u001F\u000304,12RED on Light Blue\u000F message.";
         final String htmlMessage =
             "My <b><i><u><font color=\"Red\" bgcolor=\"RoyalBlue\">RED on Light Blue</font></u></i></b> message.";
         Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
@@ -134,7 +134,7 @@ public class UtilsTest
     public void testParseStringWithUnclosedFormattingI()
     {
         final String ircMessage =
-            "My \u0002\u001D\u001F\u000304,12RED on Light Blue message.";
+            "My \u0002\u0016\u001F\u000304,12RED on Light Blue message.";
         final String htmlMessage =
             "My <b><i><u><font color=\"Red\" bgcolor=\"RoyalBlue\">RED on Light Blue message.</font></u></i></b>";
         Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
@@ -156,14 +156,14 @@ public class UtilsTest
     
     public void testStackIncompatibleFormatToggling()
     {
-        final String ircMessage = "\u0002\u001D\u001FHello\u0002 W\u001Dorld\u001F!";
+        final String ircMessage = "\u0002\u0016\u001FHello\u0002 W\u0016orld\u001F!";
         final String htmlMessage = "<b><i><u>Hello</u></i></b><i><u> W</u></i><u>orld</u>!";
         Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
     }
     
     public void testColorSwitch()
     {
-        final String ircMessage = "\u000302,03Hello \u000308,09World\u000F!";
+        final String ircMessage = "\u000302,03Hello \u0003\u000308,09World\u000F!";
         final String htmlMessage = "<font color=\"Navy\" bgcolor=\"Green\">Hello </font><font color=\"Yellow\" bgcolor=\"Lime\">World</font>!";
         Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
     }
