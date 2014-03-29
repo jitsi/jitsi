@@ -42,6 +42,8 @@ public class FormattedTextBuilder
     /**
      * Apply a control char for formatting.
      * 
+     * TODO Explicitly deny handling ControlChar.NORMAL?
+     * 
      * @param c the control char
      */
     public void apply(ControlChar c, String... addition)
@@ -49,7 +51,7 @@ public class FormattedTextBuilder
         if (formatting.contains(c))
         {
             // cancel active control char
-            cancel(c);
+            cancelSingle(c);
         }
         else
         {
@@ -76,7 +78,7 @@ public class FormattedTextBuilder
      * 
      * @param c the control char
      */
-    private void cancel(ControlChar c)
+    private void cancelSingle(ControlChar c)
     {
         final Stack<ControlChar> rewind = new Stack<ControlChar>();
         while (!this.formatting.empty())
