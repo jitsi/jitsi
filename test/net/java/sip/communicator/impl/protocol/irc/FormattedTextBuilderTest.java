@@ -54,18 +54,18 @@ public class FormattedTextBuilderTest
     public void testOnlyFormatting()
     {
         FormattedTextBuilder formatted = new FormattedTextBuilder();
-        formatted.apply(ControlChar.BOLD);
+        formatted.apply(new ControlChar.Bold());
         Assert.assertEquals("<b></b>", formatted.done());
     }
     
     public void testMixedFormattingContent()
     {
         FormattedTextBuilder formatted = new FormattedTextBuilder();
-        formatted.apply(ControlChar.BOLD);
+        formatted.apply(new ControlChar.Bold());
         formatted.append("Hello ");
-        formatted.apply(ControlChar.ITALICS);
+        formatted.apply(new ControlChar.Italics());
         formatted.append("world");
-        formatted.apply(ControlChar.BOLD);
+        formatted.cancel(ControlChar.Bold.class, true);
         formatted.append("!!!");
         Assert.assertEquals("<b>Hello <i>world</i></b><i>!!!</i>",
             formatted.done());
@@ -74,12 +74,12 @@ public class FormattedTextBuilderTest
     public void testToStringIntermediateResult()
     {
         FormattedTextBuilder formatted = new FormattedTextBuilder();
-        formatted.apply(ControlChar.BOLD);
+        formatted.apply(new ControlChar.Bold());
         formatted.append("Hello ");
-        formatted.apply(ControlChar.ITALICS);
+        formatted.apply(new ControlChar.Italics());
         Assert.assertEquals("<b>Hello <i>", formatted.toString());
         formatted.append("world");
-        formatted.apply(ControlChar.BOLD);
+        formatted.cancel(ControlChar.Bold.class, true);
         formatted.append("!!!");
         Assert.assertEquals("<b>Hello <i>world</i></b><i>!!!",
             formatted.toString());
@@ -92,15 +92,15 @@ public class FormattedTextBuilderTest
     public void testActiveFormatting()
     {
         FormattedTextBuilder formatted = new FormattedTextBuilder();
-        Assert.assertFalse(formatted.isActive(ControlChar.BOLD));
-        formatted.apply(ControlChar.BOLD);
-        Assert.assertTrue(formatted.isActive(ControlChar.BOLD));
+        Assert.assertFalse(formatted.isActive(ControlChar.Bold.class));
+        formatted.apply(new ControlChar.Bold());
+        Assert.assertTrue(formatted.isActive(ControlChar.Bold.class));
         formatted.append("Hello ");
-        Assert.assertFalse(formatted.isActive(ControlChar.ITALICS));
-        formatted.apply(ControlChar.ITALICS);
-        Assert.assertTrue(formatted.isActive(ControlChar.ITALICS));
+        Assert.assertFalse(formatted.isActive(ControlChar.Italics.class));
+        formatted.apply(new ControlChar.Italics());
+        Assert.assertTrue(formatted.isActive(ControlChar.Italics.class));
         formatted.done();
-        Assert.assertFalse(formatted.isActive(ControlChar.BOLD));
-        Assert.assertFalse(formatted.isActive(ControlChar.ITALICS));
+        Assert.assertFalse(formatted.isActive(ControlChar.Bold.class));
+        Assert.assertFalse(formatted.isActive(ControlChar.Italics.class));
     }
 }

@@ -95,7 +95,7 @@ public class UtilsTest
         final String ircMessage =
             "My \u0003BRIGHT RED on Light Blue\u0003 message.";
         final String htmlMessage =
-            "My <font>BRIGHT RED on Light Blue</font> message.";
+            "My BRIGHT RED on Light Blue message.";
         Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
     }
 
@@ -104,14 +104,14 @@ public class UtilsTest
         final String ircMessage =
             "My \u000304,12RED on Light Blue\u000304,12 message.";
         final String htmlMessage =
-            "My <font color=\"Red\" bgcolor=\"RoyalBlue\">RED on Light Blue</font>04,12 message.";
+            "My <font color=\"Red\" bgcolor=\"RoyalBlue\">RED on Light Blue<font color=\"Red\" bgcolor=\"RoyalBlue\"> message.</font></font>";
         Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
     }
 
     public void testParseStringWithIncompleteForegroundColorControlCode()
     {
         final String ircMessage = "My \u0003";
-        final String htmlMessage = "My <font>";
+        final String htmlMessage = "My ";
         Assert.assertTrue(Utils.parse(ircMessage).startsWith(htmlMessage));
     }
 
@@ -143,7 +143,7 @@ public class UtilsTest
     public void testParseUnknownForegroundColor()
     {
         final String ircMessage = "\u000399TEST";
-        final String htmlMessage = "<font>99TEST</font>";
+        final String htmlMessage = "99TEST";
         Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
     }
 
@@ -163,8 +163,16 @@ public class UtilsTest
     
     public void testColorSwitch()
     {
-        final String ircMessage = "\u000302,03Hello \u0003\u000308,09World\u000F!";
-        final String htmlMessage = "<font color=\"Navy\" bgcolor=\"Green\">Hello </font><font color=\"Yellow\" bgcolor=\"Lime\">World</font>!";
+        final String ircMessage = "\u000302,03Hello \u000308,09World\u000F!";
+        final String htmlMessage = "<font color=\"Navy\" bgcolor=\"Green\">Hello <font color=\"Yellow\" bgcolor=\"Lime\">World</font></font>!";
+        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+    }
+    
+    public void testForegroundColorChange()
+    {
+        // If only a foreground color is specified, leave the background color active/as is.
+        final String ircMessage = "\u000302,03Hello \u000308World\u000F!";
+        final String htmlMessage = "<font color=\"Navy\" bgcolor=\"Green\">Hello <font color=\"Yellow\">World</font></font>!";
         Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
     }
 }

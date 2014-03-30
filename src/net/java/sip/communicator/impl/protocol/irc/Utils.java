@@ -5,8 +5,6 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
-import java.util.*;
-
 import net.java.sip.communicator.util.*;
 
 /**
@@ -31,7 +29,8 @@ public final class Utils
     /**
      * Parse IRC text message and process possible control codes.
      * 
-     * TODO Support reverse (0x16) control code?
+     * TODO Support for color 99 (Transparent)
+     * TODO Support for wrapping around after color 15?
      * 
      * @param text the message
      * @return returns the processed message or null if text message was null,
@@ -46,67 +45,81 @@ public final class Utils
         for (int i = 0; i < text.length(); i++)
         {
             char val = text.charAt(i);
-            ControlChar control = ControlChar.byCode(val);
-            if (control != null)
+            switch (val)
             {
-                // value is a control character, so do something special
-                switch (control)
+            case '\u0002':
+                if (builder.isActive(ControlChar.Bold.class))
                 {
-                case ITALICS:
-                case UNDERLINE:
-                case BOLD:
-                    builder.apply(control);
-                    break;
-                case NORMAL:
-                    builder.cancelAll();
-                    break;
-                case COLOR:
-                    if (builder.isActive(control))
-                    {
-                        builder.apply(control);
-                    }
-                    else
-                    {
-                        final List<String> adds = new LinkedList<String>();
-                        try
-                        {
-                            // parse foreground color code
-                            final Color foreground =
-                                parseForegroundColor(text.substring(i + 1));
-                            adds.add("color=\"" + foreground.getHtml() + "\"");
-                            i += 2;
-
-                            // parse background color code
-                            final Color background =
-                                parseBackgroundColor(text.substring(i + 1));
-                            adds.add(
-                                "bgcolor=\"" + background.getHtml() + "\"");
-                            i += 3;
-                        }
-                        catch (IllegalArgumentException e)
-                        {
-                            LOGGER.debug(
-                                "Invalid color code: "
-                                    + text.substring(i + 1), e);
-                        }
-                        catch (ArrayIndexOutOfBoundsException e)
-                        {
-                            LOGGER.debug("Unknown color code referenced: "
-                                + text.substring(i + 1), e);
-                        }
-                        builder.apply(control,
-                            adds.toArray(new String[adds.size()]));
-                    }
-                    break;
+                    builder.cancel(ControlChar.Bold.class, true);
                 }
-            }
-            else
-            {
+                else
+                {
+                    builder.apply(new ControlChar.Bold());
+                }
+                break;
+            case '\u0016':
+                if (builder.isActive(ControlChar.Italics.class))
+                {
+                    builder.cancel(ControlChar.Italics.class, true);
+                }
+                else
+                {
+                    builder.apply(new ControlChar.Italics());
+                }
+                break;
+            case '\u001F':
+                if (builder.isActive(ControlChar.Underline.class))
+                {
+                    builder.cancel(ControlChar.Underline.class, true);
+                }
+                else
+                {
+                    builder.apply(new ControlChar.Underline());
+                }
+                break;
+            case '\u0003':
+                Color foreground = null;
+                Color background = null;
+                try
+                {
+                    // parse foreground color code
+                    foreground = parseForegroundColor(text.substring(i + 1));
+                    i += 2;
+
+                    // parse background color code
+                    background = parseBackgroundColor(text.substring(i + 1));
+                    i += 3;
+                }
+                catch (IllegalArgumentException e)
+                {
+                    LOGGER.debug(
+                        "Invalid color code: " + text.substring(i + 1), e);
+                }
+                catch (ArrayIndexOutOfBoundsException e)
+                {
+                    LOGGER.debug(
+                        "Unknown color code referenced: "
+                            + text.substring(i + 1), e);
+                }
+                if (foreground == null && background == null)
+                {
+                    builder.cancel(ControlChar.ColorFormat.class, false);
+                }
+                else
+                {
+                    builder.apply(new ControlChar.ColorFormat(foreground,
+                        background));
+                }
+                break;
+            case '\u000F':
+                builder.cancelAll();
+                break;
+            default:
                 // value is a normal character, just append
                 builder.append(val);
+                break;
             }
         }
-
         return builder.done();
     }
 

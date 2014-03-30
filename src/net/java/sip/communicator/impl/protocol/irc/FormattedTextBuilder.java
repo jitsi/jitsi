@@ -46,19 +46,11 @@ public class FormattedTextBuilder
      * 
      * @param c the control char
      */
-    public void apply(ControlChar c, String... addition)
+    public void apply(ControlChar c)
     {
-        if (formatting.contains(c))
-        {
-            // cancel active control char
-            cancelSingle(c);
-        }
-        else
-        {
-            // start control char formatting
-            this.formatting.add(c);
-            this.text.append(c.getHtmlStart(addition));
-        }
+        // start control char formatting
+        this.formatting.add(c);
+        this.text.append(c.getHtmlStart());
     }
     
     /**
@@ -68,9 +60,14 @@ public class FormattedTextBuilder
      * @return returns true if control char's kind of formatting is active, or
      *         false otherwise.
      */
-    public boolean isActive(ControlChar c)
+    public boolean isActive(Class<? extends ControlChar> controlClass)
     {
-        return this.formatting.contains(c);
+        for (ControlChar c : this.formatting)
+        {
+            if (c.getClass() == controlClass)
+                return true;
+        }
+        return false;
     }
     
     /**
@@ -78,7 +75,8 @@ public class FormattedTextBuilder
      * 
      * @param c the control char
      */
-    private void cancelSingle(ControlChar c)
+    public void cancel(Class<? extends ControlChar> controlClass,
+        boolean stopAfterFirst)
     {
         final Stack<ControlChar> rewind = new Stack<ControlChar>();
         while (!this.formatting.empty())
@@ -86,9 +84,10 @@ public class FormattedTextBuilder
             // unwind control chars looking for the cancelled control char
             ControlChar current = this.formatting.pop();
             this.text.append(current.getHtmlEnd());
-            if (current == c)
+            if (current.getClass() == controlClass)
             {
-                break;
+                if (stopAfterFirst)
+                    break;
             }
             else
             {

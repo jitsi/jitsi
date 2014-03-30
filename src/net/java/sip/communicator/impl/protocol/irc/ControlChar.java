@@ -10,78 +10,41 @@ package net.java.sip.communicator.impl.protocol.irc;
  * 
  * @author Danny van Heumen
  */
-public enum ControlChar
+public abstract class ControlChar
 {
-    BOLD('\u0002', "b"),
-    COLOR('\u0003', "font"),
-    NORMAL('\u000F', null),
-    ITALICS('\u0016', "i"),
-    UNDERLINE('\u001F', "u");
-
-    /**
-     * The IRC control code.
-     */
-    private char code;
-
     /**
      * HTML tag that expresses the specific formatting requirement.
      */
-    private String tag;
+    private final String tag;
 
     /**
      * Constructor.
      * 
      * @param code the control code
      */
-    private ControlChar(char code, String htmlTag)
+    private ControlChar(final String htmlTag)
     {
-        this.code = code;
         this.tag = htmlTag;
     }
-
+    
     /**
-     * Find enum instance by IRC control code.
+     * The specified HTML tag.
      * 
-     * @param code IRC control code
-     * @return returns enum instance or null if no instance was found
+     * @return returns the HTML tag.
      */
-    public static ControlChar byCode(char code)
+    public String getTag()
     {
-        for (ControlChar controlChar : values())
-        {
-            if (controlChar.getCode() == code)
-                return controlChar;
-        }
-        return null;
+        return this.tag;
     }
 
     /**
-     * Get the IRC control code.
+     * Get the HTML start tag.
      * 
-     * @return returns the IRC control code
-     */
-    public char getCode()
-    {
-        return this.code;
-    }
-
-    /**
-     * Get the HTML start tag, optionally including extra parameters.
-     * 
-     * @param addition optional addition to be included before closing the start
-     *            tag
      * @return returns HTML start tag.
      */
-    public String getHtmlStart(String... addition)
+    public String getHtmlStart()
     {
-        StringBuilder tag = new StringBuilder("<" + this.tag);
-        for (String add : addition)
-        {
-            tag.append(" ");
-            tag.append(add);
-        }
-        tag.append('>');
-        return tag.toString();
+        return "<" + this.tag + ">";
     }
 
     /**
@@ -92,5 +55,63 @@ public enum ControlChar
     public String getHtmlEnd()
     {
         return "</" + this.tag + ">";
+    }
+    
+    static class Bold extends ControlChar
+    {
+        Bold()
+        {
+            super("b");
+        }
+    }
+    
+    static class Italics extends ControlChar
+    {
+        Italics()
+        {
+            super("i");
+        }
+    }
+    
+    static class Underline extends ControlChar
+    {
+        Underline()
+        {
+            super("u");
+        }
+    }
+    
+    static class ColorFormat extends ControlChar
+    {
+        private final Color foreground;
+
+        private final Color background;
+
+        ColorFormat(final Color foreground, final Color background)
+        {
+            super("font");
+            this.foreground = foreground;
+            this.background = background;
+        }
+
+        public String getHtmlStart()
+        {
+            StringBuilder result = new StringBuilder("<");
+            result.append(getTag());
+            if (this.foreground != null)
+            {
+                result.append(" color=\"");
+                result.append(this.foreground.getHtml());
+                result.append("\"");
+            }
+            if (this.background != null)
+            {
+                result.append(" bgcolor=\"");
+                result.append(this.background.getHtml());
+                result.append("\"");
+            }
+            result.append('>');
+            return result.toString();
+        }
     }
 }
