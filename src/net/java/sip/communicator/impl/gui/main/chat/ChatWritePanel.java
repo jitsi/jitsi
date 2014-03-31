@@ -587,13 +587,17 @@ public class ChatWritePanel
     public void keyPressed(KeyEvent e)
     {
         if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK
-            && (e.getKeyCode() == KeyEvent.VK_Z))
+            && (e.getKeyCode() == KeyEvent.VK_Z)
+            // And not ALT(right ALT gives CTRL + ALT).
+            && (e.getModifiers() & KeyEvent.ALT_MASK) != KeyEvent.ALT_MASK)
         {
             if (undo.canUndo())
                 undo();
         }
         else if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK
-            && (e.getKeyCode() == KeyEvent.VK_R))
+            && (e.getKeyCode() == KeyEvent.VK_R)
+            // And not ALT(right ALT gives CTRL + ALT).
+            && (e.getModifiers() & KeyEvent.ALT_MASK) != KeyEvent.ALT_MASK)
         {
             if (undo.canRedo())
                 redo();
