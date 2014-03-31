@@ -10,6 +10,7 @@ import java.awt.Container;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.Timer;
@@ -24,6 +25,8 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -282,6 +285,31 @@ public class ChatWritePanel
             @Override
             public void actionPerformed(ActionEvent e)
             {
+                if(smsMode)
+                {
+                    // check are we allowed to change back to im mode
+                    Object descr = chatPanel.getChatSession().getDescriptor();
+
+                    if(descr instanceof MetaContact)
+                    {
+                        List<Contact> imContact
+                            = ((MetaContact)descr).getContactsForOperationSet(
+                            OperationSetBasicInstantMessaging.class);
+
+                        if(imContact == null || imContact.size() == 0)
+                            return;
+                    }
+                    else if(descr instanceof SourceContact)
+                    {
+                        List<ContactDetail> imContact
+                            = ((SourceContact)descr).getContactDetails(
+                            OperationSetBasicInstantMessaging.class);
+
+                        if(imContact == null || imContact.size() == 0)
+                            return;
+                    }
+                }
+
                 smsMode = smsButton.isSelected();
 
                 Color bgColor;

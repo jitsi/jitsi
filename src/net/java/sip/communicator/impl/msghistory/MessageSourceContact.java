@@ -110,15 +110,20 @@ public class MessageSourceContact
     {
         update(source);
 
-        if(source instanceof MessageDeliveredEvent
-            || source instanceof MessageReceivedEvent)
+        if(source instanceof MessageDeliveredEvent)
         {
-            initDetails(false);
+            initDetails(false,
+                ((MessageDeliveredEvent)source).getDestinationContact());
+        }
+        else if(source instanceof MessageReceivedEvent)
+        {
+            initDetails(false,
+                ((MessageReceivedEvent)source).getSourceContact());
         }
         else if(source instanceof ChatRoomMessageDeliveredEvent
                 || source instanceof ChatRoomMessageReceivedEvent)
         {
-            initDetails(true);
+            initDetails(true, null);
         }
 
         this.service = service;
@@ -277,7 +282,7 @@ public class MessageSourceContact
      * Will skip OperationSetBasicInstantMessaging for chat rooms.
      * @param isChatRoom is current source contact a chat room.
      */
-    private void initDetails(boolean isChatRoom)
+    private void initDetails(boolean isChatRoom, Contact contact)
     {
         ContactDetail contactDetail =
             new ContactDetail(
@@ -289,6 +294,13 @@ public class MessageSourceContact
 
         ProtocolProviderService preferredProvider
             = this.ppService;
+
+        OperationSetContactCapabilities capOpSet
+            = preferredProvider
+                .getOperationSet(OperationSetContactCapabilities.class);
+        Map<String, OperationSet> opsetCapabilities = null;
+        if(capOpSet != null)
+            opsetCapabilities = capOpSet.getSupportedOperationSets(contact);
 
         if (preferredProvider != null)
         {
@@ -311,6 +323,11 @@ public class MessageSourceContact
                 {
                     continue;
                 }
+
+                if(!isChatRoom
+                    && opsetCapabilities != null
+                    && !opsetCapabilities.containsKey(opset.getName()))
+                    continue;
 
                 preferredProviders.put(opset, preferredProvider);
 

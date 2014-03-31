@@ -1903,6 +1903,17 @@ public class TreeContactList
                     if(room != null)
                         GuiActivator.getMUCService().openChatRoom(room);
                 }
+                else
+                {
+                    List<ContactDetail> smsDetails = contact.getContactDetails(
+                        OperationSetSmsMessaging.class);
+
+                    if(smsDetails != null && smsDetails.size() > 0)
+                    {
+                        GuiActivator.getUIService().getChatWindowManager()
+                            .startChat(contact.getContactAddress(), true);
+                    }
+                }
             }
         }
     }

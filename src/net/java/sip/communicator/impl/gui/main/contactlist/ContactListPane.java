@@ -167,7 +167,13 @@ public class ContactListPane
 
             // do nothing
             if(defaultContact == null)
-                return;
+            {
+                defaultContact = metaContact.getDefaultContact(
+                    OperationSetSmsMessaging.class);
+
+                if(defaultContact == null)
+                    return;
+            }
 
             ProtocolProviderService defaultProvider
                 = defaultContact.getProtocolProvider();
@@ -261,6 +267,17 @@ public class ContactListPane
 
                 if(room != null)
                     GuiActivator.getMUCService().openChatRoom(room);
+            }
+            else
+            {
+                List<ContactDetail> smsDetails = contact.getContactDetails(
+                    OperationSetSmsMessaging.class);
+
+                if(smsDetails != null && smsDetails.size() > 0)
+                {
+                    GuiActivator.getUIService().getChatWindowManager()
+                        .startChat(contact.getContactAddress(), true);
+                }
             }
         }
     }

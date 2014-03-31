@@ -1111,6 +1111,15 @@ public class ChatWindowManager
         Contact defaultContact = metaContact.getDefaultContact(
                         OperationSetBasicInstantMessaging.class);
 
+        if(defaultContact == null)
+        {
+            defaultContact = metaContact.getDefaultContact(
+                OperationSetSmsMessaging.class);
+
+            if(defaultContact == null)
+                return null;
+        }
+
         ProtocolProviderService defaultProvider
             = defaultContact.getProtocolProvider();
 
@@ -1169,6 +1178,9 @@ public class ChatWindowManager
     {
         if (protocolContact == null)
             protocolContact = getDefaultContact(metaContact);
+
+        if(protocolContact == null)
+            return null;
 
         ChatContainer chatContainer = getChatContainer();
         ChatPanel chatPanel = new ChatPanel(chatContainer);
@@ -1455,6 +1467,9 @@ public class ChatWindowManager
         public void run()
         {
             ChatPanel chatPanel = getContactChat(metaContact, protocolContact);
+
+            if(chatPanel == null)
+                return;
 
             // if not explicitly set, do not set it, leave it to default or
             // internally make the decision
