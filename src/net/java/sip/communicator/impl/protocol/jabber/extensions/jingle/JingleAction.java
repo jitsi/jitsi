@@ -153,7 +153,12 @@ public enum JingleAction
      * it MUST send a transport-accept action to the other party; if not, it
      * MUST send a transport-reject action to the other party.
      */
-    TRANSPORT_REPLACE("transport-replace");
+    TRANSPORT_REPLACE("transport-replace"),
+
+    /**
+     * The "addsource" action used in JitMeet.
+     */
+    ADDSOURCE("addsource");
 
     /**
      * The name of this direction.
