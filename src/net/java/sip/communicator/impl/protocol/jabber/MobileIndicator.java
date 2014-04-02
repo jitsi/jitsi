@@ -121,7 +121,13 @@ public class MobileIndicator
         List<ContactResource> highestPriorityResources =
             new ArrayList<ContactResource>();
 
-        for(ContactResource res : contact.getResources())
+        Collection<ContactResource> resources = contact.getResources();
+
+        // sometimes volatile contacts do not have resources
+        if(resources == null)
+            return;
+
+        for(ContactResource res : resources)
         {
             if(!res.getPresenceStatus().isOnline())
                 continue;
