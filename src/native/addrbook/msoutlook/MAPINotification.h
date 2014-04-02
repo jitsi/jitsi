@@ -36,6 +36,10 @@ STDAPICALLTYPE MAPINotification_onNotify
 void
 MAPINotification_registerJniNotificationsDelegate
     (JNIEnv *jniEnv, jobject notificationsDelegate);
+
+void
+MAPINotification_registerCalendarJniNotificationsDelegate
+    (JNIEnv *jniEnv, jobject notificationsDelegate);
 void
 MAPINotification_registerNativeNotificationsDelegate
     (void * deletedMethod, void * insertedMethod, void *updatedMethod);

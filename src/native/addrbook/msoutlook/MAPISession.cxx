@@ -5,6 +5,7 @@
  * See terms of license at gnu.org.
  */
 #include "MAPISession.h"
+#include <stdio.h>
 
 static LPMAPISESSION MAPISession_mapiSession = NULL;
 static CRITICAL_SECTION MAPISession_mapiSessionCriticalSection;

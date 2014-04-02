@@ -37,6 +37,8 @@ class MsOutlookAddrBookClient:
         // IMsOutlookAddrBookClient
         HRESULT STDMETHODCALLTYPE foreachMailUserCallback(
                 BSTR id, long callback);
+		HRESULT STDMETHODCALLTYPE foreachCalendarItemCallback(
+				BSTR id, long callback);
 
         HRESULT STDMETHODCALLTYPE deleted(BSTR id);
         HRESULT STDMETHODCALLTYPE inserted(BSTR id);

@@ -12,6 +12,9 @@ interface IMsOutlookAddrBookClient : IUnknown
     HRESULT foreachMailUserCallback(
             [in] BSTR id,
             [in] long callback);
+	HRESULT foreachCalendarItemCallback(
+            [in] BSTR id,
+			[in] long callback);
 
     HRESULT deleted(
             [in] BSTR id);

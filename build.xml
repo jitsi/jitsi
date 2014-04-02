@@ -2762,6 +2762,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/addrbook/addrbook.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/addrbook"
                 prefix="net/java/sip/communicator/plugin/addrbook" />
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/calendar"
+                prefix="net/java/sip/communicator/service/calendar" />
         </jar>
     </target>
 

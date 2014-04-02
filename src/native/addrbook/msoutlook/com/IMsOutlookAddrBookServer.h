@@ -3,11 +3,11 @@
 /* this ALWAYS GENERATED file contains the definitions for the interfaces */
 
 
- /* File created by MIDL compiler version 8.00.0603 */
-/* at Mon Mar 24 09:03:14 2014
+ /* File created by MIDL compiler version 7.00.0555 */
+/* at Tue Apr 01 12:24:24 2014
  */
 /* Compiler settings for IMsOutlookAddrBookServer.idl:
-    Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 8.00.0603 
+    Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 7.00.0555 
     protocol : dce , ms_ext, c_ext, robust
     error checks: allocation ref bounds_check enum stub_data 
     VC __declspec() decoration level: 
@@ -48,14 +48,12 @@
 #ifndef __IMsOutlookAddrBookServer_FWD_DEFINED__
 #define __IMsOutlookAddrBookServer_FWD_DEFINED__
 typedef interface IMsOutlookAddrBookServer IMsOutlookAddrBookServer;
-
 #endif 	/* __IMsOutlookAddrBookServer_FWD_DEFINED__ */
 
 
 #ifndef __IMsOutlookAddrBookServer_FWD_DEFINED__
 #define __IMsOutlookAddrBookServer_FWD_DEFINED__
 typedef interface IMsOutlookAddrBookServer IMsOutlookAddrBookServer;
-
 #endif 	/* __IMsOutlookAddrBookServer_FWD_DEFINED__ */
 
 
@@ -87,11 +85,15 @@ EXTERN_C const IID IID_IMsOutlookAddrBookServer;
             /* [in] */ BSTR query,
             /* [in] */ long callback) = 0;
         
+        virtual HRESULT STDMETHODCALLTYPE getAllCalendarItems( 
+            /* [in] */ long callback) = 0;
+        
         virtual HRESULT STDMETHODCALLTYPE IMAPIProp_GetProps( 
             /* [in] */ BSTR entryId,
             /* [in] */ int nbPropIds,
             /* [in] */ SAFEARRAY * propIds,
             /* [in] */ long flags,
+            /* [in] */ GUID UUID_Address,
             /* [out] */ SAFEARRAY * *props,
             /* [out] */ SAFEARRAY * *propsLength,
             /* [out] */ SAFEARRAY * *propsType) = 0;
@@ -118,7 +120,6 @@ EXTERN_C const IID IID_IMsOutlookAddrBookServer;
         
     };
     
-    
 #else 	/* C style interface */
 
     typedef struct IMsOutlookAddrBookServerVtbl
@@ -129,7 +130,7 @@ EXTERN_C const IID IID_IMsOutlookAddrBookServer;
             IMsOutlookAddrBookServer * This,
             /* [in] */ REFIID riid,
             /* [annotation][iid_is][out] */ 
-            _COM_Outptr_  void **ppvObject);
+            __RPC__deref_out  void **ppvObject);
         
         ULONG ( STDMETHODCALLTYPE *AddRef )( 
             IMsOutlookAddrBookServer * This);
@@ -142,12 +143,17 @@ EXTERN_C const IID IID_IMsOutlookAddrBookServer;
             /* [in] */ BSTR query,
             /* [in] */ long callback);
         
+        HRESULT ( STDMETHODCALLTYPE *getAllCalendarItems )( 
+            IMsOutlookAddrBookServer * This,
+            /* [in] */ long callback);
+        
         HRESULT ( STDMETHODCALLTYPE *IMAPIProp_GetProps )( 
             IMsOutlookAddrBookServer * This,
             /* [in] */ BSTR entryId,
             /* [in] */ int nbPropIds,
             /* [in] */ SAFEARRAY * propIds,
             /* [in] */ long flags,
+            /* [in] */ GUID UUID_Address,
             /* [out] */ SAFEARRAY * *props,
             /* [out] */ SAFEARRAY * *propsLength,
             /* [out] */ SAFEARRAY * *propsType);
@@ -203,8 +209,11 @@ EXTERN_C const IID IID_IMsOutlookAddrBookServer;
 #define IMsOutlookAddrBookServer_foreachMailUser(This,query,callback)	\
     ( (This)->lpVtbl -> foreachMailUser(This,query,callback) ) 
 
-#define IMsOutlookAddrBookServer_IMAPIProp_GetProps(This,entryId,nbPropIds,propIds,flags,props,propsLength,propsType)	\
-    ( (This)->lpVtbl -> IMAPIProp_GetProps(This,entryId,nbPropIds,propIds,flags,props,propsLength,propsType) ) 
+#define IMsOutlookAddrBookServer_getAllCalendarItems(This,callback)	\
+    ( (This)->lpVtbl -> getAllCalendarItems(This,callback) ) 
+
+#define IMsOutlookAddrBookServer_IMAPIProp_GetProps(This,entryId,nbPropIds,propIds,flags,UUID_Address,props,propsLength,propsType)	\
+    ( (This)->lpVtbl -> IMAPIProp_GetProps(This,entryId,nbPropIds,propIds,flags,UUID_Address,props,propsLength,propsType) ) 
 
 #define IMsOutlookAddrBookServer_createContact(This,id)	\
     ( (This)->lpVtbl -> createContact(This,id) ) 

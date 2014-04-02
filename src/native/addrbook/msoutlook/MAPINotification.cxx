@@ -43,13 +43,23 @@ static ULONG MAPINotification_nbMsgStores = 0;
 static jmethodID MAPINotification_notificationsDelegateMethodIdDeleted = NULL;
 static jmethodID MAPINotification_notificationsDelegateMethodIdInserted = NULL;
 static jmethodID MAPINotification_notificationsDelegateMethodIdUpdated = NULL;
+static jmethodID MAPINotification_notificationsDelegateCalendarMethodIdDeleted
+	= NULL;
+static jmethodID MAPINotification_notificationsDelegateCalendarMethodIdInserted
+	= NULL;
+static jmethodID MAPINotification_notificationsDelegateCalendarMethodIdUpdated
+	= NULL;
 static jobject MAPINotification_notificationsDelegateObject = NULL;
+static jobject MAPINotification_notificationsDelegateCalendarObject = NULL;
 static ULONG MAPINotification_openEntryUlFlags = MAPI_BEST_ACCESS;
 static JavaVM * MAPINotification_VM = NULL;
 
 void (*MAPINotification_callDeletedMethod)(LPSTR iUnknown) = NULL;
 void (*MAPINotification_callInsertedMethod)(LPSTR iUnknown) = NULL;
 void (*MAPINotification_callUpdatedMethod)(LPSTR iUnknown) = NULL;
+void (*MAPINotification_callCalendarDeletedMethod)(LPSTR iUnknown) = NULL;
+void (*MAPINotification_callCalendarInsertedMethod)(LPSTR iUnknown) = NULL;
+void (*MAPINotification_callCalendarUpdatedMethod)(LPSTR iUnknown) = NULL;
 
 ULONG MAPINotification_registerNotifyMessageDataBase
     (LPMDB iUnknown, LPMAPIADVISESINK * adviseSink);
@@ -129,10 +139,17 @@ void MAPINotification_jniCallDeletedMethod(LPSTR iUnknown)
     {
         jstring value = tmpJniEnv->NewStringUTF(iUnknown);
 
-        tmpJniEnv->CallVoidMethod(
-                MAPINotification_notificationsDelegateObject,
-                MAPINotification_notificationsDelegateMethodIdDeleted,
-                value);
+        if(MAPINotification_notificationsDelegateObject != NULL)
+			tmpJniEnv->CallVoidMethod(
+					MAPINotification_notificationsDelegateObject,
+					MAPINotification_notificationsDelegateMethodIdDeleted,
+					value);
+
+        if(MAPINotification_notificationsDelegateCalendarObject != NULL)
+			tmpJniEnv->CallVoidMethod(
+					MAPINotification_notificationsDelegateCalendarObject,
+					MAPINotification_notificationsDelegateCalendarMethodIdDeleted,
+					value);
 
         tmpJniEnv->DeleteLocalRef(value);
 
@@ -154,10 +171,17 @@ void MAPINotification_jniCallInsertedMethod(LPSTR iUnknown)
     {
         jstring value = tmpJniEnv->NewStringUTF(iUnknown);
 
-        tmpJniEnv->CallVoidMethod(
-                MAPINotification_notificationsDelegateObject,
-                MAPINotification_notificationsDelegateMethodIdInserted,
-                value);
+        if(MAPINotification_notificationsDelegateObject != NULL)
+			tmpJniEnv->CallVoidMethod(
+					MAPINotification_notificationsDelegateObject,
+					MAPINotification_notificationsDelegateMethodIdInserted,
+					value);
+
+        if(MAPINotification_notificationsDelegateCalendarObject != NULL)
+			tmpJniEnv->CallVoidMethod(
+							MAPINotification_notificationsDelegateCalendarObject,
+							MAPINotification_notificationsDelegateCalendarMethodIdInserted,
+							value);
 
         tmpJniEnv->DeleteLocalRef(value);
 
@@ -173,16 +197,23 @@ void MAPINotification_jniCallInsertedMethod(LPSTR iUnknown)
 void MAPINotification_jniCallUpdatedMethod(LPSTR iUnknown)
 {
     JNIEnv *tmpJniEnv = NULL;
-
     if(MAPINotification_VM
             ->AttachCurrentThreadAsDaemon((void**) &tmpJniEnv, NULL) == 0)
     {
         jstring value = tmpJniEnv->NewStringUTF(iUnknown);
 
-        tmpJniEnv->CallVoidMethod(
-                MAPINotification_notificationsDelegateObject,
-                MAPINotification_notificationsDelegateMethodIdUpdated,
-                value);
+        if(MAPINotification_notificationsDelegateObject != NULL)
+			tmpJniEnv->CallVoidMethod(
+					MAPINotification_notificationsDelegateObject,
+					MAPINotification_notificationsDelegateMethodIdUpdated,
+					value);
+
+        if(MAPINotification_notificationsDelegateCalendarObject != NULL)
+			tmpJniEnv->CallVoidMethod(
+					MAPINotification_notificationsDelegateCalendarObject,
+					MAPINotification_notificationsDelegateCalendarMethodIdUpdated,
+					value);
+
 
         tmpJniEnv->DeleteLocalRef(value);
 
@@ -425,6 +456,60 @@ MAPINotification_registerJniNotificationsDelegate
     }
 }
 
+
+/**
+ * Registers java callback functions when a calendar item is deleted, inserted or
+ * updated.
+ *
+ * @param jniEnv The Java native interface environment.
+ * @param notificationsDelegate The object called when a notification is fired
+ * (contact updated, inserted or deleted).
+ */
+void
+MAPINotification_registerCalendarJniNotificationsDelegate
+    (JNIEnv *jniEnv, jobject notificationsDelegate)
+{
+    if(jniEnv->GetJavaVM(&MAPINotification_VM) < 0)
+    {
+        fprintf(stderr, "Failed to get the Java VM\n");
+        fflush(stderr);
+    }
+
+    if(notificationsDelegate != NULL)
+    {
+        MAPINotification_notificationsDelegateCalendarObject
+            = jniEnv->NewGlobalRef(notificationsDelegate);
+        if(MAPINotification_notificationsDelegateCalendarObject != NULL)
+        {
+            jclass callbackClass
+                = jniEnv->GetObjectClass(notificationsDelegate);
+            MAPINotification_notificationsDelegateCalendarMethodIdInserted
+                = jniEnv->GetMethodID(
+                        callbackClass,
+                        "inserted",
+                        "(Ljava/lang/String;)V");
+            MAPINotification_notificationsDelegateCalendarMethodIdUpdated
+                = jniEnv->GetMethodID(
+                        callbackClass,
+                        "updated",
+                        "(Ljava/lang/String;)V");
+            MAPINotification_notificationsDelegateCalendarMethodIdDeleted
+                = jniEnv->GetMethodID(
+                        callbackClass,
+                        "deleted",
+                        "(Ljava/lang/String;)V");
+
+            MAPINotification_callDeletedMethod
+                = MAPINotification_jniCallDeletedMethod;
+            MAPINotification_callInsertedMethod
+                = MAPINotification_jniCallInsertedMethod;
+            MAPINotification_callUpdatedMethod
+                = MAPINotification_jniCallUpdatedMethod;
+
+            jniEnv->DeleteLocalRef(callbackClass);
+        }
+    }
+}
 /**
  * Registers C callback functions when a contact is deleted, inserted or
  * updated.

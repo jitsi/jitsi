@@ -64,6 +64,8 @@ public class OperationSetPersistentPresenceJabberImpl
                                   Presence.Mode.away);
         scToJabberModesMappings.put(JabberStatusEnum.ON_THE_PHONE,
                                   Presence.Mode.away);
+        scToJabberModesMappings.put(JabberStatusEnum.IN_A_MEETING,
+            Presence.Mode.away);
         scToJabberModesMappings.put(JabberStatusEnum.EXTENDED_AWAY,
                                   Presence.Mode.xa);
         scToJabberModesMappings.put(JabberStatusEnum.DO_NOT_DISTURB,
@@ -463,6 +465,11 @@ public class OperationSetPersistentPresenceJabberImpl
             {
                 presence.setStatus(JabberStatusEnum.ON_THE_PHONE);
             }
+            else if(status.equals(jabberStatusEnum.getStatus(
+                JabberStatusEnum.IN_A_MEETING)))
+            {
+                presence.setStatus(JabberStatusEnum.IN_A_MEETING);
+            }
             else
                 presence.setStatus(statusMessage);
             //presence.addExtension(new Version());
@@ -707,6 +714,9 @@ public class OperationSetPersistentPresenceJabberImpl
             if(presence.getStatus() != null
                 && presence.getStatus().contains(JabberStatusEnum.ON_THE_PHONE))
                 return jabberStatusEnum.getStatus(JabberStatusEnum.ON_THE_PHONE);
+            else if(presence.getStatus() != null
+                && presence.getStatus().contains(JabberStatusEnum.IN_A_MEETING))
+                return jabberStatusEnum.getStatus(JabberStatusEnum.IN_A_MEETING);
             else
                 return jabberStatusEnum.getStatus(JabberStatusEnum.AWAY);
         }
@@ -1803,6 +1813,7 @@ public class OperationSetPersistentPresenceJabberImpl
         addDefaultValue(JabberStatusEnum.AWAY, -5);
         addDefaultValue(JabberStatusEnum.EXTENDED_AWAY, -10);
         addDefaultValue(JabberStatusEnum.ON_THE_PHONE, -15);
+        addDefaultValue(JabberStatusEnum.IN_A_MEETING, -16);
         addDefaultValue(JabberStatusEnum.DO_NOT_DISTURB, -20);
         addDefaultValue(JabberStatusEnum.FREE_FOR_CHAT, +5);
     }

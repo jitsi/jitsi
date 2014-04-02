@@ -14,6 +14,7 @@
 
 #include "../StringUtils.h"
 #include "../MsOutlookAddrBookContactQuery.h"
+#include "../MsOutlookCalendar.h"
 
 /**
  * Instanciates a new MsOutlookAddrBookServer.
@@ -135,6 +136,68 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::foreachMailUser(
 }
 
 /**
+ * Starts a search for calendar items using MAPI.A
+ *
+ * @param callbackAddress the address for the callback method
+ * @return S_OK.
+ */
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::getAllCalendarItems(
+		long callbackAddress)
+{
+	HRESULT hr =  E_FAIL;
+	IMsOutlookAddrBookClient * msOutlookAddrBookClient = NULL;
+	if((hr = CoCreateInstance(
+			CLSID_MsOutlookAddrBookClient,
+			NULL,
+			CLSCTX_LOCAL_SERVER,
+			IID_IMsOutlookAddrBookClient,
+			(void**) &msOutlookAddrBookClient)) == S_OK)
+	{
+		MsOutlookCalendar_getAllCalendarItems(
+				(void *) MsOutlookAddrBookServer::foreachCalendarItemCallback,
+				(void *) msOutlookAddrBookClient,
+				callbackAddress);
+		msOutlookAddrBookClient->Release();
+	}
+
+    return S_OK;
+}
+
+/**
+ * Calls back the java side to add a calendar item.
+ *
+ * @param iUnknown The string representation of the entry id of the calendar
+ * item.
+ *
+ * @return True everything works fine and that we must continue to list the
+ * other contacts. False otherwise.
+ */
+boolean MsOutlookAddrBookServer::foreachCalendarItemCallback(
+        LPSTR iUnknown,
+        void * callbackClient,
+		long callbackAddress)
+{
+    HRESULT hr =  E_FAIL;
+
+    if(callbackClient)
+	{
+		LPWSTR iUnknownW = StringUtils::MultiByteToWideChar(iUnknown);
+		BSTR res = SysAllocString(iUnknownW);
+
+		hr = ((IMsOutlookAddrBookClient *)callbackClient)
+					->foreachCalendarItemCallback(res, callbackAddress);
+
+		SysFreeString(res);
+		free(iUnknownW);
+	}
+
+
+    return (hr == S_OK);
+}
+
+
+
+/**
  * Calls back the java side to list a contact.
  *
  * @param iUnknown The string representation of the entry id of the contact.
@@ -186,6 +249,7 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
         int nbPropIds,
         SAFEARRAY * propIds,
         long flags,
+        UUID UUID_Address,
         SAFEARRAY ** props,
         SAFEARRAY ** propsLength,
         SAFEARRAY ** propsType)
@@ -218,7 +282,8 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
                         flags,
                         localProps,
                         localPropsLength,
-                        localPropsType);
+                        localPropsType,
+                        UUID_Address);
 
                 free(id);
 

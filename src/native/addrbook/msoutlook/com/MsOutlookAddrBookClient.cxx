@@ -10,6 +10,7 @@
 #include <wchar.h>
 
 #include "../MAPINotification.h"
+#include "../MsOutlookCalendar.h"
 #include "../net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
 #include "../StringUtils.h"
 
@@ -115,6 +116,15 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::foreachMailUserCallback(
         return S_OK;
     else
         return E_ABORT;
+}
+
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::foreachCalendarItemCallback(
+		BSTR id, long callback)
+{
+	char * charId = StringUtils::WideCharToMultiByte(id);
+	MsOutlookCalendar_foreachCalendarItemCallback(charId, callback);
+
+    return S_OK;
 }
 
 /**

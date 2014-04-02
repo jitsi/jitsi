@@ -8,9 +8,13 @@ package net.java.sip.communicator.plugin.addrbook;
 
 import java.util.*;
 
-import net.java.sip.communicator.plugin.addrbook.msoutlook.DefaultIMApp;
+import net.java.sip.communicator.plugin.addrbook.msoutlook.*;
+import net.java.sip.communicator.plugin.addrbook.msoutlook.calendar.*;
+import net.java.sip.communicator.service.calendar.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 
@@ -91,6 +95,77 @@ public class AddrBookActivator
      * properties.
      */
     private static ConfigurationService configService;
+    
+    /**
+     * The calendar service
+     */
+    private static CalendarServiceImpl calendarService 
+        = new CalendarServiceImpl();
+    
+    /**
+     * List of the providers with registration listener.
+     */
+    private static List<ProtocolProviderService> providers 
+        = new ArrayList<ProtocolProviderService>();
+    
+    /**
+     * The registration change listener.
+     */
+    private static RegistrationStateChangeListener providerListener 
+        = new RegistrationStateChangeListener()
+            {
+                
+                @Override
+                public void registrationStateChanged(
+                    RegistrationStateChangeEvent evt)
+                {
+                    if(evt.getNewState().equals(RegistrationState.REGISTERED))
+                    {
+                        calendarService.handleProviderAdded(
+                            evt.getProvider());
+                    }
+                }
+            };
+    
+    /**
+     * A listener for addition of <tt>ProtocolProviderService</tt> 
+     */
+    private static ServiceListener serviceListener = new ServiceListener()
+    {
+        
+        @Override
+        public void serviceChanged(ServiceEvent event)
+        {
+            Object sService
+                = bundleContext.getService(event.getServiceReference());
+        
+            // we don't care if the source service is not a protocol provider
+            if (! (sService instanceof ProtocolProviderService))
+            {
+                return;
+            }
+            
+            ProtocolProviderService pps = (ProtocolProviderService)sService;
+        
+            if (event.getType() == ServiceEvent.REGISTERED)
+            {
+                synchronized(providers)
+                {
+                    providers.add(pps);
+                }
+                pps.addRegistrationStateChangeListener(providerListener);
+                
+            }
+            if (event.getType() == ServiceEvent.UNREGISTERING)
+            {
+                synchronized(providers)
+                {
+                    providers.remove(pps);
+                }
+                pps.removeRegistrationStateChangeListener(providerListener);
+            }
+        }
+    };
 
     /**
      * Gets the <tt>ResourceManagementService</tt> to be used by the
@@ -109,6 +184,11 @@ public class AddrBookActivator
                         ResourceManagementService.class);
         }
         return resourceService;
+    }
+    
+    public static CalendarServiceImpl getCalendarService()
+    {
+        return calendarService;
     }
 
     /**
@@ -164,8 +244,9 @@ public class AddrBookActivator
                 "plugin.addrbook.ADDRESS_BOOKS",
                 101, false),
                 properties);
-
+        
         startService();
+        startCalendarService();
     }
 
     /**
@@ -186,6 +267,7 @@ public class AddrBookActivator
                     + "\" ... [STOPPED]");
 
         stopService();
+        stopCalendarService();
     }
 
     /**
@@ -251,6 +333,14 @@ public class AddrBookActivator
             css
                 = (ContactSourceService)
                     Class.forName(cssClassName).newInstance();
+            if(css.equals("net.java.sip.communicator.plugin.addrbook"
+                    + ".msoutlook.MsOutlookAddrBookContactSourceService"))
+            {
+                MsOutlookAddrBookContactSourceService contactSource
+                    = ((MsOutlookAddrBookContactSourceService)css);
+                MsOutlookAddrBookContactSourceService.initMAPI(
+                        contactSource.createNotificationDelegate());
+            }
         }
         catch (Exception ex)
         {
@@ -263,6 +353,7 @@ public class AddrBookActivator
                 logger.debug(msg, ex);
             return;
         }
+        
         try
         {
             cssServiceRegistration
@@ -270,6 +361,7 @@ public class AddrBookActivator
                         ContactSourceService.class.getName(),
                         css,
                         null);
+            
         }
         finally
         {
@@ -286,6 +378,64 @@ public class AddrBookActivator
                             + css.getDisplayName()
                             + "\" ... [REGISTERED]");
             }
+        }
+    }
+    
+    /**
+     * Tries to start the calendar service.
+     */
+    static void startCalendarService()
+    {
+        if(OSUtils.IS_WINDOWS && !getConfigService().getBoolean(
+            CalendarService.PNAME_FREE_BUSY_STATUS_DISABLED, false))
+        {
+            try
+            {
+                MsOutlookAddrBookContactSourceService.initMAPI(null);
+            }
+            catch (MsOutlookMAPIHResultException ex)
+            {
+                String msg
+                    = "Failed to initialize MAPI: "
+                        + ex.getMessage();
+    
+                logger.error(msg);
+                if (logger.isDebugEnabled())
+                    logger.debug(msg, ex);
+                return;
+            }
+            
+            bundleContext.addServiceListener(serviceListener);
+            for(ProtocolProviderService pps : getProtocolProviders())
+            {
+                synchronized(providers)
+                {
+                    providers.add(pps);
+                }
+                pps.addRegistrationStateChangeListener(providerListener);
+            }
+            calendarService.start();
+        }
+    }
+    
+    /**
+     * Stops the calendar service.
+     */
+    static void stopCalendarService()
+    {
+        if(OSUtils.IS_WINDOWS && !getConfigService().getBoolean(
+            CalendarService.PNAME_FREE_BUSY_STATUS_DISABLED, false))
+        {
+            bundleContext.removeServiceListener(serviceListener);
+            synchronized(providers)
+            {
+                for(ProtocolProviderService pps : providers)
+                {
+                   pps.removeRegistrationStateChangeListener(providerListener);
+                }
+            }
+            calendarService = null;
+            MsOutlookAddrBookContactSourceService.UninitializeMAPI();
         }
     }
 
@@ -339,5 +489,38 @@ public class AddrBookActivator
         {
             DefaultIMApp.unsetDefaultApp();
         }
+    }
+    
+    public static List<ProtocolProviderService> getProtocolProviders()
+    {
+        ServiceReference[] ppsRefs;
+        List<ProtocolProviderService> result 
+            = new ArrayList<ProtocolProviderService>();
+        try
+        {
+            ppsRefs
+                = bundleContext.getServiceReferences(
+                        ProtocolProviderService.class.getName(),
+                        null);
+        }
+        catch (InvalidSyntaxException ise)
+        {
+            ppsRefs = null;
+        }
+        if ((ppsRefs == null) || (ppsRefs.length == 0))
+        {
+            return result;
+        }
+        
+        for (ServiceReference ppsRef : ppsRefs)
+        {
+            ProtocolProviderService pps
+                = (ProtocolProviderService)
+                    bundleContext.getService(ppsRef);
+            result.add(pps);
+        }
+        
+        return result;
+
     }
 }

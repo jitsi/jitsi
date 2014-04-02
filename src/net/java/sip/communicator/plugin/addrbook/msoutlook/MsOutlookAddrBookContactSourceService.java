@@ -66,7 +66,12 @@ public class MsOutlookAddrBookContactSourceService
      * The latest query created.
      */
     private MsOutlookAddrBookContactQuery latestQuery = null;
-
+    
+    /**
+     * Indicates whether MAPI is initialized or not.
+     */
+    private static boolean isMAPIInitialized = false;
+    
     static
     {
         String lib = "jmsoutlookaddrbook";
@@ -112,18 +117,32 @@ public class MsOutlookAddrBookContactSourceService
     /**
      * Initializes a new <tt>MsOutlookAddrBookContactSourceService</tt>
      * instance.
-     *
+     * @param notificationDelegate the object to be notified for addressbook 
+     * changes
      * @throws MsOutlookMAPIHResultException if anything goes wrong while
      * initializing the new <tt>MsOutlookAddrBookContactSourceService</tt>
      * instance
      */
-    public MsOutlookAddrBookContactSourceService()
+    public static void initMAPI(NotificationsDelegate notificationDelegate)
         throws MsOutlookMAPIHResultException
     {
-        MAPIInitialize(
-                MAPI_INIT_VERSION,
-                MAPI_MULTITHREAD_NOTIFICATIONS,
-                new NotificationsDelegate());
+        if(!isMAPIInitialized)
+        {
+            MAPIInitialize(
+                    MAPI_INIT_VERSION,
+                    MAPI_MULTITHREAD_NOTIFICATIONS,
+                    notificationDelegate);
+            isMAPIInitialized = true;
+        }
+    }
+    
+    /**
+     * Creates new <tt>NotificationsDelegate</tt> instance.
+     * @return the <tt>NotificationsDelegate</tt> instance
+     */
+    public NotificationsDelegate createNotificationDelegate()
+    {
+        return new NotificationsDelegate();
     }
 
     /**
@@ -158,6 +177,18 @@ public class MsOutlookAddrBookContactSourceService
             NotificationsDelegate callback)
         throws MsOutlookMAPIHResultException;
 
+    /**
+     * Uninitializes MAPI.
+     */
+    public static void UninitializeMAPI()
+    {
+        if(isMAPIInitialized)
+        {
+            MAPIUninitialize();
+            isMAPIInitialized = false;
+        }
+    }
+    
     private static native void MAPIUninitialize();
 
     public static native int getOutlookBitnessVersion();
@@ -200,7 +231,7 @@ public class MsOutlookAddrBookContactSourceService
             latestQuery.clear();
             latestQuery = null;
         }
-        MAPIUninitialize();
+        UninitializeMAPI();
     }
 
     /**
