@@ -299,7 +299,7 @@ public class MessageSourceContact
             = preferredProvider
                 .getOperationSet(OperationSetContactCapabilities.class);
         Map<String, OperationSet> opsetCapabilities = null;
-        if(capOpSet != null)
+        if(capOpSet != null && contact != null)
             opsetCapabilities = capOpSet.getSupportedOperationSets(contact);
 
         if (preferredProvider != null)
