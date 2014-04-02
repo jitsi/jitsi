@@ -463,8 +463,16 @@ public class ServerStoredContactListYahooImpl
         if (logger.isTraceEnabled())
             logger.trace("Creating unresolved contact " + id
                         + " to parent=" + parentGroup);
+
+        ContactYahooImpl existingContact = findContactById(id);
+
+        if( existingContact != null)
+        {
+            return existingContact;
+        }
+
         ContactYahooImpl newUnresolvedContact
-            = new ContactYahooImpl(id, this, false, false, false);
+            = new ContactYahooImpl(id, this, false, true, false);
 
         if(parentGroup instanceof ContactGroupYahooImpl)
             ((ContactGroupYahooImpl)parentGroup).
@@ -489,12 +497,11 @@ public class ServerStoredContactListYahooImpl
     {
         ContactGroupYahooImpl existingGroup = findContactGroup(groupName);
 
-        if( existingGroup != null && existingGroup.isPersistent() )
+        if( existingGroup != null )
         {
             if (logger.isDebugEnabled())
                 logger.debug("ContactGroup " + groupName + " already exists.");
-            throw new IllegalArgumentException(
-                           "ContactGroup " + groupName + " already exists.");
+            return existingGroup;
         }
 
         ContactGroupYahooImpl newUnresolvedGroup =

@@ -572,11 +572,20 @@ public class ServerStoredContactListJabberImpl
      * @param id the Address of the contact to create.
      * @return the newly created unresolved <tt>ContactImpl</tt>
      */
-    ContactJabberImpl createUnresolvedContact(ContactGroup parentGroup,
-                                              String  id)
+    synchronized ContactJabberImpl createUnresolvedContact(
+        ContactGroup parentGroup, String  id)
     {
+        String completeID = parseAddressString(id);
+
+        ContactJabberImpl existingContact = findContactById(completeID);
+
+        if( existingContact != null)
+        {
+            return existingContact;
+        }
+
         ContactJabberImpl newUnresolvedContact
-            = new ContactJabberImpl(id, this, false);
+            = new ContactJabberImpl(id, this, true);
 
         if(parentGroup instanceof ContactGroupJabberImpl)
             ((ContactGroupJabberImpl)parentGroup).
@@ -600,8 +609,16 @@ public class ServerStoredContactListJabberImpl
      * @param groupName the name of the group to create.
      * @return the newly created unresolved <tt>ContactGroupImpl</tt>
      */
-    ContactGroupJabberImpl createUnresolvedContactGroup(String groupName)
+    synchronized ContactGroupJabberImpl createUnresolvedContactGroup(
+        String groupName)
     {
+        ContactGroupJabberImpl existingGroup = findContactGroup(groupName);
+
+        if( existingGroup != null)
+        {
+            return existingGroup;
+        }
+
         ContactGroupJabberImpl newUnresolvedGroup =
             new ContactGroupJabberImpl(groupName, this);
 
@@ -848,7 +865,7 @@ public class ServerStoredContactListJabberImpl
      * When the protocol is online this method is used to fill or resolve
      * the current contact list
      */
-    private void initRoster()
+    private synchronized void initRoster()
     {
         // first if unfiled entries will move them in a group
         if(roster.getUnfiledEntryCount() > 0)
@@ -967,6 +984,10 @@ public class ServerStoredContactListJabberImpl
             ContactGroupJabberImpl group =
                 (ContactGroupJabberImpl)iterGroups.next();
 
+            // skip non persistent groups
+            if(!group.isPersistent())
+                continue;
+
             if(!group.isResolved())
             {
                 groupsToRemove.add(group);
@@ -1035,18 +1056,22 @@ public class ServerStoredContactListJabberImpl
     }
 
     /**
-     * Returns the volatile group
+     * Returns the volatile group that we use when creating volatile contacts.
      *
      * @return ContactGroupJabberImpl
      */
     ContactGroupJabberImpl getNonPersistentGroup()
     {
+        String groupName
+            = JabberActivator.getResources().getI18NString(
+                "service.gui.NOT_IN_CONTACT_LIST_GROUP_NAME");
+
         for (int i = 0; i < getRootGroup().countSubgroups(); i++)
         {
             ContactGroupJabberImpl gr =
                 (ContactGroupJabberImpl)getRootGroup().getGroup(i);
 
-            if(!gr.isPersistent())
+            if(!gr.isPersistent() && gr.getGroupName().equals(groupName))
                 return gr;
         }
 
@@ -1655,7 +1680,7 @@ public class ServerStoredContactListJabberImpl
          *
          * @param contact ContactJabberImpl
          */
-        synchronized void addContact(ContactJabberImpl contact)
+        void addContact(ContactJabberImpl contact)
         {
             synchronized(contactsForUpdate)
             {

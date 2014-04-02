@@ -803,29 +803,6 @@ public class ServerStoredContactListXivoImpl
     }
 
     /**
-     * Finds a group with supplied name.
-     * @param name the name to search for.
-     * @return the group with <tt>name</tt> or name otherwise.
-     */
-    private ContactGroupSipImpl findGroupByName(String name)
-    {
-        for (int i = 0;
-                 i < getRootGroup().countSubgroups();
-                 i++)
-        {
-            ContactGroupSipImpl gr = (ContactGroupSipImpl)
-                getRootGroup().getGroup(i);
-
-            if(gr.getGroupName().equalsIgnoreCase(name))
-            {
-                return gr;
-            }
-        }
-
-        return null;
-    }
-
-    /**
      * Shows an error and a short description.
      * @param ex the exception
      */
