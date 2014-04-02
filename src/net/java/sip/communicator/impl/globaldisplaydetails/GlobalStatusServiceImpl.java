@@ -5,6 +5,7 @@
  */
 package net.java.sip.communicator.impl.globaldisplaydetails;
 
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
@@ -295,8 +296,13 @@ public class GlobalStatusServiceImpl
         OperationSetPresence presence
                 = protocolProvider.getOperationSet(OperationSetPresence.class);
 
-        LoginManager loginManager
-            = GlobalDisplayDetailsActivator.getUIService().getLoginManager();
+        LoginManager loginManager = null;
+        UIService uiService = GlobalDisplayDetailsActivator.getUIService();
+        if(uiService != null)
+        {
+            loginManager = uiService.getLoginManager();
+        }
+
         RegistrationState registrationState
             = protocolProvider.getRegistrationState();
 
@@ -313,7 +319,8 @@ public class GlobalStatusServiceImpl
             }
             else
             {
-                loginManager.setManuallyDisconnected(true);
+                if(loginManager != null)
+                    loginManager.setManuallyDisconnected(true);
                 LoginManager.logoff(protocolProvider);
             }
         }
@@ -329,7 +336,8 @@ public class GlobalStatusServiceImpl
                 && !(registrationState
                         == RegistrationState.UNREGISTERING))
         {
-            loginManager.setManuallyDisconnected(true);
+            if(loginManager != null)
+                loginManager.setManuallyDisconnected(true);
             LoginManager.logoff(protocolProvider);
         }
 
