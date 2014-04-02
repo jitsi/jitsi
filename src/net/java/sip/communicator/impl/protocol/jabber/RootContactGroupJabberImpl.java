@@ -36,6 +36,9 @@ public class RootContactGroupJabberImpl
      */
     private Map<String, Contact> contacts = new Hashtable<String, Contact>();
 
+    /**
+     * The provider.
+     */
     private final ProtocolProviderServiceJabberImpl protocolProvider;
 
     /**
@@ -201,7 +204,7 @@ public class RootContactGroupJabberImpl
      */
     public Iterator<ContactGroup> subgroups()
     {
-        return subGroups.iterator();
+        return new ArrayList<ContactGroup>(subGroups).iterator();
     }
 
     /**
