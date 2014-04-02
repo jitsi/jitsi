@@ -348,11 +348,31 @@ public class MessageSourceService
     }
 
     /**
-     * When a provider is added.
+     * When a provider is added, do not block and start executing in new thread.
      *
      * @param provider ProtocolProviderService
      */
-    void handleProviderAdded(ProtocolProviderService provider)
+    void handleProviderAdded(final ProtocolProviderService provider)
+    {
+        new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                handleProviderAddedInSeparateThread(provider);
+            }
+        }).start();
+    }
+
+    /**
+     * When a provider is added. As searching can be slow especially
+     * when handling special type of messages (with subType) this need to be
+     * run in new Thread.
+     *
+     * @param provider ProtocolProviderService
+     */
+    private void handleProviderAddedInSeparateThread(
+        ProtocolProviderService provider)
     {
         // lets check if we have cached recent messages for this provider, and
         // fire events if found and are newer
