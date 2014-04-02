@@ -31,11 +31,9 @@ import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.OperationSetExtendedAuthorizations.SubscriptionStatus;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.call.*;
 import net.java.sip.communicator.util.skin.*;
 
-import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**
