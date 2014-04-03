@@ -609,7 +609,7 @@ public class MUCCustomContactActionService
             this.actionPerformed = actionPerformed;
             this.enabled = new EnableChecker();
             this.name = name;
-            this.mnemonics = resources.getI18nMnemonic(text);
+            this.mnemonics = resources.getI18nMnemonic(textKey);
         }
 
         @Override
