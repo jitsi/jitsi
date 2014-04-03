@@ -108,6 +108,8 @@ public class MessageSourceContact
     MessageSourceContact(EventObject source,
                          MessageSourceService service)
     {
+        this.service = service;
+
         update(source);
 
         if(source instanceof MessageDeliveredEvent)
@@ -125,8 +127,6 @@ public class MessageSourceContact
         {
             initDetails(true, null);
         }
-
-        this.service = service;
     }
 
     /**
@@ -317,7 +317,7 @@ public class MessageSourceContact
                 // skip opset IM as we want explicitly muc support
                 if(opset.equals(OperationSetPresence.class)
                     || opset.equals(OperationSetPersistentPresence.class)
-                    || (isChatRoom
+                    || ((isChatRoom || service.isSMSEnabled())
                         && opset.equals(
                                 OperationSetBasicInstantMessaging.class)))
                 {

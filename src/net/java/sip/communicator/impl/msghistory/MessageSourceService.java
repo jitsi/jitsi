@@ -262,6 +262,15 @@ public class MessageSourceService
     }
 
     /**
+     * Access for source contacts impl.
+     * @return
+     */
+    boolean isSMSEnabled()
+    {
+        return isSMSEnabled;
+    }
+
+    /**
      * Add the source contacts, newly added will fire new,
      * for existing fire update and when trimming the list to desired length
      * fire remove for those that were removed
