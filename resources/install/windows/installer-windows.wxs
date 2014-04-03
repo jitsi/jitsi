@@ -203,7 +203,7 @@
                 <Control Id="StartMenuShortcutCheckBox" Type="CheckBox" X="25" Y="75" Width="320" Height="15" Property="CREATE_START_MENU_SHORTCUT" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateStartMenu)" />
                 <Control Id="DesktopShortcutCheckBox" Type="CheckBox" X="25" Y="90" Width="320" Height="15" Property="CREATE_DESKTOP_SHORTCUT" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateDesktop)" />
                 <Control Id="StartupShortcutCheckBox" Type="CheckBox" X="25" Y="105" Width="320" Height="15" Property="HAS_STARTUP_REGISTRY" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateAutoStart)" />
-                <Control Id="DefaultIMApplicationCheckBox" Type="CheckBox" X="25" Y="120" Width="320" Height="15" Property="SET_DEFAULT_IM_APP" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_DefaultIMApp)" />
+                <Control Id="DefaultIMApplicationCheckBox" Type="CheckBox" X="25" Y="120" Width="320" Height="30" Property="SET_DEFAULT_IM_APP" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_DefaultIMApp)" />
 
                 <Control Id="RegistryGroup" Type="GroupBox" X="20" Y="145" Width="330" Height="50" Text="!(loc.ShortcutsAndRegistryDlg_AssociateProtocols)" />
                 <Control Id="SipRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="160" Width="320" Height="15" Property="CREATE_SIP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;SIP" />
