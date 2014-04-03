@@ -99,8 +99,7 @@ public class AddrBookActivator
     /**
      * The calendar service
      */
-    private static CalendarServiceImpl calendarService 
-        = new CalendarServiceImpl();
+    private static CalendarServiceImpl calendarService = null;
     
     /**
      * List of the providers with registration listener.
@@ -121,8 +120,9 @@ public class AddrBookActivator
                 {
                     if(evt.getNewState().equals(RegistrationState.REGISTERED))
                     {
-                        calendarService.handleProviderAdded(
-                            evt.getProvider());
+                        if(calendarService != null)
+                            calendarService.handleProviderAdded(
+                                evt.getProvider());
                     }
                 }
             };
@@ -389,6 +389,7 @@ public class AddrBookActivator
         if(OSUtils.IS_WINDOWS && !getConfigService().getBoolean(
             CalendarService.PNAME_FREE_BUSY_STATUS_DISABLED, false))
         {
+            calendarService = new CalendarServiceImpl();
             try
             {
                 MsOutlookAddrBookContactSourceService.initMAPI(null);
