@@ -30,7 +30,7 @@ public class ExtendedPopupMenu
     /**
      * The invoker component.
      */
-    private final JComponent invoker;
+    private final Component invoker;
  
     /**
      * Creates this dialog by specifying a list of items to choose from.
@@ -39,7 +39,7 @@ public class ExtendedPopupMenu
      * @param title
      * @param menuItems the list of items to select through
      */
-    public ExtendedPopupMenu(JComponent invoker,
+    public ExtendedPopupMenu(Component invoker,
                              String title,
                              List<JMenuItem> menuItems)
     {
