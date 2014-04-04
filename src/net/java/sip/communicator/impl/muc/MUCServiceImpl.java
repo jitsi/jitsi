@@ -398,12 +398,17 @@ public class MUCServiceImpl
         ChatRoom chatRoom = null;
         try
         {
-
-
-            HashMap<String, Object> roomProperties =
-                new HashMap<String, Object>();
-            roomProperties.put("isPrivate", isPrivate);
-            chatRoom = groupChatOpSet.createChatRoom(roomName, roomProperties);
+            chatRoom = groupChatOpSet.findRoom(roomName);
+            if (chatRoom == null)
+            {
+                // The chat room is not known by the MUC provider. Also create
+                // the chat room for the wrapper.
+                HashMap<String, Object> roomProperties =
+                    new HashMap<String, Object>();
+                roomProperties.put("isPrivate", isPrivate);
+                chatRoom =
+                    groupChatOpSet.createChatRoom(roomName, roomProperties);
+            }
 
             if(join)
             {
