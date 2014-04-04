@@ -14,6 +14,7 @@ import javax.net.ssl.*;
 
 import net.java.sip.communicator.impl.protocol.irc.ModeParser.ModeEntry;
 import net.java.sip.communicator.service.certificate.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -876,7 +877,8 @@ public class IrcStack
                 if (IrcStack.this.joining.containsKey(channelName)
                     || IrcStack.this.joined.containsKey(channelName))
                 {
-                    LOGGER.trace("Chat room join event was announced. Stop "
+                    LOGGER.trace("Chat room '" + channelName
+                        + "' join event was announced. Stop "
                         + "handling this event.");
                     break;
                 }
@@ -893,6 +895,7 @@ public class IrcStack
                     new ChatRoomIrcImpl(channelName, IrcStack.this.provider);
                 IrcStack.this.joined.put(channelName, chatRoom);
                 IrcStack.this.irc.addListener(new ChatRoomListener(chatRoom));
+                openChatRoomWindow(chatRoom);
                 IrcStack.this.prepareChatRoom(chatRoom, channel);
                 IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
                     chatRoom,
@@ -906,6 +909,33 @@ public class IrcStack
                     + ") will not be handled by the ServerListener.");
                 break;
             }
+        }
+
+        /**
+         * Open a chat room window.
+         * 
+         * In IRC a situation may occur where the user gets joined to a channel
+         * without Jitsi initiating the joining activity. This "unannounced"
+         * join event, must also be handled and we should display the chat room
+         * window in that case, to alert the user that this happened.
+         * 
+         * @param chatRoom the chat room
+         */
+        private void openChatRoomWindow(ChatRoomIrcImpl chatRoom)
+        {
+            MUCService mucService = IrcActivator.getMUCService();
+            ChatRoomWrapper wrapper =
+                mucService.getChatRoomWrapperByChatRoom(chatRoom, true);
+            if (wrapper == null)
+            {
+                LOGGER.trace("Creating chat room window.");
+                wrapper =
+                    mucService.createChatRoom(chatRoom.getIdentifier(),
+                        IrcStack.this.provider,
+                        Collections.<String> emptyList(), "", false, false,
+                        false);
+            }
+            mucService.openChatRoom(wrapper);
         }
 
         /**

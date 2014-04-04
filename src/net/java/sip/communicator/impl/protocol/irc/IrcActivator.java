@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.irc;
 import java.util.*;
 
 import net.java.sip.communicator.service.certificate.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
@@ -26,6 +27,9 @@ import org.osgi.framework.*;
 public class IrcActivator
     implements BundleActivator
 {
+    /**
+     * LOGGER instance.
+     */
     private static final Logger logger
         = Logger.getLogger(IrcActivator.class);
 
@@ -40,12 +44,20 @@ public class IrcActivator
      */
     private static BundleContext bundleContext = null;
 
+    /**
+     * Resource management service instance.
+     */
     private static ResourceManagementService resourceService;
 
     /**
      * Certificate Service instance.
      */
     private static CertificateService certiticateService;
+    
+    /**
+     * MultiUserChat Service instance.
+     */
+    private static MUCService mucService;
 
     /**
      * Called when this bundle is started. In here we'll export the
@@ -127,6 +139,21 @@ public class IrcActivator
     public static BundleContext getBundleContext()
     {
         return bundleContext;
+    }
+    
+    /**
+     * Return the MultiUserChat service impl.
+     * 
+     * @return MUCService impl.
+     */
+    public static MUCService getMUCService()
+    {
+        if (mucService == null)
+        {
+            mucService =
+                ServiceUtils.getService(bundleContext, MUCService.class);
+        }
+        return mucService;
     }
     
     /**
