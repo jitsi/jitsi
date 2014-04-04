@@ -676,7 +676,8 @@ public class IrcStack
     {
         if (chatroom.isPrivate())
             return;
-        
+        LOGGER.trace("Leaving chat room '"+chatroom.getIdentifier()+"'.");
+
         // You only actually join non-private chat rooms, so only these ones
         // need to be left.
         leave(chatroom.getIdentifier());
