@@ -46,6 +46,12 @@
             because we will modify at least the PATH where is needed.
         -->
         <property environment="env" />
+
+        <condition property="application.company.name" value="jitsi.org">
+            <not>
+                <isset property="application.company.name" />
+            </not>
+        </condition>
     </target>
 
     <!-- define the izpack task in a separate target so that we don't get an
@@ -411,6 +417,7 @@
                 failonerror="true">
             <env key="PATH" path="${mingw.home}/bin;${env.PATH}" />
             <arg value="PRODUCTNAME=${application.name}" />
+            <arg value="COMPANYNAME=${application.company.name}" />
             <arg value="MINGW_HOME=${mingw.home}" />
             <arg value="TARGET_DIR=${light.dir}" />
             <arg value="PRODUCTBUILDVERSION=${sip-communicator.version}" />

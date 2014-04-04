@@ -30,7 +30,7 @@ BEGIN
         BLOCK "040904E4"
         BEGIN
             VALUE "Comments", ""
-            VALUE "CompanyName", "jitsi.org"
+            VALUE "CompanyName", COMPANYNAME
             VALUE "FileDescription", PRODUCTNAME
             VALUE "FileVersion", PRODUCTBUILDVERSION
             VALUE "InternalName", TARGET_BASENAME
