@@ -249,9 +249,6 @@ public class MUCServiceImpl
 
             chatRoomList.addChatRoom(chatRoomWrapper);
 
-            fireChatRoomListChangedEvent(
-                chatRoomWrapper,
-                ChatRoomListChangeEvent.CHAT_ROOM_ADDED);
         }
 
         this.joinChatRoom(chatRoomWrapper, nickname, password);
