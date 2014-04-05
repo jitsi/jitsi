@@ -523,6 +523,8 @@ public class IrcStack
                         {
                             if (!isRequestedChatRoom)
                             {
+                                // We joined another chat room than the one we
+                                // requested initially.
                                 if (LOGGER.isTraceEnabled())
                                 {
                                     LOGGER
@@ -537,9 +539,16 @@ public class IrcStack
                                             + "since that channel was not "
                                             + "announced.");
                                 }
-                                // We did not actually join this channel.
                                 IrcStack.this.joining.remove(chatroom
                                     .getIdentifier());
+                                IrcStack.this.provider
+                                    .getMUC()
+                                    .fireLocalUserPresenceEvent(
+                                        chatroom,
+                                        LocalUserChatRoomPresenceChangeEvent
+                                            .LOCAL_USER_JOIN_FAILED,
+                                        "We got forwarded to channel '"
+                                            + channel.getName() + "'.");
                                 // Notify waiting threads of finished execution.
                                 joinSignal.setDone();
                                 joinSignal.notifyAll();
@@ -572,7 +581,8 @@ public class IrcStack
                                     .getMUC()
                                     .fireLocalUserPresenceEvent(
                                         chatroom,
-                                        LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
+                                        LocalUserChatRoomPresenceChangeEvent
+                                            .LOCAL_USER_JOINED,
                                         null);
                                 LOGGER
                                     .trace("Finished successful join callback "
@@ -593,29 +603,19 @@ public class IrcStack
                         LOGGER.trace("Started callback for failed attempt to "
                             + "join channel '" + chatroom.getIdentifier()
                             + "'.");
-                        // TODO how should we communicate a failed attempt
-                        // at joining the channel? (System messages don't
-                        // seem to show if there is no actual chat room
-                        // presence.)
                         synchronized (joinSignal)
                         {
                             try
                             {
                                 IrcStack.this.joining.remove(chatroom
                                     .getIdentifier());
-                                MessageIrcImpl message =
-                                    new MessageIrcImpl(
-                                        "Failed to join channel "
-                                            + chatroom.getIdentifier() + " ("
-                                            + e.getMessage() + ")",
-                                        "text/plain", "UTF-8", "Failed to join");
-                                chatroom
-                                    .fireMessageReceivedEvent(
-                                        message,
-                                        null,
-                                        new Date(),
-                                        MessageReceivedEvent
-                                            .SYSTEM_MESSAGE_RECEIVED);
+                                IrcStack.this.provider
+                                    .getMUC()
+                                    .fireLocalUserPresenceEvent(
+                                        chatroom,
+                                        LocalUserChatRoomPresenceChangeEvent
+                                            .LOCAL_USER_JOIN_FAILED,
+                                        e.getMessage());
                             }
                             finally
                             {
@@ -649,14 +649,6 @@ public class IrcStack
                     .trace("Finished waiting for join operation for channel '"
                         + chatroom.getIdentifier() + "' to complete.");
                 // TODO How to handle 480 (+j): Channel throttle exceeded?
-
-                Exception e = joinSignal.getException();
-                if (e != null)
-                {
-                    // in case an exception occurred during join process
-                    throw new OperationFailedException(e.getMessage(),
-                        OperationFailedException.CHAT_ROOM_NOT_JOINED, e);
-                }
             }
             catch (InterruptedException e)
             {
@@ -998,10 +990,11 @@ public class IrcStack
             ChatRoomMember member = chatroom.getChatRoomMember(user);
             if (member == null)
             {
-                // TODO check should not be necessary, but sometimes null is still returned.
+                // TODO check should not be necessary, but sometimes null is
+                // still returned.
                 LOGGER
-                    .warn("Got null member from chatroom, but expected message source member '"
-                        + user + "' to be present.");
+                    .warn("Got null member from chatroom, but expected message"
+                        + "source member '" + user + "' to be present.");
                 return;
             }
             MessageIrcImpl message =
@@ -1018,7 +1011,8 @@ public class IrcStack
          */
         private ChatRoomIrcImpl initiatePrivateChatRoom(String user)
         {
-            OperationSetMultiUserChatIrcImpl muc = IrcStack.this.provider.getMUC();
+            OperationSetMultiUserChatIrcImpl muc =
+                IrcStack.this.provider.getMUC();
             ChatRoomIrcImpl chatroom = muc.findOrCreateRoom(user);
             IrcStack.this.joined.put(chatroom.getIdentifier(), chatroom);
             ChatRoomMemberIrcImpl member =
