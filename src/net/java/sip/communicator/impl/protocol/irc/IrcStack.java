@@ -584,11 +584,14 @@ public class IrcStack
                                         LocalUserChatRoomPresenceChangeEvent
                                             .LOCAL_USER_JOINED,
                                         null);
-                                LOGGER
-                                    .trace("Finished successful join callback "
-                                        + "for channel '"
-                                        + chatroom.getIdentifier()
-                                        + "'. Waking up original thread.");
+                                if (LOGGER.isTraceEnabled())
+                                {
+                                    LOGGER
+                                        .trace("Finished successful join "
+                                            + "callback for channel '"
+                                            + chatroom.getIdentifier()
+                                            + "'. Waking up original thread.");
+                                }
                                 // Notify waiting threads of finished
                                 // execution.
                                 joinSignal.setDone();
@@ -819,10 +822,6 @@ public class IrcStack
      * A listener for server-level messages (any messages that are related to
      * the server, the connection, that are not related to any chatroom in
      * particular) or that are personal message from user to local user.
-     * 
-     * TODO Support for auto-joined channels. (or just unannounced)
-     * - At least detectable via messages: 332 RPL_TOPIC, 353 RPL_NAMREPLY
-     * - Announced by onChannelJoin event in ServerListener
      */
     private class ServerListener
         extends VariousMessageListenerAdapter
@@ -857,7 +856,7 @@ public class IrcStack
             Integer code = msg.getNumericCode();
             if (code == null)
             {
-                LOGGER.trace("No 'code' in numeric message event.");
+                LOGGER.debug("No 'code' in numeric message event.");
                 return;
             }
 
@@ -897,8 +896,11 @@ public class IrcStack
                     + "' completed.");
                 break;
             default:
-                LOGGER.trace("This ServerNumericMessage (" + code
-                    + ") will not be handled by the ServerListener.");
+                if (LOGGER.isTraceEnabled())
+                {
+                    LOGGER.trace("This ServerNumericMessage (" + code
+                        + ") will not be handled by the ServerListener.");
+                }
                 break;
             }
         }
