@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.msghistory;
 
 import net.java.sip.communicator.service.contactsource.*;
+import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -244,6 +245,12 @@ public class MessageSourceContact
                 : ChatRoomPresenceStatus.CHAT_ROOM_OFFLINE;
             this.messageContent = e.getMessage().getContent();
             this.timestamp = e.getTimestamp();
+        }
+
+        if(service.isSMSEnabled())
+        {
+            this.status
+                = MessageSourceContactPresenceStatus.MSG_SRC_CONTACT_ONLINE;
         }
 
         updateMessageContent();

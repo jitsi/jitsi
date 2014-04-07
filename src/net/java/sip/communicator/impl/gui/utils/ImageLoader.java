@@ -988,7 +988,7 @@ public class ImageLoader
      */
     public static final ImageID CHAT_ROOM_MENU_ICON
         = new ImageID("service.gui.icons.CHAT_ROOM_16x16_ICON");
-    
+
     /**
      * The image used for joined chat rooms.
      */
@@ -1019,6 +1019,12 @@ public class ImageLoader
      */
     public static final ImageID JOIN_AS_ICON
         = new ImageID("service.gui.icons.JOIN_AS_ICON");
+
+    /**
+     * The image can be used for message source contact presence status.
+     */
+    public static final ImageID MSG_SRC_CONTACT_ONLINE_ICON
+        = new ImageID("service.gui.icons.SMS_STATUS_ICON");
 
     /**
      * The image used to set to the chat room "leave" right button menu.

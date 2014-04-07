@@ -15,6 +15,7 @@ import javax.swing.*;
 import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
@@ -272,6 +273,12 @@ public class Constants
             {
                 return ImageLoader
                     .getImage(ImageLoader.CHAT_ROOM_ONLINE_ICON);
+            }
+            else if(connectivity == MessageSourceContactPresenceStatus
+                                        .MSG_SRC_CONTACT_ONLINE_THRESHOLD)
+            {
+                return ImageLoader
+                    .getImage(ImageLoader.MSG_SRC_CONTACT_ONLINE_ICON);
             }
             else if(connectivity < PresenceStatus.MAX_STATUS_VALUE)
             {

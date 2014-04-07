@@ -15,6 +15,7 @@ import java.util.regex.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
+import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -171,6 +172,10 @@ public class MessageSourceService
 
         RECENT_MSGS_VER
             = conf.getString(VER_OF_RECENT_MSGS_PROP, RECENT_MSGS_VER);
+
+        MessageSourceContactPresenceStatus.MSG_SRC_CONTACT_ONLINE
+            .setStatusIcon(MessageHistoryActivator.getResources()
+                .getImageInBytes("service.gui.icons.SMS_STATUS_ICON"));
     }
 
     /**
