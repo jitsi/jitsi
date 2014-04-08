@@ -33,12 +33,12 @@ public class ChatRoomConfigurationFormJabberImpl
     /**
      * The smack chat room configuration form.
      */
-    private Form smackConfigForm;
+    protected Form smackConfigForm;
 
     /**
      * The form that will be filled out and submitted by user.
      */
-    private Form smackSubmitForm;
+    protected Form smackSubmitForm;
 
     /**
      * The smack multi user chat is the one to which we'll send the form once
