@@ -1634,6 +1634,7 @@ public class MessageHistoryServiceImpl
                 .addContactPresenceStatusListener(messageSourceService);
             opSetPresence
                 .addProviderPresenceStatusListener(messageSourceService);
+            opSetPresence.addSubscriptionListener(messageSourceService);
         }
 
         if(messageSourceService != null)
@@ -1699,6 +1700,7 @@ public class MessageHistoryServiceImpl
                 .removeContactPresenceStatusListener(messageSourceService);
             opSetPresence
                 .removeProviderPresenceStatusListener(messageSourceService);
+            opSetPresence.removeSubscriptionListener(messageSourceService);
         }
 
         if(messageSourceService != null)

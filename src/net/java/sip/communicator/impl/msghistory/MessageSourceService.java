@@ -34,6 +34,7 @@ public class MessageSourceService
     implements ContactSourceService,
                ContactPresenceStatusListener,
                ProviderPresenceStatusListener,
+               SubscriptionListener,
                LocalUserChatRoomPresenceListener,
                MessageListener,
                ChatRoomMessageListener,
@@ -1047,6 +1048,58 @@ public class MessageSourceService
     @Override
     public void messageDeliveryFailed(AdHocChatRoomMessageDeliveryFailedEvent evt)
     {}
+
+    @Override
+    public void subscriptionCreated(SubscriptionEvent evt)
+    {}
+
+    @Override
+    public void subscriptionFailed(SubscriptionEvent evt)
+    {}
+
+    @Override
+    public void subscriptionRemoved(SubscriptionEvent evt)
+    {}
+
+    @Override
+    public void subscriptionMoved(SubscriptionMovedEvent evt)
+    {}
+
+    @Override
+    public void subscriptionResolved(SubscriptionEvent evt)
+    {}
+
+    /**
+     * If a contact is renamed update the locally stored message if any.
+     *
+     * @param evt the <tt>ContactPropertyChangeEvent</tt> containing the source
+     */
+    @Override
+    public void contactModified(ContactPropertyChangeEvent evt)
+    {
+        if(!evt.getPropertyName()
+            .equals(ContactPropertyChangeEvent.PROPERTY_DISPLAY_NAME))
+            return;
+
+        Contact contact = evt.getSourceContact();
+
+        if(contact == null)
+            return;
+
+        for(MessageSourceContact msc : recentMessages)
+        {
+            if(contact.equals(msc.getContact()))
+            {
+                msc.setDisplayName(contact.getDisplayName());
+
+                if(recentQuery != null)
+                    recentQuery.fireContactChanged(msc);
+
+                return;
+            }
+        }
+
+    }
 
     /**
      * The contact query implementation.

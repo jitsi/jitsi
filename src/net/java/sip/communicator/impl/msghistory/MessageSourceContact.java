@@ -510,6 +510,15 @@ public class MessageSourceContact
     }
 
     /**
+     * Changes display name.
+     * @param displayName
+     */
+    public void setDisplayName(String displayName)
+    {
+        this.displayName = displayName;
+    }
+
+    /**
      * Compares two MessageSourceContacts.
      * @param o the object to compare with
      * @return 0, less than zero, greater than zero, if equals, less or greater.
