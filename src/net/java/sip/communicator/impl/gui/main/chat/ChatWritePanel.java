@@ -285,29 +285,9 @@ public class ChatWritePanel
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                if(smsMode)
+                if(smsMode && !isIMAllowed())
                 {
-                    // check are we allowed to change back to im mode
-                    Object descr = chatPanel.getChatSession().getDescriptor();
-
-                    if(descr instanceof MetaContact)
-                    {
-                        List<Contact> imContact
-                            = ((MetaContact)descr).getContactsForOperationSet(
-                            OperationSetBasicInstantMessaging.class);
-
-                        if(imContact == null || imContact.size() == 0)
-                            return;
-                    }
-                    else if(descr instanceof SourceContact)
-                    {
-                        List<ContactDetail> imContact
-                            = ((SourceContact)descr).getContactDetails(
-                            OperationSetBasicInstantMessaging.class);
-
-                        if(imContact == null || imContact.size() == 0)
-                            return;
-                    }
+                    return;
                 }
 
                 smsMode = smsButton.isSelected();
@@ -494,6 +474,39 @@ public class ChatWritePanel
     public boolean isSmsSelected()
     {
         return smsMode;
+    }
+
+    /**
+     * Checks if sending IM message is allowed. When in sms mode, it
+     * can be the only method to send message. We will disable sms -> im
+     * switching.
+     * @return is IM allowed.
+     */
+    private boolean isIMAllowed()
+    {
+        // check are we allowed to change back to im mode
+        Object descr = chatPanel.getChatSession().getDescriptor();
+
+        if(descr instanceof MetaContact)
+        {
+            List<Contact> imContact
+                = ((MetaContact)descr).getContactsForOperationSet(
+                OperationSetBasicInstantMessaging.class);
+
+            if(imContact == null || imContact.size() == 0)
+                return false;
+        }
+        else if(descr instanceof SourceContact)
+        {
+            List<ContactDetail> imContact
+                = ((SourceContact)descr).getContactDetails(
+                OperationSetBasicInstantMessaging.class);
+
+            if(imContact == null || imContact.size() == 0)
+                return false;
+        }
+
+        return true;
     }
 
     /**
@@ -1011,8 +1024,9 @@ public class ChatWritePanel
                 chatPanel.getChatSession(),
                 chatPanel.getChatSession().getCurrentChatTransport());
 
-            if(ConfigurationUtils.isHideAccountSelectionWhenPossibleEnabled()
+            if((ConfigurationUtils.isHideAccountSelectionWhenPossibleEnabled()
                 && transportSelectorBox.getMenu().getItemCount() <= 1)
+                || !isIMAllowed())
                 transportSelectorBox.setVisible(false);
         }
 
