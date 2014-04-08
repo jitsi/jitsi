@@ -3274,7 +3274,11 @@ org.jitsi.bccontrib.util"/>
         <symlink
              resource="/usr/share/java/guava.jar"
              overwrite="true"
-             link="${debian.src.dir}/lib/installer-exclude/google-collect-1.0-rc1.jar"/>
+             link="${debian.src.dir}/lib/installer-exclude/guava-15.0.jar"/>
+        <symlink
+             resource="/usr/share/java/hsqldb.jar"
+             overwrite="true"
+             link="${debian.src.dir}/lib/installer-exclude/hsqldb.jar"/>
 
         <!-- compile and pack jmork -->
         <property name="jmork.src.folder" value="${debian.src.dir}/lib/src/jmork"/>
@@ -3417,7 +3421,9 @@ org.jitsi.bccontrib.util"/>
             <property name="opus" value=""/>
         </ant>
 
-        <antcall target="screencapture"/>
+        <ant dir="${debian.src.dir}/lib/src/libjitsi" inheritAll="false"
+             target="screencapture"/>
+
         <!-- jnspeex -->
         <antcall target="speex">
             <param name="speex.dynamic" value="true"/>
