@@ -22,6 +22,7 @@ import net.java.sip.communicator.plugin.desktoputil.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
+import org.jitsi.util.*;
 
 /**
  * The <tt>UnknownContactPanel</tt> replaces the contact list, when a
@@ -178,30 +179,41 @@ public class UnknownContactPanel
      */
     private void initSMSButton()
     {
-        if(!parentWindow.hasOperationSet(OperationSetSmsMessaging.class))
-            return;
-
-        smsButton = new JButton(
-            GuiActivator.getResources().getI18NString("service.gui.SEND_SMS"));
-
-        smsButton.setIcon(GuiActivator.getResources()
-            .getImage("service.gui.icons.SMS_BUTTON_ICON"));
-
-        buttonPanel.add(smsButton);
-
-        smsButton.addActionListener(new ActionListener()
+        if(parentWindow.hasOperationSet(OperationSetSmsMessaging.class)
+            && !StringUtils.containsLetters(
+                    parentWindow.getCurrentSearchText()))
         {
-            @Override
-            public void actionPerformed(ActionEvent e)
+            if (smsButton != null && smsButton.getParent() != null)
+                return;
+
+            smsButton = new JButton(GuiActivator.getResources()
+                .getI18NString("service.gui.SEND_SMS"));
+
+            smsButton.setIcon(GuiActivator.getResources()
+                .getImage("service.gui.icons.SMS_BUTTON_ICON"));
+
+            buttonPanel.add(smsButton);
+
+            smsButton.addActionListener(new ActionListener()
             {
-                final String searchText = parentWindow.getCurrentSearchText();
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    final String searchText
+                        = parentWindow.getCurrentSearchText();
 
-                if (searchText == null)
-                    return;
+                    if(searchText == null)
+                        return;
 
-                SMSManager.sendSMS(smsButton, searchText);
-            }
-        });
+                    SMSManager.sendSMS(smsButton, searchText);
+                }
+            });
+        }
+        else
+        {
+            if(smsButton != null)
+                buttonPanel.remove(smsButton);
+        }
     }
 
     /**
@@ -296,7 +308,10 @@ public class UnknownContactPanel
     public void setVisible(boolean isVisible)
     {
         if (isVisible)
+        {
             initCallButton();
+            initSMSButton();
+        }
 
         super.setVisible(isVisible);
     }
