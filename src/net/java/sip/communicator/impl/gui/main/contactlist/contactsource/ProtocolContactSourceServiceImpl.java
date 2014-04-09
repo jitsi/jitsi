@@ -116,7 +116,7 @@ public class ProtocolContactSourceServiceImpl
 
         return contactQuery;
     }
-    
+
     /**
      * Removes query from the list.
      * @param contactQuery the query
@@ -211,7 +211,7 @@ public class ProtocolContactSourceServiceImpl
             }
 
         }
-        
+
         /**
          * Adds the result for the given group.
          *
@@ -234,12 +234,14 @@ public class ProtocolContactSourceServiceImpl
                 Contact contact = contacts.next();
                 String contactAddress = contact.getAddress();
                 String contactDisplayName = contact.getDisplayName();
+                String queryLowerCase = queryString.toLowerCase();
 
                 if (queryString == null
                     || queryString.length() <= 0
-                    || metaContact.getDisplayName().contains(queryString)
-                    || contactAddress.contains(queryString)
-                    || contactDisplayName.contains(queryString))
+                    || metaContact.getDisplayName().toLowerCase().contains(
+                        queryLowerCase)
+                    || contactAddress.toLowerCase().contains(queryLowerCase)
+                    || contactDisplayName.toLowerCase().contains(queryLowerCase))
                 {
                     ContactDetail contactDetail
                         = new ContactDetail(contactAddress);
