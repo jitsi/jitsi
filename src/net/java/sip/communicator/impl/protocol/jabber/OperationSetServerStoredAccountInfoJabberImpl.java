@@ -66,6 +66,8 @@ public class OperationSetServerStoredAccountInfoJabberImpl
         supportedTypes.add(WorkEmailAddressDetail.class);
         supportedTypes.add(PhoneNumberDetail.class);
         supportedTypes.add(WorkPhoneDetail.class);
+        supportedTypes.add(VideoDetail.class);
+        supportedTypes.add(WorkVideoDetail.class);
         supportedTypes.add(WorkOrganizationNameDetail.class);
         supportedTypes.add(URLDetail.class);
         supportedTypes.add(BirthDateDetail.class);
@@ -248,7 +250,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
      */
     public boolean removeDetail(ServerStoredDetails.GenericDetail detail)
     {
-        
+
         return infoRetreiver.getCachedContactDetails(uin).remove(detail);
     }
 
@@ -381,6 +383,10 @@ public class OperationSetServerStoredAccountInfoJabberImpl
                 vCard.setPhoneHome("VOICE", (String)detail.getDetailValue());
             else if (detail.getClass().equals(WorkPhoneDetail.class))
                 vCard.setPhoneWork("VOICE", (String)detail.getDetailValue());
+            else if (detail.getClass().equals(VideoDetail.class))
+                vCard.setPhoneHome("VIDEO", (String)detail.getDetailValue());
+            else if (detail.getClass().equals(WorkVideoDetail.class))
+                vCard.setPhoneWork("VIDEO", (String)detail.getDetailValue());
             else if (detail.getClass().equals(EmailAddressDetail.class))
                 vCard.setEmailHome((String)detail.getDetailValue());
             else if (detail.getClass().equals(WorkEmailAddressDetail.class))
