@@ -189,6 +189,7 @@ public class MainFrame
 
         this.searchField = new SearchField( this,
                                             TreeContactList.searchFilter,
+                                            true,
                                             true);
 
         menu = new MainMenu(this);

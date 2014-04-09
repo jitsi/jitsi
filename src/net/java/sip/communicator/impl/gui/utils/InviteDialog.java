@@ -144,7 +144,7 @@ public class InviteDialog
 
         srcContactList.setDefaultFilter(inviteFilter);
 
-        searchField = new SearchField(null, inviteFilter, false);
+        searchField = new SearchField(null, inviteFilter, false, false);
         searchField.setPreferredSize(new Dimension(200, 25));
         searchField.setContactList(srcContactList);
         searchField.addFocusListener(new FocusAdapter()
