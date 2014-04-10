@@ -156,9 +156,14 @@ public enum JingleAction
     TRANSPORT_REPLACE("transport-replace"),
 
     /**
-     * The "addsource" action used in JitMeet.
+     * The "addsource" action used in Jitsi-Meet.
      */
-    ADDSOURCE("addsource");
+    ADDSOURCE("addsource"),
+
+    /**
+     * The "removesource" action used in Jitsi-Meet.
+     */
+    REMOVESOURCE("removesource");
 
     /**
      * The name of this direction.
