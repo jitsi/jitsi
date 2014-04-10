@@ -122,6 +122,11 @@ public class GuiActivator implements BundleActivator
         replacementSourcesMap = new Hashtable<String, ReplacementService>();
 
     /**
+     * The registered PhoneNumberI18nService.
+     */
+    private static PhoneNumberI18nService phoneNumberI18nService;
+
+    /**
      * Indicates if this bundle has been started.
      */
     public static boolean isStarted = false;
@@ -909,5 +914,21 @@ public class GuiActivator implements BundleActivator
             messageHistoryService = ServiceUtils.getService(bundleContext, 
                 MessageHistoryService.class);
         return messageHistoryService;
+    }
+
+    /**
+     * Returns the PhoneNumberI18nService.
+     * @return returns the PhoneNumberI18nService.
+     */
+    public static PhoneNumberI18nService getPhoneNumberI18nService()
+    {
+        if(phoneNumberI18nService == null)
+        {
+            phoneNumberI18nService = ServiceUtils.getService(
+                bundleContext,
+                PhoneNumberI18nService.class);
+        }
+
+        return phoneNumberI18nService;
     }
 }

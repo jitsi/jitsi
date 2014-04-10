@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
@@ -30,6 +31,11 @@ public class ThunderbirdActivator
     /** Active address book registrations. */
     private static Map<ThunderbirdContactSourceService, ServiceRegistration>
         registrations;
+
+    /**
+     * The registered PhoneNumberI18nService.
+     */
+    private static PhoneNumberI18nService phoneNumberI18nService;
 
     /**
      * Gets the configuration service.
@@ -147,5 +153,21 @@ public class ThunderbirdActivator
         }
 
         registrations = null;
+    }
+
+    /**
+     * Returns the PhoneNumberI18nService.
+     * @return returns the PhoneNumberI18nService.
+     */
+    public static PhoneNumberI18nService getPhoneNumberI18nService()
+    {
+        if(phoneNumberI18nService == null)
+        {
+            phoneNumberI18nService = ServiceUtils.getService(
+                bundleContext,
+                PhoneNumberI18nService.class);
+        }
+
+        return phoneNumberI18nService;
     }
 }

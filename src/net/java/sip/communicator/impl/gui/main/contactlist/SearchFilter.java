@@ -59,6 +59,12 @@ public class SearchFilter
         = new HashMap<Integer, Integer>();
 
     /**
+     * If set, we are searching a phone number and will use the phone number
+     * service to try matching the numbers.
+     */
+    private boolean isSearchingPhoneNumber = false;
+
+    /**
      * Creates an instance of <tt>SearchFilter</tt>.
      */
     public SearchFilter(MetaContactListSource contactListSource)
@@ -260,6 +266,9 @@ public class SearchFilter
                         Pattern.MULTILINE
                             | Pattern.CASE_INSENSITIVE
                             | Pattern.UNICODE_CASE);
+
+        this.isSearchingPhoneNumber
+            = GuiActivator.getPhoneNumberI18nService().isPhoneNumber(filter);
     }
 
     /**
@@ -270,9 +279,10 @@ public class SearchFilter
      */
     private boolean isMatching(String text)
     {
-        if (filterPattern != null)
-            return filterPattern.matcher(text).find();
-
-        return true;
+        return (filterPattern != null
+                    && filterPattern.matcher(text).find())
+                || (isSearchingPhoneNumber
+                    && GuiActivator.getPhoneNumberI18nService()
+                            .phoneNumbersMatch(this.filterString, text));
     }
 }

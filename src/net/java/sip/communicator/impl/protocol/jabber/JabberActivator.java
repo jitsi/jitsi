@@ -113,6 +113,11 @@ public class JabberActivator
     private static VersionService versionService        = null;
 
     /**
+     * The registered PhoneNumberI18nService.
+     */
+    private static PhoneNumberI18nService phoneNumberI18nService;
+
+    /**
      * Called when this bundle is started so the Framework can perform the
      * bundle-specific activities necessary to start this bundle.
      *
@@ -420,5 +425,21 @@ public class JabberActivator
                 .getService(versionServiceReference);
         }
         return versionService;
+    }
+
+    /**
+     * Returns the PhoneNumberI18nService.
+     * @return returns the PhoneNumberI18nService.
+     */
+    public static PhoneNumberI18nService getPhoneNumberI18nService()
+    {
+        if(phoneNumberI18nService == null)
+        {
+            phoneNumberI18nService = ServiceUtils.getService(
+                bundleContext,
+                PhoneNumberI18nService.class);
+        }
+
+        return phoneNumberI18nService;
     }
 }

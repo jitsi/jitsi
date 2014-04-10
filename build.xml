@@ -1047,7 +1047,7 @@
         bundle-protocol,bundle-protocol-media,bundle-icq,
         bundle-icq-slick,bundle-mock,bundle-smacklib,bundle-jmdnslib,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
-        bundle-jnalib,
+        bundle-jnalib,bundle-phonenumbers,
         bundle-msn,bundle-msn-slick,bundle-yahoo,bundle-yahoo-slick,
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
@@ -1526,6 +1526,17 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/smack.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/smackx.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jnsapi.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PHONENUMBER-SERVICE -->
+    <target name="bundle-phonenumbers">
+        <!-- Creates a bundle containing the icq impl of the protocol provider.-->
+        <jar compress="false" destfile="${bundles.dest}/phonenumbers.jar"
+             manifest="${src}/net/java/sip/communicator/impl/phonenumbers/phonenumbers.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/phonenumbers"
+                        prefix="net/java/sip/communicator/impl/phonenumbers"/>
+            <zipfileset src="${lib.noinst}/libphonenumber-5.9.jar" prefix=""/>
         </jar>
     </target>
 

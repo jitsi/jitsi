@@ -912,7 +912,8 @@ public class CallManager
         if (ConfigurationUtils.isNormalizePhoneNumber()
             && !NetworkUtils.isValidIPAddress(callString))
         {
-            callString = PhoneNumberI18nService.normalize(callString);
+            callString = GuiActivator.getPhoneNumberI18nService()
+                .normalize(callString);
         }
 
         List<ProtocolProviderService> telephonyProviders
@@ -2519,8 +2520,8 @@ public class CallManager
 
                 if (stringContact != null)
                 {
-                    stringContact
-                            = PhoneNumberI18nService.normalize(stringContact);
+                    stringContact = GuiActivator.getPhoneNumberI18nService()
+                        .normalize(stringContact);
                 }
             }
 
@@ -3555,7 +3556,8 @@ public class CallManager
     private static void normalizePhoneNumbers(String callees[])
     {
         for (int i = 0 ; i < callees.length ; i++)
-            callees[i] = PhoneNumberI18nService.normalize(callees[i]);
+            callees[i] = GuiActivator.getPhoneNumberI18nService()
+                .normalize(callees[i]);
     }
 
     /**

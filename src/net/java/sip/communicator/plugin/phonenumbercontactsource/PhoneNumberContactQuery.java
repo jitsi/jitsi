@@ -45,6 +45,11 @@ public class PhoneNumberContactQuery
             new LinkedList<OperationSetPersistentPresence>());
 
     /**
+     * Is the query searching for phone number.
+     */
+    private final boolean isQueryPhoneNumber;
+
+    /**
      * Creates an instance of <tt>PhoneNumberContactQuery</tt> by specifying
      * the parent contact source, the query string to match and the maximum
      * result contacts to return.
@@ -63,6 +68,10 @@ public class PhoneNumberContactQuery
 
         this.queryString = queryString;
         this.contactCount = contactCount;
+
+        this.isQueryPhoneNumber
+            = PNContactSourceActivator.getPhoneNumberI18nService()
+                .isPhoneNumber(queryString);
     }
 
     /**
@@ -204,7 +213,13 @@ public class PhoneNumberContactQuery
                         if(StringUtils.isNullOrEmpty(queryString)
                             || query.matcher(numberString).find()
                             || query.matcher(contactName).find()
-                            || query.matcher(contactAddress).find())
+                            || query.matcher(contactAddress).find()
+                            || (isQueryPhoneNumber
+                                && PNContactSourceActivator
+                                    .getPhoneNumberI18nService()
+                                    .phoneNumbersMatch(
+                                        queryString, numberString))
+                            )
                         {
                             ArrayList<ContactDetail> contactDetails
                                 = new ArrayList<ContactDetail>();

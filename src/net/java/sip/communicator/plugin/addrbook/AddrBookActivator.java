@@ -106,6 +106,11 @@ public class AddrBookActivator
      */
     private static List<ProtocolProviderService> providers 
         = new ArrayList<ProtocolProviderService>();
+
+    /**
+     * The registered PhoneNumberI18nService.
+     */
+    private static PhoneNumberI18nService phoneNumberI18nService;
     
     /**
      * The registration change listener.
@@ -523,5 +528,21 @@ public class AddrBookActivator
         
         return result;
 
+    }
+
+    /**
+     * Returns the PhoneNumberI18nService.
+     * @return returns the PhoneNumberI18nService.
+     */
+    public static PhoneNumberI18nService getPhoneNumberI18nService()
+    {
+        if(phoneNumberI18nService == null)
+        {
+            phoneNumberI18nService = ServiceUtils.getService(
+                bundleContext,
+                PhoneNumberI18nService.class);
+        }
+
+        return phoneNumberI18nService;
     }
 }

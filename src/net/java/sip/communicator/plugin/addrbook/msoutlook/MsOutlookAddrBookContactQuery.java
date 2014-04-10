@@ -999,7 +999,8 @@ public class MsOutlookAddrBookContactQuery
                 {
                     if(isPhoneNumber(property))
                         stringValue
-                            = PhoneNumberI18nService.normalize(stringValue);
+                            = AddrBookActivator.getPhoneNumberI18nService()
+                                .normalize(stringValue);
 
                     MsOutlookAddrBookContactDetail contactDetail
                         = new MsOutlookAddrBookContactDetail(

@@ -52,6 +52,11 @@ public class PNContactSourceActivator
     private static ResourceManagementService resources = null;
 
     /**
+     * The registered PhoneNumberI18nService.
+     */
+    private static PhoneNumberI18nService phoneNumberI18nService;
+
+    /**
      * Starts this bundle.
      *
      * @param context the bundle context where we register and obtain services.
@@ -213,5 +218,21 @@ public class PNContactSourceActivator
     {
         if (phoneProviders.contains(protocolProvider))
             phoneProviders.remove(protocolProvider);
+    }
+
+    /**
+     * Returns the PhoneNumberI18nService.
+     * @return returns the PhoneNumberI18nService.
+     */
+    public static PhoneNumberI18nService getPhoneNumberI18nService()
+    {
+        if(phoneNumberI18nService == null)
+        {
+            phoneNumberI18nService = ServiceUtils.getService(
+                bundleContext,
+                PhoneNumberI18nService.class);
+        }
+
+        return phoneNumberI18nService;
     }
 }

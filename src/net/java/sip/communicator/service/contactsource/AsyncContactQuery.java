@@ -153,7 +153,7 @@ public abstract class AsyncContactQuery<T extends ContactSourceService>
      */
     protected String getPhoneNumberQuery()
     {
-        if ((phoneNumberQuery != null) && !queryIsConvertedToPhoneNumber)
+        if ((phoneNumberQuery == null) && !queryIsConvertedToPhoneNumber)
         {
             try
             {
@@ -170,6 +170,16 @@ public abstract class AsyncContactQuery<T extends ContactSourceService>
                         phoneNumberQuery
                             = pattern.substring(1, patternLength - 1);
                     }
+                    else if ((patternLength > 4)
+                        && (pattern.charAt(0) == '\\')
+                        && (pattern.charAt(1) == 'Q')
+                        && (pattern.charAt(patternLength - 2) == '\\')
+                        && (pattern.charAt(patternLength - 1) == 'E'))
+                    {
+                        phoneNumberQuery
+                            = pattern.substring(2, patternLength - 2);
+                    }
+
                 }
             }
             finally
@@ -304,8 +314,8 @@ public abstract class AsyncContactQuery<T extends ContactSourceService>
         boolean phoneNumberMatches = false;
 
         if (query
-                .matcher(PhoneNumberI18nService.normalize(phoneNumber))
-                    .find())
+                .matcher(ContactSourceActivator.getPhoneNumberI18nService()
+                    .normalize(phoneNumber)).find())
         {
             phoneNumberMatches = true;
         }
@@ -330,7 +340,8 @@ public abstract class AsyncContactQuery<T extends ContactSourceService>
                 try
                 {
                     phoneNumberMatches
-                        = PhoneNumberI18nService.phoneNumbersMatch(
+                        = ContactSourceActivator.getPhoneNumberI18nService()
+                            .phoneNumbersMatch(
                                 phoneNumberQuery,
                                 phoneNumber);
                 }

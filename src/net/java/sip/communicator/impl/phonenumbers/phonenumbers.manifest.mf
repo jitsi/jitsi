@@ -1,0 +1,12 @@
+Bundle-Activator: net.java.sip.communicator.impl.phonenumbers.PhoneNumberServiceActivator
+Bundle-Name: PhoneNumbers service
+Bundle-Description: A bundle that provides arsing, formatting and validating of international phone numbers.
+Bundle-Vendor: jitsi.org
+Bundle-Version: 0.0.1
+Bundle-SymbolicName: net.java.sip.communicator.phonenumbers
+Export-Package: com.google.i18n.phonenumbers
+Import-Package: org.osgi.framework,
+ org.jitsi.service.configuration,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.util
+

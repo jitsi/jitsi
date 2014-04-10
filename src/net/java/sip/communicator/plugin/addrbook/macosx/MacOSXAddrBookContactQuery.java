@@ -589,7 +589,8 @@ public class MacOSXAddrBookContactQuery
                 {
                     if (kABPhoneProperty == property)
                         stringValue
-                            = PhoneNumberI18nService.normalize(stringValue);
+                            = AddrBookActivator.getPhoneNumberI18nService()
+                                .normalize(stringValue);
 
                     contactDetails.add(
                             setCapabilities(
@@ -645,8 +646,9 @@ public class MacOSXAddrBookContactQuery
                 {
                     if (kABPhoneProperty == property)
                     {
-                        stringSubValue = PhoneNumberI18nService
-                            .normalize(stringSubValue);
+                        stringSubValue
+                            = AddrBookActivator.getPhoneNumberI18nService()
+                                .normalize(stringSubValue);
                     }
 
                     Object l = multiValue[multiValueIndex + 1];

@@ -149,7 +149,9 @@ public class LdapContactQuery
         Set<String> mobilePhones = person.getMobilePhone();
         Set<String> homePhones = person.getHomePhone();
         Set<String> workPhones = person.getWorkPhone();
-        ContactDetail detail = null;
+        ContactDetail detail;
+        PhoneNumberI18nService phoneNumberI18nService
+            = LdapActivator.getPhoneNumberI18nService();
 
         for(String mail : mailAddresses)
         {
@@ -161,7 +163,7 @@ public class LdapContactQuery
 
         for(String homePhone : homePhones)
         {
-            homePhone = PhoneNumberI18nService.normalize(homePhone);
+            homePhone = phoneNumberI18nService.normalize(homePhone);
             detail = new ContactDetail(homePhone,
                     ContactDetail.Category.Phone,
                     new ContactDetail.SubCategory[]{
@@ -175,7 +177,7 @@ public class LdapContactQuery
 
         for(String workPhone : workPhones)
         {
-            workPhone = PhoneNumberI18nService.normalize(workPhone);
+            workPhone = phoneNumberI18nService.normalize(workPhone);
             detail = new ContactDetail(workPhone,
                 ContactDetail.Category.Phone,
                 new ContactDetail.SubCategory[]{
@@ -189,7 +191,7 @@ public class LdapContactQuery
 
         for(String mobilePhone : mobilePhones)
         {
-            mobilePhone = PhoneNumberI18nService.normalize(mobilePhone);
+            mobilePhone = phoneNumberI18nService.normalize(mobilePhone);
             detail = new ContactDetail(mobilePhone,
                 ContactDetail.Category.Phone,
                 new ContactDetail.SubCategory[]{
