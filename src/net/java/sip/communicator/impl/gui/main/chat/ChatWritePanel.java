@@ -98,6 +98,17 @@ public class ChatWritePanel
     private boolean smsMode = false;
 
     /**
+     * Mode where we do not mix sending im and sms in one chat window.
+     */
+    private boolean disableMergedSmsMode = false;
+
+    /**
+     * Property to control merge sms mode.
+     */
+    private static final String MERGE_SMS_MODE_DISABLED_PROP
+        = "net.java.sip.communicator.impl.gui.MERGE_SMS_MODE_DISABLED";
+
+    /**
      * A timer used to reset the transport resource to the bare ID if there was
      * no activity from this resource since a bunch of time.
      */
@@ -144,6 +155,9 @@ public class ChatWritePanel
         // initialize send command to Ctrl+Enter
         ConfigurationService configService =
             GuiActivator.getConfigurationService();
+
+        disableMergedSmsMode = configService.getBoolean(
+            MERGE_SMS_MODE_DISABLED_PROP, disableMergedSmsMode);
 
         String messageCommandProperty =
             "service.gui.SEND_MESSAGE_COMMAND";
@@ -458,6 +472,9 @@ public class ChatWritePanel
      */
     public void setSmsSelected(boolean selected)
     {
+        if(disableMergedSmsMode && isIMAllowed())
+            return;
+
         if((selected && !smsButton.isSelected())
             || (!selected && smsButton.isSelected()))
         {
@@ -1294,6 +1311,9 @@ public class ChatWritePanel
      */
     public void setSmsLabelVisible(boolean isVisible)
     {
+        if(disableMergedSmsMode && isIMAllowed())
+            return;
+
         // Re-init sms count properties.
         smsCharCount = 160;
         smsNumberCount = 1;
