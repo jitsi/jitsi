@@ -148,13 +148,23 @@ public class IrcStack
         // Make sure we start with an empty joined-channel list.
         this.joining.clear();
         this.joined.clear();
+        
+        final IRCServer server;
+        if (secureConnection)
+        {
+            server =
+                new SecureIRCServer(host, port, password,
+                    getCustomSSLContext(host));
+        }
+        else
+        {
+            server = new IRCServer(host, port, password, false);
+        }
 
         this.irc = new IRCApiImpl(true);
         synchronized (this.irc)
         {
-            this.params.setServer(new IRCServer(host, port, password,
-                secureConnection));
-            this.params.setCustomContext(getCustomSSLContext(host));
+            this.params.setServer(server);
             this.irc.addListener(new ServerListener());
             connectSynchronized();
         }
@@ -1704,11 +1714,6 @@ public class IrcStack
         private IRCServer server;
         
         /**
-         * Custom SSL Context.
-         */
-        private SSLContext sslContext = null;
-
-        /**
          * Construct ServerParameters instance.
          * @param nickName nick name
          * @param realName real name
@@ -1829,30 +1834,6 @@ public class IrcStack
                 throw new IllegalArgumentException("server cannot be null");
             
             this.server = server;
-        }
-        
-        /**
-         * Get the SSL Context.
-         * 
-         * Returns the custom SSLContext or null in case there is no
-         * custom implementation.
-         * 
-         * @return returns the SSLContext or null
-         */
-        @Override
-        public SSLContext getCustomContext()
-        {
-            return this.sslContext;
-        }
-        
-        /**
-         * Set custom SSLContext.
-         * 
-         * @param context the custom SSLContext
-         */
-        public void setCustomContext(SSLContext context)
-        {
-            this.sslContext = context;
         }
     }
 
