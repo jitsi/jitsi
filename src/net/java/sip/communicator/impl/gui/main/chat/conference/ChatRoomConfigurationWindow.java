@@ -33,17 +33,17 @@ public class ChatRoomConfigurationWindow
     /**
      * The configuration form contained in this window.
      */
-    private ChatRoomConfigurationForm configForm;
+    protected ChatRoomConfigurationForm configForm;
 
     /**
      * The scroll pane contained in the "General" tab.
      */
-    private JScrollPane generalScrollPane = new JScrollPane();
+    protected JScrollPane generalScrollPane = new JScrollPane();
 
     /**
      * The main panel.
      */
-    private JPanel mainPanel = new TransparentPanel();
+    protected JPanel mainPanel = new TransparentPanel();
 
     /**
      * The button that stores the data.
@@ -130,7 +130,7 @@ public class ChatRoomConfigurationWindow
     /**
      * Loads the configuration form obtained from the chat room.
      */
-    private void loadConfigurationForm()
+    protected void loadConfigurationForm()
     {
         Iterator<ChatRoomConfigurationFormField> configurationSet
             = configForm.getConfigurationSet();
