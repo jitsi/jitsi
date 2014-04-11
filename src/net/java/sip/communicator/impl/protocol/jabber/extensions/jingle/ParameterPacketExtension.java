@@ -41,6 +41,18 @@ public class ParameterPacketExtension extends AbstractPacketExtension
     }
 
     /**
+     * Creates a new {@link ParameterPacketExtension} instance and sets the
+     * given name and value.
+     */
+    public ParameterPacketExtension(String name, String value)
+    {
+        super(null, ELEMENT_NAME);
+
+        setName(name);
+        setValue(value);
+    }
+
+    /**
      * Sets the name of the format parameter we are representing here.
      *
      * @param name the name of the format parameter we are representing here.

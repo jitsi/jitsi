@@ -236,6 +236,12 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
     private VideoMediaStream videoStream;
 
     /**
+     * Identifier used to group the audio stream and video stream towards
+     * the <tt>CallPeer</tt> in SDP.
+     */
+    private String msLabel = UUID.randomUUID().toString();
+
+    /**
      * The <tt>VideoListener</tt> which listens to the video
      * <tt>MediaStream</tt> of this instance for changes in the availability of
      * visual <tt>Component</tt>s displaying remote video and re-fires them as
@@ -1950,6 +1956,53 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
             int errorCode,
             Throwable cause)
         throws OperationFailedException;
+
+    /**
+     * Returns the value to use for the 'msid' source-specific SDP media
+     * attribute (RFC5576) for the stream of type <tt>mediaType</tt> towards
+     * the <tt>CallPeer</tt>. It consist of a group identifier (shared between
+     * the local audio and video streams towards the <tt>CallPeer</tt>) and an
+     * identifier for the particular stream, separated by a space.
+     *
+     * {@see http://tools.ietf.org/html/draft-ietf-mmusic-msid}
+     *
+     * @param mediaType the media type of the stream for which to return the
+     * value for 'msid'
+     * @return the value to use for the 'msid' source-specific SDP media
+     * attribute (RFC5576) for the stream of type <tt>mediaType</tt> towards
+     * the <tt>CallPeer</tt>.
+     */
+    public String getMsid(MediaType mediaType)
+    {
+        return msLabel + " " + getLabel(mediaType);
+    }
+
+    /**
+     * Returns the value to use for the 'label' source-specific SDP media
+     * attribute (RFC5576) for the stream of type <tt>mediaType</tt> towards
+     * the <tt>CallPeer</tt>.
+     *
+     * @param mediaType the media type of the stream for which to return the
+     * value for 'label'
+     * @return the value to use for the 'label' source-specific SDP media
+     * attribute (RFC5576) for the stream of type <tt>mediaType</tt> towards
+     * the <tt>CallPeer</tt>.
+     */
+     public String getLabel(MediaType mediaType)
+    {
+        return mediaType.toString();
+    }
+
+    /**
+     * Returns the value to use for the 'mslabel' source-specific SDP media
+     * attribute (RFC5576).
+     * @return the value to use for the 'mslabel' source-specific SDP media
+     * attribute (RFC5576).
+     */
+    public String getMsLabel()
+    {
+        return msLabel;
+    }
 
     /**
      * Represents the <tt>PropertyChangeListener</tt> which listens to changes
