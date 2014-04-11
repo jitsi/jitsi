@@ -112,22 +112,6 @@ public class MessageSourceContact
         this.service = service;
 
         update(source);
-
-        if(source instanceof MessageDeliveredEvent)
-        {
-            initDetails(false,
-                ((MessageDeliveredEvent)source).getDestinationContact());
-        }
-        else if(source instanceof MessageReceivedEvent)
-        {
-            initDetails(false,
-                ((MessageReceivedEvent)source).getSourceContact());
-        }
-        else if(source instanceof ChatRoomMessageDeliveredEvent
-                || source instanceof ChatRoomMessageReceivedEvent)
-        {
-            initDetails(true, null);
-        }
     }
 
     /**
@@ -256,25 +240,6 @@ public class MessageSourceContact
         updateMessageContent();
     }
 
-    /**
-     * Updates fields.
-     * @param msc the object
-     */
-    void update(MessageSourceContact msc)
-    {
-        this.contact = msc.contact;
-
-        this.address = contact.getAddress();
-        this.displayName = contact.getDisplayName();
-        this.ppService = contact.getProtocolProvider();
-        this.image = contact.getImage();
-        this.status = contact.getPresenceStatus();
-        this.messageContent = msc.messageContent;
-        this.timestamp = msc.timestamp;
-
-        updateMessageContent();
-    }
-
     @Override
     public String toString()
     {
@@ -285,11 +250,34 @@ public class MessageSourceContact
     }
 
     /**
+     * Init details. Check contact capabilities.
+     * @param source the source event.
+     */
+    void initDetails(EventObject source)
+    {
+        if(source instanceof MessageDeliveredEvent)
+        {
+            initDetails(false,
+                ((MessageDeliveredEvent)source).getDestinationContact());
+        }
+        else if(source instanceof MessageReceivedEvent)
+        {
+            initDetails(false,
+                ((MessageReceivedEvent)source).getSourceContact());
+        }
+        else if(source instanceof ChatRoomMessageDeliveredEvent
+            || source instanceof ChatRoomMessageReceivedEvent)
+        {
+            initDetails(true, null);
+        }
+    }
+
+    /**
      * We will the details for this source contact.
      * Will skip OperationSetBasicInstantMessaging for chat rooms.
      * @param isChatRoom is current source contact a chat room.
      */
-    private void initDetails(boolean isChatRoom, Contact contact)
+    void initDetails(boolean isChatRoom, Contact contact)
     {
         ContactDetail contactDetail =
             new ContactDetail(

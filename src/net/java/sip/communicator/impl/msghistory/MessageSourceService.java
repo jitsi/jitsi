@@ -33,6 +33,7 @@ import static net.java.sip.communicator.service.history.HistoryService.DATE_FORM
 public class MessageSourceService
     implements ContactSourceService,
                ContactPresenceStatusListener,
+               ContactCapabilitiesListener,
                ProviderPresenceStatusListener,
                SubscriptionListener,
                LocalUserChatRoomPresenceListener,
@@ -234,7 +235,7 @@ public class MessageSourceService
      * @return
      */
     private List<MessageSourceContact> getSourceContacts(
-        ProtocolProviderService provider)
+        ProtocolProviderService provider, boolean isStatusChanged)
     {
         String providerID = provider.getAccountID().getAccountUniqueID();
         List<String> recentMessagesContactIDs =
@@ -254,17 +255,65 @@ public class MessageSourceService
                     contactID,
                     isSMSEnabled);
 
-            for(EventObject obj : res)
-            {
-                MessageSourceContact msc = new MessageSourceContact(
-                    obj, MessageSourceService.this);
-                if(!recentMessages.contains(msc)
-                    && !sourceContactsToAdd.contains(msc))
-                    sourceContactsToAdd.add(msc);
-            }
+            processEventObjects(res, sourceContactsToAdd, isStatusChanged);
         }
 
         return sourceContactsToAdd;
+    }
+
+    /**
+     * Process list of event objects. Checks whether message source contact
+     * already exist for this event object, if yes just update it with the new
+     * values (not sure whether we should do this, as it may bring old messages)
+     * and if status of provider is changed, init its details, updates its
+     * capabilities. It still adds the found messages source contact to
+     * the list of the new contacts, as later we will detect this and fire
+     * update event.
+     * If nothing found a new contact is created.
+     *
+     * @param res list of event
+     * @param sourceContactsToAdd list of newly created source contacts
+     * or already existed but updated with corresponding event object
+     * @param isStatusChanged whether provider status changed
+     * and we are processing
+     */
+    private void processEventObjects(
+        Collection<EventObject> res,
+        List<MessageSourceContact> sourceContactsToAdd,
+        boolean isStatusChanged)
+    {
+        for(EventObject obj : res)
+        {
+            MessageSourceContact msc =
+                findMessageSourceContact(obj, recentMessages);
+
+            if(msc != null)
+            {
+                msc.update(obj);// update
+
+                if(isStatusChanged)
+                    msc.initDetails(obj);// update capabilities
+
+                // we still add it to sourceContactsToAdd
+                // later we will find it is duplicate and will fire
+                // update event
+                if(!sourceContactsToAdd.contains(msc))
+                    sourceContactsToAdd.add(msc);
+
+                continue;
+            }
+
+            msc = findMessageSourceContact(obj, sourceContactsToAdd);
+
+            if(msc == null)
+            {
+                msc = new MessageSourceContact(
+                    obj, MessageSourceService.this);
+                if(isStatusChanged)
+                    msc.initDetails(obj);
+                sourceContactsToAdd.add(msc);
+            }
+        }
     }
 
     /**
@@ -297,7 +346,8 @@ public class MessageSourceService
                     duplicates.add(msc);
 
                     // update currently used instance
-                    msc.update(mscToAdd);
+                    //msc.update(mscToAdd);
+                    // it was already updated
 
                     // save update
                     updateRecentMessageToHistory(msc);
@@ -367,14 +417,15 @@ public class MessageSourceService
      *
      * @param provider ProtocolProviderService
      */
-    void handleProviderAdded(final ProtocolProviderService provider)
+    void handleProviderAdded(final ProtocolProviderService provider,
+                             final boolean isStatusChanged)
     {
         new Thread(new Runnable()
         {
             @Override
             public void run()
             {
-                handleProviderAddedInSeparateThread(provider);
+                handleProviderAddedInSeparateThread(provider, isStatusChanged);
             }
         }).start();
     }
@@ -387,7 +438,7 @@ public class MessageSourceService
      * @param provider ProtocolProviderService
      */
     private void handleProviderAddedInSeparateThread(
-        ProtocolProviderService provider)
+        ProtocolProviderService provider, boolean isStatusChanged)
     {
         // lets check if we have cached recent messages for this provider, and
         // fire events if found and are newer
@@ -395,7 +446,7 @@ public class MessageSourceService
         synchronized(recentMessages)
         {
             List<MessageSourceContact> sourceContactsToAdd
-                = getSourceContacts(provider);
+                = getSourceContacts(provider, isStatusChanged);
 
             if(sourceContactsToAdd.isEmpty())
             {
@@ -411,14 +462,8 @@ public class MessageSourceService
 
                 List<MessageSourceContact> newMsc
                     = new ArrayList<MessageSourceContact>();
-                for(EventObject obj : res)
-                {
-                    MessageSourceContact msc = new MessageSourceContact(
-                        obj, MessageSourceService.this);
-                    if(!recentMessages.contains(msc)
-                        && !newMsc.contains(msc))
-                        newMsc.add(msc);
-                }
+
+                processEventObjects(res, newMsc, isStatusChanged);
 
                 addNewRecentMessages(newMsc);
 
@@ -431,6 +476,48 @@ public class MessageSourceService
             else
                 addNewRecentMessages(sourceContactsToAdd);
         }
+    }
+
+    /**
+     * Tries to match the event object to already existing
+     * MessageSourceContact in the supplied list.
+     * @param obj the object that we will try to match.
+     * @param list the list we will search in.
+     * @return the found source contact
+     */
+    private static MessageSourceContact findMessageSourceContact(
+        EventObject obj, List<MessageSourceContact> list)
+    {
+        Contact contact = null;
+        ChatRoom chatRoom = null;
+
+        if(obj instanceof MessageDeliveredEvent)
+        {
+            contact = ((MessageDeliveredEvent)obj).getDestinationContact();
+        }
+        else if(obj instanceof MessageReceivedEvent)
+        {
+            contact = ((MessageReceivedEvent)obj).getSourceContact();
+        }
+        else if(obj instanceof ChatRoomMessageDeliveredEvent)
+        {
+            chatRoom = ((ChatRoomMessageDeliveredEvent)obj).getSourceChatRoom();
+        }
+        else if(obj instanceof ChatRoomMessageReceivedEvent)
+        {
+            chatRoom = ((ChatRoomMessageDeliveredEvent)obj).getSourceChatRoom();
+        }
+
+        for(MessageSourceContact msc : list)
+        {
+            if((contact != null
+                && contact.equals(msc.getContact()))
+                || (chatRoom != null
+                    && chatRoom.equals(msc.getRoom())))
+                return msc;
+        }
+
+        return null;
     }
 
     /**
@@ -478,7 +565,7 @@ public class MessageSourceService
             for (ProtocolProviderService pps
                     : messageHistoryService.getCurrentlyAvailableProviders())
             {
-                contactsToAdd.addAll(getSourceContacts(pps));
+                contactsToAdd.addAll(getSourceContacts(pps, true));
             }
 
             addNewRecentMessages(contactsToAdd);
@@ -678,7 +765,7 @@ public class MessageSourceService
         if(!evt.getNewStatus().isOnline() || evt.getOldStatus().isOnline())
             return;
 
-        handleProviderAdded(evt.getProvider());
+        handleProviderAdded(evt.getProvider(), true);
     }
 
     @Override
@@ -775,6 +862,7 @@ public class MessageSourceService
             // and update recent messages, trim and sort
             MessageSourceContact newSourceContact =
                 new MessageSourceContact(obj, MessageSourceService.this);
+            newSourceContact.initDetails(obj);
             // we have already checked for duplicate
             recentMessages.add(newSourceContact);
 
@@ -1099,6 +1187,28 @@ public class MessageSourceService
             }
         }
 
+    }
+
+    @Override
+    public void supportedOperationSetsChanged(ContactCapabilitiesEvent event)
+    {
+        Contact contact = event.getSourceContact();
+
+        if(contact == null)
+            return;
+
+        for(MessageSourceContact msc : recentMessages)
+        {
+            if(contact.equals(msc.getContact()))
+            {
+                msc.initDetails(false, contact);
+
+                if(recentQuery != null)
+                    recentQuery.fireContactChanged(msc);
+
+                return;
+            }
+        }
     }
 
     /**

@@ -1625,20 +1625,31 @@ public class MessageHistoryServiceImpl
                 logger.trace("Service did not have a multi im op. set.");
         }
 
-        OperationSetPresence opSetPresence =
-            provider.getOperationSet(OperationSetPresence.class);
-
-        if (opSetPresence != null && messageSourceService != null)
+        if(messageSourceService != null)
         {
-            opSetPresence
-                .addContactPresenceStatusListener(messageSourceService);
-            opSetPresence
-                .addProviderPresenceStatusListener(messageSourceService);
-            opSetPresence.addSubscriptionListener(messageSourceService);
+            OperationSetPresence opSetPresence =
+                provider.getOperationSet(OperationSetPresence.class);
+
+            if (opSetPresence != null)
+            {
+                opSetPresence
+                    .addContactPresenceStatusListener(messageSourceService);
+                opSetPresence
+                    .addProviderPresenceStatusListener(messageSourceService);
+                opSetPresence.addSubscriptionListener(messageSourceService);
+            }
+
+            messageSourceService.handleProviderAdded(provider, false);
+
+            OperationSetContactCapabilities capOpSet
+                = provider.getOperationSet(OperationSetContactCapabilities.class);
+
+            if(capOpSet != null)
+            {
+                capOpSet.addContactCapabilitiesListener(messageSourceService);
+            }
         }
 
-        if(messageSourceService != null)
-            messageSourceService.handleProviderAdded(provider);
     }
 
     /**
@@ -1691,20 +1702,30 @@ public class MessageHistoryServiceImpl
                 opSetMultiUChat.removePresenceListener(messageSourceService);
         }
 
-        OperationSetPresence opSetPresence =
-            provider.getOperationSet(OperationSetPresence.class);
-
-        if (opSetPresence != null && messageSourceService != null)
-        {
-            opSetPresence
-                .removeContactPresenceStatusListener(messageSourceService);
-            opSetPresence
-                .removeProviderPresenceStatusListener(messageSourceService);
-            opSetPresence.removeSubscriptionListener(messageSourceService);
-        }
-
         if(messageSourceService != null)
+        {
+            OperationSetPresence opSetPresence =
+                provider.getOperationSet(OperationSetPresence.class);
+
+            if(opSetPresence != null)
+            {
+                opSetPresence
+                    .removeContactPresenceStatusListener(messageSourceService);
+                opSetPresence
+                    .removeProviderPresenceStatusListener(messageSourceService);
+                opSetPresence.removeSubscriptionListener(messageSourceService);
+            }
+
             messageSourceService.handleProviderRemoved(provider);
+
+            OperationSetContactCapabilities capOpSet
+                = provider.getOperationSet(OperationSetContactCapabilities.class);
+
+            if(capOpSet != null)
+            {
+                capOpSet.removeContactCapabilitiesListener(messageSourceService);
+            }
+        }
     }
 
     /**
