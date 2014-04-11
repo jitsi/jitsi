@@ -9,8 +9,6 @@ package net.java.sip.communicator.service.contactsource;
 import java.util.*;
 import java.util.regex.*;
 
-import net.java.sip.communicator.service.protocol.*;
-
 /**
  * Provides an abstract implementation of a <tt>ContactQuery</tt> which runs in
  * a separate <tt>Thread</tt>.

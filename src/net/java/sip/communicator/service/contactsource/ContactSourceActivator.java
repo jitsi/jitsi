@@ -8,6 +8,7 @@ package net.java.sip.communicator.service.contactsource;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
 import org.osgi.framework.*;
 
 /**
@@ -31,7 +32,7 @@ public class ContactSourceActivator
     public void start(BundleContext bundleContext)
         throws Exception
     {
-        this.bundleContext = bundleContext;
+        ContactSourceActivator.bundleContext = bundleContext;
     }
 
     @Override
@@ -47,11 +48,11 @@ public class ContactSourceActivator
     {
         if(phoneNumberI18nService == null)
         {
-            phoneNumberI18nService = ServiceUtils.getService(
-                bundleContext,
-                PhoneNumberI18nService.class);
+            phoneNumberI18nService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        PhoneNumberI18nService.class);
         }
-
         return phoneNumberI18nService;
     }
 }
