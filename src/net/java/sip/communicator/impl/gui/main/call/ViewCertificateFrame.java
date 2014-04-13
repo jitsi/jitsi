@@ -15,7 +15,9 @@ import org.jitsi.service.resources.*;
 /**
  * Frame for showing information about a certificate.
  */
-public class ViewCertificateFrame extends SIPCommFrame {
+public class ViewCertificateFrame
+    extends SIPCommFrame
+{
 
     /**
      * Serial version UID.
