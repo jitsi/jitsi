@@ -27,7 +27,12 @@ public class OperationSetTLSJabberImpl
         this.jabberService = jabberService;
     }
 
-    public String getCipherSuite() {
+    /**
+     * @see OperationSetTLS#getCipherSuite()
+     */
+    @Override
+    public String getCipherSuite()
+    {
         final String result;
         final SSLSocket socket = jabberService.getSSLSocket();
         if (socket == null)
@@ -41,7 +46,12 @@ public class OperationSetTLSJabberImpl
         return result;
     }
 
-    public String getProtocol() {
+    /**
+     * @see OperationSetTLS#getProtocol() 
+     */
+    @Override
+    public String getProtocol()
+    {
         final String result;
         final SSLSocket socket = jabberService.getSSLSocket();
         if (socket == null)
@@ -55,7 +65,12 @@ public class OperationSetTLSJabberImpl
         return result;
     }
 
-    public Certificate[] getServerCertificates() {
+    /**
+     * @see OperationSetTLS#getServerCertificates() 
+     */
+    @Override
+    public Certificate[] getServerCertificates()
+    {
         Certificate[] result = null;
         final SSLSocket socket = jabberService.getSSLSocket();
         if (socket != null)
