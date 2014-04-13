@@ -38,7 +38,8 @@ import javax.swing.event.*;
  */
 public class CallInfoFrame
     implements CallTitleListener,
-               PropertyChangeListener
+               PropertyChangeListener,
+               HyperlinkListener
 {
     /**
      * The telephony conference to compute and display the statistics of.
@@ -163,31 +164,7 @@ public class CallInfoFrame
         infoTextPane.setOpaque(false);
         infoTextPane.setEditable(false);
         infoTextPane.setContentType("text/html");
-        infoTextPane.addHyperlinkListener(new HyperlinkListener()
-        {
-            public void hyperlinkUpdate(HyperlinkEvent e)
-            {
-                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED
-                        && e.getURL() != null
-                        && CERTIFICATE_URL.equals(e.getURL().toString()))
-                {
-                    List<Call> calls = callConference.getCalls();
-                    if (!calls.isEmpty())
-                    {
-                        Call aCall = calls.get(0);
-                        Certificate[] chain = aCall.getProtocolProvider()
-                                .getOperationSet(OperationSetTLS.class)
-                                .getServerCertificates();
-
-                        ViewCertificateFrame certFrame =
-                                new ViewCertificateFrame(chain, null,
-                                    resources.getI18NString(
-                                    "service.gui.callinfo.TLS_CERTIFICATE_CONTENT"));
-                        certFrame.setVisible(true);
-                    }
-                }
-            }
-        });
+        infoTextPane.addHyperlinkListener(this);
 
         return infoTextPane;
     }
@@ -857,5 +834,33 @@ public class CallInfoFrame
             return resources.getI18NString("service.gui.callinfo.NA");
         }
         return ((int) videoSize.getWidth()) + " x " + ((int) videoSize.getHeight());
+    }
+
+    /**
+     * Invoked when user clicks a link in the editor pane.
+     * @param e the event
+     */
+    public void hyperlinkUpdate(HyperlinkEvent e)
+    {
+        // Handle "View certificate" link
+        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED
+                        && e.getURL() != null
+                        && CERTIFICATE_URL.equals(e.getURL().toString()))
+        {
+            List<Call> calls = callConference.getCalls();
+            if (!calls.isEmpty())
+            {
+                Call aCall = calls.get(0);
+                Certificate[] chain = aCall.getProtocolProvider()
+                        .getOperationSet(OperationSetTLS.class)
+                        .getServerCertificates();
+
+                ViewCertificateFrame certFrame =
+                        new ViewCertificateFrame(chain, null,
+                            resources.getI18NString(
+                            "service.gui.callinfo.TLS_CERTIFICATE_CONTENT"));
+                certFrame.setVisible(true);
+            }
+        }
     }
 }
