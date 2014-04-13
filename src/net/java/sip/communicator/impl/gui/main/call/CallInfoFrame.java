@@ -244,18 +244,18 @@ public class CallInfoFrame
                     resources.getI18NString("service.gui.callinfo.CALL_TRANSPORT"),
                     preferredTransport.toString()));
 
-            final OperationSetTLS tlsDetails = aCall.getProtocolProvider()
+            final OperationSetTLS opSetTls = aCall.getProtocolProvider()
                     .getOperationSet(OperationSetTLS.class);
-            if (tlsDetails != null)
+            if (opSetTls != null)
             {
                 stringBuffer.append(getLineString(
                         resources.getI18NString(
                         "service.gui.callinfo.TLS_PROTOCOL"),
-                        tlsDetails.getProtocol()));
+                        opSetTls.getProtocol()));
                 stringBuffer.append(getLineString(
                         resources.getI18NString(
                         "service.gui.callinfo.TLS_CIPHER_SUITE"),
-                        tlsDetails.getCipherSuite()));
+                        opSetTls.getCipherSuite()));
 
                 stringBuffer.append("<b><a href=\"")
                     .append(CERTIFICATE_URL)
