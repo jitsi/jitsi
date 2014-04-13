@@ -1326,6 +1326,11 @@ public class ChatRoomIrcImpl
     public void setMembersWhiteList(List<String> members)
     {}
     
+    /**
+     * Update the subject for this chat room.
+     * 
+     * @param subject the subject
+     */
     public void updateSubject(String subject)
     {
         if (!this.chatSubject.equals(subject))
