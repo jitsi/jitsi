@@ -2099,7 +2099,7 @@ javax.swing.event, javax.swing.border"/>
     <!-- BUNDLE SLF4J -->
     <target name="bundle-slf4j">
         <copy file="${lib.noinst}/slf4j-api-1.7.5.jar" tofile="${bundles.dest}/slf4j-api.jar"/>
-        <copy file="${lib.noinst}/slf4j-simple-1.7.5.jar" tofile="${bundles.dest}/slf4j-simple.jar"/>
+        <copy file="${lib.noinst}/slf4j-jdk14-1.7.5.jar" tofile="${bundles.dest}/slf4j-jdk14.jar"/>
     </target>
 
     <!-- BUNDLE-PLUGIN-IRCACCREGWIZZ -->
