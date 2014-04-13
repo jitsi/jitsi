@@ -27,6 +27,8 @@ import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
 
 import com.explodingpixels.macwidgets.*;
+import java.security.cert.*;
+import javax.swing.event.*;
 
 /**
  * The frame displaying the statistical information for a telephony conference.
@@ -36,7 +38,8 @@ import com.explodingpixels.macwidgets.*;
  */
 public class CallInfoFrame
     implements CallTitleListener,
-               PropertyChangeListener
+               PropertyChangeListener,
+               HyperlinkListener
 {
     /**
      * The telephony conference to compute and display the statistics of.
@@ -68,6 +71,11 @@ public class CallInfoFrame
      * Indicates if the info window has any text to display.
      */
     private boolean hasCallInfo;
+
+    /**
+     * Dummy URL to indicate that the certificate should be displayed.
+     */
+    private final String CERTIFICATE_URL = "jitsi://viewCertificate";
 
     /**
      * Creates a new frame containing the statistical information for a specific
@@ -156,6 +164,7 @@ public class CallInfoFrame
         infoTextPane.setOpaque(false);
         infoTextPane.setEditable(false);
         infoTextPane.setContentType("text/html");
+        infoTextPane.addHyperlinkListener(this);
 
         return infoTextPane;
     }
@@ -234,6 +243,27 @@ public class CallInfoFrame
                 stringBuffer.append(getLineString(
                     resources.getI18NString("service.gui.callinfo.CALL_TRANSPORT"),
                     preferredTransport.toString()));
+
+            final OperationSetTLS opSetTls = aCall.getProtocolProvider()
+                    .getOperationSet(OperationSetTLS.class);
+            if (opSetTls != null)
+            {
+                stringBuffer.append(getLineString(
+                        resources.getI18NString(
+                        "service.gui.callinfo.TLS_PROTOCOL"),
+                        opSetTls.getProtocol()));
+                stringBuffer.append(getLineString(
+                        resources.getI18NString(
+                        "service.gui.callinfo.TLS_CIPHER_SUITE"),
+                        opSetTls.getCipherSuite()));
+
+                stringBuffer.append("<b><a href=\"")
+                    .append(CERTIFICATE_URL)
+                    .append("\">")
+                    .append(resources.getI18NString(
+                            "service.gui.callinfo.VIEW_CERTIFICATE"))
+                    .append("</a></b><br/>");
+            }
 
             constructCallPeersInfo(stringBuffer);
 
@@ -804,5 +834,32 @@ public class CallInfoFrame
             return resources.getI18NString("service.gui.callinfo.NA");
         }
         return ((int) videoSize.getWidth()) + " x " + ((int) videoSize.getHeight());
+    }
+
+    /**
+     * Invoked when user clicks a link in the editor pane.
+     * @param e the event
+     */
+    public void hyperlinkUpdate(HyperlinkEvent e)
+    {
+        // Handle "View certificate" link
+        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED
+                        && CERTIFICATE_URL.equals(e.getDescription()))
+        {
+            List<Call> calls = callConference.getCalls();
+            if (!calls.isEmpty())
+            {
+                Call aCall = calls.get(0);
+                Certificate[] chain = aCall.getProtocolProvider()
+                        .getOperationSet(OperationSetTLS.class)
+                        .getServerCertificates();
+
+                ViewCertificateFrame certFrame =
+                        new ViewCertificateFrame(chain, null,
+                            resources.getI18NString(
+                            "service.gui.callinfo.TLS_CERTIFICATE_CONTENT"));
+                certFrame.setVisible(true);
+            }
+        }
     }
 }

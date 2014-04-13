@@ -1154,6 +1154,32 @@ public class ProtocolProviderServiceJabberImpl
             {
                 SSLContext sslContext = loginStrategy.createSslContext(cvs,
                         getTrustManager(cvs, serviceName));
+
+                // log SSL/TLS algorithms and protocols
+                if (logger.isDebugEnabled())
+                {
+                    final StringBuilder buff = new StringBuilder();
+                    buff.append("Available TLS protocols and algorithms:\n");
+                    buff.append("Default protocols: ");
+                    buff.append(Arrays.toString(
+                        sslContext.getDefaultSSLParameters().getProtocols()));
+                    buff.append("\n");
+                    buff.append("Supported protocols: ");
+                    buff.append(Arrays.toString(
+                        sslContext.getSupportedSSLParameters().getProtocols()));
+                    buff.append("\n");
+                    buff.append("Default cipher suites: ");
+                    buff.append(Arrays.toString(
+                            sslContext.getDefaultSSLParameters()
+                            .getCipherSuites()));
+                    buff.append("\n");
+                    buff.append("Supported cipher suites: ");
+                    buff.append(Arrays.toString(
+                            sslContext.getSupportedSSLParameters()
+                            .getCipherSuites()));
+                    logger.debug(buff.toString());
+                }
+
                 connection.setCustomSslContext(sslContext);
             }
             else if (tlsRequired)
@@ -1220,6 +1246,35 @@ public class ProtocolProviderServiceJabberImpl
         }
         else
         {
+            if (connection.getSocket() instanceof SSLSocket)
+            {
+                final SSLSocket sslSocket = (SSLSocket) connection.getSocket();
+                StringBuilder buff = new StringBuilder();
+                buff.append("Chosen TLS protocol and algorithm:\n")
+                        .append("Protocol: ").append(sslSocket.getSession()
+                        .getProtocol()).append("\n")
+                        .append("Cipher suite: ").append(sslSocket.getSession()
+                        .getCipherSuite());
+                logger.info(buff.toString());
+
+                if (logger.isDebugEnabled())
+                {
+                    buff = new StringBuilder();
+                    buff.append("Server TLS certificate chain:\n");
+                    try
+                    {
+                        buff.append(Arrays.toString(
+                                sslSocket.getSession().getPeerCertificates()));
+                    }
+                    catch (SSLPeerUnverifiedException ex)
+                    {
+                        buff.append("<unavailable: ")
+                                .append(ex.getLocalizedMessage()).append(">");
+                    }
+                    logger.debug(buff.toString());
+                }
+            }
+
             connection.addConnectionListener(connectionListener);
         }
 
@@ -1858,6 +1913,11 @@ public class ProtocolProviderServiceJabberImpl
                 addSupportedOperationSet(OperationSetUserSearch.class,
                     new OperationSetUserSearchJabberImpl(this));
             }
+
+            OperationSetTLS opsetTLS
+                    = new OperationSetTLSJabberImpl(this);
+            addSupportedOperationSet(OperationSetTLS.class,
+                    opsetTLS);
 
             isInitialized = true;
         }
@@ -2867,4 +2927,24 @@ public class ProtocolProviderServiceJabberImpl
             logger.error("Error loading classes in smack", e);
         }
     }
+
+    /**
+     * Return the SSL socket (if TLS used).
+     * @return The SSL socket or null if not used
+     */
+    public SSLSocket getSSLSocket()
+    {
+        final SSLSocket result;
+        final Socket socket = connection.getSocket();
+        if (socket instanceof SSLSocket)
+        {
+            result = (SSLSocket) socket;
+        }
+        else
+        {
+            result = null;
+        }
+        return result;
+    }
+
 }
