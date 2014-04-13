@@ -126,8 +126,8 @@ public class FormattedTextBuilder
 
     /**
      * Return the formatted string in its current state. (This means that if
-     * {@link #done()} was not yet called, it will print an intermediate state of
-     * the formatted text.)
+     * {@link #done()} was not yet called, it will print an intermediate state
+     * of the formatted text.)
      */
     public String toString()
     {

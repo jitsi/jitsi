@@ -79,7 +79,8 @@ public class ModeParser
                 }
                 catch (ArrayIndexOutOfBoundsException e)
                 {
-                    throw new IllegalArgumentException("invalid mode string provided: parameter missing", e);
+                    throw new IllegalArgumentException("invalid mode string "
+                        + "provided: parameter missing", e);
                 }
                 break;
             }

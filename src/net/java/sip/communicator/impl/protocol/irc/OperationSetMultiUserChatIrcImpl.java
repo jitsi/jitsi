@@ -106,7 +106,8 @@ public class OperationSetMultiUserChatIrcImpl
      * @return a list of the chat rooms that <tt>chatRoomMember</tt> has joined
      * and is currently active in.
      */
-    public List<String> getCurrentlyJoinedChatRooms(ChatRoomMember chatRoomMember)
+    public List<String> getCurrentlyJoinedChatRooms(
+        ChatRoomMember chatRoomMember)
     {
         //TODO: Implement "who is" for the IRC stack.
         return null;
@@ -198,7 +199,6 @@ public class OperationSetMultiUserChatIrcImpl
      */
     public boolean isMultiChatSupportedByContact(Contact contact)
     {
-        //TODO: Implement isMultiChatSupportedByContact.
         return true;
     }
 

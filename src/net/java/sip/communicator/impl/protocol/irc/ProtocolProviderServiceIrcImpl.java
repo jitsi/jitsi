@@ -89,13 +89,14 @@ public class ProtocolProviderServiceIrcImpl
             //Initialize the multi user chat support
             multiUserChat = new OperationSetMultiUserChatIrcImpl(this);
             
-            // TODO Implement OperationSetPersistentPresence in order to support
-            // private messaging.
-
             addSupportedOperationSet(
                 OperationSetMultiUserChat.class,
                 multiUserChat);
             
+            // TODO Implement OperationSetPersistentPresence and
+            // OperationSetBasicInstantMessaging in order to support private
+            // messaging.
+
             // TODO Implement OperationSetServerStoredAccountInfo so we can
             // suggest a display name to use when adding new chat rooms?
 

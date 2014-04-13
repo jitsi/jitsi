@@ -141,7 +141,7 @@ public final class Utils
                 return Color.values()[color];
             }
             throw new IllegalArgumentException(
-                "no color separator present, hence no background color present");
+               "no color separator present, hence no background color present");
         }
         catch (StringIndexOutOfBoundsException e)
         {
@@ -180,8 +180,8 @@ public final class Utils
         catch (StringIndexOutOfBoundsException e)
         {
             // Invalid control code, since text has ended.
-            LOGGER
-                .trace("ArrayIndexOutOfBounds during foreground color control code parsing.");
+            LOGGER.trace("ArrayIndexOutOfBounds during foreground "
+                + "color control code parsing.");
             throw new IllegalArgumentException("missing foreground color code");
         }
         catch (NumberFormatException e)

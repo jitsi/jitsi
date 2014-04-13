@@ -1117,9 +1117,9 @@ public class ChatRoomIrcImpl
 
     /**
      * Determines whether this chat room should be stored in the configuration
-     * file or not. If the chat room is persistent it still will be shown after a
-     * restart in the chat room list. A non-persistent chat room will be only in
-     * the chat room list until the the program is running.
+     * file or not. If the chat room is persistent it still will be shown after
+     * a restart in the chat room list. A non-persistent chat room will be only
+     * in the chat room list until the the program is running.
      *
      * @return true if this chat room is persistent, false otherwise
      */
@@ -1217,9 +1217,11 @@ public class ChatRoomIrcImpl
     }
 
     /**
-     * Revokes the membership role for the participant given by <tt>address</tt>.
+     * Revokes the membership role for the participant given by <tt>address</tt>
+     * .
+     * 
      * @param address the address of the participant to revoke membership role
-     * for
+     *            for
      */
     public void revokeMembership(String address)
     {

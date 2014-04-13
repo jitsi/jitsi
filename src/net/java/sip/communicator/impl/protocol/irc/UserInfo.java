@@ -10,6 +10,8 @@ import java.util.*;
 
 /**
  * Represents the informations we get from a user when we use WHOIS
+ * 
+ * TODO Class is unused at the moment.
  *
  * @author Stephane Remy
  */
