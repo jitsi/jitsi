@@ -75,7 +75,7 @@ public class CallInfoFrame
     /**
      * Dummy URL to indicate that the certificate should be displayed.
      */
-    private final String CERTIFICATE_URL = "http://viewCertificate";
+    private final String CERTIFICATE_URL = "jitsi://viewCertificate";
 
     /**
      * Creates a new frame containing the statistical information for a specific
@@ -844,8 +844,7 @@ public class CallInfoFrame
     {
         // Handle "View certificate" link
         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED
-                        && e.getURL() != null
-                        && CERTIFICATE_URL.equals(e.getURL().toString()))
+                        && CERTIFICATE_URL.equals(e.getDescription()))
         {
             List<Call> calls = callConference.getCalls();
             if (!calls.isEmpty())
