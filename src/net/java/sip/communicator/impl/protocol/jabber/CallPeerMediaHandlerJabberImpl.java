@@ -2445,21 +2445,16 @@ public class CallPeerMediaHandlerJabberImpl
             ContentPacketExtension localContent,
             ContentPacketExtension remoteContent)
     {
-        List<String> preferredEncryptionProtocols
+        List<SrtpControlType> preferredEncryptionProtocols
             = getPeer()
                 .getProtocolProvider()
                     .getAccountID()
                         .getSortedEnabledEncryptionProtocolList();
 
-        for (String preferredEncryptionProtocol : preferredEncryptionProtocols)
+        for (SrtpControlType srtpControlType : preferredEncryptionProtocols)
         {
-            String protoName
-                = preferredEncryptionProtocol.substring(
-                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length()
-                            + 1);
-
             // DTLS-SRTP
-            if (DtlsControl.PROTO_NAME.equals(protoName))
+            if (srtpControlType == SrtpControlType.DTLS_SRTP)
             {
                 addDtlsAdvertisedEncryptions(
                         false,
@@ -2486,7 +2481,7 @@ public class CallPeerMediaHandlerJabberImpl
                         : JingleUtils.getRtpDescription(remoteContent);
 
                 if (setAndAddPreferredEncryptionProtocol(
-                        protoName,
+                        srtpControlType,
                         mediaType,
                         localDescription,
                         remoteDescription))

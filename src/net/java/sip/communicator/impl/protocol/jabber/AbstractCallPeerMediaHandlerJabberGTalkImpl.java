@@ -514,21 +514,16 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
             RtpDescriptionPacketExtension remoteDescription)
     {
         // Sets ZRTP or SDES, depending on the preferences for this account.
-        List<String> preferredEncryptionProtocols
+        List<SrtpControlType> preferredEncryptionProtocols
             = getPeer()
                 .getProtocolProvider()
                     .getAccountID()
                         .getSortedEnabledEncryptionProtocolList();
 
-        for(String preferredEncryptionProtocol : preferredEncryptionProtocols)
+        for(SrtpControlType srtpControlType : preferredEncryptionProtocols)
         {
-            String protoName
-                = preferredEncryptionProtocol.substring(
-                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length()
-                            + 1);
-
             if (setAndAddPreferredEncryptionProtocol(
-                    protoName,
+                    srtpControlType,
                     mediaType,
                     localDescription,
                     remoteDescription))
@@ -555,7 +550,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
      * selected; <tt>false</tt>, otherwise
      */
     protected boolean setAndAddPreferredEncryptionProtocol(
-            String protoName,
+            SrtpControlType srtpControlType,
             MediaType mediaType,
             RtpDescriptionPacketExtension localDescription,
             RtpDescriptionPacketExtension remoteDescription)
@@ -568,7 +563,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
             return false;
 
         // SDES
-        if(SDesControl.PROTO_NAME.equals(protoName))
+        if(srtpControlType == SrtpControlType.SDES)
         {
             addSDesAdvertisedEncryptions(
                     false,
@@ -584,7 +579,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
             }
         }
         // ZRTP
-        else if(ZrtpControl.PROTO_NAME.equals(protoName))
+        else if(srtpControlType == SrtpControlType.ZRTP)
         {
             if(setZrtpEncryptionOnDescription(
                     mediaType,

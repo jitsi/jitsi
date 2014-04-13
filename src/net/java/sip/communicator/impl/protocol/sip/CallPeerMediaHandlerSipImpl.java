@@ -1173,19 +1173,15 @@ public class CallPeerMediaHandlerSipImpl
              * List the secure transports in the result according to the order
              * of preference of their respective encryption protocols.
              */
-            List<String> encryptionProtocols
+            List<SrtpControlType> encryptionProtocols
                 = accountID.getSortedEnabledEncryptionProtocolList();
 
             for (int epi = encryptionProtocols.size() - 1; epi >= 0; epi--)
             {
-                String encryptionProtocol = encryptionProtocols.get(epi);
-                String protoName
-                    = encryptionProtocol.substring(
-                            ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length()
-                                + 1);
+                SrtpControlType srtpControlType = encryptionProtocols.get(epi);
                 String[] protos;
 
-                if (DtlsControl.PROTO_NAME.equals(protoName))
+                if (srtpControlType == SrtpControlType.DTLS_SRTP)
                 {
                     protos
                         = new String[]
@@ -1738,21 +1734,16 @@ public class CallPeerMediaHandlerSipImpl
             MediaDescription remoteMd)
     {
         // Sets ZRTP or SDES, depending on the preferences for this account.
-        List<String> preferredEncryptionProtocols
+        List<SrtpControlType> preferredEncryptionProtocols
             = getPeer()
                 .getProtocolProvider()
                     .getAccountID()
                         .getSortedEnabledEncryptionProtocolList();
 
-        for(String preferredEncryptionProtocol : preferredEncryptionProtocols)
+        for(SrtpControlType srtpControlType : preferredEncryptionProtocols)
         {
-            String protoName
-                = preferredEncryptionProtocol.substring(
-                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length()
-                            + 1);
-
             // DTLS-SRTP
-            if (DtlsControl.PROTO_NAME.equals(protoName))
+            if (srtpControlType == SrtpControlType.DTLS_SRTP)
             {
                 if(updateMediaDescriptionForDtls(mediaType, localMd, remoteMd))
                 {
@@ -1761,7 +1752,7 @@ public class CallPeerMediaHandlerSipImpl
                 }
             }
             // SDES
-            else if(SDesControl.PROTO_NAME.equals(protoName))
+            else if(srtpControlType == SrtpControlType.SDES)
             {
                 if(updateMediaDescriptionForSDes(mediaType, localMd, remoteMd))
                 {
@@ -1770,7 +1761,7 @@ public class CallPeerMediaHandlerSipImpl
                 }
             }
             // ZRTP
-            else if(ZrtpControl.PROTO_NAME.equals(protoName))
+            else if(srtpControlType == SrtpControlType.ZRTP)
             {
                 if(updateMediaDescriptionForZrtp(mediaType, localMd, remoteMd))
                 {

@@ -10,6 +10,8 @@ import java.util.*;
 
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
+
+import org.jitsi.service.neomedia.*;
 import org.osgi.framework.*;
 
 /**
@@ -958,7 +960,7 @@ public abstract class AccountID
      * @return Sorts the enabled encryption protocol list given in parameter to
      * match the preferences set for this account.
      */
-    public List<String> getSortedEnabledEncryptionProtocolList()
+    public List<SrtpControlType> getSortedEnabledEncryptionProtocolList()
     {
         Map<String, Integer> encryptionProtocols
             = getIntegerPropertiesByPrefix(
@@ -983,8 +985,8 @@ public abstract class AccountID
                     true);
         }
 
-        List<String> sortedEncryptionProtocols
-            = new ArrayList<String>(encryptionProtocols.size());
+        List<SrtpControlType> sortedEncryptionProtocols
+            = new ArrayList<SrtpControlType>(encryptionProtocols.size());
 
         // First: add all protocol in the right order.
         for (Map.Entry<String, Integer> e : encryptionProtocols.entrySet())
@@ -997,20 +999,22 @@ public abstract class AccountID
                 if (index > sortedEncryptionProtocols.size())
                     index = sortedEncryptionProtocols.size();
 
-                String name = e.getKey();
+                String name =
+                    e.getKey()
+                        .substring(
+                            ProtocolProviderFactory.ENCRYPTION_PROTOCOL
+                                .length() + 1);
 
-                sortedEncryptionProtocols.add(index, name);
+                sortedEncryptionProtocols.add(index,
+                    SrtpControlType.fromString(name));
             }
         }
 
         // Second: remove all disabled protocols.
-        int namePrefixLength
-            = ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length() + 1;
-
-        for (Iterator<String> i = sortedEncryptionProtocols.iterator();
+        for (Iterator<SrtpControlType> i = sortedEncryptionProtocols.iterator();
                 i.hasNext();)
         {
-            String name = i.next().substring(namePrefixLength);
+            String name = i.next().toString();
 
             if (!encryptionProtocolStatus.get(
                     ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
