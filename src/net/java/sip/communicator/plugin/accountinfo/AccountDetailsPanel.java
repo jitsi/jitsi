@@ -21,28 +21,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.presence.avatar.*;
 import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.AboutMeDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.AddressDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.BirthDateDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.CityDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.CountryDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.DisplayNameDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.EmailAddressDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.FirstNameDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenderDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.JobTitleDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.LastNameDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.MiddleNameDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.NicknameDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.PostalCodeDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.ProvinceDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.URLDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkEmailAddressDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkOrganizationNameDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkPhoneDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 
 import net.java.sip.communicator.util.Logger;
 
@@ -118,6 +97,8 @@ public class AccountDetailsPanel
 
     private JTextField workPhoneField;
 
+    private JTextField mobilePhoneField;
+
     private JTextField emailField;
 
     private JTextField workEmailField;
@@ -176,6 +157,8 @@ public class AccountDetailsPanel
     private PhoneNumberDetail phoneDetail;
     
     private WorkPhoneDetail workPhoneDetail;
+
+    private MobilePhoneDetail mobilePhoneDetail;
 
     private EmailAddressDetail emailDetail;
 
@@ -548,6 +531,17 @@ public class AccountDetailsPanel
             detailToTextField.put(
                 WorkPhoneDetail.class, workPhoneField);
         }
+        if (accountInfoOpSet.isDetailClassSupported(MobilePhoneDetail.class))
+        {
+            mobilePhoneField = new JTextField();
+            valuesPanel.add(new JLabel(
+                Resources.getString("plugin.accountinfo.MOBILE_PHONE"))
+                , first);
+            valuesPanel.add(mobilePhoneField, second);
+            first.gridy = ++second.gridy;
+            detailToTextField.put(
+                MobilePhoneDetail.class, mobilePhoneField);
+        }
         if (accountInfoOpSet.isDetailClassSupported(
             WorkOrganizationNameDetail.class))
         {
@@ -818,6 +812,8 @@ public class AccountDetailsPanel
                     phoneDetail = (PhoneNumberDetail) detail;
                 else if (detail.getClass().equals(WorkPhoneDetail.class))
                     workPhoneDetail = (WorkPhoneDetail) detail;
+                else if (detail.getClass().equals(MobilePhoneDetail.class))
+                    mobilePhoneDetail = (MobilePhoneDetail) detail;
                 else if (detail.getClass().equals(EmailAddressDetail.class))
                     emailDetail = (EmailAddressDetail) detail;
                 else if (detail.getClass().equals(WorkEmailAddressDetail.class))
@@ -1104,6 +1100,19 @@ public class AccountDetailsPanel
 
                 if (workPhoneDetail != null || newDetail != null)
                     changeDetail(workPhoneDetail, newDetail);
+            }
+            if (accountInfoOpSet.isDetailClassSupported(
+                MobilePhoneDetail.class))
+            {
+                String text =
+                    detailToTextField.get(MobilePhoneDetail.class).getText();
+
+                MobilePhoneDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new MobilePhoneDetail(text);
+
+                if (mobilePhoneDetail != null || newDetail != null)
+                    changeDetail(mobilePhoneDetail, newDetail);
             }
             if (accountInfoOpSet.isDetailClassSupported(
                 WorkOrganizationNameDetail.class))

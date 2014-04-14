@@ -66,6 +66,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
         supportedTypes.add(WorkEmailAddressDetail.class);
         supportedTypes.add(PhoneNumberDetail.class);
         supportedTypes.add(WorkPhoneDetail.class);
+        supportedTypes.add(MobilePhoneDetail.class);
         supportedTypes.add(VideoDetail.class);
         supportedTypes.add(WorkVideoDetail.class);
         supportedTypes.add(WorkOrganizationNameDetail.class);
@@ -383,6 +384,8 @@ public class OperationSetServerStoredAccountInfoJabberImpl
                 vCard.setPhoneHome("VOICE", (String)detail.getDetailValue());
             else if (detail.getClass().equals(WorkPhoneDetail.class))
                 vCard.setPhoneWork("VOICE", (String)detail.getDetailValue());
+            else if (detail.getClass().equals(MobilePhoneDetail.class))
+                vCard.setPhoneHome("CELL", (String)detail.getDetailValue());
             else if (detail.getClass().equals(VideoDetail.class))
                 vCard.setPhoneHome("VIDEO", (String)detail.getDetailValue());
             else if (detail.getClass().equals(WorkVideoDetail.class))
