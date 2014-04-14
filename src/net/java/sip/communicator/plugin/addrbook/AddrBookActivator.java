@@ -338,7 +338,7 @@ public class AddrBookActivator
             css
                 = (ContactSourceService)
                     Class.forName(cssClassName).newInstance();
-            if(css.equals("net.java.sip.communicator.plugin.addrbook"
+            if(cssClassName.equals("net.java.sip.communicator.plugin.addrbook"
                     + ".msoutlook.MsOutlookAddrBookContactSourceService"))
             {
                 MsOutlookAddrBookContactSourceService contactSource
