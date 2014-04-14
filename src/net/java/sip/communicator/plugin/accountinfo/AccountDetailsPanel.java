@@ -22,6 +22,7 @@ import net.java.sip.communicator.plugin.desktoputil.presence.avatar.*;
 import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.plugin.accountinfo.AccountInfoMenuItemComponent.*;
 
 import net.java.sip.communicator.util.Logger;
 
@@ -185,13 +186,21 @@ public class AccountDetailsPanel
     private JScrollPane mainScrollPane;
 
     /**
+     * The parent dialog.
+     */
+    private AccountInfoDialog dialog;
+
+    /**
      * Construct a panel containing all account details for the given protocol
      * provider.
      *
      * @param protocolProvider the protocol provider service
      */
-    public AccountDetailsPanel(ProtocolProviderService protocolProvider)
+    public AccountDetailsPanel(AccountInfoDialog dialog,
+                               ProtocolProviderService protocolProvider)
     {
+        this.dialog = dialog;
+
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setOpaque(false);
         this.setPreferredSize(new Dimension(600, 400));
@@ -645,7 +654,7 @@ public class AccountDetailsPanel
             @Override
             public void actionPerformed(ActionEvent evt)
             {
-                AccountInfoMenuItemComponent.dialog.setVisible(false);
+                dialog.close(false);
                 mainScrollPane.getVerticalScrollBar().setValue(0);
             }
         });
@@ -827,6 +836,15 @@ public class AccountDetailsPanel
                     aboutMeDetail = (AboutMeDetail) detail;
             }
         }
+    }
+
+    /**
+     * Returns the provider we represent.
+     * @return
+     */
+    public ProtocolProviderService getProtocolProvider()
+    {
+        return protocolProvider;
     }
 
     /**
@@ -1157,8 +1175,8 @@ public class AccountDetailsPanel
 
             try
             {
-                AccountInfoMenuItemComponent.dialog.setVisible(false);
-                mainScrollPane.getVerticalScrollBar().setValue(0);
+                dialog.close(false);
+                //mainScrollPane.getVerticalScrollBar().setValue(0);
                 accountInfoOpSet.save();
             }
             catch (OperationFailedException e1)

@@ -24,32 +24,12 @@ public class AccountInfoMenuItemComponent
     /**
      * The "Account Info" menu item.
      */
-    JMenuItem accountInfoMenuItem;
+    private JMenuItem accountInfoMenuItem;
 
     /**
-     * The dialog that appears when "Account Info" menu item is clicked.
+     * Currently set account id if any.
      */
-    static final SIPCommDialog dialog = new SIPCommDialog() {
-        /**
-         * Serial version UID.
-         */
-        private static final long serialVersionUID = 1L;
-
-        /**
-         * Presses programmatically the cancel button, when Esc key is pressed.
-         * 
-         * @param isEscaped indicates if the Esc button was pressed on close
-         */
-        protected void close(boolean isEscaped)
-        {
-            this.setVisible(false);
-        }
-    };
-
-    /**
-     * The main panel containing account information.
-     */
-    static final AccountInfoPanel accountInfoPanel = new AccountInfoPanel();
+    private AccountID accountID = null;
 
     /**
      * Initializes a new "Account Info" menu item.
@@ -60,20 +40,14 @@ public class AccountInfoMenuItemComponent
                                         PluginComponentFactory parentFactory)
     {
         super(container, parentFactory);
-
-        AccountInfoActivator.bundleContext.addServiceListener(accountInfoPanel);
-
-        dialog.setPreferredSize(new java.awt.Dimension(600, 400));
-        dialog.setTitle(Resources.getString("plugin.accountinfo.TITLE"));
-        dialog.add(accountInfoPanel);
     }
 
     public void setCurrentAccountID(AccountID accountID)
     {
+        this.accountID = accountID;
+
         accountInfoMenuItem.setEnabled(
             accountID != null && accountID.isEnabled());
-        accountInfoPanel.getAccountsComboBox().setSelectedItem(
-            accountInfoPanel.getAccountsTable().get(accountID));
     }
 
     /**
@@ -97,8 +71,10 @@ public class AccountInfoMenuItemComponent
                     {
                         public void actionPerformed(ActionEvent e)
                         {
+                            AccountInfoDialog dialog
+                                = new AccountInfoDialog(accountID);
+
                             dialog.setVisible(true);
-                            accountInfoPanel.setVisible(true);
                         }
                     });
         }
@@ -128,5 +104,54 @@ public class AccountInfoMenuItemComponent
     public int getPositionIndex()
     {
         return 0;
+    }
+
+    /**
+     * The dialog that appears when "Account Info" menu item is clicked.
+     */
+    static class AccountInfoDialog
+        extends SIPCommDialog
+    {
+        private AccountInfoPanel accountInfoPanel;
+
+        private AccountInfoDialog(AccountID accountID)
+        {
+            this.accountInfoPanel = new AccountInfoPanel(this);
+
+            this.setPreferredSize(new java.awt.Dimension(600, 400));
+            this.setTitle(Resources.getString("plugin.accountinfo.TITLE"));
+
+            if(accountID != null)
+            {
+                accountInfoPanel.getAccountsComboBox().setSelectedItem(
+                    accountInfoPanel.getAccountsTable().get(accountID));
+            }
+
+            this.add(accountInfoPanel);
+        }
+
+        /**
+         * Presses programmatically the cancel button, when Esc key is pressed.
+         *
+         * @param isEscaped indicates if the Esc button was pressed on close
+         */
+        @Override
+        protected void close(boolean isEscaped)
+        {
+            this.setVisible(false);
+
+            accountInfoPanel.dispose();
+        }
+
+        @Override
+        public void setVisible(boolean isVisible)
+        {
+            if(isVisible)
+            {
+                accountInfoPanel.setVisible(true);
+            }
+
+            super.setVisible(isVisible);
+        }
     }
 }
