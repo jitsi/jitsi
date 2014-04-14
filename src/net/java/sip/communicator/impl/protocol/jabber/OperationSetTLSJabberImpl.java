@@ -14,7 +14,7 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * An implementation of the OperationSetTLS for the Jabber protocol.
  *
- * @author Markus Kilås
+ * @author Markus Kilas
  */
 public class OperationSetTLSJabberImpl
     implements OperationSetTLS

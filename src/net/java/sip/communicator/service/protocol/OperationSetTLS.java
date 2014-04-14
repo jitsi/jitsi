@@ -12,7 +12,7 @@ import java.security.cert.*;
  * An <tt>OperationSet</tt> that allows access to information about TLS used by 
  * the protocol provider.
  *
- * @author Markus Kilås
+ * @author Markus Kilas
  */
 public interface OperationSetTLS
     extends OperationSet
