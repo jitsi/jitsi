@@ -879,6 +879,13 @@ public class MsOutlookAddrBookContactQuery
             {
                 throw ex;
             }
+            if (logger.isTraceEnabled())
+            {
+                logger.trace(
+                        MsOutlookAddrBookContactQuery.class.getSimpleName()
+                        + "#onMailUser(String)",
+                        ex);
+            }
             return true;
         }
 
@@ -953,6 +960,13 @@ public class MsOutlookAddrBookContactQuery
                     {
                         // Ignore it, the image isn't as vital as the
                         // SourceContact.
+                        if (logger.isTraceEnabled())
+                        {
+                            logger.trace(
+                                    "Retrieving the image property of the " +
+                                    "contact failed.",
+                                    ex);
+                        }
                     }
                 }
 
@@ -1113,6 +1127,7 @@ public class MsOutlookAddrBookContactQuery
                             + "#onMailUser(String)",
                             e);
                 }
+                
             }
         }
     }
