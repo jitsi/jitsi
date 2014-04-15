@@ -21,12 +21,12 @@ import net.java.sip.communicator.util.*;
 public class RecurringPattern
 {
     /**
-     * The <tt>Logger</tt> used by the <tt>RecurringPattern</tt>
-     * class and its instances for logging output.
+     * The <tt>Logger</tt> used by the <tt>RecurringPattern</tt> class and its
+     * instances for logging output.
      */
     private static final Logger logger
         = Logger.getLogger(RecurringPattern.class);
-    
+
     /**
      * Enum for the type of the pattern.
      */
@@ -36,47 +36,47 @@ public class RecurringPattern
          * Daily recurrence.
          */
         Day((short)0x0000),
-        
+
         /**
          * Weekly recurrence.
          */
         Week((short)0x0001),
-        
+
         /**
          * Monthly recurrence.
          */
         Month((short)0x0002),
-        
+
         /**
          * Monthly recurrence.
          */
         MonthNth((short)0x0003),
-        
+
         /**
          * Monthly recurrence.
          */
         MonthEnd((short)0x004),
-        
+
         /**
          * Monthly recurrence.
          */
         HjMonth((short)0x000A),
-        
+
         /**
          * Monthly recurrence.
          */
         HjMonthNth((short)0x000B),
-        
+
         /**
          * Monthly recurrence.
          */
         HjMonthEnd((short)0x000C);
-        
+
         /**
          * The value of the type.
          */
-        private short value = 0;
-        
+        private final short value;
+
         /**
          * Constructs new <tt>PatternType</tt> instance.
          * @param value the value.
@@ -85,7 +85,7 @@ public class RecurringPattern
         {
             this.value = value;
         }
-        
+
         /**
          * Returns the value of the <tt>PatternType</tt> instance.
          * @return the value
@@ -94,7 +94,7 @@ public class RecurringPattern
         {
             return value;
         }
-        
+
         /**
          * Finds the <tt>PatternType</tt> by given value.
          * @param value the value
@@ -106,14 +106,12 @@ public class RecurringPattern
             for(PatternType type : values())
             {
                 if(type.getValue() == value)
-                {
                     return type;
-                }
             }
             return null;
         }
-    };
-    
+    }
+
     /**
      * The value of recurFrequency field.
      */
@@ -271,9 +269,7 @@ public class RecurringPattern
                 for(int day = firstDow; day < firstDow + 7; day++)
                 {
                     if((patternSpecific1 & (weekOfDayMask[day%7])) != 0)
-                    {
                         allowedDaysOfWeek.add((day%7) + 1);
-                    }
                 }
             }
             break;
@@ -288,9 +284,7 @@ public class RecurringPattern
             for(int day = 0; day < 7; day++)
             {
                 if((patternSpecific1 & (weekOfDayMask[day])) != 0)
-                {
                     allowedDaysOfWeek.add((day) + 1);
-                }
             }
             offset +=8;
             break;
@@ -732,9 +726,7 @@ public class RecurringPattern
         {
             executeNow  = true;
         }
-        
-        
-        
+
         return new CalendarItemTimerTask(
             sourceTask.getStatus(), 
             startDate, endDate, sourceTask.getId(), executeNow, this);

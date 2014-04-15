@@ -479,12 +479,20 @@ public class OperationSetPersistentPresenceJabberImpl
 
         fireProviderStatusChangeEvent(currentStatus, status);
 
-        if(!getCurrentStatusMessage().equals(statusMessage))
+        String oldStatusMessage = getCurrentStatusMessage();
+
+        /*
+         * XXX Use StringUtils.isEquals instead of String.equals to avoid a
+         * NullPointerException. 
+         */
+        if(!org.jitsi.util.StringUtils.isEquals(
+                oldStatusMessage,
+                statusMessage))
         {
-            String oldStatusMessage = getCurrentStatusMessage();
             currentStatusMessage = statusMessage;
-            fireProviderStatusMessageChangeEvent(oldStatusMessage,
-                                                 getCurrentStatusMessage());
+            fireProviderStatusMessageChangeEvent(
+                    oldStatusMessage,
+                    getCurrentStatusMessage());
         }
     }
 
