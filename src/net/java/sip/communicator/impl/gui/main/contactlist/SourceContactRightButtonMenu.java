@@ -89,8 +89,12 @@ public class SourceContactRightButtonMenu
             .getPreferredContactDetail(OperationSetBasicTelephony.class);
 
         // Call menu.
-        if (cDetail != null)
+        if (cDetail != null
+            && sourceContact.getContactSource().getType()
+                != ContactSourceService.RECENT_MESSAGES_TYPE)
+        {
             add(initCallMenu());
+        }
 
         // Only create the menu if the add contact functionality is enabled.
         if (!GuiActivator.getMUCService().isMUCSourceContact(sourceContact)
