@@ -197,21 +197,28 @@ public class MasterPasswordInputDialog
     {
         try
         {
-            SwingUtilities.invokeAndWait(new Runnable()
+            if(!SwingUtilities.isEventDispatchThread())
             {
-                @Override
-                public void run()
+                SwingUtilities.invokeAndWait(new Runnable()
                 {
-                    if (dialog == null)
-                        dialog = new MasterPasswordInputDialog();
+                    @Override
+                    public void run()
+                    {
+                        showInput(prevSuccess);
+                    }
+                });
+            }
+            else
+            {
+                if(dialog == null)
+                    dialog = new MasterPasswordInputDialog();
 
-                    dialog.rebuildMainPanel(!prevSuccess);
-                    dialog.resetPassword();
+                dialog.rebuildMainPanel(!prevSuccess);
+                dialog.resetPassword();
 
-                    // blocks until user performs an action
-                    dialog.setVisible(true);
-                }
-            });
+                // blocks until user performs an action
+                dialog.setVisible(true);
+            }
         }
         catch(Throwable t)
         {

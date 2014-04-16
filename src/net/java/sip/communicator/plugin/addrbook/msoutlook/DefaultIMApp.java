@@ -23,13 +23,13 @@ public class DefaultIMApp
      */
     private static String REGISTRY_DEFAULT_IM_APPLICATION_KEY 
         = "Software\\IM Providers";
-    
+
     /**
      * The value under which the default IM application is placed.
      */
     private static String REGISTRY_DEFAULT_IM_APPLICATION_VALUE 
         = "DefaultIMApp";
-    
+
     /**
      * Default IM application for communicator. This value is used to unset 
      * Jitsi as default application.
@@ -49,7 +49,7 @@ public class DefaultIMApp
                 REGISTRY_DEFAULT_IM_APPLICATION_KEY,
                 REGISTRY_DEFAULT_IM_APPLICATION_VALUE).equals(appName);
     }
-    
+
     /**
      * Checks whether Jitsi is the default IM application.
      * @return is Jitsi the default IM application or not.
@@ -60,7 +60,7 @@ public class DefaultIMApp
             REGISTRY_DEFAULT_IM_APPLICATION_KEY, 
             REGISTRY_DEFAULT_IM_APPLICATION_VALUE))
             return false;
-        
+
         return Advapi32Util.registryGetStringValue(
                 WinReg.HKEY_CURRENT_USER,
                 REGISTRY_DEFAULT_IM_APPLICATION_KEY,
@@ -82,7 +82,7 @@ public class DefaultIMApp
                       REGISTRY_DEFAULT_IM_APPLICATION_VALUE,
                       appName);
     }
-    
+
     /**
      * Sets Jitsi as default IM application.
      */
@@ -92,7 +92,7 @@ public class DefaultIMApp
         if(!isDefaultIMApp(appName))
             setDefaultIMApp(appName);
     }
-    
+
     /**
      * Unsets Jitsi as default IM application. Overrides the registry value
      * with setting communicator as default IM application.
@@ -102,7 +102,7 @@ public class DefaultIMApp
         if(isDefaultIMApp(getApplicationName()))
             setDefaultIMApp(REGISTRY_DEFAULT_IM_APPLICATION_COMMUNICATOR);
     }
-    
+
     /**
      * Returns the application name.
      * @return the application name

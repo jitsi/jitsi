@@ -1497,16 +1497,7 @@ public class ChatWritePanel
         // If we're in sms mode count the chars typed.
         if (smsButton.isVisible())
         {
-            if (smsCharCount == 0)
-            {
-                smsCharCount = 159;
-                smsNumberCount ++;
-            }
-            else
-                smsCharCount--;
-
-            smsCharCountLabel.setText(String.valueOf(smsCharCount));
-            smsNumberLabel.setText(String.valueOf(smsNumberCount));
+            updateSmsCounters(event.getDocument().getLength());
         }
     }
 
@@ -1521,17 +1512,21 @@ public class ChatWritePanel
         // If we're in sms mode count the chars typed.
         if (smsButton.isVisible())
         {
-            if (smsCharCount == 160 && smsNumberCount > 1)
-            {
-                smsCharCount = 0;
-                smsNumberCount --;
-            }
-            else
-                smsCharCount++;
-
-            smsCharCountLabel.setText(String.valueOf(smsCharCount));
-            smsNumberLabel.setText(String.valueOf(smsNumberCount));
+            updateSmsCounters(event.getDocument().getLength());
         }
+    }
+
+    /**
+     * Updates sms counters, 160 chars in one sms.
+     * @param documentLength the current document length
+     */
+    private void updateSmsCounters(int documentLength)
+    {
+        smsCharCount = 160 - documentLength % 160;
+        smsNumberCount = 1 + documentLength/160;
+
+        smsCharCountLabel.setText(String.valueOf(smsCharCount));
+        smsNumberLabel.setText(String.valueOf(smsNumberCount));
     }
 
     /**

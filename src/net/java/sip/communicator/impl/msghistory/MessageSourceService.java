@@ -505,7 +505,7 @@ public class MessageSourceService
         }
         else if(obj instanceof ChatRoomMessageReceivedEvent)
         {
-            chatRoom = ((ChatRoomMessageDeliveredEvent)obj).getSourceChatRoom();
+            chatRoom = ((ChatRoomMessageReceivedEvent)obj).getSourceChatRoom();
         }
 
         for(MessageSourceContact msc : list)

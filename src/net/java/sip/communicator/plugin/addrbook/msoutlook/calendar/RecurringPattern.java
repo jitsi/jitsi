@@ -11,7 +11,6 @@ import java.text.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.calendar.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * The class represents the recurring pattern structure of calendar item.
@@ -21,13 +20,6 @@ import net.java.sip.communicator.util.*;
 public class RecurringPattern
 {
     /**
-     * The <tt>Logger</tt> used by the <tt>RecurringPattern</tt>
-     * class and its instances for logging output.
-     */
-    private static final Logger logger
-        = Logger.getLogger(RecurringPattern.class);
-    
-    /**
      * Enum for the type of the pattern.
      */
     public enum PatternType
@@ -36,47 +28,47 @@ public class RecurringPattern
          * Daily recurrence.
          */
         Day((short)0x0000),
-        
+
         /**
          * Weekly recurrence.
          */
         Week((short)0x0001),
-        
+
         /**
          * Monthly recurrence.
          */
         Month((short)0x0002),
-        
+
         /**
          * Monthly recurrence.
          */
         MonthNth((short)0x0003),
-        
+
         /**
          * Monthly recurrence.
          */
         MonthEnd((short)0x004),
-        
+
         /**
          * Monthly recurrence.
          */
         HjMonth((short)0x000A),
-        
+
         /**
          * Monthly recurrence.
          */
         HjMonthNth((short)0x000B),
-        
+
         /**
          * Monthly recurrence.
          */
         HjMonthEnd((short)0x000C);
-        
+
         /**
          * The value of the type.
          */
-        private short value = 0;
-        
+        private final short value;
+
         /**
          * Constructs new <tt>PatternType</tt> instance.
          * @param value the value.
@@ -85,7 +77,7 @@ public class RecurringPattern
         {
             this.value = value;
         }
-        
+
         /**
          * Returns the value of the <tt>PatternType</tt> instance.
          * @return the value
@@ -94,7 +86,7 @@ public class RecurringPattern
         {
             return value;
         }
-        
+
         /**
          * Finds the <tt>PatternType</tt> by given value.
          * @param value the value
@@ -106,126 +98,124 @@ public class RecurringPattern
             for(PatternType type : values())
             {
                 if(type.getValue() == value)
-                {
                     return type;
-                }
             }
             return null;
         }
-    };
-    
+    }
+
     /**
      * The value of recurFrequency field.
      */
     private short recurFrequency;
-    
+
     /**
      * The value of patternType field.
      */
     private PatternType patternType;
-    
+
     /**
      * The value of calendarType field.
      */
     private short calendarType;
-    
+
     /**
      * The value of firstDateTime field.
      */
     private int firstDateTime;
-    
+
     /**
      * The value of period field.
      */
     private int period;
-    
+
     /**
      * The value of slidingFlag field.
      */
     private int slidingFlag;
-    
+
     /**
      * The value of patternSpecific1 field.
      */
     private int patternSpecific1;
-    
+
     /**
      * The value of patternSpecific2 field.
      */
     private int patternSpecific2;
-    
+
     /**
      * The value of endType field.
      */
     private int endType;
-    
+
     /**
      * The value of occurenceCount field.
      */
     private int occurenceCount;
-    
+
     /**
      * The value of firstDow field.
      */
     private int firstDow;
-    
+
     /**
      * The value of deletedInstanceCount field.
      */
     private int deletedInstanceCount;
-    
+
     /**
      * The value of modifiedInstanceCount field.
      */
     private int modifiedInstanceCount;
-    
+
     /**
      * The value of startDate field.
      */
     private int startDate;
-    
+
     /**
      * The value of endDate field.
      */
     private int endDate;
-    
+
     /**
      * List with the start dates of deleted instances.
      */
     private List<Date> deletedInstances = new ArrayList<Date>();
-    
+
     /**
      * Array with the start dates of modified instances.
      */
     private int[] modifiedInstances;
-    
+
     /**
      * List of exception info structures included in the pattern.
      */
     private List<ExceptionInfo> exceptionInfo;
-    
+
     /**
      * The source calendar item of the recurrent series.
      */
     private CalendarItemTimerTask sourceTask;
-    
+
     /**
      * List of days of week when the calendar item occurred.
      */
     private List<Integer> allowedDaysOfWeek = new LinkedList<Integer>();
-    
+
     /**
      * The binary data of the pattern.
      */
     private ByteBuffer dataBuffer;
-    
+
     /**
      * Array with masks for days of week when the calendar item occurs.
      */
     public static int[] weekOfDayMask 
         = {0x00000001, 0x00000002, 0x00000004, 0x00000008, 0x00000010, 
         0x00000020, 0x00000040};
-    
+
     /**
      * Parses the binary data that describes the recurrent pattern.
      * @param data the binary data.
@@ -234,28 +224,27 @@ public class RecurringPattern
     public RecurringPattern(byte[] data, CalendarItemTimerTask sourceTask)
     {
         this.sourceTask = sourceTask;
-        dataBuffer 
-            = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
-        
+        dataBuffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
+
         int offset = 4;
         recurFrequency = dataBuffer.getShort(offset);
         offset += 2;
-        
+
         patternType = PatternType.getFromShort(dataBuffer.getShort(offset));
         offset += 2;
-        
+
         calendarType = dataBuffer.getShort(offset);
         offset += 2;
-        
+
         firstDateTime = dataBuffer.getInt(offset);
         offset += 4;
-        
+
         period = dataBuffer.getInt(offset);
         offset += 4;
-        
+
         slidingFlag = dataBuffer.getInt(offset);
         offset += 4;
-        
+
         switch(patternType)
         {
         case Week:
@@ -271,9 +260,7 @@ public class RecurringPattern
                 for(int day = firstDow; day < firstDow + 7; day++)
                 {
                     if((patternSpecific1 & (weekOfDayMask[day%7])) != 0)
-                    {
                         allowedDaysOfWeek.add((day%7) + 1);
-                    }
                 }
             }
             break;
@@ -288,29 +275,27 @@ public class RecurringPattern
             for(int day = 0; day < 7; day++)
             {
                 if((patternSpecific1 & (weekOfDayMask[day])) != 0)
-                {
                     allowedDaysOfWeek.add((day) + 1);
-                }
             }
             offset +=8;
             break;
         default:
             break;
         }
-        
+
         //endType
         endType = dataBuffer.getInt(offset);
         offset += 4;
-        
+
         occurenceCount = dataBuffer.getInt(offset);
         offset += 4;
-        
+
         firstDow = dataBuffer.getInt(offset);
         offset += 4;
-        
+
         deletedInstanceCount = dataBuffer.getInt(offset);
         offset += 4;
-        
+
         //deleted instances
         for(int i = 0; i < deletedInstanceCount; i ++)
         {
@@ -318,29 +303,29 @@ public class RecurringPattern
                 windowsTimeToDateObject(dataBuffer.getInt(offset)));
             offset += 4;
         }
-        
-        
+
+
         modifiedInstanceCount  = dataBuffer.getInt(offset);
         offset += 4;
-        
+
         //modified instances
         modifiedInstances = new int[modifiedInstanceCount];
-        
+
         for(int i = 0; i < modifiedInstanceCount; i ++)
         {
             modifiedInstances[i] = dataBuffer.getInt(offset);
             offset += 4;
         }
-        
-        
+
+
         startDate = dataBuffer.getInt(offset);
         offset += 4;
-        
+
         endDate = dataBuffer.getInt(offset);
         offset += 4;
-        
+
         offset += 16;
-        
+
         short exceptionCount = dataBuffer.getShort(offset);
         offset += 2;
         exceptionInfo = new ArrayList<ExceptionInfo>(exceptionCount);
@@ -349,7 +334,7 @@ public class RecurringPattern
             ExceptionInfo tmpExceptionInfo = new ExceptionInfo(offset);
             exceptionInfo.add(tmpExceptionInfo);
             offset += tmpExceptionInfo.sizeInBytes();
-            
+
             CalendarService.BusyStatusEnum status 
                 = tmpExceptionInfo.getBusyStatus();
             Date startTime = tmpExceptionInfo.getStartDate();
@@ -358,22 +343,22 @@ public class RecurringPattern
                 || startTime == null || endTime == null)
                 continue;
             Date currentTime = new Date();
-            
+
             if(endTime.before(currentTime) || endTime.equals(currentTime))
                 return;
-            
+
             boolean executeNow = false;
-            
+
             if(startTime.before(currentTime) || startTime.equals(currentTime))
                 executeNow = true;
-            
+
             CalendarItemTimerTask task = new CalendarItemTimerTask(status, 
                 startTime, endTime, sourceTask.getId(), executeNow, this);
-            
+
             task.scheduleTasks();
         }
     }
-    
+
     /**
      * Converts windows time in minutes from 1/1/1601 to <tt>Date</tt> object.
      * @param time the number of minutes from 1/1/1601
@@ -385,7 +370,7 @@ public class RecurringPattern
         date -= TimeZone.getDefault().getOffset(date);
         return new Date(date);
     }
-    
+
     /**
      * Prints the properties of the class for debugging purpose.
      */
@@ -401,7 +386,7 @@ public class RecurringPattern
         result += "calendarType: " 
             + String.format("%#02x", this.calendarType) + "\n";
         result += "endType: " + String.format("%#04x", this.endType) + "\n";
-        
+
         result += "period: " + this.period + "\n";
         result += "occurenceCount: " 
             + String.format("%#04x", this.occurenceCount) + "\n";
@@ -412,25 +397,25 @@ public class RecurringPattern
         result += "startDate hex: " + String.format("%#04x", this.startDate) 
             + "\n";
         result += "endDate hex: " + String.format("%#04x", this.endDate) + "\n";
-        
+
         result += "startDate: " 
             +  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(
                 windowsTimeToDateObject(this.startDate))  + "\n";
         result += "endDate: " 
             +  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(
                 windowsTimeToDateObject(this.endDate))  + "\n";
-        
-        
+
+
         for(int i = 0; i < modifiedInstanceCount; i++)
         {
             result += "modified Instance date hex: " 
                 + String.format("%#04x", this.modifiedInstances[i]) + "\n";
-            
+
             result += "modified Instance date: " 
                 +  new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z").format(
                     windowsTimeToDateObject(this.modifiedInstances[i]))  + "\n";
         }
-        
+
         for(int i = 0; i < deletedInstanceCount; i++)
         {
             result += "deleted Instance date: "
@@ -439,16 +424,16 @@ public class RecurringPattern
         }
         result += "patternSpecific2: " 
             + String.format("%#04x", this.patternSpecific2) + "\n";
-        
+
         result += "\n\n =====================Exeptions====================\n\n";
-        
+
         for(ExceptionInfo info : exceptionInfo)
         {
             result += info.toString() + "\n\n";
         }
         return result;
     }
-    
+
     /**
      * Checks whether the given date is in the recurrent pattern range or not
      * @param date the date
@@ -468,7 +453,7 @@ public class RecurringPattern
         }
         return false;
     }
-    
+
     /**
      * Calculates and creates the next calendar item.
      * @param previousStartDate the start date of the previous occurrence.
@@ -506,11 +491,11 @@ public class RecurringPattern
                 {
                     offset += period * 60000;
                 }
-                
+
                 startDate = new Date(startDate.getTime() + offset);
-               
+
             }
-            
+
             Calendar cal = Calendar.getInstance();
             cal.setTime(startDate);
             Calendar cal2 = (Calendar) cal.clone();
@@ -523,7 +508,7 @@ public class RecurringPattern
                 cal.add(Calendar.MINUTE, period);
                 cal2.add(Calendar.MINUTE, period);
             }
-            
+
             if(dateOutOfRange(cal.getTime()))
             {
                 return null;
@@ -534,7 +519,7 @@ public class RecurringPattern
             {
                 executeNow = true;
             }
-            
+
             return new CalendarItemTimerTask(
                 sourceTask.getStatus(), 
                 startDate, endDate, sourceTask.getId(), executeNow, this);
@@ -569,7 +554,7 @@ public class RecurringPattern
                 cal.set(Calendar.DAY_OF_WEEK, allowedDaysOfWeek.get(0));
                 endDate = new Date(cal.getTimeInMillis() + duration);
                 long offset = (currentDate.getTime() - endDate.getTime());
-                
+
                 //1 week = 604800000 is milliseconds
                 offset -= offset % (period * 604800000);
                 if(endDate.getTime() + offset  < currentDate.getTime())
@@ -588,7 +573,7 @@ public class RecurringPattern
                         cal.set(Calendar.DAY_OF_WEEK, allowedDaysOfWeek.get(i));
                         i++;
                     }
-                    
+
                     startDate = cal.getTime();
                 }
                 else
@@ -596,7 +581,7 @@ public class RecurringPattern
                     startDate = new Date(cal.getTimeInMillis() + offset);
                 }
             }
-            
+
             cal.setTime(startDate);
             Calendar cal2 = (Calendar) cal.clone();
             cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -616,7 +601,7 @@ public class RecurringPattern
                 cal.set(Calendar.DAY_OF_WEEK, allowedDaysOfWeek.get(index));
                 cal2.set(Calendar.DAY_OF_WEEK, allowedDaysOfWeek.get(index));
                 index++;
-                
+
             }
             startDate = cal2.getTime();
             endDate = new Date(startDate.getTime() + duration);
@@ -626,7 +611,7 @@ public class RecurringPattern
             {
                 executeNow = true;
             }
-            
+
             return new CalendarItemTimerTask(
                 sourceTask.getStatus(), 
                 startDate, endDate, sourceTask.getId(), executeNow, this);
@@ -642,18 +627,14 @@ public class RecurringPattern
         case HjMonthNth:
         {
             if(patternSpecific1 == 0x7f && patternSpecific2 == 0x05)
-            {
                 return nextMonth(startDate, endDate, true);
-                
-            }
-            
-            return nextMonthN(startDate, endDate);
-            
+            else
+                return nextMonthN(startDate, endDate);
         }
         }
         return null;
     }
-    
+
     /**
      * Finds the occurrence of the events in the next months
      * @param cal the calendar object
@@ -670,11 +651,11 @@ public class RecurringPattern
         if(lastDay 
             || (cal.getActualMaximum(Calendar.DAY_OF_MONTH) < dayOfMonth))
             dayOfMonth = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-        
+
         cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
         return cal;
     }
-    
+
     /**
      * Finds the next occurrence for monthly recurrence.
      * @param startDate the start date of the previous calendar item.
@@ -708,7 +689,7 @@ public class RecurringPattern
                 cal = incrementMonths(cal, lastDay, period);
             }
         }
-        
+
         Calendar cal2 = (Calendar) cal.clone();
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
@@ -719,27 +700,21 @@ public class RecurringPattern
             cal = incrementMonths(cal, lastDay, period);
             cal2 = incrementMonths(cal2, lastDay, period);
         }
-        
+
         startDate = cal2.getTime();
         endDate = new Date(startDate.getTime() + duration);
         if(dateOutOfRange(endDate))
         {
             return null;
-            
         }
-        boolean executeNow = false;
-        if(startDate.before(currentDate))
-        {
-            executeNow  = true;
-        }
-        
-        
-        
+
+        boolean executeNow = startDate.before(currentDate);
+
         return new CalendarItemTimerTask(
             sourceTask.getStatus(), 
             startDate, endDate, sourceTask.getId(), executeNow, this);
     }
-    
+
     /**
      * Finds the occurrence of the events in the next months
      * @param startDate the start date if the calendar item
@@ -750,7 +725,7 @@ public class RecurringPattern
     {
         Calendar cal = Calendar.getInstance();
         cal.setTime(startDate);
-        
+
         if(dayOfWeekInMonth == -1)
         {
             Date result = null;
@@ -771,11 +746,11 @@ public class RecurringPattern
                     dayOfWeekInMonth--;
                 if(dayOfWeekInMonth > 0)
                     cal.add(Calendar.DAY_OF_MONTH, 1);
-                
+
             }
         return cal.getTime();
     }
-    
+
     /**
      * Finds the next occurrence for monthly Nth recurrence.
      * @param startDate the start date of the previous calendar item.
@@ -813,7 +788,7 @@ public class RecurringPattern
                 cal.setTime(getMonthNStartDate(cal.getTime(), dayOfWeekInMonth));
             }
         }
-        
+
         Calendar cal2 = (Calendar) cal.clone();
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
@@ -839,24 +814,24 @@ public class RecurringPattern
                 }
             }
         }
-        
+
         startDate = cal2.getTime();
         endDate = new Date(startDate.getTime() + duration);
-        
+
         if(dateOutOfRange(endDate))
             return null;
-        
+
         boolean executeNow = false;
         if(startDate.before(currentDate))
         {
             executeNow  = true;
         }
-        
+
         return new CalendarItemTimerTask(
             sourceTask.getStatus(), 
             startDate, endDate, sourceTask.getId(), executeNow, this);
     }
-    
+
     /**
      * Represents the exception info structure.
      */
@@ -866,32 +841,32 @@ public class RecurringPattern
          * The start date of the exception.
          */
         private final Date startDate;
-        
+
         /**
          * The end date of the exception.
          */
         private final Date endDate;
-        
+
         /**
          * The original start date of the exception.
          */
         private final Date originalStartDate;
-        
+
         /**
          * The modified flags of the exception.
          */
         private final short overrideFlags;
-        
+
         /**
          * The new busy status of the exception.
          */
         private CalendarService.BusyStatusEnum busyStatus;
-        
+
         /**
          * The size of the fixed fields.
          */
         private int size = 22;
-        
+
         /**
          * Parses the data of the exception.
          * @param offset the position where the exception starts in the binary 
@@ -901,14 +876,14 @@ public class RecurringPattern
         {
             startDate = windowsTimeToDateObject(dataBuffer.getInt(offset));
             offset += 4;
-            
+
             endDate = windowsTimeToDateObject(dataBuffer.getInt(offset));
             offset += 4;
-            
+
             originalStartDate 
                 = windowsTimeToDateObject(dataBuffer.getInt(offset));
             offset += 4;
-            
+
             overrideFlags = dataBuffer.getShort(offset);
             offset += 2;
             int[] fieldMasks = {0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 
@@ -922,13 +897,13 @@ public class RecurringPattern
                         busyStatus = CalendarService.BusyStatusEnum.getFromLong(
                             (long)dataBuffer.getInt(offset));
                     }
-                    
+
                     if(busyStatus == null)
                     {
                         busyStatus = sourceTask.getStatus();
                     }
                 }
-                
+
                 if((overrideFlags & mask) != 0)
                 {
                     if(mask == 0x0010 || mask == 0x0001)
@@ -941,11 +916,11 @@ public class RecurringPattern
                     size += 4;
                 }
             }
-            
+
             offset += 4;
             int reservedBlockSize = dataBuffer.getShort(offset);
             size += reservedBlockSize;
-            
+
         }
 
         /**
@@ -956,7 +931,7 @@ public class RecurringPattern
         {
             return size;
         }
-        
+
         /**
          * Returns the start date
          * @return the start date
@@ -983,7 +958,7 @@ public class RecurringPattern
         {
             return busyStatus;
         }
-        
+
         /**
          * Prints the properties of the class for debugging purpose.
          */

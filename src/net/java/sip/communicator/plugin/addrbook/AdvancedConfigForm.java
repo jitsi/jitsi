@@ -108,7 +108,7 @@ public class AdvancedConfigForm
         });
         return checkBox;
     }
-    
+
     /**
      * Creates the default IM application check box.
      *

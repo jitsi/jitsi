@@ -20,6 +20,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.libjitsi.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;
@@ -669,17 +670,54 @@ public class CallPeerMediaHandlerJabberImpl
             }
 
             // create the corresponding stream...
-            initStream(
-                    contentName,
-                    connector,
-                    dev,
-                    format,
-                    target,
-                    direction,
-                    rtpExtensions,
-                    masterStream);
+            MediaStream stream = initStream(contentName,
+                                            connector,
+                                            dev,
+                                            format,
+                                            target,
+                                            direction,
+                                            rtpExtensions,
+                                            masterStream);
+
+            long ourSsrc = stream.getLocalSourceID() & 0xffffffffL;
+            if (direction.allowsSending() && ourSsrc != -1)
+            {
+                description.setSsrc(Long.toString(ourSsrc));
+                addSourceExtension(description, ourSsrc);
+            }
         }
         return sessAccept;
+    }
+
+    /**
+     * Adds a <tt>SourcePacketExtension</tt> as a child element of
+     * <tt>description</tt>. See XEP-0339.
+     *
+     * @param description the <tt>RtpDescriptionPacketExtension</tt> to which
+     * a child element will be added.
+     * @param ssrc the SSRC for the <tt>SourcePacketExtension</tt> to use.
+     */
+    private void addSourceExtension(RtpDescriptionPacketExtension description,
+                                    long ssrc)
+    {
+        MediaType type = MediaType.parseString(description.getMedia());
+
+        SourcePacketExtension sourcePacketExtension
+                = new SourcePacketExtension();
+
+        sourcePacketExtension.setSSRC(ssrc);
+        sourcePacketExtension.addChildExtension(
+                new ParameterPacketExtension("cname",
+                                             LibJitsi.getMediaService()
+                                                .getRtpCname()));
+        sourcePacketExtension.addChildExtension(
+                new ParameterPacketExtension("msid", getMsid(type)));
+        sourcePacketExtension.addChildExtension(
+                new ParameterPacketExtension("mslabel", getMsLabel()));
+        sourcePacketExtension.addChildExtension(
+                new ParameterPacketExtension("label", getLabel(type)));
+
+        description.addChildExtension(sourcePacketExtension);
     }
 
     /**

@@ -7,13 +7,8 @@
 package net.java.sip.communicator.plugin.addrbook.macosx;
 
 import java.util.*;
-//import java.util.regex.*;
 
-//import net.java.sip.communicator.plugin.addrbook.*;
 import net.java.sip.communicator.service.contactsource.*;
-//import net.java.sip.communicator.service.contactsource.ContactDetail.*;
-//import net.java.sip.communicator.service.protocol.*;
-//import net.java.sip.communicator.util.*;
 
 /**
  * The editable detail, change get changed and in addressbook.
