@@ -66,12 +66,12 @@ public class MsOutlookAddrBookContactSourceService
      * The latest query created.
      */
     private MsOutlookAddrBookContactQuery latestQuery = null;
-    
+
     /**
      * Indicates whether MAPI is initialized or not.
      */
     private static boolean isMAPIInitialized = false;
-    
+
     static
     {
         String lib = "jmsoutlookaddrbook";
@@ -135,7 +135,7 @@ public class MsOutlookAddrBookContactSourceService
             isMAPIInitialized = true;
         }
     }
-    
+
     /**
      * Creates new <tt>NotificationsDelegate</tt> instance.
      * @return the <tt>NotificationsDelegate</tt> instance
@@ -188,7 +188,7 @@ public class MsOutlookAddrBookContactSourceService
             isMAPIInitialized = false;
         }
     }
-    
+
     private static native void MAPIUninitialize();
 
     public static native int getOutlookBitnessVersion();
@@ -213,7 +213,7 @@ public class MsOutlookAddrBookContactSourceService
             latestQuery.clear();
 
         latestQuery = new MsOutlookAddrBookContactQuery(this, query);
-        
+
         return latestQuery;
     }
 
@@ -584,7 +584,7 @@ public class MsOutlookAddrBookContactSourceService
     public int getNbRemainingNotifications()
     {
         int nbNotifications = 0;
-        
+
         synchronized(notificationThreadMutex)
         {
             if(notificationThread != null)

@@ -23,45 +23,45 @@ public class CalendarItemTimerTask
      * The status of the calendar item.
      */
     private final CalendarService.BusyStatusEnum state;
-    
+
     /**
      * The start date of the calendar item.
      */
     private final Date startDate;
-    
+
     /**
      * The end date of the calendar item.
      */
     private final Date endDate;
-    
+
     /**
      * The ID of the calendar item.
      */
     private final String id;
-    
+
     /**
      * Indicates if the start task should be executed immediately or not. This 
      * flag is <tt>true</tt> if the start date is before the current date.
      */
     private final boolean executeNow;
-    
+
     /**
      * The <tt>CalendarServiceImpl</tt> instance.
      */
     private final CalendarServiceImpl calendarService 
         = AddrBookActivator.getCalendarService();
-    
+
     /**
      * The <tt>Timer</tt> instance that schedules the tasks.
      */
     private static Timer timer = new Timer();
-    
+
     /**
      * The <tt>RecurringPattern</tt> instance associated with the calendar item.
      * This must be <tt>null</tt> if the calendar item is not recurring.
      */
     private RecurringPattern pattern;
-    
+
     /**
      * The task that will be executed at the beginning of the task.
      */
@@ -73,7 +73,7 @@ public class CalendarItemTimerTask
             start();
         }
     };
-    
+
     /**
      * The task that will be executed at the end of the task.
      */
@@ -85,7 +85,7 @@ public class CalendarItemTimerTask
             stop();
         }
     };
-    
+
     /**
      * Constructs new <tt>CalendarItemTimerTask</tt> instance.
      * @param state the state of the calendar item.
@@ -110,7 +110,7 @@ public class CalendarItemTimerTask
         this.executeNow = executeNow;
         this.pattern = pattern;
     }
-    
+
     /**
      * Returns the <tt>RecurringPattern</tt> instance associated with the 
      * calendar item.
@@ -155,7 +155,7 @@ public class CalendarItemTimerTask
             this.pattern = null;
             nextTask.scheduleTasks();
         }
-        
+
     }
 
     /**
@@ -173,7 +173,7 @@ public class CalendarItemTimerTask
         }
         timer.schedule(endTask, endDate);
     }
-    
+
    /**
     * Removes the task. 
     */
@@ -185,7 +185,7 @@ public class CalendarItemTimerTask
         calendarService.removeFromCurrentItems(this);
         calendarService.updateStateFromCurrentItems();
     }
-    
+
     /**
      * Returns the free busy status of the calendar item.
      * @return the free busy status of the calendar item.
@@ -194,8 +194,8 @@ public class CalendarItemTimerTask
     {
         return state;
     }
-    
-    
+
+
     /**
      * Returns the start date of the calendar item
      * @return the start date of the calendar item
@@ -213,7 +213,7 @@ public class CalendarItemTimerTask
     {
         return endDate;
     }
-    
+
     /**
      * Sets the <tt>RecurringPattern</tt> associated with the calendar item.
      * @param pattern the pattern to set

@@ -1168,6 +1168,7 @@ public class MacOSXAddrBookContactQuery
             query.toString(),
             new PtrCallback()
             {
+                @Override
                 public boolean callback(long person)
                 {
                     return onPerson(person);
