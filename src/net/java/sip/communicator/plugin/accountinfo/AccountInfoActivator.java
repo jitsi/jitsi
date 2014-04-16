@@ -12,6 +12,7 @@ import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import org.jitsi.service.resources.*;
 
 import org.osgi.framework.*;
 
@@ -31,12 +32,15 @@ public class AccountInfoActivator
      * The OSGi bundle context.
      */
     public static BundleContext bundleContext;
+    static ResourceManagementService R;
 
     private static GlobalDisplayDetailsService globalDisplayDetailsService;
 
     public void start(BundleContext bc) throws Exception
     {
         AccountInfoActivator.bundleContext = bc;
+        
+        R = ServiceUtils.getService(bc, ResourceManagementService.class);
 
         Hashtable<String, String> containerFilter
             = new Hashtable<String, String>();
