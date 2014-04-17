@@ -18,6 +18,7 @@
 #include <Mapidefs.h>
 #include <Mapix.h>
 #include <windows.h>
+#include "StringUtils.h"
 
 #define BODY_ENCODING_TEXT_AND_HTML	((ULONG) 0x00100000)
 #define DELETE_HARD_DELETE          ((ULONG) 0x00000010)
@@ -398,6 +399,7 @@ HRESULT MsOutlookAddrBookContactQuery_foreachMailUser(
     LPMAPISESSION mapiSession = MAPISession_getMapiSession();
     if (!mapiSession)
     {
+    	MsOutlookUtils_log("ERROR MAPI session not available. The query is aborted");
         MAPISession_unlock();
         return E_ABORT;
     }
@@ -441,6 +443,10 @@ MsOutlookAddrBookContactQuery_foreachContactInMsgStoresTable
                     callbackAddress);
         msgStoresTable->Release();
     }
+    else
+    {
+    	MsOutlookUtils_log("ERROR failed to get message stores table.");
+    }
 
     return proceed;
 }
@@ -479,6 +485,10 @@ MsOutlookAddrBookContactQuery_foreachMailUser
                         callbackAddress);
             mapiTable->Release();
         }
+        else
+        {
+        	MsOutlookUtils_log("Cannot get contents table.");
+        }
 
         /* Drill down the hierarchy. */
         if (proceed)
@@ -496,6 +506,10 @@ MsOutlookAddrBookContactQuery_foreachMailUser
                             callbackAddress);
                 mapiTable->Release();
             }
+            else
+			{
+				MsOutlookUtils_log("Cannot get contents table.[2]");
+			}
         }
 
         break;
@@ -504,6 +518,7 @@ MsOutlookAddrBookContactQuery_foreachMailUser
     case MAPI_MAILUSER:
     case MAPI_MESSAGE:
     {
+		MsOutlookUtils_log("Contact found. Calling the callback.");
         if (MsOutlookAddrBookContactQuery_mailUserMatches(
                     (LPMAPIPROP) iUnknown, query))
         {
@@ -566,7 +581,10 @@ MsOutlookAddrBookContactQuery_foreachRowInTable
 
             hResult = mapiTable->QueryRows(1, 0, &rows);
             if (HR_FAILED(hResult))
+            {
+            	MsOutlookUtils_log("ERROR failed to query row from msg stores table.");
                 break;
+            }
 
             if (rows->cRows == 1)
             {
@@ -623,17 +641,28 @@ MsOutlookAddrBookContactQuery_foreachRowInTable
                         MAPIFreeBuffer(entryID);
                     }
                     else
+                    {
+                    	MsOutlookUtils_log("Failed to allocate buffer.");
                         MsOutlookAddrBookContactQuery_freeSRowSet(rows);
+                    }
                 }
                 else
+                {
+                	MsOutlookUtils_log("ERROR wrong type of the msg store");
                     MsOutlookAddrBookContactQuery_freeSRowSet(rows);
+                }
             }
             else
             {
+            	MsOutlookUtils_log("ERROR queried rows are more than 1.");
                 MAPIFreeBuffer(rows);
                 break;
             }
         }
+    }
+    else
+    {
+    	MsOutlookUtils_log("ERROR failed to seek row from msg stores table.");
     }
 
     return proceed;
@@ -1600,6 +1629,10 @@ MsOutlookAddrBookContactQuery_onForeachContactInMsgStoresTableRow
                         MsOutlookAddrBookContactQuery_rdOpenEntryUlFlags);
             MAPIFreeBuffer(receiveFolderEntryID);
         }
+        else
+        {
+        	MsOutlookUtils_log("Failed to get msg store receive folder.");
+        }
         if (HR_FAILED(hResult))
         {
             hResult = MsOutlookAddrBookContactQuery_getContactsFolderEntryID(
@@ -1633,9 +1666,21 @@ MsOutlookAddrBookContactQuery_onForeachContactInMsgStoresTableRow
                             callbackAddress);
                 contactsFolder->Release();
             }
+            else
+            {
+            	MsOutlookUtils_log("Cannot open the folder.");
+            }
             MAPIFreeBuffer(contactsFolderEntryID);
         }
+        else
+        {
+        	MsOutlookUtils_log("Cannot find the folder.");
+        }
         msgStore->Release();
+    }
+    else
+    {
+    	MsOutlookUtils_log("Failed to open msg store.");
     }
 
     return proceed;
@@ -1675,6 +1720,7 @@ MsOutlookAddrBookContactQuery_onForeachMailUserInContainerTableRow
     }
     else
     {
+    	MsOutlookUtils_log("Failed to open container table.");
         /* We've failed but other parts of the hierarchy may still succeed. */
         proceed = JNI_TRUE;
     }

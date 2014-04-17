@@ -11,6 +11,7 @@
 #include "../MsOutlookAddrBookClient.h"
 #include "../MsOutlookAddrBookServerClassFactory.h"
 #include "../TypeLib.h"
+#include "../../MsOutlookUtils.h"
 
 #include <stdio.h>
 #include <TlHelp32.h>
@@ -29,12 +30,19 @@ int main(int argc, char** argv)
 {
     HRESULT hr = E_FAIL;
 
+
+    if(argc > 1)
+    {
+    	MsOutlookUtils_createLogger("msoutlookaddrbook_server.log",argv[1]);
+    }
+
+    MsOutlookUtils_log("Starting the Outlook Server.");
     if((hr = ::CoInitializeEx(NULL, COINIT_MULTITHREADED)) != S_OK
             && hr != S_FALSE)
     {
+    	MsOutlookUtils_log("Error in initialization of the Outlook Server.[1]");
         return hr;
     }
-
     MAPISession_initLock();
     if(MsOutlookAddrBookContactSourceService_NativeMAPIInitialize(
                 MAPI_INIT_VERSION,
@@ -44,6 +52,7 @@ int main(int argc, char** argv)
                 (void*) Server_updated)
             != S_OK)
     {
+    	MsOutlookUtils_log("Error in native MAPI initialization of the Outlook Server.[2]");
         CoUninitialize();
         return hr;
     }
@@ -52,22 +61,36 @@ int main(int argc, char** argv)
     LPTYPELIB typeLib = TypeLib_loadRegTypeLib(path);
     if(typeLib != NULL)
     {
+
+    	MsOutlookUtils_log("TLB initialized.");
         ClassFactory *classObject = new MsOutlookAddrBookServerClassFactory();
         if(classObject != NULL)
         {
+        	MsOutlookUtils_log("Server object created.");
             hr = classObject->registerClassObject();
             hr = ::CoResumeClassObjects();
 
+			MsOutlookUtils_log("Server started.");
             waitParentProcessStop();
 
+            MsOutlookUtils_log("Stop waiting.[3]");
             hr = ::CoSuspendClassObjects();
             hr = classObject->revokeClassObject();
 
             classObject->Release();
         }
+        else
+        {
+        	MsOutlookUtils_log("Error - server object can't be created.");
+        }
         TypeLib_releaseTypeLib(typeLib);
     }
+    else
+    {
+    	MsOutlookUtils_log("Error - TLB isn't initialized.");
+    }
     MsOutlookAddrBookContactSourceService_NativeMAPIUninitialize();
+    MsOutlookUtils_deleteLogger();
     MAPISession_freeLock();
 
     CoUninitialize();
@@ -80,9 +103,11 @@ int main(int argc, char** argv)
  */
 void waitParentProcessStop()
 {
+	MsOutlookUtils_log("Waits parent process to stop.");
     HANDLE handle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if(handle != INVALID_HANDLE_VALUE)
     {
+    	MsOutlookUtils_log("Valid handle is found.");
         PROCESSENTRY32 processEntry;
         memset(&processEntry, 0, sizeof(processEntry));
         processEntry.dwSize = sizeof(PROCESSENTRY32);
@@ -111,6 +136,7 @@ void waitParentProcessStop()
                         WaitForSingleObject(parentHandle, INFINITE);
                         GetExitCodeProcess(parentHandle, &exitCode);
                     }
+                    MsOutlookUtils_log("Stop waiting.[1]");
                     CloseHandle(parentHandle);
                     return;
                 }
@@ -119,6 +145,11 @@ void waitParentProcessStop()
         }
         CloseHandle(handle);
     }
+    else
+    {
+    	MsOutlookUtils_log("Error - not valid handle found.");
+    }
+    MsOutlookUtils_log("Stop waiting.[2]");
 }
 
 /**

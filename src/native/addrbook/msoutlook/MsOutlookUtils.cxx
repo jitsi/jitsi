@@ -21,7 +21,9 @@
 #include <Mapidefs.h>
 #include <Mapix.h>
 #include <windows.h>
+#include "Logger.h"
 
+static Logger* logger = NULL;
 
 
 HRESULT
@@ -401,4 +403,29 @@ MsOutlookUtils_IMAPIProp_GetProps(
     jniEnv->ReleaseStringUTFChars(entryId, nativeEntryId);
 
     return javaProps;
+}
+
+void MsOutlookUtils_createLogger(const char* logFile, const char* logPath)
+{
+	logger = new Logger(logFile, logPath);
+}
+
+void MsOutlookUtils_log(const char* message)
+{
+	if(logger != NULL)
+		logger->log(message);
+}
+
+
+void MsOutlookUtils_deleteLogger()
+{
+	if(logger != NULL)
+		free(logger);
+}
+
+char* MsOutlookUtils_getLoggerPath()
+{
+	if(logger != NULL)
+		return logger->getLogPath();
+	return NULL;
 }

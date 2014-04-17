@@ -128,10 +128,26 @@ public class MsOutlookAddrBookContactSourceService
     {
         if(!isMAPIInitialized)
         {
+            String logFileName = "";
+            if(logger.isTraceEnabled())
+            {
+                String homeLocation = System.getProperty(
+                    "net.java.sip.communicator.SC_LOG_DIR_LOCATION");
+                String dirName = System.getProperty(
+                    "net.java.sip.communicator.SC_HOME_DIR_NAME");
+    
+                if(homeLocation != null && dirName != null)
+                {
+                    logFileName = homeLocation + "\\" + dirName 
+                        + "\\log\\";
+                }
+            }
+            
             MAPIInitialize(
                     MAPI_INIT_VERSION,
                     MAPI_MULTITHREAD_NOTIFICATIONS,
-                    notificationDelegate);
+                    notificationDelegate,
+                    logFileName);
             isMAPIInitialized = true;
         }
     }
@@ -174,7 +190,8 @@ public class MsOutlookAddrBookContactSourceService
     private static native void MAPIInitialize(
             long version,
             long flags,
-            NotificationsDelegate callback)
+            NotificationsDelegate callback,
+            String logFileName)
         throws MsOutlookMAPIHResultException;
 
     /**

@@ -93,6 +93,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
         jstring query,
         jobject callback)
 {
+	MsOutlookUtils_log("Executing query.");
     const char *nativeQuery = jniEnv->GetStringUTFChars(query, NULL);
 
     IMsOutlookAddrBookServer * iServer = ComClient_getIServer();
@@ -100,10 +101,14 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
     {
         LPWSTR unicodeQuery = StringUtils::MultiByteToWideChar(nativeQuery);
         BSTR comQuery = SysAllocString(unicodeQuery);
-
+        MsOutlookUtils_log("Sending the query to server.");
         iServer->foreachMailUser(comQuery, (long)(intptr_t)callback);
         SysFreeString(comQuery);
         free(unicodeQuery);
+    }
+    else
+    {
+    	MsOutlookUtils_log("Failed to execute the query because the COM Server is not available.");
     }
 
     jniEnv->ReleaseStringUTFChars(query, nativeQuery);

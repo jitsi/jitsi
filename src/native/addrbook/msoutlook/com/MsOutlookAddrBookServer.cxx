@@ -15,7 +15,7 @@
 #include "../StringUtils.h"
 #include "../MsOutlookAddrBookContactQuery.h"
 #include "../MsOutlookCalendar.h"
-
+#include "../MsOutlookUtils.h"
 /**
  * Instanciates a new MsOutlookAddrBookServer.
  */
@@ -113,6 +113,7 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::foreachMailUser(
 
     HRESULT hr =  E_FAIL;
 
+    MsOutlookUtils_log("Executing query.");
     IMsOutlookAddrBookClient * msOutlookAddrBookClient = NULL;
     if((hr = CoCreateInstance(
             CLSID_MsOutlookAddrBookClient,
@@ -128,6 +129,10 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::foreachMailUser(
                 callbackAddress);
 
         msOutlookAddrBookClient->Release();
+    }
+    else
+    {
+    	MsOutlookUtils_log("Error can't access the COM client.");
     }
 
     free(charQuery);
@@ -217,6 +222,7 @@ boolean MsOutlookAddrBookServer::foreachMailUserCallback(
 
     if(callbackClient)
     {
+    	MsOutlookUtils_log("Contact received. The contact will be send to the client.");
         LPWSTR iUnknownW = StringUtils::MultiByteToWideChar(iUnknown);
         BSTR res = SysAllocString(iUnknownW);
 
@@ -225,6 +231,10 @@ boolean MsOutlookAddrBookServer::foreachMailUserCallback(
 
         SysFreeString(res);
         free(iUnknownW);
+    }
+    else
+    {
+    	MsOutlookUtils_log("No callback client");
     }
 
     return (hr == S_OK);

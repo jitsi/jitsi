@@ -11,6 +11,7 @@
 #include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
 #include "MsOutlookAddrBookContactSourceService.h"
 #include "MsOutlookAddrBookContactQuery.h"
+#include "MsOutlookUtils.h"
 
 #include <mapidefs.h>
 #include <stdio.h>
@@ -82,6 +83,7 @@ boolean MAPINotification_callCallbackMethod(LPSTR iUnknown, long objectAddr)
 {
     if(objectAddr <= 0)
     {
+    	MsOutlookUtils_log("Callback object is null. We are calling insert method");
         MAPINotification_jniCallInsertedMethod(iUnknown);
         return true;
     }
@@ -114,11 +116,27 @@ boolean MAPINotification_callCallbackMethod(LPSTR iUnknown, long objectAddr)
                             ptrOutlookContactCallbackMethodIdCallback,
                             value);
                 }
+                else
+                {
+                	MsOutlookUtils_log("Error in MAPI Notification.[4]");
+                }
 
                 tmpJniEnv->DeleteLocalRef(callbackClass);
             }
+            else
+            {
+            	MsOutlookUtils_log("Error in MAPI Notification.[3]");
+            }
+        }
+        else
+        {
+        	MsOutlookUtils_log("Error in MAPI Notification.[2]");
         }
         MAPINotification_VM->DetachCurrentThread();
+    }
+    else
+    {
+    	MsOutlookUtils_log("Error in MAPI Notification.");
     }
 
     return proceed;
@@ -172,10 +190,16 @@ void MAPINotification_jniCallInsertedMethod(LPSTR iUnknown)
         jstring value = tmpJniEnv->NewStringUTF(iUnknown);
 
         if(MAPINotification_notificationsDelegateObject != NULL)
+        {
 			tmpJniEnv->CallVoidMethod(
 					MAPINotification_notificationsDelegateObject,
 					MAPINotification_notificationsDelegateMethodIdInserted,
 					value);
+        }
+        else
+        {
+        	MsOutlookUtils_log("MAPI notification delegate is null.");
+        }
 
         if(MAPINotification_notificationsDelegateCalendarObject != NULL)
 			tmpJniEnv->CallVoidMethod(

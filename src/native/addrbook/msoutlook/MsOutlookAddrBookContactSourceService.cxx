@@ -11,7 +11,9 @@
 #include "MAPINotification.h"
 #include "MAPISession.h"
 #include "MAPIBitness.h"
+#include "MsOutlookUtils.h"
 #include <Tchar.h>
+#include "StringUtils.h"
 
 typedef BOOL (STDAPICALLTYPE *LPFBINFROMHEX)(LPSTR, LPBYTE);
 typedef void (STDAPICALLTYPE *LPFREEPROWS)(LPSRowSet);
@@ -278,12 +280,14 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
     // If we've determined that we'd like to go on with MAPI, try to load it.
     if (HR_SUCCEEDED(hResult))
     {
+    	MsOutlookUtils_log("Loading MAPI.");
         MsOutlookAddrBookContactSourceService_hMapiLib
             = ::LoadLibrary(_T("mapi32.dll"));
 
         hResult = MAPI_E_NO_SUPPORT;
         if(MsOutlookAddrBookContactSourceService_hMapiLib)
         {
+        	MsOutlookUtils_log("Loading MAPI functions");
             // get and check function pointers
             MsOutlookAddrBookContactSourceService_mapiInitialize
                 = (LPMAPIINITIALIZE) GetProcAddress(
@@ -431,11 +435,17 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
             }
         }
     }
+    else
+    {
+    	MsOutlookUtils_log("ERROR - we won't load MAPI.");
+    }
 
     if (HR_FAILED(hResult))
     {
+    	MsOutlookUtils_log("ERROR - in MAPI native init.");
         if(MsOutlookAddrBookContactSourceService_hMapiLib)
         {
+        	MsOutlookUtils_log("ERROR - free MAPI library.");
             FreeLibrary(MsOutlookAddrBookContactSourceService_hMapiLib);
             MsOutlookAddrBookContactSourceService_hMapiLib = NULL;
         }
@@ -454,12 +464,17 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer(void)
     HRESULT hr = E_FAIL;
 
     MAPISession_lock();
-
+    MsOutlookUtils_log("Init com server.");
     // Start COM service
     if((hr = MsOutlookAddrBookContactSourceService_startComServer()) == S_OK)
     {
+    	MsOutlookUtils_log("COM Server started.");
         // Start COM client
         ComClient_start();
+    }
+    else
+    {
+    	MsOutlookUtils_log("Failed to start COM Server.");
     }
 
     MAPISession_unlock();
@@ -537,6 +552,7 @@ HRESULT MsOutlookAddrBookContactSourceService_NativeMAPIInitialize
     (jlong version, jlong flags,
      void * deletedMethod, void * insertedMethod, void * updatedMethod)
 {
+	MsOutlookUtils_log("MAPI native init.");
     MAPINotification_registerNativeNotificationsDelegate(
             deletedMethod, insertedMethod, updatedMethod);
 
@@ -620,11 +636,31 @@ HRESULT MsOutlookAddrBookContactSourceService_startComServer(void)
         memset(&processInfo, 0, sizeof(processInfo));
         startupInfo.dwFlags = STARTF_USESHOWWINDOW;
         startupInfo.wShowWindow = SW_HIDE;
-
+        char* loggerPath = MsOutlookUtils_getLoggerPath();
+        int loggerPathLenght = 0;
+        char* comServerWithLogger;
+        char* appNameWithLogger;
+        if(loggerPath != NULL)
+        {
+        	loggerPathLenght = strlen(loggerPath);
+			comServerWithLogger
+				= (char*) malloc(
+						(FILENAME_MAX + loggerPathLenght) * sizeof(char));
+			appNameWithLogger
+				= (char*) malloc(
+						(FILENAME_MAX + loggerPathLenght) * sizeof(char));
+        	sprintf(comServerWithLogger, "%s %s", comServer, loggerPath);
+        	sprintf(appNameWithLogger, "%s %s", applicationName, loggerPath);
+        }
+        else
+        {
+        	comServerWithLogger = comServer;
+        	appNameWithLogger = applicationName;
+        }
         // Test 2 files: 0 for the build version, 1 for the git source version.
         char * serverExec[2];
-        serverExec[0] = comServer;
-        serverExec[1] = applicationName;
+        serverExec[0] = comServerWithLogger;
+        serverExec[1] = appNameWithLogger;
         for(int i = 0; i < 2; ++i)
         {
             // Create the COM server
@@ -637,10 +673,21 @@ HRESULT MsOutlookAddrBookContactSourceService_startComServer(void)
             {
                 MsOutlookAddrBookContactSourceService_comServerHandle
                     = processInfo.hProcess;
-
+                MsOutlookUtils_log("COM Server started successful.[1]");
+                if(loggerPath != NULL)
+				{
+                	free(comServerWithLogger);
+                	free(appNameWithLogger);
+				}
+                MsOutlookUtils_log("COM Server started successful.[2]");
                 return S_OK;
             }
         }
+        if(loggerPath != NULL)
+		{
+			free(comServerWithLogger);
+			free(appNameWithLogger);
+		}
     }
 
     return E_FAIL;
