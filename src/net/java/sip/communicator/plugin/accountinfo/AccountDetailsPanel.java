@@ -207,12 +207,6 @@ public class AccountDetailsPanel
     private String fontColor;
 
     /**
-     * The resource management service.
-     */
-//    private final ResourceManagementService resources
-//        = GuiActivator.getResources();
-
-    /**
      * Dummy URL to indicate that the certificate should be displayed.
      */
     private final String CERTIFICATE_URL = "jitsi://viewCertificate";
@@ -271,7 +265,6 @@ public class AccountDetailsPanel
 
         // Add Other tab
         tabbedPane.add("Other", infoTextPane);
-//        constructOtherInfo();
 
         this.add(tabbedPane);
     }
