@@ -1178,7 +1178,7 @@ public class CallJabberImpl
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
                 && accountID.isEncryptionProtocolEnabled(
-                        DtlsControl.PROTO_NAME)
+                        SrtpControlType.DTLS_SRTP)
                 && (remoteContent != null))
         {
             IceUdpTransportPacketExtension remoteTransport
@@ -1253,7 +1253,7 @@ public class CallJabberImpl
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
                 && accountID.isEncryptionProtocolEnabled(
-                        DtlsControl.PROTO_NAME)
+                        SrtpControlType.DTLS_SRTP)
                 && protocolProvider.isFeatureSupported(
                         jitsiVideobridge,
                         ProtocolProviderServiceJabberImpl

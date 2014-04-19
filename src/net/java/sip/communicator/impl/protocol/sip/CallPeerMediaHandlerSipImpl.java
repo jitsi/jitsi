@@ -789,7 +789,7 @@ public class CallPeerMediaHandlerSipImpl
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
                 && accountID.isEncryptionProtocolEnabled(
-                        DtlsControl.PROTO_NAME))
+                        SrtpControlType.DTLS_SRTP))
         {
             /*
              * The transport protocol of the media described by localMd should
@@ -1019,7 +1019,7 @@ public class CallPeerMediaHandlerSipImpl
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
                 || !accountID.isEncryptionProtocolEnabled(
-                        SDesControl.PROTO_NAME))
+                        SrtpControlType.SDES))
         {
             return false;
         }
@@ -1102,7 +1102,7 @@ public class CallPeerMediaHandlerSipImpl
         if(accountID.getAccountPropertyBoolean(
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
-                && accountID.isEncryptionProtocolEnabled(ZrtpControl.PROTO_NAME)
+                && accountID.isEncryptionProtocolEnabled(SrtpControlType.ZRTP)
                 && peer.getCall().isSipZrtpAttribute())
         {
             ZrtpControl zrtpControl

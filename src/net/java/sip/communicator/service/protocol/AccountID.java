@@ -795,16 +795,16 @@ public abstract class AccountID
      * @param encryptionProtocolName The name of the encryption protocol
      * ("ZRTP", "SDES" or "MIKEY").
      */
-    public boolean isEncryptionProtocolEnabled(String encryptionProtocolName)
+    public boolean isEncryptionProtocolEnabled(SrtpControlType type)
     {
         // The default value is false, except for ZRTP.
-        boolean defaultValue = "ZRTP".equals(encryptionProtocolName);
+        boolean defaultValue = type == SrtpControlType.ZRTP;
 
         return
             getAccountPropertyBoolean(
                     ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
                         + "."
-                        + encryptionProtocolName,
+                        + type.toString(),
                     defaultValue);
     }
 

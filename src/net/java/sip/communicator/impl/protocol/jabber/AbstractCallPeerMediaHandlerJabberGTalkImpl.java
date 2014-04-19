@@ -113,7 +113,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                         ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                         true)
                     && accountID.isEncryptionProtocolEnabled(
-                            ZrtpControl.PROTO_NAME)
+                            SrtpControlType.ZRTP)
                     && call.isSipZrtpAttribute())
             {
                 // ZRTP
@@ -169,7 +169,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                         ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                         true)
                     && accountID.isEncryptionProtocolEnabled(
-                            SDesControl.PROTO_NAME))
+                            SrtpControlType.SDES))
             {
                 SrtpControls srtpControls = getSrtpControls();
                 SDesControl sdesControl
@@ -320,7 +320,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                         ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                         true)
                     && accountID.isEncryptionProtocolEnabled(
-                            ZrtpControl.PROTO_NAME)
+                            SrtpControlType.ZRTP)
                     && call.isSipZrtpAttribute())
             {
                 ZrtpControl zrtpControl
@@ -398,7 +398,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
                 && accountID.isEncryptionProtocolEnabled(
-                        SDesControl.PROTO_NAME))
+                        SrtpControlType.SDES))
         {
             // get or create the control
             SrtpControls srtpControls = getSrtpControls();

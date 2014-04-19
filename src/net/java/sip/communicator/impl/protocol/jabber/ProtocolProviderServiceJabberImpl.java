@@ -1967,7 +1967,7 @@ public class ProtocolProviderServiceJabberImpl
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
                 && accountID.isEncryptionProtocolEnabled(
-                        DtlsControl.PROTO_NAME))
+                        SrtpControlType.DTLS_SRTP))
         {
             supportedFeatures.add(URN_XMPP_JINGLE_DTLS_SRTP);
         }

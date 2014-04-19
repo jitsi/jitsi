@@ -2360,7 +2360,7 @@ public class CallPeerMediaHandlerJabberImpl
                             ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                             true)
                         && accountID.isEncryptionProtocolEnabled(
-                                DtlsControl.PROTO_NAME))
+                                SrtpControlType.DTLS_SRTP))
                 {
                     Map<String,String> remoteFingerprints
                         = new LinkedHashMap<String,String>();
@@ -2534,7 +2534,7 @@ public class CallPeerMediaHandlerJabberImpl
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
                 && accountID.isEncryptionProtocolEnabled(
-                        DtlsControl.PROTO_NAME))
+                        SrtpControlType.DTLS_SRTP))
         {
             boolean addFingerprintToLocalTransport;
 
@@ -2631,7 +2631,7 @@ public class CallPeerMediaHandlerJabberImpl
                         ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                         true)
                     && accountID.isEncryptionProtocolEnabled(
-                            DtlsControl.PROTO_NAME))
+                            SrtpControlType.DTLS_SRTP))
             {
                 // Gather the local fingerprints to be sent to the remote peer.
                 ColibriConferenceIQ.Channel channel
