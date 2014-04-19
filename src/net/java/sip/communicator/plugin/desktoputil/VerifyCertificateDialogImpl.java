@@ -9,6 +9,7 @@ package net.java.sip.communicator.plugin.desktoputil;
 import java.awt.*;
 import java.awt.event.*;
 import java.security.cert.*;
+import java.util.*;
 
 import javax.swing.*;
 
@@ -54,6 +55,7 @@ class VerifyCertificateDialogImpl
      * The certificate to show.
      */
     Certificate cert;
+    java.util.List<X509Certificate> certs;
 
     /**
      * A text that describes why the verification failed.
@@ -111,6 +113,13 @@ class VerifyCertificateDialogImpl
         setModal(true);
 
         // for now shows only the first certificate from the chain
+        this.certs = new ArrayList<X509Certificate>();
+        for (Certificate certificate : certs)
+        {
+            if (certificate instanceof X509Certificate) {
+                this.certs.add((X509Certificate) certificate);
+            }
+        }
         this.cert = certs[0];
         this.message = message;
 
@@ -228,9 +237,9 @@ class VerifyCertificateDialogImpl
         certPanel.add(alwaysTrustCheckBox, BorderLayout.NORTH);
 
         Component certInfoPane = null;
-        if(cert instanceof X509Certificate)
+        if (!certs.isEmpty())
         {
-            certInfoPane = new X509CertificatePanel((X509Certificate)cert);
+            certInfoPane = new X509CertificatePanel(certs);
         }
         else
         {
