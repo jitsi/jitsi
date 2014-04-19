@@ -27,6 +27,9 @@ import net.java.sip.communicator.plugin.accountinfo.AccountInfoMenuItemComponent
 import net.java.sip.communicator.util.Logger;
 
 import com.toedter.calendar.*;
+import java.security.cert.*;
+import javax.swing.event.*;
+import org.jitsi.service.resources.*;
 
 /**
  * The main panel that allows users to view and edit their account information.
@@ -42,6 +45,7 @@ import com.toedter.calendar.*;
  */
 public class AccountDetailsPanel
     extends TransparentPanel
+    implements HyperlinkListener
 {
     /**
      * Serial version UID.
@@ -53,6 +57,8 @@ public class AccountDetailsPanel
      */
     private Logger logger = Logger.getLogger(AccountDetailsPanel.class);
 
+    private final ResourceManagementService R;
+    
     /**
      * Mapping between all supported by this plugin <tt>ServerStoredDetails</tt>
      * and their respective <tt>JTextField</tt> that are used for modifying
@@ -189,6 +195,21 @@ public class AccountDetailsPanel
      * The parent dialog.
      */
     private AccountInfoDialog dialog;
+    
+    /**
+     * The information text pane.
+     */
+    private final JEditorPane infoTextPane;
+    
+    /**
+     * The font color.
+     */
+    private String fontColor;
+
+    /**
+     * Dummy URL to indicate that the certificate should be displayed.
+     */
+    private final String CERTIFICATE_URL = "jitsi://viewCertificate";
 
     /**
      * Construct a panel containing all account details for the given protocol
@@ -200,6 +221,7 @@ public class AccountDetailsPanel
                                ProtocolProviderService protocolProvider)
     {
         this.dialog = dialog;
+        this.R = AccountInfoActivator.R;
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setOpaque(false);
@@ -207,30 +229,52 @@ public class AccountDetailsPanel
         this.protocolProvider = protocolProvider;
         this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
+        if (OSUtils.IS_MAC)
+        {
+            fontColor = "FFFFFF";
+        }
+        else
+        {
+            fontColor = "000000";
+        }
+        
+        infoTextPane = createGeneralInfoPane();
+        
+        SIPCommTabbedPane tabbedPane = new SIPCommTabbedPane();
+                
+        // Add Contact tab
         accountInfoOpSet
             = protocolProvider
                 .getOperationSet(OperationSetServerStoredAccountInfo.class);
 
+        final JComponent contactPanel;
         if (accountInfoOpSet == null)
         {
-            initUnsupportedPanel();
+            contactPanel = createUnsupportedPanel();
         }
         else
         {
-            this.initSummaryPanel();
-
+            contactPanel = createSummaryPanel();
+            
             if (protocolProvider.isRegistered())
             {
                 loadDetails();
             }
         }
+        tabbedPane.add(R.getI18NString("plugin.accountinfo.CONTACT_INFO"), 
+                contactPanel);
+
+        // Add Other tab
+        tabbedPane.add(R.getI18NString("service.gui.OTHER"), infoTextPane);
+
+        this.add(tabbedPane);
     }
 
     /**
      * Creates the panel that indicates to the user that the currently selected
      * contact does not support server stored contact info.
      */
-    private void initUnsupportedPanel()
+    private JComponent createUnsupportedPanel()
     {
         JTextArea unsupportedTextArea =
             new JTextArea(Resources.getString(
@@ -246,14 +290,13 @@ public class AccountDetailsPanel
             BorderFactory.createEmptyBorder(50, 20, 50, 20));
 
         unsupportedPanel.add(unsupportedTextArea);
-
-        this.add(unsupportedPanel, BorderLayout.NORTH);
+        return unsupportedPanel;
     }
 
     /**
      * Initialized the main panel that contains all <tt>ServerStoredDetails</tt>
      */
-    private void initSummaryPanel()
+    private JComponent createSummaryPanel()
     {
         JPanel summaryPanel = new TransparentPanel(new BorderLayout(10, 10));
 
@@ -643,31 +686,34 @@ public class AccountDetailsPanel
         mainScrollPane.setBorder(BorderFactory.createEmptyBorder());
 
         summaryPanel.add(valuesPanel, BorderLayout.CENTER);
-
-        this.add(mainScrollPane);
-
+        
         this.applyButton.addActionListener(new SubmitActionListener());
 
-        JButton cancelButton =
-            new JButton(Resources.getString("service.gui.CANCEL"));
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent evt)
-            {
-                dialog.close(false);
-                mainScrollPane.getVerticalScrollBar().setValue(0);
-            }
-        });
-        this.buttonPanel.add(applyButton);
-        this.buttonPanel.add(cancelButton);
+            JButton cancelButton =
+                new JButton(Resources.getString("service.gui.CANCEL"));
+            cancelButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent evt)
+                {
+                    AccountDetailsPanel.this.dialog.close(false);
+                    mainScrollPane.getVerticalScrollBar().setValue(0);
+                }
+            });
+            this.buttonPanel.add(applyButton);
+            this.buttonPanel.add(cancelButton);
 
-        this.add(buttonPanel);
+            this.add(buttonPanel);
 
-        for (Component component : valuesPanel.getComponents())
-            component.setEnabled(false);
-        if (aboutMeArea != null)
-            aboutMeArea.setEnabled(false);
-        applyButton.setEnabled(false);
+            for (Component component : valuesPanel.getComponents())
+                component.setEnabled(false);
+            if (aboutMeArea != null)
+                aboutMeArea.setEnabled(false);
+            applyButton.setEnabled(false);
+
+        TransparentPanel contactPanel = new TransparentPanel(new BorderLayout(10, 10));
+        contactPanel.add(mainScrollPane, BorderLayout.CENTER);
+        contactPanel.add(buttonPanel, BorderLayout.SOUTH);
+        return contactPanel;
     }
 
     /**
@@ -682,6 +728,28 @@ public class AccountDetailsPanel
         {
             new DetailsLoadWorker().start();
         }
+        constructOtherInfo();
+    }
+
+    /**
+     * Invoked when user clicks a link in the editor pane.
+     * @param e the event
+     */
+    public void hyperlinkUpdate(HyperlinkEvent e)
+    {
+        // Handle "View certificate" link
+        if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED
+                        && CERTIFICATE_URL.equals(e.getDescription())) {
+            Certificate[] chain = protocolProvider
+                        .getOperationSet(OperationSetTLS.class)
+                        .getServerCertificates();
+
+            ViewCertificateFrame certFrame =
+                     new ViewCertificateFrame(chain, null,
+                         R.getI18NString(
+                         "service.gui.callinfo.TLS_CERTIFICATE_CONTENT"));
+             certFrame.setVisible(true);
+         }
     }
 
     /**
@@ -1220,5 +1288,107 @@ public class AccountDetailsPanel
                             newDetail.getDetailDisplayName() + " " + e1);
             }
         }
+    }
+    
+    /**
+     * Create call info text pane.
+     *
+     * @return the created call info text pane
+     */
+    private JEditorPane createGeneralInfoPane()
+    {
+        JEditorPane infoTextPane = new JEditorPane();
+
+        /*
+         * Make JEditorPane respect our default font because we will be using it
+         * to just display text.
+         */
+        infoTextPane.putClientProperty(
+                JEditorPane.HONOR_DISPLAY_PROPERTIES,
+                true);
+
+        infoTextPane.setOpaque(false);
+        infoTextPane.setEditable(false);
+        infoTextPane.setContentType("text/html");
+        infoTextPane.addHyperlinkListener(this);
+
+        return infoTextPane;
+    }
+
+    /**
+     * Returns an HTML string corresponding to the given labelText and infoText,
+     * that could be easily added to the information text pane.
+     *
+     * @param labelText the label text that would be shown in bold
+     * @param infoText the info text that would be shown in plain text
+     * @return the newly constructed HTML string
+     */
+    private String getLineString(String labelText, String infoText)
+    {
+        return "<b>" + labelText + "</b> : " + infoText + "<br/>";
+    }
+    
+    /**
+     * Constructs the call info text.
+     * @return true if call info could be found, false otherwise
+     */
+    private boolean constructOtherInfo()
+    {
+        StringBuffer stringBuffer = new StringBuffer();
+
+        stringBuffer.append(
+            "<html><body><p align=\"left\">"
+                + "<font color=\"" + fontColor + "\" size=\"3\">");
+
+        // Protocol name
+        stringBuffer.append(getLineString(R.getI18NString(
+                "service.gui.PROTOCOL"), protocolProvider.getProtocolName()));
+
+        // Server address and port
+        stringBuffer.append(getLineString(R.getI18NString(
+                "service.gui.ADDRESS"), 
+                protocolProvider.getAccountID().getServerAddress()));
+        stringBuffer.append(getLineString(R.getI18NString(
+                "service.gui.PORT"), 
+                protocolProvider.getAccountID().getServerPort()));
+        
+        // Transport protocol
+        TransportProtocol preferredTransport
+            = protocolProvider.getTransportProtocol();
+
+        if (preferredTransport != TransportProtocol.UNKNOWN)
+            stringBuffer.append(getLineString(
+                R.getI18NString("service.gui.callinfo.CALL_TRANSPORT"),
+                preferredTransport.toString()));
+
+        // TLS information
+        final OperationSetTLS opSetTls = protocolProvider
+                .getOperationSet(OperationSetTLS.class);
+        if (opSetTls != null)
+        {
+            stringBuffer.append(getLineString(
+                    R.getI18NString(
+                    "service.gui.callinfo.TLS_PROTOCOL"),
+                    opSetTls.getProtocol()));
+            stringBuffer.append(getLineString(
+                    R.getI18NString(
+                    "service.gui.callinfo.TLS_CIPHER_SUITE"),
+                    opSetTls.getCipherSuite()));
+
+            stringBuffer.append("<b><a href=\"")
+                .append(CERTIFICATE_URL)
+                .append("\">")
+                .append(R.getI18NString(
+                        "service.gui.callinfo.VIEW_CERTIFICATE"))
+                .append("</a></b><br/>");
+        }
+
+        stringBuffer.append("</font></p></body></html>");
+
+        infoTextPane.setText(stringBuffer.toString());
+        infoTextPane.revalidate();
+        infoTextPane.repaint();
+
+        return true;
     }
 }
