@@ -261,10 +261,11 @@ public class AccountDetailsPanel
                 loadDetails();
             }
         }
-        tabbedPane.add("Contact Info", contactPanel);
+        tabbedPane.add(R.getI18NString("plugin.accountinfo.CONTACT_INFO"), 
+                contactPanel);
 
         // Add Other tab
-        tabbedPane.add("Other", infoTextPane);
+        tabbedPane.add(R.getI18NString("service.gui.OTHER"), infoTextPane);
 
         this.add(tabbedPane);
     }
@@ -1339,9 +1340,19 @@ public class AccountDetailsPanel
             "<html><body><p align=\"left\">"
                 + "<font color=\"" + fontColor + "\" size=\"3\">");
 
+        // Protocol name
         stringBuffer.append(getLineString(R.getI18NString(
-            "service.gui.callinfo.CALL_INFORMATION"), ""));
+                "service.gui.PROTOCOL"), protocolProvider.getProtocolName()));
 
+        // Server address and port
+        stringBuffer.append(getLineString(R.getI18NString(
+                "service.gui.ADDRESS"), 
+                protocolProvider.getAccountID().getServerAddress()));
+        stringBuffer.append(getLineString(R.getI18NString(
+                "service.gui.PORT"), 
+                protocolProvider.getAccountID().getServerPort()));
+        
+        // Transport protocol
         TransportProtocol preferredTransport
             = protocolProvider.getTransportProtocol();
 
@@ -1350,6 +1361,7 @@ public class AccountDetailsPanel
                 R.getI18NString("service.gui.callinfo.CALL_TRANSPORT"),
                 preferredTransport.toString()));
 
+        // TLS information
         final OperationSetTLS opSetTls = protocolProvider
                 .getOperationSet(OperationSetTLS.class);
         if (opSetTls != null)
