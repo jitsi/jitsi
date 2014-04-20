@@ -195,12 +195,12 @@ public class AccountDetailsPanel
      * The parent dialog.
      */
     private AccountInfoDialog dialog;
-    
+
     /**
      * The information text pane.
      */
     private final JEditorPane infoTextPane;
-    
+
     /**
      * The font color.
      */
@@ -237,11 +237,11 @@ public class AccountDetailsPanel
         {
             fontColor = "000000";
         }
-        
+
         infoTextPane = createGeneralInfoPane();
-        
+
         SIPCommTabbedPane tabbedPane = new SIPCommTabbedPane();
-                
+
         // Add Contact tab
         accountInfoOpSet
             = protocolProvider
@@ -255,7 +255,7 @@ public class AccountDetailsPanel
         else
         {
             contactPanel = createSummaryPanel();
-            
+
             if (protocolProvider.isRegistered())
             {
                 loadDetails();
