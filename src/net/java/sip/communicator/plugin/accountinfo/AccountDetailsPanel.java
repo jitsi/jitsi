@@ -704,11 +704,11 @@ public class AccountDetailsPanel
 
             this.add(buttonPanel);
 
-            for (Component component : valuesPanel.getComponents())
-                component.setEnabled(false);
-            if (aboutMeArea != null)
-                aboutMeArea.setEnabled(false);
-            applyButton.setEnabled(false);
+        for (Component component : valuesPanel.getComponents())
+            component.setEnabled(false);
+        if (aboutMeArea != null)
+            aboutMeArea.setEnabled(false);
+        applyButton.setEnabled(false);
 
         TransparentPanel contactPanel = new TransparentPanel(new BorderLayout(10, 10));
         contactPanel.add(mainScrollPane, BorderLayout.CENTER);
