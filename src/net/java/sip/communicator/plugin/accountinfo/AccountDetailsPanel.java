@@ -58,7 +58,7 @@ public class AccountDetailsPanel
     private Logger logger = Logger.getLogger(AccountDetailsPanel.class);
 
     private final ResourceManagementService R;
-    
+
     /**
      * Mapping between all supported by this plugin <tt>ServerStoredDetails</tt>
      * and their respective <tt>JTextField</tt> that are used for modifying
@@ -686,23 +686,23 @@ public class AccountDetailsPanel
         mainScrollPane.setBorder(BorderFactory.createEmptyBorder());
 
         summaryPanel.add(valuesPanel, BorderLayout.CENTER);
-        
+
         this.applyButton.addActionListener(new SubmitActionListener());
 
-            JButton cancelButton =
-                new JButton(Resources.getString("service.gui.CANCEL"));
-            cancelButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent evt)
-                {
-                    AccountDetailsPanel.this.dialog.close(false);
-                    mainScrollPane.getVerticalScrollBar().setValue(0);
-                }
-            });
-            this.buttonPanel.add(applyButton);
-            this.buttonPanel.add(cancelButton);
+        JButton cancelButton =
+            new JButton(Resources.getString("service.gui.CANCEL"));
+        cancelButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt)
+            {
+                AccountDetailsPanel.this.dialog.close(false);
+                mainScrollPane.getVerticalScrollBar().setValue(0);
+            }
+        });
+        this.buttonPanel.add(applyButton);
+        this.buttonPanel.add(cancelButton);
 
-            this.add(buttonPanel);
+        this.add(buttonPanel);
 
         for (Component component : valuesPanel.getComponents())
             component.setEnabled(false);
@@ -1328,7 +1328,7 @@ public class AccountDetailsPanel
     {
         return "<b>" + labelText + "</b> : " + infoText + "<br/>";
     }
-    
+
     /**
      * Constructs the call info text.
      * @return true if call info could be found, false otherwise
@@ -1352,7 +1352,7 @@ public class AccountDetailsPanel
         stringBuffer.append(getLineString(R.getI18NString(
                 "service.gui.PORT"), 
                 protocolProvider.getAccountID().getServerPort()));
-        
+
         // Transport protocol
         TransportProtocol preferredTransport
             = protocolProvider.getTransportProtocol();
