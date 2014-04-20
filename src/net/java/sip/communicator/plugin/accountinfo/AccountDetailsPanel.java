@@ -1290,7 +1290,7 @@ public class AccountDetailsPanel
             }
         }
     }
-    
+
     /**
      * Create call info text pane.
      *
