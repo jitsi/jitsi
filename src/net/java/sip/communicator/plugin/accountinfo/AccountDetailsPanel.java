@@ -1332,12 +1332,17 @@ public class AccountDetailsPanel
                 "service.gui.PROTOCOL"), protocolProvider.getProtocolName()));
 
         // Server address and port
-        stringBuffer.append(getLineString(R.getI18NString(
-                "service.gui.ADDRESS"), 
-                protocolProvider.getAccountID().getServerAddress()));
-        stringBuffer.append(getLineString(R.getI18NString(
-                "service.gui.PORT"), 
-                protocolProvider.getAccountID().getServerPort()));
+        final OperationSetConnectionInfo opSetConnectionInfo = protocolProvider
+                .getOperationSet(OperationSetConnectionInfo.class);
+        if (opSetConnectionInfo != null)
+        {
+            stringBuffer.append(getLineString(R.getI18NString(
+                    "service.gui.ADDRESS"),
+                    opSetConnectionInfo.getServerAddress()));
+            stringBuffer.append(getLineString(R.getI18NString(
+                    "service.gui.PORT"),
+                    String.valueOf(opSetConnectionInfo.getServerPort())));
+        }
 
         // Transport protocol
         TransportProtocol preferredTransport
