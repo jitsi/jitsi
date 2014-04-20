@@ -202,11 +202,6 @@ public class AccountDetailsPanel
     private final JEditorPane infoTextPane;
 
     /**
-     * The font color.
-     */
-    private String fontColor;
-
-    /**
      * Dummy URL to indicate that the certificate should be displayed.
      */
     private final String CERTIFICATE_URL = "jitsi://viewCertificate";
@@ -228,15 +223,6 @@ public class AccountDetailsPanel
         this.setPreferredSize(new Dimension(600, 400));
         this.protocolProvider = protocolProvider;
         this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
-        if (OSUtils.IS_MAC)
-        {
-            fontColor = "FFFFFF";
-        }
-        else
-        {
-            fontColor = "000000";
-        }
 
         infoTextPane = createGeneralInfoPane();
 
@@ -1339,7 +1325,7 @@ public class AccountDetailsPanel
 
         stringBuffer.append(
             "<html><body><p align=\"left\">"
-                + "<font color=\"" + fontColor + "\" size=\"3\">");
+                + "<font size=\"3\">");
 
         // Protocol name
         stringBuffer.append(getLineString(R.getI18NString(
