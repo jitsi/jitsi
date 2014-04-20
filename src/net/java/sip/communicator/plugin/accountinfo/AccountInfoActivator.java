@@ -39,7 +39,7 @@ public class AccountInfoActivator
     public void start(BundleContext bc) throws Exception
     {
         AccountInfoActivator.bundleContext = bc;
-        
+
         R = ServiceUtils.getService(bc, ResourceManagementService.class);
 
         Hashtable<String, String> containerFilter
