@@ -1926,6 +1926,11 @@ public class ProtocolProviderServiceJabberImpl
             addSupportedOperationSet(OperationSetTLS.class,
                     opsetTLS);
 
+            OperationSetConnectionInfo opsetConnectionInfo
+                    = new OperationSetConnectionInfoJabberImpl(this);
+            addSupportedOperationSet(OperationSetConnectionInfo.class,
+                    opsetConnectionInfo);
+
             isInitialized = true;
         }
     }
@@ -2936,13 +2941,22 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
+     * Return the socket used by the connection.
+     * @return The socket used
+     */
+    public Socket getSocket()
+    {
+        return connection.getSocket();
+    }
+
+    /**
      * Return the SSL socket (if TLS used).
      * @return The SSL socket or null if not used
      */
     public SSLSocket getSSLSocket()
     {
         final SSLSocket result;
-        final Socket socket = connection.getSocket();
+        final Socket socket = getSocket();
         if (socket instanceof SSLSocket)
         {
             result = (SSLSocket) socket;
