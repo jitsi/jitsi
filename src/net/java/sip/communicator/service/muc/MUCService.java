@@ -229,8 +229,8 @@ public abstract class MUCService
             {
                 for (ChatRoomMember member : chatRoom.getMembers())
                     if (nickname.equals(member.getName()))
-                        return true;
-                return false;
+                        return false;
+                return true;
             }
         }
         return false;
