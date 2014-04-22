@@ -68,7 +68,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                 255 // The size limit of key name as documented in MSDN
                     + 20 // \Outlook\InstallRoot
                     + 1]; // The terminating null character
-
+		MsOutlookUtils_log("Searching for outlook InstallRoot.");
         while (1)
         {
             LONG regEnumKeyEx;
@@ -88,15 +88,23 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                         NULL,
                         NULL);
             if (ERROR_NO_MORE_ITEMS == regEnumKeyEx)
+			{
+				MsOutlookUtils_log("No more Software\\Microsoft\\Office items.");
                 break;
+			}
 
             i++;
             if (ERROR_SUCCESS != regEnumKeyEx)
+			{
+				MsOutlookUtils_log("Error quering the next Software\\Microsoft\\Office item.");
                 continue;
+			}
 
             str = installRootKeyName + subkeyNameLength;
             memcpy(str, _T("\\Outlook\\InstallRoot"), 20 * sizeof(TCHAR));
             *(str + 20) = 0;
+			MsOutlookUtils_log("Trying to open the following key:");
+			MsOutlookUtils_log(installRootKeyName);
             if (ERROR_SUCCESS
                     == RegOpenKeyEx(
                             regKey,
@@ -105,6 +113,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                             KEY_QUERY_VALUE,
                             &installRootKey))
             {
+				MsOutlookUtils_log("The key is opened successfully.");
                 if ((ERROR_SUCCESS
                         == RegQueryValueEx(
                                 installRootKey,
@@ -116,6 +125,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                     && (REG_SZ == pathValueType)
                     && pathValueSize)
                 {
+					MsOutlookUtils_log("Path value found.");
                     LPTSTR pathValue;
 
                     // MSDN says "the string may not have been stored with the
@@ -131,7 +141,10 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                     {
                         pathValue = (LPTSTR)::malloc(pathValueSize);
                         if (!pathValue)
+						{
+							MsOutlookUtils_log("Error with memory allocation for the pathValue.");
                             continue;
+						}
                     }
 
                     if (ERROR_SUCCESS
@@ -142,10 +155,12 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                                     NULL,
                                     (LPBYTE) pathValue, &pathValueSize))
                     {
+						MsOutlookUtils_log("The path value is retrieved");
                         DWORD pathValueLength = pathValueSize / sizeof(TCHAR);
 
                         if (pathValueLength)
                         {
+							MsOutlookUtils_log("The path value is retrieved successfully. The length is not 0.");
                             DWORD fileAttributes;
 
                             str = pathValue + (pathValueLength - 1);
@@ -153,18 +168,42 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                                 str++;
                             memcpy(str, _T("\\Outlook.exe"), 12 * sizeof(TCHAR));
                             *(str + 12) = 0;
-
+							MsOutlookUtils_log("Trying to retrieve atributes for:");
+							MsOutlookUtils_log(pathValue);
                             fileAttributes = GetFileAttributes(pathValue);
                             if (INVALID_FILE_ATTRIBUTES != fileAttributes)
+							{
+								MsOutlookUtils_log("The file exists.");
                                 hResult = S_OK;
+							}
+							else
+							{
+								MsOutlookUtils_log("The file doesn't exists");
+							}
                         }
+						else
+						{
+							MsOutlookUtils_log("Error - the length of the path value is 0.");
+						}
                     }
+					else
+					{
+						MsOutlookUtils_log("Error retrieving the pathValue.");
+					}
 
                     if (pathValue != installRootKeyName)
                         free(pathValue);
                 }
+				else
+				{
+					MsOutlookUtils_log("Error Path value not found.");
+				}
                 RegCloseKey(installRootKey);
             }
+			else
+			{
+				MsOutlookUtils_log("Error openning the key.");
+			}
         }
         RegCloseKey(regKey);
 
@@ -173,6 +212,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
         // client.
         if (HR_SUCCEEDED(hResult))
         {
+			MsOutlookUtils_log("Outlook is installed and we are checking if it is default mail client.");
             DWORD defaultValueType;
             // The buffer installRootKeyName is long enough to receive
             // "Microsoft Outlook" so use it in order to not have to allocate
@@ -190,6 +230,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                             KEY_QUERY_VALUE,
                             &regKey))
             {
+				MsOutlookUtils_log("HKCU\\Software\\Clients\\Mail exists.");
                 DWORD defaultValueSize = defaultValueCapacity;
                 LONG regQueryValueEx = RegQueryValueEx(
                         regKey,
@@ -203,6 +244,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                 {
                 case ERROR_SUCCESS:
                 {
+					MsOutlookUtils_log("Successfull retrieve the default value of HKCU\\Software\\Clients\\Mail .");
                     if (REG_SZ == defaultValueType)
                     {
                         DWORD defaultValueLength
@@ -213,34 +255,55 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                                         defaultValue,
                                         defaultValueLength))
                         {
+							MsOutlookUtils_log("The default value of HKCU\\Software\\Clients\\Mail is valid default mail client.");
                             checkHKeyLocalMachine = JNI_FALSE;
                             if (_tcsnicmp(
                                         _T("Microsoft Outlook"), defaultValue,
                                         defaultValueLength)
                                     == 0)
+							{
+								MsOutlookUtils_log("The default value of HKCU\\Software\\Clients\\Mail is Microsoft Office .");
                                 hResult = S_OK;
+							}
+							else
+							{
+								MsOutlookUtils_log("The default value of HKCU\\Software\\Clients\\Mail is not Microsoft Office .");
+								MsOutlookUtils_log(defaultValue);
+							}
                         }
                         else
+						{
+							MsOutlookUtils_log("Not valid default mail client for the default value of HKCU\\Software\\Clients\\Mail .");
                             checkHKeyLocalMachine = JNI_TRUE;
+						}
                     }
                     else
+					{
+						MsOutlookUtils_log("Wrong type for the default value of HKCU\\Software\\Clients\\Mail .");
                         checkHKeyLocalMachine = JNI_FALSE;
+					}
                     break;
                 }
                 case ERROR_FILE_NOT_FOUND:
+					MsOutlookUtils_log("Failed to retrieve the default value of HKCU\\Software\\Clients\\Mail . ERROR_FILE_NOT_FOUND");
                     checkHKeyLocalMachine = JNI_TRUE;
                     break;
                 case ERROR_MORE_DATA:
+					MsOutlookUtils_log("Failed to retrieve the default value of HKCU\\Software\\Clients\\Mail . ERROR_MORE_DATA");
                     checkHKeyLocalMachine = JNI_FALSE;
                     break;
                 default:
+					MsOutlookUtils_log("Failed to retrieve the default value of HKCU\\Software\\Clients\\Mail . Unknown error.");
                     checkHKeyLocalMachine = JNI_FALSE;
                     break;
                 }
                 RegCloseKey(regKey);
             }
             else
+			{
+				MsOutlookUtils_log("Failed to open HKCU\\Software\\Clients\\Mail .");
                 checkHKeyLocalMachine = JNI_TRUE;
+			}
             if ((JNI_TRUE == checkHKeyLocalMachine)
                     && (ERROR_SUCCESS
                             == RegOpenKeyEx(
@@ -250,6 +313,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                                     KEY_QUERY_VALUE,
                                     &regKey)))
             {
+				MsOutlookUtils_log("HKLM\\Software\\Clients\\Mail exists.");
                 DWORD defaultValueSize = defaultValueCapacity;
                 LONG regQueryValueEx
                     = RegQueryValueEx(
@@ -263,19 +327,44 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                         && (REG_SZ == defaultValueType))
                 {
                     DWORD defaultValueLength = defaultValueSize / sizeof(TCHAR);
-
+					MsOutlookUtils_log("The default value of HKLM\\Software\\Clients\\Mail is retrieved .");
+					
                     if ((_tcsnicmp(
                                     _T("Microsoft Outlook"), defaultValue,
                                     defaultValueLength)
                                 == 0)
                             && (JNI_TRUE
                                     == MsOutlookAddrBookContactSourceService_isValidDefaultMailClient(_T("Microsoft Outlook"), 17)))
+					{
+						MsOutlookUtils_log("The default value of HKLM\\Software\\Clients\\Mail is Microsoft Office .");
                         hResult = S_OK;
+					}
+					else
+					{
+						MsOutlookUtils_log("The default value of HKLM\\Software\\Clients\\Mail is not Microsoft Office .");
+						MsOutlookUtils_log(defaultValue);
+					}
                 }
+				else
+				{
+					MsOutlookUtils_log("Failed to retrieve the default value of HKLM\\Software\\Clients\\Mail .");
+				}
                 RegCloseKey(regKey);
             }
+			else
+			{
+				MsOutlookUtils_log("HKLM\\Software\\Clients\\Mail doesn't exists.");
+			}
         }
+		else
+		{
+			MsOutlookUtils_log("Outlook is not installed.");
+		}
     }
+	else
+	{
+		MsOutlookUtils_log("Error opening HKLM\\Software\\Microsoft\\Office registry.");
+	}
 
     // If we've determined that we'd like to go on with MAPI, try to load it.
     if (HR_SUCCEEDED(hResult))
@@ -571,7 +660,7 @@ MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
     (LPCTSTR name, DWORD nameLength)
 {
     jboolean validDefaultMailClient = JNI_FALSE;
-
+	MsOutlookUtils_log("We are validating the default mail client.");
     if ((0 != nameLength) && (0 != name[0]))
     {
         LPTSTR str;
@@ -589,6 +678,8 @@ MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
         _tcsncpy(str, name, nameLength);
         *(str + nameLength) = 0;
 
+		MsOutlookUtils_log("We are searching in HKLM for the key");
+		MsOutlookUtils_log(keyName);
         if (ERROR_SUCCESS
                 == RegOpenKeyEx(
                         HKEY_LOCAL_MACHINE,
@@ -597,9 +688,14 @@ MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
                         KEY_QUERY_VALUE,
                         &key))
         {
+			MsOutlookUtils_log("The key is found");
             validDefaultMailClient = JNI_TRUE;
             RegCloseKey(key);
         }
+		else
+		{
+			MsOutlookUtils_log("The key for default mail client is not found");
+		}
     }
     return validDefaultMailClient;
 }
