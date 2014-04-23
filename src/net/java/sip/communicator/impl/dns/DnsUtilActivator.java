@@ -111,6 +111,8 @@ public class DnsUtilActivator
         if(Logger.getLogger("org.xbill").isTraceEnabled())
             Options.set("verbose", "1");
 
+        Lookup.setCustomLogger(new DnsJavaLogger());
+
         if(loadDNSProxyForward())
         {
             // dns is forced to go through a proxy so skip any further settings
