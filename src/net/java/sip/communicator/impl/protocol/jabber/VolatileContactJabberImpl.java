@@ -21,18 +21,18 @@ public class VolatileContactJabberImpl
      * This contact id
      */
     private String contactId = null;
-    
+
     /**
      * Indicates whether the contact is private messaging contact or not.
      */
     private boolean isPrivateMessagingContact = false;
-    
+
     /**
-     * The display name of the contact. This property is used only for private 
+     * The display name of the contact. This property is used only for private
      * messaging contacts.
      */
     protected String displayName = null;
-    
+
     /**
      * Creates an Volatile JabberContactImpl with the specified id
      * @param id String the user id/address
@@ -42,28 +42,45 @@ public class VolatileContactJabberImpl
     VolatileContactJabberImpl(String id,
                               ServerStoredContactListJabberImpl ssclCallback)
     {
-        this(id, ssclCallback, false);
+        this(id, ssclCallback, false, null);
     }
-    
+
     /**
      * Creates an Volatile JabberContactImpl with the specified id
      * @param id String the user id/address
      * @param ssclCallback a reference to the ServerStoredContactListImpl
      * instance that created us.
-     * @param isPrivateMessagingContact if <tt>true</tt> this should be private 
+     * @param isPrivateMessagingContact if <tt>true</tt> this should be private
      * messaging contact.
+     * @param displayName the display name of the contact
      */
     VolatileContactJabberImpl(String id,
-                              ServerStoredContactListJabberImpl ssclCallback,
-                              boolean isPrivateMessagingContact)
+          ServerStoredContactListJabberImpl ssclCallback,
+          boolean isPrivateMessagingContact)
+    {
+        this(id, ssclCallback, isPrivateMessagingContact, null);
+    }
+
+    /**
+     * Creates an Volatile JabberContactImpl with the specified id
+     * @param id String the user id/address
+     * @param ssclCallback a reference to the ServerStoredContactListImpl
+     * instance that created us.
+     * @param isPrivateMessagingContact if <tt>true</tt> this should be private
+     * messaging contact.
+     * @param displayName the display name of the contact
+     */
+    VolatileContactJabberImpl(String id,
+          ServerStoredContactListJabberImpl ssclCallback,
+          boolean isPrivateMessagingContact, String displayName)
     {
         super(null, ssclCallback, false, false);
-        
+
         this.isPrivateMessagingContact = isPrivateMessagingContact;
-        
+
         if(this.isPrivateMessagingContact)
         {
-            displayName = StringUtils.parseResource(id) + " from " + 
+            displayName = StringUtils.parseResource(id) + " from " +
                 StringUtils.parseBareAddress(id);
             this.contactId = id;
             setJid(id);
@@ -71,6 +88,7 @@ public class VolatileContactJabberImpl
         else
         {
             this.contactId = StringUtils.parseBareAddress(id);
+            this.displayName = (displayName == null)? contactId : displayName;
             String resource = StringUtils.parseResource(id);
             if(resource != null)
             {
@@ -78,7 +96,7 @@ public class VolatileContactJabberImpl
             }
         }
 
-        
+
     }
 
     /**
@@ -101,7 +119,7 @@ public class VolatileContactJabberImpl
     @Override
     public String getDisplayName()
     {
-        return (isPrivateMessagingContact? displayName : contactId);
+        return displayName;
     }
 
     /**
@@ -133,28 +151,28 @@ public class VolatileContactJabberImpl
 
     /**
      * Checks if the contact is private messaging contact or not.
-     * 
-     * @return <tt>true</tt> if this is private messaging contact and 
+     *
+     * @return <tt>true</tt> if this is private messaging contact and
      * <tt>false</tt> if it isn't.
      */
     public boolean isPrivateMessagingContact()
     {
         return isPrivateMessagingContact;
     }
-    
+
     /**
-     * Returns the real address of the contact. If the contact is not private 
-     * messaging contact the result will be the same as <tt>getAddress</tt>'s 
+     * Returns the real address of the contact. If the contact is not private
+     * messaging contact the result will be the same as <tt>getAddress</tt>'s
      * result.
-     * 
+     *
      * @return the real address of the contact.
      */
-    @Override 
+    @Override
     public String getPersistableAddress()
     {
         if(!isPrivateMessagingContact)
             return getAddress();
-        ChatRoomMemberJabberImpl chatRoomMember 
+        ChatRoomMemberJabberImpl chatRoomMember
             = ((OperationSetMultiUserChatJabberImpl)getProtocolProvider()
                     .getOperationSet(OperationSetMultiUserChat.class))
                     .getChatRoom(StringUtils.parseBareAddress(contactId))
@@ -163,5 +181,5 @@ public class VolatileContactJabberImpl
         return ((chatRoomMember == null)? null : StringUtils.parseBareAddress(
             chatRoomMember.getJabberID()));
     }
-   
+
 }

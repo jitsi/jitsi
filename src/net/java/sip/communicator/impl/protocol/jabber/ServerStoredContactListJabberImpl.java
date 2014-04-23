@@ -14,8 +14,10 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smack.util.*;
+import org.jivesoftware.smackx.packet.*;
 import org.osgi.framework.*;
 
 /**
@@ -27,6 +29,7 @@ import org.osgi.framework.*;
  *
  * @author Damian Minkov
  * @author Emil Ivov
+ * @author Hristo Terezov
  */
 public class ServerStoredContactListJabberImpl
 {
@@ -443,7 +446,7 @@ public class ServerStoredContactListJabberImpl
         if (logger.isTraceEnabled())
             logger.trace("Adding contact " + id + " to parent=" + parent);
 
-        String completeID = parseAddressString(id);
+        final String completeID = parseAddressString(id);
         //if the contact is already in the contact list and is not volatile,
         //then only broadcast an event
         ContactJabberImpl existingContact = findContactById(completeID);
@@ -467,12 +470,38 @@ public class ServerStoredContactListJabberImpl
             if(parent != null && parent != getRootGroup())
                 parentNames = new String[]{parent.getGroupName()};
 
+            PacketInterceptor presenceInterceptor = new PacketInterceptor()
+            {
+
+                @Override
+                public void interceptPacket(Packet packet)
+                {
+                    Presence presence = (Presence) packet;
+                    if(presence.getType() == Presence.Type.subscribe
+                        && completeID.equals(StringUtils.parseBareAddress(
+                            presence.getTo())))
+                    {
+                        Nick nicknameExt
+                            = new Nick(
+                                JabberActivator.getGlobalDisplayDetailsService()
+                                    .getDisplayName(jabberProvider));
+                        presence.addExtension(nicknameExt);
+                    }
+                }
+            };
+            jabberProvider.getConnection().addPacketInterceptor(
+                presenceInterceptor, new PacketTypeFilter(Presence.class));
             // modify our reply timeout because some XMPP may send "result" IQ
             // late (> 5 secondes).
             SmackConfiguration.setPacketReplyTimeout(
                 ProtocolProviderServiceJabberImpl.SMACK_PACKET_REPLY_TIMEOUT);
+
             this.roster.createEntry(completeID, completeID, parentNames);
+
             SmackConfiguration.setPacketReplyTimeout(5000);
+
+            jabberProvider.getConnection().removePacketInterceptor(
+                presenceInterceptor);
         }
         catch (XMPPException ex)
         {
@@ -504,13 +533,15 @@ public class ServerStoredContactListJabberImpl
      * @param id the address of the contact to create.
      * @param isPrivateMessagingContact indicates if the contact should be
      * private messaging contact or not.
+     * @param displayName the display name of the contact
      * @return the newly created volatile <tt>ContactImpl</tt>
      */
     ContactJabberImpl createVolatileContact(String id,
-        boolean isPrivateMessagingContact)
+        boolean isPrivateMessagingContact, String displayName)
     {
         VolatileContactJabberImpl newVolatileContact
-            = new VolatileContactJabberImpl(id, this, isPrivateMessagingContact);
+            = new VolatileContactJabberImpl(id, this, isPrivateMessagingContact,
+                displayName);
 
         //Check whether a volatile group already exists and if not create
         //one

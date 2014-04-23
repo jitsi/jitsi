@@ -109,10 +109,20 @@ public class AuthorizationRequestedDialog
         Font font = titleLabel.getFont();
         titleLabel.setFont(font.deriveFont(Font.BOLD, font.getSize2D() + 6));
 
+        String contactName = "";
+        if(contact.getAddress().equals(contact.getDisplayName()))
+        {
+            contactName = contact.getAddress();
+        }
+        else
+        {
+            contactName
+                = contact.getDisplayName() + " <" + contact.getAddress() + ">";
+        }
         infoTextArea.setText(
             GuiActivator.getResources().getI18NString(
                 "service.gui.AUTHORIZATION_REQUESTED_INFO",
-                new String[]{contact.getDisplayName()}));
+                new String[]{contactName}));
 
         this.infoTextArea.setFont(infoTextArea.getFont().deriveFont(Font.BOLD));
         this.infoTextArea.setLineWrap(true);
@@ -160,7 +170,7 @@ public class AuthorizationRequestedDialog
             addContactCheckBox
                 = new SIPCommCheckBox(GuiActivator.getResources()
                     .getI18NString("service.gui.ADD_AUTHORIZED_CONTACT",
-                        new String[]{contact.getDisplayName()}), true);
+                        new String[]{contactName}), true);
             addContactCheckBox.setBorder(null);
 
             JPanel checkBoxPanel
@@ -213,6 +223,8 @@ public class AuthorizationRequestedDialog
      */
     public void showDialog()
     {
+        pack();
+        repaint();
         this.setVisible(true);
     }
 

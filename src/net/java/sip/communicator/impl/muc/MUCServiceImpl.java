@@ -1038,8 +1038,9 @@ public class MUCServiceImpl
                 String[] joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
                     room.getParentProvider().getProtocolProvider(),
                     room.getChatRoomID(),
-                    getDefaultNickname(
-                        room.getParentProvider().getProtocolProvider()));
+                    MUCActivator.getGlobalDisplayDetailsService()
+                        .getDisplayName(
+                            room.getParentProvider().getProtocolProvider()));
                 savedNick = joinOptions[0];
                 subject = joinOptions[1];
 
@@ -1055,42 +1056,6 @@ public class MUCServiceImpl
         }
 
         MUCActivator.getUIService().openChatRoomWindow(room);
-    }
-
-    /**
-     * Returns default nickname for chat room based on the given provider.
-     * @param pps the given protocol provider service
-     * @return default nickname for chat room based on the given provider.
-     */
-    public String getDefaultNickname(ProtocolProviderService pps)
-    {
-        final OperationSetServerStoredAccountInfo accountInfoOpSet
-            = pps.getOperationSet(
-                    OperationSetServerStoredAccountInfo.class);
-
-        String displayName = "";
-        if (accountInfoOpSet != null)
-        {
-            displayName = AccountInfoUtils.getDisplayName(accountInfoOpSet);
-        }
-
-        if(displayName == null || displayName.length() == 0)
-        {
-            displayName = MUCActivator.getGlobalDisplayDetailsService()
-                .getGlobalDisplayName();
-            if(displayName == null || displayName.length() == 0)
-            {
-                displayName = pps.getAccountID().getUserID();
-                if(displayName != null)
-                {
-                    int atIndex = displayName.lastIndexOf("@");
-                    if (atIndex > 0)
-                        displayName = displayName.substring(0, atIndex);
-                }
-            }
-        }
-
-        return displayName;
     }
 
     /**

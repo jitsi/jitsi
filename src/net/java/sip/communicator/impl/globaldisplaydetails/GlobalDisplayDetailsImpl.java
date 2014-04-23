@@ -23,6 +23,7 @@ import org.jitsi.util.*;
  * <p>
  *
  * @author Yana Stamcheva
+ * @author Hristo Terezov
  */
 public class GlobalDisplayDetailsImpl
     implements  GlobalDisplayDetailsService,
@@ -86,6 +87,41 @@ public class GlobalDisplayDetailsImpl
 
         while (providersIter.hasNext())
             providersIter.next().addRegistrationStateChangeListener(this);
+    }
+
+    /**
+     * Returns default display name for the given provider or the global display
+     * name.
+     * @param pps the given protocol provider service
+     * @return default display name.
+     */
+    public String getDisplayName(ProtocolProviderService pps)
+    {
+        final OperationSetServerStoredAccountInfo accountInfoOpSet
+            = pps.getOperationSet(
+                    OperationSetServerStoredAccountInfo.class);
+
+        String displayName = "";
+        if (accountInfoOpSet != null)
+        {
+            displayName = AccountInfoUtils.getDisplayName(accountInfoOpSet);
+        }
+        if(displayName == null || displayName.length() == 0)
+        {
+            displayName = getGlobalDisplayName();
+            if(displayName == null || displayName.length() == 0)
+            {
+                displayName = pps.getAccountID().getUserID();
+                if(displayName != null)
+                {
+                    int atIndex = displayName.lastIndexOf("@");
+                    if (atIndex > 0)
+                        displayName = displayName.substring(0, atIndex);
+                }
+            }
+        }
+
+        return displayName;
     }
 
     /**

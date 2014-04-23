@@ -55,6 +55,7 @@ import org.xmpp.jnodes.smack.*;
  * @author Lyubomir Marinov
  * @author Yana Stamcheva
  * @author Emil Ivov
+ * @author Hristo Terezov
  */
 public class ProtocolProviderServiceJabberImpl
     extends AbstractProtocolProviderService
@@ -1761,6 +1762,12 @@ public class ProtocolProviderServiceJabberImpl
                 CarbonPacketExtension.NAMESPACE,
                 new CarbonPacketExtension.Provider(
                     CarbonPacketExtension.SENT_ELEMENT_NAME));
+
+            providerManager.addExtensionProvider(
+                Nick.ELEMENT_NAME,
+                Nick.NAMESPACE,
+                new Nick.Provider());
+
 
             //initialize the telephony operation set
             boolean isCallingDisabled
