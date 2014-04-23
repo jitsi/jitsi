@@ -24,6 +24,7 @@ import net.java.sip.communicator.util.skin.*;
 /**
  * @author Yana Stamcheva
  * @author Adam Netocny
+ * @author Hristo Terezov
  */
 public class AuthorizationRequestedDialog
     extends SIPCommDialog
@@ -116,13 +117,23 @@ public class AuthorizationRequestedDialog
         }
         else
         {
+            String displayName = contact.getDisplayName();
+            if(displayName.length() > 64)
+            {
+                displayName = displayName.substring(0, 47) + "...";
+            }
             contactName
-                = contact.getDisplayName() + " <" + contact.getAddress() + ">";
+                =  displayName + " <" + contact.getAddress() + ">";
         }
-        infoTextArea.setText(
-            GuiActivator.getResources().getI18NString(
-                "service.gui.AUTHORIZATION_REQUESTED_INFO",
-                new String[]{contactName}));
+
+        String infoText = GuiActivator.getResources().getI18NString(
+            "service.gui.AUTHORIZATION_REQUESTED_INFO",
+            new String[]{contactName});
+        if(infoText.length() > 256)
+        {
+            infoText = infoText.substring(0, 253) + "...";
+        }
+        infoTextArea.setText(infoText);
 
         this.infoTextArea.setFont(infoTextArea.getFont().deriveFont(Font.BOLD));
         this.infoTextArea.setLineWrap(true);
@@ -156,21 +167,32 @@ public class AuthorizationRequestedDialog
 
             this.reasonsPanel.add(requestScrollPane);
 
-            this.mainPanel.setPreferredSize(new Dimension(500, 250));
+            this.mainPanel.setPreferredSize(new Dimension(700, 270));
         }
         else
         {
-            this.mainPanel.setPreferredSize(new Dimension(500, 200));
+            this.mainPanel.setPreferredSize(new Dimension(700, 220));
         }
 
         // If the authorization request comes from a non-persistent contact,
         // we'll suggest to the user to add it to the contact list.
         if (!contact.isPersistent())
         {
-            addContactCheckBox
-                = new SIPCommCheckBox(GuiActivator.getResources()
+            String addContactText = "";
+            if(contactName.length() > 50)
+            {
+                addContactText = GuiActivator.getResources()
+                    .getI18NString("service.gui.ADD_CONTACT_TO_CONTACTLIST",
+                        new String[]{contactName});
+            }
+            else
+            {
+                addContactText = GuiActivator.getResources()
                     .getI18NString("service.gui.ADD_AUTHORIZED_CONTACT",
-                        new String[]{contactName}), true);
+                        new String[]{contactName});
+            }
+            addContactCheckBox
+                = new SIPCommCheckBox(addContactText, true);
             addContactCheckBox.setBorder(null);
 
             JPanel checkBoxPanel
@@ -223,8 +245,6 @@ public class AuthorizationRequestedDialog
      */
     public void showDialog()
     {
-        pack();
-        repaint();
         this.setVisible(true);
     }
 
