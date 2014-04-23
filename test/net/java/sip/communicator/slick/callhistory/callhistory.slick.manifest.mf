@@ -23,5 +23,5 @@ Import-Package: junit.framework,
  org.jitsi.util.xml,
  javax.xml.transform,
  javax.xml.transform.dom,
- javax.xml.transform.stream,
-Export-Package: net.java.sip.communicator.slick.callhistory,
+ javax.xml.transform.stream
+Export-Package: net.java.sip.communicator.slick.callhistory

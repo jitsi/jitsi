@@ -18,6 +18,6 @@ Import-Package: org.jitsi.service.configuration,
  javax.xml.transform,
  javax.xml.transform.dom,
  javax.xml.transform.stream,
- net.java.sip.communicator.util,
+ net.java.sip.communicator.util
 Export-Package: net.java.sip.communicator.slick.slickless,
- net.java.sip.communicator.slick.slickless.util.xml,
+ net.java.sip.communicator.slick.slickless.util.xml

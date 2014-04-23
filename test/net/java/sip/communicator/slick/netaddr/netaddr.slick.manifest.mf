@@ -13,4 +13,4 @@ Import-Package: net.java.sip.communicator.util,
  junit.textui,
  junit.awtui,
  junit.runner,
- org.osgi.framework,
+ org.osgi.framework

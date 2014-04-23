@@ -11,4 +11,4 @@ Import-Package: junit.framework,
  net.java.sip.communicator.service.systray.event,
  net.java.sip.communicator.util,
  net.java.sip.communicator.service.dns
-Export-Package: net.java.sip.communicator.slick.popupmessagehandler,
+Export-Package: net.java.sip.communicator.slick.popupmessagehandler
