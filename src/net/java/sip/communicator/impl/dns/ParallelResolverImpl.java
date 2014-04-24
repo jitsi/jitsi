@@ -420,10 +420,10 @@ public class ParallelResolverImpl
         }
 
         int rcode = response.getRcode();
-        //we didn't find any responses and unless the answer is NXDOMAIN then
+        //we didn't find any responses and the answer is NXDOMAIN then
         //we may want to check with the backup resolver for a second opinion
         if(rcode == Rcode.NXDOMAIN)
-            return true;
+            return false;
 
         //if we received NODATA (same as NOERROR and no response records) for
         // an AAAA or a NAPTR query then it makes sense since many existing
