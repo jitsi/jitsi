@@ -279,10 +279,14 @@ public class SearchFilter
      */
     private boolean isMatching(String text)
     {
-        return (filterPattern != null
-                    && filterPattern.matcher(text).find())
-                || (isSearchingPhoneNumber
-                    && GuiActivator.getPhoneNumberI18nService()
-                            .phoneNumbersMatch(this.filterString, text));
+        if (filterPattern != null)
+            return filterPattern.matcher(text).find();
+
+        if(isSearchingPhoneNumber && this.filterString != null)
+            return GuiActivator.getPhoneNumberI18nService()
+                .phoneNumbersMatch(this.filterString, text);
+
+        return true;
+
     }
 }

@@ -56,7 +56,6 @@ public class ServerChatRoomQuery
      * @param contactSource the parent contact source
      * @param queryString the query string to match
      * @param provider the provider associated with the query
-     * @param count the maximum result contact count
      */
     public ServerChatRoomQuery(String queryString,
         ServerChatRoomContactSourceService contactSource,
@@ -131,7 +130,6 @@ public class ServerChatRoomQuery
      * @param chatRoomID the id of the chat room.
      * @param addQueryResult indicates whether we should add the chat room to
      * the query results or fire an event without adding it to the results.
-     * @param isAutoJoin the auto join state of the contact.
      */
     private void addChatRoom(ProtocolProviderService pps,
         String chatRoomName, String chatRoomID, boolean addQueryResult)
