@@ -383,7 +383,7 @@ public class InfoRetreiver
      * @param card the card to check.
      * @return the Full name if existing, null otherwise.
      */
-    private String checkForFullName(VCard card)
+    String checkForFullName(VCard card)
     {
         String vcardXml = card.toXML();
 
