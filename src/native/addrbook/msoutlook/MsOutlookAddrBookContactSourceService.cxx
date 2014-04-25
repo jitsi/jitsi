@@ -745,8 +745,8 @@ HRESULT MsOutlookAddrBookContactSourceService_startComServer(void)
 			appNameWithLogger
 				= (char*) malloc(
 						(FILENAME_MAX + loggerPathLenght) * sizeof(char));
-        	sprintf(comServerWithLogger, "%s %s", comServer, loggerPath);
-        	sprintf(appNameWithLogger, "%s %s", applicationName, loggerPath);
+        	sprintf(comServerWithLogger, "%s \"%s\"", comServer, loggerPath);
+        	sprintf(appNameWithLogger, "%s \"%s\"", applicationName, loggerPath);
         }
         else
         {

@@ -14,6 +14,7 @@
 #include "../../MsOutlookUtils.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <TlHelp32.h>
 
 #define MAPI_NO_COINIT 8
@@ -33,7 +34,9 @@ int main(int argc, char** argv)
 
     if(argc > 1)
     {
-    	MsOutlookUtils_createLogger("msoutlookaddrbook_server.log",argv[1]);
+    	char* path = argv[1];
+    	*(path + strlen(path) - 1) = '\\';
+    	MsOutlookUtils_createLogger("msoutlookaddrbook_server.log", path);
     }
 
     MsOutlookUtils_log("Starting the Outlook Server.");
