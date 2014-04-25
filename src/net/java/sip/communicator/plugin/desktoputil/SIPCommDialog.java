@@ -85,6 +85,23 @@ public class SIPCommDialog
     }
 
     /**
+     * Creates an instance of <tt>SIPCommDialog</tt> by specifying the
+     * <tt>Frame</tt> owner.
+     * @param owner the owner of this dialog
+     */
+    public SIPCommDialog(Window owner)
+    {
+        super(owner);
+
+        this.init();
+
+        if(owner == null)
+        {
+            SIPCommFrame.updateIconImages(this);
+        }
+    }
+
+    /**
      * Creates an instance of <tt>SIPCommDialog</tt> by specifying explicitly
      * if the size and location properties are saved. By default size and
      * location are stored.
@@ -122,6 +139,21 @@ public class SIPCommDialog
      * location of this dialog
      */
     public SIPCommDialog(Frame owner, boolean isSaveSizeAndLocation)
+    {
+        this(owner);
+
+        this.isSaveSizeAndLocation = isSaveSizeAndLocation;
+    }
+
+    /**
+     * Creates an instance of <tt>SIPCommDialog</tt> by specifying the owner
+     * of this dialog and indicating whether to save the size and location
+     * properties.
+     * @param owner the owner of this dialog
+     * @param isSaveSizeAndLocation indicates whether to save the size and
+     * location of this dialog
+     */
+    public SIPCommDialog(Window owner, boolean isSaveSizeAndLocation)
     {
         this(owner);
 

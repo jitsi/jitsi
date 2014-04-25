@@ -188,7 +188,12 @@ public class AuthenticationWindow
                                 String errorMessage,
                                 String signupLink)
     {
-        super(false);
+        super(
+            (Window)(DesktopUtilActivator.getUIService() == null ?
+                        null :
+                        DesktopUtilActivator.getUIService()
+                            .getExportedWindow(ExportedWindow.MAIN_WINDOW)),
+            false);
 
         this.windowTitle = windowTitle;
         this.windowText = windowText;

@@ -119,37 +119,45 @@ public class SIPCommFrame
      */
     private void init()
     {
+        updateIconImages(this);
+    }
+
+    /**
+     * Sets the list of icons to the <tt>window</tt>.
+     * @param window the window, which icons will be updated.
+     */
+    public static void updateIconImages(Window window)
+    {
         try
         {
-            Method m = Window.class.getMethod("setIconImages", List.class);
             List<Image> logos = new ArrayList<Image>(6)
             {
                 private static final long serialVersionUID = 0L;
                 {
                     add(DesktopUtilActivator.getImage(
-                            "service.gui.SIP_COMMUNICATOR_LOGO"));
+                        "service.gui.SIP_COMMUNICATOR_LOGO"));
                     add(DesktopUtilActivator.getImage(
-                            "service.gui.SIP_COMMUNICATOR_LOGO_20x20"));
+                        "service.gui.SIP_COMMUNICATOR_LOGO_20x20"));
                     add(DesktopUtilActivator.getImage(
-                            "service.gui.SIP_COMMUNICATOR_LOGO_32x32"));
+                        "service.gui.SIP_COMMUNICATOR_LOGO_32x32"));
                     add(DesktopUtilActivator.getImage(
-                            "service.gui.SIP_COMMUNICATOR_LOGO_45x45"));
+                        "service.gui.SIP_COMMUNICATOR_LOGO_45x45"));
                     add(DesktopUtilActivator.getImage(
-                            "service.gui.SIP_COMMUNICATOR_LOGO_64x64"));
+                        "service.gui.SIP_COMMUNICATOR_LOGO_64x64"));
                     add(DesktopUtilActivator.getImage(
-                            "service.gui.SIP_COMMUNICATOR_LOGO_128x128"));
+                        "service.gui.SIP_COMMUNICATOR_LOGO_128x128"));
                 }
             };
-            m.invoke(this, logos);
+            window.setIconImages(logos);
             // In order to have the same icon when using option panes
-            m.invoke(JOptionPane.getRootFrame(), logos);
+            JOptionPane.getRootFrame().setIconImages(logos);
         }
         catch (Exception e)
         {
-            Image scLogo
-                = DesktopUtilActivator.getImage("service.gui.SIP_COMMUNICATOR_LOGO");
+            Image scLogo = DesktopUtilActivator.getImage(
+                "service.gui.SIP_COMMUNICATOR_LOGO");
 
-            setIconImage(scLogo);
+            window.setIconImage(scLogo);
             // In order to have the same icon when using option panes
             JOptionPane.getRootFrame().setIconImage(scLogo);
         }
