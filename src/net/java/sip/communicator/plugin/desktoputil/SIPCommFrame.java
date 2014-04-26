@@ -9,7 +9,6 @@ package net.java.sip.communicator.plugin.desktoputil;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
-import java.lang.reflect.*;
 import java.net.*;
 import java.util.*;
 import java.util.List;
