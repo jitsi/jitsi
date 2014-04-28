@@ -10,13 +10,18 @@
 #include <mapidefs.h>
 #include <jni.h>
 
-void MsOutlookUtils_createLogger(const char* logFile, const char* logPath);
+void MsOutlookUtils_createLogger(const char* logFile, const char* logPath,
+		int logLevel);
 
 void MsOutlookUtils_log(const char* message);
+
+void MsOutlookUtils_logInfo(const char* message);
 
 void MsOutlookUtils_deleteLogger();
 
 char* MsOutlookUtils_getLoggerPath();
+
+int MsOutlookUtils_getLoggerLevel();
 
 HRESULT
 MsOutlookUtils_getFolderEntryIDByType

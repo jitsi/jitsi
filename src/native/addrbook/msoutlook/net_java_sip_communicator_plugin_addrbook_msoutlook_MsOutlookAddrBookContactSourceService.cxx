@@ -17,7 +17,7 @@
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIInitialize
     (JNIEnv *jniEnv, jclass clazz, jlong version, jlong flags,
-     jobject notificationsDelegate, jstring logPath)
+     jobject notificationsDelegate, jstring logPath, jint logLevel)
 {
     HRESULT hr;
 
@@ -25,7 +25,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
       jniEnv,
       notificationsDelegate);
     const char* logFileString = jniEnv->GetStringUTFChars(logPath, NULL);
-    MsOutlookUtils_createLogger("msoutlookaddrbook.log", logFileString);
+    MsOutlookUtils_createLogger("msoutlookaddrbook.log", logFileString, logLevel);
     jniEnv->ReleaseStringUTFChars(logPath, logFileString);
 
     hr = MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer();

@@ -7,13 +7,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 /*
  * Class:     net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService
  * Method:    MAPIInitialize
- * Signature: (JJLnet/java/sip/communicator/plugin/addrbook/msoutlook/MsOutlookAddrBookContactSourceService/NotificationsDelegate;Ljava/lang/String;)V
+ * Signature: (JJLnet/java/sip/communicator/plugin/addrbook/msoutlook/MsOutlookAddrBookContactSourceService/NotificationsDelegate;Ljava/lang/String;I)V
  */
 JNIEXPORT void JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIInitialize
-  (JNIEnv *, jclass, jlong, jlong, jobject, jstring);
+  (JNIEnv *, jclass, jlong, jlong, jobject, jstring, jint);
 
 /*
  * Class:     net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService

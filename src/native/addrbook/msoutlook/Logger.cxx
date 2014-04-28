@@ -10,13 +10,15 @@
 
 #define LOGGER_DATE_STRING_LENGTH 25
 
+
 /**
  * Constructs new Logger object.
  * @param pLogFile the filename of the log file.
  * @param pLogPath the path of the log file.
  */
-Logger::Logger(const char* pLogFile, const char* pLogPath)
+Logger::Logger(const char* pLogFile, const char* pLogPath, int pLogLevel)
 {
+	logLevel = pLogLevel;
 	canWriteInFile = false;
 	if(pLogPath != NULL && strlen(pLogPath) != 0)
 	{
@@ -87,7 +89,23 @@ void Logger::getCurrentTimeString(char* dateString)
  */
 void Logger::log(const char* message)
 {
-	if(canWriteInFile)
+	if(canWriteInFile && logLevel >= LOGGER_LEVEL_TRACE)
+	{
+		char *dateString = (char*)malloc(LOGGER_DATE_STRING_LENGTH*sizeof(char));
+		getCurrentTimeString(dateString);
+		fprintf(file, "%s %s: %s\n",dateString, getCurrentFile(), message);
+		fflush(file);
+		free(dateString);
+	}
+}
+
+/**
+ * Logs a message
+ * @param message the message.
+ */
+void Logger::logInfo(const char* message)
+{
+	if(canWriteInFile && logLevel >= LOGGER_LEVEL_INFO )
 	{
 		char *dateString = (char*)malloc(LOGGER_DATE_STRING_LENGTH*sizeof(char));
 		getCurrentTimeString(dateString);
@@ -103,6 +121,14 @@ void Logger::log(const char* message)
 char* Logger::getLogPath()
 {
 	return logPath;
+}
+
+/**
+ * Returns the current log level.
+ */
+int Logger::getLogLevel()
+{
+	return logLevel;
 }
 
 

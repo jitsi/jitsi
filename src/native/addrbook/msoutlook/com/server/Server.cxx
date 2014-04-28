@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <TlHelp32.h>
+#include <stdlib.h>
 
 #define MAPI_NO_COINIT 8
 
@@ -32,18 +33,25 @@ int main(int argc, char** argv)
     HRESULT hr = E_FAIL;
 
 
-    if(argc > 1)
+    if(argc > 2)
     {
     	char* path = argv[1];
-    	*(path + strlen(path) - 1) = '\\';
-    	MsOutlookUtils_createLogger("msoutlookaddrbook_server.log", path);
+    	int loggerLevel = 0;
+		char* loggerLevelString = argv[2];
+		loggerLevel = atoi(loggerLevelString);
+    	MsOutlookUtils_createLogger("msoutlookaddrbook_server.log", path,
+    			loggerLevel);
+
     }
 
-    MsOutlookUtils_log("Starting the Outlook Server.");
+    MsOutlookUtils_logInfo(argv[1]);
+    MsOutlookUtils_logInfo(argv[2]);
+    MsOutlookUtils_logInfo("Starting the Outlook Server.");
+    MsOutlookUtils_log("Test");
     if((hr = ::CoInitializeEx(NULL, COINIT_MULTITHREADED)) != S_OK
             && hr != S_FALSE)
     {
-    	MsOutlookUtils_log("Error in initialization of the Outlook Server.[1]");
+    	MsOutlookUtils_logInfo("Error in initialization of the Outlook Server.[1]");
         return hr;
     }
     MAPISession_initLock();
@@ -55,7 +63,7 @@ int main(int argc, char** argv)
                 (void*) Server_updated)
             != S_OK)
     {
-    	MsOutlookUtils_log("Error in native MAPI initialization of the Outlook Server.[2]");
+    	MsOutlookUtils_logInfo("Error in native MAPI initialization of the Outlook Server.[2]");
         CoUninitialize();
         return hr;
     }
@@ -65,18 +73,18 @@ int main(int argc, char** argv)
     if(typeLib != NULL)
     {
 
-    	MsOutlookUtils_log("TLB initialized.");
+    	MsOutlookUtils_logInfo("TLB initialized.");
         ClassFactory *classObject = new MsOutlookAddrBookServerClassFactory();
         if(classObject != NULL)
         {
-        	MsOutlookUtils_log("Server object created.");
+        	MsOutlookUtils_logInfo("Server object created.");
             hr = classObject->registerClassObject();
             hr = ::CoResumeClassObjects();
 
-			MsOutlookUtils_log("Server started.");
+            MsOutlookUtils_logInfo("Server started.");
             waitParentProcessStop();
 
-            MsOutlookUtils_log("Stop waiting.[3]");
+            MsOutlookUtils_logInfo("Stop waiting.[3]");
             hr = ::CoSuspendClassObjects();
             hr = classObject->revokeClassObject();
 
@@ -84,13 +92,13 @@ int main(int argc, char** argv)
         }
         else
         {
-        	MsOutlookUtils_log("Error - server object can't be created.");
+        	MsOutlookUtils_logInfo("Error - server object can't be created.");
         }
         TypeLib_releaseTypeLib(typeLib);
     }
     else
     {
-    	MsOutlookUtils_log("Error - TLB isn't initialized.");
+    	MsOutlookUtils_logInfo("Error - TLB isn't initialized.");
     }
     MsOutlookAddrBookContactSourceService_NativeMAPIUninitialize();
     MsOutlookUtils_deleteLogger();

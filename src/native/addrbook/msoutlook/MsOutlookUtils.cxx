@@ -405,9 +405,10 @@ MsOutlookUtils_IMAPIProp_GetProps(
     return javaProps;
 }
 
-void MsOutlookUtils_createLogger(const char* logFile, const char* logPath)
+void MsOutlookUtils_createLogger(const char* logFile, const char* logPath,
+		int logLevel)
 {
-	logger = new Logger(logFile, logPath);
+	logger = new Logger(logFile, logPath, logLevel);
 }
 
 void MsOutlookUtils_log(const char* message)
@@ -416,6 +417,11 @@ void MsOutlookUtils_log(const char* message)
 		logger->log(message);
 }
 
+void MsOutlookUtils_logInfo(const char* message)
+{
+	if(logger != NULL)
+		logger->logInfo(message);
+}
 
 void MsOutlookUtils_deleteLogger()
 {
@@ -428,4 +434,11 @@ char* MsOutlookUtils_getLoggerPath()
 	if(logger != NULL)
 		return logger->getLogPath();
 	return NULL;
+}
+
+int MsOutlookUtils_getLoggerLevel()
+{
+	if(logger != NULL)
+		return logger->getLogLevel();
+	return 0;
 }

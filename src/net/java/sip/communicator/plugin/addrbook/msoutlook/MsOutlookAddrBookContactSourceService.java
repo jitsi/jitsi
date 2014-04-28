@@ -51,6 +51,10 @@ public class MsOutlookAddrBookContactSourceService
     private static final long MAPI_INIT_VERSION = 0;
 
     private static final long MAPI_MULTITHREAD_NOTIFICATIONS = 0x00000001;
+    
+    private static final int NATIVE_LOGGER_LEVEL_INFO = 0;
+
+    private static final int NATIVE_LOGGER_LEVEL_TRACE = 1;
 
     /**
      * The thread used to collect the notifications.
@@ -129,25 +133,31 @@ public class MsOutlookAddrBookContactSourceService
         if(!isMAPIInitialized)
         {
             String logFileName = "";
+            String homeLocation = System.getProperty(
+                "net.java.sip.communicator.SC_LOG_DIR_LOCATION");
+            String dirName = System.getProperty(
+                "net.java.sip.communicator.SC_HOME_DIR_NAME");
+
+            if(homeLocation != null && dirName != null)
+            {
+                logFileName = homeLocation + "\\" + dirName + "\\log\\";
+            }
+
+            int logLevel = NATIVE_LOGGER_LEVEL_INFO;
             if(logger.isTraceEnabled())
             {
-                String homeLocation = System.getProperty(
-                    "net.java.sip.communicator.SC_LOG_DIR_LOCATION");
-                String dirName = System.getProperty(
-                    "net.java.sip.communicator.SC_HOME_DIR_NAME");
-    
-                if(homeLocation != null && dirName != null)
-                {
-                    logFileName = homeLocation + "\\" + dirName 
-                        + "\\log\\";
-                }
+                logLevel = NATIVE_LOGGER_LEVEL_TRACE;
             }
-            
+
+            logger.info("Init mapi with log level " + logLevel + " and log file"
+                + " path " + logFileName);
+
             MAPIInitialize(
                     MAPI_INIT_VERSION,
                     MAPI_MULTITHREAD_NOTIFICATIONS,
                     notificationDelegate,
-                    logFileName);
+                    logFileName,
+                    logLevel);
             isMAPIInitialized = true;
         }
     }
@@ -191,7 +201,8 @@ public class MsOutlookAddrBookContactSourceService
             long version,
             long flags,
             NotificationsDelegate callback,
-            String logFileName)
+            String logFileName,
+            int logLevel)
         throws MsOutlookMAPIHResultException;
 
     /**
