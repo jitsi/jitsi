@@ -71,7 +71,7 @@ public class ChatRoomConfigurationWindow
     /**
      * A map all configuration components.
      */
-    private Hashtable<String, JComponent> uiFieldsTable
+    protected Hashtable<String, JComponent> uiFieldsTable
         = new Hashtable<String, JComponent>();
 
     /**
@@ -450,5 +450,19 @@ public class ChatRoomConfigurationWindow
     protected void close(boolean isEscaped)
     {
         this.dispose();
+    }
+
+    /**
+     * Overwrites the setVisible method in order to set the
+     * position of this window before showing it.
+     * @param isVisible indicates if this frame should be visible
+     */
+    @Override
+    public void setVisible(boolean isVisible)
+    {
+        if(isVisible)
+            setLocationRelativeTo(null);
+
+        super.setVisible(isVisible);
     }
 }
