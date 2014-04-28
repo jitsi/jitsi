@@ -684,25 +684,45 @@ public class NetworkAddressManagerServiceImpl
       * is using sockets.
       * @throws BindException if we couldn't find a free port between within the
       * default number of retries.
+     */
+    public IceMediaStream createIceStream( int    rtpPort,
+                                           String streamName,
+                                           Agent  agent)
+        throws IllegalArgumentException,
+               IOException,
+               BindException
+    {
+        return createIceStream(2, rtpPort, streamName, agent);
+    }
+
+    /**
+      * {@inheritDoc}
       */
-     public IceMediaStream createIceStream( int    rtpPort,
-                                            String streamName,
-                                            Agent  agent)
-         throws IllegalArgumentException,
-                IOException,
-                BindException
-     {
-         IceMediaStream stream = agent.createMediaStream(streamName);
+    public IceMediaStream createIceStream( int    numComponents,
+                                           int    portBase,
+                                           String streamName,
+                                           Agent  agent)
+        throws IllegalArgumentException,
+               IOException,
+               BindException
+    {
+        if(numComponents < 1 || numComponents > 2)
+            throw new IllegalArgumentException(
+                "Invalid numComponents value: " + numComponents);
 
-         //rtp
-         agent.createComponent(
-                 stream, Transport.UDP,
-                 rtpPort, rtpPort, rtpPort + 100);
-         //rtcp
-         agent.createComponent(
-                 stream, Transport.UDP,
-                 rtpPort + 1, rtpPort + 1, rtpPort + 101);
+        IceMediaStream stream = agent.createMediaStream(streamName);
 
-         return stream;
-     }
+        agent.createComponent(
+            stream, Transport.UDP,
+            portBase, portBase, portBase + 100);
+
+        if(numComponents > 1)
+        {
+            agent.createComponent(
+                stream, Transport.UDP,
+                portBase + 1, portBase + 1, portBase + 101);
+        }
+
+        return stream;
+    }
 }

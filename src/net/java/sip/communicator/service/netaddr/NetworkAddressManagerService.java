@@ -205,4 +205,31 @@ public interface NetworkAddressManagerService
         throws IllegalArgumentException,
                IOException,
                BindException;
+    /**
+     * Creates an <tt>IceMediaStrean</tt> and adds to it one or two
+     * components, which also implies running the currently installed
+     * harvesters.
+     *
+     * @param portBase the port that we should try to bind first component on
+     * (the second one would automatically go to portBase + 1)
+     * @param streamName the name of the stream to create
+     * @param agent the <tt>Agent</tt> that should create the stream.
+     *
+     * @return the newly created <tt>IceMediaStream</tt>.
+     *
+     * @throws IllegalArgumentException if <tt>portBase</tt> is not a valid port
+     * number. If <tt>numComponents</tt> is neither 1 nor 2.
+     * @throws IOException if an error occurs while the underlying resolver
+     * is using sockets.
+     * @throws BindException if we couldn't find a free port between within the
+     * default number of retries.
+     *
+     */
+    public IceMediaStream createIceStream( int    numComponents,
+                                           int    portBase,
+                                           String streamName,
+                                           Agent  agent)
+        throws IllegalArgumentException,
+               IOException,
+               BindException;
 }
