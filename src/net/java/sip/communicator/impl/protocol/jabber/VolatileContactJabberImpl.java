@@ -52,7 +52,6 @@ public class VolatileContactJabberImpl
      * instance that created us.
      * @param isPrivateMessagingContact if <tt>true</tt> this should be private
      * messaging contact.
-     * @param displayName the display name of the contact
      */
     VolatileContactJabberImpl(String id,
           ServerStoredContactListJabberImpl ssclCallback,
@@ -80,7 +79,7 @@ public class VolatileContactJabberImpl
 
         if(this.isPrivateMessagingContact)
         {
-            displayName = StringUtils.parseResource(id) + " from " +
+            this.displayName = StringUtils.parseResource(id) + " from " +
                 StringUtils.parseBareAddress(id);
             this.contactId = id;
             setJid(id);
