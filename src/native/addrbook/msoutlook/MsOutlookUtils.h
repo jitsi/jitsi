@@ -23,6 +23,8 @@ char* MsOutlookUtils_getLoggerPath();
 
 int MsOutlookUtils_getLoggerLevel();
 
+bool MsOutlookUtils_isOutlookDefaultMailClient();
+
 HRESULT
 MsOutlookUtils_getFolderEntryIDByType
     (LPMDB msgStore,

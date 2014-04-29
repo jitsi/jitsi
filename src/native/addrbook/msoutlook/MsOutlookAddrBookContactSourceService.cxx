@@ -37,9 +37,6 @@ static LPMAPIUNINITIALIZE
     MsOutlookAddrBookContactSourceService_mapiUninitialize;
 static HMODULE MsOutlookAddrBookContactSourceService_hMapiLib = NULL;
 
-static jboolean
-MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
-    (LPCTSTR name, DWORD nameLength);
 HRESULT MsOutlookAddrBookContactSourceService_startComServer(void);
 
 HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
@@ -212,149 +209,14 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
         // client.
         if (HR_SUCCEEDED(hResult))
         {
-        	MsOutlookUtils_logInfo("Outlook is installed and we are checking if it is default mail client.");
-            DWORD defaultValueType;
-            // The buffer installRootKeyName is long enough to receive
-            // "Microsoft Outlook" so use it in order to not have to allocate
-            // more memory.
-            LPTSTR defaultValue = (LPTSTR) installRootKeyName;
-            DWORD defaultValueCapacity = sizeof(installRootKeyName);
-            jboolean checkHKeyLocalMachine;
-
-            hResult = MAPI_E_NO_SUPPORT;
-            if (ERROR_SUCCESS
-                    == RegOpenKeyEx(
-                            HKEY_CURRENT_USER,
-                            _T("Software\\Clients\\Mail"),
-                            0,
-                            KEY_QUERY_VALUE,
-                            &regKey))
-            {
-            	MsOutlookUtils_logInfo("HKCU\\Software\\Clients\\Mail exists.");
-                DWORD defaultValueSize = defaultValueCapacity;
-                LONG regQueryValueEx = RegQueryValueEx(
-                        regKey,
-                        NULL,
-                        NULL,
-                        &defaultValueType,
-                        (LPBYTE) defaultValue,
-                        &defaultValueSize);
-
-                switch (regQueryValueEx)
-                {
-                case ERROR_SUCCESS:
-                {
-                	MsOutlookUtils_logInfo("Successfull retrieve the default value of HKCU\\Software\\Clients\\Mail .");
-                    if (REG_SZ == defaultValueType)
-                    {
-                        DWORD defaultValueLength
-                            = defaultValueSize / sizeof(TCHAR);
-
-                        if (JNI_TRUE
-                                == MsOutlookAddrBookContactSourceService_isValidDefaultMailClient(
-                                        defaultValue,
-                                        defaultValueLength))
-                        {
-                        	MsOutlookUtils_logInfo("The default value of HKCU\\Software\\Clients\\Mail is valid default mail client.");
-                            checkHKeyLocalMachine = JNI_FALSE;
-                            if (_tcsnicmp(
-                                        _T("Microsoft Outlook"), defaultValue,
-                                        defaultValueLength)
-                                    == 0)
-							{
-                            	MsOutlookUtils_logInfo("The default value of HKCU\\Software\\Clients\\Mail is Microsoft Office .");
-                                hResult = S_OK;
-							}
-							else
-							{
-								MsOutlookUtils_logInfo("The default value of HKCU\\Software\\Clients\\Mail is not Microsoft Office .");
-								MsOutlookUtils_logInfo(defaultValue);
-							}
-                        }
-                        else
-						{
-                        	MsOutlookUtils_logInfo("Not valid default mail client for the default value of HKCU\\Software\\Clients\\Mail .");
-                            checkHKeyLocalMachine = JNI_TRUE;
-						}
-                    }
-                    else
-					{
-                    	MsOutlookUtils_logInfo("Wrong type for the default value of HKCU\\Software\\Clients\\Mail .");
-                        checkHKeyLocalMachine = JNI_FALSE;
-					}
-                    break;
-                }
-                case ERROR_FILE_NOT_FOUND:
-                	MsOutlookUtils_logInfo("Failed to retrieve the default value of HKCU\\Software\\Clients\\Mail . ERROR_FILE_NOT_FOUND");
-                    checkHKeyLocalMachine = JNI_TRUE;
-                    break;
-                case ERROR_MORE_DATA:
-                	MsOutlookUtils_logInfo("Failed to retrieve the default value of HKCU\\Software\\Clients\\Mail . ERROR_MORE_DATA");
-                    checkHKeyLocalMachine = JNI_FALSE;
-                    break;
-                default:
-                	MsOutlookUtils_logInfo("Failed to retrieve the default value of HKCU\\Software\\Clients\\Mail . Unknown error.");
-                    checkHKeyLocalMachine = JNI_FALSE;
-                    break;
-                }
-                RegCloseKey(regKey);
-            }
-            else
-			{
-            	MsOutlookUtils_logInfo("Failed to open HKCU\\Software\\Clients\\Mail .");
-                checkHKeyLocalMachine = JNI_TRUE;
-			}
-            if ((JNI_TRUE == checkHKeyLocalMachine)
-                    && (ERROR_SUCCESS
-                            == RegOpenKeyEx(
-                                    HKEY_LOCAL_MACHINE,
-                                    _T("Software\\Clients\\Mail"),
-                                    0,
-                                    KEY_QUERY_VALUE,
-                                    &regKey)))
-            {
-            	MsOutlookUtils_logInfo("HKLM\\Software\\Clients\\Mail exists.");
-                DWORD defaultValueSize = defaultValueCapacity;
-                LONG regQueryValueEx
-                    = RegQueryValueEx(
-                            regKey,
-                            NULL,
-                            NULL,
-                            &defaultValueType,
-                            (LPBYTE) defaultValue, &defaultValueSize);
-
-                if ((ERROR_SUCCESS == regQueryValueEx)
-                        && (REG_SZ == defaultValueType))
-                {
-                    DWORD defaultValueLength = defaultValueSize / sizeof(TCHAR);
-                    MsOutlookUtils_logInfo("The default value of HKLM\\Software\\Clients\\Mail is retrieved .");
-					
-                    if ((_tcsnicmp(
-                                    _T("Microsoft Outlook"), defaultValue,
-                                    defaultValueLength)
-                                == 0)
-                            && (JNI_TRUE
-                                    == MsOutlookAddrBookContactSourceService_isValidDefaultMailClient(_T("Microsoft Outlook"), 17)))
-					{
-                    	MsOutlookUtils_logInfo("The default value of HKLM\\Software\\Clients\\Mail is Microsoft Office .");
-                        hResult = S_OK;
-					}
-					else
-					{
-						MsOutlookUtils_logInfo("The default value of HKLM\\Software\\Clients\\Mail is not Microsoft Office .");
-						MsOutlookUtils_logInfo(defaultValue);
-					}
-                }
-				else
-				{
-					MsOutlookUtils_logInfo("Failed to retrieve the default value of HKLM\\Software\\Clients\\Mail .");
-				}
-                RegCloseKey(regKey);
-            }
-			else
-			{
-				MsOutlookUtils_logInfo("HKLM\\Software\\Clients\\Mail doesn't exists.");
-			}
+        	if(MsOutlookUtils_isOutlookDefaultMailClient())
+        	{
+        		hResult = S_OK;
+        	}
+        	else
+        	{
+        		hResult = MAPI_E_NO_SUPPORT;
+        	}
         }
 		else
 		{
@@ -675,50 +537,6 @@ void MsOutlookAddrBookContactSourceService_NativeMAPIUninitialize(void)
     MsOutlookAddrBookContactSourceService_MAPIUninitialize();
 }
 
-static jboolean
-MsOutlookAddrBookContactSourceService_isValidDefaultMailClient
-    (LPCTSTR name, DWORD nameLength)
-{
-    jboolean validDefaultMailClient = JNI_FALSE;
-    MsOutlookUtils_logInfo("We are validating the default mail client.");
-    if ((0 != nameLength) && (0 != name[0]))
-    {
-        LPTSTR str;
-        TCHAR keyName[
-                22 /* Software\Clients\Mail\ */
-                    + 255
-                    + 1 /* The terminating null character */];
-        HKEY key;
-
-        str = keyName;
-        _tcsncpy(str, _T("Software\\Clients\\Mail\\"), 22);
-        str += 22;
-        if (nameLength > 255)
-            nameLength = 255;
-        _tcsncpy(str, name, nameLength);
-        *(str + nameLength) = 0;
-
-        MsOutlookUtils_logInfo("We are searching in HKLM for the key");
-        MsOutlookUtils_logInfo(keyName);
-        if (ERROR_SUCCESS
-                == RegOpenKeyEx(
-                        HKEY_LOCAL_MACHINE,
-                        keyName,
-                        0,
-                        KEY_QUERY_VALUE,
-                        &key))
-        {
-        	MsOutlookUtils_logInfo("The key is found");
-            validDefaultMailClient = JNI_TRUE;
-            RegCloseKey(key);
-        }
-		else
-		{
-			MsOutlookUtils_logInfo("The key for default mail client is not found");
-		}
-    }
-    return validDefaultMailClient;
-}
 
 /**
  * Starts the COM server.

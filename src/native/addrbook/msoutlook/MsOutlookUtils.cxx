@@ -442,3 +442,190 @@ int MsOutlookUtils_getLoggerLevel()
 		return logger->getLogLevel();
 	return 0;
 }
+
+
+static jboolean
+MsOutlookUtils_isValidDefaultMailClient
+    (LPCTSTR name, DWORD nameLength)
+{
+    jboolean validDefaultMailClient = JNI_FALSE;
+    MsOutlookUtils_logInfo("We are validating the default mail client.");
+    if ((0 != nameLength) && (0 != name[0]))
+    {
+        LPTSTR str;
+        TCHAR keyName[
+                22 /* Software\Clients\Mail\ */
+                    + 255
+                    + 1 /* The terminating null character */];
+        HKEY key;
+
+        str = keyName;
+        _tcsncpy(str, _T("Software\\Clients\\Mail\\"), 22);
+        str += 22;
+        if (nameLength > 255)
+            nameLength = 255;
+        _tcsncpy(str, name, nameLength);
+        *(str + nameLength) = 0;
+
+        MsOutlookUtils_logInfo("We are searching in HKLM for the key");
+        MsOutlookUtils_logInfo(keyName);
+        if (ERROR_SUCCESS
+                == RegOpenKeyEx(
+                        HKEY_LOCAL_MACHINE,
+                        keyName,
+                        0,
+                        KEY_QUERY_VALUE,
+                        &key))
+        {
+        	MsOutlookUtils_logInfo("The key is found");
+            validDefaultMailClient = JNI_TRUE;
+            RegCloseKey(key);
+        }
+		else
+		{
+			MsOutlookUtils_logInfo("The key for default mail client is not found");
+		}
+    }
+    return validDefaultMailClient;
+}
+
+bool MsOutlookUtils_isOutlookDefaultMailClient()
+{
+	MsOutlookUtils_logInfo("Outlook is installed and we are checking if it is default mail client.");
+
+	boolean result = false;
+	HKEY regKey;
+	DWORD defaultValueType;
+	TCHAR defaultValueBuffer[261];
+	LPTSTR defaultValue = (LPTSTR) defaultValueBuffer;
+	DWORD defaultValueCapacity = sizeof(defaultValueBuffer);
+
+	if (ERROR_SUCCESS
+			== RegOpenKeyEx(
+					HKEY_CURRENT_USER,
+					_T("Software\\Clients\\Mail"),
+					0,
+					KEY_QUERY_VALUE,
+					&regKey))
+	{
+		MsOutlookUtils_logInfo("HKCU\\Software\\Clients\\Mail exists.");
+		DWORD defaultValueSize = defaultValueCapacity;
+		LONG regQueryValueEx = RegQueryValueEx(
+				regKey,
+				NULL,
+				NULL,
+				&defaultValueType,
+				(LPBYTE) defaultValue,
+				&defaultValueSize);
+
+		switch (regQueryValueEx)
+		{
+		case ERROR_SUCCESS:
+		{
+			if (REG_SZ == defaultValueType)
+			{
+				DWORD defaultValueLength
+					= defaultValueSize / sizeof(TCHAR);
+
+				if (JNI_TRUE
+						== MsOutlookUtils_isValidDefaultMailClient(
+								defaultValue,
+								defaultValueLength))
+				{
+					if (_tcsnicmp(
+								_T("Microsoft Outlook"), defaultValue,
+								defaultValueLength)
+							== 0)
+					{
+						MsOutlookUtils_logInfo("The default value of HKCU\\Software\\Clients\\Mail is Microsoft Office .");
+						result = true;
+					}
+					else
+					{
+						MsOutlookUtils_logInfo("The default value of HKCU\\Software\\Clients\\Mail is not Microsoft Office .");
+						MsOutlookUtils_logInfo(defaultValue);
+					}
+				}
+				else
+				{
+					MsOutlookUtils_logInfo("Not valid default mail client for the default value of HKCU\\Software\\Clients\\Mail .");
+				}
+			}
+			else
+			{
+				MsOutlookUtils_logInfo("Wrong type for the default value of HKCU\\Software\\Clients\\Mail .");
+			}
+			break;
+		}
+		case ERROR_FILE_NOT_FOUND:
+			MsOutlookUtils_logInfo("Failed to retrieve the default value of HKCU\\Software\\Clients\\Mail . ERROR_FILE_NOT_FOUND");
+			break;
+		case ERROR_MORE_DATA:
+			MsOutlookUtils_logInfo("Failed to retrieve the default value of HKCU\\Software\\Clients\\Mail . ERROR_MORE_DATA");
+			break;
+		default:
+			MsOutlookUtils_logInfo("Failed to retrieve the default value of HKCU\\Software\\Clients\\Mail . Unknown error.");
+			break;
+		}
+		RegCloseKey(regKey);
+	}
+	else
+	{
+		MsOutlookUtils_logInfo("Failed to open HKCU\\Software\\Clients\\Mail .");
+	}
+
+	if(result)
+		return true;
+
+	if (ERROR_SUCCESS
+					== RegOpenKeyEx(
+							HKEY_LOCAL_MACHINE,
+							_T("Software\\Clients\\Mail"),
+							0,
+							KEY_QUERY_VALUE,
+							&regKey))
+	{
+		MsOutlookUtils_logInfo("HKLM\\Software\\Clients\\Mail exists.");
+		DWORD defaultValueSize = defaultValueCapacity;
+		LONG regQueryValueEx
+			= RegQueryValueEx(
+					regKey,
+					NULL,
+					NULL,
+					&defaultValueType,
+					(LPBYTE) defaultValue, &defaultValueSize);
+
+		if ((ERROR_SUCCESS == regQueryValueEx)
+				&& (REG_SZ == defaultValueType))
+		{
+			DWORD defaultValueLength = defaultValueSize / sizeof(TCHAR);
+
+			if ((_tcsnicmp(
+							_T("Microsoft Outlook"), defaultValue,
+							defaultValueLength)
+						== 0)
+					&& (JNI_TRUE
+							== MsOutlookUtils_isValidDefaultMailClient(_T("Microsoft Outlook"), 17)))
+			{
+				MsOutlookUtils_logInfo("The default value of HKLM\\Software\\Clients\\Mail is Microsoft Office .");
+				result = true;
+			}
+			else
+			{
+				MsOutlookUtils_logInfo("The default value of HKLM\\Software\\Clients\\Mail is not Microsoft Office .");
+				MsOutlookUtils_logInfo(defaultValue);
+			}
+		}
+		else
+		{
+			MsOutlookUtils_logInfo("Failed to retrieve the default value of HKLM\\Software\\Clients\\Mail .");
+		}
+		RegCloseKey(regKey);
+	}
+	else
+	{
+		MsOutlookUtils_logInfo("HKLM\\Software\\Clients\\Mail doesn't exists.");
+	}
+
+	return result;
+}
