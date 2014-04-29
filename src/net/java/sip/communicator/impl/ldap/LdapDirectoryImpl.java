@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.ldap;
 
 import java.util.*;
+import java.util.regex.*;
 
 import javax.naming.*;
 import javax.naming.directory.*;
@@ -130,6 +131,11 @@ public class LdapDirectoryImpl
         new Hashtable<String, String>();
 
     /**
+     * List of all phone number attributes.
+     */
+    private final List<String> phoneNumberAttributes = new ArrayList<String>();
+
+    /**
      * The contructor for this class.
      * Since this element is immutable (otherwise it would be a real pain
      * to use with a Set), it takes all the settings we could need to store
@@ -163,7 +169,8 @@ public class LdapDirectoryImpl
 
         if(this.settings.getPort() == 0)
             portText = ":" + this.settings.getEncryption().defaultPort();
-        portText = ":" + this.settings.getPort();
+        else
+            portText = ":" + this.settings.getPort();
 
         /* fills environment for InitialDirContext */
         this.env.put(Context.INITIAL_CONTEXT_FACTORY,
@@ -206,6 +213,10 @@ public class LdapDirectoryImpl
         List<String> mobilePhoneOverrides
             = settings.getMobilePhoneSearchFields();
         List<String> homePhoneOverrides = settings.getHomePhoneSearchFields();
+
+        phoneNumberAttributes.addAll(workPhoneOverrides);
+        phoneNumberAttributes.addAll(mobilePhoneOverrides);
+        phoneNumberAttributes.addAll(homePhoneOverrides);
 
         attributesMap.put("mail", settings.getMailSearchFields());
         attributesMap.put("workPhone", workPhoneOverrides);
@@ -382,6 +393,9 @@ public class LdapDirectoryImpl
                         " (initial query: \"" + query.toString() +
                         "\") on directory \"" + LdapDirectoryImpl.this + "\"");
 
+                Pattern searchPattern = Pattern.compile(query.toString(),
+                    Pattern.CASE_INSENSITIVE | Pattern.LITERAL);
+
                 SearchControls searchControls =
                     buildSearchControls(searchSettings);
 
@@ -415,6 +429,13 @@ public class LdapDirectoryImpl
                             (SearchResult) results.next();
                         Map<String, Set<Object>> retrievedAttributes =
                             retrieveAttributes(searchResult);
+
+                        if(!checkRetrievedAttributes(
+                                query.toString(),
+                                searchPattern,
+                                retrievedAttributes))
+                            continue;
+
                         LdapPersonFound person =
                             buildPerson(
                                 query,
@@ -543,6 +564,42 @@ public class LdapDirectoryImpl
         searchThread.setContextClassLoader(getClass().getClassLoader());
         searchThread.setDaemon(true);
         searchThread.start();
+    }
+
+    /**
+     * Checks whether the found attributes match the current query.
+     * @param searchPattern the pattern we use for checking
+     * @param retrievedAttributes the attributes.
+     * @return whether the found attributes match the current query.
+     */
+    private boolean checkRetrievedAttributes(
+        String queryString,
+        Pattern searchPattern,
+        Map<String, Set<Object>> retrievedAttributes)
+    {
+        for(Map.Entry<String, Set<Object>> en : retrievedAttributes.entrySet())
+        {
+            if(!searchableAttrs.contains(en.getKey()))
+            {
+                continue;
+            }
+
+            boolean isPhoneNumber = phoneNumberAttributes.contains(en.getKey());
+
+            for(Object o : en.getValue())
+            {
+                if(!(o instanceof String))
+                    continue;
+
+                if(searchPattern.matcher((String)o).find()
+                    || (isPhoneNumber
+                        && LdapActivator.getPhoneNumberI18nService()
+                            .phoneNumbersMatch(queryString, (String)o)))
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     private String[]
@@ -924,7 +981,7 @@ public class LdapDirectoryImpl
             return settings.getCustomQuery().replace("<query>", query);
         }
 
-        StringBuffer searchFilter = new StringBuffer();
+        StringBuilder searchFilter = new StringBuilder();
         searchFilter.append("(|");
 
         /* cn=*query* OR sn=*query* OR ... */
