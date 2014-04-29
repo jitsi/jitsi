@@ -202,13 +202,30 @@ public class LdapDirectoryImpl
                 break;
         }
 
+        List<String> workPhoneOverrides = settings.getWorkPhoneSearchFields();
+        List<String> mobilePhoneOverrides
+            = settings.getMobilePhoneSearchFields();
+        List<String> homePhoneOverrides = settings.getHomePhoneSearchFields();
+
         attributesMap.put("mail", settings.getMailSearchFields());
-        attributesMap.put("workPhone", settings.getWorkPhoneSearchFields());
-        attributesMap.put("mobilePhone", settings.getMobilePhoneSearchFields());
-        attributesMap.put("homePhone", settings.getHomePhoneSearchFields());
+        attributesMap.put("workPhone", workPhoneOverrides);
+        attributesMap.put("mobilePhone", mobilePhoneOverrides);
+        attributesMap.put("homePhone", homePhoneOverrides);
 
         this.searchableAttrs.addAll(searchableAttributes);
         for(String s : settings.getMailSearchFields())
+        {
+            searchableAttrs.add(s);
+        }
+        for(String s : workPhoneOverrides)
+        {
+            searchableAttrs.add(s);
+        }
+        for(String s : mobilePhoneOverrides)
+        {
+            searchableAttrs.add(s);
+        }
+        for(String s : homePhoneOverrides)
         {
             searchableAttrs.add(s);
         }
