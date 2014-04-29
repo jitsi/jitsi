@@ -135,6 +135,7 @@ public class GeneralDialPanel
     /**
      * Reloads dial buttons.
      */
+    @Override
     public void loadSkin()
     {
         dialPadPanel.removeAll();
@@ -162,10 +163,13 @@ public class GeneralDialPanel
         }
     }
 
+    @Override
     public void mouseClicked(MouseEvent e) {}
 
+    @Override
     public void mouseEntered(MouseEvent e) {}
 
+    @Override
     public void mouseExited(MouseEvent e) {}
 
     /**
@@ -173,6 +177,7 @@ public class GeneralDialPanel
      * dial buttons.
      * @param e the event
      */
+    @Override
     public void mousePressed(MouseEvent e)
     {
         JButton button = (JButton) e.getSource();
@@ -186,6 +191,7 @@ public class GeneralDialPanel
      * dial buttons.
      * @param e the event
      */
+    @Override
     public void mouseReleased(MouseEvent e)
     {
         dtmfHandler.stopSendingDtmfTone();
