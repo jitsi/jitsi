@@ -312,6 +312,14 @@ public class ServerStoredDetails
             super("Country", null);
             value = country;
         }
+
+        public Locale getLocale()
+        {
+            if(value instanceof Locale)
+                return (Locale)value;
+            else
+                return null;
+        }
     }
 
     /**
