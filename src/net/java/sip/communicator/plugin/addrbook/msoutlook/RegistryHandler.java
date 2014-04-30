@@ -11,12 +11,12 @@ import com.sun.jna.platform.win32.*;
 import net.java.sip.communicator.plugin.addrbook.*;
 
 /**
- * Reading and writing the registry for default IM application used by 
- * Outlook 2010 and higher integration of presence statuses.
+ * Reading and writing the registry keys used by 
+ * Outlook 2010 and higher.
  *
  * @author Hristo Terezov
  */
-public class DefaultIMApp
+public class RegistryHandler
 {
     /**
      * The key under which the default IM application is placed.
@@ -36,6 +36,12 @@ public class DefaultIMApp
      */
     private static String REGISTRY_DEFAULT_IM_APPLICATION_COMMUNICATOR 
         = "Communicator";
+    
+    /**
+     * The key under which the default IM application is placed.
+     */
+    private static String REGISTRY_DEFAULT_MAIL_CLIENT_KEY 
+        = "Software\\Clients\\Mail";
 
     /**
      * Checks whether given application is the default IM application or not.
@@ -81,6 +87,19 @@ public class DefaultIMApp
                       REGISTRY_DEFAULT_IM_APPLICATION_KEY,
                       REGISTRY_DEFAULT_IM_APPLICATION_VALUE,
                       appName);
+    }
+    
+    /**
+     * Sets Outlook as default mail client.
+     */
+    public static void setOutlookAsDefaultMailClient()
+    {
+
+              Advapi32Util.registrySetStringValue(
+                      WinReg.HKEY_CURRENT_USER,
+                      REGISTRY_DEFAULT_MAIL_CLIENT_KEY,
+                      null,
+                      "Microsoft Outlook");
     }
 
     /**

@@ -76,3 +76,13 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
 {
     return MAPIBitness_getOutlookVersion();
 }
+
+/**
+ * Returns true if Outlook is default mail client and false otherwise.
+ *
+ */
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_isOutlookDefaultMailClient
+  (JNIEnv *, jclass)
+{
+	return (jboolean) MsOutlookUtils_isOutlookDefaultMailClient();
+}

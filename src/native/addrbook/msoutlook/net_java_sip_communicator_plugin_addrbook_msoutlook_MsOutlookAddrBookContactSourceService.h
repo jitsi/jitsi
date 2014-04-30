@@ -30,6 +30,14 @@ JNIEXPORT int JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_M
 JNIEXPORT int JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_getOutlookVersion
     (JNIEnv *jniEnv, jclass clazz);
 
+/*
+ * Class:     net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService
+ * Method:    isOutlookDefaultMailClient
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_isOutlookDefaultMailClient
+  (JNIEnv *, jclass);
+
 #ifdef __cplusplus
 }
 #endif

@@ -48,6 +48,13 @@ public class MsOutlookAddrBookContactSourceService
     public static final String PNAME_OUTLOOK_ADDR_BOOK_SEARCH_FIELD_DISABLED =
         "net.java.sip.communicator.plugin.addrbook.OUTLOOK_ADDR_BOOK_SEARCH_FIELD_DISABLED";
 
+    /**
+     * Boolean property that defines whether the warning for the default mail
+     * client should be shown or not.
+     */
+    public static final String PNAME_OUTLOOK_ADDR_BOOK_SHOW_DEFAULTMAILCLIENT_WARNING =
+        "net.java.sip.communicator.plugin.addrbook.SHOW_DEFAULTMAILCLIENT_WARNING";
+
     private static final long MAPI_INIT_VERSION = 0;
 
     private static final long MAPI_MULTITHREAD_NOTIFICATIONS = 0x00000001;
@@ -132,6 +139,38 @@ public class MsOutlookAddrBookContactSourceService
     {
         if(!isMAPIInitialized)
         {
+            boolean isOutlookDefaultMailClient = isOutlookDefaultMailClient();
+            boolean showWarning 
+                = AddrBookActivator.getConfigService().getBoolean(
+                    PNAME_OUTLOOK_ADDR_BOOK_SHOW_DEFAULTMAILCLIENT_WARNING, 
+                    true);
+            if(!isOutlookDefaultMailClient && showWarning)
+            {
+                DefaultMailClientMessageDialog dialog 
+                    = new DefaultMailClientMessageDialog();
+                int result = dialog.showDialog();
+                if((result & DefaultMailClientMessageDialog
+                    .DONT_ASK_SELECTED_MASK) != 0)
+                {
+                    AddrBookActivator.getConfigService().setProperty(
+                        PNAME_OUTLOOK_ADDR_BOOK_SHOW_DEFAULTMAILCLIENT_WARNING, 
+                        false);
+                }
+                
+                if((result & DefaultMailClientMessageDialog
+                        .DEFAULT_MAIL_CLIENT_SELECTED_MASK) != 0)
+                {
+                    RegistryHandler.setOutlookAsDefaultMailClient();
+                }
+            }
+            
+            if(isOutlookDefaultMailClient && !showWarning)
+            {
+                AddrBookActivator.getConfigService().setProperty(
+                    PNAME_OUTLOOK_ADDR_BOOK_SHOW_DEFAULTMAILCLIENT_WARNING, 
+                    true);
+            }
+            
             String logFileName = "";
             String homeLocation = System.getProperty(
                 "net.java.sip.communicator.SC_LOG_DIR_LOCATION");
@@ -204,7 +243,7 @@ public class MsOutlookAddrBookContactSourceService
             String logFileName,
             int logLevel)
         throws MsOutlookMAPIHResultException;
-
+    
     /**
      * Uninitializes MAPI.
      */
@@ -222,6 +261,8 @@ public class MsOutlookAddrBookContactSourceService
     public static native int getOutlookBitnessVersion();
 
     public static native int getOutlookVersion();
+    
+    private static native boolean isOutlookDefaultMailClient();
 
     /**
      *  Creates query that searches for <tt>SourceContact</tt>s

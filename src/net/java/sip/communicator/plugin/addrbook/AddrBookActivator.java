@@ -321,14 +321,14 @@ public class AddrBookActivator
             {
                 configService.setProperty(
                         PNAME_MAKE_JITSI_DEFAULT_IM_APPLICATION,
-                        DefaultIMApp.isJitsiDefaultIMApp());
+                        RegistryHandler.isJitsiDefaultIMApp());
             }
             else
             {
                 boolean isDefaultIMApp
                     = Boolean.parseBoolean(isDefaultIMAppString);
 
-                if(DefaultIMApp.isJitsiDefaultIMApp() != isDefaultIMApp)
+                if(RegistryHandler.isJitsiDefaultIMApp() != isDefaultIMApp)
                 {
                     if(isDefaultIMApp)
                         setAsDefaultIMApplication();
@@ -488,7 +488,7 @@ public class AddrBookActivator
     public static void setAsDefaultIMApplication()
     {
         if (OSUtils.IS_WINDOWS)
-            DefaultIMApp.setJitsiAsDefaultApp();
+            RegistryHandler.setJitsiAsDefaultApp();
     }
 
     /**
@@ -497,7 +497,7 @@ public class AddrBookActivator
     public static void unsetDefaultIMApplication()
     {
         if (OSUtils.IS_WINDOWS)
-            DefaultIMApp.unsetDefaultApp();
+            RegistryHandler.unsetDefaultApp();
     }
 
     public static List<ProtocolProviderService> getProtocolProviders()

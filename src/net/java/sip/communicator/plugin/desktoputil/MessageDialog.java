@@ -37,7 +37,7 @@ public class MessageDialog
     protected JButton okButton = new JButton(
         DesktopUtilActivator.getResources().getI18NString("service.gui.OK"));
 
-    private JCheckBox doNotAskAgain = new SIPCommCheckBox(
+    protected JCheckBox doNotAskAgain = new SIPCommCheckBox(
         DesktopUtilActivator.getResources()
             .getI18NString("service.gui.DO_NOT_ASK_AGAIN"));
 
@@ -49,7 +49,7 @@ public class MessageDialog
     private TransparentPanel buttonsPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
 
-    private TransparentPanel checkBoxPanel
+    protected TransparentPanel checkBoxPanel
         = new TransparentPanel(new FlowLayout(FlowLayout.LEADING));
 
     private TransparentPanel mainPanel
@@ -57,7 +57,7 @@ public class MessageDialog
 
     private boolean isConfirmationEnabled = true;
 
-    private int returnCode;
+    protected int returnCode;
 
     /**
      * Indicates that the OK button is pressed.
