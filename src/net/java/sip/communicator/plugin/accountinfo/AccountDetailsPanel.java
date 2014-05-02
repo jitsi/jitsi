@@ -726,7 +726,8 @@ public class AccountDetailsPanel
     {
         // Handle "View certificate" link
         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED
-                        && CERTIFICATE_URL.equals(e.getDescription())) {
+                        && CERTIFICATE_URL.equals(e.getDescription()))
+        {
             Certificate[] chain = protocolProvider
                         .getOperationSet(OperationSetTLS.class)
                         .getServerCertificates();
