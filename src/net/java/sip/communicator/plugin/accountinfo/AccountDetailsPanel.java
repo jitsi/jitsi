@@ -729,15 +729,14 @@ public class AccountDetailsPanel
                         && CERTIFICATE_URL.equals(e.getDescription()))
         {
             Certificate[] chain = protocolProvider
-                        .getOperationSet(OperationSetTLS.class)
-                        .getServerCertificates();
+                    .getOperationSet(OperationSetTLS.class)
+                    .getServerCertificates();
 
             ViewCertificateFrame certFrame =
-                     new ViewCertificateFrame(chain, null,
-                         R.getI18NString(
-                         "service.gui.callinfo.TLS_CERTIFICATE_CONTENT"));
-             certFrame.setVisible(true);
-         }
+                    new ViewCertificateFrame(chain, null, R.getI18NString(
+                            "service.gui.callinfo.TLS_CERTIFICATE_CONTENT"));
+            certFrame.setVisible(true);
+        }
     }
 
     /**
