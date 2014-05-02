@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import java.net.InetSocketAddress;
+import java.net.*;
 
 /**
  * An <tt>OperationSet</tt> that allows access to connection information used
