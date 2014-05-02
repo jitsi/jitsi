@@ -238,6 +238,11 @@ public class ProtocolProviderServiceJabberImpl
     private XMPPConnection connection;
 
     /**
+     * The socket address of the XMPP server.
+     */
+    private InetSocketAddress address;
+
+    /**
      * Indicates whether or not the provider is initialized and ready for use.
      */
     private boolean isInitialized = false;
@@ -411,6 +416,22 @@ public class ProtocolProviderServiceJabberImpl
         if(OSUtils.IS_ANDROID)
             loadJabberServiceClasses();
     }
+
+    /**
+    * An <tt>OperationSet</tt> that allows access to connection information used
+    * by the protocol provider.
+    */
+   private class OperationSetConnectionInfoJabberImpl
+       implements OperationSetConnectionInfo
+   {
+        public String getServerAddress() {
+            return address == null ? null : address.getHostName();
+        }
+
+        public int getServerPort() {
+            return address == null ? -1 : address.getPort();
+        }
+   }
 
     /**
      * Returns the state of the registration of this protocol provider
@@ -1146,6 +1167,7 @@ public class ProtocolProviderServiceJabberImpl
         }
 
         connection = new XMPPConnection(confConn);
+        this.address = address;
 
         try
         {
@@ -1927,7 +1949,7 @@ public class ProtocolProviderServiceJabberImpl
                     opsetTLS);
 
             OperationSetConnectionInfo opsetConnectionInfo
-                    = new OperationSetConnectionInfoJabberImpl(this);
+                    = new OperationSetConnectionInfoJabberImpl();
             addSupportedOperationSet(OperationSetConnectionInfo.class,
                     opsetConnectionInfo);
 
@@ -2941,22 +2963,13 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
-     * Return the socket used by the connection.
-     * @return The socket used
-     */
-    public Socket getSocket()
-    {
-        return connection.getSocket();
-    }
-
-    /**
      * Return the SSL socket (if TLS used).
      * @return The SSL socket or null if not used
      */
     public SSLSocket getSSLSocket()
     {
         final SSLSocket result;
-        final Socket socket = getSocket();
+        final Socket socket = connection.getSocket();
         if (socket instanceof SSLSocket)
         {
             result = (SSLSocket) socket;
