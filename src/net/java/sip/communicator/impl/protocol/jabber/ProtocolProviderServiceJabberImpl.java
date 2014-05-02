@@ -424,12 +424,13 @@ public class ProtocolProviderServiceJabberImpl
    private class OperationSetConnectionInfoJabberImpl
        implements OperationSetConnectionInfo
    {
-        public String getServerAddress() {
-            return address == null ? null : address.getHostName();
-        }
-
-        public int getServerPort() {
-            return address == null ? -1 : address.getPort();
+       /**
+        * @return The XMPP server address.
+        */
+        @Override
+        public InetSocketAddress getServerAddress()
+        {
+            return address;
         }
    }
 

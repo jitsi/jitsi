@@ -1338,10 +1338,14 @@ public class AccountDetailsPanel
         {
             stringBuffer.append(getLineString(R.getI18NString(
                     "service.gui.ADDRESS"),
-                    opSetConnectionInfo.getServerAddress()));
+                    opSetConnectionInfo.getServerAddress() == null ?
+                            "" : opSetConnectionInfo.getServerAddress()
+                                    .getHostName()));
             stringBuffer.append(getLineString(R.getI18NString(
                     "service.gui.PORT"),
-                    String.valueOf(opSetConnectionInfo.getServerPort())));
+                    opSetConnectionInfo.getServerAddress() == null ?
+                            "" : String.valueOf(opSetConnectionInfo
+                                    .getServerAddress().getPort())));
         }
 
         // Transport protocol
