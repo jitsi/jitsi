@@ -20,6 +20,7 @@ import net.java.sip.communicator.util.*;
  * @author Stephane Remy
  * @author Loic Kempf
  * @author Yana Stamcheva
+ * @author Danny van Heumen
  */
 public class ChatRoomIrcImpl
     extends AbstractChatRoom

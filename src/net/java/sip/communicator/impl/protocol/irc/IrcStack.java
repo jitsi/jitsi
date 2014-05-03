@@ -527,8 +527,9 @@ public class IrcStack
                                     + "of channel '" + chatroom.getIdentifier()
                                     + "'.");
                         }
+                        String chatRoomId = chatroom.getIdentifier();
                         boolean isRequestedChatRoom = channel.getName()
-                            .equalsIgnoreCase(chatroom.getIdentifier());
+                            .equalsIgnoreCase(chatRoomId);
                         synchronized (joinSignal)
                         {
                             if (!isRequestedChatRoom)
@@ -541,7 +542,7 @@ public class IrcStack
                                         .trace("Callback for successful join "
                                             + "finished prematurely since we "
                                             + "got forwarded from '"
-                                            + chatroom.getIdentifier()
+                                            + chatRoomId
                                             + "' to '"
                                             + channel.getName()
                                             + "'. Joining of forwarded channel "
@@ -549,8 +550,7 @@ public class IrcStack
                                             + "since that channel was not "
                                             + "announced.");
                                 }
-                                IrcStack.this.joining.remove(chatroom
-                                    .getIdentifier());
+                                IrcStack.this.joining.remove(chatRoomId);
                                 IrcStack.this.provider
                                     .getMUC()
                                     .fireLocalUserPresenceEvent(
@@ -570,10 +570,8 @@ public class IrcStack
 
                             try
                             {
-                                IrcStack.this.joined.put(
-                                    chatroom.getIdentifier(), chatroom);
-                                IrcStack.this.joining.remove(chatroom
-                                    .getIdentifier());
+                                IrcStack.this.joined.put(chatRoomId, chatroom);
+                                IrcStack.this.joining.remove(chatRoomId);
                                 IrcStack.this.irc
                                     .addListener(new ChatRoomListener(
                                         chatroom));
@@ -599,7 +597,7 @@ public class IrcStack
                                     LOGGER
                                         .trace("Finished successful join "
                                             + "callback for channel '"
-                                            + chatroom.getIdentifier()
+                                            + chatRoomId
                                             + "'. Waking up original thread.");
                                 }
                                 // Notify waiting threads of finished
@@ -616,12 +614,12 @@ public class IrcStack
                         LOGGER.trace("Started callback for failed attempt to "
                             + "join channel '" + chatroom.getIdentifier()
                             + "'.");
+                        String chatRoomId = chatroom.getIdentifier();
                         synchronized (joinSignal)
                         {
                             try
                             {
-                                IrcStack.this.joining.remove(chatroom
-                                    .getIdentifier());
+                                IrcStack.this.joining.remove(chatRoomId);
                                 IrcStack.this.provider
                                     .getMUC()
                                     .fireLocalUserPresenceEvent(
@@ -637,7 +635,7 @@ public class IrcStack
                                     LOGGER
                                         .trace("Finished callback for failed "
                                             + "attempt to join channel '"
-                                            + chatroom.getIdentifier()
+                                            + chatRoomId
                                             + "'. Waking up original thread.");
                                 }
                                 // Notify waiting threads of finished
@@ -806,13 +804,10 @@ public class IrcStack
             {
                 chatRoom.prepUserRole(role);
             }
-            else
-            {
-                ChatRoomMemberIrcImpl member =
-                    new ChatRoomMemberIrcImpl(this.provider, chatRoom,
-                        user.getNick(), role);
-                chatRoom.addChatRoomMember(member.getContactAddress(), member);
-            }
+            ChatRoomMemberIrcImpl member =
+                new ChatRoomMemberIrcImpl(this.provider, chatRoom,
+                    user.getNick(), role);
+            chatRoom.addChatRoomMember(member.getContactAddress(), member);
         }
     }
 
@@ -1018,18 +1013,22 @@ public class IrcStack
         /**
          * Create a private chat room if one does not exist yet.
          * 
-         * @param user private chat room for this user
+         * @param userName private chat room for this user
          * @return returns the private chat room
          */
-        private ChatRoomIrcImpl initiatePrivateChatRoom(String user)
+        private ChatRoomIrcImpl initiatePrivateChatRoom(String userName)
         {
             OperationSetMultiUserChatIrcImpl muc =
                 IrcStack.this.provider.getMUC();
-            ChatRoomIrcImpl chatroom = muc.findOrCreateRoom(user);
+            ChatRoomIrcImpl chatroom = muc.findOrCreateRoom(userName);
             IrcStack.this.joined.put(chatroom.getIdentifier(), chatroom);
-            ChatRoomMemberIrcImpl member =
+            final ChatRoomMemberIrcImpl user =
                 new ChatRoomMemberIrcImpl(IrcStack.this.provider, chatroom,
-                    user, ChatRoomMemberRole.MEMBER);
+                    IrcStack.this.getNick(), ChatRoomMemberRole.MEMBER);
+            chatroom.addChatRoomMember(user.getContactAddress(), user);
+            final ChatRoomMemberIrcImpl member =
+                new ChatRoomMemberIrcImpl(IrcStack.this.provider, chatroom,
+                    userName, ChatRoomMemberRole.MEMBER);
             chatroom.addChatRoomMember(member.getContactAddress(), member);
             IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
                 chatroom,
@@ -1046,13 +1045,17 @@ public class IrcStack
      * chat room listener updates chat room data and fires events based on IRC
      * messages that report state changes for the specified channel.
      * 
-     * @author danny
+     * @author Danny van Heumen
      * 
      */
     private class ChatRoomListener
         extends VariousMessageListenerAdapter
     {
+        /**
+         * IRC error code for case where user is not joined to that channel.
+         */
         private static final int IRC_ERR_NOTONCHANNEL = 442;
+
         /**
          * Chat room for which this listener is working.
          */
@@ -1104,19 +1107,12 @@ public class IrcStack
             if (!isThisChatRoom(msg.getChannelName()))
                 return;
 
-            if (isMe(msg.getSource()))
-            {
-                // I think that this should not happen.
-            }
-            else
-            {
-                String user = msg.getSource().getNick();
-                ChatRoomMemberIrcImpl member =
-                    new ChatRoomMemberIrcImpl(IrcStack.this.provider,
-                        this.chatroom, user, ChatRoomMemberRole.SILENT_MEMBER);
-                this.chatroom.fireMemberPresenceEvent(member, null,
-                    ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED, null);
-            }
+            String user = msg.getSource().getNick();
+            ChatRoomMemberIrcImpl member =
+                new ChatRoomMemberIrcImpl(IrcStack.this.provider,
+                    this.chatroom, user, ChatRoomMemberRole.SILENT_MEMBER);
+            this.chatroom.fireMemberPresenceEvent(member, null,
+                ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED, null);
         }
 
         /**
@@ -1128,28 +1124,28 @@ public class IrcStack
             if (!isThisChatRoom(msg.getChannelName()))
                 return;
 
-            if (isMe(msg.getSource()))
+            IRCUser user = msg.getSource();
+            if (isMe(user))
             {
                 leaveChatRoom();
+                return;
             }
-            else
+            
+            String userNick = msg.getSource().getNick();
+            ChatRoomMember member = this.chatroom.getChatRoomMember(userNick);
+            try
             {
-                String user = msg.getSource().getNick();
-                ChatRoomMember member = this.chatroom.getChatRoomMember(user);
-                try
-                {
-                    // Possibility that 'member' is null (should be fixed now
-                    // that race condition in irc-api is fixed)
-                    this.chatroom.fireMemberPresenceEvent(member, null,
-                        ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
-                        msg.getPartMsg());
-                }
-                catch (NullPointerException e)
-                {
-                    LOGGER.warn(
-                        "This should not have happened. Please report this "
-                            + "as it is a bug.", e);
-                }
+                // Possibility that 'member' is null (should be fixed now
+                // that race condition in irc-api is fixed)
+                this.chatroom.fireMemberPresenceEvent(member, null,
+                    ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
+                    msg.getPartMsg());
+            }
+            catch (NullPointerException e)
+            {
+                LOGGER.warn(
+                    "This should not have happened. Please report this "
+                        + "as it is a bug.", e);
             }
         }
 
@@ -1196,6 +1192,17 @@ public class IrcStack
                 return;
 
             String kickedUser = msg.getKickedNickname();
+            ChatRoomMember kickedMember =
+                this.chatroom.getChatRoomMember(kickedUser);
+            String user = msg.getSource().getNick();
+            if (kickedMember != null)
+            {
+                ChatRoomMember kicker = this.chatroom.getChatRoomMember(user);
+                this.chatroom.fireMemberPresenceEvent(kickedMember, kicker,
+                    ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED,
+                    msg.getText());
+            }
+
             if (isMe(kickedUser))
             {
                 IrcStack.this.irc.deleteListener(this);
@@ -1204,20 +1211,6 @@ public class IrcStack
                     this.chatroom,
                     LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_KICKED,
                     msg.getText());
-            }
-            else
-            {
-                ChatRoomMember kickedMember =
-                    this.chatroom.getChatRoomMember(kickedUser);
-                String user = msg.getSource().getNick();
-                if (kickedMember != null)
-                {
-                    ChatRoomMember kicker =
-                        this.chatroom.getChatRoomMember(user);
-                    this.chatroom.fireMemberPresenceEvent(kickedMember, kicker,
-                        ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED,
-                        msg.getText());
-                }
             }
         }
 
@@ -1333,23 +1326,19 @@ public class IrcStack
                         }
                         this.chatroom.fireLocalUserRoleChangedEvent(event);
                     }
-                    else
+                    ChatRoomMember owner =
+                        this.chatroom.getChatRoomMember(mode.getParams()[0]);
+                    if (owner != null)
                     {
-                        ChatRoomMember owner =
-                            this.chatroom
-                                .getChatRoomMember(mode.getParams()[0]);
-                        if (owner != null)
+                        if (mode.isAdded())
                         {
-                            if (mode.isAdded())
-                            {
-                                this.chatroom.fireMemberRoleEvent(owner,
-                                    ChatRoomMemberRole.OWNER);
-                            }
-                            else
-                            {
-                                this.chatroom.fireMemberRoleEvent(owner,
-                                    ChatRoomMemberRole.SILENT_MEMBER);
-                            }
+                            this.chatroom.fireMemberRoleEvent(owner,
+                                ChatRoomMemberRole.OWNER);
+                        }
+                        else
+                        {
+                            this.chatroom.fireMemberRoleEvent(owner,
+                                ChatRoomMemberRole.SILENT_MEMBER);
                         }
                     }
                     break;
@@ -1376,22 +1365,19 @@ public class IrcStack
                         }
                         this.chatroom.fireLocalUserRoleChangedEvent(event);
                     }
-                    else
+                    ChatRoomMember op =
+                        this.chatroom.getChatRoomMember(opUserName);
+                    if (op != null)
                     {
-                        ChatRoomMember op =
-                            this.chatroom.getChatRoomMember(opUserName);
-                        if (op != null)
+                        if (mode.isAdded())
                         {
-                            if (mode.isAdded())
-                            {
-                                this.chatroom.fireMemberRoleEvent(op,
-                                    ChatRoomMemberRole.ADMINISTRATOR);
-                            }
-                            else
-                            {
-                                this.chatroom.fireMemberRoleEvent(op,
-                                    ChatRoomMemberRole.SILENT_MEMBER);
-                            }
+                            this.chatroom.fireMemberRoleEvent(op,
+                                ChatRoomMemberRole.ADMINISTRATOR);
+                        }
+                        else
+                        {
+                            this.chatroom.fireMemberRoleEvent(op,
+                                ChatRoomMemberRole.SILENT_MEMBER);
                         }
                     }
                     break;
@@ -1417,22 +1403,19 @@ public class IrcStack
                         }
                         this.chatroom.fireLocalUserRoleChangedEvent(event);
                     }
-                    else
+                    ChatRoomMember voice =
+                        this.chatroom.getChatRoomMember(voiceUserName);
+                    if (voice != null)
                     {
-                        ChatRoomMember voice =
-                            this.chatroom.getChatRoomMember(voiceUserName);
-                        if (voice != null)
+                        if (mode.isAdded())
                         {
-                            if (mode.isAdded())
-                            {
-                                this.chatroom.fireMemberRoleEvent(voice,
-                                    ChatRoomMemberRole.MEMBER);
-                            }
-                            else
-                            {
-                                this.chatroom.fireMemberRoleEvent(voice,
-                                    ChatRoomMemberRole.SILENT_MEMBER);
-                            }
+                            this.chatroom.fireMemberRoleEvent(voice,
+                                ChatRoomMemberRole.MEMBER);
+                        }
+                        else
+                        {
+                            this.chatroom.fireMemberRoleEvent(voice,
+                                ChatRoomMemberRole.SILENT_MEMBER);
                         }
                     }
                     break;
