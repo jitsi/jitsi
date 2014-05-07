@@ -291,63 +291,103 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         //try the default tracker first
         ConfigurationService cfg
             = ProtocolMediaActivator.getConfigurationService();
-        String minPort
+        String minPort, maxPort;
+
+        minPort
             = cfg.getString(
                     OperationSetBasicTelephony
                         .MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME);
-        String maxPort
-            = cfg.getString(
-                    OperationSetBasicTelephony
-                        .MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME);
-
-        //Try the specified range; otherwise, leave the tracker as it is:
-        //[5000, 6000].
-        defaultPortTracker.tryRange(minPort, maxPort);
+        if (minPort != null)
+        {
+            maxPort
+                = cfg.getString(
+                        OperationSetBasicTelephony
+                            .MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME);
+            if (maxPort != null)
+            {
+                //Try the specified range; otherwise, leave the tracker as it
+                //is: [5000, 6000].
+                defaultPortTracker.tryRange(minPort, maxPort);
+            }
+        }
 
         //try the VIDEO tracker
         minPort
             = cfg.getString(
                     OperationSetBasicTelephony
                         .MIN_VIDEO_PORT_NUMBER_PROPERTY_NAME);
-        maxPort
-            = cfg.getString(
-                    OperationSetBasicTelephony
-                        .MAX_VIDEO_PORT_NUMBER_PROPERTY_NAME);
-        //Try the specified range; otherwise, leave the tracker to null.
-        if (videoPortTracker == null)
-            videoPortTracker = PortTracker.createTracker(minPort, maxPort);
-        else
-            videoPortTracker.tryRange(minPort, maxPort);
+        if (minPort != null)
+        {
+            maxPort
+                = cfg.getString(
+                        OperationSetBasicTelephony
+                            .MAX_VIDEO_PORT_NUMBER_PROPERTY_NAME);
+            if (maxPort != null)
+            {
+                //Try the specified range; otherwise, leave the tracker to null.
+                if (videoPortTracker == null)
+                {
+                    videoPortTracker
+                        = PortTracker.createTracker(minPort, maxPort);
+                }
+                else
+                {
+                    videoPortTracker.tryRange(minPort, maxPort);
+                }
+            }
+        }
 
         //try the AUDIO tracker
         minPort
             = cfg.getString(
                     OperationSetBasicTelephony
                         .MIN_AUDIO_PORT_NUMBER_PROPERTY_NAME);
-        maxPort
-            = cfg.getString(
-                    OperationSetBasicTelephony
-                        .MAX_AUDIO_PORT_NUMBER_PROPERTY_NAME);
-        //Try the specified range; otherwise, leave the tracker to null.
-        if (audioPortTracker == null)
-            audioPortTracker = PortTracker.createTracker(minPort, maxPort);
-        else
-            audioPortTracker.tryRange(minPort, maxPort);
+        if (minPort != null)
+        {
+            maxPort
+                = cfg.getString(
+                        OperationSetBasicTelephony
+                            .MAX_AUDIO_PORT_NUMBER_PROPERTY_NAME);
+            if (maxPort != null)
+            {
+                //Try the specified range; otherwise, leave the tracker to null.
+                if (audioPortTracker == null)
+                {
+                    audioPortTracker
+                        = PortTracker.createTracker(minPort, maxPort);
+                }
+                else
+                {
+                    audioPortTracker.tryRange(minPort, maxPort);
+                }
+            }
+        }
 
         //try the DATA CHANNEL tracker
         minPort
             = cfg.getString(
                     OperationSetBasicTelephony
                         .MIN_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME);
-        maxPort
-            = cfg.getString(
-                    OperationSetBasicTelephony
-                        .MAX_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME);
-        //Try the specified range; otherwise, leave the tracker to null.
-        if (dataPortTracker == null)
-            dataPortTracker = PortTracker.createTracker(minPort, maxPort);
-        else
-            dataPortTracker.tryRange(minPort, maxPort);
+        if (minPort != null)
+        {
+            maxPort
+                = cfg.getString(
+                        OperationSetBasicTelephony
+                            .MAX_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME);
+            if (maxPort != null)
+            {
+                //Try the specified range; otherwise, leave the tracker to null.
+                if (dataPortTracker == null)
+                {
+                    dataPortTracker
+                        = PortTracker.createTracker(minPort, maxPort);
+                }
+                else
+                {
+                    dataPortTracker.tryRange(minPort, maxPort);
+                }
+            }
+        }
     }
 
     /**
