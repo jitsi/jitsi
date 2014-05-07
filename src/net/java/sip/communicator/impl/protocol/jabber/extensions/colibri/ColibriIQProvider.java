@@ -9,7 +9,9 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
+import net.java.sip.communicator.service.protocol.*;
 import org.jitsi.service.neomedia.*;
+import org.jitsi.util.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.xmlpull.v1.*;
@@ -85,6 +87,19 @@ public class ColibriIQProvider
         }
     }
 
+    private void addChildExtension(
+        ColibriConferenceIQ.SctpConnection sctpConnection,
+        PacketExtension childExtension)
+    {
+        if (childExtension instanceof IceUdpTransportPacketExtension)
+        {
+            IceUdpTransportPacketExtension transport
+                = (IceUdpTransportPacketExtension) childExtension;
+
+            sctpConnection.setTransport(transport);
+        }
+    }
+
     private PacketExtension parseExtension(
             XmlPullParser parser,
             String name,
@@ -144,6 +159,7 @@ public class ColibriIQProvider
 
             boolean done = false;
             ColibriConferenceIQ.Channel channel = null;
+            ColibriConferenceIQ.SctpConnection sctpConnection = null;
             ColibriConferenceIQ.Content content = null;
             StringBuilder ssrc = null;
 
@@ -164,6 +180,12 @@ public class ColibriIQProvider
                     {
                         content.addChannel(channel);
                         channel = null;
+                    }
+                    else if (ColibriConferenceIQ.SctpConnection.ELEMENT_NAME
+                            .equals(name))
+                    {
+                        content.addSctpConnection(sctpConnection);
+                        sctpConnection = null;
                     }
                     else if (ColibriConferenceIQ.Channel.SSRC_ELEMENT_NAME
                             .equals(name))
@@ -327,7 +349,61 @@ public class ColibriIQProvider
                                 && (contentName.length() != 0))
                             content.setName(contentName);
                     }
-                    else if (channel != null)
+                    else if (ColibriConferenceIQ.SctpConnection.ELEMENT_NAME
+                        .equals(name))
+                    {
+                        // Endpoint
+                        String endpoint
+                            = parser.getAttributeValue(
+                            "",
+                            ColibriConferenceIQ.
+                                SctpConnection.ENDPOINT_ATTR_NAME);
+
+                        if(!StringUtils.isNullOrEmpty(endpoint))
+                        {
+                            sctpConnection
+                                = new ColibriConferenceIQ.SctpConnection();
+                        }
+                        else
+                        {
+                            throw new RuntimeException(
+                                "Endpoint is mandatory attribute"
+                                    + " for SCTP connection"
+                            );
+                        }
+
+                        sctpConnection.setEndpoint(endpoint);
+
+                        // port
+                        String port
+                            = parser.getAttributeValue(
+                            "",
+                            ColibriConferenceIQ.SctpConnection.PORT_ATTR_NAME);
+                        if(!StringUtils.isNullOrEmpty(port))
+                            sctpConnection.setPort(Integer.parseInt(port));
+
+                        // initiator
+                        String initiator
+                            = parser.getAttributeValue(
+                            "",
+                            ColibriConferenceIQ.SctpConnection
+                                .INITIATOR_ATTR_NAME);
+
+                        if (!StringUtils.isNullOrEmpty(initiator))
+                            sctpConnection.setInitiator(
+                                Boolean.valueOf(initiator));
+
+                        // expire
+                        String expire
+                            = parser.getAttributeValue(
+                            "",
+                            ColibriConferenceIQ.SctpConnection
+                                .EXPIRE_ATTR_NAME);
+
+                        if (!StringUtils.isNullOrEmpty(expire))
+                            sctpConnection.setExpire(Integer.parseInt(expire));
+                    }
+                    else if (channel != null || sctpConnection != null)
                     {
                         String peName = null;
                         String peNamespace = null;
@@ -379,7 +455,13 @@ public class ColibriIQProvider
                                 = parseExtension(parser, peName, peNamespace);
 
                             if (extension != null)
-                                addChildExtension(channel, extension);
+                            {
+                                if(channel != null)
+                                    addChildExtension(channel, extension);
+                                else
+                                    addChildExtension(sctpConnection,
+                                                      extension);
+                            }
                         }
                     }
                     break;
