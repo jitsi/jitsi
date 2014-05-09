@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.resources.*;
@@ -39,6 +40,11 @@ public class PNContactSourceActivator
      * Providers of contact info.
      */
     private static List<ProtocolProviderService> phoneProviders;
+
+    /**
+     * Listens for registration state changes.
+     */
+    private static ProtocolProviderRegistrationListener ppRegListener;
 
     /**
      * The contact source.
@@ -109,7 +115,10 @@ public class PNContactSourceActivator
 
         phoneProviders = new LinkedList<ProtocolProviderService>();
 
-        bundleContext.addServiceListener(new ProtocolProviderRegListener());
+        ppRegListener = new ProtocolProviderRegistrationListener();
+
+        bundleContext.addServiceListener(
+            new ProtocolProviderServiceRegListener());
 
         ServiceReference[] serRefs = null;
         try
@@ -154,7 +163,7 @@ public class PNContactSourceActivator
     /**
      * Listens for <tt>ProtocolProviderService</tt> registrations.
      */
-    private static class ProtocolProviderRegListener
+    private static class ProtocolProviderServiceRegListener
         implements ServiceListener
     {
         public void serviceChanged(ServiceEvent event)
@@ -199,10 +208,17 @@ public class PNContactSourceActivator
     {
         if (protocolProvider.getOperationSet(
                 OperationSetServerStoredContactInfo.class) != null
-            && protocolProvider.isRegistered()
             && !phoneProviders.contains(protocolProvider))
         {
-            phoneProviders.add(protocolProvider);
+            if(protocolProvider.isRegistered())
+            {
+                phoneProviders.add(protocolProvider);
+            }
+            else
+            {
+                protocolProvider.addRegistrationStateChangeListener(
+                    ppRegListener);
+            }
         }
     }
 
@@ -218,6 +234,8 @@ public class PNContactSourceActivator
     {
         if (phoneProviders.contains(protocolProvider))
             phoneProviders.remove(protocolProvider);
+
+        protocolProvider.removeRegistrationStateChangeListener(ppRegListener);
     }
 
     /**
@@ -234,5 +252,24 @@ public class PNContactSourceActivator
         }
 
         return phoneNumberI18nService;
+    }
+
+    /**
+     * Listens for provider change in registration state.
+     */
+    private static class ProtocolProviderRegistrationListener
+        implements RegistrationStateChangeListener
+    {
+        @Override
+        public void registrationStateChanged(RegistrationStateChangeEvent evt)
+        {
+            ProtocolProviderService protocolProvider = evt.getProvider();
+
+            if (evt.getNewState() == RegistrationState.REGISTERED)
+            {
+                if(!phoneProviders.contains(protocolProvider))
+                    phoneProviders.add(protocolProvider);
+            }
+        }
     }
 }
