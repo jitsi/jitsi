@@ -269,9 +269,10 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
     unsigned long* localPropsLength = NULL;
     // b = byteArray, l = long, s = 8 bits string, u = 16 bits string.
     char * localPropsType = NULL;
-
+    MsOutlookUtils_logInfo("AAAAA");
     if((localProps = (void**) malloc(nbPropIds * sizeof(void*))) != NULL)
     {
+    	MsOutlookUtils_logInfo("AAAAA1111");
         memset(localProps, 0, nbPropIds * sizeof(void*));
         if((localPropsLength = (unsigned long*) malloc(
                         nbPropIds * sizeof(unsigned long))) != NULL)
@@ -279,6 +280,7 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
             if((localPropsType = (char*) malloc(nbPropIds * sizeof(char)))
                     != NULL)
             {
+            	MsOutlookUtils_logInfo("AAAA2222A");
                 SafeArrayLock(propIds);
                 long * longPropIds = (long*) propIds->pvData;
                 SafeArrayUnlock(propIds);
@@ -297,8 +299,10 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
 
                 free(id);
 
+
                 if(HR_SUCCEEDED(hr))
                 {
+                	MsOutlookUtils_logInfo("AAAAA3333");
                     long totalLength = 0;
                     for(int j = 0; j < nbPropIds; ++j)
                     {

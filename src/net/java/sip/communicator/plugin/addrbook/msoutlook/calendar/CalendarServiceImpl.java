@@ -10,6 +10,7 @@ import java.text.*;
 import java.util.*;
 import java.util.regex.*;
 
+
 import net.java.sip.communicator.plugin.addrbook.*;
 import net.java.sip.communicator.plugin.addrbook.msoutlook.*;
 import net.java.sip.communicator.service.calendar.*;
@@ -34,6 +35,82 @@ public class CalendarServiceImpl implements CalendarService
         PT_LONG,
         PT_BOOL,
         PT_BINARY
+    };
+    
+    /**
+     * Response statuses of the calendar events (meeting objects).
+     */
+    public static enum ResponseStatus
+    {
+        /**
+         * No response is required for this object.
+         */
+        respNone(0x00000000),
+        
+        /**
+         * This meeting belongs to the organizer.
+         */
+        respOrganized(0x00000001),
+        
+        /**
+         * This value on the attendee's meeting indicates that the attendee has 
+         * tentatively accepted the meeting request.
+         */
+        respTentative(0x00000002),
+        
+        /**
+         * This value on the attendee's meeting t indicates that the attendee 
+         * has accepted the meeting request.
+         */
+        respAccepted(0x00000003),
+        
+        /**
+         * This value on the attendee's meeting indicates that the attendee has 
+         * declined the meeting request.
+         */
+        respDeclined(0x00000004),
+        
+        /**
+         * This value on the attendee's meeting indicates the attendee has not 
+         * yet responded.
+         */
+        respNotResponded(0x00000005);
+        
+        /**
+         * The ID of the property
+         */
+        private final long id;
+        
+        private ResponseStatus(int id)
+        {
+            this.id = id;
+        }
+        
+        /**
+         * Finds <tt>ResponseStatuse</tt> instance by given value of the status.
+         * @param value the value of the status we are searching for.
+         * @return the status or <tt>FREE</tt> if no status is found.
+         */
+        public static ResponseStatus getFromLong(long value)
+        {
+            for(ResponseStatus state : values())
+            {
+                if(state.getID() == value)
+                {
+                    return state;
+                }
+            }
+            return respNone;
+        }
+
+        /**
+         * Returns the ID of the status.
+         * @return the ID of the status.
+         */
+        private long getID()
+        {
+            return id;
+        }
     };
 
     /**
@@ -64,7 +141,12 @@ public class CalendarServiceImpl implements CalendarService
         /**
          * A property with information about the recurrent pattern of the event.
          */
-        PidLidAppointmentRecur(0x00008216, MAPIType.PT_BINARY);
+        PidLidAppointmentRecur(0x00008216, MAPIType.PT_BINARY),
+        
+        /**
+         * A property with information about the accepted state of the event.
+         */
+        PidLidResponseStatus(0x00008218, MAPIType.PT_LONG);
 
         /**
          * The id of the property
@@ -102,11 +184,19 @@ public class CalendarServiceImpl implements CalendarService
             return result;
         }
 
+        /**
+         * Returns the ID of the property.
+         * @return the ID of the property.
+         */
         public long getID()
         {
             return id;
         }
 
+        /**
+         * Returns the type of the property
+         * @return the type of the property
+         */
         public MAPIType getType()
         {
             return type;
@@ -271,6 +361,7 @@ public class CalendarServiceImpl implements CalendarService
     {
         Date startTime = null, endTime = null;
         BusyStatusEnum status = BusyStatusEnum.FREE;
+        ResponseStatus responseStatus = ResponseStatus.respNone;
         boolean isRecurring = false;
         byte[] recurringData = null;
         for(int i = 0; i < props.length; i++)
@@ -318,8 +409,17 @@ public class CalendarServiceImpl implements CalendarService
                 case PidLidAppointmentRecur:
                     recurringData = ((byte[])props[i]);
                     break;
+                case PidLidResponseStatus:
+                    responseStatus 
+                        = ResponseStatus.getFromLong((Long) props[i]);
+                    break;
             }
         }
+        
+        if(responseStatus != ResponseStatus.respNone
+            && responseStatus != ResponseStatus.respAccepted
+            && responseStatus != ResponseStatus.respOrganized)
+        return;
 
         if(status == BusyStatusEnum.FREE || startTime == null || endTime == null)
             return;
@@ -690,14 +790,20 @@ public class CalendarServiceImpl implements CalendarService
          */
         public void updated(String id)
         {
-            synchronized(taskMap)
-            {
-                CalendarItemTimerTask task = taskMap.get(id);
-                if(task != null)
-                    task.remove();
-            }
             try
             {
+                synchronized(taskMap)
+                {
+                    CalendarItemTimerTask task = taskMap.get(id);
+                    if(task != null)
+                    {
+                        task.remove();
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
                 insert(id);
             }
             catch (MsOutlookMAPIHResultException e)
@@ -715,7 +821,9 @@ public class CalendarServiceImpl implements CalendarService
             {
                 CalendarItemTimerTask task = taskMap.get(id);
                 if(task != null)
+                {
                     task.remove();
+                }
             }
         }
 

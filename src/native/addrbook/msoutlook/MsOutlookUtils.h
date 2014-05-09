@@ -46,4 +46,7 @@ MsOutlookUtils_IMAPIProp_GetProps(
         jlongArray propIds,
         jlong flags,
         UUID UUID_Address);
+
+#define CALENDAR_FOLDER_TYPE 0x36D00102
+#define CONTACTS_FOLDER_TYPE 0x36D10102
 #endif

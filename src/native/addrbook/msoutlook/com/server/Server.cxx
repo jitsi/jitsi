@@ -12,6 +12,7 @@
 #include "../MsOutlookAddrBookServerClassFactory.h"
 #include "../TypeLib.h"
 #include "../../MsOutlookUtils.h"
+#include "../../MAPINotification.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -21,9 +22,15 @@
 #define MAPI_NO_COINIT 8
 
 void waitParentProcessStop();
-static void Server_deleted(LPSTR id);
-static void Server_inserted(LPSTR id);
-static void Server_updated(LPSTR id);
+static void Server_contactDeleted(LPSTR id);
+static void Server_contactInserted(LPSTR id);
+static void Server_contactUpdated(LPSTR id);
+static void Server_calendarDeleted(LPSTR id);
+static void Server_calendarInserted(LPSTR id);
+static void Server_calendarUpdated(LPSTR id);
+static void Server_deleted(LPSTR id, ULONG type);
+static void Server_inserted(LPSTR id, ULONG type);
+static void Server_updated(LPSTR id, ULONG type);
 
 /**
  * Starts the COM server.
@@ -47,7 +54,6 @@ int main(int argc, char** argv)
     MsOutlookUtils_logInfo(argv[1]);
     MsOutlookUtils_logInfo(argv[2]);
     MsOutlookUtils_logInfo("Starting the Outlook Server.");
-    MsOutlookUtils_log("Test");
     if((hr = ::CoInitializeEx(NULL, COINIT_MULTITHREADED)) != S_OK
             && hr != S_FALSE)
     {
@@ -58,15 +64,19 @@ int main(int argc, char** argv)
     if(MsOutlookAddrBookContactSourceService_NativeMAPIInitialize(
                 MAPI_INIT_VERSION,
                 MAPI_MULTITHREAD_NOTIFICATIONS | MAPI_NO_COINIT,
-                (void*) Server_deleted,
-                (void*) Server_inserted,
-                (void*) Server_updated)
+                (void*) Server_contactDeleted,
+                (void*) Server_contactInserted,
+                (void*) Server_contactUpdated)
             != S_OK)
     {
     	MsOutlookUtils_logInfo("Error in native MAPI initialization of the Outlook Server.[2]");
         CoUninitialize();
         return hr;
     }
+    MAPINotification_registerCalendarNativeNotificationsDelegate(
+    		(void*) Server_calendarDeleted,
+            (void*) Server_calendarInserted,
+            (void*) Server_calendarUpdated);
 
     WCHAR * path = (WCHAR*) L"IMsOutlookAddrBookServer.tlb"; 
     LPTYPELIB typeLib = TypeLib_loadRegTypeLib(path);
@@ -169,7 +179,7 @@ void waitParentProcessStop()
  *
  * @param id The contact identifer.
  */
-static void Server_deleted(LPSTR id)
+static void Server_deleted(LPSTR id, ULONG type)
 {
     HRESULT hr =  E_FAIL;
 
@@ -183,7 +193,7 @@ static void Server_deleted(LPSTR id)
     {
         LPWSTR idW = StringUtils::MultiByteToWideChar(id);
         BSTR res = SysAllocString(idW);
-        msOutlookAddrBookClient->deleted(res);
+        msOutlookAddrBookClient->deleted(res, type);
         SysFreeString(res);
         free(idW);
         msOutlookAddrBookClient->Release();
@@ -196,7 +206,7 @@ static void Server_deleted(LPSTR id)
  *
  * @param id The contact identifer.
  */
-static void Server_inserted(LPSTR id)
+static void Server_inserted(LPSTR id, ULONG type)
 {
     HRESULT hr =  E_FAIL;
 
@@ -210,7 +220,7 @@ static void Server_inserted(LPSTR id)
     {
         LPWSTR idW = StringUtils::MultiByteToWideChar(id);
         BSTR res = SysAllocString(idW);
-        msOutlookAddrBookClient->inserted(res);
+        msOutlookAddrBookClient->inserted(res, type);
         SysFreeString(res);
         free(idW);
         msOutlookAddrBookClient->Release();
@@ -223,7 +233,7 @@ static void Server_inserted(LPSTR id)
  *
  * @param id The contact identifer.
  */
-static void Server_updated(LPSTR id)
+static void Server_updated(LPSTR id, ULONG type)
 {
     HRESULT hr =  E_FAIL;
 
@@ -237,9 +247,39 @@ static void Server_updated(LPSTR id)
     {
         LPWSTR idW = StringUtils::MultiByteToWideChar(id);
         BSTR res = SysAllocString(idW);
-        msOutlookAddrBookClient->updated(res);
+        msOutlookAddrBookClient->updated(res, type);
         SysFreeString(res);
         free(idW);
         msOutlookAddrBookClient->Release();
     }
+}
+
+static void Server_contactDeleted(LPSTR id)
+{
+	Server_deleted(id, CONTACTS_FOLDER_TYPE);
+}
+
+static void Server_contactInserted(LPSTR id)
+{
+	Server_inserted(id, CONTACTS_FOLDER_TYPE);
+}
+
+static void Server_contactUpdated(LPSTR id)
+{
+	Server_updated(id, CONTACTS_FOLDER_TYPE);
+}
+
+static void Server_calendarDeleted(LPSTR id)
+{
+	Server_deleted(id, CALENDAR_FOLDER_TYPE);
+}
+
+static void Server_calendarInserted(LPSTR id)
+{
+	Server_inserted(id, CALENDAR_FOLDER_TYPE);
+}
+
+static void Server_calendarUpdated(LPSTR id)
+{
+	Server_updated(id, CALENDAR_FOLDER_TYPE);
 }

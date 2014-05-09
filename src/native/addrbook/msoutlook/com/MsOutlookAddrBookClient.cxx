@@ -13,6 +13,7 @@
 #include "../MsOutlookCalendar.h"
 #include "../net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
 #include "../StringUtils.h"
+#include "../MsOutlookUtils.h"
 
 /**
  * Instanciates a new MsOutlookAddrBookClient.
@@ -135,10 +136,17 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::foreachCalendarItemCallback(
  *
  * @return S_OK.
  */
-HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::deleted(BSTR id)
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::deleted(BSTR id, ULONG type)
 {
     char * charId = StringUtils::WideCharToMultiByte(id);
-    MAPINotification_jniCallDeletedMethod(charId);
+    if(type == CALENDAR_FOLDER_TYPE)
+	{
+		MAPINotification_jniCallCalendarDeletedMethod(charId);
+	}
+	else
+	{
+		MAPINotification_jniCallDeletedMethod(charId);
+	}
     free(charId);
 
     return S_OK;
@@ -152,10 +160,17 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::deleted(BSTR id)
  *
  * @return S_OK.
  */
-HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::inserted(BSTR id)
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::inserted(BSTR id, ULONG type)
 {
     char * charId = StringUtils::WideCharToMultiByte(id);
-    MAPINotification_jniCallInsertedMethod(charId);
+    if(type == CALENDAR_FOLDER_TYPE)
+	{
+		MAPINotification_jniCallCalendarInsertedMethod(charId);
+	}
+	else
+	{
+		MAPINotification_jniCallInsertedMethod(charId);
+	}
     free(charId);
 
     return S_OK;
@@ -169,10 +184,18 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::inserted(BSTR id)
  *
  * @return S_OK.
  */
-HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::updated(BSTR id)
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::updated(BSTR id, ULONG type)
 {
     char * charId = StringUtils::WideCharToMultiByte(id);
-    MAPINotification_jniCallUpdatedMethod(charId);
+    if(type == CALENDAR_FOLDER_TYPE)
+    {
+    	MAPINotification_jniCallCalendarUpdatedMethod(charId);
+    }
+    else
+    {
+    	MAPINotification_jniCallUpdatedMethod(charId);
+    }
+
     free(charId);
 
     return S_OK;

@@ -30,13 +30,6 @@ MsOutlookCalendar_onForeachCalendarInMsgStoresTableRow
     const char * query, void * callbackMethod, void * callbackClient,
     long callbackAddress);
 
-static HRESULT
-MsOutlookCalendar_getCalendarFolderEntryID
-    (LPMDB msgStore,
-    ULONG folderEntryIDByteCount, LPENTRYID folderEntryID,
-    ULONG *calendarFolderEntryIDByteCount, LPENTRYID *calendarFolderEntryID,
-    ULONG flags);
-
 void MsOutlookCalendar_setCallbackObject(void *callback)
 {
 	callbackObject = callback;
@@ -176,7 +169,7 @@ MsOutlookCalendar_onForeachCalendarInMsgStoresTableRow
     return proceed;
 }
 
-static HRESULT
+HRESULT
 MsOutlookCalendar_getCalendarFolderEntryID
     (LPMDB msgStore,
     ULONG folderEntryIDByteCount, LPENTRYID folderEntryID,
@@ -190,5 +183,5 @@ MsOutlookCalendar_getCalendarFolderEntryID
                     calendarFolderEntryIDByteCount,
                     calendarFolderEntryID,
                     flags,
-                    0x36D00102);
+                    CALENDAR_FOLDER_TYPE);
 }

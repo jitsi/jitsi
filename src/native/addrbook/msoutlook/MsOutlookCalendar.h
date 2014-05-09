@@ -17,5 +17,12 @@ jboolean MsOutlookCalendar_foreachCalendarItemCallback(
 
 void MsOutlookCalendar_setCallbackObject(void *callback);
 
+HRESULT
+MsOutlookCalendar_getCalendarFolderEntryID
+    (LPMDB msgStore,
+    ULONG folderEntryIDByteCount, LPENTRYID folderEntryID,
+    ULONG *calendarFolderEntryIDByteCount, LPENTRYID *calendarFolderEntryID,
+    ULONG flags);
+
 #define MsOutlookCalendar_UUID_Address (UUID){0x00062002, 0x0000, 0x0000, {0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46}}
 #endif

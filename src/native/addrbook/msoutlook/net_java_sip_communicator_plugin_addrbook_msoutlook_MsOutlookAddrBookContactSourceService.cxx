@@ -20,12 +20,12 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
      jobject notificationsDelegate, jstring logPath, jint logLevel)
 {
     HRESULT hr;
-
+    const char* logFileString = jniEnv->GetStringUTFChars(logPath, NULL);
+	MsOutlookUtils_createLogger("msoutlookaddrbook.log", logFileString, logLevel);
     MAPINotification_registerJniNotificationsDelegate(
       jniEnv,
       notificationsDelegate);
-    const char* logFileString = jniEnv->GetStringUTFChars(logPath, NULL);
-    MsOutlookUtils_createLogger("msoutlookaddrbook.log", logFileString, logLevel);
+
     jniEnv->ReleaseStringUTFChars(logPath, logFileString);
 
     hr = MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer();

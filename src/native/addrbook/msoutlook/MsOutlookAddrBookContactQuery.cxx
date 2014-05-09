@@ -834,7 +834,7 @@ MsOutlookAddrBookContactQuery_getContactsFolderEntryID
                     contactsFolderEntryIDByteCount,
                     contactsFolderEntryID,
                     flags,
-                    0x36D10102 /* PR_IPM_CONTACT_ENTRYID */);
+                    CONTACTS_FOLDER_TYPE /* PR_IPM_CONTACT_ENTRYID */);
 }
 
 /**

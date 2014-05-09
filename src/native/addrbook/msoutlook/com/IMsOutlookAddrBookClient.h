@@ -4,7 +4,7 @@
 
 
  /* File created by MIDL compiler version 7.00.0555 */
-/* at Tue Apr 01 12:24:18 2014
+/* at Thu May 08 16:38:42 2014
  */
 /* Compiler settings for IMsOutlookAddrBookClient.idl:
     Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 7.00.0555 
@@ -90,13 +90,16 @@ EXTERN_C const IID IID_IMsOutlookAddrBookClient;
             /* [in] */ long callback) = 0;
         
         virtual HRESULT STDMETHODCALLTYPE deleted( 
-            /* [in] */ BSTR id) = 0;
+            /* [in] */ BSTR id,
+            /* [in] */ ULONG type) = 0;
         
         virtual HRESULT STDMETHODCALLTYPE inserted( 
-            /* [in] */ BSTR id) = 0;
+            /* [in] */ BSTR id,
+            /* [in] */ ULONG type) = 0;
         
         virtual HRESULT STDMETHODCALLTYPE updated( 
-            /* [in] */ BSTR id) = 0;
+            /* [in] */ BSTR id,
+            /* [in] */ ULONG type) = 0;
         
     };
     
@@ -130,15 +133,18 @@ EXTERN_C const IID IID_IMsOutlookAddrBookClient;
         
         HRESULT ( STDMETHODCALLTYPE *deleted )( 
             IMsOutlookAddrBookClient * This,
-            /* [in] */ BSTR id);
+            /* [in] */ BSTR id,
+            /* [in] */ ULONG type);
         
         HRESULT ( STDMETHODCALLTYPE *inserted )( 
             IMsOutlookAddrBookClient * This,
-            /* [in] */ BSTR id);
+            /* [in] */ BSTR id,
+            /* [in] */ ULONG type);
         
         HRESULT ( STDMETHODCALLTYPE *updated )( 
             IMsOutlookAddrBookClient * This,
-            /* [in] */ BSTR id);
+            /* [in] */ BSTR id,
+            /* [in] */ ULONG type);
         
         END_INTERFACE
     } IMsOutlookAddrBookClientVtbl;
@@ -169,14 +175,14 @@ EXTERN_C const IID IID_IMsOutlookAddrBookClient;
 #define IMsOutlookAddrBookClient_foreachCalendarItemCallback(This,id,callback)	\
     ( (This)->lpVtbl -> foreachCalendarItemCallback(This,id,callback) ) 
 
-#define IMsOutlookAddrBookClient_deleted(This,id)	\
-    ( (This)->lpVtbl -> deleted(This,id) ) 
+#define IMsOutlookAddrBookClient_deleted(This,id,type)	\
+    ( (This)->lpVtbl -> deleted(This,id,type) ) 
 
-#define IMsOutlookAddrBookClient_inserted(This,id)	\
-    ( (This)->lpVtbl -> inserted(This,id) ) 
+#define IMsOutlookAddrBookClient_inserted(This,id,type)	\
+    ( (This)->lpVtbl -> inserted(This,id,type) ) 
 
-#define IMsOutlookAddrBookClient_updated(This,id)	\
-    ( (This)->lpVtbl -> updated(This,id) ) 
+#define IMsOutlookAddrBookClient_updated(This,id,type)	\
+    ( (This)->lpVtbl -> updated(This,id,type) ) 
 
 #endif /* COBJMACROS */
 
