@@ -436,9 +436,19 @@ public class CalendarServiceImpl implements CalendarService
         {
             task = new CalendarItemTimerTask(status, startTime, endTime, id, 
                 executeNow, null);
-            RecurringPattern pattern 
-                = new RecurringPattern(recurringData, task);
-            task.setPattern(pattern);
+            try
+            {
+                RecurringPattern pattern 
+                    = new RecurringPattern(recurringData, task);
+                task.setPattern(pattern);
+            }
+            catch(IndexOutOfBoundsException e)
+            {
+                logger.error(
+                    "Error parsing reccuring pattern." + e.getMessage(),e);
+                logger.error("Reccuring data:\n" + bytesToHex(recurringData));
+                return;
+            }
         }
 
         if(endTime.before(currentTime) || endTime.equals(currentTime))
@@ -458,6 +468,13 @@ public class CalendarServiceImpl implements CalendarService
         task.scheduleTasks();
     }
 
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for(byte b: bytes)
+           sb.append(String.format("%02x", b & 0xff));
+        return sb.toString();
+    }
+    
     /**
      * Changes the value of the current status
      * @param state the new value.

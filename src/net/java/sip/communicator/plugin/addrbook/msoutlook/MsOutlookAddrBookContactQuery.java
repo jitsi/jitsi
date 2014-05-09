@@ -859,7 +859,15 @@ public class MsOutlookAddrBookContactQuery
         catch(MsOutlookMAPIHResultException ex)
         {
             String hresult = ex.getHresultString();
-
+            
+            if (logger.isTraceEnabled())
+            {
+                logger.trace(
+                        MsOutlookAddrBookContactQuery.class.getSimpleName()
+                            + "#onMailUser(String)",
+                        ex);
+            }
+            
             if("MAPI_E_0x57".equals(hresult))
             {
                 if (!firstIMAPIPropGetPropFailureLogged)
@@ -872,13 +880,7 @@ public class MsOutlookAddrBookContactQuery
             {
                 throw ex;
             }
-            if (logger.isTraceEnabled())
-            {
-                logger.trace(
-                        MsOutlookAddrBookContactQuery.class.getSimpleName()
-                            + "#onMailUser(String)",
-                        ex);
-            }
+            
             return true;
         }
 
@@ -891,13 +893,20 @@ public class MsOutlookAddrBookContactQuery
         }
         else
         {
+            logger.error("Wrong object types. We are canceling the query.");
             return false;
         }
 
         // If we have results from the Contacts folder(s), don't read from the
         // Address Book because there may be duplicates.
         if ((MAPI_MAILUSER == objType) && (mapiMessageCount != 0))
+        {
+            if (logger.isTraceEnabled())
+            {
+                logger.trace("Duplicate contacts. We are canceling the query.");
+            }
             return false;
+        }
 
         int propIndex = 0;
         boolean matches = false;
@@ -972,6 +981,11 @@ public class MsOutlookAddrBookContactQuery
                 }
 
                 addQueryResult(sourceContact);
+            }
+            else
+            {
+                logger.error("Error creating the found contact. " +
+                		"Contact details are empty.");
             }
         }
         return (getStatus() == QUERY_IN_PROGRESS);

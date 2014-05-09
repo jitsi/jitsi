@@ -269,10 +269,8 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
     unsigned long* localPropsLength = NULL;
     // b = byteArray, l = long, s = 8 bits string, u = 16 bits string.
     char * localPropsType = NULL;
-    MsOutlookUtils_logInfo("AAAAA");
     if((localProps = (void**) malloc(nbPropIds * sizeof(void*))) != NULL)
     {
-    	MsOutlookUtils_logInfo("AAAAA1111");
         memset(localProps, 0, nbPropIds * sizeof(void*));
         if((localPropsLength = (unsigned long*) malloc(
                         nbPropIds * sizeof(unsigned long))) != NULL)
@@ -280,7 +278,6 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
             if((localPropsType = (char*) malloc(nbPropIds * sizeof(char)))
                     != NULL)
             {
-            	MsOutlookUtils_logInfo("AAAA2222A");
                 SafeArrayLock(propIds);
                 long * longPropIds = (long*) propIds->pvData;
                 SafeArrayUnlock(propIds);
@@ -302,7 +299,6 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
 
                 if(HR_SUCCEEDED(hr))
                 {
-                	MsOutlookUtils_logInfo("AAAAA3333");
                     long totalLength = 0;
                     for(int j = 0; j < nbPropIds; ++j)
                     {
@@ -334,6 +330,10 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
                             nbPropIds * sizeof(char));
                     SafeArrayUnlock(*propsType);
                 }
+                else
+                {
+                	MsOutlookUtils_log("Error receiving the properties.");
+                }
 
                 for(int j = 0; j < nbPropIds; ++j)
                 {
@@ -343,9 +343,21 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
 
                 free(localPropsType);
             }
+            else
+            {
+            	MsOutlookUtils_log("Memory allocation error.[4]");
+            }
             free(localPropsLength);
         }
+        else
+        {
+        	MsOutlookUtils_log("Memory allocation error.[5]");
+        }
         free(localProps);
+    }
+    else
+    {
+    	MsOutlookUtils_log("Memory allocation error.[6]");
     }
 
     return hr;

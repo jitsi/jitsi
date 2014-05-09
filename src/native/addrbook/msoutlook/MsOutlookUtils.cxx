@@ -67,10 +67,21 @@ MsOutlookUtils_getFolderEntryIDByType
                 CopyMemory(*contactsFolderEntryID, bin->lpb, bin->cb);
             }
             else
+            {
+            	MsOutlookUtils_log("MsOutlookUtils_getFolderEntryIDByType: Not enough memory.");
                 hResult = MAPI_E_NOT_ENOUGH_MEMORY;
+            }
             MAPIFreeBuffer(prop);
         }
+        else
+        {
+        	MsOutlookUtils_log("MsOutlookUtils_getFolderEntryIDByType: Error getting the property.");
+        }
         folder->Release();
+    }
+    else
+    {
+    	MsOutlookUtils_log("MsOutlookUtils_getFolderEntryIDByType: Error opening the folder.");
     }
     return hResult;
 }
@@ -120,8 +131,15 @@ MsOutlookUtils_HrGetOneProp(
                 MAPIFreeBuffer(value);
         }
         if (!propHasBeenAssignedTo)
+        {
+        	MsOutlookUtils_log("MsOutlookUtils_HrGetOneProp: Property not found.");
             hResult = MAPI_E_NOT_FOUND;
+        }
         MAPIFreeBuffer(values);
+    }
+    else
+    {
+    	MsOutlookUtils_log("MsOutlookUtils_HrGetOneProp: MAPI getProps error.");
     }
     return hResult;
 }
@@ -373,6 +391,7 @@ MsOutlookUtils_IMAPIProp_GetProps(
                     }
                     else
                     {
+                    	MsOutlookUtils_log("Error in the server call for getting properties.");
                         MsOutlookMAPIHResultException_throwNew(
                                 jniEnv,
                                 hr,
@@ -386,6 +405,10 @@ MsOutlookUtils_IMAPIProp_GetProps(
                     SysFreeString(comEntryId);
                     free(unicodeEntryId);
                 }
+                else
+                {
+                	MsOutlookUtils_log("Server is not available.");
+                }
 
 
                 for(int j = 0; j < propIdCount; ++j)
@@ -395,10 +418,22 @@ MsOutlookUtils_IMAPIProp_GetProps(
                 }
                 free(propsType);
             }
+            else
+            {
+            	MsOutlookUtils_log("Allocating memory error.[1]");
+            }
             free(propsLength);
         }
+        else
+		{
+			MsOutlookUtils_log("Allocating memory error.[2]");
+		}
         free(props);
     }
+    else
+	{
+		MsOutlookUtils_log("Allocating memory error.[3]");
+	}
 
     jniEnv->ReleaseStringUTFChars(entryId, nativeEntryId);
 

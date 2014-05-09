@@ -220,12 +220,14 @@ public class RecurringPattern
      * Parses the binary data that describes the recurrent pattern.
      * @param data the binary data.
      * @param sourceTask the calendar item.
+     * @throws IndexOutOfBoundsException if data can't be parsed.
      */
     public RecurringPattern(byte[] data, CalendarItemTimerTask sourceTask)
+    throws IndexOutOfBoundsException
     {
         this.sourceTask = sourceTask;
         dataBuffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
-
+        
         int offset = 4;
         recurFrequency = dataBuffer.getShort(offset);
         offset += 2;

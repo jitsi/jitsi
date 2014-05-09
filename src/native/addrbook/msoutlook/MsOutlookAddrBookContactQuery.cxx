@@ -649,6 +649,12 @@ MsOutlookAddrBookContactQuery_foreachRowInTable
                 else
                 {
                 	MsOutlookUtils_log("ERROR wrong type of the msg store");
+                	if(!objType)
+                		MsOutlookUtils_log("ERROR wrong object type.");
+                	if(!entryIDBinary.cb)
+						MsOutlookUtils_log("ERROR binary structures size is 0");
+                	if(!entryIDBinary.lpb)
+						MsOutlookUtils_log("ERROR binary structuresis NULL");
                     MsOutlookAddrBookContactQuery_freeSRowSet(rows);
                 }
             }
@@ -1201,6 +1207,7 @@ HRESULT MsOutlookAddrBookContactQuery_IMAPIProp_1GetProps(
                     MsOutlookAddrBookContactQuery_rdOpenEntryUlFlags))
             == NULL)
     {
+    	MsOutlookUtils_log("Error openning ID string.");
         return hr;
     }
 
@@ -1387,7 +1394,19 @@ HRESULT MsOutlookAddrBookContactQuery_IMAPIProp_1GetProps(
                 }
                 MAPIFreeBuffer(propTagArray);
             }
+            else
+			{
+				MsOutlookUtils_log("Error calling MAPI getProp method.");
+			}
         }
+        else
+        {
+        	MsOutlookUtils_log("Proptag array is not initialized.");
+        }
+    }
+    else
+    {
+    	MsOutlookUtils_log("Memory allocation error.[7]");
     }
     ((LPMAPIPROP)  mapiProp)->Release();
 
@@ -1657,6 +1676,7 @@ MsOutlookAddrBookContactQuery_onForeachContactInMsgStoresTableRow
                     &contactsFolder);
             if (HR_SUCCEEDED(hResult))
             {
+            	MsOutlookUtils_log("Message store and folder found.");
                 proceed = MsOutlookAddrBookContactQuery_foreachMailUser(
                             contactsFolderObjType,
                             contactsFolder,
