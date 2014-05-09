@@ -33,8 +33,8 @@ public class ReplacementServiceVimeoImpl
      * The regex used to match the link in the message.
      */
     public static final String VIMEO_PATTERN =
-        "(?<=>)(https?\\:\\/\\/(www\\.)*?vimeo\\.com"
-        + "\\/([a-zA-Z0-9_\\-]+))(?=</A>)";
+        "(https?\\:\\/\\/(www\\.)*?vimeo\\.com"
+        + "\\/([a-zA-Z0-9_\\-]+))";
 
     /**
      * Configuration label shown in the config form.

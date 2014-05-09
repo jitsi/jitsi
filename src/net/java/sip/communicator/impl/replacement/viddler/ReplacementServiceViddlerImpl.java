@@ -30,8 +30,8 @@ public class ReplacementServiceViddlerImpl
      * The regex used to match the link in the message.
      */
     public static final String VIDDLER_PATTERN =
-        "(?<=>)(http:\\/\\/(?:www\\.)?viddler\\.com"
-        + "\\/explore\\/(\\w+)\\/videos\\/\\d+.*(?=<\\/A>))";
+        "(http:\\/\\/(?:www\\.)?viddler\\.com"
+        + "\\/explore\\/(\\w+)\\/videos\\/\\d+.*)";
 
     /**
      * API Key required to access the viddler api.

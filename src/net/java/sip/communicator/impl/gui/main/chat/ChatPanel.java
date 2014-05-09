@@ -1095,7 +1095,8 @@ public class ChatPanel
     {
         String keyword = null;
 
-        if (chatSession instanceof ConferenceChatSession && Chat.INCOMING_MESSAGE.equals(chatMessage.getMessageType()))
+        if (chatSession instanceof ConferenceChatSession
+            && Chat.INCOMING_MESSAGE.equals(chatMessage.getMessageType()))
         {
             keyword =
                 ((ChatRoomWrapper) chatSession.getDescriptor()).getChatRoom()

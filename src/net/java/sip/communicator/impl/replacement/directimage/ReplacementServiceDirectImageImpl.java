@@ -33,7 +33,7 @@ public class ReplacementServiceDirectImageImpl
      * The regex used to match the link in the message.
      */
     public static final String URL_PATTERN =
-        "[^<>]+\\.(?:jpg|png|gif)[^<>]*(?=</a>)";
+        "https?\\:\\/\\/(www\\.)*.*\\.(?:jpg|png|gif)";
 
     /**
      * Configuration label shown in the config form.

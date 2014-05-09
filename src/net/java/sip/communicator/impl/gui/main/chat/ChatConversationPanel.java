@@ -37,7 +37,9 @@ import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.service.replacement.directimage.*;
 import net.java.sip.communicator.service.replacement.smilies.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
+import org.jitsi.util.*;
 
 /**
  * The <tt>ChatConversationPanel</tt> is the panel, where all sent and received
@@ -85,6 +87,18 @@ public class ChatConversationPanel
      */
     private static final Pattern DIV_PATTERN =
             Pattern.compile("(<div[^>]*>)(.*)(</div>)", Pattern.DOTALL);
+
+    /**
+     * Extracting text from plaintext tags or content of anchors,
+     * text to be replaced.
+     */
+    private static final Pattern TEXT_TO_REPLACE_PATTERN =
+        Pattern.compile(
+            ChatHtmlUtils.START_PLAINTEXT_TAG
+                + "(.*?)" +
+                ChatHtmlUtils.END_PLAINTEXT_TAG
+                + "|<a[^>]+>(.+?)</a>",
+            Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     /**
      * List for observing text messages.
@@ -854,205 +868,11 @@ public class ChatConversationPanel
     * @param chatString the message.
     * @param contentType
     */
-    void processReplacement(final String messageID,
-                            final String chatString,
-                            final String contentType)
+    void processReplacement(String messageID,
+                            String chatString,
+                            String contentType)
     {
-        SwingWorker worker = new SwingWorker()
-        {
-            /**
-             * Called on the event dispatching thread (not on the worker thread)
-             * after the <code>construct</code> method has returned.
-             */
-            @Override
-            public void finished()
-            {
-                String newMessage = (String) get();
-
-                if (newMessage != null && !newMessage.equals(chatString))
-                {
-                    showPreview.getMsgIDToChatString().put(
-                        messageID, newMessage);
-                    synchronized (scrollToBottomRunnable)
-                    {
-                        scrollToBottomIsPending = true;
-
-                        try
-                        {
-                            Element elem = document.getElement(messageID);
-                            document.setOuterHTML(elem, newMessage);
-                        }
-                        catch (BadLocationException ex)
-                        {
-                            logger.error("Could not replace chat message", ex);
-                        }
-                        catch (IOException ex)
-                        {
-                            logger.error("Could not replace chat message", ex);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public Object construct() throws Exception
-            {
-                ConfigurationService cfg
-                    = GuiActivator.getConfigurationService();
-                boolean isEnabled
-                    = cfg.getBoolean(
-                            ReplacementProperty.REPLACEMENT_ENABLE,
-                            true);
-                boolean isProposalEnabled
-                    = cfg.getBoolean(
-                            ReplacementProperty.REPLACEMENT_PROPOSAL,
-                            true);
-                Matcher divMatcher = DIV_PATTERN.matcher(chatString);
-                String openingTag = "";
-                String msgStore = chatString;
-                String closingTag = "";
-                if (divMatcher.find())
-                {
-                    openingTag = divMatcher.group(1);
-                    msgStore = divMatcher.group(2);
-                    closingTag = divMatcher.group(3);
-                }
-
-                int linkCounter = 0;
-                for (Map.Entry<String, ReplacementService> entry
-                        : GuiActivator.getReplacementSources().entrySet())
-                {
-                    ReplacementService source = entry.getValue();
-
-                    boolean isSmiley
-                        = source instanceof SmiliesReplacementService;
-                    boolean isDirectImage
-                        = source instanceof DirectImageReplacementService;
-                    boolean isEnabledForSource
-                        = cfg.getBoolean(
-                            ReplacementProperty.getPropertyName(
-                                source.getSourceName()), true);
-
-                    String sourcePattern = source.getPattern();
-                    Pattern p
-                        = Pattern.compile(
-                                sourcePattern,
-                                Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-                    Matcher m = p.matcher(msgStore);
-                    StringBuilder msgBuff = new StringBuilder();
-                    int startPos = 0;
-
-                    while (m.find())
-                    {
-                        msgBuff.append(msgStore.substring(startPos, m.start()));
-                        startPos = m.end();
-
-                        String group = m.group();
-                        String temp = source.getReplacement(group);
-                        String group0 = m.group(0);
-
-                        if(!temp.equals(group0) || isDirectImage)
-                        {
-                            if (isSmiley)
-                            {
-                                if (cfg.getBoolean(ReplacementProperty.
-                                                    getPropertyName("SMILEY"),
-                                                    true))
-                                {
-                                    msgBuff.append(
-                                            ChatHtmlUtils.createEndPlainTextTag(
-                                                    contentType));
-                                    msgBuff.append("<IMG SRC=\"");
-                                    msgBuff.append(temp);
-                                    msgBuff.append("\" BORDER=\"0\" ALT=\"");
-                                    msgBuff.append(group0);
-                                    msgBuff.append("\"></IMG>");
-                                    msgBuff.append(
-                                        ChatHtmlUtils.createStartPlainTextTag(
-                                            contentType));
-                                }
-                                else
-                                {
-                                    msgBuff.append(group);
-                                }
-                            }
-                            else if (isEnabled && isEnabledForSource)
-                            {
-                                if (isDirectImage)
-                                {
-                                    DirectImageReplacementService service
-                                        = (DirectImageReplacementService)source;
-                                    if (service.isDirectImage(group)
-                                        && service.getImageSize(group) != -1)
-                                    {
-                                        msgBuff.append(
-                                            "<IMG HEIGHT=\"90\" "
-                                            + "WIDTH=\"120\" SRC=\"");
-                                        msgBuff.append(temp);
-                                        msgBuff.append("\" BORDER=\"0\" ALT=\"");
-                                        msgBuff.append(group0);
-                                        msgBuff.append("\"></IMG>");
-                                    }
-                                    else
-                                    {
-                                        msgBuff.append(group);
-                                    }
-                                }
-                                else
-                                {
-                                    msgBuff.append(
-                                        "<IMG HEIGHT=\"90\" "
-                                        + "WIDTH=\"120\" SRC=\"");
-                                    msgBuff.append(temp);
-                                    msgBuff.append("\" BORDER=\"0\" ALT=\"");
-                                    msgBuff.append(group0);
-                                    msgBuff.append("\"></IMG>");
-                                }
-                            }
-                            else if (isProposalEnabled)
-                            {
-                                msgBuff.append(group);
-                                msgBuff.append(
-                                    "</A> <A href=\"jitsi://"
-                                     + showPreview.getClass().getName()
-                                     + "/SHOWPREVIEW?" + messageID + "#"
-                                     + linkCounter + "\">"
-                                     + GuiActivator.getResources().
-                                     getI18NString("service.gui.SHOW_PREVIEW"));
-
-                                showPreview.getMsgIDandPositionToLink()
-                                    .put(
-                                        messageID + "#" + linkCounter++, group);
-                                showPreview.getLinkToReplacement()
-                                    .put(
-                                        group, temp);
-                            }
-                            else
-                            {
-                                msgBuff.append(group);
-                            }
-                        }
-                        else
-                        {
-                            msgBuff.append(group);
-                        }
-                    }
-
-                    msgBuff.append(msgStore.substring(startPos));
-
-                    /*
-                     * replace the msgStore variable with the current replaced
-                     * message before next iteration
-                     */
-                    String msgBuffString = msgBuff.toString();
-
-                    if (!msgBuffString.equals(msgStore))
-                        msgStore = msgBuffString;
-                }
-                return openingTag + msgStore + closingTag;
-            }
-        };
-        worker.start();
+        new ReplacementWorker(messageID, chatString, contentType).start();
     }
 
     /**
@@ -2253,6 +2073,318 @@ public class ChatConversationPanel
             try {
                 write(System.out, document, 0, document.getLength());
             } catch(Throwable t){}
+        }
+    }
+
+    /**
+     * Swing worker used by processReplacement.
+     */
+    private class ReplacementWorker
+        extends SwingWorker
+    {
+        /**
+         * The messageID element.
+         */
+        private final String messageID;
+
+        /**
+         * The message.
+         */
+        private final String chatString;
+
+        /**
+         * The content type of the message.
+         */
+        private final String contentType;
+
+        /**
+         * Counts links while processing. Used to generate unique href.
+         */
+        private int linkCounter = 0;
+
+        /**
+         * Is image replacement enabled.
+         */
+        private final boolean isEnabled;
+
+        /**
+         * Is replacement proposal enabled.
+         */
+        private final boolean isProposalEnabled;
+
+        /**
+         * Constructs worker.
+         * @param messageID the messageID element.
+         * @param chatString the messages.
+         * @param contentType the message content type.
+         */
+        private ReplacementWorker(
+            String messageID, String chatString, String contentType)
+        {
+            this.messageID = messageID;
+            this.chatString = chatString;
+            this.contentType = contentType;
+
+            ConfigurationService cfg = GuiActivator.getConfigurationService();
+            isEnabled = cfg.getBoolean(
+                ReplacementProperty.REPLACEMENT_ENABLE,
+                true);
+            isProposalEnabled
+                = cfg.getBoolean(
+                ReplacementProperty.REPLACEMENT_PROPOSAL,
+                true);
+        }
+
+        /**
+         * Called on the event dispatching thread (not on the worker thread)
+         * after the <code>construct</code> method has returned.
+         */
+        @Override
+        public void finished()
+        {
+            String newMessage = (String) get();
+
+            if (newMessage != null && !newMessage.equals(chatString))
+            {
+                showPreview.getMsgIDToChatString().put(
+                    messageID, newMessage);
+                synchronized (scrollToBottomRunnable)
+                {
+                    scrollToBottomIsPending = true;
+
+                    try
+                    {
+                        Element elem = document.getElement(messageID);
+                        document.setOuterHTML(elem, newMessage);
+                    }
+                    catch (BadLocationException ex)
+                    {
+                        logger.error("Could not replace chat message", ex);
+                    }
+                    catch (IOException ex)
+                    {
+                        logger.error("Could not replace chat message", ex);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public Object construct() throws Exception
+        {
+            Matcher divMatcher = DIV_PATTERN.matcher(chatString);
+            String openingTag = "";
+            String msgStore = chatString;
+            String closingTag = "";
+            if (divMatcher.find())
+            {
+                openingTag = divMatcher.group(1);
+                msgStore = divMatcher.group(2);
+                closingTag = divMatcher.group(3);
+            }
+
+            StringBuilder msgBuff;
+            for (Map.Entry<String, ReplacementService> entry
+                : GuiActivator.getReplacementSources().entrySet())
+            {
+                msgBuff = new StringBuilder();
+                processReplacementService(entry.getValue(), msgStore, msgBuff);
+                msgStore = msgBuff.toString();
+            }
+
+            return openingTag + msgStore + closingTag;
+        }
+
+        /**
+         * Process message for a ReplacementService.
+         * @param service the service.
+         * @param msg the message.
+         * @param buff current accumulated buffer.
+         */
+        private void processReplacementService(ReplacementService service,
+                                               String msg,
+                                               StringBuilder buff)
+        {
+            String sourcePattern = service.getPattern();
+            Pattern pattern
+                = Pattern.compile(
+                    sourcePattern, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+
+            int startPos = 0;
+
+            Matcher plainTextMatcher = TEXT_TO_REPLACE_PATTERN.matcher(msg);
+            while(plainTextMatcher.find())
+            {
+                // our match pattern detects plaintexts or links
+                // the first group is when it detects a plaintext nodes
+                // second one is the text inside anchor
+
+                String text = plainTextMatcher.group(1);
+                int startMatchPosition = plainTextMatcher.start(1);
+                int endMatchPosition = plainTextMatcher.end(1);
+                // when processing links content we skip processing smileys
+                // or we will replace stuff like :p in the links
+                boolean skipSmileys = false;
+
+                if(text == null)
+                {
+                    text = plainTextMatcher.group(2);
+                    startMatchPosition = plainTextMatcher.start(2);
+                    endMatchPosition = plainTextMatcher.end(2);
+                    skipSmileys = true;
+                }
+
+                // don't process nothing
+                // or don't process already processed links content
+                if(!StringUtils.isNullOrEmpty(text)
+                    && !(skipSmileys && text.startsWith("<I")))
+                {
+                    // always add from the end of previous match, to current one
+                    // or from the start to the first match
+                    buff.append(
+                        msg.substring(startPos, startMatchPosition));
+
+                    processText(
+                        text,
+                        buff,
+                        pattern,
+                        service,
+                        skipSmileys);
+
+                    startPos = endMatchPosition;
+                }
+            }
+
+            // add end from startPos to end
+            buff.append(msg.substring(startPos));
+        }
+
+        /**
+         * Process content between plaintext nodes.
+         * @param plainText the nodes text.
+         * @param msgBuff the currently accumulated buffer.
+         * @param pattern the pattern for current replacement service,
+         * created earlier so we don't create it for every text we check.
+         * @param rService the replacement service.
+         * @param skipSmileys whether to skip processing smileys
+         */
+        private void processText(String plainText,
+                                 StringBuilder msgBuff,
+                                 Pattern pattern,
+                                 ReplacementService rService,
+                                 boolean skipSmileys)
+        {
+            Matcher m = pattern.matcher(plainText);
+
+            ConfigurationService cfg = GuiActivator.getConfigurationService();
+            boolean isSmiley
+                = rService instanceof SmiliesReplacementService;
+            boolean isDirectImage
+                = rService instanceof DirectImageReplacementService;
+            boolean isEnabledForSource
+                = cfg.getBoolean(
+                ReplacementProperty.getPropertyName(
+                    rService.getSourceName()), true);
+
+            int startPos = 0;
+            while (m.find())
+            {
+                msgBuff.append(plainText.substring(startPos, m.start()));
+                startPos = m.end();
+
+                String group = m.group();
+                String temp = rService.getReplacement(group);
+                String group0 = m.group(0);
+
+                if(!temp.equals(group0) || isDirectImage)
+                {
+                    if (isSmiley)
+                    {
+                        if (cfg.getBoolean(ReplacementProperty.
+                                getPropertyName("SMILEY"),
+                            true)
+                            && !skipSmileys)
+                        {
+                            msgBuff.append(
+                                ChatHtmlUtils.createEndPlainTextTag(
+                                    contentType));
+                            msgBuff.append("<IMG SRC=\"");
+                            msgBuff.append(temp);
+                            msgBuff.append("\" BORDER=\"0\" ALT=\"");
+                            msgBuff.append(group0);
+                            msgBuff.append("\"></IMG>");
+                            msgBuff.append(
+                                ChatHtmlUtils.createStartPlainTextTag(
+                                    contentType));
+                        }
+                        else
+                        {
+                            msgBuff.append(group);
+                        }
+                    }
+                    else if (isEnabled && isEnabledForSource)
+                    {
+                        if (isDirectImage)
+                        {
+                            DirectImageReplacementService service
+                                = (DirectImageReplacementService)rService;
+                            if (service.isDirectImage(group)
+                                && service.getImageSize(group) != -1)
+                            {
+                                msgBuff.append(
+                                    "<IMG HEIGHT=\"90\" "
+                                        + "WIDTH=\"120\" SRC=\"");
+                                msgBuff.append(temp);
+                                msgBuff.append("\" BORDER=\"0\" ALT=\"");
+                                msgBuff.append(group0);
+                                msgBuff.append("\"></IMG>");
+                            }
+                            else
+                            {
+                                msgBuff.append(group);
+                            }
+                        }
+                        else
+                        {
+                            msgBuff.append(
+                                "<IMG HEIGHT=\"90\" "
+                                    + "WIDTH=\"120\" SRC=\"");
+                            msgBuff.append(temp);
+                            msgBuff.append("\" BORDER=\"0\" ALT=\"");
+                            msgBuff.append(group0);
+                            msgBuff.append("\"></IMG>");
+                        }
+                    }
+                    else if (isProposalEnabled)
+                    {
+                        msgBuff.append(group);
+                        msgBuff.append(
+                            "</A> <A href=\"jitsi://"
+                                + showPreview.getClass().getName()
+                                + "/SHOWPREVIEW?" + messageID + "#"
+                                + linkCounter + "\">"
+                                + GuiActivator.getResources().
+                                getI18NString("service.gui.SHOW_PREVIEW"));
+
+                        showPreview.getMsgIDandPositionToLink()
+                            .put(
+                                messageID + "#" + linkCounter++, group);
+                        showPreview.getLinkToReplacement()
+                            .put(
+                                group, temp);
+                    }
+                    else
+                    {
+                        msgBuff.append(group);
+                    }
+                }
+                else
+                {
+                    msgBuff.append(group);
+                }
+            }
+
+            msgBuff.append(plainText.substring(startPos));
         }
     }
 }

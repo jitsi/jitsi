@@ -29,8 +29,8 @@ public class ReplacementServiceDailymotionImpl
      * The regex used to match the link in the message.
      */
     public static final String DAILYMOTION_PATTERN =
-        "(?<=>)(https?\\:\\/\\/(www\\.)*?dailymotion\\.com"
-        + "\\/video\\/([a-zA-Z0-9_\\-]+))([?#]([a-zA-Z0-9_\\-]+))*(?=</A>)";
+        "(https?\\:\\/\\/(www\\.)*?dailymotion\\.com"
+        + "\\/video\\/([a-zA-Z0-9_\\-]+))([?#]([a-zA-Z0-9_\\-]+))*";
 
     /**
      * Configuration label shown in the config form.

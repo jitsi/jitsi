@@ -5,6 +5,7 @@ Bundle-Vendor: jitsi.org
 Bundle-Version: 1.0.0
 Bundle-SymbolicName: net.java.sip.communicator.replacement.vbox7
 Import-Package: org.osgi.framework,
+ net.java.sip.communicator.service.httputil,
  net.java.sip.communicator.service.replacement,
  org.jitsi.service.configuration,
  org.jitsi.service.resources, net.java.sip.communicator.service.resources,

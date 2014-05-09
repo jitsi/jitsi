@@ -31,8 +31,8 @@ public class ReplacementServiceHuluImpl
      * The regex used to match the link in the message.
      */
     public static final String HULU_PATTERN =
-        "(?<=>)(https?\\:\\/\\/(www\\.)*?hulu\\.com"
-        + "\\/watch\\/([a-zA-Z0-9_\\-]+))(\\/([^\\\"\\<]*)*)(?=<\\/A>)";
+        "(https?\\:\\/\\/(www\\.)*?hulu\\.com"
+        + "\\/watch\\/([a-zA-Z0-9_\\-]+))(\\/([^\\\"\\<]*)*)";
 
     /**
      * Configuration label shown in the config form.
@@ -63,7 +63,8 @@ public class ReplacementServiceHuluImpl
     {
         try
         {
-            String url = "http://oohembed.com/oohembed/?url=" + sourceString;
+            String url = "http://api.embed.ly/1/oembed?url=" + sourceString
+                + "&key=cff57b37766440a6a8aa45df88097efe";
             URL sourceURL = new URL(url);
             URLConnection conn = sourceURL.openConnection();
 

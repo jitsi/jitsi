@@ -5,6 +5,7 @@
  */
 package net.java.sip.communicator.impl.replacement.twitpic;
 
+import java.net.*;
 import java.util.regex.*;
 
 import net.java.sip.communicator.service.replacement.*;
@@ -29,7 +30,7 @@ public class ReplacementServiceTwitpicImpl
      * The regex used to match the link in the message.
      */
     public static final String TWITPIC_PATTERN =
-        "(?<=>)http:\\/\\/(?:www\\.)?twitpic\\.com\\/([^\\/<]*)(?=</A>)";
+        "http:\\/\\/(?:www\\.)?twitpic\\.com\\/([^\\/<]*)";
 
     /**
      * Configuration label shown in the config form.
@@ -69,6 +70,23 @@ public class ReplacementServiceTwitpicImpl
         {
             thumbUrl = "http://twitpic.com/show/thumb/" + m.group(1);
         }
+
+        // check for redirect headers
+        try
+        {
+            HttpURLConnection con = (HttpURLConnection)
+                (new URL(thumbUrl).openConnection());
+            con.setInstanceFollowRedirects(false);
+            con.connect();
+            int responseCode = con.getResponseCode();
+            if(responseCode == HttpURLConnection.HTTP_MOVED_TEMP
+                || responseCode == HttpURLConnection.HTTP_MOVED_PERM)
+            {
+                return con.getHeaderField("Location");
+            }
+        }
+        catch(Throwable t)
+        {}
 
         return thumbUrl;
     }

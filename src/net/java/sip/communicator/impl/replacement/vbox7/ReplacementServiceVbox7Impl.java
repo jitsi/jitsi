@@ -5,8 +5,10 @@
  */
 package net.java.sip.communicator.impl.replacement.vbox7;
 
+import java.util.*;
 import java.util.regex.*;
 
+import net.java.sip.communicator.service.httputil.*;
 import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.util.*;
 
@@ -29,8 +31,8 @@ public class ReplacementServiceVbox7Impl
      * The regex used to match the link in the message.
      */
     public static final String VBOX7_PATTERN =
-        "(?<=>)(https?\\:\\/\\/(www\\.)*?vbox7\\.com"
-        + "\\/play\\:([a-zA-Z0-9_\\-]+))([?&]\\w+=[\\w-]*)*(?=</A>)";
+        "(https?\\:\\/\\/(www\\.)*?vbox7\\.com"
+        + "\\/play\\:([a-zA-Z0-9_\\-]+))([?&]\\w+=[\\w-]*)*";
 
     /**
      * Configuration label shown in the config form.
@@ -63,10 +65,36 @@ public class ReplacementServiceVbox7Impl
                 Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
         Matcher m = p.matcher(sourceString);
         String thumbUrl = sourceString;
+        String id = null;
 
         while (m.find())
         {
-            thumbUrl = "https://i.vbox7.com/p/" + m.group(1) + "3.jpg";
+            id = m.group(1);
+            thumbUrl = "https://i.vbox7.com/p/" + id + "3.jpg";
+        }
+
+        if(id != null)
+        {
+            try
+            {
+                HttpUtils.HTTPResponseResult res = HttpUtils.openURLConnection(
+                    "http://vbox7.com/etc/ext.do?key=" + id);
+
+                StringTokenizer toks = new StringTokenizer(
+                    res.getContentString(), "&");
+                while(toks.hasMoreTokens())
+                {
+                    String value = toks.nextToken();
+                    String[] entries = value.split("=");
+                    if(entries.length > 1
+                        && entries[0].equals("jpg_addr"))
+                    {
+                        return "http://" + entries[1];
+                    }
+                }
+            }
+            catch(Throwable t)
+            {}
         }
 
         return thumbUrl;
