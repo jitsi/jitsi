@@ -1612,9 +1612,12 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
         {
             MediaStream audioStream = getStream(MediaType.AUDIO);
             MediaDirection direction
-                    = getPeer().getCall().isConferenceFocus()
+                    = (getPeer().getCall().isConferenceFocus()
+                        || audioStream == null)
                     ? MediaDirection.INACTIVE
                     : audioStream.getDirection().and(MediaDirection.SENDONLY);
+            // the direction in situation where audioStream is
+            // null is ignored (just avoiding NPE)
 
             if(audioStream != null)
             {
