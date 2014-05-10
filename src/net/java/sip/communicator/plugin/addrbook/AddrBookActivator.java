@@ -402,6 +402,7 @@ public class AddrBookActivator
                         false))
         {
             calendarService = new CalendarServiceImpl();
+            
             try
             {
                 MsOutlookAddrBookContactSourceService.initMAPI(null);
@@ -425,6 +426,8 @@ public class AddrBookActivator
                 }
                 pps.addRegistrationStateChangeListener(providerListener);
             }
+            bundleContext.registerService(CalendarService.class.getName(),
+                calendarService, null);
             calendarService.start();
         }
     }

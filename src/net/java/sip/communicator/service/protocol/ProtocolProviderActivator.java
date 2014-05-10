@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import net.java.sip.communicator.service.calendar.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
@@ -63,6 +64,11 @@ public class ProtocolProviderActivator
     private static ResourceManagementService resourceService;
 
     /**
+     * The calendar service instance.
+     */
+    private static CalendarService calendarService;
+
+    /**
      * The <code>SingleCallInProgressPolicy</code> making sure that the
      * <code>Call</code>s accessible in the <code>BundleContext</code> of this
      * activator will obey to the rule that a new <code>Call</code> should put
@@ -110,6 +116,27 @@ public class ProtocolProviderActivator
                             ResourceManagementService.class.getName()));
         }
         return resourceService;
+    }
+
+    /**
+     * Gets the <code>CalendarService</code> to be used by the classes
+     * in the bundle represented by <code>ProtocolProviderActivator</code>.
+     *
+     * @return the <code>CalendarService</code> to be used by the
+     *          classes in the bundle represented by
+     *          <code>ProtocolProviderActivator</code>
+     */
+    public static CalendarService getCalendarService()
+    {
+        if (calendarService == null)
+        {
+            calendarService
+                = (CalendarService)
+                    bundleContext.getService(
+                        bundleContext.getServiceReference(
+                            CalendarService.class.getName()));
+        }
+        return calendarService;
     }
 
     /**

@@ -492,6 +492,23 @@ public class CalendarServiceImpl implements CalendarService
         }
 
     }
+    
+    /**
+     * Handles presence status changed from "On the Phone"
+     * 
+     * @param presenceStatuses the remembered presence statuses
+     * @return <tt>true</tt> if the status is changed.
+     */
+    public boolean onThePhoneStatusChanged(
+        Map<ProtocolProviderService,PresenceStatus> presenceStatuses)
+    {
+        if(currentState != BusyStatusEnum.FREE)
+        {
+            inMeetingStatusPolicy.onThePhoneStatusChanged(presenceStatuses);
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Calculates and changes the value of current status using the current 
@@ -551,7 +568,7 @@ public class CalendarServiceImpl implements CalendarService
          * instances in order to recognize the <tt>PresenceStatus</tt> which
          * represents &quot;In meeting&quot;.
          */
-        private final Pattern inMeetingPresenceStatusNameWhitespace
+        private final Pattern presenceStatusNameWhitespace
             = Pattern.compile("\\p{Space}");
 
         /**
@@ -569,9 +586,30 @@ public class CalendarServiceImpl implements CalendarService
          */
         public void freeBusyStateChanged()
         {
-            run();
+            run(false);
         }
 
+        /**
+         * Handles presence status changed from "On the Phone"
+         * @param presenceStatuses the remembered presence statuses
+         */
+        public void onThePhoneStatusChanged(
+            Map<ProtocolProviderService,PresenceStatus> presenceStatuses)
+        {
+            run(true);
+            for(ProtocolProviderService pps : presenceStatuses.keySet())
+                rememberPresenceStatus(pps, presenceStatuses.get(pps));
+        }
+        
+        /**
+         * Returns the remembered presence statuses
+         * @return the remembered presence statuses
+         */
+        public Map<ProtocolProviderService,PresenceStatus> getRememberedStatuses()
+        {
+            return presenceStatuses;
+        }
+        
         /**
          * Finds the first <tt>PresenceStatus</tt> among the set of
          * <tt>PresenceStatus</tt>es supported by a specific
@@ -593,10 +631,42 @@ public class CalendarServiceImpl implements CalendarService
             {
                 PresenceStatus presenceStatus = i.next();
 
-                if (inMeetingPresenceStatusNameWhitespace
+                if (presenceStatusNameWhitespace
                         .matcher(presenceStatus.getStatusName())
                             .replaceAll("")
                                 .equalsIgnoreCase("InAMeeting"))
+                {
+                    return presenceStatus;
+                }
+            }
+            return null;
+        }
+
+        /**
+         * Finds the first <tt>PresenceStatus</tt> among the set of
+         * <tt>PresenceStatus</tt>es supported by a specific
+         * <tt>OperationSetPresence</tt> which represents
+         * &quot;On the phone&quot;.
+         *
+         * @param presence the <tt>OperationSetPresence</tt> which represents
+         * the set of supported <tt>PresenceStatus</tt>es
+         * @return the first <tt>PresenceStatus</tt> among the set of
+         * <tt>PresenceStatus</tt>es supported by <tt>presence</tt> which
+         * represents &quot;On the phone&quot; if such a <tt>PresenceStatus</tt>
+         * was found; otherwise, <tt>null</tt>
+         */
+        private PresenceStatus findOnThePhonePresenceStatus(
+                OperationSetPresence presence)
+        {
+            for (Iterator<PresenceStatus> i = presence.getSupportedStatusSet();
+                    i.hasNext();)
+            {
+                PresenceStatus presenceStatus = i.next();
+
+                if (presenceStatusNameWhitespace
+                        .matcher(presenceStatus.getStatusName())
+                            .replaceAll("")
+                                .equalsIgnoreCase("OnThePhone"))
                 {
                     return presenceStatus;
                 }
@@ -671,7 +741,7 @@ public class CalendarServiceImpl implements CalendarService
         /**
          * Applies this policy to the current state of the application.
          */
-        private void run()
+        private void run(boolean onThePhoneStatusChanged)
         {
             List<ProtocolProviderService> providers
                 = AddrBookActivator.getProtocolProviders();
@@ -689,13 +759,13 @@ public class CalendarServiceImpl implements CalendarService
                     if (pps == null)
                         continue;
 
-                    handleProtocolProvider(pps, isInMeeting);
+                    handleProtocolProvider(pps, isInMeeting, onThePhoneStatusChanged);
                 }
             }
         }
 
         public void handleProtocolProvider(ProtocolProviderService pps, 
-            Boolean isInMeeting)
+            Boolean isInMeeting, boolean onThePhoneStatusChanged)
         {
             if(isInMeeting == null)
                 isInMeeting = isInMeeting();
@@ -716,6 +786,9 @@ public class CalendarServiceImpl implements CalendarService
             {
                 PresenceStatus inMeetingPresenceStatus
                     = findInMeetingPresenceStatus(presence);
+                
+                PresenceStatus onThePhone 
+                    = findOnThePhonePresenceStatus(presence);
 
                 if (inMeetingPresenceStatus == null)
                 {
@@ -741,7 +814,9 @@ public class CalendarServiceImpl implements CalendarService
                         forgetPresenceStatus(pps);
                     }
                     else if (!inMeetingPresenceStatus.equals(
-                            presenceStatus))
+                            presenceStatus) 
+                            && (!presenceStatus.equals(onThePhone) 
+                                || onThePhoneStatusChanged))
                     {
                         publishPresenceStatus(
                                 presence,
@@ -863,6 +938,15 @@ public class CalendarServiceImpl implements CalendarService
 
     public void handleProviderAdded(ProtocolProviderService pps)
     {
-        inMeetingStatusPolicy.handleProtocolProvider(pps, null);
+        inMeetingStatusPolicy.handleProtocolProvider(pps, null, false);
+    }
+    
+    /**
+     * Returns the remembered presence statuses
+     * @return the remembered presence statuses
+     */
+    public Map<ProtocolProviderService,PresenceStatus> getRememberedStatuses()
+    {
+        return inMeetingStatusPolicy.getRememberedStatuses();
     }
 }

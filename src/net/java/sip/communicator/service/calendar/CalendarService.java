@@ -5,6 +5,10 @@
  */
 package net.java.sip.communicator.service.calendar;
 
+import java.util.*;
+
+import net.java.sip.communicator.service.protocol.*;
+
 /**
  * A service for calendar. It defines for accessing the current free busy status
  * and add / remove listeners for the free busy status.
@@ -125,5 +129,19 @@ public interface CalendarService
      * @param listener the listener to be removed.
      */
     public void removeFreeBusySateListener(FreeBusySateListener listener);
+
+    /**
+     * Handles presence status changed from "On the Phone"
+     * 
+     * @param presenceStatuses the remembered presence statuses
+     * @return <tt>true</tt> if the status is changed.
+     */
+    public boolean onThePhoneStatusChanged(
+        Map<ProtocolProviderService,PresenceStatus> presenceStatuses);
     
+    /**
+     * Returns the remembered presence statuses
+     * @return the remembered presence statuses
+     */
+    public Map<ProtocolProviderService,PresenceStatus> getRememberedStatuses();
 }

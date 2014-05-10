@@ -11,6 +11,7 @@ import static net.java.sip.communicator.service.protocol.OperationSetBasicTeleph
 import java.util.*;
 import java.util.regex.*;
 
+import net.java.sip.communicator.service.calendar.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
@@ -23,6 +24,7 @@ import org.osgi.framework.*;
  *
  * @author Lyubomir Marinov
  * @author Damian Minkov
+ * @author Hristo Terezov
  */
 public class SingleCallInProgressPolicy
 {
@@ -516,7 +518,7 @@ public class SingleCallInProgressPolicy
          * instances in order to recognize the <tt>PresenceStatus</tt> which
          * represents &quot;On the phone&quot;.
          */
-        private final Pattern onThePhonePresenceStatusNameWhitespace
+        private final Pattern presenceStatusNameWhitespace
             = Pattern.compile("\\p{Space}");
 
         /**
@@ -574,7 +576,7 @@ public class SingleCallInProgressPolicy
             {
                 PresenceStatus presenceStatus = i.next();
 
-                if (onThePhonePresenceStatusNameWhitespace
+                if (presenceStatusNameWhitespace
                         .matcher(presenceStatus.getStatusName())
                             .replaceAll("")
                                 .equalsIgnoreCase("OnThePhone"))
@@ -669,6 +671,38 @@ public class SingleCallInProgressPolicy
         }
 
         /**
+         * Finds the first <tt>PresenceStatus</tt> among the set of
+         * <tt>PresenceStatus</tt>es supported by a specific
+         * <tt>OperationSetPresence</tt> which represents
+         * &quot;In meeting&quot;.
+         *
+         * @param presence the <tt>OperationSetPresence</tt> which represents
+         * the set of supported <tt>PresenceStatus</tt>es
+         * @return the first <tt>PresenceStatus</tt> among the set of
+         * <tt>PresenceStatus</tt>es supported by <tt>presence</tt> which
+         * represents &quot;In meeting&quot; if such a <tt>PresenceStatus</tt>
+         * was found; otherwise, <tt>null</tt>
+         */
+        private PresenceStatus findInMeetingPresenceStatus(
+                OperationSetPresence presence)
+        {
+            for (Iterator<PresenceStatus> i = presence.getSupportedStatusSet();
+                    i.hasNext();)
+            {
+                PresenceStatus presenceStatus = i.next();
+
+                if (presenceStatusNameWhitespace
+                        .matcher(presenceStatus.getStatusName())
+                            .replaceAll("")
+                                .equalsIgnoreCase("InAMeeting"))
+                {
+                    return presenceStatus;
+                }
+            }
+            return null;
+        }
+        
+        /**
          * Applies this policy to the current state of the application.
          */
         private void run()
@@ -701,6 +735,16 @@ public class SingleCallInProgressPolicy
             else
             {
                 boolean isOnThePhone = isOnThePhone();
+                
+                CalendarService calendar 
+                    = ProtocolProviderActivator.getCalendarService();
+                
+                if(!isOnThePhone && 
+                    calendar.onThePhoneStatusChanged(presenceStatuses))
+                {
+                    forgetPresenceStatuses();
+                    return;
+                }
 
                 for (ServiceReference ppsRef : ppsRefs)
                 {
@@ -757,7 +801,19 @@ public class SingleCallInProgressPolicy
                                 publishPresenceStatus(
                                         presence,
                                         onThePhonePresenceStatus);
-                                if (onThePhonePresenceStatus.equals(
+                                
+                                if(presenceStatus.equals(
+                                    findInMeetingPresenceStatus(presence)))
+                                {
+                                    Map<ProtocolProviderService,PresenceStatus> 
+                                        statuses 
+                                            = calendar.getRememberedStatuses();
+                                    for(ProtocolProviderService provider 
+                                        : statuses.keySet())
+                                        rememberPresenceStatus(provider, 
+                                            statuses.get(provider));
+                                }
+                                else if (onThePhonePresenceStatus.equals(
                                         presence.getPresenceStatus()))
                                 {
                                     rememberPresenceStatus(pps, presenceStatus);

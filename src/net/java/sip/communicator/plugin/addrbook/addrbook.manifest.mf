@@ -16,3 +16,4 @@ Import-Package: javax.swing,
  net.java.sip.communicator.util,
  net.java.sip.communicator.plugin.desktoputil,
  org.osgi.framework
+Export-Package: net.java.sip.communicator.service.calendar
