@@ -1173,17 +1173,21 @@ public class ServerStoredContactListJabberImpl
      * when there is no image for contact we must retrieve it
      * add contacts for image update
      *
-     * @param c ContactJabberImpl
+     * @param contact ContactJabberImpl
      */
-    protected void addContactForImageUpdate(ContactJabberImpl c)
+    protected void addContactForImageUpdate(ContactJabberImpl contact)
     {
+        if(contact instanceof VolatileContactJabberImpl
+            && ((VolatileContactJabberImpl)contact).isPrivateMessagingContact())
+            return;
+
         if(imageRetriever == null)
         {
             imageRetriever = new ImageRetriever();
             imageRetriever.start();
         }
 
-        imageRetriever.addContact(c);
+        imageRetriever.addContact(contact);
     }
 
     /**

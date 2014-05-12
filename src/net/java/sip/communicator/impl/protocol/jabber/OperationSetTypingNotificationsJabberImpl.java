@@ -454,9 +454,19 @@ public class OperationSetTypingNotificationsJabberImpl
                 (isPrivateMessagingAddress? message.getFrom() : fromID));
             if(sourceContact == null)
             {
-                //create the volatile contact
-                sourceContact = opSetPersPresence.createVolatileContact(
-                    chat.getParticipant(), isPrivateMessagingAddress);
+                // in private messaging we can receive some errors
+                // when we left room (isPrivateMessagingAddress == false)
+                // and we try to send some message
+                if(message.getError() != null)
+                    sourceContact = opSetPersPresence.findContactByID(
+                        message.getFrom());
+
+                if(sourceContact == null)
+                {
+                    //create the volatile contact
+                    sourceContact = opSetPersPresence.createVolatileContact(
+                        chat.getParticipant(), isPrivateMessagingAddress);
+                }
             }
 
             int evtCode = STATE_UNKNOWN;

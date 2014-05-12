@@ -94,8 +94,6 @@ public class VolatileContactJabberImpl
                 setJid(id);
             }
         }
-
-
     }
 
     /**

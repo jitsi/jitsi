@@ -63,6 +63,9 @@ public class OperationSetServerStoredContactInfoJabberImpl
         Contact contact,
         Class<T> detailClass)
     {
+        if(isPrivateMessagingContact(contact))
+            return new LinkedList<T>().iterator();
+
         List<GenericDetail> details
             = infoRetreiver.getContactDetails(contact.getAddress());
         List<T> result = new LinkedList<T>();
@@ -94,6 +97,9 @@ public class OperationSetServerStoredContactInfoJabberImpl
         Contact contact,
         Class<? extends GenericDetail> detailClass)
     {
+        if(isPrivateMessagingContact(contact))
+            return new LinkedList<GenericDetail>().iterator();
+
         List<GenericDetail> details
             = infoRetreiver.getContactDetails(contact.getAddress());
         List<GenericDetail> result = new LinkedList<GenericDetail>();
@@ -117,6 +123,9 @@ public class OperationSetServerStoredContactInfoJabberImpl
      */
     public Iterator<GenericDetail> getAllDetailsForContact(Contact contact)
     {
+        if(isPrivateMessagingContact(contact))
+            return new LinkedList<GenericDetail>().iterator();
+
         List<GenericDetail> details
             = infoRetreiver.getContactDetails(contact.getAddress());
 
@@ -199,5 +208,20 @@ public class OperationSetServerStoredContactInfoJabberImpl
 
         // return null as there is no cache and we will try to retrieve
         return null;
+    }
+
+    /**
+     * Checks whether a contact is a private messaging contact for chat rooms.
+     * @param contact the contact to check.
+     * @return <tt>true</tt> if contact is private messaging contact
+     * for chat room.
+     */
+    private boolean isPrivateMessagingContact(Contact contact)
+    {
+        if(contact instanceof VolatileContactJabberImpl)
+            return ((VolatileContactJabberImpl) contact)
+                .isPrivateMessagingContact();
+
+        return false;
     }
 }
