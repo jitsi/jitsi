@@ -127,8 +127,11 @@ public class ChatInviteDialog
         Collection<String> selectedContactAddresses = new ArrayList<String>();
 
         // Obtain selected contacts.
-        Iterator<UIContact> selectedContacts
-            = destContactList.getContacts(null).iterator();
+        Collection<UIContact> contacts = destContactList.getContacts(null);
+        if(contacts == null)
+            return;
+
+        Iterator<UIContact> selectedContacts = contacts.iterator();
 
         if (selectedContacts != null)
         {
