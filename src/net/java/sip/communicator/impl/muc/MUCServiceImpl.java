@@ -51,8 +51,20 @@ public class MUCServiceImpl
         ChatRoom chatRoom = invitation.getTargetChatRoom();
         byte[] password = invitation.getChatRoomPassword();
 
-        String nickName
-            = chatRoom.getParentProvider().getAccountID().getUserID();
+        String nickName =
+            ConfigurationUtils.getChatRoomProperty(
+                chatRoom.getParentProvider(),
+                chatRoom.getIdentifier(), "userNickName");
+        if(nickName == null)
+        {
+            String[] joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
+                true,
+                chatRoom.getParentProvider(),
+                chatRoom.getIdentifier(),
+                MUCActivator.getGlobalDisplayDetailsService()
+                    .getDisplayName(chatRoom.getParentProvider()));
+            nickName = joinOptions[0];
+        }
 
         joinChatRoom(chatRoom, nickName, password);
     }
