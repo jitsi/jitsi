@@ -902,17 +902,21 @@ public class ChatRoomJabberImpl
         }
 
         // FIXME Do we have to do the following when we leave the room?
+        Hashtable<String, ChatRoomMemberJabberImpl> membersCopy;
         synchronized (members)
         {
-            for (ChatRoomMember member : members.values())
-                fireMemberPresenceEvent(
-                    member,
-                    ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
-                    "Local user has left the chat room.");
+            membersCopy
+                = new Hashtable<String, ChatRoomMemberJabberImpl>(members);
 
-         // Delete the list of members
+            // Delete the list of members
             members.clear();
         }
+
+        for (ChatRoomMember member : membersCopy.values())
+            fireMemberPresenceEvent(
+                member,
+                ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
+                "Local user has left the chat room.");
 
         // connection can be null if we are leaving cause connection failed
         if(connection != null)
@@ -3046,7 +3050,8 @@ public class ChatRoomJabberImpl
 
         PresenceStatus offlineStatus =
             provider.getJabberStatusEnum().getStatus(
-                isOffline? JabberStatusEnum.OFFLINE : JabberStatusEnum.AVAILABLE);
+                isOffline
+                    ? JabberStatusEnum.OFFLINE : JabberStatusEnum.AVAILABLE);
 
         // When status changes this may be related to a change in the
         // available resources.
