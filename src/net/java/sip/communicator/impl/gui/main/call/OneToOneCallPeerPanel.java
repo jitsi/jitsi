@@ -369,7 +369,7 @@ public class OneToOneCallPeerPanel
 
         localLevel
             = new InputVolumeControlButton(
-                    call,
+                    call.getConference(),
                     ImageLoader.MICROPHONE,
                     ImageLoader.MUTE_BUTTON,
                     false,

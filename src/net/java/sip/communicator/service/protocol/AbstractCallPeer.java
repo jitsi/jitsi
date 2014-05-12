@@ -274,9 +274,9 @@ public abstract class AbstractCallPeer<T extends Call,
      *
      * @param errorMessage error message that can be displayed.
      */
-    public void fireConferenceMemberErrorEvent(String errorMessge)
+    public void fireConferenceMemberErrorEvent(String errorMessage)
     {
-        if(errorMessge == null || errorMessge.length() == 0)
+        if(errorMessage == null || errorMessage.length() == 0)
         {
             logger.warn("The error message for " + this.getDisplayName()
                 + " null or empty string.");
@@ -289,7 +289,7 @@ public abstract class AbstractCallPeer<T extends Call,
                 CallPeerConferenceEvent
                     .CONFERENCE_MEMBER_ERROR_RECEIVED,
                 null,
-                errorMessge));
+                errorMessage));
     }
     /**
      * Finds the first <tt>ConferenceMember</tt> whose <tt>audioSsrc</tt> is

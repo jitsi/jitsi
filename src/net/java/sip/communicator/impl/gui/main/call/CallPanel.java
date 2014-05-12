@@ -1619,7 +1619,7 @@ public class CallPanel
 
         localLevel
             = new InputVolumeControlButton(
-                    aCall,
+                    callConference,
                     ImageLoader.MICROPHONE,
                     ImageLoader.MUTE_BUTTON,
                     true,

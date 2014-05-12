@@ -15,7 +15,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 
@@ -59,42 +58,18 @@ public class InputVolumeControlButton
     private boolean sliderMenuIsVisible = false;
 
     /**
-     * Initializes a new <tt>MuteButton</tt> instance which is to mute the audio
-     * stream to a specific <tt>CallPeer</tt>.
-     *
-     * @param call the <tt>Call</tt> to be associated with the new instance and
-     * to have the audio stream sent to muted
+     * The <tt>CallConference</tt> (i.e. telephony conference-related state)
+     * depicted by this instance.
      */
-    public InputVolumeControlButton(Call call)
-    {
-        this(call, false);
-    }
+    private final CallConference callConference;
 
     /**
      * Initializes a new <tt>MuteButton</tt> instance which is to mute the audio
      * stream to a specific <tt>Call</tt>.
      *
-     * @param call  the <tt>Call</tt> to be associated with the new instance and
-     * whose audio stream is to be muted upon performing its action
-     * @param selected <tt>true</tt> if the new toggle button is to be initially
-     * selected; otherwise, <tt>false</tt>
-     */
-    public InputVolumeControlButton(Call call,
-                                    boolean selected)
-    {
-        this(   call,
-                ImageLoader.MICROPHONE,
-                ImageLoader.MUTE_BUTTON,
-                true,
-                selected);
-    }
-
-    /**
-     * Initializes a new <tt>MuteButton</tt> instance which is to mute the audio
-     * stream to a specific <tt>Call</tt>.
-     *
-     * @param call  the <tt>Call</tt> to be associated with the new instance and
-     * whose audio stream is to be muted upon performing its action
+     * @param callConference  <tt>CallConference</tt> (i.e. telephony
+     * conference-related state) depicted by this instance and whose audio
+     * stream is to be muted upon performing its action
      * @param iconImageID the icon image
      * @param pressedIconImageID the <tt>ImageID</tt> of the image to be used
      * as the icon in the pressed button state of the new instance
@@ -103,19 +78,20 @@ public class InputVolumeControlButton
      * @param inSettingsPanel <tt>true</tt> when the button is used in a menu,
      * to use different background.
      */
-    public InputVolumeControlButton(Call call,
+    public InputVolumeControlButton(CallConference callConference,
                                     ImageID iconImageID,
                                     ImageID pressedIconImageID,
                                     boolean inSettingsPanel,
                                     boolean selected)
     {
-        super(  call,
-                inSettingsPanel,
-                selected,
-                iconImageID,
-                pressedIconImageID,
-                "service.gui.MUTE_BUTTON_TOOL_TIP");
+        super(null,
+            inSettingsPanel,
+            selected,
+            iconImageID,
+            pressedIconImageID,
+            "service.gui.MUTE_BUTTON_TOOL_TIP");
 
+        this.callConference = callConference;
         this.mute = selected;
 
         volumeControl = getVolumeControl();
@@ -258,14 +234,18 @@ public class InputVolumeControlButton
      */
     private void doRun()
     {
-        if (call != null)
+        if (callConference != null)
         {
-            OperationSetBasicTelephony<?> telephony
-                = call.getProtocolProvider().getOperationSet(
-                        OperationSetBasicTelephony.class);
-
             mute = !mute;
-            telephony.setMute(call, mute);
+
+            for(Call call : callConference.getCalls())
+            {
+                OperationSetBasicTelephony<?> telephony
+                    = call.getProtocolProvider().getOperationSet(
+                    OperationSetBasicTelephony.class);
+
+                telephony.setMute(call, mute);
+            }
 
             // We make sure that the button state corresponds to the mute state.
             setSelected(mute);
