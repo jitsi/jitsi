@@ -26,6 +26,12 @@ Logger::Logger(const char* pLogFile, const char* pLogPath, int pLogLevel)
 		memcpy(logPath, pLogPath, strlen(pLogPath) + 1);
 		if(pLogFile != NULL && strlen(pLogFile) != 0)
 		{
+//			This code enables different log files for every instance of the application.
+//			char *dateString = (char*)malloc(LOGGER_DATE_STRING_LENGTH*sizeof(char));
+//			getCurrentTimeString(dateString);
+//			logFile = (char*)malloc((strlen(pLogPath) + strlen(pLogFile) + strlen(dateString) + 1)*sizeof(char));
+//			sprintf(logFile, "%s%s%s", pLogPath, dateString, pLogFile);
+//			free(dateString);
 			logFile = (char*)malloc((strlen(pLogPath) + strlen(pLogFile) + 1)*sizeof(char));
 			sprintf(logFile, "%s%s", pLogPath, pLogFile);
 			file = fopen(logFile, "w");
@@ -73,7 +79,7 @@ void Logger::getCurrentTimeString(char* dateString)
 {
 	SYSTEMTIME systemTime;
 	GetSystemTime(&systemTime);
-	sprintf(dateString,"[%u-%02u-%02u %02u:%02u:%02u.%u]",
+	sprintf(dateString,"%u-%02u-%02u-%02u-%02u-%02u.%u",
 		systemTime.wYear,
 		systemTime.wMonth,
 		systemTime.wDay,

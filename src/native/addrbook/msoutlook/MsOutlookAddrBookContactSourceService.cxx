@@ -8,6 +8,8 @@
 #include "MsOutlookAddrBookContactSourceService.h"
 
 #include "com/ComClient.h"
+#include "com/MsOutlookAddrBookServerClassFactory.h"
+#include "com/MsOutlookAddrBookClientClassFactory.h"
 #include "MAPINotification.h"
 #include "MAPISession.h"
 #include "MAPIBitness.h"
@@ -436,6 +438,28 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer(void)
 
     MAPISession_lock();
     MsOutlookUtils_log("Init com server.");
+
+    IMsOutlookAddrBookServer * ComClient_iServer = NULL;
+    if((hr = CoInitializeEx(NULL, COINIT_MULTITHREADED)) == S_OK
+                || hr == S_FALSE)
+	{
+		if((hr = CoCreateInstance(
+				CLSID_MsOutlookAddrBookServer,
+				NULL,
+				CLSCTX_LOCAL_SERVER,
+				IID_IMsOutlookAddrBookServer,
+				(void**) &ComClient_iServer)) == S_OK)
+		{
+			MsOutlookUtils_log("COM Server already started");
+			if(ComClient_iServer)
+			{
+				ComClient_iServer->Release();
+				ComClient_iServer = NULL;
+			}
+			return E_FAIL;
+		}
+	}
+
     // Start COM service
     if((hr = MsOutlookAddrBookContactSourceService_startComServer()) == S_OK)
     {
