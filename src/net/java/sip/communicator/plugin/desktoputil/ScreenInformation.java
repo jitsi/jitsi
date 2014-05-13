@@ -51,14 +51,14 @@ public class ScreenInformation
 
         boolean leftInside = false;
         boolean rightInside = false;
-        Point left = new Point(window.x, window.y);
-        Point right = new Point(window.x, window.y + window.width);
+        Point topLeft = new Point(window.x, window.y);
+        Point topRight = new Point(window.x + window.width, window.y);
         for(GraphicsDevice gd : ge.getScreenDevices())
         {
             GraphicsConfiguration gc = gd.getDefaultConfiguration();
-            if(gc.getBounds().contains(left))
+            if(gc.getBounds().contains(topLeft))
                 leftInside = true;
-            if(gc.getBounds().contains(right))
+            if(gc.getBounds().contains(topRight))
                 rightInside = true;
             if(leftInside && rightInside)
                 return true;
