@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.io.*;
+import java.util.regex.*;
 
 import javax.swing.*;
 import javax.swing.text.html.*;
@@ -58,7 +59,7 @@ public class Constants
     public static Color CALL_HISTORY_EVEN_ROW_COLOR
         = new Color(GuiActivator.getResources().
             getColor("service.gui.CALL_HISTORY_EVEN_ROW_COLOR"));
-    
+
     /**
      * Background color for chat room contact rows.
      */
@@ -239,17 +240,21 @@ public class Constants
                 return ImageLoader
                     .getImage(ImageLoader.USER_DND_ICON);
             }
-            else if(connectivity == PresenceStatus.EXTENDED_AWAY_THRESHOLD)
+            else if(connectivity  < PresenceStatus.AWAY_THRESHOLD)
             {
-                // the special status On The Phone is state
-                // between DND and EXTENDED AWAY states.
-                return ImageLoader
-                    .getImage(ImageLoader.USER_USER_ON_THE_PHONE_ICON);
-            }
-            else if(connectivity < PresenceStatus.AWAY_THRESHOLD)
-            {
-                return ImageLoader
-                    .getImage(ImageLoader.USER_EXTENDED_AWAY_ICON);
+                String statusName = "";
+                if(status.getStatusName() != null)
+                    statusName = Pattern.compile("\\p{Space}").matcher(
+                            status.getStatusName()).replaceAll("");
+                if(statusName.equalsIgnoreCase("OnThePhone"))
+                    return ImageLoader
+                        .getImage(ImageLoader.USER_USER_ON_THE_PHONE_ICON);
+                else if(statusName.equalsIgnoreCase("InAMeeting"))
+                    return ImageLoader
+                        .getImage(ImageLoader.USER_USER_IN_A_MEETING_ICON);
+                else
+                    return ImageLoader
+                        .getImage(ImageLoader.USER_EXTENDED_AWAY_ICON);
             }
             else if(connectivity < PresenceStatus.AVAILABLE_THRESHOLD)
             {
@@ -262,13 +267,13 @@ public class Constants
                 return ImageLoader
                     .getImage(ImageLoader.USER_ONLINE_ICON);
             }
-            else if(connectivity < 
+            else if(connectivity <
                 ChatRoomPresenceStatus.CHAT_ROOM_ONLINE_THRESHOLD)
             {
                 return ImageLoader
                     .getImage(ImageLoader.USER_FFC_ICON);
             }
-            else if(connectivity < 
+            else if(connectivity <
                 ChatRoomPresenceStatus.CHAT_ROOM_OFFLINE_THRESHOLD)
             {
                 return ImageLoader
