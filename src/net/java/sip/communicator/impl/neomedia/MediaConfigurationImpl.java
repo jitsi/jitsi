@@ -503,13 +503,13 @@ public class MediaConfigurationImpl
             {
                 deviceList = new JList();
                 deviceList.setModel(model);
-                JScrollPane listScroller = new JScrollPane(deviceComboBox);
+                JScrollPane listScroller = new JScrollPane(deviceList);
                 listScroller.setPreferredSize(new Dimension(200, 38));
                 deviceList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
                 deviceList.setLayoutOrientation(JList.VERTICAL);
                 deviceList.setVisibleRowCount(-1);
                 deviceList.setSelectedValue(model.getSelectedItem(), true);
-                devicePanel.add(deviceList);
+                devicePanel.add(listScroller);
                 deviceComponent = deviceList;
             }
         }
