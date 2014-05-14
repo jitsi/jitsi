@@ -458,29 +458,29 @@ public class MediaConfigurationImpl
          * The combo box with the devices.
          */
         private JComboBox deviceComboBox = null;
-        
+
         /**
          * The <tt>JList</tt> with the devices.
          */
-        private JList<CaptureDevice> deviceList = null;
-        
+        private JList deviceList = null;
+
         /**
          * The current component that displays the list with the devices.
          */
         private Component deviceComponent;
-        
+
         /**
          * The listener for the field.
          */
         private Listener listener;
-        
+
         /**
          * Model for the field.
          */
         final DeviceConfigurationComboBoxModel model;
-        
+
         /**
-         * Constructs <tt>DeviceComboBoxField</tt> instance. 
+         * Constructs <tt>DeviceComboBoxField</tt> instance.
          * @param type the type of the configuration panel
          * @param devicePanel the container of the field.
          */
@@ -489,8 +489,8 @@ public class MediaConfigurationImpl
             model = new DeviceConfigurationComboBoxModel(
                 mediaService.getDeviceConfiguration(),
                 type);
-            
-            if(!OSUtils.IS_WINDOWS 
+
+            if(!OSUtils.IS_WINDOWS
                 || type != DeviceConfigurationComboBoxModel.VIDEO)
             {
                 deviceComboBox = new JComboBox();
@@ -501,7 +501,7 @@ public class MediaConfigurationImpl
             }
             else
             {
-                deviceList = new JList<CaptureDevice>();
+                deviceList = new JList();
                 deviceList.setModel(model);
                 JScrollPane listScroller = new JScrollPane(deviceComboBox);
                 listScroller.setPreferredSize(new Dimension(200, 38));
@@ -513,7 +513,7 @@ public class MediaConfigurationImpl
                 deviceComponent = deviceList;
             }
         }
-        
+
         /**
          * Returns the field component
          * @return the field component
@@ -522,17 +522,17 @@ public class MediaConfigurationImpl
         {
             return deviceComponent;
         }
-        
+
         /**
          * Returns the selected device
          * @return the selected device
          */
         public Object getSelectedItem()
         {
-            return (deviceComboBox != null)? 
+            return (deviceComboBox != null)?
                 deviceComboBox.getSelectedItem() : deviceList.getSelectedValue();
         }
-        
+
         /**
          * Adds a listener to the field.
          * @param listener the listener to be added.
@@ -544,7 +544,7 @@ public class MediaConfigurationImpl
             {
                 deviceComboBox.addActionListener(new ActionListener()
                 {
-                    
+
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
@@ -556,7 +556,7 @@ public class MediaConfigurationImpl
             {
                 deviceList.addListSelectionListener(new ListSelectionListener()
                 {
-                    
+
                     @Override
                     public void valueChanged(ListSelectionEvent e)
                     {
@@ -566,7 +566,7 @@ public class MediaConfigurationImpl
                 });
             }
         }
-        
+
         /**
          * Interface for the listener attached to the field.
          */
@@ -1280,7 +1280,7 @@ public class MediaConfigurationImpl
                 = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
             devicePanel.setMaximumSize(new Dimension(WIDTH, 25));
             devicePanel.add(deviceLabel);
-            
+
             deviceComboBox = new DeviceComboBoxField(type, devicePanel);
             deviceLabel.setLabelFor(deviceComboBox.getComponent());
         }
