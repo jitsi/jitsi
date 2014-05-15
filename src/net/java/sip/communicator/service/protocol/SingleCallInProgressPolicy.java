@@ -701,7 +701,7 @@ public class SingleCallInProgressPolicy
             }
             return null;
         }
-        
+
         /**
          * Applies this policy to the current state of the application.
          */
@@ -735,11 +735,11 @@ public class SingleCallInProgressPolicy
             else
             {
                 boolean isOnThePhone = isOnThePhone();
-                
-                CalendarService calendar 
+
+                CalendarService calendar
                     = ProtocolProviderActivator.getCalendarService();
-                
-                if(!isOnThePhone && 
+
+                if(!isOnThePhone && calendar != null &&
                     calendar.onThePhoneStatusChanged(presenceStatuses))
                 {
                     forgetPresenceStatuses();
@@ -801,16 +801,17 @@ public class SingleCallInProgressPolicy
                                 publishPresenceStatus(
                                         presence,
                                         onThePhonePresenceStatus);
-                                
+
                                 if(presenceStatus.equals(
-                                    findInMeetingPresenceStatus(presence)))
+                                    findInMeetingPresenceStatus(presence))
+                                    && calendar != null)
                                 {
-                                    Map<ProtocolProviderService,PresenceStatus> 
-                                        statuses 
+                                    Map<ProtocolProviderService,PresenceStatus>
+                                        statuses
                                             = calendar.getRememberedStatuses();
-                                    for(ProtocolProviderService provider 
+                                    for(ProtocolProviderService provider
                                         : statuses.keySet())
-                                        rememberPresenceStatus(provider, 
+                                        rememberPresenceStatus(provider,
                                             statuses.get(provider));
                                 }
                                 else if (onThePhonePresenceStatus.equals(

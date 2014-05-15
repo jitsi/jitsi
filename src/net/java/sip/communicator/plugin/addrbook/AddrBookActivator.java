@@ -105,7 +105,7 @@ public class AddrBookActivator
     /**
      * List of the providers with registration listener.
      */
-    private static List<ProtocolProviderService> providers 
+    private static List<ProtocolProviderService> providers
         = new ArrayList<ProtocolProviderService>();
 
     /**
@@ -116,7 +116,7 @@ public class AddrBookActivator
     /**
      * The registration change listener.
      */
-    private static RegistrationStateChangeListener providerListener 
+    private static RegistrationStateChangeListener providerListener
         = new RegistrationStateChangeListener()
         {
             @Override
@@ -132,7 +132,7 @@ public class AddrBookActivator
         };
 
     /**
-     * A listener for addition of <tt>ProtocolProviderService</tt> 
+     * A listener for addition of <tt>ProtocolProviderService</tt>
      */
     private static ServiceListener serviceListener
         = new ServiceListener()
@@ -402,7 +402,7 @@ public class AddrBookActivator
                         false))
         {
             calendarService = new CalendarServiceImpl();
-            
+
             try
             {
                 MsOutlookAddrBookContactSourceService.initMAPI(null);
@@ -506,7 +506,7 @@ public class AddrBookActivator
     public static List<ProtocolProviderService> getProtocolProviders()
     {
         ServiceReference[] ppsRefs;
-        List<ProtocolProviderService> result 
+        List<ProtocolProviderService> result
             = new ArrayList<ProtocolProviderService>();
 
         try

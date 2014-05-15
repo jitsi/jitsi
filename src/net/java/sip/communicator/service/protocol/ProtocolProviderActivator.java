@@ -130,11 +130,14 @@ public class ProtocolProviderActivator
     {
         if (calendarService == null)
         {
+            ServiceReference serviceReference
+                = bundleContext.getServiceReference(
+                    CalendarService.class.getName());
+            if(serviceReference == null)
+                return null;
             calendarService
                 = (CalendarService)
-                    bundleContext.getService(
-                        bundleContext.getServiceReference(
-                            CalendarService.class.getName()));
+                    bundleContext.getService(serviceReference);
         }
         return calendarService;
     }
