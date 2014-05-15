@@ -59,7 +59,7 @@ public class OperationSetMultiUserChatJabberImpl
      * to match incoming messages to <tt>Contact</tt>s and vice versa.
      */
     private OperationSetPersistentPresenceJabberImpl opSetPersPresence = null;
-    
+
     /**
      * Instantiates the user operation set with a currently valid instance of
      * the Jabber protocol provider.
@@ -88,7 +88,7 @@ public class OperationSetMultiUserChatJabberImpl
      * chat room around.
      * @param chatRoom the associated chat room instance
      */
-    public void addSmackInvitationRejectionListener(MultiUserChat muc, 
+    public void addSmackInvitationRejectionListener(MultiUserChat muc,
         ChatRoom chatRoom)
     {
         muc.addInvitationRejectionListener(
@@ -145,7 +145,9 @@ public class OperationSetMultiUserChatJabberImpl
             {
                 muc = new MultiUserChat(
                     getXmppConnection(), getCanonicalRoomName(roomName));
-                muc.create(StringUtils.parseName(getXmppConnection().getUser()));
+
+                muc.create(JabberActivator.getGlobalDisplayDetailsService()
+                    .getDisplayName(jabberProvider));
             }
             catch (XMPPException ex)
             {
@@ -154,7 +156,7 @@ public class OperationSetMultiUserChatJabberImpl
                                                    , ex.getXMPPError().getCode()
                                                    , ex.getCause());
             }
-            
+
             boolean isPrivate = false;
             if(roomProperties != null)
             {
@@ -164,7 +166,7 @@ public class OperationSetMultiUserChatJabberImpl
                     isPrivate = isPrivateObject.equals(true);
                 }
             }
-                
+
             try
             {
                 Form form;
@@ -181,9 +183,9 @@ public class OperationSetMultiUserChatJabberImpl
                             initField.getType() == FormField.TYPE_FIXED ||
                             initField.getType() == FormField.TYPE_HIDDEN)
                             continue;
-                        FormField submitField 
+                        FormField submitField
                             = form.getField(initField.getVariable());
-                        if(submitField == null)                       
+                        if(submitField == null)
                             continue;
                         Iterator<String> value = initField.getValues();
                         while(value.hasNext())
@@ -246,7 +248,7 @@ public class OperationSetMultiUserChatJabberImpl
     }
 
     /**
-     * Returns a reference to a chatRoom named <tt>roomName</tt>. If the room 
+     * Returns a reference to a chatRoom named <tt>roomName</tt>. If the room
      * doesn't exists in the cache it creates it.
      *
      * @param roomName the name of the <tt>ChatRoom</tt> that we're looking
@@ -428,9 +430,9 @@ public class OperationSetMultiUserChatJabberImpl
     }
 
     /**
-     * Checks if the contact address is associated with private messaging 
+     * Checks if the contact address is associated with private messaging
      * contact or not.
-     * 
+     *
      * @return <tt>true</tt> if the contact address is associated with private
      * messaging contact and <tt>false</tt> if not.
      */
