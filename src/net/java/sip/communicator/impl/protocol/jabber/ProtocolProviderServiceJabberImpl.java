@@ -238,6 +238,11 @@ public class ProtocolProviderServiceJabberImpl
     private XMPPConnection connection;
 
     /**
+     * The socket address of the XMPP server.
+     */
+    private InetSocketAddress address;
+
+    /**
      * Indicates whether or not the provider is initialized and ready for use.
      */
     private boolean isInitialized = false;
@@ -411,6 +416,23 @@ public class ProtocolProviderServiceJabberImpl
         if(OSUtils.IS_ANDROID)
             loadJabberServiceClasses();
     }
+
+    /**
+    * An <tt>OperationSet</tt> that allows access to connection information used
+    * by the protocol provider.
+    */
+   private class OperationSetConnectionInfoJabberImpl
+       implements OperationSetConnectionInfo
+   {
+       /**
+        * @return The XMPP server address.
+        */
+        @Override
+        public InetSocketAddress getServerAddress()
+        {
+            return address;
+        }
+   }
 
     /**
      * Returns the state of the registration of this protocol provider
@@ -1146,6 +1168,7 @@ public class ProtocolProviderServiceJabberImpl
         }
 
         connection = new XMPPConnection(confConn);
+        this.address = address;
 
         try
         {
@@ -1925,6 +1948,11 @@ public class ProtocolProviderServiceJabberImpl
                     = new OperationSetTLSJabberImpl(this);
             addSupportedOperationSet(OperationSetTLS.class,
                     opsetTLS);
+
+            OperationSetConnectionInfo opsetConnectionInfo
+                    = new OperationSetConnectionInfoJabberImpl();
+            addSupportedOperationSet(OperationSetConnectionInfo.class,
+                    opsetConnectionInfo);
 
             isInitialized = true;
         }

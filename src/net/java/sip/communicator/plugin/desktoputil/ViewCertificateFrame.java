@@ -4,12 +4,11 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.call;
+package net.java.sip.communicator.plugin.desktoputil;
 
 import java.awt.*;
 import java.security.cert.*;
 import javax.swing.*;
-import net.java.sip.communicator.plugin.desktoputil.*;
 import org.jitsi.service.resources.*;
 
 /**
