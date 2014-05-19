@@ -105,8 +105,7 @@ public class AddrBookActivator
     /**
      * List of the providers with registration listener.
      */
-    private static List<ProtocolProviderService> providers
-        = new ArrayList<ProtocolProviderService>();
+    private static List<ProtocolProviderService> providers;
 
     /**
      * The registered PhoneNumberI18nService.
@@ -155,7 +154,8 @@ public class AddrBookActivator
                     {
                         providers.add(pps);
                     }
-                    pps.addRegistrationStateChangeListener(providerListener);
+                    if(!pps.isRegistered())
+                        pps.addRegistrationStateChangeListener(providerListener);
                     break;
 
                 case ServiceEvent.UNREGISTERING:
@@ -420,11 +420,8 @@ public class AddrBookActivator
             bundleContext.addServiceListener(serviceListener);
             for(ProtocolProviderService pps : getProtocolProviders())
             {
-                synchronized(providers)
-                {
-                    providers.add(pps);
-                }
-                pps.addRegistrationStateChangeListener(providerListener);
+                if(!pps.isRegistered())
+                    pps.addRegistrationStateChangeListener(providerListener);
             }
             bundleContext.registerService(CalendarService.class.getName(),
                 calendarService, null);
@@ -445,7 +442,7 @@ public class AddrBookActivator
             bundleContext.removeServiceListener(serviceListener);
             synchronized(providers)
             {
-                for(ProtocolProviderService pps : providers)
+                for(ProtocolProviderService pps : getProtocolProviders())
                    pps.removeRegistrationStateChangeListener(providerListener);
             }
             calendarService = null;
@@ -505,34 +502,44 @@ public class AddrBookActivator
 
     public static List<ProtocolProviderService> getProtocolProviders()
     {
-        ServiceReference[] ppsRefs;
-        List<ProtocolProviderService> result
-            = new ArrayList<ProtocolProviderService>();
-
-        try
+        List<ProtocolProviderService> result;
+        
+        if(providers == null)
         {
-            ppsRefs
-                = bundleContext.getServiceReferences(
-                        ProtocolProviderService.class.getName(),
-                        null);
-        }
-        catch (InvalidSyntaxException ise)
-        {
-            ppsRefs = null;
-        }
-        if ((ppsRefs != null) && (ppsRefs.length != 0))
-        {
-            for (ServiceReference ppsRef : ppsRefs)
+            providers = new ArrayList<ProtocolProviderService>();
+            synchronized(providers)
             {
-                ProtocolProviderService pps
-                    = (ProtocolProviderService)
-                        bundleContext.getService(ppsRef);
-
-                result.add(pps);
+                ServiceReference[] ppsRefs;
+                try
+                {
+                    ppsRefs
+                        = bundleContext.getServiceReferences(
+                                ProtocolProviderService.class.getName(),
+                                null);
+                }
+                catch (InvalidSyntaxException ise)
+                {
+                    ppsRefs = null;
+                }
+                if ((ppsRefs != null) && (ppsRefs.length != 0))
+                {
+                    for (ServiceReference ppsRef : ppsRefs)
+                    {
+                        ProtocolProviderService pps
+                            = (ProtocolProviderService)
+                                bundleContext.getService(ppsRef);
+                        providers.add(pps);
+                    }
+                }
             }
         }
+        
+        synchronized(providers)
+        {
+            result = new ArrayList<ProtocolProviderService>(providers);
+        }
+        
         return result;
-
     }
 
     /**

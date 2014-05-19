@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.plugin.addrbook.msoutlook.calendar;
 
+import java.beans.*;
 import java.text.*;
 import java.util.*;
 import java.util.regex.*;
@@ -15,6 +16,7 @@ import net.java.sip.communicator.plugin.addrbook.*;
 import net.java.sip.communicator.plugin.addrbook.msoutlook.*;
 import net.java.sip.communicator.service.calendar.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 /**
@@ -244,6 +246,27 @@ public class CalendarServiceImpl implements CalendarService
      */
     private InMeetingStatusPolicy inMeetingStatusPolicy
         = new InMeetingStatusPolicy();
+    
+    public ProviderPresenceStatusListener presenceStatusListener 
+        = new ProviderPresenceStatusListener()
+        {
+            
+            @Override
+            public void providerStatusMessageChanged(PropertyChangeEvent evt)
+            {
+                
+            }
+            
+            @Override
+            public void providerStatusChanged(ProviderPresenceStatusChangeEvent evt)
+            {
+                if(evt.getNewStatus().isOnline())
+                {
+                    inMeetingStatusPolicy.handleProtocolProvider(
+                        evt.getProvider(), null, false, true);
+                }
+            }
+        };
 
     /**
      * The flag which signals that MAPI strings should be returned in the
@@ -759,20 +782,22 @@ public class CalendarServiceImpl implements CalendarService
                     if (pps == null)
                         continue;
 
-                    handleProtocolProvider(pps, isInMeeting, onThePhoneStatusChanged);
+                    handleProtocolProvider(pps, isInMeeting, 
+                        onThePhoneStatusChanged, false);
                 }
             }
         }
 
         public void handleProtocolProvider(ProtocolProviderService pps,
-            Boolean isInMeeting, boolean onThePhoneStatusChanged)
+            Boolean isInMeeting, boolean onThePhoneStatusChanged, 
+            boolean dontAddListeners)
         {
+            
             if(isInMeeting == null)
                 isInMeeting = isInMeeting();
 
             OperationSetPresence presence
                 = pps.getOperationSet(OperationSetPresence.class);
-
             if (presence == null)
             {
                 /*
@@ -801,23 +826,40 @@ public class CalendarServiceImpl implements CalendarService
                 }
                 else if (isInMeeting)
                 {
+                    if(!dontAddListeners)
+                    {
+                        presence.addProviderPresenceStatusListener(
+                            presenceStatusListener);
+                    }
                     PresenceStatus presenceStatus
                         = presence.getPresenceStatus();
 
                     if (presenceStatus == null)
                     {
+                        logger.info("HANDLE provider 55");
                         /*
                          * It is strange that an OperationSetPresence
                          * does not have a PresenceStatus so it may be
                          * safer to not mess with it.
                          */
                         forgetPresenceStatus(pps);
+                        presence.removeProviderPresenceStatusListener(
+                            presenceStatusListener);
                     }
                     else if (!inMeetingPresenceStatus.equals(
                             presenceStatus)
                             && (!presenceStatus.equals(onThePhone)
                                 || onThePhoneStatusChanged))
                     {
+                        if(!dontAddListeners)
+                        {
+                            if(!presenceStatus.isOnline())
+                            {
+                                return;
+                            }
+                            presence.removeProviderPresenceStatusListener(
+                                presenceStatusListener);
+                        }
                         publishPresenceStatus(
                                 presence,
                                 inMeetingPresenceStatus);
@@ -830,6 +872,11 @@ public class CalendarServiceImpl implements CalendarService
                         {
                             forgetPresenceStatus(pps);
                         }
+                    }
+                    else
+                    {
+                        presence.removeProviderPresenceStatusListener(
+                            presenceStatusListener);
                     }
                 }
                 else
@@ -847,10 +894,6 @@ public class CalendarServiceImpl implements CalendarService
             }
             else
             {
-                /*
-                 * Offline accounts do not get their PresenceStatus
-                 * modified for the purposes of "On the phone".
-                 */
                 forgetPresenceStatus(pps);
             }
 
@@ -887,13 +930,10 @@ public class CalendarServiceImpl implements CalendarService
                 synchronized(taskMap)
                 {
                     CalendarItemTimerTask task = taskMap.get(id);
+                    //Expired tasks can be removed earlier from the taskMap.
                     if(task != null)
                     {
                         task.remove();
-                    }
-                    else
-                    {
-                        return;
                     }
                 }
                 insert(id);
@@ -938,7 +978,7 @@ public class CalendarServiceImpl implements CalendarService
 
     public void handleProviderAdded(ProtocolProviderService pps)
     {
-        inMeetingStatusPolicy.handleProtocolProvider(pps, null, false);
+        inMeetingStatusPolicy.handleProtocolProvider(pps, null, false, false);
     }
 
     /**
