@@ -465,7 +465,8 @@ public class OperationSetTypingNotificationsJabberImpl
                 {
                     //create the volatile contact
                     sourceContact = opSetPersPresence.createVolatileContact(
-                        chat.getParticipant(), isPrivateMessagingAddress);
+                        (isPrivateMessagingAddress? message.getFrom() : 
+                            chat.getParticipant()), isPrivateMessagingAddress);
                 }
             }
 
