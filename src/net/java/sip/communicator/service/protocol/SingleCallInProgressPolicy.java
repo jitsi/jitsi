@@ -125,6 +125,11 @@ public class SingleCallInProgressPolicy
      */
     private void addCallListener(Call call)
     {
+        if(logger.isTraceEnabled())
+        {
+            logger.trace("Add call change listener");
+        }
+
         synchronized (calls)
         {
             if (!calls.contains(call))
@@ -155,6 +160,10 @@ public class SingleCallInProgressPolicy
             OperationSetBasicTelephony<? extends ProtocolProviderService>
                 telephony)
     {
+        if(logger.isTraceEnabled())
+        {
+            logger.trace("Call listener added to provider.");
+        }
         telephony.addCallListener(listener);
     }
 
@@ -169,6 +178,11 @@ public class SingleCallInProgressPolicy
     private void callStateChanged(CallChangeEvent ev)
     {
         Call call = ev.getSourceCall();
+        if(logger.isTraceEnabled())
+        {
+            logger.trace("Call state changed.");
+        }
+
 
         if (CallState.CALL_INITIALIZATION.equals(ev.getOldValue())
                 && CallState.CALL_IN_PROGRESS.equals(call.getCallState())
@@ -244,6 +258,10 @@ public class SingleCallInProgressPolicy
     {
         Call call = ev.getSourceCall();
 
+        if(logger.isTraceEnabled())
+        {
+            logger.trace("Call event fired.");
+        }
         switch (type)
         {
         case CallEvent.CALL_ENDED:
@@ -443,6 +461,11 @@ public class SingleCallInProgressPolicy
      */
     private void removeCallListener(Call call)
     {
+        if(logger.isTraceEnabled())
+        {
+            logger.trace("Remove call change listener.");
+        }
+
         call.removeCallChangeListener(listener);
 
         synchronized (calls)
@@ -484,6 +507,11 @@ public class SingleCallInProgressPolicy
 
         if (service instanceof ProtocolProviderService)
         {
+            if(logger.isTraceEnabled())
+            {
+                logger.trace("Protocol provider service changed.");
+            }
+
             OperationSetBasicTelephony<?> telephony
                 = ((ProtocolProviderService) service).getOperationSet(
                         OperationSetBasicTelephony.class);
@@ -499,6 +527,15 @@ public class SingleCallInProgressPolicy
                     removeOperationSetBasicTelephonyListener(telephony);
                     break;
                 }
+            }
+            else
+            {
+                if(logger.isTraceEnabled())
+                {
+                    logger.trace("The protocol provider service doesn't support "
+                        + "telephony.");
+                }
+
             }
         }
     }
@@ -542,6 +579,11 @@ public class SingleCallInProgressPolicy
          */
         public void callStateChanged(CallChangeEvent ev)
         {
+            if(logger.isTraceEnabled())
+            {
+                logger.trace("Call state changed.[2]");
+            }
+
             Call call = ev.getSourceCall();
             Object oldCallState = ev.getOldValue();
             Object newCallState = call.getCallState();
@@ -552,6 +594,14 @@ public class SingleCallInProgressPolicy
                             && CallState.CALL_ENDED.equals(newCallState)))
             {
                 run();
+            }
+            else
+            {
+                if(logger.isTraceEnabled())
+                {
+                    logger.trace("Not applicable call state.");
+                }
+
             }
         }
 
@@ -707,10 +757,19 @@ public class SingleCallInProgressPolicy
          */
         private void run()
         {
+            if(logger.isTraceEnabled())
+            {
+                logger.trace("On the phone status policy run.");
+            }
+
             if (!ProtocolProviderActivator.getConfigurationService().getBoolean(
                     PNAME_ON_THE_PHONE_STATUS_ENABLED,
                     false))
             {
+                if(logger.isTraceEnabled())
+                {
+                    logger.trace("On the phone status is not enabled.");
+                }
                 forgetPresenceStatuses();
                 return;
             }
@@ -726,6 +785,10 @@ public class SingleCallInProgressPolicy
             }
             catch (InvalidSyntaxException ise)
             {
+                if(logger.isTraceEnabled())
+                {
+                    logger.trace("Can't access protocol providers refences.");
+                }
                 ppsRefs = null;
             }
             if ((ppsRefs == null) || (ppsRefs.length == 0))
@@ -742,6 +805,10 @@ public class SingleCallInProgressPolicy
                 if(!isOnThePhone && calendar != null &&
                     calendar.onThePhoneStatusChanged(presenceStatuses))
                 {
+                    if(logger.isTraceEnabled())
+                    {
+                        logger.trace("We are not on the phone.");
+                    }
                     forgetPresenceStatuses();
                     return;
                 }
@@ -753,13 +820,23 @@ public class SingleCallInProgressPolicy
                             bundleContext.getService(ppsRef);
 
                     if (pps == null)
+                    {
+                        if(logger.isTraceEnabled())
+                        {
+                            logger.trace("Provider is null.");
+                        }
                         continue;
+                    }
 
                     OperationSetPresence presence
                         = pps.getOperationSet(OperationSetPresence.class);
 
                     if (presence == null)
                     {
+                        if(logger.isTraceEnabled())
+                        {
+                            logger.trace("Presence is null.");
+                        }
                         /*
                          * "On the phone" is a PresenceStatus so it is available
                          * only to accounts which support presence in the first
@@ -769,11 +846,19 @@ public class SingleCallInProgressPolicy
                     }
                     else if (pps.isRegistered())
                     {
+                        if(logger.isTraceEnabled())
+                        {
+                            logger.trace("Provider is registered.");
+                        }
                         PresenceStatus onThePhonePresenceStatus
                             = findOnThePhonePresenceStatus(presence);
 
                         if (onThePhonePresenceStatus == null)
                         {
+                            if(logger.isTraceEnabled())
+                            {
+                                logger.trace("Can't find on the phone status.");
+                            }
                             /*
                              * If do not know how to define "On the phone" for
                              * an OperationSetPresence, then we'd better not
@@ -783,11 +868,20 @@ public class SingleCallInProgressPolicy
                         }
                         else if (isOnThePhone)
                         {
+                            if(logger.isTraceEnabled())
+                            {
+                                logger.trace(
+                                    "Setting the status to on the phone.");
+                            }
                             PresenceStatus presenceStatus
                                 = presence.getPresenceStatus();
 
                             if (presenceStatus == null)
                             {
+                                if(logger.isTraceEnabled())
+                                {
+                                    logger.trace("Presence status is null.");
+                                }
                                 /*
                                  * It is strange that an OperationSetPresence
                                  * does not have a PresenceStatus so it may be
@@ -798,6 +892,11 @@ public class SingleCallInProgressPolicy
                             else if (!onThePhonePresenceStatus.equals(
                                     presenceStatus))
                             {
+                                if(logger.isTraceEnabled())
+                                {
+                                    logger.trace(
+                                        "On the phone status is published.");
+                                }
                                 publishPresenceStatus(
                                         presence,
                                         onThePhonePresenceStatus);
@@ -824,9 +923,21 @@ public class SingleCallInProgressPolicy
                                     forgetPresenceStatus(pps);
                                 }
                             }
+                            else
+                            {
+                                if(logger.isTraceEnabled())
+                                {
+                                    logger.trace(
+                                        "Currently the status is on the phone.");
+                                }
+                            }
                         }
                         else
                         {
+                            if(logger.isTraceEnabled())
+                            {
+                                logger.trace("Unset on the phone status.");
+                            }
                             PresenceStatus presenceStatus
                                 = forgetPresenceStatus(pps);
 
@@ -834,12 +945,22 @@ public class SingleCallInProgressPolicy
                                     && onThePhonePresenceStatus.equals(
                                             presence.getPresenceStatus()))
                             {
+                                if(logger.isTraceEnabled())
+                                {
+                                    logger.trace("Unset on the phone status.[2]");
+                                }
+
                                 publishPresenceStatus(presence, presenceStatus);
                             }
                         }
                     }
                     else
                     {
+                        if(logger.isTraceEnabled())
+                        {
+                            logger.trace("Protocol provider is not registered");
+                        }
+
                         /*
                          * Offline accounts do not get their PresenceStatus
                          * modified for the purposes of "On the phone".
@@ -962,6 +1083,10 @@ public class SingleCallInProgressPolicy
          */
         public void serviceChanged(ServiceEvent ev)
         {
+            if(logger.isTraceEnabled())
+            {
+                logger.trace("Service changed.");
+            }
             SingleCallInProgressPolicy.this.serviceChanged(ev);
         }
     }
