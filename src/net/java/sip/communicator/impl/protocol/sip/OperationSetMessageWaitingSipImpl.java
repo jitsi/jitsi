@@ -194,6 +194,19 @@ public class OperationSetMessageWaitingSipImpl
     {
         if (evt.getNewState().equals(RegistrationState.REGISTERED))
         {
+            Address subscribeAddress = null;
+            try
+            {
+                subscribeAddress = getSubscribeAddress();
+            }
+            catch (ParseException e)
+            {
+                logger.error("Failed to parse mailbox subscribe address.", e);
+            }
+
+            final MessageSummarySubscriber defaultSubscriber
+                = new MessageSummarySubscriber(subscribeAddress);
+
             messageWaitingSubscriber =
                 new EventPackageSubscriber(
                         provider,
@@ -231,23 +244,26 @@ public class OperationSetMessageWaitingSipImpl
                             if(s instanceof MessageSummarySubscriber)
                                 return (MessageSummarySubscriber)s;
 
-                        return null;
+                        // We are returning default subscriber because of early
+                        // NOTIFICATION messages and NOTIFICATION messages that
+                        // are not from the same dialog. That way we also handle
+                        // some NOTIFICATIONS that are send regardless of
+                        // subscription failure. We noticed this behavior from
+                        // some SIP servers.
+                        return defaultSubscriber;
                     }
                 };
 
-            try
+            if(subscribeAddress != null)
             {
-                final Address subscribeAddress = getSubscribeAddress();
-
-                if(subscribeAddress != null)
+                try
                 {
-                    messageWaitingSubscriber.subscribe(
-                            new MessageSummarySubscriber(subscribeAddress));
+                    messageWaitingSubscriber.subscribe(defaultSubscriber);
                 }
-            }
-            catch(Throwable e)
-            {
-                logger.error("Error subscribing for mailbox", e);
+                catch(Throwable e)
+                {
+                    logger.error("Error subscribing for mailbox", e);
+                }
             }
         }
         else if (evt.getNewState().equals(RegistrationState.UNREGISTERING))
