@@ -1534,23 +1534,36 @@ public class CallPeerJabberImpl
     public MediaDirection getDirection(MediaType mediaType)
     {
         SendersEnum senders = getSenders(mediaType);
+
         if (senders == SendersEnum.none)
+        {
             return MediaDirection.INACTIVE;
+        }
         else if (senders == null || senders == SendersEnum.both)
+        {
             return MediaDirection.SENDRECV;
+        }
         else if (senders == SendersEnum.initiator)
-            return isInitiator()
-                ? MediaDirection.RECVONLY
-                : MediaDirection.SENDONLY;
+        {
+            return
+                isInitiator()
+                    ? MediaDirection.RECVONLY
+                    : MediaDirection.SENDONLY;
+        }
         else //senders == SendersEnum.responder
-            return isInitiator()
-                ? MediaDirection.SENDONLY
-                : MediaDirection.RECVONLY;
+        {
+            return
+                isInitiator()
+                    ? MediaDirection.SENDONLY
+                    : MediaDirection.RECVONLY;
+        }
     }
 
     /**
-     * Get the current value of the <tt>senders</tt> field of the content with
-     * name <tt>mediaType</tt> in the Jingle session with this <tt>CallPeer</tt>
+     * Gets the current value of the <tt>senders</tt> field of the content with
+     * name <tt>mediaType</tt> in the Jingle session with this
+     * <tt>CallPeer</tt>.
+     *
      * @param mediaType the <tt>MediaType</tt> for which to get the current
      * value of the <tt>senders</tt> field.
      * @return the current value of the <tt>senders</tt> field of the content
@@ -1559,12 +1572,21 @@ public class CallPeerJabberImpl
      */
     public SendersEnum getSenders(MediaType mediaType)
     {
-        if (MediaType.AUDIO.equals(mediaType))
+        switch (mediaType)
+        {
+        case AUDIO:
             return audioSenders;
-        else if (MediaType.VIDEO.equals(mediaType))
+        case DATA:
+            /*
+             * FIXME DATA has been introduced as a MediaType but explicit
+             * support for DATA content has not been added yet.
+             */
+            return SendersEnum.none;
+        case VIDEO:
             return videoSenders;
-        else
+        default:
             throw new IllegalArgumentException("mediaType");
+        }
     }
 
     /**

@@ -162,7 +162,7 @@ public class ExecutionPacketExtension
             bldr.append("xmlns='").append(getNamespace()).append("'");
 
         //add the rest of the attributes if any
-        for(Map.Entry<String, String> entry : attributes.entrySet())
+        for(Map.Entry<String, Object> entry : attributes.entrySet())
         {
             bldr.append(" ")
                     .append(entry.getKey())

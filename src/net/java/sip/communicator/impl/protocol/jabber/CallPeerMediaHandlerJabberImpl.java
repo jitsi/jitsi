@@ -1544,8 +1544,7 @@ public class CallPeerMediaHandlerJabberImpl
         {
             for (CallPeerJabberImpl peer : call.getCallPeerList())
             {
-                SendersEnum senders
-                    = peer.getSenders(mediaType);
+                SendersEnum senders = peer.getSenders(mediaType);
                 boolean initiator = peer.isInitiator();
                 //check if the direction of the jingle session we have with
                 //this peer allows us receiving media. If senders is null,
