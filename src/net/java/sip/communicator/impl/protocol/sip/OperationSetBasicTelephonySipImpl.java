@@ -320,7 +320,8 @@ public class OperationSetBasicTelephonySipImpl
                 else
                 {
                     logger.error("reINVITEs while the dialog is not "
-                        + "confirmed are not currently supported.");
+                        + "confirmed are not currently supported. "
+                        + "DialogState is: " + dialogState);
                 }
 
                 processed = true;
@@ -1185,6 +1186,8 @@ public class OperationSetBasicTelephonySipImpl
      */
     private void processStrayInvite(ServerTransaction serverTransaction)
     {
+        logger.info("got an INVITE for a dead dialog. Rejecting");
+
         Request inviteRequest = serverTransaction.getRequest();
 
         // Send 481 Call/Transaction Does Not exist
