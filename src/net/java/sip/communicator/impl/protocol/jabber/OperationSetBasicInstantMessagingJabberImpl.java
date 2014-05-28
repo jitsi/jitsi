@@ -304,7 +304,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
         if (ta != null
             && ta.chat != null
-            && ta.jid.equals(jid))
+            && ta.jid.equals(jid)
+            && ta.chat.getParticipant().equals(jid))
         {
             return ta.chat;
         }
@@ -323,7 +324,6 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     //of the active thread timestamp.
                 }
             };
-
 
         //we don't have a thread for this chat, so let's create one.
         Chat chat = jabberConnection.getChatManager()
