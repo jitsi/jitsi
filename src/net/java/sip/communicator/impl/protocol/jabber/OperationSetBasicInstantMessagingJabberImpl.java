@@ -1298,7 +1298,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      *
      * @return the next thread id.
      */
-    private static synchronized String nextThreadID() {
+    public static synchronized String nextThreadID() {
         return prefix + Long.toString(id++);
     }
 
