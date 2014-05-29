@@ -451,7 +451,8 @@ public class CallSipImpl
             serverTran.sendResponse(response);
 
             if(serverTran instanceof SIPTransaction
-                && !((SIPTransaction)serverTran).isReliable())
+                && !((SIPTransaction)serverTran).isReliable()
+                && peer.getState().equals(CallPeerState.INCOMING_CALL))
             {
                 final Timer timer = new Timer();
                 CallPeerAdapter stateListener = new CallPeerAdapter()
