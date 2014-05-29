@@ -487,6 +487,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
             threadID = nextThreadID();
 
         msg.setThread(threadID);
+        msg.setType(org.jivesoftware.smack.packet.Message.Type.chat);
+        msg.setFrom(jabberProvider.getConnection().getUser());
 
         jabberProvider.getConnection().sendPacket(msg);
 
