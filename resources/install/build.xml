@@ -3923,4 +3923,39 @@ org.jitsi.bccontrib.util"/>
             fixlastline="true">Bundle-ClassPath: .,accountinfo.jar,jcalendar.jar&#013;&#010;&#013;&#010;</concat>
     </target>
 
+    <!-- target to rebuild the connection info bundle reusing debian package -->
+    <target name="deb-bundle-plugin-connectioninfo">
+
+        <unzip src="${debian.bundles.dest}/connectioninfo.jar"
+               dest="${debian.bundles.dest}">
+          <patternset>
+            <include name="META-INF/MANIFEST.MF"/>
+          </patternset>
+        </unzip>
+        <delete file="${debian.bundles.dest}/connectioninfo.jar"/>
+        <mkdir dir="${debian.bundles.dest}/connectioninfo.jar/META-INF"/>
+
+        <!-- Create the sys.jar -->
+        <jar compress="false"
+             destfile="${debian.bundles.dest}/connectioninfo.jar/connectioninfo.jar">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/connectioninfo"
+                        prefix="net/java/sip/communicator/plugin/connectioninfo"/>
+        </jar>
+        <move file="${debian.bundles.dest}/META-INF/MANIFEST.MF"
+              todir="${debian.bundles.dest}/connectioninfo.jar/META-INF"/>
+        <delete dir="${debian.bundles.dest}/META-INF"/>
+
+        <!-- Removes the last empty line -->
+        <replaceregexp
+            file="${debian.bundles.dest}/connectioninfo.jar/META-INF/MANIFEST.MF"
+            match="^\r\n$"
+            flags="m"
+            replace=""/>
+        <concat
+            destfile="${debian.bundles.dest}/connectioninfo.jar/META-INF/MANIFEST.MF"
+            append="true"
+            eol="crlf"
+            fixlastline="true">Bundle-ClassPath: .,connectioninfo.jar&#013;&#010;&#013;&#010;</concat>
+    </target>
+
 </project>
