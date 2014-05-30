@@ -12,6 +12,7 @@ import java.io.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.util.*;
@@ -21,6 +22,7 @@ import net.java.sip.communicator.plugin.desktoputil.TransparentPanel;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;
+import org.jitsi.util.OSUtils;
 import org.jitsi.util.swing.*;
 
 /**
@@ -46,7 +48,124 @@ public class SelectScreenDialog
     /**
      * The combo box containing screen choice.
      */
-    private final JComboBox deviceComboBox;
+    private final DeviceComboBoxField deviceComboBox;
+    
+    /**
+     * Wrapper for the device list field.
+     */
+    private static class DeviceComboBoxField
+    {
+        /**
+         * The combo box with the devices.
+         */
+        private JComboBox deviceComboBox = null;
+
+        /**
+         * The <tt>JList</tt> with the devices.
+         */
+        private JList deviceList = null;
+
+        /**
+         * The current component that displays the list with the devices.
+         */
+        private Component deviceComponent;
+
+        /**
+         * A selection change listener.
+         */
+        private Listener listener;
+
+        /**
+         * Constructs <tt>DeviceComboBoxField</tt> instance.
+         * @param desktopDevices list with the available devices.
+         * @param devicePanel the container of the field.
+         */
+        public DeviceComboBoxField(Container devicePanel, 
+            List<MediaDevice> desktopDevices)
+        {
+            if(!OSUtils.IS_WINDOWS)
+            {
+                deviceComboBox = new JComboBox(desktopDevices.toArray());
+                deviceComboBox.setRenderer(new ComboRenderer());
+                devicePanel.add(deviceComboBox);
+                deviceComponent = deviceComboBox;
+            }
+            else
+            {
+                deviceList = new JList(desktopDevices.toArray());
+                deviceList.setCellRenderer(new ComboRenderer());
+                JScrollPane listScroller = new JScrollPane(deviceList);
+                listScroller.setPreferredSize(new Dimension(200, 38));
+                deviceList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+                deviceList.setLayoutOrientation(JList.VERTICAL);
+                deviceList.setVisibleRowCount(-1);
+                deviceList.setSelectedValue(desktopDevices.get(0), true);
+                devicePanel.add(listScroller, BorderLayout.NORTH);
+                deviceComponent = deviceList;
+            }
+        }
+
+        /**
+         * Returns the field component
+         * @return the field component
+         */
+        public Component getComponent()
+        {
+            return deviceComponent;
+        }
+
+        /**
+         * Returns the selected device
+         * @return the selected device
+         */
+        public Object getSelectedItem()
+        {
+            return (deviceComboBox != null)?
+                deviceComboBox.getSelectedItem() : deviceList.getSelectedValue();
+        }
+        
+        /**
+         * Adds a listener to the field.
+         * @param listener the listener to be added.
+         */
+        public void addListener(final Listener listener)
+        {
+            this.listener = listener;
+            if(deviceComboBox != null)
+            {
+                deviceComboBox.addActionListener(new ActionListener()
+                {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        listener.onAction();
+                    }
+                });
+            }
+            else
+            {
+                deviceList.addListSelectionListener(new ListSelectionListener()
+                {
+
+                    @Override
+                    public void valueChanged(ListSelectionEvent e)
+                    {
+                        listener.onAction();
+                    }
+                });
+            }
+        }
+
+        /**
+         * Interface for the listener attached to the field.
+         */
+        public static interface Listener
+        {
+            public void onAction();
+        }
+
+    }
 
     /**
      * The cancel button of this dialog.
@@ -87,10 +206,7 @@ public class SelectScreenDialog
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
 
-        deviceComboBox = new JComboBox(desktopDevices.toArray());
-        contentPane.add(deviceComboBox, BorderLayout.NORTH);
-
-        deviceComboBox.setRenderer(new ComboRenderer());
+        deviceComboBox = new DeviceComboBoxField(contentPane, desktopDevices);
 
         contentPane.add(createPreview(deviceComboBox));
 
@@ -153,7 +269,7 @@ public class SelectScreenDialog
      * @param comboBox the options.
      * @return the component.
      */
-    private static Component createPreview(final JComboBox comboBox)
+    private static Component createPreview(final DeviceComboBoxField comboBox)
     {
         final JComponent preview;
 
@@ -168,9 +284,10 @@ public class SelectScreenDialog
         preview.setPreferredSize(new Dimension(WIDTH, 280));
         preview.setMaximumSize(new Dimension(WIDTH, 280));
 
-        final ActionListener comboBoxListener = new ActionListener()
+        final DeviceComboBoxField.Listener comboBoxListener 
+            = new DeviceComboBoxField.Listener()
         {
-            public void actionPerformed(ActionEvent event)
+            public void onAction()
             {
                 MediaDevice device = (MediaDevice) comboBox.getSelectedItem();
 
@@ -203,7 +320,7 @@ public class SelectScreenDialog
                 videoDeviceInPreview = device;
             }
         };
-        comboBox.addActionListener(comboBoxListener);
+        comboBox.addListener(comboBoxListener);
 
         /*
          * We have to initialize the controls to reflect the configuration
@@ -214,27 +331,27 @@ public class SelectScreenDialog
          * described by pretending there's a selection in the video combo
          * box when the combo box in question becomes displayable.
          */
-        comboBox.addHierarchyListener(new HierarchyListener()
+        comboBox.getComponent().addHierarchyListener(new HierarchyListener()
         {
             public void hierarchyChanged(HierarchyEvent event)
             {
                 if (((event.getChangeFlags()
                                 & HierarchyEvent.DISPLAYABILITY_CHANGED)
                             != 0)
-                        && comboBox.isDisplayable())
+                        && comboBox.getComponent().isDisplayable())
                 {
                     // let current changes end their execution
                     // and after that trigger action on combobox
                     SwingUtilities.invokeLater(new Runnable(){
                         public void run()
                         {
-                            comboBoxListener.actionPerformed(null);
+                            comboBoxListener.onAction();
                         }
                     });
                 }
                 else
                 {
-                    if(!comboBox.isDisplayable())
+                    if(!comboBox.getComponent().isDisplayable())
                         videoDeviceInPreview = null;
                 }
             }
