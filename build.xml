@@ -1091,6 +1091,7 @@
         bundle-desktoputil,bundle-globaldisplaydetails, 
     	bundle-usersearch,
         bundle-plugin-propertieseditor,bundle-plugin-accountinfo,
+        bundle-plugin-connectioninfo,
         bundle-guava,bundle-hsql"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
@@ -2204,6 +2205,15 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/accountinfo"
                 prefix="net/java/sip/communicator/plugin/accountinfo"/>
             <zipfileset src="${lib.noinst}/jcalendar-1.4.jar"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PLUGIN-CONNECTIONINFO -->
+    <target name="bundle-plugin-connectioninfo">
+        <jar compress="false" destfile="${bundles.dest}/connectioninfo.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/connectioninfo/connectioninfo.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/connectioninfo"
+                prefix="net/java/sip/communicator/plugin/connectioninfo"/>
         </jar>
     </target>
 

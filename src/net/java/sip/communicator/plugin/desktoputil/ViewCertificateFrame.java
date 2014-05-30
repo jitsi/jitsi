@@ -4,19 +4,18 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.call;
+package net.java.sip.communicator.plugin.desktoputil;
 
 import java.awt.*;
 import java.security.cert.*;
 import javax.swing.*;
-import net.java.sip.communicator.plugin.desktoputil.*;
 import org.jitsi.service.resources.*;
 
 /**
  * Frame for showing information about a certificate.
  */
 public class ViewCertificateFrame
-    extends SIPCommFrame
+        extends SIPCommFrame
 {
 
     /**
@@ -101,7 +100,7 @@ public class ViewCertificateFrame
         northPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 5, 5));
 
         JLabel imgLabel = new JLabel(
-            R.getImage("service.gui.icons.CERTIFICATE_WARNING"));
+                R.getImage("service.gui.icons.CERTIFICATE_WARNING"));
         imgLabel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         northPanel.add(imgLabel, BorderLayout.WEST);
 
@@ -111,10 +110,10 @@ public class ViewCertificateFrame
         descriptionPane.setContentType("text/html");
         descriptionPane.setText(message);
         descriptionPane.setSize(
-                    new Dimension(MAX_MSG_PANE_WIDTH, MAX_MSG_PANE_HEIGHT));
+                new Dimension(MAX_MSG_PANE_WIDTH, MAX_MSG_PANE_HEIGHT));
         int height = descriptionPane.getPreferredSize().height;
         descriptionPane.setPreferredSize(
-                    new Dimension(MAX_MSG_PANE_WIDTH, height));
+                new Dimension(MAX_MSG_PANE_WIDTH, height));
 
         northPanel.add(descriptionPane, BorderLayout.CENTER);
         contentPane.add(northPanel, BorderLayout.NORTH);
@@ -150,7 +149,7 @@ public class ViewCertificateFrame
             }
         });
         setPreferredSize(null);
-        
+
         pack();
     }
 
