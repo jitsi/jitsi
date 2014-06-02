@@ -236,7 +236,9 @@ public class ChatContactRightButtonMenu
         }
         else
         {
-            this.add(this.sendPrivateMessageItem);
+            if(!ConfigurationUtils.isPrivateMessagingInChatRoomDisabled())
+                this.add(this.sendPrivateMessageItem);
+
             if(room.getUserRole().getRoleIndex() >= 50)
             {
                 if(roleIndex <= 40)

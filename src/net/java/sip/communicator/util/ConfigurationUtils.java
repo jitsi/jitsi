@@ -102,6 +102,11 @@ public class ConfigurationUtils
     private static boolean isLeaveChatRoomOnWindowCloseEnabled;
 
     /**
+     * Indicates if private messaging is enabled for chat rooms.
+     */
+    private static boolean isPrivateMessagingInChatRoomDisabled;
+
+    /**
      * Indicates if the history should be shown in the chat window.
      */
     private static boolean isHistoryShown;
@@ -510,6 +515,10 @@ public class ConfigurationUtils
             isMultiChatWindowEnabled
                 = Boolean.parseBoolean(isMultiChatWindowEnabledString);
         }
+
+        isPrivateMessagingInChatRoomDisabled
+            = configService.getBoolean(
+                "service.gui.IS_PRIVATE_CHAT_IN_CHATROOM_DISABLED", false);
 
         // Load the "isLeaveChatroomOnWindowCloseEnabled" property.
         String isLeaveChatRoomOnWindowCloseEnabledStringProperty
@@ -1098,6 +1107,20 @@ public class ConfigurationUtils
     public static boolean isMultiChatWindowEnabled()
     {
         return isMultiChatWindowEnabled;
+    }
+
+    /**
+     * Returns <code>true</code> if the "isPrivateMessagingInChatRoomDisabled"
+     * property is true, otherwise - returns <code>false</code>.
+     * Indicates to the user interface whether the private messaging is disabled
+     * in chat rooms.
+     *
+     * @return <code>true</code> if the "isPrivateMessagingInChatRoomDisabled"
+     * property is true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isPrivateMessagingInChatRoomDisabled()
+    {
+        return isPrivateMessagingInChatRoomDisabled;
     }
 
     /**
@@ -2686,6 +2709,12 @@ public class ConfigurationUtils
                 "service.gui.IS_MULTI_CHAT_WINDOW_ENABLED"))
             {
                 isMultiChatWindowEnabled = Boolean.parseBoolean(newValue);
+            }
+            else if (evt.getPropertyName().equals(
+                "service.gui.IS_PRIVATE_CHAT_IN_CHATROOM_DISABLED"))
+            {
+                isPrivateMessagingInChatRoomDisabled
+                    = Boolean.parseBoolean(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "service.gui.LEAVE_CHATROOM_ON_WINDOW_CLOSE"))

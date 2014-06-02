@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -99,6 +100,10 @@ public class ChatRoomMemberListPanel
                     else if(e.getButton() == MouseEvent.BUTTON1 
                         && e.getClickCount() == 2)
                     {
+                        if(ConfigurationUtils
+                                .isPrivateMessagingInChatRoomDisabled())
+                            return;
+
                         memberList.setSelectedIndex(
                             memberList.locationToIndex(e.getPoint()));
 
