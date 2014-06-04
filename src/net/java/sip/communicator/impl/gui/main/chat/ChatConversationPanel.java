@@ -237,6 +237,7 @@ public class ChatConversationPanel
         this.chatTextPane.setEditable(false);
         this.chatTextPane.setDocument(document);
         this.chatTextPane.setDragEnabled(true);
+        this.chatTextPane.setFocusable(false);
 
         chatTextPane.putClientProperty(
             JEditorPane.HONOR_DISPLAY_PROPERTIES, Boolean.TRUE);
