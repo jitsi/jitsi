@@ -117,6 +117,21 @@ public class ContactListTreeCellRenderer
     private static final int V_GAP = 3;
 
     /**
+     * The calculated preferred height of a selected contact node.
+     */
+    private Integer preferredSelectedContactNodeHeight = null;
+
+    /**
+     * The calculated preferred height of a non selected contact node.
+     */
+    private Integer preferredNotSelectedContactNodeHeight = null;
+
+    /**
+     * The calculated preferred height of a group node.
+     */
+    private Integer preferredGroupNodeHeight = null;
+
+    /**
      * The separator image for the button toolbar.
      */
     private static final Image BUTTON_SEPARATOR_IMG
@@ -579,6 +594,23 @@ public class ContactListTreeCellRenderer
             }
 
             setToolTipText(contact.getDescriptor().toString());
+
+            // lets calculate the height of contact node, if not done already
+            if(preferredNotSelectedContactNodeHeight == null)
+            {
+                preferredNotSelectedContactNodeHeight
+                    = ComponentUtils.getStringHeight(nameLabel)
+                    + V_GAP
+                    + ComponentUtils.getStringHeight(displayDetailsLabel);
+            }
+
+            if(preferredSelectedContactNodeHeight == null && isSelected)
+            {
+                preferredSelectedContactNodeHeight =
+                    preferredNotSelectedContactNodeHeight
+                        + V_GAP
+                        + chatButton.getHeight();
+            }
         }
         else if (value instanceof GroupNode)
         {
@@ -659,6 +691,13 @@ public class ContactListTreeCellRenderer
                     (groupItemDescriptor != null)
                         ? groupItemDescriptor.toString()
                         : groupItem.getDisplayName());
+
+            // lets calculate group node height, if not done already
+            if(preferredGroupNodeHeight == null)
+            {
+                preferredGroupNodeHeight =
+                    ComponentUtils.getStringHeight(nameLabel);
+            }
         }
 
         return this;
@@ -794,11 +833,29 @@ public class ContactListTreeCellRenderer
             if (preferredHeight > 0)
                 preferredSize.height = preferredHeight;
             else if (contact instanceof ShowMoreContact)
-                preferredSize.height = 20;
+            {
+                // will reuse preferredGroupNodeHeight if available
+                // as it is the same height (one line text)
+                if(preferredGroupNodeHeight != null)
+                    preferredSize.height = preferredGroupNodeHeight;
+                else
+                    preferredSize.height = 20;
+            }
             else if (isSelected && treeContactList.isContactButtonsVisible())
-                preferredSize.height = 70;
+            {
+                if(preferredSelectedContactNodeHeight != null)
+                    preferredSize.height = preferredSelectedContactNodeHeight;
+                else
+                    preferredSize.height = 70;
+            }
             else
-                preferredSize.height = 35;
+            {
+                if(preferredNotSelectedContactNodeHeight != null)
+                    preferredSize.height
+                        = preferredNotSelectedContactNodeHeight;
+                else
+                    preferredSize.height = 35;
+            }
         }
         else if (treeNode instanceof GroupNode)
         {
@@ -810,11 +867,24 @@ public class ContactListTreeCellRenderer
             if (isSelected
                     && customActionButtonsUIGroup != null
                     && !customActionButtonsUIGroup.isEmpty())
-                preferredSize.height = 70;
+            {
+                if(preferredGroupNodeHeight != null)
+                    preferredSize.height = preferredGroupNodeHeight
+                        + customActionButtonsUIGroup.size()
+                        * customActionButtonsUIGroup.get(0).getHeight()
+                        + V_GAP;
+                else
+                    preferredSize.height = 70;
+            }
             else if (preferredHeight > 0)
                 preferredSize.height = preferredHeight;
             else
-                preferredSize.height = 20;
+            {
+                if(preferredGroupNodeHeight != null)
+                    preferredSize.height = preferredGroupNodeHeight;
+                else
+                    preferredSize.height = 20;
+            }
         }
 
         return preferredSize;
