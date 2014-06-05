@@ -602,14 +602,18 @@ public class ContactListTreeCellRenderer
                     = ComponentUtils.getStringHeight(nameLabel)
                     + V_GAP
                     + ComponentUtils.getStringHeight(displayDetailsLabel);
-            }
 
-            if(preferredSelectedContactNodeHeight == null && isSelected)
-            {
+                // load button height, before button is even shown
+                // will be the same as the image
+                int buttonHeight = 27;
+                Image img = ImageLoader.getImage(ImageLoader.CHAT_BUTTON_SMALL);
+                if(img != null)
+                    buttonHeight = img.getHeight(chatButton);
+
                 preferredSelectedContactNodeHeight =
                     preferredNotSelectedContactNodeHeight
                         + V_GAP
-                        + chatButton.getHeight();
+                        + buttonHeight;
             }
         }
         else if (value instanceof GroupNode)
