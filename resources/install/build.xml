@@ -2749,7 +2749,6 @@
         <symlink resource="/usr/share/java/commons-codec.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/src/sdes4j/lib/commons-codec.jar"/>
-        <mkdir dir="${debian.src.dir}/lib/src/sdes4j/lib"/>
         <ant dir="${debian.src.dir}/lib/src/sdes4j"
              inheritAll="false"
              target="jar">
