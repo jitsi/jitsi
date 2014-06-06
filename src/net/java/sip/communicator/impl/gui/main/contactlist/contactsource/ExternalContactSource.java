@@ -21,6 +21,7 @@ import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.customcontactactions.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -873,7 +874,7 @@ public class ExternalContactSource
         @Override
         public boolean isGroupCollapsed()
         {
-            return false;
+            return ConfigurationUtils.isContactListGroupCollapsed(getId());
         }
 
         /**
@@ -923,7 +924,7 @@ public class ExternalContactSource
         @Override
         public String getId()
         {
-            return null;
+            return getDisplayName();
         }
 
         /**
@@ -997,7 +998,8 @@ public class ExternalContactSource
      * Class for the external contact sources right button menu. It shows only
      * the defined custom actions.
      */
-    private class SourceGroupRightButtonMenu extends SIPCommPopupMenu
+    private class SourceGroupRightButtonMenu
+        extends SIPCommPopupMenu
     {
         /**
          * Serial version UID.
@@ -1006,9 +1008,8 @@ public class ExternalContactSource
 
         /**
          * Creates an instance of <tt>SourceContactRightButtonMenu</tt> by
-         * specifying the <tt>SourceUIContact</tt>, for which this menu is created.
-         * @param sourceUIContact the <tt>SourceUIContact</tt>, for which this menu
-         * is created
+         * specifying the <tt>SourceUIContact</tt>, for which this menu is
+         * created.
          */
         public SourceGroupRightButtonMenu()
         {
