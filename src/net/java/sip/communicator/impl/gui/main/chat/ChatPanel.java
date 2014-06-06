@@ -64,7 +64,6 @@ public class ChatPanel
                 ChatRoomLocalUserRoleListener,
                 ChatRoomMemberPropertyChangeListener,
                 FileTransferStatusListener,
-                KeyEventDispatcher,
                 Skinnable
 {
     /**
@@ -229,9 +228,6 @@ public class ChatPanel
         }
 
         this.addComponentListener(new TabSelectionComponentListener());
-
-        KeyboardFocusManager.getCurrentKeyboardFocusManager()
-            .addKeyEventDispatcher(this);
     }
 
     /**
@@ -449,9 +445,6 @@ public class ChatPanel
      */
     public void dispose()
     {
-        KeyboardFocusManager.getCurrentKeyboardFocusManager()
-            .removeKeyEventDispatcher(this);
-
         writeMessagePanel.dispose();
         chatSession.dispose();
         conversationPanel.dispose();
@@ -3121,28 +3114,5 @@ public class ChatPanel
         boolean available = conferenceDescription.isAvailable();
         chatConferencesDialog.setCreatePanelEnabled(!available);
         chatConferencesDialog.setEndConferenceButtonEnabled(available);
-    }
-
-    /**
-     * Dispatches key events and process those that were generated when
-     * conversationPanel ChatTextPane is focused and they were targeting the
-     * write message panel.
-     * @param e the <tt>KeyEvent</tt> to dispatch.
-     * @return <tt>true</tt> if the KeyboardFocusManager should take no
-     * further action with regard to the KeyEvent; <tt>false</tt>
-     * otherwise.
-     */
-    public boolean dispatchKeyEvent(KeyEvent e)
-    {
-        if(e.getSource() != conversationPanel.getChatTextPane()
-            || writeMessagePanel.getEditorPane().isFocusOwner())
-            return false;
-
-        writeMessagePanel.getEditorPane().requestFocusInWindow();
-
-        KeyboardFocusManager.getCurrentKeyboardFocusManager()
-            .redispatchEvent(writeMessagePanel.getEditorPane(), e);
-
-        return true;
     }
 }
