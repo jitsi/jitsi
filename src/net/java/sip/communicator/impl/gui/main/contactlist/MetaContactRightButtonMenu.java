@@ -981,11 +981,11 @@ public class MetaContactRightButtonMenu
 
         if (serRefs != null)
         {
-            for (int i = 0; i < serRefs.length; i ++)
+            for (ServiceReference serviceReference : serRefs)
             {
                 PluginComponentFactory factory =
                     (PluginComponentFactory) GuiActivator
-                        .bundleContext.getService(serRefs[i]);
+                        .bundleContext.getService(serviceReference);
 
                 PluginComponent component =
                     factory.getPluginComponentInstance(this);
