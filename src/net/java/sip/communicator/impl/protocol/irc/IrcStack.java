@@ -870,26 +870,35 @@ public class IrcStack
             case IRCServerNumerics.CHANNEL_NICKS_END_OF_LIST:
                 String text = msg.getText();
                 String channelName = text.substring(0, text.indexOf(' '));
-                if (IrcStack.this.joining.containsKey(channelName)
-                    || IrcStack.this.joined.containsKey(channelName))
+                final ChatRoomIrcImpl chatRoom;
+                final IRCChannel channel;
+                synchronized (IrcStack.this.joined)
                 {
-                    LOGGER.trace("Chat room '" + channelName
-                        + "' join event was announced. Stop "
-                        + "handling this event.");
-                    break;
+                    // Synchronize the section that checks then adds a chat
+                    // room. This way we can be sure that there are no 2
+                    // simultaneous creation events.
+                    if (IrcStack.this.joining.containsKey(channelName)
+                        || IrcStack.this.joined.containsKey(channelName))
+                    {
+                        LOGGER.trace("Chat room '" + channelName
+                            + "' join event was announced. Stop "
+                            + "handling this event.");
+                        break;
+                    }
+                    // We aren't currently attempting to join, so this join is
+                    // unannounced.
+                    LOGGER.trace("Starting unannounced join of chat room '"
+                        + channelName);
+                    // Assuming that at the time that NICKS_END_OF_LIST is
+                    // propagated, the channel join event has been completely
+                    // handled by IRCApi.
+                    channel =
+                        IrcStack.this.connectionState
+                            .getChannelByName(channelName);
+                    chatRoom =
+                        new ChatRoomIrcImpl(channelName, IrcStack.this.provider);
+                    IrcStack.this.joined.put(channelName, chatRoom);
                 }
-                // We aren't currently attempting to join, so this join is
-                // unannounced.
-                LOGGER.trace("Starting unannounced join of chat room '"
-                    + channelName);
-                // Assuming that at the time that NICKS_END_OF_LIST is
-                // propagated, the channel join event has been completely
-                // handled by IRCApi.
-                IRCChannel channel =
-                    IrcStack.this.connectionState.getChannelByName(channelName);
-                ChatRoomIrcImpl chatRoom =
-                    new ChatRoomIrcImpl(channelName, IrcStack.this.provider);
-                IrcStack.this.joined.put(channelName, chatRoom);
                 IrcStack.this.irc.addListener(new ChatRoomListener(chatRoom));
                 openChatRoomWindow(chatRoom);
                 IrcStack.this.prepareChatRoom(chatRoom, channel);
@@ -971,15 +980,23 @@ public class IrcStack
          * @param msg the private message
          */
         @Override
-        public void onUserPrivMessage(UserPrivMsg msg)
+        public void onUserPrivMessage(final UserPrivMsg msg)
         {
-            ChatRoomIrcImpl chatroom = null;
-            String user = msg.getSource().getNick();
-            String text = Utils.parse(msg.getText());
-            chatroom = IrcStack.this.joined.get(user);
-            if (chatroom == null)
+            final String user = msg.getSource().getNick();
+            final String text = Utils.parse(msg.getText());
+            ChatRoomIrcImpl chatroom;
+            synchronized (IrcStack.this.joined)
             {
-                chatroom = initiatePrivateChatRoom(user);
+                chatroom = IrcStack.this.joined.get(user);
+                if (chatroom == null)
+                {
+                    OperationSetMultiUserChatIrcImpl muc =
+                        IrcStack.this.provider.getMUC();
+                    chatroom = muc.findOrCreateRoom(user);
+                    IrcStack.this.joined
+                        .put(chatroom.getIdentifier(), chatroom);
+                    chatroom = initiatePrivateChatRoom(user, chatroom);
+                }
             }
             deliverReceivedMessageToPrivateChat(chatroom, user, text);
         }
@@ -1016,12 +1033,9 @@ public class IrcStack
          * @param userName private chat room for this user
          * @return returns the private chat room
          */
-        private ChatRoomIrcImpl initiatePrivateChatRoom(String userName)
+        private ChatRoomIrcImpl initiatePrivateChatRoom(String userName,
+            ChatRoomIrcImpl chatroom)
         {
-            OperationSetMultiUserChatIrcImpl muc =
-                IrcStack.this.provider.getMUC();
-            ChatRoomIrcImpl chatroom = muc.findOrCreateRoom(userName);
-            IrcStack.this.joined.put(chatroom.getIdentifier(), chatroom);
             final ChatRoomMemberIrcImpl user =
                 new ChatRoomMemberIrcImpl(IrcStack.this.provider, chatroom,
                     IrcStack.this.getNick(), ChatRoomMemberRole.MEMBER);
