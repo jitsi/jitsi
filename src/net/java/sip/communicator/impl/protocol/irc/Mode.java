@@ -18,6 +18,7 @@ public enum Mode
     UNKNOWN('?', null),
     OWNER('O', ChatRoomMemberRole.OWNER),
     OPERATOR('o', ChatRoomMemberRole.ADMINISTRATOR),
+    HALFOP('h', ChatRoomMemberRole.MODERATOR),
     VOICE('v', ChatRoomMemberRole.MEMBER),
     LIMIT('l', null),
     PRIVATE('p', null),
