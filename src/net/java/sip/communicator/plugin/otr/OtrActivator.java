@@ -23,6 +23,7 @@ import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**
+ *
  * @author George Politis
  * @author Pawel Domas
  */
@@ -160,7 +161,7 @@ public class OtrActivator
     private static Map<Object, ProtocolProviderFactory>
         getProtocolProviderFactories()
     {
-        ServiceReference[] serRefs = null;
+        ServiceReference[] serRefs;
         try
         {
             // get all registered provider factories
@@ -230,6 +231,7 @@ public class OtrActivator
     /*
      * Implements ServiceListener#serviceChanged(ServiceEvent).
      */
+    @Override
     public void serviceChanged(ServiceEvent serviceEvent)
     {
         Object sService =
@@ -261,7 +263,6 @@ public class OtrActivator
         {
             this.handleProviderRemoved((ProtocolProviderService) sService);
         }
-
     }
 
     /**
@@ -373,19 +374,22 @@ public class OtrActivator
                 OtrActionHandler.class.getName(),
                 new SwingOtrActionHandler(), null);
 
-        containerFilter.put(Container.CONTAINER_ID,
-                            Container.CONTAINER_CHAT_WRITE_PANEL.getID());
-        bundleContext.registerService(
-            PluginComponentFactory.class.getName(),
-            new PluginComponentFactory( Container.CONTAINER_CHAT_WRITE_PANEL)
-            {
-                protected PluginComponent getPluginInstance()
+            containerFilter.put(Container.CONTAINER_ID,
+                                Container.CONTAINER_CHAT_WRITE_PANEL.getID());
+            bundleContext.registerService(
+                PluginComponentFactory.class.getName(),
+                new PluginComponentFactory(Container.CONTAINER_CHAT_WRITE_PANEL)
                 {
-                    return new OTRv3OutgoingSessionSwitcher(
-                        getContainer(), this);
-                }
-            },
-            containerFilter);
+                    @Override
+                    protected PluginComponent getPluginInstance()
+                    {
+                        return
+                            new OTRv3OutgoingSessionSwitcher(
+                                    getContainer(),
+                                    this);
+                    }
+                },
+                containerFilter);
         }
 
         // If the general configuration form is disabled don't register it.
@@ -399,26 +403,27 @@ public class OtrActivator
                             ConfigurationForm.SECURITY_TYPE);
             // Register the configuration form.
             bundleContext.registerService(ConfigurationForm.class.getName(),
-                new LazyConfigurationForm(
-                    "net.java.sip.communicator.plugin.otr.authdialog." +
-                        "OtrConfigurationPanel",
-                    getClass().getClassLoader(),
-                    "plugin.otr.configform.ICON",
-                    "service.gui.CHAT", 1),
-                    properties);
+                    new LazyConfigurationForm(
+                            "net.java.sip.communicator.plugin.otr.authdialog."
+                                + "OtrConfigurationPanel",
+                            getClass().getClassLoader(),
+                            "plugin.otr.configform.ICON",
+                            "service.gui.CHAT", 1),
+                            properties);
         }
     }
 
     /*
      * Implements BundleActivator#stop(BundleContext).
      */
+    @Override
     public void stop(BundleContext bc) throws Exception
     {
         // Unregister transformation layer.
         // start listening for newly register or removed protocol providers
         bundleContext.removeServiceListener(this);
 
-        ServiceReference[] protocolProviderRefs = null;
+        ServiceReference[] protocolProviderRefs;
         try
         {
             protocolProviderRefs =
@@ -473,16 +478,20 @@ public class OtrActivator
     public static MessageHistoryService getMessageHistoryService()
     {
         if (messageHistoryService == null)
-            messageHistoryService = ServiceUtils.getService(bundleContext, 
-                MessageHistoryService.class);
+        {
+            messageHistoryService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        MessageHistoryService.class);
+        }
         return messageHistoryService;
     }
     
     /**
-     * The factory that will be registered in OSGi and will create
-     * otr menu instances.
+     * The factory that will be registered in OSGi and will create OTR menu
+     * instances.
      */
-    private class OtrPluginComponentFactory
+    private static class OtrPluginComponentFactory
         extends PluginComponentFactory
     {
         OtrPluginComponentFactory(Container c)
