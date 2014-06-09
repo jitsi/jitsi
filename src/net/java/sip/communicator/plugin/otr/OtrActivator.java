@@ -78,7 +78,7 @@ public class OtrActivator
     /**
      * The {@link ScOtrEngine} of the {@link OtrActivator}.
      */
-    public static ScOtrEngine scOtrEngine;
+    public static ScOtrEngineImpl scOtrEngine;
 
     /**
      * The {@link ScOtrKeyManager} of the {@link OtrActivator}.
@@ -102,6 +102,11 @@ public class OtrActivator
      */
     private static MessageHistoryService messageHistoryService;
 
+    /**
+     * The {@link OtrContactManager} of the {@link OtrActivator}.
+     */
+    private static OtrContactManager otrContactManager;
+    
     /**
      * Gets an {@link AccountID} by its UID.
      *
@@ -303,12 +308,13 @@ public class OtrActivator
 
         // Init static variables, don't proceed without them.
         scOtrEngine = new ScOtrEngineImpl();
+        otrContactManager = new OtrContactManager();
         otrTransformLayer = new OtrTransformLayer();
 
         // Register Transformation Layer
         bundleContext.addServiceListener(this);
-        bundleContext.addServiceListener((ServiceListener) scOtrEngine);
-        bundleContext.addServiceListener(new OtrContactManager());
+        bundleContext.addServiceListener(scOtrEngine);
+        bundleContext.addServiceListener(otrContactManager);
 
         ServiceReference[] protocolProviderRefs
             = ServiceUtils.getServiceReferences(
@@ -417,6 +423,8 @@ public class OtrActivator
         // Unregister transformation layer.
         // start listening for newly register or removed protocol providers
         bundleContext.removeServiceListener(this);
+        bundleContext.removeServiceListener(scOtrEngine);
+        bundleContext.removeServiceListener(otrContactManager);
 
         ServiceReference[] protocolProviderRefs = null;
         try
