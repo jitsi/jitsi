@@ -2956,6 +2956,9 @@ public class MessageHistoryServiceImpl
         HistoryID historyId = HistoryID.createFromRawID(
                     new String[] {  "messages" });
         historyService.purgeLocallyStoredHistory(historyId);
+
+        if(this.messageSourceService != null)
+            this.messageSourceService.eraseLocallyStoredHistory();
     }
 
     /**
@@ -2975,6 +2978,9 @@ public class MessageHistoryServiceImpl
             History history = this.getHistory(null, item);
             historyService.purgeLocallyStoredHistory(history.getID());
         }
+
+        if(this.messageSourceService != null)
+            this.messageSourceService.eraseLocallyStoredHistory(contact);
     }
 
     /**
@@ -2988,6 +2994,9 @@ public class MessageHistoryServiceImpl
     {
         History history = this.getHistoryForMultiChat(room);
         historyService.purgeLocallyStoredHistory(history.getID());
+
+        if(this.messageSourceService != null)
+            this.messageSourceService.eraseLocallyStoredHistory(room);
     }
     
     /**

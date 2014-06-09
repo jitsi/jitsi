@@ -12,6 +12,7 @@ import java.text.*;
 import java.util.*;
 import java.util.regex.*;
 
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.records.*;
@@ -1208,6 +1209,100 @@ public class MessageSourceService
 
                 return;
             }
+        }
+    }
+
+    /**
+     * Permanently removes all locally stored message history,
+     * remove recent contacts.
+     */
+    public void eraseLocallyStoredHistory()
+        throws IOException
+    {
+        synchronized(recentMessages)
+        {
+            List<MessageSourceContact> toRemove
+                = new ArrayList<MessageSourceContact>(recentMessages);
+
+            recentMessages.clear();
+
+            if(recentQuery != null)
+            {
+                for(MessageSourceContact msc : toRemove)
+                {
+                    recentQuery.fireContactRemoved(msc);
+                }
+            }
+        }
+    }
+
+    /**
+     * Permanently removes locally stored message history for the metacontact,
+     * remove any recent contacts if any.
+     */
+    public void eraseLocallyStoredHistory(MetaContact contact)
+        throws IOException
+    {
+        synchronized(recentMessages)
+        {
+            List<MessageSourceContact> toRemove
+                = new ArrayList<MessageSourceContact>();
+            Iterator<Contact> iter = contact.getContacts();
+            while(iter.hasNext())
+            {
+                Contact item = iter.next();
+                String id = item.getAddress();
+                ProtocolProviderService provider = item.getProtocolProvider();
+
+                for(MessageSourceContact msc : recentMessages)
+                {
+                    if(msc.getProtocolProviderService().equals(provider)
+                        && msc.getContactAddress().equals(id))
+                    {
+                        toRemove.add(msc);
+                    }
+                }
+            }
+
+            recentMessages.removeAll(toRemove);
+
+            if(recentQuery != null)
+            {
+                for(MessageSourceContact msc : toRemove)
+                {
+                    recentQuery.fireContactRemoved(msc);
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Permanently removes locally stored message history for the chatroom,
+     * remove any recent contacts if any.
+     */
+    public void eraseLocallyStoredHistory(ChatRoom room)
+    {
+        synchronized(recentMessages)
+        {
+            MessageSourceContact toRemove = null;
+            for(MessageSourceContact msg : recentMessages)
+            {
+                if(msg.getRoom() != null
+                    && msg.getRoom().equals(room))
+                {
+                    toRemove = msg;
+                    break;
+                }
+            }
+
+            if(toRemove == null)
+                return;
+
+            recentMessages.remove(toRemove);
+
+            if(recentQuery != null)
+                recentQuery.fireContactRemoved(toRemove);
         }
     }
 
