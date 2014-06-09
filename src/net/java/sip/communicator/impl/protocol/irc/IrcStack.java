@@ -52,6 +52,9 @@ public class IrcStack
 
     /**
      * Container for channels that are being joined at the moment.
+     * 
+     * TODO Consider removing field 'joining' and use field 'joined' with a null
+     * ChatRoomIrcImpl instance.
      */
     private final Map<String, Result<Object, Exception>> joining = Collections
         .synchronizedMap(new HashMap<String, Result<Object, Exception>>());
