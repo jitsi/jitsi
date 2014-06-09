@@ -698,7 +698,7 @@ public class MainToolBar
             m.put(opSetClass, ct.getProtocolProvider());
 
             UIContactDetailImpl d = new UIContactDetailImpl(
-                                                ct.getName(),
+                                                ct.getName() + "  -  " + ct.getResourceName(),
                                                 ct.getDisplayName(),
                                                 null,
                                                 null,
