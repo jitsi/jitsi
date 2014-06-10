@@ -97,7 +97,7 @@ public class EditMenu
                 KeyEvent.CTRL_MASK));
 
         this.pasteMenuItem.setAccelerator(
-                KeyStroke.getKeyStroke(KeyEvent.VK_P,
+                KeyStroke.getKeyStroke(KeyEvent.VK_V,
                 KeyEvent.CTRL_MASK));
     }
 
