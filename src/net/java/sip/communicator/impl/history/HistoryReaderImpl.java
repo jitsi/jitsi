@@ -17,6 +17,7 @@ import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.history.event.*;
 import net.java.sip.communicator.service.history.records.*;
 
+import org.apache.commons.lang3.*;
 import org.w3c.dom.*;
 
 /**
@@ -687,6 +688,9 @@ public class HistoryReaderImpl
 
                 // Get nested TEXT node's value
                 String nodeValue = nestedNode.getNodeValue();
+
+                // unescape xml chars, we have escaped when writing values
+                nodeValue = StringEscapeUtils.unescapeXml(nodeValue);
 
                 if(field != null && field.equals(nodeName))
                 {

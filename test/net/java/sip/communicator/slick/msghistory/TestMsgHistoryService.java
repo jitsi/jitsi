@@ -92,6 +92,8 @@ public class TestMsgHistoryService
         suite.addTest(
             new TestMsgHistoryService("readRecords"));
         suite.addTest(
+            new TestMsgHistoryService("specialChars"));
+        suite.addTest(
             new TestMsgHistoryService("writeRecordsToMultiChat"));
         suite.addTest(
             new TestMsgHistoryService("readRecordsFromMultiChat"));
@@ -194,7 +196,8 @@ public class TestMsgHistoryService
                 mockBImOpSet.createMessage("test message word3" + Math.random()),
                 mockBImOpSet.createMessage("test message word4" + Math.random()),
                 mockBImOpSet.createMessage("test message word5" + Math.random()),
-                mockBImOpSet.createMessage("Hello \u0002World\u0002!")
+                mockBImOpSet.createMessage("Hello \u0002World\u0002!"),
+                mockBImOpSet.createMessage("less than < this, greater than > and an ampersand &")
             };
     }
 
@@ -403,27 +406,34 @@ public class TestMsgHistoryService
 
         waitWrite(500);
 
+        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[6]);
+
+        waitWrite(500);
+
         historyService.purgeLocallyCachedHistories();
 
         /**
-         * Must return exactly the last 3 messages
+         * Must return exactly the last 4 messages
          */
         Collection<EventObject> rs
-            = msgHistoryService.findLast(testMetaContact, 3);
+            = msgHistoryService.findLast(testMetaContact, 4);
 
         assertTrue("Nothing found 8", !rs.isEmpty());
         List<String> msgs = getMessages(rs);
-        assertEquals("Messages must be 3", 3, msgs.size());
-        assertTrue("Message no found",
+        assertEquals("Messages must be 4", 4, msgs.size());
+        assertTrue("Message not found",
             msgs.contains(messagesToSend[3].getContent()));
-        assertTrue("Message no found",
+        assertTrue("Message not found",
             msgs.contains(messagesToSend[4].getContent()));
 
         // For now we are stripping in history the special content chars
         // in order to avoid breaking the history records in the xml
-        assertTrue("Message no found",
+        assertTrue("Message not found",
             msgs.contains(XmlEscapers.xmlContentEscaper().escape(
                           messagesToSend[5].getContent())));
+
+        assertTrue("Message not found",
+            msgs.contains(messagesToSend[6].getContent()));
     }
 
     private static void waitWrite(long timeout)
