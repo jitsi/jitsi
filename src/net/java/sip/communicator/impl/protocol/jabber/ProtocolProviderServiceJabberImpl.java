@@ -789,6 +789,12 @@ public class ProtocolProviderServiceJabberImpl
      */
     private JabberLoginStrategy createLoginStrategy()
     {
+        if (((JabberAccountIDImpl)getAccountID()).isAnonymousAuthUsed())
+        {
+            return new AnonymousLoginStrategy(
+                getAccountID().getAuthorizationName());
+        }
+
         String clientCertId = getAccountID().getAccountPropertyString(
                 ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE);
         if(clientCertId != null)

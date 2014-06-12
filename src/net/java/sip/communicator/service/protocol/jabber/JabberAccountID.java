@@ -28,6 +28,11 @@ public class JabberAccountID
             = AccountID.DEFAULTS_PREFIX +"jabber.";
 
     /**
+     * Uses anonymous XMPP login if set to <tt>true</tt>.
+     */
+    public static final String ANONYMOUS_AUTH = "ANONYMOUS_AUTH";
+
+    /**
      * Account suffix for Google service.
      */
     public static final String GOOGLE_USER_SUFFIX = "gmail.com";
@@ -143,6 +148,15 @@ public class JabberAccountID
     }
 
     /**
+     * Indicates whether anonymous authorization method is used by this account.
+     * @return <tt>true</tt> if anonymous login is enabled on this account.
+     */
+    public boolean isAnonymousAuthUsed()
+    {
+        return getAccountPropertyBoolean(ANONYMOUS_AUTH, false);
+    }
+
+    /**
      * Gets if Jingle is disabled for this account.
      *
      * @return True if jingle is disabled for this account. False otherwise.
@@ -186,6 +200,15 @@ public class JabberAccountID
     public boolean isGoogleContactsEnabled()
     {
         return getAccountPropertyBoolean(GOOGLE_CONTACTS_ENABLED, true);
+    }
+
+    /**
+     * Enables anonymous authorization mode on this XMPP account.
+     * @param useAnonymousAuth <tt>true</tt> to use anonymous login.
+     */
+    public void setUseAnonymousAuth(boolean useAnonymousAuth)
+    {
+        putAccountProperty(ANONYMOUS_AUTH, useAnonymousAuth);
     }
 
     /**
