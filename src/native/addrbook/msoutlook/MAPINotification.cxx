@@ -910,13 +910,27 @@ ULONG MAPINotification_registerNotifyMessageDataBase(
 	ULONG nbConnection = 0;
 	if (HR_SUCCEEDED(hResult))
 	{
-
+		MsOutlookUtils_log(
+				"Successfully found folder to register notifications.");
 		iUnknown->Advise(
 				(ULONG) entrySize,
 				(LPENTRYID) entryID,
 				MAPINotification_EVENT_MASK,
 				*adviseSink,
 				(ULONG *) &nbConnection);
+	}
+	else
+	{
+		if(type == CONTACTS_FOLDER_TYPE)
+		{
+			MsOutlookUtils_log(
+					"Contacts folder for the message store doesn't exists");
+		}
+		else
+		{
+			MsOutlookUtils_log(
+					"Calendar folder for the message store doesn't exists");
+		}
 	}
 
     return nbConnection;

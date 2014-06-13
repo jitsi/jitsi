@@ -61,22 +61,7 @@ int main(int argc, char** argv)
         return hr;
     }
     MAPISession_initLock();
-    if(MsOutlookAddrBookContactSourceService_NativeMAPIInitialize(
-                MAPI_INIT_VERSION,
-                MAPI_MULTITHREAD_NOTIFICATIONS | MAPI_NO_COINIT,
-                (void*) Server_contactDeleted,
-                (void*) Server_contactInserted,
-                (void*) Server_contactUpdated)
-            != S_OK)
-    {
-    	MsOutlookUtils_logInfo("Error in native MAPI initialization of the Outlook Server.[2]");
-        CoUninitialize();
-        return hr;
-    }
-    MAPINotification_registerCalendarNativeNotificationsDelegate(
-    		(void*) Server_calendarDeleted,
-            (void*) Server_calendarInserted,
-            (void*) Server_calendarUpdated);
+
 
     WCHAR * path = (WCHAR*) L"IMsOutlookAddrBookServer.tlb"; 
     LPTYPELIB typeLib = TypeLib_loadRegTypeLib(path);
@@ -91,8 +76,27 @@ int main(int argc, char** argv)
             hr = classObject->registerClassObject();
             hr = ::CoResumeClassObjects();
 
-            MsOutlookUtils_logInfo("Server started.");
-            waitParentProcessStop();
+            if(MsOutlookAddrBookContactSourceService_NativeMAPIInitialize(
+                            MAPI_INIT_VERSION,
+                            MAPI_MULTITHREAD_NOTIFICATIONS | MAPI_NO_COINIT,
+                            (void*) Server_contactDeleted,
+                            (void*) Server_contactInserted,
+                            (void*) Server_contactUpdated)
+                        != S_OK)
+			{
+				MsOutlookUtils_logInfo("Error in native MAPI initialization of the Outlook Server.[2]");
+				CoUninitialize();
+			}
+            else
+            {
+				MAPINotification_registerCalendarNativeNotificationsDelegate(
+						(void*) Server_calendarDeleted,
+						(void*) Server_calendarInserted,
+						(void*) Server_calendarUpdated);
+
+				MsOutlookUtils_logInfo("Server started.");
+				waitParentProcessStop();
+            }
 
             MsOutlookUtils_logInfo("Stop waiting.[3]");
             hr = ::CoSuspendClassObjects();

@@ -49,9 +49,9 @@ void ComClient_start(void)
     if((hr = CoInitializeEx(NULL, COINIT_MULTITHREADED)) == S_OK
             || hr == S_FALSE)
     {
-        // The server may be long to start, then retry 10 times with 1s pause
+        // The server may be long to start, then retry 20 times with 1s pause
         // between each try.
-        int retry = 10;
+        int retry = 20;
         while(retry > 0)
         {
             if((hr = CoCreateInstance(
