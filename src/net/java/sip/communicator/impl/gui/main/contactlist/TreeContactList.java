@@ -42,6 +42,7 @@ public class TreeContactList
                 MetaContactQueryListener,
                 MouseListener,
                 MouseMotionListener,
+                TreeWillExpandListener,
                 TreeExpansionListener,
                 TreeSelectionListener
 {
@@ -174,6 +175,12 @@ public class TreeContactList
     private Boolean setAutoSelectionAllowed = false;
 
     /**
+     * The previously selected node component. First nothing is selected so
+     * it is null.
+     */
+    private Object previouslySelectedNode = null;
+
+    /**
      * Creates the <tt>TreeContactList</tt>.
      *
      * @param clContainer the container, where this contact list component is
@@ -192,6 +199,7 @@ public class TreeContactList
         this.addMouseListener(this);
         this.addMouseMotionListener(this);
         this.addTreeExpansionListener(this);
+        this.addTreeWillExpandListener(this);
         this.addTreeSelectionListener(this);
 
         GuiActivator.getContactListService()
@@ -1645,6 +1653,66 @@ public class TreeContactList
     public void mouseDragged(MouseEvent e) {}
 
     /**
+     * Invoked whenever a node in the tree is about to be expanded.
+     */
+    @Override
+    public void treeWillExpand(TreeExpansionEvent event)
+        throws ExpandVetoException
+    {
+        TreePath path = event.getPath();
+
+        if (path == null)
+            return;
+
+        // remember it as previously selected, or moving from other group
+        // to the collapsed group with custom action buttons, we will need an
+        // extra click to collapse it again
+        // keep it null, till something is selected (valueChanged method called)
+        if(previouslySelectedNode != null)
+            previouslySelectedNode = path.getLastPathComponent();
+    }
+
+    /**
+     * Invoked whenever a node in the tree is about to be collapsed.
+     */
+    @Override
+    public void treeWillCollapse(TreeExpansionEvent event)
+        throws ExpandVetoException
+    {
+        TreePath path = event.getPath();
+
+        // If we didn't find any path for the given mouse location, we have
+        // nothing to do here.
+        if (path == null)
+            return;
+
+        Object lastComponent = path.getLastPathComponent();
+
+        if(lastComponent instanceof GroupNode)
+        {
+            GroupNode gn = (GroupNode)lastComponent;
+
+            UIGroupImpl uiGroup = gn.getGroupDescriptor();
+
+            // if the previous selection is not the group, do not collapse
+            // this way groups with custom buttons will only collapse
+            // when selected and clicked again (give a chance to the buttons
+            // to show)
+            if( (previouslySelectedNode != null
+                    && !previouslySelectedNode.equals(lastComponent)
+                || previouslySelectedNode == null)
+                && uiGroup.getCustomActionButtons() != null
+                && uiGroup.getCustomActionButtons().size() > 0)
+            {
+                // the veto will not call valueChanged of TreeSelectionListener
+                previouslySelectedNode = lastComponent;
+
+                throw new ExpandVetoException(event);
+            }
+        }
+    }
+
+    /**
      * Stores the state of the collapsed group.
      * @param event the <tt>TreeExpansionEvent</tt> that notified us for about
      * the expansion
@@ -1755,6 +1823,15 @@ public class TreeContactList
 
             ((SIPCommButton) mouseComponent).getModel()
                 .setRollover(event.getID() == MouseEvent.MOUSE_MOVED);
+
+            // when clicking on buttons, make sure we do not
+            // collapse group if it is a button in group
+            if(event.getID() == MouseEvent.MOUSE_RELEASED
+               && event.getClickCount() < 2
+               && previouslySelectedNode instanceof GroupNode)
+            {
+                previouslySelectedNode = null;
+            }
 
             renderer.resetRolloverState(mouseComponent);
 
@@ -2549,6 +2626,12 @@ public class TreeContactList
      */
     public void valueChanged(TreeSelectionEvent e)
     {
+        TreePath oldSelectionPath = e.getOldLeadSelectionPath();
+        if(oldSelectionPath != null)
+        {
+            previouslySelectedNode = oldSelectionPath.getLastPathComponent();
+        }
+
         UIGroup selectedGroup = getSelectedGroup();
 
         if (selectedGroup != null)

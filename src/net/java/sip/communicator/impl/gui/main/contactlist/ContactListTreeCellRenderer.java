@@ -603,17 +603,10 @@ public class ContactListTreeCellRenderer
                     + V_GAP
                     + ComponentUtils.getStringHeight(displayDetailsLabel);
 
-                // load button height, before button is even shown
-                // will be the same as the image
-                int buttonHeight = 27;
-                Image img = ImageLoader.getImage(ImageLoader.CHAT_BUTTON_SMALL);
-                if(img != null)
-                    buttonHeight = img.getHeight(chatButton);
-
                 preferredSelectedContactNodeHeight =
                     preferredNotSelectedContactNodeHeight
                         + V_GAP
-                        + buttonHeight;
+                        + BUTTON_HEIGHT;
             }
         }
         else if (value instanceof GroupNode)
@@ -873,10 +866,11 @@ public class ContactListTreeCellRenderer
                     && !customActionButtonsUIGroup.isEmpty())
             {
                 if(preferredGroupNodeHeight != null)
+                {
                     preferredSize.height = preferredGroupNodeHeight
-                        + customActionButtonsUIGroup.size()
-                        * customActionButtonsUIGroup.get(0).getHeight()
-                        + V_GAP;
+                        + V_GAP
+                        + BUTTON_HEIGHT;
+                }
                 else
                     preferredSize.height = 70;
             }
@@ -931,19 +925,6 @@ public class ContactListTreeCellRenderer
         add(rightLabel, constraints);
 
         if (treeNode != null && treeNode instanceof ContactNode)
-        {
-            constraints.anchor = GridBagConstraints.WEST;
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = 1;
-            constraints.gridy = 1;
-            constraints.weightx = 1f;
-            constraints.weighty = 0f;
-            constraints.gridwidth = nameLabelGridWidth;
-            constraints.gridheight = 1;
-
-            add(displayDetailsLabel, constraints);
-        }
-        else if (treeNode != null && treeNode instanceof GroupNode)
         {
             constraints.anchor = GridBagConstraints.WEST;
             constraints.fill = GridBagConstraints.NONE;
@@ -1029,7 +1010,7 @@ public class ContactListTreeCellRenderer
 
         if (imContact != null)
         {
-            x += addButton(chatButton, ++gridX, x, false);
+            x += addButton(chatButton, ++gridX, x, false, true);
         }
 
         UIContactDetail telephonyContact
@@ -1067,7 +1048,7 @@ public class ContactListTreeCellRenderer
                 && contactPhoneUtil.isCallEnabled(detailsListener)
                 && providers.size() > 0))
         {
-            x += addButton(callButton, ++gridX, x, false);
+            x += addButton(callButton, ++gridX, x, false, true);
         }
 
         UIContactDetail videoContact
@@ -1078,7 +1059,7 @@ public class ContactListTreeCellRenderer
             || (contactPhoneUtil != null
                 && contactPhoneUtil.isVideoCallEnabled(detailsListener)))
         {
-            x += addButton(callVideoButton, ++gridX, x, false);
+            x += addButton(callVideoButton, ++gridX, x, false, true);
         }
 
         UIContactDetail desktopContact
@@ -1089,7 +1070,7 @@ public class ContactListTreeCellRenderer
             || (contactPhoneUtil != null
                 && contactPhoneUtil.isDesktopSharingEnabled(detailsListener)))
         {
-            x += addButton(desktopSharingButton, ++gridX, x, false);
+            x += addButton(desktopSharingButton, ++gridX, x, false, true);
         }
 
         // enable add contact button if contact source has indicated
@@ -1103,7 +1084,7 @@ public class ContactListTreeCellRenderer
                     null).size() > 0
             && !ConfigurationUtils.isAddContactDisabled())
         {
-            x += addButton(addContactButton, ++gridX, x, false);
+            x += addButton(addContactButton, ++gridX, x, false, true);
         }
 
         //webButton
@@ -1117,7 +1098,7 @@ public class ContactListTreeCellRenderer
                 getURLDetails(uiContact, webDetailsListener, true);
             if(dets != null && dets.size() > 0)
             {
-                x += addButton(webButton, ++gridX, x, false);
+                x += addButton(webButton, ++gridX, x, false, true);
 
                 webButton.setLinksFromURLDetail(dets);
             }
@@ -1135,7 +1116,7 @@ public class ContactListTreeCellRenderer
                     ContactDetail.Category.Web);
                 if(dets != null && dets.size() > 0)
                 {
-                    x += addButton(webButton, ++gridX, x, false);
+                    x += addButton(webButton, ++gridX, x, false, true);
 
                     webButton.setLinksFromContactDetail(dets);
                 }
@@ -1265,7 +1246,7 @@ public class ContactListTreeCellRenderer
             customActionButtonsUIGroup.add(actionButton);
 
             xBounds
-                += addButton(actionButton, ++gridX, xBounds, false);
+                += addButton(actionButton, ++gridX, xBounds, false, false);
         }
 
         return gridX;
@@ -1305,7 +1286,7 @@ public class ContactListTreeCellRenderer
             customActionButtons.add(actionButton);
 
             xBounds
-                += addButton(actionButton, ++gridX, xBounds, false);
+                += addButton(actionButton, ++gridX, xBounds, false, true);
         }
 
         return gridX;
@@ -2029,10 +2010,21 @@ public class ContactListTreeCellRenderer
         }
     }
 
+    /**
+     * Adds button.
+     * @param button the button to add
+     * @param gridX the current x
+     * @param xBounds bounds
+     * @param isLast is it the last button
+     * @param isContact is contact or <tt>false</tt> if it is group node, that
+     * we are painting.
+     * @return the button width.
+     */
     private int addButton(  SIPCommButton button,
                             int gridX,
                             int xBounds,
-                            boolean isLast)
+                            boolean isLast,
+                            boolean isContact)
     {
         lastAddedButton = button;
 
@@ -2047,9 +2039,11 @@ public class ContactListTreeCellRenderer
         constraints.weighty = 0f;
         add(button, constraints);
 
-        int yBounds = TOP_BORDER + BOTTOM_BORDER + 2*V_GAP
-                + ComponentUtils.getStringSize(
-                    nameLabel, nameLabel.getText()).height
+        int yBounds = ComponentUtils.getStringSize(
+                    nameLabel, nameLabel.getText()).height;
+
+        if(isContact)
+            yBounds += TOP_BORDER + BOTTOM_BORDER + 2*V_GAP
                 + ComponentUtils.getStringSize(
                     displayDetailsLabel, displayDetailsLabel.getText()).height;
 
