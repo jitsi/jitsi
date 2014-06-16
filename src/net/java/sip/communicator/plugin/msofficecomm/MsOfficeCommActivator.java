@@ -6,6 +6,9 @@
  */
 package net.java.sip.communicator.plugin.msofficecomm;
 
+import net.java.sip.communicator.util.ServiceUtils;
+
+import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
 
@@ -23,6 +26,16 @@ public class MsOfficeCommActivator
      */
     private static final Logger logger
         = Logger.getLogger(MsOfficeCommActivator.class);
+    
+    /**
+     * The <tt>ResourceManagementService</tt> through which we access resources.
+     */
+    private static ResourceManagementService resourceService;
+    
+    /**
+     * The <tt>BundleContext</tt> in which the msofficecomm plug-in is started.
+     */
+    private static BundleContext bundleContext;
 
     /**
      * Starts the <tt>msofficecomm</tt> bundle in a specific
@@ -42,11 +55,13 @@ public class MsOfficeCommActivator
 
         if (logger.isInfoEnabled())
             logger.info("MsOfficeComm plugin ... [STARTED]");
-
+        
+        MsOfficeCommActivator.bundleContext = bundleContext;
+        
         Messenger.start(bundleContext);
-
+        
         boolean stopMessenger = true;
-
+        
         try
         {
             int hresult = OutOfProcessServer.start();
@@ -62,6 +77,7 @@ public class MsOfficeCommActivator
         }
         finally
         {
+            RegistryHandler.checkRegistryKeys();
             if (stopMessenger)
                 Messenger.stop(bundleContext);
         }
@@ -97,5 +113,25 @@ public class MsOfficeCommActivator
 
         if (logger.isInfoEnabled())
             logger.info("MsOfficeComm plugin ... [UNREGISTERED]");
+    }
+    
+    
+    /**
+     * Gets the <tt>ResourceManagementService</tt> to be used by the
+     * functionality of the plug-in.
+     *
+     * @return the <tt>ResourceManagementService</tt> to be used by the
+     * functionality of the plug-in
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourceService == null)
+        {
+            resourceService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ResourceManagementService.class);
+        }
+        return resourceService;
     }
 }

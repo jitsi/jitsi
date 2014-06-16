@@ -169,6 +169,7 @@ public class Messenger
             logger.error(
                     "Failed to load native library " + lib + ": "
                         + t.getMessage());
+            RegistryHandler.checkRegistryKeys();
             throw new RuntimeException(t);
         }
     }
