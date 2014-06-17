@@ -937,15 +937,6 @@ public class IrcStack
             MUCService mucService = IrcActivator.getMUCService();
             ChatRoomWrapper wrapper =
                 mucService.getChatRoomWrapperByChatRoom(chatRoom, true);
-            if (wrapper == null)
-            {
-                LOGGER.trace("Creating chat room window.");
-                wrapper =
-                    mucService.createChatRoom(chatRoom.getIdentifier(),
-                        IrcStack.this.provider,
-                        Collections.<String> emptyList(), "", false, false,
-                        false);
-            }
             mucService.openChatRoom(wrapper);
         }
 
