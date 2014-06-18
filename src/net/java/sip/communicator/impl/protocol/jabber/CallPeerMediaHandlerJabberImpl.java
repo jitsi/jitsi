@@ -679,7 +679,7 @@ public class CallPeerMediaHandlerJabberImpl
                                             rtpExtensions,
                                             masterStream);
 
-            long ourSsrc = stream.getLocalSourceID() & 0xffffffffL;
+            long ourSsrc = stream.getLocalSourceID();
             if (direction.allowsSending() && ourSsrc != -1)
             {
                 description.setSsrc(Long.toString(ourSsrc));
