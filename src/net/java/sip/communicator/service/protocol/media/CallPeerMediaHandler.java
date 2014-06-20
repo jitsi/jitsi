@@ -1202,6 +1202,8 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
     {
         List<MediaFormat> ret = new ArrayList<MediaFormat>();
         MediaFormat telephoneEvents = null;
+        MediaFormat red = null;
+        MediaFormat ulpfec = null;
 
         for(MediaFormat remoteFormat : remoteFormats)
         {
@@ -1210,17 +1212,29 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
 
             if (localFormat != null)
             {
-                // We ignore telephone-event here as it's not a real media
-                // format.  Therefore we don't want to decide to use it as
-                // our preferred format.  We'll add it back later if we find
-                // a suitable format.
+                // We ignore telephone-event, red and ulpfec here as they are
+                // not real media formats. Therefore we don't want to decide to
+                // use any of them as our preferred format. We'll add them back
+                // later if we find a common media format.
                 //
-                // Note if there are multiple telephone-event formats, we'll
-                // lose all but the last one.  That's fine because it's
-                // meaningless to have multiple repeated formats.
-                if (Constants.TELEPHONE_EVENT.equals(localFormat.getEncoding()))
+                // Note if there are multiple telephone-event (or red, or
+                // ulpfec) formats, we'll lose all but the last one.  That's
+                // fine because it's meaningless to have multiple repeated
+                // formats.
+                String encoding = localFormat.getEncoding();
+                if (Constants.TELEPHONE_EVENT.equals(encoding))
                 {
                     telephoneEvents = localFormat;
+                    continue;
+                }
+                else if (Constants.RED.equals(encoding))
+                {
+                    red = localFormat;
+                    continue;
+                }
+                else if (Constants.ULPFEC.equals(encoding))
+                {
+                    ulpfec = localFormat;
                     continue;
                 }
 
@@ -1228,12 +1242,20 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
             }
         }
 
-        // If we've found some compatible formats, add telephone-event back
-        // in to the end of the list if we removed it above.  If we didn't
-        // find any compatible formats, we don't want to add telephone-event
-        // as the only entry in the list because there'd be no media.
-        if ((!ret.isEmpty()) && (telephoneEvents != null))
-            ret.add(telephoneEvents);
+        // If we've found some compatible formats, add telephone-event, red
+        // and ulpfec back in to the end of the list (if we removed any of them)
+        // above.  If we didn't find any compatible formats, we don't want to
+        // add any of these formats as the only entries in the list because
+        // there'd be no media.
+        if (!ret.isEmpty())
+        {
+            if (telephoneEvents != null)
+                ret.add(telephoneEvents);
+            if (red != null)
+                ret.add(red);
+            if (ulpfec != null)
+                ret.add(ulpfec);
+        }
 
         return ret;
     }
