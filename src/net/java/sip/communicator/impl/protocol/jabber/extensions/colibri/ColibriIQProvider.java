@@ -160,6 +160,7 @@ public class ColibriIQProvider
             ColibriConferenceIQ.Channel channel = null;
             ColibriConferenceIQ.SctpConnection sctpConnection = null;
             ColibriConferenceIQ.Content content = null;
+            ColibriConferenceIQ.Recording recording = null;
             StringBuilder ssrc = null;
 
             while (!done)
@@ -213,6 +214,12 @@ public class ColibriIQProvider
                     {
                         conference.addContent(content);
                         content = null;
+                    }
+                    else if (ColibriConferenceIQ.Recording.ELEMENT_NAME.equals(
+                            name))
+                    {
+                        conference.setRecording(recording);
+                        recording = null;
                     }
                     break;
                 }
@@ -347,6 +354,25 @@ public class ColibriIQProvider
                         if ((contentName != null)
                                 && (contentName.length() != 0))
                             content.setName(contentName);
+                    }
+                    else if (ColibriConferenceIQ.Recording.ELEMENT_NAME.equals(
+                            name))
+                    {
+                        String stateStr
+                                = parser.getAttributeValue(
+                                "",
+                                ColibriConferenceIQ.Recording.STATE_ATTR_NAME);
+                        boolean state = Boolean.parseBoolean(stateStr);
+
+                        String token
+                                = parser.getAttributeValue(
+                                "",
+                                ColibriConferenceIQ.Recording.TOKEN_ATTR_NAME);
+
+                        recording
+                                = new ColibriConferenceIQ.Recording(
+                                state,
+                                token);
                     }
                     else if (ColibriConferenceIQ.SctpConnection.ELEMENT_NAME
                         .equals(name))

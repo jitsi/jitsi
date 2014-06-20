@@ -59,6 +59,11 @@ public class ColibriConferenceIQ
      */
     private String id;
 
+    /**
+     * Media recording.
+     */
+    public Recording recording = null;
+
     /** Initializes a new <tt>ColibriConferenceIQ</tt> instance. */
     public ColibriConferenceIQ()
     {
@@ -121,7 +126,11 @@ public class ColibriConferenceIQ
 
         List<Content> contents = getContents();
 
-        if (contents.size() == 0)
+        int childrenCount = contents.size();
+        if (recording != null)
+            childrenCount++;
+
+        if (childrenCount == 0)
         {
             xml.append(" />");
         }
@@ -130,6 +139,8 @@ public class ColibriConferenceIQ
             xml.append('>');
             for (Content content : contents)
                 content.toXML(xml);
+            if (recording != null)
+                recording.toXML(xml);
             xml.append("</").append(ELEMENT_NAME).append('>');
         }
         return xml.toString();
@@ -173,6 +184,24 @@ public class ColibriConferenceIQ
     public String getID()
     {
         return id;
+    }
+
+    /**
+     * Gets the value of the recording field.
+     * @return the value of the recording field.
+     */
+    public Recording getRecording()
+    {
+        return recording;
+    }
+
+    /**
+     * Sets the recording field.
+     * @param recording the value to set.
+     */
+    public void setRecording(Recording recording)
+    {
+        this.recording = recording;
     }
 
     /**
@@ -1002,7 +1031,8 @@ public class ColibriConferenceIQ
          * section 2.3 &quot;Mixers and Translators&quot;) used for this
          * <tt>Channel</tt>.
          *
-         * @param s the type of RTP-level relay used for this <tt>Channel</tt>
+         * @param rtpLevelRelayType the type of RTP-level relay used for
+         * this <tt>Channel</tt>
          */
         public void setRTPLevelRelayType(RTPLevelRelayType rtpLevelRelayType)
         {
@@ -1485,6 +1515,65 @@ public class ColibriConferenceIQ
         protected void printContent(StringBuilder xml)
         {
             // No other content than the transport shared from ChannelCommon
+        }
+    }
+
+    /**
+     * Represents a <tt>recording</tt> element.
+     */
+    public static class Recording
+    {
+        /**
+         * The XML name of the <tt>recording</tt> element.
+         */
+        public static final String ELEMENT_NAME = "recording";
+
+        /**
+         * The XML name of the <tt>state</tt> attribute.
+         */
+        public static final String STATE_ATTR_NAME = "state";
+
+        /**
+         * The XML name of the <tt>token</tt> attribute.
+         */
+        public static final String TOKEN_ATTR_NAME = "token";
+
+        private String token = null;
+        private boolean state;
+
+        public Recording(boolean state)
+        {
+            this.state = state;
+        }
+
+        public Recording(boolean state, String token)
+        {
+            this(state);
+
+            this.token = token;
+        }
+
+        public String getToken()
+        {
+            return token;
+        }
+
+        public boolean getState()
+        {
+            return state;
+        }
+
+        public void toXML(StringBuilder xml)
+        {
+            xml.append('<').append(ELEMENT_NAME);
+            xml.append(' ').append(STATE_ATTR_NAME).append("='")
+                    .append(state).append('\'');
+            if (token != null)
+            {
+                xml.append(' ').append(TOKEN_ATTR_NAME).append("='")
+                        .append(token).append('\'');
+            }
+            xml.append("/>");
         }
     }
 }
