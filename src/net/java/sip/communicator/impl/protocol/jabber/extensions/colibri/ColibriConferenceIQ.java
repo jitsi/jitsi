@@ -1538,8 +1538,14 @@ public class ColibriConferenceIQ
          */
         public static final String TOKEN_ATTR_NAME = "token";
 
+        /**
+         * The XML name of the <tt>path</tt> attribute.
+         */
+        public static final String PATH_ATTR_NAME = "path";
+
         private String token = null;
         private boolean state;
+        private String path = null;
 
         public Recording(boolean state)
         {
@@ -1558,6 +1564,16 @@ public class ColibriConferenceIQ
             return token;
         }
 
+        public String getPath()
+        {
+            return path;
+        }
+
+        public void setPath(String path)
+        {
+            this.path = path;
+        }
+
         public boolean getState()
         {
             return state;
@@ -1572,6 +1588,11 @@ public class ColibriConferenceIQ
             {
                 xml.append(' ').append(TOKEN_ATTR_NAME).append("='")
                         .append(token).append('\'');
+            }
+            if (path != null)
+            {
+                xml.append(' ').append(PATH_ATTR_NAME).append("='")
+                        .append(path).append('\'');
             }
             xml.append("/>");
         }
