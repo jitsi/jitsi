@@ -163,7 +163,17 @@ public enum JingleAction
     /**
      * The "removesource" action used in Jitsi-Meet.
      */
-    REMOVESOURCE("removesource");
+    REMOVESOURCE("removesource"),
+
+    /**
+     * The "source-add" action used in Jitsi-Meet.
+     */
+    SOURCEADD("source-add"),
+
+    /**
+     * The "source-remove" action used in Jitsi-Meet.
+     */
+    SOURCEREMOVE("source-remove");
 
     /**
      * The name of this direction.
