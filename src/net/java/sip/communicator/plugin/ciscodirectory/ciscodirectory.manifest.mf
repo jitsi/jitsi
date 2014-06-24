@@ -1,0 +1,23 @@
+Bundle-Activator: net.java.sip.communicator.plugin.ciscodirectory.CiscoDirectoryActivator
+Bundle-Description: Cisco address source
+Bundle-Name: ciscodirectory
+Bundle-Vendor: jitsi.org
+Bundle-Version: 0.0.1
+Bundle-SymbolicName: com.tradingscreen.jitsi.ciscodirectoryplugin.ciscodirectory
+Import-Package: javax.swing,
+ javax.swing.event,
+ javax.swing.text,
+ org.jitsi.util,
+ org.jitsi.service.resources,
+ org.jitsi.service.configuration,
+ net.java.sip.communicator.plugin.desktoputil,
+ net.java.sip.communicator.service.contactsource,
+ net.java.sip.communicator.service.gui,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.globalstatus,
+ net.java.sip.communicator.service.resources,
+ net.java.sip.communicator.util,
+ org.osgi.framework,
+ javax.xml.parsers,
+ org.xml.sax,
+ org.xml.sax.helpers
