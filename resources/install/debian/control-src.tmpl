@@ -13,6 +13,8 @@ Build-Depends: debhelper (>= 9), javahelper,
                ant-contrib,
                maven,
                autotools-dev,
+               libjitsi,
+               libjitsi-jni,
                libavutil-dev,
                libavcodec-dev,
                libavformat-dev,
@@ -39,6 +41,7 @@ Build-Depends: debhelper (>= 9), javahelper,
                libhttpmime-java,
                libhttpclient-java,
                libjson-simple-java,
+               libphonenumber6-java,
                libdbus-java,
                libeasymock-java,
                libxt-dev,
@@ -67,7 +70,9 @@ Standards-Version: 3.9.4
 Package: _PACKAGE_NAME_
 Architecture: all
 Depends: ${misc:Depends},
-         lib_PACKAGE_NAME_-jni (>= ${source:Version}),
+         _PACKAGE_NAME_-jni (>= ${source:Version}),
+         libjitsi,
+         libjitsi-jni,
          default-jre | java6-runtime,
          libunixsocket-java,
          libhttpcore-java,
@@ -98,7 +103,7 @@ Description: VoIP and Instant Messaging client
  as well as chat with your friends using some of the most popular instant
  messaging protocols such as SIP/SIMPLE, XMPP/Jabber, AIM/ICQ, Yahoo and others.
 
-Package: lib_PACKAGE_NAME_-jni
+Package: _PACKAGE_NAME_-jni
 Section: libs
 Architecture: amd64 i386
 Depends: ${misc:Depends}, ${shlibs:Depends}

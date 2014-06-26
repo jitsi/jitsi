@@ -1,0 +1,42 @@
+Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Created-By: Apache Maven Bundle Plugin
+Built-By: hen
+Build-Jdk: 1.5.0_22
+Implementation-Build: UNKNOWN_BRANCH@r??????; 2011-11-09 22:58:07-0800
+Implementation-Title: Commons Lang
+Implementation-Vendor: The Apache Software Foundation
+Implementation-Vendor-Id: org.apache
+Implementation-Version: 3.1
+Specification-Title: Commons Lang
+Specification-Vendor: The Apache Software Foundation
+Specification-Version: 3.1
+X-Compile-Source-JDK: 1.5
+X-Compile-Target-JDK: 1.5
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Include-Resource: templates/release-notes.vm=src/main/resources/templa
+ tes/release-notes.vm,META-INF/LICENSE.txt=LICENSE.txt,META-INF/NOTICE
+ .txt=NOTICE.txt
+Bnd-LastModified: 1320908300777
+Export-Package: org.apache.commons.lang3.event;version="3.1",org.apach
+ e.commons.lang3.mutable;version="3.1",org.apache.commons.lang3.tuple;
+ version="3.1",org.apache.commons.lang3.time;version="3.1",org.apache.
+ commons.lang3.concurrent;version="3.1",org.apache.commons.lang3.text.
+ translate;version="3.1",org.apache.commons.lang3.text;version="3.1",o
+ rg.apache.commons.lang3.math;version="3.1",org.apache.commons.lang3;v
+ ersion="3.1",org.apache.commons.lang3.exception;version="3.1",org.apa
+ che.commons.lang3.reflect;version="3.1",org.apache.commons.lang3.buil
+ der;version="3.1"
+Bundle-Version: 3.1.0
+Bundle-Name: Commons Lang
+Bundle-Description: Commons Lang, a package of Java utility classes fo
+ r the  classes that are in java.lang's hierarchy, or are considered t
+ o be so  standard as to justify existence in java.lang.
+Private-Package: templates
+Bundle-DocURL: http://commons.apache.org/lang/
+Bundle-Vendor: The Apache Software Foundation
+Bundle-ManifestVersion: 2
+Bundle-SymbolicName: org.apache.commons.lang3
+Tool: Bnd-1.15.0
+Bundle-ClassPath: .,commons-lang.jar
+

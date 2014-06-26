@@ -21,13 +21,13 @@ override_dh_install-indep:
 # make and install the debian specific bundles
 # use the prebuild and installed bundles to extract/modify and use the
 # exising debian java packages
-	$(ANT) -file build.xml -Ddebian.bundles.dest=debian/$(PACKAGE_NAME)/usr/share/$(PACKAGE_NAME)/sc-bundles deb-bundle-jna deb-bundle-util deb-bundle-sysactivitynotifications deb-bundle-swing-ui deb-bundle-httputil deb-bundle-json deb-bundle-smacklib deb-bundle-jmdnslib deb-bundle-desktoputil deb-bundle-bouncycastle deb-bundle-plugin-accountinfo
+	$(ANT) -file build.xml -Ddebian.bundles.dest=debian/$(PACKAGE_NAME)/usr/share/$(PACKAGE_NAME)/sc-bundles deb-bundle-jna deb-bundle-util deb-bundle-sysactivitynotifications deb-bundle-swing-ui deb-bundle-json deb-bundle-smacklib deb-bundle-jmdnslib deb-bundle-desktoputil deb-bundle-bouncycastle deb-bundle-plugin-accountinfo deb-bundle-commons-lang
 
 override_dh_install-arch:
 ifeq ($(DEB_HOST_ARCH),amd64)
-	dh_install -plib$(PACKAGE_NAME)-jni lib/native/linux-64/*.so usr/lib/jni/
+	dh_install -p$(PACKAGE_NAME)-jni lib/native/linux-64/*.so usr/lib/jni/
 else
-	dh_install -plib$(PACKAGE_NAME)-jni lib/native/linux/*.so usr/lib/jni/
+	dh_install -p$(PACKAGE_NAME)-jni lib/native/linux/*.so usr/lib/jni/
 endif
 
 # we have folders with name *.jar which jh_manifest don't like and fails,

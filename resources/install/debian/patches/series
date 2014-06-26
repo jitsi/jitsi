@@ -1,4 +1,3 @@
 bcprov-upgrade-1.48
-remove-hflip
 guava-update
-bcprov-backport-1.49
+remove-dns-java-logger.patch
