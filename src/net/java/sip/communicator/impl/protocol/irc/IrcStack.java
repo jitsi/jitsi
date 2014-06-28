@@ -935,9 +935,16 @@ public class IrcStack
         private void openChatRoomWindow(ChatRoomIrcImpl chatRoom)
         {
             MUCService mucService = IrcActivator.getMUCService();
-            ChatRoomWrapper wrapper =
-                mucService.getChatRoomWrapperByChatRoom(chatRoom, true);
-            mucService.openChatRoom(wrapper);
+            try
+            {
+                ChatRoomWrapper wrapper =
+                    mucService.getChatRoomWrapperByChatRoom(chatRoom, true);
+                mucService.openChatRoom(wrapper);
+            }
+            catch (NullPointerException e)
+            {
+                LOGGER.error("failed to open chat room window", e);
+            }
         }
 
         /**
