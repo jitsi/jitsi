@@ -2086,14 +2086,18 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-IRC -->
-    <target name="bundle-irc" depends="bundle-slf4j">
+    <target name="bundle-irc" depends="bundle-irc-api">
         <!-- Creates a bundle containing the IRC impl of the protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-irc.jar"
             manifest="${src}/net/java/sip/communicator/impl/protocol/irc/irc.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/irc"
                         prefix="net/java/sip/communicator/impl/protocol/irc"/>
-            <zipfileset src="${lib.noinst}/irc-api-1.0.jar" prefix="" />
         </jar>
+    </target>
+
+    <!-- BUNDLE IRC-API -->
+    <target name="bundle-irc-api" depends="bundle-slf4j">
+        <copy file="${lib.noinst}/irc-api-1.0.jar" tofile="${bundles.dest}/irc-api-1.0.jar"/>
     </target>
 
     <!-- BUNDLE SLF4J -->

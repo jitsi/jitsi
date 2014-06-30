@@ -30,8 +30,6 @@ import com.ircclouds.irc.api.state.*;
  * An implementation of IRC using the irc-api library.
  * 
  * @author Danny van Heumen
- * 
- * TODO Make irc-api OSGi aware.
  */
 public class IrcStack
 {
