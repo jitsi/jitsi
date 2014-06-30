@@ -381,13 +381,77 @@ public class HttpUtils
      * credentials ask if any was canceled.
      */
     public static HTTPResponseResult postForm(String address,
+                                              String usernamePropertyName,
+                                              String passwordPropertyName,
+                                              ArrayList<String> formParamNames,
+                                              ArrayList<String> formParamValues,
+                                              int usernameParamIx,
+                                              int passwordParamIx,
+                                              RedirectHandler redirectHandler)
+        throws Throwable
+    {
+        return postForm(
+            address,
+            usernamePropertyName, passwordPropertyName,
+            formParamNames, formParamValues,
+            usernameParamIx, passwordParamIx,
+            redirectHandler,
+            null, null);
+    }
+
+    /**
+     * Posting form to <tt>address</tt>. For submission we use POST method
+     * which is "application/x-www-form-urlencoded" encoded.
+     * @param address HTTP address.
+     * @param headerParamNames additional header name to include
+     * @param headerParamValues corresponding header value to include
+     * @return the result or null if send was not possible or
+     * credentials ask if any was canceled.
+     */
+    public static HTTPResponseResult postForm(String address,
+                                              List<String> headerParamNames,
+                                              List<String> headerParamValues)
+        throws Throwable
+    {
+        return postForm(address, null, null, null, null, -1, -1, null,
+            headerParamNames, headerParamValues);
+    }
+
+    /**
+     * Posting form to <tt>address</tt>. For submission we use POST method
+     * which is "application/x-www-form-urlencoded" encoded.
+     * @param address HTTP address.
+     * @param usernamePropertyName the property to use to retrieve/store
+     * username value if protected site is hit, for username
+     * ConfigurationService service is used.
+     * @param passwordPropertyName the property to use to retrieve/store
+     * password value if protected site is hit, for password
+     * CredentialsStorageService service is used.
+     * @param formParamNames the parameter names to include in post.
+     * @param formParamValues the corresponding parameter values to use.
+     * @param usernameParamIx the index of the username parameter in the
+     * <tt>formParamNames</tt> and <tt>formParamValues</tt>
+     * if any, otherwise -1.
+     * @param passwordParamIx the index of the password parameter in the
+     * <tt>formParamNames</tt> and <tt>formParamValues</tt>
+     * if any, otherwise -1.
+     * @param redirectHandler handles redirection, should we redirect and
+     * the actual redirect.
+     * @param headerParamNames additional header name to include
+     * @param headerParamValues corresponding header value to include
+     * @return the result or null if send was not possible or
+     * credentials ask if any was canceled.
+     */
+    public static HTTPResponseResult postForm(String address,
                                    String usernamePropertyName,
                                    String passwordPropertyName,
                                    ArrayList<String> formParamNames,
                                    ArrayList<String> formParamValues,
                                    int usernameParamIx,
                                    int passwordParamIx,
-                                   RedirectHandler redirectHandler)
+                                   RedirectHandler redirectHandler,
+                                   List<String> headerParamNames,
+                                   List<String> headerParamValues)
         throws Throwable
     {
         DefaultHttpClient httpClient;
@@ -416,7 +480,9 @@ public class HttpUtils
                         formParamValues,
                         usernameParamIx,
                         passwordParamIx,
-                        redirectHandler);
+                        redirectHandler,
+                        headerParamNames,
+                        headerParamValues);
 
                 authEx = null;
             }
@@ -464,6 +530,8 @@ public class HttpUtils
      * @param passwordParamIx the index of the password parameter in the
      * <tt>formParamNames</tt> and <tt>formParamValues</tt>
      * if any, otherwise -1.
+     * @param headerParamNames additional header name to include
+     * @param headerParamValues corresponding header value to include
      * @return the result or null if send was not possible or
      * credentials ask if any was canceled.
      */
@@ -475,7 +543,9 @@ public class HttpUtils
                                    ArrayList<String> formParamValues,
                                    int usernameParamIx,
                                    int passwordParamIx,
-                                   RedirectHandler redirectHandler)
+                                   RedirectHandler redirectHandler,
+                                   List<String> headerParamNames,
+                                   List<String> headerParamValues)
         throws Throwable
     {
         // if we have username and password in the parameters, lets
@@ -553,6 +623,16 @@ public class HttpUtils
 
         // insert post values encoded.
         postMethod.setEntity(entity);
+
+        if(headerParamNames != null)
+        {
+            for(int i = 0; i < headerParamNames.size(); i++)
+            {
+                postMethod.addHeader(
+                    headerParamNames.get(i),
+                    headerParamValues.get(i));
+            }
+        }
 
         // execute post
         return executeMethod(
