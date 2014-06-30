@@ -15,42 +15,102 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Stephane Remy
  * @author Loic Kempf
+ * @author Danny van Heumen
  */
 public class IrcAccountID
     extends AccountID
 {
     /**
+     * IRC account server host.
+     */
+    private final String host;
+    /**
+     * IRC account server port.
+     */
+    private final int port;
+    
+    /**
      * Creates an account id from the specified id and account properties.
      *
      * @param userID the user identifier corresponding to this account
+     * @param host IRC server host
+     * @param port IRC server port
      * @param accountProperties any other properties necessary for the account.
      */
-    IrcAccountID(String userID, Map<String, String> accountProperties)
+    IrcAccountID(final String userID, final String host, final String port,
+        final Map<String, String> accountProperties)
     {
-        super(  userID,
-                accountProperties,
-                ProtocolNames.IRC,
-                getServiceName(accountProperties));
+        super(userID, accountProperties, ProtocolNames.IRC,
+            getServiceName(accountProperties));
+        if (host == null)
+        {
+            throw new IllegalArgumentException("host cannot be null");
+        }
+        this.host = host;
+        if (port == null)
+        {
+            throw new IllegalArgumentException("port cannot be null");
+        }
+        this.port = Integer.parseInt(port);
     }
-    
-    // TODO Danny: Fix equality: Since we can have completely different IRC
-    // networks, we should not limit account creation purely on the user's
-    // id/nickname.
 
     /**
-     * Returns the service name - the server we are logging to
-     * if it is null which is not supposed to be - we return for compatibility
-     * the string we used in the first release for creating AccountID
-     * (Using this string is wrong, but used for compatibility for now)
+     * Equality extended with checking IRC server host and port, since different
+     * IRC networks can have users with similar names.
+     */
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        
+        return super.equals(obj)
+            && this.host.equals(((IrcAccountID) obj).host)
+            && this.port == ((IrcAccountID) obj).port;
+    }
+    
+    /**
+     * Get the IRC server host.
+     * 
+     * @return returns IRC server host
+     */
+    public String getHost()
+    {
+        return this.host;
+    }
+
+    /**
+     * Get the IRC server port.
+     * 
+     * @return returns IRC server port
+     */
+    public int getPort()
+    {
+        return this.port;
+    }
+
+    /**
+     * Returns the service name - the server we are logging to if it is null
+     * which is not supposed to be - we return for compatibility the string we
+     * used in the first release for creating AccountID (Using this string is
+     * wrong, but used for compatibility for now)
      *
      * @param accountProperties Map the properties table configuring the account
      * @return String the service name
      */
     private static String getServiceName(Map<String, String> accountProperties)
     {
-        String serviceName
-            = accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
-
+        String serviceName =
+            accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
+        if (serviceName != null)
+        {
+            final String port =
+                accountProperties.get(ProtocolProviderFactory.SERVER_PORT);
+            if (port != null)
+            {
+                serviceName += ":" + port;
+            }
+        }
         return (serviceName == null) ? ProtocolNames.IRC : serviceName;
     }
 }

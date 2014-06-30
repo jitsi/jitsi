@@ -60,8 +60,12 @@ public class ProtocolProviderFactoryIrcImpl
                 "The specified property map was null");
 
         accountProperties.put(USER_ID, userIDStr);
-
-        AccountID accountID = new IrcAccountID(userIDStr, accountProperties);
+        final String host =
+            accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
+        final String port =
+            accountProperties.get(ProtocolProviderFactory.SERVER_PORT);
+        AccountID accountID =
+            new IrcAccountID(userIDStr, host, port, accountProperties);
 
         //make sure we haven't seen this account id before.
         if (registeredAccounts.containsKey(accountID))
@@ -85,11 +89,14 @@ public class ProtocolProviderFactoryIrcImpl
      * {@inheritDoc}
      */
     @Override
-    protected AccountID createAccountID(
-        String userID,
+    protected AccountID createAccountID(String userID,
         Map<String, String> accountProperties)
     {
-        return new IrcAccountID(userID, accountProperties);
+        final String host =
+            accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
+        final String port =
+            accountProperties.get(ProtocolProviderFactory.SERVER_PORT);
+        return new IrcAccountID(userID, host, port, accountProperties);
     }
 
     /**
