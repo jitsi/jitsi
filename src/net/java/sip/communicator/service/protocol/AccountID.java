@@ -1005,8 +1005,17 @@ public abstract class AccountID
                             ProtocolProviderFactory.ENCRYPTION_PROTOCOL
                                 .length() + 1);
 
-                sortedEncryptionProtocols.add(index,
-                    SrtpControlType.fromString(name));
+                try
+                {
+                    sortedEncryptionProtocols.add(index,
+                        SrtpControlType.fromString(name));
+                }
+                catch(IllegalArgumentException exc)
+                {
+                    logger.error(
+                        "Failed to get SRTP control type for name: '"
+                            + name + "', key: '" + e.getKey() + "'", exc);
+                }
             }
         }
 
