@@ -137,12 +137,7 @@ public class OperationSetMultiUserChatIrcImpl
         throws OperationFailedException,
                OperationNotSupportedException
     {
-        if (this.chatRoomCache.containsKey(roomName))
-        {
-            throw new OperationFailedException("room already exists",
-                OperationFailedException.IDENTIFICATION_CONFLICT);
-        }
-        return createLocalChatRoomInstance(roomName);
+        return findOrCreateRoom(roomName);
     }
 
     /**
