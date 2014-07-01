@@ -795,6 +795,8 @@ public class IrcStack
 
         for (IRCUser user : channel.getUsers())
         {
+            // TODO Correctly gather active member statuses and choose strongest
+            // normal + voice + half-ops (a.k.a. moderator) + ops
             ChatRoomMemberRole role = ChatRoomMemberRole.SILENT_MEMBER;
             for (IRCUserStatus status : channel.getStatusesForUser(user))
             {

@@ -121,9 +121,10 @@ public class ProtocolProviderFactoryIrcImpl
      * {@inheritDoc}
      */
     @Override
-    public void modifyAccount(  ProtocolProviderService protocolProvider,
-                                Map<String, String> accountProperties)
+    public void modifyAccount(ProtocolProviderService protocolProvider,
+        Map<String, String> accountProperties)
     {
-        // TODO Auto-generated method stub
+        // not implemented, modified accounts currently get reinstalled as
+        // "newly" created accounts.
     }
 }
