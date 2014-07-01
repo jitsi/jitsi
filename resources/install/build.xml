@@ -2444,6 +2444,9 @@
             and libsrc
         -->
 
+        <unzip src="${sc.basedir}/../libsrc/libphonenumber-6.3-SNAPSHOT-sources.jar"
+               dest="${debian.src.dir}/lib/src/libphonenumber/src"/>
+
         <!-- jdic_misc -->
         <unzip src="${sc.basedir}/../libsrc/jdic_misc.zip"
                dest="${debian.src.dir}/lib/src/">
@@ -2641,10 +2644,28 @@
         <property name="debian.src.dir"
             value="${debian.tmp.dir}/${package.name}-${sip-communicator.version}" />
 
-        <!--TODO-->
+        <!--TODO
         <symlink resource="/usr/share/java/libphonenumber.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/installer-exclude/"/>
+        -->
+        <mkdir dir="${debian.src.dir}/lib/src/libphonenumber/classes"/>
+        <javac debug="true"
+               deprecation="true" destdir="${debian.src.dir}/lib/src/libphonenumber/classes"
+               nowarn="false"
+               source="1.6" target="1.6" fork="true">
+            <src path="${debian.src.dir}/lib/src/libphonenumber/src"/>
+            <include name="**/*.java" />
+        </javac>
+        <jar compress="true" destfile="${debian.src.dir}/lib/src/libphonenumber/libphonenumber.jar">
+            <zipfileset dir="${debian.src.dir}/lib/src/libphonenumber/classes"/>
+            <zipfileset dir="${debian.src.dir}/lib/src/libphonenumber/src">
+                <include name="com/google/i18n/phonenumbers/data/*"/>
+            </zipfileset>
+        </jar>
+        <symlink resource="${debian.src.dir}/lib/src/libphonenumber/libphonenumber.jar"
+                 overwrite="true"
+                 link="${debian.src.dir}/lib/installer-exclude/libphonenumber-5.9.jarw"/>
 
         <symlink resource="/usr/share/java/org.apache.felix.main.jar"
                  overwrite="true"
