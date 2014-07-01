@@ -4,12 +4,11 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.gui.main.call;
+package net.java.sip.communicator.plugin.desktoputil;
 
 import java.awt.*;
 import java.security.cert.*;
 import javax.swing.*;
-import net.java.sip.communicator.plugin.desktoputil.*;
 import org.jitsi.service.resources.*;
 
 /**
@@ -111,10 +110,10 @@ public class ViewCertificateFrame
         descriptionPane.setContentType("text/html");
         descriptionPane.setText(message);
         descriptionPane.setSize(
-                    new Dimension(MAX_MSG_PANE_WIDTH, MAX_MSG_PANE_HEIGHT));
+                new Dimension(MAX_MSG_PANE_WIDTH, MAX_MSG_PANE_HEIGHT));
         int height = descriptionPane.getPreferredSize().height;
         descriptionPane.setPreferredSize(
-                    new Dimension(MAX_MSG_PANE_WIDTH, height));
+                new Dimension(MAX_MSG_PANE_WIDTH, height));
 
         northPanel.add(descriptionPane, BorderLayout.CENTER);
         contentPane.add(northPanel, BorderLayout.NORTH);
@@ -150,7 +149,7 @@ public class ViewCertificateFrame
             }
         });
         setPreferredSize(null);
-        
+
         pack();
     }
 
