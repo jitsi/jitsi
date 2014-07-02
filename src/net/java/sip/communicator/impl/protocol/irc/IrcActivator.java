@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.irc;
 import java.util.*;
 
 import net.java.sip.communicator.service.certificate.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
@@ -58,6 +59,11 @@ public class IrcActivator
      * MultiUserChat Service instance.
      */
     private static MUCService mucService;
+
+    /**
+     * UI Service instance.
+     */
+    private static UIService uiService;
 
     /**
      * Called when this bundle is started. In here we'll export the
@@ -156,6 +162,20 @@ public class IrcActivator
         return mucService;
     }
     
+    /**
+     * Return the UI service impl.
+     * 
+     * @return
+     */
+    public static UIService getUIService()
+    {
+        if (uiService == null)
+        {
+            uiService = ServiceUtils.getService(bundleContext, UIService.class);
+        }
+        return uiService;
+    }
+
     /**
      * Return the certificate verification service impl.
      * 

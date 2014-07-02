@@ -14,6 +14,7 @@ import javax.net.ssl.*;
 
 import net.java.sip.communicator.impl.protocol.irc.ModeParser.ModeEntry;
 import net.java.sip.communicator.service.certificate.*;
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -930,16 +931,23 @@ public class IrcStack
          * join event, must also be handled and we should display the chat room
          * window in that case, to alert the user that this happened.
          * 
+         * TODO Move this operation to somewhere "higher" up on the chain. Maybe
+         * in the ProtocolProviderService implementation, e.g. as a
+         * (conditional) operation in a fireLocalUserPresence call? (The IRC
+         * client glue should not be bothered by whether or not the chat room
+         * window is actually opened or not ...)
+         * 
          * @param chatRoom the chat room
          */
         private void openChatRoomWindow(ChatRoomIrcImpl chatRoom)
         {
             MUCService mucService = IrcActivator.getMUCService();
+            UIService uiService = IrcActivator.getUIService();
             try
             {
                 ChatRoomWrapper wrapper =
                     mucService.getChatRoomWrapperByChatRoom(chatRoom, true);
-                mucService.openChatRoom(wrapper);
+                uiService.openChatRoomWindow(wrapper);
             }
             catch (NullPointerException e)
             {
