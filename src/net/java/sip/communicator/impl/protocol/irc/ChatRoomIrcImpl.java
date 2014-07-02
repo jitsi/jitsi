@@ -328,6 +328,10 @@ public class ChatRoomIrcImpl
      */
     public void leave()
     {
+        if (this.isPrivate())
+        {
+            return;
+        }
         this.parentProvider.getIrcStack().leave(this);
         this.chatRoomMembers.clear();
     }
