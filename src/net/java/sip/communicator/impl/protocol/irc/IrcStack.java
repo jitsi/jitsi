@@ -50,16 +50,14 @@ public class IrcStack
     private final ProtocolProviderServiceIrcImpl provider;
 
     /**
-     * Container for channels that are being joined at the moment.
-     * 
-     * TODO Consider removing field 'joining' and use field 'joined' with a null
-     * ChatRoomIrcImpl instance.
-     */
-    private final Map<String, Result<Object, Exception>> joining = Collections
-        .synchronizedMap(new HashMap<String, Result<Object, Exception>>());
-
-    /**
      * Container for joined channels.
+     * 
+     * There are two different cases:
+     * 
+     * <pre>
+     * - null value: joining is initiated but still in progress.
+     * - non-null value: joining is finished, chat room instance is available.
+     * </pre>
      */
     private final Map<String, ChatRoomIrcImpl> joined = Collections
         .synchronizedMap(new HashMap<String, ChatRoomIrcImpl>());
@@ -148,7 +146,6 @@ public class IrcStack
             return;
 
         // Make sure we start with an empty joined-channel list.
-        this.joining.clear();
         this.joined.clear();
         
         final IRCServer server;
@@ -297,13 +294,16 @@ public class IrcStack
         if (this.connectionState == null && this.irc == null)
             return;
 
-        // TODO Handle aborting joining attempts registered in this.joining.
-        
         synchronized (this.joined)
         {
             // Leave all joined channels.
             for (ChatRoomIrcImpl channel : this.joined.values())
             {
+                if (channel == null)
+                {
+                    // TODO how to cancel running joining attempt
+                    continue;
+                }
                 leave(channel);
             }
         }
@@ -405,7 +405,8 @@ public class IrcStack
      */
     public boolean isJoined(ChatRoomIrcImpl chatroom)
     {
-        return this.joined.containsKey(chatroom.getIdentifier());
+        // TODO Do we really consider a joining attempt as joined?
+        return this.joined.get(chatroom.getIdentifier()) != null;
     }
 
     /**
@@ -512,7 +513,7 @@ public class IrcStack
                 .trace("Issue join channel command to IRC library and wait for"
                     + " join operation to complete (un)successfully.");
 
-            this.joining.put(chatroom.getIdentifier(), joinSignal);
+            this.joined.put(chatroom.getIdentifier(), null);
             // TODO Refactor this ridiculous nesting of functions and
             // classes.
             this.irc.joinChannel(chatroom.getIdentifier(), password,
@@ -552,7 +553,9 @@ public class IrcStack
                                             + "since that channel was not "
                                             + "announced.");
                                 }
-                                IrcStack.this.joining.remove(chatRoomId);
+                                // FIXME Can it go wrong if we unconditionally
+                                // remove the chatroomId entry?
+                                IrcStack.this.joined.remove(chatRoomId);
                                 IrcStack.this.provider
                                     .getMUC()
                                     .fireLocalUserPresenceEvent(
@@ -573,7 +576,6 @@ public class IrcStack
                             try
                             {
                                 IrcStack.this.joined.put(chatRoomId, chatroom);
-                                IrcStack.this.joining.remove(chatRoomId);
                                 IrcStack.this.irc
                                     .addListener(new ChatRoomListener(
                                         chatroom));
@@ -621,7 +623,7 @@ public class IrcStack
                         {
                             try
                             {
-                                IrcStack.this.joining.remove(chatRoomId);
+                                IrcStack.this.joined.remove(chatRoomId);
                                 IrcStack.this.provider
                                     .getMUC()
                                     .fireLocalUserPresenceEvent(
@@ -881,12 +883,11 @@ public class IrcStack
                     // Synchronize the section that checks then adds a chat
                     // room. This way we can be sure that there are no 2
                     // simultaneous creation events.
-                    if (IrcStack.this.joining.containsKey(channelName)
-                        || IrcStack.this.joined.containsKey(channelName))
+                    if (IrcStack.this.joined.containsKey(channelName))
                     {
                         LOGGER.trace("Chat room '" + channelName
-                            + "' join event was announced. Stop "
-                            + "handling this event.");
+                            + "' join event was announced or already "
+                            + "finished. Stop handling this event.");
                         break;
                     }
                     // We aren't currently attempting to join, so this join is
