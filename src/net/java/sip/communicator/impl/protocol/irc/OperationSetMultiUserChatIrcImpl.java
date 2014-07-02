@@ -165,12 +165,15 @@ public class OperationSetMultiUserChatIrcImpl
      */
     public ChatRoomIrcImpl findOrCreateRoom(String roomName)
     {
-        ChatRoomIrcImpl room = chatRoomCache.get(roomName);
-        if (room == null)
+        synchronized (this.chatRoomCache)
         {
-            room = createLocalChatRoomInstance(roomName);
+            ChatRoomIrcImpl room = chatRoomCache.get(roomName);
+            if (room == null)
+            {
+                room = createLocalChatRoomInstance(roomName);
+            }
+            return room;
         }
-        return room;
     }
 
     /**
@@ -213,6 +216,8 @@ public class OperationSetMultiUserChatIrcImpl
 
     /**
      * Creates a <tt>ChatRoom</tt> from the specified chat room name.
+     * 
+     * Must be used in SYNCHRONIZED context.
      *
      * @param chatRoomName the name of the chat room to add
      *
@@ -220,15 +225,12 @@ public class OperationSetMultiUserChatIrcImpl
      */
     private ChatRoomIrcImpl createLocalChatRoomInstance(String chatRoomName)
     {
-        synchronized(chatRoomCache)
-        {
-            ChatRoomIrcImpl chatRoom
-                = new ChatRoomIrcImpl(chatRoomName, ircProvider);
+        ChatRoomIrcImpl chatRoom =
+            new ChatRoomIrcImpl(chatRoomName, ircProvider);
 
-            this.chatRoomCache.put(chatRoom.getName(), chatRoom);
+        this.chatRoomCache.put(chatRoom.getName(), chatRoom);
 
-            return chatRoom;
-        }
+        return chatRoom;
     }
     
     /**
