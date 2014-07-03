@@ -1,9 +1,23 @@
 _PACKAGE_NAME_ (_VERSION_) unstable; urgency=low
 
   * Updates upstream.
+  * Now depends libjitsi package.
   * Fixes BundleException: Unresolved constraint in bundle propertieseditor. (Closes: #736773)
+  * Fixes commons lang missing felix manifests. (Closes: #736773)
 
  -- Damian Minkov <damencho@jitsi.org>  _DATE_
+
+jitsi (2.4.4997-1.2) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Upload to unstable.
+  * debian/patches/json.patch: Update paths to json-simple.jar since
+    libjson-simple-java 1.1.1-2 dropped the compatibility symlink. (Closes:
+    #747789)
+  * debian/control: Bump (Build-)Depends on libjson-simple-java to >= 1.1.1.
+    The name got changed to json-simple.jar starting with 1.1.1.
+
+ -- Sebastian Ramacher <sramacher@debian.org>  Tue, 20 May 2014 22:02:47 +0200
 
 jitsi (2.4.4997-1) unstable; urgency=low
 
