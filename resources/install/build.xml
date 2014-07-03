@@ -2215,7 +2215,7 @@
                  token="override_dh_install-arch:"
                  value="override_dh_install:"/>
         <replace file="${debianize.dir}/rules"
-                 token="lib$(PACKAGE_NAME)-jni"
+                 token="$(PACKAGE_NAME)-jni"
                  value="$(PACKAGE_NAME)"/>
         <replace file="${debianize.dir}/rules"
                  token=" usr/lib/jni/"
