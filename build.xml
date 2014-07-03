@@ -598,6 +598,12 @@
         depends="prepare-all-tests,prepare-local-accounts,deploy-os-specific-bundles"
         description="Starts felix and runs selected Service Impl Compatibility Kits.">
 
+        <condition property="logging.config.file"
+                   value="${custom.logging.config.file}"
+                   else="${lib}/logging.properties">
+            <isset property="custom.logging.config.file"/>
+        </condition>
+
         <!-- Do the testing itself. Note that we don't fail on error as we need
              to generate an html report before leaving this target.-->
         <java classname="org.apache.felix.main.Main"
@@ -635,7 +641,7 @@
 
             <!-- Tell java.util.logging about our logging preferences -->
             <sysproperty key="java.util.logging.config.file"
-                value="${lib}/logging.properties"/>
+                value="${logging.config.file}"/>
 
             <!-- Tell all protocol testers their account details. -->
             <syspropertyset id="accounts">
