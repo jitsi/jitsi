@@ -23,6 +23,36 @@ public class SIPCommunicatorJWS
         // allow access to everything
         System.setSecurityManager(null);
 
+        // optional: the name of another class with a main method
+        // that should be started in the same JVM:
+        String chainMain = System.getProperty("chain.main.class");
+        if(chainMain != null) {
+            // optional: a space-separated list of arguments to be passed
+            // to the chained main() method:
+            String chainArgs = System.getProperty("chain.main.args");
+            if(chainArgs == null) {
+                chainArgs = "";
+            }
+            final String[] _chainArgs = chainArgs.split("\\s");
+            try {
+                Class c = Class.forName(chainMain);
+                final Method m = c.getMethod("main", _chainArgs.getClass());
+                new Thread() {
+                    public void run() {
+                        try {
+                            m.invoke(null, new Object[]{_chainArgs});
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            System.err.println("Exception running the chained main class, will continue anyway.");
+                        }
+                    }
+                }.start();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                System.err.println("Exception finding the chained main class, will continue anyway.");
+            }
+        }
+
         // prepare the logger
         // needed by the FileHandler-Logger
         SIPCommunicator.setScHomeDir(System.getProperty("os.name"));
