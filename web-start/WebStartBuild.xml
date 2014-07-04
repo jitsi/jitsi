@@ -17,7 +17,7 @@
 	<property name="unpack200.path" value="${java.jdk.dir}/bin/unpack200" />
 	<property name="jarsigner.path" value="${java.jdk.dir}/bin/jarsigner" />
 
-	<target name="compile-ant-ext">
+	<target name="compile-ant-ext" depends="prepare">
 		<javac srcdir="${ant-ext-src.dir}" destdir="${ant-ext.dir}" includeantruntime="true" />
 	</target>
 
