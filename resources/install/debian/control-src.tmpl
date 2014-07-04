@@ -70,8 +70,8 @@ Package: _PACKAGE_NAME_
 Architecture: all
 Depends: ${misc:Depends},
          _PACKAGE_NAME_-jni (>= ${source:Version}),
-         libjitsi,
-         libjitsi-jni,
+         libjitsi (>= 415-0),
+         libjitsi-jni (>= 415-0),
          default-jre | java6-runtime,
          libunixsocket-java,
          libhttpcore-java,
@@ -103,6 +103,7 @@ Description: VoIP and Instant Messaging client
  messaging protocols such as SIP/SIMPLE, XMPP/Jabber, AIM/ICQ, Yahoo and others.
 
 Package: _PACKAGE_NAME_-jni
+Replaces: libjitsi-jni (<< 415)
 Section: libs
 Architecture: amd64 i386
 Depends: ${misc:Depends}, ${shlibs:Depends}

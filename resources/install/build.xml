@@ -3138,7 +3138,6 @@
         <antcall target="unbound"/>
         <antcall target="hwaddressretriever"/>
 
-        <antcall target="g722"/>
     </target>
 
     <!-- target to rebuild the jna bundle reusing debian package -->
