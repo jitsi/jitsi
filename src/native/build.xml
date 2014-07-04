@@ -96,7 +96,6 @@
   <echo message="x264 library: ${x264}" />
   <echo message="lame library: ${lame}" />
   <echo message="portaudio library: ${portaudio}" />
-  <echo message="speex library: ${speex}" />
   <echo message="Install directory ${native_install_dir}" />
   <echo message="arch: ${arch}" />
   -->
@@ -218,151 +217,6 @@
       <linkerarg value="-Wl,--kill-at" if="is.running.windows" />
 
       <fileset dir="${src}/native/hid" includes="net*.c KeyboardUtil_windows.c" if="is.running.windows" />
-    </cc>
-  </target>
-
-  <!-- compile jspeex library -->
-  <target name="speex" description="Build jspeex shared library" depends="init-native">
-
-      <condition property="is.speex.set" value="true">
-          <and>
-              <isset property="speex"/>
-              <not>
-                  <isset property="speex.dynamic"/>
-              </not>
-          </and>
-      </condition>
-      <condition property="is.speex.set" value="true">
-          <and>
-              <isset property="speex.dynamic"/>
-              <not>
-                  <isset property="speex"/>
-              </not>
-          </and>
-      </condition>
-
-      <condition property="is.speex.dynamic.set" value="true">
-          <and>
-              <isset property="speex.dynamic"/>
-              <isset property="is.running.linux"/>
-          </and>
-      </condition>
-
-      <fail message="speex repository not set!" unless="is.speex.set" />
-
-    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jnspeex" objdir="${obj}">
-      <!-- common compiler flags -->
-      <compilerarg value="-std=c99" />
-      <compilerarg value="-Wall" />
-      <compilerarg value="-O2" />
-      <compilerarg value="-I${speex}/include" />
-      <compilerarg value="-D_JNI_IMPLEMENTATION_" />
-
-      <linkerarg value="-L${speex}/libspeex/.libs" />
-
-      <!-- Linux specific flags -->
-      <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
-      <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
-      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
-      <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
-
-      <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
-      <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
-
-      <!-- static libraries MUST be at the end otherwise
-      they will not be added to shared library
-      -->
-      <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
-      <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.linux" unless="speex.dynamic"/>
-      <linkerarg value="-lspeex" location="end" if="is.running.linux" unless="speex.dynamic"/>
-      <linkerarg value="-lspeexdsp" location="end" if="is.running.linux" unless="speex.dynamic"/>
-      <linkerarg value="-Wl,-Bdynamic" location="end" if="is.running.linux" />
-      <linkerarg value="-lspeex" location="end" if="is.speex.dynamic.set"/>
-      <linkerarg value="-lspeexdsp" location="end" if="is.speex.dynamic.set"/>
-      <linkerarg value="-lm" location="end" if="is.running.linux" />
-
-      <!-- Mac OS X specific flags -->
-      <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
-      <compilerarg value="-arch"  if="is.running.macos" />
-      <compilerarg value="x86_64" if="is.running.macos" />
-      <compilerarg value="-arch" if="is.running.macos" />
-      <compilerarg value="i386" if="is.running.macos" />
-      <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" if="is.running.macos" />
-
-      <linkerarg value="-o" location="end" if="is.running.macos" />
-      <linkerarg value="libjspeex.jnilib" location="end" if="is.running.macos" />
-      <linkerarg value="-dynamiclib" if="is.running.macos" />
-      <linkerarg value="-arch" if="is.running.macos" />
-      <linkerarg value="x86_64" if="is.running.macos" />
-      <linkerarg value="-arch" if="is.running.macos" />
-      <linkerarg value="i386" if="is.running.macos" />
-      <linkerarg value="-lspeex" location="end" if="is.running.macos" />
-      <linkerarg value="-lspeexdsp" location="end" if="is.running.macos" />
-
-      <!-- Windows specific flags -->
-      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.windows" />
-      <compilerarg value="-I${system.JAVA_HOME}/include/win32" if="is.running.windows" />
-
-      <linkerarg value="-ojspeex.dll" if="is.running.windows" />
-      <linkerarg value="-Wl,--kill-at" if="is.running.windows" />
-      <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.windows" />
-      <linkerarg value="-lspeex" location="end" if="is.running.windows" />
-      <linkerarg value="-lspeexdsp" location="end" if="is.running.windows" />
-      <linkerarg value="-Wl,-Bdynamic" location="end" if="is.running.windows" />
-      <linkerarg value="-lm" location="end" if="is.running.windows" />
-
-      <fileset dir="${src}/native/speex" includes="*.c"/>
-    </cc>
-  </target>
-
-  <!-- compile jng722 library -->
-  <target name="g722" description="Build jng722 shared library" depends="init-native">
-
-    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jng722" objdir="${obj}">
-      <!-- common compiler flags -->
-      <compilerarg value="-std=c99" />
-      <compilerarg value="-Wall" />
-      <compilerarg value="-O2" />
-      <compilerarg value="-D_JNI_IMPLEMENTATION_" />
-
-      <!-- Linux specific flags -->
-      <compilerarg value="-m32" if="cross_32" unless="is.running.macos" />
-      <compilerarg value="-m64" if="cross_64" unless="is.running.macos" />
-      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
-      <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
-
-      <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
-      <linkerarg value="-m64" if="cross_64" unless="is.running.macos" />
-      <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
-
-      <!-- Mac OS X specific flags -->
-      <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
-      <compilerarg value="-arch"  if="is.running.macos" />
-      <compilerarg value="x86_64" if="is.running.macos" />
-      <compilerarg value="-arch" if="is.running.macos" />
-      <compilerarg value="i386" if="is.running.macos" />
-      <compilerarg value="-arch" if="is.running.macos" />
-      <compilerarg value="ppc" if="is.running.macos" />
-      <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" if="is.running.macos" />
-
-      <linkerarg value="-o" location="end" if="is.running.macos" />
-      <linkerarg value="libjng722.jnilib" location="end" if="is.running.macos" />
-      <linkerarg value="-dynamiclib" if="is.running.macos" />
-      <linkerarg value="-arch" if="is.running.macos" />
-      <linkerarg value="x86_64" if="is.running.macos" />
-      <linkerarg value="-arch" if="is.running.macos" />
-      <linkerarg value="i386" if="is.running.macos" />
-      <linkerarg value="-arch" if="is.running.macos" />
-      <linkerarg value="ppc" if="is.running.macos" />
-
-      <!-- Windows specific flags -->
-      <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.windows" />
-      <compilerarg value="-I${system.JAVA_HOME}/include/win32" if="is.running.windows" />
-
-      <linkerarg value="-ojng722.dll" if="is.running.windows" />
-      <linkerarg value="-Wl,--kill-at" if="is.running.windows" />
-
-      <fileset dir="${src}/native/g722" includes="*.c"/>
     </cc>
   </target>
 
@@ -534,42 +388,6 @@
 
       <fileset dir="${src}/native/macosx/sparkle" includes="*.m"/>
     </cc>
-  </target>
-
-  <!-- compile jnquicktime library for Mac OS X (32-bit/64-bit/ppc) -->
-  <target name="quicktime" description="Build jnquicktime shared library for Mac OS X" if="is.running.macos"
-    depends="init-native">
-    <cc outtype="shared" name="gcc" outfile="${native_install_dir}/jnquicktime" objdir="${obj}">
-      <compilerarg value="-Wall" />
-      <compilerarg value="-O2" />
-      <compilerarg value="-arch" />
-      <compilerarg value="x86_64" />
-      <compilerarg value="-arch" />
-      <compilerarg value="i386" />
-      <compilerarg value="-arch" />
-      <compilerarg value="ppc" />
-      <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" />
-
-      <linkerarg value="-o" location="end" />
-      <linkerarg value="libjnquicktime.jnilib" location="end" />
-      <linkerarg value="-arch" />
-      <linkerarg value="x86_64" />
-      <linkerarg value="-arch" />
-      <linkerarg value="i386" />
-      <linkerarg value="-arch" />
-      <linkerarg value="ppc" />
-      <linkerarg value="-framework" />
-      <linkerarg value="Foundation" />
-      <linkerarg value="-framework" />
-      <linkerarg value="QTKit" />
-      <linkerarg value="-framework" />
-      <linkerarg value="Quartz" />
-
-      <fileset dir="${src}/native/macosx/quicktime" includes="*.c *.m"/>
-    </cc>
-
-    <delete dir="${obj}" failonerror="false" />
-    <delete file="${native_install_dir}/history.xml" failonerror="false" />
   </target>
 
     <target name="sysactivity" description="Build sysactivity"
@@ -802,8 +620,6 @@
   <target name="help-native">
     <echo message="Targets available:" />
     <echo message="'ant screencapture' to compile screencapture shared library" />
-    <echo message="'ant speex' to compile jspeex shared library" />
-    <echo message="'ant g722' to compile jng722 shared library" />
     <echo message="'ant hid' to compile hid shared library" />
     <echo message="'ant hwaddressretriever' to compile hwaddressretriever shared library" />
     <echo message="'ant galagonotification (Linux only)' to compile galagonotification shared library" />
@@ -815,12 +631,6 @@
     <echo message="Options:" />
     <echo message="-Darch: cross-compile for 32-bit (-Darch=32), 64-bit (-Darch=64) or ppc (-Darch=ppc, Mac OS X only) targets. Windows users have to use gcc >= 4.5." />
     <echo message="" />
-    <echo message="Please note that external libraries such as ffmpeg, x264, lame, portaudio and speex have to be compiled" />
-    <echo message="(follow READMEs in relevant directory) before trying to compile libffmpeg and libjnportaudio"  />
-    <echo message="When compiling libffmpeg you have to tell ant script the directory of ffmpeg and x264 with"  />
-    <echo message="-Dffmpeg=/path/to/ffmpeg and -Dx264=/path/to/x264 -Dlame=/path/to/lame"  />
-    <echo message="When compiling libjnportaudio you have to tell ant script the directory of portaudio and speex with"  />
-    <echo message="-Dportaudio=/path/to/portaudio and -Dspeex=/path/to/speex"  />
   </target>
 
   <!-- compile jmsoutlookaddrbook library for Windows -->
