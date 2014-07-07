@@ -64,6 +64,8 @@ public class ColibriConferenceIQ
      */
     public Recording recording = null;
 
+    private RTCPTerminationStrategy rtcpTerminationStrategy = null;
+
     /** Initializes a new <tt>ColibriConferenceIQ</tt> instance. */
     public ColibriConferenceIQ()
     {
@@ -141,6 +143,10 @@ public class ColibriConferenceIQ
                 content.toXML(xml);
             if (recording != null)
                 recording.toXML(xml);
+
+            if (rtcpTerminationStrategy != null)
+                rtcpTerminationStrategy.toXML(xml);
+
             xml.append("</").append(ELEMENT_NAME).append('>');
         }
         return xml.toString();
@@ -251,6 +257,16 @@ public class ColibriConferenceIQ
     public void setID(String id)
     {
         this.id = id;
+    }
+
+    public RTCPTerminationStrategy getRTCPTerminationStrategy()
+    {
+        return rtcpTerminationStrategy;
+    }
+
+    public void setRTCPTerminationStrategy(RTCPTerminationStrategy rtcpTerminationStrategy)
+    {
+        this.rtcpTerminationStrategy = rtcpTerminationStrategy;
     }
 
     /**
@@ -512,6 +528,33 @@ public class ColibriConferenceIQ
             {
                 xml.append(" />");
             }
+        }
+    }
+
+    public static class RTCPTerminationStrategy
+    {
+
+        public static final String ELEMENT_NAME = "rtcp-termination-strategy";
+        public static final String NAME_ATTR_NAME = "name";
+
+        private String name;
+
+        public void setName(String name)
+        {
+            this.name = name;
+        }
+
+        public String getName()
+        {
+            return name;
+        }
+
+        public void toXML(StringBuilder xml)
+        {
+            xml.append('<').append(ELEMENT_NAME);
+            xml.append(' ').append(NAME_ATTR_NAME).append("='")
+                    .append(name).append('\'');
+            xml.append("/>");
         }
     }
 
