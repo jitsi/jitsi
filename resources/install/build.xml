@@ -1947,6 +1947,8 @@
             <replacevalue></replacevalue>
         </replace>
 
+        <antcall target="-deb-felix.client.run-for-src"/>
+
         <copy file="${lib}/jitsi-defaults.properties"
               tofile="${debianize.dir}/../lib/jitsi-defaults.properties"
               overwrite="true"
@@ -2106,6 +2108,16 @@
         <copy todir="${debianize.dir}/patches">
             <fileset dir="${inst.resrc}/debian/patches"/>
         </copy>
+    </target>
+
+    <target name="-deb-felix.client.run-for-src"
+            if="debianize.src.pkg">
+        <replace file="${debianize.dir}/../lib/felix.client.run.properties"
+                 token=" reference:file:sc-bundles/httpclient.jar \${line.separator}">
+            <replacevalue> reference:file:sc-bundles/httpclient.jar \
+ reference:file:sc-bundles/httpmime.jar \
+            </replacevalue>
+        </replace>
     </target>
 
     <target name="-deb-manage-jitsi-default-overrides"
@@ -2665,7 +2677,7 @@
         </jar>
         <symlink resource="${debian.src.dir}/lib/src/libphonenumber/libphonenumber.jar"
                  overwrite="true"
-                 link="${debian.src.dir}/lib/installer-exclude/libphonenumber-5.9.jarw"/>
+                 link="${debian.src.dir}/lib/installer-exclude/libphonenumber-5.9.jar"/>
 
         <symlink resource="/usr/share/java/org.apache.felix.main.jar"
                  overwrite="true"
@@ -3534,10 +3546,220 @@
             in debian dest folder debian.bundles.dest.-->
         <delete file="${debian.bundles.dest}/commons-lang.jar" failonerror="false"/>
         <mkdir dir="${debian.bundles.dest}/commons-lang.jar/META-INF"/>
-        <symlink resource="../../../../share/java/commons-lang.jar"
+        <symlink resource="../../../../share/java/commons-lang3.jar"
                  link="${debian.bundles.dest}/commons-lang.jar/commons-lang.jar"/>
         <copy file="${lib.noinst}/commons-lang3-3.1.manifest.mf"
               tofile="${debian.bundles.dest}/commons-lang.jar/META-INF/MANIFEST.MF"/>
+    </target>
+
+    <!-- hsqldb missing bundle manifest -->
+    <target name="deb-bundle-hsqldb">
+        <!-- Creates a bundle containing the commons-lang implementation
+            in debian dest folder debian.bundles.dest.-->
+        <delete file="${debian.bundles.dest}/hsqldb.jar" failonerror="false"/>
+        <mkdir dir="${debian.bundles.dest}/hsqldb.jar/META-INF"/>
+        <symlink resource="../../../../share/java/hsqldb.jar"
+                 link="${debian.bundles.dest}/hsqldb.jar/hsqldb.jar"/>
+        <copy file="${lib.noinst}/hsqldb.jar.manifest.mf"
+              tofile="${debian.bundles.dest}/hsqldb.jar/META-INF/MANIFEST.MF"/>
+
+    </target>
+    <!-- Fix all bundles that depends on libjitsi libs, to reuse them -->
+    <target name="deb-libjitsi-deps">
+
+        <symlink overwrite="true"
+                 resource="../../../share/libjitsi/lib/bccontrib.jar"
+                 link="${debian.bundles.dest}/bccontrib.jar"/>
+
+        <unzip src="${debian.bundles.dest}/libjitsi.jar"
+               dest="${debian.bundles.dest}">
+            <patternset>
+                <include name="META-INF/MANIFEST.MF"/>
+            </patternset>
+        </unzip>
+        <delete file="${debian.bundles.dest}/libjitsi.jar"/>
+        <mkdir dir="${debian.bundles.dest}/libjitsi.jar/META-INF"/>
+        <symlink resource="../../../../share/java/bcpkix.jar"
+                 link="${debian.bundles.dest}/libjitsi.jar/"/>
+        <symlink resource="../../../../share/libjitsi/libjitsi.jar"
+                 link="${debian.bundles.dest}/libjitsi.jar/"/>
+        <symlink resource="../../../../share/libjitsi/lib/fmj.jar"
+                 link="${debian.bundles.dest}/libjitsi.jar/"/>
+
+        <!-- Create the sys .jar-->
+        <jar compress="false"
+             destfile="${debian.bundles.dest}/libjitsi.jar/libjitsi-impl.jar">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/libjitsi"
+                        prefix="net/java/sip/communicator/impl/libjitsi"/>
+        </jar>
+        <move file="${debian.bundles.dest}/META-INF/MANIFEST.MF"
+              todir="${debian.bundles.dest}/libjitsi.jar/META-INF"/>
+        <delete dir="${debian.bundles.dest}/META-INF"/>
+
+        <!-- Removes the last empty line -->
+        <replaceregexp
+            file="${debian.bundles.dest}/libjitsi.jar/META-INF/MANIFEST.MF"
+            match="^\r\n$"
+            flags="m"
+            replace=""/>
+        <concat
+            destfile="${debian.bundles.dest}/libjitsi.jar/META-INF/MANIFEST.MF"
+            append="true"
+            eol="crlf"
+            fixlastline="true">Bundle-ClassPath: .,libjitsi-impl.jar,fmj.jar,libjitsi.jar,bcpkix.jar&#013;&#010;&#013;&#010;</concat>
+
+        <!--bundle-netaddr-->
+        <unzip src="${debian.bundles.dest}/netaddr.jar"
+               dest="${debian.bundles.dest}">
+            <patternset>
+                <include name="META-INF/MANIFEST.MF"/>
+            </patternset>
+        </unzip>
+        <delete file="${debian.bundles.dest}/netaddr.jar"/>
+        <mkdir dir="${debian.bundles.dest}/netaddr.jar/META-INF"/>
+        <symlink resource="../../../../share/libjitsi/lib/ice4j.jar"
+                 link="${debian.bundles.dest}/netaddr.jar/"/>
+        <symlink resource="../../../../share/java/weupnp.jar"
+                 link="${debian.bundles.dest}/netaddr.jar/"/>
+
+        <!-- Create the sys .jar-->
+        <jar compress="false"
+             destfile="${debian.bundles.dest}/netaddr.jar/netaddr.jar">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/netaddr"
+                        prefix="net/java/sip/communicator/service/netaddr"/>
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/netaddr"
+                        prefix="net/java/sip/communicator/impl/netaddr"/>
+        </jar>
+        <move file="${debian.bundles.dest}/META-INF/MANIFEST.MF"
+              todir="${debian.bundles.dest}/netaddr.jar/META-INF"/>
+        <delete dir="${debian.bundles.dest}/META-INF"/>
+
+        <!-- Removes the last empty line -->
+        <replaceregexp
+            file="${debian.bundles.dest}/netaddr.jar/META-INF/MANIFEST.MF"
+            match="^\r\n$"
+            flags="m"
+            replace=""/>
+        <concat
+            destfile="${debian.bundles.dest}/netaddr.jar/META-INF/MANIFEST.MF"
+            append="true"
+            eol="crlf"
+            fixlastline="true">Bundle-ClassPath: .,netaddr.jar,ice4j.jar,weupnp.jar&#013;&#010;&#013;&#010;</concat>
+
+        <!--zrtp4j /usr/share/libjitsi/lib/zrtp4j-light.jar -->
+        <unzip src="${debian.bundles.dest}/zrtp4j.jar"
+               dest="${debian.bundles.dest}">
+            <patternset>
+                <include name="META-INF/MANIFEST.MF"/>
+            </patternset>
+        </unzip>
+        <delete file="${debian.bundles.dest}/zrtp4j.jar"/>
+        <mkdir dir="${debian.bundles.dest}/zrtp4j.jar/META-INF"/>
+        <symlink resource="../../../libjitsi/lib/zrtp4j-light.jar"
+                 link="${debian.bundles.dest}/zrtp4j.jar/"/>
+
+        <move file="${debian.bundles.dest}/META-INF/MANIFEST.MF"
+              todir="${debian.bundles.dest}/zrtp4j.jar/META-INF"/>
+        <delete dir="${debian.bundles.dest}/META-INF"/>
+
+        <!-- Removes the last empty line -->
+        <replaceregexp
+            file="${debian.bundles.dest}/zrtp4j.jar/META-INF/MANIFEST.MF"
+            match="^\r\n$"
+            flags="m"
+            replace=""/>
+        <concat
+            destfile="${debian.bundles.dest}/zrtp4j.jar/META-INF/MANIFEST.MF"
+            append="true"
+            eol="crlf"
+            fixlastline="true">Bundle-ClassPath: .,zrtp4j-light.jar&#013;&#010;&#013;&#010;</concat>
+
+        <!--sdes4j /usr/share/libjitsi/lib/sdes4j.jar -->
+        <unzip src="${debian.bundles.dest}/sdes4j.jar"
+               dest="${debian.bundles.dest}">
+            <patternset>
+                <include name="META-INF/MANIFEST.MF"/>
+            </patternset>
+        </unzip>
+        <delete file="${debian.bundles.dest}/sdes4j.jar"/>
+        <mkdir dir="${debian.bundles.dest}/sdes4j.jar/META-INF"/>
+        <symlink resource="../../../libjitsi/lib/sdes4j.jar"
+                 link="${debian.bundles.dest}/sdes4j.jar/"/>
+
+        <move file="${debian.bundles.dest}/META-INF/MANIFEST.MF"
+              todir="${debian.bundles.dest}/sdes4j.jar/META-INF"/>
+        <delete dir="${debian.bundles.dest}/META-INF"/>
+
+        <!-- Removes the last empty line -->
+        <replaceregexp
+            file="${debian.bundles.dest}/sdes4j.jar/META-INF/MANIFEST.MF"
+            match="^\r\n$"
+            flags="m"
+            replace=""/>
+        <concat
+            destfile="${debian.bundles.dest}/sdes4j.jar/META-INF/MANIFEST.MF"
+            append="true"
+            eol="crlf"
+            fixlastline="true">Bundle-ClassPath: .,sdes4j.jar&#013;&#010;&#013;&#010;</concat>
+
+        <!--bundle-sip-->
+        <unzip src="${debian.bundles.dest}/protocol-sip.jar"
+               dest="${debian.bundles.dest}">
+            <patternset>
+                <include name="META-INF/MANIFEST.MF"/>
+            </patternset>
+        </unzip>
+        <delete file="${debian.bundles.dest}/protocol-sip.jar"/>
+        <mkdir dir="${debian.bundles.dest}/protocol-sip.jar/META-INF"/>
+        <symlink resource="../../../../share/libjitsi/lib/jain-sip-ri.jar"
+                 link="${debian.bundles.dest}/protocol-sip.jar/"/>
+        <symlink resource="../../../../share/libjitsi/lib/jain-sip-api.jar"
+                 link="${debian.bundles.dest}/protocol-sip.jar/"/>
+        <symlink resource="../../../../share/libjitsi/lib/jain-sdp.jar"
+                 link="${debian.bundles.dest}/protocol-sip.jar/"/>
+
+        <!-- Create the sys .jar-->
+        <jar compress="false"
+             destfile="${debian.bundles.dest}/protocol-sip.jar/protocol-sip.jar">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/sip"
+                        prefix="net/java/sip/communicator/impl/protocol/sip"/>
+        </jar>
+        <move file="${debian.bundles.dest}/META-INF/MANIFEST.MF"
+              todir="${debian.bundles.dest}/protocol-sip.jar/META-INF"/>
+        <delete dir="${debian.bundles.dest}/META-INF"/>
+
+        <!-- Removes the last empty line -->
+        <replaceregexp
+            file="${debian.bundles.dest}/protocol-sip.jar/META-INF/MANIFEST.MF"
+            match="^\r\n$"
+            flags="m"
+            replace=""/>
+        <concat
+            destfile="${debian.bundles.dest}/protocol-sip.jar/META-INF/MANIFEST.MF"
+            append="true"
+            eol="crlf"
+            fixlastline="true">Bundle-ClassPath: .,protocol-sip.jar,jain-sip-ri.jar.jar,jain-sip-api.jar.jar,jain-sdp.jar&#013;&#010;&#013;&#010;</concat>
+
+    </target>
+
+    <target name="deb-bundle-httpmime">
+        <delete file="${debian.bundles.dest}/httpmime.jar" failonerror="false"/>
+        <mkdir dir="${debian.bundles.dest}/httpmime.jar/META-INF"/>
+        <symlink resource="../../../../share/java/httpmime.jar"
+                 link="${debian.bundles.dest}/httpmime.jar/httpmime.jar"/>
+        <manifest
+            file="${debian.bundles.dest}/httpmime.jar/META-INF/MANIFEST.MF">
+            <attribute name="Bundle-Name" value="Apache Http Mime"/>
+            <attribute name="Bundle-Description"
+                       value="Apache Http Mime"/>
+            <attribute name="Bundle-SymbolicName"
+                       value="org.apache.http.entity.mime"/>
+            <attribute name="Bundle-Version" value="4.2.3"/>
+            <attribute name="System-Bundle" value="yes"/>
+            <attribute name="Export-Package"
+                       value="org.apache.http.entity.mime,org.apache.http.entity.mime.content"/>
+            <attribute name="Bundle-ClassPath" value=".,httpmime.jar"/>
+        </manifest>
     </target>
 
 </project>
