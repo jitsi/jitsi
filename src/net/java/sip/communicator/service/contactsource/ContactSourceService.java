@@ -36,6 +36,11 @@ public interface ContactSourceService
     public static final int CHAT_ROOM_TYPE = 3;
 
     /**
+     * Type of a recent messages source.
+     */
+    public static final int RECENT_MESSAGES_TYPE = 4;
+
+    /**
      * Returns the type of this contact source.
      *
      * @return the type of this contact source

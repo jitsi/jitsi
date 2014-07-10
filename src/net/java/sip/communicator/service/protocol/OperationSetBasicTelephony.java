@@ -11,7 +11,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
 
-import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.recording.*;
 
 /**
  * An Operation Set defining all basic telephony operations such as conducting

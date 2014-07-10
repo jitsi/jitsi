@@ -42,7 +42,8 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      * Initialized by {@link #initializePortNumbers()}.
      * </p>
      */
-    private static PortTracker defaultPortTracker = new PortTracker(5000, 6000);
+    private static final PortTracker defaultPortTracker
+        = new PortTracker(5000, 6000);
 
     /**
      * The port tracker that we should use when binding video media streams.
@@ -51,25 +52,25 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      * necessary properties are set.
      * </p>
      */
-    private static PortTracker videoPortTracker = null;
+    private static PortTracker videoPortTracker;
 
     /**
      * The port tracker that we should use when binding data channels.
      * <p>
      * Potentially initialized by {@link #initializePortNumbers()} if the
-     * necessary properties are set
+     * necessary properties are set.
      * </p>
      */
-    private static PortTracker dataChannelPortTracker = null;
+    private static PortTracker dataPortTracker;
 
     /**
      * The port tracker that we should use when binding data media streams.
      * <p>
      * Potentially initialized by {@link #initializePortNumbers()} if the
-     * necessary properties are set
+     * necessary properties are set.
      * </p>
      */
-    private static PortTracker audioPortTracker = null;
+    private static PortTracker audioPortTracker;
 
     /**
      * RTP audio DSCP configuration property name.
@@ -237,9 +238,6 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         InetAddress intendedDestination = getIntendedDestination(getCallPeer());
         InetAddress localHostForPeer = nam.getLocalHost(intendedDestination);
 
-        //make sure our port numbers reflect the configuration service settings
-        initializePortNumbers();
-
         PortTracker portTracker = getPortTracker(mediaType);
 
         //create the RTP socket.
@@ -284,70 +282,112 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     }
 
     /**
-     * (Re)Sets the all the port allocators to reflect current values specified
-     * in the <tt>ConfigurationService</tt>. Calling this method may very well
-     * result in creating new port allocators or destroying existing ones.
+     * Tries to set the ranges of the <tt>PortTracker</tt>s (e.g. default,
+     * audio, video, data channel) to the values specified in the
+     * <tt>ConfigurationService</tt>.
      */
-    protected static void initializePortNumbers()
+    protected synchronized static void initializePortNumbers()
     {
         //try the default tracker first
         ConfigurationService cfg
             = ProtocolMediaActivator.getConfigurationService();
-        String minPortNumberStr
+        String minPort, maxPort;
+
+        minPort
             = cfg.getString(
                     OperationSetBasicTelephony
                         .MIN_MEDIA_PORT_NUMBER_PROPERTY_NAME);
-        String maxPortNumberStr
-            = cfg.getString(
-                    OperationSetBasicTelephony
-                        .MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME);
-
-        //try to send the specified range. If there's no specified range in
-        //configuration, we'll just leave the tracker as it is: [5000 to 6000]
-        defaultPortTracker.tryRange(minPortNumberStr, maxPortNumberStr);
+        if (minPort != null)
+        {
+            maxPort
+                = cfg.getString(
+                        OperationSetBasicTelephony
+                            .MAX_MEDIA_PORT_NUMBER_PROPERTY_NAME);
+            if (maxPort != null)
+            {
+                //Try the specified range; otherwise, leave the tracker as it
+                //is: [5000, 6000].
+                defaultPortTracker.tryRange(minPort, maxPort);
+            }
+        }
 
         //try the VIDEO tracker
-        minPortNumberStr
+        minPort
             = cfg.getString(
                     OperationSetBasicTelephony
                         .MIN_VIDEO_PORT_NUMBER_PROPERTY_NAME);
-        maxPortNumberStr
-            = cfg.getString(
-                    OperationSetBasicTelephony
-                        .MAX_VIDEO_PORT_NUMBER_PROPERTY_NAME);
-        //try to send the specified range. If there's no specified range in
-        //configuration, we'll just leave this tracker to null
-        videoPortTracker
-            = PortTracker.createTracker(minPortNumberStr, maxPortNumberStr);
+        if (minPort != null)
+        {
+            maxPort
+                = cfg.getString(
+                        OperationSetBasicTelephony
+                            .MAX_VIDEO_PORT_NUMBER_PROPERTY_NAME);
+            if (maxPort != null)
+            {
+                //Try the specified range; otherwise, leave the tracker to null.
+                if (videoPortTracker == null)
+                {
+                    videoPortTracker
+                        = PortTracker.createTracker(minPort, maxPort);
+                }
+                else
+                {
+                    videoPortTracker.tryRange(minPort, maxPort);
+                }
+            }
+        }
 
         //try the AUDIO tracker
-        minPortNumberStr
+        minPort
             = cfg.getString(
                     OperationSetBasicTelephony
                         .MIN_AUDIO_PORT_NUMBER_PROPERTY_NAME);
-        maxPortNumberStr
-            = cfg.getString(
-                    OperationSetBasicTelephony
-                        .MAX_AUDIO_PORT_NUMBER_PROPERTY_NAME);
-        //try to send the specified range. If there's no specified range in
-        //configuration, we'll just leave this tracker to null
-        audioPortTracker
-            = PortTracker.createTracker(minPortNumberStr, maxPortNumberStr);
+        if (minPort != null)
+        {
+            maxPort
+                = cfg.getString(
+                        OperationSetBasicTelephony
+                            .MAX_AUDIO_PORT_NUMBER_PROPERTY_NAME);
+            if (maxPort != null)
+            {
+                //Try the specified range; otherwise, leave the tracker to null.
+                if (audioPortTracker == null)
+                {
+                    audioPortTracker
+                        = PortTracker.createTracker(minPort, maxPort);
+                }
+                else
+                {
+                    audioPortTracker.tryRange(minPort, maxPort);
+                }
+            }
+        }
 
         //try the DATA CHANNEL tracker
-        minPortNumberStr
+        minPort
             = cfg.getString(
                     OperationSetBasicTelephony
                         .MIN_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME);
-        maxPortNumberStr
-            = cfg.getString(
-                    OperationSetBasicTelephony
-                        .MAX_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME);
-
-        //try to send the specified range. If there's no specified range in
-        //configuration, we'll just leave this tracker to null
-        dataChannelPortTracker
-            = PortTracker.createTracker(minPortNumberStr, maxPortNumberStr);
+        if (minPort != null)
+        {
+            maxPort
+                = cfg.getString(
+                        OperationSetBasicTelephony
+                            .MAX_DATA_CHANNEL_PORT_NUMBER_PROPERTY_NAME);
+            if (maxPort != null)
+            {
+                //Try the specified range; otherwise, leave the tracker to null.
+                if (dataPortTracker == null)
+                {
+                    dataPortTracker
+                        = PortTracker.createTracker(minPort, maxPort);
+                }
+                else
+                {
+                    dataPortTracker.tryRange(minPort, maxPort);
+                }
+            }
+        }
     }
 
     /**
@@ -589,15 +629,21 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      */
     protected static PortTracker getPortTracker(MediaType mediaType)
     {
-        if (MediaType.AUDIO == mediaType)
+        //make sure our port numbers reflect the configuration service settings
+        initializePortNumbers();
+
+        switch (mediaType)
         {
+        case AUDIO:
             if (audioPortTracker != null)
                 return audioPortTracker;
-        }
-        else if (MediaType.VIDEO == mediaType)
-        {
+            else
+                break;
+        case VIDEO:
             if (videoPortTracker != null)
                 return videoPortTracker;
+            else
+                break;
         }
 
         return defaultPortTracker;
@@ -780,6 +826,39 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
             if(localCandidate != null)
                 return localCandidate.getExtendedType().toString();
         }
+        return null;
+    }
+
+
+    /**
+     * Creates the ICE agent that we would be using in this transport manager
+     * for all negotiation.
+     *
+     * @return the ICE agent to use for all the ICE negotiation that this
+     * transport manager would be going through
+     */
+    protected Agent createIceAgent()
+    {
+        //work in progress
+        return null;
+    }
+
+    /**
+     * Creates an {@link IceMediaStream} with the specified <tt>media</tt>
+     * name.
+     *
+     * @param media the name of the stream we'd like to create.
+     * @param agent the ICE {@link Agent} that we will be appending the stream
+     * to.
+     *
+     * @return the newly created {@link IceMediaStream}
+     *
+     * @throws OperationFailedException if binding on the specified media stream
+     * fails for some reason.
+     */
+    protected IceMediaStream createIceStream(String media, Agent agent)
+        throws OperationFailedException
+    {
         return null;
     }
 }

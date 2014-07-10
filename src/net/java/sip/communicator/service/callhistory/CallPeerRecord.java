@@ -10,6 +10,7 @@ import net.java.sip.communicator.service.protocol.*;
  * from the Call History Service
  *
  * @author Damian Minkov
+ * @author Hristo Terezov
  */
 public class CallPeerRecord
 {
@@ -32,6 +33,11 @@ public class CallPeerRecord
      * The end time of the record.
      */
     protected Date endTime = null;
+
+    /**
+     * The secondary address of the peer.
+     */
+    protected String secondaryPeerAddress = null;
 
     /**
      * The state of <tt>CallPeer</tt>.
@@ -98,5 +104,23 @@ public class CallPeerRecord
     public CallPeerState getState()
     {
         return state;
+    }
+
+    /**
+     * Sets secondary address to the <tt>CallPeerRecord</tt>
+     * @param address the address to be set.
+     */
+    public void setPeerSecondaryAddress(String address)
+    {
+        secondaryPeerAddress = address;
+    }
+
+    /**
+     * Returns the secondary address to the <tt>CallPeerRecord</tt>
+     * @return the secondary address to the <tt>CallPeerRecord</tt>
+     */
+    public String getPeerSecondaryAddress()
+    {
+        return secondaryPeerAddress;
     }
 }

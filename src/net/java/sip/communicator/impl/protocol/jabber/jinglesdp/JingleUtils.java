@@ -153,10 +153,12 @@ public class JingleUtils
 
         for(ParameterPacketExtension param : params)
         {
-            if(param.getName().equals("imageattr"))
-                advancedMap.put(param.getName(), param.getValue());
+            String paramName = param.getName();
+
+            if("imageattr".equals(paramName))
+                advancedMap.put(paramName, param.getValue());
             else
-                paramsMap.put(param.getName(), param.getValue());
+                paramsMap.put(paramName, param.getValue());
         }
 
         // video-related attributes in payload-type element

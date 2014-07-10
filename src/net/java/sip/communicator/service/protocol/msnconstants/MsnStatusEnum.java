@@ -87,6 +87,13 @@ public class MsnStatusEnum
     public static final MsnStatusEnum ON_THE_PHONE
         = new MsnStatusEnum(31, "On the phone",
                 loadIcon("resources/images/protocol/msn/msn16x16-phone.png"));
+    
+    /**
+     * The In Meeting status. Indicates that the user is in meeting.
+     */
+    public static final MsnStatusEnum IN_A_MEETING 
+        = new MsnStatusEnum(32, "In a meeting",
+                loadIcon("resources/images/protocol/msn/msn16x16-meeting.png"));
 
     /**
      * The DND status. Indicates that the user has connectivity but prefers
@@ -109,9 +116,11 @@ public class MsnStatusEnum
      */
     public static final ArrayList<MsnStatusEnum> msnStatusSet
         = new ArrayList<MsnStatusEnum>();
+
     static{
             msnStatusSet.add(OUT_TO_LUNCH);
             msnStatusSet.add(ON_THE_PHONE);
+            msnStatusSet.add(IN_A_MEETING);
             msnStatusSet.add(ONLINE);
             msnStatusSet.add(OFFLINE);
             msnStatusSet.add(IDLE);

@@ -145,9 +145,11 @@ class Parameters
                 ((Attr) attributes.getNamedItem("isoCode")).getValue();
             String dictLocation =
                 ((Attr) attributes.getNamedItem("dictionaryUrl")).getValue();
+            String flagIcon =
+                ((Attr) attributes.getNamedItem("flagIcon")).getValue();
             try
             {
-                LOCALES.add(new Locale(label, code, new URL(dictLocation)));
+                LOCALES.add(new Locale(label, code, new URL(dictLocation), flagIcon));
             }
             catch (MalformedURLException exc)
             {
@@ -206,13 +208,16 @@ class Parameters
 
         private final URL dictLocation;
 
+        private final String flagIcon;
+
         private boolean isLoading = false;
 
-        private Locale(String label, String isoCode, URL dictLocation)
+        private Locale(String label, String isoCode, URL dictLocation, String flagIcon)
         {
             this.label = label;
             this.isoCode = isoCode;
             this.dictLocation = dictLocation;
+            this.flagIcon = flagIcon;
         }
 
         /**
@@ -258,6 +263,17 @@ class Parameters
         public URL getDictUrl()
         {
             return this.dictLocation;
+        }
+
+        /**
+         * Provides the file name of the image files used for the locale's flag,
+         * without file extension of path.
+         *
+         * @return flagIcon of dictionary resource
+         */
+        public String getFlagIcon()
+        {
+            return this.flagIcon;
         }
 
         /**

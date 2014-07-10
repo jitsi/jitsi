@@ -28,6 +28,11 @@ public class JabberAccountID
             = AccountID.DEFAULTS_PREFIX +"jabber.";
 
     /**
+     * Uses anonymous XMPP login if set to <tt>true</tt>.
+     */
+    public static final String ANONYMOUS_AUTH = "ANONYMOUS_AUTH";
+
+    /**
      * Account suffix for Google service.
      */
     public static final String GOOGLE_USER_SUFFIX = "gmail.com";
@@ -113,6 +118,16 @@ public class JabberAccountID
     }
 
     /**
+     * Returns the actual name of this protocol: {@link ProtocolNames#JABBER}.
+     *
+     * @return Jabber: the name of this protocol.
+     */
+    public String getSystemProtocolName()
+    {
+        return ProtocolNames.JABBER;
+    }
+
+    /**
      * Returns the alwaysCallWithGtalk value.
      *
      * @return the alwaysCallWithGtalk value
@@ -130,6 +145,15 @@ public class JabberAccountID
     public String getTelephonyDomainBypassCaps()
     {
         return getAccountPropertyString(TELEPHONY_BYPASS_GTALK_CAPS);
+    }
+
+    /**
+     * Indicates whether anonymous authorization method is used by this account.
+     * @return <tt>true</tt> if anonymous login is enabled on this account.
+     */
+    public boolean isAnonymousAuthUsed()
+    {
+        return getAccountPropertyBoolean(ANONYMOUS_AUTH, false);
     }
 
     /**
@@ -176,6 +200,15 @@ public class JabberAccountID
     public boolean isGoogleContactsEnabled()
     {
         return getAccountPropertyBoolean(GOOGLE_CONTACTS_ENABLED, true);
+    }
+
+    /**
+     * Enables anonymous authorization mode on this XMPP account.
+     * @param useAnonymousAuth <tt>true</tt> to use anonymous login.
+     */
+    public void setUseAnonymousAuth(boolean useAnonymousAuth)
+    {
+        putAccountProperty(ANONYMOUS_AUTH, useAnonymousAuth);
     }
 
     /**
@@ -546,37 +579,6 @@ public class JabberAccountID
     }
 
     /**
-     * Determines whether this account's provider is supposed to auto discover
-     * STUN and TURN servers.
-     *
-     * @return <tt>true</tt> if this provider would need to discover STUN/TURN
-     * servers and false otherwise.
-     */
-    public boolean isStunServerDiscoveryEnabled()
-    {
-        return
-            getAccountPropertyBoolean(
-                    ProtocolProviderFactory.AUTO_DISCOVER_STUN,
-                    true);
-    }
-
-    /**
-     * Determines whether this account's provider uses the default STUN server
-     * provided by SIP Communicator if there is no other STUN/TURN server
-     * discovered/configured.
-     *
-     * @return <tt>true</tt> if this provider would use the default STUN server,
-     * <tt>false</tt> otherwise
-     */
-    public boolean isUseDefaultStunServer()
-    {
-        return
-            getAccountPropertyBoolean(
-                    ProtocolProviderFactory.USE_DEFAULT_STUN_SERVER,
-                    true);
-    }
-
-    /**
      * Returns the list of JingleNodes trackers/relays that this account is
      * currently configured to use.
      *
@@ -647,19 +649,6 @@ public class JabberAccountID
     {
         return getAccountPropertyBoolean(
                 ProtocolProviderFactory.IS_USE_JINGLE_NODES,
-                true);
-    }
-
-    /**
-     * Determines whether this account's provider uses UPnP (if available).
-     *
-     * @return <tt>true</tt> if this provider would use UPnP (if available),
-     * <tt>false</tt> otherwise
-     */
-    public boolean isUPNPEnabled()
-    {
-        return getAccountPropertyBoolean(
-                ProtocolProviderFactory.IS_USE_UPNP,
                 true);
     }
 

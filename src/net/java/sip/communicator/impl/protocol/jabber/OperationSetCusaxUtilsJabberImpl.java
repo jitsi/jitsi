@@ -61,7 +61,8 @@ public class OperationSetCusaxUtilsJabberImpl
         while (phonesIter.hasNext())
         {
             String phone = phonesIter.next();
-            String normalizedPhone = PhoneNumberI18nService.normalize(phone);
+            String normalizedPhone = JabberActivator.getPhoneNumberI18nService()
+                .normalize(phone);
 
             if (phone.equals(detailAddress)
                 || normalizedPhone.equals(detailAddress)

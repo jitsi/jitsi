@@ -32,8 +32,7 @@ public class ReplacementServiceBliptvImpl
      * The regex used to match the link in the message.
      */
     public static final String BLIPTV_PATTERN =
-        "(?<=>)(http:\\/\\/(?:www\\.)?blip\\.tv"
-        + "\\/file\\/(\\d+)([?&\\?]\\w+=[\\w-]+)*)(?=</A>)";
+        "(http:\\/\\/(?:www\\.)?blip\\.tv\\/.*)";
 
     /**
      * Configuration label shown in the config form.
@@ -64,7 +63,8 @@ public class ReplacementServiceBliptvImpl
     {
         try
         {
-            String url = "http://oohembed.com/oohembed/?url=" + sourceString;
+            String url = "http://api.embed.ly/1/oembed?url=" + sourceString
+                + "&key=cff57b37766440a6a8aa45df88097efe";
 
             URL sourceURL = new URL(url);
             URLConnection conn = sourceURL.openConnection();

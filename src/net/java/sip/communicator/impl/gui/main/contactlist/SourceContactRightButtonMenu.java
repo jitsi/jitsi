@@ -89,12 +89,15 @@ public class SourceContactRightButtonMenu
             .getPreferredContactDetail(OperationSetBasicTelephony.class);
 
         // Call menu.
-        if (cDetail != null)
+        if (cDetail != null
+            && sourceContact.getContactSource().getType()
+                != ContactSourceService.RECENT_MESSAGES_TYPE)
+        {
             add(initCallMenu());
+        }
 
         // Only create the menu if the add contact functionality is enabled.
-        if ((sourceContact.getPreferredContactDetail(
-                OperationSetMultiUserChat.class) == null) 
+        if (!GuiActivator.getMUCService().isMUCSourceContact(sourceContact)
             && !ConfigurationUtils.isAddContactDisabled())
         {
             addContactComponent
@@ -103,8 +106,8 @@ public class SourceContactRightButtonMenu
 
         if (addContactComponent != null)
             add(addContactComponent);
-        
-        for(JMenuItem item : 
+
+        for(JMenuItem item :
             sourceUIContact.getContactCustomActionMenuItems(true))
         {
             add(item);

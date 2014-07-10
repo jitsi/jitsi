@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import net.java.sip.communicator.service.credentialsstorage.*;
+import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.googlecontacts.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.hid.*;
@@ -31,6 +32,7 @@ import org.osgi.framework.*;
  * @author Damian Minkov
  * @author Symphorien Wanko
  * @author Emil Ivov
+ * @author Hristo Terezov
  */
 public class JabberActivator
     implements BundleActivator
@@ -111,6 +113,17 @@ public class JabberActivator
      * instance.
      */
     private static VersionService versionService        = null;
+
+    /**
+     * The registered PhoneNumberI18nService.
+     */
+    private static PhoneNumberI18nService phoneNumberI18nService;
+
+    /**
+     * The global display details service instance.
+     */
+    private static GlobalDisplayDetailsService globalDisplayDetailsService
+        = null;
 
     /**
      * Called when this bundle is started so the Framework can perform the
@@ -420,5 +433,39 @@ public class JabberActivator
                 .getService(versionServiceReference);
         }
         return versionService;
+    }
+
+    /**
+     * Returns the PhoneNumberI18nService.
+     * @return returns the PhoneNumberI18nService.
+     */
+    public static PhoneNumberI18nService getPhoneNumberI18nService()
+    {
+        if(phoneNumberI18nService == null)
+        {
+            phoneNumberI18nService = ServiceUtils.getService(
+                bundleContext,
+                PhoneNumberI18nService.class);
+        }
+
+        return phoneNumberI18nService;
+    }
+
+    /**
+     * Returns the <tt>GlobalDisplayDetailsService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>GlobalDisplayDetailsService</tt> obtained from the bundle
+     * context
+     */
+    public static GlobalDisplayDetailsService getGlobalDisplayDetailsService()
+    {
+        if(globalDisplayDetailsService == null)
+        {
+            globalDisplayDetailsService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        GlobalDisplayDetailsService.class);
+        }
+        return globalDisplayDetailsService;
     }
 }

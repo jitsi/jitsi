@@ -49,12 +49,12 @@ public class ChatHtmlUtils
     /**
      * The closing tag of the <code>PLAINTEXT</code> HTML element.
      */
-    private static final String END_PLAINTEXT_TAG = "</PLAINTEXT>";
+    public static final String END_PLAINTEXT_TAG = "</PLAINTEXT>";
 
     /**
      * The opening tag of the <code>PLAINTEXT</code> HTML element.
      */
-    private static final String START_PLAINTEXT_TAG = "<PLAINTEXT>";
+    public static final String START_PLAINTEXT_TAG = "<PLAINTEXT>";
 
     /**
      * The html text content type.

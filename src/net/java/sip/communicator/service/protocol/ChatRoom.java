@@ -428,7 +428,7 @@ public interface ChatRoom
      * Finds private messaging contact by nickname. If the contact doesn't 
      * exists a new volatile contact is created.
      * 
-     * @param nickname the nickname of the contact.
+     * @param name the nickname of the contact.
      * @return the contact instance.
      */
     public Contact getPrivateContactByNickname(String name);
@@ -555,14 +555,14 @@ public interface ChatRoom
 
     /**
      * Updates the presence status of private messaging contact.
-     * 
+     *
      * @param nickname the nickname of the contact.
      */
     public void updatePrivateContactPresenceStatus(String nickname);
 
     /**
      * Updates the presence status of private messaging contact.
-     * 
+     *
      * @param contact the contact.
      */
     public void updatePrivateContactPresenceStatus(Contact contact);
@@ -584,16 +584,38 @@ public interface ChatRoom
      */
     public void removeConferencePublishedListener(
             ChatRoomConferencePublishedListener listener);
-    
+
     /**
      * Returns cached <tt>ConferenceDescription</tt> instances.
      * @return the cached <tt>ConferenceDescription</tt> instances.
      */
     public Map<String, ConferenceDescription> getCachedConferenceDescriptions();
-    
+
     /**
      * Returns the number of cached <tt>ConferenceDescription</tt> instances.
      * @return the number of cached <tt>ConferenceDescription</tt> instances.
      */
     public int getCachedConferenceDescriptionSize();
+
+    /**
+     * Destroys the chat room.
+     * @param reason the reason for destroying.
+     * @param alternateAddress the alternate address
+     * @return <tt>true</tt> if the room is destroyed.
+     */
+    public boolean destroy(String reason, String alternateAddress);
+
+    /**
+     * Returns the ids of the users that has the member role in the room.
+     * When the room is member only, this are the users allowed to join.
+     * @return the ids of the users that has the member role in the room.
+     */
+    public List<String> getMembersWhiteList();
+
+    /**
+     * Changes the list of users that has role member for this room.
+     * When the room is member only, this are the users allowed to join.
+     * @param members the ids of user to have member role.
+     */
+    public void setMembersWhiteList(List<String> members);
 }

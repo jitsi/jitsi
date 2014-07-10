@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import net.java.sip.communicator.service.calendar.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
@@ -63,6 +64,11 @@ public class ProtocolProviderActivator
     private static ResourceManagementService resourceService;
 
     /**
+     * The calendar service instance.
+     */
+    private static CalendarService calendarService;
+
+    /**
      * The <code>SingleCallInProgressPolicy</code> making sure that the
      * <code>Call</code>s accessible in the <code>BundleContext</code> of this
      * activator will obey to the rule that a new <code>Call</code> should put
@@ -110,6 +116,30 @@ public class ProtocolProviderActivator
                             ResourceManagementService.class.getName()));
         }
         return resourceService;
+    }
+
+    /**
+     * Gets the <code>CalendarService</code> to be used by the classes
+     * in the bundle represented by <code>ProtocolProviderActivator</code>.
+     *
+     * @return the <code>CalendarService</code> to be used by the
+     *          classes in the bundle represented by
+     *          <code>ProtocolProviderActivator</code>
+     */
+    public static CalendarService getCalendarService()
+    {
+        if (calendarService == null)
+        {
+            ServiceReference serviceReference
+                = bundleContext.getServiceReference(
+                    CalendarService.class.getName());
+            if(serviceReference == null)
+                return null;
+            calendarService
+                = (CalendarService)
+                    bundleContext.getService(serviceReference);
+        }
+        return calendarService;
     }
 
     /**
@@ -170,6 +200,11 @@ public class ProtocolProviderActivator
         accountManagerServiceRegistration =
             bundleContext.registerService(AccountManager.class.getName(),
                 accountManager, null);
+        if(logger.isTraceEnabled())
+        {
+            logger.trace("ProtocolProviderActivator will create "
+                + "SingleCallInProgressPolicy instance.");
+        }
 
         singleCallInProgressPolicy =
             new SingleCallInProgressPolicy(bundleContext);

@@ -54,6 +54,8 @@ public class GlobalDisplayDetailsActivator
      */
     static GlobalDisplayDetailsImpl displayDetailsImpl;
 
+    static GlobalStatusServiceImpl globalStatusService;
+
     /**
      * Initialize and start file service
      *
@@ -66,8 +68,11 @@ public class GlobalDisplayDetailsActivator
         bundleContext = bc;
 
         displayDetailsImpl = new GlobalDisplayDetailsImpl();
+        globalStatusService = new GlobalStatusServiceImpl();
 
         bundleContext.addServiceListener(this);
+
+        handleAlreadyRegisteredProviders();
 
         bundleContext.registerService(
                 GlobalDisplayDetailsService.class.getName(),
@@ -76,8 +81,42 @@ public class GlobalDisplayDetailsActivator
 
         bundleContext.registerService(
                 GlobalStatusService.class.getName(),
-                new GlobalStatusServiceImpl(),
+                globalStatusService,
                 null);
+    }
+
+    /**
+     * Searches and processes already registered providers.
+     */
+    private void handleAlreadyRegisteredProviders()
+    {
+        ServiceReference[] providerRefs
+            = ServiceUtils.getServiceReferences(
+                bundleContext, ProtocolProviderService.class);
+
+        if(providerRefs == null)
+            return;
+
+        for (ServiceReference protocolProviderRef : providerRefs)
+        {
+            ProtocolProviderService provider
+                = (ProtocolProviderService)
+                    bundleContext.getService(protocolProviderRef);
+
+            this.handleProviderAdded(provider);
+        }
+    }
+
+    /**
+     * Used to attach the listeners to existing or
+     * just registered protocol provider.
+     *
+     * @param pps ProtocolProviderService
+     */
+    private void handleProviderAdded(ProtocolProviderService pps)
+    {
+        pps.addRegistrationStateChangeListener(displayDetailsImpl);
+        globalStatusService.handleProviderAdded(pps);
     }
 
     /**
@@ -191,15 +230,16 @@ public class GlobalDisplayDetailsActivator
             return;
         }
 
+        ProtocolProviderService pps = (ProtocolProviderService) service;
+
         switch (event.getType())
         {
         case ServiceEvent.REGISTERED:
-            ((ProtocolProviderService) service)
-                .addRegistrationStateChangeListener(displayDetailsImpl);
+            this.handleProviderAdded(pps);
             break;
         case ServiceEvent.UNREGISTERING:
-            ((ProtocolProviderService) service)
-                .removeRegistrationStateChangeListener(displayDetailsImpl);
+            pps.removeRegistrationStateChangeListener(displayDetailsImpl);
+            globalStatusService.handleProviderRemoved(pps);
             break;
         }
     }

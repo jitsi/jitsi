@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
 
 /**
  * Implements <tt>CustomContactActionsService</tt> for MUC contact source.
- * 
+ *
  * @author Hristo Terezov
  */
 public class MUCCustomContactActionService
@@ -28,100 +28,135 @@ public class MUCCustomContactActionService
     /**
      * List of custom menu items.
      */
-    private final List<ContactActionMenuItem<SourceContact>> MUCActionMenuItems
+    private final List<ContactActionMenuItem<SourceContact>> mucActionMenuItems
         = new LinkedList<ContactActionMenuItem<SourceContact>>();
-    
+
     /**
      * List of custom actions.
      */
-    private final List<ContactAction<SourceContact>> MUCActions
+    private final List<ContactAction<SourceContact>> mucActions
         = new LinkedList<ContactAction<SourceContact>>();
-    
+
+    /**
+     *
+     */
+    private static final String OWNER_CANT_REMOVE_CHATROOM_PROPERTY
+        = "net.java.sip.communicator.impl.muc.OWNER_CANT_REMOVE_CHATROOM";
+
     /**
      * Array of names for the custom actions.
      */
     private String[] actionsNames = {
-      "leave", "autojoin", "autojoin_pressed"  
+        "leave",
+        "join",
+        "autojoin",
+        "autojoin_pressed",
+        "destroy_chatroom"
     };
-    
+
     /**
      * Array of labels for the custom actions.
      */
     private String[] actionsLabels = {
       "service.gui.LEAVE",
+      "service.gui.JOIN",
       "service.gui.JOIN_AUTOMATICALLY",
-      "service.gui.JOIN_AUTOMATICALLY"
+      "service.gui.JOIN_AUTOMATICALLY",
+      "service.gui.DESTROY_CHATROOM"
     };
-    
+
     /**
      * Array of icons for the custom actions.
      */
     private String[] actionsIcons = {
-        "service.gui.icons.LEAVE_ICON_BUTTON", 
+        "service.gui.icons.LEAVE_ICON_BUTTON",
+        "service.gui.icons.JOIN_ICON_BUTTON",
         "service.gui.icons.AUTOJOIN_ON_ICON_BUTTON",
-        "service.gui.icons.AUTOJOIN_OFF_ICON_BUTTON"
+        "service.gui.icons.AUTOJOIN_OFF_ICON_BUTTON",
+        "service.gui.icons.DESTROY_ICON_BUTTON"
       };
-    
+
     /**
      * Array of rollover icons for the custom actions.
      */
     private String[] actionsIconsRollover = {
-        "service.gui.icons.LEAVE_ICON_ROLLOVER_BUTTON", 
+        "service.gui.icons.LEAVE_ICON_ROLLOVER_BUTTON",
+        "service.gui.icons.JOIN_ICON_ROLLOVER_BUTTON",
         "service.gui.icons.AUTOJOIN_ON_ICON_ROLLOVER_BUTTON",
-        "service.gui.icons.AUTOJOIN_OFF_ICON_ROLLOVER_BUTTON"
+        "service.gui.icons.AUTOJOIN_OFF_ICON_ROLLOVER_BUTTON",
+        "service.gui.icons.DESTROY_ICON_ROLLOVER_BUTTON"
       };
-    
+
     /**
      * Array of pressed icons for the custom actions.
      */
     private String[] actionsIconsPressed = {
-        "service.gui.icons.LEAVE_ICON_PRESSED_BUTTON", 
+        "service.gui.icons.LEAVE_ICON_PRESSED_BUTTON",
+        "service.gui.icons.JOIN_ICON_PRESSED_BUTTON",
         "service.gui.icons.AUTOJOIN_ON_ICON_PRESSED_BUTTON",
         "service.gui.icons.AUTOJOIN_OFF_ICON_PRESSED_BUTTON",
+        "service.gui.icons.DESTROY_ICON_PRESSED_BUTTON"
       };
-    
+
     /**
      * Array of names for the custom menu items.
      */
     private String[] menuActionsNames = {
-      "open", "join", "join_as", "leave", "remove", "change_nick", "autojoin",
-      "autojoin_pressed", "open_automatically"
+        "open",
+        "join",
+        "join_as",
+        "leave",
+        "remove",
+        "change_nick",
+        "autojoin",
+        "autojoin_pressed",
+        "open_automatically",
+        "destroy_chatroom"
     };
-    
+
     /**
      * Array of labels for the custom menu items.
      */
     private String[] menuActionsLabels = {
-      "service.gui.OPEN", "service.gui.JOIN", 
-      "service.gui.JOIN_AS", "service.gui.LEAVE",
-      "service.gui.REMOVE", "service.gui.CHANGE_NICK",
-      "service.gui.JOIN_AUTOMATICALLY",
-      "service.gui.DONT_JOIN_AUTOMATICALLY",
-      "service.gui.OPEN_AUTOMATICALLY"
+        "service.gui.OPEN",
+        "service.gui.JOIN",
+        "service.gui.JOIN_AS",
+        "service.gui.LEAVE",
+        "service.gui.REMOVE",
+        "service.gui.CHANGE_NICK",
+        "service.gui.JOIN_AUTOMATICALLY",
+        "service.gui.DONT_JOIN_AUTOMATICALLY",
+        "service.gui.OPEN_AUTOMATICALLY",
+        "service.gui.DESTROY_CHATROOM"
     };
-    
+
     /**
      * Array of icons for the custom menu items.
      */
     private String[] menuActionsIcons = {
-        "service.gui.icons.CHAT_ROOM_16x16_ICON", "service.gui.icons.JOIN_ICON",
-        "service.gui.icons.JOIN_AS_ICON", "service.gui.icons.LEAVE_ICON", 
-        "service.gui.icons.REMOVE_CHAT_ICON", 
+        "service.gui.icons.CHAT_ROOM_16x16_ICON",
+        "service.gui.icons.JOIN_ICON",
+        "service.gui.icons.JOIN_AS_ICON",
+        "service.gui.icons.LEAVE_ICON",
+        "service.gui.icons.REMOVE_CHAT_ICON",
         "service.gui.icons.RENAME_16x16_ICON",
-        "service.gui.icons.AUTOJOIN", "service.gui.icons.AUTOJOIN", null
+        "service.gui.icons.AUTOJOIN",
+        "service.gui.icons.AUTOJOIN",
+        "service.gui.icons.OPEN_AUTOMATICALLY",
+        "service.gui.icons.DESTROY_CHATROOM"
       };
 
     /**
      * A runnable that leaves the chat room.
      */
-    private MUCCustomActionRunnable leaveRunnable 
+    private MUCCustomActionRunnable leaveRunnable
         = new MUCCustomActionRunnable()
         {
-            
+
             @Override
             public void run()
             {
-                ChatRoomWrapper leavedRoomWrapped 
+                ChatRoomWrapper leavedRoomWrapped
                     = MUCActivator.getMUCService().leaveChatRoom(
                         chatRoomWrapper);
                 if(leavedRoomWrapped != null)
@@ -131,44 +166,12 @@ public class MUCCustomContactActionService
         };
 
     /**
-     * A runnable that sets / unsets auto join setting of the chat room.
+     * A runnable that joins the chat room.
      */
-    private MUCCustomActionRunnable autoJoinRunnable
+    private MUCCustomActionRunnable joinRunnable
         = new MUCCustomActionRunnable()
         {
-            
-            @Override
-            public void run()
-            {
-                    chatRoomWrapper.setAutoJoin(!chatRoomWrapper.isAutojoin());
-                    
-            }
-        };
-    
-    /**
-     * Array of <tt>MUCCustomActionRunnable</tt> objects for the custom menu 
-     * items. They will be executed when the item is pressed.
-     */
-    private MUCCustomActionRunnable[] actionsRunnable = {
-        leaveRunnable, autoJoinRunnable, autoJoinRunnable
-    };
-    
-    /**
-     * Array of <tt>MUCCustomActionRunnable</tt> objects for the custom menu 
-     * items. They will be executed when the item is pressed.
-     */
-    private MUCCustomActionRunnable[] menuActionsRunnable = {
-        new MUCCustomActionRunnable()
-        {
-            @Override
-            public void run()
-            {
-                MUCActivator.getMUCService().openChatRoom(chatRoomWrapper);
-            }
-        },
-        new MUCCustomActionRunnable()
-        {
-            
+
             @Override
             public void run()
             {
@@ -180,37 +183,100 @@ public class MUCCustomContactActionService
                     ConfigurationUtils.getChatRoomProperty(
                         chatRoomWrapper.getParentProvider()
                             .getProtocolProvider(), chatRoomWrapper
-                            .getChatRoomID(), "userNickName");
+                        .getChatRoomID(), "userNickName");
                 if(nickName == null)
                 {
                     joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
                         chatRoomWrapper.getParentProvider()
-                            .getProtocolProvider(), 
+                            .getProtocolProvider(),
                         chatRoomWrapper.getChatRoomID(),
-                        MUCActivator.getMUCService().getDefaultNickname(
-                            chatRoomWrapper.getParentProvider()
+                        MUCActivator.getGlobalDisplayDetailsService()
+                            .getDisplayName(chatRoomWrapper.getParentProvider()
                                 .getProtocolProvider()));
                     nickName = joinOptions[0];
                     subject = joinOptions[1];
                 }
 
                 if (nickName != null)
-                    MUCActivator.getMUCService().joinChatRoom(chatRoomWrapper, 
+                    MUCActivator.getMUCService().joinChatRoom(chatRoomWrapper,
                         nickName, null, subject);
             }
-        },
+        };
+
+    /**
+     * A runnable that sets / unsets auto join setting of the chat room.
+     */
+    private MUCCustomActionRunnable autoJoinRunnable
+        = new MUCCustomActionRunnable()
+        {
+
+            @Override
+            public void run()
+            {
+                    chatRoomWrapper.setAutoJoin(!chatRoomWrapper.isAutojoin());
+
+            }
+        };
+
+    /**
+     * A runnable that destroys the chat room.
+     */
+    private MUCCustomActionRunnable destroyActionRunnable
+        = new MUCCustomActionRunnable()
+        {
+
+            @Override
+            public void run()
+            {
+                String destroyOptions[]
+                    = ChatRoomDestroyReasonDialog.getDestroyOptions();
+                if(destroyOptions == null)
+                    return;
+
+                MUCActivator.getMUCService().destroyChatRoom(chatRoomWrapper,
+                    destroyOptions[0], destroyOptions[1]);
+
+            }
+        };
+
+    /**
+     * Array of <tt>MUCCustomActionRunnable</tt> objects for the custom menu
+     * items. They will be executed when the item is pressed.
+     */
+    private MUCCustomActionRunnable[] actionsRunnable = {
+        leaveRunnable,
+        joinRunnable,
+        autoJoinRunnable,
+        autoJoinRunnable,
+        destroyActionRunnable
+    };
+
+    /**
+     * Array of <tt>MUCCustomActionRunnable</tt> objects for the custom menu
+     * items. They will be executed when the item is pressed.
+     */
+    private MUCCustomActionRunnable[] menuActionsRunnable = {
         new MUCCustomActionRunnable()
         {
-            
+            @Override
+            public void run()
+            {
+                MUCActivator.getMUCService().openChatRoom(chatRoomWrapper);
+            }
+        },
+        joinRunnable,
+        new MUCCustomActionRunnable()
+        {
+
             @Override
             public void run()
             {
                 String[] joinOptions;
                 joinOptions = ChatRoomJoinOptionsDialog.getJoinOptions(
-                    chatRoomWrapper.getParentProvider().getProtocolProvider(), 
+                    chatRoomWrapper.getParentProvider().getProtocolProvider(),
                     chatRoomWrapper.getChatRoomID(),
-                    MUCActivator.getMUCService().getDefaultNickname(
-                        chatRoomWrapper.getParentProvider()
+                    MUCActivator.getGlobalDisplayDetailsService()
+                        .getDisplayName(chatRoomWrapper.getParentProvider()
                             .getProtocolProvider()));
                 if(joinOptions[0] == null)
                     return;
@@ -222,7 +288,7 @@ public class MUCCustomContactActionService
         leaveRunnable,
         new MUCCustomActionRunnable()
         {
-            
+
             @Override
             public void run()
             {
@@ -230,7 +296,7 @@ public class MUCCustomContactActionService
 
                 if (chatRoom != null)
                 {
-                    ChatRoomWrapper leavedRoomWrapped 
+                    ChatRoomWrapper leavedRoomWrapped
                         = MUCActivator.getMUCService().leaveChatRoom(
                             chatRoomWrapper);
                     if(leavedRoomWrapped != null)
@@ -245,15 +311,15 @@ public class MUCCustomContactActionService
         },
         new MUCCustomActionRunnable()
         {
-            
+
             @Override
             public void run()
             {
                 ChatRoomJoinOptionsDialog.getJoinOptions(true,
-                    chatRoomWrapper.getParentProvider().getProtocolProvider(), 
+                    chatRoomWrapper.getParentProvider().getProtocolProvider(),
                     chatRoomWrapper.getChatRoomID(),
-                    MUCActivator.getMUCService().getDefaultNickname(
-                        chatRoomWrapper.getParentProvider()
+                    MUCActivator.getGlobalDisplayDetailsService()
+                        .getDisplayName(chatRoomWrapper.getParentProvider()
                             .getProtocolProvider()));
             }
         },
@@ -261,7 +327,7 @@ public class MUCCustomContactActionService
         autoJoinRunnable,
         new MUCCustomActionRunnable()
         {
-            
+
             @Override
             public void run()
             {
@@ -269,11 +335,12 @@ public class MUCCustomContactActionService
                     chatRoomWrapper.getParentProvider().getProtocolProvider(),
                     chatRoomWrapper.getChatRoomID());
             }
-        }
+        },
+        destroyActionRunnable
     };
-    
+
     /**
-     * Array of <tt>EnableChecker</tt> objects for the custom menu items. They 
+     * Array of <tt>EnableChecker</tt> objects for the custom menu items. They
      * are used to check if the item is enabled or disabled.
      */
     private EnableChecker[] actionsEnabledCheckers = {
@@ -285,9 +352,10 @@ public class MUCCustomContactActionService
       null,
       null,
       null,
+      null,
       null
     };
-    
+
     /**
      * The resource management service instance.
      */
@@ -300,24 +368,31 @@ public class MUCCustomContactActionService
     {
         for(int i = 0; i < menuActionsLabels.length; i++)
         {
-            MUCActionMenuItems item 
-                = new MUCActionMenuItems(menuActionsNames[i], menuActionsLabels[i], 
-                    menuActionsIcons[i], menuActionsRunnable[i]);
-            MUCActionMenuItems.add(item);
+            MUCActionMenuItems item
+                = new MUCActionMenuItems(
+                        menuActionsNames[i],
+                        menuActionsLabels[i],
+                        menuActionsIcons[i],
+                        menuActionsRunnable[i]);
+            mucActionMenuItems.add(item);
             if(actionsEnabledCheckers[i] != null)
                 item.setEnabled(actionsEnabledCheckers[i]);
         }
-        
+
         for(int i = 0; i < actionsLabels.length; i++)
         {
-            MUCAction item = new MUCAction(actionsNames[i], actionsLabels[i], 
-                actionsIcons[i], actionsIconsRollover[i], actionsIconsPressed[i], 
-                actionsRunnable[i]);
-            MUCActions.add(item);
+            MUCAction item = new MUCAction(
+                                    actionsNames[i],
+                                    actionsLabels[i],
+                                    actionsIcons[i],
+                                    actionsIconsRollover[i],
+                                    actionsIconsPressed[i],
+                                    actionsRunnable[i]);
+            mucActions.add(item);
         }
-        
+
     }
-    
+
     /**
      * Returns the template class that this service has been initialized with
      *
@@ -329,19 +404,19 @@ public class MUCCustomContactActionService
     }
 
     @Override
-    public Iterator<ContactActionMenuItem<SourceContact>> 
+    public Iterator<ContactActionMenuItem<SourceContact>>
         getCustomContactActionsMenuItems()
     {
-        return MUCActionMenuItems.iterator();
+        return mucActionMenuItems.iterator();
     }
-    
+
 
     @Override
     public Iterator<ContactAction<SourceContact>> getCustomContactActions()
     {
-        return MUCActions.iterator();
+        return mucActions.iterator();
     }
-    
+
     /**
      * Implements the MUC custom action.
      */
@@ -352,27 +427,27 @@ public class MUCCustomContactActionService
          * The text of the action.
          */
         private String text;
-        
+
         /**
          * The icon of the action
          */
         private byte[] icon;
-        
+
         /**
          * The icon that is shown when the action is pressed.
          */
         private byte[] iconPressed;
-        
+
         /**
          * The runnable that is executed when the action is pressed.
          */
         private MUCCustomActionRunnable actionPerformed;
-        
+
         /**
          * The icon that is shown when the mouse is over the action.
          */
         private byte[] iconRollover;
-       
+
         /**
          * The name of the action.
          */
@@ -380,18 +455,18 @@ public class MUCCustomContactActionService
 
         /**
          * Constructs <tt>MUCAction</tt> instance.
-         * 
+         *
          * @param textKey the key used to retrieve the label for the action.
          * @param iconKey the key used to retrieve the icon for the action.
-         * @param actionPerformed the action executed when the action is 
+         * @param actionPerformed the action executed when the action is
          * pressed.
-         * @param iconRolloverKey the key used to retrieve the rollover icon for 
+         * @param iconRolloverKey the key used to retrieve the rollover icon for
          * the action.
-         * @param iconPressedKey the key used to retrieve the pressed icon for 
+         * @param iconPressedKey the key used to retrieve the pressed icon for
          * the action.
          */
-        public MUCAction(String name, String textKey, String iconKey, 
-            String iconRolloverKey, String iconPressedKey, 
+        public MUCAction(String name, String textKey, String iconKey,
+            String iconRolloverKey, String iconPressedKey,
             MUCCustomActionRunnable actionPerformed)
         {
             this.name = name;
@@ -401,7 +476,7 @@ public class MUCCustomContactActionService
             this.iconPressed = resources.getImageInBytes(iconPressedKey);
             this.actionPerformed = actionPerformed;
         }
-        
+
         @Override
         public void actionPerformed(SourceContact actionSource, int x, int y)
             throws OperationFailedException
@@ -409,7 +484,7 @@ public class MUCCustomContactActionService
             if(!(actionSource instanceof ChatRoomSourceContact))
                 return;
             actionPerformed.setContact(actionSource);
-            new Thread(actionPerformed).start();            
+            new Thread(actionPerformed).start();
         }
 
         @Override
@@ -443,17 +518,33 @@ public class MUCCustomContactActionService
             {
                 if(name.equals("leave"))
                 {
-                    return true;
+                    return actionsEnabledCheckers[3].check(actionSource);
+                }
+                else if(name.equals("join"))
+                {
+                    return actionsEnabledCheckers[1].check(actionSource);
+                }
+                else if(name.equals("destroy_chatroom"))
+                {
+                    ChatRoomSourceContact contact
+                        = (ChatRoomSourceContact) actionSource;
+                    ChatRoomWrapper room = MUCActivator.getMUCService()
+                        .findChatRoomWrapperFromSourceContact(contact);
+                    if(room == null || room.getChatRoom() == null)
+                        return false;
+                    if(room.getChatRoom().getUserRole().equals(ChatRoomMemberRole.OWNER))
+                        return true;
+                    return false;
                 }
                 else
                 {
-                    ChatRoomSourceContact contact 
+                    ChatRoomSourceContact contact
                         = (ChatRoomSourceContact) actionSource;
                     ChatRoomWrapper room = MUCActivator.getMUCService()
                         .findChatRoomWrapperFromSourceContact(contact);
                     if(room == null)
                         return false;
-                    
+
                     if(name.equals("autojoin"))
                         return room.isAutojoin();
                     else if(name.equals("autojoin_pressed"))
@@ -462,7 +553,7 @@ public class MUCCustomContactActionService
             }
             return false;
         }
-        
+
     }
 
     /**
@@ -475,17 +566,17 @@ public class MUCCustomContactActionService
          * The label for the menu item.
          */
         private String text;
-        
+
         /**
          * The the icon for the menu item.
          */
         private byte[] image;
-        
+
         /**
          * The action executed when the menu item is pressed.
          */
         private MUCCustomActionRunnable actionPerformed;
-        
+
         /**
          * Object that is used to check if the item is enabled or disabled.
          */
@@ -497,28 +588,28 @@ public class MUCCustomContactActionService
         private String name;
 
         /**
-         * The mnemonic for the action. 
+         * The mnemonic for the action.
          */
         private char mnemonics;
-        
+
         /**
          * Constructs <tt>MUCActionMenuItems</tt> instance.
-         * 
+         *
          * @param textKey the key used to retrieve the label for the menu item.
          * @param imageKey the key used to retrieve the icon for the menu item.
-         * @param actionPerformed the action executed when the menu item is 
+         * @param actionPerformed the action executed when the menu item is
          * pressed.
          */
         public MUCActionMenuItems(String name, String textKey, String imageKey,
             MUCCustomActionRunnable actionPerformed)
         {
             this.text = resources.getI18NString(textKey);
-            this.image = (imageKey == null)? null : 
+            this.image = (imageKey == null)? null :
                 resources.getImageInBytes(imageKey);
             this.actionPerformed = actionPerformed;
             this.enabled = new EnableChecker();
             this.name = name;
-            this.mnemonics = resources.getI18nMnemonic(text);
+            this.mnemonics = resources.getI18nMnemonic(textKey);
         }
 
         @Override
@@ -541,18 +632,21 @@ public class MUCCustomContactActionService
         @Override
         public String getText(SourceContact actionSource)
         {
+            if(!(actionSource instanceof ChatRoomSourceContact))
+                return "";
+
             if(!name.equals("open_automatically"))
                 return text;
-            
-            String openAutomaticallyValue 
+
+            String openAutomaticallyValue
                 = MUCService.getChatRoomAutoOpenOption(
-                    ((ChatRoomSourceContact)actionSource).getProvider(), 
+                    ((ChatRoomSourceContact)actionSource).getProvider(),
                     ((ChatRoomSourceContact)actionSource).getChatRoomID());
             if(openAutomaticallyValue == null)
                 openAutomaticallyValue = MUCService.OPEN_ON_IMPORTANT_MESSAGE;
             String openAutomaticallyKey = MUCService.autoOpenConfigValuesTexts
                 .get(openAutomaticallyValue);
-            return "<html>" + text +  "...<br><font size=\"2\"><center> (" 
+            return "<html>" + text +  "...<br><font size=\"2\"><center> ("
                 + resources.getI18NString(openAutomaticallyKey)
                 + ")</center></font></html>";
         }
@@ -562,18 +656,56 @@ public class MUCCustomContactActionService
         {
             if(!(actionSource instanceof ChatRoomSourceContact))
                 return false;
-            
+
+            ChatRoomSourceContact contact
+                = (ChatRoomSourceContact) actionSource;
+            ChatRoomWrapper room = MUCActivator.getMUCService()
+                .findChatRoomWrapperFromSourceContact(contact);
             if(name.equals("autojoin") || name.equals("autojoin_pressed"))
             {
-                ChatRoomSourceContact contact 
-                = (ChatRoomSourceContact) actionSource;
-                ChatRoomWrapper room = MUCActivator.getMUCService()
-                    .findChatRoomWrapperFromSourceContact(contact);
+                if(room == null)
+                    return true;
+
                 if(name.equals("autojoin"))
                     return !room.isAutojoin();
-                
+
                 if(name.equals("autojoin_pressed"))
                     return room.isAutojoin();
+            }
+            else if(name.equals("remove"))
+            {
+                if(room == null || room.getChatRoom() == null)
+                    return true;
+
+                boolean ownerCannotRemoveRoom
+                    = MUCActivator.getConfigurationService().getBoolean(
+                            OWNER_CANT_REMOVE_CHATROOM_PROPERTY, false);
+
+                // when joined role will be owner or member
+                // when not joined and if we never has entered the room role
+                // will be guest, if we joined and left the room the role
+                // will be owner or member
+                if(room.getChatRoom().getUserRole().equals(
+                    ChatRoomMemberRole.MEMBER))
+                {
+                    return true;
+                }
+                else
+                {
+                    if(ownerCannotRemoveRoom)
+                        return false;
+                    else
+                        return true;
+                }
+            }
+            else if(name.equals("destroy_chatroom"))
+            {
+                if(room == null || room.getChatRoom() == null)
+                    return false;
+                if(room.getChatRoom().getUserRole().equals(
+                    ChatRoomMemberRole.OWNER))
+                    return true;
+                return false;
             }
             return true;
         }
@@ -591,9 +723,9 @@ public class MUCCustomContactActionService
         }
 
         /**
-         * Sets <tt>EnabledChecker</tt> instance that will be used to check if 
+         * Sets <tt>EnabledChecker</tt> instance that will be used to check if
          * the item should be enabled or disabled.
-         * 
+         *
          * @param enabled the <tt>EnabledChecker</tt> instance.
          */
         public void setEnabled(EnableChecker enabled)
@@ -612,20 +744,22 @@ public class MUCCustomContactActionService
         {
             ChatRoomWrapper chatRoomWrapper = MUCActivator.getMUCService()
                 .findChatRoomWrapperFromSourceContact(contact);
+            if(chatRoomWrapper == null)
+                return false;
             return chatRoomWrapper.isAutojoin();
         }
 
     }
 
     /**
-     * Checks if the menu item should be enabled or disabled. This is default 
+     * Checks if the menu item should be enabled or disabled. This is default
      * implementation. Always returns that the item should be enabled.
      */
-    private class EnableChecker
+    private static class EnableChecker
     {
         /**
          * Checks if the menu item should be enabled or disabled.
-         * 
+         *
          * @param contact the contact associated with the menu item.
          * @return always <tt>true</tt>
          */
@@ -634,17 +768,18 @@ public class MUCCustomContactActionService
             return true;
         }
     }
-    
+
     /**
      * Implements <tt>EnableChecker</tt> for the join menu items.
      */
-    private class JoinEnableChecker extends EnableChecker
+    private static class JoinEnableChecker
+        extends EnableChecker
     {
         /**
          * Checks if the menu item should be enabled or disabled.
-         * 
+         *
          * @param contact the contact associated with the menu item.
-         * @return <tt>true</tt> if the item should be enabled and 
+         * @return <tt>true</tt> if the item should be enabled and
          * <tt>false</tt> if not.
          */
         public boolean check(SourceContact contact)
@@ -656,23 +791,24 @@ public class MUCCustomContactActionService
             {
                 chatRoom = chatRoomWrapper.getChatRoom();
             }
-            
+
             if((chatRoom != null) && chatRoom.isJoined())
                 return false;
             return true;
         }
     }
-    
+
     /**
      * Implements <tt>EnableChecker</tt> for the leave menu item.
      */
-    private class LeaveEnableChecker extends JoinEnableChecker
+    private static class LeaveEnableChecker
+        extends JoinEnableChecker
     {
         /**
          * Checks if the menu item should be enabled or disabled.
-         * 
+         *
          * @param contact the contact associated with the menu item.
-         * @return <tt>true</tt> if the item should be enabled and 
+         * @return <tt>true</tt> if the item should be enabled and
          * <tt>false</tt> if not.
          */
         public boolean check(SourceContact contact)
@@ -680,23 +816,24 @@ public class MUCCustomContactActionService
             return !super.check(contact);
         }
     }
-    
+
     /**
-     * Implements base properties for the MUC menu items.These properties are 
+     * Implements base properties for the MUC menu items.These properties are
      * used when the menu item is pressed.
      */
-    private abstract class MUCCustomActionRunnable implements Runnable
+    private abstract class MUCCustomActionRunnable
+        implements Runnable
     {
         /**
          * The contact associated with the menu item.
          */
         protected SourceContact contact;
-        
+
         /**
          * The contact associated with the menu item.
          */
         protected ChatRoomWrapper chatRoomWrapper;
-        
+
         /**
          * Sets the source contact.
          * @param contact the contact to set

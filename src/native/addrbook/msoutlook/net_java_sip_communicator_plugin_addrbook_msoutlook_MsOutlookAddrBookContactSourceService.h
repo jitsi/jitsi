@@ -11,11 +11,10 @@ extern "C" {
 /*
  * Class:     net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService
  * Method:    MAPIInitialize
- * Signature: (JJ)V
+ * Signature: (JJLnet/java/sip/communicator/plugin/addrbook/msoutlook/MsOutlookAddrBookContactSourceService/NotificationsDelegate;Ljava/lang/String;I)V
  */
-JNIEXPORT void JNICALL
-    Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIInitialize
-  (JNIEnv *, jclass, jlong, jlong, jobject);
+JNIEXPORT void JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIInitialize
+  (JNIEnv *, jclass, jlong, jlong, jobject, jstring, jint);
 
 /*
  * Class:     net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService
@@ -30,6 +29,14 @@ JNIEXPORT int JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_M
 
 JNIEXPORT int JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_getOutlookVersion
     (JNIEnv *jniEnv, jclass clazz);
+
+/*
+ * Class:     net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService
+ * Method:    isOutlookDefaultMailClient
+ * Signature: ()Z
+ */
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_isOutlookDefaultMailClient
+  (JNIEnv *, jclass);
 
 #ifdef __cplusplus
 }

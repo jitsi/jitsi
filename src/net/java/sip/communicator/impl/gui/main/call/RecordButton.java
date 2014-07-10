@@ -17,6 +17,7 @@ import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.recording.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
 

@@ -165,11 +165,31 @@ public abstract class AbstractOperationSetMultiUserChat
         String eventType,
         String reason)
     {
+        this.fireLocalUserPresenceEvent(chatRoom, eventType, reason, null);
+    }
+
+    /**
+     * Delivers a <tt>LocalUserChatRoomPresenceChangeEvent</tt> to all
+     * registered <tt>LocalUserChatRoomPresenceListener</tt>s.
+     *
+     * @param chatRoom the <tt>ChatRoom</tt> which has been joined, left, etc.
+     * @param eventType the type of this event; one of LOCAL_USER_JOINED,
+     * LOCAL_USER_LEFT, etc.
+     * @param reason the reason
+     * @param alternateAddress address of the new room, if old is destroyed.
+     */
+    public void fireLocalUserPresenceEvent(
+        ChatRoom chatRoom,
+        String eventType,
+        String reason,
+        String alternateAddress)
+    {
         LocalUserChatRoomPresenceChangeEvent evt
             = new LocalUserChatRoomPresenceChangeEvent( this,
                                                         chatRoom,
                                                         eventType,
-                                                        reason);
+                                                        reason,
+                                                        alternateAddress);
 
         LocalUserChatRoomPresenceListener[] listeners;
         synchronized (presenceListeners)

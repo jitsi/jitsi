@@ -93,9 +93,11 @@ public class LoginRendererSwingImpl
                 mainFrame));
         }
 
-        if(multiUserChat != null)
+        MUCService mucService;
+        if(multiUserChat != null
+            && (mucService = GuiActivator.getMUCService()) != null)
         {
-            GuiActivator.getMUCService().synchronizeOpSetWithLocalContactList(
+            mucService.synchronizeOpSetWithLocalContactList(
                     protocolProvider, multiUserChat);
         }
     }

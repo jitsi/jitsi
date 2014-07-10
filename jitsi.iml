@@ -7,6 +7,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="ice4j" level="application" />
+    <orderEntry type="library" name="jitsi-dependencies" level="application" />
   </component>
 </module>
 

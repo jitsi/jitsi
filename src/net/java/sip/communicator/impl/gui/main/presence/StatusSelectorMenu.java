@@ -8,13 +8,13 @@ package net.java.sip.communicator.impl.gui.main.presence;
 
 import java.awt.*;
 import java.awt.image.*;
-import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.account.*;
 import net.java.sip.communicator.util.skin.*;
 
 /**
@@ -89,29 +89,10 @@ public abstract class StatusSelectorMenu
         this.presence
             = protocolProvider.getOperationSet(OperationSetPresence.class);
 
-        // presence can be not supported
-        if(this.presence != null)
-        {
-            Iterator<PresenceStatus> statusIterator
-                = this.presence.getSupportedStatusSet();
-            while (statusIterator.hasNext())
-            {
-                PresenceStatus status = statusIterator.next();
-                int connectivity = status.getStatus();
-
-                if (connectivity < 1)
-                {
-                    this.offlineStatus = status;
-                }
-                else if ((onlineStatus != null
-                    && (onlineStatus.getStatus() < connectivity))
-                    || (onlineStatus == null
-                    && (connectivity > 50 && connectivity < 80)))
-                {
-                    this.onlineStatus = status;
-                }
-            }
-        }
+        this.onlineStatus
+            = AccountStatusUtils.getOnlineStatus(protocolProvider);
+        this.offlineStatus
+            = AccountStatusUtils.getOfflineStatus(protocolProvider);
 
         loadSkin();
     }

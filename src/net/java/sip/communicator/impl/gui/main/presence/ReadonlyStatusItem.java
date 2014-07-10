@@ -5,6 +5,10 @@
  */
 package net.java.sip.communicator.impl.gui.main.presence;
 
+import java.awt.*;
+
+import javax.swing.*;
+
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
@@ -12,10 +16,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.account.*;
 import net.java.sip.communicator.util.skin.*;
-
-import javax.swing.*;
-import java.awt.*;
-import java.util.*;
 
 /**
  * @author Damian Minkov
@@ -74,29 +74,10 @@ public class ReadonlyStatusItem
 
         this.setToolTipText(tooltip);
 
-        OperationSetPresence presence
-            = protocolProvider.getOperationSet(OperationSetPresence.class);
-
-        Iterator<PresenceStatus> statusIterator
-            = presence.getSupportedStatusSet();
-
-        while (statusIterator.hasNext())
-        {
-            PresenceStatus status = statusIterator.next();
-            int connectivity = status.getStatus();
-
-            if (connectivity < 1)
-            {
-                this.offlineStatus = status;
-            }
-            else if ((onlineStatus != null
-                && (onlineStatus.getStatus() < connectivity))
-                || (onlineStatus == null
-                && (connectivity > 50 && connectivity < 80)))
-            {
-                this.onlineStatus = status;
-            }
-        }
+        this.offlineStatus
+            = AccountStatusUtils.getOfflineStatus(protocolProvider);
+        this.onlineStatus
+            = AccountStatusUtils.getOnlineStatus(protocolProvider);
 
         this.setSelectedStatus(offlineStatus);
         updateStatus(offlineStatus);
@@ -280,21 +261,11 @@ public class ReadonlyStatusItem
      */
     public void updateStatus(PresenceStatus presenceStatus)
     {
-        OperationSetPresence presence
-            = AccountStatusUtils.getProtocolPresenceOpSet(protocolProvider);
-
         if (logger.isTraceEnabled())
             logger.trace("Update status for provider: "
                 + protocolProvider.getAccountID().getAccountAddress()
                 + ". The new status will be: " + presenceStatus.getStatusName());
 
         this.setSelectedStatus(presenceStatus);
-
-        if (protocolProvider.isRegistered()
-            && !presence.getPresenceStatus().equals(presenceStatus))
-        {
-            GuiActivator.getGlobalStatusService()
-                .publishStatus(protocolProvider, presenceStatus, false);
-        }
     }
 }

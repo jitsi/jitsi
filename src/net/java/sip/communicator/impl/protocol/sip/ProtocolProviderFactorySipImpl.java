@@ -296,8 +296,8 @@ public class ProtocolProviderFactorySipImpl
     protected ProtocolProviderService createService(String userID,
         AccountID accountID)
     {
-        ProtocolProviderServiceSipImpl service =
-            new ProtocolProviderServiceSipImpl();
+        ProtocolProviderServiceSipImpl service
+            = new ProtocolProviderServiceSipImpl();
 
         try
         {

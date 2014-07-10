@@ -23,6 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
+
 import org.jitsi.util.*;
 
 /**
@@ -347,10 +348,37 @@ public class SipStackSharing
         }
         catch(InvalidArgumentException ex)
         {
+            // The TLS lp tries to bind to the socket after the lp is created
+            // and added to the list. So despite being invalid and not
+            // returned from createLP, it still lingers around. Search it
+            // by obtaining all LPs and then destroy it.
+            if(secure)
+            {
+                if (tlsLP != null)
+                    this.stack.deleteListeningPoint(tlsLP);
+
+                Set<ListeningPoint> lpsToDelete = new HashSet<ListeningPoint>();
+
+                @SuppressWarnings("rawtypes")
+                Iterator lps = this.stack.getListeningPoints();
+                while (lps.hasNext())
+                {
+                    ListeningPoint lp = (ListeningPoint) lps.next();
+                    if (ListeningPoint.TLS.equalsIgnoreCase(lp.getTransport())
+                        && lp.getPort() == preferredPort)
+                    {
+                        lpsToDelete.add(lp);
+                    }
+                }
+
+                for (ListeningPoint lp : lpsToDelete)
+                {
+                    this.stack.deleteListeningPoint(lp);
+                }
+            }
+
             // makes sure we didn't leave an open listener
             // as both UDP and TCP listener have to bind to the same port
-            if(tlsLP != null)
-                this.stack.deleteListeningPoint(tlsLP);
             if(udpLP != null)
                 this.stack.deleteListeningPoint(udpLP);
             if(tcpLP != null)
@@ -701,7 +729,8 @@ public class SipStackSharing
 
             if(transaction == null)
             {
-                logger.warn("Transaction is null, probably already expired!");
+                logger.warn("Transaction is null, probably already expired! "
+                    + "Status=" + event.getResponse().getStatusCode());
                 return;
             }
 

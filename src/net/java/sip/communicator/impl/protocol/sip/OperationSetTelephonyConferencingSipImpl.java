@@ -177,21 +177,6 @@ public class OperationSetTelephonyConferencingSipImpl
     }
 
     /**
-     * Appends a specific array of <tt>String</tt>s to a specific
-     * <tt>StringBuffer</tt>.
-     *
-     * @param stringBuffer the <tt>StringBuffer</tt> to append the specified
-     * <tt>strings</tt> to
-     * @param strings the <tt>String</tt> values to be appended to the specified
-     * <tt>stringBuffer</tt>
-     */
-    private static void append(StringBuffer stringBuffer, String... strings)
-    {
-        for (String str : strings)
-            stringBuffer.append(str);
-    }
-
-    /**
      * Notifies this <tt>CallChangeListener</tt> that a specific
      * <tt>CallPeer</tt> has been added to a specific <tt>Call</tt>.
      *
@@ -672,13 +657,6 @@ public class OperationSetTelephonyConferencingSipImpl
          * <tt>Call</tt> with the local peer.
          */
         private final CallPeerSipImpl callPeer;
-
-        /**
-         * The value of the <tt>version</tt> attribute specified in the incoming
-         * <tt>conference-info</tt> root XML element that is currently
-         * represented in {@link #callPeer}.
-         */
-        private int version = 0;
 
         /**
          * Initializes a new <tt>ConferenceSubscriberSubscription</tt> instance

@@ -18,7 +18,7 @@ import net.java.sip.communicator.service.contactsource.*;
  */
 public class MacOSXAddrBookContactSourceService
     extends AsyncContactSourceService
-    implements EditableContactSourceService
+    implements EditableContactSourceService, PrefixedContactSourceService
 {
     /**
      * the Mac OS X address book prefix.
@@ -148,6 +148,7 @@ public class MacOSXAddrBookContactSourceService
      *
      * @return the global phone number prefix
      */
+    @Override
     public String getPhoneNumberPrefix()
     {
         return AddrBookActivator.getConfigService()

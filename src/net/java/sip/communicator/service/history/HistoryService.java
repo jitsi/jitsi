@@ -54,6 +54,17 @@ public interface HistoryService {
     public History getHistory(HistoryID id) throws IllegalArgumentException;
 
     /**
+     * Enumerates existing histories.
+     * @param rawid the start of the HistoryID of all the histories that will be
+     * returned.
+     * @return list of histories which HistoryID starts with <tt>rawid</tt>.
+     * @throws IllegalArgumentException if the <tt>rawid</tt> contains ids
+     * which are missing in current history.
+     */
+    public List<HistoryID> getExistingHistories(String[] rawid)
+        throws IllegalArgumentException;
+
+    /**
      * Tests if a history with the given ID exists and is loaded.
      *
      * @param id
@@ -79,13 +90,19 @@ public interface HistoryService {
             throws IllegalArgumentException, IOException;
 
     /**
-     * Permamently removes local stored History
+     * Permanently removes local stored History
      *
      * @param id HistoryID
      * @throws IOException
      *             Thrown if the history could not be removed due to a IO error.
      */
     public void purgeLocallyStoredHistory(HistoryID id) throws IOException;
+
+
+    /**
+     * Clears locally(in memory) cached histories.
+     */
+    public void purgeLocallyCachedHistories();
 
     /**
      * Moves the content of oldId history to the content of the newId.

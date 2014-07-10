@@ -15,6 +15,7 @@ import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
+import org.apache.commons.lang3.*;
 import org.jivesoftware.smack.*;
 
 /**
@@ -24,6 +25,7 @@ import org.jivesoftware.smack.*;
  *
  * @author Damian Minkov
  * @author Marin Dzhigarov
+ * @author Hristo Terezov
  */
 public class OperationSetServerStoredAccountInfoJabberImpl
     extends AbstractOperationSetServerStoredAccountInfo
@@ -66,6 +68,9 @@ public class OperationSetServerStoredAccountInfoJabberImpl
         supportedTypes.add(WorkEmailAddressDetail.class);
         supportedTypes.add(PhoneNumberDetail.class);
         supportedTypes.add(WorkPhoneDetail.class);
+        supportedTypes.add(MobilePhoneDetail.class);
+        supportedTypes.add(VideoDetail.class);
+        supportedTypes.add(WorkVideoDetail.class);
         supportedTypes.add(WorkOrganizationNameDetail.class);
         supportedTypes.add(URLDetail.class);
         supportedTypes.add(BirthDateDetail.class);
@@ -248,7 +253,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
      */
     public boolean removeDetail(ServerStoredDetails.GenericDetail detail)
     {
-        
+
         return infoRetreiver.getCachedContactDetails(uin).remove(detail);
     }
 
@@ -336,11 +341,17 @@ public class OperationSetServerStoredAccountInfoJabberImpl
                     detail);
             }
             else if (detail.getClass().equals(FirstNameDetail.class))
+            {
                 vCard.setFirstName((String)detail.getDetailValue());
+            }
             else if (detail.getClass().equals(MiddleNameDetail.class))
+            {
                 vCard.setMiddleName((String)detail.getDetailValue());
+            }
             else if (detail.getClass().equals(LastNameDetail.class))
+            {
                 vCard.setLastName((String)detail.getDetailValue());
+            }
             else if (detail.getClass().equals(NicknameDetail.class))
                 vCard.setNickName((String)detail.getDetailValue());
             else if (detail.getClass().equals(URLDetail.class))
@@ -381,6 +392,12 @@ public class OperationSetServerStoredAccountInfoJabberImpl
                 vCard.setPhoneHome("VOICE", (String)detail.getDetailValue());
             else if (detail.getClass().equals(WorkPhoneDetail.class))
                 vCard.setPhoneWork("VOICE", (String)detail.getDetailValue());
+            else if (detail.getClass().equals(MobilePhoneDetail.class))
+                vCard.setPhoneHome("CELL", (String)detail.getDetailValue());
+            else if (detail.getClass().equals(VideoDetail.class))
+                vCard.setPhoneHome("VIDEO", (String)detail.getDetailValue());
+            else if (detail.getClass().equals(WorkVideoDetail.class))
+                vCard.setPhoneWork("VIDEO", (String)detail.getDetailValue());
             else if (detail.getClass().equals(EmailAddressDetail.class))
                 vCard.setEmailHome((String)detail.getDetailValue());
             else if (detail.getClass().equals(WorkEmailAddressDetail.class))
@@ -392,6 +409,25 @@ public class OperationSetServerStoredAccountInfoJabberImpl
             else if (detail.getClass().equals(AboutMeDetail.class))
                 vCard.setField("ABOUTME", (String)detail.getDetailValue());
         }
+
+        //Fix the display name detail
+        String tmp;
+
+        tmp = infoRetreiver.checkForFullName(vCard);
+        if(tmp != null)
+        {
+            DisplayNameDetail displayNameDetail = new DisplayNameDetail(
+                StringEscapeUtils.unescapeXml(tmp));
+            Iterator<GenericDetail> detailIt
+                = infoRetreiver.getDetails(uin, DisplayNameDetail.class);
+            while(detailIt.hasNext())
+            {
+                infoRetreiver.getCachedContactDetails(uin)
+                    .remove(detailIt.next());
+            }
+            infoRetreiver.getCachedContactDetails(uin).add(displayNameDetail);
+        }
+
         try
         {
             vCard.save(jabberProvider.getConnection());

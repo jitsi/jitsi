@@ -485,7 +485,7 @@ public class SavedPasswordsDialog
                             protocol,
                             accID.getUserID()));
             }
-            
+
             for(Map.Entry<String, String> entry :
                 SecurityConfigActivator.getChatRoomsWithSavedPasswords()
                     .entrySet())
@@ -498,7 +498,7 @@ public class SavedPasswordsDialog
                             resources.getI18NString("service.gui.CHAT_ROOM"),
                             description));
             }
-            
+
             // load provisioning passwords
             String PROVISIONING_PROPERTIES_PREFIX =
                 "net.java.sip.communicator.plugin.provisioning.auth";
@@ -523,17 +523,18 @@ public class SavedPasswordsDialog
                 configurationService.getPropertyNamesByPrefix(
                     HTTP_PROPERTIES_PREFIX, false);
 
+            int prefLen = HTTP_PROPERTIES_PREFIX.length() + 1;
             for(String prop: httpPasses)
             {
                 // we skip the entry containing the encoded password
-                if(prop.contains("PASSWORD"))
+                if(prop.contains("PASSWORD")
+                    || prefLen > prop.length())
                     continue;
 
                 model.savedPasswords.add(
                     new PasswordsTableRow(
                         prop,
-                        "http://" + prop.substring(
-                                HTTP_PROPERTIES_PREFIX.length() + 1),
+                        "http://" + prop.substring(prefLen),
                         configurationService.getString(prop)));
             }
         }

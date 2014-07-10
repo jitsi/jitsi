@@ -14,7 +14,8 @@
 
 #include "../StringUtils.h"
 #include "../MsOutlookAddrBookContactQuery.h"
-
+#include "../MsOutlookCalendar.h"
+#include "../MsOutlookUtils.h"
 /**
  * Instanciates a new MsOutlookAddrBookServer.
  */
@@ -101,38 +102,18 @@ STDMETHODIMP_(ULONG) MsOutlookAddrBookServer::Release()
  * Starts a search for contact using MAPI.A
  *
  * @param query The search pattern (unused).
+ * @param callbackAddress The address of the callback.
  *
  * @return S_OK.
  */
-HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::foreachMailUser(BSTR query)
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::foreachMailUser(
+        BSTR query, long callbackAddress)
 {
     char * charQuery = StringUtils::WideCharToMultiByte(query);
 
-    MsOutlookAddrBookContactQuery_foreachMailUser(
-            charQuery,
-            (void *) MsOutlookAddrBookServer::foreachMailUserCallback,
-            NULL);
-
-    free(charQuery);
-
-    return S_OK;
-}
-
-/**
- * Calls back the java side to list a contact.
- *
- * @param iUnknown The string representation of the entry id of the contact.
- * @param object Not used. Must be set to NULL.
- *
- * @return True everything works fine and that we must continue to list the
- * other contacts. False otherwise.
- */
-boolean MsOutlookAddrBookServer::foreachMailUserCallback(
-        LPSTR iUnknown,
-        void * object)
-{
     HRESULT hr =  E_FAIL;
 
+    MsOutlookUtils_log("Executing query.");
     IMsOutlookAddrBookClient * msOutlookAddrBookClient = NULL;
     if((hr = CoCreateInstance(
             CLSID_MsOutlookAddrBookClient,
@@ -141,14 +122,119 @@ boolean MsOutlookAddrBookServer::foreachMailUserCallback(
             IID_IMsOutlookAddrBookClient,
             (void**) &msOutlookAddrBookClient)) == S_OK)
     {
+        hr = MsOutlookAddrBookContactQuery_foreachMailUser(
+                charQuery,
+                (void *) MsOutlookAddrBookServer::foreachMailUserCallback,
+                (void *) msOutlookAddrBookClient,
+                callbackAddress);
+
+        msOutlookAddrBookClient->Release();
+    }
+    else
+    {
+    	MsOutlookUtils_log("Error can't access the COM client.");
+    }
+
+    free(charQuery);
+
+    return hr == S_OK;
+}
+
+/**
+ * Starts a search for calendar items using MAPI.A
+ *
+ * @param callbackAddress the address for the callback method
+ * @return S_OK.
+ */
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::getAllCalendarItems(
+		long callbackAddress)
+{
+	HRESULT hr =  E_FAIL;
+	IMsOutlookAddrBookClient * msOutlookAddrBookClient = NULL;
+	if((hr = CoCreateInstance(
+			CLSID_MsOutlookAddrBookClient,
+			NULL,
+			CLSCTX_LOCAL_SERVER,
+			IID_IMsOutlookAddrBookClient,
+			(void**) &msOutlookAddrBookClient)) == S_OK)
+	{
+		MsOutlookCalendar_getAllCalendarItems(
+				(void *) MsOutlookAddrBookServer::foreachCalendarItemCallback,
+				(void *) msOutlookAddrBookClient,
+				callbackAddress);
+		msOutlookAddrBookClient->Release();
+	}
+
+    return S_OK;
+}
+
+/**
+ * Calls back the java side to add a calendar item.
+ *
+ * @param iUnknown The string representation of the entry id of the calendar
+ * item.
+ *
+ * @return True everything works fine and that we must continue to list the
+ * other contacts. False otherwise.
+ */
+boolean MsOutlookAddrBookServer::foreachCalendarItemCallback(
+        LPSTR iUnknown,
+        void * callbackClient,
+		long callbackAddress)
+{
+    HRESULT hr =  E_FAIL;
+
+    if(callbackClient)
+	{
+		LPWSTR iUnknownW = StringUtils::MultiByteToWideChar(iUnknown);
+		BSTR res = SysAllocString(iUnknownW);
+
+		hr = ((IMsOutlookAddrBookClient *)callbackClient)
+					->foreachCalendarItemCallback(res, callbackAddress);
+
+		SysFreeString(res);
+		free(iUnknownW);
+	}
+
+
+    return (hr == S_OK);
+}
+
+
+
+/**
+ * Calls back the java side to list a contact.
+ *
+ * @param iUnknown The string representation of the entry id of the contact.
+ * @param callbackClient the client object to call the callback and pass the
+ * result and the callbackAddress we have received.
+ * @param callbackAddress the address of the callback function.
+ *
+ * @return True everything works fine and that we must continue to list the
+ * other contacts. False otherwise.
+ */
+boolean MsOutlookAddrBookServer::foreachMailUserCallback(
+        LPSTR iUnknown,
+        void * callbackClient,
+        long callbackAddress)
+{
+    HRESULT hr =  E_FAIL;
+
+    if(callbackClient)
+    {
+    	MsOutlookUtils_log("Contact received. The contact will be send to the client.");
         LPWSTR iUnknownW = StringUtils::MultiByteToWideChar(iUnknown);
         BSTR res = SysAllocString(iUnknownW);
 
-        hr = msOutlookAddrBookClient->foreachMailUserCallback(res);
+        hr = ((IMsOutlookAddrBookClient *)callbackClient)
+                    ->foreachMailUserCallback(res, callbackAddress);
 
         SysFreeString(res);
         free(iUnknownW);
-        msOutlookAddrBookClient->Release();
+    }
+    else
+    {
+    	MsOutlookUtils_log("No callback client");
     }
 
     return (hr == S_OK);
@@ -173,6 +259,7 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
         int nbPropIds,
         SAFEARRAY * propIds,
         long flags,
+        UUID UUID_Address,
         SAFEARRAY ** props,
         SAFEARRAY ** propsLength,
         SAFEARRAY ** propsType)
@@ -182,7 +269,6 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
     unsigned long* localPropsLength = NULL;
     // b = byteArray, l = long, s = 8 bits string, u = 16 bits string.
     char * localPropsType = NULL;
-
     if((localProps = (void**) malloc(nbPropIds * sizeof(void*))) != NULL)
     {
         memset(localProps, 0, nbPropIds * sizeof(void*));
@@ -205,9 +291,11 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
                         flags,
                         localProps,
                         localPropsLength,
-                        localPropsType);
+                        localPropsType,
+                        UUID_Address);
 
                 free(id);
+
 
                 if(HR_SUCCEEDED(hr))
                 {
@@ -242,6 +330,10 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
                             nbPropIds * sizeof(char));
                     SafeArrayUnlock(*propsType);
                 }
+                else
+                {
+                	MsOutlookUtils_log("Error receiving the properties.");
+                }
 
                 for(int j = 0; j < nbPropIds; ++j)
                 {
@@ -251,9 +343,21 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookServer::IMAPIProp_GetProps(
 
                 free(localPropsType);
             }
+            else
+            {
+            	MsOutlookUtils_log("Memory allocation error.[4]");
+            }
             free(localPropsLength);
         }
+        else
+        {
+        	MsOutlookUtils_log("Memory allocation error.[5]");
+        }
         free(localProps);
+    }
+    else
+    {
+    	MsOutlookUtils_log("Memory allocation error.[6]");
     }
 
     return hr;

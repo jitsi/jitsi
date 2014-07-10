@@ -48,7 +48,12 @@ public class ContactSearchFieldUI
      * Indicates whether the call button should be enabled or not.
      */
     private boolean isCallButtonEnabled = true;
-    
+
+    /**
+     * Indicates whether the sms button should be enabled or not.
+     */
+    private boolean isSmsButtonEnabled = false;
+
     /**
      * Listener for registration state change for the protocol provider service.
      */
@@ -137,10 +142,16 @@ public class ContactSearchFieldUI
     public void setCallButtonEnabled(boolean isEnabled)
     {
         isCallButtonEnabled = isEnabled;
-        super.setCallButtonEnabled(isEnabled 
+        super.setCallButtonEnabled(isEnabled
             && CallManager.getTelephonyProviders().size() > 0);
     }
-    
+
+    @Override
+    public void setSMSButtonEnabled(boolean isEnabled)
+    {
+        isSmsButtonEnabled = isEnabled;
+    }
+
     /**
      * Paints the background of the associated component.
      * 
@@ -149,9 +160,12 @@ public class ContactSearchFieldUI
     @Override
     protected void customPaintBackground(Graphics g)
     {
-        setSMSButtonEnabled(
-            GuiActivator.getUIService().getMainFrame()
-                .hasOperationSet(OperationSetSmsMessaging.class));
+        if(isSmsButtonEnabled)
+        {
+            super.setSMSButtonEnabled(
+                GuiActivator.getUIService().getMainFrame()
+                    .hasOperationSet(OperationSetSmsMessaging.class));
+        }
 
         super.customPaintBackground(g);
     }
@@ -236,11 +250,23 @@ public class ContactSearchFieldUI
     {
 
         @Override
-        public void registrationStateChanged(RegistrationStateChangeEvent evt)
+        public void registrationStateChanged(
+            final RegistrationStateChangeEvent evt)
         {
+            if(!SwingUtilities.isEventDispatchThread())
+            {
+                SwingUtilities.invokeLater(new Runnable()
+                {
+                    public void run()
+                    {
+                        registrationStateChanged(evt);
+                    }
+                });
+                return;
+            }
+
             setCallButtonEnabled(isCallButtonEnabled);
         }
-        
     }
 
     /**

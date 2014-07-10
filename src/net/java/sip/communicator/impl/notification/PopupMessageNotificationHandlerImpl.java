@@ -65,10 +65,11 @@ public class PopupMessageNotificationHandlerImpl
 
             systray.showPopupMessage(popupMsg);
         }
-        else
+        else if (message == null)
         {
-            logger.error("Message is null or empty!");
+            logger.error("Message is null!");
         }
+        // Allow messages to be empty, since some protocols allow empty lines.
     }
 
     /**

@@ -351,6 +351,19 @@ public class MetaContactRightButtonMenu
             this.moveToMenu.addSeparator();
         }
 
+        if(GuiActivator.getContactList().getRootUIGroup() != null)
+        {
+            // adds contacts group if it is visible
+            JMenuItem menuItem = new JMenuItem(
+                GuiActivator.getContactList().getRootUIGroup()
+                    .getDisplayName());
+            menuItem.setName(moveToPrefix
+                + GuiActivator.getContactListService().getRoot().getMetaUID());
+            menuItem.addActionListener(this);
+
+            this.moveToMenu.add(menuItem);
+        }
+
         while (groups.hasNext())
         {
             MetaContactGroup group = groups.next();

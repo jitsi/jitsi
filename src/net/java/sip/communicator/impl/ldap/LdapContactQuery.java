@@ -75,22 +75,17 @@ public class LdapContactQuery
     @Override
     protected void run()
     {
-        /* query we get is delimited by \Q and \E
-         * and we should not query LDAP server with a too small number of
-         * characters
-         */
+        //we should not query LDAP server with a too small number of characters
         String queryStr = query.toString();
-        if(queryStr.length() < (4))
+        if(queryStr.length() < 2)
         {
             return;
         }
 
-        /* remove \Q and \E from the Pattern */
-        String queryString = queryStr.substring(2, queryStr.length() - 2);
         LdapService ldapService = LdapActivator.getLdapService();
         LdapFactory factory = ldapService.getFactory();
 
-        ldapQuery = factory.createQuery(queryString);
+        ldapQuery = factory.createQuery(queryStr);
         LdapSearchSettings settings = factory.createSearchSettings();
         settings.setDelay(250);
         settings.setMaxResults(count);
@@ -154,7 +149,9 @@ public class LdapContactQuery
         Set<String> mobilePhones = person.getMobilePhone();
         Set<String> homePhones = person.getHomePhone();
         Set<String> workPhones = person.getWorkPhone();
-        ContactDetail detail = null;
+        ContactDetail detail;
+        PhoneNumberI18nService phoneNumberI18nService
+            = LdapActivator.getPhoneNumberI18nService();
 
         for(String mail : mailAddresses)
         {
@@ -166,7 +163,7 @@ public class LdapContactQuery
 
         for(String homePhone : homePhones)
         {
-            homePhone = PhoneNumberI18nService.normalize(homePhone);
+            homePhone = phoneNumberI18nService.normalize(homePhone);
             detail = new ContactDetail(homePhone,
                     ContactDetail.Category.Phone,
                     new ContactDetail.SubCategory[]{
@@ -180,7 +177,7 @@ public class LdapContactQuery
 
         for(String workPhone : workPhones)
         {
-            workPhone = PhoneNumberI18nService.normalize(workPhone);
+            workPhone = phoneNumberI18nService.normalize(workPhone);
             detail = new ContactDetail(workPhone,
                 ContactDetail.Category.Phone,
                 new ContactDetail.SubCategory[]{
@@ -194,7 +191,7 @@ public class LdapContactQuery
 
         for(String mobilePhone : mobilePhones)
         {
-            mobilePhone = PhoneNumberI18nService.normalize(mobilePhone);
+            mobilePhone = phoneNumberI18nService.normalize(mobilePhone);
             detail = new ContactDetail(mobilePhone,
                 ContactDetail.Category.Phone,
                 new ContactDetail.SubCategory[]{
@@ -269,7 +266,7 @@ public class LdapContactQuery
 
                 try
                 {
-                    sourceContact.setImage(person.fetchPhoto());
+                    sourceContact.setImage(person.getPhoto());
                 }
                 catch (OutOfMemoryError oome)
                 {

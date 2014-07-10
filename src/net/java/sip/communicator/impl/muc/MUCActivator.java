@@ -38,6 +38,12 @@ public class MUCActivator
         = Logger.getLogger(MUCActivator.class);
 
     /**
+     * The configuration property to disable
+     */
+    private static final String DISABLED_PROPERTY
+        = "net.java.sip.communicator.impl.muc.MUCSERVICE_DISABLED";
+
+    /**
      * The bundle context.
      */
     static BundleContext bundleContext = null;
@@ -118,6 +124,9 @@ public class MUCActivator
     {
         bundleContext = context;
 
+        if(getConfigurationService().getBoolean(DISABLED_PROPERTY, false))
+            return;
+
         bundleContext.registerService(
             ContactSourceService.class.getName(),
             chatRoomContactSource,
@@ -129,14 +138,13 @@ public class MUCActivator
             null);
         mucCustomActionService = new MUCCustomContactActionService();
         bundleContext.registerService(
-            CustomContactActionsService.class.getName(), 
-            mucCustomActionService, 
+            CustomContactActionsService.class.getName(),
+            mucCustomActionService,
             null);
         bundleContext.registerService(
-            CustomContactActionsService.class.getName(), 
-            new MUCGroupCustomContactActionService(), 
+            CustomContactActionsService.class.getName(),
+            new MUCGroupCustomContactActionService(),
             null);
-        
     }
 
     public void stop(BundleContext context) throws Exception

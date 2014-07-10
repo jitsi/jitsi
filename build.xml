@@ -598,6 +598,12 @@
         depends="prepare-all-tests,prepare-local-accounts,deploy-os-specific-bundles"
         description="Starts felix and runs selected Service Impl Compatibility Kits.">
 
+        <condition property="logging.config.file"
+                   value="${custom.logging.config.file}"
+                   else="${lib}/logging.properties">
+            <isset property="custom.logging.config.file"/>
+        </condition>
+
         <!-- Do the testing itself. Note that we don't fail on error as we need
              to generate an html report before leaving this target.-->
         <java classname="org.apache.felix.main.Main"
@@ -635,7 +641,7 @@
 
             <!-- Tell java.util.logging about our logging preferences -->
             <sysproperty key="java.util.logging.config.file"
-                value="${lib}/logging.properties"/>
+                value="${logging.config.file}"/>
 
             <!-- Tell all protocol testers their account details. -->
             <syspropertyset id="accounts">
@@ -788,8 +794,6 @@
             <sysproperty key="java.net.preferIPv6Addresses"
                          value="${java.net.preferIPv6Addresses}"/>
 
-            <sysproperty key="gtalktesting" value="${gtalktesting}"/>
-
             <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
                 value="${user.home}"/>
             <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_NAME"
@@ -842,7 +846,7 @@
     </target>
 
     <!--RUN-JITSI -->
-    <target name="run" depends="deploy-os-specific-bundles"
+    <target name="run" depends="deploy-os-specific-bundles,load-properties"
         description="Starts felix and runs sip-comunicator gui (use latest build).">
 
         <!-- we allow users to pass command line args using the "args" system
@@ -851,10 +855,8 @@
              the value ${args}-->
         <property name="args" value=""/>
 
-        <!-- Jitsi on Mac OS X uses a JVMTI agent to handle kAEGetURL
-             AppleScript events. -->
         <condition property="jvmarg.line"
-                value="-agentlib:AEGetURLEventHandlerAgent -Xdock:name='Jitsi' -Xdock:icon='resources/images/logo/sc_logo_128x128.icns'"
+                value="-Xdock:name='${application.name}' -Xdock:icon='resources/images/logo/sc_logo_128x128.icns'"
                 else="">
             <isset property="is.running.macos"/>
         </condition>
@@ -863,6 +865,14 @@
             value="-splash:resources/install/resources/splash.gif"
             else="">
             <isset property="splashscreen.enable"/>
+        </condition>
+
+        <!-- Jitsi on Mac OS X uses a JVMTI agent to handle kAEGetURL
+             AppleScript events. To enable it use jvmarg.aegeturl property -->
+        <condition property="jvmarg.aegeturl"
+            value="-agentlib:AEGetURLEventHandlerAgent"
+            else="">
+            <isset property="aegeturl.enable"/>
         </condition>
 
         <condition property="jvm.maxheapsize"
@@ -890,8 +900,6 @@
 
             <sysproperty key="java.net.preferIPv6Addresses"
                 value="${java.net.preferIPv6Addresses}"/>
-
-            <sysproperty key="gtalktesting" value="${gtalktesting}"/>
 
             <!--sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
                 value="${user.home}"/>
@@ -934,7 +942,7 @@
                  detection because -server uses much more memory for 32-bit OS
                  (64-bit always used -server) -->
             <jvmarg line="${profiler.args} ${jvmarg.line}
-              -client ${jvm.maxheapsize} ${jvmarg.splash}"/>
+              -client ${jvm.maxheapsize} ${jvmarg.splash} ${jvmarg.aegeturl}"/>
 
             <sysproperty key="apple.laf.useScreenMenuBar" value="true" />
         </java>
@@ -1045,7 +1053,7 @@
         bundle-protocol,bundle-protocol-media,bundle-icq,
         bundle-icq-slick,bundle-mock,bundle-smacklib,bundle-jmdnslib,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
-        bundle-jnalib,
+        bundle-jnalib,bundle-phonenumbers,
         bundle-msn,bundle-msn-slick,bundle-yahoo,bundle-yahoo-slick,
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
@@ -1086,8 +1094,10 @@
         bundle-globalshortcut,bundle-plugin-msofficecomm,bundle-libjitsi,
         bundle-customcontactactions, bundle-phonenumbercontactsource,
         bundle-demuxcontactsource, bundle-muc,
-        bundle-desktoputil,bundle-globaldisplaydetails,
+        bundle-desktoputil,bundle-globaldisplaydetails, 
+    	bundle-usersearch,
         bundle-plugin-propertieseditor,bundle-plugin-accountinfo,
+        bundle-plugin-connectioninfo,
         bundle-guava,bundle-hsql"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
@@ -1305,7 +1315,7 @@
 
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/libjitsi"
                 prefix="net/java/sip/communicator/impl/libjitsi"/>
-            <zipfileset src="${lib.noinst}/bcpkix-jdk15on-149.jar" prefix=""
+            <zipfileset src="${lib.noinst}/bcpkix-jdk15on-150.jar" prefix=""
                 excludes="META-INF/BCKEY.*"/>
             <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/libjitsi.jar" prefix=""/>
@@ -1523,6 +1533,17 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset src="${lib.noinst}/smack.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/smackx.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jnsapi.jar" prefix=""/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-PHONENUMBER-SERVICE -->
+    <target name="bundle-phonenumbers">
+        <!-- Creates a bundle containing the icq impl of the protocol provider.-->
+        <jar compress="false" destfile="${bundles.dest}/phonenumbers.jar"
+             manifest="${src}/net/java/sip/communicator/impl/phonenumbers/phonenumbers.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/phonenumbers"
+                        prefix="net/java/sip/communicator/impl/phonenumbers"/>
+            <zipfileset src="${lib.noinst}/libphonenumber-5.9.jar" prefix=""/>
         </jar>
     </target>
 
@@ -2193,6 +2214,15 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+    <!-- BUNDLE-PLUGIN-CONNECTIONINFO -->
+    <target name="bundle-plugin-connectioninfo">
+        <jar compress="false" destfile="${bundles.dest}/connectioninfo.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/connectioninfo/connectioninfo.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/connectioninfo"
+                prefix="net/java/sip/communicator/plugin/connectioninfo"/>
+        </jar>
+    </target>
+
     <!-- BUNDLE-DICT -->
     <target name="bundle-dict">
         <jar compress="false" destfile="${bundles.dest}/protocol-dict.jar"
@@ -2401,32 +2431,31 @@ javax.swing.event, javax.swing.border"/>
 
             <zipfileset src="${lib.noinst}/zrtp4j-light.jar" prefix=""/>
             <manifest>
-                <attribute name="Export-Package" value="
-                    gnu.java.zrtp,
-                    gnu.java.zrtp.packets,
-                    gnu.java.zrtp.utils,
-                    gnu.java.zrtp.zidfile"/>
+                <attribute name="Export-Package" value="gnu.java.zrtp,
+gnu.java.zrtp.packets,
+gnu.java.zrtp.utils,
+gnu.java.zrtp.zidfile"/>
                 <attribute name="Import-Package" value="org.bouncycastle.asn1,
-                    org.bouncycastle.asn1.nist,
-                    org.bouncycastle.asn1.sec,
-                    org.bouncycastle.asn1.x9,
-                    org.bouncycastle.crypto,
-                    org.bouncycastle.crypto.agreement,
-                    org.bouncycastle.crypto.digests,
-                    org.bouncycastle.crypto.engines,
-                    org.bouncycastle.crypto.generators,
-                    org.bouncycastle.crypto.macs,
-                    org.bouncycastle.crypto.modes,
-                    org.bouncycastle.crypto.params,
-                    org.bouncycastle.crypto.prng,
-                    org.jitsi.bccontrib.digests,
-                    org.jitsi.bccontrib.engines,
-                    org.jitsi.bccontrib.macs,
-                    org.jitsi.bccontrib.params,
-                    org.jitsi.bccontrib.prng,
-                    org.bouncycastle.math.ec,
-                    org.bouncycastle.util.encoders,
-                    org.bouncycastle.util"/>
+org.bouncycastle.asn1.nist,
+org.bouncycastle.asn1.sec,
+org.bouncycastle.asn1.x9,
+org.bouncycastle.crypto,
+org.bouncycastle.crypto.agreement,
+org.bouncycastle.crypto.digests,
+org.bouncycastle.crypto.engines,
+org.bouncycastle.crypto.generators,
+org.bouncycastle.crypto.macs,
+org.bouncycastle.crypto.modes,
+org.bouncycastle.crypto.params,
+org.bouncycastle.crypto.prng,
+org.jitsi.bccontrib.digests,
+org.jitsi.bccontrib.engines,
+org.jitsi.bccontrib.macs,
+org.jitsi.bccontrib.params,
+org.jitsi.bccontrib.prng,
+org.bouncycastle.math.ec,
+org.bouncycastle.util.encoders,
+org.bouncycastle.util"/>
                 <attribute name="Bundle-Name" value="ZRTP4J"/>
                 <attribute name="Bundle-Description" value="ZRTP for Java library."/>
                 <attribute name="Bundle-Version" value="1.4.5"/>
@@ -2484,7 +2513,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!--BUNDLE-BOUNCYCASTLE -->
     <target name="bundle-bouncycastle">
-        <copy file="${lib.noinst}/bcprov-jdk15on-149.jar" tofile="${bundles.dest}/bouncycastle.jar"/>
+        <copy file="${lib.noinst}/bcprov-jdk15on-150.jar" tofile="${bundles.dest}/bouncycastle.jar"/>
         <copy file="${lib.noinst}/bccontrib-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/bccontrib.jar"/>
     </target>
 
@@ -2759,6 +2788,8 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/addrbook/addrbook.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/addrbook"
                 prefix="net/java/sip/communicator/plugin/addrbook" />
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/calendar"
+                prefix="net/java/sip/communicator/service/calendar" />
         </jar>
     </target>
 
@@ -2874,6 +2905,15 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
+	<!-- BUNDLE-PHONE-NUMBER-CONTACT-SOURCE -->
+	<target name="bundle-usersearch">
+	    <!-- Creates a bundle containing the contact source interfaces.-->
+	    <jar compress="false" destfile="${bundles.dest}/usersearch.jar"
+	         manifest="${src}/net/java/sip/communicator/plugin/usersearch/usersearch.manifest.mf">
+	         <zipfileset dir="${dest}/net/java/sip/communicator/plugin/usersearch"
+	            prefix="net/java/sip/communicator/plugin/usersearch"/>
+	    </jar>
+	</target>
     <!-- BUNDLE-PHONE-NUMBER-CONTACT-SOURCE -->
     <target name="bundle-demuxcontactsource">
         <!-- Creates a bundle containing the contact source interfaces.-->

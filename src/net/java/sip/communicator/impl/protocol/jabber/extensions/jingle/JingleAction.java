@@ -153,7 +153,27 @@ public enum JingleAction
      * it MUST send a transport-accept action to the other party; if not, it
      * MUST send a transport-reject action to the other party.
      */
-    TRANSPORT_REPLACE("transport-replace");
+    TRANSPORT_REPLACE("transport-replace"),
+
+    /**
+     * The "addsource" action used in Jitsi-Meet.
+     */
+    ADDSOURCE("addsource"),
+
+    /**
+     * The "removesource" action used in Jitsi-Meet.
+     */
+    REMOVESOURCE("removesource"),
+
+    /**
+     * The "source-add" action used in Jitsi-Meet.
+     */
+    SOURCEADD("source-add"),
+
+    /**
+     * The "source-remove" action used in Jitsi-Meet.
+     */
+    SOURCEREMOVE("source-remove");
 
     /**
      * The name of this direction.

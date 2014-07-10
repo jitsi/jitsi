@@ -13,6 +13,8 @@ Build-Depends: debhelper (>= 9), javahelper,
                ant-contrib,
                maven,
                autotools-dev,
+               libjitsi,
+               libjitsi-jni,
                libavutil-dev,
                libavcodec-dev,
                libavformat-dev,
@@ -22,6 +24,8 @@ Build-Depends: debhelper (>= 9), javahelper,
                libxpp3-java,
                libjzlib-java,
                libbcprov-java,
+               libbcpkix-java,
+               libweupnp-java,
                libjna-java,
                libcommons-codec-java,
                libcommons-lang3-java,
@@ -38,7 +42,7 @@ Build-Depends: debhelper (>= 9), javahelper,
                libhttpcore-java,
                libhttpmime-java,
                libhttpclient-java,
-               libjson-simple-java,
+               libjson-simple-java (>= 1.1.1),
                libdbus-java,
                libeasymock-java,
                libxt-dev,
@@ -58,16 +62,19 @@ Build-Depends: debhelper (>= 9), javahelper,
                libglib2.0-dev,
                libpulse-dev,
                libguava-java,
+               libhsqldb-java,
                glassfish-activation,
                glassfish-mail,
                libbcpkix-java,
                libjcalendar-java
-Standards-Version: 3.9.4
+Standards-Version: 3.9.5
 
 Package: _PACKAGE_NAME_
 Architecture: all
 Depends: ${misc:Depends},
-         lib_PACKAGE_NAME_-jni (>= ${source:Version}),
+         _PACKAGE_NAME_-jni (>= ${source:Version}),
+         libjitsi (>= 415-0),
+         libjitsi-jni (>= 415-0),
          default-jre | java6-runtime,
          libunixsocket-java,
          libhttpcore-java,
@@ -87,9 +94,13 @@ Depends: ${misc:Depends},
          libxpp3-java,
          libjzlib-java,
          libbcprov-java,
+         libbcpkix-java,
+         libweupnp-java,
          libjna-java,
          libjgoodies-forms-java,
-         libjson-simple-java,
+         libguava-java,
+         libhsqldb-java,
+         libjson-simple-java (>= 1.1.1),
          libjcalendar-java
 Recommends: ${java:Recommends}
 Description: VoIP and Instant Messaging client
@@ -98,7 +109,8 @@ Description: VoIP and Instant Messaging client
  as well as chat with your friends using some of the most popular instant
  messaging protocols such as SIP/SIMPLE, XMPP/Jabber, AIM/ICQ, Yahoo and others.
 
-Package: lib_PACKAGE_NAME_-jni
+Package: _PACKAGE_NAME_-jni
+Replaces: libjitsi-jni (<< 415)
 Section: libs
 Architecture: amd64 i386
 Depends: ${misc:Depends}, ${shlibs:Depends}

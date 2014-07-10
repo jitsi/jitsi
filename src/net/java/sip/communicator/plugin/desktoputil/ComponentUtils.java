@@ -55,6 +55,22 @@ public class ComponentUtils
     }
 
     /**
+     * Returns the height of the given component.
+     *
+     * @param c the component where the text is contained
+     * @return the height of the text
+     */
+    public static int getStringHeight(Component c)
+    {
+        // get metrics from the graphics
+        FontMetrics metrics = c.getFontMetrics(c.getFont());
+        // get the height of a line of text in this font and render context
+        int hgt = metrics.getHeight();
+        // calculate the height of a box to hold the text with some padding.
+        return hgt+2;
+    }
+
+    /**
      * Returns the bounds of the given string.
      *
      * @param text the string to measure

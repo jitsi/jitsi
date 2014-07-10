@@ -23,6 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
  *
  * @author Yana Stamcheva
  * @author Valentin Martinet
+ * @author Damian Minkov
  */
 @SuppressWarnings("serial")
 public class ChatRoomConfigurationWindow
@@ -32,22 +33,17 @@ public class ChatRoomConfigurationWindow
     /**
      * The configuration form contained in this window.
      */
-    private ChatRoomConfigurationForm configForm;
+    protected ChatRoomConfigurationForm configForm;
 
     /**
      * The scroll pane contained in the "General" tab.
      */
-    private JScrollPane generalScrollPane = new JScrollPane();
-
-    /**
-     * The scroll pane contained in the "Options" tab.
-     */
-    private JScrollPane optionsScrollPane = new JScrollPane();
+    protected JScrollPane generalScrollPane = new JScrollPane();
 
     /**
      * The main panel.
      */
-    private JPanel mainPanel = new TransparentPanel();
+    protected JPanel mainPanel = new TransparentPanel();
 
     /**
      * The button that stores the data.
@@ -62,21 +58,10 @@ public class ChatRoomConfigurationWindow
         GuiActivator.getResources().getI18NString("service.gui.CANCEL"));
 
     /**
-     * The panel contained in the "Options" tab.
-     */
-    private JPanel roomOptionsPanel =
-        new TransparentPanel(new GridLayout(0, 1));
-
-    /**
      * The panel containing all buttons.
      */
     private JPanel buttonsPanel =
         new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
-
-    /**
-     * The tabbed pane containing the "General" and "Options" tabs.
-     */
-    private final JTabbedPane tabbedPane = new SIPCommTabbedPane();
 
     /**
      * The panel containing the title.
@@ -86,7 +71,7 @@ public class ChatRoomConfigurationWindow
     /**
      * A map all configuration components.
      */
-    private Hashtable<String, JComponent> uiFieldsTable
+    protected Hashtable<String, JComponent> uiFieldsTable
         = new Hashtable<String, JComponent>();
 
     /**
@@ -114,18 +99,12 @@ public class ChatRoomConfigurationWindow
         this.generalScrollPane.setPreferredSize(new Dimension(820, 520));
         this.generalScrollPane.setHorizontalScrollBarPolicy(
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        this.optionsScrollPane.setHorizontalScrollBarPolicy(
-            JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
         this.generalScrollPane.setOpaque(false);
         this.generalScrollPane.getViewport().setOpaque(false);
-        this.optionsScrollPane.setOpaque(false);
-        this.optionsScrollPane.getViewport().setOpaque(false);
 
         this.mainPanel.setBorder(
             BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        this.tabbedPane.setBorder(
-            BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         this.mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
         this.saveButton.addActionListener(this);
@@ -135,31 +114,15 @@ public class ChatRoomConfigurationWindow
         this.buttonsPanel.add(cancelButton);
 
         this.generalScrollPane.getViewport().add(mainPanel);
-        this.optionsScrollPane.getViewport().add(roomOptionsPanel,
-            BorderLayout.NORTH);
-
-        this.tabbedPane.add(
-            GuiActivator.getResources().getI18NString("service.gui.GENERAL"),
-            generalScrollPane);
-
-        this.tabbedPane.add(
-            GuiActivator.getResources().getI18NString("service.gui.OPTIONS"),
-            optionsScrollPane);
 
         this.getContentPane().add(titlePanel, BorderLayout.NORTH);
-        this.getContentPane().add(tabbedPane, BorderLayout.CENTER);
+        this.getContentPane().add(generalScrollPane, BorderLayout.CENTER);
         this.getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 
         titlePanel.setOpaque(false);
-        tabbedPane.setOpaque(false);
         buttonsPanel.setOpaque(false);
-        roomOptionsPanel.setOpaque(false);
-        optionsScrollPane.setOpaque(false);
         mainPanel.setOpaque(false);
         generalScrollPane.setOpaque(false);
-
-        this.roomOptionsPanel.setBorder(
-            BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         this.loadConfigurationForm();
     }
@@ -167,7 +130,7 @@ public class ChatRoomConfigurationWindow
     /**
      * Loads the configuration form obtained from the chat room.
      */
-    private void loadConfigurationForm()
+    protected void loadConfigurationForm()
     {
         Iterator<ChatRoomConfigurationFormField> configurationSet
             = configForm.getConfigurationSet();
@@ -192,6 +155,7 @@ public class ChatRoomConfigurationWindow
             {
                 // Create a check box when the field is of type boolean.
                 field = new SIPCommCheckBox(formField.getLabel());
+                label.setText("");
 
                 if(values.hasNext())
                 {
@@ -209,7 +173,7 @@ public class ChatRoomConfigurationWindow
                     String value = values.next().toString();
 
                     ((JLabel) field).setText(value);
-                    field.setFont(new Font(null, Font.ITALIC, 9));
+                    field.setFont(new Font(null, Font.ITALIC, 10));
                     field.setForeground(Color.GRAY);
                 }
             }
@@ -331,29 +295,20 @@ public class ChatRoomConfigurationWindow
                 uiFieldsTable.put(formField.getName(), field);
             }
 
-            // If the field is of type boolean we would like to separate it in
-            // the options panel.
-            if(fieldType.equals(ChatRoomConfigurationFormField.TYPE_BOOLEAN))
-            {
-                roomOptionsPanel.add(field);
-            }
+            JPanel fieldPanel = new TransparentPanel(new GridLayout(1,2));
+            fieldPanel.setOpaque(false);
+
+            if(!(field instanceof JLabel))
+                fieldPanel.setBorder(
+                    BorderFactory.createEmptyBorder(0, 0, 8, 0));
             else
-            {
-                JPanel fieldPanel = new TransparentPanel(new GridLayout(1,2));
-                fieldPanel.setOpaque(false);
+                fieldPanel.setBorder(
+                    BorderFactory.createEmptyBorder(0, 0, 1, 0));
 
-                if(!(field instanceof JLabel))
-                    fieldPanel.setBorder(
-                        BorderFactory.createEmptyBorder(0, 0, 10, 0));
+            fieldPanel.add(label);
+            fieldPanel.add(field);
 
-                label.setPreferredSize(
-                    new Dimension(computeLabelWidth(configForm), 30));
-
-                fieldPanel.add(label);
-                fieldPanel.add(field);
-
-                this.mainPanel.add(fieldPanel);
-            }
+            this.mainPanel.add(fieldPanel);
         }
     }
 
@@ -495,5 +450,19 @@ public class ChatRoomConfigurationWindow
     protected void close(boolean isEscaped)
     {
         this.dispose();
+    }
+
+    /**
+     * Overwrites the setVisible method in order to set the
+     * position of this window before showing it.
+     * @param isVisible indicates if this frame should be visible
+     */
+    @Override
+    public void setVisible(boolean isVisible)
+    {
+        if(isVisible)
+            setLocationRelativeTo(null);
+
+        super.setVisible(isVisible);
     }
 }

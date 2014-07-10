@@ -43,6 +43,8 @@ public class TestHistoryService extends TestCase {
         suite.addTest(new TestHistoryService("testWriteRecords"));
         suite.addTest(new TestHistoryService("testReadRecords"));
         suite.addTest(new TestHistoryService("testPurgeLocallyStoredHistory"));
+        suite.addTest(new TestHistoryService("testCreatingHistoryIDFromFS"));
+        suite.addTest(new TestHistoryService("testWriteRecordsWithMaxNumber"));
 
         return suite;
     }
@@ -193,4 +195,98 @@ public class TestHistoryService extends TestCase {
                  + " : " + ex.getMessage());
         }
     }
+
+    /**
+     * Test of method createFromRawStrings, used when we read history folders
+     * from FS and from their names want to recreate history.
+     */
+    public void testCreatingHistoryIDFromFS()
+    {
+        testHistoryIDCreate(new String[] { "test1", "alltests1" });
+
+        //test id which has special chars (accounts)
+        testHistoryIDCreate(new String[] { "test2", "alltests2",
+            "Jabber:mincho.penchev@jit.si@jit.si" });
+    }
+
+    private void testHistoryIDCreate(String[] strArr)
+    {
+        HistoryID testNoSpecialCharsID = HistoryID.createFromRawID(strArr);
+        HistoryID testNoSpecialCharsIDFSRead =
+            HistoryID.createFromRawStrings(testNoSpecialCharsID.getID());
+
+        assertEquals("Wrong length", testNoSpecialCharsID.getID().length,
+            testNoSpecialCharsIDFSRead.getID().length);
+
+        for(int i = 0; i < testNoSpecialCharsID.getID().length; i++)
+        {
+            /*System.err.println(
+                testNoSpecialCharsID.getID()[i] +
+                " ? " +
+                testNoSpecialCharsIDFSRead.getID()[i]);*/
+            assertEquals("Wrong id", testNoSpecialCharsID.getID()[i],
+                testNoSpecialCharsIDFSRead.getID()[i]);
+        }
+    }
+
+    public void testWriteRecordsWithMaxNumber()
+    {
+        HistoryWriter writer = this.history.getWriter();
+        HistoryReader reader = this.history.getReader();
+
+        try
+        {
+
+            for (int i = 0; i < 20; i++)
+            {
+                writer.addRecord(new String[] { "" + i,
+                    "name" + i,
+                    i % 2 == 0 ? "m" : "f" }, 20);
+                synchronized(this)
+                {
+                    try
+                    {
+                        wait(100);
+                    }
+                    catch(Throwable t){}
+                }
+            }
+
+            QueryResultSet<HistoryRecord> recs = reader.findLast(20);
+            int count = 0;
+            while(recs.hasNext())
+            {
+                count++;
+                recs.next();
+            }
+
+            assertEquals( "Wrong count of messages", 20, count);
+
+            writer.addRecord(new String[] { "" + 21,
+                "name" + 21, "f" }, 20);
+
+            recs = reader.findLast(20);
+            count = 0;
+            boolean foundFirstMessage = false;
+            while(recs.hasNext())
+            {
+                count++;
+                HistoryRecord hr = recs.next();
+
+                if(hr.getPropertyValues()[0].equals("0"))
+                    foundFirstMessage = true;
+            }
+
+            assertEquals( "Wrong count of messages", 20, count);
+
+            assertFalse("Wrong message removed, must be the first one",
+                foundFirstMessage);
+
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+            fail("Could not write records. Reason: " + e);
+        }
+    }
+
 }

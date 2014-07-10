@@ -77,13 +77,13 @@ public class PortTracker
         throws IllegalArgumentException
     {
         //validate
-        if(    !NetworkUtils.isValidPortNumber(newMinPort)
-            || !NetworkUtils.isValidPortNumber(newMaxPort)
-            || newMaxPort < newMinPort)
+        if((newMaxPort < newMinPort)
+                || !NetworkUtils.isValidPortNumber(newMinPort)
+                || !NetworkUtils.isValidPortNumber(newMaxPort))
         {
             throw new IllegalArgumentException(
-                "[" + newMinPort + " to "
-                    + newMaxPort + "] is not a valid port range.");
+                    "[" + newMinPort + ", " + newMaxPort
+                        + "] is not a valid port range.");
         }
 
         //reset bounds
@@ -95,9 +95,7 @@ public class PortTracker
          * if already valid.
          */
         if (port < minPort || port > maxPort)
-        {
             port = minPort;
-        }
     }
 
     /**
@@ -106,25 +104,24 @@ public class PortTracker
      * this method will simply return without an exception and without an impact
      * on the state of this class.
      *
-     * @param newMinPortString the minimum port that we would like to bind on
-     * @param newMaxPortString the maximum port that we would like to bind on
+     * @param newMinPort the minimum port that we would like to bind on
+     * @param newMaxPort the maximum port that we would like to bind on
      */
-    public void tryRange(String newMinPortString, String newMaxPortString)
+    public void tryRange(String newMinPort, String newMaxPort)
     {
         try
         {
-            int newMinPort = Integer.parseInt(newMinPortString);
-            int newMaxPort = Integer.parseInt(newMaxPortString);
-
-            setRange(newMinPort, newMaxPort);
+            setRange(
+                    Integer.parseInt(newMinPort),
+                    Integer.parseInt(newMaxPort));
         }
-        catch(Exception exc)//Null, NumberFormat, IllegalArgument
+        catch(Exception e)//Null, NumberFormat, IllegalArgument
         {
-            logger.info("Ignoring invalid port range ["+ newMinPortString
-                                              + " to " + newMaxPortString +"]");
-
-
-            logger.debug("Cause: ", exc);
+            logger.info(
+                    "Ignoring invalid port range [" + newMinPort + ", "
+                        + newMaxPort + "]");
+            if (logger.isDebugEnabled())
+                logger.debug("Cause: ", e);
         }
     }
 

@@ -44,8 +44,25 @@ import org.w3c.dom.*;
 public class MclStorageManager
     implements MetaContactListListener
 {
+    /**
+     * Our logger.
+     */
     private static final Logger logger
         = Logger.getLogger(MclStorageManager.class);
+
+    /**
+     * The property to enable multi tenant mode. When changing profiles/accounts
+     * the contactlist can be filled with groups and contacts from protocol
+     * provider we do not know about. This mode will prevent loading empty
+     * and groups we do not know about.
+     */
+    private static final String MULTI_TENANT_MODE_PROP =
+        "net.java.sip.communicator.impl.contactlist.MULTI_TENANT_MODE";
+
+    /**
+     * Whether MULTI_TENANT_MODE_PROP has been enabled.
+     */
+    private boolean multiTenantMode = false;
 
     /**
      * Indicates whether the storage manager has been properly started or in
@@ -309,6 +326,9 @@ public class MclStorageManager
             throw new IOException("Failed to get a reference to the contact "
                 + "list file=" + fileName + ". error was:" + ex.getMessage());
         }
+
+        multiTenantMode = configurationService.getBoolean(
+            MULTI_TENANT_MODE_PROP, multiTenantMode);
 
         // create the failsafe transaction and restore the file if needed
         try
@@ -671,7 +691,7 @@ public class MclStorageManager
     {
         // first resolve the group itself.(unless this is the meta contact list
         // root which is already resolved)
-        MetaContactGroupImpl currentMetaGroup;
+        MetaContactGroupImpl currentMetaGroup = null;
 
         // in this map we store all proto groups that we find in this meta group
         // (unless this is the MCL root)in order to pass them as parent
@@ -691,9 +711,13 @@ public class MclStorageManager
                 XMLUtils.getAttribute(groupNode, GROUP_NAME_ATTR_NAME);
 
             // create the meta group
-            currentMetaGroup =
-                mclServImpl.loadStoredMetaContactGroup(parentGroup,
-                    groupMetaUID, groupDisplayName);
+            if(!multiTenantMode)
+            {
+                currentMetaGroup =
+                    mclServImpl.loadStoredMetaContactGroup(parentGroup,
+                        groupMetaUID, groupDisplayName);
+            }
+
             // extract and load one by one all proto groups in this meta group.
             Node protoGroupsNode =
                 XMLUtils.findChild(groupNode, PROTO_GROUPS_NODE_NAME);
@@ -739,6 +763,17 @@ public class MclStorageManager
                 if (parentProtoGroups != null && parentProtoGroups.size() > 0)
                     parentProtoGroup =
                         parentProtoGroups.get(parentProtoGroupUID);
+
+                // create the meta group if it is not already created
+                if(multiTenantMode && currentMetaGroup == null)
+                {
+                    // only create metacontact group if we have a matching
+                    // proto group, skips creating empty groups, or for non
+                    // existing providers
+                    currentMetaGroup =
+                        mclServImpl.loadStoredMetaContactGroup(parentGroup,
+                            groupMetaUID, groupDisplayName);
+                }
 
                 // create the proto group
                 ContactGroup newProtoGroup =

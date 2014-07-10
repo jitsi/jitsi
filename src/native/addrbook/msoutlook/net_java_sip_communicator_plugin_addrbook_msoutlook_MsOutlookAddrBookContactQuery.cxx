@@ -8,6 +8,7 @@
 #include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
 
 #include "MsOutlookAddrBookContactQuery.h"
+#include "MsOutlookUtils.h"
 #include "com/ComClient.h"
 #include "com/MsOutlookAddrBookServer.h"
 #include "MAPIBitness.h"
@@ -92,6 +93,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
         jstring query,
         jobject callback)
 {
+	MsOutlookUtils_log("Executing query.");
     const char *nativeQuery = jniEnv->GetStringUTFChars(query, NULL);
 
     IMsOutlookAddrBookServer * iServer = ComClient_getIServer();
@@ -99,10 +101,14 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
     {
         LPWSTR unicodeQuery = StringUtils::MultiByteToWideChar(nativeQuery);
         BSTR comQuery = SysAllocString(unicodeQuery);
-
-        iServer->foreachMailUser(comQuery);
+        MsOutlookUtils_log("Sending the query to server.");
+        iServer->foreachMailUser(comQuery, (long)(intptr_t)callback);
         SysFreeString(comQuery);
         free(unicodeQuery);
+    }
+    else
+    {
+    	MsOutlookUtils_log("Failed to execute the query because the COM Server is not available.");
     }
 
     jniEnv->ReleaseStringUTFChars(query, nativeQuery);
@@ -193,231 +199,8 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
         jlongArray propIds,
         jlong flags)
 {
-    HRESULT hr = E_FAIL;
-    jobjectArray javaProps = NULL;
-    const char *nativeEntryId = jniEnv->GetStringUTFChars(entryId, NULL);
-    jsize propIdCount = jniEnv->GetArrayLength(propIds);
-    long nativePropIds[propIdCount];
-
-    for(int i = 0; i < propIdCount; ++i)
-    {
-        jlong propId;
-
-        jniEnv->GetLongArrayRegion(propIds, i, 1, &propId);
-        nativePropIds[i] = propId;
-    }
-
-    if(jniEnv->ExceptionCheck())
-    {
-        jniEnv->ReleaseStringUTFChars(entryId, nativeEntryId);
-        return NULL;
-    }
-
-    void ** props = NULL;
-    unsigned long* propsLength = NULL;
-    // b = byteArray, l = long, s = 8 bits string, u = 16 bits string.
-    char * propsType = NULL;
-
-    if((props = (void**) malloc(propIdCount * sizeof(void*))) != NULL)
-    {
-        memset(props, 0, propIdCount * sizeof(void*));
-        if((propsLength = (unsigned long*) malloc(
-                        propIdCount * sizeof(unsigned long))) != NULL)
-        {
-            if((propsType = (char*) malloc(propIdCount * sizeof(char)))
-                    != NULL)
-            {
-                IMsOutlookAddrBookServer * iServer = ComClient_getIServer();
-                if(iServer)
-                {
-                    LPWSTR unicodeEntryId
-                        = StringUtils::MultiByteToWideChar(nativeEntryId);
-                    BSTR comEntryId = SysAllocString(unicodeEntryId);
-
-                    LPSAFEARRAY comPropIds
-                        = SafeArrayCreateVector(VT_I4, 0, propIdCount);
-                    SafeArrayLock(comPropIds);
-                    comPropIds->pvData = nativePropIds;
-                    SafeArrayUnlock(comPropIds);
-
-                    LPSAFEARRAY comProps;
-                    LPSAFEARRAY comPropsLength;
-                    LPSAFEARRAY comPropsType;
-
-                    hr = iServer->IMAPIProp_GetProps(
-                            comEntryId,
-                            propIdCount,
-                            comPropIds,
-                            flags,
-                            &comProps,
-                            &comPropsLength,
-                            &comPropsType);
-
-                    if(HR_SUCCEEDED(hr))
-                    {
-                        SafeArrayLock(comPropsType);
-                        memcpy(
-                                propsType,
-                                comPropsType->pvData,
-                                propIdCount * sizeof(char));
-                        SafeArrayUnlock(comPropsType);
-
-                        SafeArrayLock(comPropsLength);
-                        memcpy(
-                                propsLength,
-                                comPropsLength->pvData,
-                                propIdCount * sizeof(unsigned long));
-                        SafeArrayUnlock(comPropsLength);
-
-                        SafeArrayLock(comProps);
-                        byte * data = (byte*) comProps->pvData;
-                        for(int j = 0; j < propIdCount; ++j)
-                        {
-                            if((props[j] = malloc(propsLength[j])) != NULL)
-                            {
-                                memcpy(props[j], data, propsLength[j]);
-                                data += propsLength[j];
-                            }
-                        }
-                        SafeArrayUnlock(comProps);
-
-                        // Decode properties to java
-                        jclass objectClass
-                            = jniEnv->FindClass("java/lang/Object");
-                        if (objectClass)
-                        {
-                            javaProps = jniEnv->NewObjectArray(
-                                    propIdCount,
-                                    objectClass,
-                                    NULL);
-                            for(int j = 0; j < propIdCount; ++j)
-                            {
-                                // byte array
-                                if(propsType[j] == 'b' && props[j] != NULL)
-                                {
-                                    jbyteArray value = jniEnv->NewByteArray(
-                                                (jsize) propsLength[j]);
-                                    if(value)
-                                    {
-                                        jbyte *bytes
-                                            = jniEnv->GetByteArrayElements(
-                                                    value, NULL);
-
-                                        if (bytes)
-                                        {
-                                            memcpy(
-                                                    bytes,
-                                                    props[j],
-                                                    propsLength[j]);
-                                            jniEnv->ReleaseByteArrayElements(
-                                                    value,
-                                                    bytes,
-                                                    0);
-                                            jniEnv->SetObjectArrayElement(
-                                                    javaProps,
-                                                    j,
-                                                    value);
-                                        }
-                                    }
-                                }
-                                // long
-                                else if(propsType[j] == 'l' && props[j] != NULL)
-                                {
-                                    jclass longClass
-                                        = jniEnv->FindClass("java/lang/Long");
-                                    if (longClass)
-                                    {
-                                        jmethodID longMethodID
-                                            = jniEnv->GetMethodID(
-                                                longClass,
-                                                "<init>",
-                                                "(J)V");
-
-                                        if (longMethodID)
-                                        {
-                                            jlong l;
-                                            memcpy(&l, props[j], propsLength[j]);
-                                            jobject value = jniEnv->NewObject(
-                                                    longClass,
-                                                    longMethodID,
-                                                    l);
-
-                                            if (value)
-                                            {
-                                                jniEnv->SetObjectArrayElement(
-                                                        javaProps,
-                                                        j,
-                                                        value);
-                                            }
-                                        }
-                                    }
-                                }
-                                // 8 bits string
-                                else if(propsType[j] == 's' && props[j] != NULL)
-                                {
-                                    jstring value = jniEnv->NewStringUTF(
-                                            (const char*) props[j]);
-                                    if (value)
-                                    {
-                                        jniEnv->SetObjectArrayElement(
-                                                javaProps,
-                                                j,
-                                                value);
-                                    }
-                                }
-                                // 16 bits string
-                                else if(propsType[j] == 'u' && props[j] != NULL)
-                                {
-                                    jstring value
-                                        = jniEnv->NewString(
-                                            (const jchar *) props[j],
-                                            wcslen((const wchar_t *) props[j]));
-                                    if (value)
-                                    {
-                                        jniEnv->SetObjectArrayElement(
-                                                javaProps,
-                                                j,
-                                                value);
-                                    }
-                                }
-
-                                if(jniEnv->ExceptionCheck())
-                                    javaProps = NULL;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        MsOutlookMAPIHResultException_throwNew(
-                                jniEnv,
-                                hr,
-                                __FILE__, __LINE__);
-                    }
-
-                    SafeArrayDestroy(comPropsType);
-                    SafeArrayDestroy(comPropsLength);
-                    SafeArrayDestroy(comProps);
-                    SafeArrayDestroy(comPropIds);
-                    SysFreeString(comEntryId);
-                    free(unicodeEntryId);
-                }
-
-
-                for(int j = 0; j < propIdCount; ++j)
-                {
-                    if(props[j] != NULL)
-                        free(props[j]);
-                }
-                free(propsType);
-            }
-            free(propsLength);
-        }
-        free(props);
-    }
-
-    jniEnv->ReleaseStringUTFChars(entryId, nativeEntryId);
-
-    return javaProps;
+	return MsOutlookUtils_IMAPIProp_GetProps(jniEnv, clazz, entryId, propIds,
+			flags, MsOutlookAddrBookContactQuery_UUID_Address);
 }
 
 

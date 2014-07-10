@@ -20,7 +20,6 @@ import javax.swing.plaf.basic.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
-import net.java.sip.communicator.impl.gui.main.call.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.filetransfer.*;
 import net.java.sip.communicator.impl.gui.utils.*;
@@ -130,7 +129,7 @@ public class ChatPanel
 
     private boolean isShown = false;
 
-    public ChatSession chatSession;
+    private ChatSession chatSession;
 
     private Date firstHistoryMsgTimestamp = new Date(0);
 
@@ -173,6 +172,12 @@ public class ChatPanel
      * Dialog used to join or create chat conference call.
      */
     protected ChatConferenceCallDialog chatConferencesDialog = null;
+
+    /**
+     * Whether to use all numbers when sending sms, or just the mobiles.
+     */
+    private static final String USE_ADDITIONAL_NUMBERS_PROP
+        = "service.gui.IS_SEND_SMS_USING_ADDITIONAL_NUMBERS";
 
     /**
      * Creates a <tt>ChatPanel</tt> which is added to the given chat window.
@@ -634,6 +639,10 @@ public class ChatPanel
                 = GuiActivator.getResources().getI18NString(
                     "service.gui.SILENT_MEMBER");
             break;
+            case OUTCAST: roleDescription
+                = GuiActivator.getResources().getI18NString(
+                    "service.gui.BANNED");
+            break;
             default:;
         }
 
@@ -1086,7 +1095,8 @@ public class ChatPanel
     {
         String keyword = null;
 
-        if (chatSession instanceof ConferenceChatSession && Chat.INCOMING_MESSAGE.equals(chatMessage.getMessageType()))
+        if (chatSession instanceof ConferenceChatSession
+            && Chat.INCOMING_MESSAGE.equals(chatMessage.getMessageType()))
         {
             keyword =
                 ((ChatRoomWrapper) chatSession.getDescriptor()).getChatRoom()
@@ -1676,8 +1686,18 @@ public class ChatPanel
                 UIPhoneUtil contactPhoneUtil =
                     UIPhoneUtil.getPhoneUtil((MetaContact) desc);
 
-                List<UIContactDetail> uiContactDetailList =
-                    contactPhoneUtil.getAdditionalMobileNumbers();
+                List<UIContactDetail> uiContactDetailList;
+
+                boolean useAllNumbers =
+                    GuiActivator.getConfigurationService().getBoolean(
+                        USE_ADDITIONAL_NUMBERS_PROP, false);
+
+                if(useAllNumbers)
+                    uiContactDetailList
+                        = contactPhoneUtil.getAdditionalNumbers();
+                else
+                    uiContactDetailList
+                        = contactPhoneUtil.getAdditionalMobileNumbers();
 
                 if(uiContactDetailList.size() != 0)
                 {
@@ -1976,6 +1996,8 @@ public class ChatPanel
                 // Add incoming events accumulated while the history was loading
                 // at the end of the chat.
                 addIncomingEvents();
+
+                chatContainer.updateHistoryButtonState(ChatPanel.this);
             }
         };
 
@@ -2359,8 +2381,22 @@ public class ChatPanel
      * Sets the given <tt>subject</tt> to this chat.
      * @param subject the subject to set
      */
-    public void setChatSubject(String subject)
+    public void setChatSubject(final String subject)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    setChatSubject(subject);
+                }
+            });
+
+            return;
+        }
+
         if (subjectPanel != null)
         {
             // Don't do anything if the subject doesn't really change.

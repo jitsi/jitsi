@@ -208,7 +208,8 @@ public class GoogleContactsQuery
             supportedOpSets.add(OperationSetBasicTelephony.class);
             // can be added as contacts
             supportedOpSets.add(OperationSetPersistentPresence.class);
-            homePhone = PhoneNumberI18nService.normalize(homePhone);
+            homePhone = GoogleContactsActivator.getPhoneNumberI18nService()
+                .normalize(homePhone);
             detail = new ContactDetail(homePhone,
                     ContactDetail.Category.Phone,
                     new ContactDetail.SubCategory[]{
@@ -225,7 +226,8 @@ public class GoogleContactsQuery
             supportedOpSets.add(OperationSetBasicTelephony.class);
             // can be added as contacts
             supportedOpSets.add(OperationSetPersistentPresence.class);
-            workPhone = PhoneNumberI18nService.normalize(workPhone);
+            workPhone = GoogleContactsActivator.getPhoneNumberI18nService()
+                .normalize(workPhone);
             detail = new ContactDetail(workPhone,
                 ContactDetail.Category.Phone,
                 new ContactDetail.SubCategory[]{
@@ -242,7 +244,8 @@ public class GoogleContactsQuery
             supportedOpSets.add(OperationSetBasicTelephony.class);
             // can be added as contacts
             supportedOpSets.add(OperationSetPersistentPresence.class);
-            mobilePhone = PhoneNumberI18nService.normalize(mobilePhone);
+            mobilePhone = GoogleContactsActivator.getPhoneNumberI18nService()
+                .normalize(mobilePhone);
             detail = new ContactDetail(mobilePhone,
                 ContactDetail.Category.Phone,
                 new ContactDetail.SubCategory[]{

@@ -773,9 +773,9 @@ public class CallManager
                                             MediaDevice mediaDevice,
                                             boolean enable)
     {
-        OperationSetDesktopSharingServer desktopOpSet
+        OperationSetDesktopStreaming desktopOpSet
             = call.getProtocolProvider().getOperationSet(
-                    OperationSetDesktopSharingServer.class);
+                OperationSetDesktopStreaming.class);
         boolean enableSucceeded = false;
 
         // This shouldn't happen at this stage, because we disable the button
@@ -822,9 +822,9 @@ public class CallManager
      */
     public static boolean isDesktopSharingEnabled(Call call)
     {
-        OperationSetDesktopSharingServer desktopOpSet
+        OperationSetDesktopStreaming desktopOpSet
             = call.getProtocolProvider().getOperationSet(
-                    OperationSetDesktopSharingServer.class);
+                OperationSetDesktopStreaming.class);
 
         if (desktopOpSet != null
             && desktopOpSet.isLocalVideoAllowed(call))
@@ -844,9 +844,9 @@ public class CallManager
      */
     public static boolean isRegionDesktopSharingEnabled(Call call)
     {
-        OperationSetDesktopSharingServer desktopOpSet
+        OperationSetDesktopStreaming desktopOpSet
             = call.getProtocolProvider().getOperationSet(
-                    OperationSetDesktopSharingServer.class);
+                OperationSetDesktopStreaming.class);
 
         if (desktopOpSet != null
             && desktopOpSet.isPartialStreaming(call))
@@ -912,7 +912,8 @@ public class CallManager
         if (ConfigurationUtils.isNormalizePhoneNumber()
             && !NetworkUtils.isValidIPAddress(callString))
         {
-            callString = PhoneNumberI18nService.normalize(callString);
+            callString = GuiActivator.getPhoneNumberI18nService()
+                .normalize(callString);
         }
 
         List<ProtocolProviderService> telephonyProviders
@@ -1405,9 +1406,12 @@ public class CallManager
      * A informative text to show for the peer. If display name is missing
      * return the address.
      * @param peer the peer.
+     * @param listener the listener to fire change events for later resolutions
+     * of display name and image, if exist.
      * @return the text contain display name.
      */
-    public static String getPeerDisplayName(CallPeer peer)
+    public static String getPeerDisplayName(CallPeer peer,
+                                            DetailsResolveListener listener)
     {
         String displayName = null;
 
@@ -1486,7 +1490,7 @@ public class CallManager
                             : peer.getAddress();
 
             // Try to resolve the display name
-            String resolvedName = resolveContactSource(displayName);
+            String resolvedName = queryContactSource(displayName, listener);
             if(resolvedName != null)
             {
                 displayName = resolvedName;
@@ -2516,8 +2520,8 @@ public class CallManager
 
                 if (stringContact != null)
                 {
-                    stringContact
-                            = PhoneNumberI18nService.normalize(stringContact);
+                    stringContact = GuiActivator.getPhoneNumberI18nService()
+                        .normalize(stringContact);
                 }
             }
 
@@ -2773,13 +2777,13 @@ public class CallManager
         @Override
         public void run()
         {
-            OperationSetDesktopSharingServer desktopSharingOpSet
+            OperationSetDesktopStreaming desktopSharingOpSet
                 = protocolProvider.getOperationSet(
-                        OperationSetDesktopSharingServer.class);
+                    OperationSetDesktopStreaming.class);
 
             /*
              * XXX If we are here and we just discover that
-             * OperationSetDesktopSharingServer is not supported, then we're
+             * OperationSetDesktopStreaming is not supported, then we're
              * already in trouble - we've already started a whole new thread
              * just to check that a reference is null.
              */
@@ -3552,7 +3556,8 @@ public class CallManager
     private static void normalizePhoneNumbers(String callees[])
     {
         for (int i = 0 ; i < callees.length ; i++)
-            callees[i] = PhoneNumberI18nService.normalize(callees[i]);
+            callees[i] = GuiActivator.getPhoneNumberI18nService()
+                .normalize(callees[i]);
     }
 
     /**
@@ -3673,8 +3678,7 @@ public class CallManager
         {
             createVideoCall(protocolProviderService, contact, uiContact);
         }
-        else if (opSetClass.equals(
-            OperationSetDesktopSharingServer.class))
+        else if (opSetClass.equals(OperationSetDesktopStreaming.class))
         {
             createDesktopSharing(
                 protocolProviderService, contact, uiContact);
@@ -3856,7 +3860,7 @@ public class CallManager
     /**
      * Obtain operation set checking the params.
      * @param isVideo if <tt>true</tt> use OperationSetVideoTelephony.
-     * @param isDesktop if <tt>true</tt> use OperationSetDesktopSharingServer.
+     * @param isDesktop if <tt>true</tt> use OperationSetDesktopStreaming.
      * @return the operation set, default is OperationSetBasicTelephony.
      */
     private static Class<? extends OperationSet> getOperationSetForCall(
@@ -3865,7 +3869,7 @@ public class CallManager
         if(isVideo)
         {
             if(isDesktop)
-                return OperationSetDesktopSharingServer.class;
+                return OperationSetDesktopStreaming.class;
             else
                 return OperationSetVideoTelephony.class;
         }
@@ -4104,15 +4108,58 @@ public class CallManager
      * first match.
      *
      * @param peerAddress The peer address.
-     *
+     * @param listener the listener to fire change events for later resolutions
+     * of display name and image, if exist.
      * @return The corresponding display name, if there is a match. Null
      * otherwise.
      */
-    private static String resolveContactSource(String peerAddress)
+    private static String queryContactSource(
+        String peerAddress,
+        DetailsResolveListener listener)
     {
         String displayName = null;
 
         if(!StringUtils.isNullOrEmpty(peerAddress))
+        {
+            ContactSourceSearcher searcher
+                = new ContactSourceSearcher(peerAddress, listener);
+
+            if(listener == null)
+            {
+                searcher.run();
+                displayName = searcher.displayName;
+            }
+            else
+                new Thread(searcher, searcher.getClass().getName()).start();
+        }
+
+        return displayName;
+    }
+
+    /**
+     * Runnable that will search for a source contact and when found will
+     * fire events to inform that display name or contact image is found.
+     */
+    private static class ContactSourceSearcher
+        implements Runnable
+    {
+        private final DetailsResolveListener listener;
+
+        private final String peerAddress;
+
+        private String displayName;
+        private byte[] displayImage;
+
+        private ContactSourceSearcher(
+            String peerAddress,
+            DetailsResolveListener listener)
+        {
+            this.peerAddress = peerAddress;
+            this.listener = listener;
+        }
+
+        @Override
+        public void run()
         {
             Vector<ResolveAddressToDisplayNameContactQueryListener> resolvers
                 = new Vector<ResolveAddressToDisplayNameContactQueryListener>
@@ -4125,45 +4172,59 @@ public class CallManager
                 (index > -1) ? peerAddress.substring(0, index) : peerAddress;
 
             // searches for the whole number/username or with the @serverpart
-            peerUserID = Pattern.quote(peerUserID);
+            String quotedPeerUserID = Pattern.quote(peerUserID);
             Pattern pattern = Pattern.compile(
-                "^(" + peerUserID + "|" + peerUserID + "@.*)$");
+                "^(" + quotedPeerUserID + "|" + quotedPeerUserID + "@.*)$");
 
             // Queries all available resolvers
-            for(ContactSourceService contactSourceService:
-                    GuiActivator.getContactSources())
+            for(ContactSourceService css : GuiActivator.getContactSources())
             {
-                if(!(contactSourceService
-                        instanceof ExtendedContactSourceService))
+                if(css.getType() != ContactSourceService.SEARCH_TYPE)
                     continue;
 
-                // use the pattern method of (ExtendedContactSourceService)
-                ContactQuery query
-                    = ((ExtendedContactSourceService)contactSourceService)
-                            .createContactQuery(pattern);
+                ContactQuery query;
+                if(css instanceof ExtendedContactSourceService)
+                {
+                    // use the pattern method of (ExtendedContactSourceService)
+                    query = ((ExtendedContactSourceService)css)
+                        .createContactQuery(pattern);
+                }
+                else
+                {
+                    query = css.createContactQuery(peerUserID);
+                }
+
+                if(query == null)
+                    continue;
 
                 resolvers.add(
-                        new ResolveAddressToDisplayNameContactQueryListener(
-                            query));
-                
+                    new ResolveAddressToDisplayNameContactQueryListener(query));
                 query.start();
             }
 
             long startTime = System.currentTimeMillis();
-            long currentTime = startTime;
+
             // The detault timeout is set to 500ms.
-            long timeout = 500;
-            // Loops until we found a valid display name, or waits for timeout.
-            while(displayName == null
-                    && currentTime - startTime < timeout)
+            long timeout = listener == null ? 500 : -1;
+            boolean hasRunningResolver = true;
+            // Loops until we found a valid display name and image,
+            // or waits for timeout if any.
+            while((displayName == null || displayImage == null)
+                    && hasRunningResolver
+                    && (listener == null || listener.isInterested()))
             {
-                for(int i = 0; i < resolvers.size() && displayName == null; ++i)
+                hasRunningResolver = false;
+
+                for(int i = 0; i < resolvers.size()
+                    && (displayName == null || displayImage == null)
+                    && (listener == null || listener.isInterested()); ++i)
                 {
                     ResolveAddressToDisplayNameContactQueryListener resolver
                         = resolvers.get(i);
                     if(!resolver.isRunning())
                     {
-                        if(resolver.isFound())
+                        if(displayName == null
+                            && resolver.isFoundName())
                         {
                             displayName = resolver.getResolvedName();
                             // If this is the same result as the peer address,
@@ -4173,11 +4234,42 @@ public class CallManager
                             {
                                 displayName = null;
                             }
+
+                            if(listener != null && displayName != null)
+                            {
+                                // fire
+                                listener.displayNameUpdated(displayName);
+                            }
+                        }
+
+                        if(displayImage == null
+                            && resolver.isFoundImage())
+                        {
+                            displayImage = resolver.getResolvedImage();
+
+                            String name = resolver.getResolvedName();
+                            // If this is the same result as the peer address,
+                            // then that is not what we are looking for. Then,
+                            // continue the search.
+                            if(name != null && name.equals(peerAddress))
+                            {
+                                displayImage = null;
+                            }
+                            else if(listener != null && displayImage != null)
+                            {
+                                // fire
+                                listener.imageUpdated(displayImage);
+                            }
                         }
                     }
+                    else
+                        hasRunningResolver = true;
                 }
                 Thread.yield();
-                currentTime = System.currentTimeMillis();
+
+                if( timeout > 0 &&
+                    System.currentTimeMillis() - startTime >= timeout)
+                    break;
             }
 
             // Free lasting resolvers.
@@ -4191,7 +4283,31 @@ public class CallManager
                 }
             }
         }
+    }
 
-        return displayName;
+    /**
+     * A listener that will be notified for found source contacts details.
+     */
+    public static interface DetailsResolveListener
+    {
+        /**
+         * When a display name is found.
+         * @param displayName the name that was found.
+         */
+        public void displayNameUpdated(String displayName);
+
+        /**
+         * The image that was found.
+         * @param image the image that was found.
+         */
+        public void imageUpdated(byte[] image);
+
+        /**
+         * Whether the listener is still interested in the events.
+         * When the window/panel using this resolver listener is closed
+         * will return false;
+         * @return whether the listener is still interested in the events.
+         */
+        public boolean isInterested();
     }
 }

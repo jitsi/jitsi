@@ -125,84 +125,111 @@ public interface NetworkAddressManagerService
      * <tt>minPort</tt> and <tt>maxPort</tt> before reaching the maximum allowed
      * number of retries.
      */
-     public DatagramSocket createDatagramSocket(InetAddress laddr,
-                                                int         preferredPort,
-                                                int         minPort,
-                                                int         maxPort)
-         throws IllegalArgumentException,
-                IOException,
-                BindException;
+    public DatagramSocket createDatagramSocket(InetAddress laddr,
+                                               int         preferredPort,
+                                               int         minPort,
+                                               int         maxPort)
+        throws IllegalArgumentException,
+               IOException,
+               BindException;
 
-     /**
-      * Adds new <tt>NetworkConfigurationChangeListener</tt> which will
-      * be informed for network configuration changes.
-      * @param listener the listener.
-      */
-     public void addNetworkConfigurationChangeListener(
-         NetworkConfigurationChangeListener listener);
+    /**
+     * Adds new <tt>NetworkConfigurationChangeListener</tt> which will
+     * be informed for network configuration changes.
+     * @param listener the listener.
+     */
+    public void addNetworkConfigurationChangeListener(
+        NetworkConfigurationChangeListener listener);
 
-     /**
-      * Remove <tt>NetworkConfigurationChangeListener</tt>.
-      * @param listener the listener.
-      */
-     public void removeNetworkConfigurationChangeListener(
-         NetworkConfigurationChangeListener listener);
+    /**
+     * Remove <tt>NetworkConfigurationChangeListener</tt>.
+     * @param listener the listener.
+     */
+    public void removeNetworkConfigurationChangeListener(
+        NetworkConfigurationChangeListener listener);
 
-     /**
-      * Creates and returns an ICE agent that a protocol could use for the
-      * negotiation of media transport addresses. One ICE agent should only be
-      * used for a single session negotiation.
-      *
-      * @return the newly created ICE Agent.
-      */
-     public Agent createIceAgent();
+    /**
+     * Creates and returns an ICE agent that a protocol could use for the
+     * negotiation of media transport addresses. One ICE agent should only be
+     * used for a single session negotiation.
+     *
+     * @return the newly created ICE Agent.
+     */
+    public Agent createIceAgent();
 
-     /**
-      * Tries to discover a TURN or a STUN server for the specified
-      * <tt>domainName</tt>. The method would first try to discover a TURN
-      * server and then fall back to STUN only. In both cases we would only care
-      * about a UDP transport.
-      *
-      * @param domainName the domain name that we are trying to discover a
-      * TURN server for.
-      * @param userName the name of the user we'd like to use when connecting to
-      * a TURN server (we won't be using credentials in case we only have a STUN
-      * server).
-      * @param password the password that we'd like to try when connecting to
-      * a TURN server (we won't be using credentials in case we only have a STUN
-      * server).
-      *
-      * @return A {@link StunCandidateHarvester} corresponding to the TURN or
-      * STUN server we discovered or <tt>null</tt> if there were no such records
-      * for the specified <tt>domainName</tt>
-      */
-     public StunCandidateHarvester discoverStunServer(String domainName,
-                                                      byte[] userName,
-                                                      byte[] password);
+    /**
+     * Tries to discover a TURN or a STUN server for the specified
+     * <tt>domainName</tt>. The method would first try to discover a TURN
+     * server and then fall back to STUN only. In both cases we would only care
+     * about a UDP transport.
+     *
+     * @param domainName the domain name that we are trying to discover a
+     * TURN server for.
+     * @param userName the name of the user we'd like to use when connecting to
+     * a TURN server (we won't be using credentials in case we only have a STUN
+     * server).
+     * @param password the password that we'd like to try when connecting to
+     * a TURN server (we won't be using credentials in case we only have a STUN
+     * server).
+     *
+     * @return A {@link StunCandidateHarvester} corresponding to the TURN or
+     * STUN server we discovered or <tt>null</tt> if there were no such records
+     * for the specified <tt>domainName</tt>
+     */
+    public StunCandidateHarvester discoverStunServer(String domainName,
+                                                     byte[] userName,
+                                                     byte[] password);
 
-     /**
-      * Creates an <tt>IceMediaStrean</tt> and adds to it an RTP and and RTCP
-      * component, which also implies running the currently installed
-      * harvesters so that they would.
-      *
-      * @param rtpPort the port that we should try to bind the RTP component on
-      * (the RTCP one would automatically go to rtpPort + 1)
-      * @param streamName the name of the stream to create
-      * @param agent the <tt>Agent</tt> that should create the stream.
-      *
-      *@return the newly created <tt>IceMediaStream</tt>.
-      *
-      * @throws IllegalArgumentException if <tt>rtpPort</tt> is not a valid port
-      * number.
-      * @throws IOException if an error occurs while the underlying resolver
-      * is using sockets.
-      * @throws BindException if we couldn't find a free port between within the
-      * default number of retries.
-      */
-     public IceMediaStream createIceStream( int    rtpPort,
-                                            String streamName,
-                                            Agent  agent)
-         throws IllegalArgumentException,
-                IOException,
-                BindException;
+    /**
+     * Creates an <tt>IceMediaStrean</tt> and adds to it an RTP and and RTCP
+     * component, which also implies running the currently installed
+     * harvesters so that they would.
+     *
+     * @param rtpPort the port that we should try to bind the RTP component on
+     * (the RTCP one would automatically go to rtpPort + 1)
+     * @param streamName the name of the stream to create
+     * @param agent the <tt>Agent</tt> that should create the stream.
+     *
+     *@return the newly created <tt>IceMediaStream</tt>.
+     *
+     * @throws IllegalArgumentException if <tt>rtpPort</tt> is not a valid port
+     * number.
+     * @throws IOException if an error occurs while the underlying resolver
+     * is using sockets.
+     * @throws BindException if we couldn't find a free port between within the
+     * default number of retries.
+     */
+    public IceMediaStream createIceStream( int    rtpPort,
+                                           String streamName,
+                                           Agent  agent)
+        throws IllegalArgumentException,
+               IOException,
+               BindException;
+    /**
+     * Creates an <tt>IceMediaStrean</tt> and adds to it one or two
+     * components, which also implies running the currently installed
+     * harvesters.
+     *
+     * @param portBase the port that we should try to bind first component on
+     * (the second one would automatically go to portBase + 1)
+     * @param streamName the name of the stream to create
+     * @param agent the <tt>Agent</tt> that should create the stream.
+     *
+     * @return the newly created <tt>IceMediaStream</tt>.
+     *
+     * @throws IllegalArgumentException if <tt>portBase</tt> is not a valid port
+     * number. If <tt>numComponents</tt> is neither 1 nor 2.
+     * @throws IOException if an error occurs while the underlying resolver
+     * is using sockets.
+     * @throws BindException if we couldn't find a free port between within the
+     * default number of retries.
+     *
+     */
+    public IceMediaStream createIceStream( int    numComponents,
+                                           int    portBase,
+                                           String streamName,
+                                           Agent  agent)
+        throws IllegalArgumentException,
+               IOException,
+               BindException;
 }

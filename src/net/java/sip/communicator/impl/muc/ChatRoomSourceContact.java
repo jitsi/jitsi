@@ -10,17 +10,12 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Source contact for the chat rooms.
- * 
+ *
  * @author Hristo Terezov
  */
 public class ChatRoomSourceContact
     extends BaseChatRoomSourceContact
 {
-    /**
-     * The parent contact query.
-     */
-    private final ChatRoomQuery parentQuery;
-
     /**
      * The protocol provider of the chat room associated with the contact.
      */
@@ -35,15 +30,14 @@ public class ChatRoomSourceContact
      * @param pps the protocol provider of the contact.
      * @param isAutoJoin the auto join state.
      */
-    public ChatRoomSourceContact(String chatRoomName, 
+    public ChatRoomSourceContact(String chatRoomName,
         String chatRoomID, ChatRoomQuery query, ProtocolProviderService pps,
         boolean isAutoJoin)
     {
         super(chatRoomName, chatRoomID, query, pps);
-        
-        this.parentQuery = query;
+
         this.isAutoJoin = isAutoJoin;
-        
+
         initContactProperties(getChatRoomStateByName());
     }
 
@@ -56,28 +50,27 @@ public class ChatRoomSourceContact
      */
     public ChatRoomSourceContact(ChatRoom chatRoom, ChatRoomQuery query,
         boolean isAutoJoin)
-    { 
-        super(chatRoom.getName(), chatRoom.getIdentifier(), query, 
+    {
+        super(chatRoom.getName(), chatRoom.getIdentifier(), query,
             chatRoom.getParentProvider());
-        this.parentQuery = query;
         this.isAutoJoin = isAutoJoin;
-        
+
         initContactProperties(
                 chatRoom.isJoined()
                     ? ChatRoomPresenceStatus.CHAT_ROOM_ONLINE
                     : ChatRoomPresenceStatus.CHAT_ROOM_OFFLINE);
-        
+
     }
 
     /**
-     * Checks if the chat room associated with the contact is joined or not and 
+     * Checks if the chat room associated with the contact is joined or not and
      * returns it presence status.
      *
      * @return the presence status of the chat room associated with the contact.
      */
     private PresenceStatus getChatRoomStateByName()
     {
-        for(ChatRoom room : 
+        for(ChatRoom room :
                 getProvider().getOperationSet(OperationSetMultiUserChat.class)
                     .getCurrentlyJoinedChatRooms())
         {
@@ -97,7 +90,7 @@ public class ChatRoomSourceContact
     @Override
     public int getIndex()
     {
-        return parentQuery.indexOf(this);
+        return ((ChatRoomQuery)parentQuery).indexOf(this);
     }
 
     /**

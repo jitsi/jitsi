@@ -58,9 +58,17 @@ public class AdvancedConfigForm
                 "plugin.addrbook.ENABLE_MACOSX_ADDRESSBOOK"));
 
         if (OSUtils.IS_WINDOWS)
+        {
             propertiesPanel.add(createEnableCheckBox(
                 AddrBookActivator.PNAME_ENABLE_MICROSOFT_OUTLOOK_SEARCH,
                 "plugin.addrbook.ENABLE_MICROSOFT_OUTLOOK"));
+            if(AddrBookActivator.getConfigService().getBoolean(
+                AddrBookActivator.PNAME_ENABLE_DEFAULT_IM_APPLICATION_CHANGE, 
+                true))
+                propertiesPanel.add(createDefaultIMApplicationCheckBox(
+                    AddrBookActivator.PNAME_MAKE_JITSI_DEFAULT_IM_APPLICATION,
+                    "plugin.addrbook.DEFAULT_IM_APP"));
+        }
 
         propertiesPanel.add(Box.createVerticalStrut(15));
 
@@ -96,6 +104,38 @@ public class AdvancedConfigForm
                     AddrBookActivator.startService();
                 else
                     AddrBookActivator.stopService();
+            }
+        });
+        return checkBox;
+    }
+
+    /**
+     * Creates the default IM application check box.
+     *
+     * @return the default IM application check box.
+     */
+    private Component createDefaultIMApplicationCheckBox(
+        final String configPropName, String labelNameKey)
+    {
+        final JCheckBox checkBox = new SIPCommCheckBox(AddrBookActivator
+            .getResources().getI18NString(
+                labelNameKey),
+                AddrBookActivator.getConfigService().getBoolean(configPropName,
+                                                                false));
+        checkBox.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        checkBox.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent arg0)
+            {
+                AddrBookActivator.getConfigService().setProperty(
+                    configPropName,
+                    new Boolean(checkBox.isSelected()).toString());
+
+                if (checkBox.isSelected())
+                    AddrBookActivator.setAsDefaultIMApplication();
+                else
+                    AddrBookActivator.unsetDefaultIMApplication();
             }
         });
         return checkBox;

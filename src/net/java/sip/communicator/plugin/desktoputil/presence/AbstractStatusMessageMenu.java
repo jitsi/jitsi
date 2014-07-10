@@ -536,9 +536,13 @@ public abstract class AbstractStatusMessageMenu
             DesktopUtilActivator.getConfigurationService()
                 .getPropertyNamesByPrefix(CUSTOM_MESSAGES_PREFIX, false);
 
+        int prefixLen = CUSTOM_MESSAGES_PREFIX.length() + 1;
         for(String p : customMessagesProps)
         {
-            String s = p.substring(CUSTOM_MESSAGES_PREFIX.length() + 1);
+            if(prefixLen > p.length())
+                continue;
+
+            String s = p.substring(prefixLen);
 
             try
             {
@@ -602,7 +606,7 @@ public abstract class AbstractStatusMessageMenu
     /**
      * Clears all items that they are not selected and its name is not bold.
      */
-    private void clearSelectedItems()
+    public void clearSelectedItems()
     {
         for(int i = 0; i < getMenuComponentCount(); i++)
         {

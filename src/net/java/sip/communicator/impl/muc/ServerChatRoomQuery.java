@@ -15,7 +15,7 @@ import net.java.sip.communicator.service.protocol.*;
 /**
  * The <tt>ServerChatRoomQuery</tt> is a query over the
  * <tt>ServerChatRoomContactSourceService</tt>.
- * 
+ *
  * @author Hristo Terezov
  */
 public class ServerChatRoomQuery
@@ -30,9 +30,9 @@ public class ServerChatRoomQuery
     /**
      * List with the current results for the query.
      */
-    private List<BaseChatRoomSourceContact> contactResults
-        = new ArrayList<BaseChatRoomSourceContact>();
-    
+    private Set<BaseChatRoomSourceContact> contactResults
+        = new TreeSet<BaseChatRoomSourceContact>();
+
     /**
      * MUC service.
      */
@@ -42,7 +42,7 @@ public class ServerChatRoomQuery
      * The number of contact query listeners.
      */
     private int contactQueryListenersCount = 0;
-    
+
     /**
      * The provider associated with the query.
      */
@@ -56,22 +56,21 @@ public class ServerChatRoomQuery
      * @param contactSource the parent contact source
      * @param queryString the query string to match
      * @param provider the provider associated with the query
-     * @param count the maximum result contact count
      */
-    public ServerChatRoomQuery(String queryString, 
-        ServerChatRoomContactSourceService contactSource, 
+    public ServerChatRoomQuery(String queryString,
+        ServerChatRoomContactSourceService contactSource,
         ChatRoomProviderWrapper provider)
     {
         super(contactSource,
             Pattern.compile(queryString, Pattern.CASE_INSENSITIVE
                             | Pattern.LITERAL), true);
         this.queryString = queryString;
-        
+
         mucService = MUCActivator.getMUCService();
-        
+
         this.provider = provider;
     }
-    
+
     /**
      * Adds listeners for the query
      */
@@ -79,7 +78,7 @@ public class ServerChatRoomQuery
     {
         mucService.addChatRoomProviderWrapperListener(this);
     }
-    
+
     @Override
     protected void run()
     {
@@ -97,21 +96,21 @@ public class ServerChatRoomQuery
         {
             providerAdded(provider, true);
         }
-        
+
         if (getStatus() != QUERY_CANCELED)
             setStatus(QUERY_COMPLETED);
     }
-    
+
     /**
      * Handles adding a chat room provider.
      * @param provider the provider.
-     * @param addQueryResult indicates whether we should add the chat room to 
-     * the query results or fire an event without adding it to the results. 
+     * @param addQueryResult indicates whether we should add the chat room to
+     * the query results or fire an event without adding it to the results.
      */
-    private void providerAdded(ChatRoomProviderWrapper provider, 
+    private void providerAdded(ChatRoomProviderWrapper provider,
         boolean addQueryResult)
     {
-        List<String> chatRoomNames 
+        List<String> chatRoomNames
             = MUCActivator.getMUCService().getExistingChatRooms(provider);
         if(chatRoomNames == null)
             return;
@@ -121,19 +120,18 @@ public class ServerChatRoomQuery
                 chatRoomName, addQueryResult);
         }
     }
-    
-    
+
+
     /**
      * Adds found result to the query results.
-     * 
+     *
      * @param pps the protocol provider associated with the found chat room.
      * @param chatRoomName the name of the chat room.
      * @param chatRoomID the id of the chat room.
-     * @param addQueryResult indicates whether we should add the chat room to 
+     * @param addQueryResult indicates whether we should add the chat room to
      * the query results or fire an event without adding it to the results.
-     * @param isAutoJoin the auto join state of the contact.
      */
-    private void addChatRoom(ProtocolProviderService pps, 
+    private void addChatRoom(ProtocolProviderService pps,
         String chatRoomName, String chatRoomID, boolean addQueryResult)
     {
         if((queryString == null
@@ -142,14 +140,14 @@ public class ServerChatRoomQuery
                     || chatRoomID.contains(queryString)
                     ))) && isMatching(chatRoomID, pps))
         {
-            BaseChatRoomSourceContact contact 
-                = new BaseChatRoomSourceContact(chatRoomName, chatRoomID, this, 
+            BaseChatRoomSourceContact contact
+                = new BaseChatRoomSourceContact(chatRoomName, chatRoomID, this,
                     pps);
             synchronized (contactResults)
             {
                 contactResults.add(contact);
             }
-            
+
             if(addQueryResult)
             {
                 addQueryResult(contact, false);
@@ -173,9 +171,9 @@ public class ServerChatRoomQuery
         LinkedList<BaseChatRoomSourceContact> tmpContactResults;
         synchronized (contactResults)
         {
-            tmpContactResults 
+            tmpContactResults
                 = new LinkedList<BaseChatRoomSourceContact>(contactResults);
-        
+
             for(BaseChatRoomSourceContact contact : tmpContactResults)
             {
                 if(contact.getProvider().equals(provider.getProtocolProvider()))
@@ -187,7 +185,7 @@ public class ServerChatRoomQuery
         }
     }
 
-    
+
     /**
      * Clears any listener we used.
      */
@@ -195,7 +193,7 @@ public class ServerChatRoomQuery
     {
         mucService.removeChatRoomProviderWrapperListener(this);
     }
-    
+
     /**
      * Cancels this <tt>ContactQuery</tt>.
      *
@@ -207,7 +205,7 @@ public class ServerChatRoomQuery
 
         super.cancel();
     }
-    
+
     /**
      * If query has status changed to cancel, let's clear listeners.
      * @param status {@link ContactQuery#QUERY_CANCELED},
@@ -220,7 +218,7 @@ public class ServerChatRoomQuery
 
         super.setStatus(status);
     }
-    
+
     @Override
     public void addContactQueryListener(ContactQueryListener l)
     {
@@ -231,7 +229,7 @@ public class ServerChatRoomQuery
             initListeners();
         }
     }
-    
+
     @Override
     public void removeContactQueryListener(ContactQueryListener l)
     {
@@ -242,17 +240,37 @@ public class ServerChatRoomQuery
             clearListeners();
         }
     }
-    
+
     /**
      * Checks if the contact should be added to results or not.
      * @param chatRoomID the chat room id associated with the contact.
      * @param pps the provider of the chat room contact.
-     * @return <tt>true</tt> if the result should be added to the results and 
+     * @return <tt>true</tt> if the result should be added to the results and
      * <tt>false</tt> if not.
      */
     public boolean isMatching(String chatRoomID, ProtocolProviderService pps)
     {
         return (MUCActivator.getMUCService().findChatRoomWrapperFromChatRoomID(
             chatRoomID, pps) == null);
+    }
+
+    /**
+     * Returns the index of the contact in the contact results list.
+     * @param contact the contact.
+     * @return the index of the contact in the contact results list.
+     */
+    public int indexOf(BaseChatRoomSourceContact contact)
+    {
+        Iterator<BaseChatRoomSourceContact> it = contactResults.iterator();
+        int i = 0;
+        while(it.hasNext())
+        {
+            if(contact.equals(it.next()))
+            {
+                return i;
+            }
+            i++;
+        }
+        return -1;
     }
 }

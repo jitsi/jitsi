@@ -236,6 +236,12 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
     private VideoMediaStream videoStream;
 
     /**
+     * Identifier used to group the audio stream and video stream towards
+     * the <tt>CallPeer</tt> in SDP.
+     */
+    private String msLabel = UUID.randomUUID().toString();
+
+    /**
      * The <tt>VideoListener</tt> which listens to the video
      * <tt>MediaStream</tt> of this instance for changes in the availability of
      * visual <tt>Component</tt>s displaying remote video and re-fires them as
@@ -1014,6 +1020,13 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
         {
         case AUDIO:
             return audioStream;
+        case DATA:
+            /*
+             * DATA is a valid MediaType value and CallPeerMediaHandler does not
+             * utilize it at this time so no IllegalArgumentException is thrown
+             * and null is returned (as documented).
+             */
+            return null;
         case VIDEO:
             return videoStream;
         default:
@@ -1189,6 +1202,8 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
     {
         List<MediaFormat> ret = new ArrayList<MediaFormat>();
         MediaFormat telephoneEvents = null;
+        MediaFormat red = null;
+        MediaFormat ulpfec = null;
 
         for(MediaFormat remoteFormat : remoteFormats)
         {
@@ -1197,17 +1212,29 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
 
             if (localFormat != null)
             {
-                // We ignore telephone-event here as it's not a real media
-                // format.  Therefore we don't want to decide to use it as
-                // our preferred format.  We'll add it back later if we find
-                // a suitable format.
+                // We ignore telephone-event, red and ulpfec here as they are
+                // not real media formats. Therefore we don't want to decide to
+                // use any of them as our preferred format. We'll add them back
+                // later if we find a common media format.
                 //
-                // Note if there are multiple telephone-event formats, we'll
-                // lose all but the last one.  That's fine because it's
-                // meaningless to have multiple repeated formats.
-                if (Constants.TELEPHONE_EVENT.equals(localFormat.getEncoding()))
+                // Note if there are multiple telephone-event (or red, or
+                // ulpfec) formats, we'll lose all but the last one.  That's
+                // fine because it's meaningless to have multiple repeated
+                // formats.
+                String encoding = localFormat.getEncoding();
+                if (Constants.TELEPHONE_EVENT.equals(encoding))
                 {
                     telephoneEvents = localFormat;
+                    continue;
+                }
+                else if (Constants.RED.equals(encoding))
+                {
+                    red = localFormat;
+                    continue;
+                }
+                else if (Constants.ULPFEC.equals(encoding))
+                {
+                    ulpfec = localFormat;
                     continue;
                 }
 
@@ -1215,12 +1242,20 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
             }
         }
 
-        // If we've found some compatible formats, add telephone-event back
-        // in to the end of the list if we removed it above.  If we didn't
-        // find any compatible formats, we don't want to add telephone-event
-        // as the only entry in the list because there'd be no media.
-        if ((!ret.isEmpty()) && (telephoneEvents != null))
-            ret.add(telephoneEvents);
+        // If we've found some compatible formats, add telephone-event, red
+        // and ulpfec back in to the end of the list (if we removed any of them)
+        // above.  If we didn't find any compatible formats, we don't want to
+        // add any of these formats as the only entries in the list because
+        // there'd be no media.
+        if (!ret.isEmpty())
+        {
+            if (telephoneEvents != null)
+                ret.add(telephoneEvents);
+            if (red != null)
+                ret.add(red);
+            if (ulpfec != null)
+                ret.add(ulpfec);
+        }
 
         return ret;
     }
@@ -1606,9 +1641,12 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
         {
             MediaStream audioStream = getStream(MediaType.AUDIO);
             MediaDirection direction
-                    = getPeer().getCall().isConferenceFocus()
+                    = (getPeer().getCall().isConferenceFocus()
+                        || audioStream == null)
                     ? MediaDirection.INACTIVE
                     : audioStream.getDirection().and(MediaDirection.SENDONLY);
+            // the direction in situation where audioStream is
+            // null is ignored (just avoiding NPE)
 
             if(audioStream != null)
             {
@@ -1950,6 +1988,53 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
             int errorCode,
             Throwable cause)
         throws OperationFailedException;
+
+    /**
+     * Returns the value to use for the 'msid' source-specific SDP media
+     * attribute (RFC5576) for the stream of type <tt>mediaType</tt> towards
+     * the <tt>CallPeer</tt>. It consist of a group identifier (shared between
+     * the local audio and video streams towards the <tt>CallPeer</tt>) and an
+     * identifier for the particular stream, separated by a space.
+     *
+     * {@see http://tools.ietf.org/html/draft-ietf-mmusic-msid}
+     *
+     * @param mediaType the media type of the stream for which to return the
+     * value for 'msid'
+     * @return the value to use for the 'msid' source-specific SDP media
+     * attribute (RFC5576) for the stream of type <tt>mediaType</tt> towards
+     * the <tt>CallPeer</tt>.
+     */
+    public String getMsid(MediaType mediaType)
+    {
+        return msLabel + " " + getLabel(mediaType);
+    }
+
+    /**
+     * Returns the value to use for the 'label' source-specific SDP media
+     * attribute (RFC5576) for the stream of type <tt>mediaType</tt> towards
+     * the <tt>CallPeer</tt>.
+     *
+     * @param mediaType the media type of the stream for which to return the
+     * value for 'label'
+     * @return the value to use for the 'label' source-specific SDP media
+     * attribute (RFC5576) for the stream of type <tt>mediaType</tt> towards
+     * the <tt>CallPeer</tt>.
+     */
+     public String getLabel(MediaType mediaType)
+    {
+        return mediaType.toString();
+    }
+
+    /**
+     * Returns the value to use for the 'mslabel' source-specific SDP media
+     * attribute (RFC5576).
+     * @return the value to use for the 'mslabel' source-specific SDP media
+     * attribute (RFC5576).
+     */
+    public String getMsLabel()
+    {
+        return msLabel;
+    }
 
     /**
      * Represents the <tt>PropertyChangeListener</tt> which listens to changes

@@ -76,10 +76,13 @@ public class SearchField
      * @param searchFilter the filter to apply on search
      * @param isCallButtonEnabled indicates if the call button should be
      * enabled in this search field
+     * @param isSMSButtonEnabled indicates if the sms button should be
+     * enabled in this search field
      */
     public SearchField( MainFrame frame,
                         ContactListSearchFilter searchFilter,
-                        boolean isCallButtonEnabled)
+                        boolean isCallButtonEnabled,
+                        boolean isSMSButtonEnabled)
     {
         super(GuiActivator.getResources()
                 .getI18NString("service.gui.ENTER_NAME_OR_NUMBER"));
@@ -93,6 +96,8 @@ public class SearchField
             ((ContactSearchFieldUI) getUI()).setDeleteButtonEnabled(true);
             ((ContactSearchFieldUI) getUI())
                 .setCallButtonEnabled(isCallButtonEnabled);
+            ((ContactSearchFieldUI) getUI())
+                .setSMSButtonEnabled(isSMSButtonEnabled);
         }
 
         this.setBorder(null);
@@ -168,9 +173,6 @@ public class SearchField
         // If the unknown contact view was previously enabled, but we
         // have found matching contacts we enter the normal view.
         enableUnknownContactView(!hasResults);
-
-        if (hasResults)
-            contactList.selectFirstContact();
 
         query.setQueryListener(null);
     }
@@ -287,7 +289,7 @@ public class SearchField
             filterQueryFinished(currentFilterQuery, !contactList.isEmpty());
         }
     }
-    
+
     public void dispose()
     {
         if(getUI() instanceof ContactSearchFieldUI)

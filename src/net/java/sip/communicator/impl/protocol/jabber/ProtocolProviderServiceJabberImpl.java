@@ -55,6 +55,7 @@ import org.xmpp.jnodes.smack.*;
  * @author Lyubomir Marinov
  * @author Yana Stamcheva
  * @author Emil Ivov
+ * @author Hristo Terezov
  */
 public class ProtocolProviderServiceJabberImpl
     extends AbstractProtocolProviderService
@@ -221,6 +222,12 @@ public class ProtocolProviderServiceJabberImpl
         "net.java.sip.communicator.impl.protocol.XMPP_DSCP";
 
     /**
+     * Indicates if user search is disabled.
+     */
+    private static final String IS_USER_SEARCH_ENABLED_PROPERTY
+        = "USER_SEARCH_ENABLED";
+
+    /**
      * Google voice domain name.
      */
     public static final String GOOGLE_VOICE_DOMAIN = "voice.google.com";
@@ -229,6 +236,11 @@ public class ProtocolProviderServiceJabberImpl
      * Used to connect to a XMPP server.
      */
     private XMPPConnection connection;
+
+    /**
+     * The socket address of the XMPP server.
+     */
+    private InetSocketAddress address;
 
     /**
      * Indicates whether or not the provider is initialized and ready for use.
@@ -403,6 +415,23 @@ public class ProtocolProviderServiceJabberImpl
     {
         if(OSUtils.IS_ANDROID)
             loadJabberServiceClasses();
+    }
+
+    /**
+     * An <tt>OperationSet</tt> that allows access to connection information used
+     * by the protocol provider.
+     */
+    private class OperationSetConnectionInfoJabberImpl
+       implements OperationSetConnectionInfo
+    {
+       /**
+        * @return The XMPP server address.
+        */
+        @Override
+        public InetSocketAddress getServerAddress()
+        {
+            return address;
+        }
     }
 
     /**
@@ -782,6 +811,12 @@ public class ProtocolProviderServiceJabberImpl
      */
     private JabberLoginStrategy createLoginStrategy()
     {
+        if (((JabberAccountIDImpl)getAccountID()).isAnonymousAuthUsed())
+        {
+            return new AnonymousLoginStrategy(
+                getAccountID().getAuthorizationName());
+        }
+
         String clientCertId = getAccountID().getAccountPropertyString(
                 ProtocolProviderFactory.CLIENT_TLS_CERTIFICATE);
         if(clientCertId != null)
@@ -879,8 +914,7 @@ public class ProtocolProviderServiceJabberImpl
                             ))
                         {
                             FailoverConnectionMonitor.getInstance(this)
-                                .setCurrent(serviceName,
-                                            srv.getTarget());
+                                .setCurrent(domain, srv.getTarget());
                         }
 
                         ConnectState state = connectAndLogin(
@@ -1140,6 +1174,7 @@ public class ProtocolProviderServiceJabberImpl
         }
 
         connection = new XMPPConnection(confConn);
+        this.address = address;
 
         try
         {
@@ -1149,6 +1184,32 @@ public class ProtocolProviderServiceJabberImpl
             {
                 SSLContext sslContext = loginStrategy.createSslContext(cvs,
                         getTrustManager(cvs, serviceName));
+
+                // log SSL/TLS algorithms and protocols
+                if (logger.isDebugEnabled())
+                {
+                    final StringBuilder buff = new StringBuilder();
+                    buff.append("Available TLS protocols and algorithms:\n");
+                    buff.append("Default protocols: ");
+                    buff.append(Arrays.toString(
+                        sslContext.getDefaultSSLParameters().getProtocols()));
+                    buff.append("\n");
+                    buff.append("Supported protocols: ");
+                    buff.append(Arrays.toString(
+                        sslContext.getSupportedSSLParameters().getProtocols()));
+                    buff.append("\n");
+                    buff.append("Default cipher suites: ");
+                    buff.append(Arrays.toString(
+                            sslContext.getDefaultSSLParameters()
+                            .getCipherSuites()));
+                    buff.append("\n");
+                    buff.append("Supported cipher suites: ");
+                    buff.append(Arrays.toString(
+                            sslContext.getSupportedSSLParameters()
+                            .getCipherSuites()));
+                    logger.debug(buff.toString());
+                }
+
                 connection.setCustomSslContext(sslContext);
             }
             else if (tlsRequired)
@@ -1215,6 +1276,35 @@ public class ProtocolProviderServiceJabberImpl
         }
         else
         {
+            if (connection.getSocket() instanceof SSLSocket)
+            {
+                final SSLSocket sslSocket = (SSLSocket) connection.getSocket();
+                StringBuilder buff = new StringBuilder();
+                buff.append("Chosen TLS protocol and algorithm:\n")
+                        .append("Protocol: ").append(sslSocket.getSession()
+                        .getProtocol()).append("\n")
+                        .append("Cipher suite: ").append(sslSocket.getSession()
+                        .getCipherSuite());
+                logger.info(buff.toString());
+
+                if (logger.isDebugEnabled())
+                {
+                    buff = new StringBuilder();
+                    buff.append("Server TLS certificate chain:\n");
+                    try
+                    {
+                        buff.append(Arrays.toString(
+                                sslSocket.getSession().getPeerCertificates()));
+                    }
+                    catch (SSLPeerUnverifiedException ex)
+                    {
+                        buff.append("<unavailable: ")
+                                .append(ex.getLocalizedMessage()).append(">");
+                    }
+                    logger.debug(buff.toString());
+                }
+            }
+
             connection.addConnectionListener(connectionListener);
         }
 
@@ -1254,25 +1344,6 @@ public class ProtocolProviderServiceJabberImpl
                 getRegistrationState(),
                 RegistrationState.REGISTERED,
                 RegistrationStateChangeEvent.REASON_NOT_SPECIFIED, null);
-
-            /* The initial presence message is sent by smack stack and does not
-             * include priority information. In case the original status is
-             * AVAILABLE, we will not update our presence information (such as
-             * our priority) when we registered.
-             */
-            OperationSetPersistentPresenceJabberImpl opSet =
-                (OperationSetPersistentPresenceJabberImpl)
-                this.getOperationSet(OperationSetPersistentPresence.class);
-
-            try
-            {
-                opSet.publishPresenceStatus(getJabberStatusEnum().getStatus(
-                            JabberStatusEnum.AVAILABLE), "");
-            }
-            catch(Exception e)
-            {
-                logger.error("Failed to publish presence status");
-            }
 
             return ConnectState.STOP_TRYING;
         }
@@ -1721,6 +1792,12 @@ public class ProtocolProviderServiceJabberImpl
                 new CarbonPacketExtension.Provider(
                     CarbonPacketExtension.SENT_ELEMENT_NAME));
 
+            providerManager.addExtensionProvider(
+                Nick.ELEMENT_NAME,
+                Nick.NAMESPACE,
+                new Nick.Provider());
+
+
             //initialize the telephony operation set
             boolean isCallingDisabled
                 = JabberActivator.getConfigurationService()
@@ -1808,23 +1885,29 @@ public class ProtocolProviderServiceJabberImpl
                             new OperationSetDesktopStreamingJabberImpl(
                                 basicTelephony));
 
-                    // initialize desktop sharing OperationSets
-                    addSupportedOperationSet(
+                    if(!accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory
+                            .IS_DESKTOP_REMOTE_CONTROL_DISABLED,
+                        false))
+                    {
+                        // initialize desktop sharing OperationSets
+                        addSupportedOperationSet(
                             OperationSetDesktopSharingServer.class,
                             new OperationSetDesktopSharingServerJabberImpl(
                                 basicTelephony));
 
-                    // Adds extension to support remote control as a sharing
-                    // server (sharer).
-                    supportedFeatures.add(InputEvtIQ.NAMESPACE_SERVER);
+                        // Adds extension to support remote control as a sharing
+                        // server (sharer).
+                        supportedFeatures.add(InputEvtIQ.NAMESPACE_SERVER);
 
-                    addSupportedOperationSet(
+                        addSupportedOperationSet(
                             OperationSetDesktopSharingClient.class,
                             new OperationSetDesktopSharingClientJabberImpl(this)
                             );
-                    // Adds extension to support remote control as a sharing
-                    // client (sharee).
-                    supportedFeatures.add(InputEvtIQ.NAMESPACE_CLIENT);
+                        // Adds extension to support remote control as a sharing
+                        // client (sharer).
+                        supportedFeatures.add(InputEvtIQ.NAMESPACE_CLIENT);
+                    }
                 }
             }
 
@@ -1858,6 +1941,24 @@ public class ProtocolProviderServiceJabberImpl
                     = new OperationSetCusaxUtilsJabberImpl(this);
             addSupportedOperationSet(OperationSetCusaxUtils.class,
                     opsetCusaxCusaxUtils);
+
+            boolean isUserSearchEnabled = accountID.getAccountPropertyBoolean(
+                IS_USER_SEARCH_ENABLED_PROPERTY, false);
+            if(isUserSearchEnabled)
+            {
+                addSupportedOperationSet(OperationSetUserSearch.class,
+                    new OperationSetUserSearchJabberImpl(this));
+            }
+
+            OperationSetTLS opsetTLS
+                    = new OperationSetTLSJabberImpl(this);
+            addSupportedOperationSet(OperationSetTLS.class,
+                    opsetTLS);
+
+            OperationSetConnectionInfo opsetConnectionInfo
+                    = new OperationSetConnectionInfoJabberImpl();
+            addSupportedOperationSet(OperationSetConnectionInfo.class,
+                    opsetConnectionInfo);
 
             isInitialized = true;
         }
@@ -1907,7 +2008,7 @@ public class ProtocolProviderServiceJabberImpl
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
                 && accountID.isEncryptionProtocolEnabled(
-                        DtlsControl.PROTO_NAME))
+                        SrtpControlType.DTLS_SRTP))
         {
             supportedFeatures.add(URN_XMPP_JINGLE_DTLS_SRTP);
         }
@@ -2867,4 +2968,24 @@ public class ProtocolProviderServiceJabberImpl
             logger.error("Error loading classes in smack", e);
         }
     }
+
+    /**
+     * Return the SSL socket (if TLS used).
+     * @return The SSL socket or null if not used
+     */
+    public SSLSocket getSSLSocket()
+    {
+        final SSLSocket result;
+        final Socket socket = connection.getSocket();
+        if (socket instanceof SSLSocket)
+        {
+            result = (SSLSocket) socket;
+        }
+        else
+        {
+            result = null;
+        }
+        return result;
+    }
+
 }

@@ -8,6 +8,8 @@ package net.java.sip.communicator.service.muc;
 
 import net.java.sip.communicator.service.protocol.*;
 
+import java.beans.*;
+
 /**
  * The <tt>ChatRoomWrapper</tt> is the representation of the <tt>ChatRoom</tt>
  * in the GUI. It stores the information for the chat room even when the
@@ -18,6 +20,42 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public interface ChatRoomWrapper
 {
+    /**
+     * Property to be fired when successfully joined to chat room.
+     */
+    public static final String JOIN_SUCCESS_PROP = "Success";
+
+    /**
+     * Property to be fired when authentication failed
+     * while joining a chat room.
+     */
+    public static final String JOIN_AUTHENTICATION_FAILED_PROP
+        = "AuthenticationFailed";
+    /**
+     * Property to be fired when chat room requires registration and we failed
+     * while joining the chat room.
+     */
+    public static final String JOIN_REGISTRATION_REQUIRED_PROP
+        = "RegistrationRequired";
+
+    /**
+     * Property to be fired when provider is not registered
+     * while joining a chat room.
+     */
+    public static final String JOIN_PROVIDER_NOT_REGISTERED_PROP
+        = "ProviderNotRegistered";
+
+    /**
+     * Property to be fired when we try to join twice the same chat room.
+     */
+    public static final String JOIN_SUBSCRIPTION_ALREADY_EXISTS_PROP
+        = "SubscriptionAlreadyExists";
+
+    /**
+     * Property to be fired when unknown error occurred
+     * while joining a chat room.
+     */
+    public static final String JOIN_UNKNOWN_ERROR_PROP = "UnknownError";
 
     /**
      * Returns the <tt>ChatRoom</tt> that this wrapper represents.
@@ -105,4 +143,16 @@ public interface ChatRoomWrapper
      * Removes the listeners.
      */
     public void removeListeners();
+
+    /**
+     * Property changes for the room wrapper. Like join status changes.
+     * @param listener the listener to be notified.
+     */
+    public void addPropertyChangeListener(PropertyChangeListener listener);
+
+    /**
+     * Removes property change listener.
+     * @param listener
+     */
+    public void removePropertyChangeListener(PropertyChangeListener listener);
 }

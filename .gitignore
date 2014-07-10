@@ -3,8 +3,9 @@ classes
 sc-bundles
 .gitignore.swp
 *.iws
-.gitignore
 jitsi.iml
+jitsi-local.iml
+jitsi.ipr
 test-reports
 sip-communicator.utest.bin
 release

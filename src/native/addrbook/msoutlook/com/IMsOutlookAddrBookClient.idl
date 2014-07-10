@@ -10,14 +10,21 @@ import "Unknwn.idl", "oaidl.idl";
 interface IMsOutlookAddrBookClient : IUnknown
 {
     HRESULT foreachMailUserCallback(
-            [in] BSTR id);
+            [in] BSTR id,
+            [in] long callback);
+	HRESULT foreachCalendarItemCallback(
+            [in] BSTR id,
+			[in] long callback);
 
     HRESULT deleted(
-            [in] BSTR id);
+            [in] BSTR id,
+			[in] ULONG type);
     HRESULT inserted(
-            [in] BSTR id);
+            [in] BSTR id,
+			[in] ULONG type);
     HRESULT updated(
-            [in] BSTR id);
+            [in] BSTR id,
+			[in] ULONG type);
 };
 
 

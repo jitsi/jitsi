@@ -20,6 +20,7 @@ import net.java.sip.communicator.util.*;
  * The tooltip shown over a contact in the contact list.
  *
  * @author Yana Stamcheva
+ * @author Damian Minkov
  */
 public class ExtendedTooltip
     extends JToolTip
@@ -193,7 +194,7 @@ public class ExtendedTooltip
     public void addLine(JLabel[] labels)
     {
         Dimension lineSize = null;
-        JPanel labelPanel = null;
+        JPanel labelPanel;
 
         if (labels.length > 0)
         {
@@ -204,19 +205,19 @@ public class ExtendedTooltip
         else
             return;
 
-        if (labelPanel != null)
-            for (JLabel label : labels)
-            {
-                labelPanel.add(label);
-                if (lineSize == null)
-                    lineSize = calculateLabelSize(label);
-                else
-                    lineSize = new Dimension(
-                        lineSize.width + calculateLabelSize(label).width,
-                        lineSize.height);
-            }
+        for (JLabel label : labels)
+        {
+            labelPanel.add(label);
+            if (lineSize == null)
+                lineSize = calculateLabelSize(label);
+            else
+                lineSize = new Dimension(
+                    lineSize.width + calculateLabelSize(label).width,
+                    lineSize.height);
+        }
 
-        recalculateTooltipSize(lineSize.width, lineSize.height);
+        if (lineSize != null)
+            recalculateTooltipSize(lineSize.width, lineSize.height);
     }
 
     /**
@@ -311,14 +312,13 @@ public class ExtendedTooltip
 
     /**
      * Not used.
-     * @param e
+     * @param e window event
      */
     @Override
     public void windowGainedFocus(WindowEvent e) {}
 
     /**
-     * Not used.
-     * @param event
+     * @param event ancestor event, something has become visible.
      */
     @Override
     public void ancestorAdded(AncestorEvent event)
@@ -332,12 +332,33 @@ public class ExtendedTooltip
         {
             parentWindow.addWindowFocusListener(this);
         }
+        else
+        {
+            // well, no parent window, this is the case when we hovered over a
+            // contact and tooltip started creating and we switched to another
+            // window or another window stole our focus, we will hide the
+            // tooltip in order to avoid showing it over non jitsi window
+            // seems only a problem when using java 1.6 (under macosx),
+            // not reproducible with 1.7.
+            Window popupWindow
+                = SwingUtilities.getWindowAncestor(
+                ExtendedTooltip.this);
+
+            if ((popupWindow != null)
+                // The popup window should normally be a JWindow, so we
+                // check here explicitly if for some reason we didn't
+                // get something else.
+                && (popupWindow instanceof JWindow))
+            {
+                popupWindow.setVisible(false);
+            }
+        }
     }
 
     /**
      * When the tooltip window is disposed elements are removed from it
      * and this is the time to clear resources.
-     * @param event
+     * @param event the component has become not visible
      */
     @Override
     public void ancestorRemoved(AncestorEvent event)
@@ -353,7 +374,7 @@ public class ExtendedTooltip
 
     /**
      * Not used.
-     * @param event
+     * @param event ancestor event.
      */
     @Override
     public void ancestorMoved(AncestorEvent event)
@@ -368,8 +389,8 @@ public class ExtendedTooltip
 
         /**
          * Creates the UI.
-         * @param c
-         * @return
+         * @param c component
+         * @return ui shared instance.
          */
         public static ComponentUI createUI(JComponent c)
         {
@@ -429,7 +450,7 @@ public class ExtendedTooltip
             if (icon != null)
                 imageHeight = icon.getIconHeight();
 
-            int height = 0;
+            int height;
             if (tooltip.isListViewEnabled)
             {
                 height = imageHeight > tooltip.textHeight

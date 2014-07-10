@@ -42,13 +42,13 @@ public class PresenceFilter
      * directly to the contact list without firing events.
      */
     private static final int INITIAL_CONTACT_COUNT = 30;
-    
+
     /**
-     * Preferences for the external contact sources. Lists the type of contact 
-     * contact sources that will be displayed in the filter and the order of the 
+     * Preferences for the external contact sources. Lists the type of contact
+     * contact sources that will be displayed in the filter and the order of the
      * contact sources.
      */
-    private static Map<Integer, Integer> contactSourcePreferences 
+    private static Map<Integer, Integer> contactSourcePreferences
         = new HashMap<Integer, Integer>();
 
     /**
@@ -61,17 +61,20 @@ public class PresenceFilter
     }
 
     /**
-     * Initializes the contact source preferences. The preferences are for the 
+     * Initializes the contact source preferences. The preferences are for the
      * visibility of the contact source and their order.
      */
     private void initContactSourcePreferences()
     {
         //This entry will be used to set the index for chat room contact sources
         //The index is used to order the contact sources in the contact list.
+        // And recent messages first in the list
+        contactSourcePreferences.put(
+            ContactSourceService.RECENT_MESSAGES_TYPE, 0);
         //The chat room sources will be ordered before the meta contact list.
-        contactSourcePreferences.put(ContactSourceService.CHAT_ROOM_TYPE, 0);
+        contactSourcePreferences.put(ContactSourceService.CHAT_ROOM_TYPE, 1);
     }
-    
+
     /**
      * Applies this filter. This filter is applied over the
      * <tt>MetaContactListService</tt>.
@@ -88,33 +91,36 @@ public class PresenceFilter
 
         for(int cssType : contactSourcePreferences.keySet())
         {
-            Iterator<UIContactSource> filterSources 
+            Iterator<UIContactSource> filterSources
                 = GuiActivator.getContactList().getContactSources(cssType)
                     .iterator();
-    
+
             while (filterSources.hasNext())
             {
                 UIContactSource filterSource = filterSources.next();
-                
+
                 Integer prefValue = contactSourcePreferences.get(cssType);
-                //We are setting the index from contactSourcePreferences map to 
-                //the contact source. This index is set to reorder the sources 
+                //We are setting the index from contactSourcePreferences map to
+                //the contact source. This index is set to reorder the sources
                 //in the contact list.
                 if(prefValue != null)
                     filterSource.setContactSourceIndex(prefValue);
-                
+
                 ContactSourceService sourceService
                     = filterSource.getContactSourceService();
-                
-                ContactQuery contactQuery 
+
+                ContactQuery contactQuery
                     = sourceService.createContactQuery(null);
-                
+
+                if(contactQuery == null)
+                    continue;
+
                 // Add this query to the filterQuery.
                 filterQuery.addContactQuery(contactQuery);
-                
+
                 contactQuery.addContactQueryListener(
                     GuiActivator.getContactList());
-                
+
                 contactQuery.start();
             }
         }
@@ -124,7 +130,7 @@ public class PresenceFilter
 
         query.addContactQueryListener(GuiActivator.getContactList());
         int resultCount = 0;
-        
+
         addMatching(GuiActivator.getContactListService().getRoot(),
                     query,
                     resultCount);
@@ -212,17 +218,19 @@ public class PresenceFilter
      * Returns <tt>true</tt> if offline contacts are shown or if the given
      * <tt>MetaContact</tt> is online, otherwise returns false.
      *
-     * @param metaContact the <tt>MetaContact</tt> to check
+     * @param contact the <tt>MetaContact</tt> to check
      * @return <tt>true</tt> if the given <tt>MetaContact</tt> is matching this
      * filter
      */
     public boolean isMatching(SourceContact contact)
     {
+        // make sure we always show chat rooms and recent messages
         return
             isShowOffline
                 || contact.getPresenceStatus().isOnline()
-                || (contact.getPreferredContactDetail(OperationSetMultiUserChat.class)
-                        != null);
+                || GuiActivator.getMUCService().isMUCSourceContact(contact)
+                || contact.getContactSource().getType()
+                        == ContactSourceService.RECENT_MESSAGES_TYPE;
     }
 
     /**
@@ -284,12 +292,12 @@ public class PresenceFilter
 
             if(isMatching(metaContact))
             {
-                
+
                 resultCount++;
                 if (resultCount <= INITIAL_CONTACT_COUNT)
                 {
                     UIGroup uiGroup = null;
-                    
+
                     if (!MetaContactListSource.isRootGroup(metaGroup))
                     {
                         synchronized (metaGroup)
@@ -309,7 +317,7 @@ public class PresenceFilter
                     UIContactImpl newUIContact;
                     synchronized (metaContact)
                     {
-                        newUIContact 
+                        newUIContact
                             = MetaContactListSource.getUIContact(metaContact);
 
                         if (newUIContact == null)
@@ -318,7 +326,7 @@ public class PresenceFilter
                                 .createUIContact(metaContact);
                         }
                     }
-                    
+
                     GuiActivator.getContactList().addContact(
                         newUIContact,
                         uiGroup,

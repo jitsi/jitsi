@@ -9,7 +9,9 @@
 #include "../MAPIBitness.h"
 #include "MsOutlookAddrBookServerClassFactory.h"
 #include "MsOutlookAddrBookClientClassFactory.h"
+#include "../MsOutlookUtils.h"
 #include "TypeLib.h"
+
 
 #include <process.h>
 #include <stdio.h>
@@ -43,12 +45,13 @@ void ComClient_start(void)
 {
     HRESULT hr = E_FAIL;
 
+    MsOutlookUtils_log("Starting COM client.");
     if((hr = CoInitializeEx(NULL, COINIT_MULTITHREADED)) == S_OK
             || hr == S_FALSE)
     {
-        // The server may be long to start, then retry 10 times with 1s pause
+        // The server may be long to start, then retry 20 times with 1s pause
         // between each try.
-        int retry = 10;
+        int retry = 20;
         while(retry > 0)
         {
             if((hr = CoCreateInstance(
@@ -65,16 +68,21 @@ void ComClient_start(void)
                     = new MsOutlookAddrBookClientClassFactory();
                 if(ComClient_classFactory->registerClassObject() != S_OK)
                 {
+                	MsOutlookUtils_log("Failed to start COM client.[1]");
                     ComClient_classFactory->Release();
                     ComClient_classFactory = NULL;
                 }
                 ::CoResumeClassObjects();
-
+                MsOutlookUtils_log("COM Client is started.");
                 retry = 0;
             }
             Sleep(1000);
             --retry;
         }
+    }
+    else
+    {
+    	MsOutlookUtils_log("Failed to start COM client.");
     }
 }
 

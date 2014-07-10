@@ -7,6 +7,7 @@
 package net.java.sip.communicator.service.globaldisplaydetails;
 
 import net.java.sip.communicator.service.globaldisplaydetails.event.*;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
  * The <tt>GlobalDisplayNameService</tt> offers generic access to a global
@@ -19,10 +20,19 @@ import net.java.sip.communicator.service.globaldisplaydetails.event.*;
  * approach.
  *
  * @author Yana Stamcheva
+ * @author Hristo Terezov
  *
  */
 public interface GlobalDisplayDetailsService
 {
+    /**
+     * Returns default display name for the given provider or the global display
+     * name.
+     * @param pps the given protocol provider service
+     * @return default display name.
+     */
+    public String getDisplayName(ProtocolProviderService pps);
+
     /**
      * Returns the global display name to be used to identify the local user.
      *

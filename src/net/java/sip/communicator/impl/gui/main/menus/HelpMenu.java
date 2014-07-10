@@ -51,12 +51,12 @@ public class HelpMenu
     }
 
     /**
-     * Handles the <tt>ActionEvent</tt> when one of the menu items is
-     * selected.
+     * Handles the <tt>ActionEvent</tt> when one of the menu items is selected.
      *
-     * @param e
+     * @param ev
      */
-    public void actionPerformed(ActionEvent e)
+    @Override
+    public void actionPerformed(ActionEvent ev)
     {
     }
 }

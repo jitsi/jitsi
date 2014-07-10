@@ -10,8 +10,10 @@
 #include <wchar.h>
 
 #include "../MAPINotification.h"
+#include "../MsOutlookCalendar.h"
 #include "../net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
 #include "../StringUtils.h"
+#include "../MsOutlookUtils.h"
 
 /**
  * Instanciates a new MsOutlookAddrBookClient.
@@ -100,15 +102,28 @@ STDMETHODIMP_(ULONG) MsOutlookAddrBookClient::Release()
  * a search via the foreachMailUser function.
  *
  * @param id The contact identifier.
+ * @param callback the callback address
  *
  * @return S_OK.
  */
 HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::foreachMailUserCallback(
-        BSTR id)
+        BSTR id, long callback)
 {
     char * charId = StringUtils::WideCharToMultiByte(id);
-    MAPINotification_callCallbackMethod(charId, NULL);
+    boolean res = MAPINotification_callCallbackMethod(charId, callback);
     free(charId);
+
+    if(res)
+        return S_OK;
+    else
+        return E_ABORT;
+}
+
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::foreachCalendarItemCallback(
+		BSTR id, long callback)
+{
+	char * charId = StringUtils::WideCharToMultiByte(id);
+	MsOutlookCalendar_foreachCalendarItemCallback(charId, callback);
 
     return S_OK;
 }
@@ -121,10 +136,17 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::foreachMailUserCallback(
  *
  * @return S_OK.
  */
-HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::deleted(BSTR id)
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::deleted(BSTR id, ULONG type)
 {
     char * charId = StringUtils::WideCharToMultiByte(id);
-    MAPINotification_jniCallDeletedMethod(charId);
+    if(type == CALENDAR_FOLDER_TYPE)
+	{
+		MAPINotification_jniCallCalendarDeletedMethod(charId);
+	}
+	else
+	{
+		MAPINotification_jniCallDeletedMethod(charId);
+	}
     free(charId);
 
     return S_OK;
@@ -138,10 +160,17 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::deleted(BSTR id)
  *
  * @return S_OK.
  */
-HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::inserted(BSTR id)
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::inserted(BSTR id, ULONG type)
 {
     char * charId = StringUtils::WideCharToMultiByte(id);
-    MAPINotification_jniCallInsertedMethod(charId);
+    if(type == CALENDAR_FOLDER_TYPE)
+	{
+		MAPINotification_jniCallCalendarInsertedMethod(charId);
+	}
+	else
+	{
+		MAPINotification_jniCallInsertedMethod(charId);
+	}
     free(charId);
 
     return S_OK;
@@ -155,10 +184,18 @@ HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::inserted(BSTR id)
  *
  * @return S_OK.
  */
-HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::updated(BSTR id)
+HRESULT STDMETHODCALLTYPE MsOutlookAddrBookClient::updated(BSTR id, ULONG type)
 {
     char * charId = StringUtils::WideCharToMultiByte(id);
-    MAPINotification_jniCallUpdatedMethod(charId);
+    if(type == CALENDAR_FOLDER_TYPE)
+    {
+    	MAPINotification_jniCallCalendarUpdatedMethod(charId);
+    }
+    else
+    {
+    	MAPINotification_jniCallUpdatedMethod(charId);
+    }
+
     free(charId);
 
     return S_OK;

@@ -10,8 +10,9 @@ import net.java.sip.communicator.service.contactsource.*;
 import org.jitsi.util.*;
 
 /**
- * Listener for a contact query, used in order to resolve a contact adress
- * into a display name.
+ * Listener for a contact query, used in order to resolve a contact address
+ * into a display name. If contact and its name is found, its image also is
+ * available.
  *
  * @author Vincent Lucas
  */
@@ -27,6 +28,11 @@ public class ResolveAddressToDisplayNameContactQueryListener
      * The display name corresponding to the contact address.
      */
     private String resolvedName;
+
+    /**
+     * The image corresponding to the contact address.
+     */
+    private byte[] resolvedImage;
 
     /**
      * Creates a new ResolvedContactQueryListener.
@@ -57,8 +63,17 @@ public class ResolveAddressToDisplayNameContactQueryListener
         SourceContact contact = event.getContact();
         if(contact != null)
         {
-            this.resolvedName = contact.getDisplayName();
-            if(isFound())
+            if(!isFoundName())
+            {
+                this.resolvedName = contact.getDisplayName();
+            }
+
+            if(!isFoundImage())
+            {
+                this.resolvedImage = contact.getImage();
+            }
+
+            if(isFoundName() && isFoundImage())
             {
                 this.stop();
             }
@@ -110,9 +125,20 @@ public class ResolveAddressToDisplayNameContactQueryListener
      * @return True if the query has found a match to resolve the contact
      * address. False otherwise.
      */
-    public boolean isFound()
+    public boolean isFoundName()
     {
         return !StringUtils.isNullOrEmpty(resolvedName);
+    }
+
+    /**
+     * Tells if the query has found a match to resolve the contact address.
+     *
+     * @return True if the query has found a match to resolve the contact
+     * address. False otherwise.
+     */
+    public boolean isFoundImage()
+    {
+        return resolvedImage != null;
     }
 
     /**
@@ -124,5 +150,16 @@ public class ResolveAddressToDisplayNameContactQueryListener
     public String getResolvedName()
     {
         return this.resolvedName;
+    }
+
+    /**
+     * Returns the image corresponding to the contact address.
+     *
+     * @return The image corresponding to the contact address. Null
+     * if not found or missing.
+     */
+    public byte[] getResolvedImage()
+    {
+        return this.resolvedImage;
     }
 }

@@ -12,22 +12,27 @@
 #include "MsOutlookMAPIHResultException.h"
 #include "MAPINotification.h"
 #include "MAPIBitness.h"
+#include "MsOutlookUtils.h"
 
 JNIEXPORT void JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_MAPIInitialize
     (JNIEnv *jniEnv, jclass clazz, jlong version, jlong flags,
-     jobject notificationsDelegate)
+     jobject notificationsDelegate, jstring logPath, jint logLevel)
 {
     HRESULT hr;
-
+    const char* logFileString = jniEnv->GetStringUTFChars(logPath, NULL);
+	MsOutlookUtils_createLogger("msoutlookaddrbook.log", logFileString, logLevel);
     MAPINotification_registerJniNotificationsDelegate(
       jniEnv,
       notificationsDelegate);
+
+    jniEnv->ReleaseStringUTFChars(logPath, logFileString);
 
     hr = MsOutlookAddrBookContactSourceService_MAPIInitializeCOMServer();
 
     if (HR_FAILED(hr))
     {
+    	MsOutlookUtils_log("Failed to init COM Server");
         // Report any possible error regardless of where it has come from.
         MsOutlookMAPIHResultException_throwNew(
                 jniEnv,
@@ -43,6 +48,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
     MAPINotification_unregisterJniNotificationsDelegate(jniEnv);
 
     MsOutlookAddrBookContactSourceService_MAPIUninitializeCOMServer();
+    MsOutlookUtils_deleteLogger();
 }
 
 /**
@@ -69,4 +75,14 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
     (JNIEnv *jniEnv, jclass clazz)
 {
     return MAPIBitness_getOutlookVersion();
+}
+
+/**
+ * Returns true if Outlook is default mail client and false otherwise.
+ *
+ */
+JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactSourceService_isOutlookDefaultMailClient
+  (JNIEnv *, jclass)
+{
+	return (jboolean) MsOutlookUtils_isOutlookDefaultMailClient();
 }

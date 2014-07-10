@@ -1,4 +1,5 @@
-Bundle-Name: Contact Source Service Interfaces 
+Bundle-Activator: net.java.sip.communicator.service.contactsource.ContactSourceActivator
+Bundle-Name: Contact Source Service Interfaces
 Bundle-Description: ContactSource Service.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1

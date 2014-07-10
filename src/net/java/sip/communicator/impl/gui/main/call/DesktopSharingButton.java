@@ -49,8 +49,6 @@ public class DesktopSharingButton
      *
      * @param call  the <tt>Call</tt> to be associated with the new instance and
      * to be put on/off hold upon performing its action
-     * @param fullScreen <tt>true</tt> if the new instance is to be used in
-     * full-screen UI; otherwise, <tt>false</tt>
      * @param selected <tt>true</tt> if the new toggle button is to be initially
      * selected; otherwise, <tt>false</tt>
      */
@@ -61,9 +59,9 @@ public class DesktopSharingButton
                 ImageLoader.CALL_DESKTOP_BUTTON,
                 "service.gui.SHARE_DESKTOP_WITH_CONTACT");
 
-        OperationSetDesktopSharingServer desktopSharing
-                = call.getProtocolProvider().getOperationSet(
-                OperationSetDesktopSharingServer.class);
+        OperationSetDesktopStreaming desktopSharing
+            = call.getProtocolProvider().getOperationSet(
+                OperationSetDesktopStreaming.class);
 
         if (desktopSharing == null)
         {
@@ -177,8 +175,21 @@ public class DesktopSharingButton
      * disable it.
      */
     @Override
-    public void setEnabled(boolean enable)
+    public void setEnabled(final boolean enable)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    setEnabled(enable);
+                }
+            });
+            return;
+        }
+
         if(desktopSharingAvailable)
             super.setEnabled(enable);
     }

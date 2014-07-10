@@ -57,6 +57,13 @@ public class SourceUIContact
     private final List<String> searchStrings = new LinkedList<String>();
 
     /**
+     * Whether we should filter all call details only to numbers.
+     */
+    private static final String FILTER_CALL_DETAILS_TO_NUMBERS_PROP
+        = "net.java.sip.communicator.impl.gui.main.contactlist.contactsource" +
+            ".FILTER_CALL_DETAILS_TO_NUMBERS";
+
+    /**
      * Creates an instance of <tt>SourceUIContact</tt> by specifying the
      * <tt>SourceContact</tt>, on which this abstraction is based and the
      * parent <tt>UIGroup</tt>.
@@ -267,6 +274,12 @@ public class SourceUIContact
         Iterator<ContactDetail> details
             = sourceContact.getContactDetails().iterator();
 
+        PhoneNumberI18nService phoneNumberService
+            = GuiActivator.getPhoneNumberI18nService();
+        boolean filterToNumbers
+            = GuiActivator.getConfigurationService().getBoolean(
+                FILTER_CALL_DETAILS_TO_NUMBERS_PROP, false);
+
         while (details.hasNext())
         {
             ContactDetail detail = details.next();
@@ -277,6 +290,14 @@ public class SourceUIContact
             if ((supportedOperationSets != null)
                     && supportedOperationSets.contains(opSetClass))
             {
+                if(filterToNumbers
+                    && opSetClass.equals(OperationSetBasicTelephony.class)
+                    && !phoneNumberService.isPhoneNumber(
+                            detail.getDetail()))
+                {
+                    continue;
+                }
+
                 resultList.add(new SourceContactDetail(
                     detail,
                     getInternationalizedLabel(detail.getCategory()),
@@ -359,9 +380,9 @@ public class SourceUIContact
             ContactSourceService contactSource
                 = sourceContact.getContactSource();
 
-            if (contactSource instanceof ExtendedContactSourceService)
+            if (contactSource instanceof PrefixedContactSourceService)
             {
-                String prefix = ((ExtendedContactSourceService) contactSource)
+                String prefix = ((PrefixedContactSourceService) contactSource)
                     .getPhoneNumberPrefix();
 
                 if (prefix != null)
@@ -438,6 +459,11 @@ public class SourceUIContact
 
         if (displayDetails != null)
             tip.addLine(new JLabel[]{new JLabel(getDisplayDetails())});
+
+        // skip details for some types
+        if(sourceContact.getContactSource().getType()
+            == ContactSourceService.RECENT_MESSAGES_TYPE)
+            return tip;
 
         try
         {

@@ -166,6 +166,11 @@ public class OneToOneCallPeerPanel
     private final JLabel photoLabel;
 
     /**
+     * The listener that will listen when retrieving contact details.
+     */
+    private DisplayNameAndImageChangeListener detailsChangeListener = null;
+
+    /**
      * Sound remote level label.
      */
     private Component remoteLevel;
@@ -267,7 +272,9 @@ public class OneToOneCallPeerPanel
         this.call = callPeer.getCall();
         this.uiVideoHandler = uiVideoHandler;
 
-        peerName = CallManager.getPeerDisplayName(callPeer);
+        detailsChangeListener = new DisplayNameAndImageChangeListener();
+        peerName = CallManager.getPeerDisplayName(callPeer,
+            detailsChangeListener);
         securityPanel = SecurityPanel.create(this, callPeer, null);
 
         photoLabel = new JLabel(getPhotoLabelIcon());
@@ -362,7 +369,7 @@ public class OneToOneCallPeerPanel
 
         localLevel
             = new InputVolumeControlButton(
-                    call,
+                    call.getConference(),
                     ImageLoader.MICROPHONE,
                     ImageLoader.MUTE_BUTTON,
                     false,
@@ -524,6 +531,9 @@ public class OneToOneCallPeerPanel
     {
         disposed = true;
 
+        if(detailsChangeListener != null)
+            detailsChangeListener.setInterested(false);
+
         callPeerAdapter.dispose();
         uiVideoHandler.deleteObserver(uiVideoHandlerObserver);
 
@@ -616,13 +626,10 @@ public class OneToOneCallPeerPanel
             @Override
             public void mousePressed(MouseEvent e)
             {
-                CallPeerSecurityStatusEvent securityEvt
-                    = callPeer.getCurrentSecuritySettings();
-
                 // Only show the security details if the security is on.
-                if (securityEvt instanceof CallPeerSecurityOnEvent
-                    && ((CallPeerSecurityOnEvent) securityEvt)
-                        .getSecurityController() instanceof ZrtpControl)
+                SrtpControl ctrl = securityPanel.getSecurityControl();
+                if (ctrl instanceof ZrtpControl
+                    && ctrl.getSecureCommunicationStatus())
                 {
                     setSecurityPanelVisible(!callRenderer.getCallContainer()
                         .getCallWindow().getFrame().getGlassPane().isVisible());
@@ -803,11 +810,14 @@ public class OneToOneCallPeerPanel
             return;
         }
 
-        securityStatusLabel.setText("");
-        securityStatusLabel.setSecurityOff();
-        if (securityStatusLabel.getBorder() == null)
-            securityStatusLabel.setBorder(
-                BorderFactory.createEmptyBorder(2, 5, 2, 3));
+        if (evt.getSessionType() == CallPeerSecurityOffEvent.AUDIO_SESSION)
+        {
+            securityStatusLabel.setText("");
+            securityStatusLabel.setSecurityOff();
+            if (securityStatusLabel.getBorder() == null)
+                securityStatusLabel.setBorder(
+                    BorderFactory.createEmptyBorder(2, 5, 2, 3));
+        }
 
         securityPanel.securityOff(evt);
     }
@@ -1082,8 +1092,8 @@ public class OneToOneCallPeerPanel
         // available contact sources.
         if (image == null || image.length <= 0)
         {
-            GuiActivator.getContactList().setSourceContactImage(
-                peerName, photoLabel, 100, 100);
+            // will do nothing, as querying for display name will also
+            // set and image if it exist
         }
         else
         {
@@ -1525,6 +1535,51 @@ public class OneToOneCallPeerPanel
             {
                 g.dispose();
             }
+        }
+    }
+
+    /**
+     * Listens for display name update and image update, some searches for
+     * display name are slow, so we add a listener to update them when
+     * result comes in.
+     */
+    private class DisplayNameAndImageChangeListener
+        implements CallManager.DetailsResolveListener
+    {
+        /**
+         * By default we are interested in events.
+         */
+        private boolean interested = true;
+
+        @Override
+        public void displayNameUpdated(String displayName)
+        {
+            setPeerName(displayName);
+        }
+
+        @Override
+        public void imageUpdated(byte[] image)
+        {
+            setPeerImage(image);
+        }
+
+        /**
+         * Are we interested.
+         * @return
+         */
+        @Override
+        public boolean isInterested()
+        {
+            return interested;
+        }
+
+        /**
+         * Changes the interested value.
+         * @param value
+         */
+        public void setInterested(boolean value)
+        {
+            this.interested = value;
         }
     }
 }

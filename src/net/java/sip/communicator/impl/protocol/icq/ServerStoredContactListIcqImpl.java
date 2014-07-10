@@ -546,11 +546,20 @@ public class ServerStoredContactListIcqImpl
     {
         if (logger.isTraceEnabled())
             logger.trace("createUnresolvedContact " + screenname);
+
+        ContactIcqImpl existingContact
+            = findContactByScreenName(screenname.getFormatted());
+
+        if( existingContact != null)
+        {
+            return existingContact;
+        }
+
         //First create the new volatile contact;
         Buddy volatileBuddy = new VolatileBuddy(screenname);
 
         ContactIcqImpl newUnresolvedContact
-            = new ContactIcqImpl(volatileBuddy, this, false, false);
+            = new ContactIcqImpl(volatileBuddy, this, true, false);
 
         parentGroup.addContact(newUnresolvedContact);
 
@@ -572,6 +581,13 @@ public class ServerStoredContactListIcqImpl
      */
     ContactGroupIcqImpl createUnresolvedContactGroup(String groupName)
     {
+        ContactGroupIcqImpl existingGroup = findContactGroup(groupName);
+
+        if( existingGroup != null)
+        {
+            return existingGroup;
+        }
+
         //First create the new volatile contact;
         List<Buddy> emptyBuddies = new LinkedList<Buddy>();
         ContactGroupIcqImpl newUnresolvedGroup = new ContactGroupIcqImpl(

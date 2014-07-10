@@ -15,6 +15,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.event.*;
+import org.jitsi.service.neomedia.recording.*;
 
 /**
  * A utility class implementing media control code shared between current

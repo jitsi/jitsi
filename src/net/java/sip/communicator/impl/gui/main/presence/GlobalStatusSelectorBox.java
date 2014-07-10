@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.presence;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
 
 import javax.swing.*;
 
@@ -21,6 +22,7 @@ import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.account.*;
+import org.jitsi.util.*;
 
 /**
  * The <tt>GlobalStatusSelectorBox</tt> is a global status selector box, which
@@ -81,6 +83,8 @@ public class GlobalStatusSelectorBox
      * Take care for global status items, that only one is selected.
      */
     private ButtonGroup group = new ButtonGroup();
+    
+    private final GlobalStatusMessageMenu globalStatusMessageMenu;
 
     /**
      * Creates an instance of <tt>SimpleStatusSelectorBox</tt>.
@@ -109,8 +113,19 @@ public class GlobalStatusSelectorBox
 
         this.addSeparator();
 
-        GlobalStatusMessageMenu globalStatusMessageMenu =
-            new GlobalStatusMessageMenu(true);
+        globalStatusMessageMenu = new GlobalStatusMessageMenu(true);
+        globalStatusMessageMenu.addPropertyChangeListener(new PropertyChangeListener()
+        {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt)
+            {
+                if(evt.getPropertyName().equals(
+                    GlobalStatusMessageMenu.STATUS_MESSAGE_UPDATED_PROP))
+                {
+                    changeTooltip((String)evt.getNewValue());
+                }
+            }
+        });
         this.add((JMenu)globalStatusMessageMenu.getMenu());
 
         if(!ConfigurationUtils.isHideAccountStatusSelectorsEnabled())
@@ -124,11 +139,28 @@ public class GlobalStatusSelectorBox
         this.setIconTextGap(2);
         this.setOpaque(false);
         this.setText("Offline");
-        this.setToolTipText("<html><b>" + GuiActivator.getResources()
-                        .getI18NString("service.gui.SET_GLOBAL_STATUS")
-                        + "</b></html>");
+        changeTooltip(null);
 
         fitSizeToText();
+    }
+
+    /**
+     * Changes the tooltip to default or the current set status message.
+     * @param message
+     */
+    private void changeTooltip(String message)
+    {
+        if(StringUtils.isNullOrEmpty(message))
+        {
+            globalStatusMessageMenu.clearSelectedItems();
+            this.setToolTipText("<html><b>" + GuiActivator.getResources()
+                .getI18NString("service.gui.SET_GLOBAL_STATUS")
+                + "</b></html>");
+        }
+        else
+        {
+            this.setToolTipText("<html><b>" + message + "</b></html>");
+        }
     }
 
     /**
@@ -320,8 +352,11 @@ public class GlobalStatusSelectorBox
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
 
-        GuiActivator.getGlobalStatusService().publishStatus(
-            GlobalStatusEnum.getStatusByName(itemName));
+        if(GuiActivator.getGlobalStatusService() != null)
+        {
+            GuiActivator.getGlobalStatusService().publishStatus(
+                GlobalStatusEnum.getStatusByName(itemName));
+        }
     }
 
     /**
@@ -337,17 +372,18 @@ public class GlobalStatusSelectorBox
         if (accountMenu == null)
             return;
 
-            PresenceStatus presenceStatus;
+        PresenceStatus presenceStatus;
 
-            if (!protocolProvider.isRegistered())
-                presenceStatus = accountMenu.getOfflineStatus();
-            else
-            {
-                presenceStatus
-                    = AccountStatusUtils.getLastPresenceStatus(protocolProvider);
-                if (presenceStatus == null)
-                    presenceStatus = accountMenu.getOnlineStatus();
-            }
+        if (!protocolProvider.isRegistered())
+            presenceStatus = accountMenu.getOfflineStatus();
+        else
+        {
+            presenceStatus
+                = AccountStatusUtils.getPresenceStatus(protocolProvider);
+
+            if (presenceStatus == null)
+                presenceStatus = accountMenu.getOnlineStatus();
+        }
 
         accountMenu.updateStatus(presenceStatus);
 
@@ -382,6 +418,9 @@ public class GlobalStatusSelectorBox
      */
     private void updateGlobalStatus()
     {
+        if(GuiActivator.getGlobalStatusService() == null)
+            return;
+
         PresenceStatus globalStatus
             = GuiActivator.getGlobalStatusService().getGlobalPresenceStatus();
 
@@ -393,6 +432,11 @@ public class GlobalStatusSelectorBox
 
         this.revalidate();
         setSystrayIcon(globalStatus);
+        
+        if(!globalStatus.isOnline())
+        {
+            changeTooltip(null);
+        }
     }
 
     /**

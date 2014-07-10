@@ -234,7 +234,8 @@ public class ThunderbirdContactQuery
             return;
         }
 
-        phone = PhoneNumberI18nService.normalize(phone);
+        phone
+            = ThunderbirdActivator.getPhoneNumberI18nService().normalize(phone);
         ContactDetail detail =
             new ContactDetail(phone, ContactDetail.Category.Phone,
                 new ContactDetail.SubCategory[]

@@ -107,12 +107,12 @@ public class StatusSimpleSelector
         if(itemName.equals("online"))
         {
             OsDependentActivator.getGlobalStatusService()
-                .publishStatus(provider, GlobalStatusEnum.ONLINE, true);
+                .publishStatus(provider, GlobalStatusEnum.ONLINE);
         }
         else
         {
             OsDependentActivator.getGlobalStatusService()
-                .publishStatus(provider, GlobalStatusEnum.OFFLINE, true);
+                .publishStatus(provider, GlobalStatusEnum.OFFLINE);
         }
     }
 

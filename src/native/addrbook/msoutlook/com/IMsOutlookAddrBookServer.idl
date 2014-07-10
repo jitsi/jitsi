@@ -10,13 +10,18 @@ import "Unknwn.idl", "oaidl.idl";
 interface IMsOutlookAddrBookServer : IUnknown
 {
     HRESULT foreachMailUser(
-            [in] BSTR query);
+            [in] BSTR query,
+            [in] long callback);
+	
+	HRESULT getAllCalendarItems(
+		[in] long callback);
 
     HRESULT IMAPIProp_GetProps(
             [in] BSTR entryId,
             [in] int nbPropIds,
             [in] SAFEARRAY(long) propIds,
             [in] long flags,
+            [in] GUID UUID_Address,
             [out] SAFEARRAY(byte) * props,
             [out] SAFEARRAY(unsigned long) * propsLength,
             [out] SAFEARRAY(byte) * propsType);

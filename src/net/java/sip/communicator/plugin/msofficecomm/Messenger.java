@@ -63,6 +63,8 @@ public class Messenger
      * client user is on the phone.
      */
     static final int MISTATUS_ON_THE_PHONE = 0x0032;
+    
+    static final int MISTATUS_IN_A_MEETING = 0x0052;
 
     static final int MISTATUS_ONLINE = 0x0002;
 
@@ -167,6 +169,7 @@ public class Messenger
             logger.error(
                     "Failed to load native library " + lib + ": "
                         + t.getMessage());
+            RegistryHandler.checkRegistryKeys();
             throw new RuntimeException(t);
         }
     }
@@ -399,7 +402,7 @@ public class Messenger
      * @param messengerContact a <tt>MessengerContact</tt> instance which
      * specifies the contact for which the phone number information is to be
      * retrieved
-     * @param a member of the <tt>MPHONE_TYPE</tt> enumerated type which
+     * @param type member of the <tt>MPHONE_TYPE</tt> enumerated type which
      * specifies the type of the phone number information to be retrieved
      * @return the phone number information of the contact associated with the
      * specified <tt>messengerContact</tt>
@@ -507,6 +510,9 @@ public class Messenger
     {
         String signinName = messengerContact.signinName;
         ProtocolPresenceStatus presenceStatus;
+
+        if(logger.isTraceEnabled())
+            logger.trace("Got getStatus for " + signinName);
 
         if (signinName == null)
             presenceStatus = null;
@@ -658,6 +664,9 @@ public class Messenger
                                 serviceReference));
             }
         }
+
+        if (logger.isInfoEnabled())
+            logger.info("Messenger [REGISTERED] as service listener.");
     }
 
     /**
@@ -710,6 +719,11 @@ public class Messenger
             String[] participants,
             String conversationData)
     {
+        if(logger.isTraceEnabled())
+            logger.trace("Got startConversation participants:"
+                + participants == null? "" : Arrays.asList(participants)
+                + ", conversationData=" + conversationData);
+
         /*
          * Firstly, resolve the participants into Contacts which may include
          * looking up their vCards.
@@ -1110,6 +1124,18 @@ public class Messenger
                         && YahooStatusEnum.ON_THE_PHONE.equals(presenceStatus))
                 {
                     mistatus = MISTATUS_ON_THE_PHONE;
+                }
+                else if ((i == 32 /* FIXME */)
+                    && ProtocolNames.JABBER.equalsIgnoreCase(protocolName)
+                    && JabberStatusEnum.IN_A_MEETING.equalsIgnoreCase(
+                            presenceStatus.getStatusName()))
+                {
+                    mistatus = MISTATUS_IN_A_MEETING;
+                }
+                else if (ProtocolNames.MSN.equalsIgnoreCase(protocolName)
+                    && MsnStatusEnum.IN_A_MEETING.equals(presenceStatus))
+                {
+                    mistatus = MISTATUS_IN_A_MEETING;
                 }
                 else if (i < PresenceStatus.ONLINE_THRESHOLD)
                     mistatus = MISTATUS_OFFLINE;

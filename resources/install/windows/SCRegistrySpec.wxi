@@ -80,7 +80,56 @@
           Type="string"
           Value="@APP_LAUNCHER_NAME@.exe" />
     </RegistryKey>
+  	<RegistryKey
+        Key="SOFTWARE\IM Providers\@APP_NAME@"
+        Root="HKLM" Action="createAndRemoveOnUninstall">
+      <RegistryValue
+          Name="FriendlyName"
+          Type="string"
+          Value="@APP_NAME@" />
+      <RegistryValue
+          Name="GUID"
+          Type="string"
+          Value="{8885370D-B33E-44B7-875D-28E403CF9270}" />
+      <RegistryValue
+          Name="ProcessName"
+          Type="string"
+          Value="@APP_LAUNCHER_NAME@.exe" />
+    </RegistryKey>
   </Component>
+  
+	<Component
+      Id="Component_SetDefaultIMProvider"
+      Directory="TARGETDIR"
+      Guid="abb6afe7-8787-4325-841e-a9181a09fcc9">
+    <Condition><![CDATA[SET_DEFAULT_IM_APP = 1]]></Condition>
+    <RegistryKey
+        Key="Software\IM Providers"
+        Root="HKCU">
+      <RegistryValue
+          KeyPath="yes"
+          Name="DefaultIMApp"
+          Type="string"
+          Value="@APP_NAME@" />
+    </RegistryKey>
+  </Component>
+  
+  <Component
+      Id="Component_UnsetDefaultIMProvider"
+      Directory="TARGETDIR"
+      Guid="47b4b7a0-d668-4bb0-9da1-7103e4c668d0">
+    <Condition><![CDATA[(IS_DEFAULT_IM_APP = "@APP_NAME@") AND ((SET_DEFAULT_IM_APP = 0) OR NOT (SET_DEFAULT_IM_APP))]]></Condition>
+    <RegistryKey
+        Key="Software\IM Providers"
+        Root="HKCU">
+      <RegistryValue
+          KeyPath="yes"
+          Name="DefaultIMApp"
+          Type="string"
+          Value="Communicator" />
+    </RegistryKey>
+  </Component>
+  
 <?if $(var.Platform) = x64 ?>
   <Component
       Id="Component_MsOfficeCommRegistryEntries_X64"
@@ -94,6 +143,22 @@
       <RegistryValue
           KeyPath="yes"
           Name="IMApplication"
+          Type="string"
+          Value="@APP_LAUNCHER_NAME@.exe" />
+    </RegistryKey>
+    <RegistryKey
+        Key="SOFTWARE\IM Providers\@APP_NAME@"
+        Root="HKLM" Action="createAndRemoveOnUninstall">
+        <RegistryValue
+          Name="FriendlyName"
+          Type="string"
+          Value="@APP_NAME@" />
+      <RegistryValue
+          Name="GUID"
+          Type="string"
+          Value="{8885370D-B33E-44B7-875D-28E403CF9270}" />
+      <RegistryValue
+          Name="ProcessName"
           Type="string"
           Value="@APP_LAUNCHER_NAME@.exe" />
     </RegistryKey>

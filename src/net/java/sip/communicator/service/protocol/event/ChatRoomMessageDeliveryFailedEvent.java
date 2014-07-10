@@ -60,6 +60,12 @@ public class ChatRoomMessageDeliveryFailedEvent
      public static final int OFFLINE_MESSAGES_NOT_SUPPORTED = 5;
 
      /**
+      * Set when delivery fails because we're trying to send a message to a
+      * a room where we are not allowed to send messages.
+      */
+     public static final int FORBIDDEN = 6;
+
+     /**
       * An error code indicating the reason for the failure of this delivery.
       */
      private int errorCode = UNKNOWN_ERROR;

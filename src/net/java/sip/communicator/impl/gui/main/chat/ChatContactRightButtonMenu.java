@@ -236,7 +236,9 @@ public class ChatContactRightButtonMenu
         }
         else
         {
-            this.add(this.sendPrivateMessageItem);
+            if(!ConfigurationUtils.isPrivateMessagingInChatRoomDisabled())
+                this.add(this.sendPrivateMessageItem);
+
             if(room.getUserRole().getRoleIndex() >= 50)
             {
                 if(roleIndex <= 40)
@@ -316,7 +318,7 @@ public class ChatContactRightButtonMenu
             ChatOperationReasonDialog reasonDialog
                 = new ChatOperationReasonDialog();
 
-            int result = new ChatOperationReasonDialog().showDialog();
+            int result = reasonDialog.showDialog();
 
             if (result == MessageDialog.OK_RETURN_CODE)
                 new BanParticipantThread(   room,

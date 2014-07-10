@@ -90,6 +90,6 @@ public class SourcePacketExtension
         if (ssrc == -1)
             removeAttribute(SSRC_ATTR_NAME);
         else
-            setAttribute(SSRC_ATTR_NAME, Long.toString(ssrc));
+            setAttribute(SSRC_ATTR_NAME, Long.toString(0xffffffffL & ssrc));
     }
 }

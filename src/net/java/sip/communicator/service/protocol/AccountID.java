@@ -9,6 +9,10 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
+
+import org.jitsi.service.neomedia.*;
+import org.osgi.framework.*;
 
 /**
  * The AccountID is an account identifier that, uniquely represents a specific
@@ -204,6 +208,17 @@ public abstract class AccountID
             returnValue += " (" + protocolName + ")";
 
         return returnValue;
+    }
+
+    /**
+     * Sets {@link ProtocolProviderFactory#DISPLAY_NAME} property value.
+     *
+     * @param displayName the display name value to set.
+     */
+    public void setDisplayName(String displayName)
+    {
+        setOrRemoveIfEmpty(ProtocolProviderFactory.DISPLAY_NAME,
+            displayName);
     }
 
     /**
@@ -780,17 +795,162 @@ public abstract class AccountID
      * @param encryptionProtocolName The name of the encryption protocol
      * ("ZRTP", "SDES" or "MIKEY").
      */
-    public boolean isEncryptionProtocolEnabled(String encryptionProtocolName)
+    public boolean isEncryptionProtocolEnabled(SrtpControlType type)
     {
         // The default value is false, except for ZRTP.
-        boolean defaultValue = "ZRTP".equals(encryptionProtocolName);
+        boolean defaultValue = type == SrtpControlType.ZRTP;
 
         return
             getAccountPropertyBoolean(
                     ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS
                         + "."
-                        + encryptionProtocolName,
+                        + type.toString(),
                     defaultValue);
+    }
+
+    /**
+     * Returns the list of STUN servers that this account is currently
+     * configured to use.
+     *
+     * @return the list of STUN servers that this account is currently
+     * configured to use.
+     */
+    public List<StunServerDescriptor> getStunServers(
+                                                    BundleContext bundleContext)
+    {
+        Map<String, String> accountProperties = getAccountProperties();
+        List<StunServerDescriptor> stunServerList
+            = new ArrayList<StunServerDescriptor>();
+
+        for (int i = 0; i < StunServerDescriptor.MAX_STUN_SERVER_COUNT; i ++)
+        {
+            StunServerDescriptor stunServer
+                = StunServerDescriptor.loadDescriptor(
+                        accountProperties,
+                        ProtocolProviderFactory.STUN_PREFIX + i);
+
+            // If we don't find a stun server with the given index, it means
+            // there are no more servers left in the table so we've nothing
+            // more to do here.
+            if (stunServer == null)
+                break;
+
+            String password
+                = loadStunPassword(
+                        bundleContext,
+                        this,
+                        ProtocolProviderFactory.STUN_PREFIX + i);
+
+            if(password != null)
+                stunServer.setPassword(password);
+
+            stunServerList.add(stunServer);
+        }
+
+        return stunServerList;
+    }
+
+    /**
+     * Returns the password for the STUN server with the specified prefix.
+     *
+     * @param bundleContext the OSGi bundle context that we are currently
+     * running in.
+     * @param accountID account ID
+     * @param namePrefix name prefix
+     *
+     * @return password or null if empty
+     */
+    protected static String loadStunPassword(BundleContext bundleContext,
+                                             AccountID     accountID,
+                                             String        namePrefix)
+    {
+        ProtocolProviderFactory providerFactory
+                = ProtocolProviderFactory.getProtocolProviderFactory(
+                        bundleContext,
+                        accountID.getSystemProtocolName());
+
+        String password = null;
+        String className = providerFactory.getClass().getName();
+        String packageSourceName
+                = className.substring(0, className.lastIndexOf('.'));
+
+        String accountPrefix = ProtocolProviderFactory.findAccountPrefix(
+                bundleContext,
+                accountID, packageSourceName);
+
+        CredentialsStorageService credentialsService
+                = ServiceUtils.getService(
+                bundleContext,
+                CredentialsStorageService.class);
+
+        try
+        {
+            password = credentialsService.
+                    loadPassword(accountPrefix + "." + namePrefix);
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+
+        return password;
+    }
+
+    /**
+     * Determines whether this account's provider is supposed to auto discover
+     * STUN and TURN servers.
+     *
+     * @return <tt>true</tt> if this provider would need to discover STUN/TURN
+     * servers and false otherwise.
+     */
+    public boolean isStunServerDiscoveryEnabled()
+    {
+        return getAccountPropertyBoolean(
+                    ProtocolProviderFactory.AUTO_DISCOVER_STUN,
+                    true);
+    }
+
+    /**
+     * Determines whether this account's provider uses UPnP (if available).
+     *
+     * @return <tt>true</tt> if this provider would use UPnP (if available),
+     * <tt>false</tt> otherwise
+     */
+    public boolean isUPNPEnabled()
+    {
+        return getAccountPropertyBoolean(
+                                        ProtocolProviderFactory.IS_USE_UPNP,
+                                        true);
+    }
+
+    /**
+     * Determines whether this account's provider uses the default STUN server
+     * provided by Jitsi (stun.jitsi.net) if there is no other STUN/TURN server
+     * discovered/configured.
+     *
+     * @return <tt>true</tt> if this provider would use the default STUN server,
+     * <tt>false</tt> otherwise
+     */
+    public boolean isUseDefaultStunServer()
+    {
+        return
+            getAccountPropertyBoolean(
+                    ProtocolProviderFactory.USE_DEFAULT_STUN_SERVER,
+                    true);
+    }
+
+    /**
+     * Returns the actual name of the protocol used rather than a branded
+     * variant. The method is primarily meant for open protocols such as SIP
+     * or XMPP so that it would always return SIP or XMPP even in branded
+     * protocols who otherwise return things like GTalk and ippi for
+     * PROTOCOL_NAME.
+     *
+     * @return the real non-branded name of the protocol.
+     */
+    public String getSystemProtocolName()
+    {
+        return getProtocolName();
     }
 
     /**
@@ -800,7 +960,7 @@ public abstract class AccountID
      * @return Sorts the enabled encryption protocol list given in parameter to
      * match the preferences set for this account.
      */
-    public List<String> getSortedEnabledEncryptionProtocolList()
+    public List<SrtpControlType> getSortedEnabledEncryptionProtocolList()
     {
         Map<String, Integer> encryptionProtocols
             = getIntegerPropertiesByPrefix(
@@ -825,8 +985,8 @@ public abstract class AccountID
                     true);
         }
 
-        List<String> sortedEncryptionProtocols
-            = new ArrayList<String>(encryptionProtocols.size());
+        List<SrtpControlType> sortedEncryptionProtocols
+            = new ArrayList<SrtpControlType>(encryptionProtocols.size());
 
         // First: add all protocol in the right order.
         for (Map.Entry<String, Integer> e : encryptionProtocols.entrySet())
@@ -839,20 +999,31 @@ public abstract class AccountID
                 if (index > sortedEncryptionProtocols.size())
                     index = sortedEncryptionProtocols.size();
 
-                String name = e.getKey();
+                String name =
+                    e.getKey()
+                        .substring(
+                            ProtocolProviderFactory.ENCRYPTION_PROTOCOL
+                                .length() + 1);
 
-                sortedEncryptionProtocols.add(index, name);
+                try
+                {
+                    sortedEncryptionProtocols.add(index,
+                        SrtpControlType.fromString(name));
+                }
+                catch(IllegalArgumentException exc)
+                {
+                    logger.error(
+                        "Failed to get SRTP control type for name: '"
+                            + name + "', key: '" + e.getKey() + "'", exc);
+                }
             }
         }
 
         // Second: remove all disabled protocols.
-        int namePrefixLength
-            = ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length() + 1;
-
-        for (Iterator<String> i = sortedEncryptionProtocols.iterator();
+        for (Iterator<SrtpControlType> i = sortedEncryptionProtocols.iterator();
                 i.hasNext();)
         {
-            String name = i.next().substring(namePrefixLength);
+            String name = i.next().toString();
 
             if (!encryptionProtocolStatus.get(
                     ProtocolProviderFactory.ENCRYPTION_PROTOCOL_STATUS

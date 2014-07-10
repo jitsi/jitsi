@@ -29,9 +29,9 @@ public abstract class SecurityAccountRegistration
     public static final List<String> ENCRYPTION_PROTOCOLS
         = Collections.unmodifiableList(
                 Arrays.asList(
-                        ZrtpControl.PROTO_NAME,
-                        SDesControl.PROTO_NAME,
-                        DtlsControl.PROTO_NAME));
+                        SrtpControlType.ZRTP.toString(),
+                        SrtpControlType.SDES.toString(),
+                        SrtpControlType.DTLS_SRTP.toString()));
 
     /**
      * Enables support to encrypt calls.

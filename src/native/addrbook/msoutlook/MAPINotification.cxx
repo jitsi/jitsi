@@ -11,6 +11,8 @@
 #include "net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery.h"
 #include "MsOutlookAddrBookContactSourceService.h"
 #include "MsOutlookAddrBookContactQuery.h"
+#include "MsOutlookUtils.h"
+#include "MsOutlookCalendar.h"
 
 #include <mapidefs.h>
 #include <stdio.h>
@@ -36,6 +38,8 @@ static ULONG MAPINotification_EVENT_MASK
 static LPMDB * MAPINotification_msgStores = NULL;
 static LPMAPIADVISESINK * MAPINotification_adviseSinks = NULL;
 static ULONG * MAPINotification_msgStoresConnection = NULL;
+static LPMAPIADVISESINK * MAPINotification_calendarAdviseSinks = NULL;
+static ULONG * MAPINotification_calendarMsgStoresConnection = NULL;
 static LPMAPITABLE MAPINotification_msgStoresTable = NULL;
 static LPMAPIADVISESINK MAPINotification_msgStoresTableAdviseSink = NULL;
 static ULONG MAPINotification_msgStoresTableConnection = 0;
@@ -43,16 +47,32 @@ static ULONG MAPINotification_nbMsgStores = 0;
 static jmethodID MAPINotification_notificationsDelegateMethodIdDeleted = NULL;
 static jmethodID MAPINotification_notificationsDelegateMethodIdInserted = NULL;
 static jmethodID MAPINotification_notificationsDelegateMethodIdUpdated = NULL;
+static jmethodID MAPINotification_notificationsDelegateCalendarMethodIdDeleted
+	= NULL;
+static jmethodID MAPINotification_notificationsDelegateCalendarMethodIdInserted
+	= NULL;
+static jmethodID MAPINotification_notificationsDelegateCalendarMethodIdUpdated
+	= NULL;
 static jobject MAPINotification_notificationsDelegateObject = NULL;
+static jobject MAPINotification_notificationsDelegateCalendarObject = NULL;
 static ULONG MAPINotification_openEntryUlFlags = MAPI_BEST_ACCESS;
 static JavaVM * MAPINotification_VM = NULL;
 
 void (*MAPINotification_callDeletedMethod)(LPSTR iUnknown) = NULL;
 void (*MAPINotification_callInsertedMethod)(LPSTR iUnknown) = NULL;
 void (*MAPINotification_callUpdatedMethod)(LPSTR iUnknown) = NULL;
+void (*MAPINotification_callCalendarDeletedMethod)(LPSTR iUnknown) = NULL;
+void (*MAPINotification_callCalendarInsertedMethod)(LPSTR iUnknown) = NULL;
+void (*MAPINotification_callCalendarUpdatedMethod)(LPSTR iUnknown) = NULL;
 
-ULONG MAPINotification_registerNotifyMessageDataBase
-    (LPMDB iUnknown, LPMAPIADVISESINK * adviseSink);
+
+typedef LONG (__attribute__((__stdcall__)) MAPINotification_callback)(LPVOID, DWORD, LPNOTIFICATION);
+
+ULONG MAPINotification_registerNotifyMessageDataBase(
+        LPMDB iUnknown,
+        LPMAPIADVISESINK * adviseSink,
+        ULONG type,
+        MAPINotification_callback callback);
 ULONG MAPINotification_registerNotifyTable
     (LPMAPITABLE iUnknown, LPMAPIADVISESINK * adviseSink);
 LONG STDAPICALLTYPE MAPINotification_tableChanged
@@ -68,10 +88,11 @@ LONG STDAPICALLTYPE MAPINotification_tableChanged
  * @return True everything works fine and that we must continue to list the
  * other contacts. False otherwise.
  */
-boolean MAPINotification_callCallbackMethod(LPSTR iUnknown, void * object)
+boolean MAPINotification_callCallbackMethod(LPSTR iUnknown, long objectAddr)
 {
-    if(object == NULL)
+    if(objectAddr <= 0)
     {
+    	MsOutlookUtils_log("Callback object is null. We are calling insert method");
         MAPINotification_jniCallInsertedMethod(iUnknown);
         return true;
     }
@@ -82,9 +103,10 @@ boolean MAPINotification_callCallbackMethod(LPSTR iUnknown, void * object)
     if(MAPINotification_VM
             ->AttachCurrentThreadAsDaemon((void**) &tmpJniEnv, NULL) == 0)
     {
-        if(object != NULL)
+        if(objectAddr > 0)
         {
-            jclass callbackClass = tmpJniEnv->GetObjectClass((jobject) object);
+            jobject object = (jobject)(intptr_t)objectAddr;
+            jclass callbackClass = tmpJniEnv->GetObjectClass(object);
             if(callbackClass)
             {
                 jmethodID ptrOutlookContactCallbackMethodIdCallback
@@ -99,15 +121,31 @@ boolean MAPINotification_callCallbackMethod(LPSTR iUnknown, void * object)
 
                     // Report the MAPI_MAILUSER to the callback.
                     proceed = tmpJniEnv->CallBooleanMethod(
-                            (jobject) object,
+                            object,
                             ptrOutlookContactCallbackMethodIdCallback,
                             value);
+                }
+                else
+                {
+                	MsOutlookUtils_log("Error in MAPI Notification.[4]");
                 }
 
                 tmpJniEnv->DeleteLocalRef(callbackClass);
             }
+            else
+            {
+            	MsOutlookUtils_log("Error in MAPI Notification.[3]");
+            }
+        }
+        else
+        {
+        	MsOutlookUtils_log("Error in MAPI Notification.[2]");
         }
         MAPINotification_VM->DetachCurrentThread();
+    }
+    else
+    {
+    	MsOutlookUtils_log("Error in MAPI Notification.");
     }
 
     return proceed;
@@ -128,10 +166,11 @@ void MAPINotification_jniCallDeletedMethod(LPSTR iUnknown)
     {
         jstring value = tmpJniEnv->NewStringUTF(iUnknown);
 
-        tmpJniEnv->CallVoidMethod(
-                MAPINotification_notificationsDelegateObject,
-                MAPINotification_notificationsDelegateMethodIdDeleted,
-                value);
+        if(MAPINotification_notificationsDelegateObject != NULL)
+			tmpJniEnv->CallVoidMethod(
+					MAPINotification_notificationsDelegateObject,
+					MAPINotification_notificationsDelegateMethodIdDeleted,
+					value);
 
         tmpJniEnv->DeleteLocalRef(value);
 
@@ -153,10 +192,17 @@ void MAPINotification_jniCallInsertedMethod(LPSTR iUnknown)
     {
         jstring value = tmpJniEnv->NewStringUTF(iUnknown);
 
-        tmpJniEnv->CallVoidMethod(
-                MAPINotification_notificationsDelegateObject,
-                MAPINotification_notificationsDelegateMethodIdInserted,
-                value);
+        if(MAPINotification_notificationsDelegateObject != NULL)
+        {
+			tmpJniEnv->CallVoidMethod(
+					MAPINotification_notificationsDelegateObject,
+					MAPINotification_notificationsDelegateMethodIdInserted,
+					value);
+        }
+        else
+        {
+        	MsOutlookUtils_log("MAPI notification delegate is null.");
+        }
 
         tmpJniEnv->DeleteLocalRef(value);
 
@@ -172,16 +218,96 @@ void MAPINotification_jniCallInsertedMethod(LPSTR iUnknown)
 void MAPINotification_jniCallUpdatedMethod(LPSTR iUnknown)
 {
     JNIEnv *tmpJniEnv = NULL;
+    if(MAPINotification_VM
+            ->AttachCurrentThreadAsDaemon((void**) &tmpJniEnv, NULL) == 0)
+    {
+        jstring value = tmpJniEnv->NewStringUTF(iUnknown);
+
+        if(MAPINotification_notificationsDelegateObject != NULL)
+			tmpJniEnv->CallVoidMethod(
+					MAPINotification_notificationsDelegateObject,
+					MAPINotification_notificationsDelegateMethodIdUpdated,
+					value);
+
+        tmpJniEnv->DeleteLocalRef(value);
+
+        MAPINotification_VM->DetachCurrentThread();
+    }
+}
+
+/**
+ * Calls back the java side when a calendar item is deleted.
+ *
+ * @param iUnknown The string representation of the entry id of the deleted
+ * contact.
+ */
+void MAPINotification_jniCallCalendarDeletedMethod(LPSTR iUnknown)
+{
+    JNIEnv *tmpJniEnv = NULL;
 
     if(MAPINotification_VM
             ->AttachCurrentThreadAsDaemon((void**) &tmpJniEnv, NULL) == 0)
     {
         jstring value = tmpJniEnv->NewStringUTF(iUnknown);
 
-        tmpJniEnv->CallVoidMethod(
-                MAPINotification_notificationsDelegateObject,
-                MAPINotification_notificationsDelegateMethodIdUpdated,
-                value);
+        if(MAPINotification_notificationsDelegateCalendarObject != NULL)
+        {
+        	tmpJniEnv->CallVoidMethod(
+				MAPINotification_notificationsDelegateCalendarObject,
+				MAPINotification_notificationsDelegateCalendarMethodIdDeleted,
+				value);
+        }
+
+        tmpJniEnv->DeleteLocalRef(value);
+
+        MAPINotification_VM->DetachCurrentThread();
+    }
+}
+
+/**
+ * Calls back the java side when a calendar itm is inserted.
+ *
+ * @param iUnknown A pointer to the newly created calendar item.
+ */
+void MAPINotification_jniCallCalendarInsertedMethod(LPSTR iUnknown)
+{
+    JNIEnv *tmpJniEnv = NULL;
+    if(MAPINotification_VM
+            ->AttachCurrentThreadAsDaemon((void**) &tmpJniEnv, NULL) == 0)
+    {
+        jstring value = tmpJniEnv->NewStringUTF(iUnknown);
+
+        if(MAPINotification_notificationsDelegateCalendarObject != NULL)
+			tmpJniEnv->CallVoidMethod(
+							MAPINotification_notificationsDelegateCalendarObject,
+							MAPINotification_notificationsDelegateCalendarMethodIdInserted,
+							value);
+
+        tmpJniEnv->DeleteLocalRef(value);
+
+        MAPINotification_VM->DetachCurrentThread();
+    }
+}
+
+/**
+ * Calls back the java side when a calendar item is updated.
+ *
+ * @param iUnknown A pointer to the updated calendar item.
+ */
+void MAPINotification_jniCallCalendarUpdatedMethod(LPSTR iUnknown)
+{
+    JNIEnv *tmpJniEnv = NULL;
+    if(MAPINotification_VM
+            ->AttachCurrentThreadAsDaemon((void**) &tmpJniEnv, NULL) == 0)
+    {
+        jstring value = tmpJniEnv->NewStringUTF(iUnknown);
+
+        if(MAPINotification_notificationsDelegateCalendarObject != NULL)
+			tmpJniEnv->CallVoidMethod(
+					MAPINotification_notificationsDelegateCalendarObject,
+					MAPINotification_notificationsDelegateCalendarMethodIdUpdated,
+					value);
+
 
         tmpJniEnv->DeleteLocalRef(value);
 
@@ -197,8 +323,39 @@ void MAPINotification_jniCallUpdatedMethod(LPSTR iUnknown)
  * @param lpNotifications The list of notifications.
  */
 LONG
-STDAPICALLTYPE MAPINotification_onNotify
+STDAPICALLTYPE MAPINotification_calendarOnNotify
     (LPVOID lpvContext, ULONG cNotifications, LPNOTIFICATION lpNotifications)
+{
+	return MAPINotification_onNotify(lpvContext, cNotifications, lpNotifications,
+			CALENDAR_FOLDER_TYPE);
+}
+
+/**
+ * Functions called when an event is fired from the message data base.
+ *
+ * @param lpvContext A pointer to the message data base.
+ * @param cNotifications The number of event in this call.
+ * @param lpNotifications The list of notifications.
+ */
+LONG
+STDAPICALLTYPE MAPINotification_contactsOnNotify
+    (LPVOID lpvContext, ULONG cNotifications, LPNOTIFICATION lpNotifications)
+{
+	return MAPINotification_onNotify(lpvContext, cNotifications, lpNotifications,
+			CONTACTS_FOLDER_TYPE);
+}
+
+/**
+ * Functions called when an event is fired from the message data base.
+ *
+ * @param lpvContext A pointer to the message data base.
+ * @param cNotifications The number of event in this call.
+ * @param lpNotifications The list of notifications.
+ */
+LONG
+STDAPICALLTYPE MAPINotification_onNotify
+    (LPVOID lpvContext, ULONG cNotifications, LPNOTIFICATION lpNotifications,
+    ULONG type)
 {
     for(unsigned int i = 0; i < cNotifications; ++i)
     {
@@ -217,10 +374,17 @@ STDAPICALLTYPE MAPINotification_onNotify
                         entryIdStr);
 
                 if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
-                        && MAPINotification_callInsertedMethod != NULL)
+                        && MAPINotification_callInsertedMethod != NULL
+                        && type == CONTACTS_FOLDER_TYPE)
                 {
                     MAPINotification_callInsertedMethod(entryIdStr);
                 }
+                if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
+						&& MAPINotification_callCalendarInsertedMethod != NULL
+						&& type == CALENDAR_FOLDER_TYPE)
+				{
+					MAPINotification_callCalendarInsertedMethod(entryIdStr);
+				}
 
                 ::free(entryIdStr);
                 entryIdStr = NULL;
@@ -240,11 +404,18 @@ STDAPICALLTYPE MAPINotification_onNotify
                         entryIdStr);
 
                 if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
-                        && MAPINotification_callUpdatedMethod != NULL)
+                        && MAPINotification_callUpdatedMethod != NULL
+                        && type == CONTACTS_FOLDER_TYPE)
                 {
                     MAPINotification_callUpdatedMethod(entryIdStr);
                 }
 
+                if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
+						&& MAPINotification_callCalendarUpdatedMethod != NULL
+						&& type == CALENDAR_FOLDER_TYPE)
+				{
+					MAPINotification_callCalendarUpdatedMethod(entryIdStr);
+				}
                 ::free(entryIdStr);
                 entryIdStr = NULL;
 
@@ -260,10 +431,18 @@ STDAPICALLTYPE MAPINotification_onNotify
                             lpNotifications[i].info.obj.cbOldID,
                             oldEntryIdStr);
                     if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
-                            && MAPINotification_callDeletedMethod != NULL)
+                            && MAPINotification_callDeletedMethod != NULL
+                            && type == CONTACTS_FOLDER_TYPE)
                     {
                         MAPINotification_callDeletedMethod(oldEntryIdStr);
                     }
+
+                    if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
+							&& MAPINotification_callCalendarDeletedMethod != NULL
+							&& type == CALENDAR_FOLDER_TYPE)
+                    {
+                    	MAPINotification_callCalendarDeletedMethod(oldEntryIdStr);
+					}
                     ::free(oldEntryIdStr);
                     oldEntryIdStr = NULL;
                 }
@@ -283,10 +462,18 @@ STDAPICALLTYPE MAPINotification_onNotify
                         entryIdStr);
 
                 if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
-                        && MAPINotification_callDeletedMethod != NULL)
+                        && MAPINotification_callDeletedMethod != NULL
+                        && type == CONTACTS_FOLDER_TYPE)
                 {
                     MAPINotification_callDeletedMethod(entryIdStr);
                 }
+
+                if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
+						&& MAPINotification_callCalendarDeletedMethod != NULL
+						&& type == CALENDAR_FOLDER_TYPE)
+				{
+					MAPINotification_callCalendarDeletedMethod(entryIdStr);
+				}
 
                 ::free(entryIdStr);
                 entryIdStr = NULL;
@@ -326,10 +513,19 @@ STDAPICALLTYPE MAPINotification_onNotify
 
                 if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
                         && strcmp(parentEntryIdStr, wasteBasketEntryIdStr) == 0
-                        && MAPINotification_callDeletedMethod != NULL)
+                        && MAPINotification_callDeletedMethod != NULL
+                        && type == CONTACTS_FOLDER_TYPE)
                 {
                     MAPINotification_callDeletedMethod(entryIdStr);
                 }
+
+                if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
+                		&& strcmp(parentEntryIdStr, wasteBasketEntryIdStr) == 0
+						&& MAPINotification_callCalendarDeletedMethod != NULL
+						&& type == CALENDAR_FOLDER_TYPE)
+				{
+					MAPINotification_callCalendarDeletedMethod(entryIdStr);
+				}
 
                 ::free(entryIdStr);
                 entryIdStr = NULL;
@@ -351,10 +547,18 @@ STDAPICALLTYPE MAPINotification_onNotify
                             lpNotifications[i].info.obj.cbOldID,
                             oldEntryIdStr);
                     if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
-                            && MAPINotification_callDeletedMethod != NULL)
+                            && MAPINotification_callDeletedMethod != NULL
+                            && type == CONTACTS_FOLDER_TYPE)
                     {
                         MAPINotification_callDeletedMethod(oldEntryIdStr);
                     }
+
+                    if(lpNotifications[i].info.obj.ulObjType == MAPI_MESSAGE
+							&& MAPINotification_callCalendarDeletedMethod != NULL
+							&& type == CALENDAR_FOLDER_TYPE)
+					{
+						MAPINotification_callCalendarDeletedMethod(oldEntryIdStr);
+					}
                     ::free(oldEntryIdStr);
                     oldEntryIdStr = NULL;
                 }
@@ -411,7 +615,6 @@ MAPINotification_registerJniNotificationsDelegate
                         callbackClass,
                         "deleted",
                         "(Ljava/lang/String;)V");
-
             MAPINotification_callDeletedMethod
                 = MAPINotification_jniCallDeletedMethod;
             MAPINotification_callInsertedMethod
@@ -424,6 +627,60 @@ MAPINotification_registerJniNotificationsDelegate
     }
 }
 
+
+/**
+ * Registers java callback functions when a calendar item is deleted, inserted or
+ * updated.
+ *
+ * @param jniEnv The Java native interface environment.
+ * @param notificationsDelegate The object called when a notification is fired
+ * (contact updated, inserted or deleted).
+ */
+void
+MAPINotification_registerCalendarJniNotificationsDelegate
+    (JNIEnv *jniEnv, jobject notificationsDelegate)
+{
+    if(jniEnv->GetJavaVM(&MAPINotification_VM) < 0)
+    {
+        fprintf(stderr, "Failed to get the Java VM\n");
+        fflush(stderr);
+    }
+    MAPINotification_unregisterJniCalendarNotificationsDelegate(jniEnv);
+    if(notificationsDelegate != NULL)
+    {
+        MAPINotification_notificationsDelegateCalendarObject
+            = jniEnv->NewGlobalRef(notificationsDelegate);
+        if(MAPINotification_notificationsDelegateCalendarObject != NULL)
+        {
+            jclass callbackClass
+                = jniEnv->GetObjectClass(notificationsDelegate);
+            MAPINotification_notificationsDelegateCalendarMethodIdInserted
+                = jniEnv->GetMethodID(
+                        callbackClass,
+                        "inserted",
+                        "(Ljava/lang/String;)V");
+            MAPINotification_notificationsDelegateCalendarMethodIdUpdated
+                = jniEnv->GetMethodID(
+                        callbackClass,
+                        "updated",
+                        "(Ljava/lang/String;)V");
+            MAPINotification_notificationsDelegateCalendarMethodIdDeleted
+                = jniEnv->GetMethodID(
+                        callbackClass,
+                        "deleted",
+                        "(Ljava/lang/String;)V");
+
+            MAPINotification_callCalendarDeletedMethod
+                = MAPINotification_jniCallCalendarDeletedMethod;
+            MAPINotification_callCalendarInsertedMethod
+                = MAPINotification_jniCallCalendarInsertedMethod;
+            MAPINotification_callCalendarUpdatedMethod
+                = MAPINotification_jniCallCalendarUpdatedMethod;
+
+            jniEnv->DeleteLocalRef(callbackClass);
+        }
+    }
+}
 /**
  * Registers C callback functions when a contact is deleted, inserted or
  * updated.
@@ -443,6 +700,27 @@ MAPINotification_registerNativeNotificationsDelegate
     MAPINotification_callDeletedMethod = (void (*)(char*)) deletedMethod;
     MAPINotification_callInsertedMethod = (void (*)(char*)) insertedMethod;
     MAPINotification_callUpdatedMethod = (void (*)(char*)) updatedMethod;
+}
+
+/**
+ * Registers C callback functions when a contact is deleted, inserted or
+ * updated.
+ *
+ * @param deletedMethod The method to call when a contact has been deleted.
+ * @param insertedMethod The method to call when a contact has been inserted.
+ * @param updatedMethod The method to call when a contact has been updated.
+ */
+void
+MAPINotification_registerCalendarNativeNotificationsDelegate
+    (void * deletedMethod, void * insertedMethod, void *updatedMethod)
+{
+    // If this function is called once again, then check first to unregister
+    // previous notification advises.
+    MAPINotification_unregisterNativeCalendarNotificationsDelegate();
+
+    MAPINotification_callCalendarDeletedMethod = (void (*)(char*)) deletedMethod;
+    MAPINotification_callCalendarInsertedMethod = (void (*)(char*)) insertedMethod;
+    MAPINotification_callCalendarUpdatedMethod = (void (*)(char*)) updatedMethod;
 }
 
 /**
@@ -499,8 +777,23 @@ void MAPINotification_registerNotifyAllMsgStores(LPMAPISESSION mapiSession)
                         0,
                         rows->cRows * sizeof(LPMAPIADVISESINK));
 
+                MAPINotification_calendarMsgStoresConnection
+				   = (ULONG*) malloc(rows->cRows * sizeof(ULONG));
+				memset(
+						MAPINotification_calendarMsgStoresConnection,
+					   0,
+					   rows->cRows * sizeof(ULONG));
+				MAPINotification_calendarAdviseSinks = (LPMAPIADVISESINK*)
+				   malloc(rows->cRows * sizeof(LPMAPIADVISESINK));
+				memset(
+						MAPINotification_calendarAdviseSinks,
+					   0,
+					   rows->cRows * sizeof(LPMAPIADVISESINK));
+
                 if(MAPINotification_msgStores != NULL
-                        && MAPINotification_msgStoresConnection != NULL)
+                        && MAPINotification_msgStoresConnection != NULL
+                        && MAPINotification_calendarAdviseSinks != NULL
+                        && MAPINotification_calendarMsgStoresConnection != NULL)
                 {
                     for(unsigned int r = 0; r < rows->cRows; ++r)
                     {
@@ -539,7 +832,16 @@ void MAPINotification_registerNotifyAllMsgStores(LPMAPISESSION mapiSession)
                                 MAPINotification_msgStoresConnection[r]
                                     = MAPINotification_registerNotifyMessageDataBase(
                                             MAPINotification_msgStores[r],
-                                            &MAPINotification_adviseSinks[r]);
+                                            &MAPINotification_adviseSinks[r],
+                                            CONTACTS_FOLDER_TYPE,
+                                            &MAPINotification_contactsOnNotify);
+
+                                MAPINotification_calendarMsgStoresConnection[r]
+								   = MAPINotification_registerNotifyMessageDataBase(
+										   MAPINotification_msgStores[r],
+										   &MAPINotification_calendarAdviseSinks[r],
+										   CALENDAR_FOLDER_TYPE,
+										   &MAPINotification_calendarOnNotify);
                             }
                         }
                     }
@@ -563,18 +865,73 @@ void MAPINotification_registerNotifyAllMsgStores(LPMAPISESSION mapiSession)
  */
 ULONG MAPINotification_registerNotifyMessageDataBase(
         LPMDB iUnknown,
-        LPMAPIADVISESINK * adviseSink)
+        LPMAPIADVISESINK * adviseSink,
+        ULONG type,
+        MAPINotification_callback callback)
 {
 
-    HrAllocAdviseSink(&MAPINotification_onNotify, iUnknown, adviseSink);
+    HrAllocAdviseSink(callback, iUnknown, adviseSink);
 
-    ULONG nbConnection = 0;
-    iUnknown->Advise(
-            (ULONG) 0,
-            (LPENTRYID) NULL,
-            MAPINotification_EVENT_MASK,
-            *adviseSink,
-            (ULONG *) &nbConnection);
+    LPENTRYID receiveFolderEntryID = NULL;
+	ULONG entrySize = 0;
+	LPENTRYID entryID = NULL;
+	ULONG receiveFolderIDByteCount = 0;
+	HRESULT hResult;
+	hResult = iUnknown->GetReceiveFolder(
+				NULL,
+				0,
+				&receiveFolderIDByteCount,
+				&receiveFolderEntryID,
+				NULL);
+	if (HR_SUCCEEDED(hResult))
+	{
+		hResult = MsOutlookUtils_getFolderEntryIDByType(
+					iUnknown,
+					receiveFolderIDByteCount,
+					receiveFolderEntryID,
+					&entrySize,
+					&entryID,
+					0,
+					type);
+		MAPIFreeBuffer(receiveFolderEntryID);
+	}
+	if (HR_FAILED(hResult))
+	{
+		hResult = MsOutlookUtils_getFolderEntryIDByType(
+					iUnknown,
+					0,
+					NULL,
+					&entrySize,
+					&entryID,
+					0,
+					type);
+	}
+
+	ULONG nbConnection = 0;
+	if (HR_SUCCEEDED(hResult))
+	{
+		MsOutlookUtils_log(
+				"Successfully found folder to register notifications.");
+		iUnknown->Advise(
+				(ULONG) entrySize,
+				(LPENTRYID) entryID,
+				MAPINotification_EVENT_MASK,
+				*adviseSink,
+				(ULONG *) &nbConnection);
+	}
+	else
+	{
+		if(type == CONTACTS_FOLDER_TYPE)
+		{
+			MsOutlookUtils_log(
+					"Contacts folder for the message store doesn't exists");
+		}
+		else
+		{
+			MsOutlookUtils_log(
+					"Calendar folder for the message store doesn't exists");
+		}
+	}
 
     return nbConnection;
 }
@@ -643,11 +1000,27 @@ void MAPINotification_unregisterJniNotificationsDelegate(JNIEnv *jniEnv)
     }
 }
 
+void MAPINotification_unregisterJniCalendarNotificationsDelegate(JNIEnv *jniEnv)
+{
+    if(MAPINotification_notificationsDelegateCalendarObject != NULL)
+    {
+        jniEnv->DeleteGlobalRef(MAPINotification_notificationsDelegateCalendarObject);
+        MAPINotification_notificationsDelegateCalendarObject = NULL;
+        MAPINotification_notificationsDelegateCalendarMethodIdInserted = NULL;
+        MAPINotification_notificationsDelegateCalendarMethodIdUpdated = NULL;
+        MAPINotification_notificationsDelegateCalendarMethodIdDeleted = NULL;
+    }
+}
+
 /**
  * Unregisters C callback functions when a contact is deleted, inserted or
  * updated.
  */
 void MAPINotification_unregisterNativeNotificationsDelegate()
+{
+}
+
+void MAPINotification_unregisterNativeCalendarNotificationsDelegate()
 {
 }
 
@@ -674,6 +1047,23 @@ void MAPINotification_unregisterNotifyAllMsgStores(void)
         MAPINotification_msgStoresConnection = NULL;
     }
 
+    if(MAPINotification_calendarMsgStoresConnection != NULL)
+	{
+		for(unsigned int i = 0; i < MAPINotification_nbMsgStores; ++i)
+		{
+			if(MAPINotification_calendarMsgStoresConnection[i] != 0)
+			{
+				MAPINotification_calendarAdviseSinks[i]->Release();
+				MAPINotification_msgStores[i]->Unadvise(
+						MAPINotification_calendarMsgStoresConnection[i]);
+			}
+		}
+		free(MAPINotification_calendarAdviseSinks);
+		MAPINotification_calendarAdviseSinks = NULL;
+		free(MAPINotification_calendarMsgStoresConnection);
+		MAPINotification_calendarMsgStoresConnection = NULL;
+	}
+
     if(MAPINotification_msgStores != NULL)
     {
         for(unsigned int i = 0; i < MAPINotification_nbMsgStores; ++i)
@@ -697,3 +1087,4 @@ void MAPINotification_unregisterNotifyAllMsgStores(void)
         MAPINotification_msgStoresTable = NULL;
     }
 }
+

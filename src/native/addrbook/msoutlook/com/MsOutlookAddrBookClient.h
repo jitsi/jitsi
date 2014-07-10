@@ -35,11 +35,14 @@ class MsOutlookAddrBookClient:
         STDMETHODIMP_(ULONG) Release();
 
         // IMsOutlookAddrBookClient
-        HRESULT STDMETHODCALLTYPE foreachMailUserCallback(BSTR id);
+        HRESULT STDMETHODCALLTYPE foreachMailUserCallback(
+                BSTR id, long callback);
+		HRESULT STDMETHODCALLTYPE foreachCalendarItemCallback(
+				BSTR id, long callback);
 
-        HRESULT STDMETHODCALLTYPE deleted(BSTR id);
-        HRESULT STDMETHODCALLTYPE inserted(BSTR id);
-        HRESULT STDMETHODCALLTYPE updated(BSTR id);
+        HRESULT STDMETHODCALLTYPE deleted(BSTR id, ULONG type);
+        HRESULT STDMETHODCALLTYPE inserted(BSTR id, ULONG type);
+        HRESULT STDMETHODCALLTYPE updated(BSTR id, ULONG type);
 
     protected:
             virtual ~MsOutlookAddrBookClient();

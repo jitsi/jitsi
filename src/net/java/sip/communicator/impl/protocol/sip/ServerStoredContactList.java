@@ -196,6 +196,16 @@ public abstract class ServerStoredContactList
             throw new IllegalArgumentException(
                     "Creating contact id name cannot be null or empty");
         }
+
+        // try to find which contact is concerned
+        ContactSipImpl existingContact
+            = parentOperationSet.resolveContactID(contactId);
+
+        if( existingContact != null)
+        {
+            return existingContact;
+        }
+
         Address contactAddress;
         try
         {
@@ -214,6 +224,8 @@ public abstract class ServerStoredContactList
 
         ContactSipImpl newUnresolvedContact = new ContactSipImpl(contactAddress,
                 sipProvider);
+        newUnresolvedContact.setPersistent(true);
+
         parentGroup.addContact(newUnresolvedContact);
         newUnresolvedContact.setPersistentData(persistentData);
         fireContactAdded(parentGroup, newUnresolvedContact);
@@ -249,6 +261,14 @@ public abstract class ServerStoredContactList
         {
             logger.trace("createUnresolvedContactGroup " + groupName);
         }
+
+        ContactGroupSipImpl existingGroup = findGroupByName(groupName);
+
+        if( existingGroup != null)
+        {
+            return existingGroup;
+        }
+
         ContactGroupSipImpl subGroup = new ContactGroupSipImpl(groupName,
                 sipProvider);
         subGroup.setResolved(false);
@@ -257,7 +277,30 @@ public abstract class ServerStoredContactList
         return subGroup;
     }
 
-        /**
+    /**
+     * Finds a group with supplied name.
+     * @param name the name to search for.
+     * @return the group with <tt>name</tt> or name otherwise.
+     */
+    protected ContactGroupSipImpl findGroupByName(String name)
+    {
+        for (int i = 0;
+             i < getRootGroup().countSubgroups();
+             i++)
+        {
+            ContactGroupSipImpl gr = (ContactGroupSipImpl)
+                getRootGroup().getGroup(i);
+
+            if(gr.getGroupName().equalsIgnoreCase(name))
+            {
+                return gr;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Make the parent persistent presence operation set dispatch a contact
      * added event.
      *

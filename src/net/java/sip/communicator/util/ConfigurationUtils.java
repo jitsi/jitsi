@@ -102,9 +102,19 @@ public class ConfigurationUtils
     private static boolean isLeaveChatRoomOnWindowCloseEnabled;
 
     /**
+     * Indicates if private messaging is enabled for chat rooms.
+     */
+    private static boolean isPrivateMessagingInChatRoomDisabled;
+
+    /**
      * Indicates if the history should be shown in the chat window.
      */
     private static boolean isHistoryShown;
+
+    /**
+     * Indicates if the recent messages should be shown.
+     */
+    private static boolean isRecentMessagesShown = true;
 
     /**
      * The size of the chat history to show in chat window.
@@ -320,6 +330,31 @@ public class ConfigurationUtils
                 ".HIDE_ADDRESS_IN_CALL_HISTORY_TOOLTIP_ENABLED";
 
     /**
+     * Texts to notify that sms has been sent or sms has been received.
+     */
+    private static boolean isSmsNotifyTextDisabled = false;
+
+    /**
+     * To disable displaying sms delivered message or sms received.
+     */
+    private static final String SMS_MSG_NOTIFY_TEXT_DISABLED_PROP
+        = "net.java.sip.communicator.impl.gui.main.contactlist."
+        + "SMS_MSG_NOTIFY_TEXT_DISABLED_PROP";
+
+    /**
+     * Whether domain will be shown in receive call dialog.
+     */
+    private static boolean isHideDomainInReceivedCallDialogEnabled = false;
+
+    /**
+     * The name of the property, whether to show addresses in call history
+     * tooltip.
+     */
+    private static final String HIDE_DOMAIN_IN_RECEIEVE_CALL_DIALOG_PROPERTY
+        = "net.java.sip.communicator.impl.gui.main.call." +
+            "HIDE_DOMAIN_IN_RECEIVE_CALL_DIALOG_ENABLED";
+
+    /**
      * The name of the show smileys property.
      */
     private static final String SHOW_SMILEYS_PROPERTY
@@ -481,6 +516,10 @@ public class ConfigurationUtils
                 = Boolean.parseBoolean(isMultiChatWindowEnabledString);
         }
 
+        isPrivateMessagingInChatRoomDisabled
+            = configService.getBoolean(
+                "service.gui.IS_PRIVATE_CHAT_IN_CHATROOM_DISABLED", false);
+
         // Load the "isLeaveChatroomOnWindowCloseEnabled" property.
         String isLeaveChatRoomOnWindowCloseEnabledStringProperty
             = "service.gui.LEAVE_CHATROOM_ON_WINDOW_CLOSE";
@@ -523,6 +562,12 @@ public class ConfigurationUtils
             isHistoryShown
                 = Boolean.parseBoolean(isHistoryShownString);
         }
+
+        // Load the "isRecentMessagesShown" property.
+        isRecentMessagesShown
+            = !configService.getBoolean(
+                    MessageHistoryService.PNAME_IS_RECENT_MESSAGES_DISABLED,
+                    !isRecentMessagesShown);
 
         // Load the "chatHistorySize" property.
         String chatHistorySizeStringProperty =
@@ -884,6 +929,10 @@ public class ConfigurationUtils
             HIDE_ADDR_IN_CALL_HISTORY_TOOLTIP_PROPERTY,
             isHideAddressInCallHistoryTooltipEnabled);
 
+        isHideDomainInReceivedCallDialogEnabled = configService.getBoolean(
+            HIDE_DOMAIN_IN_RECEIEVE_CALL_DIALOG_PROPERTY,
+            isHideDomainInReceivedCallDialogEnabled);
+
         String hideExtendedAwayStatusProperty
             = "net.java.sip.communicator.service.protocol" +
                 ".globalstatus.HIDE_EXTENDED_AWAY_STATUS";
@@ -897,6 +946,11 @@ public class ConfigurationUtils
         hideExtendedAwayStatus = configService.getBoolean(
             hideExtendedAwayStatusProperty,
             hideExtendedAwayStatus);
+
+        isSmsNotifyTextDisabled = configService.getBoolean(
+            SMS_MSG_NOTIFY_TEXT_DISABLED_PROP,
+            isSmsNotifyTextDisabled
+        );
     }
 
     /**
@@ -1056,6 +1110,20 @@ public class ConfigurationUtils
     }
 
     /**
+     * Returns <code>true</code> if the "isPrivateMessagingInChatRoomDisabled"
+     * property is true, otherwise - returns <code>false</code>.
+     * Indicates to the user interface whether the private messaging is disabled
+     * in chat rooms.
+     *
+     * @return <code>true</code> if the "isPrivateMessagingInChatRoomDisabled"
+     * property is true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isPrivateMessagingInChatRoomDisabled()
+    {
+        return isPrivateMessagingInChatRoomDisabled;
+    }
+
+    /**
      * Updates the "isMultiChatWindowEnabled" property through the
      * <tt>ConfigurationService</tt>.
      *
@@ -1141,6 +1209,18 @@ public class ConfigurationUtils
     }
 
     /**
+     * Returns <code>true</code> if the "isRecentMessagesShown" property is
+     * true, otherwise - returns <code>false</code>. Indicates to the user
+     * whether the recent messages are shown.
+     * @return <code>true</code> if the "isRecentMessagesShown" property is
+     * true, otherwise - returns <code>false</code>.
+     */
+    public static boolean isRecentMessagesShown()
+    {
+        return isRecentMessagesShown;
+    }
+
+    /**
      * Updates the "isHistoryShown" property through the
      * <tt>ConfigurationService</tt>.
      *
@@ -1153,6 +1233,21 @@ public class ConfigurationUtils
         configService.setProperty(
             "service.gui.IS_MESSAGE_HISTORY_SHOWN",
             Boolean.toString(isHistoryShown));
+    }
+
+    /**
+     * Updates the "isRecentMessagesShown" property through the
+     * <tt>ConfigurationService</tt>.
+     *
+     * @param isShown indicates if the recent messages is shown
+     */
+    public static void setRecentMessagesShown(boolean isShown)
+    {
+        isRecentMessagesShown = isShown;
+
+        configService.setProperty(
+            MessageHistoryService.PNAME_IS_RECENT_MESSAGES_DISABLED,
+            Boolean.toString(!isRecentMessagesShown));
     }
 
     /**
@@ -1743,6 +1838,25 @@ public class ConfigurationUtils
     public static boolean isHideAddressInCallHistoryTooltipEnabled()
     {
         return isHideAddressInCallHistoryTooltipEnabled;
+    }
+
+    /**
+     * Whether to display or not the text notifying that a message is
+     * a incoming or outgoing sms message.
+     * @return whether to display the text notifying that a message is sms.
+     */
+    public static boolean isSmsNotifyTextDisabled()
+    {
+        return isSmsNotifyTextDisabled;
+    }
+
+    /**
+     * Whether domain will be shown in receive call dialog.
+     * @return whether domain will be shown in receive call dialog.
+     */
+    public static boolean isHideDomainInReceivedCallDialogEnabled()
+    {
+        return isHideDomainInReceivedCallDialogEnabled;
     }
 
     /**
@@ -2339,7 +2453,7 @@ public class ConfigurationUtils
     }
 
     /**
-     * Returns the chat room prefix saved in <tt>ConfigurationService</tt> 
+     * Returns the chat room prefix saved in <tt>ConfigurationService</tt>
      * associated with the <tt>accountID</tt> and <tt>chatRoomID</tt>.
      *
      * @param accountID the account id
@@ -2353,7 +2467,6 @@ public class ConfigurationUtils
             .getPropertyNamesByPrefix(prefix, true);
         for (String accountRootPropName : accounts)
         {
-            
             String tmpAccountID
                 = configService.getString(accountRootPropName);
 
@@ -2547,7 +2660,14 @@ public class ConfigurationUtils
             else if (evt.getPropertyName().equals(
                 "service.gui.AUTO_POPUP_NEW_MESSAGE"))
             {
-                autoPopupNewMessage = Boolean.parseBoolean(newValue);
+                if("yes".equalsIgnoreCase(newValue))
+                {
+                    autoPopupNewMessage = true;
+                }
+                else
+                {
+                    autoPopupNewMessage = false;
+                }
             }
             else if (evt.getPropertyName().equals(
                 "service.gui.SEND_MESSAGE_COMMAND"))
@@ -2589,6 +2709,12 @@ public class ConfigurationUtils
                 "service.gui.IS_MULTI_CHAT_WINDOW_ENABLED"))
             {
                 isMultiChatWindowEnabled = Boolean.parseBoolean(newValue);
+            }
+            else if (evt.getPropertyName().equals(
+                "service.gui.IS_PRIVATE_CHAT_IN_CHATROOM_DISABLED"))
+            {
+                isPrivateMessagingInChatRoomDisabled
+                    = Boolean.parseBoolean(newValue);
             }
             else if (evt.getPropertyName().equals(
                 "service.gui.LEAVE_CHATROOM_ON_WINDOW_CLOSE"))

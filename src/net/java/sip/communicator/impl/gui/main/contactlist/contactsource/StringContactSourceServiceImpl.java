@@ -33,6 +33,11 @@ public class StringContactSourceServiceImpl
     private final Class<? extends OperationSet> opSetClass;
 
     /**
+     * Can display disable adding display details for source contacts.
+     */
+    private boolean disableDisplayDetails = true;
+
+    /**
      * Creates an instance of <tt>StringContactSourceServiceImpl</tt>.
      *
      * @param protocolProvider the protocol provider to be used with this string
@@ -93,6 +98,62 @@ public class StringContactSourceServiceImpl
     }
 
     /**
+     * Changes whether to add display details for contact sources.
+     * @param disableDisplayDetails
+     */
+    public void setDisableDisplayDetails(boolean disableDisplayDetails)
+    {
+        this.disableDisplayDetails = disableDisplayDetails;
+    }
+
+    /**
+     * Returns the source contact corresponding to the query string.
+     *
+     * @return the source contact corresponding to the query string
+     */
+    public SourceContact createSourceContact(String queryString)
+    {
+        ArrayList<ContactDetail> contactDetails
+            = new ArrayList<ContactDetail>();
+
+        ContactDetail contactDetail = new ContactDetail(queryString);
+
+        // Init supported operation sets.
+        ArrayList<Class<? extends OperationSet>>
+            supportedOpSets
+            = new ArrayList<Class<? extends OperationSet>>();
+        supportedOpSets.add(opSetClass);
+        contactDetail.setSupportedOpSets(supportedOpSets);
+
+        // Init preferred protocol providers.
+        Map<Class<? extends OperationSet>,ProtocolProviderService>
+            providers = new HashMap<Class<? extends OperationSet>,
+            ProtocolProviderService>();
+
+        providers.put(opSetClass, protocolProvider);
+
+        contactDetail.setPreferredProviders(providers);
+
+        contactDetails.add(contactDetail);
+
+        GenericSourceContact sourceContact
+            = new GenericSourceContact( StringContactSourceServiceImpl.this,
+            queryString,
+            contactDetails);
+
+        if(disableDisplayDetails)
+        {
+            sourceContact.setDisplayDetails(
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CALL_VIA")
+                    + " "
+                    + protocolProvider.getAccountID().getDisplayName());
+        }
+
+        return sourceContact;
+    }
+
+    /**
      * The query implementation.
      */
     private class StringQuery
@@ -145,55 +206,12 @@ public class StringContactSourceServiceImpl
         @Override
         public void start()
         {
-            SourceContact contact = getSourceContact();
+            SourceContact contact = createSourceContact(queryString);
             results.add(contact);
             
             fireContactReceived(contact);
             if (getStatus() != QUERY_CANCELED)
                 setStatus(QUERY_COMPLETED);
-        }
-        /**
-         * Returns the source contact corresponding to the query string.
-         *
-         * @return the source contact corresponding to the query string
-         */
-        private SourceContact getSourceContact()
-        {
-            ArrayList<ContactDetail> contactDetails
-                = new ArrayList<ContactDetail>();
-
-            ContactDetail contactDetail = new ContactDetail(queryString);
-
-            // Init supported operation sets.
-            ArrayList<Class<? extends OperationSet>>
-                supportedOpSets
-                = new ArrayList<Class<? extends OperationSet>>();
-            supportedOpSets.add(opSetClass);
-            contactDetail.setSupportedOpSets(supportedOpSets);
-
-            // Init preferred protocol providers.
-            Map<Class<? extends OperationSet>,ProtocolProviderService>
-                providers = new HashMap<Class<? extends OperationSet>,
-                                        ProtocolProviderService>();
-
-            providers.put(opSetClass, protocolProvider);
-
-            contactDetail.setPreferredProviders(providers);
-
-            contactDetails.add(contactDetail);
-
-            GenericSourceContact sourceContact
-                = new GenericSourceContact( StringContactSourceServiceImpl.this,
-                                            queryString,
-                                            contactDetails);
-
-            sourceContact.setDisplayDetails(
-                GuiActivator.getResources().getI18NString(
-                    "service.gui.CALL_VIA")
-                    + " "
-                    + protocolProvider.getAccountID().getDisplayName());
-
-            return sourceContact;
         }
     }
 

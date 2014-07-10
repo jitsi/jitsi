@@ -17,6 +17,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.service.resources.*;
+import org.jitsi.util.*;
 
 /**
  * The <tt>SearchTextFieldUI</tt> is the one responsible for the search field
@@ -168,6 +169,7 @@ public class SearchFieldUI
 
             if (c.getText() != null
                 && c.getText().length() > 0
+                && !StringUtils.containsLetters(c.getText())
                 && isSMSButtonEnabled)
             {
                 // Paint sms button.
@@ -482,11 +484,9 @@ public class SearchFieldUI
         int x = evt.getX();
         int y = evt.getY();
 
-        Rectangle callButtonRect = getCallButtonRect();
-
         boolean outsideButtons = true;
 
-        if (isCallIconVisible && callButtonRect.contains(x, y))
+        if (isCallIconVisible && getCallButtonRect().contains(x, y))
         {
             JTextComponent c = getComponent();
             String searchText = c.getText();

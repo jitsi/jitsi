@@ -90,6 +90,7 @@ public class AutoProxyConnection
 
     private State state;
     private String address;
+    private int port;
     private final String defaultTransport;
     private LocalNetworkUtils nu = new LocalNetworkUtils();
 
@@ -119,6 +120,7 @@ public class AutoProxyConnection
                                 String defaultTransport )
     {
         super(account);
+        port = ListeningPoint.PORT_5060;
         this.defaultTransport = defaultTransport;
         reset();
     }
@@ -129,14 +131,16 @@ public class AutoProxyConnection
      *
      * @param account the account of this SIP protocol instance
      * @param address the domain on which to perform autodetection
+     * @param port the destination socket port
      * @param defaultTransport the default transport to use when DNS does not
      *            provide a protocol through NAPTR or SRV
      */
     public AutoProxyConnection( SipAccountIDImpl account, String address,
-                                String defaultTransport )
+                                int port, String defaultTransport )
     {
         super(account);
         this.defaultTransport = defaultTransport;
+        this.port = port;
         reset();
         this.address = address;
         if (nu.isValidIPAddress(this.address))
@@ -350,7 +354,7 @@ public class AutoProxyConnection
                 {
                     socketAddresses = nu.getAandAAAARecords(
                         address,
-                        ListeningPoint.PORT_5060);
+                        port);
                 }
 
                 if(socketAddresses != null && socketAddresses.length > 0

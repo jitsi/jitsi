@@ -127,18 +127,21 @@ public class SimpleStatusMenu
      */
     public void actionPerformed(ActionEvent e)
     {
+        if(GuiActivator.getGlobalStatusService() == null)
+            return;
+
         JMenuItem menuItem = (JMenuItem) e.getSource();
         String itemName = menuItem.getName();
 
         if (itemName.equals(GlobalStatusEnum.ONLINE_STATUS))
         {
             GuiActivator.getGlobalStatusService()
-                .publishStatus(protocolProvider, GlobalStatusEnum.ONLINE, true);
+                .publishStatus(protocolProvider, GlobalStatusEnum.ONLINE);
         }
         else
         {
             GuiActivator.getGlobalStatusService()
-                .publishStatus(protocolProvider, GlobalStatusEnum.OFFLINE, true);
+                .publishStatus(protocolProvider, GlobalStatusEnum.OFFLINE);
         }
     }
 

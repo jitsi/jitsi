@@ -16,7 +16,7 @@ import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.packet.*;
 
 /**
@@ -27,6 +27,7 @@ import org.jivesoftware.smackx.packet.*;
  *
  * @author Damian Minkov
  * @author Lyubomir Marinov
+ * @author Hristo Terezov
  */
 public class OperationSetPersistentPresenceJabberImpl
     extends AbstractOperationSetPersistentPresence<
@@ -64,6 +65,8 @@ public class OperationSetPersistentPresenceJabberImpl
                                   Presence.Mode.away);
         scToJabberModesMappings.put(JabberStatusEnum.ON_THE_PHONE,
                                   Presence.Mode.away);
+        scToJabberModesMappings.put(JabberStatusEnum.IN_A_MEETING,
+            Presence.Mode.away);
         scToJabberModesMappings.put(JabberStatusEnum.EXTENDED_AWAY,
                                   Presence.Mode.xa);
         scToJabberModesMappings.put(JabberStatusEnum.DO_NOT_DISTURB,
@@ -184,9 +187,25 @@ public class OperationSetPersistentPresenceJabberImpl
      */
     public synchronized ContactJabberImpl createVolatileContact(String id)
     {
-        return createVolatileContact(id, false);
+        return createVolatileContact(id, null);
     }
-    
+
+    /**
+     * Creates a non persistent contact for the specified address. This would
+     * also create (if necessary) a group for volatile contacts that would not
+     * be added to the server stored contact list. The volatile contact would
+     * remain in the list until it is really added to the contact list or
+     * until the application is terminated.
+     * @param id the address of the contact to create.
+     * @param displayName the display name of the contact.
+     * @return the newly created volatile <tt>ContactImpl</tt>
+     */
+    public synchronized ContactJabberImpl createVolatileContact(String id,
+        String displayName)
+    {
+        return createVolatileContact(id, false, displayName);
+    }
+
     /**
      * Creates a non persistent contact for the specified address. This would
      * also create (if necessary) a group for volatile contacts that would not
@@ -201,6 +220,24 @@ public class OperationSetPersistentPresenceJabberImpl
     public synchronized ContactJabberImpl createVolatileContact(String id,
         boolean isPrivateMessagingContact)
     {
+        return createVolatileContact(id, isPrivateMessagingContact, null);
+    }
+
+    /**
+     * Creates a non persistent contact for the specified address. This would
+     * also create (if necessary) a group for volatile contacts that would not
+     * be added to the server stored contact list. The volatile contact would
+     * remain in the list until it is really added to the contact list or
+     * until the application is terminated.
+     * @param id the address of the contact to create.
+     * @param isPrivateMessagingContact indicates whether the contact should be private
+     * messaging contact or not.
+     * @param displayName the display name of the contact.
+     * @return the newly created volatile <tt>ContactImpl</tt>
+     */
+    public synchronized ContactJabberImpl createVolatileContact(String id,
+        boolean isPrivateMessagingContact, String displayName)
+    {
         // first check for already created one.
         ContactGroupJabberImpl notInContactListGroup =
             ssContactList.getNonPersistentGroup();
@@ -213,7 +250,7 @@ public class OperationSetPersistentPresenceJabberImpl
         else
         {
             sourceContact = ssContactList.createVolatileContact(
-                id, isPrivateMessagingContact);
+                id, isPrivateMessagingContact, displayName);
             if(isPrivateMessagingContact
                 && StringUtils.parseResource(id) != null)
             {
@@ -365,12 +402,12 @@ public class OperationSetPersistentPresenceJabberImpl
     {
         return parentProvider.getJabberStatusEnum().getSupportedStatusSet();
     }
-    
+
     /**
-     * Checks if the contact address is associated with private messaging 
+     * Checks if the contact address is associated with private messaging
      * contact or not.
      * @param contactAddress the address of the contact.
-     * @return <tt>true</tt> the contact address is associated with private 
+     * @return <tt>true</tt> the contact address is associated with private
      * messaging contact and <tt>false</tt> if not.
      */
     public boolean isPrivateMessagingContact(String contactAddress)
@@ -396,13 +433,13 @@ public class OperationSetPersistentPresenceJabberImpl
             throw new IllegalArgumentException(
                 "The specified contact is not an jabber contact." +
                 contactToMove);
-        if( !(newParent instanceof ContactGroupJabberImpl) )
+        if( !(newParent instanceof AbstractContactGroupJabberImpl) )
             throw new IllegalArgumentException(
                 "The specified group is not an jabber contact group."
                 + newParent);
 
         ssContactList.moveContact((ContactJabberImpl)contactToMove,
-                                  (ContactGroupJabberImpl)newParent);
+                                  (AbstractContactGroupJabberImpl)newParent);
     }
 
     /**
@@ -463,6 +500,11 @@ public class OperationSetPersistentPresenceJabberImpl
             {
                 presence.setStatus(JabberStatusEnum.ON_THE_PHONE);
             }
+            else if(status.equals(jabberStatusEnum.getStatus(
+                JabberStatusEnum.IN_A_MEETING)))
+            {
+                presence.setStatus(JabberStatusEnum.IN_A_MEETING);
+            }
             else
                 presence.setStatus(statusMessage);
             //presence.addExtension(new Version());
@@ -472,12 +514,20 @@ public class OperationSetPersistentPresenceJabberImpl
 
         fireProviderStatusChangeEvent(currentStatus, status);
 
-        if(!getCurrentStatusMessage().equals(statusMessage))
+        String oldStatusMessage = getCurrentStatusMessage();
+
+        /*
+         * XXX Use StringUtils.isEquals instead of String.equals to avoid a
+         * NullPointerException.
+         */
+        if(!org.jitsi.util.StringUtils.isEquals(
+                oldStatusMessage,
+                statusMessage))
         {
-            String oldStatusMessage = getCurrentStatusMessage();
             currentStatusMessage = statusMessage;
-            fireProviderStatusMessageChangeEvent(oldStatusMessage,
-                                                 getCurrentStatusMessage());
+            fireProviderStatusMessageChangeEvent(
+                    oldStatusMessage,
+                    getCurrentStatusMessage());
         }
     }
 
@@ -707,6 +757,9 @@ public class OperationSetPersistentPresenceJabberImpl
             if(presence.getStatus() != null
                 && presence.getStatus().contains(JabberStatusEnum.ON_THE_PHONE))
                 return jabberStatusEnum.getStatus(JabberStatusEnum.ON_THE_PHONE);
+            else if(presence.getStatus() != null
+                && presence.getStatus().contains(JabberStatusEnum.IN_A_MEETING))
+                return jabberStatusEnum.getStatus(JabberStatusEnum.IN_A_MEETING);
             else
                 return jabberStatusEnum.getStatus(JabberStatusEnum.AWAY);
         }
@@ -912,12 +965,6 @@ public class OperationSetPersistentPresenceJabberImpl
             }
             else if(evt.getNewState() == RegistrationState.REGISTERED)
             {
-                fireProviderStatusChangeEvent(
-                    currentStatus,
-                    parentProvider
-                        .getJabberStatusEnum()
-                            .getStatus(JabberStatusEnum.AVAILABLE));
-
                 createContactPhotoPresenceListener();
                 createAccountPhotoPresenceInterceptor();
             }
@@ -1262,8 +1309,8 @@ public class OperationSetPersistentPresenceJabberImpl
                         break;
                     }
                 }
-                
-                
+
+
                 if (logger.isDebugEnabled())
                     logger.debug("Received a status update for buddy=" + userID);
 
@@ -1381,7 +1428,8 @@ public class OperationSetPersistentPresenceJabberImpl
         /**
          * List of early subscriptions.
          */
-        private List<String> earlySubscriptions = new ArrayList<String>();
+        private Map<String, String> earlySubscriptions
+            = new HashMap<String, String>();
 
         /**
          * Adds auth handler.
@@ -1411,18 +1459,24 @@ public class OperationSetPersistentPresenceJabberImpl
 
             if (presenceType == Presence.Type.subscribe)
             {
+                String displayName = null;
+                Nick ext = (Nick) presence.getExtension(Nick.NAMESPACE);
+                if(ext != null)
+                    displayName = ext.getName();
+
                 synchronized(this)
                 {
                     if(handler == null)
                     {
-                        earlySubscriptions.add(fromID);
+                        earlySubscriptions.put(fromID, displayName);
 
                         // nothing to handle
                         return;
                     }
                 }
 
-                handleSubscribeReceived(fromID);
+
+                handleSubscribeReceived(fromID, displayName);
             }
             else if (presenceType == Presence.Type.unsubscribed)
             {
@@ -1484,9 +1538,9 @@ public class OperationSetPersistentPresenceJabberImpl
          */
         private void handleEarlySubscribeReceived()
         {
-            for(String from : earlySubscriptions)
+            for(String from : earlySubscriptions.keySet())
             {
-                handleSubscribeReceived(from);
+                handleSubscribeReceived(from, earlySubscriptions.get(from));
             }
 
             earlySubscriptions.clear();
@@ -1496,7 +1550,8 @@ public class OperationSetPersistentPresenceJabberImpl
          * Handles receiving a presence subscribe
          * @param fromID sender
          */
-        private void handleSubscribeReceived(final String fromID)
+        private void handleSubscribeReceived(final String fromID,
+            final String displayName)
         {
             // run waiting for user response in different thread
             // as this seems to block the packet dispatch thread
@@ -1519,7 +1574,7 @@ public class OperationSetPersistentPresenceJabberImpl
 
                 if(srcContact == null)
                 {
-                    srcContact = createVolatileContact(fromID);
+                    srcContact = createVolatileContact(fromID, displayName);
                 }
                 else
                 {
@@ -1809,6 +1864,7 @@ public class OperationSetPersistentPresenceJabberImpl
         addDefaultValue(JabberStatusEnum.AWAY, -5);
         addDefaultValue(JabberStatusEnum.EXTENDED_AWAY, -10);
         addDefaultValue(JabberStatusEnum.ON_THE_PHONE, -15);
+        addDefaultValue(JabberStatusEnum.IN_A_MEETING, -16);
         addDefaultValue(JabberStatusEnum.DO_NOT_DISTURB, -20);
         addDefaultValue(JabberStatusEnum.FREE_FOR_CHAT, +5);
     }

@@ -128,6 +128,15 @@ public class ProtocolProviderServiceSipImpl
         = "net.java.sip.communicator.impl.protocol.sip.MESSAGING_DISABLED";
 
     /**
+     * The name of the property which, if enabled, will cause a session-level
+     * attribute for the session direction (e.g. a=sendonly, a=recvonly) to be
+     * added to SDP offers/answers which we send.
+     */
+    public static final String USE_SESSION_LEVEL_DIRECTION_IN_SDP
+            = "net.java.sip.communicator.impl.protocol.sip."
+                    + "USE_SESSION_LEVEL_DIRECTION_IN_SDP";
+
+    /**
      * Default number of times that our requests can be forwarded.
      */
     private static final int  MAX_FORWARDS = 70;
@@ -514,16 +523,22 @@ public class ProtocolProviderServiceSipImpl
                         new OperationSetDesktopStreamingSipImpl(
                                 opSetBasicTelephonySipImpl));
 
-                    // OperationSetDesktopSharingServer
-                    addSupportedOperationSet(
-                       OperationSetDesktopSharingServer.class,
-                       new OperationSetDesktopSharingServerSipImpl(
-                               opSetBasicTelephonySipImpl));
+                    if(!accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory
+                            .IS_DESKTOP_REMOTE_CONTROL_DISABLED,
+                        false))
+                    {
+                        // OperationSetDesktopSharingServer
+                        addSupportedOperationSet(
+                           OperationSetDesktopSharingServer.class,
+                           new OperationSetDesktopSharingServerSipImpl(
+                                   opSetBasicTelephonySipImpl));
 
-                    // OperationSetDesktopSharingClient
-                    addSupportedOperationSet(
-                        OperationSetDesktopSharingClient.class,
-                        new OperationSetDesktopSharingClientSipImpl(this));
+                        // OperationSetDesktopSharingClient
+                        addSupportedOperationSet(
+                            OperationSetDesktopSharingClient.class,
+                            new OperationSetDesktopSharingClientSipImpl(this));
+                    }
                 }
             }
 
@@ -2385,29 +2400,6 @@ public class ProtocolProviderServiceSipImpl
     public InetSocketAddress getIntendedDestination(SipURI destination)
         throws IllegalArgumentException
     {
-        return getIntendedDestination(destination.getHost());
-    }
-
-    /**
-     * Returns the <tt>InetAddress</tt> that is most likely to be to be used
-     * as a next hop when contacting the specified <tt>destination</tt>. This is
-     * an utility method that is used whenever we have to choose one of our
-     * local addresses to put in the Via, Contact or (in the case of no
-     * registrar accounts) From headers. The method also takes into account
-     * the existence of an outbound proxy and in that case returns its address
-     * as the next hop.
-     *
-     * @param host the destination that we would contact.
-     *
-     * @return the <tt>InetSocketAddress</tt> that is most likely to be to be
-     * used as a next hop when contacting the specified <tt>destination</tt>.
-     *
-     * @throws IllegalArgumentException if <tt>destination</tt> is not a valid
-     * host/ip/fqdn.
-     */
-    public InetSocketAddress getIntendedDestination(String host)
-        throws IllegalArgumentException
-    {
         // Address
         InetSocketAddress destinationInetAddress = null;
 
@@ -2425,16 +2417,29 @@ public class ProtocolProviderServiceSipImpl
         }
         else
         {
+            String transport = destination.getTransportParam();
+            if (transport == null)
+            {
+                transport = getDefaultTransport();
+            }
+
+            int port = destination.getPort();
+            if (port == -1)
+            {
+                port = ListeningPoint.PORT_5060;
+            }
+
             ProxyConnection tempConn = new AutoProxyConnection(
                 (SipAccountIDImpl)getAccountID(),
-                host,
-                getDefaultTransport());
+                destination.getHost(),
+                port,
+                transport);
             try
             {
                 if(tempConn.getNextAddress())
                     destinationInetAddress = tempConn.getAddress();
                 else
-                    throw new IllegalArgumentException(host
+                    throw new IllegalArgumentException(destination.getHost()
                         + " could not be resolved to an internet address.");
             }
             catch (DnssecException e)
@@ -2445,7 +2450,7 @@ public class ProtocolProviderServiceSipImpl
 
         if(logger.isDebugEnabled())
             logger.debug("Returning address " + destinationInetAddress
-                 + " for destination " + host);
+                 + " for destination " + destination.getHost());
 
         return destinationInetAddress;
     }

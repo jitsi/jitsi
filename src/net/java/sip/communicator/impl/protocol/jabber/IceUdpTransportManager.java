@@ -1082,8 +1082,10 @@ public class IceUdpTransportManager
         /* check the state of ICE processing and throw exception if failed */
         if(IceProcessingState.FAILED.equals(iceAgent.getState()))
         {
+            String msg = JabberActivator.getResources()
+                .getI18NString("service.protocol.ICE_FAILED");
             throw new OperationFailedException(
-                    "Could not establish connection (ICE failed)",
+                    msg,
                     OperationFailedException.GENERAL_ERROR);
         }
         }

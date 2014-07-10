@@ -281,10 +281,7 @@ public class LanguageMenuBar
 
             try
             {
-                int commaIndex = locale.getIsoCode().indexOf(",");
-                String countryCode =
-                    locale.getIsoCode().substring(commaIndex + 1);
-                localeFlag = Resources.getFlagImage(countryCode);
+                localeFlag = Resources.getFlagImage(locale.getFlagIcon());
 
                 BufferedImage flagBuffer = copy(localeFlag.getImage());
                 setFaded(flagBuffer);

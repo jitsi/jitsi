@@ -386,7 +386,7 @@ public class MsOutlookAddrBookSourceContact
         synchronized(this)
         {
             MsOutlookAddrBookContactDetail detail;
-            
+
             // Setting the display work postal address.
             boolean firstLineCR = false;
             boolean secondLineCR = false;

@@ -481,8 +481,15 @@ public class ContactInfoDetailsPanel
             {
                 detailLabel.setText(detail.getDetailDisplayName() + ": ");
 
-                detailValueArea.setText(((Locale) detail.getDetailValue())
-                        .getDisplayName().trim());
+                Object value = detail.getDetailValue();
+                String valueStr = "";
+
+                if(value instanceof Locale)
+                    valueStr = ((Locale) value).getDisplayName().trim();
+                else if(value instanceof String)
+                    valueStr = (String)value;
+
+                detailValueArea.setText(valueStr);
             }
             else if (detail instanceof TimeZoneDetail)
             {

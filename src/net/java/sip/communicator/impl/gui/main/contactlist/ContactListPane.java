@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.Timer;
@@ -166,7 +167,13 @@ public class ContactListPane
 
             // do nothing
             if(defaultContact == null)
-                return;
+            {
+                defaultContact = metaContact.getDefaultContact(
+                    OperationSetSmsMessaging.class);
+
+                if(defaultContact == null)
+                    return;
+            }
 
             ProtocolProviderService defaultProvider
                 = defaultContact.getProtocolProvider();
@@ -210,16 +217,68 @@ public class ContactListPane
 
             contactHandler.contactClicked(defaultContact, evt.getClickCount());
         }
-        else if(((SourceContact) descriptor.getDescriptor())
-            .getContactDetails(OperationSetMultiUserChat.class) != null)
+        else if(descriptor.getDescriptor() instanceof SourceContact)
         {
-            SourceContact contact = (SourceContact)
-                descriptor.getDescriptor();
-            ChatRoomWrapper room 
-                = GuiActivator.getMUCService()
-                    .findChatRoomWrapperFromSourceContact(contact);
-            if(room != null)
-                GuiActivator.getMUCService().openChatRoom(room);
+            SourceContact contact = (SourceContact)descriptor.getDescriptor();
+
+            List<ContactDetail> imDetails = contact.getContactDetails(
+                OperationSetBasicInstantMessaging.class);
+            List<ContactDetail> mucDetails = contact.getContactDetails(
+                OperationSetMultiUserChat.class);
+
+            if(imDetails != null && imDetails.size() > 0)
+            {
+                ProtocolProviderService pps
+                    = imDetails.get(0).getPreferredProtocolProvider(
+                            OperationSetBasicInstantMessaging.class);
+
+                GuiActivator.getUIService().getChatWindowManager()
+                    .startChat(contact.getContactAddress(), pps);
+            }
+            else if(mucDetails != null && mucDetails.size() > 0)
+            {
+                ChatRoomWrapper room
+                    = GuiActivator.getMUCService()
+                        .findChatRoomWrapperFromSourceContact(contact);
+
+                if(room == null)
+                {
+                    // lets check by id
+                    ProtocolProviderService pps =
+                        mucDetails.get(0).getPreferredProtocolProvider(
+                            OperationSetMultiUserChat.class);
+
+                    room = GuiActivator.getMUCService()
+                        .findChatRoomWrapperFromChatRoomID(
+                            contact.getContactAddress(), pps);
+
+                    if(room == null)
+                    {
+                        GuiActivator.getMUCService().createChatRoom(
+                            contact.getContactAddress(),
+                            pps,
+                            new ArrayList<String>(),
+                            "",
+                            false,
+                            false,
+                            false);
+                    }
+                }
+
+                if(room != null)
+                    GuiActivator.getMUCService().openChatRoom(room);
+            }
+            else
+            {
+                List<ContactDetail> smsDetails = contact.getContactDetails(
+                    OperationSetSmsMessaging.class);
+
+                if(smsDetails != null && smsDetails.size() > 0)
+                {
+                    GuiActivator.getUIService().getChatWindowManager()
+                        .startChat(contact.getContactAddress(), true);
+                }
+            }
         }
     }
 
@@ -435,7 +494,8 @@ public class ContactListPane
                 msg.getMessageUID(),
                 evt.getCorrectedMessageUID());
 
-            if(evt.isSmsMessage())
+            if(evt.isSmsMessage()
+                && !ConfigurationUtils.isSmsNotifyTextDisabled())
             {
                 chatPanel.addMessage(
                         contact.getDisplayName(),

@@ -17,28 +17,24 @@ import net.java.sip.communicator.service.contactsource.*;
  * history.
  *
  * @author Yana Stamcheva
+ * @author Hristo Terezov
  */
 public class CallHistoryContactSource
     implements ContactSourceService
 {
-    /**
-     * The display name of this contact source.
-     */
-    private static final String CALL_HISTORY_NAME = "Call history";
-
     /**
      * Returns the display name of this contact source.
      * @return the display name of this contact source
      */
     public String getDisplayName()
     {
-        return CALL_HISTORY_NAME;
+        return CallHistoryActivator.getResources().getI18NString(
+            "service.gui.CALL_HISTORY_GROUP_NAME");
     }
 
     /**
      * Creates query for the given <tt>searchString</tt>.
      * @param queryString the string to search for
-     * @param listener the listener that receives the found contacts
      * @return the created query
      */
     public ContactQuery createContactQuery(String queryString)
@@ -98,11 +94,16 @@ public class CallHistoryContactSource
          * progress.
          */
         private int status = QUERY_IN_PROGRESS;
-        
+
         /**
          * Iterator for the queried contacts.
          */
         Iterator<CallRecord> recordsIter = null;
+
+        /**
+         * Indicates whether show more label should be displayed or not.
+         */
+        private boolean showMoreLabelAllowed = true;
 
         /**
          * Creates an instance of <tt>CallHistoryContactQuery</tt> by specifying
@@ -123,8 +124,7 @@ public class CallHistoryContactSource
                         recordsIter.next()));
             }
 
-            if (status != QUERY_CANCELED)
-                status = QUERY_COMPLETED;
+            showMoreLabelAllowed = false;
         }
 
         @Override
@@ -138,14 +138,14 @@ public class CallHistoryContactSource
                     {
                         if (getStatus() == ContactQuery.QUERY_CANCELED)
                             return;
-    
+
                         SourceContact contact = new CallHistorySourceContact(
                                                     CallHistoryContactSource.this,
                                                     event.getCallRecord());
                         sourceContacts.add(contact);
                         fireQueryEvent(contact);
                     }
-    
+
                     public void queryStatusChanged(
                         CallHistoryQueryStatusEvent event)
                     {
@@ -162,10 +162,16 @@ public class CallHistoryContactSource
                     CallHistoryContactSource.this,
                     recordsIter.next());
                 sourceContacts.add(contact);
-                fireQueryEvent(contact); 
+                fireQueryEvent(contact);
+            }
+            if (status != QUERY_CANCELED)
+            {
+                status = QUERY_COMPLETED;
+                if(callHistoryQuery == null)
+                    fireQueryStatusEvent(status);
             }
         }
-        
+
         /**
          * Creates an instance of <tt>CallHistoryContactQuery</tt> based on the
          * given <tt>callHistoryQuery</tt>.
@@ -174,8 +180,6 @@ public class CallHistoryContactSource
         public CallHistoryContactQuery(CallHistoryQuery callHistoryQuery)
         {
             this.callHistoryQuery = callHistoryQuery;
-
-            
         }
 
         /**
@@ -252,7 +256,8 @@ public class CallHistoryContactSource
          */
         private void fireQueryEvent(SourceContact contact)
         {
-            ContactReceivedEvent event = new ContactReceivedEvent(this, contact);
+            ContactReceivedEvent event
+                = new ContactReceivedEvent(this, contact, showMoreLabelAllowed);
 
             Collection<ContactQueryListener> listeners;
             synchronized (queryListeners)

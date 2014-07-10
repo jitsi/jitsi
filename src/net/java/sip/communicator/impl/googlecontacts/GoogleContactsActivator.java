@@ -71,6 +71,11 @@ public class GoogleContactsActivator implements BundleActivator
         = new HashMap<GoogleContactsSourceService, ServiceRegistration>();
 
     /**
+     * The registered PhoneNumberI18nService.
+     */
+    private static PhoneNumberI18nService phoneNumberI18nService;
+
+    /**
      * Returns a reference to a ConfigurationService implementation currently
      * registered in the bundle context or null if no such implementation was
      * found.
@@ -479,5 +484,21 @@ public class GoogleContactsActivator implements BundleActivator
         {
             cssList.remove(found);
         }
+    }
+
+    /**
+     * Returns the PhoneNumberI18nService.
+     * @return returns the PhoneNumberI18nService.
+     */
+    public static PhoneNumberI18nService getPhoneNumberI18nService()
+    {
+        if(phoneNumberI18nService == null)
+        {
+            phoneNumberI18nService = ServiceUtils.getService(
+                bundleContext,
+                PhoneNumberI18nService.class);
+        }
+
+        return phoneNumberI18nService;
     }
 }

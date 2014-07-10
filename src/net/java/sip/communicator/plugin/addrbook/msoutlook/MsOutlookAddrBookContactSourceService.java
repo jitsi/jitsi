@@ -22,7 +22,7 @@ import net.java.sip.communicator.util.*;
  */
 public class MsOutlookAddrBookContactSourceService
     extends AsyncContactSourceService
-    implements EditableContactSourceService
+    implements EditableContactSourceService, PrefixedContactSourceService
 {
     /**
      * The <tt>Logger</tt> used by the
@@ -48,9 +48,20 @@ public class MsOutlookAddrBookContactSourceService
     public static final String PNAME_OUTLOOK_ADDR_BOOK_SEARCH_FIELD_DISABLED =
         "net.java.sip.communicator.plugin.addrbook.OUTLOOK_ADDR_BOOK_SEARCH_FIELD_DISABLED";
 
+    /**
+     * Boolean property that defines whether the warning for the default mail
+     * client should be shown or not.
+     */
+    public static final String PNAME_OUTLOOK_ADDR_BOOK_SHOW_DEFAULTMAILCLIENT_WARNING =
+        "net.java.sip.communicator.plugin.addrbook.SHOW_DEFAULTMAILCLIENT_WARNING";
+
     private static final long MAPI_INIT_VERSION = 0;
 
     private static final long MAPI_MULTITHREAD_NOTIFICATIONS = 0x00000001;
+    
+    private static final int NATIVE_LOGGER_LEVEL_INFO = 0;
+
+    private static final int NATIVE_LOGGER_LEVEL_TRACE = 1;
 
     /**
      * The thread used to collect the notifications.
@@ -66,6 +77,11 @@ public class MsOutlookAddrBookContactSourceService
      * The latest query created.
      */
     private MsOutlookAddrBookContactQuery latestQuery = null;
+
+    /**
+     * Indicates whether MAPI is initialized or not.
+     */
+    private static boolean isMAPIInitialized = false;
 
     static
     {
@@ -112,18 +128,86 @@ public class MsOutlookAddrBookContactSourceService
     /**
      * Initializes a new <tt>MsOutlookAddrBookContactSourceService</tt>
      * instance.
-     *
+     * @param notificationDelegate the object to be notified for addressbook 
+     * changes
      * @throws MsOutlookMAPIHResultException if anything goes wrong while
      * initializing the new <tt>MsOutlookAddrBookContactSourceService</tt>
      * instance
      */
-    public MsOutlookAddrBookContactSourceService()
+    public static void initMAPI(NotificationsDelegate notificationDelegate)
         throws MsOutlookMAPIHResultException
     {
-        MAPIInitialize(
-                MAPI_INIT_VERSION,
-                MAPI_MULTITHREAD_NOTIFICATIONS,
-                new NotificationsDelegate());
+        if(!isMAPIInitialized)
+        {
+            boolean isOutlookDefaultMailClient = isOutlookDefaultMailClient();
+            boolean showWarning 
+                = AddrBookActivator.getConfigService().getBoolean(
+                    PNAME_OUTLOOK_ADDR_BOOK_SHOW_DEFAULTMAILCLIENT_WARNING, 
+                    true);
+            if(!isOutlookDefaultMailClient && showWarning)
+            {
+                DefaultMailClientMessageDialog dialog 
+                    = new DefaultMailClientMessageDialog();
+                int result = dialog.showDialog();
+                if((result & DefaultMailClientMessageDialog
+                    .DONT_ASK_SELECTED_MASK) != 0)
+                {
+                    AddrBookActivator.getConfigService().setProperty(
+                        PNAME_OUTLOOK_ADDR_BOOK_SHOW_DEFAULTMAILCLIENT_WARNING, 
+                        false);
+                }
+                
+                if((result & DefaultMailClientMessageDialog
+                        .DEFAULT_MAIL_CLIENT_SELECTED_MASK) != 0)
+                {
+                    RegistryHandler.setOutlookAsDefaultMailClient();
+                }
+            }
+            
+            if(isOutlookDefaultMailClient && !showWarning)
+            {
+                AddrBookActivator.getConfigService().setProperty(
+                    PNAME_OUTLOOK_ADDR_BOOK_SHOW_DEFAULTMAILCLIENT_WARNING, 
+                    true);
+            }
+            
+            String logFileName = "";
+            String homeLocation = System.getProperty(
+                "net.java.sip.communicator.SC_LOG_DIR_LOCATION");
+            String dirName = System.getProperty(
+                "net.java.sip.communicator.SC_HOME_DIR_NAME");
+
+            if(homeLocation != null && dirName != null)
+            {
+                logFileName = homeLocation + "\\" + dirName + "\\log\\";
+            }
+
+            int logLevel = NATIVE_LOGGER_LEVEL_INFO;
+            if(logger.isTraceEnabled())
+            {
+                logLevel = NATIVE_LOGGER_LEVEL_TRACE;
+            }
+
+            logger.info("Init mapi with log level " + logLevel + " and log file"
+                + " path " + logFileName);
+
+            MAPIInitialize(
+                    MAPI_INIT_VERSION,
+                    MAPI_MULTITHREAD_NOTIFICATIONS,
+                    notificationDelegate,
+                    logFileName,
+                    logLevel);
+            isMAPIInitialized = true;
+        }
+    }
+
+    /**
+     * Creates new <tt>NotificationsDelegate</tt> instance.
+     * @return the <tt>NotificationsDelegate</tt> instance
+     */
+    public NotificationsDelegate createNotificationDelegate()
+    {
+        return new NotificationsDelegate();
     }
 
     /**
@@ -155,14 +239,30 @@ public class MsOutlookAddrBookContactSourceService
     private static native void MAPIInitialize(
             long version,
             long flags,
-            NotificationsDelegate callback)
+            NotificationsDelegate callback,
+            String logFileName,
+            int logLevel)
         throws MsOutlookMAPIHResultException;
+    
+    /**
+     * Uninitializes MAPI.
+     */
+    public static void UninitializeMAPI()
+    {
+        if(isMAPIInitialized)
+        {
+            MAPIUninitialize();
+            isMAPIInitialized = false;
+        }
+    }
 
     private static native void MAPIUninitialize();
 
     public static native int getOutlookBitnessVersion();
 
     public static native int getOutlookVersion();
+    
+    private static native boolean isOutlookDefaultMailClient();
 
     /**
      *  Creates query that searches for <tt>SourceContact</tt>s
@@ -174,7 +274,7 @@ public class MsOutlookAddrBookContactSourceService
      * <tt>ContactSourceService</tt> implementation for the specified
      * <tt>Pattern</tt> and via which the matching <tt>SourceContact</tt>s (if
      * any) will be returned
-     * @see ExtendedContactSourceService#queryContactSource(Pattern)
+     * @see ExtendedContactSourceService#createContactQuery(Pattern)
      */
     public ContactQuery createContactQuery(Pattern query)
     {
@@ -182,7 +282,7 @@ public class MsOutlookAddrBookContactSourceService
             latestQuery.clear();
 
         latestQuery = new MsOutlookAddrBookContactQuery(this, query);
-        
+
         return latestQuery;
     }
 
@@ -200,7 +300,7 @@ public class MsOutlookAddrBookContactSourceService
             latestQuery.clear();
             latestQuery = null;
         }
-        MAPIUninitialize();
+        UninitializeMAPI();
     }
 
     /**
@@ -209,6 +309,7 @@ public class MsOutlookAddrBookContactSourceService
      *
      * @return the global phone number prefix
      */
+    @Override
     public String getPhoneNumberPrefix()
     {
         return AddrBookActivator.getConfigService()
@@ -343,7 +444,6 @@ public class MsOutlookAddrBookContactSourceService
     private class NotificationThread
         extends Thread
     {
-
         /**
          * The list of notification collected.
          */
@@ -363,7 +463,7 @@ public class MsOutlookAddrBookContactSourceService
          */
         public void run()
         {
-            boolean hasMore = false;
+            boolean hasMore;
             NotificationIdFunction idFunction = null;
             String id;
             char function;
@@ -435,6 +535,17 @@ public class MsOutlookAddrBookContactSourceService
         public int getNbRemainingNotifications()
         {
             return contactIds.size();
+        }
+
+        /**
+         * Clear the current results.
+         */
+        public void clear()
+        {
+            synchronized(notificationThreadMutex)
+            {
+                contactIds.clear();
+            }
         }
     }
 
@@ -542,7 +653,7 @@ public class MsOutlookAddrBookContactSourceService
     public int getNbRemainingNotifications()
     {
         int nbNotifications = 0;
-        
+
         synchronized(notificationThreadMutex)
         {
             if(notificationThread != null)
@@ -553,5 +664,16 @@ public class MsOutlookAddrBookContactSourceService
         }
 
         return nbNotifications;
+    }
+
+    /**
+     * Cancels the contact notifications.
+     */
+    public void clearRemainingNotifications()
+    {
+        if(notificationThread != null)
+        {
+            notificationThread.clear();
+        }
     }
 }

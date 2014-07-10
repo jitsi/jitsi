@@ -254,17 +254,15 @@ public class SMSManager
             logger.error("Failed to send SMS.", ex);
 
             chatPanel.addMessage(
-                phoneNumber,
+                phoneNumber == null ? chatTransport.getName() : phoneNumber,
                 new Date(),
                 Chat.OUTGOING_MESSAGE,
                 message,
                 "text/plain");
 
             chatPanel.addErrorMessage(
-                phoneNumber,
-                GuiActivator.getResources()
-                    .getI18NString("service.gui.MSG_DELIVERY_ERROR",
-                        new String[]{ex.getMessage()}));
+                phoneNumber == null ? chatTransport.getName() : phoneNumber,
+                ex.getMessage());
         }
 
         chatPanel.refreshWriteArea();

@@ -230,12 +230,12 @@ public class AddContactDialog
 
                 public void insertUpdate(DocumentEvent e)
                 {
-                    updateAddButtonState();
+                    updateAddButtonState(false);
                 }
 
                 public void removeUpdate(DocumentEvent e)
                 {
-                    updateAddButtonState();
+                    updateAddButtonState(false);
                 }
             });
 
@@ -312,7 +312,7 @@ public class AddContactDialog
         {
             public void itemStateChanged(ItemEvent e)
             {
-                updateAddButtonState();
+                updateAddButtonState(true);
             }
         });
 
@@ -402,9 +402,11 @@ public class AddContactDialog
                                          ProtocolProviderService provider)
     {
         OperationSetPersistentPresencePermissions opsetPermissions = null;
-        OperationSetPersistentPresence opsetPresence = null;
+        OperationSetPersistentPresence opsetPresence;
 
         boolean isRootReadOnly = false;
+
+        Object selectedItem = groupCombo.getSelectedItem();
 
         if(provider != null)
         {
@@ -466,6 +468,9 @@ public class AddContactDialog
         {
             groupCombo.addItem(newGroupString);
         }
+
+        if(selectedItem != null)
+            groupCombo.setSelectedItem(selectedItem);
     }
 
     /**
@@ -480,7 +485,7 @@ public class AddContactDialog
         {
             final ProtocolProviderService protocolProvider
                 = (ProtocolProviderService) accountCombo.getSelectedItem();
-            final String contactAddress = contactAddressField.getText();
+            final String contactAddress = contactAddressField.getText().trim();
             final String displayName = displayNameField.getText();
 
             if (!protocolProvider.isRegistered())
@@ -758,7 +763,7 @@ public class AddContactDialog
     /**
      * Updates the state of the add button.
      */
-    private void updateAddButtonState()
+    private void updateAddButtonState(boolean updateGroups)
     {
         String contactAddress = contactAddressField.getText();
 
@@ -769,7 +774,7 @@ public class AddContactDialog
         else
             addButton.setEnabled(false);
 
-        if(selectedItem instanceof ProtocolProviderService)
+        if(updateGroups && selectedItem instanceof ProtocolProviderService)
             updateGroupItems(groupCombo,
                 (ProtocolProviderService)accountCombo.getSelectedItem());
     }

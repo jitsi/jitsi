@@ -19,7 +19,6 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.presence.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.Logger;
-import net.java.sip.communicator.util.account.*;
 
 import org.jitsi.util.*;
 
@@ -164,8 +163,11 @@ public class PresenceStatusMenu
 
                 if (status.getStatusName().equals(menuItemText))
                 {
-                    GuiActivator.getGlobalStatusService()
-                        .publishStatus(protocolProvider, status, true);
+                    if(GuiActivator.getGlobalStatusService() != null)
+                    {
+                        GuiActivator.getGlobalStatusService()
+                            .publishStatus(protocolProvider, status);
+                    }
 
                     setSelectedStatus(status);
 
@@ -184,22 +186,12 @@ public class PresenceStatusMenu
      */
     public void updateStatus(PresenceStatus presenceStatus)
     {
-        OperationSetPresence presence
-            = AccountStatusUtils.getProtocolPresenceOpSet(protocolProvider);
-
         if (logger.isTraceEnabled())
             logger.trace("Update status for provider: "
             + protocolProvider.getAccountID().getAccountAddress()
             + ". The new status will be: " + presenceStatus.getStatusName());
 
         this.setSelectedStatus(presenceStatus);
-
-        if (protocolProvider.isRegistered()
-                && !presence.getPresenceStatus().equals(presenceStatus))
-        {
-            GuiActivator.getGlobalStatusService()
-                .publishStatus(protocolProvider, presenceStatus, false);
-        }
 
         for(int i =0; i < getItemCount(); i++)
         {
@@ -226,6 +218,20 @@ public class PresenceStatusMenu
      */
     private void updateTitleArea()
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    updateTitleArea();
+                }
+            });
+
+            return;
+        }
+
         StringBuilder txt = new StringBuilder();
         txt.append("<html>").append("<b>");
         txt.append(protocolProvider.getAccountID().getDisplayName())

@@ -66,6 +66,7 @@ public class OperationSetPersistentPresenceMsnImpl
         supportedPresenceStatusSet.add(MsnStatusEnum.OFFLINE);
         supportedPresenceStatusSet.add(MsnStatusEnum.ONLINE);
         supportedPresenceStatusSet.add(MsnStatusEnum.ON_THE_PHONE);
+        supportedPresenceStatusSet.add(MsnStatusEnum.IN_A_MEETING);
         supportedPresenceStatusSet.add(MsnStatusEnum.OUT_TO_LUNCH);
     }
 

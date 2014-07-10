@@ -1288,7 +1288,8 @@ public class ChatWindow
 
             // Don't re-dispatch any events if the menu is active. Fixes the
             // navigation in the menu.
-            if (menuBar.isSelected())
+            if (menuBar.getSelectedMenu() != null
+                && menuBar.getSelectedMenu().isPopupMenuVisible())
             {
                 return false;
             }

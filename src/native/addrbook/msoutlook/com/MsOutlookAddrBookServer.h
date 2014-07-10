@@ -35,13 +35,16 @@ class MsOutlookAddrBookServer:
         STDMETHODIMP_(ULONG) Release();
 
         // IMsOutlookAddrBookServer
-        HRESULT STDMETHODCALLTYPE foreachMailUser(BSTR query);
+        HRESULT STDMETHODCALLTYPE foreachMailUser(BSTR query, long callback);
+
+        HRESULT STDMETHODCALLTYPE getAllCalendarItems(long callback);
 
         HRESULT STDMETHODCALLTYPE IMAPIProp_GetProps( 
                 BSTR entryId,
                 int nbPropIds,
                 SAFEARRAY * propIds,
                 long flags,
+                UUID UUID_Address,
                 SAFEARRAY ** props,
                 SAFEARRAY ** propsLength,
                 SAFEARRAY ** propsType);
@@ -74,7 +77,12 @@ class MsOutlookAddrBookServer:
 
             static boolean foreachMailUserCallback(
                     LPSTR iUnknown,
-                    void * object);
+                    void * callbackClient,
+                    long callbackAddress);
+            static boolean foreachCalendarItemCallback(
+                    LPSTR iUnknown,
+                    void * callbackClient,
+                    long callbackAddress);
 };
 
 #endif

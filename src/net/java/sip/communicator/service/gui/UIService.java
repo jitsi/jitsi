@@ -454,6 +454,15 @@ public interface UIService
     public void startChat(String[] participants);
 
     /**
+     * Starts a new <tt>Chat</tt> with a specific set of participants.
+     *
+     * @param participants an array of <tt>String</tt> values specifying the
+     * participants to be included into the newly created <tt>Chat</tt>
+     * @param isSmsEnabled whether sms option should be enabled if possible
+     */
+    public void startChat(String[] participants, boolean isSmsEnabled);
+
+    /**
      * Creates a contact list component.
      *
      * @param clContainer the parent contact list container

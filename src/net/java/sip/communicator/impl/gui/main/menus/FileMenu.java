@@ -20,6 +20,7 @@ import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
@@ -172,7 +173,9 @@ public class FileMenu
             }
         }
 
-        if (!ConfigurationUtils.isGoToChatroomDisabled())
+        if (!ConfigurationUtils.isGoToChatroomDisabled()
+            && !GuiActivator.getConfigurationService()
+                    .getBoolean(MUCService.DISABLED_PROPERTY, false))
         {
             this.add(myChatRoomsItem);
             endsWithSeparator = false;

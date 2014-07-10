@@ -36,9 +36,10 @@ public class ScOtrEngineImpl
                ChatLinkClickedListener,
                ServiceListener
 {
-    class ScOtrEngineHost
+    private class ScOtrEngineHost
         implements OtrEngineHost
     {
+        @Override
         public KeyPair getLocalKeyPair(SessionID sessionID)
         {
             AccountID accountID =
@@ -51,11 +52,13 @@ public class ScOtrEngineImpl
             return OtrActivator.scOtrKeyManager.loadKeyPair(accountID);
         }
 
+        @Override
         public OtrPolicy getSessionPolicy(SessionID sessionID)
         {
             return getContactPolicy(getOtrContact(sessionID).contact);
         }
 
+        @Override
         public void injectMessage(SessionID sessionID, String messageText)
         {
             OtrContact otrContact = getOtrContact(sessionID);
@@ -109,6 +112,7 @@ public class ScOtrEngineImpl
             imOpSet.sendInstantMessage(contact, resource, message);
         }
 
+        @Override
         public void showError(SessionID sessionID, String err)
         {
             ScOtrEngineImpl.this.showError(sessionID, err);
@@ -504,7 +508,7 @@ public class ScOtrEngineImpl
      */
     private final Logger logger = Logger.getLogger(ScOtrEngineImpl.class);
 
-    final OtrEngineHost otrEngineHost = new ScOtrEngineHost();
+    private final OtrEngineHost otrEngineHost = new ScOtrEngineHost();
 
     private final OtrEngine otrEngine;
 
@@ -519,6 +523,7 @@ public class ScOtrEngineImpl
 
         this.otrEngine.addOtrEngineListener(new OtrEngineListener()
         {
+            @Override
             public void sessionStatusChanged(SessionID sessionID)
             {
                 OtrContact otrContact = getOtrContact(sessionID);
@@ -696,6 +701,7 @@ public class ScOtrEngineImpl
                     l.sessionStatusChanged(otrContact);
             }
 
+            @Override
             public void multipleInstancesDetected(SessionID sessionID)
             {
                 OtrContact otrContact = getOtrContact(sessionID);
@@ -706,6 +712,7 @@ public class ScOtrEngineImpl
                     l.multipleInstancesDetected(otrContact);
             }
 
+            @Override
             public void outgoingSessionChanged(SessionID sessionID)
             {
                 OtrContact otrContact = getOtrContact(sessionID);
@@ -736,6 +743,7 @@ public class ScOtrEngineImpl
             return true;
     }
 
+    @Override
     public void addListener(ScOtrEngineListener l)
     {
         synchronized (listeners)
@@ -745,6 +753,7 @@ public class ScOtrEngineImpl
         }
     }
 
+    @Override
     public void chatLinkClicked(URI url)
     {
         String action = url.getPath();
@@ -773,6 +782,7 @@ public class ScOtrEngineImpl
         }
     }
 
+    @Override
     public void endSession(OtrContact otrContact)
     {
         SessionID sessionID = getSessionID(otrContact);
@@ -788,6 +798,7 @@ public class ScOtrEngineImpl
         }
     }
 
+    @Override
     public OtrPolicy getContactPolicy(Contact contact)
     {
         ProtocolProviderService pps = contact.getProtocolProvider();
@@ -805,6 +816,7 @@ public class ScOtrEngineImpl
             return new OtrPolicyImpl(policy);
     }
 
+    @Override
     public OtrPolicy getGlobalPolicy()
     {
         /*
@@ -851,13 +863,15 @@ public class ScOtrEngineImpl
         {
             cancel(otrContact);
 
-            TimerTask task = new TimerTask() {
-                @Override
-                public void run()
+            TimerTask task
+                = new TimerTask()
                 {
-                    setSessionStatus(otrContact, status);
-                }
-            };
+                    @Override
+                    public void run()
+                    {
+                        setSessionStatus(otrContact, status);
+                    }
+                };
             timer.schedule(task, SESSION_TIMEOUT);
             tasks.put(otrContact, task);
         }
@@ -908,6 +922,7 @@ public class ScOtrEngineImpl
             l.sessionStatusChanged(contact);
     }
 
+    @Override
     public ScSessionStatus getSessionStatus(OtrContact contact)
     {
         SessionID sessionID = getSessionID(contact);
@@ -932,11 +947,13 @@ public class ScOtrEngineImpl
         return scSessionStatusMap.get(sessionID);
     }
 
+    @Override
     public boolean isMessageUIDInjected(String mUID)
     {
         return injectedMessageUIDs.contains(mUID);
     }
 
+    @Override
     public void launchHelp()
     {
         ServiceReference ref =
@@ -953,6 +970,7 @@ public class ScOtrEngineImpl
             .getI18NString("plugin.otr.authbuddydialog.HELP_URI"));
     }
 
+    @Override
     public void refreshSession(OtrContact otrContact)
     {
         SessionID sessionID = getSessionID(otrContact);
@@ -967,6 +985,7 @@ public class ScOtrEngineImpl
         }
     }
 
+    @Override
     public void removeListener(ScOtrEngineListener l)
     {
         synchronized (listeners)
@@ -979,6 +998,7 @@ public class ScOtrEngineImpl
      * Cleans the contactsMap when <tt>ProtocolProviderService</tt>
      * gets unregistered.
      */
+    @Override
     public void serviceChanged(ServiceEvent ev)
     {
         Object service
@@ -1029,6 +1049,7 @@ public class ScOtrEngineImpl
         }
     }
 
+    @Override
     public void setContactPolicy(Contact contact, OtrPolicy policy)
     {
         ProtocolProviderService pps = contact.getProtocolProvider();
@@ -1048,6 +1069,7 @@ public class ScOtrEngineImpl
             l.contactPolicyChanged(contact);
     }
 
+    @Override
     public void setGlobalPolicy(OtrPolicy policy)
     {
         if (policy == null)
@@ -1072,6 +1094,7 @@ public class ScOtrEngineImpl
             OperationSetBasicInstantMessaging.DEFAULT_MIME_TYPE);
     }
 
+    @Override
     public void startSession(OtrContact otrContact)
     {
         SessionID sessionID = getSessionID(otrContact);
@@ -1098,6 +1121,7 @@ public class ScOtrEngineImpl
         }
     }
 
+    @Override
     public String transformReceiving(OtrContact otrContact, String msgText)
     {
         SessionID sessionID = getSessionID(otrContact);
@@ -1113,6 +1137,7 @@ public class ScOtrEngineImpl
         }
     }
 
+    @Override
     public String transformSending(OtrContact otrContact, String msgText)
     {
         SessionID sessionID = getSessionID(otrContact);
@@ -1215,6 +1240,7 @@ public class ScOtrEngineImpl
         }
     }
 
+    @Override
     public PublicKey getRemotePublicKey(OtrContact otrContact)
     {
         if (otrContact == null)
@@ -1225,6 +1251,7 @@ public class ScOtrEngineImpl
         return session.getRemotePublicKey();
     }
 
+    @Override
     public List<Session> getSessionInstances(OtrContact otrContact)
     {
         if (otrContact == null)
@@ -1233,6 +1260,7 @@ public class ScOtrEngineImpl
         return getSession(otrContact).getInstances();
     }
 
+    @Override
     public boolean setOutgoingSession(OtrContact contact, InstanceTag tag)
     {
         if (contact == null)
@@ -1244,6 +1272,7 @@ public class ScOtrEngineImpl
         return session.setOutgoingInstance(tag);
     }
 
+    @Override
     public Session getOutgoingSession(OtrContact contact)
     {
         if (contact == null)

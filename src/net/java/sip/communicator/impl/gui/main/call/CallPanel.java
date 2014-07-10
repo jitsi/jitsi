@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.Container;
 import java.awt.event.*;
 import java.beans.*;
+import java.io.*;
 import java.util.*;
 import java.util.List;
 
@@ -92,6 +93,11 @@ public class CallPanel
     private static final String INFO_BUTTON = "INFO_BUTTON";
 
     /**
+     * The info button name.
+     */
+    private static final String CRM_BUTTON = "CRM_BUTTON";
+
+    /**
      * The logger for this class.
      */
     private static final Logger logger = Logger.getLogger(CallDialog.class);
@@ -111,6 +117,12 @@ public class CallPanel
      */
     private static final String HIDE_CALL_INFO_BUTON_PROP
         = "net.java.sip.communicator.impl.gui.main.call.HIDE_CALL_INFO_BUTTON";
+
+    /**
+     * Property to enable the CRM button.
+     */
+    private static final String SHOW_CRM_BUTON_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.SHOW_CRM_BUTTON";
 
     /**
      * Property to disable the conference "add to call" button.
@@ -302,6 +314,11 @@ public class CallPanel
      * Info button.
      */
     private SIPCommButton infoButton;
+
+    /**
+     * CRM button.
+     */
+    private CallToolBarButton crmButton;
 
     /**
      * Indicates if the call timer has been started.
@@ -571,6 +588,34 @@ public class CallPanel
             }
             callInfoFrame.setVisible(
                     callInfoFrame.hasCallInfo() && !callInfoFrame.isVisible());
+        }
+        else if (buttonName.equals(CRM_BUTTON))
+        {
+            String command =
+                GuiActivator.getConfigurationService().getString(
+                    "net.java.sip.communicator.impl.gui.main.call.CRM_COMMAND");
+            if (command == null)
+            {
+                return;
+            }
+
+            List<CallPeer> callPeers = callConference.getCallPeers();
+            if (callPeers.isEmpty())
+            {
+                logger.info("No CallPeer for CRM application found.");
+                return;
+            }
+
+            command = String.format(command, callPeers.get(0).getAddress());
+            try
+            {
+                logger.info("Launching CRM application: " + command);
+                Runtime.getRuntime().exec(command);
+            }
+            catch (IOException e)
+            {
+                logger.error("Unable launch CRM application", e);
+            }
         }
     }
 
@@ -1381,8 +1426,10 @@ public class CallPanel
 
         chatButton.setIndex(19);
 
+        if (crmButton != null)
+            crmButton.setIndex(30);
         if (infoButton != null)
-            infoButton.setIndex(20);
+            infoButton.setIndex(50);
 
         hangupButton.setIndex(100);
     }
@@ -1521,6 +1568,16 @@ public class CallPanel
                                 "service.gui.PRESS_FOR_CALL_INFO"));
         }
 
+        if(!isButtonEnabled(SHOW_CRM_BUTON_PROP))
+        {
+            crmButton
+                = new CallToolBarButton(
+                        ImageLoader.getImage(ImageLoader.CRM),
+                        CRM_BUTTON,
+                        GuiActivator.getResources().getI18NString(
+                                "service.gui.PRESS_TO_OPEN_CRM"));
+        }
+
         if(isButtonEnabled(HIDE_CALL_MERGE_BUTON_PROP))
         {
             mergeButton
@@ -1562,7 +1619,7 @@ public class CallPanel
 
         localLevel
             = new InputVolumeControlButton(
-                    aCall,
+                    callConference,
                     ImageLoader.MICROPHONE,
                     ImageLoader.MUTE_BUTTON,
                     true,
@@ -1586,6 +1643,8 @@ public class CallPanel
             conferenceButton.addActionListener(this);
         if (dialButton != null)
             dialButton.addActionListener(this);
+        if (crmButton != null)
+            crmButton.addActionListener(this);
         if (infoButton != null)
             infoButton.addActionListener(this);
         if (mergeButton != null)
@@ -1605,6 +1664,8 @@ public class CallPanel
 
         if (holdButton != null)
             settingsPanel.add(holdButton);
+        if (crmButton != null)
+            settingsPanel.add(crmButton);
         if (infoButton != null)
             settingsPanel.add(infoButton);
         if (mergeButton != null)

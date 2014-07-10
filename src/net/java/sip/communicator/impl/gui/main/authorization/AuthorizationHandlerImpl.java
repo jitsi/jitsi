@@ -6,8 +6,10 @@
  */
 package net.java.sip.communicator.impl.gui.main.authorization;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
+import net.java.sip.communicator.service.contactlist.event.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import javax.swing.*;
@@ -23,6 +25,7 @@ import javax.swing.*;
  *
  * @author Yana Stamcheva
  * @author Damian Minkov
+ * @author Hristo Terezov
  */
 public class AuthorizationHandlerImpl
     implements AuthorizationHandler {
@@ -41,9 +44,9 @@ public class AuthorizationHandlerImpl
      * their contact list.
      */
     public AuthorizationResponse processAuthorisationRequest(
-            AuthorizationRequest req, Contact sourceContact) {
+            AuthorizationRequest req, Contact sourceContact)
+    {
         AuthorizationResponse response = null;
-
         AuthorizationRequestedDialog dialog = null;
         if(!SwingUtilities.isEventDispatchThread())
         {
@@ -83,6 +86,11 @@ public class AuthorizationHandlerImpl
             // add contact window.
             if (dialog.isAddContact())
             {
+                if(!sourceContact.getAddress().equals(
+                    sourceContact.getDisplayName()))
+                    addRenameListener(sourceContact.getProtocolProvider(),
+                        sourceContact.getAddress(),
+                        sourceContact.getDisplayName());
                 ContactListUtils.addContact(sourceContact.getProtocolProvider(),
                                             dialog.getSelectedMetaContactGroup(),
                                             sourceContact.getAddress());
@@ -309,4 +317,44 @@ public class AuthorizationHandlerImpl
             return dialog;
         }
     }
+
+    /**
+     * Adds a rename listener.
+     *
+     * @param protocolProvider the protocol provider to which the contact was
+     * added
+     * @param contactAddress the address of the newly added contact
+     * @param displayName the new display name
+     */
+    private void addRenameListener(
+                                final ProtocolProviderService protocolProvider,
+                                final String contactAddress,
+                                final String displayName)
+    {
+        GuiActivator.getContactListService().addMetaContactListListener(
+            new MetaContactListAdapter()
+            {
+                @Override
+                public void metaContactAdded(final MetaContactEvent evt)
+                {
+                    if (evt.getSourceMetaContact().getContact(
+                            contactAddress, protocolProvider) != null
+                        && contactAddress.equals(
+                            evt.getSourceMetaContact().getDisplayName()))
+                    {
+                        new Thread()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                GuiActivator.getContactListService()
+                                    .renameMetaContact(
+                                        evt.getSourceMetaContact(), displayName);
+                            }
+                        }.start();
+                    }
+                }
+            });
+    }
+
 }

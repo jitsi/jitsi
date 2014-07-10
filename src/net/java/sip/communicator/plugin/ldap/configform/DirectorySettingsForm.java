@@ -12,6 +12,7 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.border.*;
 
 import net.java.sip.communicator.plugin.ldap.*;
 import net.java.sip.communicator.service.ldap.*;
@@ -65,6 +66,27 @@ public class DirectorySettingsForm
      * Component holding the home phone field.
      */
     private JTextField homePhoneField = new JTextField();
+
+    /** Radio button for the default query selection. */
+    private JRadioButton rdoDefaultQuery
+        = new SIPCommRadioButton(
+            Resources.getString("impl.ldap.QUERY_DEFAULT"));
+
+    /** Radio button for the default query selection. */
+    private JRadioButton rdoCustomQuery
+        = new SIPCommRadioButton(
+            Resources.getString("impl.ldap.QUERY_CUSTOM"));
+
+    /** Textbox for the custom LDAP query. */
+    private JTextArea txtCustomQuery = new JTextArea("", 15, 40);
+
+    /** Checkbox to indicate the automatic wildcard query term expansion */
+    private JCheckBox chkMangleQuery = new SIPCommCheckBox(
+        Resources.getString("impl.ldap.QUERY_CUSTOM_AUTO_WILDCARD"));
+
+    /** Checkbox to indicate whether photos should be retrieved inline */
+    private JCheckBox chkPhotoInline = new SIPCommCheckBox(
+        Resources.getString("impl.ldap.QUERY_PHOTO_INLINE"));
 
     /**
      * component holding the name
@@ -190,8 +212,11 @@ public class DirectorySettingsForm
         setSize(new Dimension(400, 400));
         setPreferredSize(new Dimension(400, 400));
 
-        pane.addTab("General", getContentPanel());
-        pane.addTab("Fields", getFieldsPanel());
+        pane.addTab(Resources.getString("impl.ldap.GENERAL"),
+            getContentPanel());
+        pane.addTab(Resources.getString("impl.ldap.FIELDS"), getFieldsPanel());
+        pane.addTab(Resources.getString("impl.ldap.QUERY"),
+            getCustomQueryPanel());
 
         btnPanel.add(saveBtn);
         btnPanel.add(cancelBtn);
@@ -710,6 +735,42 @@ public class DirectorySettingsForm
     }
 
     /**
+     * Creates the for the definition of a custom query.
+     * 
+     * @return a panel for a custom query definition.
+     */
+    private JPanel getCustomQueryPanel()
+    {
+        rdoDefaultQuery.addActionListener(this);
+        rdoCustomQuery.addActionListener(this);
+
+        JPanel p = new TransparentPanel();
+        p.setLayout(new BorderLayout());
+
+        JPanel options = new TransparentPanel();
+        options.setLayout(new BoxLayout(options, BoxLayout.Y_AXIS));
+        options.add(rdoDefaultQuery);
+        options.add(rdoCustomQuery);
+        p.add(options, BorderLayout.NORTH);
+
+        p.add(txtCustomQuery, BorderLayout.CENTER);
+        txtCustomQuery.setBorder(new LineBorder(Color.black));
+        txtCustomQuery.setLineWrap(true);
+        txtCustomQuery.setWrapStyleWord(false);
+
+        JPanel hints = new TransparentPanel();
+        hints.setLayout(new BoxLayout(hints, BoxLayout.Y_AXIS));
+        hints.add(
+            new JLabel(Resources.getString("impl.ldap.QUERY_CUSTOM_HINT",
+                new String[] { "<query>" })));
+        hints.add(chkMangleQuery);
+        hints.add(chkPhotoInline);
+        p.add(hints, BorderLayout.SOUTH);
+
+        return p;
+    }
+
+    /**
      * Loads the information from the LdapDirectorySettings instance
      * into the UI.
      *
@@ -758,6 +819,16 @@ public class DirectorySettingsForm
         this.homePhoneField.setText(
             mergeStrings(settings.getHomePhoneSearchFields()));
         this.prefixField.setText(settings.getGlobalPhonePrefix());
+        this.rdoDefaultQuery.setSelected(
+            !"custom".equals(settings.getQueryMode()));
+        this.rdoCustomQuery.setSelected(
+            "custom".equals(settings.getQueryMode()));
+        this.txtCustomQuery.setText(settings.getCustomQuery());
+        this.chkMangleQuery.setSelected(settings.isMangleQuery());
+        this.chkPhotoInline.setSelected(settings.isPhotoInline());
+
+        txtCustomQuery.setEditable(rdoCustomQuery.isSelected());
+        txtCustomQuery.setEnabled(rdoCustomQuery.isSelected());
     }
 
     /**
@@ -857,6 +928,12 @@ public class DirectorySettingsForm
         settings.setHomePhoneSearchFields(
             mergeString(homePhoneField.getText()));
         settings.setGlobalPhonePrefix(prefixField.getText());
+        settings.setQueryMode(rdoCustomQuery.isSelected()
+            ? "custom"
+            : null);
+        settings.setCustomQuery(txtCustomQuery.getText());
+        settings.setMangleQuery(chkMangleQuery.isSelected());
+        settings.setPhotoInline(chkPhotoInline.isSelected());
     }
 
     /**
@@ -924,6 +1001,18 @@ public class DirectorySettingsForm
         {
             bindDNField.setEnabled(authList.getSelectedIndex() == 1);
             passwordField.setEnabled(authList.getSelectedIndex() == 1);
+        }
+        else if (src == rdoDefaultQuery)
+        {
+            txtCustomQuery.setEnabled(false);
+            txtCustomQuery.setEditable(false);
+            rdoCustomQuery.setSelected(false);
+        }
+        else if (src == rdoCustomQuery)
+        {
+            txtCustomQuery.setEnabled(true);
+            txtCustomQuery.setEditable(true);
+            rdoDefaultQuery.setSelected(false);
         }
     }
 

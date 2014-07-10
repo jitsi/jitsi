@@ -33,8 +33,8 @@ public class ReplacementServiceFlickrImpl
      * The regex used to match the link in the message.
      */
     public static final String FLICKR_PATTERN =
-        "(?<=>)(https?\\:\\/\\/(www\\.)*?flickr\\.com"
-        + "\\/photos\\/[0-9a-zA-Z_\\-\\@]+\\/([0-9]+)(\\/[^\"\\<]*)*)(?=</A>)";
+        "(https?\\:\\/\\/(www\\.)*?flickr\\.com"
+        + "\\/photos\\/[0-9a-zA-Z_\\-\\@]+\\/([0-9]+)(\\/[^\"\\<]*)*)";
 
     /**
      * API Key required to access the Flickr api.
@@ -107,7 +107,7 @@ public class ReplacementServiceFlickrImpl
                     JSONObject result = (JSONObject)wrapper.get("photo");
                     if (!(result.isEmpty()))
                     {
-                        String farmID = (String)result.get("farm");
+                        String farmID = String.valueOf(result.get("farm"));
                         String serverID = (String)result.get("server");
                         String secret = (String)result.get("secret");
 

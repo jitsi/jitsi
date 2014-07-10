@@ -20,6 +20,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.libjitsi.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;
@@ -615,9 +616,11 @@ public class CallPeerMediaHandlerJabberImpl
             for(PayloadTypePacketExtension payload
                     : theirDescription.getPayloadTypes())
             {
-                format = JingleUtils.payloadTypeToMediaFormat(
+                MediaFormat remoteFormat = JingleUtils.payloadTypeToMediaFormat(
                             payload, getDynamicPayloadTypes());
-                if(format != null && localFormats.contains(format))
+                if(remoteFormat != null
+                     && (format = findMediaFormat(localFormats, remoteFormat))
+                            != null)
                     break;
             }
 
@@ -667,17 +670,54 @@ public class CallPeerMediaHandlerJabberImpl
             }
 
             // create the corresponding stream...
-            initStream(
-                    contentName,
-                    connector,
-                    dev,
-                    format,
-                    target,
-                    direction,
-                    rtpExtensions,
-                    masterStream);
+            MediaStream stream = initStream(contentName,
+                                            connector,
+                                            dev,
+                                            format,
+                                            target,
+                                            direction,
+                                            rtpExtensions,
+                                            masterStream);
+
+            long ourSsrc = stream.getLocalSourceID();
+            if (direction.allowsSending() && ourSsrc != -1)
+            {
+                description.setSsrc(Long.toString(ourSsrc));
+                addSourceExtension(description, ourSsrc);
+            }
         }
         return sessAccept;
+    }
+
+    /**
+     * Adds a <tt>SourcePacketExtension</tt> as a child element of
+     * <tt>description</tt>. See XEP-0339.
+     *
+     * @param description the <tt>RtpDescriptionPacketExtension</tt> to which
+     * a child element will be added.
+     * @param ssrc the SSRC for the <tt>SourcePacketExtension</tt> to use.
+     */
+    private void addSourceExtension(RtpDescriptionPacketExtension description,
+                                    long ssrc)
+    {
+        MediaType type = MediaType.parseString(description.getMedia());
+
+        SourcePacketExtension sourcePacketExtension
+                = new SourcePacketExtension();
+
+        sourcePacketExtension.setSSRC(ssrc);
+        sourcePacketExtension.addChildExtension(
+                new ParameterPacketExtension("cname",
+                                             LibJitsi.getMediaService()
+                                                .getRtpCname()));
+        sourcePacketExtension.addChildExtension(
+                new ParameterPacketExtension("msid", getMsid(type)));
+        sourcePacketExtension.addChildExtension(
+                new ParameterPacketExtension("mslabel", getMsLabel()));
+        sourcePacketExtension.addChildExtension(
+                new ParameterPacketExtension("label", getLabel(type)));
+
+        description.addChildExtension(sourcePacketExtension);
     }
 
     /**
@@ -1504,8 +1544,7 @@ public class CallPeerMediaHandlerJabberImpl
         {
             for (CallPeerJabberImpl peer : call.getCallPeerList())
             {
-                SendersEnum senders
-                    = peer.getSenders(mediaType);
+                SendersEnum senders = peer.getSenders(mediaType);
                 boolean initiator = peer.isInitiator();
                 //check if the direction of the jingle session we have with
                 //this peer allows us receiving media. If senders is null,
@@ -2296,8 +2335,6 @@ public class CallPeerMediaHandlerJabberImpl
      * initiator of the call; <tt>false</tt>, otherwise.
      * @param remoteTransport the TRANSPORT element
      * @param mediaType The type of media (AUDIO or VIDEO).
-     * @param <tt>true</tt> if DTLS-SRTP has been selected by the local peer as
-     * the secure transport; otherwise, <tt>false</tt>
      */
     boolean addDtlsAdvertisedEncryptions(
             boolean isInitiator,
@@ -2322,7 +2359,7 @@ public class CallPeerMediaHandlerJabberImpl
                             ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                             true)
                         && accountID.isEncryptionProtocolEnabled(
-                                DtlsControl.PROTO_NAME))
+                                SrtpControlType.DTLS_SRTP))
                 {
                     Map<String,String> remoteFingerprints
                         = new LinkedHashMap<String,String>();
@@ -2407,21 +2444,16 @@ public class CallPeerMediaHandlerJabberImpl
             ContentPacketExtension localContent,
             ContentPacketExtension remoteContent)
     {
-        List<String> preferredEncryptionProtocols
+        List<SrtpControlType> preferredEncryptionProtocols
             = getPeer()
                 .getProtocolProvider()
                     .getAccountID()
                         .getSortedEnabledEncryptionProtocolList();
 
-        for (String preferredEncryptionProtocol : preferredEncryptionProtocols)
+        for (SrtpControlType srtpControlType : preferredEncryptionProtocols)
         {
-            String protoName
-                = preferredEncryptionProtocol.substring(
-                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length()
-                            + 1);
-
             // DTLS-SRTP
-            if (DtlsControl.PROTO_NAME.equals(protoName))
+            if (srtpControlType == SrtpControlType.DTLS_SRTP)
             {
                 addDtlsAdvertisedEncryptions(
                         false,
@@ -2448,7 +2480,7 @@ public class CallPeerMediaHandlerJabberImpl
                         : JingleUtils.getRtpDescription(remoteContent);
 
                 if (setAndAddPreferredEncryptionProtocol(
-                        protoName,
+                        srtpControlType,
                         mediaType,
                         localDescription,
                         remoteDescription))
@@ -2501,7 +2533,7 @@ public class CallPeerMediaHandlerJabberImpl
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
                 && accountID.isEncryptionProtocolEnabled(
-                        DtlsControl.PROTO_NAME))
+                        SrtpControlType.DTLS_SRTP))
         {
             boolean addFingerprintToLocalTransport;
 
@@ -2598,7 +2630,7 @@ public class CallPeerMediaHandlerJabberImpl
                         ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                         true)
                     && accountID.isEncryptionProtocolEnabled(
-                            DtlsControl.PROTO_NAME))
+                            SrtpControlType.DTLS_SRTP))
             {
                 // Gather the local fingerprints to be sent to the remote peer.
                 ColibriConferenceIQ.Channel channel

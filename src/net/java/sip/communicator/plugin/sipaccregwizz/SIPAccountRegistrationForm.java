@@ -271,7 +271,7 @@ public class SIPAccountRegistrationForm
         registration.setProxy(proxyAddress);
 
         String displayName = accountPanel.getDisplayName();
-        registration.setAccountDisplayName(displayName);
+        registration.setDisplayName(displayName);
 
         String authName = connectionPanel.getAuthenticationName();
         if(authName != null && authName.length() > 0)

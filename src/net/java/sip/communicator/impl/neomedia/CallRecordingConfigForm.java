@@ -15,9 +15,9 @@ import javax.swing.event.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.Logger;
 
-import org.jitsi.impl.neomedia.*;
+import org.jitsi.impl.neomedia.recording.*;
 import org.jitsi.service.configuration.*;
-import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.recording.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
 

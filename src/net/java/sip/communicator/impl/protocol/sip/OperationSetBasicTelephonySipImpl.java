@@ -313,8 +313,18 @@ public class OperationSetBasicTelephonySipImpl
             }
             else
             {
-                logger.error("reINVITEs while the dialog is not "
-                            + "confirmed are not currently supported.");
+                if (dialogState.equals(DialogState.TERMINATED))
+                {
+                    processStrayInvite(serverTransaction);
+                }
+                else
+                {
+                    logger.error("reINVITEs while the dialog is not "
+                        + "confirmed are not currently supported. "
+                        + "DialogState is: " + dialogState);
+                }
+
+                processed = true;
             }
         }
         // ACK
@@ -1164,6 +1174,55 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         callPeer.processBye(serverTransaction);
+    }
+
+    /**
+     * Processes stray INVITE requests that arrive for a dialog which has been
+     * already terminated. This method simply responds with a
+     * 481 Call/Transaction Does Not exist.
+     *
+     * @param serverTransaction the ServerTransaction the INVITE request
+     * arrived in.
+     */
+    private void processStrayInvite(ServerTransaction serverTransaction)
+    {
+        logger.info("got an INVITE for a dead dialog. Rejecting");
+
+        Request inviteRequest = serverTransaction.getRequest();
+
+        // Send 481 Call/Transaction Does Not exist
+        Response noSuchCall = null;
+        try
+        {
+            noSuchCall = messageFactory.createResponse(
+                Response.CALL_OR_TRANSACTION_DOES_NOT_EXIST, inviteRequest);
+        }
+        catch (ParseException ex)
+        {
+            logger
+                .error("Error while trying to send a response to an INVITE", ex);
+            /*
+             * No need to let the user know about the error since it doesn't
+             * affect them.
+             */
+        }
+
+        if (noSuchCall != null)
+        {
+            try
+            {
+                serverTransaction.sendResponse(noSuchCall);
+                if (logger.isDebugEnabled())
+                    logger.debug("sent response " + noSuchCall);
+            }
+            catch (Exception ex)
+            {
+                logger.error("Failed to reject a stray INVITE with a 481, "
+                    + "exception was:\n", ex);
+            }
+        }
+
+        //there's really nothing else for us to do here.
     }
 
     /**

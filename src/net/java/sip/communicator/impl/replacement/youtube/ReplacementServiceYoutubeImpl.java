@@ -29,8 +29,8 @@ public class ReplacementServiceYoutubeImpl
      * The regex used to match the link in the message.
      */
     public static final String YOUTUBE_PATTERN =
-        "(?<=>)(https?\\:\\/\\/(www\\.)*?youtube\\.com"
-        + "\\/watch\\?v=([a-zA-Z0-9_\\-]+))([?&]\\w+=[\\w-]+)*(?=</A>)";
+        "(https?\\:\\/\\/(www\\.)*?youtube\\.com"
+        + "\\/watch\\?v=([a-zA-Z0-9_\\-]+))([?&]\\w+=[\\w-]+)*";
 
     /**
      * Configuration label shown in the config form.

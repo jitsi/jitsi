@@ -41,6 +41,11 @@ public class SipStatusEnum
      * The On the phone status. Indicates that the user is talking to the phone.
      */
     public static final String ON_THE_PHONE = "On the phone";
+    
+    /**
+     * The In meeting status. Indicates that the user is in meeting.
+     */
+    public static final String IN_A_MEETING = "In a meeting";
 
     /**
      * The Away  status. Indicates that the user has connectivity but might
@@ -75,6 +80,11 @@ public class SipStatusEnum
      * The On the phone status. Indicates that the user is talking to the phone.
      */
     private final SipPresenceStatus onThePhoneStatus;
+    
+    /**
+     * The On the phone status. Indicates that the user is talking to the phone.
+     */
+    private final SipPresenceStatus inMeetingStatus;
 
     /**
      * The Away  status. Indicates that the user has connectivity but might
@@ -116,6 +126,11 @@ public class SipStatusEnum
             31,
             ON_THE_PHONE,
             loadIcon(iconPath + "/sip16x16-phone.png"));
+        
+        this.inMeetingStatus = new SipPresenceStatus(
+            32,
+            IN_A_MEETING,
+            loadIcon(iconPath + "/sip16x16-meeting.png"));
 
         this.awayStatus = new SipPresenceStatus(
             40,
@@ -136,6 +151,7 @@ public class SipStatusEnum
         supportedStatusSet.add(onlineStatus);
         supportedStatusSet.add(awayStatus);
         supportedStatusSet.add(onThePhoneStatus);
+        supportedStatusSet.add(inMeetingStatus);
         supportedStatusSet.add(busyStatus);
         supportedStatusSet.add(offlineStatus);
     }
@@ -156,6 +172,8 @@ public class SipStatusEnum
             return busyStatus;
         else if (statusName.equals(ON_THE_PHONE))
             return onThePhoneStatus;
+        else if (statusName.equals(IN_A_MEETING))
+            return inMeetingStatus;
         else if (statusName.equals(AWAY))
             return awayStatus;
         else

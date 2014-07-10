@@ -112,7 +112,7 @@ public class ImageUtils
 
         try
         {
-            Image image = null;
+            Image image;
 
             // sometimes ImageIO fails, will fall back to awt Toolkit
             try
@@ -375,7 +375,7 @@ public class ImageUtils
 
         try
         {
-            Image image = null;
+            Image image;
 
             // sometimes ImageIO fails, will fall back to awt Toolkit
             try
@@ -572,10 +572,8 @@ public class ImageUtils
     }
 
     /**
-     * Returns a scaled instance of the given <tt>image</tt>.
-     * @param image the image to scale
-     * @param width the desired width
-     * @param height the desired height
+     * Returns a bytes of the given <tt>scaledImage</tt>.
+     * @param scaledImage the image to scale
      * @return a byte array containing the scaled image
      */
     private static byte[] convertImageToBytes(BufferedImage scaledImage)
@@ -600,5 +598,36 @@ public class ImageUtils
         }
 
         return scaledBytes;
+    }
+
+    /**
+     * Sets the image of the incoming call notification.
+     *
+     * @param label the label to set the image to
+     * @param image the image to set
+     * @param width the desired image width
+     * @param height the desired image height
+     */
+    public static void setScaledLabelImage(
+        final JLabel label,
+        final byte[] image,
+        final int width,
+        final int height)
+    {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    setScaledLabelImage(label, image, width, height);
+                }
+            });
+            return;
+        }
+
+        label.setIcon(getScaledRoundedIcon(image, width, height));
+
+        label.repaint();
     }
 }

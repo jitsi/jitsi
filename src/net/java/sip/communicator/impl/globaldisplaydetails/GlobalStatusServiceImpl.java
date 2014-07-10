@@ -5,7 +5,9 @@
  */
 package net.java.sip.communicator.impl.globaldisplaydetails;
 
+import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.account.*;
@@ -22,13 +24,37 @@ import java.util.*;
  * @author Damian Minkov
  */
 public class GlobalStatusServiceImpl
-    implements GlobalStatusService
+    implements GlobalStatusService,
+               RegistrationStateChangeListener
 {
     /**
      * The object used for logging.
      */
     private final Logger logger
         = Logger.getLogger(GlobalStatusServiceImpl.class);
+
+    /**
+     * Handles newly added providers.
+     * @param pps
+     */
+    void handleProviderAdded(ProtocolProviderService pps)
+    {
+        pps.addRegistrationStateChangeListener(this);
+
+        if(pps.isRegistered())
+        {
+            handleProviderRegistered(pps);
+        }
+    }
+
+    /**
+     * Handles removed providers.
+     * @param pps the provider.
+     */
+    void handleProviderRemoved(ProtocolProviderService pps)
+    {
+        pps.removeRegistrationStateChangeListener(this);
+    }
 
     /**
      * Returns the global presence status.
@@ -261,18 +287,22 @@ public class GlobalStatusServiceImpl
      *
      * @param protocolProvider the protocol provider to which we
      * change the status.
-     * @param status the status tu publish.
+     * @param status the status to publish.
      */
     public void publishStatus(
             ProtocolProviderService protocolProvider,
-            PresenceStatus status,
-            boolean rememberStatus)
+            PresenceStatus status)
     {
         OperationSetPresence presence
                 = protocolProvider.getOperationSet(OperationSetPresence.class);
 
-        LoginManager loginManager
-            = GlobalDisplayDetailsActivator.getUIService().getLoginManager();
+        LoginManager loginManager = null;
+        UIService uiService = GlobalDisplayDetailsActivator.getUIService();
+        if(uiService != null)
+        {
+            loginManager = uiService.getLoginManager();
+        }
+
         RegistrationState registrationState
             = protocolProvider.getRegistrationState();
 
@@ -289,7 +319,8 @@ public class GlobalStatusServiceImpl
             }
             else
             {
-                loginManager.setManuallyDisconnected(true);
+                if(loginManager != null)
+                    loginManager.setManuallyDisconnected(true);
                 LoginManager.logoff(protocolProvider);
             }
         }
@@ -305,14 +336,14 @@ public class GlobalStatusServiceImpl
                 && !(registrationState
                         == RegistrationState.UNREGISTERING))
         {
-            loginManager.setManuallyDisconnected(true);
+            if(loginManager != null)
+                loginManager.setManuallyDisconnected(true);
             LoginManager.logoff(protocolProvider);
         }
 
-        if(rememberStatus)
-            saveStatusInformation(
-                protocolProvider,
-                status.getStatusName());
+        saveStatusInformation(
+            protocolProvider,
+            status.getStatusName());
     }
 
     /**
@@ -513,9 +544,9 @@ public class GlobalStatusServiceImpl
         if (!protocolProvider.isRegistered())
             return;
 
-        PresenceStatus status = getPresenceStatus(  protocolProvider,
-                                                    floorStatusValue,
-                                                    ceilStatusValue);
+        PresenceStatus status = getPresenceStatus(protocolProvider,
+            floorStatusValue,
+            ceilStatusValue);
 
         if (status != null)
         {
@@ -625,6 +656,43 @@ public class GlobalStatusServiceImpl
             configService.setProperty(
                 accountPackage + ".lastAccountStatus",
                 statusName);
+        }
+    }
+
+    /**
+     * Waits for providers to register and then checks for its last status
+     * saved if any and used it to restore its status.
+     * @param evt a <tt>RegistrationStateChangeEvent</tt> which describes the
+    */
+    @Override
+    public void registrationStateChanged(RegistrationStateChangeEvent evt)
+    {
+        if(!evt.getNewState().equals(RegistrationState.REGISTERED))
+            return;
+
+        handleProviderRegistered(evt.getProvider());
+    }
+
+    /**
+     * Handles registered providers. If provider has a stored last status
+     * publish that status, otherwise we just publish that they
+     * are Online/Available/
+     * @param pps the provider
+     */
+    private void handleProviderRegistered(ProtocolProviderService pps)
+    {
+        PresenceStatus status = getLastPresenceStatus(pps);
+
+        if(status == null)
+        {
+            // lets publish just online
+            status = AccountStatusUtils.getOnlineStatus(pps);
+        }
+
+        if (status != null
+            && status.getStatus() >= PresenceStatus.ONLINE_THRESHOLD)
+        {
+            publishStatus(pps, status);
         }
     }
 

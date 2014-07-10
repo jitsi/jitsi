@@ -40,8 +40,8 @@ public abstract class AbstractPacketExtension
     /**
      * A map of all attributes that this extension is currently using.
      */
-    protected final Map<String, String> attributes
-                                    = new LinkedHashMap<String, String>();
+    protected final Map<String, Object> attributes
+        = new LinkedHashMap<String, Object>();
     
     /**
      * A list of all packets that are wrapped by this extension.
@@ -121,7 +121,7 @@ public abstract class AbstractPacketExtension
             bldr.append("xmlns='").append(namespace).append("'");
 
         //add the rest of the attributes if any
-        for(Map.Entry<String, String> entry : attributes.entrySet())
+        for(Map.Entry<String, Object> entry : attributes.entrySet())
         {
             bldr.append(" ").append(entry.getKey()).append("='")
                     .append(entry.getValue()).append("'");
@@ -235,7 +235,7 @@ public abstract class AbstractPacketExtension
         synchronized(attributes)
         {
             if(value != null)
-                this.attributes.put(name, value.toString());
+                this.attributes.put(name, value);
             else
                 this.attributes.remove(name);
         }

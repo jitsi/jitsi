@@ -19,7 +19,7 @@ import net.java.sip.communicator.util.*;
  * @author Sebastien Vincent
  */
 public class GoogleContactsSourceService
-    implements ExtendedContactSourceService
+    implements ExtendedContactSourceService, PrefixedContactSourceService
 {
     /**
      * Logger.
@@ -406,6 +406,7 @@ public class GoogleContactsSourceService
      *
      * @return the phoneNumber prefix for all phone numbers
      */
+    @Override
     public String getPhoneNumberPrefix()
     {
         return phoneNumberprefix;

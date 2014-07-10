@@ -122,6 +122,11 @@ public class GuiActivator implements BundleActivator
         replacementSourcesMap = new Hashtable<String, ReplacementService>();
 
     /**
+     * The registered PhoneNumberI18nService.
+     */
+    private static PhoneNumberI18nService phoneNumberI18nService;
+
+    /**
      * Indicates if this bundle has been started.
      */
     public static boolean isStarted = false;
@@ -163,6 +168,7 @@ public class GuiActivator implements BundleActivator
 
             SwingUtilities.invokeLater(new Runnable()
             {
+                @Override
                 public void run()
                 {
                     uiService.loadApplicationGui();
@@ -172,31 +178,31 @@ public class GuiActivator implements BundleActivator
 
                     bundleContext.addServiceListener(uiService);
 
-                    // don't block the ui thread
-                    // with registering services, as they are executed
-                    // in the same thread as registering
-                    new Thread(new Runnable()
+                    // don't block the ui thread with registering services, as
+                    // they are executed in the same thread as registering
+                    new Thread()
                     {
+                        @Override
                         public void run()
                         {
                             if (logger.isInfoEnabled())
                                 logger.info("UI Service...[  STARTED ]");
 
                             bundleContext.registerService(
-                                UIService.class.getName(),
-                                uiService,
-                                null);
+                                    UIService.class.getName(),
+                                    uiService,
+                                    null);
 
                             if (logger.isInfoEnabled())
                                 logger.info("UI Service ...[REGISTERED]");
 
                             // UIServiceImpl also implements ShutdownService.
                             bundleContext.registerService(
-                                ShutdownService.class.getName(),
-                                uiService,
-                                null);
+                                    ShutdownService.class.getName(),
+                                    uiService,
+                                    null);
                         }
-                    }).start();
+                    }.start();
                 }
             });
 
@@ -891,10 +897,8 @@ public class GuiActivator implements BundleActivator
     {
         if (mucService == null)
         {
-            ServiceReference mucServiceReference
-                = bundleContext.getServiceReference(MUCService.class.getName());
             mucService
-                = (MUCService) bundleContext.getService(mucServiceReference);
+                = ServiceUtils.getService(bundleContext, MUCService.class);
         }
         return mucService;
     }
@@ -910,5 +914,21 @@ public class GuiActivator implements BundleActivator
             messageHistoryService = ServiceUtils.getService(bundleContext, 
                 MessageHistoryService.class);
         return messageHistoryService;
+    }
+
+    /**
+     * Returns the PhoneNumberI18nService.
+     * @return returns the PhoneNumberI18nService.
+     */
+    public static PhoneNumberI18nService getPhoneNumberI18nService()
+    {
+        if(phoneNumberI18nService == null)
+        {
+            phoneNumberI18nService = ServiceUtils.getService(
+                bundleContext,
+                PhoneNumberI18nService.class);
+        }
+
+        return phoneNumberI18nService;
     }
 }

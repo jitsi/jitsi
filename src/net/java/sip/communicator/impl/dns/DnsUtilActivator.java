@@ -111,6 +111,8 @@ public class DnsUtilActivator
         if(Logger.getLogger("org.xbill").isTraceEnabled())
             Options.set("verbose", "1");
 
+        Lookup.setCustomLogger(new DnsJavaLogger());
+
         if(loadDNSProxyForward())
         {
             // dns is forced to go through a proxy so skip any further settings
@@ -213,12 +215,14 @@ public class DnsUtilActivator
          */
         public void configurationChanged(ChangeEvent event)
         {
-            if((event.getType() == ChangeEvent.IFACE_UP
+            if(event.getType() == ChangeEvent.IFACE_UP
                 || event.getType() == ChangeEvent.IFACE_DOWN
                 || event.getType() == ChangeEvent.DNS_CHANGE)
-                && !event.isInitial())
             {
-                reloadDnsResolverConfig();
+                if(event.isInitial())
+                    logDNSServers();
+                else
+                    reloadDnsResolverConfig();
             }
         }
     }
@@ -230,17 +234,7 @@ public class DnsUtilActivator
     {
         // reread system dns configuration
         ResolverConfig.refresh();
-        if(logger.isInfoEnabled())
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Reloaded resolver config, default DNS servers are: ");
-            for(String s : ResolverConfig.getCurrentConfig().servers())
-            {
-                sb.append(s);
-                sb.append(", ");
-            }
-            logger.info(sb.toString());
-        }
+        logDNSServers();
 
         // now reset an eventually present custom resolver
         if(Lookup.getDefaultResolver() instanceof CustomResolver)
@@ -258,6 +252,34 @@ public class DnsUtilActivator
             // or the default otherwise
             if(!loadDNSProxyForward())
                 Lookup.refreshDefault();
+        }
+    }
+
+    /**
+     * Logs the currently configured dns servers.
+     */
+    private static void logDNSServers()
+    {
+        if(logger.isInfoEnabled())
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Loading or Reloading resolver config, ")
+                .append("default DNS servers are: ");
+            ResolverConfig config = ResolverConfig.getCurrentConfig();
+            if (config != null && config.servers() != null)
+            {
+                for(String s : config.servers())
+                {
+                    sb.append(s);
+                    sb.append(", ");
+                }
+            }
+            else
+            {
+                sb.append("undefined");
+            }
+
+            logger.info(sb.toString());
         }
     }
 

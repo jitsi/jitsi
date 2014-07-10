@@ -20,7 +20,7 @@ import net.java.sip.communicator.service.contactsource.*;
  * @author Ingo Bauersachs
  */
 public class ThunderbirdContactSourceService
-    implements ExtendedContactSourceService
+    implements ExtendedContactSourceService, PrefixedContactSourceService
 {
     /**
      * Name of the base-property for a Thunderbird address book configuration.
@@ -207,6 +207,7 @@ public class ThunderbirdContactSourceService
      * net.java.sip.communicator.service.contactsource.ExtendedContactSourceService
      * #getPhoneNumberPrefix()
      */
+    @Override
     public String getPhoneNumberPrefix()
     {
         return this.prefix;

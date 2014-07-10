@@ -34,12 +34,4 @@ public interface ExtendedContactSourceService
      * @return the created query
      */
     public ContactQuery createContactQuery(Pattern queryPattern);
-
-    /**
-     * Returns the global phone number prefix to be used when calling contacts
-     * from this contact source.
-     *
-     * @return the global phone number prefix
-     */
-    public String getPhoneNumberPrefix();
 }

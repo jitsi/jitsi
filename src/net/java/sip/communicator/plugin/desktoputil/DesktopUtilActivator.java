@@ -1,6 +1,7 @@
 package net.java.sip.communicator.plugin.desktoputil;
 
 import java.awt.image.*;
+import java.lang.reflect.*;
 import java.net.*;
 import java.security.cert.*;
 
@@ -111,16 +112,35 @@ public class DesktopUtilActivator
                     if(icon instanceof ImageIcon)
                         imageIcon = (ImageIcon)icon;
 
-                    return new net.java.sip.communicator.plugin.desktoputil
-                        .AuthenticationWindow(
-                            userName, password,
-                            server,
-                            isUserNameEditable, isRememberPassword,
-                            imageIcon,
-                            windowTitle, windowText,
-                            usernameLabelText, passwordLabelText,
-                            errorMessage,
-                            signupLink);
+                    AuthenticationWindowCreator creator
+                        = new AuthenticationWindowCreator(
+                                userName,
+                                password,
+                                server,
+                                isUserNameEditable,
+                                isRememberPassword,
+                                imageIcon,
+                                windowTitle,
+                                windowText,
+                                usernameLabelText,
+                                passwordLabelText,
+                                errorMessage,
+                                signupLink);
+
+                    try
+                    {
+                        SwingUtilities.invokeAndWait(creator);
+                    }
+                    catch(InterruptedException e)
+                    {
+                        logger.error("Error creating dialog", e);
+                    }
+                    catch(InvocationTargetException e)
+                    {
+                        logger.error("Error creating dialog", e);
+                    }
+
+                    return creator.authenticationWindow;
                 }
             },
             null);
@@ -260,7 +280,23 @@ public class DesktopUtilActivator
     public VerifyCertificateDialog createDialog(
         Certificate[] certs, String title, String message)
     {
-        return new VerifyCertificateDialogImpl(certs, title, message);
+        VerifyCertificateDialogCreator creator
+            = new VerifyCertificateDialogCreator(certs, title, message);
+
+        try
+        {
+            SwingUtilities.invokeAndWait(creator);
+        }
+        catch(InterruptedException e)
+        {
+            logger.error("Error creating dialog", e);
+        }
+        catch(InvocationTargetException e)
+        {
+            logger.error("Error creating dialog", e);
+        }
+
+        return creator.dialog;
     }
 
     /**
@@ -345,5 +381,134 @@ public class DesktopUtilActivator
                         GlobalDisplayDetailsService.class);
         }
         return globalDisplayDetailsService;
+    }
+
+    /**
+     * Runnable to create verify dialog.
+     */
+    private class VerifyCertificateDialogCreator
+        implements Runnable
+    {
+        /**
+         * Certs.
+         */
+        private final Certificate[] certs;
+
+        /**
+         * Dialog title.
+         */
+        private final String title;
+
+        /**
+         * Dialog message.
+         */
+        private final String message;
+
+        /**
+         * The result dialog.
+         */
+        VerifyCertificateDialogImpl dialog = null;
+
+        /**
+         * Constructs.
+         * @param certs the certificates list
+         * @param title The title of the dialog; when null the resource
+         * <tt>service.gui.CERT_DIALOG_TITLE</tt> is loaded and used.
+         * @param message A text that describes why the verification failed.
+         */
+        private VerifyCertificateDialogCreator(
+            Certificate[] certs, String title, String message)
+        {
+            this.certs = certs;
+            this.title = title;
+            this.message = message;
+        }
+
+        @Override
+        public void run()
+        {
+            dialog = new VerifyCertificateDialogImpl(certs, title, message);
+        }
+    }
+
+    /**
+     * Runnable to create auth window.
+     */
+    private class AuthenticationWindowCreator
+        implements Runnable
+    {
+        String userName;
+        char[] password;
+        String server;
+        boolean isUserNameEditable;
+        boolean isRememberPassword;
+        String windowTitle;
+        String windowText;
+        String usernameLabelText;
+        String passwordLabelText;
+        String errorMessage;
+        String signupLink;
+        ImageIcon imageIcon;
+
+        AuthenticationWindowService.AuthenticationWindow authenticationWindow;
+
+        /**
+         * Creates an instance of the <tt>AuthenticationWindow</tt>
+         * implementation.
+         *
+         * @param server the server name
+         * @param isUserNameEditable indicates if the user name is editable
+         * @param imageIcon the icon to display on the left of
+         * the authentication window
+         * @param windowTitle customized window title
+         * @param windowText customized window text
+         * @param usernameLabelText customized username field label text
+         * @param passwordLabelText customized password field label text
+         * @param errorMessage an error message if this dialog is shown
+         * to indicate the user that something went wrong
+         * @param signupLink an URL that allows the user to sign up
+         */
+        public AuthenticationWindowCreator(String userName,
+                                           char[] password,
+                                           String server,
+                                           boolean isUserNameEditable,
+                                           boolean isRememberPassword,
+                                           ImageIcon imageIcon,
+                                           String windowTitle,
+                                           String windowText,
+                                           String usernameLabelText,
+                                           String passwordLabelText,
+                                           String errorMessage,
+                                           String signupLink)
+        {
+            this.userName = userName;
+            this.password = password;
+            this.server = server;
+            this.isUserNameEditable = isUserNameEditable;
+            this.isRememberPassword = isRememberPassword;
+            this.windowTitle = windowTitle;
+            this.windowText = windowText;
+            this.usernameLabelText = usernameLabelText;
+            this.passwordLabelText = passwordLabelText;
+            this.errorMessage = errorMessage;
+            this.signupLink = signupLink;
+            this.imageIcon = imageIcon;
+        }
+
+        @Override
+        public void run()
+        {
+            authenticationWindow
+                = new net.java.sip.communicator.plugin.desktoputil
+                    .AuthenticationWindow(
+                    userName, password,
+                    server,
+                    isUserNameEditable, isRememberPassword,
+                    imageIcon,
+                    windowTitle, windowText,
+                    usernameLabelText, passwordLabelText,
+                    errorMessage,
+                    signupLink);
+        }
     }
 }

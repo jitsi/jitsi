@@ -10,6 +10,7 @@ import java.awt.Container;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.Timer;
@@ -24,6 +25,8 @@ import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.gui.event.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -95,6 +98,17 @@ public class ChatWritePanel
     private boolean smsMode = false;
 
     /**
+     * Mode where we do not mix sending im and sms in one chat window.
+     */
+    private boolean disableMergedSmsMode = false;
+
+    /**
+     * Property to control merge sms mode.
+     */
+    private static final String MERGE_SMS_MODE_DISABLED_PROP
+        = "net.java.sip.communicator.impl.gui.MERGE_SMS_MODE_DISABLED";
+
+    /**
      * A timer used to reset the transport resource to the bare ID if there was
      * no activity from this resource since a bunch of time.
      */
@@ -141,6 +155,9 @@ public class ChatWritePanel
         // initialize send command to Ctrl+Enter
         ConfigurationService configService =
             GuiActivator.getConfigurationService();
+
+        disableMergedSmsMode = configService.getBoolean(
+            MERGE_SMS_MODE_DISABLED_PROP, disableMergedSmsMode);
 
         String messageCommandProperty =
             "service.gui.SEND_MESSAGE_COMMAND";
@@ -282,6 +299,11 @@ public class ChatWritePanel
             @Override
             public void actionPerformed(ActionEvent e)
             {
+                if(smsMode && !isIMAllowed())
+                {
+                    return;
+                }
+
                 smsMode = smsButton.isSelected();
 
                 Color bgColor;
@@ -450,6 +472,9 @@ public class ChatWritePanel
      */
     public void setSmsSelected(boolean selected)
     {
+        if(disableMergedSmsMode && isIMAllowed())
+            return;
+
         if((selected && !smsButton.isSelected())
             || (!selected && smsButton.isSelected()))
         {
@@ -466,6 +491,39 @@ public class ChatWritePanel
     public boolean isSmsSelected()
     {
         return smsMode;
+    }
+
+    /**
+     * Checks if sending IM message is allowed. When in sms mode, it
+     * can be the only method to send message. We will disable sms -> im
+     * switching.
+     * @return is IM allowed.
+     */
+    private boolean isIMAllowed()
+    {
+        // check are we allowed to change back to im mode
+        Object descr = chatPanel.getChatSession().getDescriptor();
+
+        if(descr instanceof MetaContact)
+        {
+            List<Contact> imContact
+                = ((MetaContact)descr).getContactsForOperationSet(
+                OperationSetBasicInstantMessaging.class);
+
+            if(imContact == null || imContact.size() == 0)
+                return false;
+        }
+        else if(descr instanceof SourceContact)
+        {
+            List<ContactDetail> imContact
+                = ((SourceContact)descr).getContactDetails(
+                OperationSetBasicInstantMessaging.class);
+
+            if(imContact == null || imContact.size() == 0)
+                return false;
+        }
+
+        return true;
     }
 
     /**
@@ -587,13 +645,17 @@ public class ChatWritePanel
     public void keyPressed(KeyEvent e)
     {
         if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK
-            && (e.getKeyCode() == KeyEvent.VK_Z))
+            && (e.getKeyCode() == KeyEvent.VK_Z)
+            // And not ALT(right ALT gives CTRL + ALT).
+            && (e.getModifiers() & KeyEvent.ALT_MASK) != KeyEvent.ALT_MASK)
         {
             if (undo.canUndo())
                 undo();
         }
         else if ((e.getModifiers() & KeyEvent.CTRL_MASK) == KeyEvent.CTRL_MASK
-            && (e.getKeyCode() == KeyEvent.VK_R))
+            && (e.getKeyCode() == KeyEvent.VK_R)
+            // And not ALT(right ALT gives CTRL + ALT).
+            && (e.getModifiers() & KeyEvent.ALT_MASK) != KeyEvent.ALT_MASK)
         {
             if (undo.canRedo())
                 redo();
@@ -979,8 +1041,9 @@ public class ChatWritePanel
                 chatPanel.getChatSession(),
                 chatPanel.getChatSession().getCurrentChatTransport());
 
-            if(ConfigurationUtils.isHideAccountSelectionWhenPossibleEnabled()
+            if((ConfigurationUtils.isHideAccountSelectionWhenPossibleEnabled()
                 && transportSelectorBox.getMenu().getItemCount() <= 1)
+                || !isIMAllowed())
                 transportSelectorBox.setVisible(false);
         }
 
@@ -1248,6 +1311,9 @@ public class ChatWritePanel
      */
     public void setSmsLabelVisible(boolean isVisible)
     {
+        if(disableMergedSmsMode && isIMAllowed())
+            return;
+
         // Re-init sms count properties.
         smsCharCount = 160;
         smsNumberCount = 1;
@@ -1431,16 +1497,7 @@ public class ChatWritePanel
         // If we're in sms mode count the chars typed.
         if (smsButton.isVisible())
         {
-            if (smsCharCount == 0)
-            {
-                smsCharCount = 159;
-                smsNumberCount ++;
-            }
-            else
-                smsCharCount--;
-
-            smsCharCountLabel.setText(String.valueOf(smsCharCount));
-            smsNumberLabel.setText(String.valueOf(smsNumberCount));
+            updateSmsCounters(event.getDocument().getLength());
         }
     }
 
@@ -1455,17 +1512,21 @@ public class ChatWritePanel
         // If we're in sms mode count the chars typed.
         if (smsButton.isVisible())
         {
-            if (smsCharCount == 160 && smsNumberCount > 1)
-            {
-                smsCharCount = 0;
-                smsNumberCount --;
-            }
-            else
-                smsCharCount++;
-
-            smsCharCountLabel.setText(String.valueOf(smsCharCount));
-            smsNumberLabel.setText(String.valueOf(smsNumberCount));
+            updateSmsCounters(event.getDocument().getLength());
         }
+    }
+
+    /**
+     * Updates sms counters, 160 chars in one sms.
+     * @param documentLength the current document length
+     */
+    private void updateSmsCounters(int documentLength)
+    {
+        smsCharCount = 160 - documentLength % 160;
+        smsNumberCount = 1 + documentLength/160;
+
+        smsCharCountLabel.setText(String.valueOf(smsCharCount));
+        smsNumberLabel.setText(String.valueOf(smsNumberCount));
     }
 
     /**

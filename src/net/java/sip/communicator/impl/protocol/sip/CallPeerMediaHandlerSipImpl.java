@@ -105,7 +105,7 @@ public class CallPeerMediaHandlerSipImpl
 
     /**
      * Creates a session description <tt>String</tt> representing the
-     * <tt>MediaStream</tt>s that this <tt>MediaHandler</tt> is prepare to
+     * <tt>MediaStream</tt>s that this <tt>MediaHandler</tt> is prepared to
      * exchange. The offer takes into account user preferences such as whether
      * or not local user would be transmitting video, whether any or all streams
      * are put on hold, etc. The method is also taking into account any previous
@@ -126,6 +126,14 @@ public class CallPeerMediaHandlerSipImpl
             = (localSess == null)
                 ? createFirstOffer()
                 : createUpdateOffer(localSess);
+
+        if (getConfigurationService().getBoolean(
+                ProtocolProviderServiceSipImpl
+                        .USE_SESSION_LEVEL_DIRECTION_IN_SDP,
+                false))
+        {
+            SdpUtils.setSessionDirection(offer);
+        }
 
         return offer.toString();
     }
@@ -155,6 +163,10 @@ public class CallPeerMediaHandlerSipImpl
                     getTransportManager().getLastUsedLocalHost(),
                     userName,
                     mediaDescs);
+
+        //ICE HACK - please fix
+        //new IceTransportManagerSipImpl(getPeer()).startCandidateHarvest(
+        //    sDes, null, false, false, false, false, false );
 
         this.localSess = sDes;
         return localSess;
@@ -374,10 +386,19 @@ public class CallPeerMediaHandlerSipImpl
 
         synchronized (offerAnswerLock)
         {
-            if (localSess == null)
-                return processFirstOffer(offer).toString();
-            else
-                return processUpdateOffer(offer, localSess).toString();
+            SessionDescription answer = (localSess == null)
+                    ? processFirstOffer(offer)
+                    : processUpdateOffer(offer, localSess);
+
+            if (getConfigurationService().getBoolean(
+                    ProtocolProviderServiceSipImpl
+                            .USE_SESSION_LEVEL_DIRECTION_IN_SDP,
+                    false))
+            {
+                SdpUtils.setSessionDirection(answer);
+            }
+
+            return answer.toString();
         }
     }
 
@@ -510,15 +531,16 @@ public class CallPeerMediaHandlerSipImpl
                         e);
             }
 
-            /*
-             * Ignore a RTP/AVP(F) stream when RTP/SAVP(F) is mandatory. At the
-             * time of this writing we support ZRTP, SDES and DTLS-SRTP.
-             */
+            // Disable and ignore a RTP/AVP(F) stream when RTP/SAVP(F) is
+            // mandatory. Set the flag that we had such a stream to fail the
+            // complete offer if it was the only stream.
             if ((savpOption == ProtocolProviderFactory.SAVP_MANDATORY)
                     && !(proto.endsWith(SrtpControl.RTP_SAVP)
                             || proto.endsWith(SrtpControl.RTP_SAVPF)))
             {
                 rejectedAvpOfferDueToSavpMandatory = true;
+                answerDescriptions.add(
+                        SdpUtils.createDisablingAnswer(mediaDescription));
                 continue;
             }
 
@@ -767,7 +789,7 @@ public class CallPeerMediaHandlerSipImpl
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
                 && accountID.isEncryptionProtocolEnabled(
-                        DtlsControl.PROTO_NAME))
+                        SrtpControlType.DTLS_SRTP))
         {
             /*
              * The transport protocol of the media described by localMd should
@@ -997,7 +1019,7 @@ public class CallPeerMediaHandlerSipImpl
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
                 || !accountID.isEncryptionProtocolEnabled(
-                        SDesControl.PROTO_NAME))
+                        SrtpControlType.SDES))
         {
             return false;
         }
@@ -1080,7 +1102,7 @@ public class CallPeerMediaHandlerSipImpl
         if(accountID.getAccountPropertyBoolean(
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
-                && accountID.isEncryptionProtocolEnabled(ZrtpControl.PROTO_NAME)
+                && accountID.isEncryptionProtocolEnabled(SrtpControlType.ZRTP)
                 && peer.getCall().isSipZrtpAttribute())
         {
             ZrtpControl zrtpControl
@@ -1151,19 +1173,15 @@ public class CallPeerMediaHandlerSipImpl
              * List the secure transports in the result according to the order
              * of preference of their respective encryption protocols.
              */
-            List<String> encryptionProtocols
+            List<SrtpControlType> encryptionProtocols
                 = accountID.getSortedEnabledEncryptionProtocolList();
 
             for (int epi = encryptionProtocols.size() - 1; epi >= 0; epi--)
             {
-                String encryptionProtocol = encryptionProtocols.get(epi);
-                String protoName
-                    = encryptionProtocol.substring(
-                            ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length()
-                                + 1);
+                SrtpControlType srtpControlType = encryptionProtocols.get(epi);
                 String[] protos;
 
-                if (DtlsControl.PROTO_NAME.equals(protoName))
+                if (srtpControlType == SrtpControlType.DTLS_SRTP)
                 {
                     protos
                         = new String[]
@@ -1687,7 +1705,7 @@ public class CallPeerMediaHandlerSipImpl
                             SrtpCryptoAttribute.create(a.getValue()));
                 }
             }
-            catch (SdpParseException e)
+            catch (Exception e)
             {
                 logger.error("received an unparsable sdp attribute", e);
             }
@@ -1716,21 +1734,16 @@ public class CallPeerMediaHandlerSipImpl
             MediaDescription remoteMd)
     {
         // Sets ZRTP or SDES, depending on the preferences for this account.
-        List<String> preferredEncryptionProtocols
+        List<SrtpControlType> preferredEncryptionProtocols
             = getPeer()
                 .getProtocolProvider()
                     .getAccountID()
                         .getSortedEnabledEncryptionProtocolList();
 
-        for(String preferredEncryptionProtocol : preferredEncryptionProtocols)
+        for(SrtpControlType srtpControlType : preferredEncryptionProtocols)
         {
-            String protoName
-                = preferredEncryptionProtocol.substring(
-                        ProtocolProviderFactory.ENCRYPTION_PROTOCOL.length()
-                            + 1);
-
             // DTLS-SRTP
-            if (DtlsControl.PROTO_NAME.equals(protoName))
+            if (srtpControlType == SrtpControlType.DTLS_SRTP)
             {
                 if(updateMediaDescriptionForDtls(mediaType, localMd, remoteMd))
                 {
@@ -1739,7 +1752,7 @@ public class CallPeerMediaHandlerSipImpl
                 }
             }
             // SDES
-            else if(SDesControl.PROTO_NAME.equals(protoName))
+            else if(srtpControlType == SrtpControlType.SDES)
             {
                 if(updateMediaDescriptionForSDes(mediaType, localMd, remoteMd))
                 {
@@ -1748,7 +1761,7 @@ public class CallPeerMediaHandlerSipImpl
                 }
             }
             // ZRTP
-            else if(ZrtpControl.PROTO_NAME.equals(protoName))
+            else if(srtpControlType == SrtpControlType.ZRTP)
             {
                 if(updateMediaDescriptionForZrtp(mediaType, localMd, remoteMd))
                 {

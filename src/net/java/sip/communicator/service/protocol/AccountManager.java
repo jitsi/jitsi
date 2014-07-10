@@ -151,6 +151,7 @@ public class AccountManager
                         bundleContext,
                         CredentialsStorageService.class);
 
+            int prefLen = storedAccount.length() + 1;
             for (Iterator<String> storedAccountPropertyIter
                         = storedAccountProperties.iterator();
                     storedAccountPropertyIter.hasNext();)
@@ -159,7 +160,10 @@ public class AccountManager
                 String value = configService.getString(property);
 
                 //strip the package prefix
-                property = property.substring(storedAccount.length() + 1);
+                if(prefLen > property.length())
+                    continue;
+
+                property = property.substring(prefLen);
 
                 if (ProtocolProviderFactory.IS_ACCOUNT_DISABLED.equals(property))
                     disabled = Boolean.parseBoolean(value);
@@ -802,6 +806,9 @@ public class AccountManager
             String storedAccountUID
                 = configurationService.getString(
                     storedAccount + "." + ProtocolProviderFactory.ACCOUNT_UID);
+
+            if(storedAccountUID == null)
+                continue;
 
             if (storedAccountUID.equals(accountUID))
                 accountNodeName = configurationService.getString(storedAccount);

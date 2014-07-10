@@ -1038,10 +1038,12 @@ public abstract class AbstractOperationSetTelephonyConferencing<
         for (CallPeer conferenceCallPeer : conferenceCallPeers)
         {
             if (conferenceCallPeer instanceof MediaAwareCallPeer<?,?,?>)
+            {
                 addPeerToConferenceInfo(
                         confInfo,
                         (MediaAwareCallPeer<?,?,?>)conferenceCallPeer,
                         true);
+            }
         }
 
         return confInfo;
@@ -1063,27 +1065,22 @@ public abstract class AbstractOperationSetTelephonyConferencing<
             boolean remote)
     {
         String entity
-                = remote
-                ? callPeer.getEntity()
-                : getLocalEntity(callPeer);
+            = remote ? callPeer.getEntity() : getLocalEntity(callPeer);
         ConferenceInfoDocument.User user = confInfo.addNewUser(entity);
 
         String displayName
-                = remote
-                ? callPeer.getDisplayName()
-                : getLocalDisplayName();
+            = remote ? callPeer.getDisplayName() : getLocalDisplayName();
         user.setDisplayText(displayName);
 
-        ConferenceInfoDocument.Endpoint endpoint
-                = user.addNewEndpoint(entity);
+        ConferenceInfoDocument.Endpoint endpoint = user.addNewEndpoint(entity);
 
         endpoint.setStatus(
-                remote
+            remote
                 ? getEndpointStatus(callPeer)
                 : ConferenceInfoDocument.EndpointStatusType.connected);
 
         CallPeerMediaHandler<?> mediaHandler
-                = callPeer.getMediaHandler();
+            = callPeer.getMediaHandler();
 
         for (MediaType mediaType : MediaType.values())
         {
@@ -1113,8 +1110,8 @@ public abstract class AbstractOperationSetTelephonyConferencing<
                             : callPeer.getCall().getCallPeerList())
                     {
                         MediaStream otherStream
-                            = otherCallPeer
-                                    .getMediaHandler().getStream(mediaType);
+                            = otherCallPeer.getMediaHandler().getStream(
+                                    mediaType);
                         if (otherStream != null)
                         {
                             srcId = otherStream.getLocalSourceID();

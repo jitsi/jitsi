@@ -8,13 +8,14 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import java.awt.*;
 import java.awt.event.*;
-
 import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
 import javax.swing.JPopupMenu.Separator;
 import javax.swing.tree.*;
+
+import org.jitsi.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.call.*;
@@ -114,6 +115,21 @@ public class ContactListTreeCellRenderer
      * The vertical gap between rows in pixels;
      */
     private static final int V_GAP = 3;
+
+    /**
+     * The calculated preferred height of a selected contact node.
+     */
+    private Integer preferredSelectedContactNodeHeight = null;
+
+    /**
+     * The calculated preferred height of a non selected contact node.
+     */
+    private Integer preferredNotSelectedContactNodeHeight = null;
+
+    /**
+     * The calculated preferred height of a group node.
+     */
+    private Integer preferredGroupNodeHeight = null;
 
     /**
      * The separator image for the button toolbar.
@@ -251,13 +267,13 @@ public class ContactListTreeCellRenderer
 
         loadSkin();
 
-        this.setOpaque(true);
-        this.nameLabel.setOpaque(false);
+        setOpaque(true);
+        nameLabel.setOpaque(false);
 
-        this.displayDetailsLabel.setFont(getFont().deriveFont(9f));
-        this.displayDetailsLabel.setForeground(Color.GRAY);
+        displayDetailsLabel.setFont(getFont().deriveFont(9f));
+        displayDetailsLabel.setForeground(Color.GRAY);
 
-        this.rightLabel.setHorizontalAlignment(JLabel.RIGHT);
+        rightLabel.setHorizontalAlignment(JLabel.RIGHT);
 
         // !! IMPORTANT: General insets used for all components if not
         // overwritten!
@@ -270,7 +286,7 @@ public class ContactListTreeCellRenderer
         constraints.gridheight = 1;
         constraints.weightx = 0f;
         constraints.weighty = 1f;
-        this.add(statusLabel, constraints);
+        add(statusLabel, constraints);
 
         addLabels(1);
 
@@ -323,17 +339,62 @@ public class ContactListTreeCellRenderer
                             .startChat(
                                 (MetaContact) contactDescriptor.getDescriptor());
                     }
-                    else if(((SourceContact) contactDescriptor.getDescriptor())
-                        .getContactDetails(OperationSetMultiUserChat.class) 
-                            != null)
+                    else if(contactDescriptor.getDescriptor()
+                            instanceof SourceContact)
                     {
                         SourceContact contact = (SourceContact)
                             contactDescriptor.getDescriptor();
-                        ChatRoomWrapper room 
-                            = GuiActivator.getMUCService()
+
+                        List<ContactDetail> imDetails
+                            = contact.getContactDetails(
+                                OperationSetBasicInstantMessaging.class);
+                        List<ContactDetail> mucDetails
+                            = contact.getContactDetails(
+                                OperationSetMultiUserChat.class);
+
+                        if(imDetails != null && imDetails.size() > 0)
+                        {
+                            ProtocolProviderService pps
+                                = imDetails.get(0).getPreferredProtocolProvider(
+                                    OperationSetBasicInstantMessaging.class);
+
+                            GuiActivator.getUIService().getChatWindowManager()
+                                .startChat(contact.getContactAddress(),
+                                           pps);
+                        }
+                        else if(mucDetails != null && mucDetails.size() > 0)
+                        {
+                            ChatRoomWrapper room = GuiActivator.getMUCService()
                                 .findChatRoomWrapperFromSourceContact(contact);
-                        if(room != null)
-                            GuiActivator.getMUCService().openChatRoom(room);
+
+                            if(room == null)
+                            {
+                                // lets check by id
+                                ProtocolProviderService pps =
+                                    mucDetails.get(0)
+                                        .getPreferredProtocolProvider(
+                                            OperationSetMultiUserChat.class);
+
+                                room = GuiActivator.getMUCService()
+                                    .findChatRoomWrapperFromChatRoomID(
+                                        contact.getContactAddress(), pps);
+
+                                if(room == null)
+                                {
+                                    GuiActivator.getMUCService().createChatRoom(
+                                        contact.getContactAddress(),
+                                        pps,
+                                        new ArrayList<String>(),
+                                        "",
+                                        false,
+                                        false,
+                                        false);
+                                }
+                            }
+
+                            if(room != null)
+                                GuiActivator.getMUCService().openChatRoom(room);
+                        }
                     }
                 }
             }
@@ -366,7 +427,7 @@ public class ContactListTreeCellRenderer
         });
 
         initButtonToolTips();
-        this.setToolTipText("");
+        setToolTipText("");
     }
 
     /**
@@ -391,7 +452,7 @@ public class ContactListTreeCellRenderer
         this.isSelected = selected;
         this.treeNode = (TreeNode) value;
 
-        this.rightLabel.setIcon(null);
+        rightLabel.setIcon(null);
 
         DefaultTreeContactList contactList = (DefaultTreeContactList) tree;
 
@@ -418,23 +479,26 @@ public class ContactListTreeCellRenderer
         }
 
         // clear icon if any (mobile indicator)
-        this.nameLabel.setIcon(null);
+        nameLabel.setIcon(null);
+        // TODO: remove debugging
+        nameLabel.setText(value.toString());
 
         // Make appropriate adjustments for contact nodes and group nodes.
         if (value instanceof ContactNode)
         {
             UIContactImpl contact
                 = ((ContactNode) value).getContactDescriptor();
-            
-            if((contact.getDescriptor() instanceof SourceContact) &&
-                ((SourceContact)contact.getDescriptor())
-                    .getPreferredContactDetail(OperationSetMultiUserChat.class) 
-                        != null)
+
+            MUCService mucService;
+            if((contact.getDescriptor() instanceof SourceContact)
+                && (mucService = GuiActivator.getMUCService()) != null
+                && mucService.isMUCSourceContact(
+                        (SourceContact) contact.getDescriptor()))
             {
                 setBackground(Constants.CHAT_ROOM_ROW_COLOR);
             }
-            String displayName = contact.getDisplayName();
 
+            String displayName = contact.getDisplayName();
             if ((displayName == null
                 || displayName.trim().length() < 1)
                 && !(contact instanceof ShowMoreContact))
@@ -443,7 +507,7 @@ public class ContactListTreeCellRenderer
                     .getI18NString("service.gui.UNKNOWN");
             }
 
-            this.nameLabel.setText(displayName);
+            nameLabel.setText(displayName);
 
             if(statusIcon != null
                 && contactList.isContactActive(contact)
@@ -452,28 +516,49 @@ public class ContactListTreeCellRenderer
             else
                 statusIcon = contact.getStatusIcon();
 
-            this.statusLabel.setIcon(statusIcon);
+            statusLabel.setIcon(statusIcon);
 
-            this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
+            /*
+             * FIXME A hard-coded absolute font size is surely not appropriate
+             * because it is completely oblivious of the default system font
+             * size. A JLabel will very likely use the closest to the default
+             * system font (size) so there is no reason to specify any font size
+             * here, let alone a hard-coded absolute one. Anyway, use a
+             * hard-coded absolute font size but at least do not fall bellow the
+             * default system font size. On second thought, we are pretty sure
+             * that we are using the default system font on Windows and it makes
+             * no sense whatsoever to change its size.
+             */
+            Font nameLabelFont = nameLabel.getFont();
+
+            nameLabel.setFont(
+                    nameLabelFont.deriveFont(
+                            Font.PLAIN,
+                            Math.max(
+                                    nameLabelFont.getSize2D(),
+                                    OSUtils.IS_WINDOWS ? 0F : 13F)));
 
             if (contactForegroundColor != null)
                 nameLabel.setForeground(contactForegroundColor);
 
             // Initializes status message components if the given meta contact
             // contains a status message.
-            this.initDisplayDetails(contact.getDisplayDetails());
+            initDisplayDetails(contact.getDisplayDetails());
 
             // Checks and set mobile indicator
             if (contact.getDescriptor() instanceof MetaContact
                 && isMobile((MetaContact)contact.getDescriptor()))
             {
-                this.nameLabel.setIcon(new ImageIcon(ImageLoader.getImage(
-                    ImageLoader.CONTACT_LIST_MOBILE_INDICATOR)));
-                this.nameLabel.setHorizontalTextPosition(SwingConstants.LEFT);
+                nameLabel.setIcon(
+                        new ImageIcon(
+                                ImageLoader.getImage(
+                                        ImageLoader
+                                            .CONTACT_LIST_MOBILE_INDICATOR)));
+                nameLabel.setHorizontalTextPosition(SwingConstants.LEFT);
             }
 
-            if (this.treeContactList.isContactButtonsVisible())
-                this.initButtonsPanel(contact);
+            if (treeContactList.isContactButtonsVisible())
+                initButtonsPanel(contact);
 
             int avatarWidth, avatarHeight;
 
@@ -489,12 +574,12 @@ public class ContactListTreeCellRenderer
             }
 
             Icon avatar
-                = contact.getScaledAvatar(isSelected, avatarWidth, avatarHeight);
+                = contact.getScaledAvatar(
+                        isSelected,
+                        avatarWidth, avatarHeight);
 
             if (avatar != null)
-            {
-                this.rightLabel.setIcon(avatar);
-            }
+                rightLabel.setIcon(avatar);
 
             if (contact instanceof ShowMoreContact)
             {
@@ -508,63 +593,108 @@ public class ContactListTreeCellRenderer
                 rightLabel.setText("");
             }
 
-            this.setToolTipText(contact.getDescriptor().toString());
+            setToolTipText(contact.getDescriptor().toString());
+
+            // lets calculate the height of contact node, if not done already
+            if(preferredNotSelectedContactNodeHeight == null)
+            {
+                preferredNotSelectedContactNodeHeight
+                    = ComponentUtils.getStringHeight(nameLabel)
+                    + V_GAP
+                    + ComponentUtils.getStringHeight(displayDetailsLabel);
+
+                preferredSelectedContactNodeHeight =
+                    preferredNotSelectedContactNodeHeight
+                        + V_GAP
+                        + BUTTON_HEIGHT;
+            }
         }
         else if (value instanceof GroupNode)
         {
             UIGroupImpl groupItem
                 = ((GroupNode) value).getGroupDescriptor();
 
-            this.nameLabel.setText(groupItem.getDisplayName());
+            /*
+             * FIXME A hard-coded absolute font size is surely not appropriate
+             * because it is completely oblivious of the default system font
+             * size. A JLabel will very likely use the closest to the default
+             * system font (size) so there is no reason to specify any font size
+             * here, let alone a hard-coded absolute one. Anyway, use a
+             * hard-coded absolute font size but at least do not fall bellow the
+             * default system font size. On second thought, we are pretty sure
+             * that we are using the default system font on Windows and it makes
+             * no sense whatsoever to change its size.
+             */
+            Font nameLabelFont = nameLabel.getFont();
 
-            this.nameLabel.setFont(this.getFont().deriveFont(Font.BOLD));
+            nameLabel.setFont(
+                    nameLabelFont.deriveFont(
+                            Font.BOLD,
+                            Math.max(
+                                    nameLabelFont.getSize2D(),
+                                    OSUtils.IS_WINDOWS ? 0F : 13F)));
+            nameLabel.setText(groupItem.getDisplayName());
 
             if (groupForegroundColor != null)
-                this.nameLabel.setForeground(groupForegroundColor);
+                nameLabel.setForeground(groupForegroundColor);
 
-            this.remove(displayDetailsLabel);
-            this.remove(callButton);
-            this.remove(callVideoButton);
-            this.remove(desktopSharingButton);
-            this.remove(chatButton);
-            this.remove(addContactButton);
-            this.remove(webButton);
+            remove(displayDetailsLabel);
+            remove(callButton);
+            remove(callVideoButton);
+            remove(desktopSharingButton);
+            remove(chatButton);
+            remove(addContactButton);
+            remove(webButton);
 
             clearCustomActionButtons();
 
             statusIcon = expanded
                                 ? openedGroupIcon
                                 : closedGroupIcon;
-            
+
             if(groupItem != treeContactList.getRootUIGroup())
             {
-                this.statusLabel.setIcon(
+                statusLabel.setIcon(
                         expanded
-                        ? openedGroupIcon
-                        : closedGroupIcon);
+                            ? openedGroupIcon
+                            : closedGroupIcon);
             }
             else
             {
-                this.statusLabel.setIcon(null);
+                statusLabel.setIcon(null);
             }
-            
-            // We have no photo icon for groups.
-            this.rightLabel.setIcon(null);
-            this.rightLabel.setText("");
 
-            if (groupItem.countChildContacts() >= 0)
+            // We have no photo icon for groups.
+            rightLabel.setIcon(null);
+            rightLabel.setText("");
+
+            int groupItemCountChildContacts = groupItem.countChildContacts();
+
+            if (groupItemCountChildContacts >= 0)
             {
                 rightLabel.setFont(rightLabel.getFont().deriveFont(9f));
-                this.rightLabel.setForeground(Color.BLACK);
-                this.rightLabel.setText( groupItem.countOnlineChildContacts()
-                                        + "/" + groupItem.countChildContacts());
+                rightLabel.setForeground(Color.BLACK);
+                rightLabel.setText(
+                        groupItem.countOnlineChildContacts() + "/"
+                            + groupItemCountChildContacts);
             }
 
-            this.initDisplayDetails(groupItem.getDisplayDetails());
-            this.initButtonsPanel(groupItem);
-            this.setToolTipText((groupItem.getDescriptor() != null) ? 
-                groupItem.getDescriptor().toString() : 
-                    groupItem.getDisplayName());
+            initDisplayDetails(groupItem.getDisplayDetails());
+            initButtonsPanel(groupItem);
+
+            Object groupItemDescriptor = groupItem.getDescriptor();
+
+            setToolTipText(
+                    (groupItemDescriptor != null)
+                        ? groupItemDescriptor.toString()
+                        : groupItem.getDisplayName());
+
+            // lets calculate group node height, if not done already
+            if(preferredGroupNodeHeight == null)
+            {
+                preferredGroupNodeHeight =
+                    ComponentUtils.getStringHeight(nameLabel);
+            }
         }
 
         return this;
@@ -700,11 +830,29 @@ public class ContactListTreeCellRenderer
             if (preferredHeight > 0)
                 preferredSize.height = preferredHeight;
             else if (contact instanceof ShowMoreContact)
-                preferredSize.height = 20;
+            {
+                // will reuse preferredGroupNodeHeight if available
+                // as it is the same height (one line text)
+                if(preferredGroupNodeHeight != null)
+                    preferredSize.height = preferredGroupNodeHeight;
+                else
+                    preferredSize.height = 20;
+            }
             else if (isSelected && treeContactList.isContactButtonsVisible())
-                preferredSize.height = 70;
+            {
+                if(preferredSelectedContactNodeHeight != null)
+                    preferredSize.height = preferredSelectedContactNodeHeight;
+                else
+                    preferredSize.height = 70;
+            }
             else
-                preferredSize.height = 35;
+            {
+                if(preferredNotSelectedContactNodeHeight != null)
+                    preferredSize.height
+                        = preferredNotSelectedContactNodeHeight;
+                else
+                    preferredSize.height = 35;
+            }
         }
         else if (treeNode instanceof GroupNode)
         {
@@ -716,11 +864,25 @@ public class ContactListTreeCellRenderer
             if (isSelected
                     && customActionButtonsUIGroup != null
                     && !customActionButtonsUIGroup.isEmpty())
-                preferredSize.height = 70;
+            {
+                if(preferredGroupNodeHeight != null)
+                {
+                    preferredSize.height = preferredGroupNodeHeight
+                        + V_GAP
+                        + BUTTON_HEIGHT;
+                }
+                else
+                    preferredSize.height = 70;
+            }
             else if (preferredHeight > 0)
                 preferredSize.height = preferredHeight;
             else
-                preferredSize.height = 20;
+            {
+                if(preferredGroupNodeHeight != null)
+                    preferredSize.height = preferredGroupNodeHeight;
+                else
+                    preferredSize.height = 20;
+            }
         }
 
         return preferredSize;
@@ -751,7 +913,7 @@ public class ContactListTreeCellRenderer
         constraints.weighty = 0f;
         constraints.gridheight = 1;
         constraints.gridwidth = nameLabelGridWidth;
-        this.add(nameLabel, constraints);
+        add(nameLabel, constraints);
 
         constraints.anchor = GridBagConstraints.NORTHEAST;
         constraints.fill = GridBagConstraints.VERTICAL;
@@ -760,7 +922,7 @@ public class ContactListTreeCellRenderer
         constraints.gridheight = 3;
         constraints.weightx = 0f;
         constraints.weighty = 1f;
-        this.add(rightLabel, constraints);
+        add(rightLabel, constraints);
 
         if (treeNode != null && treeNode instanceof ContactNode)
         {
@@ -773,20 +935,7 @@ public class ContactListTreeCellRenderer
             constraints.gridwidth = nameLabelGridWidth;
             constraints.gridheight = 1;
 
-            this.add(displayDetailsLabel, constraints);
-        }
-        else if (treeNode != null && treeNode instanceof GroupNode)
-        {
-            constraints.anchor = GridBagConstraints.WEST;
-            constraints.fill = GridBagConstraints.NONE;
-            constraints.gridx = 1;
-            constraints.gridy = 1;
-            constraints.weightx = 1f;
-            constraints.weighty = 0f;
-            constraints.gridwidth = nameLabelGridWidth;
-            constraints.gridheight = 1;
-
-            this.add(displayDetailsLabel, constraints);
+            add(displayDetailsLabel, constraints);
         }
     }
 
@@ -818,7 +967,7 @@ public class ContactListTreeCellRenderer
         constraints.gridwidth = 1;
         constraints.gridheight = 1;
 
-        this.add(displayDetailsLabel, constraints);
+        add(displayDetailsLabel, constraints);
     }
 
     /**
@@ -828,12 +977,12 @@ public class ContactListTreeCellRenderer
      */
     private void initButtonsPanel(UIContact uiContact)
     {
-        this.remove(chatButton);
-        this.remove(callButton);
-        this.remove(callVideoButton);
-        this.remove(desktopSharingButton);
-        this.remove(addContactButton);
-        this.remove(webButton);
+        remove(chatButton);
+        remove(callButton);
+        remove(callVideoButton);
+        remove(desktopSharingButton);
+        remove(addContactButton);
+        remove(webButton);
 
         clearCustomActionButtons();
 
@@ -846,7 +995,7 @@ public class ContactListTreeCellRenderer
         if (uiContact.getDescriptor() instanceof MetaContact)
             imContact = uiContact.getDefaultContactDetail(
                          OperationSetBasicInstantMessaging.class);
-        
+
         if(imContact == null)
             imContact = uiContact.getDefaultContactDetail(
                 OperationSetMultiUserChat.class);
@@ -861,7 +1010,7 @@ public class ContactListTreeCellRenderer
 
         if (imContact != null)
         {
-            x += addButton(chatButton, ++gridX, x, false);
+            x += addButton(chatButton, ++gridX, x, false, true);
         }
 
         UIContactDetail telephonyContact
@@ -899,7 +1048,7 @@ public class ContactListTreeCellRenderer
                 && contactPhoneUtil.isCallEnabled(detailsListener)
                 && providers.size() > 0))
         {
-            x += addButton(callButton, ++gridX, x, false);
+            x += addButton(callButton, ++gridX, x, false, true);
         }
 
         UIContactDetail videoContact
@@ -910,18 +1059,18 @@ public class ContactListTreeCellRenderer
             || (contactPhoneUtil != null
                 && contactPhoneUtil.isVideoCallEnabled(detailsListener)))
         {
-            x += addButton(callVideoButton, ++gridX, x, false);
+            x += addButton(callVideoButton, ++gridX, x, false, true);
         }
 
         UIContactDetail desktopContact
             = uiContact.getDefaultContactDetail(
-                OperationSetDesktopSharingServer.class);
+                OperationSetDesktopStreaming.class);
 
         if (desktopContact != null
             || (contactPhoneUtil != null
                 && contactPhoneUtil.isDesktopSharingEnabled(detailsListener)))
         {
-            x += addButton(desktopSharingButton, ++gridX, x, false);
+            x += addButton(desktopSharingButton, ++gridX, x, false, true);
         }
 
         // enable add contact button if contact source has indicated
@@ -935,7 +1084,7 @@ public class ContactListTreeCellRenderer
                     null).size() > 0
             && !ConfigurationUtils.isAddContactDisabled())
         {
-            x += addButton(addContactButton, ++gridX, x, false);
+            x += addButton(addContactButton, ++gridX, x, false, true);
         }
 
         //webButton
@@ -949,12 +1098,33 @@ public class ContactListTreeCellRenderer
                 getURLDetails(uiContact, webDetailsListener, true);
             if(dets != null && dets.size() > 0)
             {
-                x += addButton(webButton, ++gridX, x, false);
+                x += addButton(webButton, ++gridX, x, false, true);
 
-                webButton.setLinks(dets);
+                webButton.setLinksFromURLDetail(dets);
             }
             else
-                webButton.setLinks(null);
+                webButton.clearLinks();
+        }
+        else if (uiContact.getDescriptor() instanceof SourceContact)
+        {
+            SourceContact srcContact =
+                (SourceContact) uiContact.getDescriptor();
+
+            try
+            {
+                List<ContactDetail> dets = srcContact.getContactDetails(
+                    ContactDetail.Category.Web);
+                if(dets != null && dets.size() > 0)
+                {
+                    x += addButton(webButton, ++gridX, x, false, true);
+
+                    webButton.setLinksFromContactDetail(dets);
+                }
+                else
+                    webButton.clearLinks();
+            }
+            catch(OperationNotSupportedException e)
+            {} // ignore records that don't support it
         }
 
         // The list of the contact actions
@@ -975,8 +1145,7 @@ public class ContactListTreeCellRenderer
         if (lastAddedButton != null)
             setButtonBg(lastAddedButton, lastGridX, true);
 
-        this.setBounds(0, 0, treeContactList.getWidth(),
-                        getPreferredSize().height);
+        setBounds(0, 0, treeContactList.getWidth(), getPreferredSize().height);
     }
 
     /**
@@ -1012,8 +1181,7 @@ public class ContactListTreeCellRenderer
         if (lastAddedButton != null)
             setButtonBg(lastAddedButton, lastGridX, true);
 
-        this.setBounds(0, 0, treeContactList.getWidth(),
-                        getPreferredSize().height);
+        setBounds(0, 0, treeContactList.getWidth(), getPreferredSize().height);
     }
 
     /**
@@ -1078,7 +1246,7 @@ public class ContactListTreeCellRenderer
             customActionButtonsUIGroup.add(actionButton);
 
             xBounds
-                += addButton(actionButton, ++gridX, xBounds, false);
+                += addButton(actionButton, ++gridX, xBounds, false, false);
         }
 
         return gridX;
@@ -1118,7 +1286,7 @@ public class ContactListTreeCellRenderer
             customActionButtons.add(actionButton);
 
             xBounds
-                += addButton(actionButton, ++gridX, xBounds, false);
+                += addButton(actionButton, ++gridX, xBounds, false, true);
         }
 
         return gridX;
@@ -1659,6 +1827,8 @@ public class ContactListTreeCellRenderer
             UIContact contactDescriptor
                 = ((ContactNode) treeNode).getContactDescriptor();
 
+            List<String> urlDetails = null;
+
             if (contactDescriptor instanceof MetaUIContact)
             {
                 List<URLDetail> details =
@@ -1667,59 +1837,92 @@ public class ContactListTreeCellRenderer
                 if(details == null)
                     return;
 
-                if(details.size() == 1)
+                urlDetails = new ArrayList<String>();
+
+                Iterator<URLDetail> detailIterator = details.iterator();
+                while(detailIterator.hasNext())
                 {
-                    GuiActivator.getBrowserLauncher().openURL(
-                        details.get(0).getURL().toString());
+                    final URLDetail wd = detailIterator.next();
+                    urlDetails.add(wd.getDetailValue().toString());
                 }
-                else
+            }
+            else if (contactDescriptor.getDescriptor()
+                instanceof SourceContact)
+            {
+                SourceContact src =
+                    (SourceContact)contactDescriptor.getDescriptor();
+                try
                 {
-                    Point location = new Point(button.getX(),
-                        button.getY() + button.getHeight());
+                    List<ContactDetail> cDetails  =
+                        src.getContactDetails(ContactDetail.Category.Web);
 
-                    SwingUtilities.convertPointToScreen(
-                        location, treeContactList);
+                    if(cDetails == null)
+                        return;
 
-                    location.y = location.y
-                        + treeContactList.getPathBounds(
-                                treeContactList.getSelectionPath()).y;
-                    location.x += 8;
-                    location.y -= 8;
+                    urlDetails = new ArrayList<String>();
 
-                    List<JMenuItem> items = new ArrayList<JMenuItem>();
-                    Iterator<URLDetail> detailIterator = details.iterator();
-                    while(detailIterator.hasNext())
+                    for(ContactDetail det : cDetails)
                     {
-                        final URLDetail wd = detailIterator.next();
-                        String url = wd.getDetailValue().toString();
-
-                        String displayStr = url;
-                        // do not display too long links
-                        if(displayStr.length() > 60)
-                        {
-                            displayStr = displayStr.substring(0, 60);
-                            displayStr += "...";
-                        }
-                        final JMenuItem menuItem = new JMenuItem(displayStr);
-                        menuItem.setName(url);
-                        menuItem.setToolTipText(url);
-
-                        menuItem.addActionListener(new ActionListener()
-                        {
-                            public void actionPerformed(ActionEvent e)
-                            {
-                                GuiActivator.getBrowserLauncher().openURL(
-                                    menuItem.getName());
-                            }
-                        });
-                        items.add(menuItem);
+                        urlDetails.add(det.getDetail());
                     }
-
-                    new ExtendedPopupMenu(
-                            treeContactList,
-                            null,
-                            items).showPopupMenu(location.x, location.y);
                 }
+                catch(OperationNotSupportedException onse)
+                {}
+            }
+
+            if(urlDetails == null)
+                return;
+
+            if(urlDetails.size() == 1)
+            {
+                GuiActivator.getBrowserLauncher().openURL(urlDetails.get(0));
+            }
+            else
+            {
+                Point location = new Point(button.getX(),
+                    button.getY() + button.getHeight());
+
+                SwingUtilities.convertPointToScreen(
+                    location, treeContactList);
+
+                location.y = location.y
+                    + treeContactList.getPathBounds(
+                            treeContactList.getSelectionPath()).y;
+                location.x += 8;
+                location.y -= 8;
+
+                List<JMenuItem> items = new ArrayList<JMenuItem>();
+                Iterator<String> detailIterator = urlDetails.iterator();
+                while(detailIterator.hasNext())
+                {
+                    String url = detailIterator.next();
+
+                    String displayStr = url;
+                    // do not display too long links
+                    if(displayStr.length() > 60)
+                    {
+                        displayStr = displayStr.substring(0, 60);
+                        displayStr += "...";
+                    }
+                    final JMenuItem menuItem = new JMenuItem(displayStr);
+                    menuItem.setName(url);
+                    menuItem.setToolTipText(url);
+
+                    menuItem.addActionListener(new ActionListener()
+                    {
+                        public void actionPerformed(ActionEvent e)
+                        {
+                            GuiActivator.getBrowserLauncher().openURL(
+                                menuItem.getName());
+                        }
+                    });
+                    items.add(menuItem);
+                }
+
+                new ExtendedPopupMenu(
+                        treeContactList,
+                        null,
+                        items).showPopupMenu(location.x, location.y);
             }
         }
     }
@@ -1807,10 +2010,21 @@ public class ContactListTreeCellRenderer
         }
     }
 
+    /**
+     * Adds button.
+     * @param button the button to add
+     * @param gridX the current x
+     * @param xBounds bounds
+     * @param isLast is it the last button
+     * @param isContact is contact or <tt>false</tt> if it is group node, that
+     * we are painting.
+     * @return the button width.
+     */
     private int addButton(  SIPCommButton button,
                             int gridX,
                             int xBounds,
-                            boolean isLast)
+                            boolean isLast,
+                            boolean isContact)
     {
         lastAddedButton = button;
 
@@ -1823,11 +2037,13 @@ public class ContactListTreeCellRenderer
         constraints.gridheight = 1;
         constraints.weightx = 0f;
         constraints.weighty = 0f;
-        this.add(button, constraints);
+        add(button, constraints);
 
-        int yBounds = TOP_BORDER + BOTTOM_BORDER + 2*V_GAP
-                + ComponentUtils.getStringSize(
-                    nameLabel, nameLabel.getText()).height
+        int yBounds = ComponentUtils.getStringSize(
+                    nameLabel, nameLabel.getText()).height;
+
+        if(isContact)
+            yBounds += TOP_BORDER + BOTTOM_BORDER + 2*V_GAP
                 + ComponentUtils.getStringSize(
                     displayDetailsLabel, displayDetailsLabel.getText()).height;
 
@@ -1884,22 +2100,24 @@ public class ContactListTreeCellRenderer
          * correctly calculated problems may occur when clicking buttons!
          */
         if (treeNode instanceof ContactNode
-            && !(((ContactNode) treeNode).getContactDescriptor() instanceof
-                    ShowMoreContact))
+                && !(((ContactNode) treeNode).getContactDescriptor() instanceof
+                        ShowMoreContact))
         {
-                this.setBorder(BorderFactory
-                    .createEmptyBorder( TOP_BORDER,
-                                        LEFT_BORDER,
-                                        BOTTOM_BORDER,
-                                        RIGHT_BORDER));
+            setBorder(
+                    BorderFactory.createEmptyBorder(
+                            TOP_BORDER,
+                            LEFT_BORDER,
+                            BOTTOM_BORDER,
+                            RIGHT_BORDER));
         }
         else // GroupNode || ShowMoreContact
         {
-            this.setBorder(BorderFactory
-                .createEmptyBorder( 0,
-                                    LEFT_BORDER,
-                                    0,
-                                    RIGHT_BORDER));
+            setBorder(
+                    BorderFactory.createEmptyBorder(
+                            0,
+                            LEFT_BORDER,
+                            0,
+                            RIGHT_BORDER));
         }
     }
 
@@ -1944,15 +2162,36 @@ public class ContactListTreeCellRenderer
         /**
          * The links used in this button.
          */
-        private List<URLDetail> links;
+        private List<String> links;
 
         /**
          * Changes the links.
          * @param links
          */
-        private void setLinks(List<URLDetail> links)
+        private void setLinksFromURLDetail(List<URLDetail> links)
         {
-            this.links = links;
+            this.links = new ArrayList<String>();
+            for(URLDetail l : links)
+                this.links.add(l.getDetailValue().toString());
+        }
+
+        /**
+         * Changes the links.
+         * @param links
+         */
+        private void setLinksFromContactDetail(List<ContactDetail> links)
+        {
+            this.links = new ArrayList<String>();
+            for(ContactDetail l : links)
+                this.links.add(l.getDetail());
+        }
+
+        /**
+         * Clear links.
+         */
+        private void clearLinks()
+        {
+            links = null;
         }
 
         /**
@@ -1968,9 +2207,8 @@ public class ContactListTreeCellRenderer
             ExtendedTooltip tip = new ExtendedTooltip(true);
             tip.setTitle(webButton.getToolTipText());
 
-            for(URLDetail wd : links)
+            for(String displayStr : links)
             {
-                String displayStr = wd.getDetailValue().toString();
                 // do not display too long links
                 if(displayStr.length() > 60)
                 {

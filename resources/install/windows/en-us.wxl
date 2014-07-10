@@ -17,6 +17,7 @@
   <String Id="ShortcutsAndRegistryDlg_CreateDesktop" Overridable="yes">&amp;Desktop</String>
   <String Id="ShortcutsAndRegistryDlg_CreateAutoStart" Overridable="yes">&amp;Auto-start when computer restarts or reboots</String>
   <String Id="ShortcutsAndRegistryDlg_AssociateProtocols" Overridable="yes">&amp;Associate Protocols</String>
+  <String Id="ShortcutsAndRegistryDlg_DefaultIMApp" Overridable="yes">M&amp;ake [ProductName] the default Instant Messaging Provider (Outlook integration)</String>
 
   <String Id="WelcomeText1" Overridable="yes"><![CDATA[@WelcomeText1@]]></String>
   <String Id="WelcomeText2" Overridable="yes"><![CDATA[@WelcomeText2@]]></String>

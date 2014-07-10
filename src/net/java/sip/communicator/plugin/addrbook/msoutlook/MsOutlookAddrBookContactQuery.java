@@ -395,6 +395,9 @@ public class MsOutlookAddrBookContactQuery
             Pattern query)
     {
         super(msoabcss, query);
+
+        if(logger.isTraceEnabled())
+            logger.trace("Creating new query:" + query);
     }
 
     /**
@@ -642,121 +645,110 @@ public class MsOutlookAddrBookContactQuery
         ContactDetail.Category category,
         Collection<ContactDetail.SubCategory> subCategories)
     {
+        int i = -1;
+
         switch(category)
         {
         case Personal:
             if(subCategories.contains(ContactDetail.SubCategory.Name))
-                return MAPI_MAILUSER_PROP_IDS[PR_GIVEN_NAME];
+                i = PR_GIVEN_NAME;
             else if(subCategories.contains(
                         ContactDetail.SubCategory.LastName))
-                return MAPI_MAILUSER_PROP_IDS[PR_SURNAME];
+                i = PR_SURNAME;
             else if(subCategories.contains(
                         ContactDetail.SubCategory.Nickname))
-                return MAPI_MAILUSER_PROP_IDS[PR_NICKNAME];
+                i = PR_NICKNAME;
             else if(subCategories.contains(
                         ContactDetail.SubCategory.HomePage))
-                return MAPI_MAILUSER_PROP_IDS[PR_PERSONAL_HOME_PAGE];
+                i = PR_PERSONAL_HOME_PAGE;
             else
-                return MAPI_MAILUSER_PROP_IDS[PR_DISPLAY_NAME_PREFIX];
+                i = PR_DISPLAY_NAME_PREFIX;
+            break;
+
         case Organization:
             if(subCategories.contains(ContactDetail.SubCategory.Name))
-                return MAPI_MAILUSER_PROP_IDS[PR_COMPANY_NAME];
+                i = PR_COMPANY_NAME;
             else if(subCategories.contains(ContactDetail.SubCategory.JobTitle))
-                return MAPI_MAILUSER_PROP_IDS[PR_TITLE];
+                i = PR_TITLE;
             else
-                return MAPI_MAILUSER_PROP_IDS[PR_BUSINESS_HOME_PAGE];
+                i = PR_BUSINESS_HOME_PAGE;
+            break;
+
         case Email:
             if(subCategories.contains(ContactDetail.SubCategory.Work))
-                return MAPI_MAILUSER_PROP_IDS[dispidEmail2EmailAddress];
+                i = dispidEmail2EmailAddress;
             else if(subCategories.contains(
                         ContactDetail.SubCategory.Home))
-                return MAPI_MAILUSER_PROP_IDS[dispidEmail1EmailAddress];
+                i = dispidEmail1EmailAddress;
             else if(subCategories.contains(
                         ContactDetail.SubCategory.Other))
-                return MAPI_MAILUSER_PROP_IDS[dispidEmail3EmailAddress];
+                i = dispidEmail3EmailAddress;
             break;
+
         case Phone:
             if(subCategories.contains(ContactDetail.SubCategory.Fax))
-                return MAPI_MAILUSER_PROP_IDS[dispidFax1EmailAddress];
+                i = dispidFax1EmailAddress;
             else if(subCategories.contains(ContactDetail.SubCategory.Work))
-                return MAPI_MAILUSER_PROP_IDS[PR_BUSINESS_TELEPHONE_NUMBER];
+                i = PR_BUSINESS_TELEPHONE_NUMBER;
             else if(subCategories.contains(ContactDetail.SubCategory.Home))
-                return MAPI_MAILUSER_PROP_IDS[PR_HOME_TELEPHONE_NUMBER];
+                i = PR_HOME_TELEPHONE_NUMBER;
             else if(subCategories.contains(
                         ContactDetail.SubCategory.Mobile))
-                return MAPI_MAILUSER_PROP_IDS[PR_MOBILE_TELEPHONE_NUMBER];
+                i = PR_MOBILE_TELEPHONE_NUMBER;
             else if(subCategories.contains(
                         ContactDetail.SubCategory.Other))
-                return MAPI_MAILUSER_PROP_IDS[PR_OTHER_TELEPHONE_NUMBER];
+                i = PR_OTHER_TELEPHONE_NUMBER;
             break;
+
         case InstantMessaging:
-            return MAPI_MAILUSER_PROP_IDS[dispidInstMsg];
+            i = dispidInstMsg;
+            break;
+
         case Address:
             if(subCategories.contains(ContactDetail.SubCategory.Work))
             {
                 if(subCategories.contains(ContactDetail.SubCategory.City))
-                {
-                    return MAPI_MAILUSER_PROP_IDS[PR_BUSINESS_ADDRESS_CITY];
-                }
+                    i = PR_BUSINESS_ADDRESS_CITY;
                 else if(subCategories.contains(
                             ContactDetail.SubCategory.Country))
-                {
-                    return MAPI_MAILUSER_PROP_IDS[PR_BUSINESS_ADDRESS_COUNTRY];
-                }
+                    i = PR_BUSINESS_ADDRESS_COUNTRY;
                 else if(subCategories.contains(
                             ContactDetail.SubCategory.PostalCode))
-                {
-                    return MAPI_MAILUSER_PROP_IDS[
-                        PR_BUSINESS_ADDRESS_POSTAL_CODE];
-                }
+                    i = PR_BUSINESS_ADDRESS_POSTAL_CODE;
                 else if(subCategories.contains(ContactDetail.SubCategory.State))
-                {
-                    return MAPI_MAILUSER_PROP_IDS[
-                        PR_BUSINESS_ADDRESS_STATE_OR_PROVINCE];
-                }
+                    i = PR_BUSINESS_ADDRESS_STATE_OR_PROVINCE;
                 else if(subCategories.contains(
                             ContactDetail.SubCategory.Street))
-                {
-                    return MAPI_MAILUSER_PROP_IDS[PR_BUSINESS_ADDRESS_STREET];
-                }
+                    i = PR_BUSINESS_ADDRESS_STREET;
                 else
-                {
-                    return MAPI_MAILUSER_PROP_IDS[dispidWorkAddress];
-                }
+                    i = dispidWorkAddress;
             }
             else if(subCategories.contains(ContactDetail.SubCategory.Home))
             {
                 if(subCategories.contains(ContactDetail.SubCategory.City))
-                {
-                    return MAPI_MAILUSER_PROP_IDS[PR_HOME_ADDRESS_CITY];
-                }
+                    i = PR_HOME_ADDRESS_CITY;
                 else if(subCategories.contains(
                             ContactDetail.SubCategory.Country))
-                {
-                    return MAPI_MAILUSER_PROP_IDS[PR_HOME_ADDRESS_COUNTRY];
-                }
+                    i = PR_HOME_ADDRESS_COUNTRY;
                 else if(subCategories.contains(
                             ContactDetail.SubCategory.PostalCode))
-                {
-                    return MAPI_MAILUSER_PROP_IDS[PR_HOME_ADDRESS_POSTAL_CODE];
-                }
+                    i = PR_HOME_ADDRESS_POSTAL_CODE;
                 else if(subCategories.contains(ContactDetail.SubCategory.State))
-                {
-                    return MAPI_MAILUSER_PROP_IDS[
-                        PR_HOME_ADDRESS_STATE_OR_PROVINCE];
-                }
+                    i = PR_HOME_ADDRESS_STATE_OR_PROVINCE;
                 else if(subCategories.contains(
                             ContactDetail.SubCategory.Street))
-                {
-                    return MAPI_MAILUSER_PROP_IDS[PR_HOME_ADDRESS_STREET];
-                }
+                    i = PR_HOME_ADDRESS_STREET;
                 else
-                {
-                    return MAPI_MAILUSER_PROP_IDS[dispidHomeAddress];
-                }
+                    i = dispidHomeAddress;
             }
+            break;
+
+        case Web:
+        default:
+            break;
         }
-        return -1;
+
+        return (i >= 0) ? MAPI_MAILUSER_PROP_IDS[i] : -1;
     }
 
     public static native Object[] IMAPIProp_GetProps(
@@ -866,16 +858,29 @@ public class MsOutlookAddrBookContactQuery
         }
         catch(MsOutlookMAPIHResultException ex)
         {
-            if(ex.getHresultString().equals("MAPI_E_0x57")
-                    && firstIMAPIPropGetPropFailureLogged == false)
+            String hresult = ex.getHresultString();
+            
+            if (logger.isTraceEnabled())
             {
-                firstIMAPIPropGetPropFailureLogged = true;
+                logger.trace(
+                        MsOutlookAddrBookContactQuery.class.getSimpleName()
+                            + "#onMailUser(String)",
+                        ex);
+            }
+            
+            if("MAPI_E_0x57".equals(hresult))
+            {
+                if (!firstIMAPIPropGetPropFailureLogged)
+                {
+                    firstIMAPIPropGetPropFailureLogged = true;
+                    throw ex;
+                }
+            }
+            else
+            {
                 throw ex;
             }
-            else if(!ex.getHresultString().equals("MAPI_E_0x57"))
-            {
-                throw ex;
-            }
+            
             return true;
         }
 
@@ -888,13 +893,20 @@ public class MsOutlookAddrBookContactQuery
         }
         else
         {
+            logger.error("Wrong object types. We are canceling the query.");
             return false;
         }
 
         // If we have results from the Contacts folder(s), don't read from the
         // Address Book because there may be duplicates.
         if ((MAPI_MAILUSER == objType) && (mapiMessageCount != 0))
+        {
+            if (logger.isTraceEnabled())
+            {
+                logger.trace("Duplicate contacts. We are canceling the query.");
+            }
             return false;
+        }
 
         int propIndex = 0;
         boolean matches = false;
@@ -950,10 +962,30 @@ public class MsOutlookAddrBookContactQuery
                     {
                         // Ignore it, the image isn't as vital as the
                         // SourceContact.
+                        if (logger.isTraceEnabled())
+                        {
+                            logger.trace(
+                                    "Retrieving the image property of the "
+                                        + "contact failed.",
+                                    ex);
+                        }
                     }
                 }
 
+                if(logger.isTraceEnabled())
+                {
+                    logger.trace(
+                            "For query: " + query + " found contact:"
+                                + sourceContact.getDisplayName() + ", "
+                                + sourceContact.getContactAddress());
+                }
+
                 addQueryResult(sourceContact);
+            }
+            else
+            {
+                logger.error("Error creating the found contact. " +
+                		"Contact details are empty.");
             }
         }
         return (getStatus() == QUERY_IN_PROGRESS);
@@ -961,8 +993,7 @@ public class MsOutlookAddrBookContactQuery
 
     /**
      * Gets the <tt>contactDetails</tt> to be set on a <tt>SourceContact</tt>
-     * which is to represent an <tt>ABPerson</tt> specified by the values of its
-     * {@link #ABPERSON_PROPERTIES}.
+     * which is to represent an <tt>ABPerson</tt>.
      *
      * @param values the values of the <tt>ABPERSON_PROPERTIES</tt> which
      * represent the <tt>ABPerson</tt> to get the <tt>contactDetails</tt> of
@@ -992,7 +1023,8 @@ public class MsOutlookAddrBookContactQuery
                 {
                     if(isPhoneNumber(property))
                         stringValue
-                            = PhoneNumberI18nService.normalize(stringValue);
+                            = AddrBookActivator.getPhoneNumberI18nService()
+                                .normalize(stringValue);
 
                     MsOutlookAddrBookContactDetail contactDetail
                         = new MsOutlookAddrBookContactDetail(
@@ -1033,9 +1065,18 @@ public class MsOutlookAddrBookContactQuery
     {
         synchronized (MsOutlookAddrBookContactQuery.class)
         {
+            long start = System.currentTimeMillis();
+
             foreachMailUser(
-                query.toString(),
-                new PtrOutlookContactCallback());
+                    query.toString(),
+                    new PtrOutlookContactCallback());
+
+            if(logger.isTraceEnabled())
+            {
+                logger.trace(
+                        "Query " + query + " took "
+                            + (System.currentTimeMillis() - start) + " ms.");
+            }
         }
     }
 
@@ -1096,7 +1137,7 @@ public class MsOutlookAddrBookContactQuery
                 {
                     logger.debug(
                             MsOutlookAddrBookContactQuery.class.getSimpleName()
-                            + "#onMailUser(String)",
+                                + "#onMailUser(String)",
                             e);
                 }
             }
@@ -1150,7 +1191,7 @@ public class MsOutlookAddrBookContactQuery
                 {
                     logger.debug(
                             MsOutlookAddrBookContactQuery.class.getSimpleName()
-                            + "#onMailUser(String)",
+                                + "#onMailUser(String)",
                             e);
                 }
                 return false;

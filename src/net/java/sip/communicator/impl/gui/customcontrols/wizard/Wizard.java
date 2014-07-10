@@ -210,8 +210,20 @@ public class Wizard
      *
      * @param id The identifier of the wizard page.
      */
-    public void unregisterWizardPage(Object id)
+    public void unregisterWizardPage(final Object id)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    unregisterWizardPage(id);
+                }
+            });
+            return;
+        }
+
         WizardPage wizardPage = wizardModel.getWizardPage(id);
         if (wizardPage != null)
         {
@@ -274,8 +286,20 @@ public class Wizard
      * @param evt PropertyChangeEvent passed from the model to signal that one
      *            of its properties has changed value.
      */
-    public void propertyChange(PropertyChangeEvent evt)
+    public void propertyChange(final PropertyChangeEvent evt)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    propertyChange(evt);
+                }
+            });
+            return;
+        }
+
         String name = evt.getPropertyName();
 
         if (WizardModel.CURRENT_PAGE_PROPERTY.equals(name))
@@ -711,6 +735,18 @@ public class Wizard
      */
     void stopCommittingPage()
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    stopCommittingPage();
+                }
+            });
+            return;
+        }
+
         isCurrentlySigningIn = false;
 
         statusLabel.setText("");

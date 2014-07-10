@@ -916,11 +916,54 @@ public class ChatWindowManager
                             Contact protocolContact,
                             boolean isSmsMessage)
     {
-        SwingUtilities.invokeLater(new RunChatWindow(
-            metaContact, protocolContact, isSmsMessage));
+        SwingUtilities.invokeLater(
+                new RunChatWindow(metaContact, protocolContact, isSmsMessage));
     }
 
     public void startChat(String contactString)
+    {
+        startChat(contactString, false);
+    }
+
+    /**
+     * Start the chat with contact which is using the supplied protocol 
+     *provider.
+     * @param contactID the contact id to start chat with
+     * @param pps the protocol provider
+     */
+    public void startChat(String contactID, ProtocolProviderService pps)
+    {
+        OperationSetPersistentPresence opSet
+            = pps.getOperationSet(OperationSetPersistentPresence.class);
+
+        if (opSet != null)
+        {
+            Contact c = opSet.findContactByID(contactID);
+
+            if (c != null)
+            {
+                MetaContact metaContact = GuiActivator.getContactListService()
+                    .findMetaContactByContact(c);
+
+                if(metaContact == null)
+                {
+                    logger.error(
+                        "Chat not started. Cannot find metacontact for "
+                        + contactID + " and protocol:" + pps);
+
+                    return;
+                }
+
+                startChat(metaContact, c, false);
+                return;
+            }
+        }
+
+        logger.error("Cannot start chat for " + contactID + " for "
+            + pps.getAccountID().getAccountAddress());
+    }
+
+    public void startChat(String contactString, boolean isSmsEnabled)
     {
         List<ProtocolProviderService> imProviders
             = AccountUtils.getRegisteredProviders(
@@ -965,7 +1008,34 @@ public class ChatWindowManager
             }
         }
         if (startChat)
-            startChat(metaContact, contact, false);
+            startChat(metaContact, contact, isSmsEnabled);
+        else if(isSmsEnabled)
+        {
+            // nothing found but we want to send sms, lets check and create
+            // the contact as it may not exist
+            List<ProtocolProviderService> smsProviders
+                = AccountUtils.getRegisteredProviders(
+                        OperationSetSmsMessaging.class);
+
+            if(smsProviders == null || smsProviders.size() == 0)
+                return;
+
+            OperationSetSmsMessaging smsOpSet
+                = smsProviders.get(0)
+                        .getOperationSet(OperationSetSmsMessaging.class);
+
+            contact = smsOpSet.getContact(contactString);
+
+            if (contact != null)
+            {
+                metaContact
+                    = metaContactListService.findMetaContactByContact(contact);
+                if (metaContact != null)
+                {
+                    startChat(metaContact, contact, isSmsEnabled);
+                }
+            }
+        }
     }
 
     /**
@@ -1041,6 +1111,15 @@ public class ChatWindowManager
         Contact defaultContact = metaContact.getDefaultContact(
                         OperationSetBasicInstantMessaging.class);
 
+        if(defaultContact == null)
+        {
+            defaultContact = metaContact.getDefaultContact(
+                OperationSetSmsMessaging.class);
+
+            if(defaultContact == null)
+                return null;
+        }
+
         ProtocolProviderService defaultProvider
             = defaultContact.getProtocolProvider();
 
@@ -1099,6 +1178,9 @@ public class ChatWindowManager
     {
         if (protocolContact == null)
             protocolContact = getDefaultContact(metaContact);
+
+        if(protocolContact == null)
+            return null;
 
         ChatContainer chatContainer = getChatContainer();
         ChatPanel chatPanel = new ChatPanel(chatContainer);
@@ -1334,11 +1416,11 @@ public class ChatWindowManager
      */
     private class RunChatWindow implements Runnable
     {
-        private MetaContact metaContact;
+        private final MetaContact metaContact;
 
-        private Contact protocolContact;
+        private final Contact protocolContact;
 
-        private Boolean isSmsSelected = null;
+        private final Boolean isSmsSelected;
 
         /**
          * Creates an instance of <tt>RunMessageWindow</tt> by specifying the
@@ -1347,7 +1429,7 @@ public class ChatWindowManager
          */
         public RunChatWindow(MetaContact metaContact)
         {
-            this.metaContact = metaContact;
+            this(metaContact, null);
         }
 
         /**
@@ -1359,8 +1441,7 @@ public class ChatWindowManager
         public RunChatWindow(   MetaContact metaContact,
                                 Contact protocolContact)
         {
-            this.metaContact = metaContact;
-            this.protocolContact = protocolContact;
+            this(metaContact, protocolContact, null);
         }
 
         /**
@@ -1372,7 +1453,7 @@ public class ChatWindowManager
          */
         public RunChatWindow(   MetaContact metaContact,
                                 Contact protocolContact,
-                                boolean isSmsSelected)
+                                Boolean isSmsSelected)
         {
             this.metaContact = metaContact;
             this.protocolContact = protocolContact;
@@ -1382,13 +1463,16 @@ public class ChatWindowManager
         /**
          * Opens a chat window
          */
+        @Override
         public void run()
         {
-            ChatPanel chatPanel
-                = getContactChat(metaContact, protocolContact);
+            ChatPanel chatPanel = getContactChat(metaContact, protocolContact);
 
-            // if not explicitly set, do not set it, leave it to default
-            // or internally make the decision
+            if(chatPanel == null)
+                return;
+
+            // if not explicitly set, do not set it, leave it to default or
+            // internally make the decision
             if(isSmsSelected != null)
                 chatPanel.setSmsSelected(isSmsSelected);
 

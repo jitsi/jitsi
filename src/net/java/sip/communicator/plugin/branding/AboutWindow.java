@@ -118,6 +118,7 @@ public class AboutWindow
 
         setModal(false);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setResizable(false);
 
         JPanel mainPanel = new WindowBackground();
         mainPanel.setLayout(new BorderLayout());
@@ -245,7 +246,6 @@ public class AboutWindow
         this.getContentPane().add(mainPanel);
 
         this.pack();
-        this.setResizable(false);
 
         setLocationRelativeTo(getParent());
 

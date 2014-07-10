@@ -6,6 +6,9 @@
  */
 package net.java.sip.communicator.plugin.msofficecomm;
 
+import net.java.sip.communicator.util.ServiceUtils;
+
+import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
 
@@ -17,6 +20,23 @@ import org.osgi.framework.*;
 public class MsOfficeCommActivator
     implements BundleActivator
 {
+    /**
+     * The <tt>Logger</tt> used by the <tt>MsOfficeCommActivator</tt> class and
+     * its instances for logging output.
+     */
+    private static final Logger logger
+        = Logger.getLogger(MsOfficeCommActivator.class);
+    
+    /**
+     * The <tt>ResourceManagementService</tt> through which we access resources.
+     */
+    private static ResourceManagementService resourceService;
+    
+    /**
+     * The <tt>BundleContext</tt> in which the msofficecomm plug-in is started.
+     */
+    private static BundleContext bundleContext;
+
     /**
      * Starts the <tt>msofficecomm</tt> bundle in a specific
      * {@link BundleContext}.
@@ -33,13 +53,22 @@ public class MsOfficeCommActivator
         if (!OSUtils.IS_WINDOWS)
             return;
 
+        if (logger.isInfoEnabled())
+            logger.info("MsOfficeComm plugin ... [STARTED]");
+        
+        MsOfficeCommActivator.bundleContext = bundleContext;
+        
         Messenger.start(bundleContext);
-
+        
         boolean stopMessenger = true;
-
+        
         try
         {
             int hresult = OutOfProcessServer.start();
+
+            if(logger.isInfoEnabled())
+                logger.info("MsOfficeComm started OutOfProcessServer HRESULT:"
+                    + hresult);
 
             if (hresult < 0)
                 throw new RuntimeException("HRESULT " + hresult);
@@ -48,6 +77,7 @@ public class MsOfficeCommActivator
         }
         finally
         {
+            RegistryHandler.checkRegistryKeys();
             if (stopMessenger)
                 Messenger.stop(bundleContext);
         }
@@ -80,5 +110,28 @@ public class MsOfficeCommActivator
         {
             Messenger.stop(bundleContext);
         }
+
+        if (logger.isInfoEnabled())
+            logger.info("MsOfficeComm plugin ... [UNREGISTERED]");
+    }
+    
+    
+    /**
+     * Gets the <tt>ResourceManagementService</tt> to be used by the
+     * functionality of the plug-in.
+     *
+     * @return the <tt>ResourceManagementService</tt> to be used by the
+     * functionality of the plug-in
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourceService == null)
+        {
+            resourceService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ResourceManagementService.class);
+        }
+        return resourceService;
     }
 }

@@ -99,12 +99,18 @@ public class ProvisioningServiceImpl
     /**
      * Authentication username.
      */
-     private static String provUsername = null;
+    private static String provUsername = null;
 
     /**
      * Authentication password.
      */
-     private static String provPassword = null;
+    private static String provPassword = null;
+
+    /**
+     * Prefix that can be used to indicate a property that will be
+     * set as a system property.
+     */
+    private static final String SYSTEM_PROP_PREFIX = "${system}.";
 
      /**
       * Constructor.
@@ -691,7 +697,7 @@ public class ProvisioningServiceImpl
     /**
      * Update configuration with properties retrieved from provisioning URL.
      *
-     * @param Provisioning data
+     * @param data Provisioning data
      */
     private void updateConfiguration(final InputStream data)
     {
@@ -813,9 +819,6 @@ public class ProvisioningServiceImpl
         if((value instanceof String) && value.equals("${null}"))
         {
             ProvisioningActivator.getConfigurationService().removeProperty(key);
-
-            if(logger.isInfoEnabled())
-                logger.info(key + "=" + value);
         }
         else if(key.endsWith(".PASSWORD"))
         {
@@ -826,15 +829,24 @@ public class ProvisioningServiceImpl
 
             if(logger.isInfoEnabled())
                 logger.info(key +"=<password hidden>");
+
+            return;
+        }
+        else if(key.startsWith(SYSTEM_PROP_PREFIX))
+        {
+            String sysKey = key.substring(
+                SYSTEM_PROP_PREFIX.length(), key.length());
+
+            System.setProperty(sysKey, (String)value);
         }
         else
         {
             ProvisioningActivator.getConfigurationService().setProperty(key,
                 value);
-
-            if(logger.isInfoEnabled())
-                logger.info(key + "=" + value);
         }
+
+        if(logger.isInfoEnabled())
+            logger.info(key + "=" + value);
     }
 
     /**

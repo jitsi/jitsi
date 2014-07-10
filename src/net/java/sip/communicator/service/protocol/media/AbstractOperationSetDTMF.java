@@ -166,21 +166,27 @@ public abstract class AbstractOperationSetDTMF
 
     /**
      * Checks whether rfc4733 is negotiated for this call.
+     *
      * @param peer the call peer.
      * @return whether we can use rfc4733 in this call.
      */
     protected static boolean isRFC4733Active(MediaAwareCallPeer<?,?,?> peer)
     {
-        Iterator<MediaFormat> iter =
-            peer.getMediaHandler().getStream(MediaType.AUDIO)
-                .getDynamicRTPPayloadTypes().values().iterator();
+        Iterator<MediaFormat> iter
+            = peer
+                .getMediaHandler()
+                    .getStream(MediaType.AUDIO)
+                        .getDynamicRTPPayloadTypes()
+                            .values()
+                                .iterator();
+
         while (iter.hasNext())
         {
             MediaFormat mediaFormat = iter.next();
-            if(mediaFormat.getEncoding().equals(Constants.TELEPHONE_EVENT))
+
+            if(Constants.TELEPHONE_EVENT.equals(mediaFormat.getEncoding()))
                 return true;
         }
-
         return false;
     }
 

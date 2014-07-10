@@ -388,7 +388,7 @@ public class ImageLoader
      */
     public static final ImageID CHAT_CALL
         = new ImageID("service.gui.buttons.CHAT_CALL");
-    
+
     /**
      * The chat room call button image.
      */
@@ -400,7 +400,7 @@ public class ImageLoader
      */
     public static final ImageID CHAT_VIDEO_CALL
         = new ImageID("service.gui.buttons.CHAT_VIDEO_CALL");
-    
+
     /**
      * The chat room video call button image.
      */
@@ -891,6 +891,12 @@ public class ImageLoader
         new ImageID("service.gui.buttons.CALL_INFO");
 
     /**
+     * The call information button icon used in the call panel.
+     */
+    public static final ImageID CRM =
+        new ImageID("service.gui.buttons.CRM");
+
+    /**
      * The image used, when a contact has no photo specified.
      */
     public static final ImageID DEFAULT_USER_PHOTO
@@ -976,13 +982,13 @@ public class ImageLoader
      */
     public static final ImageID CHAT_ROOM_OFFLINE_ICON
         = new ImageID("service.gui.icons.CHAT_ROOM_ICON");
-    
+
     /**
      * The image used for chat rooms presence status.
      */
     public static final ImageID CHAT_ROOM_MENU_ICON
         = new ImageID("service.gui.icons.CHAT_ROOM_16x16_ICON");
-    
+
     /**
      * The image used for joined chat rooms.
      */
@@ -1013,6 +1019,12 @@ public class ImageLoader
      */
     public static final ImageID JOIN_AS_ICON
         = new ImageID("service.gui.icons.JOIN_AS_ICON");
+
+    /**
+     * The image can be used for message source contact presence status.
+     */
+    public static final ImageID MSG_SRC_CONTACT_ONLINE_ICON
+        = new ImageID("service.gui.icons.SMS_STATUS_ICON");
 
     /**
      * The image used to set to the chat room "leave" right button menu.
@@ -1067,6 +1079,12 @@ public class ImageLoader
      */
     public static final ImageID CHAT_ROOM_CONFIG
         = new ImageID("service.gui.buttons.CHAT_ROOM_CONFIG");
+
+    /**
+     * The icon used for the chat room configuration button.
+     */
+    public static final ImageID CHAT_ROOM_MEMBERS_LIST_CONFIG
+        = new ImageID("service.gui.buttons.CHAT_ROOM_MEMBERS_LIST_CONFIG");
 
     /**
      * The video call menu item icon.
@@ -1362,6 +1380,13 @@ public class ImageLoader
      */
     public static final ImageID USER_USER_ON_THE_PHONE_ICON
         = new ImageID("service.gui.statusicons.USER_ON_THE_PHONE_ICON");
+
+    /**
+     * Contact "In a meeting" icon.
+     */
+    public static final ImageID USER_USER_IN_A_MEETING_ICON
+        = new ImageID("service.gui.statusicons.USER_IN_MEETING_ICON");
+
 
     /**
      * Chat button "online" icon.

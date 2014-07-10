@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.ldap.*;
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.resources.*;
@@ -59,6 +60,11 @@ public class LdapActivator
      */
     private static Map<LdapContactSourceService, ServiceRegistration> cssList =
         new HashMap<LdapContactSourceService, ServiceRegistration>();
+
+    /**
+     * The registered PhoneNumberI18nService.
+     */
+    private static PhoneNumberI18nService phoneNumberI18nService;
 
     /**
      * Starts the LDAP service
@@ -230,5 +236,21 @@ public class LdapActivator
         {
             cssList.remove(found);
         }
+    }
+
+    /**
+     * Returns the PhoneNumberI18nService.
+     * @return returns the PhoneNumberI18nService.
+     */
+    public static PhoneNumberI18nService getPhoneNumberI18nService()
+    {
+        if(phoneNumberI18nService == null)
+        {
+            phoneNumberI18nService = ServiceUtils.getService(
+                bundleContext,
+                PhoneNumberI18nService.class);
+        }
+
+        return phoneNumberI18nService;
     }
 }

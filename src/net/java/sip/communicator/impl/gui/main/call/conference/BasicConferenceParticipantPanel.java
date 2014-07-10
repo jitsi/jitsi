@@ -19,6 +19,7 @@ import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.service.neomedia.*;
+import org.jitsi.service.protocol.event.*;
 
 /**
  * The basic panel used to render any conference participant. Meant to be
@@ -455,11 +456,14 @@ public abstract class BasicConferenceParticipantPanel<T>
     {
         if(securityStatusLabel == null)
             return;
-        securityStatusLabel.setText("");
-        securityStatusLabel.setSecurityOff();
-        if (securityStatusLabel.getBorder() == null)
-            securityStatusLabel.setBorder(
-                BorderFactory.createEmptyBorder(2, 5, 2, 3));
+        if (evt.getSessionType() == CallPeerSecurityStatusEvent.AUDIO_SESSION)
+        {
+            securityStatusLabel.setText("");
+            securityStatusLabel.setSecurityOff();
+            if (securityStatusLabel.getBorder() == null)
+                securityStatusLabel.setBorder(
+                    BorderFactory.createEmptyBorder(2, 5, 2, 3));
+        }
     }
 
     /**

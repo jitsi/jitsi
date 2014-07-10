@@ -900,14 +900,14 @@ public class CallJabberImpl
      */
     public CallPeerJabberImpl processSessionInitiate(JingleIQ jingleIQ)
     {
-        String remoteParty = jingleIQ.getInitiator();
+        // Use the IQs 'from', instead of the jingle 'initiator' field,
+        // because we want to make sure that following IQs are sent with the
+        // correct 'to'.
+        String remoteParty = jingleIQ.getFrom();
+
         boolean autoAnswer = false;
         CallPeerJabberImpl attendant = null;
         OperationSetBasicTelephonyJabberImpl basicTelephony = null;
-
-        //according to the Jingle spec initiator may be null.
-        if (remoteParty == null)
-            remoteParty = jingleIQ.getFrom();
 
         CallPeerJabberImpl callPeer
             = new CallPeerJabberImpl(remoteParty, this, jingleIQ);
@@ -1110,8 +1110,6 @@ public class CallJabberImpl
      * the state of the remote DTLS-SRTP endpoint
      * @param mediaType the <tt>MediaType</tt> of the media to be transmitted
      * over the DTLS-SRTP session
-     * @param <tt>true</tt> if DTLS-SRTP has been selected by the local peer as
-     * the secure transport; otherwise, <tt>false</tt>
      */
     private boolean addDtlsAdvertisedEncryptions(
             CallPeerJabberImpl peer,
@@ -1180,7 +1178,7 @@ public class CallJabberImpl
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
                 && accountID.isEncryptionProtocolEnabled(
-                        DtlsControl.PROTO_NAME)
+                        SrtpControlType.DTLS_SRTP)
                 && (remoteContent != null))
         {
             IceUdpTransportPacketExtension remoteTransport
@@ -1255,7 +1253,7 @@ public class CallJabberImpl
                     ProtocolProviderFactory.DEFAULT_ENCRYPTION,
                     true)
                 && accountID.isEncryptionProtocolEnabled(
-                        DtlsControl.PROTO_NAME)
+                        SrtpControlType.DTLS_SRTP)
                 && protocolProvider.isFeatureSupported(
                         jitsiVideobridge,
                         ProtocolProviderServiceJabberImpl

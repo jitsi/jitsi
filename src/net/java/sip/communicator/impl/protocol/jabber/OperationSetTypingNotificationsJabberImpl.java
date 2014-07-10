@@ -14,8 +14,12 @@ import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.*;
+import org.jivesoftware.smackx.packet.*;
 
 /**
  * Maps SIP Communicator typing notifications to those going and coming from
@@ -23,6 +27,7 @@ import org.jivesoftware.smackx.*;
  *
  * @author Damian Minkov
  * @author Emil Ivov
+ * @author Hristo Terezov
  */
 public class OperationSetTypingNotificationsJabberImpl
     extends AbstractOperationSetTypingNotifications<ProtocolProviderServiceJabberImpl>
@@ -60,12 +65,6 @@ public class OperationSetTypingNotificationsJabberImpl
      * XEP-0085;
      */
     private SmackChatStateListener smackChatStateListener = null;
-
-    /**
-     * The listener instance that we use in order to track for new chats so that
-     * we could stick a SmackChatStateListener to them.
-     */
-    private SmackChatManagerListener smackChatManagerListener = null;
 
     /**
      * @param provider a ref to the <tt>ProtocolProviderServiceImpl</tt>
@@ -144,13 +143,16 @@ public class OperationSetTypingNotificationsJabberImpl
      */
     private void sendXep85ChatState(Contact contact, int state)
     {
-        String toJID = null;
+        if(opSetBasicIM == null
+            || parentProvider.getConnection() == null)
+            return;
+
+        String toJID = opSetBasicIM.getRecentJIDForAddress(contact.getAddress());
 
         // find the currently contacted jid to send typing info to him
         // or if we do not have a jid and we have already sent message to the
         // bare jid we will also send typing info there
-        if (toJID == null)
-            toJID = opSetBasicIM.getJidForAddress(contact.getAddress());
+
 
         // if we haven't sent a message yet, do not send typing notifications
         if(toJID == null)
@@ -160,8 +162,6 @@ public class OperationSetTypingNotificationsJabberImpl
             logger.trace("Sending XEP-0085 chat state=" + state
                 + " to " + toJID);
 
-        Chat chat = parentProvider.getConnection()
-            .getChatManager().createChat(toJID, null);
 
         ChatState chatState = null;
 
@@ -182,18 +182,29 @@ public class OperationSetTypingNotificationsJabberImpl
             chatState = ChatState.gone;
         }
 
-        try
-        {
-            ChatStateManager.getInstance(parentProvider.getConnection())
-                .setCurrentState(chatState, chat);
-        }
-        catch(XMPPException exc)
-        {
-            //we don't want to bother the user with network exceptions
-            //so let's simply log it.
-            logger.warn("Failed to send state [" + state + "] to ["
-                + contact.getAddress() + "].", exc);
-        }
+        setCurrentState(chatState, toJID);
+    }
+
+    /**
+     * Creates and sends a packet for the new chat state.
+     * @param chatState the new chat state.
+     * @param jid the JID of the receiver.
+     */
+    private void setCurrentState(ChatState chatState, String jid)
+    {
+        String threadID = opSetBasicIM.getThreadIDForAddress(jid);
+        if(threadID == null)
+            return;
+
+        Message message = new Message();
+        ChatStateExtension extension = new ChatStateExtension(chatState);
+        message.addExtension(extension);
+
+        message.setTo(jid);
+        message.setType(Message.Type.chat);
+        message.setThread(threadID);
+        message.setFrom(parentProvider.getConnection().getUser());
+        parentProvider.getConnection().sendPacket(message);
     }
 
     /**
@@ -260,30 +271,27 @@ public class OperationSetTypingNotificationsJabberImpl
                 messageEventManager.addMessageEventNotificationListener(
                     new IncomingMessageEventsListener());
 
-                //according to the smack api documentation we need to do this
-                //every time we connect in order to reinitialize the chat state
-                //manager (@see http://tinyurl.com/6j9uqs )
 
-                ChatStateManager.getInstance(parentProvider.getConnection());
+                if(smackChatStateListener == null)
+                    smackChatStateListener = new SmackChatStateListener();
 
-                if(smackChatManagerListener == null)
-                    smackChatManagerListener = new SmackChatManagerListener();
+                parentProvider.getConnection().addPacketListener(
+                    smackChatStateListener, new PacketTypeFilter(Message.class));
 
-                parentProvider.getConnection().getChatManager()
-                    .addChatListener(smackChatManagerListener);
+
+
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
                  || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
                  || evt.getNewState() == RegistrationState.CONNECTION_FAILED)
             {
-                if(parentProvider.getConnection() != null
-                    && parentProvider.getConnection().getChatManager() != null)
+                if(parentProvider.getConnection() != null)
                 {
-                    parentProvider.getConnection().getChatManager()
-                        .removeChatListener(smackChatManagerListener);
+                    parentProvider.getConnection()
+                        .removePacketListener(smackChatStateListener);
                 }
 
-                smackChatManagerListener = null;
+                smackChatStateListener = null;
 
                 if(messageEventManager != null)
                 {
@@ -292,32 +300,6 @@ public class OperationSetTypingNotificationsJabberImpl
                 }
             }
         }
-    }
-
-    /**
-     * The class that we use when listening for new chats so that we could start
-     * tracking them for chat events.
-     */
-    private class SmackChatManagerListener implements ChatManagerListener
-    {
-        /**
-         * Simply adds a chat state listener to every newly created chat
-         * so that we could track it for chat state events.
-         *
-         * @param chat the chat that we need to add a state listener to.
-         * @param isLocal indicates whether the chat has been initiated by us
-         */
-        public void chatCreated(Chat chat, boolean isLocal)
-        {
-            if (logger.isTraceEnabled())
-                logger.trace("Created a chat with "
-                + chat.getParticipant() + " local="+isLocal);
-
-            if(smackChatStateListener == null)
-                smackChatStateListener = new SmackChatStateListener();
-
-            chat.addMessageListener(smackChatStateListener);
-        };
     }
 
     /**
@@ -408,7 +390,7 @@ public class OperationSetTypingNotificationsJabberImpl
      * to XEP-0085.
      */
     private class SmackChatStateListener
-        implements ChatStateListener
+        implements PacketListener
     {
         /**
          * Called by smack when the state of a chat changes.
@@ -417,15 +399,16 @@ public class OperationSetTypingNotificationsJabberImpl
          * @param state the new state of the chat.
          * @param message the message containing the new chat state
          */
-        public void stateChanged(Chat chat,
-                                 ChatState state,
+        public void stateChanged(ChatState state,
                                  org.jivesoftware.smack.packet.Message message)
         {
+            String fromJID = message.getFrom();
             if (logger.isTraceEnabled())
-                logger.trace(chat.getParticipant() + " entered the "
+                logger.trace(fromJID + " entered the "
                 + state.name()+ " state.");
 
-            String fromID = StringUtils.parseBareAddress(chat.getParticipant());
+
+            String fromID = StringUtils.parseBareAddress(fromJID);
 
             List<ChatRoom> chatRooms = parentProvider.getOperationSet(
                 OperationSetMultiUserChat.class).getCurrentlyJoinedChatRooms();
@@ -443,9 +426,19 @@ public class OperationSetTypingNotificationsJabberImpl
                 (isPrivateMessagingAddress? message.getFrom() : fromID));
             if(sourceContact == null)
             {
-                //create the volatile contact
-                sourceContact = opSetPersPresence.createVolatileContact(
-                    chat.getParticipant(), isPrivateMessagingAddress);
+                // in private messaging we can receive some errors
+                // when we left room (isPrivateMessagingAddress == false)
+                // and we try to send some message
+                if(message.getError() != null)
+                    sourceContact = opSetPersPresence.findContactByID(
+                        message.getFrom());
+
+                if(sourceContact == null)
+                {
+                    //create the volatile contact
+                    sourceContact = opSetPersPresence.createVolatileContact(
+                        message.getFrom(), isPrivateMessagingAddress);
+                }
             }
 
             int evtCode = STATE_UNKNOWN;
@@ -474,19 +467,15 @@ public class OperationSetTypingNotificationsJabberImpl
                 logger.warn("Unknown typing state!");
         }
 
-        /**
-         * Called when a new message is received. We ignore this one since
-         * we handle message reception on a lower level.
-         *
-         * @param chat the chat that the message belongs to
-         * @param msg the message that we need to process.
-         */
-        public void processMessage(Chat chat,
-                                    org.jivesoftware.smack.packet.Message msg)
+        @Override
+        public void processPacket(Packet packet)
         {
-            if (logger.isTraceEnabled())
-                logger.trace("ignoring a process message");
-
+            Message msg = (Message) packet;
+            ChatStateExtension ext = (ChatStateExtension) msg.getExtension(
+                "http://jabber.org/protocol/chatstates");
+            if(ext == null)
+                return;
+            stateChanged(ChatState.valueOf(ext.getElementName()), msg);
         }
     }
 }

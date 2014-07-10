@@ -15,4 +15,6 @@ Import-Package: javax.swing,
  net.java.sip.communicator.util,
  org.jitsi.service.configuration,
  org.jitsi.util,
+ org.jitsi.service.resources,
+ com.sun.jna.platform.win32,
  org.osgi.framework

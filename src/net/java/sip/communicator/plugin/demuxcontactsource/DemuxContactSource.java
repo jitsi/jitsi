@@ -108,19 +108,26 @@ public class DemuxContactSource
         if (queryString == null)
             queryString = "";
 
+        ContactQuery sourceQuery;
+
         if (contactSource instanceof ExtendedContactSourceService)
         {
-            return new DemuxContactQuery(
+            sourceQuery =
                 ((ExtendedContactSourceService) contactSource)
                     .createContactQuery(Pattern.compile(
                         Pattern.quote(queryString),
                         Pattern.MULTILINE
                             | Pattern.CASE_INSENSITIVE
-                            | Pattern.UNICODE_CASE)));
+                            | Pattern.UNICODE_CASE));
         }
         else
-            return new DemuxContactQuery(
-                contactSource.createContactQuery(queryString));
+            sourceQuery = contactSource.createContactQuery(queryString);
+
+        if(sourceQuery != null)
+            return new DemuxContactQuery(sourceQuery);
+        else
+            return null;
+
     }
 
     /**
@@ -132,8 +139,13 @@ public class DemuxContactSource
      */
     public ContactQuery createContactQuery(String queryString, int contactCount)
     {
-        return new DemuxContactQuery(
-            contactSource.createContactQuery(queryString, contactCount));
+        ContactQuery sourceQuery
+            = contactSource.createContactQuery(queryString, contactCount);
+
+        if(sourceQuery != null)
+            return new DemuxContactQuery(sourceQuery);
+        else
+            return null;
     }
 
     /**

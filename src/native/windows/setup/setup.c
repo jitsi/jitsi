@@ -1945,7 +1945,7 @@ WinMain(
          * obviously knows what they are doing so do not ask whether Wow64 is
          * acceptable.
          */
-        if (Setup_quiet || Setup_xzdec_ || (IDYES == Setup_isWow64Acceptable()))
+        /* if (Setup_quiet || Setup_xzdec_ || (IDYES == Setup_isWow64Acceptable())) */
         {
             if (Setup_msiexec_)
                 error = Setup_msiexec();

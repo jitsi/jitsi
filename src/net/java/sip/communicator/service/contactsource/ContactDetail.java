@@ -50,6 +50,12 @@ public class ContactDetail
 
         /**
          * The standard/well-known category of a <tt>ContactDetail</tt>
+         * representing personal details, like web address.
+         */
+        Web("Web"),
+
+        /**
+         * The standard/well-known category of a <tt>ContactDetail</tt>
          * representing organization details, like organization name and job
          * title.
          */

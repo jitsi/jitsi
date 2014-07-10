@@ -30,6 +30,7 @@ import org.jitsi.service.neomedia.codec.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.event.*;
 import org.jitsi.service.resources.*;
+import org.jitsi.util.OSUtils;
 import org.jitsi.util.swing.*;
 
 /**
@@ -445,6 +446,133 @@ public class MediaConfigurationImpl
                 setText(((int) d.getWidth()) + "x" + ((int) d.getHeight()));
             }
             return this;
+        }
+    }
+
+    /**
+     * Wrapper for the device list field.
+     */
+    private static class DeviceComboBoxField
+    {
+        /**
+         * The combo box with the devices.
+         */
+        private JComboBox deviceComboBox = null;
+
+        /**
+         * The <tt>JList</tt> with the devices.
+         */
+        private JList deviceList = null;
+
+        /**
+         * The current component that displays the list with the devices.
+         */
+        private Component deviceComponent;
+
+        /**
+         * The listener for the field.
+         */
+        private Listener listener;
+
+        /**
+         * Model for the field.
+         */
+        final DeviceConfigurationComboBoxModel model;
+
+        /**
+         * Constructs <tt>DeviceComboBoxField</tt> instance.
+         * @param type the type of the configuration panel
+         * @param devicePanel the container of the field.
+         */
+        public DeviceComboBoxField(final int type, Container devicePanel)
+        {
+            model = new DeviceConfigurationComboBoxModel(
+                mediaService.getDeviceConfiguration(),
+                type);
+
+            if(!OSUtils.IS_WINDOWS
+                || type != DeviceConfigurationComboBoxModel.VIDEO)
+            {
+                deviceComboBox = new JComboBox();
+                deviceComboBox.setEditable(false);
+                deviceComboBox.setModel(model);
+                devicePanel.add(deviceComboBox);
+                deviceComponent = deviceComboBox;
+            }
+            else
+            {
+                deviceList = new JList();
+                deviceList.setModel(model);
+                JScrollPane listScroller = new JScrollPane(deviceList);
+                listScroller.setPreferredSize(new Dimension(200, 38));
+                deviceList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+                deviceList.setLayoutOrientation(JList.VERTICAL);
+                deviceList.setVisibleRowCount(-1);
+                deviceList.setSelectedValue(model.getSelectedItem(), true);
+                devicePanel.add(listScroller);
+                deviceComponent = deviceList;
+            }
+        }
+
+        /**
+         * Returns the field component
+         * @return the field component
+         */
+        public Component getComponent()
+        {
+            return deviceComponent;
+        }
+
+        /**
+         * Returns the selected device
+         * @return the selected device
+         */
+        public Object getSelectedItem()
+        {
+            return (deviceComboBox != null)?
+                deviceComboBox.getSelectedItem() : deviceList.getSelectedValue();
+        }
+
+        /**
+         * Adds a listener to the field.
+         * @param listener the listener to be added.
+         */
+        public void addListener(final Listener listener)
+        {
+            this.listener = listener;
+            if(deviceComboBox != null)
+            {
+                deviceComboBox.addActionListener(new ActionListener()
+                {
+
+                    @Override
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        listener.onAction();
+                    }
+                });
+            }
+            else
+            {
+                deviceList.addListSelectionListener(new ListSelectionListener()
+                {
+
+                    @Override
+                    public void valueChanged(ListSelectionEvent e)
+                    {
+                        model.setSelectedItem(deviceList.getSelectedValue());
+                        listener.onAction();
+                    }
+                });
+            }
+        }
+
+        /**
+         * Interface for the listener attached to the field.
+         */
+        public static interface Listener
+        {
+            public void onAction();
         }
     }
 
@@ -1134,7 +1262,7 @@ public class MediaConfigurationImpl
                 && NeomediaActivator.getConfigurationService().getBoolean(
                         MediaServiceImpl.DISABLE_SET_AUDIO_SYSTEM_PNAME,
                         false);
-        final JComboBox deviceComboBox;
+        final DeviceComboBoxField deviceComboBox;
         final Container devicePanel;
 
         if (setAudioSystemIsDisabled)
@@ -1144,23 +1272,17 @@ public class MediaConfigurationImpl
         }
         else
         {
-            deviceComboBox = new JComboBox();
-            deviceComboBox.setEditable(false);
-            deviceComboBox.setModel(
-                    new DeviceConfigurationComboBoxModel(
-                            mediaService.getDeviceConfiguration(),
-                            type));
-
             JLabel deviceLabel = new JLabel(getLabelText(type));
 
             deviceLabel.setDisplayedMnemonic(getDisplayedMnemonic(type));
-            deviceLabel.setLabelFor(deviceComboBox);
 
             devicePanel
                 = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
             devicePanel.setMaximumSize(new Dimension(WIDTH, 25));
             devicePanel.add(deviceLabel);
-            devicePanel.add(deviceComboBox);
+
+            deviceComboBox = new DeviceComboBoxField(type, devicePanel);
+            deviceLabel.setLabelFor(deviceComboBox.getComponent());
         }
 
         final JPanel deviceAndPreviewPanel
@@ -1188,10 +1310,10 @@ public class MediaConfigurationImpl
         if (devicePanel != null)
             deviceAndPreviewPanel.add(devicePanel, BorderLayout.NORTH);
 
-        final ActionListener deviceComboBoxActionListener
-            = new ActionListener()
+        final DeviceComboBoxField.Listener deviceComboBoxActionListener
+            = new DeviceComboBoxField.Listener()
             {
-                public void actionPerformed(ActionEvent ev)
+                public void onAction()
                 {
                     boolean revalidateAndRepaint = false;
 
@@ -1212,7 +1334,7 @@ public class MediaConfigurationImpl
 
                     if ((deviceComboBox == null)
                             || ((deviceComboBox.getSelectedItem() != null)
-                                    && deviceComboBox.isShowing()))
+                                    && deviceComboBox.getComponent().isShowing()))
                     {
                         preview
                             = createPreview(
@@ -1233,10 +1355,11 @@ public class MediaConfigurationImpl
                         deviceAndPreviewPanel.repaint();
                     }
                 }
+
             };
 
         if (deviceComboBox != null)
-            deviceComboBox.addActionListener(deviceComboBoxActionListener);
+            deviceComboBox.addListener(deviceComboBoxActionListener);
 
         /*
          * We have to initialize the controls to reflect the configuration at
@@ -1262,7 +1385,7 @@ public class MediaConfigurationImpl
                                         public void run()
                                         {
                                             deviceComboBoxActionListener
-                                                .actionPerformed(null);
+                                                .onAction();
                                         }
                                     });
                         }
@@ -1567,7 +1690,7 @@ public class MediaConfigurationImpl
      */
     private Component createPreview(
             int type,
-            JComboBox comboBox,
+            DeviceComboBoxField comboBox,
             Dimension prefSize)
     {
         JComponent preview = null;
@@ -1582,7 +1705,7 @@ public class MediaConfigurationImpl
              * AudioSystem (specified by the DeviceConfiguration of the
              * MediaService) is to be configured.
              */
-            if ((comboBox == null) || !comboBox.isEnabled())
+            if ((comboBox == null) || !comboBox.getComponent().isEnabled())
             {
                 audioSystem
                     = mediaService.getDeviceConfiguration().getAudioSystem();

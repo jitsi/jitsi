@@ -66,6 +66,7 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/otr4j.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/pircbot.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/profiler4j-1.0-beta3-SC.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/libphonenumber-5.9.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/sdes4j.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/smack.jar" sourcepath="lib/installer-exclude/smack-src.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/smackx.jar"/>
@@ -77,7 +78,7 @@
 	<classpathentry kind="lib" path="lib/os-specific/mac/growl4j.jar"/>
 	<classpathentry kind="lib" path="lib/os-specific/mac/OrangeExtensions.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jmork-1.0.5-SNAPSHOT.jar" sourcepath="/jmork"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/bcprov-jdk15on-149.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/bcprov-jdk15on-150.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/commons-lang3-3.1.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/bccontrib-1.0-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/zrtp4j-light.jar"/>

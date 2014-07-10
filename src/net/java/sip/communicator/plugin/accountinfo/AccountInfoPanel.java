@@ -14,6 +14,7 @@ import javax.swing.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.plugin.accountinfo.AccountInfoMenuItemComponent.*;
 
 import org.osgi.framework.*;
 
@@ -26,7 +27,8 @@ import org.osgi.framework.*;
  */
 public class AccountInfoPanel
     extends TransparentPanel
-    implements ServiceListener
+    implements ServiceListener,
+               RegistrationStateChangeListener
 {
     /**
      * Serial version UID.
@@ -59,12 +61,19 @@ public class AccountInfoPanel
             new HashMap<AccountID, AccountDetailsPanel>();
 
     /**
+     * The parent dialog.
+     */
+    private AccountInfoDialog dialog;
+
+    /**
      * Creates an instance of <tt>AccountInfoPanel</tt> that contains combo box
      * component with active user accounts and <tt>AccountDetailsPanel</tt> to
      * display and edit account information.
      */
-    public AccountInfoPanel()
+    public AccountInfoPanel(AccountInfoDialog dialog)
     {
+        this.dialog = dialog;
+
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         accountsComboBox = new JComboBox();
@@ -112,8 +121,13 @@ public class AccountInfoPanel
         add(centerPanel);
     }
 
+    /**
+     * Initialize.
+     */
     private void init()
     {
+        AccountInfoActivator.bundleContext.addServiceListener(this);
+
         for (ProtocolProviderFactory providerFactory : AccountInfoActivator
             .getProtocolProviderFactories().values())
         {
@@ -130,16 +144,31 @@ public class AccountInfoPanel
                 protocolProvider = (ProtocolProviderService)AccountInfoActivator
                     .bundleContext.getService(serRef);
 
-                currentDetailsPanel = new AccountDetailsPanel(protocolProvider);
+                currentDetailsPanel = new AccountDetailsPanel(
+                    dialog,
+                    protocolProvider);
 
                 accountsTable.put(
                     protocolProvider.getAccountID(), currentDetailsPanel);
 
                 accountsComboBox.addItem(currentDetailsPanel);
 
-                protocolProvider.addRegistrationStateChangeListener(
-                    new RegistrationStateChangeListenerImpl());
+                protocolProvider.addRegistrationStateChangeListener(this);
             }
+        }
+    }
+
+    /**
+     * Clears all listeners.
+     */
+    public void dispose()
+    {
+        AccountInfoActivator.bundleContext.removeServiceListener(this);
+
+        for(AccountDetailsPanel pan : accountsTable.values())
+        {
+            pan.getProtocolProvider()
+                .removeRegistrationStateChangeListener(this);
         }
     }
 
@@ -179,44 +208,52 @@ public class AccountInfoPanel
         }
     }
 
-    private class RegistrationStateChangeListenerImpl
-        implements RegistrationStateChangeListener
+    public void registrationStateChanged(final RegistrationStateChangeEvent evt)
     {
-        public void registrationStateChanged(RegistrationStateChangeEvent evt)
+        if(!SwingUtilities.isEventDispatchThread())
         {
-            ProtocolProviderService protocolProvider = evt.getProvider();
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    registrationStateChanged(evt);
+                }
+            });
+            return;
+        }
 
-            if (evt.getNewState() == RegistrationState.REGISTERED)
+        ProtocolProviderService protocolProvider = evt.getProvider();
+
+        if (evt.getNewState() == RegistrationState.REGISTERED)
+        {
+            if (accountsTable.containsKey(protocolProvider.getAccountID()))
             {
-                if (accountsTable.containsKey(protocolProvider.getAccountID()))
-                {
-                    AccountDetailsPanel detailsPanel
-                        = accountsTable.get(protocolProvider.getAccountID());
-                    detailsPanel.loadDetails();
-                }
-                else
-                {
-                    AccountDetailsPanel panel =
-                        new AccountDetailsPanel(protocolProvider);
-                    accountsTable.put(protocolProvider.getAccountID(), panel);
-                    accountsComboBox.addItem(panel);
-                }
-            }
-            else if (evt.getNewState() == RegistrationState.UNREGISTERING)
-            {
-                AccountDetailsPanel panel
+                AccountDetailsPanel detailsPanel
                     = accountsTable.get(protocolProvider.getAccountID());
-                if (panel != null)
+                detailsPanel.loadDetails();
+            }
+            else
+            {
+                AccountDetailsPanel panel =
+                    new AccountDetailsPanel(dialog, protocolProvider);
+                accountsTable.put(protocolProvider.getAccountID(), panel);
+                accountsComboBox.addItem(panel);
+            }
+        }
+        else if (evt.getNewState() == RegistrationState.UNREGISTERING)
+        {
+            AccountDetailsPanel panel
+                = accountsTable.get(protocolProvider.getAccountID());
+            if (panel != null)
+            {
+                accountsTable.remove(protocolProvider.getAccountID());
+                accountsComboBox.removeItem(panel);
+                if (currentDetailsPanel == panel)
                 {
-                    accountsTable.remove(protocolProvider.getAccountID());
-                    accountsComboBox.removeItem(panel);
-                    if (currentDetailsPanel == panel)
-                    {
-                        currentDetailsPanel = null;
-                        centerPanel.removeAll();
-                        centerPanel.revalidate();
-                        centerPanel.repaint();
-                    }
+                    currentDetailsPanel = null;
+                    centerPanel.removeAll();
+                    centerPanel.revalidate();
+                    centerPanel.repaint();
                 }
             }
         }
@@ -229,8 +266,20 @@ public class AccountInfoPanel
      * @param event
      */
     @Override
-    public void serviceChanged(ServiceEvent event)
+    public void serviceChanged(final ServiceEvent event)
     {
+        if(!SwingUtilities.isEventDispatchThread())
+        {
+            SwingUtilities.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    serviceChanged(event);
+                }
+            });
+            return;
+        }
+
         // Get the service from the event.
         Object service
             = AccountInfoActivator.bundleContext.getService(
@@ -251,11 +300,10 @@ public class AccountInfoPanel
             if (accountsTable.get(protocolProvider.getAccountID()) == null)
             {
                 AccountDetailsPanel panel =
-                    new AccountDetailsPanel(protocolProvider);
+                    new AccountDetailsPanel(dialog, protocolProvider);
                 accountsTable.put(protocolProvider.getAccountID(), panel);
                 accountsComboBox.addItem(panel);
-                protocolProvider.addRegistrationStateChangeListener(
-                    new RegistrationStateChangeListenerImpl());
+                protocolProvider.addRegistrationStateChangeListener(this);
             }
         }
         // If the protocol provider is being unregistered we have to remove

@@ -24,7 +24,7 @@ import net.java.sip.communicator.service.ldap.*;
  * @author Sebastien Vincent
  */
 public class LdapContactSourceService
-    implements ExtendedContactSourceService
+    implements ContactSourceService, PrefixedContactSourceService
 {
     /**
      * The <tt>List</tt> of <tt>LdapContactQuery</tt> instances
@@ -46,38 +46,6 @@ public class LdapContactSourceService
     public LdapContactSourceService(LdapDirectory ldapDirectory)
     {
         this.ldapDirectory = ldapDirectory;
-    }
-
-    /**
-     * Creates query for the given <tt>searchPattern</tt>.
-     *
-     * @param queryPattern the pattern to search for
-     * @return the created query
-     */
-    public ContactQuery createContactQuery(Pattern queryPattern)
-    {
-        return createContactQuery(queryPattern,
-                LdapContactQuery.LDAP_MAX_RESULTS);
-    }
-
-    /**
-     * Creates query for the given <tt>searchPattern</tt>.
-     *
-     * @param queryPattern the pattern to search for
-     * @param count maximum number of contact returned
-     * @return the created query
-     */
-    public ContactQuery createContactQuery(Pattern queryPattern, int count)
-    {
-        LdapContactQuery query = new LdapContactQuery(this, queryPattern,
-                count);
-
-        synchronized (queries)
-        {
-            queries.add(query);
-        }
-
-        return query;
     }
 
     /**
@@ -141,8 +109,17 @@ public class LdapContactSourceService
 
         if(pattern != null)
         {
-            return createContactQuery(pattern, contactCount);
+            LdapContactQuery ldapQuery = new LdapContactQuery(this, pattern,
+                contactCount);
+
+            synchronized (queries)
+            {
+                queries.add(ldapQuery);
+            }
+
+            return ldapQuery;
         }
+
         return null;
     }
 
@@ -190,6 +167,7 @@ public class LdapContactSourceService
      *
      * @return the phoneNumber prefix for all phone numbers
      */
+    @Override
     public String getPhoneNumberPrefix()
     {
         return ldapDirectory.getSettings().getGlobalPhonePrefix();

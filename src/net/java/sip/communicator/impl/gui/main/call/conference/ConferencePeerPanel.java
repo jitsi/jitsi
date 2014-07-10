@@ -136,6 +136,7 @@ public class ConferencePeerPanel
 
         callPeerAdapter = null;
 
+        String globalDisplayName = null;
         // Try to set the same image as the one in the main window. This way
         // we improve our chances to have an image, instead of looking only at
         // the protocol provider avatar, which could be null, we look for any
@@ -143,15 +144,19 @@ public class ConferencePeerPanel
         GlobalDisplayDetailsService displayDetailsService
             = GuiActivator.getGlobalDisplayDetailsService();
 
-        byte[] globalAccountImage
-            = displayDetailsService.getGlobalDisplayAvatar();
+        if(displayDetailsService != null)
+        {
+            byte[] globalAccountImage
+                = displayDetailsService.getGlobalDisplayAvatar();
 
-        if ((globalAccountImage != null) && (globalAccountImage.length > 0))
-            setPeerImage(globalAccountImage);
+            if((globalAccountImage != null) && (globalAccountImage.length > 0))
+                setPeerImage(globalAccountImage);
+
+            globalDisplayName = displayDetailsService.getGlobalDisplayName();
+        }
 
         ResourceManagementService resources = GuiActivator.getResources();
 
-        String globalDisplayName = displayDetailsService.getGlobalDisplayName();
         setPeerName(
                 (globalDisplayName != null && globalDisplayName.length() > 0)
                 ? globalDisplayName

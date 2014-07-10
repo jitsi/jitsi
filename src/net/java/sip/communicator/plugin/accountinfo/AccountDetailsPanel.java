@@ -14,34 +14,15 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
+import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 import org.jitsi.util.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.presence.avatar.*;
 import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.AboutMeDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.AddressDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.BirthDateDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.CityDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.CountryDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.DisplayNameDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.EmailAddressDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.FirstNameDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenderDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.JobTitleDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.LastNameDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.MiddleNameDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.NicknameDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.PhoneNumberDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.PostalCodeDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.ProvinceDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.URLDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkEmailAddressDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkOrganizationNameDetail;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkPhoneDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.plugin.accountinfo.AccountInfoMenuItemComponent.*;
 
 import net.java.sip.communicator.util.Logger;
 
@@ -117,6 +98,8 @@ public class AccountDetailsPanel
 
     private JTextField workPhoneField;
 
+    private JTextField mobilePhoneField;
+
     private JTextField emailField;
 
     private JTextField workEmailField;
@@ -176,6 +159,8 @@ public class AccountDetailsPanel
     
     private WorkPhoneDetail workPhoneDetail;
 
+    private MobilePhoneDetail mobilePhoneDetail;
+
     private EmailAddressDetail emailDetail;
 
     private WorkEmailAddressDetail workEmailDetail;
@@ -201,13 +186,21 @@ public class AccountDetailsPanel
     private JScrollPane mainScrollPane;
 
     /**
+     * The parent dialog.
+     */
+    private AccountInfoDialog dialog;
+
+    /**
      * Construct a panel containing all account details for the given protocol
      * provider.
      *
      * @param protocolProvider the protocol provider service
      */
-    public AccountDetailsPanel(ProtocolProviderService protocolProvider)
+    public AccountDetailsPanel(AccountInfoDialog dialog,
+                               ProtocolProviderService protocolProvider)
     {
+        this.dialog = dialog;
+
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setOpaque(false);
         this.setPreferredSize(new Dimension(600, 400));
@@ -547,6 +540,17 @@ public class AccountDetailsPanel
             detailToTextField.put(
                 WorkPhoneDetail.class, workPhoneField);
         }
+        if (accountInfoOpSet.isDetailClassSupported(MobilePhoneDetail.class))
+        {
+            mobilePhoneField = new JTextField();
+            valuesPanel.add(new JLabel(
+                Resources.getString("plugin.accountinfo.MOBILE_PHONE"))
+                , first);
+            valuesPanel.add(mobilePhoneField, second);
+            first.gridy = ++second.gridy;
+            detailToTextField.put(
+                MobilePhoneDetail.class, mobilePhoneField);
+        }
         if (accountInfoOpSet.isDetailClassSupported(
             WorkOrganizationNameDetail.class))
         {
@@ -650,7 +654,7 @@ public class AccountDetailsPanel
             @Override
             public void actionPerformed(ActionEvent evt)
             {
-                AccountInfoMenuItemComponent.dialog.setVisible(false);
+                dialog.close(false);
                 mainScrollPane.getVerticalScrollBar().setValue(0);
             }
         });
@@ -676,8 +680,36 @@ public class AccountDetailsPanel
     {
         if (accountInfoOpSet != null)
         {
-            Iterator<GenericDetail> allDetails =
-                accountInfoOpSet.getAllAvailableDetails();
+            new DetailsLoadWorker().start();
+        }
+    }
+
+    /**
+     * Loads details in separate thread.
+     */
+    private class DetailsLoadWorker
+        extends SwingWorker
+    {
+
+        @Override
+        protected Object construct()
+            throws
+            Exception
+        {
+            return accountInfoOpSet.getAllAvailableDetails();
+        }
+
+        /**
+         * Called on the event dispatching thread (not on the worker thread)
+         * after the <code>construct</code> method has returned.
+         */
+        @Override
+        protected void finished()
+        {
+            Iterator<GenericDetail> allDetails = (Iterator<GenericDetail>)get();
+
+            if(allDetails == null)
+                return;
 
             while (allDetails.hasNext())
             {
@@ -687,7 +719,7 @@ public class AccountDetailsPanel
 
             boolean isAnyDetailEditable = false;
             for (Class<? extends GenericDetail> editable :
-                    detailToTextField.keySet())
+                detailToTextField.keySet())
             {
                 if (accountInfoOpSet.isDetailClassEditable(editable))
                 {
@@ -789,6 +821,8 @@ public class AccountDetailsPanel
                     phoneDetail = (PhoneNumberDetail) detail;
                 else if (detail.getClass().equals(WorkPhoneDetail.class))
                     workPhoneDetail = (WorkPhoneDetail) detail;
+                else if (detail.getClass().equals(MobilePhoneDetail.class))
+                    mobilePhoneDetail = (MobilePhoneDetail) detail;
                 else if (detail.getClass().equals(EmailAddressDetail.class))
                     emailDetail = (EmailAddressDetail) detail;
                 else if (detail.getClass().equals(WorkEmailAddressDetail.class))
@@ -802,6 +836,15 @@ public class AccountDetailsPanel
                     aboutMeDetail = (AboutMeDetail) detail;
             }
         }
+    }
+
+    /**
+     * Returns the provider we represent.
+     * @return
+     */
+    public ProtocolProviderService getProtocolProvider()
+    {
+        return protocolProvider;
     }
 
     /**
@@ -1077,6 +1120,19 @@ public class AccountDetailsPanel
                     changeDetail(workPhoneDetail, newDetail);
             }
             if (accountInfoOpSet.isDetailClassSupported(
+                MobilePhoneDetail.class))
+            {
+                String text =
+                    detailToTextField.get(MobilePhoneDetail.class).getText();
+
+                MobilePhoneDetail newDetail = null;
+                if (!StringUtils.isNullOrEmpty(text, true))
+                    newDetail = new MobilePhoneDetail(text);
+
+                if (mobilePhoneDetail != null || newDetail != null)
+                    changeDetail(mobilePhoneDetail, newDetail);
+            }
+            if (accountInfoOpSet.isDetailClassSupported(
                 WorkOrganizationNameDetail.class))
             {
                 String text =
@@ -1119,8 +1175,8 @@ public class AccountDetailsPanel
 
             try
             {
-                AccountInfoMenuItemComponent.dialog.setVisible(false);
-                mainScrollPane.getVerticalScrollBar().setValue(0);
+                dialog.close(false);
+                //mainScrollPane.getVerticalScrollBar().setValue(0);
                 accountInfoOpSet.save();
             }
             catch (OperationFailedException e1)

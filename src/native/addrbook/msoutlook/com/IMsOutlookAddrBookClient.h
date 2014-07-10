@@ -3,11 +3,11 @@
 /* this ALWAYS GENERATED file contains the definitions for the interfaces */
 
 
- /* File created by MIDL compiler version 8.00.0595 */
-/* at Tue May 07 03:41:40 2013
+ /* File created by MIDL compiler version 7.00.0555 */
+/* at Thu May 08 16:38:42 2014
  */
 /* Compiler settings for IMsOutlookAddrBookClient.idl:
-    Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 8.00.0595 
+    Oicf, W1, Zp8, env=Win32 (32b run), target_arch=X86 7.00.0555 
     protocol : dce , ms_ext, c_ext, robust
     error checks: allocation ref bounds_check enum stub_data 
     VC __declspec() decoration level: 
@@ -48,14 +48,12 @@
 #ifndef __IMsOutlookAddrBookClient_FWD_DEFINED__
 #define __IMsOutlookAddrBookClient_FWD_DEFINED__
 typedef interface IMsOutlookAddrBookClient IMsOutlookAddrBookClient;
-
 #endif 	/* __IMsOutlookAddrBookClient_FWD_DEFINED__ */
 
 
 #ifndef __IMsOutlookAddrBookClient_FWD_DEFINED__
 #define __IMsOutlookAddrBookClient_FWD_DEFINED__
 typedef interface IMsOutlookAddrBookClient IMsOutlookAddrBookClient;
-
 #endif 	/* __IMsOutlookAddrBookClient_FWD_DEFINED__ */
 
 
@@ -84,19 +82,26 @@ EXTERN_C const IID IID_IMsOutlookAddrBookClient;
     {
     public:
         virtual HRESULT STDMETHODCALLTYPE foreachMailUserCallback( 
-            /* [in] */ BSTR id) = 0;
+            /* [in] */ BSTR id,
+            /* [in] */ long callback) = 0;
+        
+        virtual HRESULT STDMETHODCALLTYPE foreachCalendarItemCallback( 
+            /* [in] */ BSTR id,
+            /* [in] */ long callback) = 0;
         
         virtual HRESULT STDMETHODCALLTYPE deleted( 
-            /* [in] */ BSTR id) = 0;
+            /* [in] */ BSTR id,
+            /* [in] */ ULONG type) = 0;
         
         virtual HRESULT STDMETHODCALLTYPE inserted( 
-            /* [in] */ BSTR id) = 0;
+            /* [in] */ BSTR id,
+            /* [in] */ ULONG type) = 0;
         
         virtual HRESULT STDMETHODCALLTYPE updated( 
-            /* [in] */ BSTR id) = 0;
+            /* [in] */ BSTR id,
+            /* [in] */ ULONG type) = 0;
         
     };
-    
     
 #else 	/* C style interface */
 
@@ -108,7 +113,7 @@ EXTERN_C const IID IID_IMsOutlookAddrBookClient;
             IMsOutlookAddrBookClient * This,
             /* [in] */ REFIID riid,
             /* [annotation][iid_is][out] */ 
-            _COM_Outptr_  void **ppvObject);
+            __RPC__deref_out  void **ppvObject);
         
         ULONG ( STDMETHODCALLTYPE *AddRef )( 
             IMsOutlookAddrBookClient * This);
@@ -118,19 +123,28 @@ EXTERN_C const IID IID_IMsOutlookAddrBookClient;
         
         HRESULT ( STDMETHODCALLTYPE *foreachMailUserCallback )( 
             IMsOutlookAddrBookClient * This,
-            /* [in] */ BSTR id);
+            /* [in] */ BSTR id,
+            /* [in] */ long callback);
+        
+        HRESULT ( STDMETHODCALLTYPE *foreachCalendarItemCallback )( 
+            IMsOutlookAddrBookClient * This,
+            /* [in] */ BSTR id,
+            /* [in] */ long callback);
         
         HRESULT ( STDMETHODCALLTYPE *deleted )( 
             IMsOutlookAddrBookClient * This,
-            /* [in] */ BSTR id);
+            /* [in] */ BSTR id,
+            /* [in] */ ULONG type);
         
         HRESULT ( STDMETHODCALLTYPE *inserted )( 
             IMsOutlookAddrBookClient * This,
-            /* [in] */ BSTR id);
+            /* [in] */ BSTR id,
+            /* [in] */ ULONG type);
         
         HRESULT ( STDMETHODCALLTYPE *updated )( 
             IMsOutlookAddrBookClient * This,
-            /* [in] */ BSTR id);
+            /* [in] */ BSTR id,
+            /* [in] */ ULONG type);
         
         END_INTERFACE
     } IMsOutlookAddrBookClientVtbl;
@@ -155,17 +169,20 @@ EXTERN_C const IID IID_IMsOutlookAddrBookClient;
     ( (This)->lpVtbl -> Release(This) ) 
 
 
-#define IMsOutlookAddrBookClient_foreachMailUserCallback(This,id)	\
-    ( (This)->lpVtbl -> foreachMailUserCallback(This,id) ) 
+#define IMsOutlookAddrBookClient_foreachMailUserCallback(This,id,callback)	\
+    ( (This)->lpVtbl -> foreachMailUserCallback(This,id,callback) ) 
 
-#define IMsOutlookAddrBookClient_deleted(This,id)	\
-    ( (This)->lpVtbl -> deleted(This,id) ) 
+#define IMsOutlookAddrBookClient_foreachCalendarItemCallback(This,id,callback)	\
+    ( (This)->lpVtbl -> foreachCalendarItemCallback(This,id,callback) ) 
 
-#define IMsOutlookAddrBookClient_inserted(This,id)	\
-    ( (This)->lpVtbl -> inserted(This,id) ) 
+#define IMsOutlookAddrBookClient_deleted(This,id,type)	\
+    ( (This)->lpVtbl -> deleted(This,id,type) ) 
 
-#define IMsOutlookAddrBookClient_updated(This,id)	\
-    ( (This)->lpVtbl -> updated(This,id) ) 
+#define IMsOutlookAddrBookClient_inserted(This,id,type)	\
+    ( (This)->lpVtbl -> inserted(This,id,type) ) 
+
+#define IMsOutlookAddrBookClient_updated(This,id,type)	\
+    ( (This)->lpVtbl -> updated(This,id,type) ) 
 
 #endif /* COBJMACROS */
 

@@ -11,12 +11,15 @@ import java.util.*;
 import junit.framework.*;
 import net.java.sip.communicator.impl.protocol.mock.*;
 import net.java.sip.communicator.service.contactlist.*;
+import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
+
+import com.google.common.xml.*;
 
 /**
  * Tests message history.
@@ -53,6 +56,8 @@ public class TestMsgHistoryService
     private static ServiceReference msgHistoryServiceRef = null;
     public static MessageHistoryService msgHistoryService = null;
 
+    public static HistoryService historyService = null;
+
     private static MockContact testContact = null;
 
     private static ServiceReference metaCLref = null;
@@ -86,6 +91,8 @@ public class TestMsgHistoryService
             new TestMsgHistoryService("writeRecords"));
         suite.addTest(
             new TestMsgHistoryService("readRecords"));
+        suite.addTest(
+            new TestMsgHistoryService("specialChars"));
         suite.addTest(
             new TestMsgHistoryService("writeRecordsToMultiChat"));
         suite.addTest(
@@ -138,6 +145,14 @@ public class TestMsgHistoryService
             (MessageHistoryService)MsgHistoryServiceLick.bc.
                 getService(msgHistoryServiceRef);
 
+        ServiceReference historyServiceRef =
+            MsgHistoryServiceLick.bc.
+            getServiceReference(HistoryService.class.getName());
+
+        historyService =
+            (HistoryService)MsgHistoryServiceLick.bc.
+                getService(historyServiceRef);
+
         // fill in a contact to comunicate with
         MockContactGroup root =
             (MockContactGroup)mockPresOpSet.getServerStoredContactListRoot();
@@ -180,7 +195,9 @@ public class TestMsgHistoryService
                 mockBImOpSet.createMessage("test message word2" + Math.random()),
                 mockBImOpSet.createMessage("test message word3" + Math.random()),
                 mockBImOpSet.createMessage("test message word4" + Math.random()),
-                mockBImOpSet.createMessage("test message word5" + Math.random())
+                mockBImOpSet.createMessage("test message word5" + Math.random()),
+                mockBImOpSet.createMessage("Hello \u0002World\u0002!"),
+                mockBImOpSet.createMessage("less than < this, greater than > and an ampersand &")
             };
     }
 
@@ -378,6 +395,45 @@ public class TestMsgHistoryService
                    msgs.contains(messagesToSend[1].getContent()));
         assertTrue("Message no found",
                    msgs.contains(messagesToSend[2].getContent()));
+    }
+
+    /**
+     * Tests some special chars insert and read.
+     */
+    public void specialChars()
+    {
+        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[5]);
+
+        waitWrite(500);
+
+        mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[6]);
+
+        waitWrite(500);
+
+        historyService.purgeLocallyCachedHistories();
+
+        /**
+         * Must return exactly the last 4 messages
+         */
+        Collection<EventObject> rs
+            = msgHistoryService.findLast(testMetaContact, 4);
+
+        assertTrue("Nothing found 8", !rs.isEmpty());
+        List<String> msgs = getMessages(rs);
+        assertEquals("Messages must be 4", 4, msgs.size());
+        assertTrue("Message not found",
+            msgs.contains(messagesToSend[3].getContent()));
+        assertTrue("Message not found",
+            msgs.contains(messagesToSend[4].getContent()));
+
+        // For now we are stripping in history the special content chars
+        // in order to avoid breaking the history records in the xml
+        assertTrue("Message not found",
+            msgs.contains(XmlEscapers.xmlContentEscaper().escape(
+                          messagesToSend[5].getContent())));
+
+        assertTrue("Message not found",
+            msgs.contains(messagesToSend[6].getContent()));
     }
 
     private static void waitWrite(long timeout)

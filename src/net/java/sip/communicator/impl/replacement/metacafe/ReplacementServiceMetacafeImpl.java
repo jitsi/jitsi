@@ -29,8 +29,8 @@ public class ReplacementServiceMetacafeImpl
      * The regex used to match the link in the message.
      */
     public static final String METACAFE_PATTERN =
-        "(?<=>)(https?\\:\\/\\/(www\\.)*?metacafe\\.com"
-        + "\\/watch\\/([a-zA-Z0-9_\\-]+))(\\/[a-zA-Z0-9_\\-\\/]+)*(?=</A>)";
+        "(https?\\:\\/\\/(www\\.)*?metacafe\\.com"
+        + "\\/watch\\/([a-zA-Z0-9_\\-]+))(\\/[a-zA-Z0-9_\\-\\/]+)*";
 
     /**
      * Configuration label shown in the config form.
