@@ -128,6 +128,38 @@
 			</fileset>
 		</copy>
 
+		<!-- insert required manifest entries
+		     Jitsi-created JARs/bundles already have these, but some of the third
+		     party JARs do not. -->
+		<jar update="yes" destfile="${release.dir}/lib/bundle/commons-logging.jar">
+                        <manifest>
+                                <attribute name="Application-Name" value="Jitsi"/>
+                                <attribute name="Permissions" value="all-permissions"/>
+                                <attribute name="Codebase" value="*"/>
+                        </manifest>
+		</jar>
+                <jar update="yes" destfile="${release.dir}/lib/bundle/log4j.jar">
+                        <manifest>
+                                <attribute name="Application-Name" value="Jitsi"/>
+                                <attribute name="Permissions" value="all-permissions"/>
+                                <attribute name="Codebase" value="*"/>
+                        </manifest>
+                </jar>
+                <jar update="yes" destfile="${release.dir}/lib/bundle/org.apache.felix.bundlerepository-1.6.4.jar">
+                        <manifest>
+                                <attribute name="Application-Name" value="Jitsi"/>
+                                <attribute name="Permissions" value="all-permissions"/>
+                                <attribute name="Codebase" value="*"/>
+                        </manifest>
+                </jar>
+                <jar update="yes" destfile="${release.dir}/lib/felix.jar">
+                        <manifest>
+                                <attribute name="Application-Name" value="Jitsi"/>
+                                <attribute name="Permissions" value="all-permissions"/>
+                                <attribute name="Codebase" value="*"/>
+                        </manifest>
+                </jar>
+
 		<!-- Package and copy native libraries  -->
 		<subant genericantfile="${ant.file}" target="-jar-natives" inheritall="true">
 			<dirset dir="${sc.basedir}/lib/native/" includes="*">
