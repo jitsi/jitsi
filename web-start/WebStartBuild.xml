@@ -147,8 +147,16 @@
 	</target>
 
 	<!-- sign libs -->
-	<target name="sign-libs" description="Sign all jars within the release folder.">
+	<target name="sign-libs" description="Sign all jars within the release folder." depends="repack-libs">
 		<echo message="Signing libs in ${release.dir}" />
+		<!-- some JARs are distributed with their own SHA-1 signature, we invoke
+		     this once for SHA1 to overwrite that with our signature -->
+		<signjar alias="${keystore.alias}" keystore="${keystore.file}" storepass="${keystore.password}" lazy="true" digestalg="SHA1">
+			<path>
+				<fileset dir="${release.dir}" includes="**/*.jar" />
+			</path>
+		</signjar>
+		<!-- now we apply the default (SHA-256 for JDK 1.7) signature to every JAR -->
 		<signjar alias="${keystore.alias}" keystore="${keystore.file}" storepass="${keystore.password}" lazy="true">
 			<path>
 				<fileset dir="${release.dir}" includes="**/*.jar" />
@@ -161,12 +169,13 @@
 		<echo message="Repacking libs in ${release.dir}" />
 		<apply executable="${pack200.path}" parallel="false">
 			<arg value="--repack" />
+			<arg value="--segment-limit=-1" />
 			<fileset dir="${release.dir}" includes="**/*.jar" />
 		</apply>
 	</target>
 
 	<!-- compress libs -->
-	<target name="compress-libs" description="Comperss all jars within release folder.">
+	<target name="compress-libs" description="Comperss all jars within release folder." depends="sign-libs">
 		<echo message="Compressing libs in ${release.dir}" />
 		<apply executable="${pack200.path}" parallel="false" dest="${release.dir}">
 			<!--<arg value="- -modification-time=latest"/>-->
