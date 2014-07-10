@@ -18,6 +18,8 @@
   <String Id="ShortcutsAndRegistryDlg_CreateAutoStart" Overridable="yes">Lancer automatiquement quand l’ordinateur démarre</String>
   <String Id="ShortcutsAndRegistryDlg_AssociateProtocols" Overridable="yes">&amp;Protocoles associés</String>
   <String Id="ShortcutsAndRegistryDlg_DefaultIMApp" Overridable="yes">M&amp;ake [ProductName] the default Instant Messaging Provider (Outlook integration)</String>
+  <String Id="ShortcutsAndRegistryDlg_DisableUpdates" Overridable="yes">&amp;Disable check for updates on startup</String>
+  <String Id="ShortcutsAndRegistryDlg_VariousSettings" Overridable="yes">&amp;Various Settings</String>
 
   <String Id="WelcomeText1" Overridable="yes"><![CDATA[Ce logiciel est developpé par la communauté de [ProductName] ]]></String>
   <String Id="WelcomeText2" Overridable="yes"><![CDATA[Découvrir notre site : @APP_WEB@]]></String>

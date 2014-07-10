@@ -582,6 +582,7 @@
             <filterchain>
                 <tokenfilter>
                     <replacestring from="@@lib" to="${wix.heat.jitsi.lib.dir}" />
+                    <replacestring from="@APP_NAME@" to="${application.name}" />
                 </tokenfilter>
             </filterchain>
         </copy>
