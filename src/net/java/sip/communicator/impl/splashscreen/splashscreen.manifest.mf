@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Bundle-Activator: net.java.sip.communicator.impl.splashscreen.SplashScreenActivator
 Bundle-Name: Splash Screen
 Bundle-Description: A bundle that updates splash screen if present

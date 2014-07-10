@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Bundle-Activator: net.java.sip.communicator.plugin.exampleplugin.ExamplePluginActivator
 Bundle-Name: Example plugin
 Bundle-Description: An example showing how to make plugins for the ui.

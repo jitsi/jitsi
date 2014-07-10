@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Bundle-Activator: net.java.sip.communicator.slick.protocol.yahoo.YahooProtocolProviderServiceLick
 Bundle-Name: Yahoo Protocol Provider Service Leveraging Implementation Compatibility Kit
 Bundle-Description: A Service Leveraging Implementation Compatibility Kit for the Yahoo implementation of the ProtocolProvider Service

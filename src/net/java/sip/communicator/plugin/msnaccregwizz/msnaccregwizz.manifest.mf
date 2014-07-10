@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Bundle-Activator: net.java.sip.communicator.plugin.msnaccregwizz.MsnAccRegWizzActivator
 Bundle-Name: Msn account registration wizard
 Bundle-Description: Msn account registration wizard.

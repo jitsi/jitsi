@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Bundle-Activator: net.java.sip.communicator.impl.shutdowntimeout.ShutdownTimeout
 Bundle-Name: ShutdownBundle
 Bundle-Description: A bundle that makes sure that when closed SIP Communicator will exit in 15 seconds at most.

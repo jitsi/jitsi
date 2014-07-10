@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Bundle-Name: JFontChooser
 Bundle-Description: A library containing a Java Font Chooser
 Bundle-Vendor: sip-communicator.org

@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Bundle-Activator: net.java.sip.communicator.impl.libjitsi.LibJitsiActivator
 Bundle-Description: The core of Jitsi as a stand-alone library 
 Bundle-Name: libjitsi

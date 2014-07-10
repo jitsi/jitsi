@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Bundle-Activator: net.java.sip.communicator.impl.hid.HIDActivator
 Bundle-Name: HID Service Implementation
 Bundle-Description: A bundle that offers Human Interaction features.

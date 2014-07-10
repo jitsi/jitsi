@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Bundle-Activator: net.java.sip.communicator.plugin.phonenumbercontactsource.PNContactSourceActivator
 Bundle-Name: Phone number contact source
 Bundle-Description: Phone number contact source

@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Bundle-Activator: net.java.sip.communicator.plugin.keybindingchooser.KeybindingChooserActivator
 Bundle-Name: Keybinding Chooser
 Bundle-Description: Provides configuring UI for keyboard shortcuts.

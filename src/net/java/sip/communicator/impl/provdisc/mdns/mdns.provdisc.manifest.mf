@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Bundle-Activator: net.java.sip.communicator.impl.provdisc.mdns.ProvisioningDiscoveryMDNSActivator
 Bundle-Name: mDNS provisioning discovery
 Bundle-Description: A bundle providing support for mDNS provisioning discovery

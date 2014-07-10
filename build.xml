@@ -1105,6 +1105,11 @@
         <jar compress="false" destfile="${bundles.dest}/sc-launcher.jar">
             <zipfileset dir="${dest}/net/java/sip/communicator/launcher"
                 prefix="net/java/sip/communicator/launcher"/>
+            <manifest>
+                <attribute name="Application-Name" value="Jitsi"/>
+                <attribute name="Permissions" value="all-permissions"/>
+                <attribute name="Codebase" value="*"/>
+            </manifest>
         </jar>
     </target>
 

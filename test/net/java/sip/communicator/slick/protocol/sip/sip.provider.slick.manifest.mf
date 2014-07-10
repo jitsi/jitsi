@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Bundle-Activator: net.java.sip.communicator.slick.protocol.sip.SipProtocolProviderServiceLick
 Bundle-Name: SIP Communicator SIP Protocol Provider SLICK
 Bundle-Description: A bundle that contains all tests for the SIP implementation of the Protocol Provider Service.

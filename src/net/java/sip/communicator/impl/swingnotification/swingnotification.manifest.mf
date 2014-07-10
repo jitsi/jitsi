@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Bundle-Activator: net.java.sip.communicator.impl.swingnotification.SwingNotificationActivator
 Bundle-Name: Swing Notification Service Provider
 Bundle-Description: A bundle which implements Swing notifications.

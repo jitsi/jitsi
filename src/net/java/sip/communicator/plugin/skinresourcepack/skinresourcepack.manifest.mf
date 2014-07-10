@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Manifest-Version: 1.0
 Bundle-Activator: net.java.sip.communicator.plugin.skinresourcepack.SkinResourcePack
 Bundle-Name: Skin Resource Pack

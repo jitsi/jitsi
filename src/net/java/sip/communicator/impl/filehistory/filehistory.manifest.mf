@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Bundle-Activator: net.java.sip.communicator.impl.filehistory.FileHistoryActivator
 Bundle-Name: File History Service Provider
 Bundle-Description: A bundle that implements the file history package.

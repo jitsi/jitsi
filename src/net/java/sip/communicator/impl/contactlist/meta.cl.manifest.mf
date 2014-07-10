@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Bundle-Activator: net.java.sip.communicator.impl.contactlist.ContactlistActivator
 Bundle-Name: MetaContactList
 Bundle-Description: An implementation of the MetaContactList service.

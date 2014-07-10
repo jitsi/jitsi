@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Bundle-Activator: net.java.sip.communicator.plugin.demuxcontactsource.DemuxContactSourceActivator
 Bundle-Description: Demultiplexing contact source
 Bundle-Name: Demux Contact Source

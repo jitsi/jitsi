@@ -1,3 +1,6 @@
+Permissions: all-permissions
+Codebase: *
+Application-Name: Jitsi
 Bundle-Name: LDAP Service Implementation
 Bundle-Description: LDAP Service Implementation.
 Bundle-Vendor: jitsi.org
