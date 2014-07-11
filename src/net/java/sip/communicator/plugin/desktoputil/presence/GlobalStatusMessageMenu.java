@@ -127,7 +127,8 @@ public class GlobalStatusMessageMenu
                         = protocolProvider.getOperationSet(
                                 OperationSetPresence.class);
 
-                    if(presenceOpSet == null)
+                    if(presenceOpSet == null
+                        || !protocolProvider.isRegistered())
                         continue;
 
                     presenceOpSet.publishPresenceStatus(
