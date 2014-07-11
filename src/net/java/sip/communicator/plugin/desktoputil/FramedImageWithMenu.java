@@ -51,7 +51,6 @@ public class FramedImageWithMenu
 
     /**
      * Creates the component.
-     * @param mainFrame the parent frame.
      * @param imageIcon the image icon to show as default one.
      * @param width width of component.
      * @param height height of component.
