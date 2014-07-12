@@ -686,8 +686,7 @@ public class IrcStack
             }
             catch (InterruptedException e)
             {
-                // TODO what should we do with this? Maybe store in
-                // joinSignal if there's nothing else?
+                LOGGER.error("Wait for join operation was interrupted.", e);
                 throw new OperationFailedException(e.getMessage(),
                     OperationFailedException.INTERNAL_ERROR, e);
             }
@@ -728,10 +727,20 @@ public class IrcStack
         }
     }
 
+    /**
+     * Ban chat room member.
+     * 
+     * @param chatroom chat room to ban from
+     * @param member member to ban
+     * @param reason reason for banning
+     * @throws OperationFailedException
+     */
     public void banParticipant(ChatRoomIrcImpl chatroom, ChatRoomMember member,
-        String reason)
+        String reason) throws OperationFailedException
     {
-        // TODO Implement this.
+        // TODO Implement banParticipant.
+        throw new OperationFailedException("Not implemented yet.",
+            OperationFailedException.NOT_SUPPORTED_OPERATION);
     }
 
     /**
