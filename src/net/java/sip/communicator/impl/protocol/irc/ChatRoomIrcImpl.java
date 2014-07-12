@@ -110,11 +110,6 @@ public class ChatRoomIrcImpl
     private boolean isSystem = false;
 
     /**
-     * The nick name of the local user for this chat room.
-     */
-    private String userNickName;
-
-    /**
      * The role of the local user for this chat room.
      */
     private ChatRoomMemberRole userRole = ChatRoomMemberRole.SILENT_MEMBER;
@@ -564,15 +559,13 @@ public class ChatRoomIrcImpl
      * Returns the local user's nickname in the context of this chat room or
      * <tt>null</tt> if not currently joined.
      *
-     * @return the nickname currently being used by the local user in the
-     *         context of the local chat room.
+     * @return the nickname currently being used by the local user
      */
     public String getUserNickname()
     {
-        if(userNickName == null && isJoined())
-            userNickName =  parentProvider.getIrcStack().getNick();
-
-        return userNickName;
+        // User's nick name is determined by the server connection, not the
+        // individual chat rooms.
+        return parentProvider.getIrcStack().getNick();
     }
 
     /**
@@ -1098,16 +1091,6 @@ public class ChatRoomIrcImpl
     protected void setSystem(boolean isSystem)
     {
         this.isSystem = isSystem;
-    }
-
-    /**
-     * Sets the nickName for this chat room.
-     *
-     * @param nickName the nick name to set
-     */
-    protected void setNickName(String nickName)
-    {
-        this.userNickName = nickName;
     }
 
     /**

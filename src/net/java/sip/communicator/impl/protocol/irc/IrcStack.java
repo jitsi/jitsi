@@ -228,8 +228,6 @@ public class IrcStack
                     // if connecting succeeded, set state to registered
                     this.provider.setCurrentRegistrationState(
                         RegistrationState.REGISTERED);
-                    // TODO Check and handle actual nick name used in connection
-                    // in case one of the alternate nick names was needed.
                 }
                 else
                 {
