@@ -547,8 +547,9 @@ public class IrcStack
                                             + "since that channel was not "
                                             + "announced.");
                                 }
-                                // FIXME Can it go wrong if we unconditionally
-                                // remove the chatroomId entry?
+                                // Remove original chat room id from joined-list
+                                // since we aren't actually attempting to join
+                                // this room anymore.
                                 IrcStack.this.joined.remove(chatRoomId);
                                 IrcStack.this.provider
                                     .getMUC()
@@ -563,7 +564,8 @@ public class IrcStack
                                 joinSignal.notifyAll();
                                 // The channel that we were forwarded to will be
                                 // handled by the Server Listener, since the
-                                // channel join was unannounced.
+                                // channel join was unannounced, and we are done
+                                // here.
                                 return;
                             }
 

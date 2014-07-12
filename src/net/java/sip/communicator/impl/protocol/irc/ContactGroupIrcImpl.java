@@ -60,24 +60,46 @@ public class ContactGroupIrcImpl
         this.name = name;
     }
 
+    /**
+     * Get subgroups of this group.
+     * 
+     * @return returns subgroups iterator
+     */
     @Override
     public Iterator<ContactGroup> subgroups()
     {
         return new ArrayList<ContactGroup>(this.subgroups).iterator();
     }
 
+    /**
+     * Get number of subgroups.
+     * 
+     * @return returns number of subgroups
+     */
     @Override
     public int countSubgroups()
     {
         return this.subgroups.size();
     }
 
+    /**
+     * Get subgroup by index.
+     * 
+     * @param index index of subgroup
+     * @return returns subgroup
+     */
     @Override
     public ContactGroup getGroup(int index)
     {
         return this.subgroups.get(index);
     }
 
+    /**
+     * Get subgroup by name.
+     * 
+     * @param groupName Name of subgroup.
+     * @return returns subgroup or null if no group exists with that name
+     */
     @Override
     public ContactGroup getGroup(String groupName)
     {
@@ -93,18 +115,34 @@ public class ContactGroupIrcImpl
         return null;
     }
 
+    /**
+     * Get contacts in group.
+     * 
+     * @return returns group's contacts
+     */
     @Override
     public Iterator<Contact> contacts()
     {
         return new ArrayList<Contact>(this.contacts).iterator();
     }
 
+    /**
+     * Get number of contacts in group.
+     * 
+     * @return returns number of contacts in group
+     */
     @Override
     public int countContacts()
     {
         return this.contacts.size();
     }
 
+    /**
+     * Get group contact by id.
+     * 
+     * @param id contact ID
+     * @return returns contact or null if contact cannot be found
+     */
     @Override
     public Contact getContact(String id)
     {
@@ -120,49 +158,88 @@ public class ContactGroupIrcImpl
         return null;
     }
 
+    /**
+     * Check if group can contain subgroups.
+     * 
+     * @return returns true if group can contain subgroups, or false otherwise.
+     */
     @Override
     public boolean canContainSubgroups()
     {
         return true;
     }
 
+    /**
+     * Get name of the group.
+     * 
+     * @return returns group name
+     */
     @Override
     public String getGroupName()
     {
         return this.name;
     }
 
+    /**
+     * Get protocol provider service implementation.
+     * 
+     * @return returns protocol provider service implementation
+     */
     @Override
     public ProtocolProviderServiceIrcImpl getProtocolProvider()
     {
         return this.provider;
     }
 
+    /**
+     * Get parent contact group.
+     * 
+     * @return returns parent contact group or null if no parent group exists
+     */
     @Override
     public ContactGroup getParentContactGroup()
     {
         return this.parent;
     }
 
+    /**
+     * Is persistent group.
+     * 
+     * @return returns true if group is persistent, or false if not.
+     */
     @Override
     public boolean isPersistent()
     {
         return false;
     }
 
+    /**
+     * Get group UUID.
+     * 
+     * @return returns group UUID
+     */
     @Override
     public String getUID()
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
+    /**
+     * Is group resolved.
+     * 
+     * @return returns true if group is resolved, or false otherwise
+     */
     @Override
     public boolean isResolved()
     {
         return false;
     }
 
+    /**
+     * Get group persistent data.
+     * 
+     * @return returns persistent data
+     */
     @Override
     public String getPersistentData()
     {
