@@ -61,7 +61,7 @@ public class MessageIrcImpl
      */
     public boolean isAction()
     {
-        return getContent().startsWith("/me");
+        return getContent().startsWith("/me ");
     }
 
     /**
