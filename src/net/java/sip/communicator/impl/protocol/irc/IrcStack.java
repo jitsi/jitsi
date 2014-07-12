@@ -13,7 +13,6 @@ import java.util.*;
 import javax.net.ssl.*;
 
 import net.java.sip.communicator.impl.protocol.irc.ModeParser.ModeEntry;
-import net.java.sip.communicator.impl.protocol.irc.OperationSetBasicInstantMessagingIrcImpl.IrcMessage;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -1004,8 +1003,6 @@ public class IrcStack
          * ignore normal chat rooms, since they each have their own
          * ChatRoomListener for managing chat room operations.
          * 
-         * TODO Move to using MessageIrcImpl implementation.
-         * 
          * @param msg the private message
          */
         @Override
@@ -1013,8 +1010,9 @@ public class IrcStack
         {
             final String user = msg.getSource().getNick();
             final String text = Utils.parse(msg.getText());
-            IrcMessage message =
-                new OperationSetBasicInstantMessagingIrcImpl.IrcMessage(text);
+            MessageIrcImpl message =
+                new MessageIrcImpl(text, MessageIrcImpl.DEFAULT_MIME_TYPE,
+                    MessageIrcImpl.DEFAULT_MIME_ENCODING, "");
             Contact from =
                 IrcStack.this.provider.getPersistentPresence().findContactByID(
                     user);
@@ -1027,8 +1025,6 @@ public class IrcStack
          * instant messaging contact.
          * 
          * TODO Create special IRC Notice Message class.
-         * 
-         * TODO Move to using MessageIrcImpl message class.
          * 
          * @param msg user notice message
          */
@@ -1038,8 +1034,9 @@ public class IrcStack
             final String user = msg.getSource().getNick();
             final String text = Utils.parse(msg.getText());
             // TODO distinguish between notice and normal message in formatting?
-            IrcMessage message =
-                new OperationSetBasicInstantMessagingIrcImpl.IrcMessage(text);
+            MessageIrcImpl message =
+                new MessageIrcImpl(text, MessageIrcImpl.DEFAULT_MIME_TYPE,
+                    MessageIrcImpl.DEFAULT_MIME_ENCODING, "");
             Contact from =
                 IrcStack.this.provider.getPersistentPresence().findContactByID(
                     user);
@@ -1048,14 +1045,12 @@ public class IrcStack
         }
 
         /**
-         * Upon receiving a user notice message from a user, deliver that to an
+         * Upon receiving a user action message from a user, deliver that to an
          * instant messaging contact.
          * 
-         * TODO Create special IRC Notice Message class.
+         * TODO Create special IRC Action Message class.
          * 
-         * TODO Move to using MessageIrcImpl message class.
-         * 
-         * @param msg user notice message
+         * @param msg user action message
          */
         @Override
         public void onUserAction(UserActionMsg msg)
@@ -1063,8 +1058,9 @@ public class IrcStack
             final String user = msg.getSource().getNick();
             final String text = Utils.parse(msg.getText());
             // TODO distinguish between action and normal message in formatting?
-            IrcMessage message =
-                new OperationSetBasicInstantMessagingIrcImpl.IrcMessage(text);
+            MessageIrcImpl message =
+                new MessageIrcImpl(text, MessageIrcImpl.DEFAULT_MIME_TYPE,
+                    MessageIrcImpl.DEFAULT_MIME_ENCODING, "");
             Contact from =
                 IrcStack.this.provider.getPersistentPresence().findContactByID(
                     user);

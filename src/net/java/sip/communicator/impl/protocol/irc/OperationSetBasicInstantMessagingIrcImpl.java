@@ -34,10 +34,11 @@ public class OperationSetBasicInstantMessagingIrcImpl
      * @param subject Message subject
      */
     @Override
-    public Message createMessage(String content, String contentType,
+    public MessageIrcImpl createMessage(String content, String contentType,
         String contentEncoding, String subject)
     {
-        return new IrcMessage(content, contentType, contentEncoding, subject);
+        return new MessageIrcImpl(content, contentType, contentEncoding,
+            subject);
     }
 
     /**
@@ -94,51 +95,5 @@ public class OperationSetBasicInstantMessagingIrcImpl
     protected void fireMessageReceived(Message message, Contact from)
     {
         super.fireMessageReceived(message, from);
-    }
-
-    /**
-     * Implementation of an IRC basic instant message.
-     * 
-     * FIXME MessageIrcImpl already exists, so drop this implementation.
-     * 
-     * @author Danny van Heumen
-     */
-    static class IrcMessage
-        extends AbstractMessage
-    {
-        /**
-         * Constructor.
-         * 
-         * @param message instant message
-         * @param contentType Message content type
-         * @param contentEncoding Message content encoding
-         * @param subject Message subject
-         */
-        IrcMessage(String message, String contentType,
-            String contentEncoding, String subject)
-        {
-            super(message, contentType, contentEncoding, subject);
-        }
-
-        /**
-         * Constructor for simple messages.
-         * 
-         * @param message instant message
-         */
-        IrcMessage(String message) {
-            this(message, OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
-                OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING, "");
-        }
-
-        /**
-         * Constructor.
-         * 
-         * @param message instant message
-         */
-        private IrcMessage(String message, String contentType,
-            String contentEncoding, String subject, String UUID)
-        {
-            super(message, contentType, contentEncoding, subject, UUID);
-        }
     }
 }
