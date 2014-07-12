@@ -486,19 +486,30 @@ public class IrcStack
         if (!isConnected())
             throw new IllegalStateException(
                 "Please connect to an IRC server first");
-        if (chatroom == null)
-            throw new IllegalArgumentException("chatroom cannot be null");
+        if (chatroom == null || chatroom.getIdentifier() == null
+            || chatroom.getIdentifier().isEmpty())
+            throw new IllegalArgumentException("chatroom cannot be null or emtpy");
         if (password == null)
             throw new IllegalArgumentException("password cannot be null");
+        
+        final String chatRoomId = chatroom.getIdentifier();
+        if (!getChannelTypes().contains(chatRoomId.charAt(0)))
+        {
+            // I'm not going to throw an exception, but I believe that this case
+            // cannot happen (anymore).
+            LOGGER.warn("Is chat room '" + chatRoomId
+                + "' really an IRC channel? It does not start with any of "
+                + "the channel type symbols.");
+        }
 
-        if (this.joined.containsKey(chatroom.getIdentifier()))
+        if (this.joined.containsKey(chatRoomId))
         {
             // If we already joined this particular chatroom, no further action
             // is required.
             return;
         }
         
-        LOGGER.trace("Start joining channel " + chatroom.getIdentifier());
+        LOGGER.trace("Start joining channel " + chatRoomId);
         final Result<Object, Exception> joinSignal =
             new Result<Object, Exception>();
         synchronized (joinSignal)
@@ -507,10 +518,10 @@ public class IrcStack
                 .trace("Issue join channel command to IRC library and wait for"
                     + " join operation to complete (un)successfully.");
 
-            this.joined.put(chatroom.getIdentifier(), null);
+            this.joined.put(chatRoomId, null);
             // TODO Refactor this ridiculous nesting of functions and
             // classes.
-            this.irc.joinChannel(chatroom.getIdentifier(), password,
+            this.irc.joinChannel(chatRoomId, password,
                 new Callback<IRCChannel>()
                 {
 
@@ -524,7 +535,6 @@ public class IrcStack
                                     + "of channel '" + chatroom.getIdentifier()
                                     + "'.");
                         }
-                        String chatRoomId = chatroom.getIdentifier();
                         boolean isRequestedChatRoom = channel.getName()
                             .equalsIgnoreCase(chatRoomId);
                         synchronized (joinSignal)
@@ -612,9 +622,7 @@ public class IrcStack
                     public void onFailure(Exception e)
                     {
                         LOGGER.trace("Started callback for failed attempt to "
-                            + "join channel '" + chatroom.getIdentifier()
-                            + "'.");
-                        String chatRoomId = chatroom.getIdentifier();
+                            + "join channel '" + chatRoomId + "'.");
                         synchronized (joinSignal)
                         {
                             try

@@ -132,7 +132,8 @@ public class ChatRoomIrcImpl
      * name, the protocol provider and the isPrivate property. Private chat
      * rooms are one-to-one chat rooms.
      *
-     * @param chatRoomName the name of the chat room
+     * @param chatRoomName the name of the chat room (cannot be null or empty
+     *            string)
      * @param parentProvider the protocol provider
      * @param isPrivate indicates if this chat room is a private one
      * @param isSystem indicates if this chat room is a system room
@@ -144,8 +145,9 @@ public class ChatRoomIrcImpl
         if (parentProvider == null)
             throw new IllegalArgumentException("parentProvider cannot be null");
         this.parentProvider = parentProvider;
-        if (chatRoomName == null)
-            throw new IllegalArgumentException("chatRoomName cannot be null");
+        if (chatRoomName == null || chatRoomName.isEmpty())
+            throw new IllegalArgumentException(
+                "chatRoomName cannot be null or empty string");
         this.chatRoomName = chatRoomName;
         this.isSystem = isSystem;
     }
