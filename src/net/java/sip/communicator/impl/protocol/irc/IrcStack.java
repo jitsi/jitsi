@@ -491,12 +491,10 @@ public class IrcStack
         if (password == null)
             throw new IllegalArgumentException("password cannot be null");
 
-        if (this.joined.containsKey(chatroom.getIdentifier())
-            || chatroom.isPrivate())
+        if (this.joined.containsKey(chatroom.getIdentifier()))
         {
-            // If we already joined this particular chatroom or if it is a
-            // private chat room (i.e. message from one user to another), no
-            // further action is required.
+            // If we already joined this particular chatroom, no further action
+            // is required.
             return;
         }
         
@@ -678,9 +676,7 @@ public class IrcStack
      */
     public void leave(ChatRoomIrcImpl chatroom)
     {
-        if (chatroom.isPrivate())
-            return;
-        LOGGER.trace("Leaving chat room '"+chatroom.getIdentifier()+"'.");
+        LOGGER.trace("Leaving chat room '" + chatroom.getIdentifier() + "'.");
 
         // You only actually join non-private chat rooms, so only these ones
         // need to be left.
@@ -997,30 +993,6 @@ public class IrcStack
                     user);
             IrcStack.this.provider.getBasicInstantMessaging()
                 .fireMessageReceived(message, from);
-        }
-
-        /**
-         * Create a private chat room if one does not exist yet.
-         * 
-         * @param userName private chat room for this user
-         * @return returns the private chat room
-         */
-        private ChatRoomIrcImpl initiatePrivateChatRoom(String userName,
-            ChatRoomIrcImpl chatroom)
-        {
-            final ChatRoomMemberIrcImpl user =
-                new ChatRoomMemberIrcImpl(IrcStack.this.provider, chatroom,
-                    IrcStack.this.getNick(), ChatRoomMemberRole.MEMBER);
-            chatroom.addChatRoomMember(user.getContactAddress(), user);
-            final ChatRoomMemberIrcImpl member =
-                new ChatRoomMemberIrcImpl(IrcStack.this.provider, chatroom,
-                    userName, ChatRoomMemberRole.MEMBER);
-            chatroom.addChatRoomMember(member.getContactAddress(), member);
-            IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
-                chatroom,
-                LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
-                "Private conversation initiated.");
-            return chatroom;
         }
     }
 

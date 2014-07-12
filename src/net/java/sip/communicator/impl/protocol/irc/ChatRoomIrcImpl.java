@@ -323,10 +323,6 @@ public class ChatRoomIrcImpl
      */
     public void leave()
     {
-        if (this.isPrivate())
-        {
-            return;
-        }
         this.parentProvider.getIrcStack().leave(this);
         this.chatRoomMembers.clear();
     }
@@ -1057,19 +1053,6 @@ public class ChatRoomIrcImpl
     }
 
     /**
-     * Indicates if this chat room is a private one or not. Private chat rooms
-     * are created with the query command.
-     *
-     * @return <code>true</code> if this chat room is private and
-     * <code>false</code> otherwise.
-     */
-    public boolean isPrivate()
-    {
-        return !this.parentProvider.getIrcStack().getChannelTypes()
-            .contains(this.chatRoomName.charAt(0));
-    }
-
-    /**
      * Indicates whether or not this chat room is corresponding to a server
      * channel.
      *
@@ -1113,12 +1096,7 @@ public class ChatRoomIrcImpl
      */
     public boolean isPersistent()
     {
-        /*
-         * Private ChatRooms are not persistent because they correspond to
-         * conversations created by sending private messages and such
-         * conversations are not traditionally persisted by other IRC clients.
-         */
-        return !isPrivate();
+        return true;
     }
 
     /**
