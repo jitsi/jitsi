@@ -43,14 +43,10 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
     
     ContactIrcImpl createVolatileContact(String id)
     {
-        ContactIrcImpl newVolatileContact =
-            new ContactIrcImpl(this.parentProvider, id);
-
         // Check whether a volatile group already exists and if not create
         // one
         ContactGroupIrcImpl volatileGroup = getNonPersistentGroup();
 
-        // if the parent group is null then add necessary create the group
         if (volatileGroup == null)
         {
             volatileGroup =
@@ -63,6 +59,10 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
             this.fireServerStoredGroupEvent(volatileGroup,
                 ServerStoredGroupEvent.GROUP_CREATED_EVENT);
         }
+
+        // Create volatile contact
+        ContactIrcImpl newVolatileContact =
+            new ContactIrcImpl(this.parentProvider, id, volatileGroup);
         volatileGroup.addContact(newVolatileContact);
 
         this.fireSubscriptionEvent(newVolatileContact, volatileGroup,
