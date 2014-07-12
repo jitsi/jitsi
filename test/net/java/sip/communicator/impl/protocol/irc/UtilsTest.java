@@ -175,4 +175,26 @@ public class UtilsTest
         final String htmlMessage = "<font color=\"Navy\" bgcolor=\"Green\">Hello <font color=\"Yellow\">World</font></font>!";
         Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
     }
+
+    public void testFormatMessage()
+    {
+        String message = "hello world";
+        Assert.assertEquals(message, Utils.formatMessage(message));
+    }
+
+    public void testFormatNotice()
+    {
+        String message = "hello world";
+        String nick = "MrNiceGuy";
+        Assert.assertEquals("<i>MrNiceGuy</i>: hello world",
+            Utils.formatNotice(message, nick));
+    }
+
+    public void testFormatAction()
+    {
+        String message = "is absolutely crazy!";
+        String nick = "AbsoluteLunatic";
+        Assert.assertEquals("<b>*AbsoluteLunatic</b> is absolutely crazy!",
+            Utils.formatAction(message, nick));
+    }
 }

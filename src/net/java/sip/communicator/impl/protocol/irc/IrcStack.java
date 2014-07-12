@@ -1009,10 +1009,11 @@ public class IrcStack
         public void onUserPrivMessage(final UserPrivMsg msg)
         {
             final String user = msg.getSource().getNick();
-            final String text = Utils.parse(msg.getText());
+            final String text = Utils.formatMessage(Utils.parse(msg.getText()));
             MessageIrcImpl message =
-                new MessageIrcImpl(text, MessageIrcImpl.DEFAULT_MIME_TYPE,
-                    MessageIrcImpl.DEFAULT_MIME_ENCODING, "");
+                new MessageIrcImpl(text,
+                    OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
+                    OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING, "");
             Contact from =
                 IrcStack.this.provider.getPersistentPresence().findContactByID(
                     user);
@@ -1024,19 +1025,18 @@ public class IrcStack
          * Upon receiving a user notice message from a user, deliver that to an
          * instant messaging contact.
          * 
-         * TODO Create special IRC Notice Message class.
-         * 
          * @param msg user notice message
          */
         @Override
         public void onUserNotice(UserNotice msg)
         {
             final String user = msg.getSource().getNick();
-            final String text = Utils.parse(msg.getText());
-            // TODO distinguish between notice and normal message in formatting?
+            final String text =
+                Utils.formatNotice(Utils.parse(msg.getText()), user);
             MessageIrcImpl message =
-                new MessageIrcImpl(text, MessageIrcImpl.DEFAULT_MIME_TYPE,
-                    MessageIrcImpl.DEFAULT_MIME_ENCODING, "");
+                new MessageIrcImpl(text,
+                    OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
+                    OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING, "");
             Contact from =
                 IrcStack.this.provider.getPersistentPresence().findContactByID(
                     user);
@@ -1048,19 +1048,18 @@ public class IrcStack
          * Upon receiving a user action message from a user, deliver that to an
          * instant messaging contact.
          * 
-         * TODO Create special IRC Action Message class.
-         * 
          * @param msg user action message
          */
         @Override
         public void onUserAction(UserActionMsg msg)
         {
             final String user = msg.getSource().getNick();
-            final String text = Utils.parse(msg.getText());
-            // TODO distinguish between action and normal message in formatting?
+            final String text =
+                Utils.formatAction(Utils.parse(msg.getText()), user);
             MessageIrcImpl message =
-                new MessageIrcImpl(text, MessageIrcImpl.DEFAULT_MIME_TYPE,
-                    MessageIrcImpl.DEFAULT_MIME_ENCODING, "");
+                new MessageIrcImpl(text,
+                    OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
+                    OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING, "");
             Contact from =
                 IrcStack.this.provider.getPersistentPresence().findContactByID(
                     user);
@@ -1314,7 +1313,7 @@ public class IrcStack
             if (!isThisChatRoom(msg.getChannelName()))
                 return;
 
-            String text = Utils.parse(msg.getText());            
+            String text = Utils.formatMessage(Utils.parse(msg.getText()));
             MessageIrcImpl message =
                 new MessageIrcImpl(text, "text/html", "UTF-8", null);
             ChatRoomMemberIrcImpl member =
@@ -1327,8 +1326,6 @@ public class IrcStack
 
         /**
          * Event in case of channel action message arrival.
-         * 
-         * TODO Create special IRC Action Message class.
          * 
          * @param msg channel action message
          */
@@ -1343,7 +1340,7 @@ public class IrcStack
                 new ChatRoomMemberIrcImpl(IrcStack.this.provider,
                     this.chatroom, userNick, ChatRoomMemberRole.MEMBER);
             String text =
-                "<b>*" + userNick + "</b> " + Utils.parse(msg.getText());
+                Utils.formatAction(Utils.parse(msg.getText()), userNick);
             MessageIrcImpl message =
                 new MessageIrcImpl(text, "text/html", "UTF-8", null);
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
@@ -1352,8 +1349,6 @@ public class IrcStack
 
         /**
          * Event in case of channel notice message arrival.
-         * 
-         * TODO Create special IRC Notice Message class.
          * 
          * @param msg channel notice message
          */
@@ -1368,7 +1363,7 @@ public class IrcStack
                 new ChatRoomMemberIrcImpl(IrcStack.this.provider,
                     this.chatroom, userNick, ChatRoomMemberRole.MEMBER);
             String text =
-                "<i>" + userNick + "</i>: " + Utils.parse(msg.getText());
+                Utils.formatNotice(Utils.parse(msg.getText()), userNick);
             MessageIrcImpl message =
                 new MessageIrcImpl(text, "text/html", "UTF-8", null);
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),

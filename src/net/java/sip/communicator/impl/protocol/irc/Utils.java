@@ -198,4 +198,19 @@ public final class Utils
                 + text.substring(0, 2) + " is not a known color");
         }
     }
+
+    public static String formatMessage(String message)
+    {
+        return message;
+    }
+
+    public static String formatNotice(String message, String user)
+    {
+        return "<i>" + user + "</i>: " + message;
+    }
+
+    public static String formatAction(String message, String user)
+    {
+        return "<b>*" + user + "</b> " + message;
+    }
 }

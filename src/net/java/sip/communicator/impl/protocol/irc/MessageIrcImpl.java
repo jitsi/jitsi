@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Stephane Remy
  * @author Loic Kempf
  * @author Lubomir Marinov
+ * @author Danny van Heumen
  */
 public class MessageIrcImpl
     extends AbstractMessage
