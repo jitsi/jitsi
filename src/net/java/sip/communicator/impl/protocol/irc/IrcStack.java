@@ -1004,6 +1004,8 @@ public class IrcStack
          * ignore normal chat rooms, since they each have their own
          * ChatRoomListener for managing chat room operations.
          * 
+         * TODO Move to using MessageIrcImpl implementation.
+         * 
          * @param msg the private message
          */
         @Override
@@ -1024,6 +1026,10 @@ public class IrcStack
          * Upon receiving a user notice message from a user, deliver that to an
          * instant messaging contact.
          * 
+         * TODO Create special IRC Notice Message class.
+         * 
+         * TODO Move to using MessageIrcImpl message class.
+         * 
          * @param msg user notice message
          */
         @Override
@@ -1032,6 +1038,31 @@ public class IrcStack
             final String user = msg.getSource().getNick();
             final String text = Utils.parse(msg.getText());
             // TODO distinguish between notice and normal message in formatting?
+            IrcMessage message =
+                new OperationSetBasicInstantMessagingIrcImpl.IrcMessage(text);
+            Contact from =
+                IrcStack.this.provider.getPersistentPresence().findContactByID(
+                    user);
+            IrcStack.this.provider.getBasicInstantMessaging()
+                .fireMessageReceived(message, from);
+        }
+
+        /**
+         * Upon receiving a user notice message from a user, deliver that to an
+         * instant messaging contact.
+         * 
+         * TODO Create special IRC Notice Message class.
+         * 
+         * TODO Move to using MessageIrcImpl message class.
+         * 
+         * @param msg user notice message
+         */
+        @Override
+        public void onUserAction(UserActionMsg msg)
+        {
+            final String user = msg.getSource().getNick();
+            final String text = Utils.parse(msg.getText());
+            // TODO distinguish between action and normal message in formatting?
             IrcMessage message =
                 new OperationSetBasicInstantMessagingIrcImpl.IrcMessage(text);
             Contact from =
@@ -1080,6 +1111,8 @@ public class IrcStack
 
         /**
          * Event in case of topic change.
+         * 
+         * @param msg topic change message
          */
         @Override
         public void onTopicChange(TopicMessage msg)
@@ -1092,6 +1125,8 @@ public class IrcStack
 
         /**
          * Event in case of channel mode changes.
+         * 
+         * @param msg channel mode message
          */
         @Override
         public void onChannelMode(ChannelModeMessage msg)
@@ -1104,6 +1139,8 @@ public class IrcStack
 
         /**
          * Event in case of channel join message.
+         * 
+         * @param msg channel join message
          */
         @Override
         public void onChannelJoin(ChanJoinMessage msg)
@@ -1121,6 +1158,8 @@ public class IrcStack
 
         /**
          * Event in case of channel part.
+         * 
+         * @param msg channel part message
          */
         @Override
         public void onChannelPart(ChanPartMessage msg)
@@ -1188,6 +1227,8 @@ public class IrcStack
 
         /**
          * Event in case of channel kick.
+         * 
+         * @param msg channel kick message
          */
         @Override
         public void onChannelKick(ChannelKick msg)
@@ -1220,6 +1261,8 @@ public class IrcStack
 
         /**
          * Event in case of user quit.
+         * 
+         * @param msg user quit message
          */
         @Override
         public void onUserQuit(QuitMessage msg)
@@ -1236,6 +1279,8 @@ public class IrcStack
 
         /**
          * Event in case of nick change.
+         * 
+         * @param msg nick change message
          */
         @Override
         public void onNickChange(NickMessage msg)
@@ -1264,6 +1309,8 @@ public class IrcStack
 
         /**
          * Event in case of channel message arrival.
+         * 
+         * @param msg channel message
          */
         @Override
         public void onChannelMessage(ChannelPrivMsg msg)
@@ -1278,6 +1325,56 @@ public class IrcStack
                 new ChatRoomMemberIrcImpl(IrcStack.this.provider,
                     this.chatroom, msg.getSource().getNick(),
                     ChatRoomMemberRole.MEMBER);
+            this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
+                ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
+        }
+
+        /**
+         * Event in case of channel action message arrival.
+         * 
+         * TODO Create special IRC Action Message class.
+         * 
+         * @param msg channel action message
+         */
+        @Override
+        public void onChannelAction(ChannelActionMsg msg)
+        {
+            if (!isThisChatRoom(msg.getChannelName()))
+                return;
+
+            String userNick = msg.getSource().getNick();
+            ChatRoomMemberIrcImpl member =
+                new ChatRoomMemberIrcImpl(IrcStack.this.provider,
+                    this.chatroom, userNick, ChatRoomMemberRole.MEMBER);
+            String text =
+                "<b>*" + userNick + "</b> " + Utils.parse(msg.getText());
+            MessageIrcImpl message =
+                new MessageIrcImpl(text, "text/html", "UTF-8", null);
+            this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
+                ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
+        }
+
+        /**
+         * Event in case of channel notice message arrival.
+         * 
+         * TODO Create special IRC Notice Message class.
+         * 
+         * @param msg channel notice message
+         */
+        @Override
+        public void onChannelNotice(ChannelNotice msg)
+        {
+            if (!isThisChatRoom(msg.getChannelName()))
+                return;
+
+            String userNick = msg.getSource().getNick();
+            ChatRoomMemberIrcImpl member =
+                new ChatRoomMemberIrcImpl(IrcStack.this.provider,
+                    this.chatroom, userNick, ChatRoomMemberRole.MEMBER);
+            String text =
+                "<i>" + userNick + "</i>: " + Utils.parse(msg.getText());
+            MessageIrcImpl message =
+                new MessageIrcImpl(text, "text/html", "UTF-8", null);
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
                 ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
         }

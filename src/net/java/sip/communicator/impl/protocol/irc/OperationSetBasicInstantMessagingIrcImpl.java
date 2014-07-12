@@ -99,7 +99,9 @@ public class OperationSetBasicInstantMessagingIrcImpl
     /**
      * Implementation of an IRC basic instant message.
      * 
-     * @author danny
+     * FIXME MessageIrcImpl already exists, so drop this implementation.
+     * 
+     * @author Danny van Heumen
      */
     static class IrcMessage
         extends AbstractMessage
