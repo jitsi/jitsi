@@ -760,9 +760,8 @@ public class IrcStack
             int endOfNick = command.indexOf(' ');
             if (endOfNick == -1)
             {
-                throw new IllegalArgumentException(
-                    "Invalid private message format. "
-                        + "Message was not sent.");
+                throw new IllegalArgumentException("Invalid private message "
+                    + "format. Message was not sent.");
             }
             target = command.substring(0, endOfNick);
             command = command.substring(endOfNick + 1);
@@ -984,10 +983,10 @@ public class IrcStack
         }
         
         /**
-         * Upon receiving a private message from a user, deliver that to a
-         * private chat room and create one if it does not exist. We can ignore
-         * normal chat rooms, since they each have their own ChatRoomListener
-         * for managing chat room operations.
+         * Upon receiving a private message from a user, deliver that to an
+         * instant messaging contact and create one if it does not exist. We can
+         * ignore normal chat rooms, since they each have their own
+         * ChatRoomListener for managing chat room operations.
          * 
          * @param msg the private message
          */
@@ -996,6 +995,27 @@ public class IrcStack
         {
             final String user = msg.getSource().getNick();
             final String text = Utils.parse(msg.getText());
+            IrcMessage message =
+                new OperationSetBasicInstantMessagingIrcImpl.IrcMessage(text);
+            Contact from =
+                IrcStack.this.provider.getPersistentPresence().findContactByID(
+                    user);
+            IrcStack.this.provider.getBasicInstantMessaging()
+                .fireMessageReceived(message, from);
+        }
+
+        /**
+         * Upon receiving a user notice message from a user, deliver that to an
+         * instant messaging contact.
+         * 
+         * @param msg user notice message
+         */
+        @Override
+        public void onUserNotice(UserNotice msg)
+        {
+            final String user = msg.getSource().getNick();
+            final String text = Utils.parse(msg.getText());
+            // TODO distinguish between notice and normal message in formatting?
             IrcMessage message =
                 new OperationSetBasicInstantMessagingIrcImpl.IrcMessage(text);
             Contact from =
