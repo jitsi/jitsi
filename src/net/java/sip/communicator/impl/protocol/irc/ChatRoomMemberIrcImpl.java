@@ -52,9 +52,8 @@ public class ChatRoomMemberIrcImpl
      * corresponding chat room
      */
     public ChatRoomMemberIrcImpl(ProtocolProviderService parentProvider,
-                                 ChatRoom chatRoom,
-                                 String contactID,
-                                 ChatRoomMemberRole chatRoomMemberRole)
+        ChatRoom chatRoom, String contactID,
+        ChatRoomMemberRole chatRoomMemberRole)
     {
         if (parentProvider == null)
             throw new IllegalArgumentException(

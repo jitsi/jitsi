@@ -32,7 +32,7 @@ public class ChatRoomIrcImpl
         = Logger.getLogger(ChatRoomIrcImpl.class);
 
     /**
-     * The parent protocol service provider
+     * The parent protocol service provider.
      */
     private final ProtocolProviderServiceIrcImpl parentProvider;
 
@@ -47,7 +47,7 @@ public class ChatRoomIrcImpl
     private String chatSubject = "";
 
     /**
-     * list of members of this chatRoom
+     * list of members of this chatRoom.
      */
     private final Hashtable<String, ChatRoomMember> chatRoomMembers
         = new Hashtable<String, ChatRoomMember>();
@@ -113,7 +113,7 @@ public class ChatRoomIrcImpl
      * The nick name of the local user for this chat room.
      */
     private String userNickName;
-    
+
     /**
      * The role of the local user for this chat room.
      */
@@ -126,12 +126,12 @@ public class ChatRoomIrcImpl
      * @param chatRoomName the name of the chat room
      * @param parentProvider the protocol provider
      */
-    public ChatRoomIrcImpl( String chatRoomName,
-                            ProtocolProviderServiceIrcImpl parentProvider)
+    public ChatRoomIrcImpl(String chatRoomName,
+        ProtocolProviderServiceIrcImpl parentProvider)
     {
         this(chatRoomName, parentProvider, false);
     }
-    
+
     /**
      * Creates an instance of <tt>ChatRoomIrcImpl</tt>, by specifying the room
      * name, the protocol provider and the isPrivate property. Private chat
@@ -1164,6 +1164,7 @@ public class ChatRoomIrcImpl
     public void setLocalUserRole(ChatRoomMemberRole role)
         throws OperationFailedException
     {
+        // TODO implement setLocalUserRole
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -1173,6 +1174,7 @@ public class ChatRoomIrcImpl
      */
     public void grantAdmin(String address)
     {
+        // TODO implement grantAdmin
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -1182,6 +1184,7 @@ public class ChatRoomIrcImpl
      */
     public void grantMembership(String address)
     {
+        // TODO implement grantMembership
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -1191,6 +1194,7 @@ public class ChatRoomIrcImpl
      */
     public void grantModerator(String address)
     {
+        // TODO implement grantModerator
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -1200,6 +1204,7 @@ public class ChatRoomIrcImpl
      */
     public void grantOwnership(String address)
     {
+        // TODO implement grantOwnership
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -1209,6 +1214,7 @@ public class ChatRoomIrcImpl
      */
     public void grantVoice(String address)
     {
+        // TODO implement grantVoice
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -1218,6 +1224,7 @@ public class ChatRoomIrcImpl
      */
     public void revokeAdmin(String address)
     {
+        // TODO implement revokeAdmin
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -1230,6 +1237,7 @@ public class ChatRoomIrcImpl
      */
     public void revokeMembership(String address)
     {
+        // TODO implement revokeMembership
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -1240,6 +1248,7 @@ public class ChatRoomIrcImpl
      */
     public void revokeModerator(String address)
     {
+        // TODO implement revokeModerator
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -1259,6 +1268,7 @@ public class ChatRoomIrcImpl
      */
     public void revokeVoice(String address)
     {
+        // TODO implement revokeVoice
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -1270,50 +1280,55 @@ public class ChatRoomIrcImpl
     public ConferenceDescription publishConference(ConferenceDescription cd,
         String name)
     {
+        // TODO implement publishConference
         return null;
     }
 
     /**
      * {@inheritDoc}
-     *
-     * Not implemented.
      */
     @Override
     public Contact getPrivateContactByNickname(String name)
     {
-        return null;
+        return this.parentProvider.getPersistentPresence()
+            .findContactByID(name);
     }
 
     /**
      * {@inheritDoc}
-     *
-     * Not implemented.
      */
     @Override
-    public void updatePrivateContactPresenceStatus(String nickname) { }
+    public void updatePrivateContactPresenceStatus(String nickname)
+    {
+        // TODO implement updatePrivateContactPresenceStatus
+    }
 
     /**
      * {@inheritDoc}
-     *
-     * Not implemented.
      */
     @Override
-    public void updatePrivateContactPresenceStatus(Contact sourceContact) { }
+    public void updatePrivateContactPresenceStatus(Contact sourceContact)
+    {
+        // TODO implement updatePrivateContactPresenceStatus
+    }
 
     /**
      * Destroys the chat room.
+     * 
      * @param reason the reason for destroying.
      * @param alternateAddress the alternate address
      * @return <tt>true</tt> if the room is destroyed.
      */
     public boolean destroy(String reason, String alternateAddress)
     {
+        // IRC chat rooms cannot be destroyed
         return true;
     }
 
     /**
-     * Returns the ids of the users that has the member role in the room.
-     * When the room is member only, this are the users allowed to join.
+     * Returns the ids of the users that has the member role in the room. When
+     * the room is member only, this are the users allowed to join.
+     * 
      * @return the ids of the users that has the member role in the room.
      */
     @Override

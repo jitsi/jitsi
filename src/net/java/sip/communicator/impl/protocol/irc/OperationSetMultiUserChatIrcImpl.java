@@ -8,8 +8,11 @@ package net.java.sip.communicator.impl.protocol.irc;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.gui.*;
+import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Allows creating, configuring, joining and administering of individual
@@ -23,6 +26,12 @@ import net.java.sip.communicator.service.protocol.event.*;
 public class OperationSetMultiUserChatIrcImpl
     extends AbstractOperationSetMultiUserChat
 {
+    /**
+     * Logger.
+     */
+    private static final Logger LOGGER = Logger
+        .getLogger(OperationSetMultiUserChatIrcImpl.class);
+
     /**
      * A call back to the IRC provider that created us.
      */
@@ -312,11 +321,30 @@ public class OperationSetMultiUserChatIrcImpl
     /**
      * {@inheritDoc}
      *
-     * Always returns <tt>false</tt>.
+     * Always returns <tt>true</tt>.
      */
     @Override
     public boolean isPrivateMessagingContact(String contactAddress)
     {
-        return false;
+        return true;
+    }
+
+    /**
+     * Open a chat room window.
+     * 
+     * In IRC a situation may occur where the user gets joined to a channel
+     * without Jitsi initiating the joining activity. This "unannounced" join
+     * event, must also be handled and we should display the chat room window in
+     * that case, to alert the user that this happened.
+     * 
+     * @param chatRoom the chat room
+     */
+    void openChatRoomWindow(ChatRoomIrcImpl chatRoom)
+    {
+        MUCService mucService = IrcActivator.getMUCService();
+        UIService uiService = IrcActivator.getUIService();
+        ChatRoomWrapper wrapper =
+            mucService.getChatRoomWrapperByChatRoom(chatRoom, true);
+        uiService.openChatRoomWindow(wrapper);
     }
 }

@@ -13,9 +13,8 @@ import java.util.*;
 import javax.net.ssl.*;
 
 import net.java.sip.communicator.impl.protocol.irc.ModeParser.ModeEntry;
+import net.java.sip.communicator.impl.protocol.irc.OperationSetBasicInstantMessagingIrcImpl.IrcMessage;
 import net.java.sip.communicator.service.certificate.*;
-import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -405,7 +404,6 @@ public class IrcStack
      */
     public boolean isJoined(ChatRoomIrcImpl chatroom)
     {
-        // TODO Do we really consider a joining attempt as joined?
         return this.joined.get(chatroom.getIdentifier()) != null;
     }
 
@@ -785,6 +783,18 @@ public class IrcStack
     }
 
     /**
+     * Send an IRC message.
+     * 
+     * @param contact The contact to send the message to.
+     * @param message The message to send.
+     */
+    public void message(Contact contact, String message)
+    {
+        String target = contact.getAddress();
+        this.irc.message(target, message);
+    }
+
+    /**
      * Prepare a chat room for initial opening.
      * 
      * @param channel The IRC channel which is the source of data.
@@ -796,6 +806,10 @@ public class IrcStack
         final IRCTopic topic = channel.getTopic();
         chatRoom.updateSubject(topic.getValue());
 
+        OperationSetPersistentPresenceIrcImpl opSetPersistentPresence =
+            this.provider.getPersistentPresence();
+        ContactGroupIrcImpl nonPersistentGroup =
+            opSetPersistentPresence.getNonPersistentGroup();
         for (IRCUser user : channel.getUsers())
         {
             // TODO Correctly gather active member statuses and choose strongest
@@ -814,6 +828,14 @@ public class IrcStack
                 new ChatRoomMemberIrcImpl(this.provider, chatRoom,
                     user.getNick(), role);
             chatRoom.addChatRoomMember(member.getContactAddress(), member);
+
+            // FIXME working on persistent presence
+            // Prepare Contact and MetaContact
+            // ContactIrcImpl sourceContact =
+            // opSetPersistentPresence.createVolatileContact(
+            // member.getContactAddress(), true);
+            // opSetPersistentPresence.fireSubscriptionEvent(sourceContact,
+            // nonPersistentGroup, SubscriptionEvent.SUBSCRIPTION_CREATED);
         }
     }
 
@@ -905,7 +927,15 @@ public class IrcStack
                     IrcStack.this.joined.put(channelName, chatRoom);
                 }
                 IrcStack.this.irc.addListener(new ChatRoomListener(chatRoom));
-                openChatRoomWindow(chatRoom);
+                try
+                {
+                    IrcStack.this.provider.getMUC()
+                        .openChatRoomWindow(chatRoom);
+                }
+                catch (NullPointerException e)
+                {
+                    LOGGER.error("failed to open chat room window", e);
+                }
                 IrcStack.this.prepareChatRoom(chatRoom, channel);
                 IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
                     chatRoom,
@@ -921,38 +951,6 @@ public class IrcStack
                         + ") will not be handled by the ServerListener.");
                 }
                 break;
-            }
-        }
-
-        /**
-         * Open a chat room window.
-         * 
-         * In IRC a situation may occur where the user gets joined to a channel
-         * without Jitsi initiating the joining activity. This "unannounced"
-         * join event, must also be handled and we should display the chat room
-         * window in that case, to alert the user that this happened.
-         * 
-         * TODO Move this operation to somewhere "higher" up on the chain. Maybe
-         * in the ProtocolProviderService implementation, e.g. as a
-         * (conditional) operation in a fireLocalUserPresence call? (The IRC
-         * client glue should not be bothered by whether or not the chat room
-         * window is actually opened or not ...)
-         * 
-         * @param chatRoom the chat room
-         */
-        private void openChatRoomWindow(ChatRoomIrcImpl chatRoom)
-        {
-            MUCService mucService = IrcActivator.getMUCService();
-            UIService uiService = IrcActivator.getUIService();
-            try
-            {
-                ChatRoomWrapper wrapper =
-                    mucService.getChatRoomWrapperByChatRoom(chatRoom, true);
-                uiService.openChatRoomWindow(wrapper);
-            }
-            catch (NullPointerException e)
-            {
-                LOGGER.error("failed to open chat room window", e);
             }
         }
 
@@ -994,47 +992,13 @@ public class IrcStack
         {
             final String user = msg.getSource().getNick();
             final String text = Utils.parse(msg.getText());
-            ChatRoomIrcImpl chatroom;
-            synchronized (IrcStack.this.joined)
-            {
-                chatroom = IrcStack.this.joined.get(user);
-                if (chatroom == null)
-                {
-                    OperationSetMultiUserChatIrcImpl muc =
-                        IrcStack.this.provider.getMUC();
-                    chatroom = muc.findOrCreateRoom(user);
-                    IrcStack.this.joined
-                        .put(chatroom.getIdentifier(), chatroom);
-                    chatroom = initiatePrivateChatRoom(user, chatroom);
-                }
-            }
-            deliverReceivedMessageToPrivateChat(chatroom, user, text);
-        }
-
-        /**
-         * Deliver a private message to the provided chat room.
-         * 
-         * @param chatroom the chat room
-         * @param user the source user
-         * @param text the message
-         */
-        private void deliverReceivedMessageToPrivateChat(
-            ChatRoomIrcImpl chatroom, String user, String text)
-        {
-            ChatRoomMember member = chatroom.getChatRoomMember(user);
-            if (member == null)
-            {
-                // TODO check should not be necessary, but sometimes null is
-                // still returned.
-                LOGGER
-                    .warn("Got null member from chatroom, but expected message"
-                        + "source member '" + user + "' to be present.");
-                return;
-            }
-            MessageIrcImpl message =
-                new MessageIrcImpl(text, "text/html", "UTF-8", null);
-            chatroom.fireMessageReceivedEvent(message, member, new Date(),
-                ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
+            IrcMessage message =
+                new OperationSetBasicInstantMessagingIrcImpl.IrcMessage(text);
+            Contact from =
+                IrcStack.this.provider.getPersistentPresence().findContactByID(
+                    user);
+            IrcStack.this.provider.getBasicInstantMessaging()
+                .fireMessageReceived(message, from);
         }
 
         /**

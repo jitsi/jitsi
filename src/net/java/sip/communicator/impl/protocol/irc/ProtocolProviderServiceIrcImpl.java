@@ -43,6 +43,16 @@ public class ProtocolProviderServiceIrcImpl
     private OperationSetMultiUserChatIrcImpl multiUserChat;
 
     /**
+     * The operation set for instant messaging.
+     */
+    private OperationSetBasicInstantMessagingIrcImpl instantMessaging;
+
+    /**
+     * The operation set for persistent presence.
+     */
+    private OperationSetPersistentPresenceIrcImpl persistentPresence;
+
+    /**
      * Indicates whether or not the provider is initialized and ready for use.
      */
     private boolean isInitialized = false;
@@ -93,9 +103,19 @@ public class ProtocolProviderServiceIrcImpl
                 OperationSetMultiUserChat.class,
                 multiUserChat);
             
-            // TODO Implement OperationSetPersistentPresence and
-            // OperationSetBasicInstantMessaging in order to support private
-            // messaging.
+            // Initialize basic instant messaging
+            this.instantMessaging =
+                new OperationSetBasicInstantMessagingIrcImpl(this);
+
+            addSupportedOperationSet(OperationSetBasicInstantMessaging.class,
+                this.instantMessaging);
+
+            //Initialize persistent presence
+            persistentPresence =
+                new OperationSetPersistentPresenceIrcImpl(this);
+
+            addSupportedOperationSet(OperationSetPersistentPresence.class,
+                persistentPresence);
 
             // TODO Implement OperationSetServerStoredAccountInfo so we can
             // suggest a display name to use when adding new chat rooms?
@@ -114,9 +134,34 @@ public class ProtocolProviderServiceIrcImpl
         }
     }
     
+    /**
+     * Get the Multi User Chat implementation.
+     * 
+     * @return returns the Multi User Chat implementation
+     */
     public OperationSetMultiUserChatIrcImpl getMUC()
     {
         return this.multiUserChat;
+    }
+    
+    /**
+     * Get the Basic Instant Messaging implementation.
+     * 
+     * @return returns the Basic Instant Messaging implementation
+     */
+    public OperationSetBasicInstantMessagingIrcImpl getBasicInstantMessaging()
+    {
+        return this.instantMessaging;
+    }
+
+    /**
+     * Get the Persistent Presence implementation.
+     * 
+     * @return returns the Persistent Presence implementation.
+     */
+    public OperationSetPersistentPresenceIrcImpl getPersistentPresence()
+    {
+        return this.persistentPresence;
     }
 
     /**
