@@ -12,7 +12,6 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import net.java.sip.communicator.util.*;
 
 /**
  * Allows creating, configuring, joining and administering of individual
@@ -22,16 +21,11 @@ import net.java.sip.communicator.util.*;
  * @author Loic Kempf
  * @author Yana Stamcheva
  * @author Lubomir Marinov
+ * @author Danny van Heumen
  */
 public class OperationSetMultiUserChatIrcImpl
     extends AbstractOperationSetMultiUserChat
 {
-    /**
-     * Logger.
-     */
-    private static final Logger LOGGER = Logger
-        .getLogger(OperationSetMultiUserChatIrcImpl.class);
-
     /**
      * A call back to the IRC provider that created us.
      */
