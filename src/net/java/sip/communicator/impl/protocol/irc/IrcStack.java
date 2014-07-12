@@ -164,6 +164,22 @@ public class IrcStack
         {
             this.params.setServer(server);
             this.irc.addListener(new ServerListener());
+
+            if (LOGGER.isTraceEnabled())
+            {
+                // If tracing is enabled, register another listener that logs
+                // all IRC messages as published by the IRC client library.
+                this.irc.addListener(new IMessageListener()
+                {
+
+                    @Override
+                    public void onMessage(IMessage aMessage)
+                    {
+                        LOGGER.trace("(" + aMessage + ") " + aMessage.asRaw());
+                    }
+                });
+            }
+
             connectSynchronized();
         }
     }
