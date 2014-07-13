@@ -112,7 +112,8 @@ public class OperationSetMultiUserChatIrcImpl
     public List<String> getCurrentlyJoinedChatRooms(
         ChatRoomMember chatRoomMember)
     {
-        //TODO: Implement "who is" for the IRC stack.
+        // Implement "who is" for the IRC stack.
+        // (currently not in use)
         /*
          * According to the RFC:
          * 

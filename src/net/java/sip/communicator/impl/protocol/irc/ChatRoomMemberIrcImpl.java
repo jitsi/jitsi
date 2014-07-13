@@ -6,7 +6,10 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Represents a chat room member.
@@ -18,6 +21,12 @@ import net.java.sip.communicator.service.protocol.*;
 public class ChatRoomMemberIrcImpl
     implements ChatRoomMember
 {
+    /**
+     * Logger.
+     */
+    private static final Logger LOGGER = Logger
+        .getLogger(ChatRoomMemberIrcImpl.class);
+
     /**
      * The ChatRoom.
      */
@@ -32,11 +41,12 @@ public class ChatRoomMemberIrcImpl
      * The provider that created us.
      */
     private final ProtocolProviderService parentProvider;
-
+    
     /**
-     * The role of this member.
+     * Set of active roles.
      */
-    private ChatRoomMemberRole chatRoomMemberRole;
+    private final SortedSet<ChatRoomMemberRole> roles =
+        new TreeSet<ChatRoomMemberRole>();
 
     /**
      * Creates an instance of <tt>ChatRoomMemberIrcImpl</tt>, by specifying the
@@ -68,7 +78,7 @@ public class ChatRoomMemberIrcImpl
         this.contactID = contactID;
         if (chatRoomMemberRole == null)
             throw new IllegalArgumentException("member role cannot be null");
-        this.chatRoomMemberRole = chatRoomMemberRole;
+        this.roles.add(chatRoomMemberRole);
     }
 
     /**
@@ -139,7 +149,7 @@ public class ChatRoomMemberIrcImpl
      */
     public ChatRoomMemberRole getRole()
     {
-        return this.chatRoomMemberRole;
+        return this.roles.first();
     }
 
     /**
@@ -149,9 +159,31 @@ public class ChatRoomMemberIrcImpl
      */
     public void setRole(ChatRoomMemberRole chatRoomMemberRole)
     {
-        if (chatRoomMemberRole == null)
-            throw new IllegalArgumentException("role cannot be null");
-        this.chatRoomMemberRole = chatRoomMemberRole;
+        // Ignore explicit set role operations, since we only allow
+        // modifications from the IRC server.
+        LOGGER.debug("Ignoring request to set role to "
+            + chatRoomMemberRole.getRoleName());
+        return;
+    }
+
+    /**
+     * Add a role.
+     * 
+     * @param role the new role
+     */
+    void addRole(ChatRoomMemberRole role)
+    {
+        this.roles.add(role);
+    }
+
+    /**
+     * Remove a role.
+     * 
+     * @param role the revoked role
+     */
+    void removeRole(ChatRoomMemberRole role)
+    {
+        this.roles.remove(role);
     }
 
     /**

@@ -28,7 +28,8 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
     /**
      * Root contact group for IRC contacts.
      */
-    private final ContactGroupIrcImpl rootGroup = new ContactGroupIrcImpl(this.parentProvider);
+    private final ContactGroupIrcImpl rootGroup = new ContactGroupIrcImpl(
+        this.parentProvider);
 
     /**
      * IRC implementation for OperationSetPersistentPresence.
@@ -41,7 +42,7 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
         super(parentProvider);
     }
     
-    ContactIrcImpl createVolatileContact(String id)
+    private ContactIrcImpl createVolatileContact(String id)
     {
         // Check whether a volatile group already exists and if not create
         // one
@@ -71,7 +72,7 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
         return newVolatileContact;
     }
 
-    ContactGroupIrcImpl getNonPersistentGroup()
+    private ContactGroupIrcImpl getNonPersistentGroup()
     {
         String groupName
             = IrcActivator.getResources().getI18NString(
@@ -199,7 +200,7 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
         OperationFailedException
     {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
@@ -258,7 +259,6 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
     @Override
     public Contact createUnresolvedContact(String address, String persistentData)
     {
-        // TODO Auto-generated method stub
         return null;
-    }    
+    }
 }
