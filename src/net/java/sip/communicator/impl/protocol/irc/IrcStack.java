@@ -1013,8 +1013,22 @@ public class IrcStack
             Contact from =
                 IrcStack.this.provider.getPersistentPresence().findContactByID(
                     user);
-            IrcStack.this.provider.getBasicInstantMessaging()
-                .fireMessageReceived(message, from);
+            try
+            {
+                IrcStack.this.provider.getBasicInstantMessaging()
+                    .fireMessageReceived(message, from);
+            }
+            catch (RuntimeException e)
+            {
+                // TODO remove once this is stable. Don't want to lose message
+                // when an accidental error occurs.
+                // It is likely that errors occurred because of some issues with
+                // MetaContactGroup for NonPersistent group, since this is an
+                // outstanding error.
+                LOGGER.error(
+                    "Error occurred while delivering private message from user '"
+                        + user + "': " + text, e);
+            }
         }
 
         /**
