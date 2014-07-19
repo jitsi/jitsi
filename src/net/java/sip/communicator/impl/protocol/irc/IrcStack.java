@@ -1034,8 +1034,8 @@ public class IrcStack
                     OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
                     OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING, "");
             Contact from =
-                IrcStack.this.provider.getPersistentPresence().findContactByID(
-                    user);
+                IrcStack.this.provider.getPersistentPresence()
+                    .findOrCreateContactByID(user);
             IrcStack.this.provider.getBasicInstantMessaging()
                 .fireMessageReceived(message, from);
         }

@@ -44,22 +44,8 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
     
     private ContactIrcImpl createVolatileContact(String id)
     {
-        // Check whether a volatile group already exists and if not create
-        // one
+        // Get non-persistent group for volatile contacts.
         ContactGroupIrcImpl volatileGroup = getNonPersistentGroup();
-
-        if (volatileGroup == null)
-        {
-            volatileGroup =
-                new ContactGroupIrcImpl(this.parentProvider, this.rootGroup,
-                    IrcActivator.getResources().getI18NString(
-                        "service.gui.NOT_IN_CONTACT_LIST_GROUP_NAME"));
-
-            this.rootGroup.addSubGroup(volatileGroup);
-            
-            this.fireServerStoredGroupEvent(volatileGroup,
-                ServerStoredGroupEvent.GROUP_CREATED_EVENT);
-        }
 
         // Create volatile contact
         ContactIrcImpl newVolatileContact =
@@ -87,7 +73,17 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
                 return gr;
         }
 
-        return null;
+        ContactGroupIrcImpl volatileGroup =
+            new ContactGroupIrcImpl(this.parentProvider, this.rootGroup,
+                IrcActivator.getResources().getI18NString(
+                    "service.gui.NOT_IN_CONTACT_LIST_GROUP_NAME"));
+
+        this.rootGroup.addSubGroup(volatileGroup);
+
+        this.fireServerStoredGroupEvent(volatileGroup,
+            ServerStoredGroupEvent.GROUP_CREATED_EVENT);
+
+        return volatileGroup;
     }
 
     public ContactGroup getRootGroup()
