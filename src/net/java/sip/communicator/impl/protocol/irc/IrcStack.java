@@ -1394,6 +1394,13 @@ public class IrcStack
                 ChatRoomMemberIrcImpl targetMember =
                     (ChatRoomMemberIrcImpl) this.chatroom
                         .getChatRoomMember(targetNick);
+                if (targetMember == null)
+                {
+                    LOGGER.error("Cannot find member instance for nick '"
+                        + targetNick
+                        + "'. Aborting processing of mode message.");
+                    return;
+                }
                 ChatRoomMemberRole originalRole = targetMember.getRole();
 
                 switch (mode.getMode())
