@@ -835,10 +835,10 @@ public class IrcStack
 
         for (IRCUser user : channel.getUsers())
         {
-            ChatRoomMemberRole role = ChatRoomMemberRole.SILENT_MEMBER;
             ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(this.provider, chatRoom,
-                    user.getNick(), role);
+                    user.getNick(), ChatRoomMemberRole.SILENT_MEMBER);
+            ChatRoomMemberRole role;
             for (IRCUserStatus status : channel.getStatusesForUser(user))
             {
                 role = convertMemberMode(status.getChanModeType().charValue());

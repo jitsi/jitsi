@@ -162,6 +162,9 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
     @Override
     public ContactGroup getServerStoredContactListRoot()
     {
+        // TODO consider using this for contacts that are registered at NickServ
+        // for the IRC network. Store contacts and possibly some whois info if
+        // useful for these contacts as persistent data.
         return this.rootGroup;
     }
 
@@ -223,8 +226,7 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
     @Override
     public Contact findContactByID(String contactID)
     {
-        // FIXME DEBUG
-        LOGGER.warn("findContactByID(\"" + contactID + "\") called");
+        LOGGER.trace("Finding contact for nick name '" + contactID + "'");
         if (contactID == null)
             return null;
         Contact contact = this.rootGroup.getContact(contactID);
@@ -238,8 +240,8 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
             if (contact != null)
                 return contact;
         }
-        // FIXME currently just creates a new volatile contact
-        return createVolatileContact(contactID);
+        LOGGER.trace("No contact found for nick name '" + contactID + "'");
+        return null;
     }
 
     @Override
@@ -260,5 +262,17 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
     public Contact createUnresolvedContact(String address, String persistentData)
     {
         return null;
+    }
+
+    Contact findOrCreateContactByID(String name)
+    {
+        Contact contact = findContactByID(name);
+        if (contact == null)
+        {
+            contact = createVolatileContact(name);
+            LOGGER.debug("No existing contact found. Created volatile contact"
+                + " for nick name '" + name + "'.");
+        }
+        return contact;
     }
 }

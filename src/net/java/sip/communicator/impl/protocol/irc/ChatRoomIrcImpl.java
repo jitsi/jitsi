@@ -28,7 +28,7 @@ public class ChatRoomIrcImpl
     /**
      * The object used for logging.
      */
-    private static final Logger logger
+    private static final Logger LOGGER
         = Logger.getLogger(ChatRoomIrcImpl.class);
 
     /**
@@ -982,8 +982,8 @@ public class ChatRoomIrcImpl
             evt = new ChatRoomMemberPresenceChangeEvent(
                 this, member, eventID, eventReason);
 
-        if (logger.isTraceEnabled())
-            logger.trace("Will dispatch the following ChatRoom event: " + evt);
+        if (LOGGER.isTraceEnabled())
+            LOGGER.trace("Will dispatch the following ChatRoom event: " + evt);
 
         Iterable<ChatRoomMemberPresenceListener> listeners;
         synchronized (memberListeners)
@@ -1016,8 +1016,8 @@ public class ChatRoomIrcImpl
                                                 previousRole,
                                                 newRole);
 
-        if (logger.isTraceEnabled())
-            logger.trace("Will dispatch the following ChatRoom event: " + evt);
+        if (LOGGER.isTraceEnabled())
+            LOGGER.trace("Will dispatch the following ChatRoom event: " + evt);
 
         Iterable<ChatRoomMemberRoleListener> listeners;
         synchronized (memberRoleListeners)
@@ -1253,8 +1253,9 @@ public class ChatRoomIrcImpl
     @Override
     public Contact getPrivateContactByNickname(String name)
     {
+        LOGGER.debug("Getting private contact for nick name '" + name + "'.");
         return this.parentProvider.getPersistentPresence()
-            .findContactByID(name);
+            .findOrCreateContactByID(name);
     }
 
     /**

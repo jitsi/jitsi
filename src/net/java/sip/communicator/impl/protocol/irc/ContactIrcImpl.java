@@ -119,6 +119,8 @@ public class ContactIrcImpl
     @Override
     public boolean isPersistent()
     {
+        // TODO implement notion of persistence based on whether or not the nick
+        // name is registered on the IRC network, for NickServ.
         return false;
     }
 
@@ -130,6 +132,10 @@ public class ContactIrcImpl
     @Override
     public boolean isResolved()
     {
+        // TODO implement resolved status based on whether or not the nick name
+        // is registered and the nick is currently "active" according to the
+        // server, i.e. NickServ.
+        // For now, we consider the contact unresolved ...
         return false;
     }
 
@@ -141,6 +147,8 @@ public class ContactIrcImpl
     @Override
     public String getPersistentData()
     {
+        // TODO this could retrieve some whois/contact data from NickServ, since
+        // the "persistent contact" is registered.
         return null;
     }
 
