@@ -1436,26 +1436,17 @@ public class IrcStack
             ModeParser parser = new ModeParser(msg.getModeStr());
             for (ModeEntry mode : parser.getModes())
             {
-                String targetNick = mode.getParams()[0];
-                ChatRoomMemberIrcImpl targetMember =
-                    (ChatRoomMemberIrcImpl) this.chatroom
-                        .getChatRoomMember(targetNick);
-                if (targetMember == null)
-                {
-                    LOGGER.error("Cannot find member instance for nick '"
-                        + targetNick
-                        + "'. Aborting processing of mode message.");
-                    LOGGER.debug("Mode message: " + msg.asRaw());
-                    return;
-                }
-                ChatRoomMemberRole originalRole = targetMember.getRole();
-
                 switch (mode.getMode())
                 {
                 case OWNER:
                 case OPERATOR:
                 case HALFOP:
                 case VOICE:
+                    String targetNick = mode.getParams()[0];
+                    ChatRoomMemberIrcImpl targetMember =
+                        (ChatRoomMemberIrcImpl) this.chatroom
+                            .getChatRoomMember(targetNick);
+                    ChatRoomMemberRole originalRole = targetMember.getRole();
                     if (mode.isAdded())
                     {
                         targetMember.addRole(mode.getMode().getRole());
