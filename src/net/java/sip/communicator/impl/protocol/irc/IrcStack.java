@@ -1413,6 +1413,7 @@ public class IrcStack
                     LOGGER.error("Cannot find member instance for nick '"
                         + targetNick
                         + "'. Aborting processing of mode message.");
+                    LOGGER.debug("Mode message: " + msg.asRaw());
                     return;
                 }
                 ChatRoomMemberRole originalRole = targetMember.getRole();
