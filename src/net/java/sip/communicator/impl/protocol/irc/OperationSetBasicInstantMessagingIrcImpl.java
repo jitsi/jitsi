@@ -55,7 +55,15 @@ public class OperationSetBasicInstantMessagingIrcImpl
         throws IllegalStateException,
         IllegalArgumentException
     {
-        this.provider.getIrcStack().message(to, message.getContent());
+        if (message instanceof MessageIrcImpl
+            && ((MessageIrcImpl) message).isCommand())
+        {
+            this.provider.getIrcStack().command(to, message.getContent());
+        }
+        else
+        {
+            this.provider.getIrcStack().message(to, message.getContent());
+        }
     }
 
     /**

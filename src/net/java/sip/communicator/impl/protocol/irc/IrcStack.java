@@ -777,6 +777,8 @@ public class IrcStack
      */
     public void command(ChatRoomIrcImpl chatroom, String command)
     {
+        // FIXME Should I use rawMessage here? Simply consider command
+        // unchecked?
         String target;
         if (command.toLowerCase().startsWith("/msg "))
         {
@@ -793,6 +795,36 @@ public class IrcStack
         else
         {
             target = chatroom.getIdentifier();
+        }
+        this.irc.message(target, command);
+    }
+
+    /**
+     * Send a command to the IRC server.
+     * 
+     * @param chatroom the chat room
+     * @param command the command message
+     */
+    public void command(Contact contact, String command)
+    {
+        // FIXME Should I use rawMessage here? Simply consider command
+        // unchecked?
+        String target;
+        if (command.toLowerCase().startsWith("/msg "))
+        {
+            command = command.substring(5);
+            int endOfNick = command.indexOf(' ');
+            if (endOfNick == -1)
+            {
+                throw new IllegalArgumentException("Invalid private message "
+                    + "format. Message was not sent.");
+            }
+            target = command.substring(0, endOfNick);
+            command = command.substring(endOfNick + 1);
+        }
+        else
+        {
+            target = contact.getAddress();
         }
         this.irc.message(target, command);
     }
