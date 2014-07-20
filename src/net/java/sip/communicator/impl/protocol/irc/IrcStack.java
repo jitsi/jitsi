@@ -1041,7 +1041,8 @@ public class IrcStack
             MessageIrcImpl message =
                 new MessageIrcImpl(text,
                     OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
-                    OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING, "");
+                    OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
+                    null);
             Contact from =
                 IrcStack.this.provider.getPersistentPresence().findContactByID(
                     user);
@@ -1078,7 +1079,8 @@ public class IrcStack
             MessageIrcImpl message =
                 new MessageIrcImpl(text,
                     OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
-                    OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING, "");
+                    OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
+                    null);
             Contact from =
                 IrcStack.this.provider.getPersistentPresence()
                     .findOrCreateContactByID(user);
@@ -1101,7 +1103,8 @@ public class IrcStack
             MessageIrcImpl message =
                 new MessageIrcImpl(text,
                     OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
-                    OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING, "");
+                    OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
+                    null);
             Contact from =
                 IrcStack.this.provider.getPersistentPresence().findContactByID(
                     user);
@@ -1486,7 +1489,7 @@ public class IrcStack
                         MessageIrcImpl message =
                             new MessageIrcImpl(text,
                                 MessageIrcImpl.DEFAULT_MIME_TYPE,
-                                MessageIrcImpl.DEFAULT_MIME_TYPE, "");
+                                MessageIrcImpl.DEFAULT_MIME_ENCODING, null);
                         this.chatroom
                             .fireMessageReceivedEvent(
                                 message,
@@ -1546,7 +1549,8 @@ public class IrcStack
                                 + (sourceMember.getContactAddress()
                                     .length() == 0 ? "server"
                                     : sourceMember.getContactAddress()),
-                            "text/plain", "UTF-8", null);
+                            MessageIrcImpl.DEFAULT_MIME_TYPE,
+                            MessageIrcImpl.DEFAULT_MIME_ENCODING, null);
                     this.chatroom.fireMessageReceivedEvent(banMessage,
                         sourceMember, new Date(),
                         ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
