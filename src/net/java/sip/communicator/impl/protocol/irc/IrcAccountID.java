@@ -113,4 +113,25 @@ public class IrcAccountID
         }
         return (serviceName == null) ? ProtocolNames.IRC : serviceName;
     }
+
+    /**
+     * Get display name for this account instance.
+     * 
+     * @return returns the display name for this AccountID instance
+     */
+    @Override
+    public String getDisplayName()
+    {
+        // If the ACCOUNT_DISPLAY_NAME property has been set for this account
+        // we'll be using it as a display name.
+        String key = ProtocolProviderFactory.ACCOUNT_DISPLAY_NAME;
+        String accountDisplayName = accountProperties.get(key);
+        if (accountDisplayName != null && !accountDisplayName.isEmpty())
+        {
+            return accountDisplayName;
+        }
+        // Construct our own account display name.
+        return String.format("%s@%s:%s (%s)", this.getUserID(), this.host,
+            this.port, this.getProtocolName());
+    }
 }
