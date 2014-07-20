@@ -41,7 +41,7 @@ public class FirstWizardPage
 
     public static final String USER_NAME_EXAMPLE = "Ex: ircuser";
 
-    public static final String SERVER_EXAMPLE = "Ex: irc.quakenet.org";
+    public static final String SERVER_EXAMPLE = "Ex: chat.freenode.net";
     
     private static final String DEFAULT_PLAINTEXT_PORT = "6667";
     
