@@ -64,6 +64,9 @@ public class IrcAccountID
         if (this == obj)
             return true;
         
+        // TODO if available, base equality on NETWORK=<identifier> in
+        // RPL_ISUPPORT.
+
         return super.equals(obj)
             && this.host.equals(((IrcAccountID) obj).host)
             && this.port == ((IrcAccountID) obj).port;
