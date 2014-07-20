@@ -775,13 +775,11 @@ public class ChatRoomIrcImpl
 
             if (((MessageIrcImpl) message).isCommand())
             {
-                parentProvider.getIrcStack()
-                    .command(this, messagePortion);
+                parentProvider.getIrcStack().command(this, messagePortion);
             }
             else
             {
-                parentProvider.getIrcStack()
-                    .message(this, messagePortion);
+                parentProvider.getIrcStack().message(this, messagePortion);
             }
 
             this.fireMessageDeliveredEvent(

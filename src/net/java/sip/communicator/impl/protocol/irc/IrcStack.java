@@ -775,28 +775,9 @@ public class IrcStack
      * @param chatroom the chat room
      * @param command the command message
      */
-    public void command(ChatRoomIrcImpl chatroom, String command)
+    public void command(final ChatRoomIrcImpl chatroom, final String message)
     {
-        // FIXME Should I use rawMessage here? Simply consider command
-        // unchecked?
-        String target;
-        if (command.toLowerCase().startsWith("/msg "))
-        {
-            command = command.substring(5);
-            int endOfNick = command.indexOf(' ');
-            if (endOfNick == -1)
-            {
-                throw new IllegalArgumentException("Invalid private message "
-                    + "format. Message was not sent.");
-            }
-            target = command.substring(0, endOfNick);
-            command = command.substring(endOfNick + 1);
-        }
-        else
-        {
-            target = chatroom.getIdentifier();
-        }
-        this.irc.message(target, command);
+        this.command(chatroom.getIdentifier(), message);
     }
 
     /**
@@ -805,26 +786,39 @@ public class IrcStack
      * @param chatroom the chat room
      * @param command the command message
      */
-    public void command(Contact contact, String command)
+    public void command(final Contact contact, final String message)
     {
-        // FIXME Should I use rawMessage here? Simply consider command
-        // unchecked?
-        String target;
-        if (command.toLowerCase().startsWith("/msg "))
+        // WARNING: This command method should not be used.
+        LOGGER.warn("Not handling IM message as commands, because of danger"
+            + "of corrupting plug-ins that hook into IM conversations.");
+    }
+
+    /**
+     * Implementation of some commands.
+     * 
+     * @param source Source contact or chat room from which the message is sent.
+     * @param message Command message that is sent.
+     */
+    private void command(final String source, final String message)
+    {
+        final String target;
+        final String command;
+        if (message.toLowerCase().startsWith("/msg "))
         {
-            command = command.substring(5);
-            int endOfNick = command.indexOf(' ');
+            String part = message.substring(5);
+            int endOfNick = part.indexOf(' ');
             if (endOfNick == -1)
             {
                 throw new IllegalArgumentException("Invalid private message "
                     + "format. Message was not sent.");
             }
-            target = command.substring(0, endOfNick);
-            command = command.substring(endOfNick + 1);
+            target = part.substring(0, endOfNick);
+            command = part.substring(endOfNick + 1);
         }
         else
         {
-            target = contact.getAddress();
+            target = source;
+            command = message;
         }
         this.irc.message(target, command);
     }

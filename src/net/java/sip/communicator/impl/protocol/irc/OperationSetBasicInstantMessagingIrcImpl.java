@@ -55,15 +55,11 @@ public class OperationSetBasicInstantMessagingIrcImpl
         throws IllegalStateException,
         IllegalArgumentException
     {
-        if (message instanceof MessageIrcImpl
-            && ((MessageIrcImpl) message).isCommand())
-        {
-            this.provider.getIrcStack().command(to, message.getContent());
-        }
-        else
-        {
-            this.provider.getIrcStack().message(to, message.getContent());
-        }
+        // For instant messaging there are already encryption protocols and
+        // other plug-ins available. To accidentally prevent them from working
+        // correctly, we will not process IM message contents at all. This means
+        // that we cannot handle irc commands from a IM message source.
+        this.provider.getIrcStack().message(to, message.getContent());
     }
 
     /**
