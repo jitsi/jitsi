@@ -68,6 +68,8 @@ public class IrcStack
 
     /**
      * Instance of the IRC library.
+     * 
+     * FIXME: Put this in a AtomicReference instance?
      */
     private IRCApi irc;
 
