@@ -182,6 +182,10 @@ public class IrcStack
             }
 
             connectSynchronized();
+
+            // TODO Read IRC network capabilities based on RPL_ISUPPORT (005)
+            // replies if available. This information should be available in
+            // irc-api if possible.
         }
     }
 
