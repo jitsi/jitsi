@@ -678,10 +678,13 @@ public class ChatRoomIrcImpl
      * @param reason a reason, subject, or welcome message that would tell the
      *            the user why they are being invited.
      */
+    @Override
     public void invite(String userAddress, String reason)
     {
-        parentProvider.getIrcStack()
-            .invite(userAddress, this);
+        // TODO Check if channel status is invite-only (+i). If this is the
+        // case, user has to be channel operator in order to be able to invite
+        // some-one.
+        parentProvider.getIrcStack().invite(userAddress, this);
     }
 
     /**
@@ -1248,7 +1251,6 @@ public class ChatRoomIrcImpl
     public ConferenceDescription publishConference(ConferenceDescription cd,
         String name)
     {
-        // TODO implement publishConference
         return null;
     }
 
@@ -1269,7 +1271,7 @@ public class ChatRoomIrcImpl
     @Override
     public void updatePrivateContactPresenceStatus(String nickname)
     {
-        // TODO implement updatePrivateContactPresenceStatus
+        // IRC does not provide continuous presence status updates.
     }
 
     /**
@@ -1278,7 +1280,7 @@ public class ChatRoomIrcImpl
     @Override
     public void updatePrivateContactPresenceStatus(Contact sourceContact)
     {
-        // TODO implement updatePrivateContactPresenceStatus
+        // IRC does not provide continuous presence status updates.
     }
 
     /**
