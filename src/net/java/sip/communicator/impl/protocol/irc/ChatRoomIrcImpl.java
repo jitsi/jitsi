@@ -1135,8 +1135,7 @@ public class ChatRoomIrcImpl
      */
     public void grantAdmin(String address)
     {
-        // TODO implement grantAdmin
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.parentProvider.getIrcStack().grant(this, address, Mode.OPERATOR);
     }
 
     /**
@@ -1145,8 +1144,8 @@ public class ChatRoomIrcImpl
      */
     public void grantMembership(String address)
     {
-        // TODO implement grantMembership
-        throw new UnsupportedOperationException("Not supported yet.");
+        // TODO currently Voice == Membership.
+        this.parentProvider.getIrcStack().grant(this, address, Mode.VOICE);
     }
 
     /**
@@ -1155,8 +1154,7 @@ public class ChatRoomIrcImpl
      */
     public void grantModerator(String address)
     {
-        // TODO implement grantModerator
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.parentProvider.getIrcStack().grant(this, address, Mode.HALFOP);
     }
 
     /**
@@ -1165,8 +1163,7 @@ public class ChatRoomIrcImpl
      */
     public void grantOwnership(String address)
     {
-        // TODO implement grantOwnership
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.parentProvider.getIrcStack().grant(this, address, Mode.OWNER);
     }
 
     /**
@@ -1175,8 +1172,8 @@ public class ChatRoomIrcImpl
      */
     public void grantVoice(String address)
     {
-        // TODO implement grantVoice
-        throw new UnsupportedOperationException("Not supported yet.");
+        // TODO currently Voice == Membership.
+        this.parentProvider.getIrcStack().grant(this, address, Mode.VOICE);
     }
 
     /**
@@ -1185,8 +1182,7 @@ public class ChatRoomIrcImpl
      */
     public void revokeAdmin(String address)
     {
-        // TODO implement revokeAdmin
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.parentProvider.getIrcStack().revoke(this, address, Mode.OPERATOR);
     }
 
     /**
@@ -1198,8 +1194,7 @@ public class ChatRoomIrcImpl
      */
     public void revokeMembership(String address)
     {
-        // TODO implement revokeMembership
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.parentProvider.getIrcStack().revoke(this, address, Mode.VOICE);
     }
 
     /**
@@ -1209,8 +1204,7 @@ public class ChatRoomIrcImpl
      */
     public void revokeModerator(String address)
     {
-        // TODO implement revokeModerator
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.parentProvider.getIrcStack().revoke(this, address, Mode.HALFOP);
     }
 
     /**
@@ -1220,7 +1214,7 @@ public class ChatRoomIrcImpl
      */
     public void revokeOwnership(String address)
     {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.parentProvider.getIrcStack().revoke(this, address, Mode.OWNER);
     }
 
     /**
@@ -1229,8 +1223,7 @@ public class ChatRoomIrcImpl
      */
     public void revokeVoice(String address)
     {
-        // TODO implement revokeVoice
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.parentProvider.getIrcStack().revoke(this, address, Mode.VOICE);
     }
 
     /**

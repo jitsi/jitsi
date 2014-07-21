@@ -854,6 +854,42 @@ public class IrcStack
     }
 
     /**
+     * Grant user permissions to specified user.
+     * 
+     * @param chatRoom chat room to grant permissions for
+     * @param userAddress user to grant permissions to
+     * @param mode mode to grant
+     */
+    public void grant(ChatRoomIrcImpl chatRoom, String userAddress, Mode mode)
+    {
+        if (mode.getRole() == null)
+        {
+            throw new IllegalArgumentException(
+                "This mode does not modify user permissions.");
+        }
+        this.irc.changeMode(chatRoom.getIdentifier() + " +" + mode.getSymbol()
+            + " " + userAddress);
+    }
+
+    /**
+     * Revoke user permissions of chat room for user.
+     * 
+     * @param chatRoom chat room
+     * @param userAddress user
+     * @param mode mode
+     */
+    public void revoke(ChatRoomIrcImpl chatRoom, String userAddress, Mode mode)
+    {
+        if (mode.getRole() == null)
+        {
+            throw new IllegalArgumentException(
+                "This mode does not modify user permissions.");
+        }
+        this.irc.changeMode(chatRoom.getIdentifier() + " -" + mode.getSymbol()
+            + " " + userAddress);
+    }
+
+    /**
      * Prepare a chat room for initial opening.
      * 
      * @param channel The IRC channel which is the source of data.
