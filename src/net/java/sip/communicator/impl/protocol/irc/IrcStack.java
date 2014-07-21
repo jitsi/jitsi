@@ -1166,12 +1166,40 @@ public class IrcStack
         @Override
         public void onUserQuit(QuitMessage msg)
         {
-            // TODO Check existing contacts and set presence status to OFFLINE
-            // on user quit message. That's about the only thing about presence
-            // updates we can do.
+            final String userNick = msg.getSource().getNick();
+            final Contact user =
+                IrcStack.this.provider.getPersistentPresence().findContactByID(
+                    userNick);
+
+            final PresenceStatus previousStatus = user.getPresenceStatus();
+            if (user == null || previousStatus == IrcStatusEnum.OFFLINE)
+            {
+                LOGGER.trace("User already off-line, not updating user "
+                    + "presence status.");
+                return;
+            }
+
+            if (!(user instanceof ContactIrcImpl))
+            {
+                LOGGER.warn("Unexpected type of contact, expected "
+                    + "ContactIrcImpl but got " + user.getClass().getName()
+                    + ". Not updating presence.");
+                return;
+            }
+
+            final ContactGroup parentGroup = user.getParentContactGroup();
+            final ContactIrcImpl member = (ContactIrcImpl) user;
+            member.setPresenceStatus(IrcStatusEnum.OFFLINE);
+            IrcStack.this.provider.getPersistentPresence()
+                .fireContactPresenceStatusChangeEvent(user, parentGroup,
+                    previousStatus, member.getPresenceStatus(), true);
+
+            // TODO Update status to online in case a message arrives from this
+            // particular user.
 
             // TODO Also respond to private messages that are undeliverable
             // because the user is not available anymore.
+            // 401 - <nick> :No such nick/channel
         }
     }
 

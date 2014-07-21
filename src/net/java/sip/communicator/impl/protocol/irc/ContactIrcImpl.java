@@ -26,13 +26,18 @@ public class ContactIrcImpl
     private ContactGroupIrcImpl parentGroup;
 
     /**
+     * Contact's presence status.
+     */
+    private PresenceStatus presence;
+
+    /**
      * Constructor.
      * 
      * @param provider Protocol provider service instance.
      * @param id Contact id.
      */
     public ContactIrcImpl(ProtocolProviderServiceIrcImpl provider, String id,
-        ContactGroupIrcImpl parentGroup)
+        ContactGroupIrcImpl parentGroup, PresenceStatus initialStatus)
     {
         if (provider == null)
             throw new IllegalArgumentException("provider cannot be null");
@@ -43,6 +48,8 @@ public class ContactIrcImpl
         if (parentGroup == null)
             throw new IllegalArgumentException("parentGroup cannot be null");
         this.parentGroup = parentGroup;
+        this.presence =
+            initialStatus == null ? IrcStatusEnum.ONLINE : initialStatus;
     }
 
     /**
@@ -86,7 +93,19 @@ public class ContactIrcImpl
     @Override
     public PresenceStatus getPresenceStatus()
     {
-        return IrcStatusEnum.ONLINE;
+        return this.presence;
+    }
+
+    /**
+     * Set a new presence status for contact.
+     * 
+     * @param status new presence status (cannot be null)
+     */
+    protected void setPresenceStatus(PresenceStatus status)
+    {
+        if (status == null)
+            throw new IllegalArgumentException("status cannot be null");
+        this.presence = status;
     }
 
     /**
