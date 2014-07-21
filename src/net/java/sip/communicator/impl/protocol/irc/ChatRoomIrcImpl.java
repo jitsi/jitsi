@@ -110,9 +110,9 @@ public class ChatRoomIrcImpl
     private boolean isSystem = false;
 
     /**
-     * The role of the local user for this chat room.
+     * Instance of chat room member that represents the user.
      */
-    private ChatRoomMemberRole userRole = ChatRoomMemberRole.SILENT_MEMBER;
+    private ChatRoomMemberIrcImpl user = null;
 
     /**
      * Creates an instance of <tt>ChatRoomIrcImpl</tt>, by specifying the room
@@ -1103,18 +1103,30 @@ public class ChatRoomIrcImpl
      * Returns the local user role.
      * @return the local user role
      */
+    @Override
     public ChatRoomMemberRole getUserRole()
     {
-        return this.userRole;
+        if (this.user == null)
+        {
+            LOGGER.trace("User's chat room member instance is not set yet. "
+                + "Assuming default role SILENT_MEMBER.");
+            return ChatRoomMemberRole.SILENT_MEMBER;
+        }
+        return this.user.getRole();
     }
     
     /**
-     * Prepare the local user role.
-     * @param role
+     * Method for setting chat room member instance representing the user.
+     * 
+     * @param user instance representing the user. This instance cannot be null.
      */
-    void prepUserRole(ChatRoomMemberRole role)
+    void setLocalUser(ChatRoomMemberIrcImpl user)
     {
-        this.userRole = role;
+        if (user == null)
+        {
+            throw new IllegalArgumentException("user cannot be null");
+        }
+        this.user = user;
     }
 
     /**
@@ -1122,11 +1134,13 @@ public class ChatRoomIrcImpl
      * @param role the role to set
      * @throws OperationFailedException if the operation don't succeed
      */
+    @Override
     public void setLocalUserRole(ChatRoomMemberRole role)
         throws OperationFailedException
     {
-        // TODO implement setLocalUserRole
-        throw new UnsupportedOperationException("Not supported yet.");
+        // No implementation necessary. IRC server manages permissions. If a new
+        // chat room is created then user will automatically receive the
+        // appropriate role.
     }
 
     /**

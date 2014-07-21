@@ -912,12 +912,19 @@ public class IrcStack
                 role = convertMemberMode(status.getChanModeType().charValue());
                 member.addRole(role);
             }
-
+            chatRoom.addChatRoomMember(member.getContactAddress(), member);
             if (this.getNick().equals(user.getNick()))
             {
-                chatRoom.prepUserRole(member.getRole());
+                chatRoom.setLocalUser(member);
+                if (member.getRole() != ChatRoomMemberRole.SILENT_MEMBER)
+                {
+                    ChatRoomLocalUserRoleChangeEvent event =
+                        new ChatRoomLocalUserRoleChangeEvent(chatRoom,
+                            ChatRoomMemberRole.SILENT_MEMBER, member.getRole(),
+                            true);
+                    chatRoom.fireLocalUserRoleChangedEvent(event);
+                }
             }
-            chatRoom.addChatRoomMember(member.getContactAddress(), member);
         }
     }
 
