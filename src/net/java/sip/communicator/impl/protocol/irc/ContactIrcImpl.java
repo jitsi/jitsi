@@ -147,8 +147,6 @@ public class ContactIrcImpl
     @Override
     public String getPersistentData()
     {
-        // TODO this could retrieve some whois/contact data from NickServ, since
-        // the "persistent contact" is registered.
         return null;
     }
 
