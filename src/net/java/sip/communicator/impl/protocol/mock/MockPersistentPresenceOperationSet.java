@@ -529,4 +529,72 @@ public class MockPersistentPresenceOperationSet
 
         return newGroup;
     }
+
+    /**
+     * Creates a non persistent contact for the specified id. This would
+     * also create (if necessary) a group for volatile contacts.
+     * @param id the address of the contact to create.
+     * @return the newly created volatile <tt>MockContact</tt>
+     */
+    public MockContact createVolatileContact(
+        String id)
+    {
+        MockContact newVolatileContact
+            = new MockContact(id, parentProvider);
+        newVolatileContact.setResolved(false);
+        newVolatileContact.setPersistent(false);
+
+        //Check whether a volatile group already exists and if not create
+        //one
+        MockContactGroup theVolatileGroup = getNonPersistentGroup();
+
+        //if the parent group is null then add necessary create the group
+        if (theVolatileGroup == null)
+        {
+            theVolatileGroup = new MockContactGroup(
+                "Not-In-Contactlist",
+                parentProvider);
+            theVolatileGroup.setResolved(false);
+            theVolatileGroup.setPersistent(false);
+
+            theVolatileGroup.addContact(newVolatileContact);
+
+            this.contactListRoot.addSubgroup(theVolatileGroup);
+
+            fireServerStoredGroupEvent(theVolatileGroup
+                , ServerStoredGroupEvent.GROUP_CREATED_EVENT);
+        }
+        else
+        {
+            theVolatileGroup.addContact(newVolatileContact);
+
+            fireSubscriptionEvent(
+                newVolatileContact,
+                theVolatileGroup,
+                SubscriptionEvent.SUBSCRIPTION_CREATED);
+        }
+
+        return newVolatileContact;
+    }
+
+    /**
+     * Returns the volatile group that we use when creating volatile contacts.
+     *
+     * @return MockContactGroup
+     */
+    public MockContactGroup getNonPersistentGroup()
+    {
+        String groupName = "Not-In-Contactlist";
+
+        for (int i = 0; i < contactListRoot.countSubgroups(); i++)
+        {
+            MockContactGroup gr =
+                (MockContactGroup)contactListRoot.getGroup(i);
+
+            if(!gr.isPersistent() && gr.getGroupName().equals(groupName))
+                return gr;
+        }
+
+        return null;
+    }
 }

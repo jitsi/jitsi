@@ -495,5 +495,9 @@ public class MockContactGroup
         return true;
     }
 
+    public void setPersistent(boolean isPersistent)
+    {
+        this.isPersistent = isPersistent;
+    }
 }
 

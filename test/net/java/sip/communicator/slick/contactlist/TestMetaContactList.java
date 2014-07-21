@@ -476,6 +476,13 @@ public class TestMetaContactList
         assertEquals("Source meta contact."
                      , newMetaContact, evt.getSourceMetaContact());
 
+        MclSlickFixture.mockPresOpSet.createVolatileContact(
+            newSubscriptionName + "1");
+        MclSlickFixture.mockPresOpSet.createVolatileContact(
+            newSubscriptionName + "2");
+        // and now clear volatile
+        MclSlickFixture.mockPresOpSet.removeServerStoredContactGroup(
+            MclSlickFixture.mockPresOpSet.getNonPersistentGroup());
     }
 
 

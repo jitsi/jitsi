@@ -294,4 +294,9 @@ public class MockContact
     {
         return null;
     }
+
+    public void setPersistent(boolean isPersistent)
+    {
+        this.isPersistent = isPersistent;
+    }
 }
