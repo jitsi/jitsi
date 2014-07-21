@@ -1111,6 +1111,25 @@ public class IrcStack
             IrcStack.this.provider.getBasicInstantMessaging()
                 .fireMessageReceived(message, from);
         }
+
+        /**
+         * User quit messages.
+         * 
+         * User quit messages only need to be handled in case quitting users,
+         * since that is the only clear signal of presence change we have.
+         * 
+         * @param msg Quit message
+         */
+        @Override
+        public void onUserQuit(QuitMessage msg)
+        {
+            // TODO Check existing contacts and set presence status to OFFLINE
+            // on user quit message. That's about the only thing about presence
+            // updates we can do.
+
+            // TODO Also respond to private messages that are undeliverable
+            // because the user is not available anymore.
+        }
     }
 
     /**
