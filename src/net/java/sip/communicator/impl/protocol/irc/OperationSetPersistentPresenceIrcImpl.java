@@ -75,8 +75,7 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
 
         ContactGroupIrcImpl volatileGroup =
             new ContactGroupIrcImpl(this.parentProvider, this.rootGroup,
-                IrcActivator.getResources().getI18NString(
-                    "service.gui.NOT_IN_CONTACT_LIST_GROUP_NAME"));
+                groupName);
 
         this.rootGroup.addSubGroup(volatileGroup);
 
