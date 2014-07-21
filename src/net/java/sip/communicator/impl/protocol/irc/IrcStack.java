@@ -1086,9 +1086,9 @@ public class IrcStack
                     OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
                     OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
                     null);
-            Contact from =
-                IrcStack.this.provider.getPersistentPresence().findContactByID(
-                    user);
+            final Contact from =
+                IrcStack.this.provider.getPersistentPresence()
+                    .findOrCreateContactByID(user);
             try
             {
                 IrcStack.this.provider.getBasicInstantMessaging()
