@@ -59,7 +59,7 @@ public class OperationSetBasicInstantMessagingIrcImpl
         // other plug-ins available. To accidentally prevent them from working
         // correctly, we will not process IM message contents at all. This means
         // that we cannot handle irc commands from a IM message source.
-        this.provider.getIrcStack().message(to, message.getContent());
+        this.provider.getIrcStack().message(to, message);
     }
 
     /**
@@ -99,5 +99,31 @@ public class OperationSetBasicInstantMessagingIrcImpl
     protected void fireMessageReceived(Message message, Contact from)
     {
         super.fireMessageReceived(message, from);
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @param message Message that has been delivered successfully.
+     * @param to Contact to deliver message to.
+     */
+    @Override
+    protected void fireMessageDelivered(Message message, Contact to)
+    {
+        super.fireMessageDelivered(message, to);
+    }
+
+    /**
+     * {@inheritDoc}
+     * 
+     * @param message Message that was failed to deliver.
+     * @param to Contact to deliver message to.
+     * @param errorCode Error code of failed delivery.
+     */
+    @Override
+    protected void fireMessageDeliveryFailed(Message message, Contact to,
+        int errorCode)
+    {
+        super.fireMessageDeliveryFailed(message, to, errorCode);
     }
 }

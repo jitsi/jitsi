@@ -847,10 +847,31 @@ public class IrcStack
      * @param contact The contact to send the message to.
      * @param message The message to send.
      */
-    public void message(Contact contact, String message)
+    public void message(final Contact contact, final Message message)
     {
-        String target = contact.getAddress();
-        this.irc.message(target, message);
+        final String target = contact.getAddress();
+        this.irc.message(target, message.getContent(), new Callback<String>()
+        {
+
+            @Override
+            public void onSuccess(String msg)
+            {
+                IrcStack.this.provider.getBasicInstantMessaging()
+                    .fireMessageDelivered(message, contact);
+                LOGGER.trace("Successfully delivered message.");
+            }
+
+            @Override
+            public void onFailure(Exception e)
+            {
+                // TODO onFailure event never happens? Breakpoint never seems to
+                // hit in debug mode.
+                IrcStack.this.provider.getBasicInstantMessaging()
+                    .fireMessageDeliveryFailed(message, contact,
+                        MessageDeliveryFailedEvent.UNKNOWN_ERROR);
+                LOGGER.trace("Failed to deliver message.", e);
+            }
+        });
     }
 
     /**
@@ -1032,6 +1053,11 @@ public class IrcStack
                     null);
                 LOGGER.trace("Unannounced join of chat room '" + channelName
                     + "' completed.");
+                break;
+            case IRCServerNumerics.NO_SUCH_NICK_CHANNEL:
+                // TODO Check if target is Contact, then update contact presence
+                // status to off-line since the nick apparently does not exist
+                // anymore.
                 break;
             default:
                 if (LOGGER.isTraceEnabled())
