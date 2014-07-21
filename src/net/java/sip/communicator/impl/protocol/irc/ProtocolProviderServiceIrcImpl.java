@@ -19,7 +19,10 @@ import net.java.sip.communicator.util.*;
 public class ProtocolProviderServiceIrcImpl
     extends AbstractProtocolProviderService
 {
-    private static final Logger logger
+    /**
+     * Logger.
+     */
+    private static final Logger LOGGER
         = Logger.getLogger(ProtocolProviderServiceIrcImpl.class);
 
     /**
@@ -73,8 +76,8 @@ public class ProtocolProviderServiceIrcImpl
      */
     public ProtocolProviderServiceIrcImpl()
     {
-        if (logger.isTraceEnabled())
-            logger.trace("Creating a irc provider.");
+        if (LOGGER.isTraceEnabled())
+            LOGGER.trace("Creating a irc provider.");
     }
 
     /**
@@ -300,8 +303,8 @@ public class ProtocolProviderServiceIrcImpl
         {
             return;
         }
-        if (logger.isTraceEnabled())
-            logger.trace("Killing the Irc Protocol Provider.");
+        if (LOGGER.isTraceEnabled())
+            LOGGER.trace("Killing the Irc Protocol Provider.");
 
         if(isRegistered())
         {
@@ -318,7 +321,7 @@ public class ProtocolProviderServiceIrcImpl
             catch (OperationFailedException ex)
             {
                 //we're shutting down so we need to silence the exception here
-                logger.error(
+                LOGGER.error(
                     "Failed to properly unregister before shutting down. "
                     + getAccountID()
                     , ex);
