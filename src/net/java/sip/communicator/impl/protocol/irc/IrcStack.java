@@ -850,28 +850,20 @@ public class IrcStack
     public void message(final Contact contact, final Message message)
     {
         final String target = contact.getAddress();
-        this.irc.message(target, message.getContent(), new Callback<String>()
+        try
         {
-
-            @Override
-            public void onSuccess(String msg)
-            {
-                IrcStack.this.provider.getBasicInstantMessaging()
-                    .fireMessageDelivered(message, contact);
-                LOGGER.trace("Successfully delivered message.");
-            }
-
-            @Override
-            public void onFailure(Exception e)
-            {
-                // TODO onFailure event never happens? Breakpoint never seems to
-                // hit in debug mode.
-                IrcStack.this.provider.getBasicInstantMessaging()
-                    .fireMessageDeliveryFailed(message, contact,
-                        MessageDeliveryFailedEvent.UNKNOWN_ERROR);
-                LOGGER.trace("Failed to deliver message.", e);
-            }
-        });
+            this.irc.message(target, message.getContent());
+            IrcStack.this.provider.getBasicInstantMessaging()
+                .fireMessageDelivered(message, contact);
+            LOGGER.trace("Message delivered to server successfully.");
+        }
+        catch (RuntimeException e)
+        {
+            IrcStack.this.provider.getBasicInstantMessaging()
+                .fireMessageDeliveryFailed(message, contact,
+                    MessageDeliveryFailedEvent.NETWORK_FAILURE);
+            LOGGER.trace("Failed to deliver message: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -1058,6 +1050,10 @@ public class IrcStack
                 // TODO Check if target is Contact, then update contact presence
                 // status to off-line since the nick apparently does not exist
                 // anymore.
+                //
+                // ":hobana.freenode.net 401 dvheumen dvheumen_ :No such
+                // nick/channel"
+                LOGGER.warn("Message did not get delivered: " + msg.asRaw());
                 break;
             default:
                 if (LOGGER.isTraceEnabled())
@@ -1222,6 +1218,11 @@ public class IrcStack
 
             // TODO Update status to online in case a message arrives from this
             // particular user.
+
+            // TODO What happens if user is thought to be offline (so presence
+            // set this way) and it turns out the user is online? Can we send it
+            // a message then? (Or would Jitsi block this, because there is no
+            // support for off-line messaging.)
 
             // TODO Also respond to private messages that are undeliverable
             // because the user is not available anymore.
