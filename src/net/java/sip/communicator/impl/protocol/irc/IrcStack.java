@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.irc;
 import java.io.*;
 import java.security.*;
 import java.util.*;
+import java.util.concurrent.atomic.*;
 
 import javax.net.ssl.*;
 
@@ -67,11 +68,20 @@ public class IrcStack
     private final ServerParameters params;
 
     /**
-     * Instance of the IRC library.
+     * Instance of the IRC library contained in an AtomicReference.
      * 
-     * FIXME: Put this in a AtomicReference instance?
+     * This field serves 2 purposes:
+     * 
+     * First is the container itself that we use to synchronize on while
+     * (dis)connecting and eventually setting new instance variable before
+     * unlocking. By synchronizing we have connect and disconnect operations
+     * wait for each other.
+     * 
+     * Second is to get the current api instance. AtomicReference ensures that
+     * we either get the old or the new instance.
      */
-    private IRCApi irc;
+    private final AtomicReference<IRCApi> session =
+        new AtomicReference<IRCApi>(null);
 
     /**
      * Connection state of a successful IRC connection.
@@ -115,7 +125,8 @@ public class IrcStack
      */
     public boolean isConnected()
     {
-        return (this.irc != null && this.connectionState != null
+        final IRCApi irc = this.session.get();
+        return (irc != null && this.connectionState != null
             && this.connectionState.isConnected());
     }
 
@@ -141,13 +152,13 @@ public class IrcStack
     public void connect(String host, int port, String password,
         boolean secureConnection, boolean autoNickChange) throws Exception
     {
-        if (this.irc != null && this.connectionState != null
+        if (this.session.get() != null && this.connectionState != null
             && this.connectionState.isConnected())
             return;
 
         // Make sure we start with an empty joined-channel list.
         this.joined.clear();
-        
+
         final IRCServer server;
         if (secureConnection)
         {
@@ -160,17 +171,18 @@ public class IrcStack
             server = new IRCServer(host, port, password, false);
         }
 
-        this.irc = new IRCApiImpl(true);
-        synchronized (this.irc)
+        synchronized (this.session)
         {
+            final IRCApi irc = new IRCApiImpl(true);
             this.params.setServer(server);
-            this.irc.addListener(new ServerListener());
+            irc.addListener(new ServerListener());
+            this.session.set(irc);
 
             if (LOGGER.isTraceEnabled())
             {
                 // If tracing is enabled, register another listener that logs
                 // all IRC messages as published by the IRC client library.
-                this.irc.addListener(new IMessageListener()
+                irc.addListener(new IMessageListener()
                 {
 
                     @Override
@@ -197,6 +209,12 @@ public class IrcStack
      */
     private void connectSynchronized() throws Exception
     {
+        final IRCApi irc = this.session.get();
+        if (irc == null)
+        {
+            throw new IllegalStateException(
+                "No IRC instance available, cannot connect.");
+        }
         final Result<IIRCState, Exception> result =
             new Result<IIRCState, Exception>();
         synchronized (result)
@@ -204,7 +222,7 @@ public class IrcStack
             // start connecting to the specified server ...
             try
             {
-                this.irc.connect(this.params, new Callback<IIRCState>()
+                irc.connect(this.params, new Callback<IIRCState>()
                 {
 
                     @Override
@@ -309,7 +327,7 @@ public class IrcStack
      */
     public void disconnect()
     {
-        if (this.connectionState == null && this.irc == null)
+        if (this.connectionState == null && this.session.get() == null)
             return;
 
         synchronized (this.joined)
@@ -325,12 +343,13 @@ public class IrcStack
                 leave(channel);
             }
         }
-        synchronized (this.irc)
+        synchronized (this.session)
         {
+            final IRCApi irc = this.session.get();
             // Disconnect and clean up
             try
             {
-                this.irc.disconnect();
+                irc.disconnect();
             }
             catch (RuntimeException e)
             {
@@ -338,7 +357,7 @@ public class IrcStack
                 // problem, but for now lets log it just to be sure.
                 LOGGER.debug("exception occurred while disconnecting", e);
             }
-            this.irc = null;
+            this.session.set(null);
             this.connectionState = null;
         }
         this.provider
@@ -385,13 +404,14 @@ public class IrcStack
     public void setUserNickname(String nick)
     {
         LOGGER.trace("Setting user's nick name to " + nick);
-        if (this.connectionState == null)
+        if (isConnected())
         {
-            this.params.setNickname(nick);
+            final IRCApi irc = this.session.get();
+            irc.changeNick(nick);
         }
         else
         {
-            this.irc.changeNick(nick);
+            this.params.setNickname(nick);
         }
     }
 
@@ -409,9 +429,8 @@ public class IrcStack
         if (chatroom == null)
             throw new IllegalArgumentException("Cannot have a null chatroom");
         LOGGER.trace("Setting chat room topic to '" + subject + "'");
-        this.irc
-            .changeTopic(chatroom.getIdentifier(),
-                         subject == null ? "" : subject);
+        this.session.get().changeTopic(chatroom.getIdentifier(),
+            subject == null ? "" : subject);
     }
 
     /**
@@ -434,6 +453,13 @@ public class IrcStack
     public List<String> getServerChatRoomList()
     {
         LOGGER.trace("Start retrieve server chat room list.");
+        final IRCApi irc = this.session.get();
+
+        if (irc == null)
+        {
+            throw new IllegalStateException("irc instance is not available");
+        }
+
         // TODO Currently, not using an API library method for listing
         // channels, since it isn't available.
         synchronized (this.channellist)
@@ -452,9 +478,8 @@ public class IrcStack
                 {
                     try
                     {
-                        this.irc.addListener(new ChannelListListener(this.irc,
-                            listSignal));
-                        this.irc.rawMessage("LIST");
+                        irc.addListener(new ChannelListListener(irc, listSignal));
+                        irc.rawMessage("LIST");
                         while (!listSignal.isDone())
                         {
                             LOGGER.trace("Start waiting for list ...");
@@ -509,10 +534,18 @@ public class IrcStack
                 "Please connect to an IRC server first");
         if (chatroom == null || chatroom.getIdentifier() == null
             || chatroom.getIdentifier().isEmpty())
-            throw new IllegalArgumentException("chatroom cannot be null or emtpy");
+            throw new IllegalArgumentException(
+                "chatroom cannot be null or emtpy");
         if (password == null)
             throw new IllegalArgumentException("password cannot be null");
-        
+
+        // Get instance of irc client api.
+        final IRCApi irc = this.session.get();
+        if (irc == null)
+        {
+            throw new IllegalStateException("irc instance is not available");
+        }
+
         final String chatRoomId = chatroom.getIdentifier();
         if (!getChannelTypes().contains(chatRoomId.charAt(0)))
         {
@@ -529,7 +562,7 @@ public class IrcStack
             // is required.
             return;
         }
-        
+
         LOGGER.trace("Start joining channel " + chatRoomId);
         final Result<Object, Exception> joinSignal =
             new Result<Object, Exception>();
@@ -542,139 +575,124 @@ public class IrcStack
             this.joined.put(chatRoomId, null);
             // TODO Refactor this ridiculous nesting of functions and
             // classes.
-            this.irc.joinChannel(chatRoomId, password,
-                new Callback<IRCChannel>()
+            irc.joinChannel(chatRoomId, password, new Callback<IRCChannel>()
+            {
+
+                @Override
+                public void onSuccess(IRCChannel channel)
                 {
-
-                    @Override
-                    public void onSuccess(IRCChannel channel)
+                    if (LOGGER.isTraceEnabled())
                     {
-                        if (LOGGER.isTraceEnabled())
+                        LOGGER.trace("Started callback for successful join "
+                            + "of channel '" + chatroom.getIdentifier() + "'.");
+                    }
+                    boolean isRequestedChatRoom =
+                        channel.getName().equalsIgnoreCase(chatRoomId);
+                    synchronized (joinSignal)
+                    {
+                        if (!isRequestedChatRoom)
                         {
-                            LOGGER
-                                .trace("Started callback for successful join "
-                                    + "of channel '" + chatroom.getIdentifier()
-                                    + "'.");
+                            // We joined another chat room than the one we
+                            // requested initially.
+                            if (LOGGER.isTraceEnabled())
+                            {
+                                LOGGER.trace("Callback for successful join "
+                                    + "finished prematurely since we "
+                                    + "got forwarded from '" + chatRoomId
+                                    + "' to '" + channel.getName()
+                                    + "'. Joining of forwarded channel "
+                                    + "gets handled by Server Listener "
+                                    + "since that channel was not "
+                                    + "announced.");
+                            }
+                            // Remove original chat room id from joined-list
+                            // since we aren't actually attempting to join
+                            // this room anymore.
+                            IrcStack.this.joined.remove(chatRoomId);
+                            IrcStack.this.provider
+                                .getMUC()
+                                .fireLocalUserPresenceEvent(
+                                    chatroom,
+                                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOIN_FAILED,
+                                    "We got forwarded to channel '"
+                                        + channel.getName() + "'.");
+                            // Notify waiting threads of finished execution.
+                            joinSignal.setDone();
+                            joinSignal.notifyAll();
+                            // The channel that we were forwarded to will be
+                            // handled by the Server Listener, since the
+                            // channel join was unannounced, and we are done
+                            // here.
+                            return;
                         }
-                        boolean isRequestedChatRoom = channel.getName()
-                            .equalsIgnoreCase(chatRoomId);
-                        synchronized (joinSignal)
-                        {
-                            if (!isRequestedChatRoom)
-                            {
-                                // We joined another chat room than the one we
-                                // requested initially.
-                                if (LOGGER.isTraceEnabled())
-                                {
-                                    LOGGER
-                                        .trace("Callback for successful join "
-                                            + "finished prematurely since we "
-                                            + "got forwarded from '"
-                                            + chatRoomId
-                                            + "' to '"
-                                            + channel.getName()
-                                            + "'. Joining of forwarded channel "
-                                            + "gets handled by Server Listener "
-                                            + "since that channel was not "
-                                            + "announced.");
-                                }
-                                // Remove original chat room id from joined-list
-                                // since we aren't actually attempting to join
-                                // this room anymore.
-                                IrcStack.this.joined.remove(chatRoomId);
-                                IrcStack.this.provider
-                                    .getMUC()
-                                    .fireLocalUserPresenceEvent(
-                                        chatroom,
-                                        LocalUserChatRoomPresenceChangeEvent
-                                            .LOCAL_USER_JOIN_FAILED,
-                                        "We got forwarded to channel '"
-                                            + channel.getName() + "'.");
-                                // Notify waiting threads of finished execution.
-                                joinSignal.setDone();
-                                joinSignal.notifyAll();
-                                // The channel that we were forwarded to will be
-                                // handled by the Server Listener, since the
-                                // channel join was unannounced, and we are done
-                                // here.
-                                return;
-                            }
 
-                            try
+                        try
+                        {
+                            IrcStack.this.joined.put(chatRoomId, chatroom);
+                            irc.addListener(new ChatRoomListener(chatroom));
+                            prepareChatRoom(chatroom, channel);
+                        }
+                        finally
+                        {
+                            // In any case, issue the local user
+                            // presence, since the irc library notified
+                            // us of a successful join. We should wait
+                            // as long as possible though. First we need
+                            // to fill the list of chat room members and
+                            // other chat room properties.
+                            IrcStack.this.provider
+                                .getMUC()
+                                .fireLocalUserPresenceEvent(
+                                    chatroom,
+                                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
+                                    null);
+                            if (LOGGER.isTraceEnabled())
                             {
-                                IrcStack.this.joined.put(chatRoomId, chatroom);
-                                IrcStack.this.irc
-                                    .addListener(new ChatRoomListener(
-                                        chatroom));
-                                prepareChatRoom(chatroom, channel);
+                                LOGGER.trace("Finished successful join "
+                                    + "callback for channel '" + chatRoomId
+                                    + "'. Waking up original thread.");
                             }
-                            finally
-                            {
-                                // In any case, issue the local user
-                                // presence, since the irc library notified
-                                // us of a successful join. We should wait
-                                // as long as possible though. First we need
-                                // to fill the list of chat room members and
-                                // other chat room properties.
-                                IrcStack.this.provider
-                                    .getMUC()
-                                    .fireLocalUserPresenceEvent(
-                                        chatroom,
-                                        LocalUserChatRoomPresenceChangeEvent
-                                            .LOCAL_USER_JOINED,
-                                        null);
-                                if (LOGGER.isTraceEnabled())
-                                {
-                                    LOGGER
-                                        .trace("Finished successful join "
-                                            + "callback for channel '"
-                                            + chatRoomId
-                                            + "'. Waking up original thread.");
-                                }
-                                // Notify waiting threads of finished
-                                // execution.
-                                joinSignal.setDone();
-                                joinSignal.notifyAll();
-                            }
+                            // Notify waiting threads of finished
+                            // execution.
+                            joinSignal.setDone();
+                            joinSignal.notifyAll();
                         }
                     }
+                }
 
-                    @Override
-                    public void onFailure(Exception e)
+                @Override
+                public void onFailure(Exception e)
+                {
+                    LOGGER.trace("Started callback for failed attempt to "
+                        + "join channel '" + chatRoomId + "'.");
+                    synchronized (joinSignal)
                     {
-                        LOGGER.trace("Started callback for failed attempt to "
-                            + "join channel '" + chatRoomId + "'.");
-                        synchronized (joinSignal)
+                        try
                         {
-                            try
+                            IrcStack.this.joined.remove(chatRoomId);
+                            IrcStack.this.provider
+                                .getMUC()
+                                .fireLocalUserPresenceEvent(
+                                    chatroom,
+                                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOIN_FAILED,
+                                    e.getMessage());
+                        }
+                        finally
+                        {
+                            if (LOGGER.isTraceEnabled())
                             {
-                                IrcStack.this.joined.remove(chatRoomId);
-                                IrcStack.this.provider
-                                    .getMUC()
-                                    .fireLocalUserPresenceEvent(
-                                        chatroom,
-                                        LocalUserChatRoomPresenceChangeEvent
-                                            .LOCAL_USER_JOIN_FAILED,
-                                        e.getMessage());
+                                LOGGER.trace("Finished callback for failed "
+                                    + "attempt to join channel '" + chatRoomId
+                                    + "'. Waking up original thread.");
                             }
-                            finally
-                            {
-                                if (LOGGER.isTraceEnabled())
-                                {
-                                    LOGGER
-                                        .trace("Finished callback for failed "
-                                            + "attempt to join channel '"
-                                            + chatRoomId
-                                            + "'. Waking up original thread.");
-                                }
-                                // Notify waiting threads of finished
-                                // execution
-                                joinSignal.setDone(e);
-                                joinSignal.notifyAll();
-                            }
+                            // Notify waiting threads of finished
+                            // execution
+                            joinSignal.setDone(e);
+                            joinSignal.notifyAll();
                         }
                     }
-                });
+                }
+            });
 
             try
             {
@@ -720,12 +738,13 @@ public class IrcStack
      */
     private void leave(String chatRoomName)
     {
-        if (this.connectionState == null || !this.connectionState.isConnected())
+        if (!isConnected())
             return;
 
+        final IRCApi irc = this.session.get();
         try
         {
-            this.irc.leaveChannel(chatRoomName);
+            irc.leaveChannel(chatRoomName);
         }
         catch (ApiException e)
         {
@@ -759,8 +778,11 @@ public class IrcStack
     public void kickParticipant(ChatRoomIrcImpl chatroom,
         ChatRoomMember member, String reason)
     {
-        this.irc.kick(chatroom.getIdentifier(), member.getContactAddress(),
-            reason);
+        if (!isConnected())
+            return;
+
+        final IRCApi irc = this.session.get();
+        irc.kick(chatroom.getIdentifier(), member.getContactAddress(), reason);
     }
 
     /**
@@ -771,8 +793,11 @@ public class IrcStack
      */
     public void invite(String memberId, ChatRoomIrcImpl chatroom)
     {
-        this.irc.rawMessage("INVITE " + memberId + " "
-            + chatroom.getIdentifier());
+        if (!isConnected())
+            return;
+
+        final IRCApi irc = this.session.get();
+        irc.rawMessage("INVITE " + memberId + " " + chatroom.getIdentifier());
     }
 
     /**
@@ -826,7 +851,8 @@ public class IrcStack
             target = source;
             command = message;
         }
-        this.irc.message(target, command);
+        final IRCApi irc = this.session.get();
+        irc.message(target, command);
     }
 
     /**
@@ -837,8 +863,9 @@ public class IrcStack
      */
     public void message(ChatRoomIrcImpl chatroom, String message)
     {
+        final IRCApi irc = this.session.get();
         String target = chatroom.getIdentifier();
-        this.irc.message(target, message);
+        irc.message(target, message);
     }
 
     /**
@@ -852,7 +879,8 @@ public class IrcStack
         final String target = contact.getAddress();
         try
         {
-            this.irc.message(target, message.getContent());
+            final IRCApi irc = this.session.get();
+            irc.message(target, message.getContent());
             IrcStack.this.provider.getBasicInstantMessaging()
                 .fireMessageDelivered(message, contact);
             LOGGER.trace("Message delivered to server successfully.");
@@ -880,8 +908,9 @@ public class IrcStack
             throw new IllegalArgumentException(
                 "This mode does not modify user permissions.");
         }
-        this.irc.changeMode(chatRoom.getIdentifier() + " +" + mode.getSymbol()
-            + " " + userAddress);
+        final IRCApi irc = this.session.get();
+        irc.changeMode(chatRoom.getIdentifier() + " +" + mode.getSymbol() + " "
+            + userAddress);
     }
 
     /**
@@ -898,8 +927,9 @@ public class IrcStack
             throw new IllegalArgumentException(
                 "This mode does not modify user permissions.");
         }
-        this.irc.changeMode(chatRoom.getIdentifier() + " -" + mode.getSymbol()
-            + " " + userAddress);
+        final IRCApi irc = this.session.get();
+        irc.changeMode(chatRoom.getIdentifier() + " -" + mode.getSymbol() + " "
+            + userAddress);
     }
 
     /**
@@ -995,6 +1025,14 @@ public class IrcStack
                 return;
             }
 
+            if (!IrcStack.this.isConnected())
+            {
+                // Skip message handling until we're officially connected.
+                return;
+            }
+
+            final IRCApi irc = IrcStack.this.session.get();
+
             switch (code.intValue())
             {
             case IRCServerNumerics.CHANNEL_NICKS_END_OF_LIST:
@@ -1028,7 +1066,7 @@ public class IrcStack
                         new ChatRoomIrcImpl(channelName, IrcStack.this.provider);
                     IrcStack.this.joined.put(channelName, chatRoom);
                 }
-                IrcStack.this.irc.addListener(new ChatRoomListener(chatRoom));
+                irc.addListener(new ChatRoomListener(chatRoom));
                 try
                 {
                     IrcStack.this.provider.getMUC()
@@ -1192,9 +1230,15 @@ public class IrcStack
             final Contact user =
                 IrcStack.this.provider.getPersistentPresence().findContactByID(
                     userNick);
+            if (user == null)
+            {
+                LOGGER
+                    .trace("User not in contact list. Not updating user presence status.");
+                return;
+            }
 
             final PresenceStatus previousStatus = user.getPresenceStatus();
-            if (user == null || previousStatus == IrcStatusEnum.OFFLINE)
+            if (previousStatus == IrcStatusEnum.OFFLINE)
             {
                 LOGGER.trace("User already off-line, not updating user "
                     + "presence status.");
@@ -1393,6 +1437,15 @@ public class IrcStack
             if (!isThisChatRoom(msg.getChannelName()))
                 return;
 
+            if (!IrcStack.this.isConnected())
+            {
+                LOGGER.error("Not currently connected to IRC Server. "
+                    + "Aborting message handling.");
+                return;
+            }
+
+            final IRCApi irc = IrcStack.this.session.get();
+
             String kickedUser = msg.getKickedNickname();
             ChatRoomMember kickedMember =
                 this.chatroom.getChatRoomMember(kickedUser);
@@ -1407,7 +1460,7 @@ public class IrcStack
 
             if (isMe(kickedUser))
             {
-                IrcStack.this.irc.deleteListener(this);
+                irc.deleteListener(this);
                 IrcStack.this.joined.remove(this.chatroom.getIdentifier());
                 IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
                     this.chatroom,
@@ -1537,7 +1590,8 @@ public class IrcStack
          */
         private void leaveChatRoom()
         {
-            IrcStack.this.irc.deleteListener(this);
+            final IRCApi irc = IrcStack.this.session.get();
+            irc.deleteListener(this);
             IrcStack.this.joined.remove(this.chatroom.getIdentifier());
             IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
                 this.chatroom,
