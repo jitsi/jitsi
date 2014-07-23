@@ -19,11 +19,12 @@ import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
 /**
- * Loads the IRC provider factory and registers its services in the OSGI
- * bundle context.
+ * Loads the IRC provider factory and registers its services in the OSGI bundle
+ * context.
  *
  * @author Stephane Remy
  * @author Loic Kempf
+ * @author Danny van Heumen
  */
 public class IrcActivator
     implements BundleActivator
@@ -31,8 +32,7 @@ public class IrcActivator
     /**
      * LOGGER instance.
      */
-    private static final Logger logger
-        = Logger.getLogger(IrcActivator.class);
+    private static final Logger LOGGER = Logger.getLogger(IrcActivator.class);
 
     /**
      * A reference to the IRC protocol provider factory.
@@ -54,7 +54,7 @@ public class IrcActivator
      * Certificate Service instance.
      */
     private static CertificateService certiticateService;
-    
+
     /**
      * MultiUserChat Service instance.
      */
@@ -76,7 +76,8 @@ public class IrcActivator
      *   listeners, unregister all services registered by this bundle, and
      *   release all services used by this bundle.
      */
-    public void start(BundleContext context)
+    @Override
+    public void start(final BundleContext context)
         throws Exception
     {
         bundleContext = context;
@@ -92,8 +93,10 @@ public class IrcActivator
                     ircProviderFactory,
                     hashtable);
 
-        if (logger.isInfoEnabled())
-            logger.info("IRC protocol implementation [STARTED].");
+        if (LOGGER.isInfoEnabled())
+        {
+            LOGGER.info("IRC protocol implementation [STARTED].");
+        }
     }
 
     /**
@@ -117,11 +120,14 @@ public class IrcActivator
      *   listeners, unregister all services registered by the bundle, and
      *   release all services used by the bundle.
      */
-    public void stop(BundleContext context)
+    @Override
+    public void stop(final BundleContext context)
         throws Exception
     {
-        if (logger.isInfoEnabled())
-            logger.info("IRC protocol implementation [STOPPED].");
+        if (LOGGER.isInfoEnabled())
+        {
+            LOGGER.info("IRC protocol implementation [STOPPED].");
+        }
     }
 
     /**
@@ -132,24 +138,26 @@ public class IrcActivator
     public static ResourceManagementService getResources()
     {
         if (resourceService == null)
+        {
             resourceService
                 = ResourceManagementServiceUtils.getService(bundleContext);
+        }
         return resourceService;
     }
 
     /**
-     * Bundle Context
-     * 
+     * Bundle Context.
+     *
      * @return returns bundle context
      */
     public static BundleContext getBundleContext()
     {
         return bundleContext;
     }
-    
+
     /**
      * Return the MultiUserChat service impl.
-     * 
+     *
      * @return MUCService impl.
      */
     public static MUCService getMUCService()
@@ -161,11 +169,11 @@ public class IrcActivator
         }
         return mucService;
     }
-    
+
     /**
      * Return the UI service impl.
-     * 
-     * @return
+     *
+     * @return returns UI Service instance
      */
     public static UIService getUIService()
     {
@@ -178,20 +186,22 @@ public class IrcActivator
 
     /**
      * Return the certificate verification service impl.
-     * 
+     *
      * @return the CertificateVerification service.
      */
     public static CertificateService getCertificateService()
     {
-        if(certiticateService == null)
+        if (certiticateService == null)
         {
-            ServiceReference guiVerifyReference
+            ServiceReference<?> guiVerifyReference
                 = IrcActivator.getBundleContext().getServiceReference(
                     CertificateService.class.getName());
-            if(guiVerifyReference != null)
+            if (guiVerifyReference != null)
+            {
                 certiticateService = (CertificateService)
                     IrcActivator.getBundleContext().getService(
                         guiVerifyReference);
+            }
         }
         return certiticateService;
     }
