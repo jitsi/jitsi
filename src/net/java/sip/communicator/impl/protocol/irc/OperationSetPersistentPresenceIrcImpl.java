@@ -14,15 +14,17 @@ import net.java.sip.communicator.util.*;
 
 /**
  * Implementation of support for Persistent Presence for IRC.
- * 
+ *
  * @author Danny van Heumen
  */
-public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetPersistentPresence<ProtocolProviderServiceIrcImpl>
+public class OperationSetPersistentPresenceIrcImpl
+    extends
+    AbstractOperationSetPersistentPresence<ProtocolProviderServiceIrcImpl>
 {
     /**
      * Logger.
      */
-    private final Logger LOGGER = Logger
+    private static final Logger LOGGER = Logger
         .getLogger(OperationSetPersistentPresenceIrcImpl.class);
 
     /**
@@ -33,16 +35,22 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
 
     /**
      * IRC implementation for OperationSetPersistentPresence.
-     * 
+     *
      * @param parentProvider IRC instance of protocol provider service.
      */
     protected OperationSetPersistentPresenceIrcImpl(
-        ProtocolProviderServiceIrcImpl parentProvider)
+        final ProtocolProviderServiceIrcImpl parentProvider)
     {
         super(parentProvider);
     }
-    
-    private ContactIrcImpl createVolatileContact(String id)
+
+    /**
+     * Create a volatile contact.
+     *
+     * @param id contact id
+     * @return returns instance of volatile contact
+     */
+    private ContactIrcImpl createVolatileContact(final String id)
     {
         // Get non-persistent group for volatile contacts.
         ContactGroupIrcImpl volatileGroup = getNonPersistentGroup();
@@ -58,6 +66,11 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
         return newVolatileContact;
     }
 
+    /**
+     * Get group for non-persistent contacts.
+     *
+     * @return returns group instance
+     */
     private ContactGroupIrcImpl getNonPersistentGroup()
     {
         String groupName
@@ -67,10 +80,12 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
         for (int i = 0; i < getRootGroup().countSubgroups(); i++)
         {
             ContactGroupIrcImpl gr =
-                (ContactGroupIrcImpl)getRootGroup().getGroup(i);
+                (ContactGroupIrcImpl) getRootGroup().getGroup(i);
 
-            if(!gr.isPersistent() && gr.getGroupName().equals(groupName))
+            if (!gr.isPersistent() && gr.getGroupName().equals(groupName))
+            {
                 return gr;
+            }
         }
 
         ContactGroupIrcImpl volatileGroup =
@@ -85,13 +100,18 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
         return volatileGroup;
     }
 
+    /**
+     * Get root contact group.
+     *
+     * @return returns root contact group
+     */
     public ContactGroup getRootGroup()
     {
         return rootGroup;
     }
 
     @Override
-    public void subscribe(String contactIdentifier)
+    public void subscribe(final String contactIdentifier)
         throws IllegalArgumentException,
         IllegalStateException,
         OperationFailedException
@@ -259,14 +279,23 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
         return null;
     }
 
-    Contact findOrCreateContactByID(String name)
+    /**
+     * Find or create contact by ID.
+     *
+     * Try to find a contact by its ID. If a contact cannot be found, then
+     * create one.
+     *
+     * @param id id of the contact
+     * @return returns instance of contact
+     */
+    Contact findOrCreateContactByID(final String id)
     {
-        Contact contact = findContactByID(name);
+        Contact contact = findContactByID(id);
         if (contact == null)
         {
-            contact = createVolatileContact(name);
+            contact = createVolatileContact(id);
             LOGGER.debug("No existing contact found. Created volatile contact"
-                + " for nick name '" + name + "'.");
+                + " for nick name '" + id + "'.");
         }
         return contact;
     }
