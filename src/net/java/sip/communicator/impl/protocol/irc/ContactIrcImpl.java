@@ -37,8 +37,8 @@ public class ContactIrcImpl
      * @param id Contact id.
      * @param parentGroup The parent group of the contact.
      */
-    public ContactIrcImpl(ProtocolProviderServiceIrcImpl provider, String id,
-        ContactGroupIrcImpl parentGroup, PresenceStatus initialStatus)
+    public ContactIrcImpl(final ProtocolProviderServiceIrcImpl provider,
+        final String id, final ContactGroupIrcImpl parentGroup)
     {
         if (provider == null)
         {
@@ -55,8 +55,7 @@ public class ContactIrcImpl
             throw new IllegalArgumentException("parentGroup cannot be null");
         }
         this.parentGroup = parentGroup;
-        this.presence =
-            initialStatus == null ? IrcStatusEnum.ONLINE : initialStatus;
+        this.presence = IrcStatusEnum.ONLINE;
     }
 
     /**

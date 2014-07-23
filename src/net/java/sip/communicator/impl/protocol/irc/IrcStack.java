@@ -1262,48 +1262,52 @@ public class IrcStack
 
         /**
          * User quit messages.
-         * 
+         *
          * User quit messages only need to be handled in case quitting users,
          * since that is the only clear signal of presence change we have.
-         * 
+         *
          * @param msg Quit message
          */
         @Override
-        public void onUserQuit(QuitMessage msg)
+        public void onUserQuit(final QuitMessage msg)
         {
-            final String userNick = msg.getSource().getNick();
-            final Contact user =
-                IrcStack.this.provider.getPersistentPresence().findContactByID(
-                    userNick);
-            if (user == null)
-            {
-                LOGGER
-                    .trace("User not in contact list. Not updating user presence status.");
-                return;
-            }
+            // FIXME Disabled user presence status updates, probably not going
+            // to do user presence, since we cannot detect all changes and Jitsi
+            // does act upon different presence statuses.
 
-            final PresenceStatus previousStatus = user.getPresenceStatus();
-            if (previousStatus == IrcStatusEnum.OFFLINE)
-            {
-                LOGGER.trace("User already off-line, not updating user "
-                    + "presence status.");
-                return;
-            }
-
-            if (!(user instanceof ContactIrcImpl))
-            {
-                LOGGER.warn("Unexpected type of contact, expected "
-                    + "ContactIrcImpl but got " + user.getClass().getName()
-                    + ". Not updating presence.");
-                return;
-            }
-
-            final ContactGroup parentGroup = user.getParentContactGroup();
-            final ContactIrcImpl member = (ContactIrcImpl) user;
-            member.setPresenceStatus(IrcStatusEnum.OFFLINE);
-            IrcStack.this.provider.getPersistentPresence()
-                .fireContactPresenceStatusChangeEvent(user, parentGroup,
-                    previousStatus, member.getPresenceStatus(), true);
+            // final String userNick = msg.getSource().getNick();
+            // final Contact user =
+            // IrcStack.this.provider.getPersistentPresence().findContactByID(
+            // userNick);
+            // if (user == null)
+            // {
+            // LOGGER
+            // .trace("User not in contact list. Not updating user presence status.");
+            // return;
+            // }
+            //
+            // final PresenceStatus previousStatus = user.getPresenceStatus();
+            // if (previousStatus == IrcStatusEnum.OFFLINE)
+            // {
+            // LOGGER.trace("User already off-line, not updating user "
+            // + "presence status.");
+            // return;
+            // }
+            //
+            // if (!(user instanceof ContactIrcImpl))
+            // {
+            // LOGGER.warn("Unexpected type of contact, expected "
+            // + "ContactIrcImpl but got " + user.getClass().getName()
+            // + ". Not updating presence.");
+            // return;
+            // }
+            //
+            // final ContactGroup parentGroup = user.getParentContactGroup();
+            // final ContactIrcImpl member = (ContactIrcImpl) user;
+            // member.setPresenceStatus(IrcStatusEnum.OFFLINE);
+            // IrcStack.this.provider.getPersistentPresence()
+            // .fireContactPresenceStatusChangeEvent(user, parentGroup,
+            // previousStatus, member.getPresenceStatus(), true);
 
             // TODO Update status to online in case a message arrives from this
             // particular user.

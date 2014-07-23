@@ -49,8 +49,7 @@ public class OperationSetPersistentPresenceIrcImpl extends AbstractOperationSetP
 
         // Create volatile contact
         ContactIrcImpl newVolatileContact =
-            new ContactIrcImpl(this.parentProvider, id, volatileGroup,
-                IrcStatusEnum.ONLINE);
+            new ContactIrcImpl(this.parentProvider, id, volatileGroup);
         volatileGroup.addContact(newVolatileContact);
 
         this.fireSubscriptionEvent(newVolatileContact, volatileGroup,
