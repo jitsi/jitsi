@@ -28,7 +28,7 @@ import com.ircclouds.irc.api.state.*;
 
 /**
  * An implementation of IRC using the irc-api library.
- * 
+ *
  * @author Danny van Heumen
  */
 public class IrcStack
@@ -39,20 +39,20 @@ public class IrcStack
     private static final long CHAT_ROOM_LIST_CACHE_EXPIRATION = 60000000000L;
 
     /**
-     * Logger
+     * Logger.
      */
     private static final Logger LOGGER = Logger.getLogger(IrcStack.class);
 
     /**
-     * Parent provider for IRC
+     * Parent provider for IRC.
      */
     private final ProtocolProviderServiceIrcImpl provider;
 
     /**
      * Container for joined channels.
-     * 
+     *
      * There are two different cases:
-     * 
+     *
      * <pre>
      * - null value: joining is initiated but still in progress.
      * - non-null value: joining is finished, chat room instance is available.
@@ -69,14 +69,14 @@ public class IrcStack
 
     /**
      * Instance of the IRC library contained in an AtomicReference.
-     * 
+     *
      * This field serves 2 purposes:
-     * 
+     *
      * First is the container itself that we use to synchronize on while
      * (dis)connecting and eventually setting new instance variable before
      * unlocking. By synchronizing we have connect and disconnect operations
      * wait for each other.
-     * 
+     *
      * Second is to get the current api instance. AtomicReference ensures that
      * we either get the old or the new instance.
      */
@@ -90,7 +90,7 @@ public class IrcStack
 
     /**
      * The cached channel list.
-     * 
+     *
      * Contained inside a simple container object in order to lock the container
      * while accessing the contents.
      */
@@ -98,8 +98,8 @@ public class IrcStack
         new Container<List<String>>(null);
 
     /**
-     * Constructor
-     * 
+     * Constructor.
+     *
      * @param parentProvider Parent provider
      * @param nick User's nick name
      * @param login User's login name
@@ -120,7 +120,7 @@ public class IrcStack
 
     /**
      * Check whether or not a connection is established.
-     * 
+     *
      * @return true if connected, false otherwise.
      */
     public boolean isConnected()
@@ -132,7 +132,7 @@ public class IrcStack
 
     /**
      * Check whether the connection is a secure connection (TLS).
-     * 
+     *
      * @return true if connection is secure, false otherwise.
      */
     public boolean isSecureConnection()
@@ -142,19 +142,24 @@ public class IrcStack
 
     /**
      * Connect to specified host, port, optionally using a password.
-     * 
+     *
      * @param host IRC server's host name
      * @param port IRC port
-     * @param password
-     * @param autoNickChange
-     * @throws Exception
+     * @param password password for the specified nick name
+     * @param secureConnection true to set up secure connection, or false if
+     *            not.
+     * @param autoNickChange do automatic nick changes if nick is in use
+     * @throws Exception throws exceptions
      */
-    public void connect(String host, int port, String password,
-        boolean secureConnection, boolean autoNickChange) throws Exception
+    public void connect(final String host, final int port,
+        final String password, final boolean secureConnection,
+        final boolean autoNickChange) throws Exception
     {
         if (this.session.get() != null && this.connectionState != null
             && this.connectionState.isConnected())
+        {
             return;
+        }
 
         // Make sure we start with an empty joined-channel list.
         this.joined.clear();
@@ -186,7 +191,7 @@ public class IrcStack
                 {
 
                     @Override
-                    public void onMessage(IMessage aMessage)
+                    public void onMessage(final IMessage aMessage)
                     {
                         LOGGER.trace("(" + aMessage + ") " + aMessage.asRaw());
                     }
@@ -203,8 +208,7 @@ public class IrcStack
 
     /**
      * Perform synchronized connect operation.
-     * 
-     * @return returns true upon successful connection, false otherwise
+     *
      * @throws Exception exception thrown when connect fails
      */
     private void connectSynchronized() throws Exception
@@ -226,7 +230,7 @@ public class IrcStack
                 {
 
                     @Override
-                    public void onSuccess(IIRCState state)
+                    public void onSuccess(final IIRCState state)
                     {
                         synchronized (result)
                         {
@@ -237,7 +241,7 @@ public class IrcStack
                     }
 
                     @Override
-                    public void onFailure(Exception e)
+                    public void onFailure(final Exception e)
                     {
                         synchronized (result)
                         {
@@ -250,7 +254,7 @@ public class IrcStack
 
                 this.provider
                     .setCurrentRegistrationState(RegistrationState.REGISTERING);
-                
+
                 while (!result.isDone())
                 {
                     LOGGER.trace("Waiting for the connection to be "
@@ -277,7 +281,9 @@ public class IrcStack
                             RegistrationState.CONNECTION_FAILED);
                     Exception e = result.getException();
                     if (e != null)
+                    {
                         throw e;
+                    }
                 }
             }
             catch (IOException e)
@@ -300,11 +306,14 @@ public class IrcStack
 
     /**
      * Create a custom SSL context for this particular server.
-     * 
+     *
+     * @param hostname host name of the host we are connecting to such that we
+     *            can verify that the same host name is on the server
+     *            certificate
      * @return returns a customized SSL context or <tt>null</tt> if one cannot
      *         be created.
      */
-    private SSLContext getCustomSSLContext(String hostname)
+    private SSLContext getCustomSSLContext(final String hostname)
     {
         SSLContext context = null;
         try
@@ -323,12 +332,14 @@ public class IrcStack
     }
 
     /**
-     * Disconnect from the IRC server
+     * Disconnect from the IRC server.
      */
     public void disconnect()
     {
         if (this.connectionState == null && this.session.get() == null)
+        {
             return;
+        }
 
         synchronized (this.joined)
         {
@@ -365,43 +376,51 @@ public class IrcStack
     }
 
     /**
-     * Dispose
+     * Dispose.
      */
     public void dispose()
     {
         disconnect();
     }
-    
+
     /**
      * Get a set of channel type indicators.
-     * 
+     *
      * @return returns set of channel type indicators.
      */
     public Set<Character> getChannelTypes()
     {
         if (!isConnected())
+        {
             throw new IllegalStateException("not connected to IRC server");
+        }
         return this.connectionState.getServerOptions().getChanTypes();
     }
 
     /**
      * Get the nick name of the user.
-     * 
+     *
      * @return Returns either the acting nick if a connection is established or
      *         the configured nick.
      */
     public String getNick()
     {
-        return (this.connectionState == null) ? this.params.getNickname()
-            : this.connectionState.getNickname();
+        if (this.connectionState == null)
+        {
+            return this.params.getNickname();
+        }
+        else
+        {
+            return this.connectionState.getNickname();
+        }
     }
 
     /**
      * Set the user's new nick name.
-     * 
+     *
      * @param nick the new nick name
      */
-    public void setUserNickname(String nick)
+    public void setUserNickname(final String nick)
     {
         LOGGER.trace("Setting user's nick name to " + nick);
         if (isConnected())
@@ -417,17 +436,21 @@ public class IrcStack
 
     /**
      * Set the subject of the specified chat room.
-     * 
+     *
      * @param chatroom The chat room for which to set the subject.
      * @param subject The subject.
      */
-    public void setSubject(ChatRoomIrcImpl chatroom, String subject)
+    public void setSubject(final ChatRoomIrcImpl chatroom, final String subject)
     {
         if (!isConnected())
+        {
             throw new IllegalStateException(
                 "Please connect to an IRC server first.");
+        }
         if (chatroom == null)
+        {
             throw new IllegalArgumentException("Cannot have a null chatroom");
+        }
         LOGGER.trace("Setting chat room topic to '" + subject + "'");
         this.session.get().changeTopic(chatroom.getIdentifier(),
             subject == null ? "" : subject);
@@ -435,19 +458,19 @@ public class IrcStack
 
     /**
      * Check whether the user has joined a particular chat room.
-     * 
+     *
      * @param chatroom Chat room to check for.
      * @return Returns true in case the user is already joined, or false if the
      *         user has not joined.
      */
-    public boolean isJoined(ChatRoomIrcImpl chatroom)
+    public boolean isJoined(final ChatRoomIrcImpl chatroom)
     {
         return this.joined.get(chatroom.getIdentifier()) != null;
     }
 
     /**
      * Get a list of channels available on the IRC server.
-     * 
+     *
      * @return List of available channels.
      */
     public List<String> getServerChatRoomList()
@@ -506,21 +529,22 @@ public class IrcStack
 
     /**
      * Join a particular chat room.
-     * 
+     *
      * @param chatroom Chat room to join.
      * @throws OperationFailedException failed to join the chat room
      */
-    public void join(ChatRoomIrcImpl chatroom) throws OperationFailedException
+    public void join(final ChatRoomIrcImpl chatroom)
+        throws OperationFailedException
     {
         join(chatroom, "");
     }
 
     /**
      * Join a particular chat room.
-     * 
+     *
      * Issue a join channel IRC operation and wait for the join operation to
      * complete (either successfully or failing).
-     * 
+     *
      * @param chatroom The chatroom to join.
      * @param password Optionally, a password that may be required for some
      *            channels.
@@ -530,14 +554,20 @@ public class IrcStack
         throws OperationFailedException
     {
         if (!isConnected())
+        {
             throw new IllegalStateException(
                 "Please connect to an IRC server first");
+        }
         if (chatroom == null || chatroom.getIdentifier() == null
             || chatroom.getIdentifier().isEmpty())
+        {
             throw new IllegalArgumentException(
                 "chatroom cannot be null or emtpy");
+        }
         if (password == null)
+        {
             throw new IllegalArgumentException("password cannot be null");
+        }
 
         // Get instance of irc client api.
         final IRCApi irc = this.session.get();
@@ -579,7 +609,7 @@ public class IrcStack
             {
 
                 @Override
-                public void onSuccess(IRCChannel channel)
+                public void onSuccess(final IRCChannel channel)
                 {
                     if (LOGGER.isTraceEnabled())
                     {
@@ -661,7 +691,7 @@ public class IrcStack
                 }
 
                 @Override
-                public void onFailure(Exception e)
+                public void onFailure(final Exception e)
                 {
                     LOGGER.trace("Started callback for failed attempt to "
                         + "join channel '" + chatRoomId + "'.");
@@ -719,10 +749,10 @@ public class IrcStack
 
     /**
      * Part from a joined chat room.
-     * 
+     *
      * @param chatroom The chat room to part from.
      */
-    public void leave(ChatRoomIrcImpl chatroom)
+    public void leave(final ChatRoomIrcImpl chatroom)
     {
         LOGGER.trace("Leaving chat room '" + chatroom.getIdentifier() + "'.");
 
@@ -733,13 +763,15 @@ public class IrcStack
 
     /**
      * Part from a joined chat room.
-     * 
+     *
      * @param chatRoomName The chat room to part from.
      */
-    private void leave(String chatRoomName)
+    private void leave(final String chatRoomName)
     {
         if (!isConnected())
+        {
             return;
+        }
 
         final IRCApi irc = this.session.get();
         try
@@ -754,14 +786,16 @@ public class IrcStack
 
     /**
      * Ban chat room member.
-     * 
+     *
      * @param chatroom chat room to ban from
      * @param member member to ban
      * @param reason reason for banning
-     * @throws OperationFailedException
+     * @throws OperationFailedException throws operation failed in case of
+     *             trouble.
      */
-    public void banParticipant(ChatRoomIrcImpl chatroom, ChatRoomMember member,
-        String reason) throws OperationFailedException
+    public void banParticipant(final ChatRoomIrcImpl chatroom,
+        final ChatRoomMember member, final String reason)
+        throws OperationFailedException
     {
         // TODO Implement banParticipant.
         throw new OperationFailedException("Not implemented yet.",
@@ -770,16 +804,18 @@ public class IrcStack
 
     /**
      * Kick channel member.
-     * 
+     *
      * @param chatroom channel to kick from
      * @param member member to kick
      * @param reason kick message to deliver
      */
-    public void kickParticipant(ChatRoomIrcImpl chatroom,
-        ChatRoomMember member, String reason)
+    public void kickParticipant(final ChatRoomIrcImpl chatroom,
+        final ChatRoomMember member, final String reason)
     {
         if (!isConnected())
+        {
             return;
+        }
 
         final IRCApi irc = this.session.get();
         irc.kick(chatroom.getIdentifier(), member.getContactAddress(), reason);
@@ -787,14 +823,16 @@ public class IrcStack
 
     /**
      * Issue invite command to IRC server.
-     * 
+     *
      * @param memberId member to invite
      * @param chatroom channel to invite to
      */
-    public void invite(String memberId, ChatRoomIrcImpl chatroom)
+    public void invite(final String memberId, final ChatRoomIrcImpl chatroom)
     {
         if (!isConnected())
+        {
             return;
+        }
 
         final IRCApi irc = this.session.get();
         irc.rawMessage("INVITE " + memberId + " " + chatroom.getIdentifier());
@@ -802,9 +840,9 @@ public class IrcStack
 
     /**
      * Send a command to the IRC server.
-     * 
+     *
      * @param chatroom the chat room
-     * @param command the command message
+     * @param message the command message
      */
     public void command(final ChatRoomIrcImpl chatroom, final String message)
     {
@@ -813,9 +851,9 @@ public class IrcStack
 
     /**
      * Send a command to the IRC server.
-     * 
-     * @param chatroom the chat room
-     * @param command the command message
+     *
+     * @param contact the chat room
+     * @param message the command message
      */
     public void command(final Contact contact, final String message)
     {
@@ -826,7 +864,7 @@ public class IrcStack
 
     /**
      * Implementation of some commands.
-     * 
+     *
      * @param source Source contact or chat room from which the message is sent.
      * @param message Command message that is sent.
      */
@@ -857,11 +895,11 @@ public class IrcStack
 
     /**
      * Send an IRC message.
-     * 
+     *
      * @param chatroom The chat room to send the message to.
      * @param message The message to send.
      */
-    public void message(ChatRoomIrcImpl chatroom, String message)
+    public void message(final ChatRoomIrcImpl chatroom, final String message)
     {
         final IRCApi irc = this.session.get();
         String target = chatroom.getIdentifier();
@@ -870,7 +908,7 @@ public class IrcStack
 
     /**
      * Send an IRC message.
-     * 
+     *
      * @param contact The contact to send the message to.
      * @param message The message to send.
      */
@@ -896,12 +934,13 @@ public class IrcStack
 
     /**
      * Grant user permissions to specified user.
-     * 
+     *
      * @param chatRoom chat room to grant permissions for
      * @param userAddress user to grant permissions to
      * @param mode mode to grant
      */
-    public void grant(ChatRoomIrcImpl chatRoom, String userAddress, Mode mode)
+    public void grant(final ChatRoomIrcImpl chatRoom, final String userAddress,
+        final Mode mode)
     {
         if (mode.getRole() == null)
         {
@@ -915,12 +954,13 @@ public class IrcStack
 
     /**
      * Revoke user permissions of chat room for user.
-     * 
+     *
      * @param chatRoom chat room
      * @param userAddress user
      * @param mode mode
      */
-    public void revoke(ChatRoomIrcImpl chatRoom, String userAddress, Mode mode)
+    public void revoke(final ChatRoomIrcImpl chatRoom,
+        final String userAddress, final Mode mode)
     {
         if (mode.getRole() == null)
         {
@@ -934,7 +974,7 @@ public class IrcStack
 
     /**
      * Prepare a chat room for initial opening.
-     * 
+     *
      * @param channel The IRC channel which is the source of data.
      * @param chatRoom The chatroom to prepare.
      */
@@ -973,12 +1013,12 @@ public class IrcStack
 
     /**
      * Convert a member mode character to a ChatRoomMemberRole instance.
-     * 
+     *
      * @param modeSymbol The member mode character.
      * @return Return the instance of ChatRoomMemberRole corresponding to the
      *         member mode character.
      */
-    private static ChatRoomMemberRole convertMemberMode(char modeSymbol)
+    private static ChatRoomMemberRole convertMemberMode(final char modeSymbol)
     {
         return Mode.bySymbol(modeSymbol).getRole();
     }
@@ -994,11 +1034,11 @@ public class IrcStack
         /**
          * Print out server notices for debugging purposes and for simply
          * keeping track of the connections.
-         * 
+         *
          * @param msg the server notice
          */
         @Override
-        public void onServerNotice(ServerNotice msg)
+        public void onServerNotice(final ServerNotice msg)
         {
             LOGGER.debug("NOTICE: " + msg.getText());
         }
@@ -1006,11 +1046,11 @@ public class IrcStack
         /**
          * Print out server numeric messages for debugging purposes and for
          * simply keeping track of the connection.
-         * 
+         *
          * @param msg the numeric message
          */
         @Override
-        public void onServerNumericMessage(ServerNumericMessage msg)
+        public void onServerNumericMessage(final ServerNumericMessage msg)
         {
             if (LOGGER.isDebugEnabled())
             {
@@ -1106,11 +1146,11 @@ public class IrcStack
         /**
          * Print out received errors for debugging purposes and may be for
          * expected errors that can be acted upon.
-         * 
+         *
          * @param msg the error message
          */
         @Override
-        public void onError(ErrorMessage msg)
+        public void onError(final ErrorMessage msg)
         {
             if (LOGGER.isDebugEnabled())
             {
@@ -1127,13 +1167,13 @@ public class IrcStack
                 }
             }
         }
-        
+
         /**
          * Upon receiving a private message from a user, deliver that to an
          * instant messaging contact and create one if it does not exist. We can
          * ignore normal chat rooms, since they each have their own
          * ChatRoomListener for managing chat room operations.
-         * 
+         *
          * @param msg the private message
          */
         @Override
@@ -1162,20 +1202,25 @@ public class IrcStack
                 // MetaContactGroup for NonPersistent group, since this is an
                 // outstanding error.
                 LOGGER.error(
-                    "Error occurred while delivering private message from user '"
-                        + user + "': " + text, e);
+                    "Error occurred while delivering private message from user"
+                        + " '" + user + "': " + text, e);
             }
         }
 
         /**
          * Upon receiving a user notice message from a user, deliver that to an
          * instant messaging contact.
-         * 
+         *
          * @param msg user notice message
          */
         @Override
-        public void onUserNotice(UserNotice msg)
+        public void onUserNotice(final UserNotice msg)
         {
+            // TODO Probably better to deliver NOTICEs to all channels, instead
+            // of setting up private chat. You are not supposed to reply to
+            // NOTICEs and setting up a private chat session kind of does that.
+            // Even though the user should respond themslves in the default
+            // Jitsi set up.
             final String user = msg.getSource().getNick();
             final String text =
                 Utils.formatNotice(Utils.parse(msg.getText()), user);
@@ -1194,11 +1239,11 @@ public class IrcStack
         /**
          * Upon receiving a user action message from a user, deliver that to an
          * instant messaging contact.
-         * 
+         *
          * @param msg user action message
          */
         @Override
-        public void onUserAction(UserActionMsg msg)
+        public void onUserAction(final UserActionMsg msg)
         {
             final String user = msg.getSource().getNick();
             final String text =
@@ -1276,15 +1321,15 @@ public class IrcStack
 
     /**
      * A chat room listener.
-     * 
+     *
      * A chat room listener is registered for each chat room that we join. The
      * chat room listener updates chat room data and fires events based on IRC
      * messages that report state changes for the specified channel.
-     * 
+     *
      * @author Danny van Heumen
-     * 
+     *
      */
-    private class ChatRoomListener
+    private final class ChatRoomListener
         extends VariousMessageListenerAdapter
     {
         /**
@@ -1299,55 +1344,63 @@ public class IrcStack
 
         /**
          * Constructor. Instantiate listener for the provided chat room.
-         * 
-         * @param chatroom
+         *
+         * @param chatroom the chat room
          */
-        private ChatRoomListener(ChatRoomIrcImpl chatroom)
+        private ChatRoomListener(final ChatRoomIrcImpl chatroom)
         {
             if (chatroom == null)
+            {
                 throw new IllegalArgumentException("chatroom cannot be null");
+            }
 
             this.chatroom = chatroom;
         }
 
         /**
          * Event in case of topic change.
-         * 
+         *
          * @param msg topic change message
          */
         @Override
-        public void onTopicChange(TopicMessage msg)
+        public void onTopicChange(final TopicMessage msg)
         {
             if (!isThisChatRoom(msg.getChannelName()))
+            {
                 return;
+            }
 
             this.chatroom.updateSubject(msg.getTopic().getValue());
         }
 
         /**
          * Event in case of channel mode changes.
-         * 
+         *
          * @param msg channel mode message
          */
         @Override
-        public void onChannelMode(ChannelModeMessage msg)
+        public void onChannelMode(final ChannelModeMessage msg)
         {
             if (!isThisChatRoom(msg.getChannelName()))
+            {
                 return;
+            }
 
             processModeMessage(msg);
         }
 
         /**
          * Event in case of channel join message.
-         * 
+         *
          * @param msg channel join message
          */
         @Override
-        public void onChannelJoin(ChanJoinMessage msg)
+        public void onChannelJoin(final ChanJoinMessage msg)
         {
             if (!isThisChatRoom(msg.getChannelName()))
+            {
                 return;
+            }
 
             String user = msg.getSource().getNick();
             ChatRoomMemberIrcImpl member =
@@ -1359,14 +1412,16 @@ public class IrcStack
 
         /**
          * Event in case of channel part.
-         * 
+         *
          * @param msg channel part message
          */
         @Override
-        public void onChannelPart(ChanPartMessage msg)
+        public void onChannelPart(final ChanPartMessage msg)
         {
             if (!isThisChatRoom(msg.getChannelName()))
+            {
                 return;
+            }
 
             IRCUser user = msg.getSource();
             if (isMe(user))
@@ -1374,7 +1429,7 @@ public class IrcStack
                 leaveChatRoom();
                 return;
             }
-            
+
             String userNick = msg.getSource().getNick();
             ChatRoomMember member = this.chatroom.getChatRoomMember(userNick);
             try
@@ -1396,10 +1451,10 @@ public class IrcStack
         /**
          * Some of the generic message are relevant to us, so keep an eye on
          * general numeric messages.
-         * 
+         *
          * @param msg IRC server numeric message
          */
-        public void onServerNumericMessage(ServerNumericMessage msg)
+        public void onServerNumericMessage(final ServerNumericMessage msg)
         {
             Integer code = msg.getNumericCode();
             if (code == null)
@@ -1428,14 +1483,16 @@ public class IrcStack
 
         /**
          * Event in case of channel kick.
-         * 
+         *
          * @param msg channel kick message
          */
         @Override
-        public void onChannelKick(ChannelKick msg)
+        public void onChannelKick(final ChannelKick msg)
         {
             if (!isThisChatRoom(msg.getChannelName()))
+            {
                 return;
+            }
 
             if (!IrcStack.this.isConnected())
             {
@@ -1471,11 +1528,11 @@ public class IrcStack
 
         /**
          * Event in case of user quit.
-         * 
+         *
          * @param msg user quit message
          */
         @Override
-        public void onUserQuit(QuitMessage msg)
+        public void onUserQuit(final QuitMessage msg)
         {
             String user = msg.getSource().getNick();
             ChatRoomMember member = this.chatroom.getChatRoomMember(user);
@@ -1489,14 +1546,16 @@ public class IrcStack
 
         /**
          * Event in case of nick change.
-         * 
+         *
          * @param msg nick change message
          */
         @Override
-        public void onNickChange(NickMessage msg)
+        public void onNickChange(final NickMessage msg)
         {
             if (msg == null)
+            {
                 return;
+            }
 
             String oldNick = msg.getSource().getNick();
             String newNick = msg.getNewNick();
@@ -1519,14 +1578,16 @@ public class IrcStack
 
         /**
          * Event in case of channel message arrival.
-         * 
+         *
          * @param msg channel message
          */
         @Override
-        public void onChannelMessage(ChannelPrivMsg msg)
+        public void onChannelMessage(final ChannelPrivMsg msg)
         {
             if (!isThisChatRoom(msg.getChannelName()))
+            {
                 return;
+            }
 
             String text = Utils.formatMessage(Utils.parse(msg.getText()));
             MessageIrcImpl message =
@@ -1541,14 +1602,16 @@ public class IrcStack
 
         /**
          * Event in case of channel action message arrival.
-         * 
+         *
          * @param msg channel action message
          */
         @Override
-        public void onChannelAction(ChannelActionMsg msg)
+        public void onChannelAction(final ChannelActionMsg msg)
         {
             if (!isThisChatRoom(msg.getChannelName()))
+            {
                 return;
+            }
 
             String userNick = msg.getSource().getNick();
             ChatRoomMemberIrcImpl member =
@@ -1564,14 +1627,16 @@ public class IrcStack
 
         /**
          * Event in case of channel notice message arrival.
-         * 
+         *
          * @param msg channel notice message
          */
         @Override
-        public void onChannelNotice(ChannelNotice msg)
+        public void onChannelNotice(final ChannelNotice msg)
         {
             if (!isThisChatRoom(msg.getChannelName()))
+            {
                 return;
+            }
 
             String userNick = msg.getSource().getNick();
             ChatRoomMemberIrcImpl member =
@@ -1597,13 +1662,13 @@ public class IrcStack
                 this.chatroom,
                 LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT, null);
         }
-        
+
         /**
          * Process mode changes.
-         * 
+         *
          * @param msg raw mode message
          */
-        private void processModeMessage(ChannelModeMessage msg)
+        private void processModeMessage(final ChannelModeMessage msg)
         {
             ChatRoomMemberIrcImpl sourceMember = extractChatRoomMember(msg);
 
@@ -1749,12 +1814,12 @@ public class IrcStack
 
         /**
          * Extract chat room member identifier from message.
-         * 
+         *
          * @param msg raw mode message
          * @return returns member instance
          */
         private ChatRoomMemberIrcImpl extractChatRoomMember(
-            ChannelModeMessage msg)
+            final ChannelModeMessage msg)
         {
             ChatRoomMemberIrcImpl member;
             ISource source = msg.getSource();
@@ -1785,22 +1850,22 @@ public class IrcStack
 
         /**
          * Test whether this listener corresponds to the chat room.
-         * 
+         *
          * @param chatRoomName chat room name
          * @return returns true if this listener applies, false otherwise
          */
-        private boolean isThisChatRoom(String chatRoomName)
+        private boolean isThisChatRoom(final String chatRoomName)
         {
             return this.chatroom.getIdentifier().equalsIgnoreCase(chatRoomName);
         }
 
         /**
          * Test whether the source user is this user.
-         * 
+         *
          * @param user the source user
          * @return returns true if this use, or false otherwise
          */
-        private boolean isMe(IRCUser user)
+        private boolean isMe(final IRCUser user)
         {
             return IrcStack.this.connectionState.getNickname().equals(
                 user.getNick());
@@ -1808,11 +1873,11 @@ public class IrcStack
 
         /**
          * Test whether the user nick is this user.
-         * 
+         *
          * @param name nick of the user
          * @return returns true if so, false otherwise
          */
-        private boolean isMe(String name)
+        private boolean isMe(final String name)
         {
             return IrcStack.this.connectionState.getNickname().equals(name);
         }
@@ -1822,7 +1887,7 @@ public class IrcStack
      * Special listener that processes LIST replies and signals once the list is
      * completely filled.
      */
-    private static class ChannelListListener
+    private static final class ChannelListListener
         extends VariousMessageListenerAdapter
     {
         /**
@@ -1840,12 +1905,14 @@ public class IrcStack
          * @param api irc-api library instance
          * @param list signal for sync signaling
          */
-        private ChannelListListener(IRCApi api,
-            Result<List<String>, Exception> list)
+        private ChannelListListener(final IRCApi api,
+            final Result<List<String>, Exception> list)
         {
             if (api == null)
+            {
                 throw new IllegalArgumentException(
                     "IRC api instance cannot be null");
+            }
             this.api = api;
             this.signal = list;
         }
@@ -1853,17 +1920,21 @@ public class IrcStack
         /**
          * Act on LIST messages: 321 RPL_LISTSTART, 322 RPL_LIST, 323
          * RPL_LISTEND
-         * 
+         *
          * Clears the list upon starting. All received channels are added to the
          * list. Upon receiving RPL_LISTEND finalize the list and signal the
          * waiting thread that it can continue processing the list.
+         *
+         * @param msg The numeric server message.
          */
         @Override
-        public void onServerNumericMessage(ServerNumericMessage msg)
+        public void onServerNumericMessage(final ServerNumericMessage msg)
         {
             if (this.signal.isDone())
+            {
                 return;
-            
+            }
+
             switch (msg.getNumericCode())
             {
             case 321:
@@ -1900,15 +1971,17 @@ public class IrcStack
 
         /**
          * Parse an IRC server response RPL_LIST. Extract the channel name.
-         * 
+         *
          * @param text raw server response
          * @return returns the channel name
          */
-        private String parse(String text)
+        private String parse(final String text)
         {
             int endOfChannelName = text.indexOf(' ');
             if (endOfChannelName == -1)
+            {
                 return null;
+            }
             // Create a new string to make sure that the original (larger)
             // strings can be GC'ed.
             return new String(text.substring(0, endOfChannelName));
@@ -1918,7 +1991,7 @@ public class IrcStack
     /**
      * Container for storing server parameters.
      */
-    private static class ServerParameters
+    private static final class ServerParameters
         implements IServerParameters
     {
 
@@ -1946,7 +2019,7 @@ public class IrcStack
          * IRC server.
          */
         private IRCServer server;
-        
+
         /**
          * Construct ServerParameters instance.
          * @param nickName nick name
@@ -1954,8 +2027,8 @@ public class IrcStack
          * @param ident ident
          * @param server IRC server instance
          */
-        private ServerParameters(String nickName, String realName,
-            String ident, IRCServer server)
+        private ServerParameters(final String nickName, final String realName,
+            final String ident, final IRCServer server)
         {
             this.nick = checkNick(nickName);
             this.alternativeNicks.add(nickName + "_");
@@ -1973,7 +2046,7 @@ public class IrcStack
 
         /**
          * Get nick name.
-         * 
+         *
          * @return returns nick name
          */
         @Override
@@ -1984,38 +2057,39 @@ public class IrcStack
 
         /**
          * Set new nick name.
-         * 
+         *
          * @param nick nick name
          */
-        public void setNickname(String nick)
+        public void setNickname(final String nick)
         {
             this.nick = checkNick(nick);
         }
 
         /**
          * Verify nick name.
-         * 
+         *
          * @param nick nick name
          * @return returns nick name
-         * @throws IllegalArgumentException throws
-         *             <tt>IllegalArgumentException</tt> if an invalid nick name
-         *             is provided.
          */
-        private String checkNick(String nick)
+        private String checkNick(final String nick)
         {
             if (nick == null)
+            {
                 throw new IllegalArgumentException(
                     "a nick name must be provided");
+            }
             if (nick.startsWith("#") || nick.startsWith("&"))
+            {
                 throw new IllegalArgumentException(
                     "the nick name must not start with '#' or '&' "
                         + "since this is reserved for IRC channels");
+            }
             return nick;
         }
 
         /**
          * Get alternative nick names.
-         * 
+         *
          * @return returns list of alternatives
          */
         @Override
@@ -2026,7 +2100,7 @@ public class IrcStack
 
         /**
          * Get ident string.
-         * 
+         *
          * @return returns ident
          */
         @Override
@@ -2036,8 +2110,8 @@ public class IrcStack
         }
 
         /**
-         * Get real name
-         * 
+         * Get real name.
+         *
          * @return returns real name
          */
         @Override
@@ -2047,8 +2121,8 @@ public class IrcStack
         }
 
         /**
-         * Get server
-         * 
+         * Get server.
+         *
          * @return returns server instance
          */
         @Override
@@ -2059,14 +2133,15 @@ public class IrcStack
 
         /**
          * Set server instance.
-         * 
+         *
          * @param server IRC server instance
          */
-        public void setServer(IRCServer server)
+        public void setServer(final IRCServer server)
         {
             if (server == null)
+            {
                 throw new IllegalArgumentException("server cannot be null");
-            
+            }
             this.server = server;
         }
     }
@@ -2074,10 +2149,10 @@ public class IrcStack
     /**
      * Simplest possible container that we can use for locking while we're
      * checking/modifying the contents.
-     * 
+     *
      * @param <T> The type of instance to store in the container
      */
-    private static class Container<T>
+    private static final class Container<T>
     {
         /**
          * The stored instance. (Can be null)
@@ -2091,10 +2166,10 @@ public class IrcStack
 
         /**
          * Constructor that immediately sets the instance.
-         * 
+         *
          * @param instance the instance to set
          */
-        private Container(T instance)
+        private Container(final T instance)
         {
             this.instance = instance;
             this.time = System.nanoTime();
@@ -2103,11 +2178,11 @@ public class IrcStack
         /**
          * Conditionally get the stored instance. Get the instance when time
          * difference is within specified bound. Otherwise return null.
-         * 
+         *
          * @param bound maximum time difference that is allowed.
          * @return returns instance if within bounds, or null otherwise
          */
-        public T get(long bound)
+        public T get(final long bound)
         {
             if (System.nanoTime() - this.time > bound)
             {
@@ -2117,11 +2192,11 @@ public class IrcStack
         }
 
         /**
-         * Set an instance
-         * 
+         * Set an instance.
+         *
          * @param instance the instance
          */
-        public void set(T instance)
+        public void set(final T instance)
         {
             this.instance = instance;
             this.time = System.nanoTime();

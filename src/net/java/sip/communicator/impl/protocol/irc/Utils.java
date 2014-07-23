@@ -9,15 +9,20 @@ import net.java.sip.communicator.util.*;
 
 /**
  * Some IRC-related utility methods.
- * 
+ *
  * @author Danny van Heumen
  */
 public final class Utils
 {
     /**
-     * Logger
+     * Logger.
      */
     private static final Logger LOGGER = Logger.getLogger(Utils.class);
+
+    /**
+     * Index indicating the end of the color code.
+     */
+    private static final int INDEX_END_COLOR_CODE = 3;
 
     /**
      * Private constructor since we do not need to construct anything.
@@ -28,18 +33,20 @@ public final class Utils
 
     /**
      * Parse IRC text message and process possible control codes.
-     * 
-     * TODO Support for color 99 (Transparent)
-     * TODO Support for wrapping around after color 15?
-     * 
+     *
+     * TODO Support for color 99 (Transparent) TODO Support for wrapping around
+     * after color 15?
+     *
      * @param text the message
      * @return returns the processed message or null if text message was null,
      *         since there is nothing to modify there
      */
-    public static String parse(String text)
+    public static String parse(final String text)
     {
         if (text == null)
+        {
             return null;
+        }
 
         FormattedTextBuilder builder = new FormattedTextBuilder();
         for (int i = 0; i < text.length(); i++)
@@ -86,9 +93,11 @@ public final class Utils
                     foreground = parseForegroundColor(text.substring(i + 1));
                     i += 2;
 
+                    // FIXME IAE thrown in case of missing background color.
+                    // This should be ignored. It is no error.
                     // parse background color code
                     background = parseBackgroundColor(text.substring(i + 1));
-                    i += 3;
+                    i += INDEX_END_COLOR_CODE;
                 }
                 catch (IllegalArgumentException e)
                 {
@@ -125,11 +134,11 @@ public final class Utils
 
     /**
      * Parse background color code starting with the separator.
-     * 
+     *
      * @param text the text starting with the background color (separator)
      * @return returns the background color
      */
-    private static Color parseBackgroundColor(String text)
+    private static Color parseBackgroundColor(final String text)
     {
         try
         {
@@ -154,23 +163,25 @@ public final class Utils
         {
             // No background color defined, ignoring ...
             throw new IllegalArgumentException(
-                "value isn't a background color code: " + text.substring(1, 3));
+                "value isn't a background color code: "
+                    + text.substring(1, INDEX_END_COLOR_CODE));
         }
         catch (ArrayIndexOutOfBoundsException e)
         {
             LOGGER.info("Specified IRC color is not a known color code.", e);
             throw new IllegalArgumentException("background color value "
-                + text.substring(1, 3) + " is not a known color");
+                + text.substring(1, INDEX_END_COLOR_CODE)
+                + " is not a known color");
         }
     }
 
     /**
      * Parse foreground color and return corresponding Color instance.
-     * 
+     *
      * @param text the text to parse, starting with color code
      * @return returns Color instance
      */
-    private static Color parseForegroundColor(String text)
+    private static Color parseForegroundColor(final String text)
     {
         try
         {
@@ -186,6 +197,8 @@ public final class Utils
         }
         catch (NumberFormatException e)
         {
+            // FIXME correctly print out color code (as a number or hex number)
+            // FIXME wrap around color codes?
             // Invalid text color value
             LOGGER.trace("Invalid foreground color code encountered.");
             throw new IllegalArgumentException(
@@ -199,17 +212,37 @@ public final class Utils
         }
     }
 
-    public static String formatMessage(String message)
+    /**
+     * Format message as normal HTML-formatted message.
+     *
+     * @param message original IRC message
+     * @return returns HTML-formatted normal message
+     */
+    public static String formatMessage(final String message)
     {
         return message;
     }
 
-    public static String formatNotice(String message, String user)
+    /**
+     * Format message as HTML-formatted notice.
+     *
+     * @param message original IRC message
+     * @param user user nick name
+     * @return returns HTML-formatted notice
+     */
+    public static String formatNotice(final String message, final String user)
     {
         return "<i>" + user + "</i>: " + message;
     }
 
-    public static String formatAction(String message, String user)
+    /**
+     * Format message as HTML-formatted action.
+     *
+     * @param message original IRC message
+     * @param user user nick name
+     * @return returns HTML-formatted action
+     */
+    public static String formatAction(final String message, final String user)
     {
         return "<b>*" + user + "</b> " + message;
     }

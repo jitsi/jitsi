@@ -4,8 +4,8 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * IRC contact implementation.
- * 
- * @author danny
+ *
+ * @author Danny van Heumen
  */
 public class ContactIrcImpl
     extends AbstractContact
@@ -14,7 +14,7 @@ public class ContactIrcImpl
      * Parent provider.
      */
     private ProtocolProviderServiceIrcImpl provider;
-    
+
     /**
      * Contact id.
      */
@@ -32,21 +32,28 @@ public class ContactIrcImpl
 
     /**
      * Constructor.
-     * 
+     *
      * @param provider Protocol provider service instance.
      * @param id Contact id.
+     * @param parentGroup The parent group of the contact.
      */
     public ContactIrcImpl(ProtocolProviderServiceIrcImpl provider, String id,
         ContactGroupIrcImpl parentGroup, PresenceStatus initialStatus)
     {
         if (provider == null)
+        {
             throw new IllegalArgumentException("provider cannot be null");
+        }
         this.provider = provider;
         if (id == null)
+        {
             throw new IllegalArgumentException("id cannot be null");
+        }
         this.id = id;
         if (parentGroup == null)
+        {
             throw new IllegalArgumentException("parentGroup cannot be null");
+        }
         this.parentGroup = parentGroup;
         this.presence =
             initialStatus == null ? IrcStatusEnum.ONLINE : initialStatus;
@@ -54,7 +61,7 @@ public class ContactIrcImpl
 
     /**
      * Get contact id (a.k.a. address)
-     * 
+     *
      * @return returns id
      */
     @Override
@@ -65,7 +72,7 @@ public class ContactIrcImpl
 
     /**
      * Get contact display name.
-     * 
+     *
      * @return returns display name
      */
     @Override
@@ -75,8 +82,8 @@ public class ContactIrcImpl
     }
 
     /**
-     * Get contact image (avatar)
-     * 
+     * Get contact image (avatar).
+     *
      * @return returns image data
      */
     @Override
@@ -87,7 +94,7 @@ public class ContactIrcImpl
 
     /**
      * Get presence status.
-     * 
+     *
      * @return returns presence status
      */
     @Override
@@ -98,19 +105,21 @@ public class ContactIrcImpl
 
     /**
      * Set a new presence status for contact.
-     * 
+     *
      * @param status new presence status (cannot be null)
      */
     protected void setPresenceStatus(PresenceStatus status)
     {
         if (status == null)
+        {
             throw new IllegalArgumentException("status cannot be null");
+        }
         this.presence = status;
     }
 
     /**
      * Get parent contact group.
-     * 
+     *
      * @return returns parent contact group
      */
     @Override
@@ -121,7 +130,7 @@ public class ContactIrcImpl
 
     /**
      * Get protocol provider service.
-     * 
+     *
      * @return returns IRC protocol provider service.
      */
     @Override
@@ -132,7 +141,7 @@ public class ContactIrcImpl
 
     /**
      * Is persistent contact.
-     * 
+     *
      * @return Returns true if contact is persistent, or false otherwise.
      */
     @Override
@@ -145,7 +154,7 @@ public class ContactIrcImpl
 
     /**
      * Is contact resolved.
-     * 
+     *
      * @return Returns true if contact is resolved, or false otherwise.
      */
     @Override
@@ -160,7 +169,7 @@ public class ContactIrcImpl
 
     /**
      * Get persistent data (if any).
-     * 
+     *
      * @return returns persistent data if available or null otherwise.
      */
     @Override
@@ -171,7 +180,7 @@ public class ContactIrcImpl
 
     /**
      * Get status message.
-     * 
+     *
      * @return returns status message
      */
     @Override
