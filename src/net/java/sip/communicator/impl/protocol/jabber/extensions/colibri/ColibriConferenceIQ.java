@@ -66,6 +66,11 @@ public class ColibriConferenceIQ
 
     private RTCPTerminationStrategy rtcpTerminationStrategy = null;
 
+    /**
+     * The list of <tt>Endpoint</tt>s included into this <tt>conference</tt> IQ.
+     */
+    private final List<Endpoint> endpoints = new LinkedList<Endpoint>();
+
     /** Initializes a new <tt>ColibriConferenceIQ</tt> instance. */
     public ColibriConferenceIQ()
     {
@@ -269,6 +274,25 @@ public class ColibriConferenceIQ
         this.rtcpTerminationStrategy = rtcpTerminationStrategy;
     }
 
+    /**
+     * Returns the list of <tt>Endpoint</tt>s included in this
+     * <tt>ColibriConferenceIQ</tt>.
+     * @return the list of <tt>Endpoint</tt>s included in this
+     * <tt>ColibriConferenceIQ</tt>.
+     */
+    public List<Endpoint> getEndpoints()
+    {
+        return Collections.unmodifiableList(endpoints);
+    }
+
+    /**
+     * Add an <tt>Endpoint</tt> to this <tt>ColibriConferenceIQ</tt>.
+     * @param endpoint the <tt>Endpoint</tt> to add.
+     */
+    public void addEndpoint(Endpoint endpoint)
+    {
+        endpoints.add(endpoint);
+    }
     /**
      * Class contains common code for both <tt>Channel</tt> and
      * <tt>SctpConnection</tt> IQ classes.
@@ -1638,6 +1662,85 @@ public class ColibriConferenceIQ
                         .append(path).append('\'');
             }
             xml.append("/>");
+        }
+    }
+
+    /**
+     * Represents an 'endpoint' element.
+     */
+    public static class Endpoint
+    {
+        /**
+         * The name of the 'endpoint' element.
+         */
+        public static final String ELEMENT_NAME = "endpoint";
+
+        /**
+         * The name of the 'id' attribute.
+         */
+        public static final String ID_ATTR_NAME = "id";
+
+        /**
+         * The name of the 'displayname' attribute.
+         */
+        public static final String DISPLAYNAME_ATTR_NAME = "displayname";
+
+        /**
+         * The 'id' of this <tt>Endpoint</tt>.
+         */
+        private String id;
+
+        /**
+         * The 'display name' of this <tt>Endpoint</tt>.
+         */
+        private String displayName;
+
+        /**
+         * Initializes a new <tt>Endpoint</tt> with the given ID and display
+         * name.
+         * @param id the ID.
+         * @param displayName the display name.
+         */
+        public Endpoint(String id, String displayName)
+        {
+            this.id = id;
+            this.displayName = displayName;
+        }
+
+        /**
+         * Sets the ID of this <tt>Endpoint</tt>.
+         * @param id the ID to set.
+         */
+        public void setId(String id)
+        {
+            this.id = id;
+        }
+
+        /**
+         * Returns the ID of this <tt>Endpoint</tt>.
+         * @return the ID of this <tt>Endpoint</tt>.
+         */
+        public String getId()
+        {
+            return id;
+        }
+
+        /**
+         * Sets the display name of this <tt>Endpoint</tt>.
+         * @param displayName the display name to set.
+         */
+        public void setDisplayName(String displayName)
+        {
+            this.displayName = displayName;
+        }
+
+        /**
+         * Returns the display name of this <tt>Endpoint</tt>.
+         * @return the display name of this <tt>Endpoint</tt>.
+         */
+        public String getDisplayName()
+        {
+            return displayName;
         }
     }
 }

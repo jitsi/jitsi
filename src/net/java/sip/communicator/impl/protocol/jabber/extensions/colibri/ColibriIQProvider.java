@@ -163,6 +163,7 @@ public class ColibriIQProvider
             ColibriConferenceIQ.SctpConnection sctpConnection = null;
             ColibriConferenceIQ.Content content = null;
             ColibriConferenceIQ.Recording recording = null;
+            ColibriConferenceIQ.Endpoint conferenceEndpoint = null;
             StringBuilder ssrc = null;
 
             while (!done)
@@ -188,6 +189,12 @@ public class ColibriIQProvider
                     {
                         content.addSctpConnection(sctpConnection);
                         sctpConnection = null;
+                    }
+                    else if (ColibriConferenceIQ.Endpoint.ELEMENT_NAME
+                            .equals(name))
+                    {
+                        conference.addEndpoint(conferenceEndpoint);
+                        conferenceEndpoint = null;
                     }
                     else if (ColibriConferenceIQ.Channel.SSRC_ELEMENT_NAME
                             .equals(name))
@@ -454,6 +461,25 @@ public class ColibriIQProvider
 
                         if (!StringUtils.isNullOrEmpty(expire))
                             sctpConnection.setExpire(Integer.parseInt(expire));
+                    }
+                    else if (ColibriConferenceIQ.Endpoint.ELEMENT_NAME
+                            .equals(name))
+                    {
+                        String id
+                                = parser.getAttributeValue(
+                                "",
+                                ColibriConferenceIQ.Endpoint.ID_ATTR_NAME);
+
+                        String endpointName
+                                = parser.getAttributeValue(
+                                "",
+                                ColibriConferenceIQ.Endpoint
+                                        .DISPLAYNAME_ATTR_NAME);
+
+                        conferenceEndpoint
+                                = new ColibriConferenceIQ.Endpoint(id,
+                                                                   endpointName);
+
                     }
                     else if (channel != null || sctpConnection != null)
                     {
