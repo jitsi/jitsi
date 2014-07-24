@@ -857,9 +857,10 @@ public class IrcStack
      */
     public void command(final Contact contact, final String message)
     {
-        // WARNING: This command method should not be used.
-        LOGGER.warn("Not handling IM message as commands, because of danger"
-            + "of corrupting plug-ins that hook into IM conversations.");
+        // OTR seems to be compatible with the command syntax (starts with '/')
+        // and there were no other obvious problems so we decided to implement
+        // IRC command support for IM infrastructure too.
+        this.command(contact.getAddress(), message);
     }
 
     /**
@@ -870,27 +871,30 @@ public class IrcStack
      */
     private void command(final String source, final String message)
     {
-        final String target;
-        final String command;
-        if (message.toLowerCase().startsWith("/msg "))
+        final IRCApi irc = this.session.get();
+        final String msg = message.toLowerCase();
+        if (msg.startsWith("/msg "))
         {
-            String part = message.substring(5);
+            final String part = message.substring(5);
             int endOfNick = part.indexOf(' ');
             if (endOfNick == -1)
             {
                 throw new IllegalArgumentException("Invalid private message "
                     + "format. Message was not sent.");
             }
-            target = part.substring(0, endOfNick);
-            command = part.substring(endOfNick + 1);
+            final String target = part.substring(0, endOfNick);
+            final String command = part.substring(endOfNick + 1);
+            irc.message(target, command);
+        }
+        else if (msg.startsWith("/me "))
+        {
+            final String command = message.substring(4);
+            irc.act(source, command);
         }
         else
         {
-            target = source;
-            command = message;
+            irc.message(source, message);
         }
-        final IRCApi irc = this.session.get();
-        irc.message(target, command);
     }
 
     /**
