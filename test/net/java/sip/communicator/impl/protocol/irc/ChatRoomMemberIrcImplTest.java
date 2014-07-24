@@ -1,9 +1,14 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ * 
+ * Distributable under LGPL license. See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.protocol.irc;
 
-import org.easymock.*;
-
-import net.java.sip.communicator.service.protocol.*;
 import junit.framework.*;
+import net.java.sip.communicator.service.protocol.*;
+
+import org.easymock.*;
 
 public class ChatRoomMemberIrcImplTest
     extends TestCase
@@ -139,19 +144,10 @@ public class ChatRoomMemberIrcImplTest
         ChatRoomMemberIrcImpl member =
             new ChatRoomMemberIrcImpl(provider, chatroom, "user",
                 ChatRoomMemberRole.SILENT_MEMBER);
-        Assert.assertSame(ChatRoomMemberRole.SILENT_MEMBER, member.getRole());
-        try
-        {
-            member.setRole(null);
-            Assert.fail("expected IAE because of null role");
-        }
-        catch (IllegalArgumentException e)
-        {
-            // this is good
-        }
+        member.setRole(null);
     }
     
-    public void testRoleChange()
+    public void testRoleUnchange()
     {
         ChatRoom chatroom = EasyMock.createMock(ChatRoom.class);
         ProtocolProviderService provider =
@@ -160,9 +156,63 @@ public class ChatRoomMemberIrcImplTest
             "user", ChatRoomMemberRole.SILENT_MEMBER);
         Assert.assertSame(ChatRoomMemberRole.SILENT_MEMBER, member.getRole());
         member.setRole(ChatRoomMemberRole.ADMINISTRATOR);
-        Assert.assertSame(ChatRoomMemberRole.ADMINISTRATOR, member.getRole());
+        Assert.assertSame(ChatRoomMemberRole.SILENT_MEMBER, member.getRole());
     }
     
+    public void testAddSignificantRole()
+    {
+        ChatRoom chatroom = EasyMock.createMock(ChatRoom.class);
+        ProtocolProviderService provider =
+            EasyMock.createMock(ProtocolProviderService.class);
+        ChatRoomMemberIrcImpl member =
+            new ChatRoomMemberIrcImpl(provider, chatroom, "user",
+                ChatRoomMemberRole.SILENT_MEMBER);
+        Assert.assertSame(ChatRoomMemberRole.SILENT_MEMBER, member.getRole());
+        member.addRole(ChatRoomMemberRole.ADMINISTRATOR);
+        Assert.assertSame(ChatRoomMemberRole.ADMINISTRATOR, member.getRole());
+    }
+
+    public void testRemoveSignificantRole()
+    {
+        ChatRoom chatroom = EasyMock.createMock(ChatRoom.class);
+        ProtocolProviderService provider =
+            EasyMock.createMock(ProtocolProviderService.class);
+        ChatRoomMemberIrcImpl member =
+            new ChatRoomMemberIrcImpl(provider, chatroom, "user",
+                ChatRoomMemberRole.SILENT_MEMBER);
+        member.addRole(ChatRoomMemberRole.ADMINISTRATOR);
+        Assert.assertSame(ChatRoomMemberRole.ADMINISTRATOR, member.getRole());
+        member.removeRole(ChatRoomMemberRole.ADMINISTRATOR);
+        Assert.assertSame(ChatRoomMemberRole.SILENT_MEMBER, member.getRole());
+    }
+
+    public void testAddInsignificantRole()
+    {
+        ChatRoom chatroom = EasyMock.createMock(ChatRoom.class);
+        ProtocolProviderService provider =
+            EasyMock.createMock(ProtocolProviderService.class);
+        ChatRoomMemberIrcImpl member =
+            new ChatRoomMemberIrcImpl(provider, chatroom, "user",
+                ChatRoomMemberRole.ADMINISTRATOR);
+        Assert.assertSame(ChatRoomMemberRole.ADMINISTRATOR, member.getRole());
+        member.addRole(ChatRoomMemberRole.MEMBER);
+        Assert.assertSame(ChatRoomMemberRole.ADMINISTRATOR, member.getRole());
+    }
+
+    public void testRemoveInsignificantRole()
+    {
+        ChatRoom chatroom = EasyMock.createMock(ChatRoom.class);
+        ProtocolProviderService provider =
+            EasyMock.createMock(ProtocolProviderService.class);
+        ChatRoomMemberIrcImpl member =
+            new ChatRoomMemberIrcImpl(provider, chatroom, "user",
+                ChatRoomMemberRole.ADMINISTRATOR);
+        member.addRole(ChatRoomMemberRole.MEMBER);
+        Assert.assertSame(ChatRoomMemberRole.ADMINISTRATOR, member.getRole());
+        member.removeRole(ChatRoomMemberRole.MEMBER);
+        Assert.assertSame(ChatRoomMemberRole.ADMINISTRATOR, member.getRole());
+    }
+
     public void testGetContact()
     {
         ChatRoom chatroom = EasyMock.createMock(ChatRoom.class);

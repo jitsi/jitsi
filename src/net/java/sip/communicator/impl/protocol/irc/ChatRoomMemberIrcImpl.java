@@ -41,7 +41,7 @@ public class ChatRoomMemberIrcImpl
      * The provider that created us.
      */
     private final ProtocolProviderService parentProvider;
-    
+
     /**
      * Set of active roles.
      */
@@ -61,23 +61,31 @@ public class ChatRoomMemberIrcImpl
      * @param chatRoomMemberRole the role that this member has in the
      * corresponding chat room
      */
-    public ChatRoomMemberIrcImpl(ProtocolProviderService parentProvider,
-        ChatRoom chatRoom, String contactID,
-        ChatRoomMemberRole chatRoomMemberRole)
+    public ChatRoomMemberIrcImpl(final ProtocolProviderService parentProvider,
+        final ChatRoom chatRoom, final String contactID,
+        final ChatRoomMemberRole chatRoomMemberRole)
     {
         if (parentProvider == null)
+        {
             throw new IllegalArgumentException(
                 "parent protocol provider cannot be null");
+        }
         this.parentProvider = parentProvider;
         if (chatRoom == null)
+        {
             throw new IllegalArgumentException(
                 "chat room instance cannot be null");
+        }
         this.chatRoom = chatRoom;
         if (contactID == null)
+        {
             throw new IllegalArgumentException("contact ID cannot be null");
+        }
         this.contactID = contactID;
         if (chatRoomMemberRole == null)
+        {
             throw new IllegalArgumentException("member role cannot be null");
+        }
         this.roles.add(chatRoomMemberRole);
     }
 
@@ -131,13 +139,15 @@ public class ChatRoomMemberIrcImpl
 
     /**
      * Set a new name for this ChatRoomMember.
-     * 
-     * @param newName
+     *
+     * @param newName new name to set for chat room member
      */
-    public void setName(String newName)
+    public void setName(final String newName)
     {
         if (newName == null)
+        {
             throw new IllegalArgumentException("newName cannot be null");
+        }
         this.contactID = newName;
     }
 
@@ -157,31 +167,30 @@ public class ChatRoomMemberIrcImpl
      *
      * @param chatRoomMemberRole the role to be set
      */
-    public void setRole(ChatRoomMemberRole chatRoomMemberRole)
+    public void setRole(final ChatRoomMemberRole chatRoomMemberRole)
     {
         // Ignore explicit set role operations, since we only allow
         // modifications from the IRC server.
-        LOGGER.debug("Ignoring request to set role to "
-            + chatRoomMemberRole.getRoleName());
+        LOGGER.debug("Ignoring request to set member role.");
         return;
     }
 
     /**
      * Add a role.
-     * 
+     *
      * @param role the new role
      */
-    void addRole(ChatRoomMemberRole role)
+    void addRole(final ChatRoomMemberRole role)
     {
         this.roles.add(role);
     }
 
     /**
      * Remove a role.
-     * 
+     *
      * @param role the revoked role
      */
-    void removeRole(ChatRoomMemberRole role)
+    void removeRole(final ChatRoomMemberRole role)
     {
         this.roles.remove(role);
     }
@@ -226,15 +235,15 @@ public class ChatRoomMemberIrcImpl
 
     /**
      * equality by provider protocol instance and contact ID.
-     * 
+     *
      * Enables the possibility to check if chat room member is same member in
      * different chat rooms. Values are only reliable for the same connection,
      * so also check protocol provider instance.
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object obj)
+    public boolean equals(final Object obj)
     {
         if (this == obj)
             return true;
