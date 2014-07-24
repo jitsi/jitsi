@@ -866,6 +866,9 @@ public class IrcStack
     /**
      * Implementation of some commands.
      *
+     * TODO Eventually replace this with a factory such that we can easily
+     * extend with new commands.
+     *
      * @param source Source contact or chat room from which the message is sent.
      * @param message Command message that is sent.
      */
