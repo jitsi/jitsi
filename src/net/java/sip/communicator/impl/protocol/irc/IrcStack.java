@@ -891,6 +891,16 @@ public class IrcStack
             final String command = message.substring(4);
             irc.act(source, command);
         }
+        else if (msg.startsWith("/join "))
+        {
+            final String channel = message.substring(6);
+            // TODO Add \0 to regex check for correct channel naming.
+            // TODO Add support for providing password for channel.
+            if (channel.matches("[^,\\n\\r\\s\\a]+"))
+            {
+                irc.joinChannel(channel);
+            }
+        }
         else
         {
             irc.message(source, message);
