@@ -143,14 +143,15 @@ public class UtilsTest
     public void testParseUnknownForegroundColor()
     {
         final String ircMessage = "\u000399TEST";
-        final String htmlMessage = "99TEST";
+        final String htmlMessage = "<font color=\"Green\">TEST</font>";
         Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
     }
 
     public void testParseUnknownBackgroundColor()
     {
         final String ircMessage = "\u000300,99TEST";
-        final String htmlMessage = "<font color=\"White\">,99TEST</font>";
+        final String htmlMessage =
+            "<font color=\"White\" bgcolor=\"Green\">TEST</font>";
         Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
     }
     

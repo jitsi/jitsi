@@ -144,6 +144,7 @@ public final class Utils
                 // if available, also parse background color
                 int color =
                     Integer.parseInt("" + text.charAt(1) + text.charAt(2));
+                color = color % Color.values().length;
                 return Color.values()[color];
             }
             throw new IllegalArgumentException(
@@ -184,6 +185,7 @@ public final class Utils
         try
         {
             int color = Integer.parseInt("" + text.charAt(0) + text.charAt(1));
+            color = color % Color.values().length;
             return Color.values()[color];
         }
         catch (StringIndexOutOfBoundsException e)
@@ -196,7 +198,6 @@ public final class Utils
         catch (NumberFormatException e)
         {
             // FIXME correctly print out color code (as a number or hex number)
-            // FIXME wrap around color codes?
             // Invalid text color value
             LOGGER.trace("Invalid foreground color code encountered.");
             throw new IllegalArgumentException(
