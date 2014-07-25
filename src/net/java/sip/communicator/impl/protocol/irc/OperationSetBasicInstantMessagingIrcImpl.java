@@ -56,15 +56,23 @@ public class OperationSetBasicInstantMessagingIrcImpl
      *             passed
      */
     @Override
-    public void sendInstantMessage(Contact to, Message message)
+    public void sendInstantMessage(final Contact to, final Message message)
         throws IllegalStateException,
         IllegalArgumentException
     {
-        // For instant messaging there are already encryption protocols and
-        // other plug-ins available. To accidentally prevent them from working
-        // correctly, we will not process IM message contents at all. This means
-        // that we cannot handle irc commands from a IM message source.
-        this.provider.getIrcStack().message(to, message);
+        // OTR seems to be compatible with the command syntax (starts with '/')
+        // and there were no other obvious problems so we decided to implement
+        // IRC command support for IM infrastructure too.
+
+        if (message instanceof MessageIrcImpl
+            && ((MessageIrcImpl) message).isCommand())
+        {
+            this.provider.getIrcStack().command(to, (MessageIrcImpl) message);
+        }
+        else
+        {
+            this.provider.getIrcStack().message(to, message);
+        }
     }
 
     /**

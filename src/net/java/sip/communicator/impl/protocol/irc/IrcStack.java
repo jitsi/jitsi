@@ -855,12 +855,9 @@ public class IrcStack
      * @param contact the chat room
      * @param message the command message
      */
-    public void command(final Contact contact, final String message)
+    public void command(final Contact contact, final MessageIrcImpl message)
     {
-        // OTR seems to be compatible with the command syntax (starts with '/')
-        // and there were no other obvious problems so we decided to implement
-        // IRC command support for IM infrastructure too.
-        this.command(contact.getAddress(), message);
+        this.command(contact.getAddress(), message.getContent());
     }
 
     /**
