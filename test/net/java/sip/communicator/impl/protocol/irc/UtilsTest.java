@@ -147,7 +147,7 @@ public class UtilsTest
         Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
     }
 
-    public void testParseUnknownBackgroundCOlor()
+    public void testParseUnknownBackgroundColor()
     {
         final String ircMessage = "\u000300,99TEST";
         final String htmlMessage = "<font color=\"White\">,99TEST</font>";
