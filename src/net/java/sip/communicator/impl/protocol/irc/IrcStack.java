@@ -896,12 +896,23 @@ public class IrcStack
         }
         else if (msg.startsWith("/join "))
         {
-            final String channel = message.substring(6);
-            // TODO Add \0 to regex check for correct channel naming.
-            // TODO Add support for providing password for channel.
+            final String part = message.substring(6);
+            final String channel;
+            final String password;
+            int indexOfSep = part.indexOf(' ');
+            if (indexOfSep == -1)
+            {
+                channel = part;
+                password = "";
+            }
+            else
+            {
+                channel = part.substring(0, indexOfSep);
+                password = part.substring(indexOfSep + 1);
+            }
             if (channel.matches("[^,\\n\\r\\s\\a]+"))
             {
-                irc.joinChannel(channel);
+                irc.joinChannel(channel, password);
             }
         }
         else
