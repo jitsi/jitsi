@@ -93,8 +93,6 @@ public final class Utils
                     foreground = parseForegroundColor(text.substring(i + 1));
                     i += 2;
 
-                    // FIXME IAE thrown in case of missing background color.
-                    // This should be ignored. It is no error.
                     // parse background color code
                     background = parseBackgroundColor(text.substring(i + 1));
                     i += INDEX_END_COLOR_CODE;
@@ -106,9 +104,8 @@ public final class Utils
                 }
                 catch (ArrayIndexOutOfBoundsException e)
                 {
-                    LOGGER.debug(
-                        "Unknown color code referenced: "
-                            + text.substring(i + 1), e);
+                    LOGGER.debug("Unknown color code referenced: "
+                        + text.substring(i + 1));
                 }
                 if (foreground == null && background == null)
                 {
@@ -168,7 +165,8 @@ public final class Utils
         }
         catch (ArrayIndexOutOfBoundsException e)
         {
-            LOGGER.info("Specified IRC color is not a known color code.", e);
+            LOGGER.debug("Specified IRC color is not a known color code: "
+                + e.getMessage());
             throw new IllegalArgumentException("background color value "
                 + text.substring(1, INDEX_END_COLOR_CODE)
                 + " is not a known color");
@@ -206,7 +204,8 @@ public final class Utils
         }
         catch (ArrayIndexOutOfBoundsException e)
         {
-            LOGGER.info("Specified IRC color is not a known color code.", e);
+            LOGGER.debug("Specified IRC color is not a known color code: "
+                + e.getMessage());
             throw new IllegalArgumentException("foreground color value "
                 + text.substring(0, 2) + " is not a known color");
         }
