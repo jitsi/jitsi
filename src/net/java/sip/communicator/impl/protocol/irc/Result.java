@@ -8,14 +8,14 @@ package net.java.sip.communicator.impl.protocol.irc;
 
 /**
  * Small container class that can contain a result and/or an exception.
- * 
+ *
  * The container can be used for synchronizing between threads and
  * simultaneously provide a container for storing a result and/or an exception
  * that occurred within the separate thread that should be passed on to the
  * calling thread.
- * 
+ *
  * @author Danny van Heumen
- * 
+ *
  * @param <T> type of the value
  * @param <E> type of the exception
  */
@@ -32,30 +32,30 @@ public class Result<T, E extends Exception>
     private T value = null;
 
     /**
-     * The (possible) exception
+     * The (possible) exception.
      */
     private E exception = null;
 
     /**
-     * Constructor for result without initial value
+     * Constructor for result without initial value.
      */
     public Result()
     {
     }
-    
+
     /**
-     * Constructor for result with initial value
-     * 
+     * Constructor for result with initial value.
+     *
      * @param initialValue initial value
      */
-    public Result(T initialValue)
+    public Result(final T initialValue)
     {
         this.value = initialValue;
     }
-    
+
     /**
      * Check whether it is actually done.
-     * 
+     *
      * @return return true when done or false otherwise
      */
     public boolean isDone()
@@ -73,10 +73,10 @@ public class Result<T, E extends Exception>
 
     /**
      * Set done and provide a result.
-     * 
+     *
      * @param value the result
      */
-    public void setDone(T value)
+    public void setDone(final T value)
     {
         this.value = value;
         this.setDone();
@@ -84,10 +84,10 @@ public class Result<T, E extends Exception>
 
     /**
      * Set done and provide an exception.
-     * 
+     *
      * @param exception the exception
      */
-    public void setDone(E exception)
+    public void setDone(final E exception)
     {
         this.exception = exception;
         this.setDone();
@@ -95,11 +95,11 @@ public class Result<T, E extends Exception>
 
     /**
      * Set done and set both result and exception.
-     * 
+     *
      * @param value the value
      * @param exception the exception
      */
-    public void setDone(T value, E exception)
+    public void setDone(final T value, final E exception)
     {
         this.value = value;
         this.exception = exception;
@@ -108,7 +108,7 @@ public class Result<T, E extends Exception>
 
     /**
      * Get the value.
-     * 
+     *
      * @return return the value
      */
     public T getValue()
@@ -118,7 +118,7 @@ public class Result<T, E extends Exception>
 
     /**
      * Get the exception.
-     * 
+     *
      * @return return the exception
      */
     public E getException()
