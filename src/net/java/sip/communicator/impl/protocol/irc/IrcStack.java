@@ -29,6 +29,15 @@ import com.ircclouds.irc.api.state.*;
 /**
  * An implementation of IRC using the irc-api library.
  *
+ * TODO Do we need to cancel any join channel operations still in progress?
+ *
+ * TODO Is there a chance that any Listeners will remain active after
+ * disconnecting?
+ *
+ * TODO Create a separate session object that stores: IRCApi instance +
+ * connection state + channel list container, such that it is easy to check for
+ * connectivity and manage state.
+ *
  * @author Danny van Heumen
  */
 public class IrcStack
@@ -125,9 +134,8 @@ public class IrcStack
      */
     public boolean isConnected()
     {
-        final IRCApi irc = this.session.get();
-        return (irc != null && this.connectionState != null
-            && this.connectionState.isConnected());
+        return (this.connectionState != null && this.connectionState
+            .isConnected());
     }
 
     /**
@@ -155,8 +163,7 @@ public class IrcStack
         final String password, final boolean secureConnection,
         final boolean autoNickChange) throws Exception
     {
-        if (this.session.get() != null && this.connectionState != null
-            && this.connectionState.isConnected())
+        if (isConnected())
         {
             return;
         }
@@ -180,8 +187,8 @@ public class IrcStack
         {
             final IRCApi irc = new IRCApiImpl(true);
             this.params.setServer(server);
-            irc.addListener(new ServerListener());
             this.session.set(irc);
+            irc.addListener(new ServerListener());
 
             if (LOGGER.isTraceEnabled())
             {
@@ -341,6 +348,11 @@ public class IrcStack
             return;
         }
 
+        // TODO consider skipping the leave-channel operations, since it is not
+        // necessary for IRC. This means that channel members actually get the
+        // quit message, instead of just a part message. (We do need to clean up
+        // afterwards, though, such as clearing the joined channel list and
+        // closing any open listeners.)
         synchronized (this.joined)
         {
             // Leave all joined channels.
@@ -416,6 +428,22 @@ public class IrcStack
     }
 
     /**
+     * Get the currently active nick name.
+     *
+     * @return returns the nick name currently active for this connection, or
+     *         null if no connection is currently active (i.e. we are not
+     *         connected to an IRC server).
+     */
+    public String getActiveNick()
+    {
+        if (this.connectionState == null || !this.connectionState.isConnected())
+        {
+            return null;
+        }
+        return this.connectionState.getNickname();
+    }
+
+    /**
      * Set the user's new nick name.
      *
      * @param nick the new nick name
@@ -476,12 +504,12 @@ public class IrcStack
     public List<String> getServerChatRoomList()
     {
         LOGGER.trace("Start retrieve server chat room list.");
-        final IRCApi irc = this.session.get();
-
-        if (irc == null)
+        if (!isConnected())
         {
-            throw new IllegalStateException("irc instance is not available");
+            throw new IllegalStateException("Not connected to an IRC server.");
         }
+
+        final IRCApi irc = this.session.get();
 
         // TODO Currently, not using an API library method for listing
         // channels, since it isn't available.
@@ -505,7 +533,7 @@ public class IrcStack
                         irc.rawMessage("LIST");
                         while (!listSignal.isDone())
                         {
-                            LOGGER.trace("Start waiting for list ...");
+                            LOGGER.trace("Waiting for list ...");
                             listSignal.wait();
                         }
                         LOGGER.trace("Done waiting for list.");
@@ -770,7 +798,7 @@ public class IrcStack
     {
         if (!isConnected())
         {
-            return;
+            throw new IllegalStateException("Not connected to an IRC server.");
         }
 
         final IRCApi irc = this.session.get();
@@ -831,7 +859,7 @@ public class IrcStack
     {
         if (!isConnected())
         {
-            return;
+            throw new IllegalStateException("Not connected to an IRC server.");
         }
 
         final IRCApi irc = this.session.get();
@@ -871,6 +899,10 @@ public class IrcStack
      */
     private void command(final String source, final String message)
     {
+        if (!isConnected())
+        {
+            throw new IllegalStateException("Not connected to IRC server.");
+        }
         final IRCApi irc = this.session.get();
         final String msg = message.toLowerCase();
         if (msg.startsWith("/msg "))
@@ -926,6 +958,10 @@ public class IrcStack
      */
     public void message(final ChatRoomIrcImpl chatroom, final String message)
     {
+        if (!isConnected())
+        {
+            throw new IllegalStateException("Not connected to an IRC server.");
+        }
         final IRCApi irc = this.session.get();
         String target = chatroom.getIdentifier();
         irc.message(target, message);
@@ -939,6 +975,10 @@ public class IrcStack
      */
     public void message(final Contact contact, final Message message)
     {
+        if (!isConnected())
+        {
+            throw new IllegalStateException("Not connected to an IRC server.");
+        }
         final String target = contact.getAddress();
         try
         {
@@ -967,6 +1007,10 @@ public class IrcStack
     public void grant(final ChatRoomIrcImpl chatRoom, final String userAddress,
         final Mode mode)
     {
+        if (!isConnected())
+        {
+            throw new IllegalStateException("Not connected to an IRC server.");
+        }
         if (mode.getRole() == null)
         {
             throw new IllegalArgumentException(
@@ -987,6 +1031,10 @@ public class IrcStack
     public void revoke(final ChatRoomIrcImpl chatRoom,
         final String userAddress, final Mode mode)
     {
+        if (!isConnected())
+        {
+            throw new IllegalStateException("Not connected to an IRC server.");
+        }
         if (mode.getRole() == null)
         {
             throw new IllegalArgumentException(
@@ -1296,9 +1344,14 @@ public class IrcStack
         @Override
         public void onUserQuit(final QuitMessage msg)
         {
-            // FIXME Disabled user presence status updates, probably not going
-            // to do user presence, since we cannot detect all changes and Jitsi
-            // does act upon different presence statuses.
+            // FIXME Re-enabled/Disabled user presence status updates, probably
+            // not going to do user presence, since we cannot detect all changes
+            // and Jitsi does act upon different presence statuses.
+
+            // FIXME Off-line contact still gets sent a message. Is this desired
+            // behavior?
+
+            // FIXME Disable listener on receiving local user quit message.
 
             // final String userNick = msg.getSource().getNick();
             // final Contact user =
@@ -1563,6 +1616,7 @@ public class IrcStack
         @Override
         public void onUserQuit(final QuitMessage msg)
         {
+            // FIXME handle local user quitting messages correctly.
             String user = msg.getSource().getNick();
             ChatRoomMember member = this.chatroom.getChatRoomMember(user);
             if (member != null)
@@ -1684,6 +1738,10 @@ public class IrcStack
          */
         private void leaveChatRoom()
         {
+            if (!IrcStack.this.isConnected())
+            {
+                return;
+            }
             final IRCApi irc = IrcStack.this.session.get();
             irc.deleteListener(this);
             IrcStack.this.joined.remove(this.chatroom.getIdentifier());
@@ -1896,6 +1954,8 @@ public class IrcStack
          */
         private boolean isMe(final IRCUser user)
         {
+            // FIXME in case of disconnected, connectionState == null, so
+            // results in NPE.
             return IrcStack.this.connectionState.getNickname().equals(
                 user.getNick());
         }
@@ -1908,6 +1968,8 @@ public class IrcStack
          */
         private boolean isMe(final String name)
         {
+            // FIXME in case of disconnected, connectionState == null, so
+            // results in NPE.
             return IrcStack.this.connectionState.getNickname().equals(name);
         }
     }
