@@ -1514,19 +1514,22 @@ public class IrcStack
 
             String userNick = msg.getSource().getNick();
             ChatRoomMember member = this.chatroom.getChatRoomMember(userNick);
-            try
+            if (member != null)
             {
-                // Possibility that 'member' is null (should be fixed now
-                // that race condition in irc-api is fixed)
-                this.chatroom.fireMemberPresenceEvent(member, null,
-                    ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
-                    msg.getPartMsg());
-            }
-            catch (NullPointerException e)
-            {
-                LOGGER.warn(
-                    "This should not have happened. Please report this "
-                        + "as it is a bug.", e);
+                // When the account has been disabled, the chat room may return
+                // null. If that is NOT the case, continue handling.
+                try
+                {
+                    this.chatroom.fireMemberPresenceEvent(member, null,
+                        ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
+                        msg.getPartMsg());
+                }
+                catch (NullPointerException e)
+                {
+                    LOGGER.warn(
+                        "This should not have happened. Please report this "
+                            + "as it is a bug.", e);
+                }
             }
         }
 
@@ -1738,12 +1741,11 @@ public class IrcStack
          */
         private void leaveChatRoom()
         {
-            if (!IrcStack.this.isConnected())
-            {
-                return;
-            }
             final IRCApi irc = IrcStack.this.session.get();
-            irc.deleteListener(this);
+            if (irc != null)
+            {
+                irc.deleteListener(this);
+            }
             IrcStack.this.joined.remove(this.chatroom.getIdentifier());
             IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
                 this.chatroom,
@@ -1954,10 +1956,7 @@ public class IrcStack
          */
         private boolean isMe(final IRCUser user)
         {
-            // FIXME in case of disconnected, connectionState == null, so
-            // results in NPE.
-            return IrcStack.this.connectionState.getNickname().equals(
-                user.getNick());
+            return isMe(user.getNick());
         }
 
         /**
@@ -1968,9 +1967,12 @@ public class IrcStack
          */
         private boolean isMe(final String name)
         {
-            // FIXME in case of disconnected, connectionState == null, so
-            // results in NPE.
-            return IrcStack.this.connectionState.getNickname().equals(name);
+            String userNick = IrcStack.this.getActiveNick();
+            if (userNick == null)
+            {
+                return false;
+            }
+            return userNick.equals(name);
         }
     }
 
