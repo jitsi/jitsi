@@ -188,7 +188,7 @@ public class IrcStack
             final IRCApi irc = new IRCApiImpl(true);
             this.params.setServer(server);
             this.session.set(irc);
-            irc.addListener(new ServerListener());
+            irc.addListener(new ServerListener(irc));
 
             if (LOGGER.isTraceEnabled())
             {
@@ -343,33 +343,13 @@ public class IrcStack
      */
     public void disconnect()
     {
-        if (this.connectionState == null && this.session.get() == null)
-        {
-            return;
-        }
-
-        // TODO consider skipping the leave-channel operations, since it is not
-        // necessary for IRC. This means that channel members actually get the
-        // quit message, instead of just a part message. (We do need to clean up
-        // afterwards, though, such as clearing the joined channel list and
-        // closing any open listeners.)
-        synchronized (this.joined)
-        {
-            // Leave all joined channels.
-            for (ChatRoomIrcImpl channel : this.joined.values())
-            {
-                if (channel == null)
-                {
-                    // TODO how to cancel running joining attempt
-                    continue;
-                }
-                leave(channel);
-            }
-        }
         synchronized (this.session)
         {
             final IRCApi irc = this.session.get();
-            // Disconnect and clean up
+            if (irc == null)
+            {
+                return;
+            }
             try
             {
                 irc.disconnect();
@@ -381,7 +361,6 @@ public class IrcStack
                 LOGGER.debug("exception occurred while disconnecting", e);
             }
             this.session.set(null);
-            this.connectionState = null;
         }
         this.provider
             .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
@@ -425,22 +404,6 @@ public class IrcStack
         {
             return this.connectionState.getNickname();
         }
-    }
-
-    /**
-     * Get the currently active nick name.
-     *
-     * @return returns the nick name currently active for this connection, or
-     *         null if no connection is currently active (i.e. we are not
-     *         connected to an IRC server).
-     */
-    public String getActiveNick()
-    {
-        if (this.connectionState == null || !this.connectionState.isConnected())
-        {
-            return null;
-        }
-        return this.connectionState.getNickname();
     }
 
     /**
@@ -687,7 +650,7 @@ public class IrcStack
                         try
                         {
                             IrcStack.this.joined.put(chatRoomId, chatroom);
-                            irc.addListener(new ChatRoomListener(chatroom));
+                            irc.addListener(new ChatRoomListener(irc, chatroom));
                             prepareChatRoom(chatroom, channel);
                         }
                         finally
@@ -1101,9 +1064,29 @@ public class IrcStack
      * the server, the connection, that are not related to any chatroom in
      * particular) or that are personal message from user to local user.
      */
-    private class ServerListener
+    private final class ServerListener
         extends VariousMessageListenerAdapter
     {
+        /**
+         * IRCApi instance.
+         */
+        private final IRCApi irc;
+
+        /**
+         * Constructor for Server Listener.
+         *
+         * @param irc IRCApi instance
+         */
+        private ServerListener(final IRCApi irc)
+        {
+            if (irc == null)
+            {
+                throw new IllegalArgumentException(
+                    "irc instance cannot be null");
+            }
+            this.irc = irc;
+        }
+
         /**
          * Print out server notices for debugging purposes and for simply
          * keeping track of the connections.
@@ -1144,8 +1127,6 @@ public class IrcStack
                 return;
             }
 
-            final IRCApi irc = IrcStack.this.session.get();
-
             switch (code.intValue())
             {
             case IRCServerNumerics.CHANNEL_NICKS_END_OF_LIST:
@@ -1179,7 +1160,7 @@ public class IrcStack
                         new ChatRoomIrcImpl(channelName, IrcStack.this.provider);
                     IrcStack.this.joined.put(channelName, chatRoom);
                 }
-                irc.addListener(new ChatRoomListener(chatRoom));
+                this.irc.addListener(new ChatRoomListener(this.irc, chatRoom));
                 try
                 {
                     IrcStack.this.provider.getMUC()
@@ -1344,14 +1325,22 @@ public class IrcStack
         @Override
         public void onUserQuit(final QuitMessage msg)
         {
+            final String user = msg.getSource().getNick();
+            if (user != null
+                && user.equals(IrcStack.this.connectionState.getNickname()))
+            {
+                LOGGER.debug("Local user's QUIT message received: removing "
+                    + "server listener.");
+                this.irc.deleteListener(this);
+                return;
+            }
+
             // FIXME Re-enabled/Disabled user presence status updates, probably
             // not going to do user presence, since we cannot detect all changes
             // and Jitsi does act upon different presence statuses.
 
             // FIXME Off-line contact still gets sent a message. Is this desired
             // behavior?
-
-            // FIXME Disable listener on receiving local user quit message.
 
             // final String userNick = msg.getSource().getNick();
             // final Contact user =
@@ -1420,6 +1409,11 @@ public class IrcStack
         private static final int IRC_ERR_NOTONCHANNEL = 442;
 
         /**
+         * IRCApi instance.
+         */
+        private final IRCApi irc;
+
+        /**
          * Chat room for which this listener is working.
          */
         private ChatRoomIrcImpl chatroom;
@@ -1427,16 +1421,22 @@ public class IrcStack
         /**
          * Constructor. Instantiate listener for the provided chat room.
          *
+         * @param irc IRCApi instance
          * @param chatroom the chat room
          */
-        private ChatRoomListener(final ChatRoomIrcImpl chatroom)
+        private ChatRoomListener(final IRCApi irc,
+            final ChatRoomIrcImpl chatroom)
         {
             if (chatroom == null)
             {
                 throw new IllegalArgumentException("chatroom cannot be null");
             }
-
             this.chatroom = chatroom;
+            if (irc == null)
+            {
+                throw new IllegalArgumentException("irc cannot be null");
+            }
+            this.irc = irc;
         }
 
         /**
@@ -1586,8 +1586,6 @@ public class IrcStack
                 return;
             }
 
-            final IRCApi irc = IrcStack.this.session.get();
-
             String kickedUser = msg.getKickedNickname();
             ChatRoomMember kickedMember =
                 this.chatroom.getChatRoomMember(kickedUser);
@@ -1602,7 +1600,7 @@ public class IrcStack
 
             if (isMe(kickedUser))
             {
-                irc.deleteListener(this);
+                this.irc.deleteListener(this);
                 IrcStack.this.joined.remove(this.chatroom.getIdentifier());
                 IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
                     this.chatroom,
@@ -1619,8 +1617,18 @@ public class IrcStack
         @Override
         public void onUserQuit(final QuitMessage msg)
         {
-            // FIXME handle local user quitting messages correctly.
             String user = msg.getSource().getNick();
+            if (user == null)
+            {
+                return;
+            }
+            if (user.equals(IrcStack.this.connectionState.getNickname()))
+            {
+                LOGGER.debug("Local user QUIT message received: removing chat "
+                    + "room listener.");
+                this.irc.deleteListener(this);
+                return;
+            }
             ChatRoomMember member = this.chatroom.getChatRoomMember(user);
             if (member != null)
             {
@@ -1741,12 +1749,10 @@ public class IrcStack
          */
         private void leaveChatRoom()
         {
-            final IRCApi irc = IrcStack.this.session.get();
-            if (irc != null)
-            {
-                irc.deleteListener(this);
-            }
+            this.irc.deleteListener(this);
             IrcStack.this.joined.remove(this.chatroom.getIdentifier());
+            LOGGER.debug("Leaving chat room " + this.chatroom.getIdentifier()
+                + ". Chat room listener removed.");
             IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
                 this.chatroom,
                 LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT, null);
@@ -1967,7 +1973,7 @@ public class IrcStack
          */
         private boolean isMe(final String name)
         {
-            String userNick = IrcStack.this.getActiveNick();
+            final String userNick = IrcStack.this.connectionState.getNickname();
             if (userNick == null)
             {
                 return false;
