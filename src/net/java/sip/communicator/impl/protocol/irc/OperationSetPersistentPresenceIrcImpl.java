@@ -206,7 +206,7 @@ public class OperationSetPersistentPresenceIrcImpl
     @Override
     public PresenceStatus getPresenceStatus()
     {
-        // TODO Auto-generated method stub
+        // TODO determine current Presence Status
         return null;
     }
 
@@ -224,18 +224,29 @@ public class OperationSetPersistentPresenceIrcImpl
     @Override
     public Iterator<PresenceStatus> getSupportedStatusSet()
     {
-        // TODO Auto-generated method stub
-        return null;
+        final HashSet<PresenceStatus> statuses = new HashSet<PresenceStatus>();
+        final Iterator<IrcStatusEnum> supported =
+            IrcStatusEnum.supportedStatusSet();
+        while (supported.hasNext())
+        {
+            statuses.add(supported.next());
+        }
+        return statuses.iterator();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param contactIdentifier contact id
+     * @return returns current presence status
+     */
     @Override
-    public PresenceStatus queryContactStatus(String contactIdentifier)
+    public PresenceStatus queryContactStatus(final String contactIdentifier)
         throws IllegalArgumentException,
         IllegalStateException,
         OperationFailedException
     {
-        // TODO Auto-generated method stub
-        return null;
+        return IrcStatusEnum.ONLINE;
     }
 
     @Override
@@ -262,14 +273,11 @@ public class OperationSetPersistentPresenceIrcImpl
     @Override
     public void setAuthorizationHandler(AuthorizationHandler handler)
     {
-        // TODO Auto-generated method stub
-        
     }
 
     @Override
     public String getCurrentStatusMessage()
     {
-        // TODO Auto-generated method stub
         return null;
     }
 
