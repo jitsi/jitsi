@@ -273,7 +273,7 @@ public class SdpUtils
         else
         {
             //if rtpmap was null, check whether we have previously registered
-            //the type in our dynamiyc payload type registry. and if that's
+            //the type in our dynamic payload type registry. and if that's
             //the case return it.
             MediaFormat fmt = ptRegistry.findFormat(payloadType);
             if (fmt != null)
@@ -289,6 +289,12 @@ public class SdpUtils
 
         if (advp != null)
             advancedAttrMap = parseAdvancedAttributes(advp);
+
+        // Many implementations use opus as "opus/48000", while the specification
+        // mandates "opus/48000/2". Our upper layers only support 2 channels, so
+        // we patch it here.
+        if ("opus".equals(encoding))
+            numChannels = 2;
 
         //now create the format.
         MediaFormat format
