@@ -1416,7 +1416,7 @@ public class IrcStack
         /**
          * Chat room for which this listener is working.
          */
-        private ChatRoomIrcImpl chatroom;
+        private final ChatRoomIrcImpl chatroom;
 
         /**
          * Constructor. Instantiate listener for the provided chat room.
