@@ -34,8 +34,7 @@ public final class Utils
     /**
      * Parse IRC text message and process possible control codes.
      *
-     * TODO Support for color 99 (Transparent) TODO Support for wrapping around
-     * after color 15?
+     * TODO Support for color 99 (Transparent)
      *
      * @param text the message
      * @return returns the processed message or null if text message was null,

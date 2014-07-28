@@ -1505,15 +1505,16 @@ public class IrcStack
                 return;
             }
 
-            IRCUser user = msg.getSource();
+            final IRCUser user = msg.getSource();
             if (isMe(user))
             {
                 leaveChatRoom();
                 return;
             }
 
-            String userNick = msg.getSource().getNick();
-            ChatRoomMember member = this.chatroom.getChatRoomMember(userNick);
+            final String userNick = msg.getSource().getNick();
+            final ChatRoomMember member =
+                this.chatroom.getChatRoomMember(userNick);
             if (member != null)
             {
                 // When the account has been disabled, the chat room may return
@@ -1541,15 +1542,15 @@ public class IrcStack
          */
         public void onServerNumericMessage(final ServerNumericMessage msg)
         {
-            Integer code = msg.getNumericCode();
+            final Integer code = msg.getNumericCode();
             if (code == null)
             {
                 return;
             }
-            String raw = msg.getText();
+            final String raw = msg.getText();
             if (code.intValue() == IRC_ERR_NOTONCHANNEL)
             {
-                String channel = raw.substring(0, raw.indexOf(" "));
+                final String channel = raw.substring(0, raw.indexOf(" "));
                 if (isThisChatRoom(channel))
                 {
                     LOGGER
@@ -1629,7 +1630,7 @@ public class IrcStack
                 this.irc.deleteListener(this);
                 return;
             }
-            ChatRoomMember member = this.chatroom.getChatRoomMember(user);
+            final ChatRoomMember member = this.chatroom.getChatRoomMember(user);
             if (member != null)
             {
                 this.chatroom.fireMemberPresenceEvent(member, null,
@@ -1651,10 +1652,10 @@ public class IrcStack
                 return;
             }
 
-            String oldNick = msg.getSource().getNick();
-            String newNick = msg.getNewNick();
+            final String oldNick = msg.getSource().getNick();
+            final String newNick = msg.getNewNick();
 
-            ChatRoomMemberIrcImpl member =
+            final ChatRoomMemberIrcImpl member =
                 (ChatRoomMemberIrcImpl) this.chatroom
                     .getChatRoomMember(oldNick);
             if (member != null)
