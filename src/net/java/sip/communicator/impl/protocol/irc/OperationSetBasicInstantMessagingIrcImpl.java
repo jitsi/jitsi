@@ -7,6 +7,12 @@ package net.java.sip.communicator.impl.protocol.irc;
 
 import net.java.sip.communicator.service.protocol.*;
 
+/**
+ * Implementation of Basic Instant Messaging as utilized for IRC private
+ * user-to-user messaging.
+ *
+ * @author Danny van Heumen
+ */
 public class OperationSetBasicInstantMessagingIrcImpl
     extends AbstractOperationSetBasicInstantMessaging
 {
@@ -17,30 +23,33 @@ public class OperationSetBasicInstantMessagingIrcImpl
 
     /**
      * Constructor.
-     * 
+     *
      * @param provider IRC provider service.
      */
     public OperationSetBasicInstantMessagingIrcImpl(
-        ProtocolProviderServiceIrcImpl provider)
+        final ProtocolProviderServiceIrcImpl provider)
     {
         if (provider == null)
+        {
             throw new IllegalArgumentException("provider cannot be null");
+        }
         this.provider = provider;
     }
 
     /**
      * Create a new message.
-     * 
+     *
      * {@inheritDoc}
-     * 
+     *
      * @param content Message content
      * @param contentType Message content type
      * @param contentEncoding message encoding
      * @param subject Message subject
      */
     @Override
-    public MessageIrcImpl createMessage(String content, String contentType,
-        String contentEncoding, String subject)
+    public MessageIrcImpl createMessage(final String content,
+        final String contentType, final String contentEncoding,
+        final String subject)
     {
         return new MessageIrcImpl(content, contentType, contentEncoding,
             subject);
@@ -48,7 +57,7 @@ public class OperationSetBasicInstantMessagingIrcImpl
 
     /**
      * Send instant message.
-     * 
+     *
      * @param to contact to send message to
      * @param message message to send
      * @throws IllegalStateException in case of bad internal state
@@ -77,7 +86,7 @@ public class OperationSetBasicInstantMessagingIrcImpl
 
     /**
      * Check if offline messaging is supported.
-     * 
+     *
      * @return returns true if offline messaging is supported or false
      *         otherwise.
      */
@@ -89,14 +98,14 @@ public class OperationSetBasicInstantMessagingIrcImpl
 
     /**
      * Test content type support.
-     * 
+     *
      * {@inheritDoc}
-     * 
+     *
      * @param contentType contentType to test
      * @return returns true if content type is supported
      */
     @Override
-    public boolean isContentTypeSupported(String contentType)
+    public boolean isContentTypeSupported(final String contentType)
     {
         return OperationSetBasicInstantMessaging.HTML_MIME_TYPE
             .equalsIgnoreCase(contentType);
@@ -104,38 +113,38 @@ public class OperationSetBasicInstantMessagingIrcImpl
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @param message the received message
-     * @param contactId the sender
+     * @param from the sender
      */
     @Override
-    protected void fireMessageReceived(Message message, Contact from)
+    protected void fireMessageReceived(final Message message, final Contact from)
     {
         super.fireMessageReceived(message, from);
     }
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @param message Message that has been delivered successfully.
      * @param to Contact to deliver message to.
      */
     @Override
-    protected void fireMessageDelivered(Message message, Contact to)
+    protected void fireMessageDelivered(final Message message, final Contact to)
     {
         super.fireMessageDelivered(message, to);
     }
 
     /**
      * {@inheritDoc}
-     * 
+     *
      * @param message Message that was failed to deliver.
      * @param to Contact to deliver message to.
      * @param errorCode Error code of failed delivery.
      */
     @Override
-    protected void fireMessageDeliveryFailed(Message message, Contact to,
-        int errorCode)
+    protected void fireMessageDeliveryFailed(final Message message,
+        final Contact to, final int errorCode)
     {
         super.fireMessageDeliveryFailed(message, to, errorCode);
     }
