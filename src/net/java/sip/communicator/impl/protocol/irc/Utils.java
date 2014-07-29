@@ -84,27 +84,17 @@ public final class Utils
                 }
                 break;
             case '\u0003':
-                Color foreground = null;
                 Color background = null;
-                try
+                // first parse foreground color code
+                Color foreground = parseForegroundColor(text.substring(i + 1));
+                if (foreground != null)
                 {
-                    // parse foreground color code
-                    foreground = parseForegroundColor(text.substring(i + 1));
                     i += 2;
-
-                    // parse background color code
                     background = parseBackgroundColor(text.substring(i + 1));
-                    i += INDEX_END_COLOR_CODE;
-                }
-                catch (IllegalArgumentException e)
-                {
-                    LOGGER.debug(
-                        "Invalid color code: " + text.substring(i + 1), e);
-                }
-                catch (ArrayIndexOutOfBoundsException e)
-                {
-                    LOGGER.debug("Unknown color code referenced: "
-                        + text.substring(i + 1));
+                    if (background != null)
+                    {
+                        i += INDEX_END_COLOR_CODE;
+                    }
                 }
                 if (foreground == null && background == null)
                 {
@@ -146,30 +136,21 @@ public final class Utils
                 color = color % Color.values().length;
                 return Color.values()[color];
             }
-            throw new IllegalArgumentException(
-               "no color separator present, hence no background color present");
+            return null;
         }
         catch (StringIndexOutOfBoundsException e)
         {
             // Abort parsing background color. Assume only
             // foreground color available.
-            throw new IllegalArgumentException(
-                "text stopped before the background color code was finished");
+            LOGGER.trace("Abort parsing background color because text ended. "
+                + "Assuming only foreground color was available.");
+            return null;
         }
         catch (NumberFormatException e)
         {
             // No background color defined, ignoring ...
-            throw new IllegalArgumentException(
-                "value isn't a background color code: "
-                    + text.substring(1, INDEX_END_COLOR_CODE));
-        }
-        catch (ArrayIndexOutOfBoundsException e)
-        {
-            LOGGER.debug("Specified IRC color is not a known color code: "
-                + e.getMessage());
-            throw new IllegalArgumentException("background color value "
-                + text.substring(1, INDEX_END_COLOR_CODE)
-                + " is not a known color");
+            LOGGER.trace("No background color defined. Ignoring ...");
+            return null;
         }
     }
 
@@ -192,22 +173,12 @@ public final class Utils
             // Invalid control code, since text has ended.
             LOGGER.trace("ArrayIndexOutOfBounds during foreground "
                 + "color control code parsing.");
-            throw new IllegalArgumentException("missing foreground color code");
+            return null;
         }
         catch (NumberFormatException e)
         {
-            // FIXME correctly print out color code (as a number or hex number)
-            // Invalid text color value
-            LOGGER.trace("Invalid foreground color code encountered.");
-            throw new IllegalArgumentException(
-                "invalid foreground color code: " + text.substring(0, 2));
-        }
-        catch (ArrayIndexOutOfBoundsException e)
-        {
-            LOGGER.debug("Specified IRC color is not a known color code: "
-                + e.getMessage());
-            throw new IllegalArgumentException("foreground color value "
-                + text.substring(0, 2) + " is not a known color");
+            LOGGER.trace("Invalid foreground color code encountered.", e);
+            return null;
         }
     }
 
