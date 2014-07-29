@@ -508,7 +508,7 @@ public class IrcStack
                 }
                 list = listSignal.getValue();
                 this.channellist.set(list);
-                LOGGER.trace("Finished retrieve server chat room list.");
+                LOGGER.trace("Finished retrieving server chat room list.");
             }
             else
             {
@@ -746,9 +746,6 @@ public class IrcStack
     public void leave(final ChatRoomIrcImpl chatroom)
     {
         LOGGER.trace("Leaving chat room '" + chatroom.getIdentifier() + "'.");
-
-        // You only actually join non-private chat rooms, so only these ones
-        // need to be left.
         leave(chatroom.getIdentifier());
     }
 
@@ -852,7 +849,8 @@ public class IrcStack
     }
 
     /**
-     * Implementation of some commands.
+     * Implementation of some commands. If the command is not recognized or
+     * implemented, it will be sent as if it were a normal message.
      *
      * TODO Eventually replace this with a factory such that we can easily
      * extend with new commands.
@@ -926,7 +924,7 @@ public class IrcStack
             throw new IllegalStateException("Not connected to an IRC server.");
         }
         final IRCApi irc = this.session.get();
-        String target = chatroom.getIdentifier();
+        final String target = chatroom.getIdentifier();
         irc.message(target, message);
     }
 
@@ -1198,14 +1196,14 @@ public class IrcStack
                 final int endOfTargetIndex = msgText.indexOf(' ');
                 if (endOfTargetIndex == -1)
                 {
-                    LOGGER.trace("Expected source nick name in error message, "
-                        + "but it cannot be found. Stop parsing.");
+                    LOGGER.trace("Expected target nick in error message, but "
+                        + "it cannot be found. Stop parsing.");
                     break;
                 }
                 final String targetNick =
                     msgText.substring(0, endOfTargetIndex);
-                final String msgTextError =
-                    msgText.substring(endOfTargetIndex + 2);
+                // Send blank text string as the message, since we don't know
+                // what the actual message was.
                 MessageIrcImpl message =
                     new MessageIrcImpl(
                         "",
@@ -1419,10 +1417,6 @@ public class IrcStack
             // set this way) and it turns out the user is online? Can we send it
             // a message then? (Or would Jitsi block this, because there is no
             // support for off-line messaging.)
-
-            // TODO Also respond to private messages that are undeliverable
-            // because the user is not available anymore.
-            // 401 - <nick> :No such nick/channel
         }
     }
 

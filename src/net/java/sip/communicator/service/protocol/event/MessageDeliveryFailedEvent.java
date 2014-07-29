@@ -11,7 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
- * <tt>MessageDeliveredEvent</tt>s confirm successful delivery of an instant
+ * <tt>MessageDeliveryFailedEvent</tt>s inform of failed delivery of an instant
  * message.
  *
  * @author Emil Ivov
