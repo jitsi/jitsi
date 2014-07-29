@@ -1130,6 +1130,12 @@ public class IrcStack
             switch (code.intValue())
             {
             case IRCServerNumerics.CHANNEL_NICKS_END_OF_LIST:
+                // CHANNEL_NICKS_END_OF_LIST indicates the end of a nick list as
+                // you will receive when joining a channel. This is used as the
+                // indicator that we have joined a channel. Now we have to
+                // determine whether or not we already know about this
+                // particular join attempt. If not, we continue to inform Jitsi
+                // and to create a listener for this new chat room.
                 String text = msg.getText();
                 String channelName = text.substring(0, text.indexOf(' '));
                 final ChatRoomIrcImpl chatRoom;
@@ -1178,15 +1184,45 @@ public class IrcStack
                 LOGGER.trace("Unannounced join of chat room '" + channelName
                     + "' completed.");
                 break;
+
             case IRCServerNumerics.NO_SUCH_NICK_CHANNEL:
                 // TODO Check if target is Contact, then update contact presence
                 // status to off-line since the nick apparently does not exist
                 // anymore.
-                //
-                // ":hobana.freenode.net 401 dvheumen dvheumen_ :No such
-                // nick/channel"
-                LOGGER.warn("Message did not get delivered: " + msg.asRaw());
+                if (LOGGER.isTraceEnabled())
+                {
+                    LOGGER.trace("Message did not get delivered: "
+                        + msg.asRaw());
+                }
+                final String msgText = msg.getText();
+                final int endOfTargetIndex = msgText.indexOf(' ');
+                if (endOfTargetIndex == -1)
+                {
+                    LOGGER.trace("Expected source nick name in error message, "
+                        + "but it cannot be found. Stop parsing.");
+                    break;
+                }
+                final String targetNick =
+                    msgText.substring(0, endOfTargetIndex);
+                final String msgTextError =
+                    msgText.substring(endOfTargetIndex + 2);
+                MessageIrcImpl message =
+                    new MessageIrcImpl(
+                        "",
+                        OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
+                        OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
+                        null);
+                final Contact to =
+                    IrcStack.this.provider.getPersistentPresence()
+                        .findOrCreateContactByID(targetNick);
+                IrcStack.this.provider
+                    .getBasicInstantMessaging()
+                    .fireMessageDeliveryFailed(
+                        message,
+                        to,
+                        MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED);
                 break;
+
             default:
                 if (LOGGER.isTraceEnabled())
                 {
