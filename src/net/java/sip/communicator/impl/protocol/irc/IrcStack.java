@@ -492,7 +492,8 @@ public class IrcStack
                 {
                     try
                     {
-                        irc.addListener(new ChannelListListener(irc, listSignal));
+                        irc.addListener(
+                            new ChannelListListener(irc, listSignal));
                         irc.rawMessage("LIST");
                         while (!listSignal.isDone())
                         {
@@ -1160,8 +1161,8 @@ public class IrcStack
                     channel =
                         IrcStack.this.connectionState
                             .getChannelByName(channelName);
-                    chatRoom =
-                        new ChatRoomIrcImpl(channelName, IrcStack.this.provider);
+                    chatRoom = new ChatRoomIrcImpl(
+                        channelName, IrcStack.this.provider);
                     IrcStack.this.joined.put(channelName, chatRoom);
                 }
                 this.irc.addListener(new ChatRoomListener(this.irc, chatRoom));
@@ -1218,7 +1219,8 @@ public class IrcStack
                     .fireMessageDeliveryFailed(
                         message,
                         to,
-                        MessageDeliveryFailedEvent.OFFLINE_MESSAGES_NOT_SUPPORTED);
+                        MessageDeliveryFailedEvent
+                            .OFFLINE_MESSAGES_NOT_SUPPORTED);
                 break;
 
             default:
@@ -1269,7 +1271,7 @@ public class IrcStack
         {
             final String user = msg.getSource().getNick();
             final String text = Utils.formatMessage(Utils.parse(msg.getText()));
-            MessageIrcImpl message =
+            final MessageIrcImpl message =
                 new MessageIrcImpl(text,
                     OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
                     OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
@@ -1312,12 +1314,12 @@ public class IrcStack
             final String user = msg.getSource().getNick();
             final String text =
                 Utils.formatNotice(Utils.parse(msg.getText()), user);
-            MessageIrcImpl message =
+            final MessageIrcImpl message =
                 new MessageIrcImpl(text,
                     OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
                     OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
                     null);
-            Contact from =
+            final Contact from =
                 IrcStack.this.provider.getPersistentPresence()
                     .findOrCreateContactByID(user);
             IrcStack.this.provider.getBasicInstantMessaging()
@@ -1336,12 +1338,12 @@ public class IrcStack
             final String user = msg.getSource().getNick();
             final String text =
                 Utils.formatAction(Utils.parse(msg.getText()), user);
-            MessageIrcImpl message =
+            final MessageIrcImpl message =
                 new MessageIrcImpl(text,
                     OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
                     OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
                     null);
-            Contact from =
+            final Contact from =
                 IrcStack.this.provider.getPersistentPresence().findContactByID(
                     user);
             IrcStack.this.provider.getBasicInstantMessaging()
@@ -1514,8 +1516,8 @@ public class IrcStack
                 return;
             }
 
-            String user = msg.getSource().getNick();
-            ChatRoomMemberIrcImpl member =
+            final String user = msg.getSource().getNick();
+            final ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(IrcStack.this.provider,
                     this.chatroom, user, ChatRoomMemberRole.SILENT_MEMBER);
             this.chatroom.fireMemberPresenceEvent(member, null,
@@ -1617,10 +1619,10 @@ public class IrcStack
                 return;
             }
 
-            String kickedUser = msg.getKickedNickname();
-            ChatRoomMember kickedMember =
+            final String kickedUser = msg.getKickedNickname();
+            final ChatRoomMember kickedMember =
                 this.chatroom.getChatRoomMember(kickedUser);
-            String user = msg.getSource().getNick();
+            final String user = msg.getSource().getNick();
             if (kickedMember != null)
             {
                 ChatRoomMember kicker = this.chatroom.getChatRoomMember(user);
@@ -1628,15 +1630,17 @@ public class IrcStack
                     ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED,
                     msg.getText());
             }
-
             if (isMe(kickedUser))
             {
+                LOGGER.debug(
+                    "Local user is kicked. Removing chat room listener.");
                 this.irc.deleteListener(this);
                 IrcStack.this.joined.remove(this.chatroom.getIdentifier());
                 IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
                     this.chatroom,
                     LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_KICKED,
                     msg.getText());
+                // FIXME Kicks of local user does not close the chat room window
             }
         }
 
@@ -1763,13 +1767,13 @@ public class IrcStack
                 return;
             }
 
-            String userNick = msg.getSource().getNick();
-            ChatRoomMemberIrcImpl member =
+            final String userNick = msg.getSource().getNick();
+            final ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(IrcStack.this.provider,
                     this.chatroom, userNick, ChatRoomMemberRole.MEMBER);
-            String text =
+            final String text =
                 Utils.formatNotice(Utils.parse(msg.getText()), userNick);
-            MessageIrcImpl message =
+            final MessageIrcImpl message =
                 new MessageIrcImpl(text, "text/html", "UTF-8", null);
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
                 ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
@@ -1796,9 +1800,8 @@ public class IrcStack
          */
         private void processModeMessage(final ChannelModeMessage msg)
         {
-            ChatRoomMemberIrcImpl sourceMember = extractChatRoomMember(msg);
-
-            ModeParser parser = new ModeParser(msg.getModeStr());
+            final ChatRoomMemberIrcImpl source = extractChatRoomMember(msg);
+            final ModeParser parser = new ModeParser(msg.getModeStr());
             for (ModeEntry mode : parser.getModes())
             {
                 switch (mode.getMode())
@@ -1807,115 +1810,13 @@ public class IrcStack
                 case OPERATOR:
                 case HALFOP:
                 case VOICE:
-                    String targetNick = mode.getParams()[0];
-                    ChatRoomMemberIrcImpl targetMember =
-                        (ChatRoomMemberIrcImpl) this.chatroom
-                            .getChatRoomMember(targetNick);
-                    ChatRoomMemberRole originalRole = targetMember.getRole();
-                    if (mode.isAdded())
-                    {
-                        targetMember.addRole(mode.getMode().getRole());
-                    }
-                    else
-                    {
-                        targetMember.removeRole(mode.getMode().getRole());
-                    }
-                    ChatRoomMemberRole newRole = targetMember.getRole();
-                    if (newRole != originalRole)
-                    {
-                        // Mode change actually caused a role change.
-                        ChatRoomLocalUserRoleChangeEvent event =
-                            new ChatRoomLocalUserRoleChangeEvent(this.chatroom,
-                                originalRole, newRole, false);
-                        if (isMe(targetMember.getContactAddress()))
-                        {
-                            this.chatroom.fireLocalUserRoleChangedEvent(event);
-                        }
-                        else
-                        {
-                            this.chatroom.fireMemberRoleEvent(targetMember,
-                                newRole);
-                        }
-                    }
-                    else
-                    {
-                        // Mode change did not cause an immediate role change.
-                        // Display a system message for the mode change.
-                        String text =
-                            sourceMember.getName()
-                                + (mode.isAdded() ? " gives "
-                                    + mode.getMode().name().toLowerCase()
-                                    + " to " : " removes "
-                                    + mode.getMode().name().toLowerCase()
-                                    + " from ") + targetMember.getName();
-                        MessageIrcImpl message =
-                            new MessageIrcImpl(text,
-                                MessageIrcImpl.DEFAULT_MIME_TYPE,
-                                MessageIrcImpl.DEFAULT_MIME_ENCODING, null);
-                        this.chatroom
-                            .fireMessageReceivedEvent(
-                                message,
-                                sourceMember,
-                                new Date(),
-                                ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
-                    }
+                    processRoleChange(source, mode);
                     break;
                 case LIMIT:
-                    MessageIrcImpl limitMessage;
-                    if (mode.isAdded())
-                    {
-                        try
-                        {
-                            limitMessage =
-                                new MessageIrcImpl("channel limit set to "
-                                    + Integer.parseInt(mode.getParams()[0])
-                                    + " by "
-                                    + (sourceMember.getContactAddress()
-                                        .length() == 0 ? "server"
-                                        : sourceMember.getContactAddress()),
-                                    "text/plain", "UTF-8", null);
-                        }
-                        catch (NumberFormatException e)
-                        {
-                            LOGGER.warn("server sent incorrect limit: "
-                                + "limit is not a number", e);
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        // TODO "server" is now easily fakeable if someone
-                        // calls himself server. There should be some other way
-                        // to represent the server if a message comes from
-                        // something other than a normal chat room member.
-                        limitMessage =
-                            new MessageIrcImpl(
-                                "channel limit removed by "
-                                    + (sourceMember.getContactAddress()
-                                        .length() == 0 ? "server"
-                                        : sourceMember.getContactAddress()),
-                                "text/plain", "UTF-8", null);
-                    }
-                    this.chatroom.fireMessageReceivedEvent(limitMessage,
-                        sourceMember, new Date(),
-                        ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+                    processLimitChange(source, mode);
                     break;
                 case BAN:
-                    MessageIrcImpl banMessage =
-                        new MessageIrcImpl(
-                            "channel ban mask was "
-                                + (mode.isAdded() ? "added" : "removed")
-                                + ": "
-                                + mode.getParams()[0]
-                                + " by "
-                                + (sourceMember.getContactAddress()
-                                    .length() == 0 ? "server"
-                                    : sourceMember.getContactAddress()),
-                            MessageIrcImpl.DEFAULT_MIME_TYPE,
-                            MessageIrcImpl.DEFAULT_MIME_ENCODING, null);
-                    this.chatroom.fireMessageReceivedEvent(banMessage,
-                        sourceMember, new Date(),
-                        ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+                    processBanChange(source, mode);
                     break;
                 case UNKNOWN:
                     if (LOGGER.isInfoEnabled())
@@ -1936,6 +1837,146 @@ public class IrcStack
                     break;
                 }
             }
+        }
+
+        /**
+         * Process changes for ban patterns.
+         *
+         * @param sourceMember the originating member
+         * @param mode the ban mode change
+         */
+        private void processBanChange(final ChatRoomMemberIrcImpl sourceMember,
+            final ModeEntry mode)
+        {
+            final MessageIrcImpl banMessage =
+                new MessageIrcImpl(
+                    "channel ban mask was "
+                        + (mode.isAdded() ? "added" : "removed")
+                        + ": "
+                        + mode.getParams()[0]
+                        + " by "
+                        + (sourceMember.getContactAddress().length() == 0
+                            ? "server"
+                            : sourceMember.getContactAddress()),
+                    MessageIrcImpl.DEFAULT_MIME_TYPE,
+                    MessageIrcImpl.DEFAULT_MIME_ENCODING, null);
+            this.chatroom.fireMessageReceivedEvent(banMessage, sourceMember,
+                new Date(),
+                ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+        }
+
+        /**
+         * Process mode changes resulting in role manipulation.
+         *
+         * @param sourceMember the originating member
+         * @param mode the mode change
+         */
+        private void processRoleChange(
+            final ChatRoomMemberIrcImpl sourceMember, final ModeEntry mode)
+        {
+            final String targetNick = mode.getParams()[0];
+            final ChatRoomMemberIrcImpl targetMember =
+                (ChatRoomMemberIrcImpl) this.chatroom
+                    .getChatRoomMember(targetNick);
+            final ChatRoomMemberRole originalRole = targetMember.getRole();
+            if (mode.isAdded())
+            {
+                targetMember.addRole(mode.getMode().getRole());
+            }
+            else
+            {
+                targetMember.removeRole(mode.getMode().getRole());
+            }
+            final ChatRoomMemberRole newRole = targetMember.getRole();
+            if (newRole != originalRole)
+            {
+                // Mode change actually caused a role change.
+                final ChatRoomLocalUserRoleChangeEvent event =
+                    new ChatRoomLocalUserRoleChangeEvent(this.chatroom,
+                        originalRole, newRole, false);
+                if (isMe(targetMember.getContactAddress()))
+                {
+                    this.chatroom.fireLocalUserRoleChangedEvent(event);
+                }
+                else
+                {
+                    this.chatroom.fireMemberRoleEvent(targetMember,
+                        newRole);
+                }
+            }
+            else
+            {
+                // Mode change did not cause an immediate role change.
+                // Display a system message for the mode change.
+                final String text =
+                    sourceMember.getName()
+                        + (mode.isAdded() ? " gives "
+                            + mode.getMode().name().toLowerCase()
+                            + " to " : " removes "
+                            + mode.getMode().name().toLowerCase()
+                            + " from ") + targetMember.getName();
+                final MessageIrcImpl message =
+                    new MessageIrcImpl(text,
+                        MessageIrcImpl.DEFAULT_MIME_TYPE,
+                        MessageIrcImpl.DEFAULT_MIME_ENCODING, null);
+                this.chatroom
+                    .fireMessageReceivedEvent(
+                        message,
+                        sourceMember,
+                        new Date(),
+                        ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+            }
+        }
+
+        /**
+         * Process mode change that represents a channel limit modification.
+         *
+         * @param sourceMember the originating member
+         * @param mode the limit mode change
+         */
+        private void processLimitChange(
+            final ChatRoomMemberIrcImpl sourceMember, final ModeEntry mode)
+        {
+            final MessageIrcImpl limitMessage;
+            if (mode.isAdded())
+            {
+                try
+                {
+                    limitMessage =
+                        new MessageIrcImpl(
+                            "channel limit set to "
+                                + Integer.parseInt(mode.getParams()[0])
+                                + " by "
+                                + (sourceMember.getContactAddress()
+                                        .length() == 0
+                                    ? "server"
+                                    : sourceMember.getContactAddress()),
+                            "text/plain", "UTF-8", null);
+                }
+                catch (NumberFormatException e)
+                {
+                    LOGGER.warn("server sent incorrect limit: "
+                        + "limit is not a number", e);
+                    return;
+                }
+            }
+            else
+            {
+                // TODO "server" is now easily fakeable if someone
+                // calls himself server. There should be some other way
+                // to represent the server if a message comes from
+                // something other than a normal chat room member.
+                limitMessage =
+                    new MessageIrcImpl(
+                        "channel limit removed by "
+                            + (sourceMember.getContactAddress().length() == 0
+                                ? "server"
+                                : sourceMember.getContactAddress()),
+                        "text/plain", "UTF-8", null);
+            }
+            this.chatroom.fireMessageReceivedEvent(limitMessage, sourceMember,
+                new Date(),
+                ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
         }
 
         /**
@@ -2021,6 +2062,21 @@ public class IrcStack
         extends VariousMessageListenerAdapter
     {
         /**
+         * Start of an IRC server channel listing reply.
+         */
+        private static final int RPL_LISTSTART = 321;
+
+        /**
+         * Continuation of an IRC server channel listing reply.
+         */
+        private static final int RPL_LIST = 322;
+
+        /**
+         * End of an IRC server channel listing reply.
+         */
+        private static final int RPL_LISTEND = 323;
+
+        /**
          * Reference to the IRC API instance.
          */
         private final IRCApi api;
@@ -2028,15 +2084,16 @@ public class IrcStack
         /**
          * Reference to the provided list instance.
          */
-        private Result<List<String>, Exception> signal;
+        private final Result<List<String>, Exception> signal;
 
         /**
          * Constructor for channel list listener.
+         *
          * @param api irc-api library instance
-         * @param list signal for sync signaling
+         * @param signal signal for sync signaling
          */
         private ChannelListListener(final IRCApi api,
-            final Result<List<String>, Exception> list)
+            final Result<List<String>, Exception> signal)
         {
             if (api == null)
             {
@@ -2044,7 +2101,7 @@ public class IrcStack
                     "IRC api instance cannot be null");
             }
             this.api = api;
-            this.signal = list;
+            this.signal = signal;
         }
 
         /**
@@ -2067,13 +2124,13 @@ public class IrcStack
 
             switch (msg.getNumericCode())
             {
-            case 321:
+            case RPL_LISTSTART:
                 synchronized (this.signal)
                 {
                     this.signal.getValue().clear();
                 }
                 break;
-            case 322:
+            case RPL_LIST:
                 String channel = parse(msg.getText());
                 if (channel != null)
                 {
@@ -2083,7 +2140,7 @@ public class IrcStack
                     }
                 }
                 break;
-            case 323:
+            case RPL_LISTEND:
                 synchronized (this.signal)
                 {
                     // Done collecting channels. Remove listener and then we're
@@ -2124,6 +2181,21 @@ public class IrcStack
     private static final class ServerParameters
         implements IServerParameters
     {
+        /**
+         * Number of increments to try for alternative nick names.
+         */
+        private static final int NUM_INCREMENTS_FOR_ALTERNATIVES = 10;
+
+        /**
+         * Reserved symbols. These symbols have special meaning and cannot be
+         * used to start nick names.
+         */
+        private static final Set<Character> RESERVED = new HashSet<Character>();
+
+        static {
+            RESERVED.add('#');
+            RESERVED.add('&');
+        }
 
         /**
          * Nick name.
@@ -2165,7 +2237,7 @@ public class IrcStack
             this.alternativeNicks.add(nickName + "__");
             this.alternativeNicks.add(nickName + "___");
             this.alternativeNicks.add(nickName + "____");
-            for (int i = 1; i < 10; i++)
+            for (int i = 1; i < NUM_INCREMENTS_FOR_ALTERNATIVES; i++)
             {
                 this.alternativeNicks.add(nickName + i);
             }
@@ -2208,7 +2280,8 @@ public class IrcStack
                 throw new IllegalArgumentException(
                     "a nick name must be provided");
             }
-            if (nick.startsWith("#") || nick.startsWith("&"))
+            // TODO Add '+' and '!' to reserved symbols too?
+            if (RESERVED.contains(nick.charAt(0)))
             {
                 throw new IllegalArgumentException(
                     "the nick name must not start with '#' or '&' "
