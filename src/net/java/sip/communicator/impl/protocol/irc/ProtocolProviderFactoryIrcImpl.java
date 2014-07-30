@@ -18,12 +18,13 @@ import org.osgi.framework.*;
  *
  * @author Stephane Remy
  * @author Loic Kempf
+ * @author Danny van Heumen
  */
 public class ProtocolProviderFactoryIrcImpl
     extends ProtocolProviderFactory
 {
     /**
-     * Constructor
+     * Constructor.
      */
     public ProtocolProviderFactoryIrcImpl()
     {
@@ -42,22 +43,28 @@ public class ProtocolProviderFactoryIrcImpl
      * @return the AccountID of the newly created account.
      */
     @Override
-    public AccountID installAccount( String userIDStr,
-                                     Map<String, String> accountProperties)
+    public AccountID installAccount(final String userIDStr,
+                                    final Map<String, String> accountProperties)
     {
         BundleContext context = IrcActivator.getBundleContext();
 
         if (context == null)
+        {
             throw new NullPointerException(
                 "The specified BundleContext was null");
+        }
 
         if (userIDStr == null)
+        {
             throw new NullPointerException(
                 "The specified AccountID was null");
+        }
 
         if (accountProperties == null)
+        {
             throw new NullPointerException(
                 "The specified property map was null");
+        }
 
         accountProperties.put(USER_ID, userIDStr);
         final String host =
@@ -69,8 +76,10 @@ public class ProtocolProviderFactoryIrcImpl
 
         //make sure we haven't seen this account id before.
         if (registeredAccounts.containsKey(accountID))
+        {
             throw new IllegalStateException(
                 "An account for id " + userIDStr + " was already installed!");
+        }
 
         //first store the account and only then load it as the load generates
         //an OSGI event, the OSGI event triggers (through the UI) a call to the
@@ -85,12 +94,12 @@ public class ProtocolProviderFactoryIrcImpl
 
     /**
      * Create an IRC Account ID.
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
-    protected AccountID createAccountID(String userID,
-        Map<String, String> accountProperties)
+    protected AccountID createAccountID(final String userID,
+        final Map<String, String> accountProperties)
     {
         final String host =
             accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
@@ -101,12 +110,12 @@ public class ProtocolProviderFactoryIrcImpl
 
     /**
      * Create an IRC provider service.
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
-    protected ProtocolProviderService createService(String userID,
-        AccountID accountID)
+    protected ProtocolProviderService createService(final String userID,
+        final AccountID accountID)
     {
         ProtocolProviderServiceIrcImpl service =
             new ProtocolProviderServiceIrcImpl();
@@ -117,12 +126,12 @@ public class ProtocolProviderFactoryIrcImpl
 
     /**
      * Modify an existing IRC account.
-     * 
+     *
      * {@inheritDoc}
      */
     @Override
-    public void modifyAccount(ProtocolProviderService protocolProvider,
-        Map<String, String> accountProperties)
+    public void modifyAccount(final ProtocolProviderService protocolProvider,
+        final Map<String, String> accountProperties)
     {
         // not implemented, modified accounts currently get reinstalled as
         // "newly" created accounts.

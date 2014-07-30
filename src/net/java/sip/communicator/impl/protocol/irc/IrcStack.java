@@ -31,13 +31,6 @@ import com.ircclouds.irc.api.state.*;
  *
  * TODO Do we need to cancel any join channel operations still in progress?
  *
- * TODO Is there a chance that any Listeners will remain active after
- * disconnecting?
- *
- * TODO Create a separate session object that stores: IRCApi instance +
- * connection state + channel list container, such that it is easy to check for
- * connectivity and manage state.
- *
  * @author Danny van Heumen
  */
 public class IrcStack
@@ -194,15 +187,7 @@ public class IrcStack
             {
                 // If tracing is enabled, register another listener that logs
                 // all IRC messages as published by the IRC client library.
-                irc.addListener(new IMessageListener()
-                {
-
-                    @Override
-                    public void onMessage(final IMessage aMessage)
-                    {
-                        LOGGER.trace("(" + aMessage + ") " + aMessage.asRaw());
-                    }
-                });
+                irc.addListener(new DebugListener());
             }
 
             connectSynchronized();
@@ -635,7 +620,8 @@ public class IrcStack
                                 .getMUC()
                                 .fireLocalUserPresenceEvent(
                                     chatroom,
-                                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOIN_FAILED,
+                                    LocalUserChatRoomPresenceChangeEvent
+                                        .LOCAL_USER_JOIN_FAILED,
                                     "We got forwarded to channel '"
                                         + channel.getName() + "'.");
                             // Notify waiting threads of finished execution.
@@ -651,7 +637,8 @@ public class IrcStack
                         try
                         {
                             IrcStack.this.joined.put(chatRoomId, chatroom);
-                            irc.addListener(new ChatRoomListener(irc, chatroom));
+                            irc.addListener(
+                                new ChatRoomListener(irc, chatroom));
                             prepareChatRoom(chatroom, channel);
                         }
                         finally
@@ -666,7 +653,8 @@ public class IrcStack
                                 .getMUC()
                                 .fireLocalUserPresenceEvent(
                                     chatroom,
-                                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
+                                    LocalUserChatRoomPresenceChangeEvent
+                                        .LOCAL_USER_JOINED,
                                     null);
                             if (LOGGER.isTraceEnabled())
                             {
@@ -696,7 +684,8 @@ public class IrcStack
                                 .getMUC()
                                 .fireLocalUserPresenceEvent(
                                     chatroom,
-                                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOIN_FAILED,
+                                    LocalUserChatRoomPresenceChangeEvent
+                                        .LOCAL_USER_JOIN_FAILED,
                                     e.getMessage());
                         }
                         finally
@@ -2172,6 +2161,26 @@ public class IrcStack
             // Create a new string to make sure that the original (larger)
             // strings can be GC'ed.
             return new String(text.substring(0, endOfChannelName));
+        }
+    }
+
+    /**
+     * Listener for debugging purposes. If logging level is set high enough,
+     * this listener is added to the irc-api client so it can show all IRC
+     * messages as they are handled.
+     *
+     * @author Danny van Heumen
+     */
+    private static final class DebugListener implements IMessageListener
+    {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void onMessage(final IMessage aMessage)
+        {
+            LOGGER.trace("(" + aMessage + ") " + aMessage.asRaw());
         }
     }
 
