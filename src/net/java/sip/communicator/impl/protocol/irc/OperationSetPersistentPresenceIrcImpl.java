@@ -110,70 +110,126 @@ public class OperationSetPersistentPresenceIrcImpl
         return rootGroup;
     }
 
+    /**
+     * IRC currently does not implement subscribing.
+     *
+     * @param contactIdentifier contact
+     * @throws OperationFailedException if not implemented
+     */
     @Override
     public void subscribe(final String contactIdentifier)
         throws IllegalArgumentException,
         IllegalStateException,
         OperationFailedException
     {
-        System.out.println("subscribe(\"" + contactIdentifier + "\") called");
-        // TODO Auto-generated method stub
+        LOGGER.trace("subscribe(\"" + contactIdentifier + "\") called");
+        throw new OperationFailedException("Not implemented.",
+            OperationFailedException.NOT_SUPPORTED_OPERATION);
     }
 
+    /**
+     * IRC currently does not implement subscribing.
+     *
+     * @param parent contact group
+     * @param contactIdentifier contact
+     * @throws OperationFailedException if not implemented
+     */
     @Override
-    public void subscribe(ContactGroup parent, String contactIdentifier)
+    public void subscribe(final ContactGroup parent,
+        final String contactIdentifier)
         throws IllegalArgumentException,
         IllegalStateException,
         OperationFailedException
     {
-        System.out.println("subscribe(\"" + parent.getGroupName() + "\", \""
+        LOGGER.trace("subscribe(\"" + parent.getGroupName() + "\", \""
             + contactIdentifier + "\") called");
-        // TODO Auto-generated method stub
+        throw new OperationFailedException("Not implemented.",
+            OperationFailedException.NOT_SUPPORTED_OPERATION);
     }
 
+    /**
+     * IRC currently does not implement unsubscribing.
+     *
+     * @param contact contact to unsubscribe
+     * @throws OperationFailedException if not implemented
+     */
     @Override
-    public void unsubscribe(Contact contact)
+    public void unsubscribe(final Contact contact)
         throws IllegalArgumentException,
         IllegalStateException,
         OperationFailedException
     {
-        System.out.println("unsubscribe(\"" + contact.getAddress()
-            + "\") called");
-        // TODO Auto-generated method stub
+        LOGGER.trace("unsubscribe(\"" + contact.getAddress() + "\") called");
+        throw new OperationFailedException("Not implemented.",
+            OperationFailedException.NOT_SUPPORTED_OPERATION);
     }
 
+    /**
+     * Creating a contact group is currently not implemented.
+     *
+     * @param parent parent contact group
+     * @param groupName new group's name
+     * @throws OperationFailedException if not implemented
+     */
     @Override
-    public void createServerStoredContactGroup(ContactGroup parent,
-        String groupName) throws OperationFailedException
+    public void createServerStoredContactGroup(final ContactGroup parent,
+        final String groupName) throws OperationFailedException
     {
-        // TODO Auto-generated method stub
-        
+        LOGGER.trace("createServerStoredContactGroup(...) called");
+        throw new OperationFailedException("Not implemented.",
+            OperationFailedException.NOT_SUPPORTED_OPERATION);
     }
 
+    /**
+     * Removing a contact group is currently not implemented.
+     *
+     * @param group contact group to remove
+     * @throws OperationFailedException if not implemented
+     */
     @Override
-    public void removeServerStoredContactGroup(ContactGroup group)
+    public void removeServerStoredContactGroup(final ContactGroup group)
         throws OperationFailedException
     {
-        // TODO Auto-generated method stub
-        
+        LOGGER.trace("removeServerStoredContactGroup called");
+        throw new OperationFailedException("Not implemented.",
+            OperationFailedException.NOT_SUPPORTED_OPERATION);
     }
 
+    /**
+     * Rename contact group.
+     *
+     * @param group contact group to rename
+     * @param newName new name
+     */
     @Override
-    public void renameServerStoredContactGroup(ContactGroup group,
-        String newName)
+    public void renameServerStoredContactGroup(final ContactGroup group,
+        final String newName)
     {
-        // TODO Auto-generated method stub
-        
+        LOGGER.trace("renameServerStoredContactGroup called");
+        ((ContactGroupIrcImpl) group).setGroupName(newName);
     }
 
+    /**
+     * Moving contacts to a different group is currently not implemented.
+     *
+     * @param contactToMove contact to move
+     * @param newParent new parent group
+     * @throws OperationFailedException if not implemented
+     */
     @Override
-    public void moveContactToGroup(Contact contactToMove, ContactGroup newParent)
-        throws OperationFailedException
+    public void moveContactToGroup(final Contact contactToMove,
+        final ContactGroup newParent) throws OperationFailedException
     {
-        // TODO Auto-generated method stub
-        
+        LOGGER.trace("moveContactToGroup called");
+        throw new OperationFailedException("Not implemented.",
+            OperationFailedException.NOT_SUPPORTED_OPERATION);
     }
 
+    /**
+     * Get group of contacts that have been discovered while using IRC.
+     *
+     * @return returns root contact group
+     */
     @Override
     public ContactGroup getServerStoredContactListRoot()
     {
@@ -184,43 +240,77 @@ public class OperationSetPersistentPresenceIrcImpl
     }
 
     @Override
-    public Contact createUnresolvedContact(String address,
-        String persistentData, ContactGroup parentGroup)
+    public Contact createUnresolvedContact(final String address,
+        final String persistentData, final ContactGroup parentGroup)
     {
         LOGGER.warn("Unresolved contact: " + address + " " + persistentData
             + " group: " + parentGroup.getGroupName());
-        // TODO Auto-generated method stub
+        // FIXME implement createUnresolvedContact
         return null;
     }
 
     @Override
-    public ContactGroup createUnresolvedContactGroup(String groupUID,
-        String persistentData, ContactGroup parentGroup)
+    public Contact createUnresolvedContact(final String address,
+        final String persistentData)
+    {
+        LOGGER.warn("Unresolved contact: " + address + " " + persistentData);
+        // FIXME implement createUnresolvedContact
+        return null;
+    }
+
+    @Override
+    public ContactGroup createUnresolvedContactGroup(final String groupUID,
+        final String persistentData, final ContactGroup parentGroup)
     {
         LOGGER.warn("Unresolved contactgroup: " + groupUID + " "
             + persistentData + " parent: " + parentGroup.getGroupName());
-        // TODO Auto-generated method stub
+        // TODO implement createUnresolvedContactGroup
         return null;
     }
 
+    /**
+     * Get current IRC presence status.
+     *
+     * The presence status currently is ONLINE if we are connected or OFFLINE if
+     * we aren't connected.
+     *
+     * @return returns status ONLINE if connected or OFFLINE if not connected
+     */
     @Override
     public PresenceStatus getPresenceStatus()
     {
-        // TODO determine current Presence Status
-        return null;
+        // TODO implement AWAY presence if available in irc-api
+        if (this.parentProvider.getIrcStack().isConnected())
+        {
+            return IrcStatusEnum.ONLINE;
+        }
+        else
+        {
+            return IrcStatusEnum.OFFLINE;
+        }
     }
 
+    /**
+     * "Publishing" presence status in IRC is currently not implemented.
+     */
     @Override
-    public void publishPresenceStatus(PresenceStatus status,
-        String statusMessage)
+    public void publishPresenceStatus(final PresenceStatus status,
+        final String statusMessage)
         throws IllegalArgumentException,
         IllegalStateException,
         OperationFailedException
     {
-        // TODO Auto-generated method stub
-
+        // TODO implement publishPresenceStatus (we might be able to do
+        // something with modes invisible and away (IIRC) in IRC.
+        throw new OperationFailedException("Not implemented.",
+            OperationFailedException.NOT_SUPPORTED_OPERATION);
     }
 
+    /**
+     * Get set of statuses supported in IRC.
+     *
+     * @return returns iterator for supported statuses
+     */
     @Override
     public Iterator<PresenceStatus> getSupportedStatusSet()
     {
@@ -235,10 +325,11 @@ public class OperationSetPersistentPresenceIrcImpl
     }
 
     /**
-     * {@inheritDoc}
+     * IRC currently does not implement querying presence status.
      *
      * @param contactIdentifier contact id
      * @return returns current presence status
+     * @throws OperationFailedException for not supporting this feature
      */
     @Override
     public PresenceStatus queryContactStatus(final String contactIdentifier)
@@ -246,52 +337,71 @@ public class OperationSetPersistentPresenceIrcImpl
         IllegalStateException,
         OperationFailedException
     {
-        return IrcStatusEnum.ONLINE;
+        // TODO implement querying presence status of contact
+        throw new OperationFailedException("Not supported.",
+            OperationFailedException.NOT_SUPPORTED_OPERATION);
     }
 
+    /**
+     * Find a contact by its ID.
+     *
+     * @param contactID ID to look up
+     * @return contact instance if found or null if nothing found
+     */
     @Override
-    public Contact findContactByID(String contactID)
+    public Contact findContactByID(final String contactID)
     {
         LOGGER.trace("Finding contact for nick name '" + contactID + "'");
         if (contactID == null)
+        {
             return null;
+        }
         Contact contact = this.rootGroup.getContact(contactID);
         if (contact != null)
+        {
             return contact;
+        }
         Iterator<ContactGroup> groups = this.rootGroup.subgroups();
         while (groups.hasNext())
         {
             ContactGroup group = groups.next();
             contact = group.getContact(contactID);
             if (contact != null)
+            {
                 return contact;
+            }
         }
         LOGGER.trace("No contact found for nick name '" + contactID + "'");
         return null;
     }
 
+    /**
+     * IRC does not support authorization handling, so this is not supported.
+     *
+     * @param handler authorization handler
+     */
     @Override
-    public void setAuthorizationHandler(AuthorizationHandler handler)
+    public void setAuthorizationHandler(final AuthorizationHandler handler)
     {
     }
 
+    /**
+     * IRC does not have a status message, so it will always return an empty
+     * string.
+     *
+     * @return returns empty string
+     */
     @Override
     public String getCurrentStatusMessage()
     {
-        return null;
-    }
-
-    @Override
-    public Contact createUnresolvedContact(String address, String persistentData)
-    {
-        return null;
+        return "";
     }
 
     /**
      * Find or create contact by ID.
      *
-     * Try to find a contact by its ID. If a contact cannot be found, then
-     * create one.
+     * In IRC every chat room member is also a contact. Try to find a contact by
+     * its ID. If a contact cannot be found, then create one.
      *
      * @param id id of the contact
      * @return returns instance of contact

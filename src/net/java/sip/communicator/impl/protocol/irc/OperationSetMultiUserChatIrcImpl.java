@@ -53,7 +53,7 @@ public class OperationSetMultiUserChatIrcImpl
      * ProtocolProviderServiceIrcImpl.
      */
     public OperationSetMultiUserChatIrcImpl(
-        ProtocolProviderServiceIrcImpl provider)
+        final ProtocolProviderServiceIrcImpl provider)
     {
         this.ircProvider = provider;
     }
@@ -83,7 +83,7 @@ public class OperationSetMultiUserChatIrcImpl
      */
     public List<ChatRoom> getCurrentlyJoinedChatRooms()
     {
-        synchronized(chatRoomCache)
+        synchronized (chatRoomCache)
         {
             List<ChatRoom> joinedRooms
                 = new LinkedList<ChatRoom>(this.chatRoomCache.values());
@@ -93,7 +93,9 @@ public class OperationSetMultiUserChatIrcImpl
             while (joinedRoomsIter.hasNext())
             {
                 if (!joinedRoomsIter.next().isJoined())
+                {
                     joinedRoomsIter.remove();
+                }
             }
 
             return joinedRooms;
@@ -110,25 +112,25 @@ public class OperationSetMultiUserChatIrcImpl
      * and is currently active in.
      */
     public List<String> getCurrentlyJoinedChatRooms(
-        ChatRoomMember chatRoomMember)
+        final ChatRoomMember chatRoomMember)
     {
         // Implement "who is" for the IRC stack.
         // (currently not in use)
         /*
          * According to the RFC:
-         * 
+         *
          * 311 RPL_WHOISUSER "<nick> <user> <host> * :<real name>"
-         * 
+         *
          * 312 RPL_WHOISSERVER "<nick> <server> :<server info>"
-         * 
+         *
          * 313 RPL_WHOISOPERATOR "<nick> :is an IRC operator"
-         * 
+         *
          * 317 RPL_WHOISIDLE "<nick> <integer> :seconds idle"
-         * 
+         *
          * 318 RPL_ENDOFWHOIS "<nick> :End of /WHOIS list"
-         * 
+         *
          * 319 RPL_WHOISCHANNELS "<nick> :{[@|+]<channel><space>}"
-         * 
+         *
          * - Replies 311 - 313, 317 - 319 are all replies generated in response
          * to a WHOIS message. Given that there are enough parameters present,
          * the answering server must either formulate a reply out of the above
@@ -141,7 +143,7 @@ public class OperationSetMultiUserChatIrcImpl
          * moderated channel. The RPL_ENDOFWHOIS reply is used to mark the end
          * of processing a WHOIS message.
          */
-        return null;
+        return Collections.emptyList();
     }
 
     /**
@@ -163,8 +165,8 @@ public class OperationSetMultiUserChatIrcImpl
      * @return the newly created <tt>ChatRoom</tt> named <tt>roomName</tt>.
      */
     public ChatRoom createChatRoom(
-            String roomName,
-            Map<String, Object> roomProperties)
+            final String roomName,
+            final Map<String, Object> roomProperties)
         throws OperationFailedException,
                OperationNotSupportedException
     {
@@ -173,28 +175,28 @@ public class OperationSetMultiUserChatIrcImpl
 
     /**
      * Returns a reference to a chatRoom named <tt>roomName</tt>.
-     * 
+     *
      * Originally, this method would create the room if it doesn't exist. This
      * is not acceptable anymore, since rebuilding the chat room list would
      * create new instances without the IRC stack being prepared for this or
      * having corresponding instances.
-     * 
+     *
      * @param roomName the name of the <tt>ChatRoom</tt> that we're looking for.
      * @return the <tt>ChatRoom</tt> named <tt>roomName</tt>.
      */
-    public ChatRoomIrcImpl findRoom(String roomName)
+    public ChatRoomIrcImpl findRoom(final String roomName)
     {
         return chatRoomCache.get(roomName);
     }
-    
+
     /**
      * Find an existing room with the provided name, or create a new room with
      * this name.
-     * 
+     *
      * @param roomName name of the chat room
      * @return returns a chat room
      */
-    public ChatRoomIrcImpl findOrCreateRoom(String roomName)
+    public ChatRoomIrcImpl findOrCreateRoom(final String roomName)
     {
         synchronized (this.chatRoomCache)
         {
@@ -213,9 +215,10 @@ public class OperationSetMultiUserChatIrcImpl
      * @param invitation the invitation we are rejecting.
      * @param reason the reason of rejecting
      */
-    public void rejectInvitation(ChatRoomInvitation invitation, String reason)
+    public void rejectInvitation(final ChatRoomInvitation invitation,
+        final String reason)
     {
-        //TODO: Implement reject invitation.
+        //TODO Implement reject invitation.
     }
 
     /**
@@ -226,7 +229,7 @@ public class OperationSetMultiUserChatIrcImpl
      * @return a boolean indicating whether <tt>contact</tt> supports chat
      * rooms.
      */
-    public boolean isMultiChatSupportedByContact(Contact contact)
+    public boolean isMultiChatSupportedByContact(final Contact contact)
     {
         return true;
     }
@@ -240,21 +243,22 @@ public class OperationSetMultiUserChatIrcImpl
      * @return the <tt>ChatRoomJabberImpl</tt> instance that has been cached
      * for <tt>chatRoomName</tt> or null if no such room has been cached so far.
      */
-    protected ChatRoomIrcImpl getChatRoom(String chatRoomName)
+    protected ChatRoomIrcImpl getChatRoom(final String chatRoomName)
     {
-        return (ChatRoomIrcImpl)this.chatRoomCache.get(chatRoomName);
+        return (ChatRoomIrcImpl) this.chatRoomCache.get(chatRoomName);
     }
 
     /**
      * Creates a <tt>ChatRoom</tt> from the specified chat room name.
-     * 
+     *
      * Must be used in SYNCHRONIZED context.
      *
      * @param chatRoomName the name of the chat room to add
      *
      * @return ChatRoom the chat room that we've just created.
      */
-    private ChatRoomIrcImpl createLocalChatRoomInstance(String chatRoomName)
+    private ChatRoomIrcImpl createLocalChatRoomInstance(
+        final String chatRoomName)
     {
         ChatRoomIrcImpl chatRoom =
             new ChatRoomIrcImpl(chatRoomName, ircProvider);
@@ -263,13 +267,13 @@ public class OperationSetMultiUserChatIrcImpl
 
         return chatRoom;
     }
-    
+
     /**
      * Register chat room instance in case it is not yet registered.
-     * 
+     *
      * @param chatroom the chatroom
      */
-    public void registerChatRoomInstance(ChatRoomIrcImpl chatroom)
+    public void registerChatRoomInstance(final ChatRoomIrcImpl chatroom)
     {
         synchronized (this.chatRoomCache)
         {
@@ -286,10 +290,10 @@ public class OperationSetMultiUserChatIrcImpl
      * @param reason the reason why the inviter sent the invitation
      * @param password the password to use when joining the room
      */
-    protected void fireInvitationEvent(ChatRoom targetChatRoom,
-                                    String inviter,
-                                    String reason,
-                                    byte[] password)
+    protected void fireInvitationEvent(final ChatRoom targetChatRoom,
+                                    final String inviter,
+                                    final String reason,
+                                    final byte[] password)
     {
         ChatRoomInvitationIrcImpl invitation
             = new ChatRoomInvitationIrcImpl(targetChatRoom,
@@ -307,7 +311,7 @@ public class OperationSetMultiUserChatIrcImpl
      */
     protected ChatRoomIrcImpl findSystemRoom()
     {
-        if(serverChatRoom == null)
+        if (serverChatRoom == null)
         {
             serverChatRoom = new ChatRoomIrcImpl(
                 ircProvider.getAccountID().getService(),
@@ -331,13 +335,17 @@ public class OperationSetMultiUserChatIrcImpl
     protected ChatRoomMemberIrcImpl findSystemMember()
     {
         if (serverChatRoom.getMembers().size() > 0)
+        {
             return (ChatRoomMemberIrcImpl) serverChatRoom.getMembers().get(0);
+        }
         else
+        {
             return new ChatRoomMemberIrcImpl(
                 ircProvider,
                 serverChatRoom,
                 ircProvider.getAccountID().getService(),
                 ChatRoomMemberRole.GUEST);
+        }
     }
 
     /**
@@ -346,22 +354,22 @@ public class OperationSetMultiUserChatIrcImpl
      * Always returns <tt>true</tt>.
      */
     @Override
-    public boolean isPrivateMessagingContact(String contactAddress)
+    public boolean isPrivateMessagingContact(final String contactAddress)
     {
         return true;
     }
 
     /**
      * Open a chat room window.
-     * 
+     *
      * In IRC a situation may occur where the user gets joined to a channel
      * without Jitsi initiating the joining activity. This "unannounced" join
      * event, must also be handled and we should display the chat room window in
      * that case, to alert the user that this happened.
-     * 
+     *
      * @param chatRoom the chat room
      */
-    void openChatRoomWindow(ChatRoomIrcImpl chatRoom)
+    void openChatRoomWindow(final ChatRoomIrcImpl chatRoom)
     {
         MUCService mucService = IrcActivator.getMUCService();
         UIService uiService = IrcActivator.getUIService();

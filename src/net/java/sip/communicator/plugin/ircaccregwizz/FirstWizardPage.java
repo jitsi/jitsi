@@ -39,8 +39,10 @@ public class FirstWizardPage
      */
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
+    // FIXME create resource string
     public static final String USER_NAME_EXAMPLE = "Ex: ircuser";
 
+    // FIXME create resource string
     public static final String SERVER_EXAMPLE = "Ex: chat.freenode.net";
     
     private static final String DEFAULT_PLAINTEXT_PORT = "6667";

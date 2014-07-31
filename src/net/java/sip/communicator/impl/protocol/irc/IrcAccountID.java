@@ -24,11 +24,12 @@ public class IrcAccountID
      * IRC account server host.
      */
     private final String host;
+
     /**
      * IRC account server port.
      */
     private final int port;
-    
+
     /**
      * Creates an account id from the specified id and account properties.
      *
@@ -55,15 +56,33 @@ public class IrcAccountID
     }
 
     /**
-     * Equality extended with checking IRC server host and port, since different
-     * IRC networks can have users with similar names.
+     * {@inheritDoc}
      */
     @Override
-    public boolean equals(Object obj)
+    public int hashCode()
+    {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + host.hashCode();
+        result = prime * result + port;
+        return result;
+    }
+
+    /**
+     * Equality extended with checking IRC server host and port, since different
+     * IRC networks can have users with similar names.
+     *
+     * @param obj other object
+     * @return returns true if equal or false otherwise
+     */
+    @Override
+    public boolean equals(final Object obj)
     {
         if (this == obj)
+        {
             return true;
-        
+        }
+
         // TODO if available, base equality on NETWORK=<identifier> in
         // RPL_ISUPPORT.
 
@@ -71,10 +90,10 @@ public class IrcAccountID
             && this.host.equals(((IrcAccountID) obj).host)
             && this.port == ((IrcAccountID) obj).port;
     }
-    
+
     /**
      * Get the IRC server host.
-     * 
+     *
      * @return returns IRC server host
      */
     public String getHost()
@@ -84,7 +103,7 @@ public class IrcAccountID
 
     /**
      * Get the IRC server port.
-     * 
+     *
      * @return returns IRC server port
      */
     public int getPort()
@@ -96,12 +115,13 @@ public class IrcAccountID
      * Returns the service name - the server we are logging to if it is null
      * which is not supposed to be - we return for compatibility the string we
      * used in the first release for creating AccountID (Using this string is
-     * wrong, but used for compatibility for now)
+     * wrong, but used for compatibility for now).
      *
      * @param accountProperties Map the properties table configuring the account
      * @return String the service name
      */
-    private static String getServiceName(Map<String, String> accountProperties)
+    private static String getServiceName(
+        final Map<String, String> accountProperties)
     {
         String serviceName =
             accountProperties.get(ProtocolProviderFactory.SERVER_ADDRESS);
@@ -119,7 +139,7 @@ public class IrcAccountID
 
     /**
      * Get display name for this account instance.
-     * 
+     *
      * @return returns the display name for this AccountID instance
      */
     @Override

@@ -41,7 +41,7 @@ public final class Utils
      * @return returns the processed message or null if text message was null,
      *         since there is nothing to modify there
      */
-    public static String parse(final String text)
+    public static String parseIrcMessage(final String text)
     {
         if (text == null)
         {
@@ -54,7 +54,7 @@ public final class Utils
             char val = text.charAt(i);
             switch (val)
             {
-            case '\u0002':
+            case ControlChar.Bold.CODE:
                 if (builder.isActive(ControlChar.Bold.class))
                 {
                     builder.cancel(ControlChar.Bold.class, true);
@@ -64,7 +64,7 @@ public final class Utils
                     builder.apply(new ControlChar.Bold());
                 }
                 break;
-            case '\u0016':
+            case ControlChar.Italics.CODE:
                 if (builder.isActive(ControlChar.Italics.class))
                 {
                     builder.cancel(ControlChar.Italics.class, true);
@@ -74,7 +74,7 @@ public final class Utils
                     builder.apply(new ControlChar.Italics());
                 }
                 break;
-            case '\u001F':
+            case ControlChar.Underline.CODE:
                 if (builder.isActive(ControlChar.Underline.class))
                 {
                     builder.cancel(ControlChar.Underline.class, true);
@@ -84,30 +84,27 @@ public final class Utils
                     builder.apply(new ControlChar.Underline());
                 }
                 break;
-            case '\u0003':
-                Color background = null;
+            case ControlChar.ColorFormat.CODE:
                 // first parse foreground color code
                 Color foreground = parseForegroundColor(text.substring(i + 1));
                 if (foreground != null)
                 {
                     i += 2;
-                    background = parseBackgroundColor(text.substring(i + 1));
+                    Color background =
+                        parseBackgroundColor(text.substring(i + 1));
                     if (background != null)
                     {
                         i += INDEX_END_COLOR_CODE;
                     }
-                }
-                if (foreground == null && background == null)
-                {
-                    builder.cancel(ControlChar.ColorFormat.class, false);
-                }
-                else
-                {
                     builder.apply(new ControlChar.ColorFormat(foreground,
                         background));
                 }
+                else
+                {
+                    builder.cancel(ControlChar.ColorFormat.class, false);
+                }
                 break;
-            case '\u000F':
+            case ControlChar.Normal.CODE:
                 builder.cancelAll();
                 break;
             default:
@@ -191,6 +188,7 @@ public final class Utils
      */
     public static String formatMessage(final String message)
     {
+        // FIXME html entity encoding
         return message;
     }
 
@@ -203,6 +201,7 @@ public final class Utils
      */
     public static String formatNotice(final String message, final String user)
     {
+        // FIXME html entity encoding
         return "<i>" + user + "</i>: " + message;
     }
 
@@ -215,6 +214,7 @@ public final class Utils
      */
     public static String formatAction(final String message, final String user)
     {
+        // FIXME html entity encoding
         return "<b>*" + user + "</b> " + message;
     }
 }

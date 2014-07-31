@@ -26,18 +26,18 @@ public class UtilsTest
 
     public void testNullText()
     {
-        Assert.assertEquals(null, Utils.parse(null));
+        Assert.assertEquals(null, Utils.parseIrcMessage(null));
     }
 
     public void testParseEmptyString()
     {
-        Assert.assertEquals("", Utils.parse(""));
+        Assert.assertEquals("", Utils.parseIrcMessage(""));
     }
 
     public void testParseStringWithoutControlCodes()
     {
         final String message = "My normal message without any control codes.";
-        Assert.assertEquals(message, Utils.parse(message));
+        Assert.assertEquals(message, Utils.parseIrcMessage(message));
     }
 
     public void testParseStringWithBoldCode()
@@ -45,7 +45,7 @@ public class UtilsTest
         final String ircMessage =
             "My \u0002bold\u0002 message \u0002BOLD!\u0002.";
         final String htmlMessage = "My <b>bold</b> message <b>BOLD!</b>.";
-        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+        Assert.assertEquals(htmlMessage, Utils.parseIrcMessage(ircMessage));
     }
 
     public void testParseStringWithItalicsCode()
@@ -53,7 +53,7 @@ public class UtilsTest
         final String ircMessage =
             "My \u0016italics\u0016 message \u0016ITALICS!\u0016.";
         final String htmlMessage = "My <i>italics</i> message <i>ITALICS!</i>.";
-        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+        Assert.assertEquals(htmlMessage, Utils.parseIrcMessage(ircMessage));
     }
 
     public void testParseStringWithUnderlineCode()
@@ -62,14 +62,14 @@ public class UtilsTest
             "My \u001Funderlined\u001F message \u001FUNDERLINED!!!\u001F.";
         final String htmlMessage =
             "My <u>underlined</u> message <u>UNDERLINED!!!</u>.";
-        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+        Assert.assertEquals(htmlMessage, Utils.parseIrcMessage(ircMessage));
     }
 
     public void testParseStringWithForegroundColorCode()
     {
         final String ircMessage = "My \u000304RED\u0003 message.";
         final String htmlMessage = "My <font color=\"Red\">RED</font> message.";
-        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+        Assert.assertEquals(htmlMessage, Utils.parseIrcMessage(ircMessage));
     }
 
     public void testParseStringWithForegroundAndBackgroundColorCode()
@@ -78,7 +78,7 @@ public class UtilsTest
             "My \u000304,12RED on Light Blue\u0003 message.";
         final String htmlMessage =
             "My <font color=\"Red\" bgcolor=\"RoyalBlue\">RED on Light Blue</font> message.";
-        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+        Assert.assertEquals(htmlMessage, Utils.parseIrcMessage(ircMessage));
     }
 
     public void testParseStringWithInvalidBgColorCode()
@@ -87,7 +87,7 @@ public class UtilsTest
             "My \u000304,BRIGHT RED on Light Blue\u0003 message.";
         final String htmlMessage =
             "My <font color=\"Red\">,BRIGHT RED on Light Blue</font> message.";
-        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+        Assert.assertEquals(htmlMessage, Utils.parseIrcMessage(ircMessage));
     }
 
     public void testParseStringWithInvalidColorControlCode()
@@ -96,7 +96,7 @@ public class UtilsTest
             "My \u0003BRIGHT RED on Light Blue\u0003 message.";
         final String htmlMessage =
             "My BRIGHT RED on Light Blue message.";
-        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+        Assert.assertEquals(htmlMessage, Utils.parseIrcMessage(ircMessage));
     }
 
     public void testParseStringWithInvalidSecondControlCode()
@@ -105,21 +105,21 @@ public class UtilsTest
             "My \u000304,12RED on Light Blue\u000304,12 message.";
         final String htmlMessage =
             "My <font color=\"Red\" bgcolor=\"RoyalBlue\">RED on Light Blue<font color=\"Red\" bgcolor=\"RoyalBlue\"> message.</font></font>";
-        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+        Assert.assertEquals(htmlMessage, Utils.parseIrcMessage(ircMessage));
     }
 
     public void testParseStringWithIncompleteForegroundColorControlCode()
     {
         final String ircMessage = "My \u0003";
         final String htmlMessage = "My ";
-        Assert.assertTrue(Utils.parse(ircMessage).startsWith(htmlMessage));
+        Assert.assertTrue(Utils.parseIrcMessage(ircMessage).startsWith(htmlMessage));
     }
 
     public void testParseStringWithIncompleteBackgroundColorControlCode()
     {
         final String ircMessage = "My \u000310,";
         final String htmlMessage = "My <font color=\"Teal\">,";
-        Assert.assertTrue(Utils.parse(ircMessage).startsWith(htmlMessage));
+        Assert.assertTrue(Utils.parseIrcMessage(ircMessage).startsWith(htmlMessage));
     }
 
     public void testParseSringAndNeutralizeWithNormalControlCode()
@@ -128,7 +128,7 @@ public class UtilsTest
             "My \u0002\u0016\u001F\u000304,12RED on Light Blue\u000F message.";
         final String htmlMessage =
             "My <b><i><u><font color=\"Red\" bgcolor=\"RoyalBlue\">RED on Light Blue</font></u></i></b> message.";
-        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+        Assert.assertEquals(htmlMessage, Utils.parseIrcMessage(ircMessage));
     }
 
     public void testParseStringWithUnclosedFormattingI()
@@ -137,14 +137,14 @@ public class UtilsTest
             "My \u0002\u0016\u001F\u000304,12RED on Light Blue message.";
         final String htmlMessage =
             "My <b><i><u><font color=\"Red\" bgcolor=\"RoyalBlue\">RED on Light Blue message.</font></u></i></b>";
-        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+        Assert.assertEquals(htmlMessage, Utils.parseIrcMessage(ircMessage));
     }
 
     public void testParseUnknownForegroundColor()
     {
         final String ircMessage = "\u000399TEST";
         final String htmlMessage = "<font color=\"Green\">TEST</font>";
-        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+        Assert.assertEquals(htmlMessage, Utils.parseIrcMessage(ircMessage));
     }
 
     public void testParseUnknownBackgroundColor()
@@ -152,21 +152,21 @@ public class UtilsTest
         final String ircMessage = "\u000300,99TEST";
         final String htmlMessage =
             "<font color=\"White\" bgcolor=\"Green\">TEST</font>";
-        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+        Assert.assertEquals(htmlMessage, Utils.parseIrcMessage(ircMessage));
     }
     
     public void testStackIncompatibleFormatToggling()
     {
         final String ircMessage = "\u0002\u0016\u001FHello\u0002 W\u0016orld\u001F!";
         final String htmlMessage = "<b><i><u>Hello</u></i></b><i><u> W</u></i><u>orld</u>!";
-        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+        Assert.assertEquals(htmlMessage, Utils.parseIrcMessage(ircMessage));
     }
     
     public void testColorSwitch()
     {
         final String ircMessage = "\u000302,03Hello \u000308,09World\u000F!";
         final String htmlMessage = "<font color=\"Navy\" bgcolor=\"Green\">Hello <font color=\"Yellow\" bgcolor=\"Lime\">World</font></font>!";
-        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+        Assert.assertEquals(htmlMessage, Utils.parseIrcMessage(ircMessage));
     }
     
     public void testForegroundColorChange()
@@ -174,7 +174,14 @@ public class UtilsTest
         // If only a foreground color is specified, leave the background color active/as is.
         final String ircMessage = "\u000302,03Hello \u000308World\u000F!";
         final String htmlMessage = "<font color=\"Navy\" bgcolor=\"Green\">Hello <font color=\"Yellow\">World</font></font>!";
-        Assert.assertEquals(htmlMessage, Utils.parse(ircMessage));
+        Assert.assertEquals(htmlMessage, Utils.parseIrcMessage(ircMessage));
+    }
+    
+    public void testCancelColorFormat()
+    {
+        final String ircMessage = "\u000302With color\u0003 and without color.";
+        final String htmlMessage = "<font color=\"Navy\">With color</font> and without color.";
+        Assert.assertEquals(htmlMessage, Utils.parseIrcMessage(ircMessage));
     }
 
     public void testFormatMessage()

@@ -1,7 +1,8 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
- * Distributable under LGPL license. See terms of license at gnu.org.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
@@ -9,79 +10,80 @@ import java.util.*;
 
 /**
  * Builder for constructing a formatted text.
- * 
+ *
  * @author Danny van Heumen
  */
 public class FormattedTextBuilder
 {
     /**
-     * stack with formatting control chars
+     * stack with formatting control chars.
      */
     private final Stack<ControlChar> formatting = new Stack<ControlChar>();
 
     /**
-     * formatted text container
+     * formatted text container.
      */
     private final StringBuilder text = new StringBuilder();
-    
+
     /**
      * Append a string of text.
-     * 
-     * @param text
+     *
+     * @param text string of text
      */
-    public void append(String text)
+    public void append(final String text)
     {
         this.text.append(text);
     }
-    
+
     /**
      * Append a character.
-     * 
+     *
      * @param c character
      */
-    public void append(char c)
+    public void append(final char c)
     {
         this.text.append(c);
     }
 
     /**
      * Apply a control char for formatting.
-     * 
-     * TODO Explicitly deny handling ControlChar.NORMAL?
-     * 
+     *
      * @param c the control char
      */
-    public void apply(ControlChar c)
+    public void apply(final ControlChar c)
     {
         // start control char formatting
         this.formatting.add(c);
         this.text.append(c.getHtmlStart());
     }
-    
+
     /**
      * Test whether or not a control character is already active.
-     * 
-     * @param c the control char
-     * @return returns true if control char's kind of formatting is active, or
+     *
+     * @param controlClass the class of control char
+     * @return returns true if control char's class of formatting is active, or
      *         false otherwise.
      */
-    public boolean isActive(Class<? extends ControlChar> controlClass)
+    public boolean isActive(final Class<? extends ControlChar> controlClass)
     {
         for (ControlChar c : this.formatting)
         {
             if (c.getClass() == controlClass)
+            {
                 return true;
+            }
         }
         return false;
     }
-    
+
     /**
-     * Cancel the specified control char.
-     * 
-     * @param c the control char
+     * Cancel the active control char of the specified class.
+     *
+     * @param controlClass the class of control char
+     * @param stopAfterFirst stop after the first occurrence
      */
-    public void cancel(Class<? extends ControlChar> controlClass,
-        boolean stopAfterFirst)
+    public void cancel(final Class<? extends ControlChar> controlClass,
+        final boolean stopAfterFirst)
     {
         final Stack<ControlChar> rewind = new Stack<ControlChar>();
         while (!this.formatting.empty())
@@ -92,7 +94,9 @@ public class FormattedTextBuilder
             if (current.getClass() == controlClass)
             {
                 if (stopAfterFirst)
+                {
                     break;
+                }
             }
             else
             {
@@ -118,10 +122,12 @@ public class FormattedTextBuilder
             this.text.append(c.getHtmlEnd());
         }
     }
-    
+
     /**
      * Finish building the text string. Close outstanding control char
      * formatting and returns the result.
+     *
+     * @return returns the complete string as it is built
      */
     public String done()
     {
@@ -133,6 +139,8 @@ public class FormattedTextBuilder
      * Return the formatted string in its current state. (This means that if
      * {@link #done()} was not yet called, it will print an intermediate state
      * of the formatted text.)
+     *
+     * @return returns current state of the formatted text
      */
     public String toString()
     {

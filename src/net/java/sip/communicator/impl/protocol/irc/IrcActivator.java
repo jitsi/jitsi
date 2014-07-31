@@ -53,7 +53,7 @@ public class IrcActivator
     /**
      * Certificate Service instance.
      */
-    private static CertificateService certiticateService;
+    private static CertificateService certificateService;
 
     /**
      * MultiUserChat Service instance.
@@ -191,18 +191,11 @@ public class IrcActivator
      */
     public static CertificateService getCertificateService()
     {
-        if (certiticateService == null)
+        if (certificateService == null)
         {
-            ServiceReference<?> guiVerifyReference
-                = IrcActivator.getBundleContext().getServiceReference(
-                    CertificateService.class.getName());
-            if (guiVerifyReference != null)
-            {
-                certiticateService = (CertificateService)
-                    IrcActivator.getBundleContext().getService(
-                        guiVerifyReference);
-            }
+            certificateService =
+               ServiceUtils.getService(bundleContext, CertificateService.class);
         }
-        return certiticateService;
+        return certificateService;
     }
 }

@@ -24,19 +24,29 @@ public class IrcAccRegWizzActivator
 {
     private static Logger logger = Logger.getLogger(
         IrcAccRegWizzActivator.class.getName());
-    
+
+    /**
+     * OSGi bundle context.
+     */
     static BundleContext bundleContext;
-    
+
     private static UIService uiService;
-    
+
     private static WizardContainer wizardContainer;
 
     private IrcAccountRegistrationWizard ircWizard;
 
-    public void start(Object dependentService)
+    /**
+     * Start the IRC account registration wizard.
+     *
+     * @param dependentService dependent service
+     */
+    public void start(final Object dependentService)
     {
         if (logger.isInfoEnabled())
+        {
             logger.info("Loading irc account wizard.");
+        }
 
         uiService = (UIService) dependentService;
 
@@ -54,26 +64,44 @@ public class IrcAccRegWizzActivator
             containerFilter);
 
         if (logger.isInfoEnabled())
+        {
             logger.info("IRC account registration wizard [STARTED].");
+        }
     }
-    
+
+    /**
+     * Returns dependent service class.
+     *
+     * @return returns dependent service class
+     */
     public Class<?> getDependentServiceClass()
     {
         return UIService.class;
     }
-    
+
+    /**
+     * Set the bundle context.
+     *
+     * @param context bundle context
+     */
     @Override
-    public void setBundleContext(BundleContext context)
+    public void setBundleContext(final BundleContext context)
     {
-        bundleContext = context;
+        this.bundleContext = context;
     }
-    
-    public void stop(BundleContext bundleContext)
+
+    /**
+     * Stop the IRC account registration wizard.
+     *
+     * @param bundleContext bundle context
+     */
+    public void stop(final BundleContext bundleContext)
     {
     }
 
     /**
      * Returns the <tt>ProtocolProviderFactory</tt> for the IRC protocol.
+     *
      * @return the <tt>ProtocolProviderFactory</tt> for the IRC protocol
      */
     public static ProtocolProviderFactory getIrcProtocolProviderFactory()
@@ -96,7 +124,12 @@ public class IrcAccRegWizzActivator
 
         return (ProtocolProviderFactory) bundleContext.getService(serRefs[0]);
     }
-    
+
+    /**
+     * Get UI Service instance.
+     *
+     * @return returns UIService instance
+     */
     public static UIService getUIService()
     {
         return uiService;

@@ -121,8 +121,8 @@ public class ChatRoomIrcImpl
      * @param chatRoomName the name of the chat room
      * @param parentProvider the protocol provider
      */
-    public ChatRoomIrcImpl(String chatRoomName,
-        ProtocolProviderServiceIrcImpl parentProvider)
+    public ChatRoomIrcImpl(final String chatRoomName,
+        final ProtocolProviderServiceIrcImpl parentProvider)
     {
         this(chatRoomName, parentProvider, false);
     }
@@ -135,25 +135,30 @@ public class ChatRoomIrcImpl
      * @param chatRoomName the name of the chat room (cannot be null or empty
      *            string)
      * @param parentProvider the protocol provider
-     * @param isPrivate indicates if this chat room is a private one
      * @param isSystem indicates if this chat room is a system room
      */
-    public ChatRoomIrcImpl( String chatRoomName,
-                            ProtocolProviderServiceIrcImpl parentProvider,
-                            boolean isSystem)
+    public ChatRoomIrcImpl(final String chatRoomName,
+        final ProtocolProviderServiceIrcImpl parentProvider,
+        final boolean isSystem)
     {
         if (parentProvider == null)
+        {
             throw new IllegalArgumentException("parentProvider cannot be null");
+        }
         this.parentProvider = parentProvider;
         if (chatRoomName == null || chatRoomName.isEmpty())
+        {
             throw new IllegalArgumentException(
                 "chatRoomName cannot be null or empty string");
+        }
         this.chatRoomName = chatRoomName;
         this.isSystem = isSystem;
     }
 
     /**
      * hashCode implementation for Chat Room.
+     *
+     * @return returns hash code for this instance
      */
     @Override
     public int hashCode()
@@ -171,9 +176,12 @@ public class ChatRoomIrcImpl
 
     /**
      * equals implementation for Chat Room.
+     *
+     * @param obj other instance
+     * @return returns true if equal or false if not
      */
     @Override
-    public boolean equals(Object obj)
+    public boolean equals(final Object obj)
     {
         if (this == obj)
             return true;
@@ -198,7 +206,7 @@ public class ChatRoomIrcImpl
     {
         return chatRoomName;
     }
-    
+
     /**
      * Returns the identifier of this <tt>ChatRoom</tt>.
      *
@@ -209,15 +217,15 @@ public class ChatRoomIrcImpl
     {
         return chatRoomName;
     }
-    
+
     /**
      * Adds a <tt>ChatRoomMember</tt> to the list of members of this chat room.
      *
      * @param memberID the identifier of the member
      * @param member the <tt>ChatRoomMember</tt> to add.
      */
-
-    protected void addChatRoomMember(String memberID, ChatRoomMember member)
+    protected void addChatRoomMember(final String memberID,
+        final ChatRoomMember member)
     {
         chatRoomMembers.put(memberID, member);
     }
@@ -228,7 +236,7 @@ public class ChatRoomIrcImpl
      *
      * @param memberID the name of the <tt>ChatRoomMember</tt> to remove.
      */
-    protected void removeChatRoomMember(String memberID)
+    protected void removeChatRoomMember(final String memberID)
     {
         chatRoomMembers.remove(memberID);
     }
@@ -243,14 +251,17 @@ public class ChatRoomIrcImpl
     public void join() throws OperationFailedException
     {
         if (!parentProvider.getIrcStack().isConnected())
+        {
             throw new OperationFailedException(
                 "We are currently not connected to the server.",
                 OperationFailedException.NETWORK_FAILURE);
+        }
 
         if (parentProvider.getIrcStack().isJoined(this))
-            throw new OperationFailedException(
-                "Channel is already joined.",
+        {
+            throw new OperationFailedException("Channel is already joined.",
                 OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
+        }
 
         parentProvider.getIrcStack().join(this);
     }
@@ -264,7 +275,7 @@ public class ChatRoomIrcImpl
      * @throws OperationFailedException with the corresponding code if an error
      *             occurs while joining the room.
      */
-    public void join(byte[] password) throws OperationFailedException
+    public void join(final byte[] password) throws OperationFailedException
     {
         parentProvider.getIrcStack().join(this, password.toString());
     }
@@ -279,7 +290,7 @@ public class ChatRoomIrcImpl
      * @throws OperationFailedException with the corresponding code if an error
      *             occurs while joining the room.
      */
-    public void joinAs(String nickname) throws OperationFailedException
+    public void joinAs(final String nickname) throws OperationFailedException
     {
         this.setUserNickname(nickname);
         this.join();
@@ -297,7 +308,7 @@ public class ChatRoomIrcImpl
      * @throws OperationFailedException with the corresponding code if an error
      *             occurs while joining the room.
      */
-    public void joinAs(String nickname, byte[] password)
+    public void joinAs(final String nickname, final byte[] password)
         throws OperationFailedException
     {
         this.setUserNickname(nickname);
@@ -350,8 +361,8 @@ public class ChatRoomIrcImpl
      * @throws OperationFailedException if we are not joined or we don't have
      * enough privileges to ban a participant.
      */
-    public void banParticipant(ChatRoomMember chatRoomMember, String reason)
-        throws OperationFailedException
+    public void banParticipant(final ChatRoomMember chatRoomMember,
+        final String reason) throws OperationFailedException
     {
         this.parentProvider.getIrcStack().banParticipant(this,
             chatRoomMember, reason);
@@ -365,8 +376,8 @@ public class ChatRoomIrcImpl
      * @throws OperationFailedException if we are not joined or we don't have
      * enough privileges to kick a participant.
      */
-    public void kickParticipant(ChatRoomMember chatRoomMember, String reason)
-        throws OperationFailedException
+    public void kickParticipant(final ChatRoomMember chatRoomMember,
+        final String reason) throws OperationFailedException
     {
         this.parentProvider.getIrcStack().kickParticipant(this,
             chatRoomMember, reason);
@@ -399,12 +410,14 @@ public class ChatRoomIrcImpl
      * @param listener ChatRoomChangeListener
      */
     public void addPropertyChangeListener(
-        ChatRoomPropertyChangeListener listener)
+        final ChatRoomPropertyChangeListener listener)
     {
         synchronized (propertyChangeListeners)
         {
             if (!propertyChangeListeners.contains(listener))
+            {
                 propertyChangeListeners.add(listener);
+            }
         }
     }
 
@@ -415,7 +428,7 @@ public class ChatRoomIrcImpl
      * @param listener the <tt>ChatRoomChangeListener</tt> to remove.
      */
     public void removePropertyChangeListener(
-        ChatRoomPropertyChangeListener listener)
+        final ChatRoomPropertyChangeListener listener)
     {
         synchronized (propertyChangeListeners)
         {
@@ -432,12 +445,14 @@ public class ChatRoomIrcImpl
      * that is to be registered for <tt>ChatRoomMemberPropertyChangeEvent</tt>s.
      */
     public void addMemberPropertyChangeListener(
-        ChatRoomMemberPropertyChangeListener listener)
+        final ChatRoomMemberPropertyChangeListener listener)
     {
-        synchronized(memberPropChangeListeners)
+        synchronized (memberPropChangeListeners)
         {
             if (!memberPropChangeListeners.contains(listener))
+            {
                 memberPropChangeListeners.add(listener);
+            }
         }
     }
 
@@ -449,9 +464,9 @@ public class ChatRoomIrcImpl
      * remove.
      */
     public void removeMemberPropertyChangeListener(
-        ChatRoomMemberPropertyChangeListener listener)
+        final ChatRoomMemberPropertyChangeListener listener)
     {
-        synchronized(memberPropChangeListeners)
+        synchronized (memberPropChangeListeners)
         {
             memberPropChangeListeners.remove(listener);
         }
@@ -463,12 +478,14 @@ public class ChatRoomIrcImpl
      *
      * @param listener a member role listener.
      */
-    public void addMemberRoleListener(ChatRoomMemberRoleListener listener)
+    public void addMemberRoleListener(final ChatRoomMemberRoleListener listener)
     {
         synchronized (memberRoleListeners)
         {
             if (!memberRoleListeners.contains(listener))
+            {
                 memberRoleListeners.add(listener);
+            }
         }
     }
 
@@ -478,12 +495,15 @@ public class ChatRoomIrcImpl
      *
      * @param listener a member role listener.
      */
-    public void removeMemberRoleListener(ChatRoomMemberRoleListener listener)
+    public void removeMemberRoleListener(
+        final ChatRoomMemberRoleListener listener)
     {
         synchronized (memberRoleListeners)
         {
             if (memberRoleListeners.contains(listener))
+            {
                 memberRoleListeners.remove(listener);
+            }
         }
     }
 
@@ -493,12 +513,15 @@ public class ChatRoomIrcImpl
      *
      * @param listener a local user role listener.
      */
-    public void addLocalUserRoleListener(ChatRoomLocalUserRoleListener listener)
+    public void addLocalUserRoleListener(
+        final ChatRoomLocalUserRoleListener listener)
     {
         synchronized (localUserRoleListeners)
         {
             if (!localUserRoleListeners.contains(listener))
+            {
                 localUserRoleListeners.add(listener);
+            }
         }
     }
 
@@ -509,12 +532,14 @@ public class ChatRoomIrcImpl
      * @param listener a local user role listener.
      */
     public void removelocalUserRoleListener(
-        ChatRoomLocalUserRoleListener listener)
+        final ChatRoomLocalUserRoleListener listener)
     {
         synchronized (localUserRoleListeners)
         {
             if (localUserRoleListeners.contains(listener))
+            {
                 localUserRoleListeners.remove(listener);
+            }
         }
     }
 
@@ -547,7 +572,7 @@ public class ChatRoomIrcImpl
      * channel or if he/she doesn't have enough privileges to change the
      * topic or if the topic is null.
      */
-    public void setSubject(String subject)
+    public void setSubject(final String subject)
         throws OperationFailedException
     {
         parentProvider.getIrcStack().setSubject(this, subject);
@@ -576,7 +601,7 @@ public class ChatRoomIrcImpl
      * @throws OperationFailedException if the setting the new nickname changes
      *             for some reason.
      */
-    public void setUserNickname(String nickName)
+    public void setUserNickname(final String nickName)
         throws OperationFailedException
     {
         parentProvider.getIrcStack().setUserNickname(nickName);
@@ -589,12 +614,14 @@ public class ChatRoomIrcImpl
      * @param listener a participant status listener.
      */
     public void addMemberPresenceListener(
-        ChatRoomMemberPresenceListener listener)
+        final ChatRoomMemberPresenceListener listener)
     {
         synchronized (memberListeners)
         {
             if (!memberListeners.contains(listener))
+            {
                 memberListeners.add(listener);
+            }
         }
     }
 
@@ -606,7 +633,7 @@ public class ChatRoomIrcImpl
      * @param listener a participant status listener.
      */
     public void removeMemberPresenceListener(
-        ChatRoomMemberPresenceListener listener)
+        final ChatRoomMemberPresenceListener listener)
     {
         synchronized (memberListeners)
         {
@@ -621,12 +648,14 @@ public class ChatRoomIrcImpl
      * @param listener a <tt>MessageListener</tt> that would be notified every
      *            time a new message is received on this chat room.
      */
-    public void addMessageListener(ChatRoomMessageListener listener)
+    public void addMessageListener(final ChatRoomMessageListener listener)
     {
         synchronized (messageListeners)
         {
             if (!messageListeners.contains(listener))
+            {
                 messageListeners.add(listener);
+            }
         }
     }
 
@@ -636,12 +665,14 @@ public class ChatRoomIrcImpl
      *
      * @param listener the <tt>MessageListener</tt> to remove from this room
      */
-    public void removeMessageListener(ChatRoomMessageListener listener)
+    public void removeMessageListener(final ChatRoomMessageListener listener)
     {
         synchronized (messageListeners)
         {
             if (messageListeners.contains(listener))
+            {
                 messageListeners.remove(messageListeners.indexOf(listener));
+            }
         }
     }
 
@@ -653,7 +684,7 @@ public class ChatRoomIrcImpl
      * @param memberID the identifier of the member
      * @return the <tt>ChatRoomMember</tt> corresponding to the given member id.
      */
-    public ChatRoomMember getChatRoomMember(String memberID)
+    public ChatRoomMember getChatRoomMember(final String memberID)
     {
         return chatRoomMembers.get(memberID);
     }
@@ -679,7 +710,7 @@ public class ChatRoomIrcImpl
      *            the user why they are being invited.
      */
     @Override
-    public void invite(String userAddress, String reason)
+    public void invite(final String userAddress, final String reason)
     {
         // TODO Check if channel status is invite-only (+i). If this is the
         // case, user has to be channel operator in order to be able to invite
@@ -720,15 +751,12 @@ public class ChatRoomIrcImpl
      *            subject.
      * @return the newly created message.
      */
-    public Message createMessage(   byte[] content,
-                                    String contentType,
-                                    String contentEncoding,
-                                    String subject)
+    public Message createMessage(final byte[] content, final String contentType,
+        final String contentEncoding, final String subject)
     {
-        Message msg = new MessageIrcImpl(  new String(content),
-                                            contentType,
-                                            contentEncoding,
-                                            subject);
+        Message msg =
+            new MessageIrcImpl(new String(content), contentType,
+                contentEncoding, subject);
 
         return msg;
     }
@@ -740,7 +768,7 @@ public class ChatRoomIrcImpl
      * @param messageText the string content of the message.
      * @return Message the newly created message
      */
-    public Message createMessage(String messageText)
+    public Message createMessage(final String messageText)
     {
         Message mess = new MessageIrcImpl(
             messageText,
@@ -759,22 +787,24 @@ public class ChatRoomIrcImpl
      * @throws OperationFailedException if the underlying stack is not
      * registered or initialized or if the chat room is not joined.
      */
-    public void sendMessage(Message message) throws OperationFailedException
+    public void sendMessage(final Message message)
+        throws OperationFailedException
     {
         assertConnected();
 
         String[] splitMessages = message.getContent().split("\n");
 
         String messagePortion = null;
-        for (int i = 0; i < splitMessages.length; i ++)
+        for (int i = 0; i < splitMessages.length; i++)
         {
             messagePortion = splitMessages[i];
 
             // As we only send one message per line, we ignore empty lines in
             // the incoming multi line message.
-            if(messagePortion.equals("\n")
-                || messagePortion.matches("[\\ ]*"))
+            if (messagePortion.equals("\n") || messagePortion.matches("[\\ ]*"))
+            {
                 continue;
+            }
 
             if (((MessageIrcImpl) message).isCommand())
             {
@@ -785,11 +815,9 @@ public class ChatRoomIrcImpl
                 parentProvider.getIrcStack().message(this, messagePortion);
             }
 
-            this.fireMessageDeliveredEvent(
-                new MessageIrcImpl( messagePortion,
-                                    message.getContentType(),
-                                    message.getEncoding(),
-                                    message.getSubject()));
+            this.fireMessageDeliveredEvent(new MessageIrcImpl(messagePortion,
+                message.getContentType(), message.getEncoding(), message
+                    .getSubject()));
         }
     }
 
@@ -806,19 +834,24 @@ public class ChatRoomIrcImpl
     /**
      * Utility method throwing an exception if the stack is not properly
      * initialized.
-     * @throws java.lang.IllegalStateException if the underlying stack is
-     * not registered and initialized.
+     *
+     * @throws java.lang.IllegalStateException if the underlying stack is not
+     *             registered and initialized.
      */
     private void assertConnected() throws IllegalStateException
     {
         if (parentProvider == null)
+        {
             throw new IllegalStateException(
                 "The provider must be non-null and signed on the "
-                +"service before being able to communicate.");
+                + "service before being able to communicate.");
+        }
         if (!parentProvider.isRegistered())
+        {
             throw new IllegalStateException(
                 "The provider must be signed on the service before "
-                +"being able to communicate.");
+                + "being able to communicate.");
+        }
     }
 
     /**
@@ -827,7 +860,7 @@ public class ChatRoomIrcImpl
      *
      * @param message the delivered message
      */
-    private void fireMessageDeliveredEvent(Message message)
+    private void fireMessageDeliveredEvent(final Message message)
     {
         int eventType
             = ChatRoomMessageDeliveredEvent.CONVERSATION_MESSAGE_DELIVERED;
@@ -839,9 +872,11 @@ public class ChatRoomIrcImpl
             eventType = ChatRoomMessageDeliveredEvent.ACTION_MESSAGE_DELIVERED;
 
             if (msg.getContent().indexOf(' ') != -1)
+            {
                 msg.setContent(
                     msg.getContent()
                         .substring(message.getContent().indexOf(' ')));
+            }
         }
 
         ChatRoomMessageDeliveredEvent msgDeliveredEvt
@@ -858,7 +893,9 @@ public class ChatRoomIrcImpl
         }
 
         for (ChatRoomMessageListener listener : listeners)
+        {
             listener.messageDelivered(msgDeliveredEvt);
+        }
     }
 
     /**
@@ -873,17 +910,12 @@ public class ChatRoomIrcImpl
      * XXX_MESSAGE_RECEIVED constants declared in the
      * <tt>ChatRoomMessageReceivedEvent</tt> class.
      */
-    public void fireMessageReceivedEvent(   Message message,
-                                            ChatRoomMember fromMember,
-                                            Date date,
-                                            int eventType)
+    public void fireMessageReceivedEvent(final Message message,
+        final ChatRoomMember fromMember, final Date date, final int eventType)
     {
-        ChatRoomMessageReceivedEvent event
-            = new ChatRoomMessageReceivedEvent( this,
-                                                fromMember,
-                                                date,
-                                                message,
-                                                eventType);
+        ChatRoomMessageReceivedEvent event =
+            new ChatRoomMessageReceivedEvent(this, fromMember, date, message,
+                eventType);
 
         Iterable<ChatRoomMessageListener> listeners;
         synchronized (messageListeners)
@@ -893,7 +925,9 @@ public class ChatRoomIrcImpl
         }
 
         for (ChatRoomMessageListener listener : listeners)
+        {
             listener.messageReceived(event);
+        }
     }
 
     /**
@@ -902,9 +936,8 @@ public class ChatRoomIrcImpl
      * @param evt the <tt>PropertyChangeEvent</tt> that we'd like delivered to
      * all registered property change listeners.
      */
-    public void firePropertyChangeEvent(PropertyChangeEvent evt)
+    public void firePropertyChangeEvent(final PropertyChangeEvent evt)
     {
-        
         Iterable<ChatRoomPropertyChangeListener> listeners;
         synchronized (propertyChangeListeners)
         {
@@ -935,7 +968,7 @@ public class ChatRoomIrcImpl
      * deliver to all registered member property change listeners.
      */
     public void fireMemberPropertyChangeEvent(
-        ChatRoomMemberPropertyChangeEvent evt)
+        final ChatRoomMemberPropertyChangeEvent evt)
     {
         Iterable<ChatRoomMemberPropertyChangeListener> listeners;
         synchronized (memberPropChangeListeners)
@@ -946,7 +979,9 @@ public class ChatRoomIrcImpl
         }
 
         for (ChatRoomMemberPropertyChangeListener listener : listeners)
+        {
             listener.chatRoomPropertyChanged(evt);
+        }
     }
 
     /**
@@ -960,10 +995,9 @@ public class ChatRoomIrcImpl
      * @param eventID the identifier of the event
      * @param eventReason the reason of the event
      */
-    public void fireMemberPresenceEvent(ChatRoomMember member,
-                                        ChatRoomMember actorMember,
-                                        String eventID,
-                                        String eventReason)
+    public void fireMemberPresenceEvent(final ChatRoomMember member,
+        final ChatRoomMember actorMember, final String eventID,
+        final String eventReason)
     {
         // First update local state w.r.t. member presence change
         if (eventID == ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED)
@@ -974,17 +1008,23 @@ public class ChatRoomIrcImpl
         {
             removeChatRoomMember(member.getContactAddress());
         }
-        
+
         ChatRoomMemberPresenceChangeEvent evt;
-        if(actorMember != null)
+        if (actorMember != null)
+        {
             evt = new ChatRoomMemberPresenceChangeEvent(
                 this, member, actorMember, eventID, eventReason);
+        }
         else
+        {
             evt = new ChatRoomMemberPresenceChangeEvent(
                 this, member, eventID, eventReason);
+        }
 
         if (LOGGER.isTraceEnabled())
+        {
             LOGGER.trace("Will dispatch the following ChatRoom event: " + evt);
+        }
 
         Iterable<ChatRoomMemberPresenceListener> listeners;
         synchronized (memberListeners)
@@ -994,7 +1034,9 @@ public class ChatRoomIrcImpl
                         memberListeners);
         }
         for (ChatRoomMemberPresenceListener listener : listeners)
+        {
             listener.memberPresenceChanged(evt);
+        }
     }
 
     /**
@@ -1005,8 +1047,8 @@ public class ChatRoomIrcImpl
      * @param member the <tt>ChatRoomMember</tt> that this event is about
      * @param newRole the new role of the given member
      */
-    public void fireMemberRoleEvent(   ChatRoomMember member,
-                                        ChatRoomMemberRole newRole)
+    public void fireMemberRoleEvent(final ChatRoomMember member,
+        final ChatRoomMemberRole newRole)
     {
         member.setRole(newRole);
         ChatRoomMemberRole previousRole = member.getRole();
@@ -1018,7 +1060,9 @@ public class ChatRoomIrcImpl
                                                 newRole);
 
         if (LOGGER.isTraceEnabled())
+        {
             LOGGER.trace("Will dispatch the following ChatRoom event: " + evt);
+        }
 
         Iterable<ChatRoomMemberRoleListener> listeners;
         synchronized (memberRoleListeners)
@@ -1029,17 +1073,19 @@ public class ChatRoomIrcImpl
         }
 
         for (ChatRoomMemberRoleListener listener : listeners)
+        {
             listener.memberRoleChanged(evt);
+        }
     }
-    
+
     /**
      * Notify all <tt>ChatRoomLocalUserRoleListener</tt>s that the local user's
      * role has been changed in this <tt>ChatRoom</tt>.
-     * 
+     *
      * @param event the event that describes the local user's role change
      */
     public void fireLocalUserRoleChangedEvent(
-        ChatRoomLocalUserRoleChangeEvent event)
+        final ChatRoomLocalUserRoleChangeEvent event)
     {
         ArrayList<ChatRoomLocalUserRoleListener> listeners;
         synchronized (localUserRoleListeners)
@@ -1074,7 +1120,7 @@ public class ChatRoomIrcImpl
      * @param isSystem <code>true</code> to indicate that this chat room is
      * corresponding to a server channel, <code>false</code> - otherwise.
      */
-    protected void setSystem(boolean isSystem)
+    protected void setSystem(final boolean isSystem)
     {
         this.isSystem = isSystem;
     }
@@ -1084,7 +1130,7 @@ public class ChatRoomIrcImpl
      *
      * @param subject the subject to set
      */
-    protected void setSubjectFromServer(String subject)
+    protected void setSubjectFromServer(final String subject)
     {
         this.chatSubject = subject;
     }
@@ -1117,13 +1163,13 @@ public class ChatRoomIrcImpl
         }
         return this.user.getRole();
     }
-    
+
     /**
      * Method for setting chat room member instance representing the user.
-     * 
+     *
      * @param user instance representing the user. This instance cannot be null.
      */
-    void setLocalUser(ChatRoomMemberIrcImpl user)
+    void setLocalUser(final ChatRoomMemberIrcImpl user)
     {
         if (user == null)
         {
@@ -1134,23 +1180,25 @@ public class ChatRoomIrcImpl
 
     /**
      * Sets the local user role.
+     *
+     * No implementation is necessary for this. IRC server manages permissions.
+     * If a new chat room is created then user will automatically receive the
+     * appropriate role.
+     *
      * @param role the role to set
      * @throws OperationFailedException if the operation don't succeed
      */
     @Override
-    public void setLocalUserRole(ChatRoomMemberRole role)
+    public void setLocalUserRole(final ChatRoomMemberRole role)
         throws OperationFailedException
     {
-        // No implementation necessary. IRC server manages permissions. If a new
-        // chat room is created then user will automatically receive the
-        // appropriate role.
     }
 
     /**
      * Grants admin role to the participant given by <tt>address</tt>.
      * @param address the address of the participant to grant admin role to
      */
-    public void grantAdmin(String address)
+    public void grantAdmin(final String address)
     {
         this.parentProvider.getIrcStack().grant(this, address, Mode.OPERATOR);
     }
@@ -1159,7 +1207,7 @@ public class ChatRoomIrcImpl
      * Grants membership role to the participant given by <tt>address</tt>.
      * @param address the address of the participant to grant membership role to
      */
-    public void grantMembership(String address)
+    public void grantMembership(final String address)
     {
         // TODO currently Voice == Membership.
         this.parentProvider.getIrcStack().grant(this, address, Mode.VOICE);
@@ -1169,7 +1217,7 @@ public class ChatRoomIrcImpl
      * Grants moderator role to the participant given by <tt>address</tt>.
      * @param address the address of the participant to grant moderator role to
      */
-    public void grantModerator(String address)
+    public void grantModerator(final String address)
     {
         this.parentProvider.getIrcStack().grant(this, address, Mode.HALFOP);
     }
@@ -1178,7 +1226,7 @@ public class ChatRoomIrcImpl
      * Grants ownership role to the participant given by <tt>address</tt>.
      * @param address the address of the participant to grant ownership role to
      */
-    public void grantOwnership(String address)
+    public void grantOwnership(final String address)
     {
         this.parentProvider.getIrcStack().grant(this, address, Mode.OWNER);
     }
@@ -1187,7 +1235,7 @@ public class ChatRoomIrcImpl
      * Grants voice to the participant given by <tt>address</tt>.
      * @param address the address of the participant to grant voice to
      */
-    public void grantVoice(String address)
+    public void grantVoice(final String address)
     {
         // TODO currently Voice == Membership.
         this.parentProvider.getIrcStack().grant(this, address, Mode.VOICE);
@@ -1197,7 +1245,7 @@ public class ChatRoomIrcImpl
      * Revokes the admin role for the participant given by <tt>address</tt>.
      * @param address the address of the participant to revoke admin role for
      */
-    public void revokeAdmin(String address)
+    public void revokeAdmin(final String address)
     {
         this.parentProvider.getIrcStack().revoke(this, address, Mode.OPERATOR);
     }
@@ -1205,11 +1253,11 @@ public class ChatRoomIrcImpl
     /**
      * Revokes the membership role for the participant given by <tt>address</tt>
      * .
-     * 
+     *
      * @param address the address of the participant to revoke membership role
      *            for
      */
-    public void revokeMembership(String address)
+    public void revokeMembership(final String address)
     {
         this.parentProvider.getIrcStack().revoke(this, address, Mode.VOICE);
     }
@@ -1219,7 +1267,7 @@ public class ChatRoomIrcImpl
      * @param address the address of the participant to revoke moderator role
      * for
      */
-    public void revokeModerator(String address)
+    public void revokeModerator(final String address)
     {
         this.parentProvider.getIrcStack().revoke(this, address, Mode.HALFOP);
     }
@@ -1229,7 +1277,7 @@ public class ChatRoomIrcImpl
      * @param address the address of the participant to revoke ownership role
      * for
      */
-    public void revokeOwnership(String address)
+    public void revokeOwnership(final String address)
     {
         this.parentProvider.getIrcStack().revoke(this, address, Mode.OWNER);
     }
@@ -1238,7 +1286,7 @@ public class ChatRoomIrcImpl
      * Revokes the voice for the participant given by <tt>address</tt>.
      * @param address the address of the participant to revoke voice for
      */
-    public void revokeVoice(String address)
+    public void revokeVoice(final String address)
     {
         this.parentProvider.getIrcStack().revoke(this, address, Mode.VOICE);
     }
@@ -1248,17 +1296,23 @@ public class ChatRoomIrcImpl
      *
      * Not implemented.
      */
-    public ConferenceDescription publishConference(ConferenceDescription cd,
-        String name)
+    public ConferenceDescription publishConference(
+        final ConferenceDescription cd, final String name)
     {
         return null;
     }
 
     /**
-     * {@inheritDoc}
+     * Find the Contact instance corresponding to the specified chat room
+     * member. Since every chat room member is also a private contact, we will
+     * create an instance if it cannot be found.
+     *
+     * @param name nick name of the chat room member
+     * @return returns Contact instance corresponding to specified chat room
+     *         member
      */
     @Override
-    public Contact getPrivateContactByNickname(String name)
+    public Contact getPrivateContactByNickname(final String name)
     {
         LOGGER.debug("Getting private contact for nick name '" + name + "'.");
         return this.parentProvider.getPersistentPresence()
@@ -1266,40 +1320,44 @@ public class ChatRoomIrcImpl
     }
 
     /**
-     * {@inheritDoc}
+     * IRC does not provide continuous presence status updates, so no
+     * implementation is necessary.
+     *
+     * @param nickname nick name to look up
      */
     @Override
-    public void updatePrivateContactPresenceStatus(String nickname)
+    public void updatePrivateContactPresenceStatus(final String nickname)
     {
-        // IRC does not provide continuous presence status updates.
     }
 
     /**
-     * {@inheritDoc}
+     * IRC does not provide continuous presence status updates, so no
+     * implementation is necessary.
+     *
+     * @param sourceContact contact to look up
      */
     @Override
-    public void updatePrivateContactPresenceStatus(Contact sourceContact)
+    public void updatePrivateContactPresenceStatus(final Contact sourceContact)
     {
-        // IRC does not provide continuous presence status updates.
     }
 
     /**
-     * Destroys the chat room.
-     * 
+     * IRC chat rooms cannot be destroyed. That is the way IRC works and there
+     * is no need to cause a panic, so just return true.
+     *
      * @param reason the reason for destroying.
      * @param alternateAddress the alternate address
      * @return <tt>true</tt> if the room is destroyed.
      */
-    public boolean destroy(String reason, String alternateAddress)
+    public boolean destroy(final String reason, final String alternateAddress)
     {
-        // IRC chat rooms cannot be destroyed
         return true;
     }
 
     /**
      * Returns the ids of the users that has the member role in the room. When
      * the room is member only, this are the users allowed to join.
-     * 
+     *
      * @return the ids of the users that has the member role in the room.
      */
     @Override
@@ -1314,15 +1372,16 @@ public class ChatRoomIrcImpl
      * @param members the ids of user to have member role.
      */
     @Override
-    public void setMembersWhiteList(List<String> members)
-    {}
-    
+    public void setMembersWhiteList(final List<String> members)
+    {
+    }
+
     /**
      * Update the subject for this chat room.
-     * 
+     *
      * @param subject the subject
      */
-    public void updateSubject(String subject)
+    public void updateSubject(final String subject)
     {
         if (!this.chatSubject.equals(subject))
         {
@@ -1333,22 +1392,24 @@ public class ChatRoomIrcImpl
             firePropertyChangeEvent(topicChangeEvent);
         }
     }
-    
+
     /**
      * Update the ChatRoomMember instance. When the nick changes, the chat room
      * member is still stored under the old nick. Find the instance under its
      * old nick and reinsert it into the map according to the current nick name.
-     * 
+     *
      * @param oldName The old nick name under which the member instance is
      *            currently stored.
      */
-    public void updateChatRoomMemberName(String oldName)
+    public void updateChatRoomMemberName(final String oldName)
     {
-        synchronized(this.chatRoomMembers)
+        synchronized (this.chatRoomMembers)
         {
             ChatRoomMember member = this.chatRoomMembers.remove(oldName);
             if (member != null)
+            {
                 this.chatRoomMembers.put(member.getContactAddress(), member);
+            }
         }
     }
 }
