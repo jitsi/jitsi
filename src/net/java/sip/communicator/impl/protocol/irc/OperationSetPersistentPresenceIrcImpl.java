@@ -105,7 +105,7 @@ public class OperationSetPersistentPresenceIrcImpl
      *
      * @return returns root contact group
      */
-    public ContactGroup getRootGroup()
+    public ContactGroupIrcImpl getRootGroup()
     {
         return rootGroup;
     }
@@ -239,33 +239,62 @@ public class OperationSetPersistentPresenceIrcImpl
         return this.rootGroup;
     }
 
+    /**
+     * Creates an unresolved contact for IRC.
+     *
+     * @param address contact address
+     * @param persistentData persistent data for contact
+     * @param parentGroup parent group to contact
+     * @return returns newly created unresolved contact instance
+     */
     @Override
-    public Contact createUnresolvedContact(final String address,
+    public ContactIrcImpl createUnresolvedContact(final String address,
         final String persistentData, final ContactGroup parentGroup)
     {
-        LOGGER.warn("Unresolved contact: " + address + " " + persistentData
-            + " group: " + parentGroup.getGroupName());
-        // FIXME implement createUnresolvedContact
-        return null;
+        if (!(parentGroup instanceof ContactGroupIrcImpl))
+        {
+            throw new IllegalArgumentException(
+                "Provided contact group is not an IRC contact group instance.");
+        }
+        return new ContactIrcImpl(this.parentProvider, address,
+            (ContactGroupIrcImpl) parentGroup);
     }
 
+    /**
+     * Creates an unresolved contact for IRC.
+     *
+     * @param address contact address
+     * @param persistentData persistent data for contact
+     * @return returns newly created unresolved contact instance
+     */
     @Override
-    public Contact createUnresolvedContact(final String address,
+    public ContactIrcImpl createUnresolvedContact(final String address,
         final String persistentData)
     {
-        LOGGER.warn("Unresolved contact: " + address + " " + persistentData);
-        // FIXME implement createUnresolvedContact
-        return null;
+        return new ContactIrcImpl(this.parentProvider, address,
+            this.getRootGroup());
     }
 
+    /**
+     * Create a new unresolved contact group.
+     *
+     * @param groupUID unique group id
+     * @param persistentData persistent data is currently not supported
+     * @param parentGroup the parent group for the newly created contact group
+     * @return returns new unresolved contact group
+     */
     @Override
-    public ContactGroup createUnresolvedContactGroup(final String groupUID,
-        final String persistentData, final ContactGroup parentGroup)
+    public ContactGroupIrcImpl createUnresolvedContactGroup(
+        final String groupUID, final String persistentData,
+        final ContactGroup parentGroup)
     {
-        LOGGER.warn("Unresolved contactgroup: " + groupUID + " "
-            + persistentData + " parent: " + parentGroup.getGroupName());
-        // FIXME implement createUnresolvedContactGroup
-        return null;
+        if (!(parentGroup instanceof ContactGroupIrcImpl))
+        {
+            throw new IllegalArgumentException(
+                "parentGroup is not a ContactGroupIrcImpl instance");
+        }
+        return new ContactGroupIrcImpl(this.parentProvider,
+            (ContactGroupIrcImpl) parentGroup, groupUID);
     }
 
     /**
