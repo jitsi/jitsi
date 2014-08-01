@@ -87,7 +87,11 @@ public final class Utils
             case ControlChar.ColorFormat.CODE:
                 // first parse foreground color code
                 Color foreground = parseForegroundColor(text.substring(i + 1));
-                if (foreground != null)
+                if (foreground == null)
+                {
+                    builder.cancel(ControlChar.ColorFormat.class, false);
+                }
+                else
                 {
                     i += 2;
                     Color background =
@@ -98,10 +102,6 @@ public final class Utils
                     }
                     builder.apply(new ControlChar.ColorFormat(foreground,
                         background));
-                }
-                else
-                {
-                    builder.cancel(ControlChar.ColorFormat.class, false);
                 }
                 break;
             case ControlChar.Normal.CODE:
