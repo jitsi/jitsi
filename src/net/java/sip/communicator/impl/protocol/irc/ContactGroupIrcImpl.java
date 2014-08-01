@@ -257,8 +257,7 @@ public class ContactGroupIrcImpl
     @Override
     public String getUID()
     {
-        // FIXME Generate unique ID for contact group.
-        return null;
+        return this.name;
     }
 
     /**
