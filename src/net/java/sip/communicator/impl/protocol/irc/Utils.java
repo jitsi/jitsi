@@ -21,7 +21,13 @@ public final class Utils
     private static final Logger LOGGER = Logger.getLogger(Utils.class);
 
     /**
-     * Index indicating the end of the color code.
+     * Index indicating the end of the foreground color code.
+     */
+    private static final int INDEX_END_FOREGROUND_COLOR_CODE = 2;
+
+    /**
+     * Index indicating the end of the background color code. (additional 1 for
+     * comma separating foreground color code from background color code)
      */
     private static final int INDEX_END_BACKGROUND_COLOR_CODE = 3;
 
@@ -93,7 +99,7 @@ public final class Utils
                 }
                 else
                 {
-                    i += 2;
+                    i += INDEX_END_FOREGROUND_COLOR_CODE;
                     Color background =
                         parseBackgroundColor(text.substring(i + 1));
                     if (background != null)
