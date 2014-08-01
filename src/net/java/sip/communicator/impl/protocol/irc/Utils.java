@@ -23,7 +23,7 @@ public final class Utils
     /**
      * Index indicating the end of the color code.
      */
-    private static final int INDEX_END_COLOR_CODE = 3;
+    private static final int INDEX_END_BACKGROUND_COLOR_CODE = 3;
 
     /**
      * Private constructor since we do not need to construct anything.
@@ -94,7 +94,7 @@ public final class Utils
                         parseBackgroundColor(text.substring(i + 1));
                     if (background != null)
                     {
-                        i += INDEX_END_COLOR_CODE;
+                        i += INDEX_END_BACKGROUND_COLOR_CODE;
                     }
                     builder.apply(new ControlChar.ColorFormat(foreground,
                         background));
