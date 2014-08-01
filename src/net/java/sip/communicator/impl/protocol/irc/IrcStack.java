@@ -1296,11 +1296,6 @@ public class IrcStack
         @Override
         public void onUserNotice(final UserNotice msg)
         {
-            // TODO Probably better to deliver NOTICEs to all channels, instead
-            // of setting up private chat. You are not supposed to reply to
-            // NOTICEs and setting up a private chat session kind of does that.
-            // Even though the user should respond themslves in the default
-            // Jitsi set up.
             final String user = msg.getSource().getNick();
             final String text =
                 Utils.styleAsNotice(Utils.parseIrcMessage(msg.getText()), user);
@@ -1361,11 +1356,12 @@ public class IrcStack
                 return;
             }
 
-            // FIXME Re-enabled/Disabled user presence status updates, probably
+            // TODO Implement notion of Presence for IRC.
+            // Re-enabled/Disabled user presence status updates, probably
             // not going to do user presence, since we cannot detect all changes
             // and Jitsi does act upon different presence statuses.
 
-            // FIXME Off-line contact still gets sent a message. Is this desired
+            // Off-line contact still gets sent a message. Is this desired
             // behavior?
 
             // final String userNick = msg.getSource().getNick();
@@ -1402,10 +1398,10 @@ public class IrcStack
             // .fireContactPresenceStatusChangeEvent(user, parentGroup,
             // previousStatus, member.getPresenceStatus(), true);
 
-            // TODO Update status to online in case a message arrives from this
+            // Update status to online in case a message arrives from this
             // particular user.
 
-            // TODO What happens if user is thought to be offline (so presence
+            // What happens if user is thought to be offline (so presence
             // set this way) and it turns out the user is online? Can we send it
             // a message then? (Or would Jitsi block this, because there is no
             // support for off-line messaging.)

@@ -210,7 +210,9 @@ public class OperationSetMultiUserChatIrcImpl
     }
 
     /**
-     * Informs the sender of an invitation that we decline their invitation.
+     * There is no such thing as a rejection to an invitatation. The notion of
+     * an invite in IRC is just an addition to a white list. There is nothing to
+     * reject.
      *
      * @param invitation the invitation we are rejecting.
      * @param reason the reason of rejecting
@@ -218,7 +220,6 @@ public class OperationSetMultiUserChatIrcImpl
     public void rejectInvitation(final ChatRoomInvitation invitation,
         final String reason)
     {
-        //TODO Implement reject invitation.
     }
 
     /**

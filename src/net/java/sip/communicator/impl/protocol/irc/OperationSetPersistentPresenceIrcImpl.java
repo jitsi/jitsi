@@ -264,7 +264,7 @@ public class OperationSetPersistentPresenceIrcImpl
     {
         LOGGER.warn("Unresolved contactgroup: " + groupUID + " "
             + persistentData + " parent: " + parentGroup.getGroupName());
-        // TODO implement createUnresolvedContactGroup
+        // FIXME implement createUnresolvedContactGroup
         return null;
     }
 
