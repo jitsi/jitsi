@@ -1630,7 +1630,6 @@ public class IrcStack
                     this.chatroom,
                     LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_KICKED,
                     msg.getText());
-                // FIXME Kicks of local user does not close the chat room window
             }
         }
 
