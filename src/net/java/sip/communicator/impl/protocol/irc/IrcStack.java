@@ -1259,7 +1259,8 @@ public class IrcStack
         public void onUserPrivMessage(final UserPrivMsg msg)
         {
             final String user = msg.getSource().getNick();
-            final String text = Utils.formatMessage(Utils.parseIrcMessage(msg.getText()));
+            final String text =
+                Utils.styleAsMessage(Utils.parseIrcMessage(msg.getText()));
             final MessageIrcImpl message =
                 new MessageIrcImpl(text,
                     OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
@@ -1302,7 +1303,7 @@ public class IrcStack
             // Jitsi set up.
             final String user = msg.getSource().getNick();
             final String text =
-                Utils.formatNotice(Utils.parseIrcMessage(msg.getText()), user);
+                Utils.styleAsNotice(Utils.parseIrcMessage(msg.getText()), user);
             final MessageIrcImpl message =
                 new MessageIrcImpl(text,
                     OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
@@ -1326,7 +1327,7 @@ public class IrcStack
         {
             final String user = msg.getSource().getNick();
             final String text =
-                Utils.formatAction(Utils.parseIrcMessage(msg.getText()), user);
+                Utils.styleAsAction(Utils.parseIrcMessage(msg.getText()), user);
             final MessageIrcImpl message =
                 new MessageIrcImpl(text,
                     OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
@@ -1707,7 +1708,8 @@ public class IrcStack
                 return;
             }
 
-            String text = Utils.formatMessage(Utils.parseIrcMessage(msg.getText()));
+            String text =
+                Utils.styleAsMessage(Utils.parseIrcMessage(msg.getText()));
             MessageIrcImpl message =
                 new MessageIrcImpl(text, "text/html", "UTF-8", null);
             ChatRoomMemberIrcImpl member =
@@ -1736,7 +1738,8 @@ public class IrcStack
                 new ChatRoomMemberIrcImpl(IrcStack.this.provider,
                     this.chatroom, userNick, ChatRoomMemberRole.MEMBER);
             String text =
-                Utils.formatAction(Utils.parseIrcMessage(msg.getText()), userNick);
+                Utils.styleAsAction(Utils.parseIrcMessage(msg.getText()),
+                    userNick);
             MessageIrcImpl message =
                 new MessageIrcImpl(text, "text/html", "UTF-8", null);
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
@@ -1761,7 +1764,8 @@ public class IrcStack
                 new ChatRoomMemberIrcImpl(IrcStack.this.provider,
                     this.chatroom, userNick, ChatRoomMemberRole.MEMBER);
             final String text =
-                Utils.formatNotice(Utils.parseIrcMessage(msg.getText()), userNick);
+                Utils.styleAsNotice(Utils.parseIrcMessage(msg.getText()),
+                    userNick);
             final MessageIrcImpl message =
                 new MessageIrcImpl(text, "text/html", "UTF-8", null);
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),

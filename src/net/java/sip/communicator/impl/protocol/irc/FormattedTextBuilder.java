@@ -28,6 +28,9 @@ public class FormattedTextBuilder
     /**
      * Append a string of text.
      *
+     * Make sure that the text is safe for your purposes, as it is appended
+     * without further modifications.
+     *
      * @param text string of text
      */
     public void append(final String text)
@@ -37,6 +40,9 @@ public class FormattedTextBuilder
 
     /**
      * Append a character.
+     *
+     * Make sure that the character is safe for your purposes, as it is appended
+     * without further modifications.
      *
      * @param c character
      */

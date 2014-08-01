@@ -14,16 +14,6 @@ public class UtilsTest
     extends TestCase
 {
 
-    protected void setUp() throws Exception
-    {
-        super.setUp();
-    }
-
-    protected void tearDown() throws Exception
-    {
-        super.tearDown();
-    }
-
     public void testNullText()
     {
         Assert.assertEquals(null, Utils.parseIrcMessage(null));
@@ -183,26 +173,33 @@ public class UtilsTest
         final String htmlMessage = "<font color=\"Navy\">With color</font> and without color.";
         Assert.assertEquals(htmlMessage, Utils.parseIrcMessage(ircMessage));
     }
-
-    public void testFormatMessage()
+    
+    public void testMessageContainingHtmlEntities()
     {
-        String message = "hello world";
-        Assert.assertEquals(message, Utils.formatMessage(message));
+        final String ircMessage = "\u0002This<b> is very</b> bad &&& text!!!<!-- \u0002<i>";
+        final String parsedMessage = "<b>This&lt;b&gt; is very&lt;/b&gt; bad &amp;&amp;&amp; text!!!&lt;!-- </b>&lt;i&gt;";
+        Assert.assertEquals(parsedMessage, Utils.parseIrcMessage(ircMessage));
     }
 
-    public void testFormatNotice()
+    public void testStyleAsMessage()
+    {
+        String message = "hello world";
+        Assert.assertEquals(message, Utils.styleAsMessage(message));
+    }
+
+    public void testStyleAsNotice()
     {
         String message = "hello world";
         String nick = "MrNiceGuy";
         Assert.assertEquals("<i>MrNiceGuy</i>: hello world",
-            Utils.formatNotice(message, nick));
+            Utils.styleAsNotice(message, nick));
     }
 
-    public void testFormatAction()
+    public void testStyleAsAction()
     {
         String message = "is absolutely crazy!";
         String nick = "AbsoluteLunatic";
         Assert.assertEquals("<b>*AbsoluteLunatic</b> is absolutely crazy!",
-            Utils.formatAction(message, nick));
+            Utils.styleAsAction(message, nick));
     }
 }

@@ -21,4 +21,5 @@ Import-Package: org.osgi.framework,
  com.ircclouds.irc.api.domain.messages,
  com.ircclouds.irc.api.domain.messages.interfaces,
  com.ircclouds.irc.api.listeners,
- com.ircclouds.irc.api.state
+ com.ircclouds.irc.api.state,
+ org.apache.commons.lang3

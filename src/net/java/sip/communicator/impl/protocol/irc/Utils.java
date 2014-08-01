@@ -8,6 +8,8 @@ package net.java.sip.communicator.impl.protocol.irc;
 
 import net.java.sip.communicator.util.*;
 
+import org.apache.commons.lang3.*;
+
 /**
  * Some IRC-related utility methods.
  *
@@ -114,8 +116,8 @@ public final class Utils
                 builder.cancelAll();
                 break;
             default:
-                // value is a normal character, just append
-                builder.append(val);
+                // value is a normal character, escape html entities and append
+                builder.append(StringEscapeUtils.escapeHtml4("" + val));
                 break;
             }
         }
@@ -192,9 +194,8 @@ public final class Utils
      * @param message original IRC message
      * @return returns HTML-formatted normal message
      */
-    public static String formatMessage(final String message)
+    public static String styleAsMessage(final String message)
     {
-        // FIXME html entity encoding
         return message;
     }
 
@@ -205,9 +206,8 @@ public final class Utils
      * @param user user nick name
      * @return returns HTML-formatted notice
      */
-    public static String formatNotice(final String message, final String user)
+    public static String styleAsNotice(final String message, final String user)
     {
-        // FIXME html entity encoding
         return "<i>" + user + "</i>: " + message;
     }
 
@@ -218,9 +218,8 @@ public final class Utils
      * @param user user nick name
      * @return returns HTML-formatted action
      */
-    public static String formatAction(final String message, final String user)
+    public static String styleAsAction(final String message, final String user)
     {
-        // FIXME html entity encoding
         return "<b>*" + user + "</b> " + message;
     }
 }
