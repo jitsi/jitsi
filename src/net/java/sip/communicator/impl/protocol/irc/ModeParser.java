@@ -6,17 +6,14 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.ircclouds.irc.api.domain.messages.ChannelModeMessage;
+import java.util.*;
 
 /**
  * IRC mode parser.
- * 
+ *
  * Parses a mode string and returns individual mode entries complete with
  * parameters, if any.
- * 
+ *
  * @author Danny van Heumen
  */
 public class ModeParser
@@ -32,16 +29,16 @@ public class ModeParser
     private int index = 0;
 
     /**
-     * Additional parameters
+     * Additional parameters.
      */
     private String[] params;
 
     /**
      * Constructor for initiating mode parser and parsing mode string.
-     * 
+     *
      * @param modestring mode string that should be parsed
      */
-    protected ModeParser(String modestring)
+    protected ModeParser(final String modestring)
     {
         String[] parts = modestring.split(" ");
         String mode = parts[0];
@@ -52,10 +49,10 @@ public class ModeParser
 
     /**
      * Parse a complete mode string and extract individual mode entries.
-     * 
+     *
      * @param modestring full mode string
      */
-    private void parse(String modestring)
+    private void parse(final String modestring)
     {
         Boolean addition = null;
         for (char c : modestring.toCharArray())
@@ -70,8 +67,10 @@ public class ModeParser
                 break;
             default:
                 if (addition == null)
+                {
                     throw new IllegalStateException(
                         "expect modifier (+ or -) first");
+                }
                 try
                 {
                     ModeEntry entry = process(addition, c);
@@ -89,13 +88,13 @@ public class ModeParser
 
     /**
      * Process mode character given state of addition/removal.
-     * 
+     *
      * @param add indicates whether mode change is addition or removal
      * @param mode mode character
      * @return returns an entry that contains all parts of an individual mode
      *         change
      */
-    private ModeEntry process(boolean add, char mode)
+    private ModeEntry process(final boolean add, final char mode)
     {
         switch (mode)
         {
@@ -108,10 +107,14 @@ public class ModeParser
         case 'l':
             String[] limitparams;
             if (add)
+            {
                 limitparams = new String[]
                 { this.params[this.index++] };
+            }
             else
+            {
                 limitparams = new String[] {};
+            }
             return new ModeEntry(add, Mode.LIMIT, limitparams);
         case 'p':
             return new ModeEntry(add, Mode.PRIVATE);
@@ -122,13 +125,13 @@ public class ModeParser
         case 'b':
             return new ModeEntry(add, Mode.BAN, this.params[this.index++]);
         default:
-            return new ModeEntry(add, Mode.UNKNOWN, ""+mode);
+            return new ModeEntry(add, Mode.UNKNOWN, "" + mode);
         }
     }
 
     /**
      * Get list of modes.
-     * 
+     *
      * @return returns list of parsed modes
      */
     public List<ModeEntry> getModes()
@@ -139,7 +142,7 @@ public class ModeParser
     /**
      * Class for single mode entry, optionally with corresponding parameter(s).
      */
-    public static class ModeEntry
+    public static final class ModeEntry
     {
         /**
          * Flag to indicate addition or removal of mode.
@@ -158,12 +161,13 @@ public class ModeParser
 
         /**
          * Constructor.
-         * 
+         *
          * @param add true if mode is added, false if it is removed
          * @param mode type of mode
          * @param params optional, additional parameters
          */
-        private ModeEntry(boolean add, Mode mode, String... params)
+        private ModeEntry(final boolean add, final Mode mode,
+            final String... params)
         {
             this.added = add;
             this.mode = mode;
@@ -172,7 +176,7 @@ public class ModeParser
 
         /**
          * Added or removed.
-         * 
+         *
          * @return returns true if added, removed otherwise
          */
         public boolean isAdded()
@@ -181,8 +185,8 @@ public class ModeParser
         }
 
         /**
-         * Get type of mode
-         * 
+         * Get type of mode.
+         *
          * @return returns enum instance of mode
          */
         public Mode getMode()
@@ -191,8 +195,8 @@ public class ModeParser
         }
 
         /**
-         * Get additional parameters
-         * 
+         * Get additional parameters.
+         *
          * @return returns array of additional parameters if any
          */
         public String[] getParams()

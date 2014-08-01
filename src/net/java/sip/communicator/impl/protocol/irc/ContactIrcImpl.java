@@ -1,7 +1,8 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
- * Distributable under LGPL license. See terms of license at gnu.org.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
@@ -112,7 +113,7 @@ public class ContactIrcImpl
      *
      * @param status new presence status (cannot be null)
      */
-    protected void setPresenceStatus(PresenceStatus status)
+    protected void setPresenceStatus(final PresenceStatus status)
     {
         if (status == null)
         {
