@@ -1,7 +1,8 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
- * Distributable under LGPL license. See terms of license at gnu.org.
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
@@ -37,8 +38,8 @@ public class MessageIrcImpl
      * @param contentEncoding message encoding or null for UTF8
      * @param subject the subject of the message or null for no subject.
      */
-    public MessageIrcImpl(String content, String contentType,
-        String contentEncoding, String subject)
+    public MessageIrcImpl(final String content, final String contentType,
+        final String contentEncoding, final String subject)
     {
         super(content, contentType, contentEncoding, subject);
     }
@@ -72,7 +73,7 @@ public class MessageIrcImpl
      * @param messageContent the new message content
      */
     @Override
-    protected void setContent(String messageContent)
+    protected void setContent(final String messageContent)
     {
         super.setContent(messageContent);
     }
