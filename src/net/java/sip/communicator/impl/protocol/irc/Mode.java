@@ -6,11 +6,11 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
-import net.java.sip.communicator.service.protocol.ChatRoomMemberRole;
+import net.java.sip.communicator.service.protocol.*;
 
 /**
- * IRC Modes enum
- * 
+ * IRC Modes enum.
+ *
  * @author Danny van Heumen
  */
 public enum Mode
@@ -28,11 +28,11 @@ public enum Mode
 
     /**
      * Find Mode instance by mode char.
-     * 
+     *
      * @param symbol mode char
      * @return returns instance
      */
-    public static Mode bySymbol(char symbol)
+    public static Mode bySymbol(final char symbol)
     {
         for (Mode mode : Mode.values())
         {
@@ -46,22 +46,22 @@ public enum Mode
     }
 
     /**
-     * mode char
+     * mode char.
      */
-    final private char symbol;
+    private final char symbol;
 
     /**
-     * ChatRoomMemberRole or null
+     * ChatRoomMemberRole or null.
      */
-    final private ChatRoomMemberRole role;
+    private final ChatRoomMemberRole role;
 
     /**
      * Create Mode instance.
-     * 
+     *
      * @param symbol mode char
      * @param role ChatRoomMemberRole or null
      */
-    private Mode(char symbol, ChatRoomMemberRole role)
+    private Mode(final char symbol, final ChatRoomMemberRole role)
     {
         this.symbol = symbol;
         this.role = role;
@@ -69,7 +69,7 @@ public enum Mode
 
     /**
      * Get character symbol for mode.
-     * 
+     *
      * @return returns char symbol
      */
     public char getSymbol()
@@ -80,7 +80,7 @@ public enum Mode
     /**
      * Get corresponding ChatRoomMemberRole instance if available or null
      * otherwise.
-     * 
+     *
      * @return returns ChatRoomMemberRole instance or null
      */
     public ChatRoomMemberRole getRole()
