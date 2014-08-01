@@ -225,11 +225,8 @@ public class ChatRoomMemberIrcImpl
     {
         final int prime = 31;
         int result = 1;
-        result =
-            prime * result + ((contactID == null) ? 0 : contactID.hashCode());
-        result =
-            prime * result
-                + ((parentProvider == null) ? 0 : parentProvider.hashCode());
+        result = prime * result + contactID.hashCode();
+        result = prime * result + parentProvider.hashCode();
         return result;
     }
 

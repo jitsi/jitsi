@@ -300,4 +300,15 @@ public class ChatRoomMemberIrcImplTest
             "susy", ChatRoomMemberRole.SILENT_MEMBER);
         Assert.assertTrue(member1.equals(member2));
     }
+    
+    public void testHashcodeNotFailing()
+    {
+        ChatRoom chatroom = EasyMock.createMock(ChatRoom.class);
+        ProtocolProviderService provider =
+            EasyMock.createMock(ProtocolProviderService.class);
+        ChatRoomMemberIrcImpl member =
+            new ChatRoomMemberIrcImpl(provider, chatroom, "ET",
+                ChatRoomMemberRole.ADMINISTRATOR);
+        member.hashCode();
+    }
 }
