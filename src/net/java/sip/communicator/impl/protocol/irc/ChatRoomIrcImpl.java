@@ -643,7 +643,22 @@ public class ChatRoomIrcImpl
     public void setUserNickname(final String nickName)
         throws OperationFailedException
     {
-        parentProvider.getIrcStack().setUserNickname(nickName);
+        try
+        {
+            parentProvider.getIrcStack().setUserNickname(nickName);
+        }
+        catch (RuntimeException e)
+        {
+            if (e.getCause() instanceof IOException)
+            {
+                throw new OperationFailedException(
+                    "Failed to change nick name.",
+                    OperationFailedException.NETWORK_FAILURE, e.getCause());
+            }
+
+            throw new OperationFailedException("Failed to change nick name.",
+                OperationFailedException.GENERAL_ERROR, e);
+        }
     }
 
     /**
