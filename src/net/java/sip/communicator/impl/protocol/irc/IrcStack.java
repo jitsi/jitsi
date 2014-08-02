@@ -1282,13 +1282,8 @@ public class IrcStack
         public void onUserPrivMessage(final UserPrivMsg msg)
         {
             final String user = msg.getSource().getNick();
-            final String text =
-                Utils.styleAsMessage(Utils.parseIrcMessage(msg.getText()));
             final MessageIrcImpl message =
-                new MessageIrcImpl(text,
-                    OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
-                    OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
-                    null);
+                MessageIrcImpl.newMessageFromIRC(msg.getText());
             final Contact from =
                 IrcStack.this.provider.getPersistentPresence()
                     .findOrCreateContactByID(user);
@@ -1306,7 +1301,7 @@ public class IrcStack
                 // outstanding error.
                 LOGGER.error(
                     "Error occurred while delivering private message from user"
-                        + " '" + user + "': " + text, e);
+                        + " '" + user + "': " + msg.getText(), e);
             }
         }
 
@@ -1320,16 +1315,11 @@ public class IrcStack
         public void onUserNotice(final UserNotice msg)
         {
             final String user = msg.getSource().getNick();
-            final String text =
-                Utils.styleAsNotice(Utils.parseIrcMessage(msg.getText()), user);
-            final MessageIrcImpl message =
-                new MessageIrcImpl(text,
-                    OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
-                    OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
-                    null);
             final Contact from =
                 IrcStack.this.provider.getPersistentPresence()
                     .findOrCreateContactByID(user);
+            final MessageIrcImpl message =
+                MessageIrcImpl.newNoticeFromIRC(from, msg.getText());
             IrcStack.this.provider.getBasicInstantMessaging()
                 .fireMessageReceived(message, from);
         }
@@ -1344,16 +1334,11 @@ public class IrcStack
         public void onUserAction(final UserActionMsg msg)
         {
             final String user = msg.getSource().getNick();
-            final String text =
-                Utils.styleAsAction(Utils.parseIrcMessage(msg.getText()), user);
-            final MessageIrcImpl message =
-                new MessageIrcImpl(text,
-                    OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
-                    OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
-                    null);
             final Contact from =
                 IrcStack.this.provider.getPersistentPresence().findContactByID(
                     user);
+            final MessageIrcImpl message =
+                MessageIrcImpl.newActionFromIRC(from, msg.getText());
             IrcStack.this.provider.getBasicInstantMessaging()
                 .fireMessageReceived(message, from);
         }
@@ -1726,11 +1711,9 @@ public class IrcStack
                 return;
             }
 
-            String text =
-                Utils.styleAsMessage(Utils.parseIrcMessage(msg.getText()));
-            MessageIrcImpl message =
-                new MessageIrcImpl(text, "text/html", "UTF-8", null);
-            ChatRoomMemberIrcImpl member =
+            final MessageIrcImpl message =
+                MessageIrcImpl.newMessageFromIRC(msg.getText());
+            final ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(IrcStack.this.provider,
                     this.chatroom, msg.getSource().getNick(),
                     ChatRoomMemberRole.MEMBER);
@@ -1755,11 +1738,8 @@ public class IrcStack
             ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(IrcStack.this.provider,
                     this.chatroom, userNick, ChatRoomMemberRole.MEMBER);
-            String text =
-                Utils.styleAsAction(Utils.parseIrcMessage(msg.getText()),
-                    userNick);
             MessageIrcImpl message =
-                new MessageIrcImpl(text, "text/html", "UTF-8", null);
+                MessageIrcImpl.newActionFromIRC(member, msg.getText());
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
                 ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
         }
@@ -1781,11 +1761,8 @@ public class IrcStack
             final ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(IrcStack.this.provider,
                     this.chatroom, userNick, ChatRoomMemberRole.MEMBER);
-            final String text =
-                Utils.styleAsNotice(Utils.parseIrcMessage(msg.getText()),
-                    userNick);
             final MessageIrcImpl message =
-                new MessageIrcImpl(text, "text/html", "UTF-8", null);
+                MessageIrcImpl.newNoticeFromIRC(member, msg.getText());
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
                 ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
         }
