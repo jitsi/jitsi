@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.irc;
 
 import java.beans.*;
+import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -599,7 +600,21 @@ public class ChatRoomIrcImpl
     public void setSubject(final String subject)
         throws OperationFailedException
     {
-        parentProvider.getIrcStack().setSubject(this, subject);
+        try
+        {
+            parentProvider.getIrcStack().setSubject(this, subject);
+        }
+        catch (RuntimeException e)
+        {
+            if (e.getCause() instanceof IOException)
+            {
+                throw new OperationFailedException("Failed to change subject.",
+                    OperationFailedException.NETWORK_FAILURE, e.getCause());
+            }
+
+            throw new OperationFailedException("Failed to change subject.",
+                OperationFailedException.GENERAL_ERROR, e);
+        }
     }
 
     /**
