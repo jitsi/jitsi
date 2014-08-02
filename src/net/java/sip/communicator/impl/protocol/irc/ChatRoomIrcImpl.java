@@ -151,8 +151,36 @@ public class ChatRoomIrcImpl
             throw new IllegalArgumentException(
                 "chatRoomName cannot be null or empty string");
         }
-        this.chatRoomName = chatRoomName;
+        this.chatRoomName = verifyName(chatRoomName);
         this.isSystem = isSystem;
+    }
+
+    /**
+     * Verify if the chat room name/identifier meets all the criteria.
+     *
+     * @param name chat room name/identifier
+     * @return returns the chat room name if it is valid
+     * @throws IllegalArgumentException if name/identifier contains invalid
+     *             characters
+     */
+    private String verifyName(final String name)
+    {
+        final char prefix = name.charAt(0);
+        if (!this.parentProvider.getIrcStack().getChannelTypes()
+            .contains(prefix))
+        {
+            throw new IllegalArgumentException("invalid channel prefix: "
+                + prefix);
+        }
+        for (char c : IrcStack.SPECIAL_CHARACTERS)
+        {
+            if (name.contains("" + c))
+            {
+                throw new IllegalArgumentException(
+                    "chat room identifier contains illegal character: " + c);
+            }
+        }
+        return name;
     }
 
     /**

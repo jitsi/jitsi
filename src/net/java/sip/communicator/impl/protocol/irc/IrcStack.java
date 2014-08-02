@@ -46,6 +46,26 @@ public class IrcStack
     private static final Logger LOGGER = Logger.getLogger(IrcStack.class);
 
     /**
+     * Set of characters with special meanings for IRC, such as: ',' used as
+     * separator of list of items (channels, nicks, etc.), ' ' (space) separator
+     * of command parameters, etc.
+     */
+    public static final Set<Character> SPECIAL_CHARACTERS;
+
+    /**
+     * Initialize set of special characters.
+     */
+    static {
+        HashSet<Character> specials = new HashSet<Character>();
+        specials.add('\0');
+        specials.add('\n');
+        specials.add('\r');
+        specials.add(' ');
+        specials.add(',');
+        SPECIAL_CHARACTERS = Collections.unmodifiableSet(specials);
+    }
+
+    /**
      * Parent provider for IRC.
      */
     private final ProtocolProviderServiceIrcImpl provider;
@@ -556,6 +576,9 @@ public class IrcStack
         final String chatRoomId = chatroom.getIdentifier();
         if (!getChannelTypes().contains(chatRoomId.charAt(0)))
         {
+            // TODO I believe this is obsolete, now that ChatRoomIrcImpl checks
+            // chat room name upon creation.
+
             // I'm not going to throw an exception, but I believe that this case
             // cannot happen (anymore).
             LOGGER.warn("Is chat room '" + chatRoomId
