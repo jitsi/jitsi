@@ -29,11 +29,24 @@ public class X509CertificatePanel
     private static final long serialVersionUID = -8368302061995971947L;
 
     /**
-     * Constructs a X509 certificate panel.
+     * Constructs a X509 certificate panel from a single certificate.
+     * If a chain is available instead use the second constructor.
+     * This constructor is kept for backwards compatibility and for convenience
+     * when there is only one certificate of interest.
      *
      * @param certificate <tt>X509Certificate</tt> object
      */
     public X509CertificatePanel(X509Certificate certificate)
+    {
+        this(Arrays.asList(certificate));
+    }
+
+    /**
+     * Constructs a X509 certificate panel.
+     *
+     * @param certificates <tt>X509Certificate</tt> objects
+     */
+    public X509CertificatePanel(java.util.List<X509Certificate> certificates)
     {
         ResourceManagementService R = DesktopUtilActivator.getResources();
         DateFormat dateFormatter
@@ -55,6 +68,7 @@ public class X509CertificatePanel
         constraints.weighty = 0;
         constraints.gridy = currentRow++;
 
+        X509Certificate certificate = certificates.get(0);
         X500Principal issuer = certificate.getIssuerX500Principal();
         X500Principal subject = certificate.getSubjectX500Principal();
 

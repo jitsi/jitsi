@@ -8,6 +8,7 @@ package net.java.sip.communicator.plugin.desktoputil;
 
 import java.awt.*;
 import java.security.cert.*;
+import java.util.Arrays;
 import javax.swing.*;
 import org.jitsi.service.resources.*;
 
@@ -39,9 +40,9 @@ public class ViewCertificateFrame
     private static final int MAX_MSG_PANE_HEIGHT = 800;
 
     /**
-     * The certificate to show.
+     * The certificates to show.
      */
-    Certificate cert;
+    Certificate[] certs;
 
     /**
      * A text that describes why the verification failed.
@@ -74,8 +75,7 @@ public class ViewCertificateFrame
         setTitle(title != null ? title :
             R.getI18NString("service.gui.CERT_DIALOG_TITLE"));
 
-        // for now shows only the first certificate from the chain
-        this.cert = certs[0];
+        this.certs = certs;
         this.message = message;
 
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -124,16 +124,17 @@ public class ViewCertificateFrame
         this.getContentPane().add(contentPane, BorderLayout.CENTER);
 
         Component certInfoPane;
-        if(cert instanceof X509Certificate)
+        if(certs[0] instanceof X509Certificate)
         {
-            certInfoPane = new X509CertificatePanel((X509Certificate)cert);
+            certInfoPane = new X509CertificatePanel(Arrays.asList((X509Certificate[])certs));
         }
         else
         {
             JTextArea textArea = new JTextArea();
             textArea.setOpaque(false);
             textArea.setEditable(false);
-            textArea.setText(cert.toString());
+            // for now shows only the first certificate from the chain
+            textArea.setText(certs[0].toString());
             certInfoPane = textArea;
         }
 
