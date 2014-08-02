@@ -1409,7 +1409,7 @@ public class ChatRoomIrcImpl
      *
      * @param subject the subject
      */
-    public void updateSubject(final String subject)
+    void updateSubject(final String subject)
     {
         if (!this.chatSubject.equals(subject))
         {
@@ -1429,7 +1429,7 @@ public class ChatRoomIrcImpl
      * @param oldName The old nick name under which the member instance is
      *            currently stored.
      */
-    public void updateChatRoomMemberName(final String oldName)
+    void updateChatRoomMemberName(final String oldName)
     {
         synchronized (this.chatRoomMembers)
         {
