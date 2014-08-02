@@ -193,12 +193,8 @@ public class ChatRoomIrcImpl
     {
         final int prime = 31;
         int result = 1;
-        result =
-            prime * result
-                + ((chatRoomName == null) ? 0 : chatRoomName.hashCode());
-        result =
-            prime * result
-                + ((parentProvider == null) ? 0 : parentProvider.hashCode());
+        result = prime * result + chatRoomName.hashCode();
+        result = prime * result + parentProvider.hashCode();
         return result;
     }
 

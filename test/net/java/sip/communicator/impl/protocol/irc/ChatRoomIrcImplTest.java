@@ -48,6 +48,13 @@ public class ChatRoomIrcImplTest
     }
 
     //@Test(expected = IllegalArgumentException.class)
+    public void testEmptyName()
+    {
+        EasyMock.replay(this.providerMock, this.stackMock);
+        new ChatRoomIrcImpl("", this.providerMock);
+    }
+
+    //@Test(expected = IllegalArgumentException.class)
     public void testIllegalNameBadPrefix()
     {
         EasyMock.replay(this.providerMock, this.stackMock);
@@ -73,5 +80,42 @@ public class ChatRoomIrcImplTest
     {
         EasyMock.replay(this.providerMock, this.stackMock);
         new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
+    }
+    
+    //@Test
+    public void testCorrectConstruction()
+    {
+        EasyMock.replay(this.providerMock, this.stackMock);
+        ChatRoomIrcImpl room =
+            new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
+        Assert.assertEquals("#my-cool-channel", room.getIdentifier());
+        Assert.assertEquals("#my-cool-channel", room.getName());
+        Assert.assertSame(this.providerMock, room.getParentProvider());
+    }
+
+    //@Test
+    public void testHashCodeNotFailing()
+    {
+        EasyMock.replay(this.providerMock, this.stackMock);
+        ChatRoomIrcImpl room =
+            new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
+        room.hashCode();
+    }
+
+    //@Test
+    public void testRoomIsJoined()
+    {
+        EasyMock.expect(this.providerMock.getIrcStack())
+            .andReturn(this.stackMock).andReturn(this.stackMock);
+        EasyMock
+            .expect(
+                this.stackMock.isJoined(EasyMock
+                    .anyObject(ChatRoomIrcImpl.class))).andReturn(false)
+            .andReturn(true);
+        EasyMock.replay(this.providerMock, this.stackMock);
+        ChatRoomIrcImpl room =
+            new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
+        Assert.assertFalse(room.isJoined());
+        Assert.assertTrue(room.isJoined());
     }
 }
