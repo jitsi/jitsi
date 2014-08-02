@@ -214,6 +214,8 @@ public class ChatRoomMemberIrcImpl
      */
     public Contact getContact()
     {
+        // FIXME look up contact via Persistent Presence OS. It might already
+        // exist.
         return null;
     }
 
