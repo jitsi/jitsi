@@ -33,6 +33,9 @@ public class X509CertificatePanel
 
     private final JEditorPane infoTextPane = new JEditorPane();
 
+    private final ResourceManagementService R
+            = DesktopUtilActivator.getResources();
+
     /**
      * Constructs a X509 certificate panel from a single certificate.
      * If a chain is available instead use the second constructor.
@@ -57,9 +60,9 @@ public class X509CertificatePanel
 
         // Certificate chain list
         TransparentPanel topPanel = new TransparentPanel(new BorderLayout());
-        topPanel.add(new JLabel(
-                "<html><body><b>Certificate chain:</b></body></html>"),
-                BorderLayout.NORTH);
+        topPanel.add(new JLabel("<html><body><b>"
+                + R.getI18NString("service.gui.CERT_INFO_CHAIN")
+                + "</b></body></html>"), BorderLayout.NORTH);
 
         DefaultMutableTreeNode top = new DefaultMutableTreeNode();
         DefaultMutableTreeNode previous = top;
@@ -139,7 +142,6 @@ public class X509CertificatePanel
     private String toString(X509Certificate certificate)
     {
         final StringBuilder sb = new StringBuilder();
-        ResourceManagementService R = DesktopUtilActivator.getResources();
         X500Principal issuer = certificate.getIssuerX500Principal();
         X500Principal subject = certificate.getSubjectX500Principal();
 
