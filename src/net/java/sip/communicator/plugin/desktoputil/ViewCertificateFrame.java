@@ -124,7 +124,7 @@ public class ViewCertificateFrame
         this.getContentPane().add(contentPane, BorderLayout.CENTER);
 
         Component certInfoPane;
-        if(certs[0] instanceof X509Certificate)
+        if (certs[0] instanceof X509Certificate)
         {
             certInfoPane = new X509CertificatePanel(Arrays.asList((X509Certificate[])certs));
         }
