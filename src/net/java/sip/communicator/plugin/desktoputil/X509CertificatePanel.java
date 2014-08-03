@@ -46,7 +46,10 @@ public class X509CertificatePanel
      */
     public X509CertificatePanel(X509Certificate certificate)
     {
-        this(Arrays.asList(certificate));
+        this(new X509Certificate[]
+        {
+            certificate
+        });
     }
 
     /**
@@ -54,7 +57,7 @@ public class X509CertificatePanel
      *
      * @param certificates <tt>X509Certificate</tt> objects
      */
-    public X509CertificatePanel(java.util.List<X509Certificate> certificates)
+    public X509CertificatePanel(X509Certificate[] certificates)
     {
         setLayout(new BorderLayout(5, 5));
 
@@ -66,10 +69,9 @@ public class X509CertificatePanel
 
         DefaultMutableTreeNode top = new DefaultMutableTreeNode();
         DefaultMutableTreeNode previous = top;
-        ListIterator<X509Certificate> it = certificates.listIterator(
-                certificates.size());
-        while (it.hasPrevious()) {
-            X509Certificate cert = it.previous();
+        for (int i = certificates.length - 1; i >= 0; i--)
+        {
+            X509Certificate cert = certificates[i];
             DefaultMutableTreeNode next = new DefaultMutableTreeNode(cert);
             previous.add(next);
             previous = next;
@@ -132,7 +134,7 @@ public class X509CertificatePanel
         infoTextPane.setOpaque(false);
         infoTextPane.setEditable(false);
         infoTextPane.setContentType("text/html");
-        infoTextPane.setText(toString(certificates.get(0)));
+        infoTextPane.setText(toString(certificates[0]));
 
         final JScrollPane certScroll = new JScrollPane(infoTextPane);
         certScroll.setPreferredSize(new Dimension(300, 500));

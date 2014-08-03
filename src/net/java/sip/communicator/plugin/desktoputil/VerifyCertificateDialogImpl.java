@@ -242,7 +242,8 @@ class VerifyCertificateDialogImpl
         Component certInfoPane = null;
         if (!certs.isEmpty())
         {
-            certInfoPane = new X509CertificatePanel(certs);
+            certInfoPane = new X509CertificatePanel(
+                    certs.toArray(new X509Certificate[0]));
         }
         else
         {

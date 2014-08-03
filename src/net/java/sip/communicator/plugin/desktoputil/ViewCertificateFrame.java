@@ -8,7 +8,7 @@ package net.java.sip.communicator.plugin.desktoputil;
 
 import java.awt.*;
 import java.security.cert.*;
-import java.util.Arrays;
+import java.util.*;
 import javax.swing.*;
 import org.jitsi.service.resources.*;
 
@@ -126,7 +126,16 @@ public class ViewCertificateFrame
         Component certInfoPane;
         if (certs[0] instanceof X509Certificate)
         {
-            certInfoPane = new X509CertificatePanel(Arrays.asList((X509Certificate[])certs));
+            ArrayList x509s = new ArrayList<X509Certificate>();
+            for (Certificate c : certs)
+            {
+                if (c instanceof X509Certificate)
+                {
+                    x509s.add(c);
+                }
+            }
+            certInfoPane = new X509CertificatePanel(
+                    (X509Certificate[]) x509s.toArray(new X509Certificate[0]));
         }
         else
         {
