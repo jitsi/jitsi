@@ -82,17 +82,21 @@ public class X509CertificatePanel
         tree.setExpandsSelectedPaths(true);
         tree.getSelectionModel().setSelectionMode(
                 TreeSelectionModel.SINGLE_TREE_SELECTION);
-        tree.setCellRenderer(new DefaultTreeCellRenderer() {
+        tree.setCellRenderer(new DefaultTreeCellRenderer()
+        {
 
             @Override
             public Component getTreeCellRendererComponent(JTree tree,
                     Object value, boolean sel, boolean expanded, boolean leaf,
-                    int row, boolean hasFocus) {
+                    int row, boolean hasFocus)
+            {
                 JLabel component = (JLabel) super.getTreeCellRendererComponent(
                         tree, value, sel, expanded, leaf, row, hasFocus);
-                if (value instanceof DefaultMutableTreeNode) {
+                if (value instanceof DefaultMutableTreeNode)
+                {
                     Object o = ((DefaultMutableTreeNode) value).getUserObject();
-                    if (o instanceof X509Certificate) {
+                    if (o instanceof X509Certificate)
+                    {
                         component.setText(
                                 getSimplifiedName((X509Certificate) o));
                     }
@@ -106,7 +110,8 @@ public class X509CertificatePanel
         {
 
             @Override
-            public void valueChanged(TreeSelectionEvent e) {
+            public void valueChanged(TreeSelectionEvent e)
+            {
                 valueChangedPerformed(e);
             }
         });
@@ -398,7 +403,8 @@ public class X509CertificatePanel
      * @param cert to read subject DN from
      * @return the simplified name
      */
-    private static String getSimplifiedName(X509Certificate cert) {
+    private static String getSimplifiedName(X509Certificate cert)
+    {
         final HashMap<String, String> parts = new HashMap<String, String>();
         try
         {
@@ -411,14 +417,17 @@ public class X509CertificatePanel
                 }
             }
         }
-        catch (InvalidNameException ignored) {} // NOPMD
+        catch (InvalidNameException ignored) // NOPMD
+        {
+        }
 
         String result = parts.get("CN");
         if (result == null)
         {
             result = parts.get("OU");
         }
-        if (result == null) {
+        if (result == null)
+        {
             result = parts.get("O");
         }
         if (result == null)
