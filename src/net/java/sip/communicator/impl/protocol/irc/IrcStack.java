@@ -1147,8 +1147,8 @@ public class IrcStack
                 // determine whether or not we already know about this
                 // particular join attempt. If not, we continue to inform Jitsi
                 // and to create a listener for this new chat room.
-                String text = msg.getText();
-                String channelName = text.substring(0, text.indexOf(' '));
+                final String text = msg.getText();
+                final String channelName = text.substring(0, text.indexOf(' '));
                 final ChatRoomIrcImpl chatRoom;
                 final IRCChannel channel;
                 synchronized (IrcStack.this.joined)
@@ -1216,7 +1216,8 @@ public class IrcStack
                 final String targetNick =
                     msgText.substring(0, endOfTargetIndex);
                 // Send blank text string as the message, since we don't know
-                // what the actual message was.
+                // what the actual message was. (We cannot reliably relate the
+                // NOSUCHNICK reply to the exact message that caused the error.)
                 MessageIrcImpl message =
                     new MessageIrcImpl(
                         "",
@@ -1478,6 +1479,8 @@ public class IrcStack
                 return;
             }
 
+            // FIXME Topic change event report message interprets HTML chars in
+            // channel name.
             this.chatroom.updateSubject(msg.getTopic().getValue());
         }
 

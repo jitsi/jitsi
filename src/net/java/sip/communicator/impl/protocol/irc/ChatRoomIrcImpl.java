@@ -805,6 +805,7 @@ public class ChatRoomIrcImpl
      *            subject.
      * @return the newly created message.
      */
+    @Override
     public Message createMessage(final byte[] content, final String contentType,
         final String contentEncoding, final String subject)
     {
@@ -822,6 +823,7 @@ public class ChatRoomIrcImpl
      * @param messageText the string content of the message.
      * @return Message the newly created message
      */
+    @Override
     public Message createMessage(final String messageText)
     {
         Message mess = new MessageIrcImpl(
@@ -841,6 +843,7 @@ public class ChatRoomIrcImpl
      * @throws OperationFailedException if the underlying stack is not
      * registered or initialized or if the chat room is not joined.
      */
+    @Override
     public void sendMessage(final Message message)
         throws OperationFailedException
     {
@@ -1162,6 +1165,7 @@ public class ChatRoomIrcImpl
      * @return <code>true</code> to indicate that this chat room is
      * corresponding to a server channel, <code>false</code> - otherwise.
      */
+    @Override
     public boolean isSystem()
     {
         return isSystem;
@@ -1197,6 +1201,7 @@ public class ChatRoomIrcImpl
      *
      * @return true if this chat room is persistent, false otherwise
      */
+    @Override
     public boolean isPersistent()
     {
         return true;
@@ -1252,6 +1257,7 @@ public class ChatRoomIrcImpl
      * Grants admin role to the participant given by <tt>address</tt>.
      * @param address the address of the participant to grant admin role to
      */
+    @Override
     public void grantAdmin(final String address)
     {
         this.parentProvider.getIrcStack().grant(this, address, Mode.OPERATOR);
@@ -1261,6 +1267,7 @@ public class ChatRoomIrcImpl
      * Grants membership role to the participant given by <tt>address</tt>.
      * @param address the address of the participant to grant membership role to
      */
+    @Override
     public void grantMembership(final String address)
     {
         // TODO currently Voice == Membership.
@@ -1271,6 +1278,7 @@ public class ChatRoomIrcImpl
      * Grants moderator role to the participant given by <tt>address</tt>.
      * @param address the address of the participant to grant moderator role to
      */
+    @Override
     public void grantModerator(final String address)
     {
         this.parentProvider.getIrcStack().grant(this, address, Mode.HALFOP);
@@ -1280,6 +1288,7 @@ public class ChatRoomIrcImpl
      * Grants ownership role to the participant given by <tt>address</tt>.
      * @param address the address of the participant to grant ownership role to
      */
+    @Override
     public void grantOwnership(final String address)
     {
         this.parentProvider.getIrcStack().grant(this, address, Mode.OWNER);
@@ -1289,6 +1298,7 @@ public class ChatRoomIrcImpl
      * Grants voice to the participant given by <tt>address</tt>.
      * @param address the address of the participant to grant voice to
      */
+    @Override
     public void grantVoice(final String address)
     {
         // TODO currently Voice == Membership.
@@ -1299,6 +1309,7 @@ public class ChatRoomIrcImpl
      * Revokes the admin role for the participant given by <tt>address</tt>.
      * @param address the address of the participant to revoke admin role for
      */
+    @Override
     public void revokeAdmin(final String address)
     {
         this.parentProvider.getIrcStack().revoke(this, address, Mode.OPERATOR);
@@ -1311,6 +1322,7 @@ public class ChatRoomIrcImpl
      * @param address the address of the participant to revoke membership role
      *            for
      */
+    @Override
     public void revokeMembership(final String address)
     {
         this.parentProvider.getIrcStack().revoke(this, address, Mode.VOICE);
@@ -1321,6 +1333,7 @@ public class ChatRoomIrcImpl
      * @param address the address of the participant to revoke moderator role
      * for
      */
+    @Override
     public void revokeModerator(final String address)
     {
         this.parentProvider.getIrcStack().revoke(this, address, Mode.HALFOP);
@@ -1331,6 +1344,7 @@ public class ChatRoomIrcImpl
      * @param address the address of the participant to revoke ownership role
      * for
      */
+    @Override
     public void revokeOwnership(final String address)
     {
         this.parentProvider.getIrcStack().revoke(this, address, Mode.OWNER);
@@ -1340,6 +1354,7 @@ public class ChatRoomIrcImpl
      * Revokes the voice for the participant given by <tt>address</tt>.
      * @param address the address of the participant to revoke voice for
      */
+    @Override
     public void revokeVoice(final String address)
     {
         this.parentProvider.getIrcStack().revoke(this, address, Mode.VOICE);
@@ -1350,6 +1365,7 @@ public class ChatRoomIrcImpl
      *
      * Not implemented.
      */
+    @Override
     public ConferenceDescription publishConference(
         final ConferenceDescription cd, final String name)
     {
@@ -1437,14 +1453,18 @@ public class ChatRoomIrcImpl
      */
     void updateSubject(final String subject)
     {
-        if (!this.chatSubject.equals(subject))
+        if (this.chatSubject.equals(subject))
         {
-            this.chatSubject = subject;
-            ChatRoomPropertyChangeEvent topicChangeEvent =
-                new ChatRoomPropertyChangeEvent(this,
-                    ChatRoomPropertyChangeEvent.CHAT_ROOM_SUBJECT, "", subject);
-            firePropertyChangeEvent(topicChangeEvent);
+            return;
         }
+        final String previous =
+            this.chatSubject == null ? "" : this.chatSubject;
+        this.chatSubject = subject;
+        ChatRoomPropertyChangeEvent topicChangeEvent =
+            new ChatRoomPropertyChangeEvent(this,
+                ChatRoomPropertyChangeEvent.CHAT_ROOM_SUBJECT, previous,
+                subject);
+        firePropertyChangeEvent(topicChangeEvent);
     }
 
     /**
