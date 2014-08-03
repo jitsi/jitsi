@@ -2974,10 +2974,10 @@
                  link="${debian.src.dir}/lib/installer-exclude/bccontrib-1.0-SNAPSHOT.jar"/>
         <symlink resource="/usr/share/java/bcprov.jar"
                  overwrite="true"
-                 link="${debian.src.dir}/lib/installer-exclude/bcprov-jdk15on-150.jar"/>
+                 link="${debian.src.dir}/lib/installer-exclude/bcprov-jdk15on-151.jar"/>
         <symlink resource="/usr/share/java/bcpkix.jar"
                  overwrite="true"
-                 link="${debian.src.dir}/lib/installer-exclude/bcpkix-jdk15on-150.jar"/>
+                 link="${debian.src.dir}/lib/installer-exclude/bcpkix-jdk15on-151.jar"/>
 
         <!-- liblaf-widget-java -->
         <symlink resource="/usr/share/java/laf-widget.jar"
