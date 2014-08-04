@@ -275,6 +275,9 @@
 			<fileset dir="${sc.basedir}/resources/install">
 				<include name="logging.properties" />
 			</fileset>
+			<fileset dir="${sc.basedir}/lib">
+				<include name="jitsi-default*.properties" />
+			</fileset>
 			<fileset dir="${tmp.dir}">
 				<include name="*.properties" />
 			</fileset>
