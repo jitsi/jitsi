@@ -39,14 +39,20 @@ public class FirstWizardPage
      */
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
-    // FIXME create resource string
-    public static final String USER_NAME_EXAMPLE = "Ex: ircuser";
+    /**
+     * Example of IRC nick name.
+     */
+    public static final String USER_NAME_EXAMPLE = Resources
+        .getString("plugin.ircaccregwizz.EXAMPLE_USERNAME");
 
-    // FIXME create resource string
-    public static final String SERVER_EXAMPLE = "Ex: chat.freenode.net";
-    
+    /**
+     * Example of IRC server name.
+     */
+    public static final String SERVER_EXAMPLE = Resources
+        .getString("plugin.ircaccregwizz.EXAMPLE_SERVER");
+
     private static final String DEFAULT_PLAINTEXT_PORT = "6667";
-    
+
     private static final String DEFAULT_SECURE_PORT = "6697";
 
     private JPanel userPassPanel = new TransparentPanel(new BorderLayout(10, 10));
@@ -110,7 +116,7 @@ public class FirstWizardPage
 
     private JCheckBox passwordNotRequired = new SIPCommCheckBox(
             Resources.getString("plugin.ircaccregwizz.PASSWORD_NOT_REQUIRED"));
-    
+
     private JCheckBox useSecureConnection = new SIPCommCheckBox(
         Resources.getString("plugin.ircaccregwizz.USE_SECURE_CONNECTION"));
 
@@ -235,7 +241,7 @@ public class FirstWizardPage
 
         serverPanel.add(labelsServerPanel, BorderLayout.WEST);
         serverPanel.add(valuesServerPanel, BorderLayout.CENTER);
-        
+
         JPanel serverSubPanel = new JPanel(new BorderLayout());
         serverSubPanel.setOpaque(false);
         serverSubPanel.add(defaultPort, BorderLayout.WEST);
@@ -437,7 +443,7 @@ public class FirstWizardPage
         String noPasswordRequired =
             accountID
                 .getAccountPropertyString(ProtocolProviderFactory.NO_PASSWORD_REQUIRED);
-        
+
         boolean useSecureConnection =
             accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactory.DEFAULT_ENCRYPTION, true);
@@ -474,7 +480,7 @@ public class FirstWizardPage
 
             passField.setEnabled(isPassRequired);
         }
-        
+
         this.useSecureConnection.setSelected(useSecureConnection);
     }
 
@@ -507,7 +513,7 @@ public class FirstWizardPage
             passField.setEnabled(true);
             rememberPassBox.setEnabled(true);
         }
-        
+
         setNextButtonAccordingToUserID();
     }
 
@@ -550,12 +556,12 @@ public class FirstWizardPage
     {
         return isCommitted;
     }
-    
+
     public String getCurrentUserId()
     {
         return this.userIDField.getText();
     }
-    
+
     public String getCurrentServer()
     {
         return this.serverField.getText();
