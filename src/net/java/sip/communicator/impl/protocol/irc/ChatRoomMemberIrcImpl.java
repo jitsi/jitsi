@@ -40,7 +40,7 @@ public class ChatRoomMemberIrcImpl
     /**
      * The provider that created us.
      */
-    private final ProtocolProviderService parentProvider;
+    private final ProtocolProviderServiceIrcImpl parentProvider;
 
     /**
      * Set of active roles.
@@ -61,7 +61,8 @@ public class ChatRoomMemberIrcImpl
      * @param chatRoomMemberRole the role that this member has in the
      * corresponding chat room
      */
-    public ChatRoomMemberIrcImpl(final ProtocolProviderService parentProvider,
+    public ChatRoomMemberIrcImpl(
+        final ProtocolProviderServiceIrcImpl parentProvider,
         final ChatRoom chatRoom, final String contactID,
         final ChatRoomMemberRole chatRoomMemberRole)
     {
@@ -207,16 +208,14 @@ public class ChatRoomMemberIrcImpl
     }
 
     /**
-     * Returns null to indicate that there's no contact corresponding to the
-     * IRC member.
+     * Get the corresponding contact for a chat room member if it exists.
      *
-     * @return null
+     * @return Contact instance if it exists, or null otherwise.
      */
     public Contact getContact()
     {
-        // FIXME look up contact via Persistent Presence OS. It might already
-        // exist.
-        return null;
+        return this.parentProvider.getPersistentPresence().findContactByID(
+            this.contactID);
     }
 
     /**
