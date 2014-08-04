@@ -1,17 +1,15 @@
-#!/bin/bash -x
+#!/bin/bash -xe
 
 SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+cd $SCRIPT_DIR
 #exec > "${0%.*}.log" 2>&1
 
-#exec -x
-
-if [[ "$1" == "--help" || "$1" == "-h" || "$1" == "-?" || $# -lt 2 ]]; then
-    echo "Usage $0 VERSION BUILD_NUMBER"
+if [[ "$1" == "--help" || "$1" == "-h" || "$1" == "-?" || $# -lt 1 ]]; then
+    echo "Usage $0 BUILD_NUMBER"
     exit 1
 fi
 
-version=$1
-buildNumber=$2
+buildNumber=$1
 
 # Deletes everything but the newest files matching the specified pattern
 clean_oldies() {
@@ -26,13 +24,18 @@ clean_oldies() {
     ls -t $pattern | tail -$tailCount | xargs rm -f
 }
 
-cd $SCRIPT_DIR/SOURCES
+cd SOURCES
 
-[[ ! -d jitsi ]] && git clone https://github.com/jitsi/jitsi
+[[ ! -d jitsi ]] && git clone https://github.com/jitsi/jitsi.git
+
 cd jitsi
 git stash
 git pull --rebase
-git stash pop
+git stash pop || true
+
+VERSION_MAJOR=$(grep 'public static final int VERSION_MAJOR = ' src/net/java/sip/communicator/impl/version/VersionImpl.java | awk '{print $7}' | awk -F ';' '{print $1}')
+VERSION_MINOR=$(grep 'public static final int VERSION_MINOR = ' src/net/java/sip/communicator/impl/version/VersionImpl.java | awk '{print $7}' | awk -F ';' '{print $1}')
+version=$VERSION_MAJOR.$VERSION_MINOR
 
 echo "Creating zip file"
 cd $SCRIPT_DIR/SOURCES
