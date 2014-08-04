@@ -643,25 +643,10 @@ public class ChatRoomIrcImpl
     public void setUserNickname(final String nickName)
         throws OperationFailedException
     {
-        // FIXME Consider not supporting this operation. Chat rooms can be
-        // configured to have their own nick name, which causes nick changes
-        // upon joining that particular chat room.
-        try
-        {
-            parentProvider.getIrcStack().setUserNickname(nickName);
-        }
-        catch (RuntimeException e)
-        {
-            if (e.getCause() instanceof IOException)
-            {
-                throw new OperationFailedException(
-                    "Failed to change nick name.",
-                    OperationFailedException.NETWORK_FAILURE, e.getCause());
-            }
-
-            throw new OperationFailedException("Failed to change nick name.",
-                OperationFailedException.GENERAL_ERROR, e);
-        }
+        throw new OperationFailedException(
+            "Nick names are managed by the connection to the IRC server. They "
+                + "cannot be changed on the level of an invididual chat room.",
+            OperationFailedException.NOT_SUPPORTED_OPERATION);
     }
 
     /**
