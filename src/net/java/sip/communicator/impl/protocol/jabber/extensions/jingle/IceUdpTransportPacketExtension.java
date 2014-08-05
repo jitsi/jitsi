@@ -232,7 +232,7 @@ public class IceUdpTransportPacketExtension
         else if(childExtension instanceof CandidatePacketExtension)
             addCandidate((CandidatePacketExtension) childExtension);
 
-        else if (childExtension instanceof DtlsFingerprintPacketExtension)
+        else
             super.addChildExtension(childExtension);
     }
 }
