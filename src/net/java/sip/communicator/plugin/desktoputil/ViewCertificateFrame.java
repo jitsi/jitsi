@@ -8,7 +8,6 @@ package net.java.sip.communicator.plugin.desktoputil;
 
 import java.awt.*;
 import java.security.cert.*;
-import java.util.*;
 import javax.swing.*;
 import org.jitsi.service.resources.*;
 
@@ -123,41 +122,8 @@ public class ViewCertificateFrame
 
         this.getContentPane().add(contentPane, BorderLayout.CENTER);
 
-        Component certInfoPane;
-        if (certs[0] instanceof X509Certificate)
-        {
-            ArrayList x509s = new ArrayList<X509Certificate>();
-            for (Certificate c : certs)
-            {
-                if (c instanceof X509Certificate)
-                {
-                    x509s.add(c);
-                }
-            }
-            certInfoPane = new X509CertificatePanel(
-                    (X509Certificate[]) x509s.toArray(new X509Certificate[0]));
-        }
-        else
-        {
-            JTextArea textArea = new JTextArea();
-            textArea.setOpaque(false);
-            textArea.setEditable(false);
-            // for now shows only the first certificate from the chain
-            textArea.setText(certs[0].toString());
-            certInfoPane = textArea;
-        }
+        certPanel.add(new X509CertificatePanel(certs), BorderLayout.CENTER);
 
-        final JScrollPane certScroll = new JScrollPane(certInfoPane);
-        certScroll.setPreferredSize(new Dimension(300, 600));
-        certPanel.add(certScroll, BorderLayout.CENTER);
-
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                certScroll.getVerticalScrollBar().setValue(0);
-            }
-        });
         setPreferredSize(null);
 
         pack();

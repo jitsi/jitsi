@@ -9,6 +9,7 @@ package net.java.sip.communicator.plugin.desktoputil;
 import java.awt.*;
 import java.security.*;
 import java.security.cert.*;
+import java.security.cert.Certificate;
 import java.security.interfaces.*;
 import java.util.*;
 
@@ -44,9 +45,9 @@ public class X509CertificatePanel
      *
      * @param certificate <tt>X509Certificate</tt> object
      */
-    public X509CertificatePanel(X509Certificate certificate)
+    public X509CertificatePanel(Certificate certificate)
     {
-        this(new X509Certificate[]
+        this(new Certificate[]
         {
             certificate
         });
@@ -57,7 +58,7 @@ public class X509CertificatePanel
      *
      * @param certificates <tt>X509Certificate</tt> objects
      */
-    public X509CertificatePanel(X509Certificate[] certificates)
+    public X509CertificatePanel(Certificate[] certificates)
     {
         setLayout(new BorderLayout(5, 5));
 
@@ -71,7 +72,7 @@ public class X509CertificatePanel
         DefaultMutableTreeNode previous = top;
         for (int i = certificates.length - 1; i >= 0; i--)
         {
-            X509Certificate cert = certificates[i];
+            Certificate cert = certificates[i];
             DefaultMutableTreeNode next = new DefaultMutableTreeNode(cert);
             previous.add(next);
             previous = next;
@@ -99,6 +100,17 @@ public class X509CertificatePanel
                     {
                         component.setText(
                                 getSimplifiedName((X509Certificate) o));
+                    }
+                    else
+                    {
+                        // We don't know how to represent this certificate type,
+                        // let's use the first 20 characters
+                        String text = o.toString();
+                        if (text.length() > 20)
+                        {
+                            text = text.substring(0, 20);
+                        }
+                        component.setText(text);
                     }
                 }
                 return component;
@@ -146,13 +158,42 @@ public class X509CertificatePanel
         add(certScroll, BorderLayout.CENTER);
     }
 
-    private String toString(X509Certificate certificate)
+    /**
+     * Creates a String representation of the given object.
+     * @param certificate to print
+     * @return the String representation
+     */
+    private String toString(Object certificate)
     {
         final StringBuilder sb = new StringBuilder();
+        sb.append("<html><body>\n");
+
+        if (certificate instanceof X509Certificate)
+        {
+            renderX509(sb, (X509Certificate) certificate);
+        }
+        else
+        {
+            sb.append("<pre>\n");
+            sb.append(certificate.toString());
+            sb.append("</pre>\n");
+        }
+
+        sb.append("</body></html>");
+        return sb.toString();
+    }
+
+    /**
+     * Appends an HTML representation of the given X509Certificate. 
+     * @param sb StringBuilder to append to
+     * @param certificate to print
+     */
+    private void renderX509(StringBuilder sb, X509Certificate certificate)
+    {
         X500Principal issuer = certificate.getIssuerX500Principal();
         X500Principal subject = certificate.getSubjectX500Principal();
 
-        sb.append("<html><body><table cellspacing='1' cellpadding='1'>\n");
+        sb.append("<table cellspacing='1' cellpadding='1'>\n");
 
         // subject
         addTitle(sb, R.getI18NString("service.gui.CERT_INFO_ISSUED_TO"));
@@ -300,9 +341,7 @@ public class X509CertificatePanel
                         getHex(certificate.getSignature())
                     }));
 
-        sb.append("</table></body></html>");
-
-        return sb.toString();
+        sb.append("</table>\n");
     }
 
     /**
@@ -448,11 +487,7 @@ public class X509CertificatePanel
         if (o instanceof DefaultMutableTreeNode)
         {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) o;
-            if (node.getUserObject() instanceof X509Certificate)
-            {
-                infoTextPane.setText(
-                        toString((X509Certificate) node.getUserObject()));
-            }
+            infoTextPane.setText(toString(node.getUserObject()));
         }
     }
 }
