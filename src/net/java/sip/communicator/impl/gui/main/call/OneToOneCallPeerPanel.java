@@ -65,7 +65,7 @@ public class OneToOneCallPeerPanel
      * streams present.
      */
     public static final String HIDE_PLACEHOLDER_PIC_PROP
-        = "net.java.sip.communicator.impl.gui.main.call.HIDE_PLACEHOLDER_PIC_PROP";
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_PLACEHOLDER_PIC";
 
     /**
      * The <tt>CallPeer</tt>, which is rendered in this panel.
