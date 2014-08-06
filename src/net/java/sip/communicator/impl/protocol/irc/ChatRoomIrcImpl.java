@@ -643,10 +643,14 @@ public class ChatRoomIrcImpl
     public void setUserNickname(final String nickName)
         throws OperationFailedException
     {
-        throw new OperationFailedException(
-            "Nick names are managed by the connection to the IRC server. They "
-                + "cannot be changed on the level of an invididual chat room.",
-            OperationFailedException.NOT_SUPPORTED_OPERATION);
+        // TODO Joining a chat room fails altogether if we throw an
+        // OperationFailedException here.
+        LOGGER.info("Setting a nick name for an individual chat room is not "
+            + "supported for IRC.");
+        // throw new OperationFailedException(
+        // "Nick names are managed by the connection to the IRC server. They "
+        // + "cannot be changed on the level of an invididual chat room.",
+        // OperationFailedException.NOT_SUPPORTED_OPERATION);
     }
 
     /**
