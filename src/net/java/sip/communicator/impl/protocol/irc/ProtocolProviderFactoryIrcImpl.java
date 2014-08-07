@@ -127,13 +127,16 @@ public class ProtocolProviderFactoryIrcImpl
     /**
      * Modify an existing IRC account.
      *
+     * This method is not implemented. The current approach is te reinsert the
+     * account as if "newly" created.
+     *
      * {@inheritDoc}
      */
     @Override
     public void modifyAccount(final ProtocolProviderService protocolProvider,
         final Map<String, String> accountProperties)
     {
-        // not implemented, modified accounts currently get reinstalled as
-        // "newly" created accounts.
+        throw new UnsupportedOperationException(
+            "This method is currently not supported.");
     }
 }
