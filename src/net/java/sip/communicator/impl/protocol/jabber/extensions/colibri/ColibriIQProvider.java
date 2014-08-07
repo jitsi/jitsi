@@ -40,6 +40,11 @@ public class ColibriIQProvider
                 SourcePacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<SourcePacketExtension>(
                         SourcePacketExtension.class));
+        providerManager.addExtensionProvider(
+                SourceGroupPacketExtension.ELEMENT_NAME,
+                SourceGroupPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<SourceGroupPacketExtension>(
+                        SourceGroupPacketExtension.class));
 
         PacketExtensionProvider parameterProvider
             = new DefaultPacketExtensionProvider<ParameterPacketExtension>(
@@ -83,6 +88,13 @@ public class ColibriIQProvider
                 = (IceUdpTransportPacketExtension) childExtension;
 
             channel.setTransport(transport);
+        }
+        else if (childExtension instanceof SourceGroupPacketExtension)
+        {
+            SourceGroupPacketExtension sourceGroup
+                    = (SourceGroupPacketExtension)childExtension;
+
+            channel.addSourceGroup(sourceGroup);
         }
     }
 
@@ -538,7 +550,14 @@ public class ColibriIQProvider
                             peName = name;
                             peNamespace = SourcePacketExtension.NAMESPACE;
                         }
-
+                        else if (SourceGroupPacketExtension.ELEMENT_NAME
+                                                .equals(name)
+                                && SourceGroupPacketExtension.NAMESPACE
+                                                .equals(parser.getNamespace()))
+                        {
+                            peName = name;
+                            peNamespace = SourceGroupPacketExtension.NAMESPACE;
+                        }
                         if (peName == null)
                         {
                             throwAway(parser, name);

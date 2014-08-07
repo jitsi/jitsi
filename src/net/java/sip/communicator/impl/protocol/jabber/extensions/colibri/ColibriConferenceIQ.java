@@ -899,6 +899,11 @@ public class ColibriConferenceIQ
             = new LinkedList<SourcePacketExtension>();
 
         /**
+         * The <tt>SourceGroupPacketExtension</tt>s of this channel.
+         */
+        private List<SourceGroupPacketExtension> sourceGroups;
+
+        /**
          * The list of (RTP) SSRCs which have been seen/received on this
          * <tt>Channel</tt> by now. These may exclude SSRCs which are no longer
          * active. Set by the Jitsi Videobridge server, not its clients.
@@ -954,6 +959,29 @@ public class ColibriConferenceIQ
                 throw new NullPointerException("source");
 
             return sources.contains(source) ? false : sources.add(source);
+        }
+
+        /**
+         * Adds a <tt>SourceGroupPacketExtension</tt> to the list of source
+         * groups of this channel.
+         *
+         * @param sourceGroup the <tt>SourcePacketExtension</tt> to add to the
+         * list of sources of this channel
+         *
+         * @return <tt>true</tt> if the list of sources of this channel changed
+         * as a result of the execution of the method; otherwise, <tt>false</tt>
+         */
+        public synchronized boolean addSourceGroup(
+                SourceGroupPacketExtension sourceGroup)
+        {
+            if (sourceGroup == null)
+                throw new NullPointerException("sourceGroup");
+
+            if (sourceGroups == null)
+                sourceGroups = new LinkedList<SourceGroupPacketExtension>();
+
+            return sourceGroups.contains(sourceGroup)
+                    ? false : sourceGroups.add(sourceGroup);
         }
 
         /**
@@ -1102,6 +1130,19 @@ public class ColibriConferenceIQ
         public synchronized List<SourcePacketExtension> getSources()
         {
             return new ArrayList<SourcePacketExtension>(sources);
+        }
+
+        /**
+         * Gets the list of <tt>SourceGroupPacketExtensions</tt>s which
+         * represent the source groups of this channel.
+         *
+         * @return a <tt>List</tt> of <tt>SourceGroupPacketExtension</tt>s which
+         * represent the source groups of this channel
+         */
+        public synchronized List<SourceGroupPacketExtension> getSourceGroups()
+        {
+            return (sourceGroups == null) ? null
+                    : new ArrayList<SourceGroupPacketExtension>(sourceGroups);
         }
 
         /**
@@ -1407,6 +1448,7 @@ public class ColibriConferenceIQ
         {
             List<PayloadTypePacketExtension> payloadTypes = getPayloadTypes();
             List<SourcePacketExtension> sources = getSources();
+            List<SourceGroupPacketExtension> souceGroups = getSourceGroups();
             int[] ssrcs = getSSRCs();
 
             for (PayloadTypePacketExtension payloadType : payloadTypes)
@@ -1414,6 +1456,10 @@ public class ColibriConferenceIQ
 
             for (SourcePacketExtension source : sources)
                 xml.append(source.toXML());
+
+            if (souceGroups != null && souceGroups.size() != 0)
+                for (SourceGroupPacketExtension sourceGroup : souceGroups)
+                    xml.append(sourceGroup.toXML());
 
             for (int i = 0; i < ssrcs.length; i++)
             {
