@@ -8,6 +8,30 @@
 -->
 	<Fragment>
 		<ComponentGroup Id="ComponentGroup_DefaultOverrides">
+            <Component
+                Id="ComponentGroup_DefaultOverrides_Disable_Updates_Check"
+                Directory="@@lib"
+                Guid="F09D26F0-402F-4CC1-AD28-9D88B9316AC1"
+                Win64="$(var.Win64)">
+                <Condition><![CDATA[DISABLE_UPDATES = 1 OR CREATE_DISABLE_UPDATES_CHECK = 1]]></Condition>
+                <IniFile
+                    Id="DefaultOverrides_DisableUpdatesCheck"
+                    Action="addLine"
+                    Directory="@@lib"
+                    Name="jitsi-default-overrides.properties"
+                    Section="#dummy"
+                    Key="net.java.sip.communicator.plugin.updatechecker.ENABLED"
+                    Value="false"
+                />
+                <RegistryValue
+                          Key="Software\Microsoft\@APP_NAME@"
+                          KeyPath="yes"
+                          Name="DisableUpdatesCheck"
+                          Root="HKCU"
+                          Type="integer"
+                          Value="1" />
+                <CreateFolder/>
+            </Component>
 			<Component
 				Id="ComponentGroup_DefaultOverrides_Provisioning_Method"
 				Directory="@@lib"

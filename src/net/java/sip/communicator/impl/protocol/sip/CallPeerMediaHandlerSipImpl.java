@@ -21,6 +21,7 @@ import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;
+import org.jitsi.service.neomedia.rtp.*;
 
 import ch.imvs.sdes4j.srtp.*;
 
@@ -244,21 +245,46 @@ public class CallPeerMediaHandlerSipImpl
 
                     try
                     {
-                        // If we have a video preset, let's send info about the
-                        // desired frame rate.
-                        if (mediaType.equals(MediaType.VIDEO)
-                                && (receiveQualityPreset != null))
+                        switch (mediaType)
                         {
-                            // doing only int frame rate for now
-                            int frameRate
-                                = (int) receiveQualityPreset.getFameRate();
+                        case AUDIO:
+                            /*
+                             * Let the remote peer know that we support RTCP XR
+                             * in general and VoIP Metrics Report Block in
+                             * particular.
+                             */
+                            String rtcpxr
+                                = md.getAttribute(
+                                        RTCPExtendedReport.SDP_ATTRIBUTE);
 
-                            if (frameRate > 0)
+                            if (rtcpxr == null)
                             {
                                 md.setAttribute(
-                                        "framerate",
-                                        String.valueOf(frameRate));
+                                        RTCPExtendedReport.SDP_ATTRIBUTE,
+                                        RTCPExtendedReport
+                                            .VoIPMetricsReportBlock
+                                                .SDP_PARAMETER);
                             }
+                            break;
+                        case VIDEO:
+                            // If we have a video preset, let's send info about
+                            // the desired frame rate.
+                            if (receiveQualityPreset != null)
+                            {
+                                // doing only int frame rate for now
+                                int frameRate
+                                    = (int) receiveQualityPreset.getFameRate();
+
+                                if (frameRate > 0)
+                                {
+                                    md.setAttribute(
+                                            "framerate",
+                                            String.valueOf(frameRate));
+                                }
+                            }
+                            break;
+                        default:
+                            break;
                         }
                     }
                     catch(SdpException e)
@@ -708,6 +734,44 @@ public class CallPeerMediaHandlerSipImpl
                     md,
                     mediaDescription);
 
+            // RTCP XR
+            String rtcpxr;
+            
+            try
+            {
+                /*
+                 * We support the receiving of RTCP XR so we will answer the
+                 * offer of the remote peer.
+                 */
+                rtcpxr
+                    = mediaDescription.getAttribute(
+                            RTCPExtendedReport.SDP_ATTRIBUTE);
+                if (rtcpxr != null)
+                {
+                    /*
+                     * However, we support the receiving and sending of VoIP
+                     * Metrics Report Block only. 
+                     */
+                    if (rtcpxr.contains(
+                            RTCPExtendedReport.VoIPMetricsReportBlock
+                                .SDP_PARAMETER))
+                    {
+                        rtcpxr
+                            = RTCPExtendedReport.VoIPMetricsReportBlock
+                                .SDP_PARAMETER;
+                    }
+                    else
+                    {
+                        rtcpxr = "";
+                    }
+                    md.setAttribute(RTCPExtendedReport.SDP_ATTRIBUTE, rtcpxr);
+                }
+            }
+            catch (SdpException se)
+            {
+                rtcpxr = null;
+            }
+
             // create the corresponding stream...
             MediaFormat fmt
                 = findMediaFormat(
@@ -733,8 +797,19 @@ public class CallPeerMediaHandlerSipImpl
                 }
             }
 
-            initStream(connector, dev, fmt, target, direction, rtpExtensions,
-                masterStream);
+            MediaStream stream
+                = initStream(
+                        connector,
+                        dev,
+                        fmt,
+                        target,
+                        direction,
+                        rtpExtensions,
+                        masterStream);
+
+            // RTCP XR
+            if (stream != null)
+                stream.setProperty(RTCPExtendedReport.SDP_ATTRIBUTE, rtcpxr);
 
             // create the answer description
             answerDescriptions.add(md);
@@ -1471,14 +1546,33 @@ public class CallPeerMediaHandlerSipImpl
             }
 
             // create the corresponding stream...
-            initStream(
-                    connector,
-                    dev,
-                    supportedFormats.get(0),
-                    target,
-                    direction,
-                    rtpExtensions,
-                    masterStream);
+            MediaStream stream
+                = initStream(
+                        connector,
+                        dev,
+                        supportedFormats.get(0),
+                        target,
+                        direction,
+                        rtpExtensions,
+                        masterStream);
+
+            // RTCP XR
+            if (stream != null)
+            {
+                String rtcpxr;
+
+                try
+                {
+                    rtcpxr
+                        = mediaDescription.getAttribute(
+                                RTCPExtendedReport.SDP_ATTRIBUTE);
+                }
+                catch (SdpException se)
+                {
+                    rtcpxr = null;
+                }
+                stream.setProperty(RTCPExtendedReport.SDP_ATTRIBUTE, rtcpxr);
+            }
         }
     }
 

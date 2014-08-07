@@ -87,11 +87,18 @@ public class GlobalStatusSelectorBox
     private final GlobalStatusMessageMenu globalStatusMessageMenu;
 
     /**
+     * The parent panel that creates us.
+     */
+    private final AccountStatusPanel accountStatusPanel;
+
+    /**
      * Creates an instance of <tt>SimpleStatusSelectorBox</tt>.
      */
-    public GlobalStatusSelectorBox()
+    public GlobalStatusSelectorBox(AccountStatusPanel accountStatusPanel)
     {
         super();
+
+        this.accountStatusPanel = accountStatusPanel;
 
         JLabel titleLabel = new JLabel(GuiActivator.getResources()
                         .getI18NString("service.gui.SET_GLOBAL_STATUS"));
@@ -156,10 +163,12 @@ public class GlobalStatusSelectorBox
             this.setToolTipText("<html><b>" + GuiActivator.getResources()
                 .getI18NString("service.gui.SET_GLOBAL_STATUS")
                 + "</b></html>");
+            accountStatusPanel.setStatusMessage(null);
         }
         else
         {
             this.setToolTipText("<html><b>" + message + "</b></html>");
+            accountStatusPanel.setStatusMessage(message);
         }
     }
 

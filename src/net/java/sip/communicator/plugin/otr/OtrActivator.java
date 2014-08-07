@@ -428,8 +428,12 @@ public class OtrActivator
         // Unregister transformation layer.
         // start listening for newly register or removed protocol providers
         bundleContext.removeServiceListener(this);
-        bundleContext.removeServiceListener(scOtrEngine);
-        bundleContext.removeServiceListener(otrContactManager);
+
+        if(scOtrEngine != null)
+            bundleContext.removeServiceListener(scOtrEngine);
+
+        if(otrContactManager != null)
+            bundleContext.removeServiceListener(otrContactManager);
 
         ServiceReference[] protocolProviderRefs;
         try

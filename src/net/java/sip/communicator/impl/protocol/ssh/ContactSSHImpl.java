@@ -14,10 +14,11 @@ import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Base64; // disambiguation
 import net.java.sip.communicator.util.Logger;
 
 import com.jcraft.jsch.*;
+// disambiguation
 
 /**
  * A Contact of SSH Type

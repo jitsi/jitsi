@@ -13,7 +13,7 @@ import javax.security.auth.callback.*;
 import javax.security.sasl.*;
 
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.util.*;
+import org.jivesoftware.smack.util.Base64; // disambiguation
 
 /**
  * Creates our custom SASLDigestMD5Mechanism with some changes in order

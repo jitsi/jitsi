@@ -9,7 +9,7 @@ package net.java.sip.communicator.slick.slickless.util;
 import java.util.*;
 
 import junit.framework.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Base64; // disambiguation
 
 /**
  * Tests the methods of the Base64 class.

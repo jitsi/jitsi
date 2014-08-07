@@ -10,6 +10,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Base64; // disambiguation
 
 import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;

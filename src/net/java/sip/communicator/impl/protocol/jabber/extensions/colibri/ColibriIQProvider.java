@@ -158,9 +158,12 @@ public class ColibriIQProvider
 
             boolean done = false;
             ColibriConferenceIQ.Channel channel = null;
+            ColibriConferenceIQ.RTCPTerminationStrategy rtcpTerminationStrategy
+                    = null;
             ColibriConferenceIQ.SctpConnection sctpConnection = null;
             ColibriConferenceIQ.Content content = null;
             ColibriConferenceIQ.Recording recording = null;
+            ColibriConferenceIQ.Endpoint conferenceEndpoint = null;
             StringBuilder ssrc = null;
 
             while (!done)
@@ -186,6 +189,12 @@ public class ColibriIQProvider
                     {
                         content.addSctpConnection(sctpConnection);
                         sctpConnection = null;
+                    }
+                    else if (ColibriConferenceIQ.Endpoint.ELEMENT_NAME
+                            .equals(name))
+                    {
+                        conference.addEndpoint(conferenceEndpoint);
+                        conferenceEndpoint = null;
                     }
                     else if (ColibriConferenceIQ.Channel.SSRC_ELEMENT_NAME
                             .equals(name))
@@ -214,6 +223,13 @@ public class ColibriIQProvider
                     {
                         conference.addContent(content);
                         content = null;
+                    }
+                    else if (ColibriConferenceIQ.RTCPTerminationStrategy
+                            .ELEMENT_NAME.equals(name))
+                    {
+                        conference.setRTCPTerminationStrategy(
+                                rtcpTerminationStrategy);
+                        rtcpTerminationStrategy = null;
                     }
                     else if (ColibriConferenceIQ.Recording.ELEMENT_NAME.equals(
                             name))
@@ -336,6 +352,24 @@ public class ColibriIQProvider
                         if ((rtpPort != null) && (rtpPort.length() != 0))
                             channel.setRTPPort(Integer.parseInt(rtpPort));
                     }
+                    else if (ColibriConferenceIQ.RTCPTerminationStrategy
+                            .ELEMENT_NAME.equals(name))
+                    {
+                        rtcpTerminationStrategy =
+                                new ColibriConferenceIQ.RTCPTerminationStrategy();
+
+                        // name
+                        String strategyName
+                                = parser.getAttributeValue(
+                                "",
+                                ColibriConferenceIQ.RTCPTerminationStrategy
+                                        .NAME_ATTR_NAME);
+
+                        if ((strategyName != null)
+                                && (strategyName.length() != 0))
+                            rtcpTerminationStrategy.setName(strategyName);
+
+                    }
                     else if (ColibriConferenceIQ.Channel.SSRC_ELEMENT_NAME
                             .equals(name))
                     {
@@ -427,6 +461,25 @@ public class ColibriIQProvider
 
                         if (!StringUtils.isNullOrEmpty(expire))
                             sctpConnection.setExpire(Integer.parseInt(expire));
+                    }
+                    else if (ColibriConferenceIQ.Endpoint.ELEMENT_NAME
+                            .equals(name))
+                    {
+                        String id
+                                = parser.getAttributeValue(
+                                "",
+                                ColibriConferenceIQ.Endpoint.ID_ATTR_NAME);
+
+                        String endpointName
+                                = parser.getAttributeValue(
+                                "",
+                                ColibriConferenceIQ.Endpoint
+                                        .DISPLAYNAME_ATTR_NAME);
+
+                        conferenceEndpoint
+                                = new ColibriConferenceIQ.Endpoint(id,
+                                                                   endpointName);
+
                     }
                     else if (channel != null || sctpConnection != null)
                     {
