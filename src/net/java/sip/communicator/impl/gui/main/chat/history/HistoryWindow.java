@@ -355,7 +355,7 @@ public class HistoryWindow
                             chatMessage.getContactName());
 
                     chatConvPanel.appendMessageToEnd(processedMessage,
-                        ChatHtmlUtils.TEXT_CONTENT_TYPE);
+                        ChatHtmlUtils.HTML_CONTENT_TYPE);
                 }
             }
         }
@@ -890,7 +890,13 @@ public class HistoryWindow
                         contact.getProtocolProvider(),
                         contact.getAddress());
 
-                    this.appendMessageToDocument(document, processedMessage);
+                    if (processedMessage != null)
+                    {
+                        // ChatConversationPanel#processMessage may return null
+                        // if the message turns out to be a consecutive message.
+                        this.appendMessageToDocument(
+                            document, processedMessage);
+                    }
                 }
             }
             else if (lastDate == null

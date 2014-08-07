@@ -14,6 +14,8 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.util.*;
 
+import org.apache.commons.lang3.*;
+
 /**
  *
  * @author Yana Stamcheva
@@ -45,16 +47,6 @@ public class ChatHtmlUtils
      * The message identifier attribute.
      */
     public final static String MESSAGE_TEXT_ID = "message";
-
-    /**
-     * The closing tag of the <code>PLAINTEXT</code> HTML element.
-     */
-    public static final String END_PLAINTEXT_TAG = "</PLAINTEXT>";
-
-    /**
-     * The opening tag of the <code>PLAINTEXT</code> HTML element.
-     */
-    public static final String START_PLAINTEXT_TAG = "<PLAINTEXT>";
 
     /**
      * The html text content type.
@@ -593,44 +585,6 @@ public class ChatHtmlUtils
     }
 
     /**
-     * Creates the start tag, which indicates that the next text would be plain
-     * text.
-     *
-     * @param contentType the current content type
-     * @return the start plaintext tag
-     */
-    public static String createStartPlainTextTag(String contentType)
-    {
-        if (HTML_CONTENT_TYPE.equals(contentType))
-        {
-            return "";
-        }
-        else
-        {
-            return START_PLAINTEXT_TAG;
-        }
-    }
-
-    /**
-     * Creates the end tag, which indicates that the next text would be plain
-     * text.
-     *
-     * @param contentType the current content type
-     * @return the end plaintext tag
-     */
-    public static String createEndPlainTextTag(String contentType)
-    {
-        if (HTML_CONTENT_TYPE.equals(contentType))
-        {
-            return "";
-        }
-        else
-        {
-            return END_PLAINTEXT_TAG;
-        }
-    }
-
-    /**
      * Creates a tag that shows the last edit time of a message, in the format
      *  (Edited at ...).
      * If <tt>date < 0</tt>, returns an empty tag that serves as a placeholder
@@ -695,11 +649,16 @@ public class ChatHtmlUtils
         messageTag.append(IncomingMessageStyle
             .createSingleMessageStyle(isHistory, isEdited, true));
         messageTag.append(">");
-        messageTag.append(createStartPlainTextTag(contentType));
-        messageTag.append(message);
+        if (HTML_CONTENT_TYPE.equalsIgnoreCase(contentType))
+        {
+            messageTag.append(message);
+        }
+        else
+        {
+            messageTag.append(StringEscapeUtils.escapeHtml4(message));
+        }
         if (isEdited)
             messageTag.append("    ");
-        messageTag.append(createEndPlainTextTag(contentType));
         if (isEdited)
             messageTag.append(createEditedAt(date));
         messageTag.append("</div>");
@@ -740,13 +699,19 @@ public class ChatHtmlUtils
         messageTag.append(IncomingMessageStyle
             .createSingleMessageStyle(isHistory, isEdited, false));
         messageTag.append(">");
-        messageTag.append(createStartPlainTextTag(contentType));
-        messageTag.append(message);
+        if (HTML_CONTENT_TYPE.equalsIgnoreCase(contentType))
+        {
+            messageTag.append(message);
+        }
+        else
+        {
+            messageTag.append(StringEscapeUtils.escapeHtml4(message));
+        }
         if (isEdited)
+        {
             messageTag.append("    ");
-        messageTag.append(createEndPlainTextTag(contentType));
-        if (isEdited)
             messageTag.append(createEditedAt(date));
+        }
         messageTag.append("</div>");
 
         return messageTag.toString();
