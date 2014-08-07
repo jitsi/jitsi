@@ -176,7 +176,32 @@ public class SIPCommunicatorJWS
         {
         }
 
+        // Handle the "-open" argument from the javaws command line
+        Vector<String> _args = new Vector<String>();
+        for(int i = 0; i < args.length ; i++)
+        {
+            String arg = args[i];
+            if(arg.equalsIgnoreCase("-open"))
+            {
+                // are we at the last argument or is the next value
+                // some other option flag?
+                if(i == (args.length - 1) ||
+                    (args[i+1].length() > 0 &&
+                        "-/".indexOf(args[i+1].charAt(0))>=0))
+                {
+                    // invalid, can't use "-open" as final argument
+                    System.err.println("Command line argument '-open'"
+                        + " requires a parameter, usually a URI");
+                    System.exit(1);
+                }
+            }
+            else
+            {
+                _args.add(arg);
+            }
+        }
+
         // launch the original app
-        SIPCommunicator.main(args);
+        SIPCommunicator.main(_args.toArray(new String[] {}));
     }
 }
