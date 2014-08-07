@@ -253,6 +253,7 @@ public class ConfigurationFrame
             this.configList.setSelectedIndex(0);
         }
         super.setVisible(isVisible);
+        super.toFront();
     }
 
     /**
