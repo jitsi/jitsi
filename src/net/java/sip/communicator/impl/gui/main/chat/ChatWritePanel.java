@@ -34,6 +34,7 @@ import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
+import org.apache.commons.lang3.*;
 import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
@@ -1065,12 +1066,12 @@ public class ChatWritePanel
                 if (!transportSelectorBox.getMenu().isEnabled())
                 {
                     // Show a message to the user that IM is not possible.
-                    chatPanel.getChatConversationPanel()
-                        .appendMessageToEnd("<h5>" +
-                            GuiActivator.getResources().
-                                getI18NString("service.gui.MSG_NOT_POSSIBLE") +
-                            "</h5>",
-                            ChatHtmlUtils.HTML_CONTENT_TYPE);
+                    chatPanel.getChatConversationPanel().appendMessageToEnd(
+                        "<h5>"
+                            + StringEscapeUtils.escapeHtml4(GuiActivator
+                                .getResources().getI18NString(
+                                    "service.gui.MSG_NOT_POSSIBLE")) + "</h5>",
+                        ChatHtmlUtils.HTML_CONTENT_TYPE);
                 }
                 else
                 {
