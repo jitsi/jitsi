@@ -15,11 +15,8 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.service.replacement.directimage.*;
 import net.java.sip.communicator.util.*;
-
-import org.jitsi.service.configuration.*;
 
 public class ShowPreviewDialog
     extends SIPCommDialog
