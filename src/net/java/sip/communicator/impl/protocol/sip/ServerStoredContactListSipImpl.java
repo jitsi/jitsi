@@ -23,6 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.ImageDetail;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Base64; // disambiguation
 
 import org.jitsi.util.xml.XMLUtils;
 import org.w3c.dom.*;

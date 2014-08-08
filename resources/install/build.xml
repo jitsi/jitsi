@@ -582,6 +582,7 @@
             <filterchain>
                 <tokenfilter>
                     <replacestring from="@@lib" to="${wix.heat.jitsi.lib.dir}" />
+                    <replacestring from="@APP_NAME@" to="${application.name}" />
                 </tokenfilter>
             </filterchain>
         </copy>
@@ -2295,8 +2296,11 @@
                  token="/usr/share/java/org.apache.felix.framework.jar:/usr/share/java/org.apache.felix.main.jar"
                  value="$LIBPATH/felix.jar"/>
         <replace file="${debianize.dir}/sh/${package.name}"
-                 token="$SCDIR/sc-bundles/util.jar/launchutils.jar"
-                 value="$SCDIR/sc-bundles/util.jar"/>
+                 token="-common"
+                 value="/sc-bundles"/>
+        <replace file="${debianize.dir}/sh/${package.name}"
+                 token="util.jar/launchutils.jar"
+                 value="util.jar"/>
         <replace file="${debianize.dir}/sh/${package.name}"
                  token="/usr/lib/jni"
                  value="$SCDIR/lib/native"/>
@@ -2550,7 +2554,7 @@
         <!-- pack as original sources -->
         <tar destfile="${debian.dir}/${package.name}_${sip-communicator.version}.orig.tar.gz"
              compression="gzip"
-             basedir="${debian.src.dir}"/>
+             basedir="${debian.tmp.dir}"/>
         <delete dir="${debian.tmp.dir}"/>
     </target>
 
@@ -2970,10 +2974,10 @@
                  link="${debian.src.dir}/lib/installer-exclude/bccontrib-1.0-SNAPSHOT.jar"/>
         <symlink resource="/usr/share/java/bcprov.jar"
                  overwrite="true"
-                 link="${debian.src.dir}/lib/installer-exclude/bcprov-jdk15on-150.jar"/>
+                 link="${debian.src.dir}/lib/installer-exclude/bcprov-jdk15on-151.jar"/>
         <symlink resource="/usr/share/java/bcpkix.jar"
                  overwrite="true"
-                 link="${debian.src.dir}/lib/installer-exclude/bcpkix-jdk15on-150.jar"/>
+                 link="${debian.src.dir}/lib/installer-exclude/bcpkix-jdk15on-151.jar"/>
 
         <!-- liblaf-widget-java -->
         <symlink resource="/usr/share/java/laf-widget.jar"
@@ -3236,13 +3240,13 @@
           </patternset>
         </unzip>
         <delete file="${debian.bundles.dest}/util.jar"/>
-        <mkdir dir="${debian.bundles.dest}/util.jar/META-INF"/>
-        <symlink resource="../../../../share/java/dnsjava.jar"
-                 link="${debian.bundles.dest}/util.jar/dnsjava.jar"/>
+        <mkdir dir="${debian.bundles.common.dest}/util.jar/META-INF"/>
+        <symlink resource="../../../share/java/dnsjava.jar"
+                 link="${debian.bundles.common.dest}/util.jar/dnsjava.jar"/>
 
         <!-- Create the util.jar-->
         <jar compress="false"
-             destfile="${debian.bundles.dest}/util.jar/util.jar">
+             destfile="${debian.bundles.common.dest}/util.jar/util.jar">
             <zipfileset dir="${dest}/net/java/sip/communicator/util"
                 prefix="net/java/sip/communicator/util">
                 <exclude name="dns/**"/>
@@ -3250,7 +3254,7 @@
         </jar>
         <!-- Create the launchutils.jar-->
         <jar compress="false"
-             destfile="${debian.bundles.dest}/util.jar/launchutils.jar">
+             destfile="${debian.bundles.common.dest}/util.jar/launchutils.jar">
             <zipfileset
                 dir="${dest}/net/java/sip/communicator/util/launchutils"
                 prefix="net/java/sip/communicator/util/launchutils"/>
@@ -3263,16 +3267,17 @@
             </zipfileset>
         </jar>
         <move file="${debian.bundles.dest}/META-INF/MANIFEST.MF"
-              todir="${debian.bundles.dest}/util.jar/META-INF"/>
+              todir="${debian.bundles.common.dest}/util.jar/META-INF"/>
         <delete dir="${debian.bundles.dest}/META-INF"/>
+        <delete dir="${debian.bundles.dest}/util.jar"/>
         <!-- Removes the last empty line -->
         <replaceregexp
-            file="${debian.bundles.dest}/util.jar/META-INF/MANIFEST.MF"
+            file="${debian.bundles.common.dest}/util.jar/META-INF/MANIFEST.MF"
             match="^\r\n$"
             flags="m"
             replace=""/>
         <concat
-            destfile="${debian.bundles.dest}/util.jar/META-INF/MANIFEST.MF"
+            destfile="${debian.bundles.common.dest}/util.jar/META-INF/MANIFEST.MF"
             append="true"
             eol="crlf"
             fixlastline="true">Bundle-ClassPath: .,util.jar,dnsjava.jar&#013;&#010;&#013;&#010;</concat>
@@ -3281,6 +3286,11 @@
         <echo file="${debian.bundles.dest}/../lib/felix.client.run.properties"
             append="true">felix.auto.start.14= reference:file:/usr/share/java/dnsjava.jar
         </echo>
+        <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+                 token="reference:file:sc-bundles/util.jar">
+            <replacevalue>reference:file:/usr/share/jitsi-common/util.jar</replacevalue>
+        </replace>
+
     </target>
 
     <!-- target to rebuild the util bundle reusing debian package -->
@@ -3415,16 +3425,16 @@
           </patternset>
         </unzip>
         <delete file="${debian.bundles.dest}/smacklib.jar"/>
-        <mkdir dir="${debian.bundles.dest}/smacklib.jar/META-INF"/>
+        <mkdir dir="${debian.bundles.common.dest}/smacklib.jar/META-INF"/>
 
-        <symlink resource="../../../../share/java/xpp3-min.jar"
-             link="${debian.bundles.dest}/smacklib.jar/xpp3.jar"/>
-        <symlink resource="../../../../share/java/jzlib.jar"
-             link="${debian.bundles.dest}/smacklib.jar/jzlib.jar"/>
+        <symlink resource="../../../share/java/xpp3-min.jar"
+             link="${debian.bundles.common.dest}/smacklib.jar/xpp3.jar"/>
+        <symlink resource="../../../share/java/jzlib.jar"
+             link="${debian.bundles.common.dest}/smacklib.jar/jzlib.jar"/>
 
         <!-- Create the smacklib .jar-->
         <jar compress="false"
-            destfile="${debian.bundles.dest}/smacklib.jar/smacklib.jar"
+            destfile="${debian.bundles.common.dest}/smacklib.jar/smacklib.jar"
             manifest="lib/installer-exclude/smack.manifest.mf">
             <zipfileset src="lib/installer-exclude/smackx-debug.jar" prefix=""/>
             <zipfileset src="lib/installer-exclude/smack.jar" prefix=""/>
@@ -3432,19 +3442,25 @@
             <zipfileset src="lib/installer-exclude/jnsapi.jar" prefix=""/>
         </jar>
         <move file="${debian.bundles.dest}/META-INF/MANIFEST.MF"
-              todir="${debian.bundles.dest}/smacklib.jar/META-INF"/>
+              todir="${debian.bundles.common.dest}/smacklib.jar/META-INF"/>
         <delete dir="${debian.bundles.dest}/META-INF"/>
+        <delete dir="${debian.bundles.dest}/smacklib.jar"/>
         <!-- Removes the last empty line -->
         <replaceregexp
-            file="${debian.bundles.dest}/smacklib.jar/META-INF/MANIFEST.MF"
+            file="${debian.bundles.common.dest}/smacklib.jar/META-INF/MANIFEST.MF"
             match="^\r\n$"
             flags="m"
             replace=""/>
         <concat
-            destfile="${debian.bundles.dest}/smacklib.jar/META-INF/MANIFEST.MF"
+            destfile="${debian.bundles.common.dest}/smacklib.jar/META-INF/MANIFEST.MF"
             append="true"
             eol="crlf"
             fixlastline="true">Bundle-ClassPath: .,smacklib.jar,xpp3.jar,jzlib.jar&#013;&#010;&#013;&#010;</concat>
+        <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+                 token="reference:file:sc-bundles/smacklib.jar">
+            <replacevalue>reference:file:/usr/share/jitsi-common/smacklib.jar</replacevalue>
+        </replace>
+            
     </target>
 
     <!-- target to rebuild the jmdnslib bundle reusing debian package -->
@@ -3502,7 +3518,7 @@
             eol="crlf"
             fixlastline="true">Bundle-ClassPath: .,bcprov.jar&#013;&#010;&#013;&#010;</concat>
     </target>
-    
+
     <!-- target to rebuild the account info bundle reusing debian package -->
     <target name="deb-bundle-plugin-accountinfo">
 
@@ -3578,35 +3594,40 @@
             </patternset>
         </unzip>
         <delete file="${debian.bundles.dest}/libjitsi.jar"/>
-        <mkdir dir="${debian.bundles.dest}/libjitsi.jar/META-INF"/>
-        <symlink resource="../../../../share/java/bcpkix.jar"
-                 link="${debian.bundles.dest}/libjitsi.jar/"/>
-        <symlink resource="../../../../share/libjitsi/libjitsi.jar"
-                 link="${debian.bundles.dest}/libjitsi.jar/"/>
-        <symlink resource="../../../../share/libjitsi/lib/fmj.jar"
-                 link="${debian.bundles.dest}/libjitsi.jar/"/>
+        <mkdir dir="${debian.bundles.common.dest}/libjitsi.jar/META-INF"/>
+        <symlink resource="../../../share/java/bcpkix.jar"
+                 link="${debian.bundles.common.dest}/libjitsi.jar/"/>
+        <symlink resource="../../../share/libjitsi/libjitsi.jar"
+                 link="${debian.bundles.common.dest}/libjitsi.jar/"/>
+        <symlink resource="../../../share/libjitsi/lib/fmj.jar"
+                 link="${debian.bundles.common.dest}/libjitsi.jar/"/>
 
         <!-- Create the sys .jar-->
         <jar compress="false"
-             destfile="${debian.bundles.dest}/libjitsi.jar/libjitsi-impl.jar">
+             destfile="${debian.bundles.common.dest}/libjitsi.jar/libjitsi-impl.jar">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/libjitsi"
                         prefix="net/java/sip/communicator/impl/libjitsi"/>
         </jar>
         <move file="${debian.bundles.dest}/META-INF/MANIFEST.MF"
-              todir="${debian.bundles.dest}/libjitsi.jar/META-INF"/>
+              todir="${debian.bundles.common.dest}/libjitsi.jar/META-INF"/>
         <delete dir="${debian.bundles.dest}/META-INF"/>
+        <delete dir="${debian.bundles.dest}/libjitsi.jar"/>
 
         <!-- Removes the last empty line -->
         <replaceregexp
-            file="${debian.bundles.dest}/libjitsi.jar/META-INF/MANIFEST.MF"
+            file="${debian.bundles.common.dest}/libjitsi.jar/META-INF/MANIFEST.MF"
             match="^\r\n$"
             flags="m"
             replace=""/>
         <concat
-            destfile="${debian.bundles.dest}/libjitsi.jar/META-INF/MANIFEST.MF"
+            destfile="${debian.bundles.common.dest}/libjitsi.jar/META-INF/MANIFEST.MF"
             append="true"
             eol="crlf"
             fixlastline="true">Bundle-ClassPath: .,libjitsi-impl.jar,fmj.jar,libjitsi.jar,bcpkix.jar&#013;&#010;&#013;&#010;</concat>
+        <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+                 token="reference:file:sc-bundles/libjitsi.jar">
+            <replacevalue>reference:file:/usr/share/jitsi-common/libjitsi.jar</replacevalue>
+        </replace>
 
         <!--bundle-netaddr-->
         <unzip src="${debian.bundles.dest}/netaddr.jar"
@@ -3616,35 +3637,40 @@
             </patternset>
         </unzip>
         <delete file="${debian.bundles.dest}/netaddr.jar"/>
-        <mkdir dir="${debian.bundles.dest}/netaddr.jar/META-INF"/>
-        <symlink resource="../../../../share/libjitsi/lib/ice4j.jar"
-                 link="${debian.bundles.dest}/netaddr.jar/"/>
-        <symlink resource="../../../../share/java/weupnp.jar"
-                 link="${debian.bundles.dest}/netaddr.jar/"/>
+        <mkdir dir="${debian.bundles.common.dest}/netaddr.jar/META-INF"/>
+        <symlink resource="../../../share/libjitsi/lib/ice4j.jar"
+                 link="${debian.bundles.common.dest}/netaddr.jar/"/>
+        <symlink resource="../../../share/java/weupnp.jar"
+                 link="${debian.bundles.common.dest}/netaddr.jar/"/>
 
         <!-- Create the sys .jar-->
         <jar compress="false"
-             destfile="${debian.bundles.dest}/netaddr.jar/netaddr.jar">
+             destfile="${debian.bundles.common.dest}/netaddr.jar/netaddr.jar">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/netaddr"
                         prefix="net/java/sip/communicator/service/netaddr"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/netaddr"
                         prefix="net/java/sip/communicator/impl/netaddr"/>
         </jar>
         <move file="${debian.bundles.dest}/META-INF/MANIFEST.MF"
-              todir="${debian.bundles.dest}/netaddr.jar/META-INF"/>
+              todir="${debian.bundles.common.dest}/netaddr.jar/META-INF"/>
         <delete dir="${debian.bundles.dest}/META-INF"/>
+        <delete dir="${debian.bundles.dest}/netaddr.jar"/>
 
         <!-- Removes the last empty line -->
         <replaceregexp
-            file="${debian.bundles.dest}/netaddr.jar/META-INF/MANIFEST.MF"
+            file="${debian.bundles.common.dest}/netaddr.jar/META-INF/MANIFEST.MF"
             match="^\r\n$"
             flags="m"
             replace=""/>
         <concat
-            destfile="${debian.bundles.dest}/netaddr.jar/META-INF/MANIFEST.MF"
+            destfile="${debian.bundles.common.dest}/netaddr.jar/META-INF/MANIFEST.MF"
             append="true"
             eol="crlf"
             fixlastline="true">Bundle-ClassPath: .,netaddr.jar,ice4j.jar,weupnp.jar&#013;&#010;&#013;&#010;</concat>
+        <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+                 token="reference:file:sc-bundles/netaddr.jar">
+            <replacevalue>reference:file:/usr/share/jitsi-common/netaddr.jar</replacevalue>
+        </replace>
 
         <!--zrtp4j /usr/share/libjitsi/lib/zrtp4j-light.jar -->
         <unzip src="${debian.bundles.dest}/zrtp4j.jar"
@@ -3761,5 +3787,76 @@
             <attribute name="Bundle-ClassPath" value=".,httpmime.jar"/>
         </manifest>
     </target>
+    <target name="deb-bundle-common">
+    
+        <move file="${debian.bundles.dest}/protocol-jabber.jar"
+              tofile="${debian.bundles.common.dest}/protocol-jabber.jar"/>
+        <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+                 token="reference:file:sc-bundles/protocol-jabber.jar">
+            <replacevalue>reference:file:/usr/share/jitsi-common/protocol-jabber.jar</replacevalue>
+        </replace>
 
+        <move file="${debian.bundles.dest}/protocol-media.jar"
+              tofile="${debian.bundles.common.dest}/protocol-media.jar"/>
+        <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+                 token="reference:file:sc-bundles/protocol-media.jar">
+            <replacevalue>reference:file:/usr/share/jitsi-common/protocol-media.jar</replacevalue>
+        </replace>
+
+        <move file="${debian.bundles.dest}/protocol.jar"
+              tofile="${debian.bundles.common.dest}/protocol.jar"/>
+        <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+                 token="reference:file:sc-bundles/protocol.jar">
+            <replacevalue>reference:file:/usr/share/jitsi-common/protocol.jar</replacevalue>
+        </replace>
+
+        <move file="${debian.bundles.dest}/configuration.jar"
+              tofile="${debian.bundles.common.dest}/configuration.jar"/>
+        <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+                 token="reference:file:sc-bundles/configuration.jar">
+            <replacevalue>reference:file:/usr/share/jitsi-common/configuration.jar</replacevalue>
+        </replace>
+
+        <move file="${debian.bundles.dest}/dns.jar"
+              tofile="${debian.bundles.common.dest}/dns.jar"/>
+        <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+                 token="reference:file:sc-bundles/dns.jar">
+            <replacevalue>reference:file:/usr/share/jitsi-common/dns.jar</replacevalue>
+        </replace>
+
+        <move file="${debian.bundles.dest}/dnsservice.jar"
+              tofile="${debian.bundles.common.dest}/dnsservice.jar"/>
+        <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+                 token="reference:file:sc-bundles/dnsservice.jar">
+            <replacevalue>reference:file:/usr/share/jitsi-common/dnsservice.jar</replacevalue>
+        </replace>
+
+        <move file="${debian.bundles.dest}/fileaccess.jar"
+              tofile="${debian.bundles.common.dest}/fileaccess.jar"/>
+        <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+                 token="reference:file:sc-bundles/fileaccess.jar">
+            <replacevalue>reference:file:/usr/share/jitsi-common/fileaccess.jar</replacevalue>
+        </replace>
+
+        <move file="${debian.bundles.dest}/packetlogging.jar"
+              tofile="${debian.bundles.common.dest}/packetlogging.jar"/>
+        <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+                 token="reference:file:sc-bundles/packetlogging.jar">
+            <replacevalue>reference:file:/usr/share/jitsi-common/packetlogging.jar</replacevalue>
+        </replace>
+
+        <move file="${debian.bundles.dest}/resourcemanager.jar"
+              tofile="${debian.bundles.common.dest}/resourcemanager.jar"/>
+        <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+                 token="reference:file:sc-bundles/resourcemanager.jar">
+            <replacevalue>reference:file:/usr/share/jitsi-common/resourcemanager.jar</replacevalue>
+        </replace>
+
+        <move file="${debian.bundles.dest}/ui-service.jar"
+              tofile="${debian.bundles.common.dest}/ui-service.jar"/>
+        <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+                 token="reference:file:sc-bundles/ui-service.jar">
+            <replacevalue>reference:file:/usr/share/jitsi-common/ui-service.jar</replacevalue>
+        </replace>
+    </target>
 </project>

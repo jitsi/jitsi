@@ -11,7 +11,6 @@ Build-Depends: debhelper (>= 9), javahelper,
                ant-optional,
                ant-contrib-cpptasks,
                ant-contrib,
-               maven,
                autotools-dev,
                libjitsi,
                libjitsi-jni,
@@ -73,6 +72,7 @@ Package: _PACKAGE_NAME_
 Architecture: all
 Depends: ${misc:Depends},
          _PACKAGE_NAME_-jni (>= ${source:Version}),
+         _PACKAGE_NAME_-common (>= ${source:Version}),
          libjitsi (>= 415-0),
          libjitsi-jni (>= 415-0),
          default-jre | java6-runtime,
@@ -80,7 +80,6 @@ Depends: ${misc:Depends},
          libhttpcore-java,
          liblog4j1.2-java,
          libjmdns-java,
-         libdnsjava-java,
          libmac-widgets-java,
          libfelix-main-java,
          libfelix-framework-java,
@@ -91,10 +90,7 @@ Depends: ${misc:Depends},
          libcommons-lang3-java,
          liblaf-widget-java,
          libdbus-java,
-         libxpp3-java,
-         libjzlib-java,
          libbcprov-java,
-         libbcpkix-java,
          libweupnp-java,
          libjna-java,
          libjgoodies-forms-java,
@@ -120,3 +116,15 @@ Description: _APP_NAME_ JNI library
  Native binaries used to render the video and detect network configuration
  changes. Binaries for audio codecs like opus and g722. Global shortcuts,
  notifications and hid devices control.
+
+Package: _PACKAGE_NAME_-common
+Section: libs
+Architecture: all
+Depends: ${misc:Depends}, ${shlibs:Depends},
+         libdnsjava-java,
+         libxpp3-java,
+         libjzlib-java,
+         libbcpkix-java
+Description: _APP_NAME_ JNI library
+ These are the common files for  _APP_NAME_ the Java VoIP
+ and Instant Messaging client.

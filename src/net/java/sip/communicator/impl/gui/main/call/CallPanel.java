@@ -1674,7 +1674,7 @@ public class CallPanel
             settingsPanel.add(recordButton);
         if (showHideVideoButton != null)
             settingsPanel.add(showHideVideoButton);
-        if (mergeButton != null)
+        if (transferCallButton != null)
             settingsPanel.add(transferCallButton);
         if (videoButton != null)
             settingsPanel.add(videoButton);

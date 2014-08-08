@@ -12,3 +12,4 @@ release
 lib/accounts.properties
 .DS_Store
 web-start/WebStartBuild.properties
+nbproject/private

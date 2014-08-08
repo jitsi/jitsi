@@ -1,19 +1,21 @@
 Name:     jitsi
-Version:  2.3
-Release:  4831
+Version:  2.5
+Release:  5267
 Summary:  Jitsi - Open Source Video Calls and Chat
-Packager: Pavel Tankov <ptankov@bluejimp.com>
+Packager: Damian Minkov <damencho@jitsi.org>
 
 Group:     Applications/Internet
 License:   GNU Lesser General Public License
 URL:       https://www.jitsi.org
-Source0:   http://download.jitsi.org/jitsi/nightly/src/jitsi-src-2.3-4831.zip
+Source0:   http://download.jitsi.org/jitsi/nightly/src/%{name}-src-%{version}-%{release}.zip
 BuildRoot: %{_topdir}/buildroot
 
 AutoReqProv:   no
 BuildRequires: java-devel >= 0:1.6
 BuildRequires: ant
+BuildRequires: ant-nodeps
 BuildRequires: gzip
+BuildRequires:  git-core
 
 Requires: java >= 0:1.6
 
@@ -28,7 +30,7 @@ Yahoo! and many other useful features.
 %setup -q -n jitsi
 
 %build
-ant -Dlabel=4831 rebuild
+ant -Dlabel=%{release} rebuild
 
 %install
 [ "$(readlink -f "$RPM_BUILD_ROOT")" != "/" ] && rm -rf $RPM_BUILD_ROOT
@@ -56,6 +58,7 @@ gzip $RPM_BUILD_ROOT/usr/share/man/man1/jitsi.1
 # copy the launcher script
 cp resources/install/debian/jitsi.sh.tmpl $RPM_BUILD_ROOT/usr/bin/jitsi
 sed -i -e "s/_PACKAGE_NAME_/jitsi/" $RPM_BUILD_ROOT/usr/bin/jitsi
+sed -i -e "s/-common/\/sc-bundles/" $RPM_BUILD_ROOT/usr/bin/jitsi
 
 # no more libaoss
 #sed -i -e "s@export LD_PRELOAD=/usr/lib/libaoss.so@export LD_PRELOAD=/usr/lib/libaoss.so.0@" $RPM_BUILD_ROOT/usr/bin/sip-communicator
@@ -125,6 +128,10 @@ sed -i -e "s/\/launchutils.jar//" $RPM_BUILD_ROOT/usr/bin/jitsi
 %doc %{_mandir}/man*/*
 
 %changelog
+* Tue Jul 29 2014 poma <poma@gmail.com>
+- Repair jitsi.spec in regard to jitsi.sh.tmpl commit 4064c28,
+  and build-jitsi-rpm.sh for the build on Fedora.
+
 * Fri Sep 13 2013 Pavel Tankov <ptankov@bluejimp.com>
 - Now depends on java >= 0:1.6.
 - Changed the info to conform with the description on the website.

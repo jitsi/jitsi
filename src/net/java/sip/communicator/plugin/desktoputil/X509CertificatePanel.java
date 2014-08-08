@@ -9,14 +9,18 @@ package net.java.sip.communicator.plugin.desktoputil;
 import java.awt.*;
 import java.security.*;
 import java.security.cert.*;
+import java.security.cert.Certificate;
 import java.security.interfaces.*;
-import java.text.*;
 import java.util.*;
 
 import javax.naming.*;
 import javax.naming.ldap.*;
 import javax.security.auth.x500.*;
 import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.event.*;
+import javax.swing.text.*;
+import javax.swing.tree.*;
 
 import org.jitsi.service.resources.*;
 
@@ -28,42 +32,171 @@ public class X509CertificatePanel
 {
     private static final long serialVersionUID = -8368302061995971947L;
 
+    private final JEditorPane infoTextPane = new JEditorPane();
+
+    private final ResourceManagementService R
+            = DesktopUtilActivator.getResources();
+
     /**
-     * Constructs a X509 certificate panel.
+     * Constructs a X509 certificate panel from a single certificate.
+     * If a chain is available instead use the second constructor.
+     * This constructor is kept for backwards compatibility and for convenience
+     * when there is only one certificate of interest.
      *
      * @param certificate <tt>X509Certificate</tt> object
      */
-    public X509CertificatePanel(X509Certificate certificate)
+    public X509CertificatePanel(Certificate certificate)
     {
-        ResourceManagementService R = DesktopUtilActivator.getResources();
-        DateFormat dateFormatter
-            = DateFormat.getDateInstance(DateFormat.MEDIUM);
+        this(new Certificate[]
+        {
+            certificate
+        });
+    }
 
-        Insets valueInsets = new Insets(2,10,0,0);
-        Insets titleInsets = new Insets(10,5,0,0);
+    /**
+     * Constructs a X509 certificate panel.
+     *
+     * @param certificates <tt>X509Certificate</tt> objects
+     */
+    public X509CertificatePanel(Certificate[] certificates)
+    {
+        setLayout(new BorderLayout(5, 5));
 
-        setLayout(new GridBagLayout());
+        // Certificate chain list
+        TransparentPanel topPanel = new TransparentPanel(new BorderLayout());
+        topPanel.add(new JLabel("<html><body><b>"
+                + R.getI18NString("service.gui.CERT_INFO_CHAIN")
+                + "</b></body></html>"), BorderLayout.NORTH);
 
-        int currentRow = 0;
+        DefaultMutableTreeNode top = new DefaultMutableTreeNode();
+        DefaultMutableTreeNode previous = top;
+        for (int i = certificates.length - 1; i >= 0; i--)
+        {
+            Certificate cert = certificates[i];
+            DefaultMutableTreeNode next = new DefaultMutableTreeNode(cert);
+            previous.add(next);
+            previous = next;
+        }
+        JTree tree = new JTree(top);
+        tree.setBorder(new BevelBorder(BevelBorder.LOWERED));
+        tree.setRootVisible(false);
+        tree.setExpandsSelectedPaths(true);
+        tree.getSelectionModel().setSelectionMode(
+                TreeSelectionModel.SINGLE_TREE_SELECTION);
+        tree.setCellRenderer(new DefaultTreeCellRenderer()
+        {
 
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.anchor = GridBagConstraints.WEST;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.insets = new Insets(2,5,0,0);
-        constraints.gridx = 0;
-        constraints.weightx = 0;
-        constraints.weighty = 0;
-        constraints.gridy = currentRow++;
+            @Override
+            public Component getTreeCellRendererComponent(JTree tree,
+                    Object value, boolean sel, boolean expanded, boolean leaf,
+                    int row, boolean hasFocus)
+            {
+                JLabel component = (JLabel) super.getTreeCellRendererComponent(
+                        tree, value, sel, expanded, leaf, row, hasFocus);
+                if (value instanceof DefaultMutableTreeNode)
+                {
+                    Object o = ((DefaultMutableTreeNode) value).getUserObject();
+                    if (o instanceof X509Certificate)
+                    {
+                        component.setText(
+                                getSimplifiedName((X509Certificate) o));
+                    }
+                    else
+                    {
+                        // We don't know how to represent this certificate type,
+                        // let's use the first 20 characters
+                        String text = o.toString();
+                        if (text.length() > 20)
+                        {
+                            text = text.substring(0, 20);
+                        }
+                        component.setText(text);
+                    }
+                }
+                return component;
+            }
 
+        });
+        tree.getSelectionModel().addTreeSelectionListener(
+                new TreeSelectionListener()
+        {
+
+            @Override
+            public void valueChanged(TreeSelectionEvent e)
+            {
+                valueChangedPerformed(e);
+            }
+        });
+        tree.setSelectionPath(new TreePath(((
+                (DefaultTreeModel)tree.getModel()).getPathToRoot(previous))));
+        topPanel.add(tree, BorderLayout.CENTER);
+
+        add(topPanel, BorderLayout.NORTH);
+
+        // Certificate details pane
+        Caret caret = infoTextPane.getCaret();
+        if (caret instanceof DefaultCaret)
+        {
+            ((DefaultCaret) caret).setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
+        }
+
+        /*
+         * Make JEditorPane respect our default font because we will be using it
+         * to just display text.
+         */
+        infoTextPane.putClientProperty(
+                JEditorPane.HONOR_DISPLAY_PROPERTIES,
+                true);
+
+        infoTextPane.setOpaque(false);
+        infoTextPane.setEditable(false);
+        infoTextPane.setContentType("text/html");
+        infoTextPane.setText(toString(certificates[0]));
+
+        final JScrollPane certScroll = new JScrollPane(infoTextPane);
+        certScroll.setPreferredSize(new Dimension(300, 500));
+        add(certScroll, BorderLayout.CENTER);
+    }
+
+    /**
+     * Creates a String representation of the given object.
+     * @param certificate to print
+     * @return the String representation
+     */
+    private String toString(Object certificate)
+    {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("<html><body>\n");
+
+        if (certificate instanceof X509Certificate)
+        {
+            renderX509(sb, (X509Certificate) certificate);
+        }
+        else
+        {
+            sb.append("<pre>\n");
+            sb.append(certificate.toString());
+            sb.append("</pre>\n");
+        }
+
+        sb.append("</body></html>");
+        return sb.toString();
+    }
+
+    /**
+     * Appends an HTML representation of the given X509Certificate. 
+     * @param sb StringBuilder to append to
+     * @param certificate to print
+     */
+    private void renderX509(StringBuilder sb, X509Certificate certificate)
+    {
         X500Principal issuer = certificate.getIssuerX500Principal();
         X500Principal subject = certificate.getSubjectX500Principal();
 
-        add(new JLabel(
-            R.getI18NString("service.gui.CERT_INFO_ISSUED_TO")),
-            constraints);
+        sb.append("<table cellspacing='1' cellpadding='1'>\n");
 
         // subject
-        constraints.insets = valueInsets;
+        addTitle(sb, R.getI18NString("service.gui.CERT_INFO_ISSUED_TO"));
         try
         {
             for(Rdn name : new LdapName(subject.getName()).getRdns())
@@ -75,47 +208,31 @@ public class X509CertificatePanel
                 if ((lbl == null) || ("!" + lblKey + "!").equals(lbl))
                     lbl = nameType;
 
-                constraints.gridy = currentRow++;
-                constraints.gridx = 0;
-                add(new JLabel(lbl), constraints);
-
+                final String value;
                 Object nameValue = name.getValue();
 
                 if (nameValue instanceof byte[])
                 {
                     byte[] nameValueAsByteArray = (byte[]) nameValue;
 
-                    lbl
+                    value
                         = getHex(nameValueAsByteArray) + " ("
                             + new String(nameValueAsByteArray) + ")";
                 }
                 else
-                    lbl = nameValue.toString();
+                    value = nameValue.toString();
 
-                constraints.gridx = 1;
-                add(new JLabel(lbl), constraints);
+                addField(sb, lbl, value);
             }
         }
         catch (InvalidNameException ine)
         {
-            constraints.gridy = currentRow++;
-            add(new JLabel(
-                R.getI18NString("service.gui.CERT_INFO_CN")),
-                constraints);
-            constraints.gridx = 1;
-            add(
-                new JLabel(subject.getName()),
-                constraints);
+            addField(sb, R.getI18NString("service.gui.CERT_INFO_CN"), 
+                    subject.getName());
         }
 
         // issuer
-        constraints.gridy = currentRow++;
-        constraints.gridx = 0;
-        constraints.insets = titleInsets;
-        add(new JLabel(
-            R.getI18NString("service.gui.CERT_INFO_ISSUED_BY")),
-            constraints);
-        constraints.insets = valueInsets;
+        addTitle(sb, R.getI18NString("service.gui.CERT_INFO_ISSUED_BY"));
         try
         {
             for(Rdn name : new LdapName(issuer.getName()).getRdns())
@@ -127,268 +244,133 @@ public class X509CertificatePanel
                 if ((lbl == null) || ("!" + lblKey + "!").equals(lbl))
                     lbl = nameType;
 
-                constraints.gridy = currentRow++;
-                constraints.gridx = 0;
-                constraints.gridx = 0;
-                add(new JLabel(lbl), constraints);
-
+                final String value;
                 Object nameValue = name.getValue();
 
                 if (nameValue instanceof byte[])
                 {
                     byte[] nameValueAsByteArray = (byte[]) nameValue;
 
-                    lbl
+                    value
                         = getHex(nameValueAsByteArray) + " ("
                             + new String(nameValueAsByteArray) + ")";
                 }
                 else
-                    lbl = nameValue.toString();
+                    value = nameValue.toString();
 
-                constraints.gridx = 1;
-                add(new JLabel(lbl), constraints);
+                addField(sb, lbl, value);
             }
         }
         catch (InvalidNameException ine)
         {
-            constraints.gridy = currentRow++;
-            add(new JLabel(
-                R.getI18NString("service.gui.CERT_INFO_CN")),
-                constraints);
-            constraints.gridx = 1;
-            add(
-                new JLabel(issuer.getName()),
-                constraints);
+            addField(sb, R.getI18NString("service.gui.CERT_INFO_CN"), 
+                    issuer.getName());
         }
 
         // validity
-        constraints.gridy = currentRow++;
-        constraints.gridx = 0;
-        constraints.insets = titleInsets;
-        add(new JLabel(
-            R.getI18NString("service.gui.CERT_INFO_VALIDITY")),
-            constraints);
-        constraints.insets = valueInsets;
+        addTitle(sb, R.getI18NString("service.gui.CERT_INFO_VALIDITY"));
+        addField(sb, R.getI18NString("service.gui.CERT_INFO_ISSUED_ON"),
+                certificate.getNotBefore().toString());
+        addField(sb, R.getI18NString("service.gui.CERT_INFO_EXPIRES_ON"),
+                certificate.getNotAfter().toString());
 
-        constraints.gridy = currentRow++;
-        constraints.gridx = 0;
-        add(new JLabel(
-            R.getI18NString("service.gui.CERT_INFO_ISSUED_ON")),
-            constraints);
-        constraints.gridx = 1;
-        add(
-            new JLabel(dateFormatter.format(certificate.getNotBefore())),
-            constraints);
-
-        constraints.gridy = currentRow++;
-        constraints.gridx = 0;
-        add(new JLabel(
-            R.getI18NString("service.gui.CERT_INFO_EXPIRES_ON")),
-            constraints);
-        constraints.gridx = 1;
-        add(
-            new JLabel(dateFormatter.format(certificate.getNotAfter())),
-            constraints);
-
-        constraints.gridy = currentRow++;
-        constraints.gridx = 0;
-        constraints.insets = titleInsets;
-        add(new JLabel(
-            R.getI18NString("service.gui.CERT_INFO_FINGERPRINTS")),
-            constraints);
-        constraints.insets = valueInsets;
-
+        addTitle(sb, R.getI18NString("service.gui.CERT_INFO_FINGERPRINTS"));
         try
         {
             String sha1String = getThumbprint(certificate, "SHA1");
             String md5String = getThumbprint(certificate, "MD5");
 
-            JTextArea sha1Area = new JTextArea(sha1String);
-            sha1Area.setLineWrap(false);
-            sha1Area.setOpaque(false);
-            sha1Area.setWrapStyleWord(true);
-            sha1Area.setEditable(false);
-
-            constraints.gridy = currentRow++;
-            constraints.gridx = 0;
-            add(new JLabel("SHA1:"),
-                constraints);
-
-            constraints.gridx = 1;
-            add(
-                sha1Area,
-                constraints);
-
-            constraints.gridy = currentRow++;
-            constraints.gridx = 0;
-            add(new JLabel("MD5:"),
-                constraints);
-
-            JTextArea md5Area = new JTextArea(md5String);
-            md5Area.setLineWrap(false);
-            md5Area.setOpaque(false);
-            md5Area.setWrapStyleWord(true);
-            md5Area.setEditable(false);
-
-            constraints.gridx = 1;
-            add(
-                md5Area,
-                constraints);
+            addField(sb, "SHA1:", sha1String);
+            addField(sb, "MD5:", md5String);
         }
-        catch (Exception e)
+        catch (CertificateException e)
         {
             // do nothing as we cannot show this value
         }
 
-        constraints.gridy = currentRow++;
-        constraints.gridx = 0;
-        constraints.insets = titleInsets;
-        add(new JLabel(
-            R.getI18NString("service.gui.CERT_INFO_CERT_DETAILS")),
-            constraints);
-        constraints.insets = valueInsets;
+        addTitle(sb, R.getI18NString("service.gui.CERT_INFO_CERT_DETAILS"));
 
-        constraints.gridy = currentRow++;
-        constraints.gridx = 0;
-        add(new JLabel(
-            R.getI18NString("service.gui.CERT_INFO_SER_NUM")),
-            constraints);
-        constraints.gridx = 1;
-        add(
-            new JLabel(certificate.getSerialNumber().toString()),
-            constraints);
+        addField(sb, R.getI18NString("service.gui.CERT_INFO_SER_NUM"), 
+                certificate.getSerialNumber().toString());
 
-        constraints.gridy = currentRow++;
-        constraints.gridx = 0;
-        add(new JLabel(
-            R.getI18NString("service.gui.CERT_INFO_VER")),
-            constraints);
-        constraints.gridx = 1;
-        add(
-            new JLabel(String.valueOf(certificate.getVersion())),
-            constraints);
+        addField(sb, R.getI18NString("service.gui.CERT_INFO_VER"), 
+                String.valueOf(certificate.getVersion()));
 
-        constraints.gridy = currentRow++;
-        constraints.gridx = 0;
-        add(new JLabel(
-            R.getI18NString("service.gui.CERT_INFO_SIGN_ALG")),
-            constraints);
-        constraints.gridx = 1;
-        add(
-            new JLabel(String.valueOf(certificate.getSigAlgName())),
-            constraints);
+        addField(sb, R.getI18NString("service.gui.CERT_INFO_SIGN_ALG"),
+                String.valueOf(certificate.getSigAlgName()));
 
-        constraints.gridy = currentRow++;
-        constraints.gridx = 0;
-        constraints.insets = titleInsets;
-        add(new JLabel(
-            R.getI18NString("service.gui.CERT_INFO_PUB_KEY_INFO")),
-            constraints);
-        constraints.insets = valueInsets;
+        addTitle(sb, R.getI18NString("service.gui.CERT_INFO_PUB_KEY_INFO"));
 
-        constraints.gridy = currentRow++;
-        constraints.gridx = 0;
-        add(new JLabel(
-            R.getI18NString("service.gui.CERT_INFO_ALG")),
-            constraints);
-        constraints.gridx = 1;
-        add(
-            new JLabel(certificate.getPublicKey().getAlgorithm()),
-            constraints);
+        addField(sb, R.getI18NString("service.gui.CERT_INFO_ALG"),
+            certificate.getPublicKey().getAlgorithm());
 
         if(certificate.getPublicKey().getAlgorithm().equals("RSA"))
         {
             RSAPublicKey key = (RSAPublicKey)certificate.getPublicKey();
 
-            constraints.gridy = currentRow++;
-            constraints.gridx = 0;
-            add(new JLabel(
-                R.getI18NString("service.gui.CERT_INFO_PUB_KEY")),
-                constraints);
-
-            JTextArea pubkeyArea = new JTextArea(
+            addField(sb, R.getI18NString("service.gui.CERT_INFO_PUB_KEY"),
                 R.getI18NString(
                     "service.gui.CERT_INFO_KEY_BYTES_PRINT",
                     new String[]{
                         String.valueOf(key.getModulus().toByteArray().length-1),
                         key.getModulus().toString(16)
                     }));
-            pubkeyArea.setLineWrap(false);
-            pubkeyArea.setOpaque(false);
-            pubkeyArea.setWrapStyleWord(true);
-            pubkeyArea.setEditable(false);
 
-            constraints.gridx = 1;
-            add(
-                pubkeyArea,
-                constraints);
+            addField(sb, R.getI18NString("service.gui.CERT_INFO_EXP"), 
+                    key.getPublicExponent().toString());
 
-            constraints.gridy = currentRow++;
-            constraints.gridx = 0;
-            add(new JLabel(
-                R.getI18NString("service.gui.CERT_INFO_EXP")),
-                constraints);
-            constraints.gridx = 1;
-            add(
-                new JLabel(key.getPublicExponent().toString()),
-                constraints);
-
-            constraints.gridy = currentRow++;
-            constraints.gridx = 0;
-            add(new JLabel(
-                R.getI18NString("service.gui.CERT_INFO_KEY_SIZE")),
-                constraints);
-            constraints.gridx = 1;
-            add(
-                new JLabel(R.getI18NString(
+            addField(sb, R.getI18NString("service.gui.CERT_INFO_KEY_SIZE"),
+                    R.getI18NString(
                     "service.gui.CERT_INFO_KEY_BITS_PRINT",
                     new String[]{
-                        String.valueOf(key.getModulus().bitLength())})),
-                constraints);
+                        String.valueOf(key.getModulus().bitLength())}));
         }
         else if(certificate.getPublicKey().getAlgorithm().equals("DSA"))
         {
             DSAPublicKey key =
                 (DSAPublicKey)certificate.getPublicKey();
 
-            constraints.gridy = currentRow++;
-            constraints.gridx = 0;
-            add(new JLabel("Y:"), constraints);
-
-            JTextArea yArea = new JTextArea(key.getY().toString(16));
-            yArea.setLineWrap(false);
-            yArea.setOpaque(false);
-            yArea.setWrapStyleWord(true);
-            yArea.setEditable(false);
-
-            constraints.gridx = 1;
-            add(
-                yArea,
-                constraints);
+            addField(sb, "Y:", key.getY().toString(16));
         }
 
-        constraints.gridy = currentRow++;
-        constraints.gridx = 0;
-        add(new JLabel(
-            R.getI18NString("service.gui.CERT_INFO_SIGN")),
-            constraints);
-
-        JTextArea signArea = new JTextArea(
+        addField(sb, R.getI18NString("service.gui.CERT_INFO_SIGN"),
             R.getI18NString(
                     "service.gui.CERT_INFO_KEY_BYTES_PRINT",
                     new String[]{
                         String.valueOf(certificate.getSignature().length),
                         getHex(certificate.getSignature())
                     }));
-        signArea.setLineWrap(false);
-        signArea.setOpaque(false);
-        signArea.setWrapStyleWord(true);
-        signArea.setEditable(false);
 
-        constraints.gridx = 1;
-        add(
-            signArea,
-            constraints);
+        sb.append("</table>\n");
+    }
+
+    /**
+     * Add a title.
+     *
+     * @param sb StringBuilder to append to
+     * @param title to print
+     */
+    private void addTitle(StringBuilder sb, String title)
+    {
+        sb.append("<tr><td colspan='2'")
+                .append(" style='margin-top: 5pt; white-space: nowrap'><p><b>")
+                .append(title).append("</b></p></td></tr>\n");
+    }
+
+    /**
+     * Add a field.
+     * @param sb StringBuilder to append to
+     * @param field name of the certificate field
+     * @param value to print
+     */
+    private void addField(StringBuilder sb, String field, String value)
+    {
+        sb.append("<tr>")
+                .append("<td style='margin-left: 5pt; margin-right: 25pt;")
+                .append(" white-space: nowrap'>")
+                .append(field).append("</td>")
+                .append("<td>").append(value).append("</td>")
+                .append("</tr>\n");
     }
 
     /**
@@ -449,5 +431,63 @@ public class X509CertificatePanel
             f.close();
         }
         return sb.toString();
+    }
+
+    /**
+     * Construct a "simplified name" based on the subject DN from the
+     * certificate. The purpose is to have something shorter to display in the
+     * list. The name used is one of the following DN parts, if
+     * available, otherwise the complete DN:
+     * 'CN', 'OU' or else 'O'.
+     * @param cert to read subject DN from
+     * @return the simplified name
+     */
+    private static String getSimplifiedName(X509Certificate cert)
+    {
+        final HashMap<String, String> parts = new HashMap<String, String>();
+        try
+        {
+            for (Rdn name : new LdapName(
+                    cert.getSubjectX500Principal().getName()).getRdns())
+            {
+                if (name.getType() != null && name.getValue() != null)
+                {
+                    parts.put(name.getType(), name.getValue().toString());
+                }
+            }
+        }
+        catch (InvalidNameException ignored) // NOPMD
+        {
+        }
+
+        String result = parts.get("CN");
+        if (result == null)
+        {
+            result = parts.get("OU");
+        }
+        if (result == null)
+        {
+            result = parts.get("O");
+        }
+        if (result == null)
+        {
+            result = cert.getSubjectX500Principal().getName();
+        }
+        return result;
+    }
+
+    /**
+     * Called when the selection changed in the tree.
+     * Loads the selected certificate.
+     * @param e the event
+     */
+    private void valueChangedPerformed(TreeSelectionEvent e)
+    {
+        Object o = e.getNewLeadSelectionPath().getLastPathComponent();
+        if (o instanceof DefaultMutableTreeNode)
+        {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) o;
+            infoTextPane.setText(toString(node.getUserObject()));
+        }
     }
 }

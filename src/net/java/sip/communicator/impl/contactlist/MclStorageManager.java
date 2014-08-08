@@ -1265,6 +1265,11 @@ public class MclStorageManager
      */
     public void metaContactAdded(MetaContactEvent evt)
     {
+        // if the parent group is not persistent, do not do anything
+        // cause its missing in xml
+        if(!evt.getParentGroup().isPersistent())
+            return;
+
         Element parentGroupNode =
             findMetaContactGroupNode(evt.getParentGroup().getMetaUID());
 

@@ -95,12 +95,6 @@ Copyright:
  1999-2006 Ross Bencina and Phil Burk
 License: MIT
 
-Files: lib/src/sdes4j/*
-Copyright:
- 2011 University of Applied Sciences Northwestern Switzerland (FHNW)
- 2011 School of Engineering Institute of Mobile and Distributed Systems (IMVS)
-License: LGPL-2.1
-
 Files: lib/src/smack_src_3_2_2/*
 Copyright:
  2002-2008 Jive Software

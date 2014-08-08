@@ -193,15 +193,18 @@
                 <Control Id="Description" Type="Text" X="25" Y="23" Width="280" Height="15" Transparent="yes" NoPrefix="yes" Text="!(loc.ShortcutsAndRegistryDlgDescription)" />
                 <Control Id="BannerLine" Type="Line" X="0" Y="44" Width="370" Height="0" />
 
-                <Control Id="ShortcutGroup" Type="GroupBox" X="20" Y="60" Width="330" Height="90" Text="!(loc.ShortcutsAndRegistryDlg_CreateShortcuts)" />
-                <Control Id="StartMenuShortcutCheckBox" Type="CheckBox" X="25" Y="75" Width="320" Height="15" Property="CREATE_START_MENU_SHORTCUT" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateStartMenu)" />
-                <Control Id="DesktopShortcutCheckBox" Type="CheckBox" X="25" Y="90" Width="320" Height="15" Property="CREATE_DESKTOP_SHORTCUT" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateDesktop)" />
-                <Control Id="StartupShortcutCheckBox" Type="CheckBox" X="25" Y="105" Width="320" Height="15" Property="HAS_STARTUP_REGISTRY" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateAutoStart)" />
-                <Control Id="DefaultIMApplicationCheckBox" Type="CheckBox" X="25" Y="120" Width="320" Height="25" Property="SET_DEFAULT_IM_APP" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_DefaultIMApp)" />
+                <Control Id="ShortcutGroup" Type="GroupBox" X="20" Y="50" Width="330" Height="50" Text="!(loc.ShortcutsAndRegistryDlg_CreateShortcuts)" />
+                <Control Id="StartMenuShortcutCheckBox" Type="CheckBox" X="25" Y="65" Width="320" Height="15" Property="CREATE_START_MENU_SHORTCUT" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateStartMenu)" />
+                <Control Id="DesktopShortcutCheckBox" Type="CheckBox" X="25" Y="80" Width="320" Height="15" Property="CREATE_DESKTOP_SHORTCUT" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateDesktop)" />
 
-                <Control Id="RegistryGroup" Type="GroupBox" X="20" Y="155" Width="330" Height="50" Text="!(loc.ShortcutsAndRegistryDlg_AssociateProtocols)" />
-                <Control Id="SipRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="170" Width="320" Height="15" Property="CREATE_SIP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;SIP" />
-                <Control Id="XmppRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="185" Width="320" Height="15" Property="CREATE_XMPP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;XMPP" />
+                <Control Id="VeriousGroup" Type="GroupBox" X="20" Y="105" Width="330" Height="75" Text="!(loc.ShortcutsAndRegistryDlg_VariousSettings)" />
+                <Control Id="StartupShortcutCheckBox" Type="CheckBox" X="25" Y="120" Width="320" Height="15" Property="HAS_STARTUP_REGISTRY" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_CreateAutoStart)" />
+                <Control Id="DisableUpdatesCheckCheckBox" Type="CheckBox" X="25" Y="135" Width="320" Height="15" Property="CREATE_DISABLE_UPDATES_CHECK" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_DisableUpdates)" />
+                <Control Id="DefaultIMApplicationCheckBox" Type="CheckBox" X="25" Y="150" Width="320" Height="25" Property="SET_DEFAULT_IM_APP" CheckBoxValue="1" Text="!(loc.ShortcutsAndRegistryDlg_DefaultIMApp)" />
+
+                <Control Id="RegistryGroup" Type="GroupBox" X="20" Y="185" Width="330" Height="45" Text="!(loc.ShortcutsAndRegistryDlg_AssociateProtocols)" />
+                <Control Id="SipRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="200" Width="320" Height="15" Property="CREATE_SIP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;SIP" />
+                <Control Id="XmppRegistryEntriesCheckBox" Type="CheckBox" X="25" Y="215" Width="320" Height="15" Property="CREATE_XMPP_REGISTRY_ENTRIES" CheckBoxValue="1" Text="&amp;XMPP" />
 
                 <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
 
@@ -294,6 +297,12 @@
     <Custom Action="UnsetCREATE_STARTUP_REGISTRY" After="SetINSTALLDIR">
       <![CDATA[NOT HAS_STARTUP_REGISTRY AND NOT (HAS_STARTUP_REGISTRY = "#1")]]>
     </Custom>
+  <Custom Action="SetCREATE_DISABLE_UPDATES_CHECK" After="SetINSTALLDIR">
+    <![CDATA[HAS_DISABLE_UPDATES_CHECK_REGISTRY = "#1"]]>
+  </Custom>
+  <Custom Action="UnsetCREATE_DISABLE_UPDATES_CHECK" After="SetINSTALLDIR">
+    <![CDATA[NOT HAS_DISABLE_UPDATES_CHECK_REGISTRY]]>
+  </Custom>
 
 <?ifdef JRESetup ?>
     <Custom Action="SetWIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" After="AppSearch">
@@ -333,6 +342,14 @@
     Id="SetCREATE_STARTUP_REGISTRY"
     Property="CREATE_STARTUP_REGISTRY"
     Value="1" />
+<CustomAction
+    Id="SetCREATE_DISABLE_UPDATES_CHECK"
+    Property="CREATE_DISABLE_UPDATES_CHECK"
+    Value="1" />
+<CustomAction
+    Id="UnsetCREATE_DISABLE_UPDATES_CHECK"
+    Property="CREATE_DISABLE_UPDATES_CHECK"
+    Value="0" />
 <CustomAction
     Id="SetINSTALLDIR"
     Property="INSTALLDIR"
@@ -400,6 +417,12 @@
   <Custom Action="UnsetCREATE_STARTUP_REGISTRY" After="SetINSTALLDIR">
     <![CDATA[NOT HAS_STARTUP_REGISTRY AND NOT (HAS_STARTUP_REGISTRY = "#1")]]>
   </Custom>
+  <Custom Action="SetCREATE_DISABLE_UPDATES_CHECK" After="SetINSTALLDIR">
+    <![CDATA[HAS_DISABLE_UPDATES_CHECK_REGISTRY AND HAS_DISABLE_UPDATES_CHECK_REGISTRY = "#1"]]>
+  </Custom>
+  <Custom Action="UnsetCREATE_DISABLE_UPDATES_CHECK" After="SetINSTALLDIR">
+    <![CDATA[NOT HAS_DISABLE_UPDATES_CHECK_REGISTRY]]>
+  </Custom>
 
 <?ifdef JRESetup ?>
   <Custom Action="SetWIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" After="AppSearch">
@@ -443,6 +466,14 @@
 <SetProperty Id="HAS_STARTUP_REGISTRY" After="AppSearch" Value="[HAS_STARTUP_SHORTCUT]">
      HAS_STARTUP_SHORTCUT
 </SetProperty>
+<Property Id="HAS_DISABLE_UPDATES_CHECK_REGISTRY" Value="#0">
+  <RegistrySearch
+      Id="RegistrySearch_HasDisableUpdatesCheckRegistry"
+      Key="Software\Microsoft\@APP_NAME@"
+      Name="DisableUpdatesCheck"
+      Root="HKCU"
+      Type="raw" />
+</Property>
 <Property Id="IS_DEFAULT_IM_APP">
   <RegistrySearch
       Id="RegistrySearch_IsDefaultIMApp"

@@ -39,9 +39,9 @@ public class ViewCertificateFrame
     private static final int MAX_MSG_PANE_HEIGHT = 800;
 
     /**
-     * The certificate to show.
+     * The certificates to show.
      */
-    Certificate cert;
+    Certificate[] certs;
 
     /**
      * A text that describes why the verification failed.
@@ -74,8 +74,7 @@ public class ViewCertificateFrame
         setTitle(title != null ? title :
             R.getI18NString("service.gui.CERT_DIALOG_TITLE"));
 
-        // for now shows only the first certificate from the chain
-        this.cert = certs[0];
+        this.certs = certs;
         this.message = message;
 
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -123,31 +122,8 @@ public class ViewCertificateFrame
 
         this.getContentPane().add(contentPane, BorderLayout.CENTER);
 
-        Component certInfoPane;
-        if(cert instanceof X509Certificate)
-        {
-            certInfoPane = new X509CertificatePanel((X509Certificate)cert);
-        }
-        else
-        {
-            JTextArea textArea = new JTextArea();
-            textArea.setOpaque(false);
-            textArea.setEditable(false);
-            textArea.setText(cert.toString());
-            certInfoPane = textArea;
-        }
+        certPanel.add(new X509CertificatePanel(certs), BorderLayout.CENTER);
 
-        final JScrollPane certScroll = new JScrollPane(certInfoPane);
-        certScroll.setPreferredSize(new Dimension(300, 600));
-        certPanel.add(certScroll, BorderLayout.CENTER);
-
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                certScroll.getVerticalScrollBar().setValue(0);
-            }
-        });
         setPreferredSize(null);
 
         pack();

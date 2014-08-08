@@ -11,6 +11,7 @@ import java.awt.event.*;
 import java.security.cert.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
 
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.util.*;
@@ -51,9 +52,9 @@ class VerifyCertificateDialogImpl
     private static final int MAX_MSG_PANE_HEIGHT = 800;
 
     /**
-     * The certificate to show.
+     * The certificates to show.
      */
-    Certificate cert;
+    Certificate[] certs;
 
     /**
      * A text that describes why the verification failed.
@@ -110,8 +111,7 @@ class VerifyCertificateDialogImpl
             R.getI18NString("service.gui.CERT_DIALOG_TITLE"));
         setModal(true);
 
-        // for now shows only the first certificate from the chain
-        this.cert = certs[0];
+        this.certs = certs;
         this.message = message;
 
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -224,34 +224,11 @@ class VerifyCertificateDialogImpl
             return;
         }
 
-        certPanel.setLayout(new BorderLayout());
+        certPanel.setLayout(new BorderLayout(5, 5));
+        certPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         certPanel.add(alwaysTrustCheckBox, BorderLayout.NORTH);
 
-        Component certInfoPane = null;
-        if(cert instanceof X509Certificate)
-        {
-            certInfoPane = new X509CertificatePanel((X509Certificate)cert);
-        }
-        else
-        {
-            JTextArea textArea = new JTextArea();
-            textArea.setOpaque(false);
-            textArea.setEditable(false);
-            textArea.setText(cert.toString());
-            certInfoPane = textArea;
-        }
-
-        final JScrollPane certScroll = new JScrollPane(certInfoPane);
-        certScroll.setPreferredSize(new Dimension(300, 300));
-        certPanel.add(certScroll, BorderLayout.CENTER);
-
-        SwingUtilities.invokeLater(new Runnable()
-        {
-            public void run()
-            {
-                certScroll.getVerticalScrollBar().setValue(0);
-            }
-        });
+        certPanel.add(new X509CertificatePanel(certs), BorderLayout.CENTER);
 
         certButton.setText(R.getI18NString("service.gui.HIDE_CERT"));
 
