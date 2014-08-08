@@ -393,6 +393,16 @@ public class ScServiceDiscoveryManager
                     caps.getNode() + "#" + caps.getVersion(),
                     this);
 
+            // Remove old capabilities extension if present
+            PacketExtension oldCaps
+                = packet.getExtension(
+                        CapsPacketExtension.ELEMENT_NAME,
+                        CapsPacketExtension.NAMESPACE);
+            if (oldCaps != null)
+            {
+                packet.removeExtension(oldCaps);
+            }
+            // Put new capabilities extension
             packet.addExtension(caps);
         }
     }
