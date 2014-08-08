@@ -87,7 +87,7 @@ public abstract class AbstractCallJabberGTalkImpl
     {
         for(T peer : getCallPeerList())
         {
-            if (peer.getSID().equals(sid))
+            if (peer.getSID() != null && peer.getSID().equals(sid))
                 return peer;
         }
         return null;
