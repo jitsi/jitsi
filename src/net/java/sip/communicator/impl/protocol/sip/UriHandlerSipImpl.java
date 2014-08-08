@@ -310,6 +310,16 @@ public class UriHandlerSipImpl
 
         try
         {
+            // In case we have just started, try to start registration
+            new ProtocolRegistrationThread(uri, provider).start();
+            try
+            {
+                Thread.sleep(1000);
+            }
+            catch(InterruptedException ex)
+            {
+                // ignore
+            }
             telephonyOpSet.createCall(uri);
         }
         catch (OperationFailedException exc)
