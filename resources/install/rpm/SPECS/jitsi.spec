@@ -130,7 +130,7 @@ sed -i -e "s/\/launchutils.jar//" $RPM_BUILD_ROOT/usr/bin/jitsi
 %changelog
 * Tue Jul 29 2014 poma <poma@gmail.com>
 - Repair jitsi.spec in regard to jitsi.sh.tmpl commit 4064c28,
-  and build-jitsi-rpm.sh for the build on Fedora.
+  and build-jitsi-rpm.sh.
 
 * Fri Sep 13 2013 Pavel Tankov <ptankov@bluejimp.com>
 - Now depends on java >= 0:1.6.
