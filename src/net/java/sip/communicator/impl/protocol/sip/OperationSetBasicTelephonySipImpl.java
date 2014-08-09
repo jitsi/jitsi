@@ -2091,7 +2091,8 @@ public class OperationSetBasicTelephonySipImpl
     private void assertRegistered()
         throws OperationFailedException
     {
-        if(!protocolProvider.isRegistered())
+        if(protocolProvider.isRegistrationRequiredForCalling() &&
+            !protocolProvider.isRegistered())
         {
             throw new OperationFailedException(
                     "The protocol provider should be registered before placing"
