@@ -357,10 +357,41 @@ public class CallSipImpl
         Request invite
             = messageFactory.createInviteRequest(calleeAddress, cause);
 
+        // Transport preference
+        String forceTransport = null;
+        javax.sip.address.URI calleeURI = calleeAddress.getURI();
+        if(calleeURI.getScheme().toLowerCase().equals("sips"))
+        {
+            // MUST use TLS
+            forceTransport = "TLS";
+            logger.trace("detected SIPS URI, must use TLS");
+        }
+        else if(calleeURI.isSipURI() && calleeURI instanceof SipURI)
+        {
+            SipURI _calleeURI = (SipURI)calleeURI;
+            // check for a transport parameter
+            forceTransport = _calleeURI.getTransportParam();
+            if(forceTransport != null)
+            {
+                logger.trace("got transport parameter: " + forceTransport);
+            }
+        }
+
         // Transaction
         ClientTransaction inviteTransaction = null;
-        SipProvider jainSipProvider
-            = getProtocolProvider().getDefaultJainSipProvider();
+        SipProvider jainSipProvider;
+        if(forceTransport != null)
+        {
+            logger.trace("trying to use transport: " + forceTransport);
+            jainSipProvider = getProtocolProvider()
+                .getJainSipProvider(forceTransport);
+        }
+        else
+        {
+            logger.trace("trying default transport");
+            jainSipProvider = getProtocolProvider()
+                .getDefaultJainSipProvider();
+        }
 
         try
         {
