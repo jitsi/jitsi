@@ -316,11 +316,15 @@ public class UriHandlerSipImpl
         {
             // make sure that we prompt for registration only if it is really
             // required by the provider.
+            boolean handled = false;
             if (exc.getErrorCode() == OperationFailedException.PROVIDER_NOT_REGISTERED)
             {
-                promptForRegistration(uri, provider);
+                handled = promptForRegistration(uri, provider);
             }
-            showErrorMessage("Failed to create a call to " + uri, exc);
+            if(!handled)
+            {
+                showErrorMessage("Failed to create a call to " + uri, exc);
+            }
         }
         catch (ParseException exc)
         {
@@ -335,8 +339,9 @@ public class UriHandlerSipImpl
      *
      * @param uri the uri that the user would like us to call after registering.
      * @param provider the provider that we may have to reregister.
+     * @return true if user tried to start registration
      */
-    private void promptForRegistration(String uri,
+    private boolean promptForRegistration(String uri,
         ProtocolProviderService provider)
     {
         int answer =
@@ -351,7 +356,9 @@ public class UriHandlerSipImpl
         if (answer == PopupDialog.YES_OPTION)
         {
             new ProtocolRegistrationThread(uri, provider).start();
+            return true;
         }
+        return false;
     }
 
     /**
