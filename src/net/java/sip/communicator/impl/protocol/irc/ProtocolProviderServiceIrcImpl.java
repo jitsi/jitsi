@@ -129,7 +129,11 @@ public class ProtocolProviderServiceIrcImpl
             persistentPresence =
                 new OperationSetPersistentPresenceIrcImpl(this);
 
+            // Register persistent presence support.
             addSupportedOperationSet(OperationSetPersistentPresence.class,
+                persistentPresence);
+            // Also register for (simple) presence support.
+            addSupportedOperationSet(OperationSetPresence.class,
                 persistentPresence);
 
             // TODO Implement OperationSetServerStoredAccountInfo so we can
