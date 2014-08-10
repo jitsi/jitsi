@@ -156,6 +156,13 @@ public class JingleIQProvider implements IQProvider
                 ConferenceDescriptionPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<CallIdPacketExtension>(
                         CallIdPacketExtension.class));
+
+        //rtcp-mux
+        providerManager.addExtensionProvider(
+                RtcpmuxPacketExtension.ELEMENT_NAME,
+                IceUdpTransportPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<RtcpmuxPacketExtension>(
+                        RtcpmuxPacketExtension.class));
     }
 
     /**

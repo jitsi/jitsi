@@ -61,6 +61,13 @@ public class OneToOneCallPeerPanel
     private static final long serialVersionUID = 0L;
 
     /**
+     * Property to disable showing the dummy picture for the peer when no
+     * streams present.
+     */
+    public static final String HIDE_PLACEHOLDER_PIC_PROP
+        = "net.java.sip.communicator.impl.gui.main.call.HIDE_PLACEHOLDER_PIC";
+
+    /**
      * The <tt>CallPeer</tt>, which is rendered in this panel.
      */
     private final CallPeer callPeer;
@@ -277,7 +284,15 @@ public class OneToOneCallPeerPanel
             detailsChangeListener);
         securityPanel = SecurityPanel.create(this, callPeer, null);
 
-        photoLabel = new JLabel(getPhotoLabelIcon());
+        ImageIcon icon = getPhotoLabelIcon();
+        if(icon != null)
+        {
+            photoLabel = new JLabel(icon);
+        }
+        else
+        {
+            photoLabel = new JLabel();
+        }
         center = createCenter();
         statusBar = createStatusBar();
 
@@ -346,13 +361,28 @@ public class OneToOneCallPeerPanel
     }
 
     /**
+     * Set size of the {@link #photoLabel}
+     */
+    private void sizePhotoLabel()
+    {
+        if(photoLabel.getIcon() != null)
+        {
+            photoLabel.setPreferredSize(new Dimension(90, 90));
+        }
+        else
+        {
+            photoLabel.setPreferredSize(new Dimension(0, 0));
+        }
+    }
+
+    /**
      * Creates the <tt>Component</tt> hierarchy of the central area of this
      * <tt>CallPeerPanel</tt> which displays the photo of the <tt>CallPeer</tt>
      * or the video if any.
      */
     private VideoContainer createCenter()
     {
-        photoLabel.setPreferredSize(new Dimension(90, 90));
+        sizePhotoLabel();
 
         return createVideoContainer(photoLabel);
     }
@@ -585,6 +615,22 @@ public class OneToOneCallPeerPanel
     }
 
     /**
+     * Tests a provided boolean property name, returning false if it should be
+     * hidden.
+     *
+     * @param componentHidePropertyName the name of the boolean property to
+     *        check.
+     * @return false if the component should be hidden, true otherwise.
+     *
+     */
+    private boolean isComponentEnabled(String componentHidePropertyName)
+    {
+        return !GuiActivator.getConfigurationService().getBoolean(
+            componentHidePropertyName,
+            false);
+    }
+
+    /**
      * Gets the <tt>Icon</tt> to be displayed in {@link #photoLabel}.
      *
      * @return the <tt>Icon</tt> to be displayed in {@link #photoLabel}
@@ -592,7 +638,7 @@ public class OneToOneCallPeerPanel
     private ImageIcon getPhotoLabelIcon()
     {
         return
-            (peerImage == null)
+            (peerImage == null && isComponentEnabled(HIDE_PLACEHOLDER_PIC_PROP))
                 ? new ImageIcon(
                         ImageLoader.getImage(ImageLoader.DEFAULT_USER_PHOTO))
                 : peerImage;
@@ -677,10 +723,18 @@ public class OneToOneCallPeerPanel
 
         if(peerImage == null)
         {
-            photoLabel.setIcon(
-                    new ImageIcon(
-                            ImageLoader.getImage(
-                                    ImageLoader.DEFAULT_USER_PHOTO)));
+            if(isComponentEnabled(HIDE_PLACEHOLDER_PIC_PROP))
+            {
+                photoLabel.setIcon(
+                        new ImageIcon(
+                                ImageLoader.getImage(
+                                        ImageLoader.DEFAULT_USER_PHOTO)));
+            }
+            else
+            {
+                photoLabel.setIcon(null);
+            }
+            sizePhotoLabel();
         }
     }
 
@@ -1108,6 +1162,7 @@ public class OneToOneCallPeerPanel
                     public void run()
                     {
                         photoLabel.setIcon(peerImage);
+                        sizePhotoLabel();
                         photoLabel.repaint();
                     }
                 });
@@ -1115,6 +1170,7 @@ public class OneToOneCallPeerPanel
             else
             {
                 photoLabel.setIcon(peerImage);
+                sizePhotoLabel();
                 photoLabel.repaint();
             }
         }

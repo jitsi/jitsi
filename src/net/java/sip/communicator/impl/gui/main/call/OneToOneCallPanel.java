@@ -118,7 +118,14 @@ public class OneToOneCallPanel
 
         addCallPeerPanel(callPeer, uiVideoHandler);
 
-        setPreferredSize(new Dimension(400, 400));
+        int preferredHeight = 400;
+        if(GuiActivator.getConfigurationService().getBoolean(
+                OneToOneCallPeerPanel.HIDE_PLACEHOLDER_PIC_PROP,
+                false))
+        {
+            preferredHeight = 128;
+        }
+        setPreferredSize(new Dimension(400, preferredHeight));
         setTransferHandler(new CallTransferHandler(call));
 
         this.callContainer.addPropertyChangeListener(

@@ -15,11 +15,8 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 import net.java.sip.communicator.service.gui.*;
-import net.java.sip.communicator.service.replacement.*;
 import net.java.sip.communicator.service.replacement.directimage.*;
 import net.java.sip.communicator.util.*;
-
-import org.jitsi.service.configuration.*;
 
 public class ShowPreviewDialog
     extends SIPCommDialog
@@ -38,9 +35,6 @@ public class ShowPreviewDialog
     private static final Logger logger
         = Logger.getLogger(ShowPreviewDialog.class);
 
-    ConfigurationService cfg
-        = GuiActivator.getConfigurationService();
-
     /**
      * The Ok button.
      */
@@ -54,12 +48,7 @@ public class ShowPreviewDialog
     /**
      * Checkbox that indicates whether or not to show this dialog next time.
      */
-    private final JCheckBox enableReplacementProposal;
-
-    /**
-     * Checkbox that indicates whether or not to show previews automatically
-     */
-    private final JCheckBox enableReplacement;
+    private final JCheckBox configureReplacement;
 
     /**
      * The <tt>ChatConversationPanel</tt> that this dialog is associated with.
@@ -147,23 +136,14 @@ public class ShowPreviewDialog
         warningPanel.add(Box.createHorizontalStrut(10));
         warningPanel.add(descriptionMsg);
 
-        enableReplacement
-            = new JCheckBox(
+        configureReplacement
+            = new SIPCommCheckBox(
                 GuiActivator.getResources().getI18NString(
-                    "plugin.chatconfig.replacement.ENABLE_REPLACEMENT_STATUS"));
-        enableReplacement.setOpaque(false);
-        enableReplacement.setSelected(
-            cfg.getBoolean(ReplacementProperty.REPLACEMENT_ENABLE, true));
-        enableReplacementProposal
-            = new JCheckBox(
-                GuiActivator.getResources().getI18NString(
-                    "plugin.chatconfig.replacement.ENABLE_REPLACEMENT_PROPOSAL"));
-        enableReplacementProposal.setOpaque(false);
+                    "plugin.chatconfig.replacement.CONFIGURE_REPLACEMENT"));
 
-        JPanel checkBoxPanel = new TransparentPanel();
-        checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.Y_AXIS));
-        checkBoxPanel.add(enableReplacement);
-        checkBoxPanel.add(enableReplacementProposal);
+        JPanel checkBoxPanel = new TransparentPanel(
+            new FlowLayout(FlowLayout.CENTER));
+        checkBoxPanel.add(configureReplacement);
 
         JPanel buttonsPanel
             = new TransparentPanel(new FlowLayout(FlowLayout.CENTER));
@@ -186,10 +166,6 @@ public class ShowPreviewDialog
     {
         if (arg0.getSource().equals(okButton))
         {
-            cfg.setProperty(ReplacementProperty.REPLACEMENT_ENABLE,
-                enableReplacement.isSelected());
-            cfg.setProperty(ReplacementProperty.REPLACEMENT_PROPOSAL
-                , enableReplacementProposal.isSelected());
             SwingWorker worker = new SwingWorker()
             {
                 /**
@@ -275,6 +251,26 @@ public class ShowPreviewDialog
         {
             this.setVisible(false);
         }
+
+        // Shows chat config panel
+        if(configureReplacement.isSelected())
+        {
+            ConfigurationContainer configContainer
+                = GuiActivator.getUIService().getConfigurationContainer();
+
+            ConfigurationForm chatConfigForm =
+                ChatConversationPanel.getChatConfigForm();
+
+            if(chatConfigForm != null)
+            {
+                configContainer.setSelected(chatConfigForm);
+
+                configContainer.setVisible(true);
+            }
+
+            // reset for next dialog appearance
+            configureReplacement.setSelected(false);
+        }
     }
 
     @Override
@@ -283,11 +279,6 @@ public class ShowPreviewDialog
         String action = url.getPath();
         if (action.equals("/SHOWPREVIEW"))
         {
-            enableReplacement.setSelected(
-                cfg.getBoolean(ReplacementProperty.REPLACEMENT_ENABLE, true));
-            enableReplacementProposal.setSelected(
-                cfg.getBoolean(ReplacementProperty.REPLACEMENT_PROPOSAL, true));
-
             currentMessageID = url.getQuery();
             currentLinkPosition = url.getFragment();
 
@@ -324,5 +315,17 @@ public class ShowPreviewDialog
     Map<String, String> getLinkToReplacement()
     {
         return linkToReplacement;
+    }
+
+    /**
+     * All functions implemented in this method will be invoked when user
+     * presses the Escape key.
+     *
+     * @param escaped <tt>true</tt> if this frame has been closed by pressing
+     * the Esc key; otherwise, <tt>false</tt>
+     */
+    protected void close(boolean escaped)
+    {
+        cancelButton.doClick();
     }
 }

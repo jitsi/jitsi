@@ -232,7 +232,24 @@ public class IceUdpTransportPacketExtension
         else if(childExtension instanceof CandidatePacketExtension)
             addCandidate((CandidatePacketExtension) childExtension);
 
-        else if (childExtension instanceof DtlsFingerprintPacketExtension)
+        else
             super.addChildExtension(childExtension);
+    }
+
+    /**
+     * Checks whether an 'rtcp-mux' extension has been added to this
+     * <tt>IceUdpTransportPacketExtension</tt>.
+     * @return <tt>true</tt> if this <tt>IceUdpTransportPacketExtension</tt>
+     * has a child with the 'rtcp-mux' name.
+     */
+    public boolean isRtcpMux()
+    {
+        for (PacketExtension packetExtension : getChildExtensions())
+        {
+            if (RtcpmuxPacketExtension.ELEMENT_NAME
+                    .equals(packetExtension.getElementName()))
+                return true;
+        }
+        return false;
     }
 }
