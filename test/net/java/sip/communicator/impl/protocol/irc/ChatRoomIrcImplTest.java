@@ -37,42 +37,84 @@ public class ChatRoomIrcImplTest
     public void testConstructionNullIdentifier()
     {
         EasyMock.replay(this.providerMock, this.stackMock);
-        new ChatRoomIrcImpl(null, this.providerMock);
+        try
+        {
+            new ChatRoomIrcImpl(null, this.providerMock);
+            fail("Should have failed with IAE.");
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
     }
 
     //@Test(expected = IllegalArgumentException.class)
     public void testConstructionNullProvider()
     {
         EasyMock.replay(this.providerMock, this.stackMock);
-        new ChatRoomIrcImpl("#test", null);
+        try
+        {
+            new ChatRoomIrcImpl("#test", null);
+            fail("Should have failed with IAE.");
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
     }
 
     //@Test(expected = IllegalArgumentException.class)
     public void testEmptyName()
     {
         EasyMock.replay(this.providerMock, this.stackMock);
-        new ChatRoomIrcImpl("", this.providerMock);
+        try
+        {
+            new ChatRoomIrcImpl("", this.providerMock);
+            fail("Should have failed with IAE.");
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
     }
 
     //@Test(expected = IllegalArgumentException.class)
     public void testIllegalNameBadPrefix()
     {
         EasyMock.replay(this.providerMock, this.stackMock);
-        new ChatRoomIrcImpl("!test", this.providerMock);
+        try
+        {
+            new ChatRoomIrcImpl("!test", this.providerMock);
+            fail("Should have failed with IAE.");
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
     }
 
     //@Test(expected = IllegalArgumentException.class)
     public void testIllegalNameSpace()
     {
         EasyMock.replay(this.providerMock, this.stackMock);
-        new ChatRoomIrcImpl("#test test", this.providerMock);
+        try
+        {
+            new ChatRoomIrcImpl("#test test", this.providerMock);
+            fail("Should have failed with IAE.");
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
     }
 
     //@Test(expected = IllegalArgumentException.class)
     public void testIllegalNameComma()
     {
         EasyMock.replay(this.providerMock, this.stackMock);
-        new ChatRoomIrcImpl("#test,test", this.providerMock);
+        try
+        {
+            new ChatRoomIrcImpl("#test,test", this.providerMock);
+            fail("Should have failed with IAE.");
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
     }
 
     //@Test
