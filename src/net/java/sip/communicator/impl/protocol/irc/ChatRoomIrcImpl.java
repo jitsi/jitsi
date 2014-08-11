@@ -317,6 +317,9 @@ public class ChatRoomIrcImpl
      */
     public void joinAs(final String nickname) throws OperationFailedException
     {
+        // TODO consider not supporting setting a nickname here, and re-enabling
+        // set nick name option such that it is still possible to change nick on
+        // demand.
         this.setUserNickname(nickname);
         this.join();
     }
@@ -336,6 +339,9 @@ public class ChatRoomIrcImpl
     public void joinAs(final String nickname, final byte[] password)
         throws OperationFailedException
     {
+        // TODO consider not supporting setting a nickname here, and re-enabling
+        // set nick name option such that it is still possible to change nick on
+        // demand.
         this.setUserNickname(nickname);
         this.join(password);
     }
