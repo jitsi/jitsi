@@ -14,11 +14,6 @@ public class ColorTest
     extends TestCase
 {
 
-    protected void setUp() throws Exception
-    {
-        super.setUp();
-    }
-
     public void testHtmlRepresentation()
     {
         Assert.assertEquals("White", Color.WHITE.getHtml());
