@@ -13,21 +13,84 @@ package net.java.sip.communicator.impl.protocol.irc;
  */
 public enum Color
 {
+    /**
+     * White.
+     */
     WHITE("White"),
+
+    /**
+     * Black.
+     */
     BLACK("Black"),
+
+    /**
+     * Navy.
+     */
     BLUE("Navy"),
+
+    /**
+     * Green.
+     */
     GREEN("Green"),
+
+    /**
+     * Red.
+     */
     RED("Red"),
+
+    /**
+     * Maroon.
+     */
     BROWN("Maroon"),
+
+    /**
+     * Purple.
+     */
     PURPLE("Purple"),
+
+    /**
+     * Orange.
+     */
     ORANGE("Orange"),
+
+    /**
+     * Yellow.
+     */
     YELLOW("Yellow"),
+
+    /**
+     * Lime.
+     */
     LIGHT_GREEN("Lime"),
+
+    /**
+     * Teal.
+     */
     TEAL("Teal"),
+
+    /**
+     * Cyan.
+     */
     LIGHT_CYAN("Cyan"),
+
+    /**
+     * RoyalBlue.
+     */
     LIGHT_BLUE("RoyalBlue"),
+
+    /**
+     * Fuchsia.
+     */
     PINK("Fuchsia"),
+
+    /**
+     * Grey.
+     */
     GREY("Grey"),
+
+    /**
+     * Silver.
+     */
     LIGHT_GREY("Silver");
 
     /**

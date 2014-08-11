@@ -15,15 +15,55 @@ import net.java.sip.communicator.service.protocol.*;
  */
 public enum Mode
 {
+    /**
+     * Instance for unknown mode type.
+     */
     UNKNOWN('?', null),
+
+    /**
+     * Mode 'Owner'. (Not recognized by all IRC servers.)
+     */
     OWNER('O', ChatRoomMemberRole.OWNER),
+
+    /**
+     * Mode 'Operator'.
+     */
     OPERATOR('o', ChatRoomMemberRole.ADMINISTRATOR),
+
+    /**
+     * Mode 'Half-Operator'. (Not recognized by all IRC servers.)
+     */
     HALFOP('h', ChatRoomMemberRole.MODERATOR),
+
+    /**
+     * Mode 'Voice'. For giving voice to an IRC member which comes into effect
+     * in a moderated channel.
+     */
     VOICE('v', ChatRoomMemberRole.MEMBER),
+
+    /**
+     * Mode 'Limit'.
+     */
     LIMIT('l', null),
+
+    /**
+     * Mode 'Private'.
+     */
     PRIVATE('p', null),
+
+    /**
+     * Mode 'Secret'.
+     */
     SECRET('s', null),
+
+    /**
+     * Mode 'Invite'.
+     */
     INVITE('i', null),
+
+    /**
+     * Mode 'Ban'.
+     */
     BAN('b', null);
 
     /**

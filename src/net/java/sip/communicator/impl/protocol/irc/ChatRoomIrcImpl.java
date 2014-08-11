@@ -646,6 +646,7 @@ public class ChatRoomIrcImpl
      * @throws OperationFailedException if the setting the new nickname changes
      *             for some reason.
      */
+    @Override
     public void setUserNickname(final String nickName)
         throws OperationFailedException
     {
@@ -1382,7 +1383,11 @@ public class ChatRoomIrcImpl
     @Override
     public Contact getPrivateContactByNickname(final String name)
     {
-        LOGGER.debug("Getting private contact for nick name '" + name + "'.");
+        if (LOGGER.isDebugEnabled())
+        {
+            LOGGER.debug("Getting private contact for nick name '" + name
+                + "'.");
+        }
         return this.parentProvider.getPersistentPresence()
             .findOrCreateContactByID(name);
     }
