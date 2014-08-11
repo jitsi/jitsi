@@ -54,6 +54,9 @@ public class ColibriConferenceIQ
      */
     private final List<Content> contents = new LinkedList<Content>();
 
+    private final List<ChannelBundle> channelBundles
+            = new LinkedList<ChannelBundle>();
+
     /**
      * The ID of the conference represented by this IQ.
      */
@@ -112,6 +115,17 @@ public class ColibriConferenceIQ
         return contents.contains(content) ? false : contents.add(content);
     }
 
+    public boolean addChannelBundle(ChannelBundle channelBundle)
+    {
+        if (channelBundle == null)
+            throw new NullPointerException("channelBundle");
+
+        return channelBundles.contains(channelBundles)
+               ? false
+               : channelBundles.add(channelBundle);
+
+    }
+
     /**
      * Returns an XML <tt>String</tt> representation of this <tt>IQ</tt>.
      *
@@ -132,12 +146,14 @@ public class ColibriConferenceIQ
                     .append('\'');
 
         List<Content> contents = getContents();
+        List<ChannelBundle> channelBundles = getChannelBundles();
 
-        int childrenCount = contents.size();
-        if (recording != null)
-            childrenCount++;
+        boolean hasChildren = recording != null
+            || rtcpTerminationStrategy != null
+            || contents.size() > 0
+            || channelBundles.size() > 0;
 
-        if (childrenCount == 0)
+        if (!hasChildren)
         {
             xml.append(" />");
         }
@@ -146,6 +162,8 @@ public class ColibriConferenceIQ
             xml.append('>');
             for (Content content : contents)
                 content.toXML(xml);
+            for (ChannelBundle channelBundle : channelBundles)
+                channelBundle.toXML(xml);
             if (recording != null)
                 recording.toXML(xml);
 
@@ -185,6 +203,11 @@ public class ColibriConferenceIQ
     public List<Content> getContents()
     {
         return Collections.unmodifiableList(contents);
+    }
+
+    public List<ChannelBundle> getChannelBundles()
+    {
+        return Collections.unmodifiableList(channelBundles);
     }
 
     /**
@@ -319,6 +342,12 @@ public class ColibriConferenceIQ
         public static final String EXPIRE_ATTR_NAME = "expire";
 
         /**
+         * The name of the "channel-bundle-id" attribute.
+         */
+        public static final String CHANNEL_BUNDLE_ID_ATTR_NAME
+                = "channel-bundle-id";
+
+        /**
          * The value of the <tt>expire</tt> property of
          * <tt>ColibriConferenceIQ.Channel</tt> which indicates that no actual
          * value has been specified for the property in question.
@@ -358,6 +387,11 @@ public class ColibriConferenceIQ
          * XML element name.
          */
         private String elementName;
+
+        /**
+         * The channel-bundle-id attribute of this <tt>CommonChannel</tt>.
+         */
+        private String channelBundleId = null;
 
         /**
          * Initializes this class with given XML <tt>elementName</tt>.
@@ -415,6 +449,16 @@ public class ColibriConferenceIQ
         }
 
         /**
+         * Get the channel-bundle-id attribute of this <tt>CommonChannel</tt>.
+         * @return  the channel-bundle-id attribute of this
+         * <tt>CommonChannel</tt>.
+         */
+        public String getChannelBundleId()
+        {
+            return channelBundleId;
+        }
+
+        /**
          * Sets the identifier of the endpoint of the conference participant
          * associated with this <tt>Channel</tt>.
          *
@@ -463,6 +507,15 @@ public class ColibriConferenceIQ
         public void setTransport(IceUdpTransportPacketExtension transport)
         {
             this.transport = transport;
+        }
+
+        /**
+         * Sets the channel-bundle-id attribute of this <tt>CommonChannel</tt>.
+         * @param channelBundleId the value to set.
+         */
+        public void setChannelBundleId(String channelBundleId)
+        {
+            this.channelBundleId = channelBundleId;
         }
 
         /**
@@ -534,6 +587,13 @@ public class ColibriConferenceIQ
                     .append(initiator).append('\'');
             }
 
+            String channelBundleId = getChannelBundleId();
+            if (channelBundleId != null)
+            {
+                xml.append(' ').append(CHANNEL_BUNDLE_ID_ATTR_NAME)
+                    .append("='").append(channelBundleId).append('\'');
+            }
+
             // Print derived class attributes
             printAttributes(xml);
 
@@ -579,6 +639,55 @@ public class ColibriConferenceIQ
             xml.append(' ').append(NAME_ATTR_NAME).append("='")
                     .append(name).append('\'');
             xml.append("/>");
+        }
+    }
+
+    public static class ChannelBundle
+    {
+        public static final String ID_ATTR_NAME = "id";
+        public static final String ELEMENT_NAME = "channel-bundle";
+        private String id;
+        private IceUdpTransportPacketExtension transport;
+        public IceUdpTransportPacketExtension getTransport()
+        {
+            return transport;
+        }
+
+        public ChannelBundle(String id)
+        {
+            this.id = id;
+        }
+
+        public void setTransport(IceUdpTransportPacketExtension transport)
+        {
+            this.transport = transport;
+        }
+
+        public String getId()
+        {
+            return id;
+        }
+
+        public void setId(String id)
+        {
+            this.id = id;
+        }
+
+        public void toXML(StringBuilder xml)
+        {
+            xml.append('<').append(ELEMENT_NAME).append(' ')
+                    .append(ID_ATTR_NAME).append("='").append(id).append('\'');
+
+            if (transport != null)
+            {
+                xml.append('>');
+                xml.append(transport.toXML());
+                xml.append("</").append(ELEMENT_NAME).append('>');
+            }
+            else
+            {
+                xml.append(" />");
+            }
         }
     }
 
