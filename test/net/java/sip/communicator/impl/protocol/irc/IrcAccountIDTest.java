@@ -43,6 +43,42 @@ public class IrcAccountIDTest
         }
     }
 
+    public void testServiceNameMinimal()
+    {
+        HashMap<String, String> properties = new HashMap<String, String>();
+        properties.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.IRC);
+        IrcAccountID account =
+            new IrcAccountID("user", "host", "6667", properties);
+        Assert.assertEquals(ProtocolNames.IRC, account.getService());
+        Assert.assertEquals("user@host:6667 (" + ProtocolNames.IRC + ")",
+            account.getDisplayName());
+    }
+
+    public void testServiceNameWithHost()
+    {
+        HashMap<String, String> properties = new HashMap<String, String>();
+        properties.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.IRC);
+        properties.put(ProtocolProviderFactory.SERVER_ADDRESS, "localhost");
+        IrcAccountID account =
+            new IrcAccountID("user", "localhost", "6667", properties);
+        Assert.assertEquals("localhost", account.getService());
+        Assert.assertEquals("user@localhost:6667 (" + ProtocolNames.IRC + ")",
+            account.getDisplayName());
+    }
+
+    public void testServiceNameWithHostAndPort()
+    {
+        HashMap<String, String> properties = new HashMap<String, String>();
+        properties.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.IRC);
+        properties.put(ProtocolProviderFactory.SERVER_ADDRESS, "localhost");
+        properties.put(ProtocolProviderFactory.SERVER_PORT, "6667");
+        IrcAccountID account =
+            new IrcAccountID("user", "host", "6667", properties);
+        Assert.assertEquals("localhost:6667", account.getService());
+        Assert.assertEquals("user@host:6667 (" + ProtocolNames.IRC + ")",
+            account.getDisplayName());
+    }
+
     public void testCorrectConstruction()
     {
         HashMap<String, String> properties = new HashMap<String, String>();
@@ -122,5 +158,31 @@ public class IrcAccountIDTest
             new IrcAccountID("user", "host", "6667", properties);
         // only test that it does not throw an exception
         account.hashCode();
+    }
+
+    public void testAccountDisplayNamePropertySet()
+    {
+        HashMap<String, String> properties = new HashMap<String, String>();
+        properties.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.IRC);
+        properties.put(ProtocolProviderFactory.SERVER_ADDRESS, "localhost");
+        properties.put(ProtocolProviderFactory.SERVER_PORT, "6667");
+        properties.put(ProtocolProviderFactory.ACCOUNT_DISPLAY_NAME,
+            "my-IRC-account-name");
+        IrcAccountID account =
+            new IrcAccountID("user", "host", "6667", properties);
+        Assert.assertEquals("my-IRC-account-name", account.getDisplayName());
+    }
+
+    public void testAccountDisplayNamePropertySetButEmpty()
+    {
+        HashMap<String, String> properties = new HashMap<String, String>();
+        properties.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.IRC);
+        properties.put(ProtocolProviderFactory.SERVER_ADDRESS, "localhost");
+        properties.put(ProtocolProviderFactory.SERVER_PORT, "6667");
+        properties.put(ProtocolProviderFactory.ACCOUNT_DISPLAY_NAME, "");
+        IrcAccountID account =
+            new IrcAccountID("user", "host", "6667", properties);
+        Assert.assertEquals("user@host:6667 (" + ProtocolNames.IRC + ")",
+            account.getDisplayName());
     }
 }
