@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
-import org.jivesoftware.smack.packet.PacketExtension;
+import org.jivesoftware.smack.packet.*;
 
 /**
  * SctpMap extension in transport packet extension.

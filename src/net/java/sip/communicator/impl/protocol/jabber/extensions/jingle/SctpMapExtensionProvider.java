@@ -8,7 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
-import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.*;
 
 /**
  * The <tt>SctpMapExtensionProvider</tt> parses "sctpmap" elements into
