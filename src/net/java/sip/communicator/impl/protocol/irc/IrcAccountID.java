@@ -78,11 +78,6 @@ public class IrcAccountID
     @Override
     public boolean equals(final Object obj)
     {
-        if (this == obj)
-        {
-            return true;
-        }
-
         // TODO if available, base equality on NETWORK=<identifier> in
         // RPL_ISUPPORT.
 
