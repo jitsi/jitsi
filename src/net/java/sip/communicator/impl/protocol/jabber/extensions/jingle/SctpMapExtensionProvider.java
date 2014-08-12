@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package org.jitsi.jirecon.extension;
+package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
