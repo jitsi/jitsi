@@ -1,0 +1,304 @@
+<!DOCTYPE project>
+<!-- Disables DTD warning -->
+
+<project name="jitsi-webstart">
+
+	<!-- import user-specific/alterable properties -->
+	<property file="${basedir}/WebStartBuild.properties" />
+
+	<property name="webstart.dir" value="${basedir}" />
+	<property name="sc.basedir" value="${webstart.dir}/.." />
+	<property name="release.dir" value="${sc.basedir}/release/web-start" />
+	<property name="tmp.dir" value="${release.dir}/temp" />
+	<property name="ant-ext-src.dir" value="${webstart.dir}/ant-ext" />
+	<property name="ant-ext.dir" value="${sc.basedir}/release/ant-ext" />
+
+	<property name="pack200.path" value="${java.jdk.dir}/bin/pack200" />
+	<property name="unpack200.path" value="${java.jdk.dir}/bin/unpack200" />
+	<property name="jarsigner.path" value="${java.jdk.dir}/bin/jarsigner" />
+
+	<target name="compile-ant-ext" depends="prepare">
+		<javac srcdir="${ant-ext-src.dir}" destdir="${ant-ext.dir}" includeantruntime="true" />
+	</target>
+
+	<!-- Custom ant target and typedefs -->
+	<target name="load-ant-ext" depends="compile-ant-ext">
+		<typedef name="felixConfigSelector" classname="FelixConfigSelector" classpath="${ant-ext.dir}" />
+		<taskdef name="PutJarsToJnlp" classname="PutJarsToJnlp" classpath="${ant-ext.dir}" />
+		<taskdef name="GenerateFelixConfigs" classname="GenerateFelixConfigs" classpath="${ant-ext.dir}" />
+	</target>
+
+	<!-- Exclusion of unsupported os's -->
+	<patternset id="unsupported.os.exclude">
+		<exclude name="**/freebsd*/**" />
+		<exclude name="**/solaris*/**" />
+	</patternset>
+
+	<!-- Excluded Bundles or Libs -->
+	<patternset id="excluded.bundles">
+		<exclude name="sc-bundles/addrbook.jar" if="exclude.addressbook" />
+	</patternset>
+
+	<!-- Testing build -->
+	<target name="-all-test">
+		<property name="jnlp.packEnabled" value="false" />
+		<property name="release.name" value="" />
+	</target>
+	<target name="all-test" depends="-all-test, load-ant-ext, make, prepare, copy-libs, copy-config-files, sign-libs" description="Testing build without repacking and compression (faster)." />
+
+	<!-- Production build -->
+	<target name="-all-prod">
+		<property name="jnlp.packEnabled" value="true" />
+		<property name="release.name" value="" />
+	</target>
+	<target name="all-prod" depends="-all-prod, clean, load-ant-ext, make, prepare, copy-libs, copy-config-files, repack-libs, sign-libs, compress-libs, verify-compressed-jars" description="Production build includes all steps (slow)." />
+
+	<target name="all-prod-without-addrbook">
+		<property name="exclude.addressbook" value="true" />
+		<property name="release.name" value="-without-addrbook" />
+		<antcall target="-all-prod" />
+		<antcall target="clean" />
+		<antcall target="make" />
+		<antcall target="prepare" />
+		<antcall target="copy-libs" />
+		<antcall target="copy-config-files" />
+
+		<!-- rename jnlp and configs.jar -->
+		<move file="${release.dir}/client.jnlp" tofile="${release.dir}/client${release.name}.jnlp" />
+		<move file="${release.dir}/jnlp.jar" tofile="${release.dir}/jnlp${release.name}.jar" />
+		<move file="${release.dir}/lib/configs.jar" tofile="${release.dir}/lib/configs${release.name}.jar" />
+
+		<antcall target="repack-libs" />
+		<antcall target="sign-libs" />
+		<antcall target="compress-libs" />
+		<antcall target="verify-compressed-jars" />
+	</target>
+
+	<!-- clean -->
+	<target name="clean" description="Cleans release and temporary directories.">
+		<delete dir="${release.dir}" />
+		<delete dir="${tmp.dir}" />
+	</target>
+
+	<!-- prepare -->
+	<target name="prepare" description="Create folder sturcture.">
+		<mkdir dir="${release.dir}" />
+		<mkdir dir="${release.dir}/lib" />
+		<mkdir dir="${release.dir}/lib/bundle" />
+		<mkdir dir="${release.dir}/native" />
+		<mkdir dir="${release.dir}/sc-bundles" />
+		<mkdir dir="${ant-ext.dir}" />
+		<mkdir dir="${tmp.dir}" />
+		<mkdir dir="${tmp.dir}/JNLP-INF" />
+	</target>
+
+	<!-- make -->
+	<target name="make" description="Compile and package the main project.">
+		<ant dir="${sc.basedir}" antfile="build.xml" target="make-and-deploy" />
+	</target>
+
+	<!-- copy libs -->
+	<target name="copy-libs" description="Copy required libraries in release folder.">
+		<echo message="Copying libs in ${release.dir}" />
+		<copy todir="${release.dir}">
+			<fileset dir="${sc.basedir}">
+				<!-- Include ... -->
+				<!-- ... jars for felix startup -->
+				<include name="lib/*.jar" />
+				<!-- ... os specific jars for felix startup -->
+				<include name="lib/os-specific/**/*.jar" />
+				<!-- ... os specific Sip-Comm bundles -->
+				<include name="sc-bundles/os-specific/**/*.jar" />
+				<!-- ... Sip-Comm launcher -->
+				<include name="sc-bundles/sc-launcher.jar" />
+
+				<!-- Exclude ... -->
+				<!-- ... installer stuff -->
+				<exclude name="**/installer-exclude/*" />
+				<!-- ... unsupported os's -->
+				<patternset refid="unsupported.os.exclude" />
+			</fileset>
+
+			<fileset dir="${sc.basedir}">
+				<!-- Copy all bundles referenced in felix config file. -->
+				<include name="lib/**" />
+				<include name="sc-bundles/**" />
+				<felixConfigSelector felixConfig="${sc.basedir}/lib/felix.client.run.properties" />
+				<patternset refid="excluded.bundles" />
+			</fileset>
+		</copy>
+
+		<!-- Package and copy native libraries  -->
+		<subant genericantfile="${ant.file}" target="-jar-natives" inheritall="true">
+			<dirset dir="${sc.basedir}/lib/native/" includes="*">
+				<patternset refid="unsupported.os.exclude" />
+			</dirset>
+		</subant>
+	</target>
+
+	<!-- Package and copy native libraries -->
+	<target name="-jar-natives">
+		<!-- Get the last part of the directory (windows, linux, etc.) -->
+		<basename file="${basedir}" property="jarname" />
+
+		<jar destfile="${release.dir}/native/${jarname}.jar">
+			<fileset dir="${basedir}" />
+		</jar>
+	</target>
+
+	<!-- sign libs -->
+	<target name="sign-libs" description="Sign all jars within the release folder." depends="repack-libs">
+		<echo message="Signing libs in ${release.dir}" />
+		<!-- some JARs are distributed with their own SHA-1 signature, we invoke
+		     this once for SHA1 to overwrite that with our signature -->
+		<signjar alias="${keystore.alias}" keystore="${keystore.file}" storepass="${keystore.password}" lazy="true" digestalg="SHA1">
+			<path>
+				<fileset dir="${release.dir}" includes="**/*.jar" />
+			</path>
+		</signjar>
+		<!-- now we apply the default (SHA-256 for JDK 1.7) signature to every JAR -->
+		<signjar alias="${keystore.alias}" keystore="${keystore.file}" storepass="${keystore.password}" lazy="true">
+			<path>
+				<fileset dir="${release.dir}" includes="**/*.jar" />
+			</path>
+		</signjar>
+	</target>
+
+	<!-- repack libs -->
+	<target name="repack-libs" description="Repack all jars within release folder.">
+		<echo message="Repacking libs in ${release.dir}" />
+		<apply executable="${pack200.path}" parallel="false">
+			<arg value="--repack" />
+			<arg value="--segment-limit=-1" />
+			<fileset dir="${release.dir}" includes="**/*.jar" />
+		</apply>
+	</target>
+
+	<!-- compress libs -->
+	<target name="compress-libs" description="Comperss all jars within release folder." depends="sign-libs">
+		<echo message="Compressing libs in ${release.dir}" />
+		<apply executable="${pack200.path}" parallel="false" dest="${release.dir}">
+			<!--<arg value="- -modification-time=latest"/>-->
+			<!-- Arg 'segment-limit=-1' omitted because it broke signatures of some jars -->
+			<targetfile />
+			<srcfile />
+			<fileset dir="${release.dir}" includes="**/*.jar">
+				<!-- Exclude Libs which can not be compressed -->
+				<exclude name="**/os-specific/macosx/neomedia.jar" />
+				<exclude name="**/os-specific/linux/neomedia.jar" />
+			</fileset>
+			<mapper type="glob" from="*" to="*.pack.gz" />
+		</apply>
+	</target>
+
+	<!-- verify compressed jars -->
+	<target name="verify-compressed-jars">
+		<echo message="Verifying compressed libs in ${release.dir}" />
+
+		<!-- create temporary folder -->
+		<property name="verify.dir" value="${tmp.dir}/verification" />
+		<mkdir dir="${tmp.dir}/verification" />
+
+		<!-- unpack in temporary folder -->
+		<apply executable="${unpack200.path}" parallel="false" dest="${verify.dir}">
+			<!--<arg value="-v" />-->
+			<srcfile />
+			<targetfile />
+			<fileset dir="${release.dir}" includes="**/*.jar.pack.gz" />
+			<chainedmapper>
+				<packagemapper from="*" to="*" />
+				<mapper type="glob" from="*.jar.pack.gz" to="*.jar" />
+				<!-- rename -->
+			</chainedmapper>
+		</apply>
+
+		<!-- verify unpacked jars -->
+		<apply executable="${jarsigner.path}" failonerror="false">
+			<arg value="-verify" />
+			<!--<arg value="-verbose" />-->
+			<srcfile />
+			<fileset dir="${verify.dir}" includes="**/*.jar" />
+		</apply>
+	</target>
+
+	<!-- copy config files -->
+	<target name="copy-config-files" description="Copy and package webstart configuration files.">
+		<echo message="Create and copy config files in ${release.dir}" />
+		<PutJarsToJnlp bundledir="${release.dir}/sc-bundles" osbundles="${release.dir}/sc-bundles/os-specific" />
+		<subant genericantfile="${ant.file}" target="-build-felix-files-os" inheritall="true">
+			<dirset dir="${release.dir}/sc-bundles/os-specific" includes="*" />
+		</subant>
+
+		<!-- Copy template files -->
+		<copy todir="${tmp.dir}" overwrite="yes">
+			<fileset dir=".">
+				<include name="*_template" />
+			</fileset>
+
+			<!-- remove '_template' suffix -->
+			<mapper type="glob" from="*_template" to="*" />
+
+			<!-- replace '@_@' tokens with value -->
+			<filterset>
+				<filter token="URL" value="${webstart.codebase.url}" />
+				<filter token="COMMON" value="${jnlp.jars.common}" />
+				<filter token="WINDOWS" value="${jnlp.jars.windows}" />
+				<filter token="LINUX" value="${jnlp.jars.linux}" />
+				<filter token="MACOSX" value="${jnlp.jars.macosx}" />
+				<filter token="PACKENABLED" value="${jnlp.packEnabled}" />
+				<filter token="RELEASE" value="${release.name}" />
+			</filterset>
+		</copy>
+
+		<!-- Delete comments marked as INTERNAL_COMMENT from jnlp file. Example on next line: -->
+		<!-- INTERNAL_COMMENT some text ... -->
+		<replaceregexp match="&lt;!-- INTERNAL_COMMENT .*?-->" replace="" flags="gs">
+			<fileset dir="${tmp.dir}">
+				<include name="*.jnlp" />
+			</fileset>
+		</replaceregexp>
+
+		<copy todir="${release.dir}">
+			<fileset dir="${tmp.dir}">
+				<include name="client.jnlp" />
+			</fileset>
+		</copy>
+
+		<copy tofile="${tmp.dir}/JNLP-INF/APPLICATION.JNLP" file="${tmp.dir}/client.jnlp" />
+		<jar destfile="${release.dir}/jnlp.jar">
+			<fileset dir="${tmp.dir}">
+				<include name="JNLP-INF/**" />
+			</fileset>
+		</jar>
+
+		<jar destfile="${release.dir}/lib/configs.jar">
+			<fileset dir="${sc.basedir}/resources/install">
+				<include name="logging.properties" />
+			</fileset>
+			<fileset dir="${sc.basedir}/lib">
+				<include name="jitsi-default*.properties" />
+			</fileset>
+			<fileset dir="${tmp.dir}">
+				<include name="*.properties" />
+			</fileset>
+		</jar>
+
+		<!-- Copy index.html and images -->
+		<copy file="index.html" todir="${release.dir}"/>
+		<copy file="${sc.basedir}/resources/images/logo/sc_logo_64x64.png" todir="${release.dir}" />
+	</target>
+
+	<!-- Assemble os specific felix configuration files -->
+	<target name="-build-felix-files-os">
+		<!-- Get the last part of the directory (windows, linux, etc.) -->
+		<basename file="${basedir}" property="osname" />
+
+		<GenerateFelixConfigs file="${sc.basedir}/lib/felix.client.run.properties" os="${osname}" bundledir="${release.dir}/sc-bundles" libdir="${release.dir}/lib/bundle" output="${tmp.dir}/felix.client.run.${osname}.properties" />
+	</target>
+</project>
+
+<!-- 
+	Useful sources:
+	- Pack200 and Compression: http://download.oracle.com/javase/6/docs/technotes/guides/deployment/deployment-guide/pack200.html
+	- Pack200 in Ant: http://stackoverflow.com/questions/3312401/how-to-make-an-ant-task-to-sign-and-pack200-all-my-jar-files
+-->

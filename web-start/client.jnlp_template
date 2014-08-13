@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- JNLP File -->
+<jnlp spec="1.0+" codebase="@URL@" href="client@RELEASE@.jnlp">
+	<information>
+		<title>Jitsi</title>
+		<vendor>jitsi.org</vendor>
+		<description>Jitsi - Open Source Video Calls and Chat</description>
+		<homepage href="@URL@"/>
+		<icon href="sc_logo_64x64.png"/>
+        <!-- INTERNAL_COMMENT 
+            Seems the Splashscreen does not work properly.
+            See: http://blogs.sun.com/thejavatutorials/entry/changing_the_java_web_start
+        -->
+		<shortcut online="true">
+			<desktop/>
+			<menu submenu="Jitsi"/>
+		</shortcut>
+	</information>
+
+	<!-- INTERNAL_COMMENT 
+	Request all permissions. Application must be signed. -->
+	<security>
+		<all-permissions/>
+	</security>
+	
+	<!-- Windows common -->
+	<resources os="Windows">
+		<!--<jar href="lib/os-specific/windows/jdic_stub.jar" />-->
+		<property name="felix.config.properties" value="/felix.client.run.windows.properties" />
+		<property name="net.java.sip.communicator.SC_HOME_DIR_NAME" value="jitsi-jws"/>
+		
+		@WINDOWS@
+	</resources>
+
+	<!-- Windows 32 bit -->	
+	<resources os="Windows" arch="x86">
+		<nativelib href="native/windows.jar"/>
+	</resources>
+
+	<!-- Windows 64 bit -->
+	<resources os="Windows" arch="x86_64 amd64">
+		<nativelib href="native/windows-64.jar"/>
+	</resources>
+
+	<!-- Linux common -->
+	<resources os="Linux">
+		<!--<jar href="lib/os-specific/linux/jdic_stub.jar" />-->
+		<property name="felix.config.properties" value="/felix.client.run.linux.properties" />
+		<property name="net.java.sip.communicator.SC_HOME_DIR_NAME" value=".jitsi-jws"/>
+		<!-- INTERNAL_COMMENT 
+		Accelerates certificate generation in unix systems. This property instructs NativePRNG 
+		class to use /dev/urandom to build up entropy. Normally /dev/random is used, which is safer 
+		but much more slower because the entropy is build upon system events. 
+		See: http://stackoverflow.com/questions/137212/how-to-solve-performance-problem-with-java-securerandom
+		!!! The '.' in the path of the url is necessary to avoid Java Bug 6202721 !!!
+		See: http://bugs.sun.com/view_bug.do;jsessionid=ff625daf459fdffffffffcd54f1c775299e0?bug_id=6202721
+		 -->
+		<property name="java.security.egd" value="file:/dev/./urandom"/>
+
+		@LINUX@
+	</resources>
+
+	<!-- Linux 32 bit -->	
+	<resources os="Linux" arch="i386">
+		<nativelib href="native/linux.jar"/>
+	</resources>
+	<resources os="Linux" arch="x86">
+		<nativelib href="native/linux.jar"/>
+	</resources>
+
+	<!-- Linux 64 bit -->
+	<resources os="Linux" arch="amd64">
+		<nativelib href="native/linux-64.jar"/>
+	</resources>
+	<resources os="Linux" arch="x86_64">
+		<nativelib href="native/linux-64.jar"/>
+	</resources>
+
+	<!-- Mac -->
+	<resources os="Mac OS X">
+		<!--<jar href="lib/os-specific/mac/jdic_stub.jar" />-->
+		<property name="felix.config.properties" value="/felix.client.run.macosx.properties" />
+		<property name="net.java.sip.communicator.SC_HOME_DIR_NAME" value=".jitsi-jws"/>
+		<nativelib href="native/mac.jar"/>
+
+		@MACOSX@
+	</resources>
+
+	<resources>
+		<j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+		<property name="net.java.sip.communicator.SC_JWS_BASEDIR" value="@URL@"/>
+                <!-- to run an additional application in the same JVM,
+                     declare the main class and any arguments here and
+                     add the JARs to the list below. -->
+		<!-- <property name="chain.main.class" value="com.example.MyApp"/> -->
+		<!-- <property name="chain.main.args" value="arg1 arg2"/> -->
+        <!-- INTERNAL_COMMENT 
+             Use compressed Jars if available -->
+        <property name="jnlp.packEnabled" value="@PACKENABLED@"/>
+
+		<jar href="jnlp@RELEASE@.jar" main="true" />
+		<jar href="lib/configs@RELEASE@.jar" />
+		<!--<jar href="lib/jdic-all.jar" />-->
+		<jar href="lib/felix.jar" />
+		<jar href="lib/bundle/org.apache.felix.bundlerepository-1.6.4.jar" />
+		<jar href="lib/bundle/log4j.jar" />
+		<jar href="lib/bundle/commons-logging.jar" />
+		@COMMON@
+
+                <!-- here, add any other JARs that are needed for
+                     a chained main class or any other purpose -->
+                <!-- <jar href="com.example.foo.jar" /> -->
+
+	</resources>
+
+	<application-desc main-class="net.java.sip.communicator.launcher.SIPCommunicatorJWS"/>
+</jnlp>
+

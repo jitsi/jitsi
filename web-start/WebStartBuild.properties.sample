@@ -1,0 +1,9 @@
+# value without trailing '/' (slash) 
+java.jdk.dir = c:\\java\\jdk6
+
+keystore.alias = 
+keystore.file = 
+keystore.password = 
+
+# value without trailing '/' (slash) 
+webstart.codebase.url = http://localhost/client
