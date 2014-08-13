@@ -514,6 +514,9 @@ public class IrcStack
                 }
                 list = listSignal.getValue();
                 this.channellist.set(list);
+                // TODO Set a timer for past channel expiration delay and clean
+                // up outdated cached channel list. Because it won't be cleaned
+                // up if a user won't list server chat rooms again.
                 LOGGER.trace("Finished retrieving server chat room list.");
             }
             else
