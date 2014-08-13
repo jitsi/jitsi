@@ -7,7 +7,6 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import java.text.*;
 import java.util.*;
-import java.util.concurrent.*;
 
 import net.java.sip.communicator.service.argdelegation.*;
 import net.java.sip.communicator.service.gui.*;
@@ -76,12 +75,6 @@ public class UriHandlerSipImpl
      * be handled as soon as the mentioned loading completes.
      */
     private List<String> uris;
-
-    /**
-     * ExecutorService used to schedule a dialing attempt after a delay.
-     */
-    private static final ScheduledExecutorService worker = 
-        Executors.newSingleThreadScheduledExecutor();
 
     /**
      * Creates an instance of this uri handler, so that it would start handling
@@ -284,7 +277,7 @@ public class UriHandlerSipImpl
             }
         }
 
-        ProtocolProviderService provider;
+        final ProtocolProviderService provider;
         try
         {
             provider = selectHandlingProvider(uri);
@@ -315,62 +308,47 @@ public class UriHandlerSipImpl
         {
             // Allow a grace period for the provider to register in case
             // we have just started up
-            DelayedHandler task = new DelayedHandler(uri, provider);
-            task.schedule();
+            final DelayRegistrationStateChangeListener listener =
+                new DelayRegistrationStateChangeListener(uri, provider);
+            provider.addRegistrationStateChangeListener(listener);
+            new Timer().schedule(new TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    provider.removeRegistrationStateChangeListener(listener);
+                }
+            }, 2000);
         }
     }
 
     /**
-     * This class is a Runnable for checking if the provider is ready
-     * (which may take a second or two after startup) rather
-     * than immediately failing the dialing attempt with an error.
+     * Listener on provider state changes that handles the passed URI if the
+     * provider becomes registered.
      */
-    private class DelayedHandler
-        implements Runnable
+    private class DelayRegistrationStateChangeListener
+        implements RegistrationStateChangeListener
     {
-        final static int RETRIES = 8;
-        final static int RETRY_DELAY = 250;
-
         private String uri;
         private ProtocolProviderService provider;
-        int retries = RETRIES;
+        private boolean handled = false;
 
-        /**
-         * Initialize this Runnable, storing the values needed
-         * when the timeout occurs.
-         *
-         * @param uri the URI to try and dial
-         * @param provider the provider to use
-         */
-        public DelayedHandler(String uri, ProtocolProviderService provider)
+        public DelayRegistrationStateChangeListener(String uri,
+            ProtocolProviderService provider)
         {
             this.uri = uri;
             this.provider = provider;
         }
 
-        /**
-         * Tells the Runnable to schedule itself
-         */
-        public void schedule()
+        @Override
+        public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
-            worker.schedule(this, RETRY_DELAY, TimeUnit.MILLISECONDS);
-        }
-
-        /**
-         * Executed after the timeout elapses.
-         *
-         * Checks if the registration is complete or if we had enough retries
-         * and then tries to dial.
-         */
-        public void run() {
-            if(retries-- == 0 ||
-                provider.getRegistrationState() == RegistrationState.REGISTERED)
+            if (evt.getNewState() == RegistrationState.REGISTERED && !handled)
             {
-                handleUri(uri, provider); 
-                return;
+                provider.removeRegistrationStateChangeListener(this);
+                handled = true;
+                handleUri(uri, provider);
             }
-            // retry after another delay
-            schedule();
         }
     }
 
