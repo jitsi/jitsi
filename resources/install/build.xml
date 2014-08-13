@@ -2375,8 +2375,6 @@
                 <exclude name="**/growlnotification/**"/>
                 <exclude name="**/dict/**"/>
                 <exclude name="**/dictaccregwizz/**"/>
-                <exclude name="**/irc/**"/>
-                <exclude name="**/ircaccregwizz/**"/>
                 <exclude name="**/ssh/**"/>
                 <exclude name="**/sshaccregwizz/**"/>
                 <exclude name="**/profiler4j/**"/>
