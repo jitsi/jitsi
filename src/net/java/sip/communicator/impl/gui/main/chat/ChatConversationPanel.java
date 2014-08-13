@@ -2374,9 +2374,9 @@ public class ChatConversationPanel
                 int startMatchPosition = plainTextInHtmlMatcher.start(1);
                 int endMatchPosition = plainTextInHtmlMatcher.end(1);
 
-                // TODO Current pattern might find URL's too, however links
-                // have already been processed by now, so it will at most modify
-                // the anchor text.
+                // The pattern might find URL's too, however links have already
+                // been processed by now, so it will at most find the anchor
+                // text.
 
                 // don't process nothing
                 // or don't process already processed links content
@@ -2399,11 +2399,12 @@ public class ChatConversationPanel
         }
 
         /**
-         * Process content between plaintext nodes.
+         * Process plain text content.
+         *
          * @param plainText the nodes text.
          * @param msgBuff the currently accumulated buffer.
-         * @param pattern the pattern for current replacement service,
-         * created earlier so we don't create it for every text we check.
+         * @param pattern the pattern for current replacement service, created
+         *            earlier so we don't create it for every text we check.
          * @param rService the replacement service.
          * @param skipSmileys whether to skip processing smileys
          */
