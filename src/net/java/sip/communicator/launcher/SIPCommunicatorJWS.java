@@ -23,6 +23,48 @@ public class SIPCommunicatorJWS
         // allow access to everything
         System.setSecurityManager(null);
 
+        // optional: the name of another class with a main method
+        // that should be started in the same JVM:
+        String chainMain = System.getProperty("chain.main.class");
+        if(chainMain != null)
+        {
+            // optional: a space-separated list of arguments to be passed
+            // to the chained main() method:
+            String chainArgs = System.getProperty("chain.main.args");
+            if(chainArgs == null)
+            {
+                chainArgs = "";
+            }
+            final String[] _chainArgs = chainArgs.split("\\s");
+            try
+            {
+                Class<?> c = Class.forName(chainMain);
+                final Method m = c.getMethod("main", _chainArgs.getClass());
+                new Thread()
+                {
+                    public void run()
+                    {
+                        try
+                        {
+                            m.invoke(null, new Object[]{_chainArgs});
+                        }
+                        catch (Exception ex)
+                        {
+                            ex.printStackTrace();
+                            System.err.println("Exception running the " +
+                               "chained main class, will continue anyway.");
+                        }
+                    }
+                }.start();
+            }
+            catch (Exception ex)
+            {
+                ex.printStackTrace();
+                System.err.println("Exception finding the chained main " +
+                    "class, will continue anyway.");
+            }
+        }
+
         // prepare the logger
         // needed by the FileHandler-Logger
         SIPCommunicator.setScHomeDir(System.getProperty("os.name"));
@@ -134,7 +176,32 @@ public class SIPCommunicatorJWS
         {
         }
 
+        // Handle the "-open" argument from the javaws command line
+        Vector<String> _args = new Vector<String>();
+        for(int i = 0; i < args.length ; i++)
+        {
+            String arg = args[i];
+            if(arg.equalsIgnoreCase("-open"))
+            {
+                // are we at the last argument or is the next value
+                // some other option flag?
+                if(i == (args.length - 1) ||
+                    (args[i+1].length() > 0 &&
+                        "-/".indexOf(args[i+1].charAt(0))>=0))
+                {
+                    // invalid, can't use "-open" as final argument
+                    System.err.println("Command line argument '-open'"
+                        + " requires a parameter, usually a URI");
+                    System.exit(1);
+                }
+            }
+            else
+            {
+                _args.add(arg);
+            }
+        }
+
         // launch the original app
-        SIPCommunicator.main(args);
+        SIPCommunicator.main(_args.toArray(new String[] {}));
     }
 }

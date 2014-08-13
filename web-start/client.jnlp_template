@@ -64,9 +64,15 @@
 	<resources os="Linux" arch="i386">
 		<nativelib href="native/linux.jar"/>
 	</resources>
+	<resources os="Linux" arch="x86">
+		<nativelib href="native/linux.jar"/>
+	</resources>
 
 	<!-- Linux 64 bit -->
 	<resources os="Linux" arch="amd64">
+		<nativelib href="native/linux-64.jar"/>
+	</resources>
+	<resources os="Linux" arch="x86_64">
 		<nativelib href="native/linux-64.jar"/>
 	</resources>
 
@@ -83,6 +89,11 @@
 	<resources>
 		<j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
 		<property name="net.java.sip.communicator.SC_JWS_BASEDIR" value="@URL@"/>
+                <!-- to run an additional application in the same JVM,
+                     declare the main class and any arguments here and
+                     add the JARs to the list below. -->
+		<!-- <property name="chain.main.class" value="com.example.MyApp"/> -->
+		<!-- <property name="chain.main.args" value="arg1 arg2"/> -->
         <!-- INTERNAL_COMMENT 
              Use compressed Jars if available -->
         <property name="jnlp.packEnabled" value="@PACKENABLED@"/>
@@ -95,6 +106,11 @@
 		<jar href="lib/bundle/log4j.jar" />
 		<jar href="lib/bundle/commons-logging.jar" />
 		@COMMON@
+
+                <!-- here, add any other JARs that are needed for
+                     a chained main class or any other purpose -->
+                <!-- <jar href="com.example.foo.jar" /> -->
+
 	</resources>
 
 	<application-desc main-class="net.java.sip.communicator.launcher.SIPCommunicatorJWS"/>
