@@ -39,9 +39,21 @@ public class FirstWizardPage
      */
     public static final String FIRST_PAGE_IDENTIFIER = "FirstPageIdentifier";
 
-    public static final String USER_NAME_EXAMPLE = "Ex: ircuser";
+    /**
+     * Example of IRC nick name.
+     */
+    public static final String USER_NAME_EXAMPLE = Resources
+        .getString("plugin.ircaccregwizz.EXAMPLE_USERNAME");
 
-    public static final String SERVER_EXAMPLE = "Ex: irc.quakenet.org";
+    /**
+     * Example of IRC server name.
+     */
+    public static final String SERVER_EXAMPLE = Resources
+        .getString("plugin.ircaccregwizz.EXAMPLE_SERVER");
+
+    private static final String DEFAULT_PLAINTEXT_PORT = "6667";
+
+    private static final String DEFAULT_SECURE_PORT = "6697";
 
     private JPanel userPassPanel = new TransparentPanel(new BorderLayout(10, 10));
 
@@ -67,14 +79,14 @@ public class FirstWizardPage
     private JLabel nick
         = new JLabel(Resources.getString("plugin.ircaccregwizz.USERNAME"));
 
-    private JLabel passLabel
-        = new JLabel(Resources.getString("service.gui.PASSWORD"));
+    private JLabel passLabel = new JLabel(
+        Resources.getString("service.gui.PASSWORD") + ":");
 
     private JLabel server
         = new JLabel(Resources.getString("plugin.ircaccregwizz.HOST"));
 
-    private JLabel port
-        = new JLabel(Resources.getString("service.gui.PORT" + ":"));
+    private JLabel port = new JLabel(Resources.getString("service.gui.PORT")
+        + ":");
 
     private JPanel emptyPanel = new TransparentPanel();
 
@@ -105,6 +117,9 @@ public class FirstWizardPage
     private JCheckBox passwordNotRequired = new SIPCommCheckBox(
             Resources.getString("plugin.ircaccregwizz.PASSWORD_NOT_REQUIRED"));
 
+    private JCheckBox useSecureConnection = new SIPCommCheckBox(
+        Resources.getString("plugin.ircaccregwizz.USE_SECURE_CONNECTION"));
+
     private JPanel mainPanel = new TransparentPanel();
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
@@ -118,7 +133,7 @@ public class FirstWizardPage
      *
      * @param wizard the parent wizard
      */
-    public FirstWizardPage(IrcAccountRegistrationWizard wizard)
+    public FirstWizardPage(IrcAccountRegistrationWizard wizard, String userId, String server)
     {
         super(new BorderLayout());
 
@@ -126,7 +141,7 @@ public class FirstWizardPage
 
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
 
-        this.init();
+        this.init(userId, server);
 
         this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -150,12 +165,13 @@ public class FirstWizardPage
 
         this.portField.setEnabled(false);
         this.rememberPassBox.setEnabled(false);
+        this.useSecureConnection.setEnabled(true);
     }
 
     /**
      * Initializes all panels, buttons, etc.
      */
-    private void init()
+    private void init(String userId, String server)
     {
         this.mainPanel.setOpaque(false);
         this.labelsPanel.setOpaque(false);
@@ -164,13 +180,22 @@ public class FirstWizardPage
 
         this.userIDField.getDocument().addDocumentListener(this);
         this.serverField.getDocument().addDocumentListener(this);
+        this.passField.getDocument().addDocumentListener(this);
         this.defaultPort.addActionListener(this);
         this.passwordNotRequired.addActionListener(this);
+        this.useSecureConnection.addActionListener(this);
 
+        this.userIDField.setText(userId);
+        this.serverField.setText(server);
+        this.passField.setEnabled(false);
         this.rememberPassBox.setSelected(true);
         this.autoNickChange.setSelected(true);
         this.defaultPort.setSelected(true);
-        this.passwordNotRequired.setSelected(false);
+        this.passwordNotRequired.setSelected(true);
+        this.useSecureConnection.setSelected(true);
+        this.portField
+            .setText(this.useSecureConnection.isSelected() ? DEFAULT_SECURE_PORT
+                : DEFAULT_PLAINTEXT_PORT);
 
         this.nickExampleLabel.setForeground(Color.GRAY);
         this.nickExampleLabel.setFont(
@@ -206,7 +231,7 @@ public class FirstWizardPage
                                 .createTitledBorder(Resources.getString(
                                 "plugin.ircaccregwizz.USERNAME_AND_PASSWORD")));
 
-        labelsServerPanel.add(server);
+        labelsServerPanel.add(this.server);
         labelsServerPanel.add(emptyPanel2);
         labelsServerPanel.add(port);
 
@@ -216,7 +241,12 @@ public class FirstWizardPage
 
         serverPanel.add(labelsServerPanel, BorderLayout.WEST);
         serverPanel.add(valuesServerPanel, BorderLayout.CENTER);
-        serverPanel.add(defaultPort, BorderLayout.SOUTH);
+
+        JPanel serverSubPanel = new JPanel(new BorderLayout());
+        serverSubPanel.setOpaque(false);
+        serverSubPanel.add(defaultPort, BorderLayout.WEST);
+        serverSubPanel.add(useSecureConnection, BorderLayout.EAST);
+        serverPanel.add(serverSubPanel, BorderLayout.SOUTH);
 
         serverPanel.setBorder(BorderFactory.createTitledBorder(
             Resources.getString("plugin.ircaccregwizz.IRC_SERVER")));
@@ -314,6 +344,7 @@ public class FirstWizardPage
         registration.setRememberPassword(rememberPassBox.isSelected());
         registration.setAutoChangeNick(autoNickChange.isSelected());
         registration.setRequiredPassword(!passwordNotRequired.isSelected());
+        registration.setSecureConnection(useSecureConnection.isSelected());
 
         isCommitted = true;
     }
@@ -413,6 +444,10 @@ public class FirstWizardPage
             accountID
                 .getAccountPropertyString(ProtocolProviderFactory.NO_PASSWORD_REQUIRED);
 
+        boolean useSecureConnection =
+            accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactory.DEFAULT_ENCRYPTION, true);
+
         this.userIDField.setEnabled(false);
         this.userIDField.setText(accountID.getUserID());
         this.serverField.setText(server);
@@ -445,6 +480,8 @@ public class FirstWizardPage
 
             passField.setEnabled(isPassRequired);
         }
+
+        this.useSecureConnection.setSelected(useSecureConnection);
     }
 
     /**
@@ -455,11 +492,15 @@ public class FirstWizardPage
     {
         if (defaultPort.isSelected())
         {
-            portField.setText("");
+            portField
+                .setText(useSecureConnection.isSelected() ? DEFAULT_SECURE_PORT
+                    : DEFAULT_PLAINTEXT_PORT);
             portField.setEnabled(false);
         }
         else
+        {
             portField.setEnabled(true);
+        }
 
         if (passwordNotRequired.isSelected())
         {
@@ -473,6 +514,7 @@ public class FirstWizardPage
             rememberPassBox.setEnabled(true);
         }
 
+        setNextButtonAccordingToUserID();
     }
 
     public void changedUpdate(DocumentEvent event){}
@@ -513,5 +555,15 @@ public class FirstWizardPage
     public boolean isCommitted()
     {
         return isCommitted;
+    }
+
+    public String getCurrentUserId()
+    {
+        return this.userIDField.getText();
+    }
+
+    public String getCurrentServer()
+    {
+        return this.serverField.getText();
     }
 }

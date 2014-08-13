@@ -108,7 +108,14 @@ public class IrcAccountRegistrationWizard
     public Iterator<WizardPage> getPages()
     {
         java.util.List<WizardPage> pages = new ArrayList<WizardPage>();
-        firstWizardPage = new FirstWizardPage(this);
+        String userId = "";
+        String server = "";
+        if (firstWizardPage != null)
+        {
+            userId = firstWizardPage.getCurrentUserId();
+            server = firstWizardPage.getCurrentServer();
+        }
+        firstWizardPage = new FirstWizardPage(this, userId, server);
 
         pages.add(firstWizardPage);
 
@@ -137,6 +144,8 @@ public class IrcAccountRegistrationWizard
         summaryTable.put("Password", pass);
         summaryTable.put("Nickname", registration.getUserID());
         summaryTable.put("Server IRC", registration.getServer() + port);
+        summaryTable.put("Secure connection",
+            registration.isSecureConnection() ? "yes" : "no");
 
         return summaryTable.entrySet().iterator();
     }
@@ -227,6 +236,9 @@ public class IrcAccountRegistrationWizard
         accountProperties.put(
                 ProtocolProviderFactory.NO_PASSWORD_REQUIRED,
                 new Boolean(!registration.isRequiredPassword()).toString());
+        
+        accountProperties.put(ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+            new Boolean(registration.isSecureConnection()).toString());
 
         if (isModification())
         {
@@ -366,7 +378,7 @@ public class IrcAccountRegistrationWizard
     @Override
     public Object getSimpleForm(boolean isCreateAccount)
     {
-        firstWizardPage = new FirstWizardPage(this);
+        firstWizardPage = new FirstWizardPage(this, "", "");
 
         return firstWizardPage.getSimpleForm();
     }
