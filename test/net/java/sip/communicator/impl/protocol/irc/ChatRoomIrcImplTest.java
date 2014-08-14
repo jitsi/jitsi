@@ -77,18 +77,12 @@ public class ChatRoomIrcImplTest
         }
     }
 
-    //@Test(expected = IllegalArgumentException.class)
-    public void testIllegalNameBadPrefix()
+    //@Test
+    public void testAutoPrefixBadChannelName()
     {
         EasyMock.replay(this.providerMock, this.stackMock);
-        try
-        {
-            new ChatRoomIrcImpl("!test", this.providerMock);
-            fail("Should have failed with IAE.");
-        }
-        catch (IllegalArgumentException e)
-        {
-        }
+        ChatRoomIrcImpl room = new ChatRoomIrcImpl("!test", this.providerMock);
+        Assert.assertEquals("#!test", room.getIdentifier());
     }
 
     //@Test(expected = IllegalArgumentException.class)

@@ -152,7 +152,9 @@ public class ChatRoomIrcImpl
             throw new IllegalArgumentException(
                 "chatRoomName cannot be null or empty string");
         }
-        this.chatRoomName = verifyName(chatRoomName);
+        this.chatRoomName =
+            verifyName(this.parentProvider.getIrcStack().getChannelTypes(),
+                chatRoomName);
         this.isSystem = isSystem;
     }
 
@@ -164,24 +166,27 @@ public class ChatRoomIrcImpl
      * @throws IllegalArgumentException if name/identifier contains invalid
      *             characters
      */
-    private String verifyName(final String name)
+    private static String verifyName(final Set<Character> channelTypes,
+        final String name)
     {
         final char prefix = name.charAt(0);
-        if (!this.parentProvider.getIrcStack().getChannelTypes()
-            .contains(prefix))
+        if (channelTypes.contains(prefix))
         {
-            throw new IllegalArgumentException("invalid channel prefix: "
-                + prefix);
-        }
-        for (char c : IrcStack.SPECIAL_CHARACTERS)
-        {
-            if (name.contains("" + c))
+            for (char c : IrcStack.SPECIAL_CHARACTERS)
             {
-                throw new IllegalArgumentException(
-                    "chat room identifier contains illegal character: " + c);
+                if (name.contains("" + c))
+                {
+                    throw new IllegalArgumentException(
+                       "chat room identifier contains illegal character: " + c);
+                }
             }
+            return name;
         }
-        return name;
+        else
+        {
+            LOGGER.trace("Automatically added # channel prefix.");
+            return verifyName(channelTypes, "#" + name);
+        }
     }
 
     /**
