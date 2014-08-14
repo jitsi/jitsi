@@ -170,7 +170,19 @@ public class OperationSetMultiUserChatIrcImpl
         throws OperationFailedException,
                OperationNotSupportedException
     {
-        return findOrCreateRoom(roomName);
+        try
+        {
+            return findOrCreateRoom(roomName);
+        }
+        catch (IllegalArgumentException e)
+        {
+            String message =
+                IrcActivator.getResources().getI18NString(
+                    "service.gui.CREATE_CHAT_ROOM_ERROR", new String[]
+                    { roomName });
+            throw new OperationFailedException(message,
+                OperationFailedException.ILLEGAL_ARGUMENT, e);
+        }
     }
 
     /**
