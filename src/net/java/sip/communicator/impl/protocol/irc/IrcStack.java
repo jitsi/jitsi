@@ -41,6 +41,18 @@ import com.ircclouds.irc.api.state.*;
 public class IrcStack
 {
     /**
+     * Clean-up delay. The clean up task clears any remaining chat room list
+     * cache. Since there's no pointing in timing it exactly, delay the clean up
+     * until after expiration.
+     */
+    private static final long CACHE_CLEAN_UP_DELAY = 1000L;
+
+    /**
+     * Ratio of milliseconds to nanoseconds for conversions.
+     */
+    private static final long RATIO_MILLISECONDS_TO_NANOSECONDS = 1000000L;
+
+    /**
      * Expiration time for chat room list cache.
      */
     private static final long CHAT_ROOM_LIST_CACHE_EXPIRATION = 60000000000L;
@@ -519,10 +531,11 @@ public class IrcStack
                 }
                 list = listSignal.getValue();
                 this.channellist.set(list);
-                // TODO Set a timer for past channel expiration delay and clean
-                // up outdated cached channel list. Because it won't be cleaned
-                // up if a user won't list server chat rooms again.
                 LOGGER.trace("Finished retrieving server chat room list.");
+
+                // Set timer to clean up the cache after use, since otherwise it
+                // could stay in memory for a long time.
+                createCleanUpJob(this.channellist);
             }
             else
             {
@@ -530,6 +543,24 @@ public class IrcStack
             }
             return Collections.unmodifiableList(list);
         }
+    }
+
+    /**
+     * Create a clean up job that checks the container after the cache has
+     * expired. If the container is still populated, then remove it. This clean
+     * up makes sure that there are no references left to an otherwise useless
+     * list of channels.
+     *
+     * @param channellist the container carrying the list of channel names
+     */
+    private static void createCleanUpJob(
+        final Container<List<String>> channellist)
+    {
+        final Timer cleanUpJob = new Timer();
+        final long timestamp = channellist.getTimestamp();
+        cleanUpJob.schedule(new ChannelListCacheCleanUpTask(channellist,
+            timestamp), CHAT_ROOM_LIST_CACHE_EXPIRATION
+            / RATIO_MILLISECONDS_TO_NANOSECONDS + CACHE_CLEAN_UP_DELAY);
     }
 
     /**
@@ -2408,6 +2439,81 @@ public class IrcStack
         {
             this.instance = instance;
             this.time = System.nanoTime();
+        }
+
+        /**
+         * Get the timestamp from when the instance was set.
+         *
+         * @return returns the timestamp
+         */
+        public long getTimestamp()
+        {
+            return this.time;
+        }
+    }
+
+    /**
+     * Task for cleaning up old channel list caches.
+     *
+     * @author Danny van Heumen
+     */
+    private static final class ChannelListCacheCleanUpTask
+        extends TimerTask
+    {
+        /**
+         * Expected timestamp on which the list cache was created. It is used as
+         * an indicator to see whether the cache has been refreshed in the mean
+         * time.
+         */
+        private final long timestamp;
+
+        /**
+         * Container holding the channel list cache.
+         */
+        private final Container<List<String>> container;
+
+        /**
+         * Construct new clean up job definition.
+         *
+         * @param listContainer container that holds the channel list cache
+         * @param timestamp expected timestamp of list cache creation
+         */
+        private ChannelListCacheCleanUpTask(
+            final Container<List<String>> listContainer, final long timestamp)
+        {
+            if (listContainer == null)
+            {
+                throw new IllegalArgumentException(
+                    "listContainer cannot be null");
+            }
+            this.container = listContainer;
+            this.timestamp = timestamp;
+        }
+
+        /**
+         * Remove the list reference from the container. But only if the
+         * timestamp matches. This makes sure that only one clean up job will
+         * clean up a list.
+         */
+        @Override
+        public void run()
+        {
+            synchronized (this.container)
+            {
+                // Only clean up old cache if this is the dedicated task for it.
+                // If the timestamp has changed, another job is responsible for
+                // the clean up.
+                if (this.container.getTimestamp() != this.timestamp)
+                {
+                    LOGGER.trace("Not cleaning up channel list cache. The "
+                        + "timestamp does not match.");
+                    return;
+                }
+                this.container.set(null);
+            }
+            // We cannot clear the list itself, since the contents might still
+            // be in use by the UI, inside the immutable wrapper.
+            LOGGER.debug("Old channel list cache has been cleared.");
         }
     }
 }
