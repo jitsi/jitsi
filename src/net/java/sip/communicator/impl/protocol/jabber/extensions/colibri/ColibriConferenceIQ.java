@@ -54,6 +54,10 @@ public class ColibriConferenceIQ
      */
     private final List<Content> contents = new LinkedList<Content>();
 
+    /**
+     * The list of {@link ChannelBundle}s included into this <tt>conference</tt>
+     * IQ.
+     */
     private final List<ChannelBundle> channelBundles
             = new LinkedList<ChannelBundle>();
 
@@ -115,6 +119,11 @@ public class ColibriConferenceIQ
         return contents.contains(content) ? false : contents.add(content);
     }
 
+    /**
+     * Adds a specific {@link Content} instance to the list of <tt>Content</tt>
+     * instances included into this <tt>conference</tt> IQ.
+     * @param the <tt>ChannelBundle</tt> to add.
+     */
     public boolean addChannelBundle(ChannelBundle channelBundle)
     {
         if (channelBundle == null)
@@ -205,6 +214,13 @@ public class ColibriConferenceIQ
         return Collections.unmodifiableList(contents);
     }
 
+    /**
+     * Returns a list of the <tt>ChannelBundle</tt>s included into this
+     * <tt>conference</tt> IQ.
+     *
+     * @return an unmodifiable <tt>List</tt> of the <tt>ChannelBundle</tt>s
+     * included into this <tt>conference</tt> IQ.
+     */
     public List<ChannelBundle> getChannelBundles()
     {
         return Collections.unmodifiableList(channelBundles);
@@ -642,37 +658,81 @@ public class ColibriConferenceIQ
         }
     }
 
+    /**
+     * Represents a "channel-bundle" element.
+     */
     public static class ChannelBundle
     {
-        public static final String ID_ATTR_NAME = "id";
+        /**
+         * The name of the "channel-bundle" element.
+         */
         public static final String ELEMENT_NAME = "channel-bundle";
-        private String id;
-        private IceUdpTransportPacketExtension transport;
-        public IceUdpTransportPacketExtension getTransport()
-        {
-            return transport;
-        }
 
+        /**
+         * The name of the "id" attribute.
+         */
+        public static final String ID_ATTR_NAME = "id";
+
+        /**
+         * The ID of this <tt>ChannelBundle</tt>.
+         */
+        private String id;
+
+        /**
+         * The transport element of this <tt>ChannelBundle</tt>.
+         */
+        private IceUdpTransportPacketExtension transport;
+
+        /**
+         * Initializes a new <tt>ChannelBundle</tt> with the given ID.
+         * @param id the ID.
+         */
         public ChannelBundle(String id)
         {
             this.id = id;
         }
 
+        /**
+         * Returns the transport element of this <tt>ChannelBundle</tt>.
+         * @return  the transport element of this <tt>ChannelBundle</tt>.
+         */
+        public IceUdpTransportPacketExtension getTransport()
+        {
+            return transport;
+        }
+
+        /**
+         * Sets the transport element of this <tt>ChannelBundle</tt>.
+         * @param transport the transport to set.
+         */
         public void setTransport(IceUdpTransportPacketExtension transport)
         {
             this.transport = transport;
         }
 
+        /**
+         * Returns the ID of this <tt>ChannelBundle</tt>.
+         * @return  the ID of this <tt>ChannelBundle</tt>.
+         */
         public String getId()
         {
             return id;
         }
 
+        /**
+         * Sets the ID of this <tt>ChannelBundle</tt>.
+         * @param id the ID to set.
+         */
         public void setId(String id)
         {
             this.id = id;
         }
 
+        /**
+         * Appends an XML representation of this <tt>ChannelBundle</tt> to
+         * <tt>xml</tt>.
+         * @param xml the <tt>StringBuilder</tt> to append to.
+         */
         public void toXML(StringBuilder xml)
         {
             xml.append('<').append(ELEMENT_NAME).append(' ')
