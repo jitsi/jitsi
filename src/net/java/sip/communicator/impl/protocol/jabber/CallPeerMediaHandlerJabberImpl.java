@@ -2423,7 +2423,7 @@ public class CallPeerMediaHandlerJabberImpl
             if (dtlsControl != null)
             {
                 srtpControls.remove(mediaType, SrtpControlType.DTLS_SRTP);
-                dtlsControl.cleanup();
+                dtlsControl.cleanup(null);
             }
         }
         return b;
@@ -2590,7 +2590,7 @@ public class CallPeerMediaHandlerJabberImpl
             if (dtlsControl != null)
             {
                 srtpControls.remove(mediaType, SrtpControlType.DTLS_SRTP);
-                dtlsControl.cleanup();
+                dtlsControl.cleanup(null);
             }
         }
         return b;

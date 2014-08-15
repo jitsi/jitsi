@@ -14,15 +14,14 @@ import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.*;
 
 /**
- * Implements the Jitsi Videobridge <tt>stats</tt> extension within the
- * COnferencing with LIghtweight BRIdging that will provide various statistics.
+ * Implements the Jitsi Videobridge <tt>stats</tt> extension within COnferencing
+ * with LIghtweight BRIdging that will provide various statistics.
  *
  * @author Hristo Terezov
  */
 public class ColibriStatsExtension
     extends AbstractPacketExtension
 {
-
     /**
      * The XML element name of the Jitsi Videobridge <tt>stats</tt> extension.
      */
@@ -38,9 +37,9 @@ public class ColibriStatsExtension
     /**
      * Constructs new <tt>ColibriStatsExtension</tt>
      */
-    public ColibriStatsExtension() {
+    public ColibriStatsExtension()
+    {
         super(NAMESPACE, ELEMENT_NAME);
-
     }
 
     /**
@@ -58,7 +57,8 @@ public class ColibriStatsExtension
         return Collections.unmodifiableList(super.getChildExtensions());
     }
 
-    public static class Stat implements PacketExtension
+    public static class Stat
+        implements PacketExtension
     {
         /**
          * The XML element name of a <tt>content</tt> of a Jitsi Videobridge
@@ -67,16 +67,16 @@ public class ColibriStatsExtension
         public static final String ELEMENT_NAME = "stat";
 
         /**
-         * The XML name of the <tt>name</tt> attribute of a <tt>stat</tt> of
-         * a <tt>stats</tt> IQ which represents the <tt>name</tt> property
-         * of the statistic.
+         * The XML name of the <tt>name</tt> attribute of a <tt>stat</tt> of a
+         * <tt>stats</tt> IQ which represents the <tt>name</tt> property of the
+         * statistic.
          */
         public static final String NAME_ATTR_NAME = "name";
 
         /**
-         * The XML name of the <tt>name</tt> attribute of a <tt>stat</tt> of
-         * a <tt>stats</tt> IQ which represents the <tt>value</tt> property
-         * of the statistic.
+         * The XML name of the <tt>name</tt> attribute of a <tt>stat</tt> of a
+         * <tt>stats</tt> IQ which represents the <tt>value</tt> property of the
+         * statistic.
          */
         public static final String VALUE_ATTR_NAME = "value";
 
@@ -90,7 +90,9 @@ public class ColibriStatsExtension
          */
         private Object value;
 
-        public Stat() { }
+        public Stat()
+        {
+        }
 
         /**
          * Constructs new <tt>Stat</tt> by given name and value.
@@ -103,6 +105,12 @@ public class ColibriStatsExtension
             this.setValue(value);
         }
 
+        @Override
+        public String getElementName()
+        {
+            return ELEMENT_NAME;
+        }
+
         /**
          * @return the name
          */
@@ -111,12 +119,10 @@ public class ColibriStatsExtension
             return name;
         }
 
-        /**
-         * @param name the name to set
-         */
-        public void setName(String name)
+        @Override
+        public String getNamespace()
         {
-            this.name = name;
+            return NAMESPACE;
         }
 
         /**
@@ -128,6 +134,14 @@ public class ColibriStatsExtension
         }
 
         /**
+         * @param name the name to set
+         */
+        public void setName(String name)
+        {
+            this.name = name;
+        }
+
+        /**
          * @param value the value to set
          */
         public void setValue(Object value)
@@ -135,26 +149,24 @@ public class ColibriStatsExtension
             this.value = value;
         }
 
+        @Override
         public String toXML()
         {
-            if(name == null || value == null)
+            String name = getName();
+            Object value = getValue();
+
+            if ((name == null) || (value == null))
+            {
                 return "";
-
-            return "<" + ELEMENT_NAME + " " + NAME_ATTR_NAME + "='" +
-                StringUtils.escapeForXML(getName()) + "' " + VALUE_ATTR_NAME +
-                "='" + StringUtils.escapeForXML(getValue().toString()) + "' />";
-        }
-
-        @Override
-        public String getElementName()
-        {
-            return ELEMENT_NAME;
-        }
-
-        @Override
-        public String getNamespace()
-        {
-            return NAMESPACE;
+            }
+            else
+            {
+                return
+                    "<" + ELEMENT_NAME + " " + NAME_ATTR_NAME + "='"
+                        + StringUtils.escapeForXML(name) + "' "
+                        + VALUE_ATTR_NAME + "='"
+                        + StringUtils.escapeForXML(value.toString()) + "' />";
+            }
         }
     }
 }
