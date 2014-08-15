@@ -31,6 +31,11 @@ import com.ircclouds.irc.api.state.*;
  *
  * TODO Do we need to cancel any join channel operations still in progress?
  *
+ * Common IRC network facilities:
+ * 1. NickServ - nick related services
+ * 2. ChanServ - channel related services
+ * 3. MemoServ - message relaying services
+ *
  * @author Danny van Heumen
  */
 public class IrcStack
@@ -558,11 +563,9 @@ public class IrcStack
             throw new IllegalStateException(
                 "Please connect to an IRC server first");
         }
-        if (chatroom == null || chatroom.getIdentifier() == null
-            || chatroom.getIdentifier().isEmpty())
+        if (chatroom == null)
         {
-            throw new IllegalArgumentException(
-                "chatroom cannot be null or emtpy");
+            throw new IllegalArgumentException("chatroom cannot be null");
         }
         if (password == null)
         {
@@ -577,18 +580,6 @@ public class IrcStack
         }
 
         final String chatRoomId = chatroom.getIdentifier();
-        if (!getChannelTypes().contains(chatRoomId.charAt(0)))
-        {
-            // TODO I believe this is obsolete, now that ChatRoomIrcImpl checks
-            // chat room name upon creation.
-
-            // I'm not going to throw an exception, but I believe that this case
-            // cannot happen (anymore).
-            LOGGER.warn("Is chat room '" + chatRoomId
-                + "' really an IRC channel? It does not start with any of "
-                + "the channel type symbols.");
-        }
-
         if (this.joined.containsKey(chatRoomId))
         {
             // If we already joined this particular chatroom, no further action
