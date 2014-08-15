@@ -87,7 +87,7 @@ public class IrcAccRegWizzActivator
     @Override
     public void setBundleContext(final BundleContext context)
     {
-        this.bundleContext = context;
+        IrcAccRegWizzActivator.bundleContext = context;
     }
 
     /**
