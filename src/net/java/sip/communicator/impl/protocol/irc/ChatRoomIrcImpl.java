@@ -27,6 +27,17 @@ public class ChatRoomIrcImpl
     extends AbstractChatRoom
 {
     /**
+     * Default channel prefix in case user forgot to include a valid channel
+     * prefix in the chat room name.
+     */
+    private static final char DEFAULT_CHANNEL_PREFIX = '#';
+
+    /**
+     * Maximum length of an IRC channel name.
+     */
+    private static final int MAXIMUM_LENGTH_OF_CHANNEL_NAME = 200;
+
+    /**
      * The object used for logging.
      */
     private static final Logger LOGGER
@@ -147,11 +158,6 @@ public class ChatRoomIrcImpl
             throw new IllegalArgumentException("parentProvider cannot be null");
         }
         this.parentProvider = parentProvider;
-        if (chatRoomName == null || chatRoomName.isEmpty())
-        {
-            throw new IllegalArgumentException(
-                "chatRoomName cannot be null or empty string");
-        }
         this.chatRoomName =
             verifyName(this.parentProvider.getIrcStack().getChannelTypes(),
                 chatRoomName);
@@ -169,8 +175,15 @@ public class ChatRoomIrcImpl
     private static String verifyName(final Set<Character> channelTypes,
         final String name)
     {
+        if (name == null || name.isEmpty()
+            || name.length() > MAXIMUM_LENGTH_OF_CHANNEL_NAME)
+        {
+            throw new IllegalArgumentException("Invalid chat room name.");
+        }
         final char prefix = name.charAt(0);
-        if (channelTypes.contains(prefix))
+        // Check for default channel prefix explicitly just in case it isn't
+        // listed as a channel type.
+        if (channelTypes.contains(prefix) || prefix == DEFAULT_CHANNEL_PREFIX)
         {
             for (char c : IrcStack.SPECIAL_CHARACTERS)
             {
@@ -184,8 +197,12 @@ public class ChatRoomIrcImpl
         }
         else
         {
-            LOGGER.trace("Automatically added # channel prefix.");
-            return verifyName(channelTypes, "#" + name);
+            if (LOGGER.isTraceEnabled())
+            {
+                LOGGER.trace("Automatically added " + DEFAULT_CHANNEL_PREFIX
+                    + " channel prefix.");
+            }
+            return verifyName(channelTypes, DEFAULT_CHANNEL_PREFIX + name);
         }
     }
 
@@ -214,16 +231,26 @@ public class ChatRoomIrcImpl
     public boolean equals(final Object obj)
     {
         if (this == obj)
+        {
             return true;
+        }
         if (obj == null)
+        {
             return false;
+        }
         if (getClass() != obj.getClass())
+        {
             return false;
+        }
         ChatRoomIrcImpl other = (ChatRoomIrcImpl) obj;
         if (!parentProvider.equals(other.parentProvider))
+        {
             return false;
+        }
         if (!chatRoomName.equals(other.chatRoomName))
+        {
             return false;
+        }
         return true;
     }
 

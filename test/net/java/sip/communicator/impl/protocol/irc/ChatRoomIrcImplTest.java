@@ -77,6 +77,25 @@ public class ChatRoomIrcImplTest
         }
     }
 
+    //@Test(expected = IllegalArgumentException.class)
+    public void testTooLongName()
+    {
+        EasyMock.replay(this.providerMock, this.stackMock);
+        try
+        {
+            new ChatRoomIrcImpl(
+                "thisjustalittlebittoolongtobeachannelnamethereforeiexpectthe"
+                    + "testtofailsoweshallseifthisisthecasethisjustalittlebit"
+                    + "toolongtobeachannelnamethereforeiexpectthetesttofails"
+                    + "orweshallseeifthisisthecaseorweshallseeifthisisthecase",
+                this.providerMock);
+            fail("Should have failed with IAE.");
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
+    }
+
     //@Test
     public void testAutoPrefixBadChannelName()
     {
@@ -438,6 +457,23 @@ public class ChatRoomIrcImplTest
             new ChatRoomIrcImpl("&MyAlternative-channel-prefix",
                 this.providerMock);
         Assert.assertEquals("&MyAlternative-channel-prefix",
+            alternative.getIdentifier());
+    }
+
+    public void testOnlyAlternativeChannelTypesWithDefault()
+    {
+        ProtocolProviderServiceIrcImpl specialProviderMock =
+            EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
+        IrcStack specialStackMock = EasyMock.createMock(IrcStack.class);
+        EasyMock.expect(specialProviderMock.getIrcStack()).andReturn(
+            specialStackMock);
+        EasyMock.expect(specialStackMock.getChannelTypes()).andReturn(
+            Sets.newHashSet('&'));
+        EasyMock.replay(specialProviderMock, specialStackMock);
+        ChatRoomIrcImpl alternative =
+            new ChatRoomIrcImpl("channel-name-without-prefix",
+                specialProviderMock);
+        Assert.assertEquals("#channel-name-without-prefix",
             alternative.getIdentifier());
     }
 }
