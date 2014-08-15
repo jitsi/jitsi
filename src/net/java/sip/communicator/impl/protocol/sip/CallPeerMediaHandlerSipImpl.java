@@ -952,7 +952,7 @@ public class CallPeerMediaHandlerSipImpl
                                 SrtpControlType.DTLS_SRTP);
 
                     if (dtlsControl != null)
-                        dtlsControl.cleanup();
+                        dtlsControl.cleanup(null);
                 }
             }
         }
@@ -1069,7 +1069,7 @@ public class CallPeerMediaHandlerSipImpl
         else
         {
             srtpControls.remove(mediaType, SrtpControlType.DTLS_SRTP);
-            dtlsControl.cleanup();
+            dtlsControl.cleanup(null);
         }
     }
 
@@ -1149,7 +1149,7 @@ public class CallPeerMediaHandlerSipImpl
             else
             {
                 // None of the offered suites match, destroy the SDES control.
-                sdesControl.cleanup();
+                sdesControl.cleanup(null);
                 srtpControls.remove(mediaType, SrtpControlType.SDES);
                 logger.warn("Received unsupported sdes crypto attribute.");
             }
@@ -1498,7 +1498,7 @@ public class CallPeerMediaHandlerSipImpl
                         sdesControl,
                         mediaDescription) == null)
                 {
-                    sdesControl.cleanup();
+                    sdesControl.cleanup(null);
                     srtpControls.remove(mediaType, SrtpControlType.SDES);
                     logger.warn("Received unsupported sdes crypto attribute.");
                 }

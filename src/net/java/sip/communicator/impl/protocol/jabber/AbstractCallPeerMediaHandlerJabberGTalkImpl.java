@@ -193,7 +193,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                 }
                 else
                 {
-                    sdesControl.cleanup();
+                    sdesControl.cleanup(null);
                     srtpControls.remove(mediaType, SrtpControlType.SDES);
                 }
             }
@@ -207,7 +207,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                 = getSrtpControls().remove(mediaType, SrtpControlType.SDES);
 
             if (sdesControl != null)
-                sdesControl.cleanup();
+                sdesControl.cleanup(null);
         }
     }
 
@@ -479,7 +479,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                     {
                         // none of the offered suites match, destroy the sdes
                         // control
-                        sdesControl.cleanup();
+                        sdesControl.cleanup(null);
                         srtpControls.remove(mediaType, SrtpControlType.SDES);
                         logger.warn(
                                 "Received unsupported sdes crypto attribute");
@@ -489,7 +489,7 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
                 {
                     // peer doesn't offer any SDES attribute, destroy the sdes
                     // control
-                    sdesControl.cleanup();
+                    sdesControl.cleanup(null);
                     srtpControls.remove(mediaType, SrtpControlType.SDES);
                 }
             }
@@ -538,8 +538,6 @@ public abstract class AbstractCallPeerMediaHandlerJabberGTalkImpl
      * Selects a specific encryption protocol if it is the preferred (only used
      * by the callee).
      *
-     * @param protoName the name of the encryption protocol which is to be
-     * selected
      * @param mediaType The type of media (AUDIO or VIDEO).
      * @param localDescription The element containing the media DESCRIPTION and
      * its encryption.
