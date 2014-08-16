@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.irc;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.irc.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**

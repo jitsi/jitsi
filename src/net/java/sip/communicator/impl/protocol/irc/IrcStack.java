@@ -147,9 +147,9 @@ public class IrcStack
     private IIRCState connectionState;
 
     /**
-     * Atomic boolean containing away status.
+     * Manager component that manages current IRC presence.
      */
-    private final AtomicBoolean away = new AtomicBoolean();
+    private PresenceManager presence = null;
 
     /**
      * The cached channel list.
@@ -321,6 +321,11 @@ public class IrcStack
                 if (this.connectionState != null
                     && this.connectionState.isConnected())
                 {
+                    // instantiate presence manager for the connection
+                    this.presence =
+                        new PresenceManager(irc, this.connectionState,
+                            this.provider.getPersistentPresence());
+
                     // if connecting succeeded, set state to registered
                     this.provider.setCurrentRegistrationState(
                         RegistrationState.REGISTERED);
@@ -1037,7 +1042,7 @@ public class IrcStack
      */
     public boolean isAway()
     {
-        return isConnected() && this.away.get();
+        return isConnected() && this.presence.isAway();
     }
 
     /**
@@ -1052,15 +1057,7 @@ public class IrcStack
         {
             throw new IllegalStateException("Not connected to an IRC server.");
         }
-        final IRCApi irc = this.session.get();
-        if (awayMessage == null || awayMessage.isEmpty())
-        {
-            irc.rawMessage("AWAY");
-        }
-        else
-        {
-            irc.rawMessage("AWAY :" + awayMessage);
-        }
+        this.presence.setAway(awayMessage);
     }
 
     /**
@@ -1170,17 +1167,6 @@ public class IrcStack
     private final class ServerListener
         extends VariousMessageListenerAdapter
     {
-        /**
-         * Reply for acknowledging transition to available (not away any
-         * longer).
-         */
-        private static final int IRC_RPL_UNAWAY = 305;
-
-        /**
-         * Reply for acknowledging transition to away.
-         */
-        private static final int IRC_RPL_NOWAWAY = 306;
-
         /**
          * IRCApi instance.
          */
@@ -1337,24 +1323,6 @@ public class IrcStack
                         to,
                         MessageDeliveryFailedEvent
                             .OFFLINE_MESSAGES_NOT_SUPPORTED);
-                break;
-
-            case IRC_RPL_UNAWAY:
-                final IrcStatusEnum previousUnAway =
-                    IrcStack.this.away.get() ? IrcStatusEnum.AWAY
-                        : IrcStatusEnum.ONLINE;
-                IrcStack.this.away.set(false);
-                IrcStack.this.provider.getPersistentPresence()
-                    .updatePresenceStatus(previousUnAway, IrcStatusEnum.ONLINE);
-                break;
-
-            case IRC_RPL_NOWAWAY:
-                final IrcStatusEnum previousNowAway =
-                    IrcStack.this.away.get() ? IrcStatusEnum.AWAY
-                        : IrcStatusEnum.ONLINE;
-                IrcStack.this.away.set(true);
-                IrcStack.this.provider.getPersistentPresence()
-                    .updatePresenceStatus(previousNowAway, IrcStatusEnum.AWAY);
                 break;
 
             default:
