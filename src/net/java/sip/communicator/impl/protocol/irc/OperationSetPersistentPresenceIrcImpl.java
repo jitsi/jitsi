@@ -300,18 +300,22 @@ public class OperationSetPersistentPresenceIrcImpl
     /**
      * Get current IRC presence status.
      *
-     * The presence status currently is ONLINE if we are connected or OFFLINE if
-     * we aren't connected.
+     * The presence status currently is ONLINE or AWAY if we are connected or
+     * OFFLINE if we aren't connected. The status is set to AWAY if an away
+     * message is set.
      *
-     * @return returns status ONLINE if connected or OFFLINE if not connected
+     * @return returns status ONLINE if connected and not away, or AWAY if
+     *         connected and an away message is set, or OFFLINE if not connected
+     *         at all
      */
     @Override
     public PresenceStatus getPresenceStatus()
     {
-        // TODO implement AWAY presence if available in irc-api
         if (this.parentProvider.getIrcStack().isConnected())
         {
-            return IrcStatusEnum.ONLINE;
+            return this.parentProvider.getIrcStack().isAway()
+                ? IrcStatusEnum.AWAY
+                : IrcStatusEnum.ONLINE;
         }
         else
         {
@@ -320,7 +324,10 @@ public class OperationSetPersistentPresenceIrcImpl
     }
 
     /**
-     * "Publishing" presence status in IRC is currently not implemented.
+     * Set a new presence status corresponding to the provided arguments.
+     *
+     * @param status presence status
+     * @param statusMessage message for the specified status
      */
     @Override
     public void publishPresenceStatus(final PresenceStatus status,
@@ -329,10 +336,48 @@ public class OperationSetPersistentPresenceIrcImpl
         IllegalStateException,
         OperationFailedException
     {
-        // TODO implement publishPresenceStatus (we might be able to do
-        // something with modes invisible and away (IIRC) in IRC.
-        throw new OperationFailedException("Not implemented.",
-            OperationFailedException.NOT_SUPPORTED_OPERATION);
+        final IrcStack provider = this.parentProvider.getIrcStack();
+        if (status.getStatus() >= IrcStatusEnum.AVAILABLE_THRESHOLD)
+        {
+            provider.away(null);
+        }
+        else if (status.getStatus() >= IrcStatusEnum.AWAY_THRESHOLD)
+        {
+            final String awayMessage;
+            if (statusMessage == null || statusMessage.isEmpty())
+            {
+                awayMessage =
+                    IrcActivator.getResources().getI18NString(
+                        "service.gui.AWAY_STATUS");
+            }
+            else
+            {
+                awayMessage = statusMessage;
+            }
+            provider.away(awayMessage);
+        }
+        else
+        {
+            // FIXME How to behave for status OFFLINE?
+        }
+    }
+
+    /**
+     * Update (from IRC) containing the current presence status and message.
+     *
+     * @param previousStatus the previous presence status
+     * @param status the current presence status
+     */
+    void updatePresenceStatus(final PresenceStatus previousStatus,
+        final PresenceStatus status)
+    {
+        // Note: Currently uses general PresenceStatus type parameters because
+        // EasyMock throws a java.lang.NoClassDefFoundError: Could not
+        // initialize class
+        // net.java.sip.communicator.impl.protocol.irc.
+        // OperationSetPersistentPresenceIrcImpl$$EnhancerByCGLIB$$403085ac
+        // if IrcStatusEnum is used. I'm not sure why, though ...
+        fireProviderStatusChangeEvent(previousStatus, status);
     }
 
     /**
@@ -418,12 +463,16 @@ public class OperationSetPersistentPresenceIrcImpl
      * IRC does not have a status message, so it will always return an empty
      * string.
      *
+     * TODO Consider using this for showing the away message if set.
+     *
      * @return returns empty string
      */
     @Override
     public String getCurrentStatusMessage()
     {
-        return "";
+        // FIXME look up active status message in case of away or "" in case of
+        // available.
+        return this.parentProvider.getIrcStack().isAway() ? "" : "";
     }
 
     /**

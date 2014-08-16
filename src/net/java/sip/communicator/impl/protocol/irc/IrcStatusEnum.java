@@ -61,8 +61,7 @@ public final class IrcStatusEnum
     static
     {
         SUPPORTED_STATUS_SET.add(OFFLINE);
-        // TODO implement support for presence status AWAY
-        //supportedStatusSet.add(AWAY);
+        SUPPORTED_STATUS_SET.add(AWAY);
         SUPPORTED_STATUS_SET.add(ONLINE);
     }
 

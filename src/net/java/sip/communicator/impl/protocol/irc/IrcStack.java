@@ -31,10 +31,16 @@ import com.ircclouds.irc.api.state.*;
  *
  * TODO Do we need to cancel any join channel operations still in progress?
  *
+ * <p>
  * Common IRC network facilities:
- * 1. NickServ - nick related services
- * 2. ChanServ - channel related services
- * 3. MemoServ - message relaying services
+ * </p>
+ *
+ * <ul>
+ * <li>NickServ - nick related services (also allow setting NickServ nick -
+ * there are cases where the name is different)</li>
+ * <li>ChanServ - channel related services</li>
+ * <li>MemoServ - message relaying services</li>
+ * </ul>
  *
  * @author Danny van Heumen
  */
@@ -139,6 +145,11 @@ public class IrcStack
      * Connection state of a successful IRC connection.
      */
     private IIRCState connectionState;
+
+    /**
+     * Atomic boolean containing away status.
+     */
+    private final AtomicBoolean away = new AtomicBoolean();
 
     /**
      * The cached channel list.
@@ -1020,6 +1031,39 @@ public class IrcStack
     }
 
     /**
+     * Check whether current state is away or online.
+     *
+     * @return returns true if away, or false if online
+     */
+    public boolean isAway()
+    {
+        return isConnected() && this.away.get();
+    }
+
+    /**
+     * Set or unset away message. In case the awayMessage is null the away
+     * message will be disabled and as a consequence the away-status is removed.
+     *
+     * @param awayMessage the away message to set, or null to remove away-status
+     */
+    public void away(final String awayMessage)
+    {
+        if (!isConnected())
+        {
+            throw new IllegalStateException("Not connected to an IRC server.");
+        }
+        final IRCApi irc = this.session.get();
+        if (awayMessage == null || awayMessage.isEmpty())
+        {
+            irc.rawMessage("AWAY");
+        }
+        else
+        {
+            irc.rawMessage("AWAY :" + awayMessage);
+        }
+    }
+
+    /**
      * Grant user permissions to specified user.
      *
      * @param chatRoom chat room to grant permissions for
@@ -1126,6 +1170,17 @@ public class IrcStack
     private final class ServerListener
         extends VariousMessageListenerAdapter
     {
+        /**
+         * Reply for acknowledging transition to available (not away any
+         * longer).
+         */
+        private static final int IRC_RPL_UNAWAY = 305;
+
+        /**
+         * Reply for acknowledging transition to away.
+         */
+        private static final int IRC_RPL_NOWAWAY = 306;
+
         /**
          * IRCApi instance.
          */
@@ -1282,6 +1337,24 @@ public class IrcStack
                         to,
                         MessageDeliveryFailedEvent
                             .OFFLINE_MESSAGES_NOT_SUPPORTED);
+                break;
+
+            case IRC_RPL_UNAWAY:
+                final IrcStatusEnum previousUnAway =
+                    IrcStack.this.away.get() ? IrcStatusEnum.AWAY
+                        : IrcStatusEnum.ONLINE;
+                IrcStack.this.away.set(false);
+                IrcStack.this.provider.getPersistentPresence()
+                    .updatePresenceStatus(previousUnAway, IrcStatusEnum.ONLINE);
+                break;
+
+            case IRC_RPL_NOWAWAY:
+                final IrcStatusEnum previousNowAway =
+                    IrcStack.this.away.get() ? IrcStatusEnum.AWAY
+                        : IrcStatusEnum.ONLINE;
+                IrcStack.this.away.set(true);
+                IrcStack.this.provider.getPersistentPresence()
+                    .updatePresenceStatus(previousNowAway, IrcStatusEnum.AWAY);
                 break;
 
             default:
