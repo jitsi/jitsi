@@ -2230,6 +2230,9 @@ public class IrcStack
             switch (msg.getNumericCode())
             {
             case RPL_LISTSTART:
+                // TODO According to RFC2812 this message is obsolete and not in
+                // use anymore. Shouldn't be much of a problem, since we usually
+                // start with an empty list though.
                 synchronized (this.signal)
                 {
                     this.signal.getValue().clear();

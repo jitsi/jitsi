@@ -16,6 +16,13 @@ import com.ircclouds.irc.api.state.*;
 /**
  * Manager for presence status of IRC connection.
  *
+ * TODO Support for 'a' (Away) user mode. (Check this again, since I also see
+ * 'a' used for other purposes. This may be one of those ambiguous letters that
+ * every server interprets differently.)
+ *
+ * FIXME Verify implementation of AWAY status message (auto-answering by
+ * server).
+ *
  * @author Danny van Heumen
  */
 public class PresenceManager
@@ -153,6 +160,9 @@ public class PresenceManager
         {
         }
 
+        /**
+         * Handle events for presence-related server replies.
+         */
         @Override
         public void onServerNumericMessage(final ServerNumericMessage msg)
         {
@@ -184,6 +194,9 @@ public class PresenceManager
             }
         }
 
+        /**
+         * In case the user quits, remove the presence listener.
+         */
         @Override
         public void onUserQuit(final QuitMessage msg)
         {

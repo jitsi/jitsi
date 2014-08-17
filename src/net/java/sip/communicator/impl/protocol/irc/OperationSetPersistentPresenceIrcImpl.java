@@ -346,6 +346,7 @@ public class OperationSetPersistentPresenceIrcImpl
             final String awayMessage;
             if (statusMessage == null || statusMessage.isEmpty())
             {
+                // FIXME replace with entry for default away message?
                 awayMessage =
                     IrcActivator.getResources().getI18NString(
                         "service.gui.AWAY_STATUS");
@@ -358,7 +359,8 @@ public class OperationSetPersistentPresenceIrcImpl
         }
         else
         {
-            // FIXME How to behave for status OFFLINE?
+            // There's nothing to do in case of OFFLINE, since the whole account
+            // will be unregistered.
         }
     }
 
