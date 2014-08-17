@@ -439,6 +439,21 @@ public class GroupNode
             int index1 = node1.getSourceIndex();
             int index2 = node2.getSourceIndex();
 
+            // If both indexes are unknown.
+            if (index1 < 0 && index2 < 0)
+            {
+                // To ensure correct behaviour under the Comparator's general
+                // contract, we still need to return consistent (symmetric)
+                // choices even in the case where both nodes have negative
+                // source index.
+                final int hash1 = node1.hashCode();
+                final int hash2 = node2.hashCode();
+                if (hash1 < hash2)
+                    return -1;
+                if (hash2 < hash1)
+                    return 1;
+                return 0;
+            }
             // If the first index is unknown then we position it at the end.
             if (index1 < 0)
                 return 1;
