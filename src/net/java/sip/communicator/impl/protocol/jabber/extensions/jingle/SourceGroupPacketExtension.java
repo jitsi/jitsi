@@ -55,6 +55,14 @@ public class SourceGroupPacketExtension
     }
 
     /**
+     * Sets the semantics of this source group.
+     */
+    public void setSemantics(String semantics)
+    {
+        this.setAttribute(SEMANTICS_ATTR_NAME, semantics);
+    }
+
+    /**
      * Gets the sources of this source group.
      *
      * @return the sources of this source group.
@@ -62,5 +70,20 @@ public class SourceGroupPacketExtension
     public List<SourcePacketExtension> getSources()
     {
         return getChildExtensionsOfType(SourcePacketExtension.class);
+    }
+
+    /**
+     * Sets the sources of this source group.
+     *
+     * @param sources the sources of this source group.
+     */
+    public void addSources(List<SourcePacketExtension> sources)
+    {
+        if (sources != null && sources.size() != 0)
+        {
+            for (SourcePacketExtension source : sources)
+                this.addChildExtension(source);
+        }
+
     }
 }
