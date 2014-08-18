@@ -800,6 +800,17 @@ public class ColibriConferenceIQ
         public static final String LAST_N_ATTR_NAME = "last-n";
 
         /**
+         * The XML name of the <tt>receive-simulcast-layer</tt> attribute of a
+         * video <tt>Channel</tt> which specifies the target quality of the
+         * simulcast substreams to be sent from Jitsi Videobridge to the
+         * endpoint associated with the video <tt>Channel</tt>. The value of the
+         * <tt>receive-simulcast-layer</tt> attribute is an unsigned integer.
+         * Typically used for debugging purposes.
+         */
+        public static final String RECEIVING_SIMULCAST_LAYER
+                = "receive-simulcast-layer";
+
+        /**
          * The XML name of the <tt>rtcpport</tt> attribute of a <tt>channel</tt>
          * of a <tt>content</tt> of a <tt>conference</tt> IQ which represents
          * the value of the <tt>rtcpPort</tt> property of
@@ -858,6 +869,13 @@ public class ColibriConferenceIQ
          * <tt>Channel</tt>.
          */
         private Integer lastN;
+
+        /**
+         * The target quality of the simulcast substreams to be sent from Jitsi
+         * Videobridge to the endpoint associated with this video
+         * <tt>Channel</tt>.
+         */
+        private Integer receivingSimulcastLayer;
 
         /**
          * The <tt>payload-type</tt> elements defined by XEP-0167: Jingle RTP
@@ -1060,6 +1078,20 @@ public class ColibriConferenceIQ
         public Integer getLastN()
         {
             return lastN;
+        }
+
+        /**
+         * Gets the target quality of the simulcast substreams to be sent from
+         * Jitsi Videobridge to the endpoint associated with this video
+         * <tt>Channel</tt>.
+         *
+         * @return the target quality of the simulcast substreams to be sent
+         * from Jitsi Videobridge to the endpoint associated with this video
+         * <tt>Channel</tt>.
+         */
+        public Integer getReceivingSimulcastLayer()
+        {
+            return receivingSimulcastLayer;
         }
 
         /**
@@ -1284,6 +1316,20 @@ public class ColibriConferenceIQ
         public void setLastN(Integer lastN)
         {
             this.lastN = lastN;
+        }
+
+        /**
+         * Sets the target quality of the simulcast substreams to be sent from
+         * Jitsi Videobridge to the endpoint associated with this video
+         * <tt>Channel</tt>.
+         *
+         * @param simulcastLayer the target quality of the simulcast substreams
+         * to be sent from Jitsi Videobridge to the endpoint associated with
+         * this video <tt>Channel</tt>.
+         */
+        public void setReceivingSimulcastLayer(Integer simulcastLayer)
+        {
+            this.receivingSimulcastLayer = simulcastLayer;
         }
 
         /**

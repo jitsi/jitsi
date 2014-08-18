@@ -339,6 +339,18 @@ public class ColibriIQProvider
                         if ((lastN != null) && (lastN.length() != 0))
                             channel.setLastN(Integer.parseInt(lastN));
 
+                        // receiving simulcast layer
+                        String receivingSimulcastLayer
+                                = parser.getAttributeValue(
+                                "",
+                                ColibriConferenceIQ.Channel
+                                            .RECEIVING_SIMULCAST_LAYER);
+
+                        if ((receivingSimulcastLayer != null)
+                                && (receivingSimulcastLayer.length() != 0))
+                            channel.setReceivingSimulcastLayer(
+                                    Integer.parseInt(receivingSimulcastLayer));
+
                         // rtcpPort
                         String rtcpPort
                             = parser.getAttributeValue(
