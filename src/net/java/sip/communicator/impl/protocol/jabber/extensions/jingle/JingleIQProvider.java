@@ -157,6 +157,13 @@ public class JingleIQProvider implements IQProvider
                 new DefaultPacketExtensionProvider<CallIdPacketExtension>(
                         CallIdPacketExtension.class));
 
+        //rtcp-fb
+        providerManager.addExtensionProvider(
+            RtcpFbPacketExtension.ELEMENT_NAME,
+            RtcpFbPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider<RtcpFbPacketExtension>(
+                RtcpFbPacketExtension.class));
+
         //rtcp-mux
         providerManager.addExtensionProvider(
                 RtcpmuxPacketExtension.ELEMENT_NAME,
