@@ -25,7 +25,7 @@ public class ChatRoomIrcImplTest
         this.stackMock = EasyMock.createMock(IrcStack.class);
         EasyMock.expect(this.providerMock.getIrcStack()).andReturn(stackMock);
         EasyMock.expect(this.stackMock.getChannelTypes()).andReturn(
-            Collections.unmodifiableSet(Sets.newHashSet('#', '$')));
+            Collections.unmodifiableSet(Sets.newHashSet('#', '&')));
     }
 
     //@Test
@@ -77,18 +77,12 @@ public class ChatRoomIrcImplTest
         }
     }
 
-    //@Test(expected = IllegalArgumentException.class)
-    public void testIllegalNameBadPrefix()
+    //@Test
+    public void testAutoPrefixBadChannelName()
     {
         EasyMock.replay(this.providerMock, this.stackMock);
-        try
-        {
-            new ChatRoomIrcImpl("!test", this.providerMock);
-            fail("Should have failed with IAE.");
-        }
-        catch (IllegalArgumentException e)
-        {
-        }
+        ChatRoomIrcImpl room = new ChatRoomIrcImpl("!test", this.providerMock);
+        Assert.assertEquals("#!test", room.getIdentifier());
     }
 
     //@Test(expected = IllegalArgumentException.class)
@@ -430,5 +424,20 @@ public class ChatRoomIrcImplTest
         catch (OperationFailedException e)
         {
         }
+    }
+
+    /**
+     * Test creating chat room with alternative prefix. Special check to ensure
+     * that we don't forget about less often used prefixes.
+     */
+    // @Test
+    public void testChatRoomWithAlternativePrefix()
+    {
+        EasyMock.replay(this.providerMock, this.stackMock);
+        ChatRoomIrcImpl alternative =
+            new ChatRoomIrcImpl("&MyAlternative-channel-prefix",
+                this.providerMock);
+        Assert.assertEquals("&MyAlternative-channel-prefix",
+            alternative.getIdentifier());
     }
 }
