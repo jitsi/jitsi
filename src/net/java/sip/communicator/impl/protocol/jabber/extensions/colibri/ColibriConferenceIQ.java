@@ -87,7 +87,7 @@ public class ColibriConferenceIQ
     /**
      * Adds a specific {@link Content} instance to the list of <tt>Content</tt>
      * instances included into this <tt>conference</tt> IQ.
-     * @param the <tt>ChannelBundle</tt> to add.
+     * @param channelBundle the <tt>ChannelBundle</tt> to add.
      */
     public boolean addChannelBundle(ChannelBundle channelBundle)
     {
@@ -368,14 +368,6 @@ public class ColibriConferenceIQ
         public static final String HOST_ATTR_NAME = "host";
 
         /**
-         * The XML name of the <tt>id</tt> attribute of a <tt>channel</tt> of a
-         * <tt>content</tt> of a <tt>conference</tt> IQ which represents the
-         * value of the <tt>id</tt> property of
-         * <tt>ColibriConferenceIQ.Channel</tt>.
-         */
-        public static final String ID_ATTR_NAME = "id";
-
-        /**
          * The XML name of the <tt>last-n</tt> attribute of a video
          * <tt>channel</tt> which specifies the maximum number of video RTP
          * streams to be sent from Jitsi Videobridge to the endpoint associated
@@ -442,11 +434,6 @@ public class ColibriConferenceIQ
          */
         @Deprecated
         private String host;
-
-        /**
-         * The ID of the <tt>channel</tt> represented by this instance.
-         */
-        private String id;
 
         /**
          * The maximum number of video RTP streams to be sent from Jitsi
@@ -646,16 +633,6 @@ public class ColibriConferenceIQ
         }
 
         /**
-         * Gets the ID of the <tt>channel</tt> represented by this instance.
-         *
-         * @return the ID of the <tt>channel</tt> represented by this instance
-         */
-        public String getID()
-        {
-            return id;
-        }
-
-        /**
          * Gets the maximum number of video RTP streams to be sent from Jitsi
          * Videobridge to the endpoint associated with this video
          * <tt>Channel</tt>.
@@ -815,15 +792,6 @@ public class ColibriConferenceIQ
             if (host != null)
             {
                 xml.append(' ').append(HOST_ATTR_NAME).append("='").append(host)
-                        .append('\'');
-            }
-
-            // id
-            String id = getID();
-
-            if (id != null)
-            {
-                xml.append(' ').append(ID_ATTR_NAME).append("='").append(id)
                         .append('\'');
             }
 
@@ -994,16 +962,6 @@ public class ColibriConferenceIQ
         public void setHost(String host)
         {
             this.host = host;
-        }
-
-        /**
-         * Sets the ID of the <tt>channel</tt> represented by this instance.
-         *
-         * @param id the ID of the <tt>channel</tt> represented by this instance
-         */
-        public void setID(String id)
-        {
-            this.id = id;
         }
 
         /**
@@ -1244,6 +1202,14 @@ public class ColibriConferenceIQ
         public static final int EXPIRE_NOT_SPECIFIED = -1;
 
         /**
+         * The XML name of the <tt>id</tt> attribute of a <tt>channel</tt> of a
+         * <tt>content</tt> of a <tt>conference</tt> IQ which represents the
+         * value of the <tt>id</tt> property of
+         * <tt>ColibriConferenceIQ.Channel</tt>.
+         */
+        public static final String ID_ATTR_NAME = "id";
+
+        /**
          * The XML name of the <tt>initiator</tt> attribute of a
          * <tt>channel</tt> of a <tt>content</tt> of a <tt>conference</tt> IQ
          * which represents the value of the <tt>initiator</tt> property of
@@ -1272,6 +1238,11 @@ public class ColibriConferenceIQ
          * represented by this instance expires.
          */
         private int expire = EXPIRE_NOT_SPECIFIED;
+
+        /**
+         * The ID of the <tt>channel</tt> represented by this instance.
+         */
+        private String id;
 
         /**
          * The indicator which determines whether the conference focus is the
@@ -1324,6 +1295,16 @@ public class ColibriConferenceIQ
         public int getExpire()
         {
             return expire;
+        }
+
+        /**
+         * Gets the ID of the <tt>channel</tt> represented by this instance.
+         *
+         * @return the ID of the <tt>channel</tt> represented by this instance
+         */
+        public String getID()
+        {
+            return id;
         }
 
         public IceUdpTransportPacketExtension getTransport()
@@ -1416,6 +1397,16 @@ public class ColibriConferenceIQ
             this.expire = expire;
         }
 
+        /*
+         * Sets the ID of the <tt>channel</tt> represented by this instance.
+         *
+         * @param id the ID of the <tt>channel</tt> represented by this instance
+         */
+        public void setID(String id)
+        {
+            this.id = id;
+        }
+
         /**
          * Sets the indicator which determines whether the conference focus is
          * the initiator/offerer (as opposed to the responder/answerer) of the
@@ -1465,6 +1456,15 @@ public class ColibriConferenceIQ
             {
                 xml.append(' ').append(EXPIRE_ATTR_NAME).append("='")
                     .append(expire).append('\'');
+            }
+
+            // id
+            String id = getID();
+
+            if (id != null)
+            {
+                xml.append(' ').append(ID_ATTR_NAME).append("='")
+                    .append(id).append('\'');
             }
 
             // initiator
@@ -1637,6 +1637,21 @@ public class ColibriConferenceIQ
         }
 
         /**
+         * Finds an SCTP connection identified by given <tt>connectionID</tt>.
+         * @param connectionID the ID of the SCTP connection to find.
+         * @return <tt>SctpConnection</tt> instance identified by given ID
+         *         or <tt>null</tt> if no such connection is contained in
+         *         this IQ.
+         */
+        public SctpConnection getSctpConnection(String connectionID)
+        {
+            for (SctpConnection conn : getSctpConnections())
+                if (connectionID.equals(conn.getID()))
+                    return conn;
+            return null;
+        }
+
+        /**
          * Gets the number of <tt>Channel</tt>s included into/associated with
          * this <tt>Content</tt>.
          *
@@ -1743,6 +1758,17 @@ public class ColibriConferenceIQ
                     conn.toXML(xml);
                 xml.append("</").append(ELEMENT_NAME).append('>');
             }
+        }
+
+        /**
+         * Removes given SCTP connection from this IQ.
+         * @param connection the SCTP connection instance to be removed.
+         * @return <tt>true</tt> if given <tt>connection</tt> was contained in
+         *         this IQ and has been removed successfully.
+         */
+        public boolean removeSctpConnection(SctpConnection connection)
+        {
+            return sctpConnections.remove(connection);
         }
     }
 

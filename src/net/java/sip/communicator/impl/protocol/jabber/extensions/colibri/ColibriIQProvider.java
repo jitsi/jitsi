@@ -199,7 +199,9 @@ public class ColibriIQProvider
                     else if (ColibriConferenceIQ.SctpConnection.ELEMENT_NAME
                             .equals(name))
                     {
-                        content.addSctpConnection(sctpConnection);
+                        if (sctpConnection != null)
+                            content.addSctpConnection(sctpConnection);
+
                         sctpConnection = null;
                     }
                     else if (ColibriConferenceIQ.Endpoint.ELEMENT_NAME
@@ -450,20 +452,28 @@ public class ColibriIQProvider
                             ColibriConferenceIQ.
                                 SctpConnection.ENDPOINT_ATTR_NAME);
 
-                        if(!StringUtils.isNullOrEmpty(endpoint))
+                        // id
+                        String connID
+                            = parser.getAttributeValue(
+                            "",
+                            ColibriConferenceIQ.
+                                ChannelCommon.ID_ATTR_NAME);
+
+                        if(StringUtils.isNullOrEmpty(connID)
+                           && StringUtils.isNullOrEmpty(endpoint))
                         {
-                            sctpConnection
-                                = new ColibriConferenceIQ.SctpConnection();
-                        }
-                        else
-                        {
-                            throw new RuntimeException(
-                                "Endpoint is mandatory attribute"
-                                    + " for SCTP connection"
-                            );
+                            sctpConnection = null;
+                            continue;
                         }
 
-                        sctpConnection.setEndpoint(endpoint);
+                        sctpConnection
+                            = new ColibriConferenceIQ.SctpConnection();
+
+                        if (!StringUtils.isNullOrEmpty(connID))
+                            sctpConnection.setID(connID);
+
+                        if (!StringUtils.isNullOrEmpty(endpoint))
+                            sctpConnection.setEndpoint(endpoint);
 
                         // port
                         String port
