@@ -307,7 +307,7 @@ public class ConferenceChatManager
             null);
 
         if(createWindow)
-            chatWindowManager.openChat(chatPanel, true);
+            chatWindowManager.openChat(chatPanel, false);
     }
 
     /**
