@@ -24,9 +24,8 @@ import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 
-import org.jitsi.util.*;
-
 import org.jdesktop.swingworker.SwingWorker;
+import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 /**
@@ -214,7 +213,7 @@ public class ConferenceChatManager
                 sourceChatRoom.getParentProvider(),
                 sourceChatRoom.getIdentifier());
         if(autoOpenConfig == null)
-            autoOpenConfig = MUCService.OPEN_ON_IMPORTANT_MESSAGE;
+            autoOpenConfig = MUCService.DEFAULT_AUTO_OPEN_BEHAVIOUR;
 
         if(autoOpenConfig.equals(MUCService.OPEN_ON_ACTIVITY)
             || (autoOpenConfig.equals(MUCService.OPEN_ON_MESSAGE)
