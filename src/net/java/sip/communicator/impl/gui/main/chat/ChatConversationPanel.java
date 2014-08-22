@@ -2374,10 +2374,6 @@ public class ChatConversationPanel
                 int startMatchPosition = plainTextInHtmlMatcher.start(1);
                 int endMatchPosition = plainTextInHtmlMatcher.end(1);
 
-                // The pattern might find URL's too, however links have already
-                // been processed by now, so it will at most find the anchor
-                // text.
-
                 // don't process nothing
                 // or don't process already processed links content
                 if (!StringUtils.isNullOrEmpty(plainTextAsHtml))
@@ -2388,7 +2384,15 @@ public class ChatConversationPanel
 
                     final String plaintext =
                         StringEscapeUtils.unescapeHtml4(plainTextAsHtml);
-                    processText(plaintext, buff, pattern, service);
+
+                    // Test whether this piece of content (exactly) matches a
+                    // URL pattern. We should find at most a full URL text if it
+                    // exists, since links have already been processed, so any
+                    // URL is already wrapped in A-tags.
+                    final boolean isURL =
+                        URL_PATTERN.matcher(plaintext).matches();
+
+                    processText(plaintext, buff, pattern, service, isURL);
 
                     startPos = endMatchPosition;
                 }
@@ -2406,12 +2410,13 @@ public class ChatConversationPanel
          * @param pattern the pattern for current replacement service, created
          *            earlier so we don't create it for every text we check.
          * @param rService the replacement service.
-         * @param skipSmileys whether to skip processing smileys
+         * @param isURL whether this content matches the URL pattern
          */
         private void processText(final String plainText,
                                  final StringBuilder msgBuff,
                                  final Pattern pattern,
-                                 final ReplacementService rService)
+                                 final ReplacementService rService,
+                                 final boolean isURL)
         {
             Matcher m = pattern.matcher(plainText);
 
@@ -2442,7 +2447,7 @@ public class ChatConversationPanel
                     {
                         if (cfg.getBoolean(ReplacementProperty.
                                 getPropertyName("SMILEY"),
-                            true))
+                            true) && !isURL)
                         {
                             msgBuff.append("<IMG SRC=\"");
                             msgBuff.append(temp);

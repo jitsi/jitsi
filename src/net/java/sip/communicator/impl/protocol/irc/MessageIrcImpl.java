@@ -137,6 +137,8 @@ public class MessageIrcImpl
         final String message)
     {
         String text = Utils.parseIrcMessage(message);
+        // TODO consider returning message starting with "/me " and let Jitsi do
+        // the /me formatting.
         text = Utils.styleAsAction(text, user);
         return new MessageIrcImpl(text, HTML_MIME_TYPE, DEFAULT_MIME_ENCODING,
             null);
