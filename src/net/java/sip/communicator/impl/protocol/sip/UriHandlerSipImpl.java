@@ -27,6 +27,20 @@ public class UriHandlerSipImpl
     implements UriHandler, ServiceListener, AccountManagerListener
 {
     /**
+     * Property to set the amount of time to wait for SIP registration
+     * to complete before trying to dial a URI from the command line.
+     * (value in milliseconds).
+     */
+    public static final String INITIAL_REGISTRATION_TIMEOUT_PROP
+        = "net.java.sip.communicator.impl.protocol.sip.call.INITIAL_REGISTRATION_TIMEOUT";
+
+    /**
+     * Default value for INITIAL_REGISTRATION_TIMEOUT (milliseconds)
+     */
+    public static final long DEFAULT_INITIAL_REGISTRATION_TIMEOUT
+        = 2000;
+
+    /**
      * The <tt>Logger</tt> used by the <tt>UriHandlerSipImpl</tt> class and its
      * instances for logging output.
      */
@@ -258,7 +272,7 @@ public class UriHandlerSipImpl
      *
      * @param uri the SIP URI that we have to call.
      */
-    public void handleUri(String uri)
+    public void handleUri(final String uri)
     {
         /*
          * TODO If the requirement to register the factory service after
@@ -308,6 +322,10 @@ public class UriHandlerSipImpl
         {
             // Allow a grace period for the provider to register in case
             // we have just started up
+            long initialRegistrationTimeout =
+                SipActivator.getConfigurationService()
+                    .getLong(INITIAL_REGISTRATION_TIMEOUT_PROP,
+                        DEFAULT_INITIAL_REGISTRATION_TIMEOUT);
             final DelayRegistrationStateChangeListener listener =
                 new DelayRegistrationStateChangeListener(uri, provider);
             provider.addRegistrationStateChangeListener(listener);
@@ -317,8 +335,12 @@ public class UriHandlerSipImpl
                 public void run()
                 {
                     provider.removeRegistrationStateChangeListener(listener);
+                    // Even if not registered after the timeout, try the call
+                    // anyway and the error popup will appear to ask the
+                    // user if they want to register
+                    handleUri(uri, provider);
                 }
-            }, 2000);
+            }, initialRegistrationTimeout);
         }
     }
 
