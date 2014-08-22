@@ -577,8 +577,7 @@ public class ChatConversationPanel
             chatString +=
                 GuiUtils.formatTime(date)
                     + " "
-                    + processLinksAndHTMLChars(contactName, true,
-                        ChatHtmlUtils.TEXT_CONTENT_TYPE) + " "
+                    + StringEscapeUtils.escapeHtml4(contactName) + " "
                     + formatMessageAsHTML(message, contentType, keyword)
                     + endHeaderTag;
         }
@@ -589,8 +588,7 @@ public class ChatConversationPanel
             endHeaderTag = "</p>";
 
             chatString += "* " + GuiUtils.formatTime(date)
-                + " " + processLinksAndHTMLChars(contactName, true,
-                    ChatHtmlUtils.TEXT_CONTENT_TYPE) + " "
+                + " " + StringEscapeUtils.escapeHtml4(contactName) + " "
                 + formatMessageAsHTML(message, contentType, keyword)
                 + endHeaderTag;
         }
@@ -623,10 +621,8 @@ public class ChatConversationPanel
             if (messageTitle != null)
             {
                 chatString +=
-                    errorIcon
-                        + processLinksAndHTMLChars(messageTitle, true,
-                            ChatHtmlUtils.TEXT_CONTENT_TYPE) + endHeaderTag
-                        + "<h5>"
+                    errorIcon + StringEscapeUtils.escapeHtml4(messageTitle)
+                        + endHeaderTag + "<h5>"
                         + formatMessageAsHTML(message, contentType, keyword)
                         + "</h5>";
             }
@@ -1022,53 +1018,11 @@ public class ChatConversationPanel
     }
 
     /**
-     * Highlights keywords searched in the history.
-     *
-     * @param message the source message
-     * @param contentType the content type
-     * @param keyword the searched keyword
-     * @return the formatted message
-     */
-    private String processKeyword(final String message,
-        final String contentType, final String keyword)
-    {
-        if(message == null)
-            return message;
-
-        Matcher m
-            = Pattern.compile(Pattern.quote(keyword), Pattern.CASE_INSENSITIVE)
-                .matcher(message);
-        StringBuffer msgBuffer = new StringBuffer();
-        int prevEnd = 0;
-
-        while (m.find())
-        {
-            msgBuffer.append(StringEscapeUtils.escapeHtml4(message.substring(
-                prevEnd, m.start())));
-            prevEnd = m.end();
-
-            String keywordMatch = m.group().trim();
-
-            msgBuffer.append("<b>");
-            msgBuffer.append(StringEscapeUtils.escapeHtml4(keywordMatch));
-            msgBuffer.append("</b>");
-        }
-
-        /*
-         * If the keyword didn't match, let the outside world be able to
-         * discover it.
-         */
-        if (prevEnd == 0)
-            return message;
-
-        msgBuffer.append(StringEscapeUtils.escapeHtml4(message
-            .substring(prevEnd)));
-        return msgBuffer.toString();
-    }
-
-    /**
      * Formats the given message. Processes all smiley chars, new lines and
      * links.
+     *
+     * TODO correctly name this method: we only expect content in either HTML or
+     * PLAIN TEXT format. We DON'T WANT THE HEADER STUFF OF A HTML MESSAGE!!!
      *
      * @param message the message to be formatted
      * @param contentType the content type of the message to be formatted
@@ -1079,85 +1033,300 @@ public class ChatConversationPanel
                                  final String contentType,
                                  final String keyword)
     {
-        if(original == null)
-            return "";
-
-        String message = original;
-
-        // If the message content type is HTML we won't process links and
-        // new lines, but only the smileys.
-        if (!ChatHtmlUtils.HTML_CONTENT_TYPE.equals(contentType))
+        if (original == null)
         {
-
-            /*
-             * We disallow HTML in plain-text messages. But processKeyword
-             * introduces HTML. So we'll allow HTML if processKeyword has
-             * introduced it in order to not break highlighting.
-             */
-            boolean processHTMLChars;
-
-            if ((keyword != null) && (keyword.length() != 0))
-            {
-                // TODO Doesn't replacing keywords first cause hyperlinks to be
-                // broken if the keyword is in the hyperlink? Maybe we should
-                // insert anchors first, highlighting keywords.
-                String messageWithProcessedKeyword
-                    = processKeyword(message, contentType, keyword);
-
-                /*
-                 * The same String instance will be returned if there was no
-                 * keyword match. Calling #equals() is expensive so == is
-                 * intentional.
-                 */
-                processHTMLChars = (messageWithProcessedKeyword == message);
-                message = messageWithProcessedKeyword;
-            }
-            else
-                processHTMLChars = true;
-
-            message = processNewLines(processLinksAndHTMLChars(
-                    message, processHTMLChars, contentType), contentType);
+            return "";
         }
-        // If the message content is HTML, we process br and img tags.
+
+        // prepare initial message source
+        String source;
+        if (ChatHtmlUtils.HTML_CONTENT_TYPE.equals(contentType))
+        {
+            source = original;
+        }
         else
         {
-            // For HTML message, also check for hyperlinks.
-            int startPos = 0;
-            final StringBuilder buff = new StringBuilder();
-            final Matcher plainTextInHtmlMatcher =
-                TEXT_TO_REPLACE_PATTERN.matcher(message);
-            while (plainTextInHtmlMatcher.find())
+            source = StringEscapeUtils.escapeHtml4(original);
+        }
+
+        final Replacer[] replacers = new Replacer[]
+        {
+            new NewlineReplacer(),
+            new URLReplacer(),
+            new KeywordReplacer(keyword),
+            new BrTagReplacer(),
+            new ImgTagReplacer()
+        };
+
+        return processReplacers(source, replacers);
+    }
+
+    // FIXME decent comments
+    private String processReplacers(final String content, final Replacer... replacers)
+    {
+        StringBuilder source = new StringBuilder(content);
+        for (Replacer replacer : replacers)
+        {
+            final StringBuilder target = new StringBuilder();
+            if (replacer.expectsPlainText())
             {
-                final String plainTextAsHtml = plainTextInHtmlMatcher.group(1);
-                final int startMatchPosition = plainTextInHtmlMatcher.start(1);
-                final int endMatchPosition = plainTextInHtmlMatcher.end(1);
-
-                if (!StringUtils.isNullOrEmpty(plainTextAsHtml))
+                int startPos = 0;
+                final Matcher plainTextInHtmlMatcher =
+                    TEXT_TO_REPLACE_PATTERN.matcher(source);
+                while (plainTextInHtmlMatcher.find())
                 {
-                    // always add from the end of previous match, to current one
-                    // or from the start to the first match
-                    buff.append(
-                        message.substring(startPos, startMatchPosition));
-
+                    final String plainTextAsHtml =
+                        plainTextInHtmlMatcher.group(1);
+                    final int startMatchPosition =
+                        plainTextInHtmlMatcher.start(1);
+                    final int endMatchPosition = plainTextInHtmlMatcher.end(1);
+                    target.append(source
+                        .substring(startPos, startMatchPosition));
                     final String plaintext =
                         StringEscapeUtils.unescapeHtml4(plainTextAsHtml);
-                    buff.append(processLinksAndHTMLChars(plaintext, true,
-                        ChatHtmlUtils.TEXT_CONTENT_TYPE));
+
+                    // Invoke replacer.
+                    try
+                    {
+                        replacer.replace(target, plaintext);
+                    }
+                    catch (RuntimeException e)
+                    {
+                        logger.error("An error occurred in replacer: "
+                            + replacer.getClass().getName(), e);
+                    }
 
                     startPos = endMatchPosition;
                 }
+                target.append(source.substring(startPos));
             }
-            buff.append(message.substring(startPos));
-            message = buff.toString();
-
-            if ((keyword != null) && (keyword.length() != 0))
-                message = processKeyword(message, contentType, keyword);
-            message = processImgTags(processBrTags(message));
+            else
+            {
+                // Invoke replacer.
+                try
+                {
+                    replacer.replace(target, source.toString());
+                }
+                catch (RuntimeException e)
+                {
+                    logger.error("An error occurred in replacer: "
+                        + replacer.getClass().getName(), e);
+                }
+            }
+            source = target;
         }
-
-        return message;
+        return source.toString();
     }
 
+    // TODO check all processors for correct html escaping!
+    // FIXME decent comments
+    private static abstract class Replacer
+    {
+        /**
+         * If a replacer expects plain text strings, then html content is
+         * automatically unescaped. The replacer is responsible for correctly
+         * escaping normal text.
+         *
+         * @return returns true if it needs plain text or false if it wants html
+         *         content
+         */
+        abstract boolean expectsPlainText();
+        // FIXME javadoc
+        abstract void replace(StringBuilder target, String piece);
+    }
+
+    private static final class URLReplacer
+        extends Replacer
+    {
+
+        @Override
+        boolean expectsPlainText()
+        {
+            return true;
+        }
+
+        @Override
+        void replace(final StringBuilder target, final String piece)
+        {
+            final Matcher m = URL_PATTERN.matcher(piece);
+            int prevEnd = 0;
+
+            while (m.find())
+            {
+                target.append(StringEscapeUtils.escapeHtml4(piece.substring(
+                    prevEnd, m.start())));
+                prevEnd = m.end();
+
+                String url = m.group().trim();
+                target.append("<A href=\"");
+                if (url.startsWith("www"))
+                {
+                    target.append("http://");
+                }
+                target.append(url);
+                target.append("\">");
+                target.append(StringEscapeUtils.escapeHtml4(url));
+                target.append("</A>");
+            }
+            target.append(StringEscapeUtils.escapeHtml4(piece
+                .substring(prevEnd)));
+        }
+    }
+
+    private static final class NewlineReplacer
+        extends Replacer
+    {
+
+        @Override
+        boolean expectsPlainText()
+        {
+            return false;
+        }
+
+        @Override
+        void replace(final StringBuilder target, final String piece)
+        {
+            /*
+             * <br> tags are needed to visualize a new line in the html format,
+             * but when copied to the clipboard they are exported to the plain
+             * text format as ' ' and not as '\n'.
+             *
+             * See bug N4988885:
+             * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4988885
+             *
+             * To fix this we need "&#10;" - the HTML-Code for ASCII-Character
+             * No.10 (Line feed).
+             */
+            target.append(piece.replaceAll("\n", "<BR/>&#10;"));
+        }
+    }
+
+    private static final class KeywordReplacer
+        extends Replacer
+    {
+        private final String keyword;
+
+        private KeywordReplacer(final String keyword)
+        {
+            this.keyword = keyword;
+        }
+
+        @Override
+        boolean expectsPlainText()
+        {
+            return true;
+        }
+
+        @Override
+        void replace(final StringBuilder target, final String piece)
+        {
+            if (this.keyword == null || this.keyword.isEmpty())
+            {
+                target.append(StringEscapeUtils.escapeHtml4(piece));
+                return;
+            }
+
+            final Matcher m =
+                Pattern.compile(Pattern.quote(keyword),
+                    Pattern.CASE_INSENSITIVE).matcher(piece);
+            int prevEnd = 0;
+            while (m.find())
+            {
+                target.append(StringEscapeUtils.escapeHtml4(piece.substring(
+                    prevEnd, m.start())));
+                prevEnd = m.end();
+                final String keywordMatch = m.group().trim();
+                target.append("<b>");
+                target.append(StringEscapeUtils.escapeHtml4(keywordMatch));
+                target.append("</b>");
+            }
+            target.append(StringEscapeUtils.escapeHtml4(piece
+                .substring(prevEnd)));
+        }
+    }
+
+    private static final class BrTagReplacer extends Replacer {
+
+        @Override
+        boolean expectsPlainText()
+        {
+            return false;
+        }
+
+        @Override
+        void replace(final StringBuilder target, final String piece)
+        {
+            // Compile the regex to match something like <br .. /> or <BR .. />.
+            // This regex is case sensitive and keeps the style or other
+            // attributes of the <br> tag.
+            Matcher m =
+                Pattern.compile("<\\s*[bB][rR](.*?)(/\\s*>)").matcher(piece);
+            int start = 0;
+
+            // while we find some <br /> closing tags with a slash inside.
+            while (m.find())
+            {
+                // First, we have to copy all the message preceding the <br>
+                // tag.
+                target.append(piece.substring(start, m.start()));
+                // Then, we find the position of the slash inside the tag.
+                final int slashIndex = m.group().lastIndexOf("/");
+                // We copy the <br> tag till the slash exclude.
+                target.append(m.group().substring(0, slashIndex));
+                // We copy all the end of the tag following the slash exclude.
+                target.append(m.group().substring(slashIndex + 1));
+                start = m.end();
+            }
+            // Finally, we have to add the end of the message following the last
+            // <br> tag, or the whole message if there is no <br> tag.
+            target.append(piece.substring(start));
+        }
+    }
+
+    private static final class ImgTagReplacer
+        extends Replacer
+    {
+
+        @Override
+        boolean expectsPlainText()
+        {
+            return false;
+        }
+
+        @Override
+        void replace(final StringBuilder target, final String piece)
+        {
+            // Compile the regex to match something like <img ... /> or
+            // <IMG ... />. This regex is case sensitive and keeps the style,
+            // src or other attributes of the <img> tag.
+            final Pattern p = Pattern.compile("<\\s*[iI][mM][gG](.*?)(/\\s*>)");
+            final Matcher m = p.matcher(piece);
+            int slashIndex;
+            int start = 0;
+
+            // while we find some <img /> self-closing tags with a slash inside.
+            while (m.find())
+            {
+                // First, we have to copy all the message preceding the <img>
+                // tag.
+                target.append(piece.substring(start, m.start()));
+                // Then, we find the position of the slash inside the tag.
+                slashIndex = m.group().lastIndexOf("/");
+                // We copy the <img> tag till the slash exclude.
+                target.append(m.group().substring(0, slashIndex));
+                // We copy all the end of the tag following the slash exclude.
+                target.append(m.group().substring(slashIndex + 1));
+                // We close the tag with a separate closing tag.
+                target.append("</img>");
+                start = m.end();
+            }
+            // Finally, we have to add the end of the message following the last
+            // <img> tag, or the whole message if there is no <img> tag.
+            target.append(piece.substring(start));
+        }
+    }
+
+    // FIXME delete this after everything works
     /**
      * Formats all links in a given message and optionally escapes special HTML
      * characters such as &lt;, &gt;, &amp; and &quot; in order to prevent HTML
@@ -1173,88 +1342,11 @@ public class ChatConversationPanel
      * @param contentType the message content type (html or plain text)
      * @return The message string with properly formatted links.
      */
-    private String processLinksAndHTMLChars(final String message,
-                                            final boolean processHTMLChars,
-                                            final String contentType)
-    {
-        Matcher m = URL_PATTERN.matcher(message);
-        StringBuffer msgBuffer = new StringBuffer();
-        int prevEnd = 0;
-
-        while (m.find())
-        {
-            final String rawMessage = message.substring(prevEnd, m.start());
-            final String fromPrevEndToStart;
-            if (processHTMLChars)
-            {
-                fromPrevEndToStart = StringEscapeUtils.escapeHtml4(rawMessage);
-            }
-            else
-            {
-                fromPrevEndToStart = rawMessage;
-            }
-            msgBuffer.append(fromPrevEndToStart);
-            prevEnd = m.end();
-
-            String url = m.group().trim();
-
-            msgBuffer.append("<A href=\"");
-            if (url.startsWith("www"))
-                msgBuffer.append("http://");
-            msgBuffer.append(url);
-            msgBuffer.append("\">");
-            msgBuffer.append(StringEscapeUtils.escapeHtml4(url));
-            msgBuffer.append("</A>");
-        }
-
-        final String rawMessage = message.substring(prevEnd);
-        final String fromPrevEndToEnd;
-        if (processHTMLChars)
-        {
-            fromPrevEndToEnd = StringEscapeUtils.escapeHtml4(rawMessage);
-        }
-        else
-        {
-            fromPrevEndToEnd = rawMessage;
-        }
-
-        msgBuffer.append(fromPrevEndToEnd);
-
-        return msgBuffer.toString();
-    }
-
-    /**
-     * Formats message new lines.
-     *
-     * @param message The source message string.
-     * @param contentType message contentType (html or plain text)
-     * @return The message string with properly formatted new lines.
-     */
-    private String processNewLines(String message, String contentType)
-    {
-
-        /*
-         * <br> tags are needed to visualize a new line in the html format, but
-         * when copied to the clipboard they are exported to the plain text
-         * format as ' ' and not as '\n'.
-         *
-         * See bug N4988885:
-         * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4988885
-         *
-         * To fix this we need "&#10;" - the HTML-Code for ASCII-Character No.10
-         * (Line feed).
-         */
-        Matcher divMatcher = DIV_PATTERN.matcher(message);
-        String openingTag = "";
-        String closingTag = "";
-        if (divMatcher.find())
-        {
-            openingTag = divMatcher.group(1);
-            message = divMatcher.group(2);
-            closingTag = divMatcher.group(3);
-        }
-        return openingTag + message.replaceAll("\n", "<BR/>&#10;") + closingTag;
-    }
+//    processLinksAndHTMLChars(final String message,
+//                                            final boolean processHTMLChars,
+//                                            final String contentType)
+//    {
+//    }
 
     /**
      * Opens a link in the default browser when clicked and shows link url in a
@@ -1552,6 +1644,7 @@ public class ChatConversationPanel
         return timestamp;
     }
 
+    // FIXME delete this after everything works
     /**
      * Formats HTML tags &lt;br/&gt; to &lt;br&gt; or &lt;BR/&gt; to &lt;BR&gt;.
      * The reason of this function is that the ChatPanel does not support
@@ -1560,38 +1653,11 @@ public class ChatConversationPanel
      * @param message The source message string.
      * @return The message string with properly formatted &lt;br&gt; tags.
      */
-    private String processBrTags(String message)
-    {
-        // The resulting message after being processed by this function.
-        StringBuffer processedMessage = new StringBuffer();
+//    processBrTags(String message)
+//    {
+//    }
 
-        // Compile the regex to match something like <br .. /> or <BR .. />.
-        // This regex is case sensitive and keeps the style or other
-        // attributes of the <br> tag.
-        Matcher m
-            = Pattern.compile("<\\s*[bB][rR](.*?)(/\\s*>)").matcher(message);
-        int start = 0;
-
-        // while we find some <br /> closing tags with a slash inside.
-        while(m.find())
-        {
-            // First, we have to copy all the message preceding the <br> tag.
-            processedMessage.append(message.substring(start, m.start()));
-            // Then, we find the position of the slash inside the tag.
-            int slash_index = m.group().lastIndexOf("/");
-            // We copy the <br> tag till the slash exclude.
-            processedMessage.append(m.group().substring(0, slash_index));
-            // We copy all the end of the tag following the slash exclude.
-            processedMessage.append(m.group().substring(slash_index+1));
-            start = m.end();
-        }
-        // Finally, we have to add the end of the message following the last
-        // <br> tag, or the whole message if there is no <br> tag.
-        processedMessage.append(message.substring(start));
-
-        return processedMessage.toString();
-    }
-
+    // FIXME delete this after everything works
     /**
      * Formats HTML tags &lt;img ... /&gt; to &lt; img ... &gt;&lt;/img&gt; or
      * &lt;IMG ... /&gt; to &lt;IMG&gt;&lt;/IMG&gt;.
@@ -1602,40 +1668,9 @@ public class ChatConversationPanel
      * @param message The source message string.
      * @return The message string with properly formatted &lt;img&gt; tags.
      */
-    private String processImgTags(String message)
-    {
-        // The resulting message after being processed by this function.
-        StringBuffer processedMessage = new StringBuffer();
-
-        // Compile the regex to match something like <img ... /> or
-        // <IMG ... />. This regex is case sensitive and keeps the style,
-        // src or other attributes of the <img> tag.
-        Pattern p = Pattern.compile("<\\s*[iI][mM][gG](.*?)(/\\s*>)");
-        Matcher m = p.matcher(message);
-        int slash_index;
-        int start = 0;
-
-        // while we find some <img /> self-closing tags with a slash inside.
-        while(m.find())
-        {
-            // First, we have to copy all the message preceding the <img> tag.
-            processedMessage.append(message.substring(start, m.start()));
-            // Then, we find the position of the slash inside the tag.
-            slash_index = m.group().lastIndexOf("/");
-            // We copy the <img> tag till the slash exclude.
-            processedMessage.append(m.group().substring(0, slash_index));
-            // We copy all the end of the tag following the slash exclude.
-            processedMessage.append(m.group().substring(slash_index+1));
-            // We close the tag with a separate closing tag.
-            processedMessage.append("</img>");
-            start = m.end();
-        }
-        // Finally, we have to add the end of the message following the last
-        // <img> tag, or the whole message if there is no <img> tag.
-        processedMessage.append(message.substring(start));
-
-        return processedMessage.toString();
-    }
+//    processImgTags(String message)
+//    {
+//    }
 
     /**
      * Extend Editor pane to add URL tooltips.
@@ -1746,20 +1781,6 @@ public class ChatConversationPanel
                 new ImageIcon(ImageLoader.getImage(ImageLoader.COPY_ICON)));
 
         getRightButtonMenu().loadSkin();
-    }
-
-    /**
-     * Highlights the string in multi user chat.
-     *
-     * @param message the message to process
-     * @param contentType the content type of the message
-     * @param keyWord the keyword to highlight
-     * @return the message string with the keyword highlighted
-     */
-    public String processChatRoomHighlight(String message, String contentType,
-        String keyWord)
-    {
-        return processKeyword(message, contentType, keyWord);
     }
 
     /**
