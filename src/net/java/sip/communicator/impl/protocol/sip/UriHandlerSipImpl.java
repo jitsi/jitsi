@@ -38,7 +38,7 @@ public class UriHandlerSipImpl
      * Default value for INITIAL_REGISTRATION_TIMEOUT (milliseconds)
      */
     public static final long DEFAULT_INITIAL_REGISTRATION_TIMEOUT
-        = 2000;
+        = 5000;
 
     /**
      * The <tt>Logger</tt> used by the <tt>UriHandlerSipImpl</tt> class and its
