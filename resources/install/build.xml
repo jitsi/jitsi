@@ -2458,9 +2458,6 @@
             and libsrc
         -->
 
-        <unzip src="${sc.basedir}/../libsrc/libphonenumber-6.3-SNAPSHOT-sources.jar"
-               dest="${debian.src.dir}/lib/src/libphonenumber/src"/>
-
         <!-- jdic_misc -->
         <unzip src="${sc.basedir}/../libsrc/jdic_misc.zip"
                dest="${debian.src.dir}/lib/src/">
@@ -2521,6 +2518,14 @@
             <fileset dir="${sc.basedir}/../otr4j">
                 <include name="src/main/**"/>
                 <exclude name="**/.git/**"/>
+            </fileset>
+        </copy>
+
+        <!-- irc-api -->
+        <copy todir="${debian.src.dir}/lib/src/irc-api">
+            <fileset dir="${sc.basedir}/../irc-api">
+                <include name="src/main/**"/>
+                <exclude name="**/.svn/**"/>
             </fileset>
         </copy>
 
@@ -2658,26 +2663,7 @@
         <property name="debian.src.dir"
             value="${debian.tmp.dir}/${package.name}-${sip-communicator.version}" />
 
-        <!--TODO
         <symlink resource="/usr/share/java/libphonenumber.jar"
-                 overwrite="true"
-                 link="${debian.src.dir}/lib/installer-exclude/"/>
-        -->
-        <mkdir dir="${debian.src.dir}/lib/src/libphonenumber/classes"/>
-        <javac debug="true"
-               deprecation="true" destdir="${debian.src.dir}/lib/src/libphonenumber/classes"
-               nowarn="false"
-               source="1.6" target="1.6" fork="true">
-            <src path="${debian.src.dir}/lib/src/libphonenumber/src"/>
-            <include name="**/*.java" />
-        </javac>
-        <jar compress="true" destfile="${debian.src.dir}/lib/src/libphonenumber/libphonenumber.jar">
-            <zipfileset dir="${debian.src.dir}/lib/src/libphonenumber/classes"/>
-            <zipfileset dir="${debian.src.dir}/lib/src/libphonenumber/src">
-                <include name="com/google/i18n/phonenumbers/data/*"/>
-            </zipfileset>
-        </jar>
-        <symlink resource="${debian.src.dir}/lib/src/libphonenumber/libphonenumber.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/installer-exclude/libphonenumber-5.9.jar"/>
 
@@ -2898,7 +2884,8 @@
             <fileset dir="${debian.src.dir}/lib/src/otr4j/lib" includes="**/*.jar" />
         </path>
         <mkdir dir="${debian.src.dir}/lib/src/otr4j/bin/classes" />
-        <javac target="1.6" srcdir="${debian.src.dir}/lib/src/otr4j/src"
+        <javac target="1.6" source="1.6"
+               srcdir="${debian.src.dir}/lib/src/otr4j/src"
                destdir="${debian.src.dir}/lib/src/otr4j/bin/classes"
                classpathref="otr4j-classpath"
                debug="On" />
@@ -2907,6 +2894,68 @@
         <symlink resource="../src/otr4j/bin/otr4j.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/installer-exclude"/>
+
+        <!-- irc-api -->
+        <path id="irc-api-classpath">
+            <fileset dir="/usr/share/java" includes="slf4j-api.jar" />
+        </path>
+        <mkdir dir="${debian.src.dir}/lib/src/irc-api/classes" />
+        <javac target="1.6" source="1.6"
+               srcdir="${debian.src.dir}/lib/src/irc-api/src"
+               destdir="${debian.src.dir}/lib/src/irc-api/classes"
+               classpathref="irc-api-classpath"
+               debug="On" />
+        <jar destfile="${debian.src.dir}/lib/src/irc-api/irc-api-1.0.jar"
+             basedir="${debian.src.dir}/lib/src/irc-api/classes">
+            <manifest>
+                <attribute name="Bundle-Name" value="IRC API"/>
+                <attribute name="Bundle-Description"
+                           value="A Java implementation of the irc api"/>
+                <attribute name="Bundle-SymbolicName"
+                           value="com.ircclouds.irc.api"/>
+                <attribute name="Bundle-Version" value="1.0.0.0015-SNAPSHOT"/>
+
+                <attribute name="Import-Package"
+                           value="javax.net.ssl,org.slf4j"/>
+                <attribute name="Export-Package"
+                           value="com.ircclouds.irc.api;uses:=&quot;com.ircclouds.irc.api.commands,
+com.ircclouds.irc.api.comms,com.ircclouds.irc.api.ctcp,com.ircclouds.irc.api.domain,
+com.ircclouds.irc.api.domain.messages.interfaces,com.ircclouds.irc.api.filters,
+com.ircclouds.irc.api.listeners,com.ircclouds.irc.api.state&quot;;version=&quot;1.0.0&quot;,
+com.ircclouds.irc.api.commands;uses:=&quot;com.ircclouds.irc.api,
+com.ircclouds.irc.api.domain.messages&quot;version=&quot;1.0.0&quot;,
+com.ircclouds.irc.api.comms;uses:=&quot;javax.net.ssl&quot;;version=&quot;1.0.0&quot;,
+com.ircclouds.irc.api.ctcp;uses:=&quot;com.ircclouds.irc.api&quot;;version=&quot;1.0.0&quot;,
+com.ircclouds.irc.api.domain;uses:=&quot;com.ircclouds.irc.api.domain.messages.interfaces,
+javax.net.ssl&quot;;version=&quot;1.0.0&quot;,
+com.ircclouds.irc.api.domain.messages;uses:=&quot;com.ircclouds.irc.api.domain,
+com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;,
+com.ircclouds.irc.api.domain.messages.interfaces;uses:=&quot;com.ircclouds.irc.api.domain&quot;;version=&quot;1.0.0&quot;,
+com.ircclouds.irc.api.filters;uses:=&quot;com.ircclouds.irc.api.domain.messages.interfaces,
+com.ircclouds.irc.api.listeners&quot;;version=&quot;1.0.0&quot;,
+com.ircclouds.irc.api.listeners;uses:=&quot;com.ircclouds.irc.api,
+com.ircclouds.irc.api.domain,com.ircclouds.irc.api.domain.messages,
+com.ircclouds.irc.api.domain.messages.interfaces,
+com.ircclouds.irc.api.state&quot;;version=&quot;1.0.0&quot;,
+com.ircclouds.irc.api.om;uses:=&quot;com.ircclouds.irc.api.domain,
+com.ircclouds.irc.api.domain.messages,
+com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;,
+com.ircclouds.irc.api.state;uses:=&quot;com.ircclouds.irc.api.domain,
+com.ircclouds.irc.api.domain.messages,
+com.ircclouds.irc.api.listeners&quot;;version=&quot;1.0.0&quot;,
+com.ircclouds.irc.api.utils;uses:=&quot;com.ircclouds.irc.api.domain,
+com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;"/>
+            </manifest>
+        </jar>
+        <symlink resource="../src/irc-api/irc-api-1.0.jar"
+                 overwrite="true"
+                 link="${debian.src.dir}/lib/installer-exclude"/>
+        <symlink resource="/usr/share/java/slf4j-api.jar"
+                 overwrite="true"
+                 link="${debian.src.dir}/lib/installer-exclude/slf4j-api-1.7.5.jar"/>
+        <symlink resource="/usr/share/java/slf4j-jdk14.jar"
+                 overwrite="true"
+                 link="${debian.src.dir}/lib/installer-exclude/slf4j-jdk14-1.7.5.jar"/>
 
         <!-- jmyspell -->
         <mkdir dir="${debian.src.dir}/lib/src/jmyspell/classes"/>
@@ -3857,4 +3906,54 @@
             <replacevalue>reference:file:/usr/share/jitsi-common/ui-service.jar</replacevalue>
         </replace>
     </target>
+    <target name="deb-bundle-slf4j">
+        <delete file="${debian.bundles.dest}/slf4j-api-1.7.5.jar" failonerror="false"/>
+        <mkdir dir="${debian.bundles.dest}/slf4j-api-1.7.5.jar/META-INF"/>
+        <symlink resource="../../../../share/java/slf4j-api.jar"
+                 link="${debian.bundles.dest}/slf4j-api-1.7.5.jar/slf4j-api.jar"/>
+        <manifest
+            file="${debian.bundles.dest}/slf4j-api-1.7.5.jar/META-INF/MANIFEST.MF">
+            <attribute name="Bundle-Name"
+                       value="slf4j-api"/>
+            <attribute name="Bundle-Description"
+                       value="The slf4j API"/>
+            <attribute name="Bundle-SymbolicName"
+                       value="slf4j.api"/>
+            <attribute name="Bundle-Version"
+                       value="1.7.5"/>
+            <attribute name="System-Bundle"
+                       value="yes"/>
+            <attribute name="Export-Package"
+                       value="org.slf4j, org.slf4j.spi, org.slf4j.helpers"/>
+            <attribute name="Import-Package"
+                       value="org.slf4j.impl"/>
+            <attribute name="Bundle-ClassPath"
+                       value=".,slf4j-api.jar"/>
+        </manifest>
+
+        <delete file="${debian.bundles.dest}/slf4j-jdk14-1.7.5.jar" failonerror="false"/>
+        <mkdir dir="${debian.bundles.dest}/slf4j-jdk14-1.7.5.jar/META-INF"/>
+        <symlink resource="../../../../share/java/slf4j-jdk14.jar"
+                 link="${debian.bundles.dest}/slf4j-jdk14-1.7.5.jar/slf4j-jdk14.jar"/>
+        <manifest
+            file="${debian.bundles.dest}/slf4j-jdk14-1.7.5.jar/META-INF/MANIFEST.MF">
+            <attribute name="Bundle-Name"
+                       value="slf4j-jdk14"/>
+            <attribute name="Bundle-Description"
+                       value="SLF4J JDK14 Binding"/>
+            <attribute name="Bundle-SymbolicName"
+                       value="slf4j.jdk14"/>
+            <attribute name="Bundle-Version"
+                       value="1.7.5"/>
+            <attribute name="System-Bundle"
+                       value="yes"/>
+            <attribute name="Export-Package"
+                       value="org.slf4j.impl"/>
+            <attribute name="Import-Package"
+                       value="org.slf4j, org.slf4j.spi, org.slf4j.helpers"/>
+            <attribute name="Bundle-ClassPath"
+                       value=".,slf4j-jdk14.jar"/>
+        </manifest>
+    </target>
+
 </project>

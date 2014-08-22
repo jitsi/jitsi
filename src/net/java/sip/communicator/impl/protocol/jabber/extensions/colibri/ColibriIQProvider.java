@@ -40,6 +40,11 @@ public class ColibriIQProvider
                 SourcePacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<SourcePacketExtension>(
                         SourcePacketExtension.class));
+        providerManager.addExtensionProvider(
+                SourceGroupPacketExtension.ELEMENT_NAME,
+                SourceGroupPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<SourceGroupPacketExtension>(
+                        SourceGroupPacketExtension.class));
 
         PacketExtensionProvider parameterProvider
             = new DefaultPacketExtensionProvider<ParameterPacketExtension>(
@@ -83,6 +88,13 @@ public class ColibriIQProvider
                 = (IceUdpTransportPacketExtension) childExtension;
 
             channel.setTransport(transport);
+        }
+        else if (childExtension instanceof SourceGroupPacketExtension)
+        {
+            SourceGroupPacketExtension sourceGroup
+                    = (SourceGroupPacketExtension)childExtension;
+
+            channel.addSourceGroup(sourceGroup);
         }
     }
 
@@ -187,7 +199,9 @@ public class ColibriIQProvider
                     else if (ColibriConferenceIQ.SctpConnection.ELEMENT_NAME
                             .equals(name))
                     {
-                        content.addSctpConnection(sctpConnection);
+                        if (sctpConnection != null)
+                            content.addSctpConnection(sctpConnection);
+
                         sctpConnection = null;
                     }
                     else if (ColibriConferenceIQ.Endpoint.ELEMENT_NAME
@@ -327,6 +341,18 @@ public class ColibriIQProvider
                         if ((lastN != null) && (lastN.length() != 0))
                             channel.setLastN(Integer.parseInt(lastN));
 
+                        // receiving simulcast layer
+                        String receivingSimulcastLayer
+                                = parser.getAttributeValue(
+                                "",
+                                ColibriConferenceIQ.Channel
+                                            .RECEIVING_SIMULCAST_LAYER);
+
+                        if ((receivingSimulcastLayer != null)
+                                && (receivingSimulcastLayer.length() != 0))
+                            channel.setReceivingSimulcastLayer(
+                                    Integer.parseInt(receivingSimulcastLayer));
+
                         // rtcpPort
                         String rtcpPort
                             = parser.getAttributeValue(
@@ -426,20 +452,28 @@ public class ColibriIQProvider
                             ColibriConferenceIQ.
                                 SctpConnection.ENDPOINT_ATTR_NAME);
 
-                        if(!StringUtils.isNullOrEmpty(endpoint))
+                        // id
+                        String connID
+                            = parser.getAttributeValue(
+                            "",
+                            ColibriConferenceIQ.
+                                ChannelCommon.ID_ATTR_NAME);
+
+                        if(StringUtils.isNullOrEmpty(connID)
+                           && StringUtils.isNullOrEmpty(endpoint))
                         {
-                            sctpConnection
-                                = new ColibriConferenceIQ.SctpConnection();
-                        }
-                        else
-                        {
-                            throw new RuntimeException(
-                                "Endpoint is mandatory attribute"
-                                    + " for SCTP connection"
-                            );
+                            sctpConnection = null;
+                            continue;
                         }
 
-                        sctpConnection.setEndpoint(endpoint);
+                        sctpConnection
+                            = new ColibriConferenceIQ.SctpConnection();
+
+                        if (!StringUtils.isNullOrEmpty(connID))
+                            sctpConnection.setID(connID);
+
+                        if (!StringUtils.isNullOrEmpty(endpoint))
+                            sctpConnection.setEndpoint(endpoint);
 
                         // port
                         String port
@@ -538,7 +572,14 @@ public class ColibriIQProvider
                             peName = name;
                             peNamespace = SourcePacketExtension.NAMESPACE;
                         }
-
+                        else if (SourceGroupPacketExtension.ELEMENT_NAME
+                                                .equals(name)
+                                && SourceGroupPacketExtension.NAMESPACE
+                                                .equals(parser.getNamespace()))
+                        {
+                            peName = name;
+                            peNamespace = SourceGroupPacketExtension.NAMESPACE;
+                        }
                         if (peName == null)
                         {
                             throwAway(parser, name);
