@@ -1139,6 +1139,8 @@ public class MessageHistoryServiceImpl
         messageSourceServiceReg = bundleContext.registerService(
             ContactSourceService.class.getName(),
             messageSourceService, null);
+        MessageHistoryActivator.getContactListService()
+            .addMetaContactListListener(this.messageSourceService);
     }
 
     /**
@@ -1148,6 +1150,9 @@ public class MessageHistoryServiceImpl
     {
         if(messageSourceServiceReg != null)
         {
+            MessageHistoryActivator.getContactListService()
+                .removeMetaContactListListener(this.messageSourceService);
+
             messageSourceServiceReg.unregister();
             messageSourceServiceReg = null;
 

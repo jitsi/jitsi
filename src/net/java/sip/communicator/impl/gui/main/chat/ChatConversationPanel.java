@@ -28,6 +28,7 @@ import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
 import net.java.sip.communicator.impl.gui.utils.*;
+import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 import net.java.sip.communicator.service.gui.*;
@@ -40,6 +41,8 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 import org.jitsi.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>ChatConversationPanel</tt> is the panel, where all sent and received
@@ -137,9 +140,24 @@ public class ChatConversationPanel
     private String currentHref;
 
     /**
+     * The currently shown href, is it an img element.
+     */
+    private boolean isCurrentHrefImg = false;
+
+    /**
      * The copy link item, contained in the right mouse click menu.
      */
     private final JMenuItem copyLinkItem;
+
+    /**
+     * The copy link item, contained in the right mouse click menu.
+     */
+    private final JMenuItem configureReplacementItem;
+
+    /**
+     * The configure replacement item separator.
+     */
+    private final JSeparator configureReplacementSeparator = new JSeparator();
 
     /**
      * The open link item, contained in the right mouse click menu.
@@ -309,6 +327,30 @@ public class ChatConversationPanel
         copyLinkItem.setMnemonic(
             GuiActivator.getResources().getI18nMnemonic(
                 "service.gui.COPY_LINK"));
+
+        configureReplacementItem = new JMenuItem(
+            GuiActivator.getResources().getI18NString(
+                "plugin.chatconfig.replacement.CONFIGURE_REPLACEMENT"),
+            GuiActivator.getResources().getImage(
+                "service.gui.icons.CONFIGURE_ICON"));
+
+        configureReplacementItem.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                final ConfigurationContainer configContainer
+                    = GuiActivator.getUIService().getConfigurationContainer();
+
+                ConfigurationForm chatConfigForm = getChatConfigForm();
+
+                if (chatConfigForm != null)
+                {
+                    configContainer.setSelected(chatConfigForm);
+
+                    configContainer.setVisible(true);
+                }
+            }
+        });
 
         this.isSimpleTheme = ConfigurationUtils.isChatSimpleThemeEnabled();
 
@@ -1171,11 +1213,14 @@ public class ChatConversationPanel
         {
             String href = e.getDescription();
 
+            this.isCurrentHrefImg
+                = e.getSourceElement().getName().equals("img");
             this.currentHref = href;
         }
         else if (e.getEventType() == HyperlinkEvent.EventType.EXITED)
         {
             this.currentHref = "";
+            this.isCurrentHrefImg = false;
         }
     }
 
@@ -1228,7 +1273,7 @@ public class ChatConversationPanel
             catch (URISyntaxException e1)
             {
                 logger.error("Failed to open hyperlink in chat window. " +
-                		"Error was: Invalid URL - " + currentHref);
+                        "Error was: Invalid URL - " + currentHref);
                 return;
             }
             if("jitsi".equals(uri.getScheme()))
@@ -1261,12 +1306,19 @@ public class ChatConversationPanel
             rightButtonMenu.insert(openLinkItem, 0);
             rightButtonMenu.insert(copyLinkItem, 1);
             rightButtonMenu.insert(copyLinkSeparator, 2);
+            if(isCurrentHrefImg)
+            {
+                rightButtonMenu.insert(configureReplacementItem, 3);
+                rightButtonMenu.insert(configureReplacementSeparator, 4);
+            }
         }
         else
         {
             rightButtonMenu.remove(openLinkItem);
             rightButtonMenu.remove(copyLinkItem);
             rightButtonMenu.remove(copyLinkSeparator);
+            rightButtonMenu.remove(configureReplacementItem);
+            rightButtonMenu.remove(configureReplacementSeparator);
         }
 
         if (chatTextPane.getSelectedText() != null)
@@ -1957,6 +2009,60 @@ public class ChatConversationPanel
     }
 
     /**
+     * Returns the first available advanced configuration form.
+     *
+     * @return the first available advanced configuration form
+     */
+    public static ConfigurationForm getChatConfigForm()
+    {
+        // General configuration forms only.
+        String osgiFilter = "("
+            + ConfigurationForm.FORM_TYPE
+            + "="+ConfigurationForm.GENERAL_TYPE+")";
+
+        ServiceReference[] confFormsRefs = null;
+        try
+        {
+            confFormsRefs = GuiActivator.bundleContext
+                .getServiceReferences(
+                    ConfigurationForm.class.getName(),
+                    osgiFilter);
+        }
+        catch (InvalidSyntaxException ex)
+        {}
+
+        String chatConfigFormClassName =
+            "net.java.sip.communicator.plugin.chatconfig.ChatConfigPanel";
+
+        if(confFormsRefs != null)
+        {
+            for (int i = 0; i < confFormsRefs.length; i++)
+            {
+                ConfigurationForm form
+                    = (ConfigurationForm) GuiActivator.bundleContext
+                    .getService(confFormsRefs[i]);
+
+                if (form instanceof LazyConfigurationForm)
+                {
+                    LazyConfigurationForm lazyConfigForm
+                        = (LazyConfigurationForm) form;
+
+                    if (lazyConfigForm.getFormClassName()
+                            .equals(chatConfigFormClassName))
+                        return form;
+                }
+                else if (form.getClass().getName()
+                            .equals(chatConfigFormClassName))
+                {
+                    return form;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * Extends SIPCommHTMLEditorKit to keeps track of created ImageView for
      * the gif images in order to flush them whenever they are no longer visible
      */
@@ -2322,6 +2428,24 @@ public class ChatConversationPanel
                             msgBuff.append(group);
                         }
                     }
+                    else if (isProposalEnabled)
+                    {
+                        msgBuff.append(group);
+                        msgBuff.append(
+                            "</A> <A href=\"jitsi://"
+                                + showPreview.getClass().getName()
+                                + "/SHOWPREVIEW?" + messageID + "#"
+                                + linkCounter + "\">"
+                                + GuiActivator.getResources().
+                                getI18NString("service.gui.SHOW_PREVIEW"));
+
+                        showPreview.getMsgIDandPositionToLink()
+                            .put(
+                                messageID + "#" + linkCounter++, group);
+                        showPreview.getLinkToReplacement()
+                            .put(
+                                group, temp);
+                    }
                     else if (isEnabled && isEnabledForSource)
                     {
                         if (isDirectImage)
@@ -2354,24 +2478,6 @@ public class ChatConversationPanel
                             msgBuff.append(group0);
                             msgBuff.append("\"></IMG>");
                         }
-                    }
-                    else if (isProposalEnabled)
-                    {
-                        msgBuff.append(group);
-                        msgBuff.append(
-                            "</A> <A href=\"jitsi://"
-                                + showPreview.getClass().getName()
-                                + "/SHOWPREVIEW?" + messageID + "#"
-                                + linkCounter + "\">"
-                                + GuiActivator.getResources().
-                                getI18NString("service.gui.SHOW_PREVIEW"));
-
-                        showPreview.getMsgIDandPositionToLink()
-                            .put(
-                                messageID + "#" + linkCounter++, group);
-                        showPreview.getLinkToReplacement()
-                            .put(
-                                group, temp);
                     }
                     else
                     {

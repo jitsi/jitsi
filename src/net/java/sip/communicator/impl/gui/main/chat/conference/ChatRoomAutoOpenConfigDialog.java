@@ -228,7 +228,7 @@ public class ChatRoomAutoOpenConfigDialog
                 propertyListener);
         
         if(value == null)
-            value = MUCService.OPEN_ON_IMPORTANT_MESSAGE;
+            value = MUCService.DEFAULT_AUTO_OPEN_BEHAVIOUR;
         
         if(value.equals(MUCService.OPEN_ON_ACTIVITY))
         {

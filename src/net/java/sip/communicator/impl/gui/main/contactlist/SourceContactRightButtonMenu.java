@@ -89,11 +89,11 @@ public class SourceContactRightButtonMenu
             .getPreferredContactDetail(OperationSetBasicTelephony.class);
 
         // Call menu.
-        if (cDetail != null
-            && sourceContact.getContactSource().getType()
-                != ContactSourceService.RECENT_MESSAGES_TYPE)
+        if (cDetail != null)
         {
-            add(initCallMenu());
+            Component c = initCallMenu();
+            if(c != null)
+                add(c);
         }
 
         // Only create the menu if the add contact functionality is enabled.
@@ -181,6 +181,10 @@ public class SourceContactRightButtonMenu
                     contains(OperationSetBasicTelephony.class));
             callContactMenu.add(callContactItem);
         }
+
+        if(callContactMenu.getMenuComponentCount() == 0)
+            return null;
+
         return callContactMenu;
     }
 

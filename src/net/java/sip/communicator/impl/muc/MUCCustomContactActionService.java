@@ -8,14 +8,14 @@ package net.java.sip.communicator.impl.muc;
 
 import java.util.*;
 
-import org.jitsi.service.resources.*;
-
 import net.java.sip.communicator.plugin.desktoputil.chat.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.customcontactactions.*;
 import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * Implements <tt>CustomContactActionsService</tt> for MUC contact source.
@@ -643,7 +643,7 @@ public class MUCCustomContactActionService
                     ((ChatRoomSourceContact)actionSource).getProvider(),
                     ((ChatRoomSourceContact)actionSource).getChatRoomID());
             if(openAutomaticallyValue == null)
-                openAutomaticallyValue = MUCService.OPEN_ON_IMPORTANT_MESSAGE;
+                openAutomaticallyValue = MUCService.DEFAULT_AUTO_OPEN_BEHAVIOUR;
             String openAutomaticallyKey = MUCService.autoOpenConfigValuesTexts
                 .get(openAutomaticallyValue);
             return "<html>" + text +  "...<br><font size=\"2\"><center> ("

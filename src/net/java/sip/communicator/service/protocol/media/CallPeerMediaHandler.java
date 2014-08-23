@@ -1525,7 +1525,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
                 SrtpControl e = srtpControls.remove(mediaType, i);
 
                 if (e != null)
-                    e.cleanup();
+                    e.cleanup(null);
             }
         }
     }

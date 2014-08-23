@@ -107,18 +107,26 @@ public class ServerChatRoomQuery
      * @param addQueryResult indicates whether we should add the chat room to
      * the query results or fire an event without adding it to the results.
      */
-    private void providerAdded(ChatRoomProviderWrapper provider,
-        boolean addQueryResult)
+    private void providerAdded(final ChatRoomProviderWrapper provider,
+        final boolean addQueryResult)
     {
-        List<String> chatRoomNames
-            = MUCActivator.getMUCService().getExistingChatRooms(provider);
-        if(chatRoomNames == null)
-            return;
-        for(String chatRoomName : chatRoomNames)
+        final ProtocolProviderService pps = provider.getProtocolProvider();
+        List<String> chatRoomNames =
+            MUCActivator.getMUCService().getExistingChatRooms(provider);
+        if (chatRoomNames == null)
         {
-            addChatRoom( provider.getProtocolProvider(), chatRoomName,
-                chatRoomName, addQueryResult);
+            return;
         }
+
+        // Already create all the BaseChatRoomSourceContact instances since all
+        // the data is already available.
+        final Set<BaseChatRoomSourceContact> chatRooms =
+            new HashSet<BaseChatRoomSourceContact>(chatRoomNames.size());
+        for (final String name : chatRoomNames)
+        {
+            chatRooms.add(new BaseChatRoomSourceContact(name, name, this, pps));
+        }
+        addChatRooms(pps, chatRooms, addQueryResult);
     }
 
 
@@ -153,6 +161,55 @@ public class ServerChatRoomQuery
                 addQueryResult(contact, false);
             }
             else
+            {
+                fireContactReceived(contact, false);
+            }
+        }
+    }
+
+    /**
+     * Adds found results to the query results.
+     *
+     * @param pps the protocol provider associated with the found chat room.
+     * @param chatRooms The set of chat rooms based on
+     *            BaseChatRoomSourceContact. This is the full set and it will be
+     *            filtered according to demands of the queryString.
+     * @param addQueryResult indicates whether we should add the chat room to
+     *            the query results or fire an event without adding it to the
+     *            results.
+     */
+    private void addChatRooms(final ProtocolProviderService pps,
+        final Set<BaseChatRoomSourceContact> chatRooms,
+        final boolean addQueryResult)
+    {
+        BaseChatRoomSourceContact room;
+        Iterator<BaseChatRoomSourceContact> iterator = chatRooms.iterator();
+        while (iterator.hasNext())
+        {
+            room = iterator.next();
+
+            // Notice the NOT operator at the start ...
+            if (!((queryString == null || (room.getChatRoomName().contains(
+                queryString) || room.getChatRoomID().contains(queryString)))
+                    && isMatching(room.getChatRoomID(), pps)))
+            {
+                iterator.remove();
+            }
+        }
+
+        synchronized (contactResults)
+        {
+            contactResults.addAll(chatRooms);
+        }
+
+        if (addQueryResult)
+        {
+            addQueryResults(chatRooms);
+        }
+        else
+        {
+            // TODO Need something to fire one event for multiple contacts.
+            for (SourceContact contact : chatRooms)
             {
                 fireContactReceived(contact, false);
             }

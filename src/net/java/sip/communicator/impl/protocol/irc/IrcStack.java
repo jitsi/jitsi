@@ -7,2097 +7,2513 @@
 package net.java.sip.communicator.impl.protocol.irc;
 
 import java.io.*;
+import java.security.*;
 import java.util.*;
+import java.util.concurrent.atomic.*;
 
+import javax.net.ssl.*;
+
+import net.java.sip.communicator.impl.protocol.irc.ModeParser.ModeEntry;
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
-import org.jibble.pircbot.*;
+import com.ircclouds.irc.api.*;
+import com.ircclouds.irc.api.domain.*;
+import com.ircclouds.irc.api.domain.messages.*;
+import com.ircclouds.irc.api.domain.messages.interfaces.*;
+import com.ircclouds.irc.api.listeners.*;
+import com.ircclouds.irc.api.state.*;
 
 /**
- * An implementation of the PircBot IRC stack.
+ * An implementation of IRC using the irc-api library.
  *
- * @author Stephane Remy
- * @author Loic Kempf
- * @author Yana Stamcheva
+ * TODO Do we need to cancel any join channel operations still in progress?
+ *
+ * Common IRC network facilities:
+ * 1. NickServ - nick related services
+ * 2. ChanServ - channel related services
+ * 3. MemoServ - message relaying services
+ *
+ * @author Danny van Heumen
  */
 public class IrcStack
-    extends PircBot
 {
-    private static final Logger logger = Logger.getLogger(IrcStack.class);
+    /**
+     * Clean-up delay. The clean up task clears any remaining chat room list
+     * cache. Since there's no pointing in timing it exactly, delay the clean up
+     * until after expiration.
+     */
+    private static final long CACHE_CLEAN_UP_DELAY = 1000L;
 
     /**
-     * Timeout for server response.
+     * Ratio of milliseconds to nanoseconds for conversions.
      */
-    private static final int TIMEOUT = 10000;
+    private static final long RATIO_MILLISECONDS_TO_NANOSECONDS = 1000000L;
 
     /**
-     * A list of timers indicating when a chat room join fails.
+     * Expiration time for chat room list cache.
      */
-    private final Map<ChatRoom, Timer> joinTimeoutTimers
-        = new Hashtable<ChatRoom, Timer>();
+    private static final long CHAT_ROOM_LIST_CACHE_EXPIRATION = 60000000000L;
 
     /**
-     * A list of the channels on this server
+     * Logger.
      */
-    private final List<String> serverChatRoomList = new ArrayList<String>();
+    private static final Logger LOGGER = Logger.getLogger(IrcStack.class);
 
     /**
-     * A list of users that we have info about, it is used to stock "whois"
-     * responses
+     * Set of characters with special meanings for IRC, such as: ',' used as
+     * separator of list of items (channels, nicks, etc.), ' ' (space) separator
+     * of command parameters, etc.
      */
-    private final Map<String, UserInfo> userInfoTable
-        = new Hashtable<String, UserInfo>();
+    public static final Set<Character> SPECIAL_CHARACTERS;
 
     /**
-     * The IRC multi-user chat operation set.
+     * Initialize set of special characters.
      */
-    private final OperationSetMultiUserChatIrcImpl ircMUCOpSet;
-
-    /**
-     * The IRC protocol provider service.
-     */
-    private final ProtocolProviderServiceIrcImpl parentProvider;
-
-
-    private final Object operationLock = new Object();
-
-    /**
-     * The operation response code indicates
-     */
-    private int operationResponseCode = 0;
-
-    /**
-     * Indicates if the IRC server has been initialized.
-     */
-    private boolean isInitialized = false;
-
-    /**
-     * Keeps all join requests received before the server is initialized.
-     */
-    private final List<ChatRoom> joinCache = new ArrayList<ChatRoom>();
-
-    /**
-     * The indicator which determines whether #onConnect() has been invoked and
-     * thus a manual invocation of its old functionality is pending.
-     */
-    private boolean onConnectInvoked = false;
-
-    /**
-     * Creates an instance of <tt>IrcStack</tt>.
-     *
-     * @param parentProvider the IRC protocol provider service
-     * @param nickname our nickname
-     * @param login our login
-     * @param version the version
-     * @param finger the finger
-     */
-    public IrcStack(    ProtocolProviderServiceIrcImpl parentProvider,
-                        String nickname,
-                        String login,
-                        String version,
-                        String finger)
-    {
-        this.parentProvider = parentProvider;
-        this.ircMUCOpSet
-            = (OperationSetMultiUserChatIrcImpl) parentProvider
-                .getOperationSet(OperationSetMultiUserChat.class);
-        this.setName(nickname);
-        this.setLogin(login);
-        this.setVersion(version);
-        this.setFinger(finger);
+    static {
+        HashSet<Character> specials = new HashSet<Character>();
+        specials.add('\0');
+        specials.add('\n');
+        specials.add('\r');
+        specials.add(' ');
+        specials.add(',');
+        SPECIAL_CHARACTERS = Collections.unmodifiableSet(specials);
     }
 
     /**
-     * Connects to the server.
-     *
-     * @param serverAddress the address of the server
-     * @param serverPort the port to connect to
-     * @param serverPassword the password to use for connect
-     * @param autoNickChange indicates if the nick name should be changed in
-     * case there exist already a participant with the same nick name
-     *
-     * @throws OperationFailedException
+     * Parent provider for IRC.
      */
-    public void connect(String serverAddress,
-                        int serverPort,
-                        String serverPassword,
-                        boolean autoNickChange)
-        throws OperationFailedException
+    private final ProtocolProviderServiceIrcImpl provider;
+
+    /**
+     * Container for joined channels.
+     *
+     * There are two different cases:
+     *
+     * <pre>
+     * - null value: joining is initiated but still in progress.
+     * - non-null value: joining is finished, chat room instance is available.
+     * </pre>
+     */
+    private final Map<String, ChatRoomIrcImpl> joined = Collections
+        .synchronizedMap(new HashMap<String, ChatRoomIrcImpl>());
+
+    /**
+     * Server parameters that are set and provided during the connection
+     * process.
+     */
+    private final ServerParameters params;
+
+    /**
+     * Instance of the IRC library contained in an AtomicReference.
+     *
+     * This field serves 2 purposes:
+     *
+     * First is the container itself that we use to synchronize on while
+     * (dis)connecting and eventually setting new instance variable before
+     * unlocking. By synchronizing we have connect and disconnect operations
+     * wait for each other.
+     *
+     * Second is to get the current api instance. AtomicReference ensures that
+     * we either get the old or the new instance.
+     */
+    private final AtomicReference<IRCApi> session =
+        new AtomicReference<IRCApi>(null);
+
+    /**
+     * Connection state of a successful IRC connection.
+     */
+    private IIRCState connectionState;
+
+    /**
+     * The cached channel list.
+     *
+     * Contained inside a simple container object in order to lock the container
+     * while accessing the contents.
+     */
+    private final Container<List<String>> channellist =
+        new Container<List<String>>(null);
+
+    /**
+     * Constructor.
+     *
+     * @param parentProvider Parent provider
+     * @param nick User's nick name
+     * @param login User's login name
+     * @param version Version
+     * @param finger Finger
+     */
+    public IrcStack(final ProtocolProviderServiceIrcImpl parentProvider,
+        final String nick, final String login, final String version,
+        final String finger)
     {
-        this.setVerbose(false);
-        this.setAutoNickChange(autoNickChange);
-
-        boolean onConnectInvoked;
-
-        try
+        if (parentProvider == null)
         {
-            // avoids deadlock - issue#620. Call the event
-            // in non synchronized code
-            synchronized (this)
+            throw new NullPointerException("parentProvider cannot be null");
+        }
+        this.provider = parentProvider;
+        this.params = new IrcStack.ServerParameters(nick, login, finger, null);
+    }
+
+    /**
+     * Check whether or not a connection is established.
+     *
+     * @return true if connected, false otherwise.
+     */
+    public boolean isConnected()
+    {
+        return (this.connectionState != null && this.connectionState
+            .isConnected());
+    }
+
+    /**
+     * Check whether the connection is a secure connection (TLS).
+     *
+     * @return true if connection is secure, false otherwise.
+     */
+    public boolean isSecureConnection()
+    {
+        return isConnected() && this.connectionState.getServer().isSSL();
+    }
+
+    /**
+     * Connect to specified host, port, optionally using a password.
+     *
+     * @param host IRC server's host name
+     * @param port IRC port
+     * @param password password for the specified nick name
+     * @param secureConnection true to set up secure connection, or false if
+     *            not.
+     * @param autoNickChange do automatic nick changes if nick is in use
+     * @throws Exception throws exceptions
+     */
+    public void connect(final String host, final int port,
+        final String password, final boolean secureConnection,
+        final boolean autoNickChange) throws Exception
+    {
+        if (isConnected())
+        {
+            return;
+        }
+
+        // Make sure we start with an empty joined-channel list.
+        this.joined.clear();
+
+        final IRCServer server;
+        if (secureConnection)
+        {
+            server =
+                new SecureIRCServer(host, port, password,
+                    getCustomSSLContext(host));
+        }
+        else
+        {
+            server = new IRCServer(host, port, password, false);
+        }
+
+        synchronized (this.session)
+        {
+            final IRCApi irc = new IRCApiImpl(true);
+            this.params.setServer(server);
+            this.session.set(irc);
+            irc.addListener(new ServerListener(irc));
+
+            if (LOGGER.isTraceEnabled())
             {
-                this.onConnectInvoked = false;
+                // If tracing is enabled, register another listener that logs
+                // all IRC messages as published by the IRC client library.
+                irc.addListener(new DebugListener());
+            }
 
-                if (serverPassword == null)
-                    this.connect(serverAddress, serverPort);
+            connectSynchronized();
+
+            // TODO Read IRC network capabilities based on RPL_ISUPPORT (005)
+            // replies if available. This information should be available in
+            // irc-api if possible.
+        }
+    }
+
+    /**
+     * Perform synchronized connect operation.
+     *
+     * @throws Exception exception thrown when connect fails
+     */
+    private void connectSynchronized() throws Exception
+    {
+        final IRCApi irc = this.session.get();
+        if (irc == null)
+        {
+            throw new IllegalStateException(
+                "No IRC instance available, cannot connect.");
+        }
+        final Result<IIRCState, Exception> result =
+            new Result<IIRCState, Exception>();
+        synchronized (result)
+        {
+            // start connecting to the specified server ...
+            try
+            {
+                irc.connect(this.params, new Callback<IIRCState>()
+                {
+
+                    @Override
+                    public void onSuccess(final IIRCState state)
+                    {
+                        synchronized (result)
+                        {
+                            LOGGER.trace("IRC connected successfully!");
+                            result.setDone(state);
+                            result.notifyAll();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(final Exception e)
+                    {
+                        synchronized (result)
+                        {
+                            LOGGER.trace("IRC connection FAILED!", e);
+                            result.setDone(e);
+                            result.notifyAll();
+                        }
+                    }
+                });
+
+                this.provider
+                    .setCurrentRegistrationState(RegistrationState.REGISTERING);
+
+                while (!result.isDone())
+                {
+                    LOGGER.trace("Waiting for the connection to be "
+                        + "established ...");
+                    result.wait();
+                }
+
+                this.connectionState = result.getValue();
+                // TODO Implement connection timeout and a way to recognize that
+                // the timeout occurred.
+                if (this.connectionState != null
+                    && this.connectionState.isConnected())
+                {
+                    // if connecting succeeded, set state to registered
+                    this.provider.setCurrentRegistrationState(
+                        RegistrationState.REGISTERED);
+                }
                 else
-                    this.connect(serverAddress, serverPort, serverPassword);
-
-                onConnectInvoked = this.onConnectInvoked;
+                {
+                    // if connecting failed, set state to unregistered and throw
+                    // the exception if one exists
+                    this.provider
+                        .setCurrentRegistrationState(
+                            RegistrationState.CONNECTION_FAILED);
+                    Exception e = result.getException();
+                    if (e != null)
+                    {
+                        throw e;
+                    }
+                }
+            }
+            catch (IOException e)
+            {
+                // Also SSL exceptions will be caught here.
+                this.provider
+                    .setCurrentRegistrationState(
+                        RegistrationState.CONNECTION_FAILED);
+                throw e;
+            }
+            catch (InterruptedException e)
+            {
+                this.provider
+                    .setCurrentRegistrationState(
+                        RegistrationState.UNREGISTERED);
+                throw e;
             }
         }
-        catch (IOException e)
-        {
-            throw new OperationFailedException(e.getMessage(),
-                OperationFailedException.INTERNAL_SERVER_ERROR);
-        }
-        catch (NickAlreadyInUseException e)
-        {
-            throw new OperationFailedException(e.getMessage(),
-                OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
-        }
-        catch (IrcException e)
-        {
-            throw new OperationFailedException(e.getMessage(),
-                OperationFailedException.GENERAL_ERROR);
-        }
-
-        // if onConnect method is called fire event from code that
-        // is not synchronized - issue#620
-        if (onConnectInvoked)
-        {
-            parentProvider
-                .setCurrentRegistrationState(RegistrationState.REGISTERED);
-
-            // It should be done when a getExistingChatRooms request is processed.
-            // Obtain information for all channels on this server.
-            // this.listChannels();
-        }
     }
 
     /**
-     * Called when we're connected to the IRC server.
+     * Create a custom SSL context for this particular server.
+     *
+     * @param hostname host name of the host we are connecting to such that we
+     *            can verify that the same host name is on the server
+     *            certificate
+     * @return returns a customized SSL context or <tt>null</tt> if one cannot
+     *         be created.
      */
-    @Override
-    protected synchronized void onConnect()
+    private SSLContext getCustomSSLContext(final String hostname)
     {
-
-        /*
-         * Just mark that the onConnect method is invoked so that its old
-         * functionality can be invoked manually elsewhere later on thus
-         * avoiding a deadlock - issue #620.
-         */
-        onConnectInvoked = true;
+        SSLContext context = null;
+        try
+        {
+            CertificateService cs =
+                IrcActivator.getCertificateService();
+            X509TrustManager tm =
+                cs.getTrustManager(hostname);
+            context = cs.getSSLContext(tm);
+        }
+        catch (GeneralSecurityException e)
+        {
+            LOGGER.error("failed to create custom SSL context", e);
+        }
+        return context;
     }
 
     /**
-     * Called when we're disconnected from the IRC server.
+     * Disconnect from the IRC server.
      */
-    @Override
-    protected void onDisconnect()
+    public void disconnect()
     {
-        parentProvider
+        synchronized (this.session)
+        {
+            final IRCApi irc = this.session.get();
+            if (irc == null)
+            {
+                return;
+            }
+            try
+            {
+                irc.disconnect();
+            }
+            catch (RuntimeException e)
+            {
+                // Disconnect might throw ChannelClosedException. Shouldn't be a
+                // problem, but for now lets log it just to be sure.
+                LOGGER.debug("exception occurred while disconnecting", e);
+            }
+            this.session.set(null);
+        }
+        this.provider
             .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
     }
 
     /**
-     * Indicates that a message has arrived from the IRC stack.
-     * @param channel the channel where the message is received
-     * @param sender the sender of the message
-     * @param login the login
-     * @param hostname the host name
-     * @param messageContent the content of the message
+     * Dispose.
      */
-    @Override
-    protected void onMessage(   String channel,
-                                String sender,
-                                String login,
-                                String hostname,
-                                String messageContent)
+    public void dispose()
     {
-        if (logger.isTraceEnabled())
-            logger.trace("MESSAGE received in chat room : " + channel
-                        + ": from " + sender
-                        + " " + login + "@" + hostname
-                        + " the message: " + messageContent);
-
-        MessageIrcImpl message
-            = new MessageIrcImpl(   messageContent,
-                                    MessageIrcImpl.DEFAULT_MIME_TYPE,
-                                    MessageIrcImpl.DEFAULT_MIME_ENCODING,
-                                    null);
-
-        ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(channel);
-
-        if (chatRoom == null)
-            chatRoom = ircMUCOpSet.findSystemRoom();
-
-        if(chatRoom == null || !chatRoom.isJoined())
-            return;
-
-        ChatRoomMember sourceMember = chatRoom.getChatRoomMember(sender);
-
-        if (sourceMember == null)
-            return;
-
-        chatRoom.fireMessageReceivedEvent(
-            message,
-            sourceMember,
-            new Date(),
-            ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
+        disconnect();
     }
 
     /**
-     * Indicates that a private message has been received.
-     * Note that for now this method only logs the message.
-     * @param sender the sender of the message
-     * @param login the login
-     * @param hostname the host name
-     * @param messageContent the content of the message
+     * Get a set of channel type indicators.
+     *
+     * @return returns set of channel type indicators.
      */
-    @Override
-    protected void onPrivateMessage(String sender,
-                                    String login,
-                                    String hostname,
-                                    String messageContent)
+    public Set<Character> getChannelTypes()
     {
-        if (logger.isTraceEnabled())
-            logger.trace("PRIVATE MESSAGE received from " + sender
-                        + " " + login + "@" + hostname
-                        + " the message: " + messageContent);
-
-        MessageIrcImpl message
-            = new MessageIrcImpl(   messageContent,
-                                    MessageIrcImpl.DEFAULT_MIME_TYPE,
-                                    MessageIrcImpl.DEFAULT_MIME_ENCODING,
-                                    null);
-
-        ChatRoomIrcImpl chatRoom
-            = ircMUCOpSet.findPrivateChatRoom(sender);
-
-        if(chatRoom == null || !chatRoom.isJoined())
-            return;
-
-        ChatRoomMember sourceMember = chatRoom.getChatRoomMember(sender);
-
-        if (sourceMember == null)
+        if (!isConnected())
         {
-            sourceMember
-                = new ChatRoomMemberIrcImpl(parentProvider,
-                                            chatRoom,
-                                            sender,
-                                            ChatRoomMemberRole.GUEST);
-
-            chatRoom.addChatRoomMember(sender, sourceMember);
-
-            chatRoom.fireMemberPresenceEvent(
-                sourceMember,
-                null, // There's no other actors in this presence event.
-                ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED,
-                "A message received from unknown member.");
+            throw new IllegalStateException("not connected to IRC server");
         }
-
-        chatRoom.fireMessageReceivedEvent(
-            message,
-            sourceMember,
-            new Date(),
-            ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
+        return this.connectionState.getServerOptions().getChanTypes();
     }
 
     /**
-     * This method is called whenever an ACTION is sent from a user.  E.g.
-     * such events generated by typing "/me goes shopping" in most IRC clients.
+     * Get the nick name of the user.
      *
-     * @param sender The nick of the user that sent the action.
-     * @param login The login of the user that sent the action.
-     * @param hostname The host name of the user that sent the action.
-     * @param target The target of the action, be it a channel or our nick.
-     * @param action The action carried out by the user.
+     * @return Returns either the acting nick if a connection is established or
+     *         the configured nick.
      */
-    @Override
-    protected void onAction(String sender,
-                            String login,
-                            String hostname,
-                            String target,
-                            String action)
+    public String getNick()
     {
-        if (logger.isTraceEnabled())
-            logger.trace("ACTION on " + target + " : Received from " + sender
-                + " " + login + "@" + hostname + " the action: " + action);
-
-        MessageIrcImpl actionMessage = new MessageIrcImpl(
-                                            action,
-                                            MessageIrcImpl.DEFAULT_MIME_TYPE,
-                                            MessageIrcImpl.DEFAULT_MIME_ENCODING,
-                                            null);
-
-        // We presume that the target is a chat room, as we have not yet
-        // implemented private messages.
-        ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(target);
-
-        if (chatRoom == null)
-            chatRoom = ircMUCOpSet.findSystemRoom();
-
-        if(chatRoom == null || !chatRoom.isJoined())
-            return;
-
-        ChatRoomMember sourceMember = chatRoom.getChatRoomMember(sender);
-
-        if (sourceMember == null)
-            return;
-
-        chatRoom.fireMessageReceivedEvent(
-            actionMessage,
-            sourceMember,
-            new Date(),
-            ChatRoomMessageReceivedEvent.ACTION_MESSAGE_RECEIVED);
-    }
-
-    /**
-     * After calling the listChannels() method in PircBot, the server
-     * will start to send us information about each channel on the
-     * server.
-     *
-     * @param channel The name of the channel.
-     * @param userCount The number of users visible in this channel.
-     * @param topic The topic for this channel.
-     */
-    @Override
-    protected void onChannelInfo(String channel, int userCount, String topic)
-    {
-        this.addServerChatRoom(channel);
-    }
-
-    /**
-     * Called when a user (possibly us) gets operator status taken away.
-     *  <p>
-     * This is a type of mode change and is also passed to the onMode
-     * method in the PircBot class.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     * @param recipient The nick of the user that got 'de-opp-ed'.
-     */
-    @Override
-    protected void onDeop(String channel,
-                          String sourceNick,
-                          String sourceLogin,
-                          String sourceHostname,
-                          String recipient)
-    {
-        if (logger.isTraceEnabled())
-            logger.trace("DEOP on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname + "on " + recipient);
-
-        ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(channel);
-
-        if (chatRoom == null || !chatRoom.isJoined())
-            return;
-
-        ChatRoomMember sourceMember = chatRoom.getChatRoomMember(sourceNick);
-
-        if (sourceMember == null)
-            return;
-
-        chatRoom.fireMemberRoleEvent(sourceMember, ChatRoomMemberRole.GUEST);
-    }
-
-    /**
-     * Called when a user (possibly us) gets voice status removed.
-     *  <p>
-     * This is a type of mode change and is also passed to the onMode
-     * method in the PircBot class.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     * @param recipient The nick of the user that got 'de-voiced'.
-     */
-    @Override
-    protected void onDeVoice(String channel, String sourceNick,
-        String sourceLogin, String sourceHostname, String recipient)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("DEVOICE on " + channel + ": Received from "
-                + sourceNick + " " + sourceLogin + "@" + sourceHostname + "on "
-                + recipient);
-
-        ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(channel);
-
-        if (chatRoom == null || !chatRoom.isJoined())
-            return;
-
-        ChatRoomMember sourceMember = chatRoom.getChatRoomMember(sourceNick);
-
-        if (sourceMember == null)
-            return;
-
-        chatRoom.fireMemberRoleEvent(   sourceMember,
-                                        ChatRoomMemberRole.SILENT_MEMBER);
-    }
-
-    /**
-     * Called when we are invited to a channel by a user.
-     *
-     * @param targetNick The nick of the user being invited - should be us!
-     * @param sourceNick The nick of the user that sent the invitation.
-     * @param sourceLogin The login of the user that sent the invitation.
-     * @param sourceHostname The host name of the user that sent the invitation.
-     * @param channel The channel that we're being invited to.
-     */
-    @Override
-    protected void onInvite(String targetNick,
-                            String sourceNick,
-                            String sourceLogin,
-                            String sourceHostname,
-                            String channel)
-    {
-        if (logger.isTraceEnabled())
-            logger.trace("INVITE on " + channel + ": Received from "
-                + sourceNick + " " + sourceLogin + "@" + sourceHostname);
-
-        ChatRoom targetChatRoom = ircMUCOpSet.findRoom(channel);
-
-        ircMUCOpSet.fireInvitationEvent(targetChatRoom,
-                                        sourceNick,
-                                        "",
-                                        null);
-    }
-
-    /**
-     * This method is called whenever someone (possibly us) joins a channel
-     * which we are on.
-     *
-     * @param channel The channel which somebody joined.
-     * @param sender The nick of the user who joined the channel.
-     * @param login The login of the user who joined the channel.
-     * @param hostname The host name of the user who joined the channel.
-     */
-    @Override
-    protected void onJoin(  String channel,
-                            String sender,
-                            String login,
-                            String hostname)
-    {
-        if (logger.isTraceEnabled())
-            logger.trace("JOIN on " + channel + ": Received from " + sender
-                + " " + login + "@" + hostname);
-
-        ChatRoomIrcImpl chatRoom
-            = (ChatRoomIrcImpl) ircMUCOpSet.findRoom(channel);
-
-        if(joinTimeoutTimers.containsKey(chatRoom))
+        if (this.connectionState == null)
         {
-            Timer timer = joinTimeoutTimers.get(chatRoom);
-
-            timer.cancel();
-            joinTimeoutTimers.remove(chatRoom);
-        }
-
-        if(chatRoom.getUserNickname().equals(sender))
-        {
-            ircMUCOpSet.fireLocalUserPresenceEvent(
-                chatRoom,
-                LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
-                "");
+            return this.params.getNickname();
         }
         else
         {
-            ChatRoomMemberIrcImpl member = new ChatRoomMemberIrcImpl(
-                    parentProvider,
-                    chatRoom,
-                    sender,
-                    ChatRoomMemberRole.GUEST);
-
-            chatRoom.addChatRoomMember(sender, member);
-
-            //we don't specify a reason
-            chatRoom.fireMemberPresenceEvent(
-                member,
-                null,
-                ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED,
-                null);
+            return this.connectionState.getNickname();
         }
     }
 
     /**
-     * This method is called whenever someone (possibly us) is kicked from
-     * any of the channels that we are in.
+     * Set the user's new nick name.
      *
-     * @param channel The channel from which the recipient was kicked.
-     * @param kickerNick The nick of the user who performed the kick.
-     * @param kickerLogin The login of the user who performed the kick.
-     * @param kickerHostname The host name of the user who performed the kick.
-     * @param recipientNick The unfortunate recipient of the kick.
-     * @param reason The reason given by the user who performed the kick.
+     * @param nick the new nick name
      */
-    @Override
-    protected void onKick(  String channel,
-                            String kickerNick,
-                            String kickerLogin,
-                            String kickerHostname,
-                            String recipientNick,
-                            String reason)
+    public void setUserNickname(final String nick)
     {
-        if (logger.isTraceEnabled())
-            logger.trace("KICK on " + channel
-                    + ": Received from " + kickerNick
-                    + " " + kickerLogin + "@" + kickerHostname);
-
-        ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(channel);
-
-        if (chatRoom == null || !chatRoom.isJoined())
-            return;
-
-        if(chatRoom.getUserNickname().equals(kickerNick))
+        LOGGER.trace("Setting user's nick name to " + nick);
+        if (isConnected())
         {
-            notifyChatRoomOperation(0);
-        }
-
-        if(chatRoom.getUserNickname().equals(recipientNick))
-            ircMUCOpSet.fireLocalUserPresenceEvent(
-                chatRoom,
-                LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_KICKED,
-                reason);
-        else
-        {
-            ChatRoomMember member
-                = chatRoom.getChatRoomMember(recipientNick);
-
-            ChatRoomMember actorMember
-                = chatRoom.getChatRoomMember(kickerNick);
-
-            chatRoom.removeChatRoomMember(recipientNick);
-
-            chatRoom.fireMemberPresenceEvent(
-                member,
-                actorMember,
-                ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED,
-                reason);
-        }
-    }
-
-    /**
-     * This method is called whenever someone (possibly us) changes nick on any
-     * of the channels that we are on.
-     *
-     * @param oldNick The old nick.
-     * @param login The login of the user.
-     * @param hostname The host name of the user.
-     * @param newNick The new nick.
-     */
-    @Override
-    protected void onNickChange(String oldNick,
-                                String login,
-                                String hostname,
-                                String newNick)
-    {
-        if (logger.isTraceEnabled())
-            logger.trace("NICK changed: from " + oldNick + " changed to "
-                + newNick);
-
-        this.notifyChatRoomOperation(0);
-
-        for (ChatRoom chatRoom : ircMUCOpSet.getCurrentlyJoinedChatRooms())
-        {
-            ChatRoomIrcImpl chatRoomIrcImpl = (ChatRoomIrcImpl) chatRoom;
-
-            if (chatRoom.getUserNickname().equals(oldNick))
-            {
-                chatRoomIrcImpl.setNickName(newNick);
-                return;
-            }
-
-            ChatRoomMember member = chatRoomIrcImpl.getChatRoomMember(oldNick);
-
-            if (member == null)
-                continue;
-
-            ChatRoomMemberPropertyChangeEvent evt
-                = new ChatRoomMemberPropertyChangeEvent(
-                        member,
-                        chatRoom,
-                        ChatRoomMemberPropertyChangeEvent.MEMBER_NICKNAME,
-                        oldNick,
-                        newNick);
-
-            chatRoomIrcImpl.fireMemberPropertyChangeEvent(evt);
-        }
-    }
-
-    /**
-     * This method is called whenever we receive a notice.
-     *
-     * @param sourceNick The nick of the user that sent the notice.
-     * @param sourceLogin The login of the user that sent the notice.
-     * @param sourceHostname The host name of the user that sent the notice.
-     * @param target The target of the notice, be it our nick or a channel name.
-     * @param notice The notice message.
-     */
-    @Override
-    protected void onNotice(String sourceNick,
-                            String sourceLogin,
-                            String sourceHostname,
-                            String target,
-                            String notice)
-    {
-        if (logger.isTraceEnabled())
-            logger.trace("NOTICE on " + target + ": Received from "
-                + sourceNick + " " + sourceLogin + "@" + sourceHostname
-                + " the message: " + notice);
-
-        MessageIrcImpl message
-            = new MessageIrcImpl(   notice,
-                                    MessageIrcImpl.DEFAULT_MIME_TYPE,
-                                    MessageIrcImpl.DEFAULT_MIME_ENCODING,
-                                    null);
-
-        ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(target);
-
-        ChatRoomMember sourceMember = null;
-
-        if(chatRoom == null || !chatRoom.isJoined())
-        {
-            chatRoom = ircMUCOpSet.findSystemRoom();
-
-            sourceMember = ircMUCOpSet.findSystemMember();
+            final IRCApi irc = this.session.get();
+            irc.changeNick(nick);
         }
         else
         {
-            sourceMember = chatRoom.getChatRoomMember(sourceNick);
+            this.params.setNickname(nick);
         }
-
-        if (sourceMember == null)
-            return;
-
-        chatRoom.fireMessageReceivedEvent(
-                message,
-                sourceMember,
-                new Date(),
-                ChatRoomMessageReceivedEvent.ACTION_MESSAGE_RECEIVED);
     }
 
     /**
-     * Called when a user (possibly us) gets granted operator status for a
-     * channel.
-     *  <p>
-     * This is a type of mode change and is also passed to the onMode
-     * method in the PircBot class.
+     * Set the subject of the specified chat room.
      *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     * @param recipient The nick of the user that got 'opp-ed'.
+     * @param chatroom The chat room for which to set the subject.
+     * @param subject The subject.
      */
-    @Override
-    protected void onOp(String channel,
-                        String sourceNick,
-                        String sourceLogin,
-                        String sourceHostname,
-                        String recipient)
+    public void setSubject(final ChatRoomIrcImpl chatroom, final String subject)
     {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE OP on " + channel + ": from " + sourceNick + " "
-                + sourceLogin + "@" + sourceHostname + " on " + recipient);
-
-        ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(channel);
-
-        if (chatRoom == null || !chatRoom.isJoined())
-            return;
-
-        ChatRoomMember sourceMember = chatRoom.getChatRoomMember(sourceNick);
-
-        if (sourceMember == null)
-            return;
-
-        chatRoom.fireMemberRoleEvent(   sourceMember,
-                                        ChatRoomMemberRole.ADMINISTRATOR);
+        if (!isConnected())
+        {
+            throw new IllegalStateException(
+                "Please connect to an IRC server first.");
+        }
+        if (chatroom == null)
+        {
+            throw new IllegalArgumentException("Cannot have a null chatroom");
+        }
+        LOGGER.trace("Setting chat room topic to '" + subject + "'");
+        this.session.get().changeTopic(chatroom.getIdentifier(),
+            subject == null ? "" : subject);
     }
 
     /**
-     * This method is called whenever someone (possibly us) leaves a channel
-     * which we are on.
+     * Check whether the user has joined a particular chat room.
      *
-     * @param channel The channel which somebody parted from.
-     * @param sender The nick of the user who parted from the channel.
-     * @param login The login of the user who parted from the channel.
-     * @param hostname The host name of the user who parted from the channel.
+     * @param chatroom Chat room to check for.
+     * @return Returns true in case the user is already joined, or false if the
+     *         user has not joined.
      */
-    @Override
-    protected void onPart(  String channel,
-                            String sender,
-                            String login,
-                            String hostname)
+    public boolean isJoined(final ChatRoomIrcImpl chatroom)
     {
-        if (logger.isDebugEnabled())
-            logger.debug("LEAVE on " + channel + ": Received from " + sender
-                + " " + login + "@" + hostname);
-
-        ChatRoomIrcImpl chatRoom
-            = (ChatRoomIrcImpl) ircMUCOpSet.findRoom(channel);
-
-        if(chatRoom.getUserNickname().equals(sender))
-        {
-            ircMUCOpSet.fireLocalUserPresenceEvent(
-                chatRoom,
-                LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT,
-                "");
-
-            for (ChatRoomMember member : chatRoom.getMembers())
-                chatRoom.fireMemberPresenceEvent(
-                    member,
-                    null,
-                    ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
-                    "Local user has left the chat room.");
-
-            // Delete the list of members
-            chatRoom.clearChatRoomMemberList();
-        }
-        else
-        {
-            ChatRoomMember member = chatRoom.getChatRoomMember(sender);
-
-            if (member == null)
-                return;
-
-            chatRoom.removeChatRoomMember(sender);
-
-            //we don't specify a reason
-            chatRoom.fireMemberPresenceEvent(
-                member,
-                null,
-                ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
-                null);
-        }
+        return this.joined.get(chatroom.getIdentifier()) != null;
     }
 
     /**
-     * This method is called whenever someone (possibly us) quits from the
-     * server. We will only observe this if the user was in one of the
-     * channels to which we are connected.
+     * Get a list of channels available on the IRC server.
      *
-     * @param sourceNick The nick of the user that quit from the server.
-     * @param sourceLogin The login of the user that quit from the server.
-     * @param sourceHostname The host name of the user that quit from the server.
-     * @param reason The reason given for quitting the server.
-     */
-    @Override
-    protected void onQuit(  String sourceNick,
-                            String sourceLogin,
-                            String sourceHostname,
-                            String reason)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("QUIT : Received from " + sourceNick + " "
-                + sourceLogin + "@" + sourceHostname);
-
-        for (ChatRoom chatRoom : ircMUCOpSet.getCurrentlyJoinedChatRooms())
-        {
-            ChatRoomIrcImpl chatRoomIrcImpl = (ChatRoomIrcImpl) chatRoom;
-
-            if(chatRoom.getUserNickname().equals(sourceNick))
-                ircMUCOpSet.fireLocalUserPresenceEvent(
-                    chatRoom,
-                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_DROPPED,
-                    reason);
-            else
-            {
-                ChatRoomMember member
-                    = chatRoomIrcImpl.getChatRoomMember(sourceNick);
-
-                if (member == null)
-                    return;
-
-                chatRoomIrcImpl.removeChatRoomMember(sourceNick);
-
-                chatRoomIrcImpl.fireMemberPresenceEvent(
-                    member,
-                    null,
-                    ChatRoomMemberPresenceChangeEvent.MEMBER_QUIT,
-                    reason);
-            }
-        }
-    }
-
-    /**
-     * Called when a host mask ban is removed from a channel.
-     *  <p>
-     * This is a type of mode change and is also passed to the onMode
-     * method in the PircBot class.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     * @param hostmask
-     */
-    @Override
-    protected void onRemoveChannelBan(  String channel,
-                                        String sourceNick,
-                                        String sourceLogin,
-                                        String sourceHostname,
-                                        String hostmask)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-        ChatRoom chatRoom = ircMUCOpSet.getChatRoom(channel);
-
-        if (chatRoom == null)
-            return;
-
-        //TODO: Implement IrcStack.onRemoveChannelBan.
-    }
-
-    /**
-     * Called when a channel key is removed.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     * @param key The key that was in use before the channel key was removed.
-     */
-    @Override
-    protected void onRemoveChannelKey(  String channel,
-                                        String sourceNick,
-                                        String sourceLogin,
-                                        String sourceHostname,
-                                        String key)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-        //TODO: Implement IrcStack.onRemoveChannelKey().
-    }
-
-    /**
-     * Called when the user limit is removed for a channel.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     */
-    @Override
-    protected void onRemoveChannelLimit(String channel, String sourceNick,
-        String sourceLogin, String sourceHostname)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-        ChatRoom chatRoom = ircMUCOpSet.getChatRoom(channel);
-
-        if (chatRoom == null)
-            return;
-
-      //TODO: Implement IrcStack.onRemoveChannelLimit().
-    }
-
-    /**
-     * Called when a channel has 'invite only' removed.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     */
-    @Override
-    protected void onRemoveInviteOnly(  String channel,
-                                        String sourceNick,
-                                        String sourceLogin,
-                                        String sourceHostname)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-        // TODO: Implement IrcStack.onRemoveInviteOnly().
-    }
-
-    /**
-     * Called when a channel has moderated mode removed.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     */
-    @Override
-    protected void onRemoveModerated(   String channel,
-                                        String sourceNick,
-                                        String sourceLogin,
-                                        String sourceHostname)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-        // TODO: Implement IrcStack.onRemoveModerated().
-    }
-
-    /**
-     * Called when a channel is set to allow messages from any user, even
-     * if they are not actually in the channel.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     */
-    @Override
-    protected void onRemoveNoExternalMessages(  String channel,
-                                                String sourceNick,
-                                                String sourceLogin,
-                                                String sourceHostname)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-        // TODO: Implement IrcStack.onRemoveNoExternalMessages().
-    }
-
-    /**
-     * Called when a channel is marked as not being in private mode.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     */
-    @Override
-    protected void onRemovePrivate( String channel,
-                                    String sourceNick,
-                                    String sourceLogin,
-                                    String sourceHostname)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-        // TODO: Implement IrcStack.onRemovePrivate().
-    }
-
-    /**
-     * Called when a channel has 'secret' mode removed.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     */
-    @Override
-    protected void onRemoveSecret(  String channel,
-                                    String sourceNick,
-                                    String sourceLogin,
-                                    String sourceHostname)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-        // TODO: Implement IrcStack.onRemoveSecret().
-    }
-
-    /**
-     * Called when topic protection is removed for a channel.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     */
-    @Override
-    protected void onRemoveTopicProtection(String channel, String sourceNick,
-        String sourceLogin, String sourceHostname)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-        // TODO: Implement IrcStack.onRemoveSecret().
-    }
-
-    /**
-     *
-     * @param code The three-digit numerical code for the response.
-     * @param response The full response from the IRC server.
-     *
-     * @see ReplyConstants
-     */
-    @Override
-    protected void onServerResponse (int code, String response)
-    {
-        if (code == ERR_NOSUCHCHANNEL)
-        {
-            logger.error("No such channel:" + code
-                + ": Response :" + response);
-
-            this.notifyChatRoomOperation(ERR_NOSUCHCHANNEL);
-        }
-        else if (code == ERR_BADCHANMASK)
-        {
-            logger.error("Bad channel mask :" + code
-                + ": Response :" + response);
-
-            this.notifyChatRoomOperation(ERR_BADCHANMASK);
-        }
-        else if (code == ERR_BADCHANNELKEY)
-        {
-            logger.error("Bad channel key :" + code
-                + ": Response :" + response);
-
-            this.notifyChatRoomOperation(ERR_BADCHANNELKEY);
-        }
-        else if (code == ERR_BANNEDFROMCHAN)
-        {
-            logger.error("Banned from channel :" + code
-                + ": Response :" + response);
-
-            this.notifyChatRoomOperation(ERR_BANNEDFROMCHAN);
-        }
-        else if (code == ERR_CHANNELISFULL)
-        {
-            logger.error("Channel is full :" + code
-                + ": Response :" + response);
-
-            this.notifyChatRoomOperation(ERR_CHANNELISFULL);
-        }
-        else if (code == ERR_CHANOPRIVSNEEDED)
-        {
-            logger.error("Channel operator privilages needed :" + code
-                + ": Response :" + response);
-
-            this.notifyChatRoomOperation(ERR_CHANOPRIVSNEEDED);
-        }
-        else if (code == ERR_ERRONEUSNICKNAME)
-        {
-            logger.error("ERR_ERRONEUSNICKNAME :" + code
-                + ": Response :" + response);
-
-            this.notifyChatRoomOperation(ERR_ERRONEUSNICKNAME);
-        }
-        else if (code == ERR_INVITEONLYCHAN)
-        {
-            logger.error("Invite only channel :" + code
-                + ": Response :" + response);
-
-            this.notifyChatRoomOperation(ERR_INVITEONLYCHAN);
-        }
-        else if (code == ERR_NEEDMOREPARAMS)
-        {
-            logger.error("Need more params :" + code
-                + ": Response :" + response);
-
-            this.notifyChatRoomOperation(ERR_NEEDMOREPARAMS);
-        }
-        else if (code == ERR_NICKCOLLISION)
-        {
-            logger.error("Nick collision :" + code
-                + ": Response :" + response);
-
-            this.notifyChatRoomOperation(ERR_NICKCOLLISION);
-        }
-        else if (code == ERR_NICKNAMEINUSE)
-        {
-            logger.error("Nickname in use :" + code
-                + ": Response :" + response);
-
-            this.notifyChatRoomOperation(ERR_NICKNAMEINUSE);
-        }
-        else if (code == ERR_NONICKNAMEGIVEN)
-        {
-            logger.error("No nickname given :" + code
-                + ": Response :" + response);
-
-            this.notifyChatRoomOperation(ERR_NONICKNAMEGIVEN);
-        }
-        else if (code == ERR_NOTONCHANNEL)
-        {
-            logger.error("Not on channel :" + code
-                + ": Response :" + response);
-
-            this.notifyChatRoomOperation(ERR_NOTONCHANNEL);
-        }
-        else if (code == ERR_TOOMANYCHANNELS)
-        {
-            logger.error("Too many channels :" + code
-                + ": Response :" + response);
-
-            this.notifyChatRoomOperation(ERR_TOOMANYCHANNELS);
-        }
-        // reply responses
-        else if (code == RPL_WHOISUSER)
-        {
-            StringTokenizer tokenizer = new StringTokenizer(response);
-            tokenizer.nextToken();
-
-            String nickname = tokenizer.nextToken();
-            String login = tokenizer.nextToken();
-            String hostname = tokenizer.nextToken();
-
-            UserInfo userInfo = new UserInfo(nickname, login, hostname);
-
-            this.userInfoTable.put(nickname, userInfo);
-        }
-        else if (code == RPL_WHOISSERVER)
-        {
-            StringTokenizer tokenizer = new StringTokenizer(response);
-            tokenizer.nextToken();
-            String userNickName = tokenizer.nextToken();
-
-            int end = response.indexOf(':');
-            String serverInfo = response.substring(end + 1);
-
-            if (userInfoTable.containsKey(userNickName))
-            {
-                userInfoTable.get(userNickName).setServerInfo(serverInfo);
-            }
-        }
-        else if (code == RPL_WHOISOPERATOR)
-        {
-            StringTokenizer tokenizer = new StringTokenizer(response);
-            tokenizer.nextToken();
-            String userNickName = tokenizer.nextToken();
-
-            if (userInfoTable.containsKey(userNickName))
-            {
-                userInfoTable.get(userNickName).setIrcOp(true);
-            }
-        }
-        else if (code == RPL_WHOISIDLE)
-        {
-            StringTokenizer tokenizer = new StringTokenizer(response);
-            tokenizer.nextToken();
-            String userNickName = tokenizer.nextToken();
-            long idle = Long.parseLong(tokenizer.nextToken());
-
-            if (userInfoTable.containsKey(userNickName))
-            {
-                userInfoTable.get(userNickName).setIdle(idle);
-            }
-        }
-        else if (code == RPL_WHOISCHANNELS)
-        {
-            StringTokenizer tokenizer = new StringTokenizer(response);
-            tokenizer.nextToken();
-            String userNickName = tokenizer.nextToken();
-
-            if (userInfoTable.containsKey(userNickName))
-            {
-                userInfoTable.get(userNickName).clearJoinedChatRoom();
-
-                while(tokenizer.hasMoreTokens())
-                {
-                    String channel = tokenizer.nextToken();
-
-                    if(channel.startsWith(":"))
-                        channel = channel.substring(1);
-
-                    userInfoTable.get(userNickName).addJoinedChatRoom(channel);
-                }
-            }
-        }
-        else if (code == RPL_ENDOFWHOIS)
-        {
-            StringTokenizer tokenizer = new StringTokenizer(response);
-            tokenizer.nextToken();
-            String userNickName = tokenizer.nextToken();
-
-            if (userInfoTable.containsKey(userNickName))
-            {
-                UserInfo userInfo = userInfoTable.get(userNickName);
-
-                this.onWhoIs(userInfo);
-            }
-        }
-        else if (code == RPL_ENDOFMOTD)
-        {
-            this.isInitialized = true;
-
-            ChatRoom[] joinCacheCopy
-                = joinCache.toArray(new ChatRoom[joinCache.size()]);
-
-            joinCache.clear();
-
-            for (ChatRoom joinCacheElement : joinCacheCopy)
-            {
-                this.join(joinCacheElement);
-            }
-        }
-        else if (code != RPL_LISTSTART
-                    && code != RPL_LIST
-                    && code != RPL_LISTEND
-                    && code != RPL_ENDOFNAMES)
-        {
-            if (logger.isTraceEnabled())
-                logger.trace(
-                "Server response: Code : "
-                + code
-                + " Response : "
-                + response);
-
-            int delimiterIndex = response.indexOf(':');
-
-            if(delimiterIndex != -1 && delimiterIndex < response.length() - 1)
-                response = response.substring(delimiterIndex + 1);
-
-            MessageIrcImpl message
-                = new MessageIrcImpl(
-                    response,
-                    MessageIrcImpl.DEFAULT_MIME_TYPE,
-                    MessageIrcImpl.DEFAULT_MIME_ENCODING,
-                    null);
-
-            ChatRoomIrcImpl serverRoom = ircMUCOpSet.findSystemRoom();
-
-            ChatRoomMember serverMember = ircMUCOpSet.findSystemMember();
-
-            serverRoom.fireMessageReceivedEvent(
-                    message,
-                    serverMember,
-                    new Date(),
-                    ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
-        }
-    }
-
-    /**
-     * Called when a user (possibly us) gets banned from a channel. Being
-     * banned from a channel prevents any user with a matching host mask from
-     * joining the channel.  For this reason, most bans are usually directly
-     * followed by the user being kicked .
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     * @param hostmask The host mask of the user that has been banned.
-     */
-    @Override
-    protected void onSetChannelBan( String channel,
-                                    String sourceNick,
-                                    String sourceLogin,
-                                    String sourceHostname,
-                                    String hostmask)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-        // TODO: Implement IrcStack.onSetChannelBan().
-    }
-
-    /**
-     * Called when a channel key is set.  When the channel key has been set,
-     * other users may only join that channel if they know the key.  Channel
-     * keys are sometimes referred to as passwords.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     * @param key The new key for the channel.
-     */
-    @Override
-    protected void onSetChannelKey(String channel, String sourceNick,
-        String sourceLogin, String sourceHostname, String key)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-     // TODO: Implement IrcStack.onSetChannelKey().
-    }
-
-    /**
-     * Called when a user limit is set for a channel.  The number of users in
-     * the channel cannot exceed this limit.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     * @param limit The maximum number of users that may be in this channel at
-     * the same time.
-     */
-    @Override
-    protected void onSetChannelLimit(   String channel,
-                                        String sourceNick,
-                                        String sourceLogin,
-                                        String sourceHostname,
-                                        int limit)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-        // TODO: Implement IrcStack.onSetChannelLimit().
-    }
-
-    /**
-     * Called when a channel is set to 'invite only' mode.  A user may only
-     * join the channel if they are invited by someone who is already in the
-     * channel.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     */
-    @Override
-    protected void onSetInviteOnly( String channel,
-                                    String sourceNick,
-                                    String sourceLogin,
-                                    String sourceHostname)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-        // TODO: Implement IrcStack.onSetChannelLimit().
-    }
-
-    /**
-     * Called when a channel is set to 'moderated' mode. If a channel is
-     * moderated, then only users who have been 'voiced' or 'opp-ed' may speak
-     * or change their nicks.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     */
-    @Override
-    protected void onSetModerated(  String channel,
-                                    String sourceNick,
-                                    String sourceLogin,
-                                    String sourceHostname)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-        // TODO: Implement IrcStack.onSetModerated().
-    }
-
-    /**
-     * Called when a channel is set to only allow messages from users that
-     * are in the channel.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The hostname of the user that performed the mode
-     * change.
-     */
-    @Override
-    protected void onSetNoExternalMessages( String channel,
-                                            String sourceNick,
-                                            String sourceLogin,
-                                            String sourceHostname)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-        // TODO: Implement IrcStack.onSetNoExternalMessages().
-    }
-
-    /**
-     * Called when a channel is marked as being in private mode.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     */
-    @Override
-    protected void onSetPrivate(String channel, String sourceNick,
-        String sourceLogin, String sourceHostname)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-        // TODO: Implement IrcStack.onSetPrivate().
-    }
-
-    /**
-     * Called when a channel is set to be in 'secret' mode.  Such channels
-     * typically do not appear on a server's channel listing.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     */
-    @Override
-    protected void onSetSecret(String channel, String sourceNick,
-        String sourceLogin, String sourceHostname)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-        //TODO: Implement IrcStack.onSetPrivate().
-    }
-
-    /**
-     * Called when topic protection is enabled for a channel.  Topic protection
-     * means that only operators in a channel may change the topic.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     */
-    @Override
-    protected void onSetTopicProtection(String channel, String sourceNick,
-        String sourceLogin, String sourceHostname)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("MODE on " + channel + ": Received from " + sourceNick
-                + " " + sourceLogin + "@" + sourceHostname);
-
-        //TODO: Implement IrcStack.onSetPrivate().
-    }
-
-    /**
-     * This method is called whenever a user sets the topic, or when
-     * PircBot joins a new channel and discovers its topic.
-     *
-     * @param channel The channel that the topic belongs to.
-     * @param topic The topic for the channel.
-     * @param setBy The nick of the user that set the topic.
-     * @param date When the topic was set (milliseconds since the epoch).
-     * @param changed True if the topic has just been changed, false if
-     *                the topic was already there.
-     *
-     */
-    @Override
-    protected void onTopic( String channel,
-                            String topic,
-                            String setBy,
-                            long date,
-                            boolean changed)
-    {
-        if (logger.isTraceEnabled())
-            logger.trace("TOPIC on " + channel + ": " + topic + " setBy: "
-                + setBy + " on: " + date);
-
-        this.notifyChatRoomOperation(0);
-
-        ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(channel);
-
-        ChatRoomPropertyChangeEvent evt
-            = new ChatRoomPropertyChangeEvent(
-                chatRoom,
-                ChatRoomPropertyChangeEvent.CHAT_ROOM_SUBJECT,
-                chatRoom.getSubject(),
-                topic);
-
-        // After creating the event with the old and new value of the subject
-        // we could change the subject property of the chat room.
-        chatRoom.setSubjectFromServer(topic);
-
-        chatRoom.firePropertyChangeEvent(evt);
-    }
-
-    /**
-     * This method is called whenever we receive a line from the server that
-     * the PircBot has not been programmed to recognize.
-     *
-     * @param line The raw line that was received from the server.
-     */
-    @Override
-    protected void onUnknown(String line)
-    {
-        if (logger.isTraceEnabled())
-            logger.trace("Unknown message received from the server : " + line);
-    }
-
-    /**
-     * This method is called when we receive a user list from the server
-     * after joining a channel.
-     *
-     * @param channel The name of the channel.
-     * @param users An array of User objects belonging to this channel.
-     *
-     * @see User
-     */
-    @Override
-    protected void onUserList(String channel, User[] users)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("NAMES on " + channel);
-
-        ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(channel);
-
-        chatRoom.clearChatRoomMemberList();
-
-        for (User user : users)
-        {
-            String userPrefix = user.getPrefix();
-            ChatRoomMemberRole newMemberRole;
-
-            if (userPrefix.contains("@"))
-                newMemberRole = ChatRoomMemberRole.ADMINISTRATOR;
-            else if (userPrefix.contains("%"))
-                newMemberRole = ChatRoomMemberRole.MODERATOR;
-            else if (userPrefix.contains("+"))
-                newMemberRole = ChatRoomMemberRole.MEMBER;
-            else
-                newMemberRole = ChatRoomMemberRole.GUEST;
-
-            ChatRoomMemberIrcImpl newMember
-                = new ChatRoomMemberIrcImpl(parentProvider,
-                                            chatRoom,
-                                            user.getNick(),
-                                            newMemberRole);
-
-            chatRoom.addChatRoomMember(user.getNick(), newMember);
-
-            chatRoom.fireMemberPresenceEvent(
-                newMember,
-                null,
-                ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED,
-                ChatRoomMemberPresenceChangeEvent.REASON_USER_LIST);
-        }
-    }
-
-    /**
-     * Called when a user (possibly us) gets voice status granted in a channel.
-     *
-     * @param channel The channel in which the mode change took place.
-     * @param sourceNick The nick of the user that performed the mode change.
-     * @param sourceLogin The login of the user that performed the mode change.
-     * @param sourceHostname The host name of the user that performed the mode
-     * change.
-     * @param recipient The nick of the user that got 'voiced'.
-     */
-    @Override
-    protected void onVoice(String channel, String sourceNick,
-        String sourceLogin, String sourceHostname, String recipient)
-    {
-        if (logger.isDebugEnabled())
-            logger.debug("VOICE on " + channel + ": Received from "
-                + sourceNick + " " + sourceLogin + "@" + sourceHostname + "on "
-                + recipient);
-
-        ChatRoomIrcImpl chatRoom = ircMUCOpSet.getChatRoom(channel);
-
-        if (chatRoom == null || !chatRoom.isJoined())
-            return;
-
-        ChatRoomMember sourceMember = chatRoom.getChatRoomMember(sourceNick);
-
-        if (sourceMember == null)
-            return;
-
-        chatRoom.fireMemberRoleEvent(   sourceMember,
-                                        ChatRoomMemberRole.GUEST);
-    }
-
-    /**
-     * Returns the list of chat rooms on this server.
-     *
-     * @return the list of chat rooms on this server
+     * @return List of available channels.
      */
     public List<String> getServerChatRoomList()
     {
-        return serverChatRoomList;
-    }
-
-    /**
-     * Tests if this chat room is joined
-     *
-     * @param chatRoom the chat room we want to test
-     * @return true if the chat room is joined, false otherwise
-     */
-    protected boolean isJoined(ChatRoomIrcImpl chatRoom)
-    {
-        // If we are asked for the status of the server channel, we return true
-        // if the server is connected and false otherwise.
-        if(ircMUCOpSet.findSystemRoom().equals(chatRoom))
-            return isConnected();
-
-        // Private rooms are joined if they exist.
-        if(chatRoom.isPrivate())
-            return true;
-
-        // For all other channels on the server.
-        if (this.isConnected())
+        LOGGER.trace("Start retrieve server chat room list.");
+        if (!isConnected())
         {
-            String[] channels = this.getChannels();
+            throw new IllegalStateException("Not connected to an IRC server.");
+        }
 
-            for (String channel : channels)
+        final IRCApi irc = this.session.get();
+
+        // TODO Currently, not using an API library method for listing
+        // channels, since it isn't available.
+        synchronized (this.channellist)
+        {
+            List<String> list =
+                this.channellist.get(CHAT_ROOM_LIST_CACHE_EXPIRATION);
+            if (list == null)
             {
-                if (chatRoom.getName().equals(channel))
-                    return true;
+                LOGGER
+                    .trace("Chat room list null or outdated. Start retrieving "
+                        + "new chat room list.");
+                Result<List<String>, Exception> listSignal =
+                    new Result<List<String>, Exception>(
+                        new LinkedList<String>());
+                synchronized (listSignal)
+                {
+                    try
+                    {
+                        irc.addListener(
+                            new ChannelListListener(irc, listSignal));
+                        irc.rawMessage("LIST");
+                        while (!listSignal.isDone())
+                        {
+                            LOGGER.trace("Waiting for list ...");
+                            listSignal.wait();
+                        }
+                        LOGGER.trace("Done waiting for list.");
+                    }
+                    catch (InterruptedException e)
+                    {
+                        LOGGER.warn("INTERRUPTED while waiting for list.", e);
+                    }
+                }
+                list = listSignal.getValue();
+                this.channellist.set(list);
+                LOGGER.trace("Finished retrieving server chat room list.");
+
+                // Set timer to clean up the cache after use, since otherwise it
+                // could stay in memory for a long time.
+                createCleanUpJob(this.channellist);
             }
-            return false;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    /**
-     * Join a chat room on this server.
-     *
-     * @param chatRoom the chat room to join
-     */
-    public void join(ChatRoom chatRoom)
-    {
-        if (!isInitialized)
-        {
-            joinCache.add(chatRoom);
-
-            return;
-        }
-
-        this.joinChannel(chatRoom.getName());
-
-        Timer joinTimeoutTimer = new Timer();
-
-        joinTimeoutTimers.put(chatRoom, joinTimeoutTimer);
-
-        joinTimeoutTimer.schedule(new JoinTimeoutTask(chatRoom), TIMEOUT);
-    }
-
-    /**
-     * Join a chat room on this server.
-     *
-     * @param chatRoom the chat room to join
-     * @param password the password of the chat room
-     */
-    public void join(ChatRoom chatRoom, byte[] password)
-    {
-        this.joinChannel(chatRoom.getName(), new String(password));
-
-        Timer joinTimeoutTimer = new Timer();
-
-        joinTimeoutTimers.put(chatRoom, joinTimeoutTimer);
-
-        joinTimeoutTimer.schedule(new JoinTimeoutTask(chatRoom), TIMEOUT);
-    }
-
-    /**
-     * Leaves the given chat room.
-     *
-     * @param chatRoom the chat room we want to leave
-     */
-    protected void leave(ChatRoom chatRoom)
-    {
-        this.partChannel(chatRoom.getName());
-    }
-
-    /**
-     * This method sends a command to the server which can also be an action or
-     * a notice.
-     *
-     * @param chatRoom the chat room corresponding to the command
-     * @param command the command we want to send
-     */
-    protected void sendCommand(ChatRoomIrcImpl chatRoom, String command)
-    {
-        if (command.startsWith("/me"))
-        {
-            this.sendAction(chatRoom.getName(), command.substring(3));
-        }
-        else if (command.startsWith("/notice"))
-        {
-            this.sendNotice(chatRoom.getName(), command.substring(7));
-        }
-        else if (command.startsWith("/msg"))
-        {
-            StringTokenizer tokenizer = new StringTokenizer(command);
-
-            String target = "";
-            String messageContent = "";
-
-            // We don't need the /msg command text.
-            tokenizer.nextToken();
-
-            if(tokenizer.hasMoreTokens())
-                target = tokenizer.nextToken();
-
-            while(tokenizer.hasMoreTokens())
+            else
             {
-                messageContent += tokenizer.nextToken() + " ";
+                LOGGER.trace("Using cached list of server chat rooms.");
             }
-
-            this.sendMessage(target, messageContent);
-        }
-        else if (command.startsWith("/query"))
-        {
-            StringTokenizer tokenizer = new StringTokenizer(command);
-
-            String target = null;
-
-            tokenizer.nextToken();
-
-            if(tokenizer.hasMoreTokens())
-                target = tokenizer.nextToken();
-
-            this.createPrivateChatRoom(target);
-        }
-        else
-        {
-            this.sendRawLine(command.substring(1));
+            return Collections.unmodifiableList(list);
         }
     }
 
     /**
-     * Called to ban the given user from the given channel. The reason is not
-     * passed to the server, as it doesn't support this parameter.
+     * Create a clean up job that checks the container after the cache has
+     * expired. If the container is still populated, then remove it. This clean
+     * up makes sure that there are no references left to an otherwise useless
+     * list of channels.
      *
-     * @param chatRoom the chat room for which the user should be banned
-     * @param hostmask the host mask of the user to ban
-     * @param reason the reason of the ban
-     * @throws OperationFailedException if something goes wrong
+     * @param channellist the container carrying the list of channel names
      */
-    protected void banParticipant( String chatRoom,
-                        String hostmask,
-                        String reason)
+    private static void createCleanUpJob(
+        final Container<List<String>> channellist)
+    {
+        final Timer cleanUpJob = new Timer();
+        final long timestamp = channellist.getTimestamp();
+        cleanUpJob.schedule(new ChannelListCacheCleanUpTask(channellist,
+            timestamp), CHAT_ROOM_LIST_CACHE_EXPIRATION
+            / RATIO_MILLISECONDS_TO_NANOSECONDS + CACHE_CLEAN_UP_DELAY);
+    }
+
+    /**
+     * Join a particular chat room.
+     *
+     * @param chatroom Chat room to join.
+     * @throws OperationFailedException failed to join the chat room
+     */
+    public void join(final ChatRoomIrcImpl chatroom)
         throws OperationFailedException
     {
-        this.ban(chatRoom, hostmask);
-
-        this.lockChatRoomOperation();
-
-        if (operationResponseCode == ERR_NEEDMOREPARAMS)
-            throw new OperationFailedException(
-                "Need more parameters.",
-                OperationFailedException.GENERAL_ERROR);
-        else if (operationResponseCode == ERR_CHANOPRIVSNEEDED)
-            throw new OperationFailedException(
-                "Need more parameters.",
-                OperationFailedException.NOT_ENOUGH_PRIVILEGES);
-        else if (operationResponseCode == ERR_NOTONCHANNEL)
-            throw new OperationFailedException(
-                "Need more parameters.",
-                OperationFailedException.GENERAL_ERROR);
-        else if (operationResponseCode == ERR_USERSDONTMATCH)
-            throw new OperationFailedException(
-                "Need more parameters.",
-                OperationFailedException.GENERAL_ERROR);
-        else if (operationResponseCode == ERR_NOSUCHCHANNEL)
-            throw new OperationFailedException(
-                "Need more parameters.",
-                OperationFailedException.GENERAL_ERROR);
-        else if (operationResponseCode == ERR_NOSUCHNICK)
-            throw new OperationFailedException(
-                "Need more parameters.",
-                OperationFailedException.GENERAL_ERROR);
-        else if (operationResponseCode == ERR_KEYSET)
-            throw new OperationFailedException(
-                "Need more parameters.",
-                OperationFailedException.GENERAL_ERROR);
-        else if (operationResponseCode == ERR_UMODEUNKNOWNFLAG)
-            throw new OperationFailedException(
-                "Need more parameters.",
-                OperationFailedException.GENERAL_ERROR);
-        else if (operationResponseCode == ERR_UNKNOWNMODE)
-            throw new OperationFailedException(
-                "Need more parameters.",
-                OperationFailedException.GENERAL_ERROR);
+        join(chatroom, "");
     }
 
     /**
-     * Who is.
+     * Join a particular chat room.
      *
-     * @param userInfo
+     * Issue a join channel IRC operation and wait for the join operation to
+     * complete (either successfully or failing).
+     *
+     * @param chatroom The chatroom to join.
+     * @param password Optionally, a password that may be required for some
+     *            channels.
+     * @throws OperationFailedException failed to join the chat room
      */
-    private void onWhoIs(UserInfo userInfo)
+    public void join(final ChatRoomIrcImpl chatroom, final String password)
+        throws OperationFailedException
     {
-        ChatRoomIrcImpl chatRoom = ircMUCOpSet.findSystemRoom();
+        if (!isConnected())
+        {
+            throw new IllegalStateException(
+                "Please connect to an IRC server first");
+        }
+        if (chatroom == null)
+        {
+            throw new IllegalArgumentException("chatroom cannot be null");
+        }
+        if (password == null)
+        {
+            throw new IllegalArgumentException("password cannot be null");
+        }
 
-        if((chatRoom == null) || !chatRoom.isJoined())
+        // Get instance of irc client api.
+        final IRCApi irc = this.session.get();
+        if (irc == null)
+        {
+            throw new IllegalStateException("irc instance is not available");
+        }
+
+        final String chatRoomId = chatroom.getIdentifier();
+        if (this.joined.containsKey(chatRoomId))
+        {
+            // If we already joined this particular chatroom, no further action
+            // is required.
             return;
+        }
 
-        if (logger.isTraceEnabled())
-            logger.trace("WHOIS on: " + userInfo.getNickName() + "!"
-                + userInfo.getLogin() + "@" + userInfo.getHostname());
+        LOGGER.trace("Start joining channel " + chatRoomId);
+        final Result<Object, Exception> joinSignal =
+            new Result<Object, Exception>();
+        synchronized (joinSignal)
+        {
+            LOGGER
+                .trace("Issue join channel command to IRC library and wait for"
+                    + " join operation to complete (un)successfully.");
 
-        String whoisMessage
-            = "Nickname: " + userInfo.getNickName() + "\n"
-                + "Host name: " + userInfo.getHostname() + "\n"
-                + "Login: " + userInfo.getLogin() + "\n"
-                + "Server info: " + userInfo.getServerInfo() + "\n"
-                + "Joined chat rooms:";
+            this.joined.put(chatRoomId, null);
+            // TODO Refactor this ridiculous nesting of functions and
+            // classes.
+            irc.joinChannel(chatRoomId, password, new Callback<IRCChannel>()
+            {
 
-        for (String joinedChatRoom : userInfo.getJoinedChatRooms())
-            whoisMessage += " " + joinedChatRoom;
+                @Override
+                public void onSuccess(final IRCChannel channel)
+                {
+                    if (LOGGER.isTraceEnabled())
+                    {
+                        LOGGER.trace("Started callback for successful join "
+                            + "of channel '" + chatroom.getIdentifier() + "'.");
+                    }
+                    boolean isRequestedChatRoom =
+                        channel.getName().equalsIgnoreCase(chatRoomId);
+                    synchronized (joinSignal)
+                    {
+                        if (!isRequestedChatRoom)
+                        {
+                            // We joined another chat room than the one we
+                            // requested initially.
+                            if (LOGGER.isTraceEnabled())
+                            {
+                                LOGGER.trace("Callback for successful join "
+                                    + "finished prematurely since we "
+                                    + "got forwarded from '" + chatRoomId
+                                    + "' to '" + channel.getName()
+                                    + "'. Joining of forwarded channel "
+                                    + "gets handled by Server Listener "
+                                    + "since that channel was not "
+                                    + "announced.");
+                            }
+                            // Remove original chat room id from joined-list
+                            // since we aren't actually attempting to join
+                            // this room anymore.
+                            IrcStack.this.joined.remove(chatRoomId);
+                            IrcStack.this.provider
+                                .getMUC()
+                                .fireLocalUserPresenceEvent(
+                                    chatroom,
+                                    LocalUserChatRoomPresenceChangeEvent
+                                        .LOCAL_USER_JOIN_FAILED,
+                                    "We got forwarded to channel '"
+                                        + channel.getName() + "'.");
+                            // Notify waiting threads of finished execution.
+                            joinSignal.setDone();
+                            joinSignal.notifyAll();
+                            // The channel that we were forwarded to will be
+                            // handled by the Server Listener, since the
+                            // channel join was unannounced, and we are done
+                            // here.
+                            return;
+                        }
 
-        MessageIrcImpl message
-            = new MessageIrcImpl(   whoisMessage,
-                                    MessageIrcImpl.DEFAULT_MIME_TYPE,
-                                    MessageIrcImpl.DEFAULT_MIME_ENCODING,
+                        try
+                        {
+                            IrcStack.this.joined.put(chatRoomId, chatroom);
+                            irc.addListener(
+                                new ChatRoomListener(irc, chatroom));
+                            prepareChatRoom(chatroom, channel);
+                        }
+                        finally
+                        {
+                            // In any case, issue the local user
+                            // presence, since the irc library notified
+                            // us of a successful join. We should wait
+                            // as long as possible though. First we need
+                            // to fill the list of chat room members and
+                            // other chat room properties.
+                            IrcStack.this.provider
+                                .getMUC()
+                                .fireLocalUserPresenceEvent(
+                                    chatroom,
+                                    LocalUserChatRoomPresenceChangeEvent
+                                        .LOCAL_USER_JOINED,
                                     null);
+                            if (LOGGER.isTraceEnabled())
+                            {
+                                LOGGER.trace("Finished successful join "
+                                    + "callback for channel '" + chatRoomId
+                                    + "'. Waking up original thread.");
+                            }
+                            // Notify waiting threads of finished
+                            // execution.
+                            joinSignal.setDone();
+                            joinSignal.notifyAll();
+                        }
+                    }
+                }
 
-        chatRoom.fireMessageReceivedEvent(
-            message,
-            ircMUCOpSet.findSystemMember(),
-            new Date(),
-            ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+                @Override
+                public void onFailure(final Exception e)
+                {
+                    LOGGER.trace("Started callback for failed attempt to "
+                        + "join channel '" + chatRoomId + "'.");
+                    synchronized (joinSignal)
+                    {
+                        try
+                        {
+                            IrcStack.this.joined.remove(chatRoomId);
+                            IrcStack.this.provider
+                                .getMUC()
+                                .fireLocalUserPresenceEvent(
+                                    chatroom,
+                                    LocalUserChatRoomPresenceChangeEvent
+                                        .LOCAL_USER_JOIN_FAILED,
+                                    e.getMessage());
+                        }
+                        finally
+                        {
+                            if (LOGGER.isTraceEnabled())
+                            {
+                                LOGGER.trace("Finished callback for failed "
+                                    + "attempt to join channel '" + chatRoomId
+                                    + "'. Waking up original thread.");
+                            }
+                            // Notify waiting threads of finished
+                            // execution
+                            joinSignal.setDone(e);
+                            joinSignal.notifyAll();
+                        }
+                    }
+                }
+            });
+
+            try
+            {
+                while (!joinSignal.isDone())
+                {
+                    LOGGER.trace("Waiting for channel join message ...");
+                    // Wait until async channel join operation has finished.
+                    joinSignal.wait();
+                }
+
+                LOGGER
+                    .trace("Finished waiting for join operation for channel '"
+                        + chatroom.getIdentifier() + "' to complete.");
+                // TODO How to handle 480 (+j): Channel throttle exceeded?
+            }
+            catch (InterruptedException e)
+            {
+                LOGGER.error("Wait for join operation was interrupted.", e);
+                throw new OperationFailedException(e.getMessage(),
+                    OperationFailedException.INTERNAL_ERROR, e);
+            }
+        }
     }
 
     /**
-     * Adds a chat room to the server chat room list.
+     * Part from a joined chat room.
      *
-     * @param chatRoomName the name of the chat room to add
+     * @param chatroom The chat room to part from.
      */
-    private void addServerChatRoom(String chatRoomName)
+    public void leave(final ChatRoomIrcImpl chatroom)
     {
-        synchronized (serverChatRoomList)
+        LOGGER.trace("Leaving chat room '" + chatroom.getIdentifier() + "'.");
+        leave(chatroom.getIdentifier());
+    }
+
+    /**
+     * Part from a joined chat room.
+     *
+     * @param chatRoomName The chat room to part from.
+     */
+    private void leave(final String chatRoomName)
+    {
+        if (!isConnected())
         {
-            if (!serverChatRoomList.contains(chatRoomName))
-                serverChatRoomList.add(chatRoomName);
+            throw new IllegalStateException("Not connected to an IRC server.");
+        }
+
+        final IRCApi irc = this.session.get();
+        try
+        {
+            irc.leaveChannel(chatRoomName);
+        }
+        catch (ApiException e)
+        {
+            LOGGER.warn("exception occurred while leaving channel", e);
         }
     }
 
     /**
-     * After waiting a certain time notifies all interested listeners that a
-     * join has failed, because there's no response from the server.
+     * Ban chat room member.
+     *
+     * @param chatroom chat room to ban from
+     * @param member member to ban
+     * @param reason reason for banning
+     * @throws OperationFailedException throws operation failed in case of
+     *             trouble.
      */
-    private class JoinTimeoutTask extends TimerTask
+    public void banParticipant(final ChatRoomIrcImpl chatroom,
+        final ChatRoomMember member, final String reason)
+        throws OperationFailedException
     {
-        private ChatRoom chatRoom;
+        // TODO Implement banParticipant.
+        throw new OperationFailedException("Not implemented yet.",
+            OperationFailedException.NOT_SUPPORTED_OPERATION);
+    }
+
+    /**
+     * Kick channel member.
+     *
+     * @param chatroom channel to kick from
+     * @param member member to kick
+     * @param reason kick message to deliver
+     */
+    public void kickParticipant(final ChatRoomIrcImpl chatroom,
+        final ChatRoomMember member, final String reason)
+    {
+        if (!isConnected())
+        {
+            return;
+        }
+
+        final IRCApi irc = this.session.get();
+        irc.kick(chatroom.getIdentifier(), member.getContactAddress(), reason);
+    }
+
+    /**
+     * Issue invite command to IRC server.
+     *
+     * @param memberId member to invite
+     * @param chatroom channel to invite to
+     */
+    public void invite(final String memberId, final ChatRoomIrcImpl chatroom)
+    {
+        if (!isConnected())
+        {
+            throw new IllegalStateException("Not connected to an IRC server.");
+        }
+
+        final IRCApi irc = this.session.get();
+        irc.rawMessage("INVITE " + memberId + " " + chatroom.getIdentifier());
+    }
+
+    /**
+     * Send a command to the IRC server.
+     *
+     * @param chatroom the chat room
+     * @param message the command message
+     */
+    public void command(final ChatRoomIrcImpl chatroom, final String message)
+    {
+        this.command(chatroom.getIdentifier(), message);
+    }
+
+    /**
+     * Send a command to the IRC server.
+     *
+     * @param contact the chat room
+     * @param message the command message
+     */
+    public void command(final Contact contact, final MessageIrcImpl message)
+    {
+        this.command(contact.getAddress(), message.getContent());
+    }
+
+    /**
+     * Implementation of some commands. If the command is not recognized or
+     * implemented, it will be sent as if it were a normal message.
+     *
+     * TODO Eventually replace this with a factory such that we can easily
+     * extend with new commands.
+     *
+     * @param source Source contact or chat room from which the message is sent.
+     * @param message Command message that is sent.
+     */
+    private void command(final String source, final String message)
+    {
+        if (!isConnected())
+        {
+            throw new IllegalStateException("Not connected to IRC server.");
+        }
+        final IRCApi irc = this.session.get();
+        final String msg = message.toLowerCase();
+        if (msg.startsWith("/msg "))
+        {
+            final String part = message.substring(5);
+            int endOfNick = part.indexOf(' ');
+            if (endOfNick == -1)
+            {
+                throw new IllegalArgumentException("Invalid private message "
+                    + "format. Message was not sent.");
+            }
+            final String target = part.substring(0, endOfNick);
+            final String command = part.substring(endOfNick + 1);
+            irc.message(target, command);
+        }
+        else if (msg.startsWith("/me "))
+        {
+            final String command = message.substring(4);
+            irc.act(source, command);
+        }
+        else if (msg.startsWith("/join "))
+        {
+            final String part = message.substring(6);
+            final String channel;
+            final String password;
+            int indexOfSep = part.indexOf(' ');
+            if (indexOfSep == -1)
+            {
+                channel = part;
+                password = "";
+            }
+            else
+            {
+                channel = part.substring(0, indexOfSep);
+                password = part.substring(indexOfSep + 1);
+            }
+            if (channel.matches("[^,\\n\\r\\s\\a]+"))
+            {
+                irc.joinChannel(channel, password);
+            }
+        }
+        else
+        {
+            irc.message(source, message);
+        }
+    }
+
+    /**
+     * Send an IRC message.
+     *
+     * @param chatroom The chat room to send the message to.
+     * @param message The message to send.
+     */
+    public void message(final ChatRoomIrcImpl chatroom, final String message)
+    {
+        if (!isConnected())
+        {
+            throw new IllegalStateException("Not connected to an IRC server.");
+        }
+        final IRCApi irc = this.session.get();
+        final String target = chatroom.getIdentifier();
+        irc.message(target, message);
+    }
+
+    /**
+     * Send an IRC message.
+     *
+     * @param contact The contact to send the message to.
+     * @param message The message to send.
+     */
+    public void message(final Contact contact, final Message message)
+    {
+        if (!isConnected())
+        {
+            throw new IllegalStateException("Not connected to an IRC server.");
+        }
+        final String target = contact.getAddress();
+        try
+        {
+            final IRCApi irc = this.session.get();
+            irc.message(target, message.getContent());
+            IrcStack.this.provider.getBasicInstantMessaging()
+                .fireMessageDelivered(message, contact);
+            LOGGER.trace("Message delivered to server successfully.");
+        }
+        catch (RuntimeException e)
+        {
+            IrcStack.this.provider.getBasicInstantMessaging()
+                .fireMessageDeliveryFailed(message, contact,
+                    MessageDeliveryFailedEvent.NETWORK_FAILURE);
+            LOGGER.trace("Failed to deliver message: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Grant user permissions to specified user.
+     *
+     * @param chatRoom chat room to grant permissions for
+     * @param userAddress user to grant permissions to
+     * @param mode mode to grant
+     */
+    public void grant(final ChatRoomIrcImpl chatRoom, final String userAddress,
+        final Mode mode)
+    {
+        if (!isConnected())
+        {
+            throw new IllegalStateException("Not connected to an IRC server.");
+        }
+        if (mode.getRole() == null)
+        {
+            throw new IllegalArgumentException(
+                "This mode does not modify user permissions.");
+        }
+        final IRCApi irc = this.session.get();
+        irc.changeMode(chatRoom.getIdentifier() + " +" + mode.getSymbol() + " "
+            + userAddress);
+    }
+
+    /**
+     * Revoke user permissions of chat room for user.
+     *
+     * @param chatRoom chat room
+     * @param userAddress user
+     * @param mode mode
+     */
+    public void revoke(final ChatRoomIrcImpl chatRoom,
+        final String userAddress, final Mode mode)
+    {
+        if (!isConnected())
+        {
+            throw new IllegalStateException("Not connected to an IRC server.");
+        }
+        if (mode.getRole() == null)
+        {
+            throw new IllegalArgumentException(
+                "This mode does not modify user permissions.");
+        }
+        final IRCApi irc = this.session.get();
+        irc.changeMode(chatRoom.getIdentifier() + " -" + mode.getSymbol() + " "
+            + userAddress);
+    }
+
+    /**
+     * Prepare a chat room for initial opening.
+     *
+     * @param channel The IRC channel which is the source of data.
+     * @param chatRoom The chatroom to prepare.
+     */
+    private void prepareChatRoom(final ChatRoomIrcImpl chatRoom,
+        final IRCChannel channel)
+    {
+        final IRCTopic topic = channel.getTopic();
+        chatRoom.updateSubject(topic.getValue());
+
+        for (IRCUser user : channel.getUsers())
+        {
+            ChatRoomMemberIrcImpl member =
+                new ChatRoomMemberIrcImpl(this.provider, chatRoom,
+                    user.getNick(), ChatRoomMemberRole.SILENT_MEMBER);
+            ChatRoomMemberRole role;
+            for (IRCUserStatus status : channel.getStatusesForUser(user))
+            {
+                role = convertMemberMode(status.getChanModeType().charValue());
+                member.addRole(role);
+            }
+            chatRoom.addChatRoomMember(member.getContactAddress(), member);
+            if (this.getNick().equals(user.getNick()))
+            {
+                chatRoom.setLocalUser(member);
+                if (member.getRole() != ChatRoomMemberRole.SILENT_MEMBER)
+                {
+                    ChatRoomLocalUserRoleChangeEvent event =
+                        new ChatRoomLocalUserRoleChangeEvent(chatRoom,
+                            ChatRoomMemberRole.SILENT_MEMBER, member.getRole(),
+                            true);
+                    chatRoom.fireLocalUserRoleChangedEvent(event);
+                }
+            }
+        }
+    }
+
+    /**
+     * Convert a member mode character to a ChatRoomMemberRole instance.
+     *
+     * @param modeSymbol The member mode character.
+     * @return Return the instance of ChatRoomMemberRole corresponding to the
+     *         member mode character.
+     */
+    private static ChatRoomMemberRole convertMemberMode(final char modeSymbol)
+    {
+        return Mode.bySymbol(modeSymbol).getRole();
+    }
+
+    /**
+     * A listener for server-level messages (any messages that are related to
+     * the server, the connection, that are not related to any chatroom in
+     * particular) or that are personal message from user to local user.
+     */
+    private final class ServerListener
+        extends VariousMessageListenerAdapter
+    {
+        /**
+         * IRCApi instance.
+         */
+        private final IRCApi irc;
 
         /**
-         * Creates an instance of <tt>JoinTimeoutTask</tt>.
+         * Constructor for Server Listener.
          *
-         * @param chatRoom the chat room for which the join has been timed out.
+         * @param irc IRCApi instance
          */
-        public JoinTimeoutTask(ChatRoom chatRoom)
+        private ServerListener(final IRCApi irc)
         {
-            this.chatRoom = chatRoom;
+            if (irc == null)
+            {
+                throw new IllegalArgumentException(
+                    "irc instance cannot be null");
+            }
+            this.irc = irc;
         }
 
         /**
-         * Notifies all interested listeners that a join has failed, because
-         * there's no response from the server.
-         * @see java.util.TimerTask#run()
+         * Print out server notices for debugging purposes and for simply
+         * keeping track of the connections.
+         *
+         * @param msg the server notice
+         */
+        @Override
+        public void onServerNotice(final ServerNotice msg)
+        {
+            LOGGER.debug("NOTICE: " + msg.getText());
+        }
+
+        /**
+         * Print out server numeric messages for debugging purposes and for
+         * simply keeping track of the connection.
+         *
+         * @param msg the numeric message
+         */
+        @Override
+        public void onServerNumericMessage(final ServerNumericMessage msg)
+        {
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug("NUM MSG: " + msg.getNumericCode() + ": "
+                    + msg.getText());
+            }
+
+            Integer code = msg.getNumericCode();
+            if (code == null)
+            {
+                LOGGER.debug("No 'code' in numeric message event.");
+                return;
+            }
+
+            if (!IrcStack.this.isConnected())
+            {
+                // Skip message handling until we're officially connected.
+                return;
+            }
+
+            switch (code.intValue())
+            {
+            case IRCServerNumerics.CHANNEL_NICKS_END_OF_LIST:
+                // CHANNEL_NICKS_END_OF_LIST indicates the end of a nick list as
+                // you will receive when joining a channel. This is used as the
+                // indicator that we have joined a channel. Now we have to
+                // determine whether or not we already know about this
+                // particular join attempt. If not, we continue to inform Jitsi
+                // and to create a listener for this new chat room.
+                final String text = msg.getText();
+                final String channelName = text.substring(0, text.indexOf(' '));
+                final ChatRoomIrcImpl chatRoom;
+                final IRCChannel channel;
+                synchronized (IrcStack.this.joined)
+                {
+                    // Synchronize the section that checks then adds a chat
+                    // room. This way we can be sure that there are no 2
+                    // simultaneous creation events.
+                    if (IrcStack.this.joined.containsKey(channelName))
+                    {
+                        LOGGER.trace("Chat room '" + channelName
+                            + "' join event was announced or already "
+                            + "finished. Stop handling this event.");
+                        break;
+                    }
+                    // We aren't currently attempting to join, so this join is
+                    // unannounced.
+                    LOGGER.trace("Starting unannounced join of chat room '"
+                        + channelName);
+                    // Assuming that at the time that NICKS_END_OF_LIST is
+                    // propagated, the channel join event has been completely
+                    // handled by IRCApi.
+                    channel =
+                        IrcStack.this.connectionState
+                            .getChannelByName(channelName);
+                    chatRoom = new ChatRoomIrcImpl(
+                        channelName, IrcStack.this.provider);
+                    IrcStack.this.joined.put(channelName, chatRoom);
+                }
+                this.irc.addListener(new ChatRoomListener(this.irc, chatRoom));
+                try
+                {
+                    IrcStack.this.provider.getMUC()
+                        .openChatRoomWindow(chatRoom);
+                }
+                catch (NullPointerException e)
+                {
+                    LOGGER.error("failed to open chat room window", e);
+                }
+                IrcStack.this.prepareChatRoom(chatRoom, channel);
+                IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
+                    chatRoom,
+                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOINED,
+                    null);
+                LOGGER.trace("Unannounced join of chat room '" + channelName
+                    + "' completed.");
+                break;
+
+            case IRCServerNumerics.NO_SUCH_NICK_CHANNEL:
+                // TODO Check if target is Contact, then update contact presence
+                // status to off-line since the nick apparently does not exist
+                // anymore.
+                if (LOGGER.isTraceEnabled())
+                {
+                    LOGGER.trace("Message did not get delivered: "
+                        + msg.asRaw());
+                }
+                final String msgText = msg.getText();
+                final int endOfTargetIndex = msgText.indexOf(' ');
+                if (endOfTargetIndex == -1)
+                {
+                    LOGGER.trace("Expected target nick in error message, but "
+                        + "it cannot be found. Stop parsing.");
+                    break;
+                }
+                final String targetNick =
+                    msgText.substring(0, endOfTargetIndex);
+                // Send blank text string as the message, since we don't know
+                // what the actual message was. (We cannot reliably relate the
+                // NOSUCHNICK reply to the exact message that caused the error.)
+                MessageIrcImpl message =
+                    new MessageIrcImpl(
+                        "",
+                        OperationSetBasicInstantMessaging.HTML_MIME_TYPE,
+                        OperationSetBasicInstantMessaging.DEFAULT_MIME_ENCODING,
+                        null);
+                final Contact to =
+                    IrcStack.this.provider.getPersistentPresence()
+                        .findOrCreateContactByID(targetNick);
+                IrcStack.this.provider
+                    .getBasicInstantMessaging()
+                    .fireMessageDeliveryFailed(
+                        message,
+                        to,
+                        MessageDeliveryFailedEvent
+                            .OFFLINE_MESSAGES_NOT_SUPPORTED);
+                break;
+
+            default:
+                if (LOGGER.isTraceEnabled())
+                {
+                    LOGGER.trace("This ServerNumericMessage (" + code
+                        + ") will not be handled by the ServerListener.");
+                }
+                break;
+            }
+        }
+
+        /**
+         * Print out received errors for debugging purposes and may be for
+         * expected errors that can be acted upon.
+         *
+         * @param msg the error message
+         */
+        @Override
+        public void onError(final ErrorMessage msg)
+        {
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER
+                    .debug("ERROR: " + msg.getSource() + ": " + msg.getText());
+            }
+            if (IrcStack.this.connectionState != null)
+            {
+                if (!IrcStack.this.connectionState.isConnected())
+                {
+                    IrcStack.this.provider
+                        .setCurrentRegistrationState(
+                            RegistrationState.CONNECTION_FAILED);
+                }
+            }
+        }
+
+        /**
+         * Upon receiving a private message from a user, deliver that to an
+         * instant messaging contact and create one if it does not exist. We can
+         * ignore normal chat rooms, since they each have their own
+         * ChatRoomListener for managing chat room operations.
+         *
+         * @param msg the private message
+         */
+        @Override
+        public void onUserPrivMessage(final UserPrivMsg msg)
+        {
+            final String user = msg.getSource().getNick();
+            final MessageIrcImpl message =
+                MessageIrcImpl.newMessageFromIRC(msg.getText());
+            final Contact from =
+                IrcStack.this.provider.getPersistentPresence()
+                    .findOrCreateContactByID(user);
+            try
+            {
+                IrcStack.this.provider.getBasicInstantMessaging()
+                    .fireMessageReceived(message, from);
+            }
+            catch (RuntimeException e)
+            {
+                // TODO remove once this is stable. Don't want to lose message
+                // when an accidental error occurs.
+                // It is likely that errors occurred because of some issues with
+                // MetaContactGroup for NonPersistent group, since this is an
+                // outstanding error.
+                LOGGER.error(
+                    "Error occurred while delivering private message from user"
+                        + " '" + user + "': " + msg.getText(), e);
+            }
+        }
+
+        /**
+         * Upon receiving a user notice message from a user, deliver that to an
+         * instant messaging contact.
+         *
+         * @param msg user notice message
+         */
+        @Override
+        public void onUserNotice(final UserNotice msg)
+        {
+            final String user = msg.getSource().getNick();
+            final Contact from =
+                IrcStack.this.provider.getPersistentPresence()
+                    .findOrCreateContactByID(user);
+            final MessageIrcImpl message =
+                MessageIrcImpl.newNoticeFromIRC(from, msg.getText());
+            IrcStack.this.provider.getBasicInstantMessaging()
+                .fireMessageReceived(message, from);
+        }
+
+        /**
+         * Upon receiving a user action message from a user, deliver that to an
+         * instant messaging contact.
+         *
+         * @param msg user action message
+         */
+        @Override
+        public void onUserAction(final UserActionMsg msg)
+        {
+            final String user = msg.getSource().getNick();
+            final Contact from =
+                IrcStack.this.provider.getPersistentPresence().findContactByID(
+                    user);
+            final MessageIrcImpl message =
+                MessageIrcImpl.newActionFromIRC(from, msg.getText());
+            IrcStack.this.provider.getBasicInstantMessaging()
+                .fireMessageReceived(message, from);
+        }
+
+        /**
+         * User quit messages.
+         *
+         * User quit messages only need to be handled in case quitting users,
+         * since that is the only clear signal of presence change we have.
+         *
+         * @param msg Quit message
+         */
+        @Override
+        public void onUserQuit(final QuitMessage msg)
+        {
+            final String user = msg.getSource().getNick();
+            if (user != null
+                && user.equals(IrcStack.this.connectionState.getNickname()))
+            {
+                LOGGER.debug("Local user's QUIT message received: removing "
+                    + "server listener.");
+                this.irc.deleteListener(this);
+                return;
+            }
+
+            // TODO Implement notion of Presence for IRC.
+            // Re-enabled/Disabled user presence status updates, probably
+            // not going to do user presence, since we cannot detect all changes
+            // and Jitsi does act upon different presence statuses.
+
+            // Off-line contact still gets sent a message. Is this desired
+            // behavior?
+
+            // final String userNick = msg.getSource().getNick();
+            // final Contact user =
+            // IrcStack.this.provider.getPersistentPresence().findContactByID(
+            // userNick);
+            // if (user == null)
+            // {
+            // LOGGER
+            // .trace("User not in contact list. Not updating user presence status.");
+            // return;
+            // }
+            //
+            // final PresenceStatus previousStatus = user.getPresenceStatus();
+            // if (previousStatus == IrcStatusEnum.OFFLINE)
+            // {
+            // LOGGER.trace("User already off-line, not updating user "
+            // + "presence status.");
+            // return;
+            // }
+            //
+            // if (!(user instanceof ContactIrcImpl))
+            // {
+            // LOGGER.warn("Unexpected type of contact, expected "
+            // + "ContactIrcImpl but got " + user.getClass().getName()
+            // + ". Not updating presence.");
+            // return;
+            // }
+            //
+            // final ContactGroup parentGroup = user.getParentContactGroup();
+            // final ContactIrcImpl member = (ContactIrcImpl) user;
+            // member.setPresenceStatus(IrcStatusEnum.OFFLINE);
+            // IrcStack.this.provider.getPersistentPresence()
+            // .fireContactPresenceStatusChangeEvent(user, parentGroup,
+            // previousStatus, member.getPresenceStatus(), true);
+
+            // Update status to online in case a message arrives from this
+            // particular user.
+
+            // What happens if user is thought to be offline (so presence
+            // set this way) and it turns out the user is online? Can we send it
+            // a message then? (Or would Jitsi block this, because there is no
+            // support for off-line messaging.)
+        }
+    }
+
+    /**
+     * A chat room listener.
+     *
+     * A chat room listener is registered for each chat room that we join. The
+     * chat room listener updates chat room data and fires events based on IRC
+     * messages that report state changes for the specified channel.
+     *
+     * @author Danny van Heumen
+     *
+     */
+    private final class ChatRoomListener
+        extends VariousMessageListenerAdapter
+    {
+        /**
+         * IRC error code for case where user is not joined to that channel.
+         */
+        private static final int IRC_ERR_NOTONCHANNEL = 442;
+
+        /**
+         * IRCApi instance.
+         */
+        private final IRCApi irc;
+
+        /**
+         * Chat room for which this listener is working.
+         */
+        private final ChatRoomIrcImpl chatroom;
+
+        /**
+         * Constructor. Instantiate listener for the provided chat room.
+         *
+         * @param irc IRCApi instance
+         * @param chatroom the chat room
+         */
+        private ChatRoomListener(final IRCApi irc,
+            final ChatRoomIrcImpl chatroom)
+        {
+            if (chatroom == null)
+            {
+                throw new IllegalArgumentException("chatroom cannot be null");
+            }
+            this.chatroom = chatroom;
+            if (irc == null)
+            {
+                throw new IllegalArgumentException("irc cannot be null");
+            }
+            this.irc = irc;
+        }
+
+        /**
+         * Event in case of topic change.
+         *
+         * @param msg topic change message
+         */
+        @Override
+        public void onTopicChange(final TopicMessage msg)
+        {
+            if (!isThisChatRoom(msg.getChannelName()))
+            {
+                return;
+            }
+
+            // FIXME Topic change event report message interprets HTML chars in
+            // channel name.
+            this.chatroom.updateSubject(msg.getTopic().getValue());
+        }
+
+        /**
+         * Event in case of channel mode changes.
+         *
+         * @param msg channel mode message
+         */
+        @Override
+        public void onChannelMode(final ChannelModeMessage msg)
+        {
+            if (!isThisChatRoom(msg.getChannelName()))
+            {
+                return;
+            }
+
+            processModeMessage(msg);
+        }
+
+        /**
+         * Event in case of channel join message.
+         *
+         * @param msg channel join message
+         */
+        @Override
+        public void onChannelJoin(final ChanJoinMessage msg)
+        {
+            if (!isThisChatRoom(msg.getChannelName()))
+            {
+                return;
+            }
+
+            final String user = msg.getSource().getNick();
+            final ChatRoomMemberIrcImpl member =
+                new ChatRoomMemberIrcImpl(IrcStack.this.provider,
+                    this.chatroom, user, ChatRoomMemberRole.SILENT_MEMBER);
+            this.chatroom.fireMemberPresenceEvent(member, null,
+                ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED, null);
+        }
+
+        /**
+         * Event in case of channel part.
+         *
+         * @param msg channel part message
+         */
+        @Override
+        public void onChannelPart(final ChanPartMessage msg)
+        {
+            if (!isThisChatRoom(msg.getChannelName()))
+            {
+                return;
+            }
+
+            final IRCUser user = msg.getSource();
+            if (isMe(user))
+            {
+                leaveChatRoom();
+                return;
+            }
+
+            final String userNick = msg.getSource().getNick();
+            final ChatRoomMember member =
+                this.chatroom.getChatRoomMember(userNick);
+            if (member != null)
+            {
+                // When the account has been disabled, the chat room may return
+                // null. If that is NOT the case, continue handling.
+                try
+                {
+                    this.chatroom.fireMemberPresenceEvent(member, null,
+                        ChatRoomMemberPresenceChangeEvent.MEMBER_LEFT,
+                        msg.getPartMsg());
+                }
+                catch (NullPointerException e)
+                {
+                    LOGGER.warn(
+                        "This should not have happened. Please report this "
+                            + "as it is a bug.", e);
+                }
+            }
+        }
+
+        /**
+         * Some of the generic message are relevant to us, so keep an eye on
+         * general numeric messages.
+         *
+         * @param msg IRC server numeric message
+         */
+        public void onServerNumericMessage(final ServerNumericMessage msg)
+        {
+            final Integer code = msg.getNumericCode();
+            if (code == null)
+            {
+                return;
+            }
+            final String raw = msg.getText();
+            if (code.intValue() == IRC_ERR_NOTONCHANNEL)
+            {
+                final String channel = raw.substring(0, raw.indexOf(" "));
+                if (isThisChatRoom(channel))
+                {
+                    LOGGER
+                        .warn("Just discovered that we are no longer joined to "
+                            + "channel "
+                            + channel
+                            + ". Leaving quietly. (This is most likely due to a"
+                            + " bug in the implementation.)");
+                    // If for some reason we missed the message that we aren't
+                    // joined (anymore) to this particular chat room, correct
+                    // our problem ASAP.
+                    leaveChatRoom();
+                }
+            }
+        }
+
+        /**
+         * Event in case of channel kick.
+         *
+         * @param msg channel kick message
+         */
+        @Override
+        public void onChannelKick(final ChannelKick msg)
+        {
+            if (!isThisChatRoom(msg.getChannelName()))
+            {
+                return;
+            }
+
+            if (!IrcStack.this.isConnected())
+            {
+                LOGGER.error("Not currently connected to IRC Server. "
+                    + "Aborting message handling.");
+                return;
+            }
+
+            final String kickedUser = msg.getKickedNickname();
+            final ChatRoomMember kickedMember =
+                this.chatroom.getChatRoomMember(kickedUser);
+            final String user = msg.getSource().getNick();
+            if (kickedMember != null)
+            {
+                ChatRoomMember kicker = this.chatroom.getChatRoomMember(user);
+                this.chatroom.fireMemberPresenceEvent(kickedMember, kicker,
+                    ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED,
+                    msg.getText());
+            }
+            if (isMe(kickedUser))
+            {
+                LOGGER.debug(
+                    "Local user is kicked. Removing chat room listener.");
+                this.irc.deleteListener(this);
+                IrcStack.this.joined.remove(this.chatroom.getIdentifier());
+                IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
+                    this.chatroom,
+                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_KICKED,
+                    msg.getText());
+            }
+        }
+
+        /**
+         * Event in case of user quit.
+         *
+         * @param msg user quit message
+         */
+        @Override
+        public void onUserQuit(final QuitMessage msg)
+        {
+            String user = msg.getSource().getNick();
+            if (user == null)
+            {
+                return;
+            }
+            if (user.equals(IrcStack.this.connectionState.getNickname()))
+            {
+                LOGGER.debug("Local user QUIT message received: removing chat "
+                    + "room listener.");
+                this.irc.deleteListener(this);
+                return;
+            }
+            final ChatRoomMember member = this.chatroom.getChatRoomMember(user);
+            if (member != null)
+            {
+                this.chatroom.fireMemberPresenceEvent(member, null,
+                    ChatRoomMemberPresenceChangeEvent.MEMBER_QUIT,
+                    msg.getQuitMsg());
+            }
+        }
+
+        /**
+         * Event in case of nick change.
+         *
+         * @param msg nick change message
+         */
+        @Override
+        public void onNickChange(final NickMessage msg)
+        {
+            if (msg == null)
+            {
+                return;
+            }
+
+            final String oldNick = msg.getSource().getNick();
+            final String newNick = msg.getNewNick();
+
+            final ChatRoomMemberIrcImpl member =
+                (ChatRoomMemberIrcImpl) this.chatroom
+                    .getChatRoomMember(oldNick);
+            if (member != null)
+            {
+                member.setName(newNick);
+                this.chatroom.updateChatRoomMemberName(oldNick);
+                ChatRoomMemberPropertyChangeEvent evt =
+                    new ChatRoomMemberPropertyChangeEvent(member,
+                        this.chatroom,
+                        ChatRoomMemberPropertyChangeEvent.MEMBER_NICKNAME,
+                        oldNick, newNick);
+                this.chatroom.fireMemberPropertyChangeEvent(evt);
+            }
+        }
+
+        /**
+         * Event in case of channel message arrival.
+         *
+         * @param msg channel message
+         */
+        @Override
+        public void onChannelMessage(final ChannelPrivMsg msg)
+        {
+            if (!isThisChatRoom(msg.getChannelName()))
+            {
+                return;
+            }
+
+            final MessageIrcImpl message =
+                MessageIrcImpl.newMessageFromIRC(msg.getText());
+            final ChatRoomMemberIrcImpl member =
+                new ChatRoomMemberIrcImpl(IrcStack.this.provider,
+                    this.chatroom, msg.getSource().getNick(),
+                    ChatRoomMemberRole.MEMBER);
+            this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
+                ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
+        }
+
+        /**
+         * Event in case of channel action message arrival.
+         *
+         * @param msg channel action message
+         */
+        @Override
+        public void onChannelAction(final ChannelActionMsg msg)
+        {
+            if (!isThisChatRoom(msg.getChannelName()))
+            {
+                return;
+            }
+
+            String userNick = msg.getSource().getNick();
+            ChatRoomMemberIrcImpl member =
+                new ChatRoomMemberIrcImpl(IrcStack.this.provider,
+                    this.chatroom, userNick, ChatRoomMemberRole.MEMBER);
+            MessageIrcImpl message =
+                MessageIrcImpl.newActionFromIRC(member, msg.getText());
+            this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
+                ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
+        }
+
+        /**
+         * Event in case of channel notice message arrival.
+         *
+         * @param msg channel notice message
+         */
+        @Override
+        public void onChannelNotice(final ChannelNotice msg)
+        {
+            if (!isThisChatRoom(msg.getChannelName()))
+            {
+                return;
+            }
+
+            final String userNick = msg.getSource().getNick();
+            final ChatRoomMemberIrcImpl member =
+                new ChatRoomMemberIrcImpl(IrcStack.this.provider,
+                    this.chatroom, userNick, ChatRoomMemberRole.MEMBER);
+            final MessageIrcImpl message =
+                MessageIrcImpl.newNoticeFromIRC(member, msg.getText());
+            this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
+                ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
+        }
+
+        /**
+         * Leave this chat room.
+         */
+        private void leaveChatRoom()
+        {
+            this.irc.deleteListener(this);
+            IrcStack.this.joined.remove(this.chatroom.getIdentifier());
+            LOGGER.debug("Leaving chat room " + this.chatroom.getIdentifier()
+                + ". Chat room listener removed.");
+            IrcStack.this.provider.getMUC().fireLocalUserPresenceEvent(
+                this.chatroom,
+                LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT, null);
+        }
+
+        /**
+         * Process mode changes.
+         *
+         * @param msg raw mode message
+         */
+        private void processModeMessage(final ChannelModeMessage msg)
+        {
+            final ChatRoomMemberIrcImpl source = extractChatRoomMember(msg);
+            final ModeParser parser = new ModeParser(msg.getModeStr());
+            for (ModeEntry mode : parser.getModes())
+            {
+                switch (mode.getMode())
+                {
+                case OWNER:
+                case OPERATOR:
+                case HALFOP:
+                case VOICE:
+                    processRoleChange(source, mode);
+                    break;
+                case LIMIT:
+                    processLimitChange(source, mode);
+                    break;
+                case BAN:
+                    processBanChange(source, mode);
+                    break;
+                case UNKNOWN:
+                    if (LOGGER.isInfoEnabled())
+                    {
+                        LOGGER.info("Unknown mode: "
+                            + (mode.isAdded() ? "+" : "-")
+                            + mode.getParams()[0] + ". Original mode string: '"
+                            + msg.getModeStr() + "'");
+                    }
+                    break;
+                default:
+                    if (LOGGER.isInfoEnabled())
+                    {
+                        LOGGER.info("Unsupported mode '"
+                            + (mode.isAdded() ? "+" : "-") + mode.getMode()
+                            + "' (from modestring '" + msg.getModeStr() + "')");
+                    }
+                    break;
+                }
+            }
+        }
+
+        /**
+         * Process changes for ban patterns.
+         *
+         * @param sourceMember the originating member
+         * @param mode the ban mode change
+         */
+        private void processBanChange(final ChatRoomMemberIrcImpl sourceMember,
+            final ModeEntry mode)
+        {
+            final MessageIrcImpl banMessage =
+                new MessageIrcImpl(
+                    "channel ban mask was "
+                        + (mode.isAdded() ? "added" : "removed")
+                        + ": "
+                        + mode.getParams()[0]
+                        + " by "
+                        + (sourceMember.getContactAddress().length() == 0
+                            ? "server"
+                            : sourceMember.getContactAddress()),
+                    MessageIrcImpl.DEFAULT_MIME_TYPE,
+                    MessageIrcImpl.DEFAULT_MIME_ENCODING, null);
+            this.chatroom.fireMessageReceivedEvent(banMessage, sourceMember,
+                new Date(),
+                ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+        }
+
+        /**
+         * Process mode changes resulting in role manipulation.
+         *
+         * @param sourceMember the originating member
+         * @param mode the mode change
+         */
+        private void processRoleChange(
+            final ChatRoomMemberIrcImpl sourceMember, final ModeEntry mode)
+        {
+            final String targetNick = mode.getParams()[0];
+            final ChatRoomMemberIrcImpl targetMember =
+                (ChatRoomMemberIrcImpl) this.chatroom
+                    .getChatRoomMember(targetNick);
+            final ChatRoomMemberRole originalRole = targetMember.getRole();
+            if (mode.isAdded())
+            {
+                targetMember.addRole(mode.getMode().getRole());
+            }
+            else
+            {
+                targetMember.removeRole(mode.getMode().getRole());
+            }
+            final ChatRoomMemberRole newRole = targetMember.getRole();
+            if (newRole != originalRole)
+            {
+                // Mode change actually caused a role change.
+                final ChatRoomLocalUserRoleChangeEvent event =
+                    new ChatRoomLocalUserRoleChangeEvent(this.chatroom,
+                        originalRole, newRole, false);
+                if (isMe(targetMember.getContactAddress()))
+                {
+                    this.chatroom.fireLocalUserRoleChangedEvent(event);
+                }
+                else
+                {
+                    this.chatroom.fireMemberRoleEvent(targetMember,
+                        newRole);
+                }
+            }
+            else
+            {
+                // Mode change did not cause an immediate role change.
+                // Display a system message for the mode change.
+                final String text =
+                    sourceMember.getName()
+                        + (mode.isAdded() ? " gives "
+                            + mode.getMode().name().toLowerCase()
+                            + " to " : " removes "
+                            + mode.getMode().name().toLowerCase()
+                            + " from ") + targetMember.getName();
+                final MessageIrcImpl message =
+                    new MessageIrcImpl(text,
+                        MessageIrcImpl.DEFAULT_MIME_TYPE,
+                        MessageIrcImpl.DEFAULT_MIME_ENCODING, null);
+                this.chatroom
+                    .fireMessageReceivedEvent(
+                        message,
+                        sourceMember,
+                        new Date(),
+                        ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+            }
+        }
+
+        /**
+         * Process mode change that represents a channel limit modification.
+         *
+         * @param sourceMember the originating member
+         * @param mode the limit mode change
+         */
+        private void processLimitChange(
+            final ChatRoomMemberIrcImpl sourceMember, final ModeEntry mode)
+        {
+            final MessageIrcImpl limitMessage;
+            if (mode.isAdded())
+            {
+                try
+                {
+                    limitMessage =
+                        new MessageIrcImpl(
+                            "channel limit set to "
+                                + Integer.parseInt(mode.getParams()[0])
+                                + " by "
+                                + (sourceMember.getContactAddress()
+                                        .length() == 0
+                                    ? "server"
+                                    : sourceMember.getContactAddress()),
+                            "text/plain", "UTF-8", null);
+                }
+                catch (NumberFormatException e)
+                {
+                    LOGGER.warn("server sent incorrect limit: "
+                        + "limit is not a number", e);
+                    return;
+                }
+            }
+            else
+            {
+                // TODO "server" is now easily fakeable if someone
+                // calls himself server. There should be some other way
+                // to represent the server if a message comes from
+                // something other than a normal chat room member.
+                limitMessage =
+                    new MessageIrcImpl(
+                        "channel limit removed by "
+                            + (sourceMember.getContactAddress().length() == 0
+                                ? "server"
+                                : sourceMember.getContactAddress()),
+                        "text/plain", "UTF-8", null);
+            }
+            this.chatroom.fireMessageReceivedEvent(limitMessage, sourceMember,
+                new Date(),
+                ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+        }
+
+        /**
+         * Extract chat room member identifier from message.
+         *
+         * @param msg raw mode message
+         * @return returns member instance
+         */
+        private ChatRoomMemberIrcImpl extractChatRoomMember(
+            final ChannelModeMessage msg)
+        {
+            ChatRoomMemberIrcImpl member;
+            ISource source = msg.getSource();
+            if (source instanceof IRCServer)
+            {
+                // TODO Created chat room member with creepy empty contact ID.
+                // Interacting with this contact might screw up other sections
+                // of code which is not good. Is there a better way to represent
+                // an IRC server as a chat room member?
+                member =
+                    new ChatRoomMemberIrcImpl(IrcStack.this.provider,
+                        this.chatroom, "", ChatRoomMemberRole.ADMINISTRATOR);
+            }
+            else if (source instanceof IRCUser)
+            {
+                String nick = ((IRCUser) source).getNick();
+                member =
+                    (ChatRoomMemberIrcImpl) this.chatroom
+                        .getChatRoomMember(nick);
+            }
+            else
+            {
+                throw new IllegalArgumentException("Unknown source type: "
+                    + source.getClass().getName());
+            }
+            return member;
+        }
+
+        /**
+         * Test whether this listener corresponds to the chat room.
+         *
+         * @param chatRoomName chat room name
+         * @return returns true if this listener applies, false otherwise
+         */
+        private boolean isThisChatRoom(final String chatRoomName)
+        {
+            return this.chatroom.getIdentifier().equalsIgnoreCase(chatRoomName);
+        }
+
+        /**
+         * Test whether the source user is this user.
+         *
+         * @param user the source user
+         * @return returns true if this use, or false otherwise
+         */
+        private boolean isMe(final IRCUser user)
+        {
+            return isMe(user.getNick());
+        }
+
+        /**
+         * Test whether the user nick is this user.
+         *
+         * @param name nick of the user
+         * @return returns true if so, false otherwise
+         */
+        private boolean isMe(final String name)
+        {
+            final String userNick = IrcStack.this.connectionState.getNickname();
+            if (userNick == null)
+            {
+                return false;
+            }
+            return userNick.equals(name);
+        }
+    }
+
+    /**
+     * Special listener that processes LIST replies and signals once the list is
+     * completely filled.
+     */
+    private static final class ChannelListListener
+        extends VariousMessageListenerAdapter
+    {
+        /**
+         * Start of an IRC server channel listing reply.
+         */
+        private static final int RPL_LISTSTART = 321;
+
+        /**
+         * Continuation of an IRC server channel listing reply.
+         */
+        private static final int RPL_LIST = 322;
+
+        /**
+         * End of an IRC server channel listing reply.
+         */
+        private static final int RPL_LISTEND = 323;
+
+        /**
+         * Reference to the IRC API instance.
+         */
+        private final IRCApi api;
+
+        /**
+         * Reference to the provided list instance.
+         */
+        private final Result<List<String>, Exception> signal;
+
+        /**
+         * Constructor for channel list listener.
+         *
+         * @param api irc-api library instance
+         * @param signal signal for sync signaling
+         */
+        private ChannelListListener(final IRCApi api,
+            final Result<List<String>, Exception> signal)
+        {
+            if (api == null)
+            {
+                throw new IllegalArgumentException(
+                    "IRC api instance cannot be null");
+            }
+            this.api = api;
+            this.signal = signal;
+        }
+
+        /**
+         * Act on LIST messages: 321 RPL_LISTSTART, 322 RPL_LIST, 323
+         * RPL_LISTEND
+         *
+         * Clears the list upon starting. All received channels are added to the
+         * list. Upon receiving RPL_LISTEND finalize the list and signal the
+         * waiting thread that it can continue processing the list.
+         *
+         * @param msg The numeric server message.
+         */
+        @Override
+        public void onServerNumericMessage(final ServerNumericMessage msg)
+        {
+            if (this.signal.isDone())
+            {
+                return;
+            }
+
+            switch (msg.getNumericCode())
+            {
+            case RPL_LISTSTART:
+                synchronized (this.signal)
+                {
+                    this.signal.getValue().clear();
+                }
+                break;
+            case RPL_LIST:
+                String channel = parse(msg.getText());
+                if (channel != null)
+                {
+                    synchronized (this.signal)
+                    {
+                        this.signal.getValue().add(channel);
+                    }
+                }
+                break;
+            case RPL_LISTEND:
+                synchronized (this.signal)
+                {
+                    // Done collecting channels. Remove listener and then we're
+                    // done.
+                    this.api.deleteListener(this);
+                    this.signal.setDone();
+                    this.signal.notifyAll();
+                }
+                break;
+            // TODO Add support for REPLY 416: LIST :output too large, truncated
+            default:
+                break;
+            }
+        }
+
+        /**
+         * Parse an IRC server response RPL_LIST. Extract the channel name.
+         *
+         * @param text raw server response
+         * @return returns the channel name
+         */
+        private String parse(final String text)
+        {
+            int endOfChannelName = text.indexOf(' ');
+            if (endOfChannelName == -1)
+            {
+                return null;
+            }
+            // Create a new string to make sure that the original (larger)
+            // strings can be GC'ed.
+            return new String(text.substring(0, endOfChannelName));
+        }
+    }
+
+    /**
+     * Listener for debugging purposes. If logging level is set high enough,
+     * this listener is added to the irc-api client so it can show all IRC
+     * messages as they are handled.
+     *
+     * @author Danny van Heumen
+     */
+    private static final class DebugListener implements IMessageListener
+    {
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void onMessage(final IMessage aMessage)
+        {
+            LOGGER.trace("(" + aMessage + ") " + aMessage.asRaw());
+        }
+    }
+
+    /**
+     * Container for storing server parameters.
+     */
+    private static final class ServerParameters
+        implements IServerParameters
+    {
+        /**
+         * Number of increments to try for alternative nick names.
+         */
+        private static final int NUM_INCREMENTS_FOR_ALTERNATIVES = 10;
+
+        /**
+         * Reserved symbols. These symbols have special meaning and cannot be
+         * used to start nick names.
+         */
+        private static final Set<Character> RESERVED = new HashSet<Character>();
+
+        static {
+            RESERVED.add('#');
+            RESERVED.add('&');
+        }
+
+        /**
+         * Nick name.
+         */
+        private String nick;
+
+        /**
+         * Alternative nick names.
+         */
+        private List<String> alternativeNicks = new ArrayList<String>();
+
+        /**
+         * Real name.
+         */
+        private String real;
+
+        /**
+         * Ident.
+         */
+        private String ident;
+
+        /**
+         * IRC server.
+         */
+        private IRCServer server;
+
+        /**
+         * Construct ServerParameters instance.
+         * @param nickName nick name
+         * @param realName real name
+         * @param ident ident
+         * @param server IRC server instance
+         */
+        private ServerParameters(final String nickName, final String realName,
+            final String ident, final IRCServer server)
+        {
+            this.nick = checkNick(nickName);
+            this.alternativeNicks.add(nickName + "_");
+            this.alternativeNicks.add(nickName + "__");
+            this.alternativeNicks.add(nickName + "___");
+            this.alternativeNicks.add(nickName + "____");
+            for (int i = 1; i < NUM_INCREMENTS_FOR_ALTERNATIVES; i++)
+            {
+                this.alternativeNicks.add(nickName + i);
+            }
+            this.real = realName;
+            this.ident = ident;
+            this.server = server;
+        }
+
+        /**
+         * Get nick name.
+         *
+         * @return returns nick name
+         */
+        @Override
+        public String getNickname()
+        {
+            return this.nick;
+        }
+
+        /**
+         * Set new nick name.
+         *
+         * @param nick nick name
+         */
+        public void setNickname(final String nick)
+        {
+            this.nick = checkNick(nick);
+        }
+
+        /**
+         * Verify nick name.
+         *
+         * @param nick nick name
+         * @return returns nick name
+         */
+        private String checkNick(final String nick)
+        {
+            if (nick == null)
+            {
+                throw new IllegalArgumentException(
+                    "a nick name must be provided");
+            }
+            // TODO Add '+' and '!' to reserved symbols too?
+            if (RESERVED.contains(nick.charAt(0)))
+            {
+                throw new IllegalArgumentException(
+                    "the nick name must not start with '#' or '&' "
+                        + "since this is reserved for IRC channels");
+            }
+            return nick;
+        }
+
+        /**
+         * Get alternative nick names.
+         *
+         * @return returns list of alternatives
+         */
+        @Override
+        public List<String> getAlternativeNicknames()
+        {
+            return this.alternativeNicks;
+        }
+
+        /**
+         * Get ident string.
+         *
+         * @return returns ident
+         */
+        @Override
+        public String getIdent()
+        {
+            return this.ident;
+        }
+
+        /**
+         * Get real name.
+         *
+         * @return returns real name
+         */
+        @Override
+        public String getRealname()
+        {
+            return this.real;
+        }
+
+        /**
+         * Get server.
+         *
+         * @return returns server instance
+         */
+        @Override
+        public IRCServer getServer()
+        {
+            return this.server;
+        }
+
+        /**
+         * Set server instance.
+         *
+         * @param server IRC server instance
+         */
+        public void setServer(final IRCServer server)
+        {
+            if (server == null)
+            {
+                throw new IllegalArgumentException("server cannot be null");
+            }
+            this.server = server;
+        }
+    }
+
+    /**
+     * Simplest possible container that we can use for locking while we're
+     * checking/modifying the contents.
+     *
+     * @param <T> The type of instance to store in the container
+     */
+    private static final class Container<T>
+    {
+        /**
+         * The stored instance. (Can be null)
+         */
+        private T instance;
+
+        /**
+         * Time of stored instance.
+         */
+        private long time;
+
+        /**
+         * Constructor that immediately sets the instance.
+         *
+         * @param instance the instance to set
+         */
+        private Container(final T instance)
+        {
+            this.instance = instance;
+            this.time = System.nanoTime();
+        }
+
+        /**
+         * Conditionally get the stored instance. Get the instance when time
+         * difference is within specified bound. Otherwise return null.
+         *
+         * @param bound maximum time difference that is allowed.
+         * @return returns instance if within bounds, or null otherwise
+         */
+        public T get(final long bound)
+        {
+            if (System.nanoTime() - this.time > bound)
+            {
+                return null;
+            }
+            return this.instance;
+        }
+
+        /**
+         * Set an instance.
+         *
+         * @param instance the instance
+         */
+        public void set(final T instance)
+        {
+            this.instance = instance;
+            this.time = System.nanoTime();
+        }
+
+        /**
+         * Get the timestamp from when the instance was set.
+         *
+         * @return returns the timestamp
+         */
+        public long getTimestamp()
+        {
+            return this.time;
+        }
+    }
+
+    /**
+     * Task for cleaning up old channel list caches.
+     *
+     * @author Danny van Heumen
+     */
+    private static final class ChannelListCacheCleanUpTask
+        extends TimerTask
+    {
+        /**
+         * Expected timestamp on which the list cache was created. It is used as
+         * an indicator to see whether the cache has been refreshed in the mean
+         * time.
+         */
+        private final long timestamp;
+
+        /**
+         * Container holding the channel list cache.
+         */
+        private final Container<List<String>> container;
+
+        /**
+         * Construct new clean up job definition.
+         *
+         * @param listContainer container that holds the channel list cache
+         * @param timestamp expected timestamp of list cache creation
+         */
+        private ChannelListCacheCleanUpTask(
+            final Container<List<String>> listContainer, final long timestamp)
+        {
+            if (listContainer == null)
+            {
+                throw new IllegalArgumentException(
+                    "listContainer cannot be null");
+            }
+            this.container = listContainer;
+            this.timestamp = timestamp;
+        }
+
+        /**
+         * Remove the list reference from the container. But only if the
+         * timestamp matches. This makes sure that only one clean up job will
+         * clean up a list.
          */
         @Override
         public void run()
         {
-            ((OperationSetMultiUserChatIrcImpl) parentProvider
-                .getOperationSet(OperationSetMultiUserChat.class))
-                    .fireLocalUserPresenceEvent(chatRoom,
-                    LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_JOIN_FAILED,
-                    "Failed to join the  " + chatRoom.getName()
-                    + " chat room, because there is no response from the server.");
-        }
-    }
-
-    /**
-     * Locks a chat room operation.
-     */
-    private void lockChatRoomOperation()
-    {
-        synchronized (operationLock)
-        {
-            try
+            synchronized (this.container)
             {
-                operationLock.wait(5000);
+                // Only clean up old cache if this is the dedicated task for it.
+                // If the timestamp has changed, another job is responsible for
+                // the clean up.
+                if (this.container.getTimestamp() != this.timestamp)
+                {
+                    LOGGER.trace("Not cleaning up channel list cache. The "
+                        + "timestamp does not match.");
+                    return;
+                }
+                this.container.set(null);
             }
-            catch (InterruptedException e)
-            {
-                logger.error("Chat Room operation lock thread interrupted.", e);
-            }
+            // We cannot clear the list itself, since the contents might still
+            // be in use by the UI, inside the immutable wrapper.
+            LOGGER.debug("Old channel list cache has been cleared.");
         }
-    }
-
-    /**
-     * Notifies the waiting chat room operation.
-     * @param responseCode the response code of the operation to notify for
-     */
-    private void notifyChatRoomOperation(int responseCode)
-    {
-        this.operationResponseCode = responseCode;
-
-        synchronized (operationLock)
-        {
-            operationLock.notify();
-        }
-    }
-
-    /**
-     * Kicks the participant with the given contact address from the given
-     * channel.
-     *
-     * @param chatRoomName the name of the chat room
-     * @param contactAddress the address of the contact to kick
-     * @param reason the reason of the kick
-     *
-     * @throws OperationFailedException if we are not joined or we don't have
-     * enough privileges to kick a participant.
-     */
-    public void kickParticipant(String chatRoomName,
-                                String contactAddress,
-                                String reason)
-        throws OperationFailedException
-    {
-        this.kick(chatRoomName, contactAddress, reason);
-
-        this.lockChatRoomOperation();
-
-        if (operationResponseCode == ERR_CHANOPRIVSNEEDED)
-            throw new OperationFailedException(
-                "You need to have operator privileges"
-                + "in order to kick a contact.",
-                OperationFailedException.NOT_ENOUGH_PRIVILEGES);
-        else if (operationResponseCode == ERR_NEEDMOREPARAMS)
-            throw new OperationFailedException(
-                "The server need more parameters in order to perform"
-                + "this operation.",
-                OperationFailedException.GENERAL_ERROR);
-        else if (operationResponseCode == ERR_NOSUCHCHANNEL)
-            throw new OperationFailedException(
-                "The channel from which the contact should be kicked"
-                + "was not found.",
-                OperationFailedException.NOT_FOUND);
-        else if (operationResponseCode == ERR_BADCHANMASK)
-            throw new OperationFailedException(
-                "The channel from which the contact should be kicked"
-                + "was not found.",
-                OperationFailedException.NOT_FOUND);
-        else if (operationResponseCode == ERR_NOTONCHANNEL)
-            throw new OperationFailedException(
-                "You need to be joined to the chat room in order"
-                + "to kick a contact from it.",
-                OperationFailedException.CHAT_ROOM_NOT_JOINED);
-    }
-
-    /**
-     * Changes the topic of the given channel.
-     *
-     * @param channel the channel to change
-     * @param topic the new topic to set
-     * @throws OperationFailedException thrown if the user is not joined to the
-     * channel or if he/she doesn't have enough privileges to change the
-     * topic or if the topic is null.
-     */
-    public void setSubject(String channel, String topic)
-        throws OperationFailedException
-    {
-        this.setTopic(channel, topic);
-
-        this.lockChatRoomOperation();
-
-        if (operationResponseCode == ERR_NEEDMOREPARAMS)
-            new OperationFailedException(
-                "More parameters should be provided to the server.",
-                OperationFailedException.GENERAL_ERROR);
-        else if (operationResponseCode == ERR_NOTONCHANNEL)
-            new OperationFailedException(
-                "You need to be joined in order to"
-                + " change the subject of the chat room.",
-                OperationFailedException.CHAT_ROOM_NOT_JOINED);
-        else if (operationResponseCode == ERR_CHANOPRIVSNEEDED)
-            new OperationFailedException(
-                "You don't have enough privileges"
-                + " to change the chat room subject.",
-                OperationFailedException.NOT_ENOUGH_PRIVILEGES);
-    }
-
-    /**
-     * Changes the user nick name on the IRC server.
-     *
-     * @param nickname the new nickname
-     * @throws OperationFailedException if the nickname is already used by
-     * someone else
-     */
-    public void setUserNickname(String nickname)
-        throws OperationFailedException
-    {
-        this.changeNick(nickname);
-
-        this.lockChatRoomOperation();
-
-        if (operationResponseCode == ERR_NICKNAMEINUSE)
-            throw new OperationFailedException(
-                "The nickname you chosed is already used by someone else.",
-                OperationFailedException.IDENTIFICATION_CONFLICT);
-        else if (operationResponseCode == ERR_NICKCOLLISION)
-            throw new OperationFailedException(
-                "The nickname you chosed is already used by someone else.",
-                OperationFailedException.IDENTIFICATION_CONFLICT);
-        else if (operationResponseCode == ERR_NONICKNAMEGIVEN)
-            throw new OperationFailedException(
-                "You need to enter a valid nickname.",
-                OperationFailedException.ILLEGAL_ARGUMENT);
-        else if (operationResponseCode == ERR_ERRONEUSNICKNAME)
-            throw new OperationFailedException(
-                "You need to enter a valid nickname.",
-                OperationFailedException.ILLEGAL_ARGUMENT);
-    }
-
-    /**
-     * Creates the chat room given by <tt>target</tt>.
-     * @param target the name of the chat room to create
-     */
-    protected void createPrivateChatRoom(String target)
-    {
-        ChatRoomIrcImpl privateChatRoom
-            = ircMUCOpSet.findPrivateChatRoom(target);
-
-        if(privateChatRoom == null)
-            return;
-
-        ChatRoomMember sourceMember = privateChatRoom.getChatRoomMember(
-            parentProvider.getAccountID().getService());
-
-        if (sourceMember == null)
-            sourceMember
-                = new ChatRoomMemberIrcImpl(
-                        parentProvider,
-                        privateChatRoom,
-                        parentProvider.getAccountID().getService(),
-                        ChatRoomMemberRole.GUEST);
-
-        MessageIrcImpl queryMessage
-            = new MessageIrcImpl(   "Private conversation initiated.",
-                                    MessageIrcImpl.DEFAULT_MIME_TYPE,
-                                    MessageIrcImpl.DEFAULT_MIME_ENCODING,
-                                    null);
-
-        privateChatRoom.fireMessageReceivedEvent(
-            queryMessage,
-            sourceMember,
-            new Date(),
-            ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
     }
 }

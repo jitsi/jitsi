@@ -421,7 +421,7 @@ public class GroupNode
      * Note: this comparator imposes orderings that are inconsistent with
      * equals.
      */
-    private static class NodeComparator
+    static class NodeComparator
         implements Comparator<ContactListNode>
     {
         /**
@@ -439,6 +439,10 @@ public class GroupNode
             int index1 = node1.getSourceIndex();
             int index2 = node2.getSourceIndex();
 
+            // If both indexes are unknown, consider them equal. We need this
+            // case to ensure the property of symmetry in the node comparator.
+            if (index1 < 0 && index2 < 0)
+                return 0;
             // If the first index is unknown then we position it at the end.
             if (index1 < 0)
                 return 1;

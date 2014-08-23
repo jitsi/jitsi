@@ -45,11 +45,12 @@ public class ChatRoomInvitationIrcImpl
      * @param chatRoom the <tt>ChatRoom</tt>, for which the invitation is
      * @param inviter the person who sent this invitation.
      * @param reason the reason of the invitation
+     * @param chatRoomPassword password for entering the chat room
      */
-    public ChatRoomInvitationIrcImpl(   ChatRoom chatRoom,
-                                        String inviter,
-                                        String reason,
-                                        byte[] chatRoomPassword)
+    public ChatRoomInvitationIrcImpl(final ChatRoom chatRoom,
+                                     final String inviter,
+                                     final String reason,
+                                     final byte[] chatRoomPassword)
     {
         this.chatRoom = chatRoom;
         this.inviter = inviter;
@@ -58,7 +59,7 @@ public class ChatRoomInvitationIrcImpl
     }
 
     /**
-     * Returns the chat room target of this invitation
+     * Returns the chat room target of this invitation.
      *
      * @return the <tt>ChatRoom</tt> target of this invitation
      */
@@ -68,7 +69,7 @@ public class ChatRoomInvitationIrcImpl
     }
 
     /**
-     * Returns the reason of this invitation, or null if there is no reason
+     * Returns the reason of this invitation, or null if there is no reason.
      *
      * @return the reason of this invitation, or null if there is no reason
      */

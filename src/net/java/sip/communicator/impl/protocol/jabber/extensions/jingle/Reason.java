@@ -115,7 +115,12 @@ public enum Reason
      * A reason indicating that the party supports none of the offered
      * transport methods.
      */
-    UNSUPPORTED_TRANSPORTS("unsupported-transports");
+    UNSUPPORTED_TRANSPORTS("unsupported-transports"),
+
+    /**
+     * A reason created for unsupported reasons(not defined in this enum).
+     */
+    UNDEFINED("undefined");
 
     /**
      * The name of this direction.
@@ -153,19 +158,16 @@ public enum Reason
      * @param reasonValueStr the action <tt>String</tt> that we'd like to
      * parse.
      * @return a <tt>JingleAction</tt> value corresponding to the specified
-     * <tt>jingleValueStr</tt>.
+     * <tt>jingleValueStr</tt>. Returns {@link #UNDEFINED} for invalid
+     * <tt>jingleValueStr</tt> values.
      *
-     * @throws IllegalArgumentException in case <tt>reasonValueStr</tt> is
-     * not a valid media direction.
      */
     public static Reason parseString(String reasonValueStr)
-        throws IllegalArgumentException
     {
         for (Reason value : values())
             if (value.toString().equals(reasonValueStr))
                 return value;
 
-        throw new IllegalArgumentException(
-            reasonValueStr + " is not a valid reason");
+        return UNDEFINED;
     }
 }

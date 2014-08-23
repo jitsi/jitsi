@@ -13,6 +13,11 @@ import net.java.sip.communicator.service.protocol.event.*;
  * implemented by protocols that support server stored contact lists (like icq
  * for example).
  * <p>
+ * <b>Note:</b> Also register the persistent presence implementation for
+ * OperationSetPresence support, since OperationSetPersistentPresence extends
+ * OperationSetPresence.
+ * </p>
+ * <p>
  * A server stored contact list is stored somewhere across the network and this
  * interface allows GUI and other plugins to use it in a way similar to the way
  * they'd use a javax.swing.tree.TreeModel, i.e. it would contain an initial

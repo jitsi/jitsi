@@ -11,15 +11,8 @@ Build-Depends: debhelper (>= 9), javahelper,
                ant-optional,
                ant-contrib-cpptasks,
                ant-contrib,
-               autotools-dev,
                libjitsi,
                libjitsi-jni,
-               libavutil-dev,
-               libavcodec-dev,
-               libavformat-dev,
-               libavfilter-dev,
-               libswscale-dev,
-               libvpx-dev,
                libxpp3-java,
                libjzlib-java,
                libbcprov-java,
@@ -44,28 +37,19 @@ Build-Depends: debhelper (>= 9), javahelper,
                libjson-simple-java (>= 1.1.1),
                libdbus-java,
                libeasymock-java,
-               libxt-dev,
                libxtst-dev,
-               libxv-dev,
-               libmp3lame-dev,
-               yasm,
-               libx264-dev,
                libdbus-1-dev,
-               libopus-dev,
-               libasound2-dev,
-               libspeexdsp-dev,
-               libspeex-dev,
                libunbound-dev,
                libxss-dev,
                libgtk2.0-dev,
                libglib2.0-dev,
-               libpulse-dev,
                libguava-java,
                libhsqldb-java,
                glassfish-activation,
                glassfish-mail,
-               libbcpkix-java,
-               libjcalendar-java
+               libjcalendar-java,
+               libphonenumber6-java,
+               libslf4j-java
 Standards-Version: 3.9.5
 
 Package: _PACKAGE_NAME_
@@ -97,7 +81,9 @@ Depends: ${misc:Depends},
          libguava-java,
          libhsqldb-java,
          libjson-simple-java (>= 1.1.1),
-         libjcalendar-java
+         libjcalendar-java,
+         libphonenumber6-java,
+         libslf4j-java
 Recommends: ${java:Recommends}
 Description: VoIP and Instant Messaging client
  _APP_NAME_ is an application that allows you to do audio/video
@@ -125,6 +111,7 @@ Depends: ${misc:Depends}, ${shlibs:Depends},
          libxpp3-java,
          libjzlib-java,
          libbcpkix-java
-Description: _APP_NAME_ JNI library
- These are the common files for  _APP_NAME_ the Java VoIP
- and Instant Messaging client.
+Description: _APP_NAME_ common bundles
+ These are the common files for _APP_NAME_ the Java VoIP
+ and Instant Messaging client. Bundles that are reused by others like
+ jitsi-videobridge.

@@ -1054,6 +1054,7 @@
         bundle-icq-slick,bundle-mock,bundle-smacklib,bundle-jmdnslib,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
         bundle-jnalib,bundle-phonenumbers,
+        bundle-irc-api,bundle-irc,bundle-plugin-ircaccregwizz,
         bundle-msn,bundle-msn-slick,bundle-yahoo,bundle-yahoo-slick,
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
@@ -1098,7 +1099,7 @@
     	bundle-usersearch,
         bundle-plugin-propertieseditor,bundle-plugin-accountinfo,
         bundle-plugin-connectioninfo,
-        bundle-guava,bundle-hsql"/>
+        bundle-guava,bundle-hsql,bundle-slf4j"/>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -2085,14 +2086,24 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-IRC -->
-    <target name="bundle-irc">
+    <target name="bundle-irc" depends="bundle-irc-api">
         <!-- Creates a bundle containing the IRC impl of the protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-irc.jar"
-         manifest="${src}/net/java/sip/communicator/impl/protocol/irc/irc.provider.manifest.mf">
+            manifest="${src}/net/java/sip/communicator/impl/protocol/irc/irc.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/irc"
                         prefix="net/java/sip/communicator/impl/protocol/irc"/>
-            <zipfileset src="${lib.noinst}/pircbot.jar" prefix=""/>
         </jar>
+    </target>
+
+    <!-- BUNDLE IRC-API -->
+    <target name="bundle-irc-api" depends="bundle-slf4j">
+        <copy file="${lib.noinst}/irc-api-1.0.jar" tofile="${bundles.dest}/irc-api-1.0.jar"/>
+    </target>
+
+    <!-- BUNDLE SLF4J -->
+    <target name="bundle-slf4j">
+        <copy file="${lib.noinst}/slf4j-api-1.7.5.jar" tofile="${bundles.dest}/slf4j-api.jar"/>
+        <copy file="${lib.noinst}/slf4j-jdk14-1.7.5.jar" tofile="${bundles.dest}/slf4j-jdk14.jar"/>
     </target>
 
     <!-- BUNDLE-PLUGIN-IRCACCREGWIZZ -->

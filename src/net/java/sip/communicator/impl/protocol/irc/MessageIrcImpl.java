@@ -1,7 +1,8 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
- * Distributable under LGPL license. See terms of license at gnu.org.
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
@@ -13,6 +14,7 @@ import net.java.sip.communicator.service.protocol.*;
  * @author Stephane Remy
  * @author Loic Kempf
  * @author Lubomir Marinov
+ * @author Danny van Heumen
  */
 public class MessageIrcImpl
     extends AbstractMessage
@@ -29,6 +31,118 @@ public class MessageIrcImpl
     public static final String DEFAULT_MIME_TYPE = "text/plain";
 
     /**
+     * Default mime type for HTML messages.
+     */
+    public static final String HTML_MIME_TYPE = "text/html";
+
+    /**
+     * Create a Message instance from a piece of text directly from IRC. This
+     * text might contain control characters for formatting as well as html
+     * entities that have yet to be escaped.
+     *
+     * The IRC message is parsed, control codes replaced with html tags and html
+     * entities in the original message are escaped.
+     *
+     * @param message the message from IRC
+     * @return returns a Message instance with content
+     */
+    public static MessageIrcImpl newMessageFromIRC(final String message)
+    {
+        String text = Utils.parseIrcMessage(message);
+        text = Utils.styleAsMessage(text);
+        return new MessageIrcImpl(text, HTML_MIME_TYPE, DEFAULT_MIME_ENCODING,
+            null);
+    }
+
+    /**
+     * Create a new instance from an IRC text and parse the IRC message. (See
+     * {@link #newMessageFromIRC(String)}.)
+     *
+     * @param user the originating user
+     * @param message the IRC notice message
+     * @return returns a new message instance
+     */
+    public static MessageIrcImpl newNoticeFromIRC(
+        final ChatRoomMemberIrcImpl user, final String message)
+    {
+        return newNoticeFromIRC(user.getContactAddress(), message);
+    }
+
+    /**
+     * Create a new instance from an IRC text and parse the IRC message. (See
+     * {@link #newMessageFromIRC(String)}.)
+     *
+     * @param user the originating user
+     * @param message the IRC notice message
+     * @return returns a new message instance
+     */
+    public static MessageIrcImpl newNoticeFromIRC(final Contact user,
+        final String message)
+    {
+        return newNoticeFromIRC(user.getAddress(), message);
+    }
+
+    /**
+     * Construct the new notice message.
+     *
+     * @param user the originating user
+     * @param message the IRC notice message
+     * @return returns a new message instance
+     */
+    private static MessageIrcImpl newNoticeFromIRC(final String user,
+        final String message)
+    {
+        String text = Utils.parseIrcMessage(message);
+        text = Utils.styleAsNotice(text, user);
+        return new MessageIrcImpl(text, HTML_MIME_TYPE, DEFAULT_MIME_ENCODING,
+            null);
+    }
+
+    /**
+     * Create a new instance from an IRC text and parse the IRC message. (See
+     * {@link #newMessageFromIRC(String)}.)
+     *
+     * @param user the originating user
+     * @param message the IRC action message
+     * @return returns a new message instance
+     */
+    public static MessageIrcImpl newActionFromIRC(
+        final ChatRoomMemberIrcImpl user, final String message)
+    {
+        return newActionFromIRC(user.getContactAddress(), message);
+    }
+
+    /**
+     * Create a new instance from an IRC text and parse the IRC message. (See
+     * {@link #newMessageFromIRC(String)}.)
+     *
+     * @param user the originating user
+     * @param message the IRC action message
+     * @return returns a new message instance
+     */
+    public static MessageIrcImpl newActionFromIRC(final Contact user,
+        final String message)
+    {
+        return newActionFromIRC(user.getAddress(), message);
+    }
+
+    /**
+     * Construct the new action message.
+     *
+     * @param user the originating user
+     * @param message the IRC action message
+     * @return returns a new message instance
+     */
+    private static MessageIrcImpl newActionFromIRC(final String user,
+        final String message)
+    {
+        String text = Utils.parseIrcMessage(message);
+        text = Utils.styleAsAction(text, user);
+        return new MessageIrcImpl(text, HTML_MIME_TYPE, DEFAULT_MIME_ENCODING,
+            null);
+    }
+
+    /**
      * Creates a message instance according to the specified parameters.
      *
      * @param content the message body
@@ -36,8 +150,8 @@ public class MessageIrcImpl
      * @param contentEncoding message encoding or null for UTF8
      * @param subject the subject of the message or null for no subject.
      */
-    public MessageIrcImpl(String content, String contentType,
-        String contentEncoding, String subject)
+    public MessageIrcImpl(final String content, final String contentType,
+        final String contentEncoding, final String subject)
     {
         super(content, contentType, contentEncoding, subject);
     }
@@ -61,7 +175,7 @@ public class MessageIrcImpl
      */
     public boolean isAction()
     {
-        return getContent().startsWith("/me");
+        return getContent().startsWith("/me ");
     }
 
     /**
@@ -71,7 +185,7 @@ public class MessageIrcImpl
      * @param messageContent the new message content
      */
     @Override
-    protected void setContent(String messageContent)
+    protected void setContent(final String messageContent)
     {
         super.setContent(messageContent);
     }

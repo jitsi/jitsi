@@ -27,6 +27,11 @@ public abstract class MUCService
         = "net.java.sip.communicator.impl.muc.MUC_SERVICE_DISABLED";
 
     /**
+     * Key for auto-open configuration entry.
+     */
+    private static String AUTO_OPEN_CONFIG_KEY = "openAutomatically";
+
+    /**
      * The value for chat room configuration property to open automatically on
      * activity
      */
@@ -43,6 +48,11 @@ public abstract class MUCService
      * important messages.
      */
     public static String OPEN_ON_IMPORTANT_MESSAGE = "on_important_message";
+
+    /**
+     * The default for chat room auto-open behaviour.
+     */
+    public static String DEFAULT_AUTO_OPEN_BEHAVIOUR = OPEN_ON_MESSAGE;
 
     /**
      * Map for the auto open configuration values and their text representation
@@ -73,7 +83,7 @@ public abstract class MUCService
     {
         ConfigurationUtils.updateChatRoomProperty(
             pps,
-            chatRoomId, "openAutomatically", value);
+            chatRoomId, AUTO_OPEN_CONFIG_KEY, value);
     }
 
     /**
@@ -88,7 +98,7 @@ public abstract class MUCService
     {
         return ConfigurationUtils.getChatRoomProperty(
             pps,
-            chatRoomId, "openAutomatically");
+            chatRoomId, AUTO_OPEN_CONFIG_KEY);
     }
 
     /**

@@ -217,4 +217,27 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
     {
         return getChildExtensionsOfType(ParameterPacketExtension.class);
     }
+
+    /**
+     * Adds an RTCP feedback type to the list that we already have registered
+     * for this payload type.
+     *
+     * @param rtcpFbPacketExtension RTCP feedback type for this encoding.
+     */
+    public void addRtcpFeedbackType(RtcpFbPacketExtension rtcpFbPacketExtension)
+    {
+        addChildExtension(rtcpFbPacketExtension);
+    }
+
+    /**
+     * Returns the list of RTCP feedback types currently registered for this
+     * payload type.
+     *
+     * @return the list of RTCP feedback types currently registered for this
+     *         payload type.
+     */
+    public List<RtcpFbPacketExtension> getRtcpFeedbackTypeList()
+    {
+        return getChildExtensionsOfType(RtcpFbPacketExtension.class);
+    }
 }

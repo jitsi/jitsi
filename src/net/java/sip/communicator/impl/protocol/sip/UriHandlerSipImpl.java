@@ -27,6 +27,20 @@ public class UriHandlerSipImpl
     implements UriHandler, ServiceListener, AccountManagerListener
 {
     /**
+     * Property to set the amount of time to wait for SIP registration
+     * to complete before trying to dial a URI from the command line.
+     * (value in milliseconds).
+     */
+    public static final String INITIAL_REGISTRATION_TIMEOUT_PROP
+        = "net.java.sip.communicator.impl.protocol.sip.call.INITIAL_REGISTRATION_TIMEOUT";
+
+    /**
+     * Default value for INITIAL_REGISTRATION_TIMEOUT (milliseconds)
+     */
+    public static final long DEFAULT_INITIAL_REGISTRATION_TIMEOUT
+        = 5000;
+
+    /**
      * The <tt>Logger</tt> used by the <tt>UriHandlerSipImpl</tt> class and its
      * instances for logging output.
      */
@@ -254,12 +268,11 @@ public class UriHandlerSipImpl
     }
 
     /**
-     * Parses the specified URI and creates a call with the currently active
-     * telephony operation set.
+     * Parses the specified URI and tries to create a call when online.
      *
      * @param uri the SIP URI that we have to call.
      */
-    public void handleUri(String uri)
+    public void handleUri(final String uri)
     {
         /*
          * TODO If the requirement to register the factory service after
@@ -278,7 +291,7 @@ public class UriHandlerSipImpl
             }
         }
 
-        ProtocolProviderService provider;
+        final ProtocolProviderService provider;
         try
         {
             provider = selectHandlingProvider(uri);
@@ -301,6 +314,73 @@ public class UriHandlerSipImpl
             return;
         }
 
+        if(provider.getRegistrationState() == RegistrationState.REGISTERED)
+        {
+            handleUri(uri, provider);
+        }
+        else
+        {
+            // Allow a grace period for the provider to register in case
+            // we have just started up
+            long initialRegistrationTimeout =
+                SipActivator.getConfigurationService()
+                    .getLong(INITIAL_REGISTRATION_TIMEOUT_PROP,
+                        DEFAULT_INITIAL_REGISTRATION_TIMEOUT);
+            final DelayRegistrationStateChangeListener listener =
+                new DelayRegistrationStateChangeListener(uri, provider);
+            provider.addRegistrationStateChangeListener(listener);
+            new Timer().schedule(new TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    provider.removeRegistrationStateChangeListener(listener);
+                    // Even if not registered after the timeout, try the call
+                    // anyway and the error popup will appear to ask the
+                    // user if they want to register
+                    handleUri(uri, provider);
+                }
+            }, initialRegistrationTimeout);
+        }
+    }
+
+    /**
+     * Listener on provider state changes that handles the passed URI if the
+     * provider becomes registered.
+     */
+    private class DelayRegistrationStateChangeListener
+        implements RegistrationStateChangeListener
+    {
+        private String uri;
+        private ProtocolProviderService provider;
+        private boolean handled = false;
+
+        public DelayRegistrationStateChangeListener(String uri,
+            ProtocolProviderService provider)
+        {
+            this.uri = uri;
+            this.provider = provider;
+        }
+
+        @Override
+        public void registrationStateChanged(RegistrationStateChangeEvent evt)
+        {
+            if (evt.getNewState() == RegistrationState.REGISTERED && !handled)
+            {
+                provider.removeRegistrationStateChangeListener(this);
+                handled = true;
+                handleUri(uri, provider);
+            }
+        }
+    }
+
+    /**
+     * Creates a call with the currently active telephony operation set.
+     *
+     * @param uri the SIP URI that we have to call.
+     */
+    protected void handleUri(String uri, ProtocolProviderService provider)
+    {
         //handle "sip://" URIs as "sip:" 
         if(uri != null)
             uri = uri.replace("sip://", "sip:");
@@ -316,11 +396,15 @@ public class UriHandlerSipImpl
         {
             // make sure that we prompt for registration only if it is really
             // required by the provider.
+            boolean handled = false;
             if (exc.getErrorCode() == OperationFailedException.PROVIDER_NOT_REGISTERED)
             {
-                promptForRegistration(uri, provider);
+                handled = promptForRegistration(uri, provider);
             }
-            showErrorMessage("Failed to create a call to " + uri, exc);
+            if(!handled)
+            {
+                showErrorMessage("Failed to create a call to " + uri, exc);
+            }
         }
         catch (ParseException exc)
         {
@@ -335,8 +419,9 @@ public class UriHandlerSipImpl
      *
      * @param uri the uri that the user would like us to call after registering.
      * @param provider the provider that we may have to reregister.
+     * @return true if user tried to start registration
      */
-    private void promptForRegistration(String uri,
+    private boolean promptForRegistration(String uri,
         ProtocolProviderService provider)
     {
         int answer =
@@ -351,7 +436,9 @@ public class UriHandlerSipImpl
         if (answer == PopupDialog.YES_OPTION)
         {
             new ProtocolRegistrationThread(uri, provider).start();
+            return true;
         }
+        return false;
     }
 
     /**

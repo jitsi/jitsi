@@ -85,9 +85,12 @@ public abstract class AbstractCallJabberGTalkImpl
      */
     public T getPeer(String sid)
     {
+        if (sid == null)
+            return null;
+
         for(T peer : getCallPeerList())
         {
-            if (peer.getSID().equals(sid))
+            if (sid.equals(peer.getSID()))
                 return peer;
         }
         return null;
@@ -118,9 +121,12 @@ public abstract class AbstractCallJabberGTalkImpl
      */
     public T getPeerBySessInitPacketID(String id)
     {
+        if (id == null)
+            return null;
+
         for(T peer : getCallPeerList())
         {
-            if (peer.getSessInitID().equals(id))
+            if (id.equals(peer.getSessInitID()))
                 return peer;
         }
         return null;

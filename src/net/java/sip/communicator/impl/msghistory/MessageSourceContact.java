@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.msghistory;
 
+import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.muc.*;
@@ -175,7 +176,7 @@ public class MessageSourceContact
             this.contact = e.getDestinationContact();
 
             this.address = contact.getAddress();
-            this.displayName = contact.getDisplayName();
+            this.updateDisplayName();
             this.ppService = contact.getProtocolProvider();
             this.image = contact.getImage();
             this.status = contact.getPresenceStatus();
@@ -189,7 +190,7 @@ public class MessageSourceContact
             this.contact = e.getSourceContact();
 
             this.address = contact.getAddress();
-            this.displayName = contact.getDisplayName();
+            this.updateDisplayName();
             this.ppService = contact.getProtocolProvider();
             this.image = contact.getImage();
             this.status = contact.getPresenceStatus();
@@ -279,6 +280,9 @@ public class MessageSourceContact
      */
     void initDetails(boolean isChatRoom, Contact contact)
     {
+        if(!isChatRoom && contact != null)
+            this.updateDisplayName();
+
         ContactDetail contactDetail =
             new ContactDetail(
                     this.address,
@@ -334,6 +338,7 @@ public class MessageSourceContact
             contactDetail.setSupportedOpSets(supportedOpSets);
         }
 
+        contactDetails.clear();
         contactDetails.add(contactDetail);
     }
 
@@ -504,6 +509,24 @@ public class MessageSourceContact
     public void setDisplayName(String displayName)
     {
         this.displayName = displayName;
+    }
+
+    /**
+     * Updates display name if contact is not null.
+     */
+    private void updateDisplayName()
+    {
+        if(this.contact == null)
+            return;
+
+        MetaContact metaContact
+            = MessageHistoryActivator.getContactListService()
+                .findMetaContactByContact(contact);
+
+        if(metaContact == null)
+            return;
+
+        this.displayName = metaContact.getDisplayName();
     }
 
     /**

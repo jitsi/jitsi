@@ -787,6 +787,22 @@ public class ReconnectPluginActivator
                 if(logger.isTraceEnabled())
                 {
                     logger.trace("Got Unregistered for " + pp);
+
+                    if(!currentlyReconnecting.containsKey(pp)
+                        && !needsReconnection.contains(pp)
+                        && logger.isTraceEnabled())
+                    {
+                        // provider is not present in any collection
+                        // it will be no longer reconnected, maybe user request
+                        // to unregister lets trace check
+                        logger.trace(
+                            "Provider is unregistered and will not " +
+                            "be reconnected (maybe on user request): " + pp
+                            + " / reason:" + evt.getReason()
+                            + " / reasonCode:" + evt.getReasonCode()
+                            + " / oldState:" + evt.getOldState(),
+                            new Exception("Trace exception."));
+                    }
                     traceCurrentPPState();
                 }
             }
