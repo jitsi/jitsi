@@ -47,7 +47,6 @@ Build-Depends: debhelper (>= 9), javahelper,
                libhsqldb-java,
                glassfish-activation,
                glassfish-mail,
-               libbcpkix-java,
                libjcalendar-java,
                libphonenumber6-java,
                libslf4j-java
@@ -112,6 +111,7 @@ Depends: ${misc:Depends}, ${shlibs:Depends},
          libxpp3-java,
          libjzlib-java,
          libbcpkix-java
-Description: _APP_NAME_ JNI library
- These are the common files for  _APP_NAME_ the Java VoIP
- and Instant Messaging client.
+Description: _APP_NAME_ common bundles
+ These are the common files for _APP_NAME_ the Java VoIP
+ and Instant Messaging client. Bundles that are reused by others like
+ jitsi-videobridge.

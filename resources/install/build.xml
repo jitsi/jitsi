@@ -3215,9 +3215,9 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         </unzip>
         <delete file="${debian.bundles.dest}/jnalib.jar"/>
         <mkdir dir="${debian.bundles.dest}/jnalib.jar/META-INF"/>
-        <symlink resource="../../../../share/java/jna.jar"
+        <symlink resource="/usr/share/java/jna.jar"
              link="${debian.bundles.dest}/jnalib.jar/jna.jar"/>
-        <symlink resource="../../../../share/java/jna-platform.jar"
+        <symlink resource="/usr/share/java/jna-platform.jar"
              link="${debian.bundles.dest}/jnalib.jar/jna-platform.jar"/>
 
         <move file="${debian.bundles.dest}/META-INF/MANIFEST.MF"
@@ -3248,7 +3248,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         </unzip>
         <delete file="${debian.bundles.dest}/json.jar"/>
         <mkdir dir="${debian.bundles.dest}/json.jar/META-INF"/>
-        <symlink resource="../../../../share/java/json-simple.jar"
+        <symlink resource="/usr/share/java/json-simple.jar"
              link="${debian.bundles.dest}/json.jar/json-simple.jar"/>
         <manifest
                 file="${debian.bundles.dest}/json.jar/META-INF/MANIFEST.MF">
@@ -3288,7 +3288,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         </unzip>
         <delete file="${debian.bundles.dest}/util.jar"/>
         <mkdir dir="${debian.bundles.common.dest}/util.jar/META-INF"/>
-        <symlink resource="../../../share/java/dnsjava.jar"
+        <symlink resource="/usr/share/java/dnsjava.jar"
                  link="${debian.bundles.common.dest}/util.jar/dnsjava.jar"/>
 
         <!-- Create the util.jar-->
@@ -3350,7 +3350,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         </unzip>
         <delete file="${debian.bundles.dest}/desktoputil.jar"/>
         <mkdir dir="${debian.bundles.dest}/desktoputil.jar/META-INF"/>
-        <symlink resource="../../../../share/java/laf-widget.jar"
+        <symlink resource="/usr/share/java/laf-widget.jar"
              link="${debian.bundles.dest}/desktoputil.jar/laf-widget.jar"/>
 
         <!-- Create the desktoputil.jar-->
@@ -3389,11 +3389,11 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         </unzip>
         <delete file="${debian.bundles.dest}/sysactivitynotifications.jar"/>
         <mkdir dir="${debian.bundles.dest}/sysactivitynotifications.jar/META-INF"/>
-        <symlink resource="../../../../share/java/dbus.jar"
+        <symlink resource="/usr/share/java/dbus.jar"
              link="${debian.bundles.dest}/sysactivitynotifications.jar/dbus.jar"/>
-        <symlink resource="../../../../share/java/unix.jar"
+        <symlink resource="/usr/share/java/unix.jar"
              link="${debian.bundles.dest}/sysactivitynotifications.jar/unix.jar"/>
-        <symlink resource="../../../../share/java/hexdump.jar"
+        <symlink resource="/usr/share/java/hexdump.jar"
              link="${debian.bundles.dest}/sysactivitynotifications.jar/hexdump.jar"/>
 
         <!-- Create the sys .jar-->
@@ -3433,9 +3433,9 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         </unzip>
         <delete file="${debian.bundles.dest}/swing-ui.jar"/>
         <mkdir dir="${debian.bundles.dest}/swing-ui.jar/META-INF"/>
-        <symlink resource="../../../../share/java/forms.jar"
+        <symlink resource="/usr/share/java/forms.jar"
              link="${debian.bundles.dest}/swing-ui.jar/forms.jar"/>
-        <symlink resource="../../../../share/java/mac_widgets.jar"
+        <symlink resource="/usr/share/java/mac_widgets.jar"
              link="${debian.bundles.dest}/swing-ui.jar/"/>
 
         <!-- Create the sys .jar-->
@@ -3474,9 +3474,9 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         <delete file="${debian.bundles.dest}/smacklib.jar"/>
         <mkdir dir="${debian.bundles.common.dest}/smacklib.jar/META-INF"/>
 
-        <symlink resource="../../../share/java/xpp3-min.jar"
+        <symlink resource="/usr/share/java/xpp3-min.jar"
              link="${debian.bundles.common.dest}/smacklib.jar/xpp3.jar"/>
-        <symlink resource="../../../share/java/jzlib.jar"
+        <symlink resource="/usr/share/java/jzlib.jar"
              link="${debian.bundles.common.dest}/smacklib.jar/jzlib.jar"/>
 
         <!-- Create the smacklib .jar-->
@@ -3522,7 +3522,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         <delete file="${debian.bundles.dest}/jmdnslib.jar"/>
         <mkdir dir="${debian.bundles.dest}/jmdnslib.jar/META-INF"/>
 
-        <symlink resource="../../../../share/java/jmdns.jar"
+        <symlink resource="/usr/share/java/jmdns.jar"
              link="${debian.bundles.dest}/jmdnslib.jar/"/>
 
         <move file="${debian.bundles.dest}/META-INF/MANIFEST.MF"
@@ -3550,7 +3550,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
 
         <copy file="${lib.noinst}/bcprov.manifest.mf"
               tofile="${debian.bundles.dest}/bouncycastle.jar/META-INF/MANIFEST.MF"/>
-        <symlink resource="../../../../share/java/bcprov.jar"
+        <symlink resource="/usr/share/java/bcprov.jar"
              link="${debian.bundles.dest}/bouncycastle.jar/"/>
 
         <!-- Removes the last empty line -->
@@ -3577,7 +3577,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         </unzip>
         <delete file="${debian.bundles.dest}/accountinfo.jar"/>
         <mkdir dir="${debian.bundles.dest}/accountinfo.jar/META-INF"/>
-        <symlink resource="../../../../share/java/jcalendar.jar"
+        <symlink resource="/usr/share/java/jcalendar.jar"
              link="${debian.bundles.dest}/accountinfo.jar/"/>
 
         <!-- Create the sys .jar-->
@@ -3609,7 +3609,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
             in debian dest folder debian.bundles.dest.-->
         <delete file="${debian.bundles.dest}/commons-lang.jar" failonerror="false"/>
         <mkdir dir="${debian.bundles.dest}/commons-lang.jar/META-INF"/>
-        <symlink resource="../../../../share/java/commons-lang3.jar"
+        <symlink resource="/usr/share/java/commons-lang3.jar"
                  link="${debian.bundles.dest}/commons-lang.jar/commons-lang.jar"/>
         <copy file="${lib.noinst}/commons-lang3-3.1.manifest.mf"
               tofile="${debian.bundles.dest}/commons-lang.jar/META-INF/MANIFEST.MF"/>
@@ -3621,7 +3621,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
             in debian dest folder debian.bundles.dest.-->
         <delete file="${debian.bundles.dest}/hsqldb.jar" failonerror="false"/>
         <mkdir dir="${debian.bundles.dest}/hsqldb.jar/META-INF"/>
-        <symlink resource="../../../../share/java/hsqldb.jar"
+        <symlink resource="/usr/share/java/hsqldb.jar"
                  link="${debian.bundles.dest}/hsqldb.jar/hsqldb.jar"/>
         <copy file="${lib.noinst}/hsqldb.jar.manifest.mf"
               tofile="${debian.bundles.dest}/hsqldb.jar/META-INF/MANIFEST.MF"/>
@@ -3631,7 +3631,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
     <target name="deb-libjitsi-deps">
 
         <symlink overwrite="true"
-                 resource="../../../share/libjitsi/lib/bccontrib.jar"
+                 resource="/usr/share/libjitsi/lib/bccontrib.jar"
                  link="${debian.bundles.dest}/bccontrib.jar"/>
 
         <unzip src="${debian.bundles.dest}/libjitsi.jar"
@@ -3642,11 +3642,11 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         </unzip>
         <delete file="${debian.bundles.dest}/libjitsi.jar"/>
         <mkdir dir="${debian.bundles.common.dest}/libjitsi.jar/META-INF"/>
-        <symlink resource="../../../share/java/bcpkix.jar"
+        <symlink resource="/usr/share/java/bcpkix.jar"
                  link="${debian.bundles.common.dest}/libjitsi.jar/"/>
-        <symlink resource="../../../share/libjitsi/libjitsi.jar"
+        <symlink resource="/usr/share/libjitsi/libjitsi.jar"
                  link="${debian.bundles.common.dest}/libjitsi.jar/"/>
-        <symlink resource="../../../share/libjitsi/lib/fmj.jar"
+        <symlink resource="/usr/share/libjitsi/lib/fmj.jar"
                  link="${debian.bundles.common.dest}/libjitsi.jar/"/>
 
         <!-- Create the sys .jar-->
@@ -3685,9 +3685,9 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         </unzip>
         <delete file="${debian.bundles.dest}/netaddr.jar"/>
         <mkdir dir="${debian.bundles.common.dest}/netaddr.jar/META-INF"/>
-        <symlink resource="../../../share/libjitsi/lib/ice4j.jar"
+        <symlink resource="/usr/share/libjitsi/lib/ice4j.jar"
                  link="${debian.bundles.common.dest}/netaddr.jar/"/>
-        <symlink resource="../../../share/java/weupnp.jar"
+        <symlink resource="/usr/share/java/weupnp.jar"
                  link="${debian.bundles.common.dest}/netaddr.jar/"/>
 
         <!-- Create the sys .jar-->
@@ -3728,7 +3728,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         </unzip>
         <delete file="${debian.bundles.dest}/zrtp4j.jar"/>
         <mkdir dir="${debian.bundles.dest}/zrtp4j.jar/META-INF"/>
-        <symlink resource="../../../libjitsi/lib/zrtp4j-light.jar"
+        <symlink resource="/usr/share/libjitsi/lib/zrtp4j-light.jar"
                  link="${debian.bundles.dest}/zrtp4j.jar/"/>
 
         <move file="${debian.bundles.dest}/META-INF/MANIFEST.MF"
@@ -3756,7 +3756,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         </unzip>
         <delete file="${debian.bundles.dest}/sdes4j.jar"/>
         <mkdir dir="${debian.bundles.dest}/sdes4j.jar/META-INF"/>
-        <symlink resource="../../../libjitsi/lib/sdes4j.jar"
+        <symlink resource="/usr/share/libjitsi/lib/sdes4j.jar"
                  link="${debian.bundles.dest}/sdes4j.jar/"/>
 
         <move file="${debian.bundles.dest}/META-INF/MANIFEST.MF"
@@ -3784,11 +3784,11 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         </unzip>
         <delete file="${debian.bundles.dest}/protocol-sip.jar"/>
         <mkdir dir="${debian.bundles.dest}/protocol-sip.jar/META-INF"/>
-        <symlink resource="../../../../share/libjitsi/lib/jain-sip-ri.jar"
+        <symlink resource="/usr/share/libjitsi/lib/jain-sip-ri.jar"
                  link="${debian.bundles.dest}/protocol-sip.jar/"/>
-        <symlink resource="../../../../share/libjitsi/lib/jain-sip-api.jar"
+        <symlink resource="/usr/share/libjitsi/lib/jain-sip-api.jar"
                  link="${debian.bundles.dest}/protocol-sip.jar/"/>
-        <symlink resource="../../../../share/libjitsi/lib/jain-sdp.jar"
+        <symlink resource="/usr/share/libjitsi/lib/jain-sdp.jar"
                  link="${debian.bundles.dest}/protocol-sip.jar/"/>
 
         <!-- Create the sys .jar-->
@@ -3818,7 +3818,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
     <target name="deb-bundle-httpmime">
         <delete file="${debian.bundles.dest}/httpmime.jar" failonerror="false"/>
         <mkdir dir="${debian.bundles.dest}/httpmime.jar/META-INF"/>
-        <symlink resource="../../../../share/java/httpmime.jar"
+        <symlink resource="/usr/share/java/httpmime.jar"
                  link="${debian.bundles.dest}/httpmime.jar/httpmime.jar"/>
         <manifest
             file="${debian.bundles.dest}/httpmime.jar/META-INF/MANIFEST.MF">
@@ -3909,7 +3909,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
     <target name="deb-bundle-slf4j">
         <delete file="${debian.bundles.dest}/slf4j-api-1.7.5.jar" failonerror="false"/>
         <mkdir dir="${debian.bundles.dest}/slf4j-api-1.7.5.jar/META-INF"/>
-        <symlink resource="../../../../share/java/slf4j-api.jar"
+        <symlink resource="/usr/share/java/slf4j-api.jar"
                  link="${debian.bundles.dest}/slf4j-api-1.7.5.jar/slf4j-api.jar"/>
         <manifest
             file="${debian.bundles.dest}/slf4j-api-1.7.5.jar/META-INF/MANIFEST.MF">
@@ -3933,7 +3933,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
 
         <delete file="${debian.bundles.dest}/slf4j-jdk14-1.7.5.jar" failonerror="false"/>
         <mkdir dir="${debian.bundles.dest}/slf4j-jdk14-1.7.5.jar/META-INF"/>
-        <symlink resource="../../../../share/java/slf4j-jdk14.jar"
+        <symlink resource="/usr/share/java/slf4j-jdk14.jar"
                  link="${debian.bundles.dest}/slf4j-jdk14-1.7.5.jar/slf4j-jdk14.jar"/>
         <manifest
             file="${debian.bundles.dest}/slf4j-jdk14-1.7.5.jar/META-INF/MANIFEST.MF">
