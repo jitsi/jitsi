@@ -1,3 +1,4 @@
+Description: Removes custom logging of dns packets used in dns-java
 Index: jitsi/src/net/java/sip/communicator/impl/dns/DnsJavaLogger.java
 ===================================================================
 --- jitsi.orig/src/net/java/sip/communicator/impl/dns/DnsJavaLogger.java       2014-06-13 07:08:10.000000000 -0400

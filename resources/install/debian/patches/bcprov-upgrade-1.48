@@ -1,3 +1,4 @@
+Description: Makes sources compile/compatible with bouncycastle 1.48/1.49
 Index: jitsi-2.3.4672.9754/lib/src/joscar/client/src/net/kano/joustsim/oscar/oscar/service/chatrooms/EncryptedChatRoomMessageFactory.java
 ===================================================================
 --- jitsi-2.3.4672.9754.orig/lib/src/joscar/client/src/net/kano/joustsim/oscar/oscar/service/chatrooms/EncryptedChatRoomMessageFactory.java	2012-03-12 16:57:34.000000000 +0200

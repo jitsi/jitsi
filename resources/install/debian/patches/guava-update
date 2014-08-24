@@ -1,3 +1,4 @@
+Description: Fixes compilation of gdata
 Index: jitsi-2.3.4901/lib/src/gdata-java-client/java/src/com/google/gdata/wireformats/AltFormat.java
 ===================================================================
 --- jitsi-2.3.4901.orig/lib/src/gdata-java-client/java/src/com/google/gdata/wireformats/AltFormat.java	2012-09-27 14:40:10.000000000 -0400
