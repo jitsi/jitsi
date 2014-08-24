@@ -275,13 +275,12 @@ public class ChatRoomProviderWrapperImpl
                             // chat room is not existent we must create it and join
                             // it
                             ChatRoomWrapper roomWrapper =
-                                MUCActivator.getMUCService()
-                                    .createChatRoom(
-                                        chatRoomWrapper.getChatRoomName(),
-                                        chatRoomWrapper.getParentProvider()
-                                            .getProtocolProvider(),
-                                        new ArrayList<String>(), "", false,
-                                        true);
+                                MUCActivator.getMUCService().createChatRoom(
+                                    chatRoomWrapper.getChatRoomName(),
+                                    chatRoomWrapper.getParentProvider()
+                                        .getProtocolProvider(),
+                                    new ArrayList<String>(), "", false, false,
+                                    true);
 
                             String nickName =
                                 ConfigurationUtils.getChatRoomProperty(
