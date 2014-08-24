@@ -377,9 +377,9 @@ public class OperationSetBasicInstantMessagingYahooImpl
             String newMail = YahooActivator.getResources().getI18NString(
                 "service.gui.NEW_MAIL",
                 new String[]{ev.getFrom(),
-                             "&lt;" + ev.getEmailAddress() + "&gt",
+                             "&lt;" + ev.getEmailAddress() + "&gt;",
                              ev.getSubject(),
-                             "&nbsp;&nbsp;&nbsp;&nbsp"+yahooMailLogon}) ;
+                             "&nbsp;&nbsp;&nbsp;&nbsp;"+yahooMailLogon}) ;
 
             Message newMailMessage = new MessageYahooImpl(
                     newMail,
