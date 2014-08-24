@@ -263,13 +263,41 @@ public class IrcStack
                 irc.addListener(new DebugListener());
             }
 
-            connectSynchronized();
+            try
+            {
+                connectSynchronized();
 
-            queryIdentity();
+                // instantiate presence manager for the connection
+                this.presence =
+                    new PresenceManager(irc, this.connectionState,
+                        this.provider.getPersistentPresence());
 
-            // TODO Read IRC network capabilities based on RPL_ISUPPORT (005)
-            // replies if available. This information should be available in
-            // irc-api if possible.
+                queryIdentity();
+
+                // if connecting succeeded, set state to registered
+                this.provider
+                    .setCurrentRegistrationState(RegistrationState.REGISTERED);
+
+                // TODO Read IRC network capabilities based on RPL_ISUPPORT
+                // (005)
+                // replies if available. This information should be available in
+                // irc-api if possible.
+            }
+            catch (IOException e)
+            {
+                // Also SSL exceptions will be caught here.
+                this.provider
+                    .setCurrentRegistrationState(
+                        RegistrationState.CONNECTION_FAILED);
+                throw e;
+            }
+            catch (InterruptedException e)
+            {
+                this.provider
+                    .setCurrentRegistrationState(
+                        RegistrationState.UNREGISTERED);
+                throw e;
+            }
         }
     }
 
@@ -291,88 +319,57 @@ public class IrcStack
         synchronized (result)
         {
             // start connecting to the specified server ...
-            try
+            irc.connect(this.params, new Callback<IIRCState>()
             {
-                irc.connect(this.params, new Callback<IIRCState>()
-                {
 
-                    @Override
-                    public void onSuccess(final IIRCState state)
+                @Override
+                public void onSuccess(final IIRCState state)
+                {
+                    synchronized (result)
                     {
-                        synchronized (result)
-                        {
-                            LOGGER.trace("IRC connected successfully!");
-                            result.setDone(state);
-                            result.notifyAll();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(final Exception e)
-                    {
-                        synchronized (result)
-                        {
-                            LOGGER.trace("IRC connection FAILED!", e);
-                            result.setDone(e);
-                            result.notifyAll();
-                        }
-                    }
-                });
-
-                this.provider
-                    .setCurrentRegistrationState(RegistrationState.REGISTERING);
-
-                while (!result.isDone())
-                {
-                    LOGGER.trace("Waiting for the connection to be "
-                        + "established ...");
-                    result.wait();
-                }
-
-                this.connectionState = result.getValue();
-                // TODO Implement connection timeout and a way to recognize that
-                // the timeout occurred.
-                if (this.connectionState != null
-                    && this.connectionState.isConnected())
-                {
-                    // instantiate presence manager for the connection
-                    this.presence =
-                        new PresenceManager(irc, this.connectionState,
-                            this.provider.getPersistentPresence());
-
-                    // if connecting succeeded, set state to registered
-                    this.provider.setCurrentRegistrationState(
-                        RegistrationState.REGISTERED);
-                }
-                else
-                {
-                    // if connecting failed, set state to unregistered and throw
-                    // the exception if one exists
-                    this.provider
-                        .setCurrentRegistrationState(
-                            RegistrationState.CONNECTION_FAILED);
-                    Exception e = result.getException();
-                    if (e != null)
-                    {
-                        throw e;
+                        LOGGER.trace("IRC connected successfully!");
+                        result.setDone(state);
+                        result.notifyAll();
                     }
                 }
-            }
-            catch (IOException e)
+
+                @Override
+                public void onFailure(final Exception e)
+                {
+                    synchronized (result)
+                    {
+                        LOGGER.trace("IRC connection FAILED!", e);
+                        result.setDone(e);
+                        result.notifyAll();
+                    }
+                }
+            });
+
+            this.provider
+                .setCurrentRegistrationState(RegistrationState.REGISTERING);
+
+            while (!result.isDone())
             {
-                // Also SSL exceptions will be caught here.
-                this.provider
-                    .setCurrentRegistrationState(
-                        RegistrationState.CONNECTION_FAILED);
-                throw e;
+                LOGGER.trace("Waiting for the connection to be "
+                    + "established ...");
+                result.wait();
             }
-            catch (InterruptedException e)
+
+            // TODO Implement connection timeout and a way to recognize that
+            // the timeout occurred.
+
+            final Exception e = result.getException();
+            if (e != null)
             {
-                this.provider
-                    .setCurrentRegistrationState(
-                        RegistrationState.UNREGISTERED);
-                throw e;
+                throw new IOException(e);
             }
+
+            final IIRCState connectionState = result.getValue();
+            if (connectionState == null) {
+                throw new IOException("Failed to connect: no connection state available.");
+            }
+
+            this.connectionState = connectionState;
         }
     }
 
@@ -381,6 +378,7 @@ public class IrcStack
      */
     private void queryIdentity()
     {
+        // TODO Install temporary whois listener that handles the result.
         this.session.get().rawMessage(
             "WHOIS " + this.connectionState.getNickname());
     }
