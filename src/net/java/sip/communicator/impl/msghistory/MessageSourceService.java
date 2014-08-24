@@ -10,7 +10,6 @@ import java.beans.*;
 import java.io.*;
 import java.text.*;
 import java.util.*;
-import java.util.regex.*;
 
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactlist.event.*;
@@ -24,8 +23,6 @@ import net.java.sip.communicator.service.protocol.event.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.util.*;
-
-import static net.java.sip.communicator.service.history.HistoryService.DATE_FORMAT;
 
 /**
  * The source contact service. The will show most recent messages.
@@ -47,8 +44,7 @@ public class MessageSourceService
     /**
      * The logger for this class.
      */
-    private static Logger logger = Logger
-        .getLogger(MessageSourceService.class);
+    private static Logger logger = Logger.getLogger(MessageSourceService.class);
 
     /**
      * The display name of this contact source.
@@ -631,7 +627,9 @@ public class MessageSourceService
             {
                 Iterator<HistoryRecord> recs
                     = history.getReader().findLast(NUMBER_OF_MSGS_IN_HISTORY);
-                SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+                SimpleDateFormat sdf
+                    = new SimpleDateFormat(HistoryService.DATE_FORMAT);
+
                 while(recs.hasNext())
                 {
                     HistoryRecord hr = recs.next();
@@ -961,12 +959,13 @@ public class MessageSourceService
             try
             {
                 History history = getHistory();
-
                 HistoryWriter writer = history.getWriter();
 
                 synchronized(recentMessages)
                 {
-                    SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+                    SimpleDateFormat sdf
+                        = new SimpleDateFormat(HistoryService.DATE_FORMAT);
+
                     writer.addRecord(
                         new String[]
                             {
@@ -1055,7 +1054,9 @@ public class MessageSourceService
                                 HashMap<String, String> map
                                     = new HashMap<String, String>();
                                 SimpleDateFormat sdf
-                                    = new SimpleDateFormat(DATE_FORMAT);
+                                    = new SimpleDateFormat(
+                                            HistoryService.DATE_FORMAT);
+
                                 for(int i = 0;
                                     i < hr.getPropertyNames().length;
                                     i++)
