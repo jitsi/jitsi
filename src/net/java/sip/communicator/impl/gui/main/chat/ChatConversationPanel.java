@@ -25,6 +25,7 @@ import javax.swing.text.html.HTML.Attribute;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.history.*;
 import net.java.sip.communicator.impl.gui.main.chat.menus.*;
+import net.java.sip.communicator.impl.gui.main.chat.replacers.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.impl.gui.utils.Constants;
 import net.java.sip.communicator.plugin.desktoputil.*;
@@ -55,6 +56,7 @@ import org.osgi.framework.*;
  * @author Yana Stamcheva
  * @author Lyubomir Marinov
  * @author Adam Netocny
+ * @author Danny van Heumen
  */
 public class ChatConversationPanel
     extends SIPCommScrollPane
@@ -73,6 +75,12 @@ public class ChatConversationPanel
     /**
      * The regular expression (in the form of compiled <tt>Pattern</tt>) which
      * matches URLs for the purposed of turning them into links.
+     *
+     * TODO Current pattern misses tailing '/' (slash) that is sometimes
+     * included in URL's. (Danny)
+     *
+     * TODO Current implementation misses # after ? has been encountered in URL.
+     * (Danny)
      */
     private static final Pattern URL_PATTERN
         = Pattern.compile(
@@ -1019,10 +1027,8 @@ public class ChatConversationPanel
 
     /**
      * Formats the given message. Processes all smiley chars, new lines and
-     * links.
-     *
-     * TODO correctly name this method: we only expect content in either HTML or
-     * PLAIN TEXT format. We DON'T WANT THE HEADER STUFF OF A HTML MESSAGE!!!
+     * links. This method expects <u>only</u> the message's <u>body</u> to be
+     * provided.
      *
      * @param message the message to be formatted
      * @param contentType the content type of the message to be formatted
@@ -1038,7 +1044,7 @@ public class ChatConversationPanel
             return "";
         }
 
-        // prepare initial message source
+        // prepare source message
         String source;
         if (ChatHtmlUtils.HTML_CONTENT_TYPE.equals(contentType))
         {
@@ -1049,23 +1055,36 @@ public class ChatConversationPanel
             source = StringEscapeUtils.escapeHtml4(original);
         }
 
-        final Replacer[] replacers = new Replacer[]
-        {
+        return processReplacers(source,
             new NewlineReplacer(),
-            new URLReplacer(),
+            new URLReplacer(URL_PATTERN),
             new KeywordReplacer(keyword),
             new BrTagReplacer(),
-            new ImgTagReplacer()
-        };
-
-        return processReplacers(source, replacers);
+            new ImgTagReplacer());
     }
 
-    // FIXME decent comments
-    private String processReplacers(final String content, final Replacer... replacers)
+    /**
+     * Process provided replacers one by one sequentially. The output of the
+     * first replacer is then fed as input into the second replacer, and so on.
+     * <p>
+     * {@link Replacer}s that expect HTML content (
+     * {@link Replacer#expectsPlainText()}) will typically receive the complete
+     * message as an argument. {@linkplain Replacer}s that expect plain text
+     * content will typically receive small pieces that are found in between
+     * HTML tags. The pieces of plain text content cannot be predicted as
+     * results change when they are processed by other replacers.
+     * </p>
+     *
+     * @param content the original content to process
+     * @param replacers the replacers to call
+     * @return returns the final result message content after it has been
+     *         processed by all replacers
+     */
+    private String processReplacers(final String content,
+        final Replacer... replacers)
     {
         StringBuilder source = new StringBuilder(content);
-        for (Replacer replacer : replacers)
+        for (final Replacer replacer : replacers)
         {
             final StringBuilder target = new StringBuilder();
             if (replacer.expectsPlainText())
@@ -1117,236 +1136,6 @@ public class ChatConversationPanel
         }
         return source.toString();
     }
-
-    // TODO check all processors for correct html escaping!
-    // FIXME decent comments
-    private static abstract class Replacer
-    {
-        /**
-         * If a replacer expects plain text strings, then html content is
-         * automatically unescaped. The replacer is responsible for correctly
-         * escaping normal text.
-         *
-         * @return returns true if it needs plain text or false if it wants html
-         *         content
-         */
-        abstract boolean expectsPlainText();
-        // FIXME javadoc
-        abstract void replace(StringBuilder target, String piece);
-    }
-
-    private static final class URLReplacer
-        extends Replacer
-    {
-
-        @Override
-        boolean expectsPlainText()
-        {
-            return true;
-        }
-
-        @Override
-        void replace(final StringBuilder target, final String piece)
-        {
-            final Matcher m = URL_PATTERN.matcher(piece);
-            int prevEnd = 0;
-
-            while (m.find())
-            {
-                target.append(StringEscapeUtils.escapeHtml4(piece.substring(
-                    prevEnd, m.start())));
-                prevEnd = m.end();
-
-                String url = m.group().trim();
-                target.append("<A href=\"");
-                if (url.startsWith("www"))
-                {
-                    target.append("http://");
-                }
-                target.append(url);
-                target.append("\">");
-                target.append(StringEscapeUtils.escapeHtml4(url));
-                target.append("</A>");
-            }
-            target.append(StringEscapeUtils.escapeHtml4(piece
-                .substring(prevEnd)));
-        }
-    }
-
-    private static final class NewlineReplacer
-        extends Replacer
-    {
-
-        @Override
-        boolean expectsPlainText()
-        {
-            return false;
-        }
-
-        @Override
-        void replace(final StringBuilder target, final String piece)
-        {
-            /*
-             * <br> tags are needed to visualize a new line in the html format,
-             * but when copied to the clipboard they are exported to the plain
-             * text format as ' ' and not as '\n'.
-             *
-             * See bug N4988885:
-             * http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4988885
-             *
-             * To fix this we need "&#10;" - the HTML-Code for ASCII-Character
-             * No.10 (Line feed).
-             */
-            target.append(piece.replaceAll("\n", "<BR/>&#10;"));
-        }
-    }
-
-    private static final class KeywordReplacer
-        extends Replacer
-    {
-        private final String keyword;
-
-        private KeywordReplacer(final String keyword)
-        {
-            this.keyword = keyword;
-        }
-
-        @Override
-        boolean expectsPlainText()
-        {
-            return true;
-        }
-
-        @Override
-        void replace(final StringBuilder target, final String piece)
-        {
-            if (this.keyword == null || this.keyword.isEmpty())
-            {
-                target.append(StringEscapeUtils.escapeHtml4(piece));
-                return;
-            }
-
-            final Matcher m =
-                Pattern.compile(Pattern.quote(keyword),
-                    Pattern.CASE_INSENSITIVE).matcher(piece);
-            int prevEnd = 0;
-            while (m.find())
-            {
-                target.append(StringEscapeUtils.escapeHtml4(piece.substring(
-                    prevEnd, m.start())));
-                prevEnd = m.end();
-                final String keywordMatch = m.group().trim();
-                target.append("<b>");
-                target.append(StringEscapeUtils.escapeHtml4(keywordMatch));
-                target.append("</b>");
-            }
-            target.append(StringEscapeUtils.escapeHtml4(piece
-                .substring(prevEnd)));
-        }
-    }
-
-    private static final class BrTagReplacer extends Replacer {
-
-        @Override
-        boolean expectsPlainText()
-        {
-            return false;
-        }
-
-        @Override
-        void replace(final StringBuilder target, final String piece)
-        {
-            // Compile the regex to match something like <br .. /> or <BR .. />.
-            // This regex is case sensitive and keeps the style or other
-            // attributes of the <br> tag.
-            Matcher m =
-                Pattern.compile("<\\s*[bB][rR](.*?)(/\\s*>)").matcher(piece);
-            int start = 0;
-
-            // while we find some <br /> closing tags with a slash inside.
-            while (m.find())
-            {
-                // First, we have to copy all the message preceding the <br>
-                // tag.
-                target.append(piece.substring(start, m.start()));
-                // Then, we find the position of the slash inside the tag.
-                final int slashIndex = m.group().lastIndexOf("/");
-                // We copy the <br> tag till the slash exclude.
-                target.append(m.group().substring(0, slashIndex));
-                // We copy all the end of the tag following the slash exclude.
-                target.append(m.group().substring(slashIndex + 1));
-                start = m.end();
-            }
-            // Finally, we have to add the end of the message following the last
-            // <br> tag, or the whole message if there is no <br> tag.
-            target.append(piece.substring(start));
-        }
-    }
-
-    private static final class ImgTagReplacer
-        extends Replacer
-    {
-
-        @Override
-        boolean expectsPlainText()
-        {
-            return false;
-        }
-
-        @Override
-        void replace(final StringBuilder target, final String piece)
-        {
-            // Compile the regex to match something like <img ... /> or
-            // <IMG ... />. This regex is case sensitive and keeps the style,
-            // src or other attributes of the <img> tag.
-            final Pattern p = Pattern.compile("<\\s*[iI][mM][gG](.*?)(/\\s*>)");
-            final Matcher m = p.matcher(piece);
-            int slashIndex;
-            int start = 0;
-
-            // while we find some <img /> self-closing tags with a slash inside.
-            while (m.find())
-            {
-                // First, we have to copy all the message preceding the <img>
-                // tag.
-                target.append(piece.substring(start, m.start()));
-                // Then, we find the position of the slash inside the tag.
-                slashIndex = m.group().lastIndexOf("/");
-                // We copy the <img> tag till the slash exclude.
-                target.append(m.group().substring(0, slashIndex));
-                // We copy all the end of the tag following the slash exclude.
-                target.append(m.group().substring(slashIndex + 1));
-                // We close the tag with a separate closing tag.
-                target.append("</img>");
-                start = m.end();
-            }
-            // Finally, we have to add the end of the message following the last
-            // <img> tag, or the whole message if there is no <img> tag.
-            target.append(piece.substring(start));
-        }
-    }
-
-    // FIXME delete this after everything works
-    /**
-     * Formats all links in a given message and optionally escapes special HTML
-     * characters such as &lt;, &gt;, &amp; and &quot; in order to prevent HTML
-     * injection in plain-text messages such as writing
-     * <code>&lt;/PLAINTEXT&gt;</code>, HTML which is going to be rendered as
-     * such and <code>&lt;PLAINTEXT&gt;</code>. The two procedures are carried
-     * out in one call in order to not break URLs which contain special HTML
-     * characters such as &amp;.
-     *
-     * @param message The source message string.
-     * @param processHTMLChars  <tt>true</tt> to escape the special HTML chars;
-     * otherwise, <tt>false</tt>
-     * @param contentType the message content type (html or plain text)
-     * @return The message string with properly formatted links.
-     */
-//    processLinksAndHTMLChars(final String message,
-//                                            final boolean processHTMLChars,
-//                                            final String contentType)
-//    {
-//    }
 
     /**
      * Opens a link in the default browser when clicked and shows link url in a
@@ -1643,34 +1432,6 @@ public class ChatConversationPanel
 
         return timestamp;
     }
-
-    // FIXME delete this after everything works
-    /**
-     * Formats HTML tags &lt;br/&gt; to &lt;br&gt; or &lt;BR/&gt; to &lt;BR&gt;.
-     * The reason of this function is that the ChatPanel does not support
-     * &lt;br /&gt; closing tags (XHTML syntax), thus we have to remove every
-     * slash from each &lt;br /&gt; tags.
-     * @param message The source message string.
-     * @return The message string with properly formatted &lt;br&gt; tags.
-     */
-//    processBrTags(String message)
-//    {
-//    }
-
-    // FIXME delete this after everything works
-    /**
-     * Formats HTML tags &lt;img ... /&gt; to &lt; img ... &gt;&lt;/img&gt; or
-     * &lt;IMG ... /&gt; to &lt;IMG&gt;&lt;/IMG&gt;.
-     * The reason of this function is that the ChatPanel does not support
-     * &lt;img /&gt; tags (XHTML syntax).
-     * Thus, we remove every slash from each &lt;img /&gt; and close it with a
-     * separate closing tag.
-     * @param message The source message string.
-     * @return The message string with properly formatted &lt;img&gt; tags.
-     */
-//    processImgTags(String message)
-//    {
-//    }
 
     /**
      * Extend Editor pane to add URL tooltips.
