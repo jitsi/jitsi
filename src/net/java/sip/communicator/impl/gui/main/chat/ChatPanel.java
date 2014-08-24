@@ -911,7 +911,7 @@ public class ChatPanel
 
             if (historyString != null)
                 conversationPanel.appendMessageToEnd(
-                    historyString, ChatHtmlUtils.TEXT_CONTENT_TYPE);
+                    historyString, ChatHtmlUtils.HTML_CONTENT_TYPE);
         }
 
         fireChatHistoryChange();
@@ -1091,7 +1091,7 @@ public class ChatPanel
      *
      * @param chatMessage the message to append
      */
-    private void appendChatMessage(ChatMessage chatMessage)
+    private void appendChatMessage(final ChatMessage chatMessage)
     {
         String keyword = null;
 
@@ -1113,12 +1113,14 @@ public class ChatPanel
             String meCommandMsg
                 = this.conversationPanel.processMeCommand(chatMessage);
 
+            // FIXME I'm pretty sure we are losing the previously prepared
+            // processedMessage content.
             if (meCommandMsg.length() > 0)
                 processedMessage = meCommandMsg;
         }
 
         this.conversationPanel.appendMessageToEnd(
-            processedMessage, chatMessage.getContentType());
+            processedMessage, ChatHtmlUtils.HTML_CONTENT_TYPE);
     }
 
     /**
