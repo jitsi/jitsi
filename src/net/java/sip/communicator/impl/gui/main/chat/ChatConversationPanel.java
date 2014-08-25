@@ -106,10 +106,39 @@ public class ChatConversationPanel
      * correctly escaped, such that there is no occurrence of the symbols &lt;
      * and &gt;.</i>
      *
-     * <p>The first group matches any piece of text outside of HTML tags.</p>
+     * <pre>
+     * In essence this regexp pattern works as follows:
+     * 1. Find all the text that isn't the start of a tag. (so all chars != '<')
+     *    -> This is your actual result: textual content that is not part of a
+     *    tag.
+     * 2. Then, if you find a '<', find as much chars as you can until you find
+     *    '>' (if it is possible at all to find a closing '>')
+     *
+     *    In depth explanation of 2.:
+     *    The text between tags consists mainly of 2 parts:
+     *
+     *    A) a piece of text
+     *    B) some value "between quotes"
+     *
+     *    So everything up to the "quote" is part of a piece of text (A). Then
+     *    if we encounter a "quote" we consider the rest of the text part of the
+     *    value (B) until the value section is closed with a closing "quote".
+     *    (We tend to be rather greedy, so we even swallow '>' along the way
+     *    looking for the closing "quote".)
+     *
+     *    This subpattern is allowed any number of times, until eventually the
+     *    closing '>' is encountered. (Or not if the pattern is incomplete.)
+     *
+     * 3. And consider that 2. is optional, since it could also be that we only
+     *    find plain text, which would all be captured by 1.
+     * </pre>
+     *
+     * <p>The first group matches any piece of text outside of the &lt; and &gt;
+     * brackets that define the start and end of HTML tags.</p>
      */
-    public static final Pattern TEXT_TO_REPLACE_PATTERN = Pattern.compile(
-        "([^<]*+)(?:<[^>]*+>)?", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+    static final Pattern TEXT_TO_REPLACE_PATTERN = Pattern.compile(
+        "([^<]*+)(?:<(?:[^>\"]*(?:\"[^\"]*+\"?)*)*+>?)?",
+        Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     /**
      * List for observing text messages.
@@ -206,8 +235,8 @@ public class ChatConversationPanel
         = new ShowPreviewDialog(ChatConversationPanel.this);
 
     /**
-     * The implementation of the routine which scrolls {@link #chatTextPane} to its
-     * bottom.
+     * The implementation of the routine which scrolls {@link #chatTextPane} to
+     * its bottom.
      */
     private final Runnable scrollToBottomRunnable = new Runnable()
     {
