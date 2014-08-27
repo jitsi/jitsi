@@ -158,6 +158,28 @@ public class ColibriConferenceIQ
     }
 
     /**
+     * Finds {@link ChannelBundle} identified by given <tt>bundleId</tt>.
+     * @param bundleId <tt>ChannelBundle</tt> identifier.
+     * @return {@link ChannelBundle} identified by given <tt>bundleId</tt> or
+     *         <tt>null</tt> if not found.
+     */
+    public ChannelBundle getChannelBundle(String bundleId)
+    {
+        if (bundleId == null)
+        {
+            return null;
+        }
+        for (ChannelBundle bundle : channelBundles)
+        {
+            if (bundleId.equals(bundle.getId()))
+            {
+                return bundle;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Returns an XML <tt>String</tt> representation of this <tt>IQ</tt>.
      *
      * @return an XML <tt>String</tt> representation of this <tt>IQ</tt>

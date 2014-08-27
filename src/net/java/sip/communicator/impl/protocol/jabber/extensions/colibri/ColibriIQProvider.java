@@ -99,8 +99,21 @@ public class ColibriIQProvider
     }
 
     private void addChildExtension(
-        ColibriConferenceIQ.SctpConnection sctpConnection,
-        PacketExtension childExtension)
+            ColibriConferenceIQ.ChannelBundle bundle,
+            PacketExtension childExtension)
+    {
+        if (childExtension instanceof IceUdpTransportPacketExtension)
+        {
+            IceUdpTransportPacketExtension transport
+                = (IceUdpTransportPacketExtension) childExtension;
+
+            bundle.setTransport(transport);
+        }
+    }
+
+    private void addChildExtension(
+            ColibriConferenceIQ.SctpConnection sctpConnection,
+            PacketExtension childExtension)
     {
         if (childExtension instanceof IceUdpTransportPacketExtension)
         {
@@ -173,6 +186,7 @@ public class ColibriIQProvider
             ColibriConferenceIQ.RTCPTerminationStrategy rtcpTerminationStrategy
                     = null;
             ColibriConferenceIQ.SctpConnection sctpConnection = null;
+            ColibriConferenceIQ.ChannelBundle bundle = null;
             ColibriConferenceIQ.Content content = null;
             ColibriConferenceIQ.Recording recording = null;
             ColibriConferenceIQ.Endpoint conferenceEndpoint = null;
@@ -203,6 +217,16 @@ public class ColibriIQProvider
                             content.addSctpConnection(sctpConnection);
 
                         sctpConnection = null;
+                    }
+                    else if (ColibriConferenceIQ.ChannelBundle.ELEMENT_NAME
+                            .equals(name))
+                    {
+                        if (bundle != null)
+                        {
+                            conference.addChannelBundle(bundle);
+
+                            bundle = null;
+                        }
                     }
                     else if (ColibriConferenceIQ.Endpoint.ELEMENT_NAME
                             .equals(name))
@@ -386,6 +410,21 @@ public class ColibriIQProvider
                         if ((rtpPort != null) && (rtpPort.length() != 0))
                             channel.setRTPPort(Integer.parseInt(rtpPort));
                     }
+                    else if (ColibriConferenceIQ.ChannelBundle
+                            .ELEMENT_NAME.equals(name))
+                    {
+                        String bundleId
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ
+                                        .ChannelBundle.ID_ATTR_NAME);
+
+                        if(!StringUtils.isNullOrEmpty(bundleId))
+                        {
+                            bundle = new ColibriConferenceIQ
+                                        .ChannelBundle(bundleId);
+                        }
+                    }
                     else if (ColibriConferenceIQ.RTCPTerminationStrategy
                             .ELEMENT_NAME.equals(name))
                     {
@@ -531,7 +570,9 @@ public class ColibriIQProvider
                                                                    endpointName);
 
                     }
-                    else if (channel != null || sctpConnection != null)
+                    else if ( channel != null
+                              || sctpConnection != null
+                              || bundle != null )
                     {
                         String peName = null;
                         String peNamespace = null;
@@ -593,9 +634,11 @@ public class ColibriIQProvider
                             {
                                 if(channel != null)
                                     addChildExtension(channel, extension);
-                                else
+                                else if (sctpConnection != null)
                                     addChildExtension(sctpConnection,
                                                       extension);
+                                else
+                                    addChildExtension(bundle, extension);
                             }
                         }
                     }
