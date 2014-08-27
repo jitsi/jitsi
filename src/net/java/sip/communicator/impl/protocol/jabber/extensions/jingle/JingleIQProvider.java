@@ -78,6 +78,13 @@ public class JingleIQProvider implements IQProvider
             new DefaultPacketExtensionProvider
                 <CryptoPacketExtension>(CryptoPacketExtension.class));
 
+        // <group/> provider
+        providerManager.addExtensionProvider(
+            GroupPacketExtension.ELEMENT_NAME,
+            GroupPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider
+                <GroupPacketExtension>(GroupPacketExtension.class));
+
         //ice-udp transport
         providerManager.addExtensionProvider(
             IceUdpTransportPacketExtension.ELEMENT_NAME,
