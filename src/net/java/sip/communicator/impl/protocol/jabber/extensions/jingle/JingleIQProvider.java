@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet.*;
 import org.jivesoftware.smack.provider.*;
 import org.xmlpull.v1.*;
 
@@ -77,6 +78,13 @@ public class JingleIQProvider implements IQProvider
             RtpDescriptionPacketExtension.NAMESPACE,
             new DefaultPacketExtensionProvider
                 <CryptoPacketExtension>(CryptoPacketExtension.class));
+
+        // <bundle/> provider
+        providerManager.addExtensionProvider(
+            BundlePacketExtension.ELEMENT_NAME,
+            BundlePacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider
+                <BundlePacketExtension>(BundlePacketExtension.class));
 
         // <group/> provider
         providerManager.addExtensionProvider(
