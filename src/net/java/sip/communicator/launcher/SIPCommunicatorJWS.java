@@ -39,7 +39,8 @@ public class SIPCommunicatorJWS
             try
             {
                 Class c = Class.forName(chainMain);
-                final Method m = c.getMethod("main", _chainArgs.getClass());
+                final Method m = c.getMethod("main",
+                    new Class[] {_chainArgs.getClass()});
                 new Thread()
                 {
                     public void run()
@@ -79,20 +80,22 @@ public class SIPCommunicatorJWS
         LogManager.getLogManager().getLogger("").addHandler(new FileHandler());
         LogManager.getLogManager().getLogger("")
             .addHandler(new ConsoleHandler());
-        for (Handler h : LogManager.getLogManager().getLogger("").getHandlers())
-            h.setFormatter(new ScLogFormatter());
+
+        Handler[] h = LogManager.getLogManager().getLogger("").getHandlers();
+        for (int i = 0; i < h.length; i++)
+            h[i].setFormatter(new ScLogFormatter());
 
         // be evil :-)
         // find the path of the nativelibs under webstart (findLibrary is
         // protected and therefore at least documented api)
         Method findLibrary =
             SIPCommunicatorJWS.class.getClassLoader().getClass()
-                .getDeclaredMethod("findLibrary", String.class);
+                .getDeclaredMethod("findLibrary", new Class[] {String.class});
         findLibrary.setAccessible(true);
         File path =
             new File((String) findLibrary.invoke(
-                SIPCommunicatorJWS.class.getClassLoader(), "hid"))
-                .getParentFile();
+                SIPCommunicatorJWS.class.getClassLoader(),
+                new Object[] {"hid"})).getParentFile();
         System.setProperty(
             "java.library.path",
             System.getProperty("java.library.path") + File.pathSeparator
@@ -114,19 +117,24 @@ public class SIPCommunicatorJWS
             System.getProperty("net.java.sip.communicator.SC_JWS_BASEDIR");
         ClassLoader cl = SIPCommunicatorJWS.class.getClassLoader();
         Method getJarFile =
-            cl.getClass().getDeclaredMethod("getJarFile", URL.class);
+            cl.getClass().getDeclaredMethod("getJarFile",
+                new Class[] {URL.class});
         getJarFile.setAccessible(true);
-        for (Map.Entry<Object, Object> e : pIn.entrySet())
+
+        Iterator propIt = pIn.entrySet().iterator();
+        while (propIt.hasNext())
         {
+            Map.Entry e = (Map.Entry) propIt.next();
             if (((String) e.getKey()).startsWith("felix.auto.start."))
             {
                 String[] refs = ((String) e.getValue()).split("\\s");
                 StringBuilder sb = new StringBuilder();
-                for (String ref : refs)
+                for (int i = 0; i < refs.length; i++)
                 {
+                    String ref = refs[i];
                     JarFile localFile =
-                        (JarFile) getJarFile.invoke(cl, new URL(baseServerUrl
-                            + ref.replace("@URL@", "")));
+                        (JarFile) getJarFile.invoke(cl, new Object[] {
+                            new URL(baseServerUrl + ref.replace("@URL@", ""))});
                     if (localFile != null)
                     {
                         String localFileName =
@@ -164,8 +172,9 @@ public class SIPCommunicatorJWS
                 File desktop =
                     new File(System.getProperty("user.home") + "/Desktop");
                 File[] files = desktop.listFiles();
-                for (File file : files)
+                for (int i = 0; i < files.length; i++)
                 {
+                    File file = files[i];
                     if (file.getName().contains("jws_app_shortcut_"))
                     {
                         file.setExecutable(true, false);
@@ -178,7 +187,7 @@ public class SIPCommunicatorJWS
         }
 
         // Handle the "-open" argument from the javaws command line
-        Vector<String> _args = new Vector<String>();
+        Vector _args = new Vector();
         for(int i = 0; i < args.length ; i++)
         {
             String arg = args[i];
@@ -203,6 +212,6 @@ public class SIPCommunicatorJWS
         }
 
         // launch the original app
-        SIPCommunicator.main(_args.toArray(new String[] {}));
+        SIPCommunicator.main((String[])_args.toArray(new String[_args.size()]));
     }
 }
