@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
+import org.ice4j.ice.*;
 
 /**
  * @author Emil Ivov
@@ -90,6 +91,11 @@ public class CandidatePacketExtension extends AbstractPacketExtension
     public static final String TYPE_ATTR_NAME = "type";
 
     /**
+     * The name of the "tcptype" element.
+     */
+    public static final String TCPTYPE_ATTR_NAME = "tcptype";
+
+    /**
      * Creates a new {@link CandidatePacketExtension}
      */
     public CandidatePacketExtension()
@@ -150,12 +156,12 @@ public class CandidatePacketExtension extends AbstractPacketExtension
     }
 
     /**
-     * Sets this canditate's generation index. A generation is an index,
+     * Sets this candidate's generation index. A generation is an index,
      * starting at 0, that enables the parties to keep track of updates to the
      * candidate throughout the life of the session. For details, see the ICE
      * Restarts section of XEP-0176.
      *
-     * @param generation this canditate's generation index.
+     * @param generation this candidate's generation index.
      */
     public void setGeneration(int generation)
     {
@@ -163,12 +169,12 @@ public class CandidatePacketExtension extends AbstractPacketExtension
     }
 
     /**
-     * Returns this canditate's generation. A generation is an index, starting at
+     * Returns this candidate's generation. A generation is an index, starting at
      * 0, that enables the parties to keep track of updates to the candidate
      * throughout the life of the session. For details, see the ICE Restarts
      * section of XEP-0176.
      *
-     * @return this canditate's generation index.
+     * @return this candidate's generation index.
      */
     public int getGeneration()
     {
@@ -382,7 +388,7 @@ public class CandidatePacketExtension extends AbstractPacketExtension
      */
     public int compareTo(CandidatePacketExtension candidatePacketExtension)
     {
-        // If the types are differents.
+        // If the types are different.
         if(this.getType() != candidatePacketExtension.getType())
         {
             CandidateType[] types = {
@@ -409,5 +415,21 @@ public class CandidatePacketExtension extends AbstractPacketExtension
         }
         // If the types are equal.
         return 0;
+    }
+
+    /**
+     * Gets the TCP type for this <tt>CandidatePacketExtension</tt>.
+     */
+    public CandidateTcpType getTcpType()
+    {
+        String tcpTypeString = getAttributeAsString(TCPTYPE_ATTR_NAME);
+        try
+        {
+            return CandidateTcpType.parse(tcpTypeString);
+        }
+        catch (IllegalArgumentException iae)
+        {
+            return null;
+        }
     }
 }
