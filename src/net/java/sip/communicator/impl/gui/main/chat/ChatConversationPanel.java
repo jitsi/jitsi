@@ -2107,11 +2107,21 @@ public class ChatConversationPanel
         @Override
         public void finished()
         {
+            ShowPreviewDialog previewDialog = showPreview;
+            // There is a race between the replacement worker and the
+            // ChatConversationPanel when it is (being) disposed of. Make sure
+            // we have an instance before continuing.
+            if (previewDialog == null)
+            {
+                // Abort if dialog has been disposed of.
+                return;
+            }
+
             String newMessage = (String) get();
 
             if (newMessage != null && !newMessage.equals(chatString))
             {
-                showPreview.getMsgIDToChatString().put(
+                previewDialog.getMsgIDToChatString().put(
                     messageID, newMessage);
                 synchronized (scrollToBottomRunnable)
                 {
@@ -2229,6 +2239,16 @@ public class ChatConversationPanel
                                  final ReplacementService rService,
                                  final boolean isURL)
         {
+            final ShowPreviewDialog previewDialog = showPreview;
+            // There is a race between the replacement worker and the
+            // ChatConversationPanel when it is (being) disposed of. Make sure
+            // we have an instance before continuing.
+            if (previewDialog == null)
+            {
+                // Abort if dialog has been disposed of.
+                return;
+            }
+
             Matcher m = pattern.matcher(plainText);
 
             ConfigurationService cfg = GuiActivator.getConfigurationService();
@@ -2276,7 +2296,7 @@ public class ChatConversationPanel
                     {
                         msgBuff.append(StringEscapeUtils.escapeHtml4(group));
                         msgBuff.append("</A> <A href=\"jitsi://"
-                            + showPreview.getClass().getName()
+                            + previewDialog.getClass().getName()
                             + "/SHOWPREVIEW?" + messageID
                             + "#"
                             + linkCounter
@@ -2285,12 +2305,10 @@ public class ChatConversationPanel
                                 .getResources().getI18NString(
                                     "service.gui.SHOW_PREVIEW")));
 
-                        showPreview.getMsgIDandPositionToLink()
-                            .put(
-                                messageID + "#" + linkCounter++, group);
-                        showPreview.getLinkToReplacement()
-                            .put(
-                                group, temp);
+                        previewDialog.getMsgIDandPositionToLink()
+                            .put(messageID + "#" + linkCounter++, group);
+                        previewDialog.getLinkToReplacement()
+                            .put(group, temp);
                     }
                     else if (isEnabled && isEnabledForSource)
                     {
