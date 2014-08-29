@@ -38,7 +38,7 @@ public class SIPCommunicatorJWS
             final String[] _chainArgs = chainArgs.split("\\s");
             try
             {
-                Class<?> c = Class.forName(chainMain);
+                Class c = Class.forName(chainMain);
                 final Method m = c.getMethod("main", _chainArgs.getClass());
                 new Thread()
                 {
@@ -73,8 +73,9 @@ public class SIPCommunicatorJWS
                 SIPCommunicatorJWS.class
                     .getResourceAsStream("/logging.properties"));
 
-        for (Handler h : LogManager.getLogManager().getLogger("").getHandlers())
-            LogManager.getLogManager().getLogger("").removeHandler(h);
+        Handler[] hs = LogManager.getLogManager().getLogger("").getHandlers();
+        for (int i = 0; i < hs.length; i++)
+            LogManager.getLogManager().getLogger("").removeHandler(hs[i]);
         LogManager.getLogManager().getLogger("").addHandler(new FileHandler());
         LogManager.getLogManager().getLogger("")
             .addHandler(new ConsoleHandler());
