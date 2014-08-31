@@ -6,6 +6,8 @@
 package net.java.sip.communicator.impl.protocol.irc;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.util.*;
 
 /**
  * Implementation of Basic Instant Messaging as utilized for IRC private
@@ -16,6 +18,11 @@ import net.java.sip.communicator.service.protocol.*;
 public class OperationSetBasicInstantMessagingIrcImpl
     extends AbstractOperationSetBasicInstantMessaging
 {
+    /**
+     * Logger.
+     */
+    private static final Logger LOGGER = Logger.getLogger(OperationSetBasicInstantMessagingIrcImpl.class);
+
     /**
      * IRC protocol provider service.
      */
@@ -59,28 +66,74 @@ public class OperationSetBasicInstantMessagingIrcImpl
      * Send instant message.
      *
      * @param to contact to send message to
-     * @param message message to send
+     * @param original message to send
      * @throws IllegalStateException in case of bad internal state
      * @throws IllegalArgumentException in case invalid arguments have been
      *             passed
      */
     @Override
-    public void sendInstantMessage(final Contact to, final Message message)
+    public void sendInstantMessage(final Contact to, final Message original)
         throws IllegalStateException,
         IllegalArgumentException
     {
+        if (!(original instanceof MessageIrcImpl))
+        {
+            LOGGER.error("Invalid class of Message implementation received. "
+                + "Not sending message.");
+            return;
+        }
+
         // OTR seems to be compatible with the command syntax (starts with '/')
         // and there were no other obvious problems so we decided to implement
         // IRC command support for IM infrastructure too.
 
-        if (message instanceof MessageIrcImpl
-            && ((MessageIrcImpl) message).isCommand())
+        final MessageDeliveredEvent[] msgDeliveryPendingEvts =
+            messageDeliveryPendingTransform(new MessageDeliveredEvent(original,
+                to));
+
+        try
         {
-            this.provider.getIrcStack().command(to, (MessageIrcImpl) message);
+            for (MessageDeliveredEvent event : msgDeliveryPendingEvts)
+            {
+                if (event == null)
+                {
+                    return;
+                }
+
+                String transformedContent =
+                    event.getSourceMessage().getContent();
+
+                // FIXME how to handle HTML content?
+
+                // Note: can't set subject since it leaks information while
+                // message content actually gets encoded.
+                MessageIrcImpl message = this.createMessage(transformedContent,
+                    original.getContentType(), original.getEncoding(), "");
+
+                try
+                {
+                    if (message.isCommand())
+                    {
+                        this.provider.getIrcStack().command(to, message);
+                    }
+                    else
+                    {
+                        this.provider.getIrcStack().message(to, message);
+                    }
+                }
+                catch (RuntimeException e)
+                {
+                    LOGGER.debug("Failed to deliver (raw) message: " + message);
+                    throw e;
+                }
+            }
+            fireMessageDelivered(original, to);
         }
-        else
+        catch (RuntimeException e)
         {
-            this.provider.getIrcStack().message(to, message);
+            LOGGER.warn("Failed to deliver message: " + original, e);
+            fireMessageDeliveryFailed(original, to,
+                MessageDeliveryFailedEvent.NETWORK_FAILURE);
         }
     }
 

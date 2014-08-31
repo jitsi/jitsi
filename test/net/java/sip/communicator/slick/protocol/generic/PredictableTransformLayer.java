@@ -40,7 +40,7 @@ public class PredictableTransformLayer
             .getDestinationContact(), evt.getErrorCode());
     }
 
-    public MessageDeliveredEvent messageDeliveryPending(
+    public MessageDeliveredEvent[] messageDeliveryPending(
         MessageDeliveredEvent evt)
     {
         logger
@@ -51,8 +51,9 @@ public class PredictableTransformLayer
                 "DELIVERY_PENDING");
 
         logger.debug("OUT: " + transformedMessage.getContent());
-        return new MessageDeliveredEvent(transformedMessage, evt
-            .getDestinationContact(), evt.getTimestamp());
+        return new MessageDeliveredEvent[]
+        { new MessageDeliveredEvent(transformedMessage,
+            evt.getDestinationContact(), evt.getTimestamp()) };
     }
 
     public MessageReceivedEvent messageReceived(MessageReceivedEvent evt)

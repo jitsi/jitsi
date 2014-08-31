@@ -442,62 +442,60 @@ public class OperationSetBasicInstantMessagingJabberImpl
         MessageDeliveredEvent msgDeliveryPendingEvt
             = new MessageDeliveredEvent(message, to, toResource);
 
-        msgDeliveryPendingEvt
-            = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
+        MessageDeliveredEvent[] transformedEvents = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
 
-        if (msgDeliveryPendingEvt == null)
+        if (transformedEvents == null || transformedEvents.length == 0)
             return null;
 
-        String content = msgDeliveryPendingEvt
-                                .getSourceMessage().getContent();
-
-        if(message.getContentType().equals(HTML_MIME_TYPE))
+        for (MessageDeliveredEvent event : transformedEvents)
         {
-            msg.setBody(Html2Text.extractText(content));
+            String content = event.getSourceMessage().getContent();
 
-            // Check if the other user supports XHTML messages
-            // make sure we use our discovery manager as it caches calls
-            if(jabberProvider.isFeatureListSupported(
-                    toJID,
-                    HTML_NAMESPACE))
+            if (message.getContentType().equals(HTML_MIME_TYPE))
             {
-                // Add the XHTML text to the message
-                XHTMLManager.addBody(msg,
-                    OPEN_BODY_TAG + content + CLOSE_BODY_TAG);
+                msg.setBody(Html2Text.extractText(content));
+
+                // Check if the other user supports XHTML messages
+                // make sure we use our discovery manager as it caches calls
+                if (jabberProvider
+                    .isFeatureListSupported(toJID, HTML_NAMESPACE))
+                {
+                    // Add the XHTML text to the message
+                    XHTMLManager.addBody(msg, OPEN_BODY_TAG + content
+                        + CLOSE_BODY_TAG);
+                }
             }
+            else
+            {
+                // this is plain text so keep it as it is.
+                msg.setBody(content);
+            }
+
+            // msg.addExtension(new Version());
+
+            if (event.isMessageEncrypted())
+            {
+                msg.addExtension(new CarbonPacketExtension.PrivateExtension());
+            }
+
+            MessageEventManager.addNotificationsRequests(msg, true, false,
+                false, true);
+
+            String threadID = getThreadIDForAddress(toJID);
+            if (threadID == null)
+                threadID = nextThreadID();
+
+            msg.setThread(threadID);
+            msg.setType(org.jivesoftware.smack.packet.Message.Type.chat);
+            msg.setFrom(jabberProvider.getConnection().getUser());
+
+            jabberProvider.getConnection().sendPacket(msg);
+
+            putJidForAddress(toJID, threadID);
         }
-        else
-        {
-            // this is plain text so keep it as it is.
-            msg.setBody(content);
-        }
 
-        //msg.addExtension(new Version());
-
-        if(msgDeliveryPendingEvt.isMessageEncrypted())
-        {
-            msg.addExtension(new CarbonPacketExtension.PrivateExtension());
-        }
-
-        MessageEventManager.
-            addNotificationsRequests(msg, true, false, false, true);
-
-        String threadID = getThreadIDForAddress(toJID);
-        if(threadID == null)
-            threadID = nextThreadID();
-
-        msg.setThread(threadID);
-        msg.setType(org.jivesoftware.smack.packet.Message.Type.chat);
-        msg.setFrom(jabberProvider.getConnection().getUser());
-
-        jabberProvider.getConnection().sendPacket(msg);
-
-        putJidForAddress(toJID, threadID);
-
-        MessageDeliveredEvent msgDeliveredEvt
-            = new MessageDeliveredEvent(message, to, toResource);
-
-        // msgDeliveredEvt = messageDeliveredTransform(msgDeliveredEvt);
+        MessageDeliveredEvent msgDeliveredEvt =
+            new MessageDeliveredEvent(message, to, toResource);
 
         return msgDeliveredEvt;
     }
@@ -1119,6 +1117,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
             ? "service.gui.NEW_GMAIL_MANY_FOOTER"
             : "service.gui.NEW_GMAIL_FOOTER";
 
+        // FIXME Escape HTML!
         String newMailHeader = JabberActivator.getResources().getI18NString(
             resourceHeaderKey,
             new String[]

@@ -113,7 +113,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
      * @throws java.lang.IllegalArgumentException if <tt>to</tt> is not an
      * instance of ContactImpl.
      */
-    public void sendInstantMessage(final Contact to, Message message)
+    public void sendInstantMessage(final Contact to, final Message message)
         throws IllegalStateException, IllegalArgumentException
     {
         assertConnected();
@@ -123,29 +123,30 @@ public class OperationSetBasicInstantMessagingMsnImpl
                "The specified contact is not an MSN contact."
                + to);
 
-        final MessageDeliveredEvent msgDeliveryPendingEvt
-            = messageDeliveryPendingTransform(
-                new MessageDeliveredEvent(message, to));
+        MessageDeliveredEvent[] transformedEvents = messageDeliveryPendingTransform(
+            new MessageDeliveredEvent(message, to));
 
-        if (msgDeliveryPendingEvt == null)
+        if (transformedEvents == null || transformedEvents.length == 0)
             return;
 
-        MessageDeliveredEvent msgDeliveredEvt
-            = new MessageDeliveredEvent(message, to);
+        MessageDeliveredEvent msgDeliveredEvt =
+            new MessageDeliveredEvent(message, to);
 
         fireMessageEvent(msgDeliveredEvt);
 
-        // send message in separate thread so we won't block ui if
-        // it takes time.
-        if(senderThread == null)
+        // send message in separate thread so we won't block ui if it takes
+        // time.
+        if (senderThread == null)
         {
             senderThread = new SenderThread();
             senderThread.start();
         }
 
-        senderThread.sendMessage(
-                (ContactMsnImpl)to,
-                msgDeliveryPendingEvt.getSourceMessage().getContent());
+        for (MessageDeliveredEvent event : transformedEvents)
+        {
+            senderThread.sendMessage((ContactMsnImpl) to, event
+                .getSourceMessage().getContent());
+        }
     }
 
     /**
@@ -323,6 +324,7 @@ public class OperationSetBasicInstantMessagingMsnImpl
                 logger.warn("Failed to decode the subject of a new e-mail", ex);
             }
 
+            // FIXME Escape HTML!
             String messageFrom = message.getFrom();
             Message newMailMessage = new MessageMsnImpl(
                     MessageFormat.format(

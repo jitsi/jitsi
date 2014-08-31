@@ -61,12 +61,13 @@ public interface TransformLayer
      * @param evt the MessageDeliveredEvent containing the id of the message
      * that has caused the event.
      *
-     * @return an instance of a (possibly new) <tt>MessageDeliveredEvent</tt>
-     * instance containing the transformed message or <tt>null</tt> if the
-     * <tt>TransportLayer</tt> has determined that this message event should not
-     * be delivered to the upper layers.
+     * @return a number of instances of (possibly new)
+     * <tt>MessageDeliveredEvent</tt> instances containing the transformed
+     * message(s) or an empty array if the <tt>TransportLayer</tt> has
+     * determined that there are no message event that should be delivered to
+     * the upper layers.
      */
-    public MessageDeliveredEvent messageDeliveryPending(MessageDeliveredEvent evt);
+    public MessageDeliveredEvent[] messageDeliveryPending(MessageDeliveredEvent evt);
 
     /**
      * Called when the underlying implementation has received an indication

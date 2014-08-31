@@ -61,7 +61,7 @@ public class OtrTransformLayer
     /*
      * Implements TransformLayer#messageDeliveryPending(MessageDeliveredEvent).
      */
-    public MessageDeliveredEvent messageDeliveryPending(
+    public MessageDeliveredEvent[] messageDeliveryPending(
         MessageDeliveredEvent evt)
     {
         Contact contact = evt.getDestinationContact();
@@ -76,47 +76,57 @@ public class OtrTransformLayer
         if (!policy.getEnableManual()
             && sessionStatus != ScSessionStatus.ENCRYPTED
             && sessionStatus != ScSessionStatus.FINISHED)
-            return evt;
+            return new MessageDeliveredEvent[] {evt};
 
         // If this is a message otr4j injected earlier, return the event as is.
         if (OtrActivator.scOtrEngine.isMessageUIDInjected(evt
             .getSourceMessage().getMessageUID()))
-            return evt;
+            return new MessageDeliveredEvent[] {evt};
 
         // Process the outgoing message.
         String msgContent = evt.getSourceMessage().getContent();
-        String processedMessageContent =
+        String[] processedMessageContent =
             OtrActivator.scOtrEngine.transformSending(otrContact, msgContent);
 
         if (processedMessageContent == null
-            || processedMessageContent.length() < 1)
-            return null;
+            || processedMessageContent.length <= 0
+            || processedMessageContent[0].length() < 1)
+            return new MessageDeliveredEvent[0];
 
-        if (processedMessageContent.equals(msgContent))
-            return evt;
+        if (processedMessageContent.length == 1
+            && processedMessageContent[0].equals(msgContent))
+            return new MessageDeliveredEvent[] {evt};
 
-        // Forge a new message based on the new contents.
-        OperationSetBasicInstantMessaging imOpSet =
-            contact.getProtocolProvider().getOperationSet(
-                OperationSetBasicInstantMessaging.class);
-        Message processedMessage =
-            imOpSet.createMessage(
-                processedMessageContent,
-                evt.getSourceMessage().getContentType(),
-                evt.getSourceMessage().getEncoding(),
-                evt.getSourceMessage().getSubject());
-
-        // Create a new event and return.
-        MessageDeliveredEvent processedEvent =
-            new MessageDeliveredEvent(processedMessage, contact, evt
-                .getTimestamp());
-
-        if(processedMessage.getContent().contains(SerializationConstants.HEAD))
+        final MessageDeliveredEvent[] processedEvents =
+            new MessageDeliveredEvent[processedMessageContent.length];
+        for (int i = 0; i < processedMessageContent.length; i++)
         {
-            processedEvent.setMessageEncrypted(true);
+            final String fragmentContent = processedMessageContent[i];
+            // Forge a new message based on the new contents.
+            OperationSetBasicInstantMessaging imOpSet =
+                contact.getProtocolProvider().getOperationSet(
+                    OperationSetBasicInstantMessaging.class);
+            Message processedMessage =
+                imOpSet.createMessage(fragmentContent, evt
+                    .getSourceMessage().getContentType(), evt
+                    .getSourceMessage().getEncoding(), evt.getSourceMessage()
+                    .getSubject());
+
+            // Create a new event and return.
+            final MessageDeliveredEvent processedEvent =
+                new MessageDeliveredEvent(processedMessage, contact,
+                    evt.getTimestamp());
+
+            if (processedMessage.getContent().contains(
+                SerializationConstants.HEAD))
+            {
+                processedEvent.setMessageEncrypted(true);
+            }
+
+            processedEvents[i] = processedEvent;
         }
 
-        return processedEvent;
+        return processedEvents;
     }
 
     /*

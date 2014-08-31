@@ -70,7 +70,7 @@ public interface ScOtrEngine
      * @param content the original message content.
      * @return the transformed message content.
      */
-    public abstract String transformSending(OtrContact contact, String content);
+    public abstract String[] transformSending(OtrContact contact, String content);
 
     /**
      * Transforms an incoming message.

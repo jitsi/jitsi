@@ -172,29 +172,35 @@ public class OperationSetBasicInstantMessagingIcqImpl
         MessageDeliveredEvent msgDeliveryPendingEvt
             = new MessageDeliveredEvent(message, to);
 
-        msgDeliveryPendingEvt = this.messageDeliveryPendingTransform(msgDeliveryPendingEvt);
-
-        if (msgDeliveryPendingEvt == null)
+        MessageDeliveredEvent[] msgDeliveryPendingEvts = this.messageDeliveryPendingTransform(msgDeliveryPendingEvt);
+        if (msgDeliveryPendingEvts == null || msgDeliveryPendingEvts.length == 0)
             return;
 
-        String transformedContent = msgDeliveryPendingEvt.getSourceMessage().getContent();
-
-        if (to.getPresenceStatus().isOnline())
+        for (MessageDeliveredEvent pendingEvt : msgDeliveryPendingEvts)
         {
-            //do not add the conversation listener in here. we'll add it
-            //inside the icbm listener
-            imConversation.sendMessage(new SimpleMessage(transformedContent));
+            String transformedContent =
+                pendingEvt.getSourceMessage().getContent();
+
+            if (to.getPresenceStatus().isOnline())
+            {
+                // do not add the conversation listener in here. we'll add it
+                // inside the icbm listener
+                imConversation
+                    .sendMessage(new SimpleMessage(transformedContent));
+            }
+            else
+                imConversation.sendMessage(
+                    new SimpleMessage(transformedContent), true);
+
+            MessageDeliveredEvent msgDeliveredEvt =
+                new MessageDeliveredEvent(message, to);
+
+            // msgDeliveredEvt =
+            // this.messageDeliveredTransform(msgDeliveredEvt);
+
+            if (msgDeliveredEvt != null)
+                fireMessageEvent(msgDeliveredEvt);
         }
-        else
-            imConversation.sendMessage(new SimpleMessage(transformedContent), true);
-
-        MessageDeliveredEvent msgDeliveredEvt
-            = new MessageDeliveredEvent(message, to);
-
-        // msgDeliveredEvt = this.messageDeliveredTransform(msgDeliveredEvt);
-
-        if (msgDeliveredEvt != null)
-            fireMessageEvent(msgDeliveredEvt);
     }
 
     /**

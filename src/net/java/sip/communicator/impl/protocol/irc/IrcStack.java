@@ -152,6 +152,12 @@ public class IrcStack
     private PresenceManager presence = null;
 
     /**
+     * The local user's identity as it will be used in server-client
+     * communication for sent messages.
+     */
+    private Identity identity;
+
+    /**
      * The cached channel list.
      *
      * Contained inside a simple container object in order to lock the container
@@ -252,6 +258,8 @@ public class IrcStack
             }
 
             connectSynchronized();
+
+            queryIdentity();
 
             // TODO Read IRC network capabilities based on RPL_ISUPPORT (005)
             // replies if available. This information should be available in
@@ -360,6 +368,27 @@ public class IrcStack
                 throw e;
             }
         }
+    }
+
+    /**
+     * Issue WHOIS query to discover identity as seen by the server.
+     */
+    private void queryIdentity()
+    {
+        this.session.get().rawMessage(
+            "WHOIS " + this.connectionState.getNickname());
+    }
+
+    /**
+     * Get the current identity string, based on nick, user and host of local
+     * user.
+     *
+     * @return returns identity string
+     */
+    public String getIdentityString()
+    {
+        final String currentNick = this.connectionState.getNickname();
+        return this.identity.getIdentityString(currentNick);
     }
 
     /**
@@ -1022,16 +1051,12 @@ public class IrcStack
         {
             final IRCApi irc = this.session.get();
             irc.message(target, message.getContent());
-            IrcStack.this.provider.getBasicInstantMessaging()
-                .fireMessageDelivered(message, contact);
             LOGGER.trace("Message delivered to server successfully.");
         }
         catch (RuntimeException e)
         {
-            IrcStack.this.provider.getBasicInstantMessaging()
-                .fireMessageDeliveryFailed(message, contact,
-                    MessageDeliveryFailedEvent.NETWORK_FAILURE);
             LOGGER.trace("Failed to deliver message: " + e.getMessage(), e);
+            throw e;
         }
     }
 
@@ -1185,6 +1210,11 @@ public class IrcStack
          */
         private static final int RPL_LISTEND =
             IRCServerNumerics.CHANNEL_NICKS_END_OF_LIST;
+        
+        /**
+         * Reply for WHOIS query.
+         */
+        private static final int IRC_RPL_WHOISUSER = 311;
 
         /**
          * IRCApi instance.
@@ -1357,6 +1387,29 @@ public class IrcStack
                         .findOrCreateContactByID(awayUserNick);
                 IrcStack.this.provider.getBasicInstantMessaging()
                     .fireMessageReceived(awayMessage, awayUser);
+                break;
+
+            case IRC_RPL_WHOISUSER:
+                final String whoismsg = msg.getText();
+                final int endNickIndex = whoismsg.indexOf(' ');
+                final String nick = whoismsg.substring(0, endNickIndex);
+                if (!IrcStack.this.connectionState.getNickname().equals(nick))
+                {
+                    // We need WHOIS info on ourselves to discover our identity
+                    // on the IRC server. So skip other WHOIS replies.
+                    return;
+                }
+                final int endUserIndex =
+                    whoismsg.indexOf(' ', endNickIndex + 1);
+                final int endHostIndex =
+                    whoismsg.indexOf(' ', endUserIndex + 1);
+                final String user =
+                    whoismsg.substring(endNickIndex + 1, endUserIndex);
+                final String host =
+                    whoismsg.substring(endUserIndex + 1, endHostIndex);
+                LOGGER.debug(String.format("Current identity: %s!%s@%s",
+                    IrcStack.this.connectionState.getNickname(), user, host));
+                IrcStack.this.identity = new IrcStack.Identity(user, host);
                 break;
 
             default:
@@ -2590,6 +2643,51 @@ public class IrcStack
             // We cannot clear the list itself, since the contents might still
             // be in use by the UI, inside the immutable wrapper.
             LOGGER.debug("Old channel list cache has been cleared.");
+        }
+    }
+
+    /**
+     * Storage container for identity components.
+     *
+     * IRC identity components user and host are stored. The nick name component
+     * isn't stored, because it changes too frequently. When getting the
+     * identity string, the nick name component is provided at calling time.
+     *
+     * @author Danny van Heumen
+     */
+    private static final class Identity
+    {
+        /**
+         * User name.
+         */
+        private final String user;
+
+        /**
+         * Host name.
+         */
+        private final String host;
+
+        /**
+         * Constructor.
+         *
+         * @param user user
+         * @param host host
+         */
+        private Identity(final String user, final String host)
+        {
+            this.user = user;
+            this.host = host;
+        }
+
+        /**
+         * Get identity string.
+         *
+         * @param currentNick the current nick
+         * @return returns identity string
+         */
+        public String getIdentityString(final String currentNick)
+        {
+            return String.format("%s!%s@%s", currentNick, this.user, this.host);
         }
     }
 }

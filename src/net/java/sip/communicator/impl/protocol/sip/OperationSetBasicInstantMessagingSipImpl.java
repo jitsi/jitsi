@@ -214,53 +214,44 @@ public class OperationSetBasicInstantMessagingSipImpl
         }
 
         // create the message
-        Request mes;
-        try
+        Message[] transformedMessages = transformSIPMessage(to, message);
+        for (Message msg : transformedMessages)
         {
-            Message transformedMessage = transformSIPMessage(to, message);
-            mes = createMessageRequest(to, transformedMessage);
-        }
-        catch (OperationFailedException ex)
-        {
-            logger.error(
-                "Failed to create the message."
-                , ex);
+            Request mes;
+            try
+            {
+                mes = createMessageRequest(to, msg);
+            }
+            catch (OperationFailedException ex)
+            {
+                logger.error("Failed to create the message.", ex);
 
-            fireMessageDeliveryFailed(
-                message,
-                to,
-                MessageDeliveryFailedEvent.INTERNAL_ERROR);
-            return;
-        }
+                fireMessageDeliveryFailed(message, to,
+                    MessageDeliveryFailedEvent.INTERNAL_ERROR);
+                continue;
+            }
 
-        try
-        {
-            sendMessageRequest(mes, to, message);
-        }
-        catch(TransactionUnavailableException ex)
-        {
-            logger.error(
-                "Failed to create messageTransaction.\n"
-                + "This is most probably a network connection error."
-                , ex);
+            try
+            {
+                sendMessageRequest(mes, to, message);
+            }
+            catch (TransactionUnavailableException ex)
+            {
+                logger.error("Failed to create messageTransaction.\n"
+                    + "This is most probably a network connection error.", ex);
 
-            fireMessageDeliveryFailed(
-                message,
-                to,
-                MessageDeliveryFailedEvent.NETWORK_FAILURE);
-            return;
-        }
-        catch(SipException ex)
-        {
-            logger.error(
-                "Failed to send the message."
-                , ex);
+                fireMessageDeliveryFailed(message, to,
+                    MessageDeliveryFailedEvent.NETWORK_FAILURE);
+                continue;
+            }
+            catch (SipException ex)
+            {
+                logger.error("Failed to send the message.", ex);
 
-            fireMessageDeliveryFailed(
-                message,
-                to,
-                MessageDeliveryFailedEvent.INTERNAL_ERROR);
-            return;
+                fireMessageDeliveryFailed(message, to,
+                    MessageDeliveryFailedEvent.INTERNAL_ERROR);
+                continue;
+            }
         }
     }
 
@@ -482,28 +473,36 @@ public class OperationSetBasicInstantMessagingSipImpl
      *
      * @return The new transformed <tt>Message</tt>
      */
-    private Message transformSIPMessage(Contact to, Message message)
+    private Message[] transformSIPMessage(final Contact to,
+        final Message message)
     {
         MessageDeliveredEvent msgDeliveryPendingEvt
            = new MessageDeliveredEvent(message, to);
 
-        msgDeliveryPendingEvt
-            = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
+        MessageDeliveredEvent[] msgDeliveryPendingEvts =
+            messageDeliveryPendingTransform(msgDeliveryPendingEvt);
 
-        if (msgDeliveryPendingEvt == null)
-            return null;
-
-        String content = msgDeliveryPendingEvt.getSourceMessage().getContent();
+        if (msgDeliveryPendingEvts == null
+            || msgDeliveryPendingEvts.length == 0)
+        {
+            return new Message[0];
+        }
 
         OperationSetBasicInstantMessaging opSetBasicIM =
             (OperationSetBasicInstantMessaging) sipProvider
                 .getSupportedOperationSets().get(
                     OperationSetBasicInstantMessaging.class.getName());
-        Message transformedMesssage =
-            opSetBasicIM.createMessage(content, message.getContentType(),
-                message.getEncoding(), message.getSubject());
-
-        return transformedMesssage;
+        Message[] transformedMessages =
+            new Message[msgDeliveryPendingEvts.length];
+        for (int i = 0; i < msgDeliveryPendingEvts.length; i++)
+        {
+            MessageDeliveredEvent event = msgDeliveryPendingEvts[i];
+            String content = event.getSourceMessage().getContent();
+            transformedMessages[i] =
+                opSetBasicIM.createMessage(content, message.getContentType(),
+                    message.getEncoding(), message.getSubject());
+        }
+        return transformedMessages;
     }
 
     /**

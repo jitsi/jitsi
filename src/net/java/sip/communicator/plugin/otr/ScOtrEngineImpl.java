@@ -14,6 +14,7 @@ import java.util.concurrent.*;
 import net.java.otr4j.*;
 import net.java.otr4j.crypto.*;
 import net.java.otr4j.session.*;
+import net.java.sip.communicator.impl.protocol.irc.*;
 import net.java.sip.communicator.plugin.otr.OtrContactManager.OtrContact;
 import net.java.sip.communicator.plugin.otr.authdialog.*;
 import net.java.sip.communicator.service.browserlauncher.*;
@@ -420,6 +421,44 @@ public class ScOtrEngineImpl
                 message,
                 OperationSetBasicInstantMessaging.HTML_MIME_TYPE);
         }
+
+        /**
+         * Provide fragmenter instructions according to the Instant Messaging
+         * transport channel of the contact's protocol.
+         */
+        @Override
+        public FragmenterInstructions getFragmenterInstructions(
+            final SessionID sessionID)
+        {
+            final OtrContact otrContact = getOtrContact(sessionID);
+            // FIXME Change this into querying an Operation Set that provides
+            // Instant Message medium/transport information that we can use to
+            // determine fragmentation parameters.
+            if (ProtocolNames.IRC.equals(otrContact.contact
+                .getProtocolProvider().getProtocolName()))
+            {
+                // :<nick>!<user>@<host> PRIVMSG <targetnick> :<message>
+                //
+                // Example:
+                // :ircotrtest!~ircotrtes@77-175-185-165.FTTH.ispfabriek.nl
+                // PRIVMSG test12345abc :
+                final String identity =
+                    ((ProtocolProviderServiceIrcImpl) otrContact.contact
+                        .getProtocolProvider()).getIrcStack()
+                        .getIdentityString();
+                final int size =
+                    510 - (":" + identity + " PRIVMSG "
+                        + otrContact.contact.getAddress() + " :").length();
+                return new FragmenterInstructions(
+                    FragmenterInstructions.UNLIMITED, size);
+            }
+            else
+            {
+                return new FragmenterInstructions(
+                    FragmenterInstructions.UNLIMITED,
+                    FragmenterInstructions.UNLIMITED);
+            }
+        }
     }
 
     /**
@@ -510,11 +549,11 @@ public class ScOtrEngineImpl
 
     private final OtrEngineHost otrEngineHost = new ScOtrEngineHost();
 
-    private final OtrEngine otrEngine;
+    private final OtrSessionManager otrEngine;
 
     public ScOtrEngineImpl()
     {
-        otrEngine = new OtrEngineImpl(otrEngineHost);
+        otrEngine = new OtrSessionManagerImpl(otrEngineHost);
 
         // Clears the map after previous instance
         // This is required because of OSGi restarts in the same VM on Android
@@ -539,13 +578,13 @@ public class ScOtrEngineImpl
 
                 ScSessionStatus scSessionStatus = getSessionStatus(otrContact);
                 String message = "";
-                switch (otrEngine.getSessionStatus(sessionID))
+                final Session session = otrEngine.getSession(sessionID);
+                switch (session.getSessionStatus())
                 {
                 case ENCRYPTED:
                     scSessionStatus = ScSessionStatus.ENCRYPTED;
                     scSessionStatusMap.put(sessionID, scSessionStatus);
-                    PublicKey remotePubKey =
-                        otrEngine.getRemotePublicKey(sessionID);
+                    PublicKey remotePubKey = session.getRemotePublicKey();
 
                     String remoteFingerprint = null;
                     try
@@ -790,7 +829,7 @@ public class ScOtrEngineImpl
         {
             setSessionStatus(otrContact, ScSessionStatus.PLAINTEXT);
 
-            otrEngine.endSession(sessionID);
+            otrEngine.getSession(sessionID).endSession();
         }
         catch (OtrException e)
         {
@@ -926,7 +965,7 @@ public class ScOtrEngineImpl
     public ScSessionStatus getSessionStatus(OtrContact contact)
     {
         SessionID sessionID = getSessionID(contact);
-        SessionStatus sessionStatus = otrEngine.getSessionStatus(sessionID);
+        SessionStatus sessionStatus = otrEngine.getSession(sessionID).getSessionStatus();
         ScSessionStatus scSessionStatus = null;
         if (!scSessionStatusMap.containsKey(sessionID))
         {
@@ -976,7 +1015,7 @@ public class ScOtrEngineImpl
         SessionID sessionID = getSessionID(otrContact);
         try
         {
-            otrEngine.refreshSession(sessionID);
+            otrEngine.getSession(sessionID).refreshSession();
         }
         catch (OtrException e)
         {
@@ -1112,7 +1151,7 @@ public class ScOtrEngineImpl
 
         try
         {
-            otrEngine.startSession(sessionID);
+            otrEngine.getSession(sessionID).startSession();
         }
         catch (OtrException e)
         {
@@ -1127,7 +1166,7 @@ public class ScOtrEngineImpl
         SessionID sessionID = getSessionID(otrContact);
         try
         {
-            return otrEngine.transformReceiving(sessionID, msgText);
+            return otrEngine.getSession(sessionID).transformReceiving(msgText);
         }
         catch (OtrException e)
         {
@@ -1138,12 +1177,12 @@ public class ScOtrEngineImpl
     }
 
     @Override
-    public String transformSending(OtrContact otrContact, String msgText)
+    public String[] transformSending(OtrContact otrContact, String msgText)
     {
         SessionID sessionID = getSessionID(otrContact);
         try
         {
-            return otrEngine.transformSending(sessionID, msgText);
+            return otrEngine.getSession(sessionID).transformSending(msgText);
         }
         catch (OtrException e)
         {
@@ -1280,6 +1319,6 @@ public class ScOtrEngineImpl
 
         SessionID sessionID = getSessionID(contact);
 
-        return otrEngine.getOutgoingSession(sessionID);
+        return otrEngine.getSession(sessionID).getOutgoingInstance();
     }
 }

@@ -3,7 +3,8 @@ Bundle-Name: Irc Protocol Provider
 Bundle-Description: A bundle providing support for the Irc protocol.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
-Bundle-SymbolicName: net.java.sip.communicator.protocol.irc
+Bundle-SymbolicName: net.java.sip.communicator.impl.protocol.irc
+Export-Package: net.java.sip.communicator.impl.protocol.irc
 Import-Package: org.osgi.framework,
  org.jitsi.service.configuration,
  org.jitsi.service.resources,

@@ -150,56 +150,55 @@ public class OperationSetBasicInstantMessagingYahooImpl
         {
             String toUserID = ((ContactYahooImpl) to).getID();
 
-            MessageDeliveredEvent msgDeliveryPendingEvt
-            = new MessageDeliveredEvent(
-                    message, to, new Date());
+            MessageDeliveredEvent msgDeliveryPendingEvt =
+                new MessageDeliveredEvent(message, to, new Date());
 
-            msgDeliveryPendingEvt = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
+            MessageDeliveredEvent[] msgDeliveryPendingEvts = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
 
-            if (msgDeliveryPendingEvt == null)
+            if (msgDeliveryPendingEvts == null || msgDeliveryPendingEvts.length == 0)
                 return;
 
-            byte[] msgBytesToBeSent = msgDeliveryPendingEvt.getSourceMessage().
-                getContent().trim().getBytes("UTF-8");
-
-            // split the message in parts with max allowed length
-            // and send them all
-            do
+            for (MessageDeliveredEvent event : msgDeliveryPendingEvts)
             {
-                if(msgBytesToBeSent.length > MAX_MESSAGE_LENGTH)
+                byte[] msgBytesToBeSent =
+                    event.getSourceMessage().getContent().trim()
+                        .getBytes("UTF-8");
+
+                // split the message in parts with max allowed length
+                // and send them all
+                do
                 {
-                    byte[] tmp1 = new byte[MAX_MESSAGE_LENGTH];
-                    System.arraycopy(msgBytesToBeSent,
-                        0, tmp1, 0, MAX_MESSAGE_LENGTH);
+                    if (msgBytesToBeSent.length > MAX_MESSAGE_LENGTH)
+                    {
+                        byte[] tmp1 = new byte[MAX_MESSAGE_LENGTH];
+                        System.arraycopy(msgBytesToBeSent, 0, tmp1, 0,
+                            MAX_MESSAGE_LENGTH);
 
-                    byte[] tmp2 =
-                        new byte[msgBytesToBeSent.length - MAX_MESSAGE_LENGTH];
-                    System.arraycopy(msgBytesToBeSent,
-                        MAX_MESSAGE_LENGTH, tmp2, 0, tmp2.length);
+                        byte[] tmp2 =
+                            new byte[msgBytesToBeSent.length
+                                - MAX_MESSAGE_LENGTH];
+                        System.arraycopy(msgBytesToBeSent, MAX_MESSAGE_LENGTH,
+                            tmp2, 0, tmp2.length);
 
-                    msgBytesToBeSent = tmp2;
+                        msgBytesToBeSent = tmp2;
 
-                    yahooProvider.getYahooSession().sendMessage(
-                        toUserID,
-                        new String(tmp1, "UTF-8"));
+                        yahooProvider.getYahooSession().sendMessage(toUserID,
+                            new String(tmp1, "UTF-8"));
+                    }
+                    else
+                    {
+                        yahooProvider.getYahooSession().sendMessage(toUserID,
+                            new String(msgBytesToBeSent, "UTF-8"));
+                    }
+
+                    MessageDeliveredEvent msgDeliveredEvt =
+                        new MessageDeliveredEvent(message, to, new Date());
+
+                    if (msgDeliveredEvt != null)
+                        fireMessageEvent(msgDeliveredEvt);
                 }
-                else
-                {
-                    yahooProvider.getYahooSession().sendMessage(
-                        toUserID,
-                        new String(msgBytesToBeSent, "UTF-8"));
-                }
-
-                MessageDeliveredEvent msgDeliveredEvt
-                = new MessageDeliveredEvent(
-                        message, to, new Date());
-
-                // msgDeliveredEvt = messageDeliveredTransform(msgDeliveredEvt);
-
-                if (msgDeliveredEvt != null)
-                    fireMessageEvent(msgDeliveredEvt);
+                while (msgBytesToBeSent.length > MAX_MESSAGE_LENGTH);
             }
-            while(msgBytesToBeSent.length > MAX_MESSAGE_LENGTH);
         }
         catch (IOException ex)
         {
@@ -209,8 +208,6 @@ public class OperationSetBasicInstantMessagingYahooImpl
                     message,
                     to,
                     MessageDeliveryFailedEvent.NETWORK_FAILURE);
-
-            // evt = messageDeliveryFailedTransform(evt);
 
             if (evt != null)
                 fireMessageEvent(evt);
@@ -374,6 +371,7 @@ public class OperationSetBasicInstantMessagingYahooImpl
                     + yahooMailLogon + "\">"
                     + yahooMailLogon + "</a>";
 
+            // FIXME Escape HTML!
             String newMail = YahooActivator.getResources().getI18NString(
                 "service.gui.NEW_MAIL",
                 new String[]{ev.getFrom(),
