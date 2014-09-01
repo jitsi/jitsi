@@ -29,6 +29,7 @@ import org.jivesoftware.smackx.packet.*;
  * @author Lyubomir Marinov
  * @author Sebastien Vincent
  * @author Boris Grozev
+ * @author Pawel Domas
  */
 public class OperationSetTelephonyConferencingJabberImpl
     extends AbstractOperationSetTelephonyConferencing<
@@ -57,9 +58,20 @@ public class OperationSetTelephonyConferencingJabberImpl
     private static final int COIN_MIN_INTERVAL = 200;
 
     /**
+     * Property used to disable COIN notifications.
+     */
+    public static final String DISABLE_COIN_PROP_NAME
+        = "net.java.sip.communicator.impl.protocol.jabber.DISABLE_COIN";
+
+    /**
      * Synchronization object.
      */
     private final Object lock = new Object();
+
+    /**
+     * Field indicates whether COIN notification are disabled or not.
+     */
+    private boolean isCoinDisabled = false;
 
     /**
      * Initializes a new <tt>OperationSetTelephonyConferencingJabberImpl</tt>
@@ -74,6 +86,10 @@ public class OperationSetTelephonyConferencingJabberImpl
         ProtocolProviderServiceJabberImpl parentProvider)
     {
         super(parentProvider);
+
+        this.isCoinDisabled
+            = JabberActivator.getConfigurationService()
+                    .getBoolean(DISABLE_COIN_PROP_NAME, false);
     }
 
     /**
@@ -89,7 +105,7 @@ public class OperationSetTelephonyConferencingJabberImpl
     @Override
     protected void notifyCallPeers(Call call)
     {
-        if (call.isConferenceFocus())
+        if (!isCoinDisabled && call.isConferenceFocus())
         {
             synchronized (lock)
             {
