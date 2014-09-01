@@ -15,9 +15,11 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentP
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.SendersEnum;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.format.*;
+import org.jitsi.util.*;
 
 /**
  * The class contains a number of utility methods that are meant to facilitate
@@ -77,6 +79,12 @@ public class JingleUtils
                                      DynamicPayloadTypeRegistry    ptRegistry)
     {
         List<MediaFormat> mediaFmts = new ArrayList<MediaFormat>();
+
+        if (description == null)
+        {
+            return mediaFmts;
+        }
+
         List<PayloadTypePacketExtension> payloadTypes
                                             = description.getPayloadTypes();
 
@@ -233,6 +241,11 @@ public class JingleUtils
                                          DynamicRTPExtensionsRegistry  extMap)
     {
         List<RTPExtension> extensionsList = new ArrayList<RTPExtension>();
+
+        if (desc == null)
+        {
+            return extensionsList;
+        }
 
         List<RTPHdrExtPacketExtension> extmapList = desc.getExtmapList();
 
@@ -649,15 +662,31 @@ public class JingleUtils
     {
         if (content == null)
             return null;
+
+        // We will use content name for determining media type
+        // if no RTP description is present(SCTP connection case)
+        String mediaTypeName = content.getName();
+
         RtpDescriptionPacketExtension desc = getRtpDescription(content);
         if (desc != null)
         {
-            String mediaTypeStr = desc.getMedia();
-            if (mediaTypeStr != null)
-                return MediaType.parseString(mediaTypeStr);
+            String rtpMedia = desc.getMedia();
+            if (!StringUtils.isNullOrEmpty(rtpMedia))
+            {
+                mediaTypeName = rtpMedia;
+            }
         }
-
-        return null;
+        // SDP:
+        // 'm=application SCTP/DTLS'
+        // ...
+        // 'a=mid:data'
+        // is used for SCTP connection in Jitsi Meet
+        // which translates to RtpDescriptionPacketExtension#media
+        if ("application".equals(mediaTypeName))
+        {
+            return MediaType.DATA;
+        }
+        return MediaType.parseString(mediaTypeName);
     }
 
 }
