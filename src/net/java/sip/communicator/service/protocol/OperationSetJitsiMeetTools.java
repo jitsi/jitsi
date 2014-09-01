@@ -10,7 +10,7 @@ import org.jivesoftware.smack.packet.*;
 
 /**
  * The operation set provides functionality specific to Jitsi Meet WebRTC
- * conference.
+ * conference and is currently used in the SIP gateway.
  *
  * @author Pawel Domas
  */
@@ -37,4 +37,35 @@ public interface OperationSetJitsiMeetTools
      *                      message in the MUC.
      */
     public void setPresenceStatus(ChatRoom chatRoom, String statusMessage);
+
+    /**
+     * Adds given <tt>listener</tt> to the list of
+     * {@link JitsiMeetRequestListener}s.
+     * @param listener the {@link JitsiMeetRequestListener} to be notified about
+     *                 future events.
+     */
+    public void addRequestListener(JitsiMeetRequestListener listener);
+
+    /**
+     * Removes given <tt>listener</tt> from the list of
+     * {@link JitsiMeetRequestListener}s.
+     * @param listener the {@link JitsiMeetRequestListener} that will be no
+     *                 longer notified about Jitsi Meet events.
+     */
+    public void removeRequestListener(JitsiMeetRequestListener listener);
+
+    /**
+     * Interface used to handle Jitsi Meet conference requests.
+     */
+    interface JitsiMeetRequestListener
+    {
+        /**
+         * Events is fired for an incoming call that contains information about
+         * Jitsi Meet conference room to be joined.
+         * @param call the incoming {@link Call} instance.
+         * @param jitsiMeetRoom the name of multi user chat room that is hosting
+         *                      Jitsi Meet conference.
+         */
+        void onJoinJitsiMeetRequest(Call call, String jitsiMeetRoom);
+    }
 }

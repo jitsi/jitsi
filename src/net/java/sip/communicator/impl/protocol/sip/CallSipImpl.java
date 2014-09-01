@@ -14,6 +14,7 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
+import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.stack.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
@@ -43,6 +44,13 @@ public class CallSipImpl
      * Our class logger.
      */
     private static final Logger logger = Logger.getLogger(CallSipImpl.class);
+
+    /**
+     * Name of extra INVITE header which specifies name of MUC room that is
+     * hosting the Jitsi Meet conference.
+     */
+    public static final String JITSI_MEET_ROOM_HEADER
+            = "Jitsi-Conference-Room";
 
     /**
      * When starting call we may have quality preferences we must use
@@ -471,6 +479,19 @@ public class CallSipImpl
 
         if (alternativeIMPPAddress != null)
             peer.setAlternativeIMPPAddress(alternativeIMPPAddress);
+
+        // Parses Jitsi Meet room name header
+        SIPHeader joinRoomHeader
+            = (SIPHeader) invite.getHeader(JITSI_MEET_ROOM_HEADER);
+        if (joinRoomHeader != null)
+        {
+            OperationSetJitsiMeetToolsSipImpl jitsiMeetTools
+                = (OperationSetJitsiMeetToolsSipImpl) getProtocolProvider()
+                        .getOperationSet(OperationSetJitsiMeetTools.class);
+
+            jitsiMeetTools.notifyJoinJitsiMeetRoom(
+                this, joinRoomHeader.getValue());
+        }
 
         //send a ringing response
         Response response = null;

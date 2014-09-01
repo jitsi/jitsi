@@ -35,4 +35,16 @@ public class OperationSetJitsiMeetToolsJabberImpl
     {
         ((ChatRoomJabberImpl)chatRoom).publishPresenceStatus(statusMessage);
     }
+
+    @Override
+    public void addRequestListener(JitsiMeetRequestListener requestHandler)
+    {
+        // Not used
+    }
+
+    @Override
+    public void removeRequestListener(JitsiMeetRequestListener requestHandler)
+    {
+        // Not used
+    }
 }

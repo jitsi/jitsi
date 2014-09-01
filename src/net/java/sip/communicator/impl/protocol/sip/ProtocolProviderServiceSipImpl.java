@@ -540,6 +540,11 @@ public class ProtocolProviderServiceSipImpl
                             new OperationSetDesktopSharingClientSipImpl(this));
                     }
                 }
+
+                // Jitsi Meet Tools
+                addSupportedOperationSet(
+                    OperationSetJitsiMeetTools.class,
+                    new OperationSetJitsiMeetToolsSipImpl());
             }
 
             if (enablePresence)
