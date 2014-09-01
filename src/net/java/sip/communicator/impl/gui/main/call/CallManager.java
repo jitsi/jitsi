@@ -1461,24 +1461,32 @@ public class CallManager
                         = AccountUtils.getRegisteredProviders(
                             OperationSetCusaxUtils.class);
 
-                    if (cusaxProviders != null && cusaxProviders.size() > 0)
+                if (cusaxProviders != null && cusaxProviders.size() > 0)
+                {
+                    Iterator<ProtocolProviderService> iter
+                        = cusaxProviders.iterator();
+                    while(iter.hasNext())
                     {
-                        Contact contact  = getPeerContact(
-                                                peer,
-                                                cusaxProviders.iterator().next(),
-                                                imppAddress);
+                        Contact contact = getPeerContact(
+                            peer,
+                            iter.next(),
+                            imppAddress);
 
                         displayName = (contact != null)
-                                        ? contact.getDisplayName() : null;
-                    }
-                    else
-                    {
-                        MetaContact metaContact
-                            = getPeerMetaContact(peer, imppAddress);
+                            ? contact.getDisplayName() : null;
 
-                        displayName = (metaContact != null)
-                                        ? metaContact.getDisplayName() : null;
+                        if(!StringUtils.isNullOrEmpty(displayName, true))
+                            break;
                     }
+                }
+                else
+                {
+                    MetaContact metaContact
+                        = getPeerMetaContact(peer, imppAddress);
+
+                    displayName = (metaContact != null)
+                                    ? metaContact.getDisplayName() : null;
+                }
             }
         }
 
@@ -1561,12 +1569,21 @@ public class CallManager
 
                 if (cusaxProviders != null && cusaxProviders.size() > 0)
                 {
-                    Contact contact  = getPeerContact(
-                                            peer,
-                                            cusaxProviders.iterator().next(),
-                                            imppAddress);
+                    Iterator<ProtocolProviderService> iter
+                        = cusaxProviders.iterator();
+                    while(iter.hasNext())
+                    {
+                        Contact contact = getPeerContact(
+                            peer,
+                            iter.next(),
+                            imppAddress);
 
-                    image = (contact != null) ? getContactImage(contact) : null;
+                        image = (contact != null) ?
+                            getContactImage(contact) : null;
+
+                        if(image != null)
+                            break;
+                    }
                 }
                 else
                 {
@@ -1648,19 +1665,23 @@ public class CallManager
 
             if (cusaxProviders != null && cusaxProviders.size() > 0)
             {
-                ProtocolProviderService cusaxProvider
-                    = cusaxProviders.iterator().next();
-
-                Contact contact  = getPeerContact(
-                                        peer,
-                                        cusaxProvider,
-                                        imppAddress);
-
-                if(contact != null
-                    && cusaxProvider.getOperationSet(
-                        OperationSetBasicInstantMessaging.class) != null)
+                Iterator<ProtocolProviderService> iter
+                    = cusaxProviders.iterator();
+                while(iter.hasNext())
                 {
-                    return contact;
+                    ProtocolProviderService cusaxProvider = iter.next();
+
+                    Contact contact = getPeerContact(
+                        peer,
+                        cusaxProvider,
+                        imppAddress);
+
+                    if(contact != null
+                        && cusaxProvider.getOperationSet(
+                        OperationSetBasicInstantMessaging.class) != null)
+                    {
+                        return contact;
+                    }
                 }
             }
         }
@@ -1809,7 +1830,7 @@ public class CallManager
     }
 
     /**
-     * Returns the image for the given <tt>alternativePeerAddress</tt> by
+     * Returns the peer contact for the given <tt>alternativePeerAddress</tt> by
      * checking the if the <tt>callPeer</tt> exists as a detail in the given
      * <tt>cusaxProvider</tt>.
      *
@@ -1897,24 +1918,32 @@ public class CallManager
                     ? imppAddress.substring(protocolPartIndex + 1)
                     : imppAddress;
 
-                    Collection<ProtocolProviderService> cusaxProviders
-                    = AccountUtils.getRegisteredProviders(
-                        OperationSetCusaxUtils.class);
+            Collection<ProtocolProviderService> cusaxProviders
+                = AccountUtils.getRegisteredProviders(
+                    OperationSetCusaxUtils.class);
 
-                if (cusaxProviders != null && cusaxProviders.size() > 0)
+            if (cusaxProviders != null && cusaxProviders.size() > 0)
+            {
+                Iterator<ProtocolProviderService> iter
+                    = cusaxProviders.iterator();
+                while(iter.hasNext())
                 {
-                    Contact contact  = getPeerContact(
-                                            peer,
-                                            cusaxProviders.iterator().next(),
-                                            imppAddress);
+                    Contact contact = getPeerContact(
+                        peer,
+                        iter.next(),
+                        imppAddress);
 
-                    return GuiActivator.getContactListService()
+                    MetaContact res = GuiActivator.getContactListService()
                         .findMetaContactByContact(contact);
+
+                    if(res != null)
+                        return res;
                 }
-                else
-                {
-                    return getPeerMetaContact(peer, imppAddress);
-                }
+            }
+            else
+            {
+                return getPeerMetaContact(peer, imppAddress);
+            }
         }
 
         return null;
