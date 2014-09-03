@@ -1506,8 +1506,13 @@ public class ChatPanel
             public Object construct()
                 throws Exception
             {
-                final FileTransfer fileTransfer
-                    = sendFileTransport.sendFile(file);
+                FileTransfer ft;
+                if (writeMessagePanel.isSmsSelected())
+                    ft = sendFileTransport.sendMultimediaFile(file);
+                else
+                    ft = sendFileTransport.sendFile(file);
+
+                final FileTransfer fileTransfer = ft;
 
                 addActiveFileTransfer(fileTransfer.getID(), fileTransfer);
 

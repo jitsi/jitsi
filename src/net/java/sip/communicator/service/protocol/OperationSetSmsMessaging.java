@@ -8,6 +8,8 @@ package net.java.sip.communicator.service.protocol;
 
 import net.java.sip.communicator.service.protocol.event.*;
 
+import java.io.*;
+
 /**
  * Provides basic functionality for sending and receiving SMS Messages.
  *
@@ -71,6 +73,23 @@ public interface OperationSetSmsMessaging
      */
     public void sendSmsMessage(String to, Message message)
         throws IllegalStateException, IllegalArgumentException;
+
+    /**
+     * Sends the <tt>file</tt> to the destination indicated by the
+     * <tt>to</tt> parameter.
+     * @param to the destination to send <tt>message</tt> to
+     * @param file the <tt>file</tt> to send.
+     * @throws java.lang.IllegalStateException if the underlying stack is
+     * not registered and initialized.
+     * @throws java.lang.IllegalArgumentException if <tt>to</tt> is not an
+     * instance belonging to the underlying implementation.
+     * @throws OperationNotSupportedException if the given contact client or
+     * server does not support file transfers
+     */
+    public FileTransfer sendMultimediaFile(Contact to, File file)
+        throws IllegalStateException,
+               IllegalArgumentException,
+               OperationNotSupportedException;
 
     /**
      * Registers a MessageListener with this operation set so that it gets

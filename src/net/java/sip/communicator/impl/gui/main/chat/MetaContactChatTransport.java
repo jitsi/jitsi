@@ -551,15 +551,23 @@ public class MetaContactChatTransport
     public FileTransfer sendFile(File file)
         throws Exception
     {
+        return sendFile(file, false);
+    }
+
+    /**
+     * Sends the given file through this chat transport file transfer operation
+     * set.
+     * @param file the file to send
+     * @return the <tt>FileTransfer</tt> object charged to transfer the file
+     * @throws Exception if anything goes wrong
+     */
+    private FileTransfer sendFile(File file, boolean isMultimediaMessage)
+        throws Exception
+    {
         // If this chat transport does not support instant messaging we do
         // nothing here.
         if (!allowsFileTransfer())
             return null;
-
-        OperationSetFileTransfer ftOpSet
-            = contact
-                .getProtocolProvider()
-                    .getOperationSet(OperationSetFileTransfer.class);
 
         if (FileUtils.isImage(file.getName()))
         {
@@ -582,7 +590,36 @@ public class MetaContactChatTransport
                 }
             }
         }
-        return ftOpSet.sendFile(contact, file);
+
+        if(isMultimediaMessage)
+        {
+            OperationSetSmsMessaging smsOpSet = contact.getProtocolProvider()
+                .getOperationSet(OperationSetSmsMessaging.class);
+
+            if(smsOpSet == null)
+                return null;
+
+            return smsOpSet.sendMultimediaFile(contact, file);
+        }
+        else
+        {
+            OperationSetFileTransfer ftOpSet = contact.getProtocolProvider()
+                .getOperationSet(OperationSetFileTransfer.class);
+            return ftOpSet.sendFile(contact, file);
+        }
+    }
+
+    /**
+     * Sends the given SMS multimedia message trough this chat transport,
+     * leaving the transport to choose the destination.
+     *
+     * @param file the file to send
+     * @throws Exception if the send doesn't succeed
+     */
+    public FileTransfer sendMultimediaFile(File file)
+        throws Exception
+    {
+        return sendFile(file, true);
     }
 
     /**
