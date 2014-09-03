@@ -177,6 +177,16 @@ public interface ChatTransport
         throws Exception;
 
     /**
+     * Sends the given SMS multimedia message trough this chat transport,
+     * leaving the transport to choose the destination.
+     *
+     * @param file the file to send
+     * @throws Exception if the send doesn't succeed
+     */
+    public FileTransfer sendMultimediaFile(File file)
+        throws Exception;
+
+    /**
      * Sends a typing notification state.
      *
      * @param typingState the typing notification state to send

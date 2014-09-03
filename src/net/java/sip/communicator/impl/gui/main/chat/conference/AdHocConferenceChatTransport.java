@@ -199,6 +199,16 @@ public class AdHocConferenceChatTransport
     {}
 
     /**
+     * Sending file in sms messages is not supported by this chat transport
+     * implementation.
+     */
+    public FileTransfer sendMultimediaFile(File file)
+        throws Exception
+    {
+        return null;
+    }
+
+    /**
      * Not used.
      * @return
      */
