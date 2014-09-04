@@ -1931,6 +1931,11 @@ public class ColibriConferenceIQ
             return token;
         }
 
+        public void setToken(String token)
+        {
+            this.token = token;
+        }
+
         public void setPath(String path)
         {
             this.path = path;
