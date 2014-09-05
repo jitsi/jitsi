@@ -382,6 +382,12 @@ public class IrcStack
                 // problem, but for now lets log it just to be sure.
                 LOGGER.debug("exception occurred while disconnecting", e);
             }
+            // Even though we set a new connectionState instance upon
+            // connecting, it is important that we null it here. In the case of
+            // an unannounced disconnect (for example system suspends) the
+            // connectionState will not be updated to reflect the disconnected
+            // state, i.e. it is out-of-sync with reality.
+            this.connectionState = null;
             this.session.set(null);
         }
         this.provider
