@@ -800,6 +800,10 @@ public class IrcStack
         }
 
         final IRCApi irc = this.session.get();
+        if (irc == null)
+        {
+            return;
+        }
         try
         {
             irc.leaveChannel(chatRoomName);
