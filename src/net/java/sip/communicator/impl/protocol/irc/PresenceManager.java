@@ -20,9 +20,6 @@ import com.ircclouds.irc.api.state.*;
  * 'a' used for other purposes. This may be one of those ambiguous letters that
  * every server interprets differently.)
  *
- * FIXME Verify implementation of AWAY status message (auto-answering by
- * server).
- *
  * @author Danny van Heumen
  */
 public class PresenceManager
@@ -56,12 +53,12 @@ public class PresenceManager
     /**
      * Active away message.
      */
-    private String currentMessage;
+    private String currentMessage = "";
 
     /**
      * Proposed away message.
      */
-    private String submittedMessage;
+    private String submittedMessage = "";
 
     /**
      * Constructor.
@@ -110,7 +107,7 @@ public class PresenceManager
      */
     public String getMessage()
     {
-        return this.away ? this.currentMessage : "";
+        return this.currentMessage;
     }
 
     /**
@@ -187,7 +184,8 @@ public class PresenceManager
                 PresenceManager.this.away = true;
                 operationSet.updatePresenceStatus(IrcStatusEnum.ONLINE,
                     IrcStatusEnum.AWAY);
-                LOGGER.debug("Away status enabled.");
+                LOGGER.debug("Away status enabled with message \""
+                    + PresenceManager.this.currentMessage + "\"");
                 break;
             default:
                 break;
