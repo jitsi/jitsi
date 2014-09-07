@@ -1485,56 +1485,6 @@ public class IrcStack
                 this.irc.deleteListener(this);
                 return;
             }
-
-            // TODO Implement notion of Presence for IRC.
-            // Re-enabled/Disabled user presence status updates, probably
-            // not going to do user presence, since we cannot detect all changes
-            // and Jitsi does act upon different presence statuses.
-
-            // Off-line contact still gets sent a message. Is this desired
-            // behavior?
-
-            // final String userNick = msg.getSource().getNick();
-            // final Contact user =
-            // IrcStack.this.provider.getPersistentPresence().findContactByID(
-            // userNick);
-            // if (user == null)
-            // {
-            // LOGGER
-            // .trace("User not in contact list. Not updating user presence status.");
-            // return;
-            // }
-            //
-            // final PresenceStatus previousStatus = user.getPresenceStatus();
-            // if (previousStatus == IrcStatusEnum.OFFLINE)
-            // {
-            // LOGGER.trace("User already off-line, not updating user "
-            // + "presence status.");
-            // return;
-            // }
-            //
-            // if (!(user instanceof ContactIrcImpl))
-            // {
-            // LOGGER.warn("Unexpected type of contact, expected "
-            // + "ContactIrcImpl but got " + user.getClass().getName()
-            // + ". Not updating presence.");
-            // return;
-            // }
-            //
-            // final ContactGroup parentGroup = user.getParentContactGroup();
-            // final ContactIrcImpl member = (ContactIrcImpl) user;
-            // member.setPresenceStatus(IrcStatusEnum.OFFLINE);
-            // IrcStack.this.provider.getPersistentPresence()
-            // .fireContactPresenceStatusChangeEvent(user, parentGroup,
-            // previousStatus, member.getPresenceStatus(), true);
-
-            // Update status to online in case a message arrives from this
-            // particular user.
-
-            // What happens if user is thought to be offline (so presence
-            // set this way) and it turns out the user is online? Can we send it
-            // a message then? (Or would Jitsi block this, because there is no
-            // support for off-line messaging.)
         }
     }
 
