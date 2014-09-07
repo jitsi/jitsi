@@ -241,6 +241,10 @@ public class ChatRoomTableDialog
             public void keyReleased(KeyEvent e)
             {
                 updateOKButtonEnableState();
+                if (e.getKeyCode() == KeyEvent.VK_ENTER && okButton.isEnabled())
+                {
+                    okButton.doClick();
+                }
             }
         };
         // when we are typing we clear any selection in the available and saved
