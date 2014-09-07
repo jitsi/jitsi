@@ -248,20 +248,6 @@ public class ChatRoomTableDialog
         chatRoomNameField.addKeyListener(keyListener);
         nicknameField.addKeyListener(keyListener);
 
-        chatRoomNameField.addKeyListener(new KeyListener() {
-
-            public void keyTyped(KeyEvent e)
-            {}
-
-            public void keyPressed(KeyEvent e)
-            {}
-
-            public void keyReleased(KeyEvent e)
-            {
-                updateOKButtonEnableState();
-            }
-        });
-
         providersCombo.addItemListener(new ItemListener()
         {
 
