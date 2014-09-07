@@ -1168,6 +1168,23 @@ public class IrcStack
         extends VariousMessageListenerAdapter
     {
         /**
+         * IRC reply code for automatic reply containing away message.
+         */
+        private static final int RPL_AWAY = 301;
+
+        /**
+         * IRC error code for case of non-existing nick or channel name.
+         */
+        private static final int ERR_NO_SUCH_NICK_CHANNEL =
+            IRCServerNumerics.NO_SUCH_NICK_CHANNEL;
+
+        /**
+         * IRC reply code for end of list.
+         */
+        private static final int RPL_LISTEND =
+            IRCServerNumerics.CHANNEL_NICKS_END_OF_LIST;
+
+        /**
          * IRCApi instance.
          */
         private final IRCApi irc;
@@ -1229,13 +1246,13 @@ public class IrcStack
 
             switch (code.intValue())
             {
-            case IRCServerNumerics.CHANNEL_NICKS_END_OF_LIST:
-                // CHANNEL_NICKS_END_OF_LIST indicates the end of a nick list as
-                // you will receive when joining a channel. This is used as the
-                // indicator that we have joined a channel. Now we have to
-                // determine whether or not we already know about this
-                // particular join attempt. If not, we continue to inform Jitsi
-                // and to create a listener for this new chat room.
+            case RPL_LISTEND:
+                // This indicates the end of a nick list as you will receive
+                // when joining a channel. This is used as the indicator that we
+                // have joined a channel. Now we have to determine whether or
+                // not we already know about this particular join attempt. If
+                // not, we continue to inform Jitsi and to create a listener
+                // for this new chat room.
                 final String text = msg.getText();
                 final String channelName = text.substring(0, text.indexOf(' '));
                 final ChatRoomIrcImpl chatRoom;
@@ -1285,7 +1302,7 @@ public class IrcStack
                     + "' completed.");
                 break;
 
-            case IRCServerNumerics.NO_SUCH_NICK_CHANNEL:
+            case ERR_NO_SUCH_NICK_CHANNEL:
                 // TODO Check if target is Contact, then update contact presence
                 // status to off-line since the nick apparently does not exist
                 // anymore.
@@ -1323,6 +1340,21 @@ public class IrcStack
                         to,
                         MessageDeliveryFailedEvent
                             .OFFLINE_MESSAGES_NOT_SUPPORTED);
+                break;
+
+            case RPL_AWAY:
+                final String rawAwayText = msg.getText();
+                final String awayUserNick =
+                    rawAwayText.substring(0, rawAwayText.indexOf(' '));
+                final String awayText =
+                    rawAwayText.substring(rawAwayText.indexOf(' ') + 2);
+                final MessageIrcImpl awayMessage =
+                    MessageIrcImpl.newAwayMessageFromIRC(awayText);
+                final Contact awayUser =
+                    IrcStack.this.provider.getPersistentPresence()
+                        .findOrCreateContactByID(awayUserNick);
+                IrcStack.this.provider.getBasicInstantMessaging()
+                    .fireMessageReceived(awayMessage, awayUser);
                 break;
 
             default:

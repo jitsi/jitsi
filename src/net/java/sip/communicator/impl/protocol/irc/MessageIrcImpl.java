@@ -145,6 +145,20 @@ public class MessageIrcImpl
     }
 
     /**
+     * Construct the new away message.
+     *
+     * @param message the IRC away message
+     * @return returns a new message instance
+     */
+    public static MessageIrcImpl newAwayMessageFromIRC(final String message)
+    {
+        String text = Utils.parseIrcMessage(message);
+        text = Utils.styleAsAwayMessage(text);
+        return new MessageIrcImpl(text, HTML_MIME_TYPE, DEFAULT_MIME_ENCODING,
+            null);
+    }
+
+    /**
      * Creates a message instance according to the specified parameters.
      *
      * @param content the message body

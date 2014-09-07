@@ -222,4 +222,15 @@ public final class Utils
     {
         return "<b>*" + user + "</b> " + message;
     }
+
+    /**
+     * Format message as HTML-formatted away message.
+     *
+     * @param text away message
+     * @return returns HTML-formatted message
+     */
+    public static String styleAsAwayMessage(final String text)
+    {
+        return "<i>Away: " + text + "</i>";
+    }
 }
