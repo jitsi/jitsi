@@ -19,7 +19,9 @@ import com.ircclouds.irc.api.state.*;
  * TODO Support for 'a' (Away) user mode. (Check this again, since I also see
  * 'a' used for other purposes. This may be one of those ambiguous letters that
  * every server interprets differently.)
- * 
+ *
+ * TODO Jitsi is currently missing support for presence in MUC (ChatRoomMember).
+ *
  * TODO Monitor presence using ISON, WATCH or MONITOR. (Monitor does not seem to
  * support away status, though)
  *
