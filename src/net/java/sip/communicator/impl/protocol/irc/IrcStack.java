@@ -1118,6 +1118,10 @@ public class IrcStack
          */
         private final IRCApi irc;
 
+        // FIXME handle 404 ERR_CANNOTSENDTOCHAN in case of +n and not joined to
+        // channel (or channel is moderated - but we use ChatRoomListener for
+        // that).
+
         /**
          * Constructor for Server Listener.
          *
@@ -1469,6 +1473,9 @@ public class IrcStack
          * IRC error code for case where user is not joined to that channel.
          */
         private static final int IRC_ERR_NOTONCHANNEL = 442;
+
+        // FIXME Handle 404 ERR_CANNOTSENDTOCHAN in case of moderated channels
+        // (no voice) or +n and not joined.
 
         /**
          * IRCApi instance.
