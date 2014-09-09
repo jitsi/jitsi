@@ -982,6 +982,7 @@ public class ChatRoomIrcImpl
 
         for (ChatRoomMessageListener listener : listeners)
         {
+            // TODO shouldn't we catch in case of exception?
             listener.messageDelivered(msgDeliveredEvt);
         }
     }
@@ -1014,7 +1015,37 @@ public class ChatRoomIrcImpl
 
         for (ChatRoomMessageListener listener : listeners)
         {
+            // TODO shouldn't we catch in case of exception?
             listener.messageReceived(event);
+        }
+    }
+
+    /**
+     * Notifies interested listeners that a message delivery has failed.
+     *
+     * @param errorCode the type of error that occurred
+     * @param reason the reason of delivery failure
+     * @param date the date the event was received
+     * @param message the message that was failed to be delivered
+     */
+    public void fireMessageDeliveryFailedEvent(final int errorCode,
+        final String reason, final Date date, final Message message)
+    {
+        final ChatRoomMessageDeliveryFailedEvent event =
+            new ChatRoomMessageDeliveryFailedEvent(this, null, errorCode,
+                reason, date, message);
+
+        final Iterable<ChatRoomMessageListener> listeners;
+        synchronized (messageListeners)
+        {
+            listeners
+                = new ArrayList<ChatRoomMessageListener>(messageListeners);
+        }
+
+        for (final ChatRoomMessageListener listener : listeners)
+        {
+            // TODO shouldn't we catch in case of exception?
+            listener.messageDeliveryFailed(event);
         }
     }
 

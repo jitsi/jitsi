@@ -1470,12 +1470,16 @@ public class IrcStack
         extends VariousMessageListenerAdapter
     {
         /**
+         * IRC error code for case when user cannot send a message to the
+         * channel, for example when this channel is moderated and user does not
+         * have VOICE (+v).
+         */
+        private static final int IRC_ERR_CANNOTSENDTOCHAN = 404;
+
+        /**
          * IRC error code for case where user is not joined to that channel.
          */
         private static final int IRC_ERR_NOTONCHANNEL = 442;
-
-        // FIXME Handle 404 ERR_CANNOTSENDTOCHAN in case of moderated channels
-        // (no voice) or +n and not joined.
 
         /**
          * IRCApi instance.
@@ -1619,8 +1623,9 @@ public class IrcStack
                 return;
             }
             final String raw = msg.getText();
-            if (code.intValue() == IRC_ERR_NOTONCHANNEL)
+            switch (code.intValue())
             {
+            case IRC_ERR_NOTONCHANNEL:
                 final String channel = raw.substring(0, raw.indexOf(" "));
                 if (isThisChatRoom(channel))
                 {
@@ -1635,6 +1640,23 @@ public class IrcStack
                     // our problem ASAP.
                     leaveChatRoom();
                 }
+                break;
+
+            case IRC_ERR_CANNOTSENDTOCHAN:
+                final String cannotSendChannel =
+                    raw.substring(0, raw.indexOf(" "));
+                if (isThisChatRoom(cannotSendChannel))
+                {
+                    final MessageIrcImpl message =
+                        new MessageIrcImpl("", "text/plain", "UTF-8", null);
+                    this.chatroom.fireMessageDeliveryFailedEvent(
+                        ChatRoomMessageDeliveryFailedEvent.FORBIDDEN,
+                        "This channel is moderated.", new Date(), message);
+                }
+                break;
+
+            default:
+                break;
             }
         }
 
