@@ -41,6 +41,19 @@ import com.ircclouds.irc.api.state.*;
 public class IrcStack
 {
     /**
+     * TODO In the far far future ...
+     *
+     * <p>
+     * Some of the less pressing features that may one day be useful ...
+     * </p>
+     *
+     * <pre>
+     * - Handle 404 ERR_CANNOTSENDTOCHAN in case of +n channel mode and not
+     *   joined to the channel where you send a message to.
+     * </pre>
+     */
+
+    /**
      * Clean-up delay. The clean up task clears any remaining chat room list
      * cache. Since there's no pointing in timing it exactly, delay the clean up
      * until after expiration.
@@ -1117,10 +1130,6 @@ public class IrcStack
          * IRCApi instance.
          */
         private final IRCApi irc;
-
-        // FIXME handle 404 ERR_CANNOTSENDTOCHAN in case of +n and not joined to
-        // channel (or channel is moderated - but we use ChatRoomListener for
-        // that).
 
         /**
          * Constructor for Server Listener.
