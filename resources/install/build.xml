@@ -2373,7 +2373,7 @@
             <fileset dir="${src}">
                 <include name="**/*"/>
                 <exclude name="**/growlnotification/**"/>
-                <exclude name="**/impl/googlecontacts/**"/>
+                <exclude name="${extra.exclude}"/>
                 <exclude name="**/dict/**"/>
                 <exclude name="**/dictaccregwizz/**"/>
                 <exclude name="**/ssh/**"/>
@@ -2433,6 +2433,7 @@
 
         <antcall target="deb-copy-jitsi">
             <param name="target.dir" value="${debian.src.dir}"/>
+            <param name="extra.exclude" value="**/impl/googlecontacts/**"/>
         </antcall>
 
         <property name="debianize.dir" value="${debian.src.dir}/debian" />
