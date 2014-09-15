@@ -2373,6 +2373,7 @@
             <fileset dir="${src}">
                 <include name="**/*"/>
                 <exclude name="**/growlnotification/**"/>
+                <exclude name="**/impl/googlecontacts/**"/>
                 <exclude name="**/dict/**"/>
                 <exclude name="**/dictaccregwizz/**"/>
                 <exclude name="**/ssh/**"/>
@@ -2537,14 +2538,14 @@
         <unzip src="${sc.basedir}/../libsrc/jfontchooser-src.zip"
                        dest="${debian.src.dir}/lib/src/jfontchooser"/>
 
-        <!-- gdata -->
+        <!-- gdata
         <unzip src="${sc.basedir}/../libsrc/gdata-src.java-1.43.0.zip"
                dest="${debian.src.dir}/lib/src">
                 <patternset>
                     <exclude name="**/*.orig"/>
                     <exclude name="**/*.jar"/>
                 </patternset>
-        </unzip>
+        </unzip>-->
 
         <!-- jmork -->
         <unzip src="${sc.basedir}/../libsrc/jmork-1.0.5-SNAPSHOT-sources.jar"
@@ -2604,14 +2605,14 @@
                 failonerror="false"/>
         <delete dir="${debian.src.dir}/lib/src/OrangeExtensions/classes"
                 failonerror="false"/>
-        <ant dir="${debian.src.dir}/lib/src/gdata-java-client/java"
+        <!--ant dir="${debian.src.dir}/lib/src/gdata-java-client/java"
             inheritAll="false"
             target="clean"
             antfile="build-src.xml"/>
         <delete dir="${debian.src.dir}/lib/src/gdata-java-client/java/classes"
                 failonerror="false"/>
         <delete dir="${debian.src.dir}/lib/src/gdata-java-client/java/genfiles"
-                failonerror="false"/>
+                failonerror="false"/-->
         <delete dir="${debian.src.dir}/lib/src/jmork/classes"
                 failonerror="false"/>
 
@@ -3031,7 +3032,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
                  overwrite="true"
                  link="${debian.src.dir}/lib/installer-exclude"/>
 
-        <!-- gdata -->
+        <!-- gdata
         <ant dir="${debian.src.dir}/lib/src/gdata-java-client/java"
              inheritAll="false"
              target="build"
@@ -3065,7 +3066,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         <symlink
              resource="../src/gdata-java-client/java/lib/gdata-core-1.0.jar"
              overwrite="true"
-             link="${debian.src.dir}/lib/installer-exclude/"/>
+             link="${debian.src.dir}/lib/installer-exclude/"/>-->
         <symlink
              resource="/usr/share/java/guava.jar"
              overwrite="true"

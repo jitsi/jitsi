@@ -31,12 +31,6 @@ Smack is an Open Source XMPP (Jabber) client library.
 Reason: We contributed several patches on version 3.2.2 in order to fix a memory leak, added code that handles some currently unchecked, fixes for discovery info parsing, a pubsub parsing problem and the option to use a custom javax.net.ssl.TrustManager. All of those have been sent to the smack community for integration about a year ago, but haven’t been integrated since.
 And there’s no Debian package.
 
-- gdata-java-client http://code.google.com/p/gdata-java-client/
-The Google Data Java client library.
-Using version 1.43.0.
-Reason: The package was removed from Debian (package with version 1.30.0
-exist only in squeeze).
-
 - java-jml http://sourceforge.net/apps/trac/java-jml
 JML is a Java API for communication with Windows Live Messenger/
 MSN Messenger services.
