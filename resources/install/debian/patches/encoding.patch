@@ -1,0 +1,17 @@
+Description: Set encoding for javadoc to fix errors with Java 7
+Author: Colin Watson <cjwatson@ubuntu.com>
+Bug-Debian: https://bugs.debian.org/759835
+Forwarded: no
+Last-Update: 2014-09-05
+
+--- jitsi.orig/lib/src/swingworker/build.xml
++++ jitsi/lib/src/swingworker/build.xml
+@@ -63,7 +63,7 @@ reserved. Use is subject to license term
+         <javadoc access="protected" link="" 
+             packagenames="org.jdesktop.swingworker" author="true" destdir="${javadoc.dir}" 
+             nodeprecated="false" nodeprecatedlist="false" noindex="false" 
+-            nonavbar="false" notree="false" use="true" version="true">
++            nonavbar="false" notree="false" use="true" version="true" encoding="iso-8859-1">
+             <link href="${external.doc}" />
+             <sourcepath>
+                 <pathelement path="${src.dir}" />

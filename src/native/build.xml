@@ -597,6 +597,8 @@
 
                 <compilerarg value="-I${system.JAVA_HOME}/include"
                              if="is.running.linux" />
+                <compilerarg value="-I${system.JAVA_HOME}/include/linux"
+                             if="is.running.linux" />
 
                 <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
                 <linkerarg value="-shared"/>

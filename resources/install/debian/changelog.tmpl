@@ -5,7 +5,12 @@ _PACKAGE_NAME_ (_VERSION_) unstable; urgency=low
   * Fixes BundleException: Unresolved constraint in bundle
     propertieseditor. (Closes: #736773)
   * Fixes commons lang missing felix manifests. (Closes: #736773)
-  * Removes gdata dependency. (Closes: #759835)
+  * Removes gdata dependency. Set encoding for javadoc to fix errors with
+    Java 7 (part of the patch in libjitsi as jsip has moved
+    there). (Closes: #759835, #748503)
+  * New version will be updated with bound to libavfilter5. (Closes: #760853)
+  * Added vcs links. (Closes: #754586)
+  * Fixes dependencies to build with jdk8. (Closes: #745090)
 
  -- Damian Minkov <damencho@jitsi.org>  _DATE_
 
