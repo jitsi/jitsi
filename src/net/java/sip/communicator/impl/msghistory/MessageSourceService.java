@@ -899,7 +899,11 @@ public class MessageSourceService
                     .get(recentMessages.size() - 1).getTimestamp();
 
                 if(recentQuery != null)
+                {
+                    recentQuery.updateContact(
+                        existingMsc, existingMsc.getEventObject());
                     recentQuery.fireContactChanged(existingMsc);
+                }
 
                 return;
             }
