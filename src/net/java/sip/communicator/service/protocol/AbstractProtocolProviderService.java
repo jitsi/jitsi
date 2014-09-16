@@ -127,9 +127,34 @@ public abstract class AbstractProtocolProviderService
                                                int               reasonCode,
                                                String            reason)
     {
+        this.fireRegistrationStateChanged(
+            oldState, newState, reasonCode, reason, false);
+    }
+
+    /**
+     * Creates a RegistrationStateChange event corresponding to the specified
+     * old and new states and notifies all currently registered listeners.
+     *
+     * @param oldState the state that the provider had before the change
+     * occurred
+     * @param newState the state that the provider is currently in.
+     * @param reasonCode a value corresponding to one of the REASON_XXX fields
+     * of the RegistrationStateChangeEvent class, indicating the reason for
+     * this state transition.
+     * @param reason a String further explaining the reason code or null if
+     * no such explanation is necessary.
+     * @param userRequest is the event by user request.
+     */
+    public void fireRegistrationStateChanged( RegistrationState oldState,
+                                               RegistrationState newState,
+                                               int               reasonCode,
+                                               String            reason,
+                                               boolean           userRequest)
+    {
         RegistrationStateChangeEvent event =
             new RegistrationStateChangeEvent(
                             this, oldState, newState, reasonCode, reason);
+        event.setUserRequest(userRequest);
 
         RegistrationStateChangeListener[] listeners;
         synchronized (registrationListeners)
@@ -315,5 +340,21 @@ public abstract class AbstractProtocolProviderService
     {
         return getClass().getSimpleName() + "("
                 + getAccountID().getDisplayName() + ")";
+    }
+
+    /**
+     * Ends the registration of this protocol provider with the current
+     * registration service. The default is just to call unregister. Providers
+     * that need to differentiate user requests (from the UI) or automatic
+     * unregister can override this method.
+     * @param userRequest is the unregister by user request.
+     * @throws OperationFailedException with the corresponding code it the
+     * registration fails for some reason (e.g. a networking error or an
+     * implementation problem).
+     */
+    public void unregister(boolean userRequest)
+        throws OperationFailedException
+    {
+        this.unregister();
     }
 }

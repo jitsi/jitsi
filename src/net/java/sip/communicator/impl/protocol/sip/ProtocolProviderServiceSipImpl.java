@@ -366,6 +366,20 @@ public class ProtocolProviderServiceSipImpl
     public void unregister()
         throws OperationFailedException
     {
+        unregister(false);
+    }
+
+    /**
+     * Ends the registration of this protocol provider with the current
+     * registration service.
+     *
+     * @throws OperationFailedException with the corresponding code it the
+     * registration fails for some reason (e.g. a networking error or an
+     * implementation problem).
+     */
+    public void unregister(boolean userRequest)
+        throws OperationFailedException
+    {
         if(getRegistrationState().equals(RegistrationState.UNREGISTERED)
             || getRegistrationState().equals(RegistrationState.UNREGISTERING)
             || getRegistrationState().equals(RegistrationState.CONNECTION_FAILED))
@@ -373,7 +387,7 @@ public class ProtocolProviderServiceSipImpl
             return;
         }
 
-        sipRegistrarConnection.unregister();
+        sipRegistrarConnection.unregister(userRequest);
         sipSecurityManager.setSecurityAuthority(null);
     }
 

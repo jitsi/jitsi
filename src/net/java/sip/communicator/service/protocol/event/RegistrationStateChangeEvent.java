@@ -111,6 +111,11 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
     private final String reason;
 
     /**
+     * Whether this event is after user request.
+     */
+    private boolean userRequest = false;
+
+    /**
      * Creates an event instance indicating a change of the provider state
      * from <tt>oldValue</tt> to <tt>newValue</tt>.
      *
@@ -210,5 +215,23 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
     public String getReason()
     {
         return reason;
+    }
+
+    /**
+     * Whether this event is after user request.
+     * @return whether this event is after user request.
+     */
+    public boolean isUserRequest()
+    {
+        return userRequest;
+    }
+
+    /**
+     * Changes the event to indicate that is created after use request.
+     * @param userRequest
+     */
+    public void setUserRequest(boolean userRequest)
+    {
+        this.userRequest = userRequest;
     }
 }

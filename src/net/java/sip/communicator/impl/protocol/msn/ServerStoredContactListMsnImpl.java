@@ -1303,7 +1303,7 @@ public class ServerStoredContactListMsnImpl
         @Override
         public void loggingFromOtherLocation()
         {
-            msnProvider.unregister(false);
+            msnProvider.unregisterInternal(false);
             msnProvider.fireRegistrationStateChanged(
                 msnProvider.getRegistrationState(),
                 RegistrationState.UNREGISTERED,

@@ -241,6 +241,15 @@ public class MockProvider
     {
     }
 
+    /**
+     * Mock implementation of the corresponding ProtocolProviderService method.
+     */
+    public void unregister(boolean userRequest)
+        throws OperationFailedException
+    {
+        this.unregister();
+    }
+
     /*
      * (non-Javadoc)
      *

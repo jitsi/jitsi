@@ -425,9 +425,18 @@ public class SipRegistrarConnection
                 logger.debug("Account "
                         + sipProvider.getAccountID().getDisplayName()
                         + " unregistered!");
+
+            Boolean userRequest = (Boolean)SipApplicationData.getApplicationData(
+                register, SipApplicationData.KEY_USER_REQUEST);
+
+            boolean userRequestBool = false;
+            if(userRequest != null && userRequest)
+                userRequestBool = true;
+
             setRegistrationState(RegistrationState.UNREGISTERED
                 , RegistrationStateChangeEvent.REASON_USER_REQUEST
-                , "Registration terminated.");
+                , "Registration terminated.",
+                userRequestBool);
         }
         else
         {
@@ -518,7 +527,19 @@ public class SipRegistrarConnection
     */
     public void unregister() throws OperationFailedException
     {
-        unregister(true);
+        unregisterInternal(true, false);
+    }
+
+    /**
+    * Sends a unregistered request to the registrar thus ending our
+    * registration.
+    * @throws OperationFailedException with the corresponding code if sending
+    * or constructing the request fails.
+    */
+    public void unregister(boolean userRequest)
+        throws OperationFailedException
+    {
+        unregisterInternal(true, userRequest);
     }
 
     /**
@@ -531,7 +552,7 @@ public class SipRegistrarConnection
     * @throws OperationFailedException with the corresponding code if sending
     * or constructing the request fails.
     */
-    private void unregister(boolean sendUnregister)
+    private void unregisterInternal(boolean sendUnregister, boolean userRequest)
         throws OperationFailedException
     {
         if (getRegistrationState() == RegistrationState.UNREGISTERED)
@@ -579,6 +600,12 @@ public class SipRegistrarConnection
                 "Unable to set Expires Header"
                 , OperationFailedException.INTERNAL_ERROR
                 , ex);
+        }
+
+        if(userRequest)
+        {
+            SipApplicationData.setApplicationData(unregisterRequest,
+                SipApplicationData.KEY_USER_REQUEST, userRequest);
         }
 
         ClientTransaction unregisterTransaction = null;
@@ -670,6 +697,24 @@ public class SipRegistrarConnection
                                     int               reasonCode,
                                     String            reason)
     {
+        this.setRegistrationState(newState, reasonCode, reason, false);
+    }
+
+    /**
+     * Sets our registration state to <tt>newState</tt> and dispatches an event
+     * through the protocol provider service impl.
+     * <p>
+     * @param newState a reference to the RegistrationState that we're currently
+     * detaining.
+     * @param reasonCode one of the REASON_XXX error codes specified in
+     * {@link RegistrationStateChangeEvent}.
+     * @param reason a reason String further explaining the reasonCode.
+     */
+    public void setRegistrationState(RegistrationState newState,
+                                    int               reasonCode,
+                                    String            reason,
+                                    boolean           userRequest)
+    {
         if( currentRegistrationState.equals(newState) )
             return;
 
@@ -677,7 +722,7 @@ public class SipRegistrarConnection
         this.currentRegistrationState = newState;
 
         sipProvider.fireRegistrationStateChanged(
-            oldState, newState, reasonCode, reason);
+            oldState, newState, reasonCode, reason, userRequest);
     }
 
     /**

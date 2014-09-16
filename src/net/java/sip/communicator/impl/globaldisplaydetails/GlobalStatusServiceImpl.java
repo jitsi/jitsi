@@ -450,7 +450,7 @@ public class GlobalStatusServiceImpl
 
                     try
                     {
-                        protocolProvider.unregister();
+                        protocolProvider.unregister(true);
                     }
                     catch (OperationFailedException e1)
                     {

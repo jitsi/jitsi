@@ -289,14 +289,14 @@ public class ProtocolProviderServiceYahooImpl
      */
     public void unregister()
     {
-        unregister(true);
+        unregisterInternal(true);
     }
 
     /**
      * Unregister and fire the event if requested
      * @param fireEvent boolean
      */
-    void unregister(boolean fireEvent)
+    void unregisterInternal(boolean fireEvent)
     {
         RegistrationState currRegState = getRegistrationState();
 
@@ -437,7 +437,7 @@ public class ProtocolProviderServiceYahooImpl
     public void shutdown()
     {
         synchronized(initializationLock){
-            unregister(false);
+            unregisterInternal(false);
             yahooSession = null;
             isInitialized = false;
         }
@@ -496,7 +496,7 @@ public class ProtocolProviderServiceYahooImpl
     {
         if(newState.equals(RegistrationState.UNREGISTERED))
         {
-            unregister(false);
+            unregisterInternal(false);
             yahooSession = null;
         }
 
@@ -543,7 +543,7 @@ public class ProtocolProviderServiceYahooImpl
                     logger.error(
                         "Yahoo protocol exception occured", ev.getException());
 
-            unregister(false);
+            unregisterInternal(false);
             if(isRegistered())
                 fireRegistrationStateChanged(
                     getRegistrationState(),

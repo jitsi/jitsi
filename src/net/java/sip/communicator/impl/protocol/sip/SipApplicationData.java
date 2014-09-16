@@ -37,6 +37,11 @@ public class SipApplicationData
     public static final String KEY_SUBSCRIPTIONS = "subscriptions";
 
     /**
+     * Key user request.
+     */
+    public static final String KEY_USER_REQUEST = "userRequest";
+
+    /**
      * Logger for this class.
      */
     private static final Logger logger

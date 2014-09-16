@@ -225,7 +225,7 @@ public class KeepAliveManager
                         +"won't send keep alive for "
                         + parentProvider.getAccountID().getDisplayName());
 
-                parentProvider.unregister(false);
+                parentProvider.unregisterInternal(false);
 
                 parentProvider.fireRegistrationStateChanged(
                     parentProvider.getRegistrationState(),
@@ -244,7 +244,7 @@ public class KeepAliveManager
                     logger.error("un-registering not received ping packet " +
                         "for: " + parentProvider.getAccountID().getDisplayName());
 
-                    parentProvider.unregister(false);
+                    parentProvider.unregisterInternal(false);
 
                     parentProvider.fireRegistrationStateChanged(
                         parentProvider.getRegistrationState(),

@@ -775,7 +775,10 @@ public class ReconnectPluginActivator
             }
             else if(evt.getNewState().equals(RegistrationState.UNREGISTERED))
             {
-                autoReconnEnabledProviders.remove(pp);
+                // Removes from list of autoreconnect only if the unregister
+                // event is by user request
+                if(evt.isUserRequest())
+                    autoReconnEnabledProviders.remove(pp);
 
                 if(!unregisteringProviders.contains(pp)
                     && currentlyReconnecting.containsKey(pp))

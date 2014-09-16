@@ -547,7 +547,7 @@ public class LoginManager
         {
             try
             {
-                protocolProvider.unregister();
+                protocolProvider.unregister(true);
             }
             catch (OperationFailedException ex)
             {

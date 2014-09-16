@@ -561,7 +561,7 @@ public class ProtocolProviderServiceJabberImpl
 
             // sets this if any is trying to use us through registration
             // to know we are not registered
-            this.unregister(false);
+            this.unregisterInternal(false);
 
             // reset states
             this.abortConnecting = false;
@@ -1505,14 +1505,32 @@ public class ProtocolProviderServiceJabberImpl
      */
     public void unregister()
     {
-        unregister(true);
+        unregisterInternal(true);
+    }
+
+    /**
+     * Ends the registration of this protocol provider with the service.
+     * @param userRequest is the unregister by user request.
+     */
+    public void unregister(boolean userRequest)
+    {
+        unregisterInternal(true, userRequest);
     }
 
     /**
      * Unregister and fire the event if requested
      * @param fireEvent boolean
      */
-    public void unregister(boolean fireEvent)
+    public void unregisterInternal(boolean fireEvent)
+    {
+        unregisterInternal(fireEvent, false);
+    }
+
+    /**
+     * Unregister and fire the event if requested
+     * @param fireEvent boolean
+     */
+    public void unregisterInternal(boolean fireEvent, boolean userRequest)
     {
         synchronized(initializationLock)
         {
@@ -1523,7 +1541,8 @@ public class ProtocolProviderServiceJabberImpl
                     getRegistrationState()
                     , RegistrationState.UNREGISTERING
                     , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
-                    , null);
+                    , null
+                    , userRequest);
             }
 
             disconnectAndCleanConnection();
@@ -1536,7 +1555,8 @@ public class ProtocolProviderServiceJabberImpl
                 fireRegistrationStateChanged(
                     currRegState,
                     RegistrationState.UNREGISTERED,
-                    RegistrationStateChangeEvent.REASON_USER_REQUEST, null);
+                    RegistrationStateChangeEvent.REASON_USER_REQUEST, null,
+                    userRequest);
             }
         }
     }

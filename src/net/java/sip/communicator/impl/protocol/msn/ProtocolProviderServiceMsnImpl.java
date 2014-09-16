@@ -246,7 +246,7 @@ public class ProtocolProviderServiceMsnImpl
      */
     public void unregister()
     {
-        unregister(true);
+        unregisterInternal(true);
     }
 
     /*
@@ -275,7 +275,7 @@ public class ProtocolProviderServiceMsnImpl
      * Unregister and fire the event if requested
      * @param fireEvent boolean
      */
-    void unregister(boolean fireEvent)
+    void unregisterInternal(boolean fireEvent)
     {
         RegistrationState currRegState = getRegistrationState();
 
@@ -393,7 +393,7 @@ public class ProtocolProviderServiceMsnImpl
     {
         synchronized(initializationLock)
         {
-            unregister(false);
+            unregisterInternal(false);
             messenger = null;
         }
     }
@@ -479,7 +479,7 @@ public class ProtocolProviderServiceMsnImpl
             synchronized (initializationLock)
             {
                 logoutReceived = true;
-                unregister(true);
+                unregisterInternal(true);
             }
         }
 
@@ -493,7 +493,7 @@ public class ProtocolProviderServiceMsnImpl
         {
             if(throwable instanceof IncorrectPasswordException)
             {
-                unregister(false);
+                unregisterInternal(false);
                 MsnActivator.getProtocolProviderFactory().
                     storePassword(getAccountID(), null);
 
@@ -538,7 +538,7 @@ public class ProtocolProviderServiceMsnImpl
                 case 601:
                     if(isRegistered())
                     {
-                        unregister(false);
+                        unregisterInternal(false);
                         fireRegistrationStateChanged(
                             getRegistrationState(),
                             RegistrationState.UNREGISTERED,
@@ -549,7 +549,7 @@ public class ProtocolProviderServiceMsnImpl
                 case 911:
                     if(isRegistered())
                     {
-                        unregister(false);
+                        unregisterInternal(false);
                         MsnActivator.getProtocolProviderFactory().
                             storePassword(getAccountID(), null);
                         fireRegistrationStateChanged(

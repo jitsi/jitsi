@@ -75,6 +75,17 @@ public interface ProtocolProviderService
         throws OperationFailedException;
 
     /**
+     * Ends the registration of this protocol provider with the current
+     * registration service.
+     * @param userRequest is the unregister by user request.
+     * @throws OperationFailedException with the corresponding code it the
+     * registration fails for some reason (e.g. a networking error or an
+     * implementation problem).
+     */
+    public void unregister(boolean userRequest)
+        throws OperationFailedException;
+
+    /**
      * Indicates whether or not this provider is registered
      * @return true if the provider is currently registered and false otherwise.
      */
