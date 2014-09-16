@@ -1,3 +1,4 @@
+Description: Fixes compilation errors when using jdk8.
 Index: jitsi/lib/src/java-jml/src/net/sf/jml/message/p2p/MsnFileContextParser.java
 ===================================================================
 --- jitsi.orig/lib/src/java-jml/src/net/sf/jml/message/p2p/MsnFileContextParser.java

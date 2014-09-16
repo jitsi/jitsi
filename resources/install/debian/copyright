@@ -13,17 +13,7 @@ Copyright:
  2006 Stephan Hadinger
 License: LGPL-2.1
 
-Files: lib/src/dnsjava-2.1.3/*
-Copyright:
- 1998-2011 Brian Wellington
-License: BSD-2-clause
-
-Files: lib/src/fmj/*
-Copyright: UNKNOWN:
-License: LGPL-2
-
 Files: lib/src/jnsapi/*
-       lib/src/macwidgets/*
        lib/src/otr4j/*
 Copyright: UNKNOWN:
 License: LGPL-3
@@ -38,57 +28,15 @@ Copyright:
  2004 Roger Chen
 License: Apache-2.0
 
-Files: lib/src/org.apache.felix.framework-3.2.2/*
-Copyright: UNKNOWN:
-License: Apache-2.0
-
 Files: lib/src/jfontchooser/*
 Copyright:
  2004 Tim Eeckhaut
 License: BSD-3-clause
 
-Files: lib/src/jmdns/*
-Copyright:
- 2003-2005 Arthur van Hoff, Rick Blair
-License: Apache-2.0
-
 Files: lib/src/joscar/*
 Copyright:
  2004, The Joust Project
 License: BSD-3-clause
-
-Files: lib/src/jsip/src/gov/*
-       lib/src/jsip/src/test/*
-       lib/src/jsip/src/tools/*
-Copyright: UNKNOWN:
-License: public-domain
- This software was developed by employees of the National Institute of
- Standards and Technology (NIST), and others.
- This software has been contributed to the public domain.
- Pursuant to title 15 Untied States Code Section 105, works of NIST
- employees are not subject to copyright protection in the United States
- and are considered to be in the public domain.
- As a result, a formal license is not needed to use this software.
- .
- This software is provided "AS IS."
- NIST MAKES NO WARRANTY OF ANY KIND, EXPRESS, IMPLIED
- OR STATUTORY, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTY OF
- MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT
- AND DATA ACCURACY.  NIST does not warrant or make any representations
- regarding the use of the software or the results thereof, including but
- not limited to the correctness, accuracy, reliability or usefulness of
- this software.
-
-Files: lib/src/bccontrib/*
-Copyright:
- 2010 Alberto Fajardo and Werner Dittmann
- 2004, 2006 Free Software Foundation, Inc.
-License: MIT
-
-Files: lib/src/portaudio/*
-Copyright:
- 1999-2006 Ross Bencina and Phil Burk
-License: MIT
 
 Files: lib/src/smack_src_3_2_2/*
 Copyright:
@@ -98,11 +46,6 @@ License: Apache-2.0
 Files: lib/src/swingworker/*
 Copyright:
  2005 Sun Microsystems, Inc.
-License: LGPL-2.1
-
-Files: lib/src/weupnp/*
-Copyright:
- 2008 Alessandro Bahgat Shehata, Daniele Castagna
 License: LGPL-2.1
 
 Files: lib/src/OrangeExtensions/*
