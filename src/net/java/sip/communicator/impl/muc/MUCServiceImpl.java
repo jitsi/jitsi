@@ -6,19 +6,20 @@
  */
 package net.java.sip.communicator.impl.muc;
 
-import java.util.*;
+import static net.java.sip.communicator.service.muc.ChatRoomWrapper.*;
 
-import org.jitsi.service.resources.*;
+import java.util.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.chat.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.muc.*;
-import static net.java.sip.communicator.service.muc.ChatRoomWrapper.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.resources.*;
 
 /**
  * The <tt>MUCServiceImpl</tt> class implements the service for the chat rooms.
@@ -155,6 +156,14 @@ public class MUCServiceImpl
                                 String nickName,
                                 byte[] password)
     {
+        if (chatRoomWrapper.getChatRoom() == null)
+        {
+            chatRoomWrapper = createChatRoom(
+                chatRoomWrapper.getChatRoomName(),
+                chatRoomWrapper.getParentProvider().getProtocolProvider(),
+                new ArrayList<String>(), "", false, false, true);
+        }
+
         ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
 
         if(chatRoom == null)
@@ -187,9 +196,16 @@ public class MUCServiceImpl
                                 byte[] password,
                                 String subject)
     {
-        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+        if (chatRoomWrapper.getChatRoom() == null)
+        {
+            chatRoomWrapper = createChatRoom(
+                chatRoomWrapper.getChatRoomName(),
+                chatRoomWrapper.getParentProvider().getProtocolProvider(),
+                new ArrayList<String>(), "", false, false, true);
+        }
 
-        if(chatRoom == null)
+        ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
+        if (chatRoom == null)
         {
             MUCActivator.getAlertUIService().showAlertDialog(
                MUCActivator.getResources().getI18NString("service.gui.WARNING"),
@@ -203,7 +219,7 @@ public class MUCServiceImpl
         // join from add chat room dialog
 
         new JoinChatRoomTask(
-                (ChatRoomWrapperImpl)chatRoomWrapper,
+                (ChatRoomWrapperImpl) chatRoomWrapper,
                 nickName,
                 password,
                 subject)
@@ -217,6 +233,14 @@ public class MUCServiceImpl
      */
     public void joinChatRoom(ChatRoomWrapper chatRoomWrapper)
     {
+        if (chatRoomWrapper.getChatRoom() == null)
+        {
+            chatRoomWrapper = createChatRoom(
+                chatRoomWrapper.getChatRoomName(),
+                chatRoomWrapper.getParentProvider().getProtocolProvider(),
+                new ArrayList<String>(), "", false, false, true);
+        }
+
         ChatRoom chatRoom = chatRoomWrapper.getChatRoom();
 
         if(chatRoom == null)
