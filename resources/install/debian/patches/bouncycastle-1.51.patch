@@ -1,0 +1,13 @@
+Description: Removes import that is only available in bouncycastle 1.51.
+Index: jitsi/src/net/java/sip/communicator/impl/libjitsi/libjitsi.manifest.mf
+===================================================================
+--- jitsi.orig/src/net/java/sip/communicator/impl/libjitsi/libjitsi.manifest.mf
++++ jitsi/src/net/java/sip/communicator/impl/libjitsi/libjitsi.manifest.mf
+@@ -56,7 +56,6 @@ Import-Package: apple.awt,
+  javax.xml.transform.dom,
+  javax.xml.transform.stream,
+  org.bouncycastle.asn1,
+- org.bouncycastle.asn1.bsi,
+  org.bouncycastle.asn1.cryptopro,
+  org.bouncycastle.asn1.eac,
+  org.bouncycastle.asn1.nist,

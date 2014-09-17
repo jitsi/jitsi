@@ -64,3 +64,7 @@ Reason: No Debian package.
 - swingworker
 Part of jdesktop.org JDNC project.
 Reason: No Debian package.
+
+- irc-api https://code.google.com/p/irc-api/
+IRC-API is a state(ful)/(less), (a)synchronous IRC API written in Java.
+Reason: No Debian package.

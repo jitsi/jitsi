@@ -3,3 +3,5 @@ remove-dns-java-logger.patch
 removes-gdata-deps
 encoding.patch
 jdk8
+bouncycastle-1.51.patch
+removes-jmork-deps

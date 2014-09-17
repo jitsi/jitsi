@@ -48,6 +48,10 @@ Copyright:
  2005 Sun Microsystems, Inc.
 License: LGPL-2.1
 
+Files: lib/src/irc-api/*
+Copyright: UNKNOWN:
+License: Apache-2.0
+
 Files: lib/src/OrangeExtensions/*
 Copyright:
  2010 Yuvi Masory

@@ -1,0 +1,35 @@
+Description: Removes thunderbird contacts plugin.
+Index: jitsi/build.xml
+===================================================================
+--- jitsi.orig/build.xml
++++ jitsi/build.xml
+@@ -1090,7 +1090,6 @@
+         bundle-plugin-loggingutils,
+         bundle-provdisc,bundle-provdisc-dhcp,bundle-provdisc-mdns,
+         bundle-provisioning,bundle-addrbook,bundle-plugin-ldap,
+-        bundle-thunderbird,
+         bundle-plugin-contactsourceconfig,bundle-plugin-certconfig,
+         bundle-globalshortcut,bundle-plugin-msofficecomm,bundle-libjitsi,
+         bundle-customcontactactions, bundle-phonenumbercontactsource,
+Index: jitsi/lib/felix.client.run.properties
+===================================================================
+--- jitsi.orig/lib/felix.client.run.properties
++++ jitsi/lib/felix.client.run.properties
+@@ -157,8 +157,7 @@ felix.auto.start.66= \
+  reference:file:sc-bundles/systray-service.jar \
+  reference:file:sc-bundles/osdependent.jar \
+  reference:file:sc-bundles/ldap.jar \
+- reference:file:sc-bundles/replacement.jar \
+- reference:file:sc-bundles/jmork.jar
++ reference:file:sc-bundles/replacement.jar
+ 
+ felix.auto.start.67= \
+  reference:file:sc-bundles/globalshortcut.jar \
+@@ -201,7 +200,6 @@ felix.auto.start.67= \
+  reference:file:sc-bundles/plugin-nimbuzzavatars.jar \
+  reference:file:sc-bundles/chatconfig.jar \
+  reference:file:sc-bundles/addrbook.jar \
+- reference:file:sc-bundles/thunderbook.jar \
+  reference:file:sc-bundles/plugin-msofficecomm.jar \
+  reference:file:sc-bundles/plugin-ldap.jar \
+  reference:file:sc-bundles/plugin-contactsourceconfig.jar \
