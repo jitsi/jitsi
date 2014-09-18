@@ -11,14 +11,12 @@ import java.beans.*;
 import java.util.*;
 
 import javax.swing.*;
-import javax.swing.text.html.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.presence.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.util.*;
 
@@ -44,10 +42,14 @@ public class PresenceStatusMenu
     private final Logger logger = Logger.getLogger(PresenceStatusMenu.class);
 
     /**
-     * The area will display the account display name and its status message
-     * if any.
+     * The area will display the account display name.
      */
-    private JEditorPane titleArea;
+    private JLabel titleArea;
+
+    /**
+     * The area will display the account status message that is active, if any.
+     */
+    private JLabel messageArea;
 
     /**
      * The status message menu.
@@ -85,21 +87,23 @@ public class PresenceStatusMenu
 
         this.setToolTipText(tooltip);
 
-        titleArea = new JEditorPane();
-        titleArea.setContentType("text/html");
-        Constants.loadSimpleStyle(((HTMLDocument)titleArea.getDocument())
-                                        .getStyleSheet(),
-                                   titleArea.getFont());
+        titleArea = new JLabel();
         titleArea.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
         titleArea.setOpaque(false);
-        titleArea.setEditable(false);
-        titleArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        titleArea.setFont(titleArea.getFont().deriveFont(Font.BOLD));
+
+        messageArea = new JLabel();
+        messageArea.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+        messageArea.setOpaque(false);
+        messageArea.setVisible(false);
+        messageArea.setFont(messageArea.getFont().deriveFont(Font.PLAIN));
 
         statusMessageMenu = new StatusMessageMenu(protocolProvider, true);
         statusMessageMenu.addPropertyChangeListener(this);
         updateTitleArea();
 
         this.add(titleArea);
+        this.add(messageArea);
         this.addSeparator();
 
         while (statusIterator.hasNext())
@@ -232,18 +236,18 @@ public class PresenceStatusMenu
             return;
         }
 
-        StringBuilder txt = new StringBuilder();
-        txt.append("<html>").append("<b>");
-        txt.append(protocolProvider.getAccountID().getDisplayName())
-            .append("</b>");
-
-        String statusMessage = statusMessageMenu.getCurrentMessage();
-        if(!StringUtils.isNullOrEmpty(statusMessage))
+        titleArea.setText(protocolProvider.getAccountID().getDisplayName());
+        final String statusMessage = statusMessageMenu.getCurrentMessage();
+        if (StringUtils.isNullOrEmpty(statusMessage))
         {
-            txt.append("<br/>").append(statusMessage);
+            this.messageArea.setText("");
+            this.messageArea.setVisible(false);
         }
-        txt.append("</html>");
-        titleArea.setText(txt.toString());
+        else
+        {
+            this.messageArea.setText(statusMessage);
+            this.messageArea.setVisible(true);
+        }
     }
 
     /**
