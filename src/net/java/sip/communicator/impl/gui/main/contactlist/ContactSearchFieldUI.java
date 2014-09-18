@@ -122,14 +122,14 @@ public class ContactSearchFieldUI
             return;
         }
 
-        for(ProtocolProviderFactory providerFactory : 
-            GuiActivator.getProtocolProviderFactories().values())
+        for(ProtocolProviderFactory providerFactory
+                : GuiActivator.getProtocolProviderFactories().values())
         {
             for(AccountID accountID : providerFactory.getRegisteredAccounts())
             {
                 ProtocolProviderService pps 
-                    = (ProtocolProviderService) GuiActivator.bundleContext
-                    .getService(providerFactory.getProviderForAccount(accountID));
+                    = GuiActivator.bundleContext.getService(
+                            providerFactory.getProviderForAccount(accountID));
                 providers.add(pps);
                 pps.addRegistrationStateChangeListener(
                     providerRegistrationStateListener);

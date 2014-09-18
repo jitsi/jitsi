@@ -1589,25 +1589,25 @@ public class ConfigurationUtils
         String savedAccountId)
     {
         ProtocolProviderService protocolProvider = null;
-        for (ProtocolProviderFactory providerFactory : UtilActivator
-            .getProtocolProviderFactories().values())
-        {
-            ServiceReference serRef;
 
+        for (ProtocolProviderFactory providerFactory
+                : UtilActivator.getProtocolProviderFactories().values())
+        {
             for (AccountID accountId : providerFactory.getRegisteredAccounts())
             {
                 // We're interested only in the savedAccountId
                 if (!accountId.getAccountUniqueID().equals(savedAccountId))
                     continue;
 
-                serRef = providerFactory.getProviderForAccount(accountId);
+                ServiceReference<ProtocolProviderService> serRef
+                    = providerFactory.getProviderForAccount(accountId);
 
                 protocolProvider
-                    = (ProtocolProviderService) UtilActivator.bundleContext
-                            .getService(serRef);
+                    = UtilActivator.bundleContext.getService(serRef);
+                if (protocolProvider != null)
+                    break;
             }
         }
-
         return protocolProvider;
     }
 

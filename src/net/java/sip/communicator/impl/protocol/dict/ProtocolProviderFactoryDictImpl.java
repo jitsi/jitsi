@@ -114,11 +114,10 @@ public class ProtocolProviderFactoryDictImpl
     {
         // Get MetaContactListService
         BundleContext bundleContext = getBundleContext();
-        ServiceReference mfcServiceRef = bundleContext
-            .getServiceReference(MetaContactListService.class.getName());
+        ServiceReference<MetaContactListService> mfcServiceRef
+            = bundleContext.getServiceReference(MetaContactListService.class);
 
-        MetaContactListService mcl = (MetaContactListService)
-            bundleContext.getService(mfcServiceRef);
+        MetaContactListService mcl = bundleContext.getService(mfcServiceRef);
 
         try
         {
@@ -146,16 +145,15 @@ public class ProtocolProviderFactoryDictImpl
     {
         // Gets the MetaContactListService.
         BundleContext bundleContext = getBundleContext();
-        ServiceReference mfcServiceRef = bundleContext
-            .getServiceReference(MetaContactListService.class.getName());
-        MetaContactListService mcl = (MetaContactListService)
-            bundleContext.getService(mfcServiceRef);
+        ServiceReference<MetaContactListService> mfcServiceRef
+            = bundleContext.getServiceReference(MetaContactListService.class);
+        MetaContactListService mcl = bundleContext.getService(mfcServiceRef);
 
         // Gets the ProtocolProviderService.
-        ServiceReference serRef = getProviderForAccount(accountID);
+        ServiceReference<ProtocolProviderService> serRef
+            = getProviderForAccount(accountID);
         ProtocolProviderService protocolProvider
-            = (ProtocolProviderService) DictActivator.getBundleContext()
-                .getService(serRef);
+            = DictActivator.getBundleContext().getService(serRef);
 
         // Gets group name
         String groupName = DictActivator.getResources()
@@ -175,7 +173,9 @@ public class ProtocolProviderFactoryDictImpl
         // Create the default contact.
         mcl.createMetaContact(protocolProvider, group, dict_uin);
         // Rename the default contact.
-        mcl.renameMetaContact(group.getMetaContact(protocolProvider, dict_uin), contactName);
+        mcl.renameMetaContact(
+                group.getMetaContact(protocolProvider, dict_uin),
+                contactName);
     }
 
     @Override

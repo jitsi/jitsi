@@ -8,10 +8,10 @@ package net.java.sip.communicator.util.account;
 
 import java.util.*;
 
-import org.osgi.framework.*;
-
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+
+import org.osgi.framework.*;
 
 /**
  * The <tt>AccountUtils</tt> provides utility methods helping us to easily
@@ -81,14 +81,13 @@ public class AccountUtils
         {
             for (AccountID accountID : providerFactory.getRegisteredAccounts())
             {
-                ServiceReference ref
+                ServiceReference<ProtocolProviderService> ref
                     = providerFactory.getProviderForAccount(accountID);
 
                 if (ref != null)
                 {
                     ProtocolProviderService protocolProvider
-                        = (ProtocolProviderService)
-                            UtilActivator.bundleContext.getService(ref);
+                        = UtilActivator.bundleContext.getService(ref);
 
                     if ((protocolProvider.getOperationSet(opSetClass) != null)
                             && protocolProvider.isRegistered())
@@ -124,14 +123,13 @@ public class AccountUtils
         {
             for (AccountID accountID : providerFactory.getRegisteredAccounts())
             {
-                ServiceReference ref
+                ServiceReference<ProtocolProviderService> ref
                     = providerFactory.getProviderForAccount(accountID);
 
                 if (ref != null)
                 {
                     ProtocolProviderService protocolProvider
-                        = (ProtocolProviderService)
-                            UtilActivator.bundleContext.getService(ref);
+                        = UtilActivator.bundleContext.getService(ref);
 
                     if ((protocolProvider.getOperationSet(opSetClass) != null)
                             && protocolProvider.isRegistered())
@@ -216,14 +214,12 @@ public class AccountUtils
         {
             if (factory.getRegisteredAccounts().contains(accountID))
             {
-                ServiceReference ref
+                ServiceReference<ProtocolProviderService> ref
                     = factory.getProviderForAccount(accountID);
 
                 if (ref != null)
                 {
-                    return
-                        (ProtocolProviderService)
-                            UtilActivator.bundleContext.getService(ref);
+                    return UtilActivator.bundleContext.getService(ref);
                 }
             }
         }
@@ -260,16 +256,16 @@ public class AccountUtils
 
         try
         {
-            ServiceReference[] refs
+            Collection<ServiceReference<ProtocolProviderFactory>> refs
                 = UtilActivator.bundleContext.getServiceReferences(
-                        ProtocolProviderFactory.class.getName(),
+                        ProtocolProviderFactory.class,
                         osgiFilter);
 
-            if ((refs != null) && (refs.length > 0))
+            if ((refs != null) && !refs.isEmpty())
             {
                 protocolProviderFactory
-                    = (ProtocolProviderFactory)
-                        UtilActivator.bundleContext.getService(refs[0]);
+                    = UtilActivator.bundleContext.getService(
+                            refs.iterator().next());
             }
         }
         catch (InvalidSyntaxException ex)
@@ -295,14 +291,13 @@ public class AccountUtils
         {
             for (AccountID accountID : providerFactory.getRegisteredAccounts())
             {
-                ServiceReference ref
+                ServiceReference<ProtocolProviderService> ref
                     = providerFactory.getProviderForAccount(accountID);
 
                 if (ref != null)
                 {
                     ProtocolProviderService protocolProvider
-                        = (ProtocolProviderService)
-                            UtilActivator.bundleContext.getService(ref);
+                        = UtilActivator.bundleContext.getService(ref);
 
                     registeredProviders.add(protocolProvider);
                 }

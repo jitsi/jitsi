@@ -48,35 +48,39 @@ public class ArgDelegationPeerImpl
      */
     public ArgDelegationPeerImpl(BundleContext bundleContext)
     {
-        ServiceReference[] uriHandlerRefs;
+        Collection<ServiceReference<UriHandler>> uriHandlerRefs;
 
         try
         {
-            uriHandlerRefs = bundleContext.getServiceReferences(
-                                UriHandler.class.getName(), null);
+            uriHandlerRefs
+                = bundleContext.getServiceReferences(UriHandler.class, null);
         }
-        catch (InvalidSyntaxException exc)
+        catch (InvalidSyntaxException ex)
         {
-            // this shouldn't happen because we aren't using a filter
-            // but let's log just the same.
+            // This shouldn't happen because we aren't using a filter but let's
+            // log just the same.
             if (logger.isInfoEnabled())
-                logger.info("An error occurred while retrieving UriHandlers", exc);
+            {
+                logger.info(
+                        "An error occurred while retrieving UriHandlers",
+                        ex);
+            }
             return;
         }
 
-        if(uriHandlerRefs == null)
+        if((uriHandlerRefs == null) || uriHandlerRefs.isEmpty())
         {
-            //none URI handlers are registered at this point. Some might
-            //come later.
+            // No URI handlers are registered at this point. Some might come
+            // later.
             return;
         }
 
         synchronized (uriHandlers)
         {
-            for (ServiceReference uriHandlerRef : uriHandlerRefs)
+            for (ServiceReference<UriHandler> uriHandlerRef : uriHandlerRefs)
             {
-                UriHandler uriHandler = (UriHandler) bundleContext
-                                .getService(uriHandlerRef);
+                UriHandler uriHandler = bundleContext.getService(uriHandlerRef);
+
                 uriHandlers.put(uriHandler.getProtocol(), uriHandler);
             }
         }
@@ -153,7 +157,7 @@ public class ArgDelegationPeerImpl
             ArgDelegationActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(
                         "Could not determine how to handle: " + uriArg
-                        + ".\nNo protocol scheme found.",
+                            + ".\nNo protocol scheme found.",
                         "Error handling URI",
                         PopupDialog.ERROR_MESSAGE);
             return;
@@ -174,9 +178,9 @@ public class ArgDelegationPeerImpl
                          + "No handler found for protocol"+ scheme);
             ArgDelegationActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(
-                     "\"" + scheme + "\" URIs are currently not supported.",
-                     "Error handling URI",
-                     PopupDialog.ERROR_MESSAGE);
+                        "\"" + scheme + "\" URIs are currently not supported.",
+                        "Error handling URI",
+                        PopupDialog.ERROR_MESSAGE);
             return;
         }
 
@@ -194,9 +198,9 @@ public class ArgDelegationPeerImpl
 
             ArgDelegationActivator.getUIService().getPopupDialog()
                 .showMessagePopupDialog(
-                    "Error handling " + uriArg,
-                 "Error handling URI",
-                 PopupDialog.ERROR_MESSAGE);
+                        "Error handling " + uriArg,
+                        "Error handling URI",
+                        PopupDialog.ERROR_MESSAGE);
             logger.error("Failed to handle \""+ uriArg +"\"", thr);
         }
     }
@@ -213,3 +217,4 @@ public class ArgDelegationPeerImpl
         ArgDelegationActivator.getUIService().setVisible(true);
     }
 }
+

@@ -799,13 +799,13 @@ public class GuiActivator implements BundleActivator
         if(prefWName == null || prefWName.length() <= 0)
             return null;
 
-        ServiceReference[] accountWizardRefs = null;
+        Collection<ServiceReference<AccountRegistrationWizard>> accountWizardRefs;
         try
         {
-            accountWizardRefs = GuiActivator.bundleContext
-                .getServiceReferences(
-                    AccountRegistrationWizard.class.getName(),
-                    null);
+            accountWizardRefs
+                = GuiActivator.bundleContext.getServiceReferences(
+                        AccountRegistrationWizard.class,
+                        null);
         }
         catch (InvalidSyntaxException ex)
         {
@@ -820,15 +820,17 @@ public class GuiActivator implements BundleActivator
         if (accountWizardRefs != null)
         {
             if (logger.isDebugEnabled())
-                logger.debug("Found "
-                         + accountWizardRefs.length
-                         + " already installed providers.");
+            {
+                logger.debug(
+                        "Found " + accountWizardRefs.size()
+                            + " already installed providers.");
+            }
 
-            for (int i = 0; i < accountWizardRefs.length; i++)
+            for (ServiceReference<AccountRegistrationWizard> accountWizardRef
+                    : accountWizardRefs)
             {
                 AccountRegistrationWizard wizard
-                    = (AccountRegistrationWizard) GuiActivator.bundleContext
-                        .getService(accountWizardRefs[i]);
+                    = GuiActivator.bundleContext.getService(accountWizardRef);
 
                 // is it the preferred protocol ?
                 if(wizard.getClass().getName().equals(prefWName))
@@ -836,18 +838,14 @@ public class GuiActivator implements BundleActivator
                     for (ProtocolProviderFactory providerFactory : GuiActivator
                             .getProtocolProviderFactories().values())
                     {
-                        ServiceReference serRef;
-                        ProtocolProviderService protocolProvider;
-
                         for (AccountID accountID
                                 : providerFactory.getRegisteredAccounts())
                         {
-                            serRef = providerFactory.getProviderForAccount(
+                            ServiceReference<ProtocolProviderService> serRef
+                                = providerFactory.getProviderForAccount(
                                         accountID);
-
-                            protocolProvider = (ProtocolProviderService)
-                                GuiActivator.bundleContext
-                                    .getService(serRef);
+                            ProtocolProviderService protocolProvider
+                                = GuiActivator.bundleContext.getService(serRef);
 
                             if (protocolProvider.getAccountID()
                                     .getProtocolDisplayName()

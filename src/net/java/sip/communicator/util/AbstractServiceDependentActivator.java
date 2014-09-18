@@ -26,9 +26,9 @@ public abstract class AbstractServiceDependentActivator
      * Starts the bundle.
      * @param bundleContext the currently valid <tt>BundleContext</tt>.
      */
+    @Override
     public void start(BundleContext bundleContext)
-        throws
-        Exception
+        throws Exception
     {
         setBundleContext(bundleContext);
 
@@ -38,17 +38,12 @@ public abstract class AbstractServiceDependentActivator
             {
                 bundleContext.addServiceListener(
                         new DependentServiceListener(bundleContext),
-                        '('
-                            + Constants.OBJECTCLASS
-                            + '='
-                            + getDependentServiceClass().getName()
-                            + ')');
+                        '(' + Constants.OBJECTCLASS + '='
+                            + getDependentServiceClass().getName() + ')');
             }
             catch (InvalidSyntaxException ise)
             {
-                /*
-                 * Oh, it should not really happen.
-                 */
+                // Oh, it should not really happen.
             }
             return;
         }
@@ -86,13 +81,13 @@ public abstract class AbstractServiceDependentActivator
     {
         if(dependentService == null)
         {
-            ServiceReference serviceRef = context
-                .getServiceReference(getDependentServiceClass().getName());
+            ServiceReference<?> serviceRef
+                = context.getServiceReference(
+                        getDependentServiceClass().getName());
 
             if(serviceRef != null)
                 dependentService = context.getService(serviceRef);
         }
-
         return dependentService;
     }
 
@@ -104,13 +99,14 @@ public abstract class AbstractServiceDependentActivator
     private class DependentServiceListener
         implements ServiceListener
     {
-        private BundleContext context;
+        private final BundleContext context;
 
         DependentServiceListener(BundleContext context)
         {
             this.context = context;
         }
 
+        @Override
         public void serviceChanged(ServiceEvent serviceEvent)
         {
             Object depService = getDependentService(context);
@@ -118,14 +114,15 @@ public abstract class AbstractServiceDependentActivator
             if (depService != null)
             {
                 /*
-                 * This ServiceListener has successfully waited for a
-                 * Service implementation to become available so it no
-                 * longer need to listen.
+                 * This ServiceListener has successfully waited for a Service
+                 * implementation to become available so it no longer need to
+                 * listen.
                  */
-                this.context.removeServiceListener(this);
+                context.removeServiceListener(this);
 
                 start(depService);
             }
         }
     }
 }
+

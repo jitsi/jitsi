@@ -1514,21 +1514,21 @@ public class CallHistoryServiceImpl
      * @return the <tt>ProtocolProviderService</tt> corresponding to the given
      * account identifier
      */
-    private static ProtocolProviderService getProtocolProvider(String accountUID)
+    private static ProtocolProviderService getProtocolProvider(
+            String accountUID)
     {
         for (ProtocolProviderFactory providerFactory
                 : CallHistoryActivator.getProtocolProviderFactories().values())
         {
-            ServiceReference serRef;
-
             for (AccountID accountID : providerFactory.getRegisteredAccounts())
             {
                 if (accountID.getAccountUniqueID().equals(accountUID))
                 {
-                    serRef = providerFactory.getProviderForAccount(accountID);
+                    ServiceReference<ProtocolProviderService> serRef
+                        = providerFactory.getProviderForAccount(accountID);
 
-                    return (ProtocolProviderService) CallHistoryActivator
-                        .bundleContext.getService(serRef);
+                    return
+                        CallHistoryActivator.bundleContext.getService(serRef);
                 }
             }
         }

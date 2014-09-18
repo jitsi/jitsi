@@ -67,16 +67,12 @@ public class AutoAnswerMenu
         for (ProtocolProviderFactory providerFactory : GuiActivator
                     .getProtocolProviderFactories().values())
         {
-            ServiceReference serRef;
-            ProtocolProviderService protocolProvider;
-
             for (AccountID accountID : providerFactory.getRegisteredAccounts())
             {
-                serRef = providerFactory.getProviderForAccount(accountID);
-
-                protocolProvider =
-                    (ProtocolProviderService) GuiActivator.bundleContext
-                        .getService(serRef);
+                ServiceReference<ProtocolProviderService> serRef
+                    = providerFactory.getProviderForAccount(accountID);
+                ProtocolProviderService protocolProvider
+                    = GuiActivator.bundleContext.getService(serRef);
 
                 addAccountInternal(protocolProvider, parentMenu);
             }

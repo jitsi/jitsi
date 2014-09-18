@@ -282,38 +282,35 @@ public class MUCActivator
         protocolProviderRegListener = new ProtocolProviderRegListener();
         bundleContext.addServiceListener(protocolProviderRegListener);
 
-        ServiceReference[] serRefs = null;
+        Collection<ServiceReference<ProtocolProviderFactory>> serRefs;
         try
         {
             // get all registered provider factories
             serRefs
                 = bundleContext.getServiceReferences(
-                        ProtocolProviderFactory.class.getName(),
+                        ProtocolProviderFactory.class,
                         null);
         }
         catch (InvalidSyntaxException e)
         {
+            serRefs = null;
             logger.error("LoginManager : " + e);
         }
 
         if (serRefs != null)
         {
-            for (ServiceReference serRef : serRefs)
+            for (ServiceReference<ProtocolProviderFactory> ppfSerRef : serRefs)
             {
                 ProtocolProviderFactory providerFactory
-                    = (ProtocolProviderFactory)
-                        bundleContext.getService(serRef);
-
-                ProtocolProviderService protocolProvider;
+                    = bundleContext.getService(ppfSerRef);
 
                 for (AccountID accountID
                         : providerFactory.getRegisteredAccounts())
                 {
-                    serRef = providerFactory.getProviderForAccount(accountID);
-
-                    protocolProvider
-                        = (ProtocolProviderService) bundleContext
-                            .getService(serRef);
+                    ServiceReference<ProtocolProviderService> ppsSerRef
+                        = providerFactory.getProviderForAccount(accountID);
+                    ProtocolProviderService protocolProvider
+                        = bundleContext.getService(ppsSerRef);
 
                     handleProviderAdded(protocolProvider);
                 }
