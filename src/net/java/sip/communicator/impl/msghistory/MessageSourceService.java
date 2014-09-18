@@ -238,6 +238,8 @@ public class MessageSourceService
         if(recentQuery == null)
             return;
 
+        List<MessageSourceContact> newSourceContacts
+            = new ArrayList<MessageSourceContact>();
         synchronized(recentMessages)
         {
             List<SourceContact> currentContactsInQuery
@@ -254,11 +256,13 @@ public class MessageSourceService
                             evtObj.getEventObject(),
                             MessageSourceService.this);
                     newSourceContact.initDetails(evtObj.getEventObject());
-
-                    recentQuery.addQueryResult(newSourceContact);
+                    newSourceContacts.add(newSourceContact);
                 }
             }
         }
+
+        for(MessageSourceContact nsc : newSourceContacts)
+            recentQuery.addQueryResult(nsc);
     }
 
     /**
@@ -790,6 +794,8 @@ public class MessageSourceService
         if(recentQuery == null)
             return;
 
+        List<ComparableEvtObj> toUpdate
+            = new ArrayList<ComparableEvtObj>();
         synchronized(recentMessages)
         {
             for(ComparableEvtObj msg : recentMessages)
@@ -797,10 +803,13 @@ public class MessageSourceService
                 if(msg.getContact() != null
                     && msg.getContact().equals(evt.getSourceContact()))
                 {
-                    recentQuery.updateContactStatus(msg, evt.getNewStatus());
+                    toUpdate.add(msg);
                 }
             }
         }
+
+        for(ComparableEvtObj msg : toUpdate)
+            recentQuery.updateContactStatus(msg, evt.getNewStatus());
     }
 
     @Override
@@ -875,10 +884,13 @@ public class MessageSourceService
                         ProtocolProviderService provider,
                         String id)
     {
+        ComparableEvtObj existingMsc = null;
+        MessageSourceContact newSourceContact = null;
+        List<ComparableEvtObj> removedItems = null;
+        ComparableEvtObj newMsg = null;
         // check if provider - contact exist update message content
         synchronized(recentMessages)
         {
-            ComparableEvtObj existingMsc = null;
             for(ComparableEvtObj msc : recentMessages)
             {
                 if(msc.getProtocolProviderService().equals(provider)
@@ -897,59 +909,64 @@ public class MessageSourceService
                 Collections.sort(recentMessages);
                 oldestRecentMessage = recentMessages
                     .get(recentMessages.size() - 1).getTimestamp();
-
-                if(recentQuery != null)
-                {
-                    recentQuery.updateContact(
-                        existingMsc, existingMsc.getEventObject());
-                    recentQuery.fireContactChanged(existingMsc);
-                }
-
-                return;
             }
-
-            // if missing create source contact
-            // and update recent messages, trim and sort
-            MessageSourceContact newSourceContact =
-                new MessageSourceContact(obj, MessageSourceService.this);
-            newSourceContact.initDetails(obj);
-            // we have already checked for duplicate
-            ComparableEvtObj newMsg = new ComparableEvtObj(obj);
-            recentMessages.add(newMsg);
-
-            Collections.sort(recentMessages);
-            oldestRecentMessage
-                = recentMessages.get(recentMessages.size() - 1).getTimestamp();
-
-            // trim
-            List<ComparableEvtObj> removedItems = null;
-            if(recentMessages.size() > numberOfMessages)
+            else
             {
-                removedItems = new ArrayList<ComparableEvtObj>(
-                    recentMessages.subList(
-                        numberOfMessages, recentMessages.size()));
+                // if missing create source contact
+                // and update recent messages, trim and sort
+                newSourceContact =
+                    new MessageSourceContact(obj, MessageSourceService.this);
+                newSourceContact.initDetails(obj);
+                // we have already checked for duplicate
+                newMsg = new ComparableEvtObj(obj);
+                recentMessages.add(newMsg);
 
-                recentMessages.removeAll(removedItems);
+                Collections.sort(recentMessages);
+                oldestRecentMessage
+                    = recentMessages.get(recentMessages.size() - 1).getTimestamp();
+
+                // trim
+                if(recentMessages.size() > numberOfMessages)
+                {
+                    removedItems = new ArrayList<ComparableEvtObj>(
+                        recentMessages.subList(
+                            numberOfMessages, recentMessages.size()));
+
+                    recentMessages.removeAll(removedItems);
+                }
+            }
+        }
+
+        if(existingMsc != null)
+        {
+            if(recentQuery != null)
+            {
+                recentQuery.updateContact(
+                    existingMsc, existingMsc.getEventObject());
+                recentQuery.fireContactChanged(existingMsc);
             }
 
-            // save
+            return;
+        }
+
+        // save
+        if(newMsg != null)
             saveRecentMessageToHistory(newMsg);
 
-            // no query nothing to fire
-            if(recentQuery == null)
-                return;
+        // no query nothing to fire
+        if(recentQuery == null)
+            return;
 
-            // now fire
-            if(removedItems != null)
+        // now fire
+        if(removedItems != null)
+        {
+            for(ComparableEvtObj msc : removedItems)
             {
-                for(ComparableEvtObj msc : removedItems)
-                {
-                    recentQuery.fireContactRemoved(msc);
-                }
+                recentQuery.fireContactRemoved(msc);
             }
-
-            recentQuery.addQueryResult(newSourceContact);
         }
+
+        recentQuery.addQueryResult(newSourceContact);
     }
 
     /**
@@ -965,22 +982,19 @@ public class MessageSourceService
                 History history = getHistory();
                 HistoryWriter writer = history.getWriter();
 
-                synchronized(recentMessages)
-                {
-                    SimpleDateFormat sdf
-                        = new SimpleDateFormat(HistoryService.DATE_FORMAT);
+                SimpleDateFormat sdf
+                    = new SimpleDateFormat(HistoryService.DATE_FORMAT);
 
-                    writer.addRecord(
-                        new String[]
-                            {
-                                msc.getProtocolProviderService()
-                                    .getAccountID().getAccountUniqueID(),
-                                msc.getContactAddress(),
-                                sdf.format(msc.getTimestamp()),
-                                RECENT_MSGS_VER
-                            },
-                        NUMBER_OF_MSGS_IN_HISTORY);
-                }
+                writer.addRecord(
+                    new String[]
+                        {
+                            msc.getProtocolProviderService()
+                                .getAccountID().getAccountUniqueID(),
+                            msc.getContactAddress(),
+                            sdf.format(msc.getTimestamp()),
+                            RECENT_MSGS_VER
+                        },
+                    NUMBER_OF_MSGS_IN_HISTORY);
             }
             catch(IOException ex)
             {
@@ -1004,94 +1018,91 @@ public class MessageSourceService
 
                 HistoryWriter writer = history.getWriter();
 
-                synchronized(recentMessages)
-                {
-                    writer.updateRecord(
-                        new HistoryWriter.HistoryRecordUpdater()
+                writer.updateRecord(
+                    new HistoryWriter.HistoryRecordUpdater()
+                    {
+                        HistoryRecord hr;
+
+                        @Override
+                        public void setHistoryRecord(
+                            HistoryRecord historyRecord)
                         {
-                            HistoryRecord hr;
+                            this.hr = historyRecord;
+                        }
 
-                            @Override
-                            public void setHistoryRecord(
-                                HistoryRecord historyRecord)
+                        @Override
+                        public boolean isMatching()
+                        {
+                            boolean providerFound = false;
+                            boolean contactFound = false;
+                            for(int i = 0;
+                                i < hr.getPropertyNames().length;
+                                i++)
                             {
-                                this.hr = historyRecord;
-                            }
+                                String propName = hr.getPropertyNames()[i];
 
-                            @Override
-                            public boolean isMatching()
-                            {
-                                boolean providerFound = false;
-                                boolean contactFound = false;
-                                for(int i = 0;
-                                    i < hr.getPropertyNames().length;
-                                    i++)
+                                if(propName.equals(STRUCTURE_NAMES[0]))
                                 {
-                                    String propName = hr.getPropertyNames()[i];
-
-                                    if(propName.equals(STRUCTURE_NAMES[0]))
+                                    if(msg.getProtocolProviderService()
+                                        .getAccountID().getAccountUniqueID()
+                                        .equals(hr.getPropertyValues()[i]))
                                     {
-                                        if(msg.getProtocolProviderService()
-                                            .getAccountID().getAccountUniqueID()
-                                            .equals(hr.getPropertyValues()[i]))
-                                        {
-                                            providerFound = true;
-                                        }
-                                    }
-                                    else if(propName.equals(STRUCTURE_NAMES[1]))
-                                    {
-                                        if(msg.getContactAddress()
-                                            .equals(hr.getPropertyValues()[i]))
-                                        {
-                                            contactFound = true;
-                                        }
+                                        providerFound = true;
                                     }
                                 }
-
-
-                                return contactFound && providerFound;
-                            }
-
-                            @Override
-                            public Map<String, String> getUpdateChanges()
-                            {
-                                HashMap<String, String> map
-                                    = new HashMap<String, String>();
-                                SimpleDateFormat sdf
-                                    = new SimpleDateFormat(
-                                            HistoryService.DATE_FORMAT);
-
-                                for(int i = 0;
-                                    i < hr.getPropertyNames().length;
-                                    i++)
+                                else if(propName.equals(STRUCTURE_NAMES[1]))
                                 {
-                                    String propName = hr.getPropertyNames()[i];
-
-                                    if(propName.equals(STRUCTURE_NAMES[0]))
+                                    if(msg.getContactAddress()
+                                        .equals(hr.getPropertyValues()[i]))
                                     {
-                                        map.put(
-                                            propName,
-                                            msg.getProtocolProviderService()
-                                                .getAccountID()
-                                                .getAccountUniqueID());
+                                        contactFound = true;
                                     }
-                                    else if(propName.equals(STRUCTURE_NAMES[1]))
-                                    {
-                                        map.put(propName, msg.getContactAddress());
-                                    }
-                                    else if(propName.equals(STRUCTURE_NAMES[2]))
-                                    {
-                                        map.put(propName,
-                                            sdf.format(msg.getTimestamp()));
-                                    }
-                                    else if(propName.equals(STRUCTURE_NAMES[3]))
-                                        map.put(propName, RECENT_MSGS_VER);
                                 }
-
-                                return map;
                             }
-                        });
-                }
+
+
+                            return contactFound && providerFound;
+                        }
+
+                        @Override
+                        public Map<String, String> getUpdateChanges()
+                        {
+                            HashMap<String, String> map
+                                = new HashMap<String, String>();
+                            SimpleDateFormat sdf
+                                = new SimpleDateFormat(
+                                        HistoryService.DATE_FORMAT);
+
+                            for(int i = 0;
+                                i < hr.getPropertyNames().length;
+                                i++)
+                            {
+                                String propName = hr.getPropertyNames()[i];
+
+                                if(propName.equals(STRUCTURE_NAMES[0]))
+                                {
+                                    map.put(
+                                        propName,
+                                        msg.getProtocolProviderService()
+                                            .getAccountID()
+                                            .getAccountUniqueID());
+                                }
+                                else if(propName.equals(STRUCTURE_NAMES[1]))
+                                {
+                                    map.put(propName, msg.getContactAddress());
+                                }
+                                else if(propName.equals(STRUCTURE_NAMES[2]))
+                                {
+                                    map.put(propName,
+                                        sdf.format(msg.getTimestamp()));
+                                }
+                                else if(propName.equals(STRUCTURE_NAMES[3]))
+                                    map.put(propName, RECENT_MSGS_VER);
+                            }
+
+                            return map;
+                        }
+                    });
             }
             catch(IOException ex)
             {
