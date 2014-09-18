@@ -1247,10 +1247,13 @@ public class SdpUtils
 
             attrValue = attrValue.trim();
 
-            /* have to match payload type or wildcard */
+            /* have to match payload type or wildcard
             if(!attrValue.startsWith(payloadType + " ")
                     && !attrValue.startsWith("* "))
                 continue;
+                // Skip the check as it will skip all attributes
+                // that are for the whole stream, and not per codec
+            */
 
             ret.add(attr);
         }
