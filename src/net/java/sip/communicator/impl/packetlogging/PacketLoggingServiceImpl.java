@@ -759,6 +759,14 @@ public class PacketLoggingServiceImpl
         private final List<Packet> pktsToSave = new ArrayList<Packet>();
 
         /**
+         * Initializes a new <tt>SaverThread</tt>.
+         */
+        SaverThread()
+        {
+            setName(PacketLoggingServiceImpl.class.getName() + " SaverThread");
+        }
+
+        /**
          * Sends instant messages in separate thread so we don't block
          * our calling thread.
          */
