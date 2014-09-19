@@ -265,6 +265,20 @@ public class CallPeerMediaHandlerSipImpl
                                             .VoIPMetricsReportBlock
                                                 .SDP_PARAMETER);
                             }
+
+                            int ptimeSetting
+                                = SipActivator.getConfigurationService().getInt(
+                                    "net.java.sip.communicator.impl.protocol" +
+                                        ".sip.PTIME_VALUE",
+                                    20);
+                            // the default value is 20ms
+                            if(ptimeSetting != 20)
+                            {
+                                md.setAttribute(
+                                    "ptime",
+                                    String.valueOf(ptimeSetting));
+                            }
+
                             break;
                         case VIDEO:
                             // If we have a video preset, let's send info about
