@@ -16,6 +16,8 @@ import com.ircclouds.irc.api.state.*;
 /**
  * Manager for presence status of IRC connection.
  *
+ * TODO Check length of away message against server allowed size.
+ *
  * TODO Support for 'a' (Away) user mode. (Check this again, since I also see
  * 'a' used for other purposes. This may be one of those ambiguous letters that
  * every server interprets differently.)
@@ -63,7 +65,7 @@ public class PresenceManager
     /**
      * Proposed away message.
      */
-    private String submittedMessage = "";
+    private String submittedMessage = "Away";
 
     /**
      * Constructor.
@@ -119,20 +121,45 @@ public class PresenceManager
      * Set away status and message. Disable away status by providing
      * <tt>null</tt> message.
      *
-     * @param awayMessage away message to set. If away message is <tt>null</tt>
-     *            or empty away status will be cancelled.
+     * @param isAway <tt>true</tt> to enable away mode + message, or
+     *            <tt>false</tt> to disable
+     * @param awayMessage away message, the message is only available when the
+     *            local user is set to away. If <tt>null</tt> is provided, don't
+     *            set a new away message.
      */
-    public void setAway(final String awayMessage)
+    public void away(final boolean isAway, final String awayMessage)
     {
-        if (awayMessage == null || awayMessage.isEmpty())
+        if (awayMessage != null)
+        {
+            this.submittedMessage = verifyMessage(awayMessage);
+        }
+
+        if (isAway && (!this.away || awayMessage != null))
+        {
+            // In case we aren't AWAY yet, or in case the message has changed.
+            this.irc.rawMessage("AWAY :" + this.submittedMessage);
+        }
+        else if (isAway != this.away)
         {
             this.irc.rawMessage("AWAY");
         }
-        else
+    }
+
+    /**
+     * Set new prepared away message for later moment when IRC connection is set
+     * to away.
+     *
+     * @param message the away message to prepare
+     * @return returns message after verification
+     */
+    private String verifyMessage(final String message)
+    {
+        if (message == null || message.isEmpty())
         {
-            this.submittedMessage = awayMessage;
-            this.irc.rawMessage("AWAY :" + awayMessage);
+            throw new IllegalArgumentException(
+                "away message must be non-null and non-empty");
         }
+        return message;
     }
 
     /**

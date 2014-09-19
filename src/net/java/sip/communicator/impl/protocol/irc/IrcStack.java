@@ -1049,15 +1049,17 @@ public class IrcStack
      * Set or unset away message. In case the awayMessage is null the away
      * message will be disabled and as a consequence the away-status is removed.
      *
+     * @param away away status, <tt>true</tt> for away, <tt>false</tt> for
+     *            available
      * @param awayMessage the away message to set, or null to remove away-status
      */
-    public void away(final String awayMessage)
+    public void away(final boolean away, final String awayMessage)
     {
         if (!isConnected())
         {
             throw new IllegalStateException("Not connected to an IRC server.");
         }
-        this.presence.setAway(awayMessage);
+        this.presence.away(away, awayMessage);
     }
 
     /**

@@ -331,31 +331,26 @@ public class OperationSetPersistentPresenceIrcImpl
      */
     @Override
     public void publishPresenceStatus(final PresenceStatus status,
-        final String statusMessage)
+        String statusMessage)
         throws IllegalArgumentException,
         IllegalStateException,
         OperationFailedException
     {
+        if (statusMessage != null && statusMessage.isEmpty())
+        {
+            // if we provide a message, make sure it isn't empty
+            statusMessage =
+                IrcActivator.getResources().getI18NString(
+                    "service.gui.AWAY_STATUS");
+        }
         final IrcStack provider = this.parentProvider.getIrcStack();
         if (status.getStatus() >= IrcStatusEnum.AVAILABLE_THRESHOLD)
         {
-            provider.away(null);
+            provider.away(false, statusMessage);
         }
         else if (status.getStatus() >= IrcStatusEnum.AWAY_THRESHOLD)
         {
-            final String awayMessage;
-            if (statusMessage == null || statusMessage.isEmpty())
-            {
-                // FIXME replace with entry for default away message?
-                awayMessage =
-                    IrcActivator.getResources().getI18NString(
-                        "service.gui.AWAY_STATUS");
-            }
-            else
-            {
-                awayMessage = statusMessage;
-            }
-            provider.away(awayMessage);
+            provider.away(true, statusMessage);
         }
         else
         {
