@@ -68,7 +68,7 @@ public class Resources
             new String[] {"(y)", "(Y)", "(ok)"}, "Ok"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY11",
-            new String[] {";-)", ";)", ":-)", ":)"}, "Smile"));
+            new String[] {":-)", ":)"}, "Smile"));
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY12",
             new String[] {"(blush)"}, "Blushing"));
@@ -96,6 +96,9 @@ public class Resources
 
         defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY20",
             new String[] {"(oops)"}, "Oops"));
+
+        defaultSmileyList.add(new SmileyImpl("service.gui.smileys.SMILEY21",
+            new String[] {";-)", ";)"}, "Wink"));
 
         defaultSmileyPack
             = Collections.unmodifiableCollection(defaultSmileyList);

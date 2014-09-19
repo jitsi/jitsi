@@ -112,7 +112,9 @@ public class SmileysSelectorBox
          * Was the intention to have the division produce a real number?
          */
         int gridRowCount = itemsCount / gridColCount;
-        
+        if (itemsCount > gridRowCount*gridColCount)
+            gridColCount++;
+
         return new Dimension(gridColCount, gridRowCount);
     }
 
