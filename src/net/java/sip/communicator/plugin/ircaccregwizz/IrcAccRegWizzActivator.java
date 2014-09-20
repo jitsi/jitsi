@@ -18,6 +18,7 @@ import org.osgi.framework.*;
  * Registers the <tt>IrcAccountRegistrationWizard</tt> in the UI Service.
  *
  * @author Lionel Ferreira & Michael Tarantino
+ * @author Danny van Heumen
  */
 public class IrcAccRegWizzActivator
     extends AbstractServiceDependentActivator
@@ -106,7 +107,7 @@ public class IrcAccRegWizzActivator
      */
     public static ProtocolProviderFactory getIrcProtocolProviderFactory()
     {
-        ServiceReference[] serRefs = null;
+        ServiceReference<?>[] serRefs = null;
 
         String osgiFilter = "("
             + ProtocolProviderFactory.PROTOCOL

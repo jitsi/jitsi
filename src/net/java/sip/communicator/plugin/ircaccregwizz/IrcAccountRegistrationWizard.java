@@ -21,10 +21,15 @@ import org.osgi.framework.*;
  * the user to create and configure a new IRC account.
  *
  * @author Lionel Ferreira & Michael Tarantino
+ * @author Danny van Heumen
  */
 public class IrcAccountRegistrationWizard
     extends DesktopAccountRegistrationWizard
 {
+    private static final int WIZARD_DIALOG_HEIGHT = 500;
+
+    private static final int WIZARD_DIALOG_WIDTH = 600;
+
     private final Logger logger
         = Logger.getLogger(IrcAccountRegistrationWizard.class);
 
@@ -47,7 +52,7 @@ public class IrcAccountRegistrationWizard
      * @param wizardContainer the wizard container, where this wizard
      * is added
      */
-    public IrcAccountRegistrationWizard(WizardContainer wizardContainer)
+    public IrcAccountRegistrationWizard(final WizardContainer wizardContainer)
     {
         setWizardContainer(wizardContainer);
 
@@ -67,8 +72,8 @@ public class IrcAccountRegistrationWizard
     }
 
     /**
-     * Implements the <code>AccountRegistrationWizard.getPageImage</code> method.
-     * Returns the image used to decorate the wizard page
+     * Implements the <code>AccountRegistrationWizard.getPageImage</code>
+     * method. Returns the image used to decorate the wizard page
      *
      * @return byte[] the image used to decorate the wizard page
      */
@@ -127,19 +132,27 @@ public class IrcAccountRegistrationWizard
      * @return Iterator
      */
     @Override
-    public Iterator<Map.Entry<String,String>> getSummary()
+    public Iterator<Map.Entry<String, String>> getSummary()
     {
-        Hashtable<String,String> summaryTable = new Hashtable<String,String>();
+        Hashtable<String, String> summaryTable =
+            new Hashtable<String, String>();
         String pass = new String();
         String port = new String();
 
         if (registration.isRequiredPassword())
+        {
             pass = "required";
+        }
         else
+        {
             pass = "not required";
+        }
 
-        if (!(port = registration.getPort()).equals(""))
+        port = registration.getPort();
+        if (!port.equals(""))
+        {
             port = ":" + port;
+        }
 
         summaryTable.put("Password", pass);
         summaryTable.put("Nickname", registration.getUserID());
@@ -184,8 +197,8 @@ public class IrcAccountRegistrationWizard
      * @throws OperationFailedException if the operation didn't succeed
      */
     @Override
-    public ProtocolProviderService signin(String userName, String password)
-        throws OperationFailedException
+    public ProtocolProviderService signin(final String userName,
+        final String password) throws OperationFailedException
     {
         ProtocolProviderFactory factory
             = IrcAccRegWizzActivator.getIrcProtocolProviderFactory();
@@ -202,11 +215,9 @@ public class IrcAccountRegistrationWizard
      * @param user the user identifier
      * @return the <tt>ProtocolProviderService</tt> for the new account.
      */
-    public ProtocolProviderService installAccount(
-                                        ProtocolProviderFactory providerFactory,
-                                        String user,
-                                        String password)
-        throws OperationFailedException
+    private ProtocolProviderService installAccount(
+        final ProtocolProviderFactory providerFactory, final String user,
+        final String password) throws OperationFailedException
     {
         Hashtable<String, String> accountProperties
             = new Hashtable<String, String>();
@@ -236,15 +247,16 @@ public class IrcAccountRegistrationWizard
         accountProperties.put(
                 ProtocolProviderFactory.NO_PASSWORD_REQUIRED,
                 new Boolean(!registration.isRequiredPassword()).toString());
-        
+
         accountProperties.put(ProtocolProviderFactory.DEFAULT_ENCRYPTION,
             new Boolean(registration.isSecureConnection()).toString());
 
         if (isModification())
         {
-            providerFactory.uninstallAccount(protocolProvider.getAccountID());
-            this.protocolProvider = null;
+            providerFactory.modifyAccount(this.protocolProvider,
+                accountProperties);
             setModification(false);
+            return this.protocolProvider;
         }
 
         try
@@ -252,7 +264,7 @@ public class IrcAccountRegistrationWizard
             AccountID accountID = providerFactory.installAccount(
                 user, accountProperties);
 
-            ServiceReference serRef = providerFactory
+            ServiceReference<ProtocolProviderService> serRef = providerFactory
                 .getProviderForAccount(accountID);
 
             protocolProvider = (ProtocolProviderService)
@@ -286,7 +298,7 @@ public class IrcAccountRegistrationWizard
      * data from.
      */
     @Override
-    public void loadAccount(ProtocolProviderService protocolProvider)
+    public void loadAccount(final ProtocolProviderService protocolProvider)
     {
         setModification(true);
 
@@ -316,7 +328,7 @@ public class IrcAccountRegistrationWizard
     @Override
     public Dimension getSize()
     {
-        return new Dimension(600, 500);
+        return new Dimension(WIZARD_DIALOG_WIDTH, WIZARD_DIALOG_HEIGHT);
     }
 
     /**
@@ -376,7 +388,7 @@ public class IrcAccountRegistrationWizard
      * @return a simple account registration form
      */
     @Override
-    public Object getSimpleForm(boolean isCreateAccount)
+    public Object getSimpleForm(final boolean isCreateAccount)
     {
         firstWizardPage = new FirstWizardPage(this, "", "");
 

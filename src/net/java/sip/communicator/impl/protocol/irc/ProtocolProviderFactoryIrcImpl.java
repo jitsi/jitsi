@@ -127,16 +127,87 @@ public class ProtocolProviderFactoryIrcImpl
     /**
      * Modify an existing IRC account.
      *
-     * This method is not implemented. The current approach is te reinsert the
-     * account as if "newly" created.
-     *
      * {@inheritDoc}
      */
     @Override
     public void modifyAccount(final ProtocolProviderService protocolProvider,
         final Map<String, String> accountProperties)
     {
-        throw new UnsupportedOperationException(
-            "This method is currently not supported.");
+        // Make sure the specified arguments are valid.
+        if (protocolProvider == null)
+        {
+            throw new NullPointerException(
+                "The specified Protocol Provider was null");
+        }
+        if (!(protocolProvider instanceof ProtocolProviderServiceIrcImpl))
+        {
+            throw new IllegalArgumentException(
+                "expected IRC instance of ProtocolProviderService");
+        }
+        if (accountProperties == null)
+        {
+            throw new NullPointerException(
+                "The specified property map was null");
+        }
+
+        BundleContext context = IrcActivator.getBundleContext();
+        ProtocolProviderServiceIrcImpl ircProvider =
+            (ProtocolProviderServiceIrcImpl) protocolProvider;
+
+        if (context == null)
+        {
+            throw new NullPointerException(
+                "The specified BundleContext was null");
+        }
+
+        IrcAccountID accountID = (IrcAccountID) ircProvider.getAccountID();
+
+        // If the given accountID doesn't correspond to an existing account
+        // we return.
+        if (!registeredAccounts.containsKey(accountID))
+        {
+            return;
+        }
+
+        ServiceRegistration<ProtocolProviderService> registration =
+            registeredAccounts.get(accountID);
+
+        // kill the service
+        if (registration != null)
+        {
+            registration.unregister();
+        }
+
+        accountProperties.put(USER_ID, accountID.getUserID());
+
+        if (!accountProperties.containsKey(PROTOCOL))
+        {
+            accountProperties.put(PROTOCOL, ProtocolNames.IRC);
+        }
+
+        accountID.setAccountProperties(accountProperties);
+
+        // First store the account and only then load it as the load generates
+        // an OSGi event, the OSGi event triggers (through the UI) a call to
+        // the register() method and it needs to access the configuration
+        // service and check for a password.
+        this.storeAccount(accountID);
+
+        Hashtable<String, String> properties = new Hashtable<String, String>();
+        properties.put(PROTOCOL, ProtocolNames.IRC);
+        properties.put(USER_ID, accountID.getUserID());
+
+        ircProvider.initialize(accountID.getUserID(), accountID);
+
+        // We store again the account in order to store all properties added
+        // during the protocol provider initialization.
+        this.storeAccount(accountID);
+
+        registration =
+            (ServiceRegistration<ProtocolProviderService>) context
+                .registerService(ProtocolProviderService.class.getName(),
+                    protocolProvider, properties);
+
+        registeredAccounts.put(accountID, registration);
     }
 }
