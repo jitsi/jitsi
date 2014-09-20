@@ -1631,9 +1631,6 @@ public class IrcStack
             {
                 return;
             }
-
-            // FIXME Topic change event report message interprets HTML chars in
-            // channel name.
             this.chatroom.updateSubject(msg.getTopic().getValue());
         }
 
