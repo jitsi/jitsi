@@ -136,7 +136,7 @@ public class PresenceManager
 
         if (isAway && (!this.away || awayMessage != null))
         {
-            // In case we aren't AWAY yet, or in case the message has changed.
+            // In case we aren't AWAY yet, or if there is a message to set.
             this.irc.rawMessage("AWAY :" + this.submittedMessage);
         }
         else if (isAway != this.away)
