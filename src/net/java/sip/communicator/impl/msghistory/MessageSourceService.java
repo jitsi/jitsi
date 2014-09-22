@@ -238,8 +238,6 @@ public class MessageSourceService
         if(recentQuery == null)
             return;
 
-        List<MessageSourceContact> newSourceContacts
-            = new ArrayList<MessageSourceContact>();
         synchronized(recentMessages)
         {
             List<SourceContact> currentContactsInQuery
@@ -256,13 +254,11 @@ public class MessageSourceService
                             evtObj.getEventObject(),
                             MessageSourceService.this);
                     newSourceContact.initDetails(evtObj.getEventObject());
-                    newSourceContacts.add(newSourceContact);
+
+                    recentQuery.addQueryResult(newSourceContact);
                 }
             }
         }
-
-        for(MessageSourceContact nsc : newSourceContacts)
-            recentQuery.addQueryResult(nsc);
     }
 
     /**
@@ -794,8 +790,6 @@ public class MessageSourceService
         if(recentQuery == null)
             return;
 
-        List<ComparableEvtObj> toUpdate
-            = new ArrayList<ComparableEvtObj>();
         synchronized(recentMessages)
         {
             for(ComparableEvtObj msg : recentMessages)
@@ -803,13 +797,10 @@ public class MessageSourceService
                 if(msg.getContact() != null
                     && msg.getContact().equals(evt.getSourceContact()))
                 {
-                    toUpdate.add(msg);
+                    recentQuery.updateContactStatus(msg, evt.getNewStatus());
                 }
             }
         }
-
-        for(ComparableEvtObj msg : toUpdate)
-            recentQuery.updateContactStatus(msg, evt.getNewStatus());
     }
 
     @Override
@@ -884,13 +875,10 @@ public class MessageSourceService
                         ProtocolProviderService provider,
                         String id)
     {
-        ComparableEvtObj existingMsc = null;
-        MessageSourceContact newSourceContact = null;
-        List<ComparableEvtObj> removedItems = null;
-        ComparableEvtObj newMsg = null;
         // check if provider - contact exist update message content
         synchronized(recentMessages)
         {
+            ComparableEvtObj existingMsc = null;
             for(ComparableEvtObj msc : recentMessages)
             {
                 if(msc.getProtocolProviderService().equals(provider)
@@ -909,64 +897,59 @@ public class MessageSourceService
                 Collections.sort(recentMessages);
                 oldestRecentMessage = recentMessages
                     .get(recentMessages.size() - 1).getTimestamp();
-            }
-            else
-            {
-                // if missing create source contact
-                // and update recent messages, trim and sort
-                newSourceContact =
-                    new MessageSourceContact(obj, MessageSourceService.this);
-                newSourceContact.initDetails(obj);
-                // we have already checked for duplicate
-                newMsg = new ComparableEvtObj(obj);
-                recentMessages.add(newMsg);
 
-                Collections.sort(recentMessages);
-                oldestRecentMessage
-                    = recentMessages.get(recentMessages.size() - 1).getTimestamp();
-
-                // trim
-                if(recentMessages.size() > numberOfMessages)
+                if(recentQuery != null)
                 {
-                    removedItems = new ArrayList<ComparableEvtObj>(
-                        recentMessages.subList(
-                            numberOfMessages, recentMessages.size()));
-
-                    recentMessages.removeAll(removedItems);
+                    recentQuery.updateContact(
+                        existingMsc, existingMsc.getEventObject());
+                    recentQuery.fireContactChanged(existingMsc);
                 }
-            }
-        }
 
-        if(existingMsc != null)
-        {
-            if(recentQuery != null)
+                return;
+            }
+
+            // if missing create source contact
+            // and update recent messages, trim and sort
+            MessageSourceContact newSourceContact =
+                new MessageSourceContact(obj, MessageSourceService.this);
+            newSourceContact.initDetails(obj);
+            // we have already checked for duplicate
+            ComparableEvtObj newMsg = new ComparableEvtObj(obj);
+            recentMessages.add(newMsg);
+
+            Collections.sort(recentMessages);
+            oldestRecentMessage
+                = recentMessages.get(recentMessages.size() - 1).getTimestamp();
+
+            // trim
+            List<ComparableEvtObj> removedItems = null;
+            if(recentMessages.size() > numberOfMessages)
             {
-                recentQuery.updateContact(
-                    existingMsc, existingMsc.getEventObject());
-                recentQuery.fireContactChanged(existingMsc);
+                removedItems = new ArrayList<ComparableEvtObj>(
+                    recentMessages.subList(
+                        numberOfMessages, recentMessages.size()));
+
+                recentMessages.removeAll(removedItems);
             }
 
-            return;
-        }
-
-        // save
-        if(newMsg != null)
+            // save
             saveRecentMessageToHistory(newMsg);
 
-        // no query nothing to fire
-        if(recentQuery == null)
-            return;
+            // no query nothing to fire
+            if(recentQuery == null)
+                return;
 
-        // now fire
-        if(removedItems != null)
-        {
-            for(ComparableEvtObj msc : removedItems)
+            // now fire
+            if(removedItems != null)
             {
-                recentQuery.fireContactRemoved(msc);
+                for(ComparableEvtObj msc : removedItems)
+                {
+                    recentQuery.fireContactRemoved(msc);
+                }
             }
-        }
 
-        recentQuery.addQueryResult(newSourceContact);
+            recentQuery.addQueryResult(newSourceContact);
+        }
     }
 
     /**
