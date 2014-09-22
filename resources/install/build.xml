@@ -2374,7 +2374,6 @@
                 <include name="**/*"/>
                 <exclude name="**/growlnotification/**"/>
                 <exclude name="${extra.exclude}"/>
-                <exclude name="${extra.exclude2}"/>
                 <exclude name="**/dict/**"/>
                 <exclude name="**/dictaccregwizz/**"/>
                 <exclude name="**/ssh/**"/>
@@ -2435,7 +2434,6 @@
         <antcall target="deb-copy-jitsi">
             <param name="target.dir" value="${debian.src.dir}"/>
             <param name="extra.exclude" value="**/impl/googlecontacts/**"/>
-            <param name="extra.exclude2" value="**/plugin/thunderbird/**"/>
         </antcall>
 
         <property name="debianize.dir" value="${debian.src.dir}/debian" />
@@ -2550,9 +2548,9 @@
                 </patternset>
         </unzip>-->
 
-        <!-- jmork
+        <!-- jmork -->
         <unzip src="${sc.basedir}/../libsrc/jmork-1.0.5-SNAPSHOT-sources.jar"
-               dest="${debian.src.dir}/lib/src/jmork"/>-->
+               dest="${debian.src.dir}/lib/src/jmork"/>
 
         <!-- native -->
         <mkdir dir="${debian.src.dir}/lib/native/linux"/>
@@ -2615,9 +2613,9 @@
         <delete dir="${debian.src.dir}/lib/src/gdata-java-client/java/classes"
                 failonerror="false"/>
         <delete dir="${debian.src.dir}/lib/src/gdata-java-client/java/genfiles"
-                failonerror="false"/>
-        <delete dir="${debian.src.dir}/lib/src/jmork/classes"
                 failonerror="false"/-->
+        <delete dir="${debian.src.dir}/lib/src/jmork/classes"
+                failonerror="false"/>
 
         <!-- delete all jars -->
         <delete failonerror="false">
@@ -3080,7 +3078,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude/hsqldb.jar"/>
 
-        <!-- compile and pack jmork
+        <!-- compile and pack jmork -->
         <property name="jmork.src.folder" value="${debian.src.dir}/lib/src/jmork"/>
         <mkdir dir="${jmork.src.folder}/classes" />
         <javac debug="false" optimize="true"
@@ -3108,7 +3106,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         </jar>
         <symlink resource="../src/jmork/jmork-1.0.5-SNAPSHOT.jar"
                  overwrite="true"
-                 link="${debian.src.dir}/lib/installer-exclude"/>-->
+                 link="${debian.src.dir}/lib/installer-exclude"/>
 
         <symlink resource="/usr/share/java/junit.jar"
              overwrite="true"
