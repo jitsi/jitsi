@@ -14,7 +14,6 @@ import java.util.concurrent.*;
 import net.java.otr4j.*;
 import net.java.otr4j.crypto.*;
 import net.java.otr4j.session.*;
-import net.java.sip.communicator.impl.protocol.irc.*;
 import net.java.sip.communicator.plugin.otr.OtrContactManager.OtrContact;
 import net.java.sip.communicator.plugin.otr.authdialog.*;
 import net.java.sip.communicator.service.browserlauncher.*;
@@ -431,33 +430,43 @@ public class ScOtrEngineImpl
             final SessionID sessionID)
         {
             final OtrContact otrContact = getOtrContact(sessionID);
-            // FIXME Change this into querying an Operation Set that provides
-            // Instant Message medium/transport information that we can use to
-            // determine fragmentation parameters.
-            if (ProtocolNames.IRC.equals(otrContact.contact
-                .getProtocolProvider().getProtocolName()))
+            final OperationSetBasicInstantMessagingTransport transport =
+                otrContact.contact.getProtocolProvider().getOperationSet(
+                    OperationSetBasicInstantMessagingTransport.class);
+            if (transport == null)
             {
-                // :<nick>!<user>@<host> PRIVMSG <targetnick> :<message>
-                //
-                // Example:
-                // :ircotrtest!~ircotrtes@77-175-185-165.FTTH.ispfabriek.nl
-                // PRIVMSG test12345abc :
-                final String identity =
-                    ((ProtocolProviderServiceIrcImpl) otrContact.contact
-                        .getProtocolProvider()).getIrcStack()
-                        .getIdentityString();
-                final int size =
-                    510 - (":" + identity + " PRIVMSG "
-                        + otrContact.contact.getAddress() + " :").length();
-                return new FragmenterInstructions(
-                    FragmenterInstructions.UNLIMITED, size);
+                // There is no operation set for querying transport parameters.
+                // Assuming transport capabilities are unlimited.
+                if (logger.isDebugEnabled())
+                {
+                    logger.debug("No implementation of "
+                        + "BasicInstantMessagingTransport available. Assuming "
+                        + "OTR defaults for OTR fragmentation instructions.");
+                }
+                return null;
             }
-            else
+            int messageSize = transport.maximumMessageSize(otrContact.contact);
+            if (messageSize
+                == OperationSetBasicInstantMessagingTransport.UNLIMITED)
             {
-                return new FragmenterInstructions(
-                    FragmenterInstructions.UNLIMITED,
-                    FragmenterInstructions.UNLIMITED);
+                messageSize = FragmenterInstructions.UNLIMITED;
             }
+            int numberOfMessages =
+                transport.numberOfMessages(otrContact.contact);
+            if (numberOfMessages
+                == OperationSetBasicInstantMessagingTransport.UNLIMITED)
+            {
+                numberOfMessages = FragmenterInstructions.UNLIMITED;
+            }
+            if (logger.isDebugEnabled())
+            {
+                logger.debug("OTR fragmentation instructions for sending a "
+                    + "message to " + otrContact.contact.getDisplayName()
+                    + " (" + otrContact.contact.getAddress()
+                    + "). Maximum number of " + "messages: " + numberOfMessages
+                    + ", maximum message size: " + messageSize);
+            }
+            return new FragmenterInstructions(numberOfMessages, messageSize);
         }
     }
 

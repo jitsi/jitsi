@@ -60,6 +60,12 @@ public class IrcStack
      */
 
     /**
+     * Maximum message size for IRC messages given the spec specifies a buffer
+     * of 512 bytes. The command ending (CRLF) takes up 2 bytes.
+     */
+    private static final int IRC_PROTOCOL_MAXIMUM_MESSAGE_SIZE = 510;
+
+    /**
      * Clean-up delay. The clean up task clears any remaining chat room list
      * cache. Since there's no pointing in timing it exactly, delay the clean up
      * until after expiration.
@@ -1184,6 +1190,20 @@ public class IrcStack
     private static ChatRoomMemberRole convertMemberMode(final char modeSymbol)
     {
         return Mode.bySymbol(modeSymbol).getRole();
+    }
+
+    /**
+     * Calculate maximum message size that can be transmitted.
+     *
+     * @param contact receiving contact
+     * @return returns maximum message size
+     */
+    public int calculateMaximumMessageSize(final Contact contact)
+    {
+        final String identity = getIdentityString();
+        return IRC_PROTOCOL_MAXIMUM_MESSAGE_SIZE
+            - (":" + identity + " PRIVMSG " + contact.getAddress() + " :")
+                .length();
     }
 
     /**

@@ -122,7 +122,12 @@ public class ProtocolProviderServiceIrcImpl
             this.instantMessaging =
                 new OperationSetBasicInstantMessagingIrcImpl(this);
 
+            // Register basic instant messaging support.
             addSupportedOperationSet(OperationSetBasicInstantMessaging.class,
+                this.instantMessaging);
+            // Register basic instant messaging transport support.
+            addSupportedOperationSet(
+                OperationSetBasicInstantMessagingTransport.class,
                 this.instantMessaging);
 
             //Initialize persistent presence

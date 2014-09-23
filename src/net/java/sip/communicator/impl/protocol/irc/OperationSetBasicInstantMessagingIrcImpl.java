@@ -1,6 +1,6 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Distributable under LGPL license. See terms of license at gnu.org.
  */
 package net.java.sip.communicator.impl.protocol.irc;
@@ -17,11 +17,13 @@ import net.java.sip.communicator.util.*;
  */
 public class OperationSetBasicInstantMessagingIrcImpl
     extends AbstractOperationSetBasicInstantMessaging
+    implements OperationSetBasicInstantMessagingTransport
 {
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(OperationSetBasicInstantMessagingIrcImpl.class);
+    private static final Logger LOGGER = Logger
+        .getLogger(OperationSetBasicInstantMessagingIrcImpl.class);
 
     /**
      * IRC protocol provider service.
@@ -171,7 +173,8 @@ public class OperationSetBasicInstantMessagingIrcImpl
      * @param from the sender
      */
     @Override
-    protected void fireMessageReceived(final Message message, final Contact from)
+    protected void fireMessageReceived(final Message message,
+        final Contact from)
     {
         super.fireMessageReceived(message, from);
     }
@@ -200,5 +203,30 @@ public class OperationSetBasicInstantMessagingIrcImpl
         final Contact to, final int errorCode)
     {
         super.fireMessageDeliveryFailed(message, to, errorCode);
+    }
+
+    /**
+     * Calculate the maximum message size for IRC messages.
+     *
+     * @param contact the contact receiving the message
+     * @return returns the size the message can be at maximum to receive a
+     *         complete message.
+     */
+    @Override
+    public int maximumMessageSize(final Contact contact)
+    {
+        return this.provider.getIrcStack().calculateMaximumMessageSize(contact);
+    }
+
+    /**
+     * Calculate number of messages allowed to send over IRC.
+     *
+     * @param contact contact receiving the messages
+     * @return returns number of messages that can be received at maximum
+     */
+    @Override
+    public int numberOfMessages(final Contact contact)
+    {
+        return OperationSetBasicInstantMessagingTransport.UNLIMITED;
     }
 }
