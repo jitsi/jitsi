@@ -1944,8 +1944,13 @@ public class TreeContactList
                         = imDetails.get(0).getPreferredProtocolProvider(
                                 OperationSetBasicInstantMessaging.class);
 
-                    GuiActivator.getUIService().getChatWindowManager()
-                        .startChat(contact.getContactAddress(), pps);
+                    if (pps != null)
+                        GuiActivator.getUIService().getChatWindowManager()
+                            .startChat(contact.getContactAddress(),
+                                       pps);
+                    else
+                        GuiActivator.getUIService().getChatWindowManager()
+                            .startChat(contact.getContactAddress());
                 }
                 else if(mucDetails != null && mucDetails.size() > 0)
                 {

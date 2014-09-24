@@ -999,6 +999,20 @@ public class ChatWindowManager
                             break;
                         }
                     }
+                    else
+                    {
+                        contact = 
+                            presenceOpSet.createUnresolvedContact(
+                                    contactString, null);
+                        metaContact = 
+                            metaContactListService.findMetaContactByContact(
+                                    contact); 
+                        if (metaContact != null)
+                        {
+                            startChat = true;
+                            break;
+                        }
+                    }
                 }
             }
             catch (Throwable t)

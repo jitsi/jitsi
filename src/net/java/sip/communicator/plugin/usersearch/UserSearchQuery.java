@@ -106,8 +106,9 @@ public class UserSearchQuery
             return;
 
         List<Class<? extends OperationSet>> supportedOpSets
-            = new ArrayList<Class<? extends OperationSet>>(1);
+            = new ArrayList<Class<? extends OperationSet>>(2);
         supportedOpSets.add(OperationSetPersistentPresence.class);
+        supportedOpSets.add(OperationSetBasicInstantMessaging.class);
 
         ContactDetail detail = new ContactDetail(queryString);
 

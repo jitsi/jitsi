@@ -358,9 +358,13 @@ public class ContactListTreeCellRenderer
                                 = imDetails.get(0).getPreferredProtocolProvider(
                                     OperationSetBasicInstantMessaging.class);
 
-                            GuiActivator.getUIService().getChatWindowManager()
-                                .startChat(contact.getContactAddress(),
-                                           pps);
+                            if (pps != null)
+                                GuiActivator.getUIService().getChatWindowManager()
+                                    .startChat(contact.getContactAddress(),
+                                               pps);
+                            else
+                                GuiActivator.getUIService().getChatWindowManager()
+                                    .startChat(contact.getContactAddress());
                         }
                         else if(mucDetails != null && mucDetails.size() > 0)
                         {
@@ -990,9 +994,8 @@ public class ContactListTreeCellRenderer
             return;
 
         UIContactDetail imContact = null;
-        // For now we support instance messaging only for contacts in our
-        // contact list until it's implemented for external source contacts.
-        if (uiContact.getDescriptor() instanceof MetaContact)
+        if (uiContact.getDescriptor() instanceof MetaContact ||
+            uiContact.getDescriptor() instanceof SourceContact)
             imContact = uiContact.getDefaultContactDetail(
                          OperationSetBasicInstantMessaging.class);
 
