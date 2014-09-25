@@ -68,11 +68,8 @@ public class CallHistoryActivator
         try{
             logger.logEntry();
 
-            ServiceReference refHistory = bundleContext.getServiceReference(
-                HistoryService.class.getName());
-
-            HistoryService historyService = (HistoryService)
-                bundleContext.getService(refHistory);
+            HistoryService historyService
+                = ServiceUtils.getService(bundleContext, HistoryService.class);
 
             //Create and start the call history service.
             callHistoryService =
@@ -150,27 +147,28 @@ public class CallHistoryActivator
     public static Map<Object, ProtocolProviderFactory>
         getProtocolProviderFactories()
     {
-        ServiceReference[] serRefs = null;
+        Collection<ServiceReference<ProtocolProviderFactory>> serRefs;
         try
         {
             // get all registered provider factories
-            serRefs =
-                bundleContext.getServiceReferences(
-                    ProtocolProviderFactory.class.getName(), null);
+            serRefs
+                = bundleContext.getServiceReferences(
+                        ProtocolProviderFactory.class,
+                        null);
 
         }
         catch (InvalidSyntaxException e)
         {
+            serRefs = null;
             logger.error("LoginManager : " + e);
         }
 
         if (serRefs != null)
         {
-            for (ServiceReference serRef : serRefs)
+            for (ServiceReference<ProtocolProviderFactory> serRef : serRefs)
             {
                 ProtocolProviderFactory providerFactory
-                    = (ProtocolProviderFactory)
-                        bundleContext.getService(serRef);
+                    = bundleContext.getService(serRef);
 
                 providerFactoriesMap.put(
                         serRef.getProperty(ProtocolProviderFactory.PROTOCOL),

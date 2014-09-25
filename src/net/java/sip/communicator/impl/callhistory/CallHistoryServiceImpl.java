@@ -618,39 +618,35 @@ public class CallHistoryServiceImpl
         // start listening for newly register or removed protocol providers
         bc.addServiceListener(this);
 
-        ServiceReference[] protocolProviderRefs = null;
+        Collection<ServiceReference<ProtocolProviderService>> ppsRefs;
 
         try
         {
-            protocolProviderRefs
-                = bc.getServiceReferences(
-                        ProtocolProviderService.class.getName(),
-                        null);
+            ppsRefs
+                = bc.getServiceReferences(ProtocolProviderService.class, null);
         }
         catch (InvalidSyntaxException ex)
         {
+            ppsRefs = null;
             // this shouldn't happen since we're providing no parameter string
             // but let's log just in case.
             logger.error("Error while retrieving service refs", ex);
         }
 
         // in case we found any
-        if (protocolProviderRefs != null)
+        if (ppsRefs != null)
         {
             if (logger.isDebugEnabled())
             {
                 logger.debug(
-                        "Found "
-                            + protocolProviderRefs.length
+                        "Found " + ppsRefs.size()
                             + " already installed providers.");
             }
-            for (ServiceReference protocolProviderRef : protocolProviderRefs)
+            for (ServiceReference<ProtocolProviderService> ppsRef : ppsRefs)
             {
-                ProtocolProviderService provider
-                    = (ProtocolProviderService)
-                        bc.getService(protocolProviderRef);
+                ProtocolProviderService pps = bc.getService(ppsRef);
 
-                this.handleProviderAdded(provider);
+                this.handleProviderAdded(pps);
             }
         }
     }
@@ -664,32 +660,29 @@ public class CallHistoryServiceImpl
     {
         bc.removeServiceListener(this);
 
-        ServiceReference[] protocolProviderRefs = null;
+        Collection<ServiceReference<ProtocolProviderService>> ppsRefs;
 
         try
         {
-            protocolProviderRefs
-                = bc.getServiceReferences(
-                        ProtocolProviderService.class.getName(),
-                        null);
+            ppsRefs
+                = bc.getServiceReferences(ProtocolProviderService.class, null);
         }
         catch (InvalidSyntaxException ex)
         {
+            ppsRefs = null;
             // this shouldn't happen since we're providing no parameter string
             // but let's log just in case.
             logger.error("Error while retrieving service refs", ex);
         }
 
         // in case we found any
-        if (protocolProviderRefs != null)
+        if (ppsRefs != null)
         {
-            for (ServiceReference protocolProviderRef : protocolProviderRefs)
+            for (ServiceReference<ProtocolProviderService> ppsRef : ppsRefs)
             {
-                ProtocolProviderService provider
-                    = (ProtocolProviderService)
-                        bc.getService(protocolProviderRef);
+                ProtocolProviderService pps = bc.getService(ppsRef);
 
-                this.handleProviderRemoved(provider);
+                this.handleProviderRemoved(pps);
             }
         }
     }

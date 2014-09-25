@@ -11,7 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Base64; // disambiguation
+import net.java.sip.communicator.util.Base64;
 
 import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
@@ -20,7 +20,7 @@ import org.osgi.framework.*;
  * Represents an implementation of <tt>AccountManager</tt> which loads the
  * accounts in a separate thread.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Yana Stamcheva
  */
 public class AccountManager
@@ -286,35 +286,37 @@ public class AccountManager
                                     boolean includeHidden,
                                     String userID)
     {
-        ServiceReference[] factoryRefs = null;
+        Collection<ServiceReference<ProtocolProviderFactory>> factoryRefs;
         boolean hasStoredAccounts = false;
 
         try
         {
             factoryRefs
                 = bundleContext.getServiceReferences(
-                    ProtocolProviderFactory.class.getName(), null);
+                        ProtocolProviderFactory.class,
+                        null);
         }
         catch (InvalidSyntaxException ex)
         {
+            factoryRefs = null;
             logger.error(
                 "Failed to retrieve the registered ProtocolProviderFactories",
                 ex);
         }
 
-        if ((factoryRefs != null) && (factoryRefs.length > 0))
+        if ((factoryRefs != null) && !factoryRefs.isEmpty())
         {
             ConfigurationService configService
                 = ProtocolProviderActivator.getConfigurationService();
 
-            for (ServiceReference factoryRef : factoryRefs)
+            for (ServiceReference<ProtocolProviderFactory> factoryRef
+                    : factoryRefs)
             {
                 ProtocolProviderFactory factory
-                    = (ProtocolProviderFactory)
-                        bundleContext.getService(factoryRef);
+                    = bundleContext.getService(factoryRef);
 
                 if ((protocolName != null)
-                    && !protocolName.equals(factory.getProtocolName()))
+                        && !protocolName.equals(factory.getProtocolName()))
                 {
                     continue;
                 }
@@ -397,31 +399,33 @@ public class AccountManager
      */
     public AccountID findAccountID(String uid)
     {
-        ServiceReference[] factoryRefs = null;
+        Collection<ServiceReference<ProtocolProviderFactory>> factoryRefs;
 
         try
         {
             factoryRefs
                 = bundleContext.getServiceReferences(
-                    ProtocolProviderFactory.class.getName(), null);
+                        ProtocolProviderFactory.class,
+                        null);
         }
         catch (InvalidSyntaxException ex)
         {
+            factoryRefs = null;
             logger.error(
                 "Failed to retrieve the registered ProtocolProviderFactories",
                 ex);
         }
 
-        if ((factoryRefs != null) && (factoryRefs.length > 0))
+        if ((factoryRefs != null) && !factoryRefs.isEmpty())
         {
             ConfigurationService configService
                 = ProtocolProviderActivator.getConfigurationService();
 
-            for (ServiceReference factoryRef : factoryRefs)
+            for (ServiceReference<ProtocolProviderFactory> factoryRef
+                    : factoryRefs)
             {
                 ProtocolProviderFactory factory
-                    = (ProtocolProviderFactory)
-                        bundleContext.getService(factoryRef);
+                    = bundleContext.getService(factoryRef);
 
                 String factoryPackage = getFactoryImplPackageName(factory);
                 List<String> storedAccountsProps
@@ -508,8 +512,8 @@ public class AccountManager
                     }
                 };
                 loadStoredAccountsThread.setDaemon(true);
-                loadStoredAccountsThread
-                    .setName("AccountManager.loadStoredAccounts");
+                loadStoredAccountsThread.setName(
+                        "AccountManager.loadStoredAccounts");
                 loadStoredAccountsThread.start();
             }
         }
@@ -1022,15 +1026,15 @@ public class AccountManager
                 accountID.getProtocolName());
 
         // Obtain the protocol provider.
-        ServiceReference serRef
+        ServiceReference<ProtocolProviderService> serRef
             = providerFactory.getProviderForAccount(accountID);
 
         // If there's no such provider we have nothing to do here.
         if (serRef == null)
             return;
 
-        ProtocolProviderService protocolProvider =
-            (ProtocolProviderService) bundleContext.getService(serRef);
+        ProtocolProviderService protocolProvider
+            = bundleContext.getService(serRef);
 
         // Set the account icon path for unloaded accounts.
         String iconPathProperty = accountID.getAccountPropertyString(

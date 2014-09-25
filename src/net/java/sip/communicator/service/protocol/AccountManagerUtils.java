@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.protocol.event.*;
 
 import org.osgi.framework.*;
@@ -13,17 +15,15 @@ import org.osgi.framework.*;
 /**
  * Provides utilities to aid the manipulation of {@link AccountManager}.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public final class AccountManagerUtils
 {
     private static AccountManager getAccountManager(BundleContext bundleContext)
     {
         return
-            (AccountManager)
-                bundleContext.getService(
-                    bundleContext.getServiceReference(
-                        AccountManager.class.getName()));
+            bundleContext.getService(
+                    bundleContext.getServiceReference(AccountManager.class));
     }
 
     /**
@@ -92,14 +92,13 @@ public final class AccountManagerUtils
                     if (bundleContext == null)
                         return;
 
-                    ServiceReference[] factoryRefs;
+                    Collection<ServiceReference<ProtocolProviderFactory>> factoryRefs;
 
                     try
                     {
                         factoryRefs
-                            = bundleContext
-                                .getServiceReferences(
-                                    ProtocolProviderFactory.class.getName(),
+                            = bundleContext.getServiceReferences(
+                                    ProtocolProviderFactory.class,
                                     "("
                                         + ProtocolProviderFactory.PROTOCOL
                                         + "="
@@ -119,13 +118,15 @@ public final class AccountManagerUtils
                     {
                         boolean factoryIsRegistered = false;
 
-                        for (ServiceReference factoryRef : factoryRefs)
+                        for (ServiceReference<ProtocolProviderFactory> factoryRef
+                                : factoryRefs)
+                        {
                             if (factory == bundleContext.getService(factoryRef))
                             {
                                 factoryIsRegistered = true;
                                 break;
                             }
-
+                        }
                         if (!factoryIsRegistered)
                             return;
                     }

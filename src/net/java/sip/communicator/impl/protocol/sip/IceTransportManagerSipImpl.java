@@ -91,10 +91,10 @@ public class IceTransportManagerSipImpl
         iceAgent.setControlling(true);
 
         //add the candidate attributes and set default candidates
-        for(MediaDescription mLine : SdpUtils.extractMediaDescriptions(ourOffer))
+        for(MediaDescription mLine
+                : SdpUtils.extractMediaDescriptions(ourOffer))
         {
-            IceMediaStream iceStream = createIceStream(
-                SdpUtils.getMediaType(mLine).toString(), iceAgent);
+            createIceStream(SdpUtils.getMediaType(mLine).toString(), iceAgent);
         }
 
         //now that our iceAgent is ready, reflect it on our offer.
@@ -134,7 +134,7 @@ public class IceTransportManagerSipImpl
      * @return the content list that we received earlier (possibly cloned into
      * a new instance) and that we have updated with transport lists.
      */
-    public List<Candidate> wrapupCandidateHarvest()
+    public List<Candidate<?>> wrapupCandidateHarvest()
     {
         return null;
     }

@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.browserlauncher;
 
 import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.util.*;
+
 import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
@@ -15,7 +16,7 @@ import org.osgi.framework.*;
  * Implements <tt>BundleActivator</tt> for the browserlauncher bundle.
  *
  * @author Yana Stamcheva
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Pawel Domas
  */
 public class BrowserLauncherActivator
@@ -73,11 +74,10 @@ public class BrowserLauncherActivator
     {
         if (configService == null && bundleContext != null)
         {
-            ServiceReference serviceReference = bundleContext
-                    .getServiceReference(ConfigurationService.class.getName());
-
-            configService = (ConfigurationService)bundleContext
-                    .getService(serviceReference);
+            configService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ConfigurationService.class);
         }
 
         return configService;
