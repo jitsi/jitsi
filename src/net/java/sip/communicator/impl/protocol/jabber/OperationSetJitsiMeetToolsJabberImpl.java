@@ -17,6 +17,28 @@ import org.jivesoftware.smack.packet.*;
 public class OperationSetJitsiMeetToolsJabberImpl
     implements OperationSetJitsiMeetTools
 {
+    private final ProtocolProviderServiceJabberImpl parentProvider;
+
+    /**
+     * Creates new instance of <tt>OperationSetJitsiMeetToolsJabberImpl</tt>.
+     *
+     * @param parentProvider parent Jabber protocol provider service instance.
+     */
+    public OperationSetJitsiMeetToolsJabberImpl(
+            ProtocolProviderServiceJabberImpl parentProvider)
+    {
+        this.parentProvider = parentProvider;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void addSupportedFeature(String featureName)
+    {
+        parentProvider.getDiscoveryManager().addFeature(featureName);
+    }
+
     /**
      * {@inheritDoc}
      */

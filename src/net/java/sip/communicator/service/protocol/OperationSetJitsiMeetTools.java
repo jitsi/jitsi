@@ -18,6 +18,14 @@ public interface OperationSetJitsiMeetTools
     extends OperationSet
 {
     /**
+     * Adds given feature to communication protocol capabilities list of parent
+     * {@link ProtocolProviderService}.
+     *
+     * @param featureName feature name to be added to the capabilities list.
+     */
+    public void addSupportedFeature(String featureName);
+
+    /**
      * Includes given <tt>PacketExtension</tt> in multi user chat presence and
      * sends presence update packet to the chat room.
      * @param chatRoom the <tt>ChatRoom</tt> for which the presence will be

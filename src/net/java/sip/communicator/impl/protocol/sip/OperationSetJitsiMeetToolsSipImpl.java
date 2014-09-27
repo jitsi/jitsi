@@ -103,6 +103,15 @@ public class OperationSetJitsiMeetToolsSipImpl
      * {@inheritDoc}
      */
     @Override
+    public void addSupportedFeature(String featureName)
+    {
+        throw new RuntimeException("Not implemented for SIP");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void sendPresenceExtension(ChatRoom chatRoom,
                                       PacketExtension extension)
     {

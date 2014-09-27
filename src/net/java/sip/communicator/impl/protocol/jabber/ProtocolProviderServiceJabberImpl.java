@@ -1695,7 +1695,7 @@ public class ProtocolProviderServiceJabberImpl
 
             addSupportedOperationSet(
                 OperationSetJitsiMeetTools.class,
-                new OperationSetJitsiMeetToolsJabberImpl());
+                new OperationSetJitsiMeetToolsJabberImpl(this));
 
             addSupportedOperationSet(
                 OperationSetServerStoredContactInfo.class,
