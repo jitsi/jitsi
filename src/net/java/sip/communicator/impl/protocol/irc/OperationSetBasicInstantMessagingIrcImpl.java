@@ -114,7 +114,7 @@ public class OperationSetBasicInstantMessagingIrcImpl
 
                 try
                 {
-                    if (message.isCommand())
+                    if (!event.isMessageEncrypted() && message.isCommand())
                     {
                         this.provider.getIrcStack().command(to, message);
                     }
