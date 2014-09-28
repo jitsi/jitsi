@@ -311,10 +311,11 @@ public class OperationSetPersistentPresenceIrcImpl
     @Override
     public PresenceStatus getPresenceStatus()
     {
-        if (this.parentProvider.getIrcStack().isConnected())
+        final IrcConnection connection =
+            this.parentProvider.getIrcStack().getConnection();
+        if (connection != null && connection.isConnected())
         {
-            return this.parentProvider.getIrcStack().isAway()
-                ? IrcStatusEnum.AWAY
+            return connection.isAway() ? IrcStatusEnum.AWAY
                 : IrcStatusEnum.ONLINE;
         }
         else
@@ -336,19 +337,25 @@ public class OperationSetPersistentPresenceIrcImpl
         IllegalStateException,
         OperationFailedException
     {
+        final IrcConnection connection =
+            this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            return;
+        }
         if (statusMessage != null && statusMessage.isEmpty())
         {
             // if we provide a message, make sure it isn't empty
             statusMessage = null;
         }
-        final IrcStack provider = this.parentProvider.getIrcStack();
+
         if (status.getStatus() >= IrcStatusEnum.AVAILABLE_THRESHOLD)
         {
-            provider.away(false, statusMessage);
+            connection.away(false, statusMessage);
         }
         else if (status.getStatus() >= IrcStatusEnum.AWAY_THRESHOLD)
         {
-            provider.away(true, statusMessage);
+            connection.away(true, statusMessage);
         }
         else
         {
@@ -467,7 +474,12 @@ public class OperationSetPersistentPresenceIrcImpl
     {
         // FIXME look up active status message in case of away or "" in case of
         // available.
-        return this.parentProvider.getIrcStack().isAway() ? "" : "";
+        IrcConnection connection = this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            return "";
+        }
+        return connection.isAway() ? "" : "";
     }
 
     /**

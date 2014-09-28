@@ -1,7 +1,12 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
+<<<<<<< HEAD
  * Distributable under LGPL license. See terms of license at gnu.org.
+=======
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+>>>>>>> Restructured and extract IrcConnection type for better separation of
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
@@ -108,19 +113,21 @@ public class OperationSetBasicInstantMessagingIrcImpl
                 // FIXME how to handle HTML content?
 
                 // Note: can't set subject since it leaks information while
-                // message content actually gets encoded.
+                // message content actually gets encrypted.
                 MessageIrcImpl message = this.createMessage(transformedContent,
                     original.getContentType(), original.getEncoding(), "");
 
+                final IrcConnection connection =
+                    this.provider.getIrcStack().getConnection();
                 try
                 {
                     if (!event.isMessageEncrypted() && message.isCommand())
                     {
-                        this.provider.getIrcStack().command(to, message);
+                        connection.command(to, message);
                     }
                     else
                     {
-                        this.provider.getIrcStack().message(to, message);
+                        connection.message(to, message);
                     }
                 }
                 catch (RuntimeException e)
@@ -215,7 +222,13 @@ public class OperationSetBasicInstantMessagingIrcImpl
     @Override
     public int getMaxMessageSize(final Contact contact)
     {
-        return this.provider.getIrcStack().calculateMaximumMessageSize(contact);
+        IrcConnection connection = this.provider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            // FIXME how to handle this?
+            return 0;
+        }
+        return connection.calculateMaximumMessageSize(contact);
     }
 
     /**

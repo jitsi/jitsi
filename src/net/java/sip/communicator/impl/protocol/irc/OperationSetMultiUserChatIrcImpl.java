@@ -71,7 +71,9 @@ public class OperationSetMultiUserChatIrcImpl
      */
     public List<String> getExistingChatRooms() throws OperationFailedException
     {
-        return ircProvider.getIrcStack().getServerChatRoomList();
+        final IrcConnection connection =
+            this.ircProvider.getIrcStack().getConnection();
+        return connection.getServerChatRoomList();
     }
 
     /**
@@ -179,7 +181,7 @@ public class OperationSetMultiUserChatIrcImpl
             String message =
                 IrcActivator.getResources().getI18NString(
                     "service.gui.CREATE_CHAT_ROOM_ERROR", new String[]
-                    { roomName });
+                    {roomName});
             throw new OperationFailedException(message,
                 OperationFailedException.ILLEGAL_ARGUMENT, e);
         }

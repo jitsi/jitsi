@@ -364,15 +364,16 @@ public class ProtocolProviderServiceIrcImpl
     public void unregister()
         throws OperationFailedException
     {
-        for (ChatRoom joinedChatRoom
-                : multiUserChat.getCurrentlyJoinedChatRooms())
+        for (ChatRoom joinedChatRoom : multiUserChat
+            .getCurrentlyJoinedChatRooms())
         {
             joinedChatRoom.leave();
         }
 
-        if (ircStack.isConnected())
+        final IrcConnection connection = this.ircStack.getConnection();
+        if (connection != null)
         {
-            ircStack.disconnect();
+            this.ircStack.disconnect();
         }
     }
 
@@ -385,7 +386,8 @@ public class ProtocolProviderServiceIrcImpl
     @Override
     public boolean isSignalingTransportSecure()
     {
-        return this.ircStack.isSecureConnection();
+        final IrcConnection connection = this.ircStack.getConnection();
+        return connection != null && connection.isSecureConnection();
     }
 
     /**
