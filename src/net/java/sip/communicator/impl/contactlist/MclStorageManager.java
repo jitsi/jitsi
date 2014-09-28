@@ -286,21 +286,14 @@ public class MclStorageManager
         bundleContext = bc;
 
         // retrieve a reference to the file access service.
-        ServiceReference faServiceReference =
-            bundleContext
-                .getServiceReference(FileAccessService.class.getName());
-
-        faService =
-            (FileAccessService) bundleContext.getService(faServiceReference);
+        faService
+            = ServiceUtils.getService(bundleContext, FileAccessService.class);
 
         // retrieve a reference to the file access service.
-        ServiceReference confServiceRefs =
-            bundleContext.getServiceReference(ConfigurationService.class
-                .getName());
-
-        ConfigurationService configurationService =
-            (ConfigurationService) bundleContext.getService(confServiceRefs);
-
+        ConfigurationService configurationService
+            = ServiceUtils.getService(
+                    bundleContext,
+                    ConfigurationService.class);
         String fileName = configurationService.getString(FILE_NAME_PROPERTY);
 
         if (fileName == null)
@@ -312,12 +305,16 @@ public class MclStorageManager
         // get a reference to the contact list file.
         try
         {
-            contactlistFile = faService.getPrivatePersistentFile(fileName,
-                FileCategory.PROFILE);
-
+            contactlistFile
+                = faService.getPrivatePersistentFile(
+                        fileName,
+                        FileCategory.PROFILE);
             if (!contactlistFile.exists() && !contactlistFile.createNewFile())
-                throw new IOException("Failed to create file"
-                                          + contactlistFile.getAbsolutePath());
+            {
+                throw new IOException(
+                        "Failed to create file"
+                            + contactlistFile.getAbsolutePath());
+            }
         }
         catch (Exception ex)
         {

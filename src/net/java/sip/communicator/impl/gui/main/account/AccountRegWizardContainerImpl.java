@@ -59,38 +59,41 @@ public class AccountRegWizardContainerImpl
 
         this.registerWizardPage(summaryPage.getIdentifier(), summaryPage);
 
-        ServiceReference[] accountWizardRefs = null;
+        Collection<ServiceReference<AccountRegistrationWizard>> accountWizardRefs;
         try
         {
-            accountWizardRefs = GuiActivator.bundleContext
-                .getServiceReferences(
-                    AccountRegistrationWizard.class.getName(),
-                    null);
+            accountWizardRefs
+                = GuiActivator.bundleContext.getServiceReferences(
+                        AccountRegistrationWizard.class,
+                        null);
         }
         catch (InvalidSyntaxException ex)
         {
             // this shouldn't happen since we're providing no parameter string
             // but let's log just in case.
-            logger.error(
-                "Error while retrieving service refs", ex);
+            logger.error("Error while retrieving service refs", ex);
             return;
         }
 
         // in case we found any, add them in this container.
-        if (accountWizardRefs != null)
+        if ((accountWizardRefs != null) && !accountWizardRefs.isEmpty())
         {
             if (logger.isDebugEnabled())
-                logger.debug("Found "
-                         + accountWizardRefs.length
-                         + " already installed providers.");
-            for (ServiceReference serRef : accountWizardRefs)
             {
-                String protocolName = (String)
-                    serRef.getProperty(ProtocolProviderFactory.PROTOCOL);
-                AccountRegistrationWizard wizard = (AccountRegistrationWizard)
-                    GuiActivator.bundleContext.getService(serRef);
+                logger.debug(
+                        "Found " + accountWizardRefs.size()
+                            + " already installed providers.");
+            }
+            for (ServiceReference<AccountRegistrationWizard> serRef
+                    : accountWizardRefs)
+            {
+                String protocolName
+                    = (String)
+                        serRef.getProperty(ProtocolProviderFactory.PROTOCOL);
+                AccountRegistrationWizard wizard
+                    = GuiActivator.bundleContext.getService(serRef);
 
-                this.addAccountRegistrationWizard(protocolName, wizard);
+                addAccountRegistrationWizard(protocolName, wizard);
             }
         }
 
@@ -331,7 +334,7 @@ public class AccountRegWizardContainerImpl
         if(!GuiActivator.isStarted)
             return;
 
-        ServiceReference serRef = event.getServiceReference();
+        ServiceReference<?> serRef = event.getServiceReference();
         Object sService = GuiActivator.bundleContext.getService(serRef);
 
         // we don't care if the source service is not a plugin component
@@ -340,18 +343,17 @@ public class AccountRegWizardContainerImpl
 
         String protocolName
             = (String) serRef.getProperty(ProtocolProviderFactory.PROTOCOL);
-        AccountRegistrationWizard wizard
-            = (AccountRegistrationWizard) sService;
+        AccountRegistrationWizard wizard = (AccountRegistrationWizard) sService;
 
-        switch (event.getType()) {
+        switch (event.getType())
+        {
         case ServiceEvent.REGISTERED:
-            logger
-                .info("Handling registration of a new Account Wizard.");
-
-            this.addAccountRegistrationWizard(protocolName, wizard);
+            logger.info("Handling registration of a new Account Wizard.");
+            addAccountRegistrationWizard(protocolName, wizard);
             break;
+
         case ServiceEvent.UNREGISTERING:
-            this.removeAccountRegistrationWizard(protocolName, wizard);
+            removeAccountRegistrationWizard(protocolName, wizard);
             break;
         }
     }

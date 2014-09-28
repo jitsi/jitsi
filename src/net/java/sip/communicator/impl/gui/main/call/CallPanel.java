@@ -1441,42 +1441,39 @@ public class CallPanel
     {
         // Search for plug-in components registered through the OSGI
         // BundleContext.
-
+        Collection<ServiceReference<PluginComponentFactory>> serRefs;
         String osgiFilter
-            = "("
-                + net.java.sip.communicator.service.gui.Container.CONTAINER_ID
+            = "(" + net.java.sip.communicator.service.gui.Container.CONTAINER_ID
                 + "="
                 + net.java.sip.communicator.service.gui.Container
                     .CONTAINER_CALL_DIALOG.getID()
                 + ")";
-        ServiceReference[] serRefs = null;
 
         try
         {
             serRefs
                 = GuiActivator.bundleContext.getServiceReferences(
-                        PluginComponentFactory.class.getName(),
+                        PluginComponentFactory.class,
                         osgiFilter);
         }
         catch (InvalidSyntaxException ise)
         {
+            serRefs = null;
             logger.error("Could not obtain plugin reference.", ise);
         }
 
-        if (serRefs != null)
+        if ((serRefs != null) && !serRefs.isEmpty())
         {
-            for (ServiceReference serRef : serRefs)
+            for (ServiceReference<PluginComponentFactory> serRef : serRefs)
             {
                 PluginComponentFactory factory
-                    = (PluginComponentFactory)
-                        GuiActivator.bundleContext.getService(serRef);
-
-                PluginComponent component =
-                    factory.getPluginComponentInstance(CallPanel.this);
+                    = GuiActivator.bundleContext.getService(serRef);
+                PluginComponent component
+                    = factory.getPluginComponentInstance(CallPanel.this);
 
                 component.setCurrentContact(
-                    CallManager.getPeerMetaContact(
-                        callConference.getCallPeers().get(0)));
+                        CallManager.getPeerMetaContact(
+                                callConference.getCallPeers().get(0)));
 
                 settingsPanel.add((Component) component.getComponent());
             }

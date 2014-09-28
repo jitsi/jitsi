@@ -25,12 +25,6 @@ public class SecurityConfigActivator
     implements BundleActivator
 {
     /**
-     * The logger.
-     */
-    private static Logger logger
-        = Logger.getLogger(SecurityConfigActivator.class);
-
-    /**
      * The {@link BundleContext} of the {@link SecurityConfigActivator}.
      */
     public static BundleContext bundleContext;
@@ -85,8 +79,10 @@ public class SecurityConfigActivator
     {
         bundleContext = bc;
 
+        ConfigurationService cfg = getConfigurationService();
+
         // If the security configuration form is disabled don't continue.
-        if (getConfigurationService().getBoolean(DISABLED_PROP, false))
+        if (cfg.getBoolean(DISABLED_PROP, false))
             return;
 
         // Register the configuration form.
@@ -106,8 +102,7 @@ public class SecurityConfigActivator
             properties);
 
         // If the master password config form is disabled don't register it.
-        if(!getConfigurationService()
-                .getBoolean(MASTER_PASSWORD_DISABLED_PROP, false))
+        if(!cfg.getBoolean(MASTER_PASSWORD_DISABLED_PROP, false))
         {
             properties = new Hashtable<String, String>();
             properties.put( ConfigurationForm.FORM_TYPE,
@@ -233,33 +228,23 @@ public class SecurityConfigActivator
     private static Map<Object, ProtocolProviderFactory>
         getProtocolProviderFactories()
     {
-        ServiceReference[] serRefs = null;
-        try
-        {
-            // get all registered provider factories
-            serRefs =
-                bundleContext.getServiceReferences(
-                    ProtocolProviderFactory.class.getName(), null);
+        Collection<ServiceReference<ProtocolProviderFactory>> serRefs
+            = ServiceUtils.getServiceReferences(
+                    bundleContext,
+                    ProtocolProviderFactory.class);
+        Map<Object, ProtocolProviderFactory> providerFactoriesMap
+            = new Hashtable<Object, ProtocolProviderFactory>();
 
-        }
-        catch (InvalidSyntaxException ex)
+        if ((serRefs != null) && !serRefs.isEmpty())
         {
-            logger.error("Error while retrieving service refs", ex);
-            return null;
-        }
-
-        Map<Object, ProtocolProviderFactory> providerFactoriesMap =
-            new Hashtable<Object, ProtocolProviderFactory>();
-        if (serRefs != null)
-        {
-            for (ServiceReference serRef : serRefs)
+            for (ServiceReference<ProtocolProviderFactory> serRef : serRefs)
             {
-                ProtocolProviderFactory providerFactory =
-                    (ProtocolProviderFactory) bundleContext.getService(serRef);
+                ProtocolProviderFactory providerFactory
+                    = bundleContext.getService(serRef);
 
-                providerFactoriesMap.put(serRef
-                    .getProperty(ProtocolProviderFactory.PROTOCOL),
-                    providerFactory);
+                providerFactoriesMap.put(
+                        serRef.getProperty(ProtocolProviderFactory.PROTOCOL),
+                        providerFactory);
             }
         }
         return providerFactoriesMap;

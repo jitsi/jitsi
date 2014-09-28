@@ -286,25 +286,13 @@ public class AccountManager
                                     boolean includeHidden,
                                     String userID)
     {
-        Collection<ServiceReference<ProtocolProviderFactory>> factoryRefs;
+        Collection<ServiceReference<ProtocolProviderFactory>> factoryRefs
+            = ServiceUtils.getServiceReferences(
+                    bundleContext,
+                    ProtocolProviderFactory.class);
         boolean hasStoredAccounts = false;
 
-        try
-        {
-            factoryRefs
-                = bundleContext.getServiceReferences(
-                        ProtocolProviderFactory.class,
-                        null);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            factoryRefs = null;
-            logger.error(
-                "Failed to retrieve the registered ProtocolProviderFactories",
-                ex);
-        }
-
-        if ((factoryRefs != null) && !factoryRefs.isEmpty())
+        if (!factoryRefs.isEmpty())
         {
             ConfigurationService configService
                 = ProtocolProviderActivator.getConfigurationService();
@@ -399,24 +387,12 @@ public class AccountManager
      */
     public AccountID findAccountID(String uid)
     {
-        Collection<ServiceReference<ProtocolProviderFactory>> factoryRefs;
+        Collection<ServiceReference<ProtocolProviderFactory>> factoryRefs
+            = ServiceUtils.getServiceReferences(
+                    bundleContext,
+                    ProtocolProviderFactory.class);
 
-        try
-        {
-            factoryRefs
-                = bundleContext.getServiceReferences(
-                        ProtocolProviderFactory.class,
-                        null);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            factoryRefs = null;
-            logger.error(
-                "Failed to retrieve the registered ProtocolProviderFactories",
-                ex);
-        }
-
-        if ((factoryRefs != null) && !factoryRefs.isEmpty())
+        if (!factoryRefs.isEmpty())
         {
             ConfigurationService configService
                 = ProtocolProviderActivator.getConfigurationService();

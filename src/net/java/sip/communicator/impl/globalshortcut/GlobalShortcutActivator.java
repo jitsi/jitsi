@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.globalshortcut;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.globalshortcut.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.keybindings.*;
@@ -26,13 +28,8 @@ public class GlobalShortcutActivator
      * The <tt>Logger</tt> used by the <tt>GlobalShortcutActivator</tt> class
      * and its instances for logging output.
      */
-    private static final Logger logger =
-        Logger.getLogger(GlobalShortcutActivator.class);
-
-    /**
-     * The OSGi <tt>ServiceRegistration</tt> of <tt>GlobalShortcut</tt>.
-     */
-    private ServiceRegistration serviceRegistration;
+    private static final Logger logger
+        = Logger.getLogger(GlobalShortcutActivator.class);
 
     /**
      * The <tt>GlobalShortcutServiceImpl</tt>.
@@ -100,11 +97,13 @@ public class GlobalShortcutActivator
         throws Exception
     {
         GlobalShortcutActivator.bundleContext = bundleContext;
-        serviceRegistration = null;
+
         globalShortcutService = new GlobalShortcutServiceImpl();
         globalShortcutService.start();
-        bundleContext.registerService(GlobalShortcutService.class.getName(),
-                globalShortcutService, null);
+        bundleContext.registerService(
+                GlobalShortcutService.class,
+                globalShortcutService,
+                null);
 
         globalShortcutService.reloadGlobalShortcuts();
 
@@ -132,15 +131,7 @@ public class GlobalShortcutActivator
     public void stop(BundleContext bundleContext)
         throws Exception
     {
-        if (serviceRegistration != null)
-        {
-            globalShortcutService.stop();
-            serviceRegistration.unregister();
-            serviceRegistration = null;
-
-            if (logger.isDebugEnabled())
-                logger.debug("GlobalShortcut Service ... [UNREGISTERED]");
-        }
+        globalShortcutService.stop();
 
         GlobalShortcutActivator.bundleContext = null;
     }
@@ -154,7 +145,7 @@ public class GlobalShortcutActivator
      */
     private void serviceChanged(ServiceEvent event)
     {
-        ServiceReference serviceRef = event.getServiceReference();
+        ServiceReference<?> serviceRef = event.getServiceReference();
 
         // if the event is caused by a bundle being stopped, we don't want to
         // know
@@ -187,34 +178,25 @@ public class GlobalShortcutActivator
      */
     public void registerListenerWithProtocolProviderService()
     {
-        ServiceReference[] ppsRefs = null;
+        Collection<ServiceReference<ProtocolProviderService>> ppsRefs
+            = ServiceUtils.getServiceReferences(
+                    bundleContext,
+                    ProtocolProviderService.class);
 
-        try
+        if(!ppsRefs.isEmpty())
         {
-             ppsRefs
-                 = bundleContext.getServiceReferences(
-                         ProtocolProviderService.class.getName(),
-                         null);
-        }
-        catch(InvalidSyntaxException ise)
-        {
-            logger.error(
-                    "Failed to get ProtocolProviderService ServiceReferences",
-                    ise);
-        }
+            for(ServiceReference<ProtocolProviderService> ppsRef : ppsRefs)
+            {
+                ProtocolProviderService pps = bundleContext.getService(ppsRef);
+                OperationSetBasicTelephony<?> opSet
+                    = pps.getOperationSet(OperationSetBasicTelephony.class);
 
-        if(ppsRefs == null)
-            return;
-
-        for(ServiceReference ppsRef : ppsRefs)
-        {
-            ProtocolProviderService pps
-                = (ProtocolProviderService) bundleContext.getService(ppsRef);
-            OperationSetBasicTelephony<?> opSet
-                = pps.getOperationSet(OperationSetBasicTelephony.class);
-
-            if(opSet != null)
-                opSet.addCallListener(globalShortcutService.getCallShortcut());
+                if(opSet != null)
+                {
+                    opSet.addCallListener(
+                            globalShortcutService.getCallShortcut());
+                }
+            }
         }
     }
 

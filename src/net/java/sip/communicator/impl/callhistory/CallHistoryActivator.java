@@ -147,23 +147,12 @@ public class CallHistoryActivator
     public static Map<Object, ProtocolProviderFactory>
         getProtocolProviderFactories()
     {
-        Collection<ServiceReference<ProtocolProviderFactory>> serRefs;
-        try
-        {
-            // get all registered provider factories
-            serRefs
-                = bundleContext.getServiceReferences(
-                        ProtocolProviderFactory.class,
-                        null);
+        Collection<ServiceReference<ProtocolProviderFactory>> serRefs
+            = ServiceUtils.getServiceReferences(
+                    bundleContext,
+                    ProtocolProviderFactory.class);
 
-        }
-        catch (InvalidSyntaxException e)
-        {
-            serRefs = null;
-            logger.error("LoginManager : " + e);
-        }
-
-        if (serRefs != null)
+        if (!serRefs.isEmpty())
         {
             for (ServiceReference<ProtocolProviderFactory> serRef : serRefs)
             {

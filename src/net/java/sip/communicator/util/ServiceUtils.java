@@ -6,13 +6,15 @@
  */
 package net.java.sip.communicator.util;
 
+import java.util.*;
+
 import org.osgi.framework.*;
 
 /**
  * Gathers utility functions related to OSGi services such as getting a service
  * registered in a BundleContext.
  *
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  * @author Pawel Domas
  */
 public class ServiceUtils
@@ -30,48 +32,84 @@ public class ServiceUtils
      * specified <tt>serviceClass</tt> if such a service exists there;
      * otherwise, <tt>null</tt>
      */
-    @SuppressWarnings("unchecked")
     public static <T> T getService(
             BundleContext bundleContext,
             Class<T> serviceClass)
     {
-        ServiceReference serviceReference
-            = bundleContext.getServiceReference(serviceClass.getName());
+        ServiceReference<T> serviceReference
+            = bundleContext.getServiceReference(serviceClass);
 
         return
             (serviceReference == null)
                 ? null
-                : (T) bundleContext.getService(serviceReference);
+                : bundleContext.getService(serviceReference);
     }
 
     /**
      * Gets an OSGi service references registered in a specific
-     * <tt>BundleContext</tt> by its <tt>Class</tt>
+     * <tt>BundleContext</tt> by its <tt>Class</tt>.
      *
      * @param bundleContext the <tt>BundleContext</tt> in which the services to
      * get have been registered
-     * @param serviceClass the <tt>Class</tt> of the OSGi service references to get
+     * @param serviceClass the <tt>Class</tt> of the OSGi service references to
+     * get
      * @return the OSGi service references registered in <tt>bundleContext</tt>
      * with the specified <tt>serviceClass</tt> if such a services exists there;
-     * otherwise, <tt>null</tt>
+     * otherwise, an empty <tt>Collection</tt>
      */
-    public static ServiceReference[] getServiceReferences(
+    public static <T> Collection<ServiceReference<T>> getServiceReferences(
             BundleContext bundleContext,
-            Class<?> serviceClass)
+            Class<T> serviceClass)
     {
-        ServiceReference[] handlerRefs = null;
+        Collection<ServiceReference<T>> serviceReferences;
+
         try
         {
-            handlerRefs = bundleContext.getServiceReferences(
-                    serviceClass.getName(),
-                    null);
+            serviceReferences
+                = bundleContext.getServiceReferences(
+                        serviceClass,
+                        null);
         }
         catch (InvalidSyntaxException ex)
         {
-            throw new RuntimeException(ex);
+            serviceReferences = null;
         }
+        if (serviceReferences == null)
+            serviceReferences = Collections.emptyList();
+        return serviceReferences;
+    }
 
-        return handlerRefs;
+    /**
+     * Gets an OSGi service references registered in a specific
+     * <tt>BundleContext</tt> by its <tt>Class</tt> name.
+     *
+     * @param bundleContext the <tt>BundleContext</tt> in which the services to
+     * get have been registered
+     * @param serviceClassName the name of the <tt>Class</tt> of the OSGi
+     * service references to get
+     * @return the OSGi service references registered in <tt>bundleContext</tt>
+     * with the specified <tt>serviceClassName</tt> if such a services exists
+     * there; otherwise, <tt>null</tt>
+     */
+    @SuppressWarnings("unused")
+    private static ServiceReference<?>[] getServiceReferences(
+            BundleContext bundleContext,
+            String serviceClassName)
+    {
+        ServiceReference<?>[] serviceReferences;
+
+        try
+        {
+            serviceReferences
+                = bundleContext.getServiceReferences(
+                        serviceClassName,
+                        null);
+        }
+        catch (InvalidSyntaxException ex)
+        {
+            serviceReferences = null;
+        }
+        return serviceReferences;
     }
 
     /** Prevents the creation of <tt>ServiceUtils</tt> instances. */

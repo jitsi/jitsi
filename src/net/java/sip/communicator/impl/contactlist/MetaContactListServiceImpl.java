@@ -159,9 +159,9 @@ public class MetaContactListServiceImpl
         {
             storageManager.start(bundleContext, this);
         }
-        catch (Exception exc)
+        catch (Exception ex)
         {
-            logger.error("Failed loading the stored contact list.", exc);
+            logger.error("Failed loading the stored contact list.", ex);
         }
 
         // start listening for newly register or removed protocol providers
@@ -169,36 +169,26 @@ public class MetaContactListServiceImpl
 
         // first discover the icq service
         // then find the protocol provider service
-        ServiceReference[] protocolProviderRefs = null;
-        try
-        {
-            protocolProviderRefs = bc.getServiceReferences(
-                ProtocolProviderService.class.getName(),
-                null);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            // this shouldn't happen since we're providing no parameter string
-            // but let's log just in case.
-            logger.error(
-                "Error while retrieving service refs", ex);
-            return;
-        }
+        Collection<ServiceReference<ProtocolProviderService>> ppsRefs
+            = ServiceUtils.getServiceReferences(
+                    bc,
+                    ProtocolProviderService.class);
 
         // in case we found any, retrieve the root groups for all protocol
         // providers and create the meta contact list
-        if (protocolProviderRefs != null)
+        if (!ppsRefs.isEmpty())
         {
             if (logger.isDebugEnabled())
-                logger.debug("Found "
-                         + protocolProviderRefs.length
-                         + " already installed providers.");
-            for (ServiceReference providerRef : protocolProviderRefs)
             {
-                ProtocolProviderService provider
-                    = (ProtocolProviderService) bc.getService(providerRef);
+                logger.debug(
+                        "Found " + ppsRefs.size()
+                            + " already installed providers.");
+            }
+            for (ServiceReference<ProtocolProviderService> ppsRef : ppsRefs)
+            {
+                ProtocolProviderService pps = bc.getService(ppsRef);
 
-                this.handleProviderAdded(provider);
+                handleProviderAdded(pps);
             }
         }
     }
@@ -2353,11 +2343,10 @@ public class MetaContactListServiceImpl
         // before that however, we'd need to get a reference to the service.
         ProtocolProviderFactory sourceFactory = null;
 
-        ServiceReference[] allBundleServices
-            = event.getServiceReference().getBundle()
-                .getRegisteredServices();
+        ServiceReference<?>[] allBundleServices
+            = event.getServiceReference().getBundle().getRegisteredServices();
 
-        for (ServiceReference bundleServiceRef : allBundleServices)
+        for (ServiceReference<?> bundleServiceRef : allBundleServices)
         {
             Object service = bundleContext.getService(bundleServiceRef);
             if(service instanceof ProtocolProviderFactory)

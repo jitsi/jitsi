@@ -113,8 +113,7 @@ public final class AccountManagerUtils
                          */
                         factoryRefs = null;
                     }
-
-                    if (factoryRefs != null)
+                    if ((factoryRefs != null) && !factoryRefs.isEmpty())
                     {
                         boolean factoryIsRegistered = false;
 

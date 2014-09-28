@@ -31,13 +31,6 @@ public class MUCActivator
     implements  BundleActivator
 {
     /**
-     * The <tt>Logger</tt> used by the
-     * <tt>MUCActivator</tt> class for logging output.
-     */
-    private static final Logger logger
-        = Logger.getLogger(MUCActivator.class);
-
-    /**
      * The configuration property to disable
      */
     private static final String DISABLED_PROPERTY
@@ -282,22 +275,12 @@ public class MUCActivator
         protocolProviderRegListener = new ProtocolProviderRegListener();
         bundleContext.addServiceListener(protocolProviderRegListener);
 
-        Collection<ServiceReference<ProtocolProviderFactory>> serRefs;
-        try
-        {
-            // get all registered provider factories
-            serRefs
-                = bundleContext.getServiceReferences(
-                        ProtocolProviderFactory.class,
-                        null);
-        }
-        catch (InvalidSyntaxException e)
-        {
-            serRefs = null;
-            logger.error("LoginManager : " + e);
-        }
+        Collection<ServiceReference<ProtocolProviderFactory>> serRefs
+            = ServiceUtils.getServiceReferences(
+                    bundleContext,
+                    ProtocolProviderFactory.class);
 
-        if (serRefs != null)
+        if (!serRefs.isEmpty())
         {
             for (ServiceReference<ProtocolProviderFactory> ppfSerRef : serRefs)
             {
@@ -330,7 +313,7 @@ public class MUCActivator
          */
         public void serviceChanged(ServiceEvent event)
         {
-            ServiceReference serviceRef = event.getServiceReference();
+            ServiceReference<?> serviceRef = event.getServiceReference();
 
             // if the event is caused by a bundle being stopped, we don't want to
             // know

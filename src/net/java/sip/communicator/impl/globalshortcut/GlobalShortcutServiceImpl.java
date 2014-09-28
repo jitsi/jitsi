@@ -174,15 +174,18 @@ public class GlobalShortcutServiceImpl
 
                 for(AWTKeyStroke l : keystrokes)
                 {
-                    if(l.getKeyCode() == keycode &&
-                        l.getModifiers() == modifiers)
+                    if(l.getKeyCode() == keycode
+                            && l.getModifiers() == modifiers)
+                    {
                         ks = l;
+                    }
                 }
 
                 if(modifiers != SPECIAL_KEY_MODIFIERS)
                 {
-                    keyboardHook.unregisterShortcut(keyStroke.getKeyCode(),
-                        getModifiers(keyStroke));
+                    keyboardHook.unregisterShortcut(
+                            keyStroke.getKeyCode(),
+                            getModifiers(keyStroke));
                 }
                 else
                 {
@@ -202,7 +205,9 @@ public class GlobalShortcutServiceImpl
                     }
                     else
                     {
-                        mapActions.put(listener, keystrokes);
+                        // We do not have to put keystrokes back into mapActions
+                        // because keystrokes is a reference to a modifiable
+                        // List.
                     }
                 }
             }
@@ -229,15 +234,20 @@ public class GlobalShortcutServiceImpl
     {
         isRunning = false;
 
-        for(Map.Entry<GlobalShortcutListener, List<AWTKeyStroke>> entry :
-            mapActions.entrySet())
-        {
-            GlobalShortcutListener l = entry.getKey();
-            for(AWTKeyStroke e : entry.getValue())
-            {
-                unregisterShortcut(l, e);
-            }
-        }
+        // FIXME Lyubomir Marinov: The method unregisterShortcut will cause a
+        // ConcurrentModificationException because of either mapActions or a
+        // List<AWTKeyStroke> value. The method stop was never invoked before
+        // though because of a bug in the methods start and stop of the class
+        // GlobalShortcutActivator.
+//        for(Map.Entry<GlobalShortcutListener, List<AWTKeyStroke>> entry
+//                : mapActions.entrySet())
+//        {
+//            GlobalShortcutListener l = entry.getKey();
+//            for(AWTKeyStroke e : entry.getValue())
+//            {
+//                unregisterShortcut(l, e);
+//            }
+//        }
 
         if(keyboardHook != null)
         {

@@ -118,44 +118,44 @@ public class AccountRightButtonMenu
     {
         // Search for plugin components registered through the OSGI bundle
         // context.
-        ServiceReference[] serRefs = null;
-
-        String osgiFilter = "("
-            + Container.CONTAINER_ID
-            + "="+Container.CONTAINER_ACCOUNT_RIGHT_BUTTON_MENU.getID()+")";
+        Collection<ServiceReference<PluginComponentFactory>> serRefs;
+        String osgiFilter
+            = "(" + Container.CONTAINER_ID + "="
+                + Container.CONTAINER_ACCOUNT_RIGHT_BUTTON_MENU.getID() + ")";
 
         try
         {
-            serRefs = GuiActivator.bundleContext.getServiceReferences(
-                PluginComponentFactory.class.getName(),
-                osgiFilter);
+            serRefs
+                = GuiActivator.bundleContext.getServiceReferences(
+                        PluginComponentFactory.class,
+                        osgiFilter);
         }
-        catch (InvalidSyntaxException exc)
+        catch (InvalidSyntaxException ex)
         {
-            logger.error("Could not obtain plugin reference.", exc);
+            serRefs = null;
+            logger.error("Could not obtain plugin reference.", ex);
         }
 
-        if (serRefs != null)
+        if ((serRefs != null) && !serRefs.isEmpty())
         {
-            for (int i = 0; i < serRefs.length; i ++)
+            for (ServiceReference<PluginComponentFactory> serRef : serRefs)
             {
-                PluginComponentFactory factory =
-                    (PluginComponentFactory) GuiActivator
-                        .bundleContext.getService(serRefs[i]);
-
-                PluginComponent component =
-                    factory.getPluginComponentInstance(this);
+                PluginComponentFactory factory
+                    = GuiActivator.bundleContext.getService(serRef);
+                PluginComponent component
+                    = factory.getPluginComponentInstance(this);
 
                 if (component.getComponent() == null)
                     continue;
 
                 pluginComponents.add(component);
 
-                if (factory.getPositionIndex() != -1)
-                    this.add((Component)component.getComponent(),
-                        factory.getPositionIndex());
+                int positionIndex = factory.getPositionIndex();
+
+                if (positionIndex != -1)
+                    add((Component)component.getComponent(), positionIndex);
                 else
-                    this.add((Component)component.getComponent());
+                    add((Component)component.getComponent());
             }
         }
         GuiActivator.getUIService().addPluginComponentListener(this);

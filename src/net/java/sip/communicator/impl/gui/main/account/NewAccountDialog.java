@@ -175,49 +175,51 @@ public class NewAccountDialog
         String preferredWizardName
             = (prefWName != null && prefWName.length() > 0) ? prefWName : null;
 
-        ServiceReference[] accountWizardRefs = null;
+        Collection<ServiceReference<AccountRegistrationWizard>> accountWizardRefs;
         try
         {
-            accountWizardRefs = GuiActivator.bundleContext
-                .getServiceReferences(
-                    AccountRegistrationWizard.class.getName(),
-                    null);
+            accountWizardRefs
+                = GuiActivator.bundleContext.getServiceReferences(
+                        AccountRegistrationWizard.class,
+                        null);
         }
         catch (InvalidSyntaxException ex)
         {
             // this shouldn't happen since we're providing no parameter string
             // but let's log just in case.
-            logger.error(
-                "Error while retrieving service refs", ex);
+            logger.error("Error while retrieving service refs", ex);
             return;
         }
 
         // in case we found any, add them in this container.
-        if (accountWizardRefs != null)
+        if ((accountWizardRefs != null) && !accountWizardRefs.isEmpty())
         {
             if (logger.isDebugEnabled())
-                logger.debug("Found "
-                         + accountWizardRefs.length
-                         + " already installed providers.");
+            {
+                logger.debug(
+                        "Found " + accountWizardRefs.size()
+                            + " already installed providers.");
+            }
 
             // Create a list to sort the wizards
-            ArrayList<AccountRegistrationWizard> networksList =
-                new ArrayList<AccountRegistrationWizard>();
-            networksList.ensureCapacity(accountWizardRefs.length);
+            ArrayList<AccountRegistrationWizard> networksList
+                = new ArrayList<AccountRegistrationWizard>(
+                        accountWizardRefs.size());
 
             AccountRegistrationWizard prefWiz = null;
 
-            for (int i = 0; i < accountWizardRefs.length; i++)
+            for (ServiceReference<AccountRegistrationWizard> serRef
+                    : accountWizardRefs)
             {
                 AccountRegistrationWizard wizard
-                    = (AccountRegistrationWizard) GuiActivator.bundleContext
-                        .getService(accountWizardRefs[i]);
+                    = GuiActivator.bundleContext.getService(serRef);
 
                 networksList.add(wizard);
 
                 // is it the preferred protocol ?
                 if(preferredWizardName != null
-                    && wizard.getClass().getName().equals(preferredWizardName))
+                        && wizard.getClass().getName().equals(
+                                preferredWizardName))
                 {
                     prefWiz = wizard;
                 }

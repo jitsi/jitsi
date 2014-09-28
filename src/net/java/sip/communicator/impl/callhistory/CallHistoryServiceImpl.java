@@ -618,23 +618,13 @@ public class CallHistoryServiceImpl
         // start listening for newly register or removed protocol providers
         bc.addServiceListener(this);
 
-        Collection<ServiceReference<ProtocolProviderService>> ppsRefs;
-
-        try
-        {
-            ppsRefs
-                = bc.getServiceReferences(ProtocolProviderService.class, null);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            ppsRefs = null;
-            // this shouldn't happen since we're providing no parameter string
-            // but let's log just in case.
-            logger.error("Error while retrieving service refs", ex);
-        }
+        Collection<ServiceReference<ProtocolProviderService>> ppsRefs
+            = ServiceUtils.getServiceReferences(
+                    bc,
+                    ProtocolProviderService.class);
 
         // in case we found any
-        if (ppsRefs != null)
+        if (!ppsRefs.isEmpty())
         {
             if (logger.isDebugEnabled())
             {
@@ -646,7 +636,7 @@ public class CallHistoryServiceImpl
             {
                 ProtocolProviderService pps = bc.getService(ppsRef);
 
-                this.handleProviderAdded(pps);
+                handleProviderAdded(pps);
             }
         }
     }
@@ -660,33 +650,22 @@ public class CallHistoryServiceImpl
     {
         bc.removeServiceListener(this);
 
-        Collection<ServiceReference<ProtocolProviderService>> ppsRefs;
-
-        try
-        {
-            ppsRefs
-                = bc.getServiceReferences(ProtocolProviderService.class, null);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            ppsRefs = null;
-            // this shouldn't happen since we're providing no parameter string
-            // but let's log just in case.
-            logger.error("Error while retrieving service refs", ex);
-        }
+        Collection<ServiceReference<ProtocolProviderService>> ppsRefs
+            = ServiceUtils.getServiceReferences(
+                    bc,
+                    ProtocolProviderService.class);
 
         // in case we found any
-        if (ppsRefs != null)
+        if (!ppsRefs.isEmpty())
         {
             for (ServiceReference<ProtocolProviderService> ppsRef : ppsRefs)
             {
                 ProtocolProviderService pps = bc.getService(ppsRef);
 
-                this.handleProviderRemoved(pps);
+                handleProviderRemoved(pps);
             }
         }
     }
-
 
     /**
      * Writes the given record to the history service

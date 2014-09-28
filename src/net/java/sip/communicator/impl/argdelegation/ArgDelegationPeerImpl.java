@@ -48,40 +48,23 @@ public class ArgDelegationPeerImpl
      */
     public ArgDelegationPeerImpl(BundleContext bundleContext)
     {
-        Collection<ServiceReference<UriHandler>> uriHandlerRefs;
+        Collection<ServiceReference<UriHandler>> uriHandlerRefs
+            = ServiceUtils.getServiceReferences(
+                    bundleContext,
+                    UriHandler.class);
 
-        try
+        if (!uriHandlerRefs.isEmpty())
         {
-            uriHandlerRefs
-                = bundleContext.getServiceReferences(UriHandler.class, null);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            // This shouldn't happen because we aren't using a filter but let's
-            // log just the same.
-            if (logger.isInfoEnabled())
+            synchronized (uriHandlers)
             {
-                logger.info(
-                        "An error occurred while retrieving UriHandlers",
-                        ex);
-            }
-            return;
-        }
+                for (ServiceReference<UriHandler> uriHandlerRef
+                        : uriHandlerRefs)
+                {
+                    UriHandler uriHandler
+                        = bundleContext.getService(uriHandlerRef);
 
-        if((uriHandlerRefs == null) || uriHandlerRefs.isEmpty())
-        {
-            // No URI handlers are registered at this point. Some might come
-            // later.
-            return;
-        }
-
-        synchronized (uriHandlers)
-        {
-            for (ServiceReference<UriHandler> uriHandlerRef : uriHandlerRefs)
-            {
-                UriHandler uriHandler = bundleContext.getService(uriHandlerRef);
-
-                uriHandlers.put(uriHandler.getProtocol(), uriHandler);
+                    uriHandlers.put(uriHandler.getProtocol(), uriHandler);
+                }
             }
         }
     }

@@ -20,6 +20,11 @@ public class CredentialsStorageActivator
     implements BundleActivator
 {
     /**
+     * The {@link BundleContext}.
+     */
+    private static BundleContext bundleContext;
+
+    /**
      * The <tt>Logger</tt> used by the <tt>CredentialsStorageActivator</tt>
      * class and its instances.
      */
@@ -27,14 +32,21 @@ public class CredentialsStorageActivator
         = Logger.getLogger(CredentialsStorageActivator.class);
 
     /**
+     * Returns service to show master password input dialog.
+     * @return return master password service to display input dialog.
+     */
+    public static MasterPasswordInputService getMasterPasswordInputService()
+    {
+        return
+            ServiceUtils.getService(
+                    bundleContext,
+                    MasterPasswordInputService.class);
+    }
+
+    /**
      * The {@link CredentialsStorageService} implementation.
      */
     private CredentialsStorageServiceImpl impl;
-
-    /**
-     * The {@link BundleContext}.
-     */
-    private static BundleContext bundleContext;
 
     /**
      * Starts the credentials storage service
@@ -76,28 +88,7 @@ public class CredentialsStorageActivator
     {
         logger.logEntry();
         impl.stop();
-        logger
-            .info("The CredentialsStorageService stop method has been called.");
-    }
-
-    /**
-     * Returns the service corresponding to the <tt>ServiceReference</tt>.
-     *
-     * @param serviceReference service reference
-     * @return service
-     */
-    public static Object getService(ServiceReference serviceReference)
-    {
-        return bundleContext.getService(serviceReference);
-    }
-
-    /**
-     * Returns service to show master password input dialog.
-     * @return return master password service to display input dialog.
-     */
-    public static MasterPasswordInputService getMasterPasswordInputService()
-    {
-        return ServiceUtils.getService(
-            bundleContext, MasterPasswordInputService.class);
+        logger.info(
+                "The CredentialsStorageService stop method has been called.");
     }
 }

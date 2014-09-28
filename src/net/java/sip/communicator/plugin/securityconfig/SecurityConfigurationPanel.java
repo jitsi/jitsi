@@ -6,9 +6,10 @@
 package net.java.sip.communicator.plugin.securityconfig;
 
 import java.awt.*;
+import java.util.*;
 
-import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.gui.*;
 
 import org.osgi.framework.*;
 
@@ -40,29 +41,31 @@ public class SecurityConfigurationPanel
      */
     private void init()
     {
-        String osgiFilter = "("
-            + ConfigurationForm.FORM_TYPE
-            + "="+ConfigurationForm.SECURITY_TYPE+")";
+        Collection<ServiceReference<ConfigurationForm>> confFormsRefs;
+        String osgiFilter
+            = "(" + ConfigurationForm.FORM_TYPE + "="
+                + ConfigurationForm.SECURITY_TYPE + ")";
 
-        ServiceReference[] confFormsRefs = null;
         try
         {
-            confFormsRefs = SecurityConfigActivator.bundleContext
-                .getServiceReferences(  ConfigurationForm.class.getName(),
-                                        osgiFilter);
+            confFormsRefs
+                = SecurityConfigActivator.bundleContext.getServiceReferences(
+                        ConfigurationForm.class,
+                        osgiFilter);
         }
         catch (InvalidSyntaxException ex)
-        {}
-
-        if(confFormsRefs != null)
         {
-            for (int i = 0; i < confFormsRefs.length; i++)
+            confFormsRefs = null;
+        }
+
+        if ((confFormsRefs != null) && !confFormsRefs.isEmpty())
+        {
+            for (ServiceReference<ConfigurationForm> sr : confFormsRefs)
             {
                 ConfigurationForm form
-                    = (ConfigurationForm) SecurityConfigActivator.bundleContext
-                        .getService(confFormsRefs[i]);
-
+                    = SecurityConfigActivator.bundleContext.getService(sr);
                 Object formComponent = form.getForm();
+
                 if (formComponent instanceof Component)
                     addConfigForm(form);
             }
@@ -71,40 +74,53 @@ public class SecurityConfigurationPanel
 
     /**
      * Handles registration of a new configuration form.
+     *
      * @param event the <tt>ServiceEvent</tt> that notified us
      */
     public void serviceChanged(ServiceEvent event)
     {
-        ServiceReference serviceRef = event.getServiceReference();
+        ServiceReference<?> ref = event.getServiceReference();
+        Object property = ref.getProperty(ConfigurationForm.FORM_TYPE);
 
-        Object property = serviceRef.getProperty(ConfigurationForm.FORM_TYPE);
-        if (property != ConfigurationForm.SECURITY_TYPE)
+        if (!ConfigurationForm.SECURITY_TYPE.equals(property))
             return;
 
-        Object sService
-            = SecurityConfigActivator.bundleContext
-                .getService(serviceRef);
+        // SecurityConfigActivator registers a ConfigurationForm with FORM_TYPE
+        // SECURITY_TYPE so when, SecurityConfigActivator.stop is invoked, an
+        // IllegalStateException will be thrown here.
+        Object service;
+
+        try
+        {
+            service = SecurityConfigActivator.bundleContext.getService(ref);
+        }
+        catch (IllegalStateException ex)
+        {
+            // SecurityConfigActivator.bundleContext is no longer valid.
+            return;
+        }
 
         // we don't care if the source service is not a configuration form
-        if (!(sService instanceof ConfigurationForm))
+        if (!(service instanceof ConfigurationForm))
             return;
 
-        ConfigurationForm configForm = (ConfigurationForm) sService;
+        ConfigurationForm cfgForm = (ConfigurationForm) service;
 
-        if (!configForm.isAdvanced())
+        if (!cfgForm.isAdvanced())
             return;
 
         Object formComponent;
+
         switch (event.getType())
         {
         case ServiceEvent.REGISTERED:
-            formComponent = configForm.getForm();
+            formComponent = cfgForm.getForm();
             if (formComponent instanceof Component)
-                addConfigForm(configForm);
+                addConfigForm(cfgForm);
             break;
 
         case ServiceEvent.UNREGISTERING:
-            formComponent = configForm.getForm();
+            formComponent = cfgForm.getForm();
             if (formComponent instanceof Component)
                 remove((Component) formComponent);
             break;
@@ -118,17 +134,13 @@ public class SecurityConfigurationPanel
      */
     private void addConfigForm(ConfigurationForm form)
     {
-        int cIndex = form.getIndex();
-        String formTitle = form.getTitle();
-        Component formComponent = (Component) form.getForm();
+        int index = form.getIndex();
+        String title = form.getTitle();
+        Component component = (Component) form.getForm();
 
-        if (cIndex >= getTabCount())
-            addTab(formTitle, formComponent);
+        if (index >= getTabCount())
+            addTab(title, component);
         else
-            insertTab(  formTitle,
-                        null,
-                        formComponent,
-                        formTitle,
-                        cIndex);
+            insertTab(title, null, component, title, index);
     }
 }

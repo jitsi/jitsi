@@ -18,7 +18,6 @@ import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
-import net.java.sip.communicator.service.customcontactactions.*;
 import net.java.sip.communicator.service.desktop.*;
 import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.gui.*;
@@ -98,8 +97,6 @@ public class GuiActivator implements BundleActivator
     private static NotificationService notificationService;
 
     private static List<ContactSourceService> contactSources;
-
-    private static List<CustomContactActionsService<?>> contactActionsServices;
 
     private static SecurityAuthority securityAuthority;
 
@@ -247,27 +244,17 @@ public class GuiActivator implements BundleActivator
     public static Map<Object, ProtocolProviderFactory>
         getProtocolProviderFactories()
     {
-        ServiceReference[] serRefs = null;
-        try
-        {
-            // get all registered provider factories
-            serRefs
-                = bundleContext.getServiceReferences(
-                        ProtocolProviderFactory.class.getName(),
-                        null);
-        }
-        catch (InvalidSyntaxException e)
-        {
-            logger.error("LoginManager : " + e);
-        }
+        Collection<ServiceReference<ProtocolProviderFactory>> serRefs
+            = ServiceUtils.getServiceReferences(
+                    bundleContext,
+                    ProtocolProviderFactory.class);
 
-        if (serRefs != null)
+        if (!serRefs.isEmpty())
         {
-            for (ServiceReference serRef : serRefs)
+            for (ServiceReference<ProtocolProviderFactory> serRef : serRefs)
             {
                 ProtocolProviderFactory providerFactory
-                    = (ProtocolProviderFactory)
-                        bundleContext.getService(serRef);
+                    = bundleContext.getService(serRef);
 
                 providerFactoriesMap.put(
                         serRef.getProperty(ProtocolProviderFactory.PROTOCOL),
@@ -580,25 +567,17 @@ public class GuiActivator implements BundleActivator
     {
         contactSources = new Vector<ContactSourceService>();
 
-        ServiceReference[] serRefs = null;
-        try
-        {
-            // get all registered provider factories
-            serRefs =
-                bundleContext.getServiceReferences(
-                    ContactSourceService.class.getName(), null);
-        }
-        catch (InvalidSyntaxException e)
-        {
-            logger.error("GuiActivator : " + e);
-        }
+        Collection<ServiceReference<ContactSourceService>> serRefs
+            = ServiceUtils.getServiceReferences(
+                    bundleContext,
+                    ContactSourceService.class);
 
-        if (serRefs != null)
+        if (!serRefs.isEmpty())
         {
-            for (ServiceReference serRef : serRefs)
+            for (ServiceReference<ContactSourceService> serRef : serRefs)
             {
                 ContactSourceService contactSource
-                    = (ContactSourceService) bundleContext.getService(serRef);
+                    = bundleContext.getService(serRef);
 
                 contactSources.add(contactSource);
             }
@@ -615,30 +594,22 @@ public class GuiActivator implements BundleActivator
      */
     public static Map<String, ReplacementService> getReplacementSources()
     {
-        ServiceReference[] serRefs = null;
-        try
-        {
-            // get all registered sources
-            serRefs
-                = bundleContext.getServiceReferences(ReplacementService.class
-                    .getName(), null);
+        Collection<ServiceReference<ReplacementService>> serRefs
+            = ServiceUtils.getServiceReferences(
+                    bundleContext,
+                    ReplacementService.class);
 
-        }
-        catch (InvalidSyntaxException e)
+        if (!serRefs.isEmpty())
         {
-            logger.error("Error : " + e);
-        }
-
-        if (serRefs != null)
-        {
-            for (int i = 0; i < serRefs.length; i++)
+            for (ServiceReference<ReplacementService> serRef : serRefs)
             {
-                ReplacementService replacementSources =
-                    (ReplacementService) bundleContext.getService(serRefs[i]);
+                ReplacementService replacementSources
+                    = bundleContext.getService(serRef);
 
-                replacementSourcesMap.put((String)serRefs[i]
-                    .getProperty(ReplacementService.SOURCE_NAME),
-                    replacementSources);
+                replacementSourcesMap.put(
+                        (String)
+                            serRef.getProperty(ReplacementService.SOURCE_NAME),
+                        replacementSources);
             }
         }
         return replacementSourcesMap;
@@ -725,21 +696,24 @@ public class GuiActivator implements BundleActivator
      */
     public static SecurityAuthority getSecurityAuthority(String protocolName)
     {
-        String osgiFilter = "("
-            + ProtocolProviderFactory.PROTOCOL
-            + "=" + protocolName + ")";
-
+        String osgiFilter
+            = "(" + ProtocolProviderFactory.PROTOCOL + "=" + protocolName + ")";
         SecurityAuthority securityAuthority = null;
+
         try
         {
-            ServiceReference[] serRefs
+            Collection<ServiceReference<SecurityAuthority>> serRefs
                 = bundleContext.getServiceReferences(
-                    SecurityAuthority.class.getName(), osgiFilter);
+                        SecurityAuthority.class,
+                        osgiFilter);
 
-            if (serRefs != null && serRefs.length > 0)
-                securityAuthority
-                    = (SecurityAuthority) bundleContext
-                        .getService(serRefs[0]);
+            if (!serRefs.isEmpty())
+            {
+                ServiceReference<SecurityAuthority> serRef
+                    = serRefs.iterator().next();
+
+                securityAuthority = bundleContext.getService(serRef);
+            }
         }
         catch (InvalidSyntaxException ex)
         {
@@ -799,22 +773,10 @@ public class GuiActivator implements BundleActivator
         if(prefWName == null || prefWName.length() <= 0)
             return null;
 
-        Collection<ServiceReference<AccountRegistrationWizard>> accountWizardRefs;
-        try
-        {
-            accountWizardRefs
-                = GuiActivator.bundleContext.getServiceReferences(
-                        AccountRegistrationWizard.class,
-                        null);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            // this shouldn't happen since we're providing no parameter string
-            // but let's log just in case.
-            logger.error(
-                "Error while retrieving service refs", ex);
-            return null;
-        }
+        Collection<ServiceReference<AccountRegistrationWizard>> accountWizardRefs
+            = ServiceUtils.getServiceReferences(
+                    GuiActivator.bundleContext,
+                    AccountRegistrationWizard.class);
 
         // in case we found any, add them in this container.
         if (accountWizardRefs != null)
@@ -873,16 +835,14 @@ public class GuiActivator implements BundleActivator
     {
         if (credentialsService == null)
         {
-            ServiceReference credentialsReference
-                = bundleContext.getServiceReference(
-                    CredentialsStorageService.class.getName());
             credentialsService
-                = (CredentialsStorageService) bundleContext
-                                        .getService(credentialsReference);
+                = ServiceUtils.getService(
+                        bundleContext,
+                        CredentialsStorageService.class);
         }
         return credentialsService;
     }
-    
+
     /**
      * Returns a reference to a MUCService implementation
      * currently registered in the bundle context or null if no such

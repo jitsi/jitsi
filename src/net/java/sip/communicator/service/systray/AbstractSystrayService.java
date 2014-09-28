@@ -227,36 +227,34 @@ public abstract class AbstractSystrayService
         {
             bundleContext.addServiceListener(
                     new ServiceListenerImpl(),
-                    "(objectclass="
-                            + PopupMessageHandler.class.getName()
-                            + ")");
+                    "(objectclass=" + PopupMessageHandler.class.getName()
+                        + ")");
         }
         catch (Exception e)
         {
             logger.warn(e);
         }
+
         // now we look if some handler has been registered before we start
         // to listen
-        ServiceReference[] handlerRefs
-                = ServiceUtils.getServiceReferences(
-                        bundleContext,
-                        PopupMessageHandler.class);
+        Collection<ServiceReference<PopupMessageHandler>> handlerRefs
+            = ServiceUtils.getServiceReferences(
+                    bundleContext,
+                    PopupMessageHandler.class);
 
-        if (handlerRefs != null)
+        if (!handlerRefs.isEmpty())
         {
             ConfigurationService config
-                    = ServiceUtils.getService(
-                            bundleContext,
-                            ConfigurationService.class);
-
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ConfigurationService.class);
             String configuredHandler
-                    = (String) config.getProperty("systray.POPUP_HANDLER");
+                = config.getString("systray.POPUP_HANDLER");
 
-            for (ServiceReference handlerRef : handlerRefs)
+            for (ServiceReference<PopupMessageHandler> handlerRef : handlerRefs)
             {
                 PopupMessageHandler handler
-                        = (PopupMessageHandler) bundleContext
-                                .getService(handlerRef);
+                    = bundleContext.getService(handlerRef);
                 String handlerName = handler.getClass().getName();
 
                 if (!containsHandler(handlerName))
@@ -270,7 +268,7 @@ public abstract class AbstractSystrayService
                     }
                     if ((configuredHandler != null)
                             && configuredHandler.equals(
-                            handler.getClass().getName()))
+                                    handler.getClass().getName()))
                     {
                         setActivePopupMessageHandler(handler);
                     }
@@ -284,7 +282,7 @@ public abstract class AbstractSystrayService
 
     /** An implementation of <tt>ServiceListener</tt> we will use */
     private class ServiceListenerImpl
-            implements ServiceListener
+        implements ServiceListener
     {
 
         /**
@@ -296,15 +294,16 @@ public abstract class AbstractSystrayService
             try
             {
                 Object service
-                        = bundleContext.getService(
-                                serviceEvent.getServiceReference());
+                    = bundleContext.getService(
+                            serviceEvent.getServiceReference());
                 // Event filters don't work on Android
                 if(!(service instanceof PopupMessageHandler))
                     return;
 
                 PopupMessageHandler handler
-                        = (PopupMessageHandler) bundleContext
-                                .getService(serviceEvent.getServiceReference());
+                    = (PopupMessageHandler)
+                        bundleContext.getService(
+                                serviceEvent.getServiceReference());
 
                 if (serviceEvent.getType() == ServiceEvent.REGISTERED)
                 {
@@ -324,7 +323,7 @@ public abstract class AbstractSystrayService
                         = ServiceUtils.getService( bundleContext,
                                                    ConfigurationService.class);
                     String configuredHandler
-                            = (String) cfg.getProperty("systray.POPUP_HANDLER");
+                        = cfg.getString("systray.POPUP_HANDLER");
 
                     if ((configuredHandler == null)
                             && ((getActivePopupHandler() == null)

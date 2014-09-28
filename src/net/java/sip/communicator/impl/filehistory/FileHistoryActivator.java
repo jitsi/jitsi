@@ -23,8 +23,8 @@ public class FileHistoryActivator
      * The <tt>Logger</tt> instance used by the
      * <tt>FileHistoryActivator</tt> class and its instances for logging output.
      */
-    private static Logger logger =
-        Logger.getLogger(FileHistoryActivator.class);
+    private static Logger logger
+        = Logger.getLogger(FileHistoryActivator.class);
 
     /**
      * A <tt>FileHistoryService</tt> service reference.
@@ -43,22 +43,20 @@ public class FileHistoryActivator
 
             logger.logEntry();
 
-            ServiceReference refHistory = bundleContext.getServiceReference(
-                HistoryService.class.getName());
-
-            HistoryService historyService = (HistoryService)
-                bundleContext.getService(refHistory);
+            HistoryService historyService
+                = ServiceUtils.getService(bundleContext, HistoryService.class);
 
             //Create and start the file history service.
-            fileHistoryService =
-                new FileHistoryServiceImpl();
+            fileHistoryService = new FileHistoryServiceImpl();
             // set the history service
             fileHistoryService.setHistoryService(historyService);
 
             fileHistoryService.start(bundleContext);
 
             bundleContext.registerService(
-                FileHistoryService.class.getName(), fileHistoryService, null);
+                    FileHistoryService.class.getName(),
+                    fileHistoryService,
+                    null);
 
             if (logger.isInfoEnabled())
                 logger.info("File History Service ...[REGISTERED]");

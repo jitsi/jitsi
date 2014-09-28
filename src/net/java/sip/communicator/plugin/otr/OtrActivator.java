@@ -166,33 +166,23 @@ public class OtrActivator
     private static Map<Object, ProtocolProviderFactory>
         getProtocolProviderFactories()
     {
-        ServiceReference[] serRefs;
-        try
-        {
-            // get all registered provider factories
-            serRefs =
-                bundleContext.getServiceReferences(
-                    ProtocolProviderFactory.class.getName(), null);
+        Collection<ServiceReference<ProtocolProviderFactory>> serRefs
+            = ServiceUtils.getServiceReferences(
+                    bundleContext,
+                    ProtocolProviderFactory.class);
+        Map<Object, ProtocolProviderFactory> providerFactoriesMap
+            = new Hashtable<Object, ProtocolProviderFactory>();
 
-        }
-        catch (InvalidSyntaxException ex)
+        if (!serRefs.isEmpty())
         {
-            logger.error("Error while retrieving service refs", ex);
-            return null;
-        }
-
-        Map<Object, ProtocolProviderFactory> providerFactoriesMap =
-            new Hashtable<Object, ProtocolProviderFactory>();
-        if (serRefs != null)
-        {
-            for (ServiceReference serRef : serRefs)
+            for (ServiceReference<ProtocolProviderFactory> serRef : serRefs)
             {
-                ProtocolProviderFactory providerFactory =
-                    (ProtocolProviderFactory) bundleContext.getService(serRef);
+                ProtocolProviderFactory providerFactory
+                    = bundleContext.getService(serRef);
 
-                providerFactoriesMap.put(serRef
-                    .getProperty(ProtocolProviderFactory.PROTOCOL),
-                    providerFactory);
+                providerFactoriesMap.put(
+                        serRef.getProperty(ProtocolProviderFactory.PROTOCOL),
+                        providerFactory);
             }
         }
         return providerFactoriesMap;
@@ -317,26 +307,26 @@ public class OtrActivator
         bundleContext.addServiceListener(scOtrEngine);
         bundleContext.addServiceListener(otrContactManager);
 
-        ServiceReference[] protocolProviderRefs
+        Collection<ServiceReference<ProtocolProviderService>> protocolProviderRefs
             = ServiceUtils.getServiceReferences(
                     bundleContext,
                     ProtocolProviderService.class);
 
-        if (protocolProviderRefs != null && protocolProviderRefs.length > 0)
+        if (!protocolProviderRefs.isEmpty())
         {
             if (logger.isDebugEnabled())
             {
                 logger.debug(
-                        "Found " + protocolProviderRefs.length
+                        "Found " + protocolProviderRefs.size()
                             + " already installed providers.");
             }
-            for (ServiceReference protocolProviderRef : protocolProviderRefs)
+            for (ServiceReference<ProtocolProviderService> protocolProviderRef
+                    : protocolProviderRefs)
             {
                 ProtocolProviderService provider
-                    = (ProtocolProviderService)
-                        bundleContext.getService(protocolProviderRef);
+                    = bundleContext.getService(protocolProviderRef);
 
-                this.handleProviderAdded(provider);
+                handleProviderAdded(provider);
             }
         }
 
@@ -435,31 +425,21 @@ public class OtrActivator
         if(otrContactManager != null)
             bundleContext.removeServiceListener(otrContactManager);
 
-        ServiceReference[] protocolProviderRefs;
-        try
-        {
-            protocolProviderRefs =
-                bundleContext.getServiceReferences(
-                    ProtocolProviderService.class.getName(), null);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            // this shouldn't happen since we're providing no parameter string
-            // but let's log just in case.
-            logger.error("Error while retrieving service refs", ex);
-            return;
-        }
+        Collection<ServiceReference<ProtocolProviderService>> protocolProviderRefs
+            = ServiceUtils.getServiceReferences(
+                    bundleContext,
+                    ProtocolProviderService.class);
 
-        if (protocolProviderRefs != null && protocolProviderRefs.length > 0)
+        if (!protocolProviderRefs.isEmpty())
         {
             // in case we found any
-            for (ServiceReference protocolProviderRef : protocolProviderRefs)
+            for (ServiceReference<ProtocolProviderService> protocolProviderRef
+                    : protocolProviderRefs)
             {
-                ProtocolProviderService provider =
-                    (ProtocolProviderService) bundleContext
-                        .getService(protocolProviderRef);
+                ProtocolProviderService provider
+                    = bundleContext.getService(protocolProviderRef);
 
-                this.handleProviderRemoved(provider);
+                handleProviderRemoved(provider);
             }
         }
     }

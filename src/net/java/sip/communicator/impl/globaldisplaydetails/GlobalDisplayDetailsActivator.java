@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.globaldisplaydetails;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -90,20 +92,19 @@ public class GlobalDisplayDetailsActivator
      */
     private void handleAlreadyRegisteredProviders()
     {
-        ServiceReference[] providerRefs
+        Collection<ServiceReference<ProtocolProviderService>> ppsRefs
             = ServiceUtils.getServiceReferences(
-                bundleContext, ProtocolProviderService.class);
+                    bundleContext,
+                    ProtocolProviderService.class);
 
-        if(providerRefs == null)
+        if(ppsRefs.isEmpty())
             return;
 
-        for (ServiceReference protocolProviderRef : providerRefs)
+        for (ServiceReference<ProtocolProviderService> ppsRef : ppsRefs)
         {
-            ProtocolProviderService provider
-                = (ProtocolProviderService)
-                    bundleContext.getService(protocolProviderRef);
+            ProtocolProviderService pps = bundleContext.getService(ppsRef);
 
-            this.handleProviderAdded(provider);
+            handleProviderAdded(pps);
         }
     }
 
@@ -212,7 +213,7 @@ public class GlobalDisplayDetailsActivator
      */
     public void serviceChanged(ServiceEvent event)
     {
-        ServiceReference serviceRef = event.getServiceReference();
+        ServiceReference<?> serviceRef = event.getServiceReference();
 
         // if the event is caused by a bundle being stopped, we don't want to
         // know
@@ -221,8 +222,7 @@ public class GlobalDisplayDetailsActivator
             return;
         }
 
-        Object service
-            = UtilActivator.bundleContext.getService(serviceRef);
+        Object service = UtilActivator.bundleContext.getService(serviceRef);
 
         // we don't care if the source service is not a protocol provider
         if (!(service instanceof ProtocolProviderService))
@@ -243,5 +243,4 @@ public class GlobalDisplayDetailsActivator
             break;
         }
     }
-
 }

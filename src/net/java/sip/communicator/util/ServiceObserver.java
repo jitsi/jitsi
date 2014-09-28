@@ -18,31 +18,69 @@ import java.util.*;
  * @author Pawel Domas
  */
 public class ServiceObserver<T>
-        implements ServiceListener
+    implements ServiceListener
 {
-    /**
-     * Service instances list.
-     */
-    private final List<T> services;
     /**
      * Service class name.
      */
-    private final Class<T> className;
+    private final Class<T> clazz;
+
     /**
      * The OSGi context.
      */
     private BundleContext context;
 
     /**
+     * Service instances list.
+     */
+    private final List<T> services = new ArrayList<T>();
+
+    /**
      * Creates new instance of <tt>ServiceObserver</tt> that will observe
      * services of given <tt>className</tt>.
      *
-     * @param className class name of the service to observe.
+     * @param clazz the <tt>Class</tt> of the service to observe.
      */
-    public ServiceObserver(Class<T> className)
+    public ServiceObserver(Class<T> clazz)
     {
-        services = new ArrayList<T>();
-        this.className = className;
+        this.clazz = clazz;
+    }
+
+    /**
+     * Returns list of services compatible with service class observed by
+     * this instance.
+     * @return list of services compatible with service class observed by
+     *         this instance.
+     */
+    public List<T> getServices()
+    {
+        return Collections.unmodifiableList(services);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public void serviceChanged(ServiceEvent serviceEvent)
+    {
+        Object service = context.getService(serviceEvent.getServiceReference());
+
+        if(!clazz.isInstance(service))
+        {
+            return;
+        }
+
+        int eventType = serviceEvent.getType();
+
+        if(eventType == ServiceEvent.REGISTERED)
+        {
+            services.add((T) service);
+        }
+        else if(eventType == ServiceEvent.UNREGISTERING)
+        {
+            services.remove(service);
+        }
     }
 
     /**
@@ -50,17 +88,17 @@ public class ServiceObserver<T>
      * observer.
      * @param ctx the OSGi bundle context.
      */
-    @SuppressWarnings("unchecked")
     public void start(BundleContext ctx)
     {
         this.context = ctx;
 
         ctx.addServiceListener(this);
 
-        ServiceReference[] refs
-                = ServiceUtils.getServiceReferences(ctx, className);
-        for(ServiceReference ref : refs)
-            services.add((T) ctx.getService(ref));
+        Collection<ServiceReference<T>> refs
+            = ServiceUtils.getServiceReferences(ctx, clazz);
+
+        for(ServiceReference<T> ref : refs)
+            services.add(ctx.getService(ref));
     }
 
     /**
@@ -74,42 +112,5 @@ public class ServiceObserver<T>
         ctx.removeServiceListener(this);
         services.clear();
         this.context = null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @SuppressWarnings("unchecked")
-    @Override
-    public void serviceChanged(ServiceEvent serviceEvent)
-    {
-        Object service
-                = context.getService(serviceEvent.getServiceReference());
-
-        if(!className.isInstance(service))
-        {
-            return;
-        }
-
-        int eventType = serviceEvent.getType();
-        if(eventType == ServiceEvent.REGISTERED)
-        {
-            services.add((T) service);
-        }
-        else if(eventType == ServiceEvent.UNREGISTERING)
-        {
-            services.remove(service);
-        }
-    }
-
-    /**
-     * Returns list of services compatible with service class observed by
-     * this instance.
-     * @return list of services compatible with service class observed by
-     *         this instance.
-     */
-    public List<T> getServices()
-    {
-        return Collections.unmodifiableList(services);
     }
 }
