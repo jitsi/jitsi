@@ -2,7 +2,9 @@ package net.java.sip.communicator.service.protocol;
 
 /**
  * Provides additional information on the transport on which Basic Instant
- * Messaging communication is built.
+ * Messaging communication is built. Note that this refers to the
+ * characteristics of the instant messaging protocol, not to the underlying TCP
+ * or UDP transport layer.
  *
  * This interface defines methods that provide information on the transport
  * facilities that are used by the Basic Instant Messaging protocol
