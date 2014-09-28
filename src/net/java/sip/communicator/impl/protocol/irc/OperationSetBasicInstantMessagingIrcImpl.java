@@ -99,7 +99,7 @@ public class OperationSetBasicInstantMessagingIrcImpl
             {
                 if (event == null)
                 {
-                    return;
+                    continue;
                 }
 
                 String transformedContent =
