@@ -14,8 +14,7 @@ package net.java.sip.communicator.service.protocol;
  *
  * @author Danny van Heumen
  */
-public interface OperationSetBasicInstantMessagingTransport
-    extends OperationSetBasicInstantMessaging
+public interface OperationSetBasicInstantMessagingTransport extends OperationSet
 {
     /**
      * Constant value indicating unlimited size or number.
