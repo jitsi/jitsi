@@ -33,7 +33,7 @@ public interface OperationSetBasicInstantMessagingTransport
      * @return returns the maximum size of the message or UNLIMITED if there is
      *         no limit
      */
-    int maximumMessageSize(Contact contact);
+    int getMaxMessageSize(Contact contact);
 
     /**
      * Compute the maximum number of consecutive messages allowed to be sent to
@@ -47,5 +47,5 @@ public interface OperationSetBasicInstantMessagingTransport
      * @param contact the contact to which the messages are sent
      * @return returns the maximum number of messages to send
      */
-    int numberOfMessages(Contact contact);
+    int getMaxNumberOfMessages(Contact contact);
 }

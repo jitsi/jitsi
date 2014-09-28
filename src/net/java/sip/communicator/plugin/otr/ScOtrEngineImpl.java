@@ -30,6 +30,7 @@ import org.osgi.framework.*;
  * @author Lyubomir Marinov
  * @author Pawel Domas
  * @author Marin Dzhigarov
+ * @author Danny van Heumen
  */
 public class ScOtrEngineImpl
     implements ScOtrEngine,
@@ -445,14 +446,14 @@ public class ScOtrEngineImpl
                 }
                 return null;
             }
-            int messageSize = transport.maximumMessageSize(otrContact.contact);
+            int messageSize = transport.getMaxMessageSize(otrContact.contact);
             if (messageSize
                 == OperationSetBasicInstantMessagingTransport.UNLIMITED)
             {
                 messageSize = FragmenterInstructions.UNLIMITED;
             }
             int numberOfMessages =
-                transport.numberOfMessages(otrContact.contact);
+                transport.getMaxNumberOfMessages(otrContact.contact);
             if (numberOfMessages
                 == OperationSetBasicInstantMessagingTransport.UNLIMITED)
             {

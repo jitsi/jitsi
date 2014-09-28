@@ -213,7 +213,7 @@ public class OperationSetBasicInstantMessagingIrcImpl
      *         complete message.
      */
     @Override
-    public int maximumMessageSize(final Contact contact)
+    public int getMaxMessageSize(final Contact contact)
     {
         return this.provider.getIrcStack().calculateMaximumMessageSize(contact);
     }
@@ -225,7 +225,7 @@ public class OperationSetBasicInstantMessagingIrcImpl
      * @return returns number of messages that can be received at maximum
      */
     @Override
-    public int numberOfMessages(final Contact contact)
+    public int getMaxNumberOfMessages(final Contact contact)
     {
         return OperationSetBasicInstantMessagingTransport.UNLIMITED;
     }
