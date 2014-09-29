@@ -2236,7 +2236,7 @@ public class ProtocolProviderServiceJabberImpl
         public void connectionClosedOnError(Exception exception)
         {
             logger.error("connectionClosedOnError " +
-                         exception.getLocalizedMessage());
+                         exception.getLocalizedMessage(), exception);
 
             if(exception instanceof XMPPException)
             {
