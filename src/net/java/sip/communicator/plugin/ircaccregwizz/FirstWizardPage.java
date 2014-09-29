@@ -461,8 +461,12 @@ public class FirstWizardPage
         if (port != null)
         {
             this.portField.setText(port);
-            this.portField.setEnabled(true);
-            this.defaultPort.setSelected(false);
+
+            boolean defaultPort =
+                (useSecureConnection && DEFAULT_SECURE_PORT.equals(port))
+                    || DEFAULT_PLAINTEXT_PORT.equals(port);
+            this.portField.setEnabled(!defaultPort);
+            this.defaultPort.setSelected(defaultPort);
         }
 
         if (autoNickChange != null)
