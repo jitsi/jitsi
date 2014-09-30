@@ -329,8 +329,15 @@ public class GlobalStatusServiceImpl
             && registrationState != RegistrationState.AUTHENTICATING
             && status.isOnline())
         {
-            GlobalDisplayDetailsActivator.getUIService().getLoginManager()
-                .login(protocolProvider);
+            // If provider fires registered, and while dispatching
+            // the registered event a fatal error rise in the connection
+            // and the provider goes in connection_failed we can end up here
+            // calling login and going over the same cycle over and over again
+            logger.warn("Called publish status for provider in wrong state " +
+                " provider: " + protocolProvider + " registrationState: "
+                + registrationState + " status: " + status);
+            ///GlobalDisplayDetailsActivator.getUIService().getLoginManager()
+            //    .login(protocolProvider);
         }
         else if (!status.isOnline()
                 && !(registrationState
