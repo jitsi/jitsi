@@ -689,7 +689,13 @@ public class ReconnectPluginActivator
         {
             ProtocolProviderService pp = (ProtocolProviderService)evt.getSource();
 
-            if(evt.getNewState().equals(RegistrationState.CONNECTION_FAILED))
+            boolean isServerReturnedErroneousInputEvent =
+                evt.getNewState().equals(RegistrationState.CONNECTION_FAILED)
+                && evt.getReasonCode() == RegistrationStateChangeEvent
+                    .REASON_SERVER_RETURNED_ERRONEOUS_INPUT;
+
+            if(evt.getNewState().equals(RegistrationState.CONNECTION_FAILED)
+                && !isServerReturnedErroneousInputEvent)
             {
                 if(!hasAtLeastOneSuccessfulConnection(pp))
                 {
@@ -773,11 +779,13 @@ public class ReconnectPluginActivator
                     traceCurrentPPState();
                 }
             }
-            else if(evt.getNewState().equals(RegistrationState.UNREGISTERED))
+            else if(evt.getNewState().equals(RegistrationState.UNREGISTERED)
+                    || isServerReturnedErroneousInputEvent)
             {
                 // Removes from list of autoreconnect only if the unregister
                 // event is by user request
-                if(evt.isUserRequest())
+                if(evt.isUserRequest()
+                    || isServerReturnedErroneousInputEvent)
                     autoReconnEnabledProviders.remove(pp);
 
                 if(!unregisteringProviders.contains(pp)

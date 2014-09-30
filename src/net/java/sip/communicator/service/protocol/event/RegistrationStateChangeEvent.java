@@ -99,6 +99,11 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
     public static final int REASON_TLS_REQUIRED = 9;
 
     /**
+     * Indicates that the specified server returned an error input.
+     */
+    public static final int REASON_SERVER_RETURNED_ERRONEOUS_INPUT = 10;
+
+    /**
      * The reason code returned by the server in order to explain the state
      * transition.
      */

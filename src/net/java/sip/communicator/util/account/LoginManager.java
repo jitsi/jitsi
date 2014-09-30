@@ -403,6 +403,12 @@ public class LoginManager
         {
             this.protocolProvider = protocolProvider;
             this.secAuth = secAuth;
+
+            if(logger.isTraceEnabled())
+                logger.trace("Registering provider: "
+                    + protocolProvider.getAccountID().getAccountAddress(),
+                    new Exception(
+                        "Just tracing, provider registering, not an error!"));
         }
 
         /**

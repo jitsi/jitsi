@@ -45,6 +45,7 @@ import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.packet.*;
 import org.osgi.framework.*;
+import org.xmlpull.v1.*;
 import org.xmpp.jnodes.smack.*;
 
 /**
@@ -2238,6 +2239,8 @@ public class ProtocolProviderServiceJabberImpl
             logger.error("connectionClosedOnError " +
                          exception.getLocalizedMessage(), exception);
 
+            int reason = RegistrationStateChangeEvent.REASON_NOT_SPECIFIED;
+
             if(exception instanceof XMPPException)
             {
                 StreamError err = ((XMPPException)exception).getStreamError();
@@ -2277,6 +2280,11 @@ public class ProtocolProviderServiceJabberImpl
             {
                 return;
             }
+            else if(exception instanceof XmlPullParserException)
+            {
+                reason = RegistrationStateChangeEvent
+                    .REASON_SERVER_RETURNED_ERRONEOUS_INPUT;
+            }
 
             // if we are in the middle of connecting process
             // do not fire events, will do it later when the method
@@ -2289,7 +2297,7 @@ public class ProtocolProviderServiceJabberImpl
                         ProtocolProviderServiceJabberImpl.this,
                         getRegistrationState(),
                         RegistrationState.CONNECTION_FAILED,
-                        RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                        reason,
                         exception.getMessage());
                      return;
                 }
@@ -2299,7 +2307,7 @@ public class ProtocolProviderServiceJabberImpl
 
             fireRegistrationStateChanged(getRegistrationState(),
                 RegistrationState.CONNECTION_FAILED,
-                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED,
+                reason,
                 exception.getMessage());
         }
 
