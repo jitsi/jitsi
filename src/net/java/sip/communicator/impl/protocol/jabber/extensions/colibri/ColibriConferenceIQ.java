@@ -399,6 +399,13 @@ public class ColibriConferenceIQ
         public static final String LAST_N_ATTR_NAME = "last-n";
 
         /**
+         * The XML name of the <tt>adaptive-last-n</tt> attribute of a video
+         * <tt>channel</tt>.
+         */
+        public static final String ADAPTIVE_LAST_N_ATTR_NAME
+            = "adaptive-last-n";
+
+        /**
          * The XML name of the <tt>receive-simulcast-layer</tt> attribute of a
          * video <tt>Channel</tt> which specifies the target quality of the
          * simulcast substreams to be sent from Jitsi Videobridge to the
@@ -463,6 +470,11 @@ public class ColibriConferenceIQ
          * <tt>Channel</tt>.
          */
         private Integer lastN;
+
+        /**
+         * The 'adaptive-last-n' flag.
+         */
+        private Boolean adaptiveLastN;
 
         /**
          * The <tt>payload-type</tt> elements defined by XEP-0167: Jingle RTP
@@ -666,6 +678,15 @@ public class ColibriConferenceIQ
         public Integer getLastN()
         {
             return lastN;
+        }
+
+        /**
+         * Gets the value of the 'adaptive-last-n' flag.
+         * @return the value of the 'adaptive-last-n' flag.
+         */
+        public Boolean getAdaptiveLastN()
+        {
+            return adaptiveLastN;
         }
 
         /**
@@ -998,6 +1019,15 @@ public class ColibriConferenceIQ
         public void setLastN(Integer lastN)
         {
             this.lastN = lastN;
+        }
+
+        /**
+         * Sets the value of the 'adaptive-last-n' flag.
+         * @param adaptiveLastN the value to set.
+         */
+        public void setAdaptiveLastN(Boolean adaptiveLastN)
+        {
+            this.adaptiveLastN = adaptiveLastN;
         }
 
         /**

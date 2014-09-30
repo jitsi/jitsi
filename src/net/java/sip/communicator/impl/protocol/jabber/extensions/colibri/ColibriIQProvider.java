@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 
+import com.google.gdata.util.common.base.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
@@ -364,6 +365,16 @@ public class ColibriIQProvider
 
                         if ((lastN != null) && (lastN.length() != 0))
                             channel.setLastN(Integer.parseInt(lastN));
+
+                        String adaptiveLastN
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.Channel
+                                            .ADAPTIVE_LAST_N_ATTR_NAME);
+
+                        if (!StringUtils.isNullOrEmpty(adaptiveLastN))
+                            channel.setAdaptiveLastN(
+                                    Boolean.parseBoolean(adaptiveLastN));
 
                         // receiving simulcast layer
                         String receivingSimulcastLayer
