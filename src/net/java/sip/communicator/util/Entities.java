@@ -1028,7 +1028,7 @@ class Entities {
          */
         private static class Entry {
             final int hash;
-            final int key;
+//            final int key;
             Object value;
             Entry next;
 
@@ -1042,7 +1042,7 @@ class Entities {
              */
             protected Entry(int hash, int key, Object value, Entry next) {
                 this.hash = hash;
-                this.key = key;
+//                this.key = key;
                 this.value = value;
                 this.next = next;
             }

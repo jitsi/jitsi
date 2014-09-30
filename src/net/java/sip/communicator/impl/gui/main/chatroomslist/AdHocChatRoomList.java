@@ -23,9 +23,6 @@ import org.osgi.framework.*;
  */
 public class AdHocChatRoomList
 {
-    private static final Logger logger
-        = Logger.getLogger(AdHocChatRoomList.class);
-
     /**
      * The list containing all chat servers and ad-hoc rooms.
      */
@@ -37,36 +34,24 @@ public class AdHocChatRoomList
      */
     public void loadList()
     {
-        try
+        Collection<ServiceReference<ProtocolProviderService>> serRefs
+            = ServiceUtils.getServiceReferences(
+                    GuiActivator.bundleContext,
+                    ProtocolProviderService.class);
+
+        if ((serRefs != null) && !serRefs.isEmpty())
         {
-            ServiceReference[] serRefs
-                = GuiActivator.bundleContext.getServiceReferences(
-                                        ProtocolProviderService.class.getName(),
-                                        null);
-
-            // If we don't have providers at this stage we just return.
-            if (serRefs == null)
-                return;
-
-            for (ServiceReference serRef : serRefs)
+            for (ServiceReference<ProtocolProviderService> serRef : serRefs)
             {
                 ProtocolProviderService protocolProvider
-                    = (ProtocolProviderService)
-                            GuiActivator.bundleContext.getService(serRef);
-
+                    = GuiActivator.bundleContext.getService(serRef);
                 Object adHocMultiUserChatOpSet
-                    = protocolProvider
-                        .getOperationSet(OperationSetAdHocMultiUserChat.class);
+                    = protocolProvider.getOperationSet(
+                            OperationSetAdHocMultiUserChat.class);
 
                 if (adHocMultiUserChatOpSet != null)
-                {
-                    this.addChatProvider(protocolProvider);
-                }
+                    addChatProvider(protocolProvider);
             }
-        }
-        catch (InvalidSyntaxException e)
-        {
-            logger.error("Failed to obtain service references.", e);
         }
     }
 

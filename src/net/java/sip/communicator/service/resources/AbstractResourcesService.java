@@ -6,16 +6,18 @@
  */
 package net.java.sip.communicator.service.resources;
 
-import net.java.sip.communicator.util.*;
-import org.jitsi.service.configuration.*;
-import org.jitsi.service.resources.*;
-import org.osgi.framework.*;
-
-import javax.swing.*;
 import java.io.*;
 import java.net.*;
 import java.text.*;
 import java.util.*;
+
+import javax.swing.*;
+
+import net.java.sip.communicator.util.*;
+
+import org.jitsi.service.configuration.*;
+import org.jitsi.service.resources.*;
+import org.osgi.framework.*;
 
 /**
  * The abstract class for ResourceManagementService. It listens for
@@ -109,16 +111,18 @@ public abstract class AbstractResourcesService
         this.bundleContext = bundleContext;
         bundleContext.addServiceListener(this);
 
-        colorPack =
-                getDefaultResourcePack(ColorPack.class.getName(),
-                        ColorPack.RESOURCE_NAME_DEFAULT_VALUE);
+        colorPack
+            = getDefaultResourcePack(
+                    ColorPack.class,
+                    ColorPack.RESOURCE_NAME_DEFAULT_VALUE);
 
         if (colorPack != null)
             colorResources = getResources(colorPack);
 
-        imagePack = (ImagePack) getDefaultResourcePack(
-                ImagePack.class.getName(),
-                ImagePack.RESOURCE_NAME_DEFAULT_VALUE);
+        imagePack
+            = getDefaultResourcePack(
+                    ImagePack.class,
+                    ImagePack.RESOURCE_NAME_DEFAULT_VALUE);
 
         if (imagePack != null)
             imageResources = getResources(imagePack);
@@ -132,9 +136,10 @@ public abstract class AbstractResourcesService
             Locale.setDefault(
                     ResourceManagementServiceUtils.getLocale(defaultLocale));
 
-        languagePack = (LanguagePack) getDefaultResourcePack(
-                LanguagePack.class.getName(),
-                LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
+        languagePack
+            = getDefaultResourcePack(
+                    LanguagePack.class,
+                    LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
 
         if (languagePack != null)
         {
@@ -142,22 +147,26 @@ public abstract class AbstractResourcesService
             languageResources = languagePack.getResources(languageLocale);
         }
 
-        settingsPack =
-                getDefaultResourcePack(SettingsPack.class.getName(),
-                        SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
+        settingsPack
+            = getDefaultResourcePack(
+                    SettingsPack.class,
+                    SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
 
         if (settingsPack != null)
             settingsResources = getResources(settingsPack);
 
-        soundPack =
-                getDefaultResourcePack(SoundPack.class.getName(),
-                        SoundPack.RESOURCE_NAME_DEFAULT_VALUE);
+        soundPack
+            = getDefaultResourcePack(
+                    SoundPack.class,
+                    SoundPack.RESOURCE_NAME_DEFAULT_VALUE);
 
         if (soundPack != null)
             soundResources = getResources(soundPack);
 
-        skinPack = (SkinPack) getDefaultResourcePack(
-                SkinPack.class.getName(), SkinPack.RESOURCE_NAME_DEFAULT_VALUE);
+        skinPack
+            = getDefaultResourcePack(
+                    SkinPack.class,
+                    SkinPack.RESOURCE_NAME_DEFAULT_VALUE);
 
         if (skinPack != null)
         {
@@ -247,48 +256,48 @@ public abstract class AbstractResourcesService
             if(resourcePack instanceof ColorPack
                     && colorPack.equals(resourcePack))
             {
-                colorPack =
-                        getDefaultResourcePack(ColorPack.class.getName(),
-                                ColorPack.RESOURCE_NAME_DEFAULT_VALUE);
-
+                colorPack
+                    = getDefaultResourcePack(
+                            ColorPack.class,
+                            ColorPack.RESOURCE_NAME_DEFAULT_VALUE);
                 if (colorPack != null)
                     colorResources = getResources(colorPack);
             }
             else if(resourcePack instanceof ImagePack
                     && imagePack.equals(resourcePack))
             {
-                imagePack = (ImagePack) getDefaultResourcePack(
-                        ImagePack.class.getName(),
-                        ImagePack.RESOURCE_NAME_DEFAULT_VALUE);
-
+                imagePack
+                    = getDefaultResourcePack(
+                            ImagePack.class,
+                            ImagePack.RESOURCE_NAME_DEFAULT_VALUE);
                 if (imagePack != null)
                     imageResources = getResources(imagePack);
             }
             else if(resourcePack instanceof LanguagePack
                     && languagePack.equals(resourcePack))
             {
-                languagePack =
-                        (LanguagePack) getDefaultResourcePack(
-                                LanguagePack.class.getName(),
-                                LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
+                languagePack
+                    = getDefaultResourcePack(
+                            LanguagePack.class,
+                            LanguagePack.RESOURCE_NAME_DEFAULT_VALUE);
             }
             else if(resourcePack instanceof SettingsPack
                     && settingsPack.equals(resourcePack))
             {
-                settingsPack =
-                        getDefaultResourcePack(SettingsPack.class.getName(),
-                                SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
-
+                settingsPack
+                    = getDefaultResourcePack(
+                            SettingsPack.class,
+                            SettingsPack.RESOURCE_NAME_DEFAULT_VALUE);
                 if (settingsPack != null)
                     settingsResources = getResources(settingsPack);
             }
             else if(resourcePack instanceof SoundPack
                     && soundPack.equals(resourcePack))
             {
-                soundPack =
-                        getDefaultResourcePack(SoundPack.class.getName(),
-                                SoundPack.RESOURCE_NAME_DEFAULT_VALUE);
-
+                soundPack
+                    = getDefaultResourcePack(
+                            SoundPack.class,
+                            SoundPack.RESOURCE_NAME_DEFAULT_VALUE);
                 if (soundPack != null)
                     soundResources = getResources(soundPack);
             }
@@ -310,10 +319,10 @@ public abstract class AbstractResourcesService
                     settingsResources = getResources(settingsPack);
                 }
 
-                skinPack = (SkinPack) getDefaultResourcePack(
-                        SkinPack.class.getName(),
-                        SkinPack.RESOURCE_NAME_DEFAULT_VALUE);
-
+                skinPack
+                    = getDefaultResourcePack(
+                            SkinPack.class,
+                            SkinPack.RESOURCE_NAME_DEFAULT_VALUE);
                 if (skinPack != null)
                 {
                     imageResources.putAll(skinPack.getImageResources());
@@ -341,28 +350,27 @@ public abstract class AbstractResourcesService
      * @return the <tt>ResourcePack</tt> corresponding to the given
      * <tt>className</tt> and <tt></tt>.
      */
-    protected ResourcePack getDefaultResourcePack(String className,
-                                                  String typeName)
+    protected <T extends ResourcePack> T getDefaultResourcePack(
+            Class<T> clazz,
+            String typeName)
     {
-        ServiceReference[] serRefs = null;
-
-        String osgiFilter =
-                "(" + ResourcePack.RESOURCE_NAME + "=" + typeName + ")";
+        Collection<ServiceReference<T>> serRefs;
+        String osgiFilter
+            = "(" + ResourcePack.RESOURCE_NAME + "=" + typeName + ")";
 
         try
         {
-            serRefs = bundleContext.getServiceReferences(
-                    className,
-                    osgiFilter);
+            serRefs = bundleContext.getServiceReferences(clazz, osgiFilter);
         }
-        catch (InvalidSyntaxException exc)
+        catch (InvalidSyntaxException ex)
         {
-            logger.error("Could not obtain resource packs reference.", exc);
+            serRefs = null;
+            logger.error("Could not obtain resource packs reference.", ex);
         }
 
-        if ((serRefs != null) && (serRefs.length > 0))
+        if ((serRefs != null) && !serRefs.isEmpty())
         {
-            return (ResourcePack) bundleContext.getService(serRefs[0]);
+            return bundleContext.getService(serRefs.iterator().next());
         }
         return null;
     }

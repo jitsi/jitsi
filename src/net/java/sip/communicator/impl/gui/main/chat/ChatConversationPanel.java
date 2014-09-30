@@ -1881,43 +1881,45 @@ public class ChatConversationPanel
     public static ConfigurationForm getChatConfigForm()
     {
         // General configuration forms only.
-        String osgiFilter = "("
-            + ConfigurationForm.FORM_TYPE
-            + "="+ConfigurationForm.GENERAL_TYPE+")";
+        Collection<ServiceReference<ConfigurationForm>> cfgFormRefs;
+        String osgiFilter
+            = "(" + ConfigurationForm.FORM_TYPE + "="
+                + ConfigurationForm.GENERAL_TYPE + ")";
 
-        ServiceReference[] confFormsRefs = null;
         try
         {
-            confFormsRefs = GuiActivator.bundleContext
-                .getServiceReferences(
-                    ConfigurationForm.class.getName(),
-                    osgiFilter);
+            cfgFormRefs
+                = GuiActivator.bundleContext.getServiceReferences(
+                        ConfigurationForm.class,
+                        osgiFilter);
         }
         catch (InvalidSyntaxException ex)
-        {}
-
-        String chatConfigFormClassName =
-            "net.java.sip.communicator.plugin.chatconfig.ChatConfigPanel";
-
-        if(confFormsRefs != null)
         {
-            for (int i = 0; i < confFormsRefs.length; i++)
+            cfgFormRefs = null;
+        }
+
+        if ((cfgFormRefs != null) && !cfgFormRefs.isEmpty())
+        {
+            String chatCfgFormClassName
+                = "net.java.sip.communicator.plugin.chatconfig.ChatConfigPanel";
+
+            for (ServiceReference<ConfigurationForm> cfgFormRef : cfgFormRefs)
             {
                 ConfigurationForm form
-                    = (ConfigurationForm) GuiActivator.bundleContext
-                    .getService(confFormsRefs[i]);
+                    = GuiActivator.bundleContext.getService(cfgFormRef);
 
                 if (form instanceof LazyConfigurationForm)
                 {
                     LazyConfigurationForm lazyConfigForm
                         = (LazyConfigurationForm) form;
 
-                    if (lazyConfigForm.getFormClassName()
-                            .equals(chatConfigFormClassName))
+                    if (chatCfgFormClassName.equals(
+                            lazyConfigForm.getFormClassName()))
+                    {
                         return form;
+                    }
                 }
-                else if (form.getClass().getName()
-                            .equals(chatConfigFormClassName))
+                else if (form.getClass().getName().equals(chatCfgFormClassName))
                 {
                     return form;
                 }

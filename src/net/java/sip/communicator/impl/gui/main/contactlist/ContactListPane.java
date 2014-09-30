@@ -812,58 +812,60 @@ public class ContactListPane
     {
         // Search for plugin components registered through the OSGI bundle
         // context.
-        ServiceReference[] serRefs = null;
-
-        String osgiFilter = "("
-            + Container.CONTAINER_ID
-            + "="+Container.CONTAINER_CONTACT_LIST.getID()+")";
+        Collection<ServiceReference<PluginComponentFactory>> serRefs;
+        String osgiFilter
+            = "(" + Container.CONTAINER_ID + "="
+                + Container.CONTAINER_CONTACT_LIST.getID() + ")";
 
         try
         {
-            serRefs = GuiActivator.bundleContext.getServiceReferences(
-                PluginComponentFactory.class.getName(),
-                osgiFilter);
+            serRefs
+                = GuiActivator.bundleContext.getServiceReferences(
+                        PluginComponentFactory.class,
+                        osgiFilter);
         }
-        catch (InvalidSyntaxException exc)
+        catch (InvalidSyntaxException ex)
         {
-            logger.error("Could not obtain plugin reference.", exc);
+            serRefs = null;
+            logger.error("Could not obtain plugin reference.", ex);
         }
 
-        if (serRefs != null)
+        if ((serRefs != null) && !serRefs.isEmpty())
         {
-            for (ServiceReference serRef : serRefs)
+            for (ServiceReference<PluginComponentFactory> serRef : serRefs)
             {
-                PluginComponentFactory factory =
-                    (PluginComponentFactory)
-                        GuiActivator.bundleContext.getService(serRef);
-                PluginComponent component =
-                    factory.getPluginComponentInstance(this);
+                PluginComponentFactory factory
+                    = GuiActivator.bundleContext.getService(serRef);
+                PluginComponent component
+                    = factory.getPluginComponentInstance(this);
 
                 Object selectedValue = getContactList().getSelectedValue();
 
                 if(selectedValue instanceof MetaContact)
                 {
-                    component.setCurrentContact((MetaContact)selectedValue);
+                    component.setCurrentContact((MetaContact) selectedValue);
                 }
                 else if(selectedValue instanceof MetaContactGroup)
                 {
-                    component
-                        .setCurrentContactGroup((MetaContactGroup)selectedValue);
+                    component.setCurrentContactGroup(
+                            (MetaContactGroup) selectedValue);
                 }
 
                 String pluginConstraints = factory.getConstraints();
                 Object constraints;
 
                 if (pluginConstraints != null)
-                    constraints = UIServiceImpl
-                        .getBorderLayoutConstraintsFromContainer(
-                            pluginConstraints);
+                {
+                    constraints
+                        = UIServiceImpl.getBorderLayoutConstraintsFromContainer(
+                                pluginConstraints);
+                }
                 else
                     constraints = BorderLayout.SOUTH;
 
-                this.add((Component)component.getComponent(), constraints);
+                add((Component) component.getComponent(), constraints);
 
-                this.repaint();
+                repaint();
             }
         }
 

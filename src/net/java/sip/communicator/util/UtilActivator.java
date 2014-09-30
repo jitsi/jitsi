@@ -228,30 +228,30 @@ public class UtilActivator
     public static Map<Object, ProtocolProviderFactory>
         getProtocolProviderFactories()
     {
+        Collection<ServiceReference<ProtocolProviderFactory>> serRefs;
         Map<Object, ProtocolProviderFactory> providerFactoriesMap
             = new Hashtable<Object, ProtocolProviderFactory>();
 
-        ServiceReference[] serRefs = null;
         try
         {
             // get all registered provider factories
             serRefs
                 = bundleContext.getServiceReferences(
-                        ProtocolProviderFactory.class.getName(),
+                        ProtocolProviderFactory.class,
                         null);
         }
-        catch (InvalidSyntaxException e)
+        catch (InvalidSyntaxException ex)
         {
-            logger.error("LoginManager : " + e);
+            serRefs = null;
+            logger.error("LoginManager : " + ex);
         }
 
-        if (serRefs != null)
+        if ((serRefs != null) && !serRefs.isEmpty())
         {
-            for (ServiceReference serRef : serRefs)
+            for (ServiceReference<ProtocolProviderFactory> serRef : serRefs)
             {
                 ProtocolProviderFactory providerFactory
-                    = (ProtocolProviderFactory)
-                        bundleContext.getService(serRef);
+                    = bundleContext.getService(serRef);
 
                 providerFactoriesMap.put(
                         serRef.getProperty(ProtocolProviderFactory.PROTOCOL),

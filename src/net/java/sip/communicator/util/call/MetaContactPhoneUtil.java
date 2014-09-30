@@ -6,14 +6,17 @@
  */
 package net.java.sip.communicator.util.call;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.OperationSetServerStoredContactInfo.*;
-import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
+import net.java.sip.communicator.service.protocol.OperationSetServerStoredContactInfo.DetailsResponseListener;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.GenericDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.MobilePhoneDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.VideoDetail;
+import net.java.sip.communicator.service.protocol.ServerStoredDetails.WorkPhoneDetail;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.account.*;
-
-import java.util.*;
 
 /**
  * Utility class used to check if there is a telephony service, video calls and
@@ -24,13 +27,6 @@ import java.util.*;
  */
 public class MetaContactPhoneUtil
 {
-    /**
-     * The <tt>Logger</tt> used by the <tt>CallManager</tt> class and its
-     * instances for logging output.
-     */
-    private static final Logger logger
-        = Logger.getLogger(MetaContactPhoneUtil.class);
-
     /**
      * The metacontcat we are working on.
      */

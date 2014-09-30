@@ -6,6 +6,7 @@
 package net.java.sip.communicator.impl.gui.main.configforms;
 
 import java.awt.*;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -119,30 +120,31 @@ public class ConfigurationFrame
         GuiActivator.bundleContext.addServiceListener(this);
 
         // General configuration forms only.
-        String osgiFilter = "("
-            + ConfigurationForm.FORM_TYPE
-            + "="+ConfigurationForm.GENERAL_TYPE+")";
+        Collection<ServiceReference<ConfigurationForm>> cfgFormRefs;
+        String osgiFilter
+            = "(" + ConfigurationForm.FORM_TYPE + "="
+                + ConfigurationForm.GENERAL_TYPE + ")";
 
-        ServiceReference[] confFormsRefs = null;
         try
         {
-            confFormsRefs = GuiActivator.bundleContext
-                .getServiceReferences(
-                    ConfigurationForm.class.getName(),
-                    osgiFilter);
+            cfgFormRefs
+                = GuiActivator.bundleContext.getServiceReferences(
+                        ConfigurationForm.class,
+                        osgiFilter);
         }
         catch (InvalidSyntaxException ex)
-        {}
-
-        if(confFormsRefs != null)
         {
-            for (int i = 0; i < confFormsRefs.length; i++)
+            cfgFormRefs = null;
+        }
+
+        if ((cfgFormRefs != null) && !cfgFormRefs.isEmpty())
+        {
+            for (ServiceReference<ConfigurationForm> cfgFormRef : cfgFormRefs)
             {
                 ConfigurationForm form
-                    = (ConfigurationForm) GuiActivator.bundleContext
-                        .getService(confFormsRefs[i]);
+                    = GuiActivator.bundleContext.getService(cfgFormRef);
 
-                this.addConfigurationForm(form);
+                addConfigurationForm(form);
             }
         }
     }
@@ -273,41 +275,43 @@ public class ConfigurationFrame
      * Handles registration of a new configuration form.
      * @param event the <tt>ServiceEvent</tt> that notified us
      */
+    @Override
     public void serviceChanged(ServiceEvent event)
     {
         if(!GuiActivator.isStarted)
             return;
 
-        ServiceReference serRef = event.getServiceReference();
+        ServiceReference<?> serRef = event.getServiceReference();
 
         Object property = serRef.getProperty(ConfigurationForm.FORM_TYPE);
 
         if (property != ConfigurationForm.GENERAL_TYPE)
             return;
 
-        Object sService
-            = GuiActivator.bundleContext.getService(
-                    event.getServiceReference());
+        Object service = GuiActivator.bundleContext.getService(serRef);
 
         // we don't care if the source service is not a configuration form
-        if (!(sService instanceof ConfigurationForm))
+        if (!(service instanceof ConfigurationForm))
             return;
 
-        ConfigurationForm configForm = (ConfigurationForm) sService;
+        ConfigurationForm cfgForm = (ConfigurationForm) service;
 
-        if (configForm.isAdvanced())
+        if (cfgForm.isAdvanced())
             return;
 
         switch (event.getType())
         {
         case ServiceEvent.REGISTERED:
             if (logger.isInfoEnabled())
-                logger.info("Handling registration of a new Configuration Form.");
-            this.addConfigurationForm(configForm);
+            {
+                logger.info(
+                        "Handling registration of a new Configuration Form.");
+            }
+            addConfigurationForm(cfgForm);
             break;
 
         case ServiceEvent.UNREGISTERING:
-            this.removeConfigurationForm(configForm);
+            removeConfigurationForm(cfgForm);
             break;
         }
     }
