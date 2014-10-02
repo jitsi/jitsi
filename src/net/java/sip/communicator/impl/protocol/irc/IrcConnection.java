@@ -152,7 +152,7 @@ public class IrcConnection
 
         // instantiate presence manager for the connection
         this.presence =
-            new PresenceManager(irc, this.connectionState,
+            new PresenceManager(this.irc, this.connectionState,
                 this.provider.getPersistentPresence());
 
         // instantiate server channel lister
@@ -292,7 +292,8 @@ public class IrcConnection
      */
     public boolean isConnected()
     {
-        return this.connectionState.isConnected();
+        return this.connectionState != null
+            && this.connectionState.isConnected();
     }
 
     /**
