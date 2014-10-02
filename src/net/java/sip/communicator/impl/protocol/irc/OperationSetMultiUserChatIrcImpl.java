@@ -73,7 +73,7 @@ public class OperationSetMultiUserChatIrcImpl
     {
         final IrcConnection connection =
             this.ircProvider.getIrcStack().getConnection();
-        return connection.getServerChatRoomList();
+        return connection.getServerChannelLister().getList();
     }
 
     /**

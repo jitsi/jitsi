@@ -60,23 +60,6 @@ public class IrcConnection
     private static final int IRC_PROTOCOL_MAXIMUM_MESSAGE_SIZE = 510;
 
     /**
-     * Clean-up delay. The clean up task clears any remaining chat room list
-     * cache. Since there's no pointing in timing it exactly, delay the clean up
-     * until after expiration.
-     */
-    private static final long CACHE_CLEAN_UP_DELAY = 1000L;
-
-    /**
-     * Ratio of milliseconds to nanoseconds for conversions.
-     */
-    private static final long RATIO_MILLISECONDS_TO_NANOSECONDS = 1000000L;
-
-    /**
-     * Expiration time for chat room list cache.
-     */
-    private static final long CHAT_ROOM_LIST_CACHE_EXPIRATION = 60000000000L;
-
-    /**
      * Set of characters with special meanings for IRC, such as: ',' used as
      * separator of list of items (channels, nicks, etc.), ' ' (space) separator
      * of command parameters, etc.
@@ -117,6 +100,11 @@ public class IrcConnection
     private PresenceManager presence = null;
 
     /**
+     * Manager component for server channel listing.
+     */
+    private ServerChannelLister channelLister;
+
+    /**
      * The local user's identity as it will be used in server-client
      * communication for sent messages.
      */
@@ -134,17 +122,6 @@ public class IrcConnection
      */
     private final Map<String, ChatRoomIrcImpl> joined = Collections
         .synchronizedMap(new HashMap<String, ChatRoomIrcImpl>());
-
-    /**
-     * The cached channel list.
-     *
-     * Contained inside a simple container object in order to lock the container
-     * while accessing the contents.
-     *
-     * TODO move channellist operations to different class
-     */
-    private final Container<List<String>> channellist =
-        new Container<List<String>>(null);
 
     /**
      * Constructor.
@@ -178,6 +155,11 @@ public class IrcConnection
             new PresenceManager(irc, this.connectionState,
                 this.provider.getPersistentPresence());
 
+        // instantiate server channel lister
+        this.channelLister =
+            new ServerChannelLister(this.irc, this.connectionState);
+
+        // query WHOIS identity as perceived by the IRC server
         queryIdentity();
 
         // TODO Read IRC network capabilities based on RPL_ISUPPORT
@@ -310,8 +292,7 @@ public class IrcConnection
      */
     public boolean isConnected()
     {
-        return (this.connectionState != null && this.connectionState
-            .isConnected());
+        return this.connectionState.isConnected();
     }
 
     /**
@@ -342,6 +323,16 @@ public class IrcConnection
             // problem, but for now lets log it just to be sure.
             LOGGER.debug("exception occurred while disconnecting", e);
         }
+    }
+
+    /**
+     * Get the channel lister that facilitates server channel queries.
+     *
+     * @return returns the channel lister instance
+     */
+    public ServerChannelLister getServerChannelLister()
+    {
+        return this.channelLister;
     }
 
     /**
@@ -404,89 +395,6 @@ public class IrcConnection
     public boolean isJoined(final ChatRoomIrcImpl chatroom)
     {
         return this.joined.get(chatroom.getIdentifier()) != null;
-    }
-
-    /**
-     * Get a list of channels available on the IRC server.
-     *
-     * @return List of available channels.
-     */
-    public List<String> getServerChatRoomList()
-    {
-        LOGGER.trace("Start retrieve server chat room list.");
-        if (!isConnected())
-        {
-            throw new IllegalStateException("Not connected to an IRC server.");
-        }
-
-        // TODO Currently, not using an API library method for listing
-        // channels, since it isn't available.
-        synchronized (this.channellist)
-        {
-            List<String> list =
-                this.channellist.get(CHAT_ROOM_LIST_CACHE_EXPIRATION);
-            if (list == null)
-            {
-                LOGGER
-                    .trace("Chat room list null or outdated. Start retrieving "
-                        + "new chat room list.");
-                Result<List<String>, Exception> listSignal =
-                    new Result<List<String>, Exception>(
-                        new LinkedList<String>());
-                synchronized (listSignal)
-                {
-                    try
-                    {
-                        this.irc.addListener(
-                            new ChannelListListener(this.irc, listSignal));
-                        synchronized (this.irc)
-                        {
-                            this.irc.rawMessage("LIST");
-                        }
-                        while (!listSignal.isDone())
-                        {
-                            LOGGER.trace("Waiting for list ...");
-                            listSignal.wait();
-                        }
-                        LOGGER.trace("Done waiting for list.");
-                    }
-                    catch (InterruptedException e)
-                    {
-                        LOGGER.warn("INTERRUPTED while waiting for list.", e);
-                    }
-                }
-                list = listSignal.getValue();
-                this.channellist.set(list);
-                LOGGER.trace("Finished retrieving server chat room list.");
-
-                // Set timer to clean up the cache after use, since otherwise it
-                // could stay in memory for a long time.
-                createCleanUpJob(this.channellist);
-            }
-            else
-            {
-                LOGGER.trace("Using cached list of server chat rooms.");
-            }
-            return Collections.unmodifiableList(list);
-        }
-    }
-
-    /**
-     * Create a clean up job that checks the container after the cache has
-     * expired. If the container is still populated, then remove it. This clean
-     * up makes sure that there are no references left to an otherwise useless
-     * list of channels.
-     *
-     * @param channellist the container carrying the list of channel names
-     */
-    private static void createCleanUpJob(
-        final Container<List<String>> channellist)
-    {
-        final Timer cleanUpJob = new Timer();
-        final long timestamp = channellist.getTimestamp();
-        cleanUpJob.schedule(new ChannelListCacheCleanUpTask(channellist,
-            timestamp), CHAT_ROOM_LIST_CACHE_EXPIRATION
-            / RATIO_MILLISECONDS_TO_NANOSECONDS + CACHE_CLEAN_UP_DELAY);
     }
 
     /**
@@ -2089,259 +1997,6 @@ public class IrcConnection
                 return false;
             }
             return userNick.equals(name);
-        }
-    }
-
-    /**
-     * Special listener that processes LIST replies and signals once the list is
-     * completely filled.
-     */
-    private static final class ChannelListListener
-        extends VariousMessageListenerAdapter
-    {
-        /**
-         * Start of an IRC server channel listing reply.
-         */
-        private static final int RPL_LISTSTART = 321;
-
-        /**
-         * Continuation of an IRC server channel listing reply.
-         */
-        private static final int RPL_LIST = 322;
-
-        /**
-         * End of an IRC server channel listing reply.
-         */
-        private static final int RPL_LISTEND = 323;
-
-        /**
-         * Reference to the IRC API instance.
-         */
-        private final IRCApi api;
-
-        /**
-         * Reference to the provided list instance.
-         */
-        private final Result<List<String>, Exception> signal;
-
-        /**
-         * Constructor for channel list listener.
-         *
-         * @param api irc-api library instance
-         * @param signal signal for sync signaling
-         */
-        private ChannelListListener(final IRCApi api,
-            final Result<List<String>, Exception> signal)
-        {
-            if (api == null)
-            {
-                throw new IllegalArgumentException(
-                    "IRC api instance cannot be null");
-            }
-            this.api = api;
-            this.signal = signal;
-        }
-
-        /**
-         * Act on LIST messages: 321 RPL_LISTSTART, 322 RPL_LIST, 323
-         * RPL_LISTEND
-         *
-         * Clears the list upon starting. All received channels are added to the
-         * list. Upon receiving RPL_LISTEND finalize the list and signal the
-         * waiting thread that it can continue processing the list.
-         *
-         * @param msg The numeric server message.
-         */
-        @Override
-        public void onServerNumericMessage(final ServerNumericMessage msg)
-        {
-            if (this.signal.isDone())
-            {
-                return;
-            }
-
-            switch (msg.getNumericCode())
-            {
-            case RPL_LISTSTART:
-                synchronized (this.signal)
-                {
-                    this.signal.getValue().clear();
-                }
-                break;
-            case RPL_LIST:
-                String channel = parse(msg.getText());
-                if (channel != null)
-                {
-                    synchronized (this.signal)
-                    {
-                        this.signal.getValue().add(channel);
-                    }
-                }
-                break;
-            case RPL_LISTEND:
-                synchronized (this.signal)
-                {
-                    // Done collecting channels. Remove listener and then we're
-                    // done.
-                    this.api.deleteListener(this);
-                    this.signal.setDone();
-                    this.signal.notifyAll();
-                }
-                break;
-            // TODO Add support for REPLY 416: LIST :output too large, truncated
-            default:
-                break;
-            }
-        }
-
-        /**
-         * Parse an IRC server response RPL_LIST. Extract the channel name.
-         *
-         * @param text raw server response
-         * @return returns the channel name
-         */
-        private String parse(final String text)
-        {
-            int endOfChannelName = text.indexOf(' ');
-            if (endOfChannelName == -1)
-            {
-                return null;
-            }
-            // Create a new string to make sure that the original (larger)
-            // strings can be GC'ed.
-            return new String(text.substring(0, endOfChannelName));
-        }
-    }
-
-    /**
-     * Task for cleaning up old channel list caches.
-     *
-     * @author Danny van Heumen
-     */
-    private static final class ChannelListCacheCleanUpTask
-        extends TimerTask
-    {
-        /**
-         * Expected timestamp on which the list cache was created. It is used as
-         * an indicator to see whether the cache has been refreshed in the mean
-         * time.
-         */
-        private final long timestamp;
-
-        /**
-         * Container holding the channel list cache.
-         */
-        private final Container<List<String>> container;
-
-        /**
-         * Construct new clean up job definition.
-         *
-         * @param listContainer container that holds the channel list cache
-         * @param timestamp expected timestamp of list cache creation
-         */
-        private ChannelListCacheCleanUpTask(
-            final Container<List<String>> listContainer, final long timestamp)
-        {
-            if (listContainer == null)
-            {
-                throw new IllegalArgumentException(
-                    "listContainer cannot be null");
-            }
-            this.container = listContainer;
-            this.timestamp = timestamp;
-        }
-
-        /**
-         * Remove the list reference from the container. But only if the
-         * timestamp matches. This makes sure that only one clean up job will
-         * clean up a list.
-         */
-        @Override
-        public void run()
-        {
-            synchronized (this.container)
-            {
-                // Only clean up old cache if this is the dedicated task for it.
-                // If the timestamp has changed, another job is responsible for
-                // the clean up.
-                if (this.container.getTimestamp() != this.timestamp)
-                {
-                    LOGGER.trace("Not cleaning up channel list cache. The "
-                        + "timestamp does not match.");
-                    return;
-                }
-                this.container.set(null);
-            }
-            // We cannot clear the list itself, since the contents might still
-            // be in use by the UI, inside the immutable wrapper.
-            LOGGER.debug("Old channel list cache has been cleared.");
-        }
-    }
-
-    /**
-     * Simplest possible container that we can use for locking while we're
-     * checking/modifying the contents.
-     *
-     * @param <T> The type of instance to store in the container
-     */
-    private static final class Container<T>
-    {
-        /**
-         * The stored instance. (Can be null)
-         */
-        private T instance;
-
-        /**
-         * Time of stored instance.
-         */
-        private long time;
-
-        /**
-         * Constructor that immediately sets the instance.
-         *
-         * @param instance the instance to set
-         */
-        private Container(final T instance)
-        {
-            this.instance = instance;
-            this.time = System.nanoTime();
-        }
-
-        /**
-         * Conditionally get the stored instance. Get the instance when time
-         * difference is within specified bound. Otherwise return null.
-         *
-         * @param bound maximum time difference that is allowed.
-         * @return returns instance if within bounds, or null otherwise
-         */
-        public T get(final long bound)
-        {
-            if (System.nanoTime() - this.time > bound)
-            {
-                return null;
-            }
-            return this.instance;
-        }
-
-        /**
-         * Set an instance.
-         *
-         * @param instance the instance
-         */
-        public void set(final T instance)
-        {
-            this.instance = instance;
-            this.time = System.nanoTime();
-        }
-
-        /**
-         * Get the timestamp from when the instance was set.
-         *
-         * @return returns the timestamp
-         */
-        public long getTimestamp()
-        {
-            return this.time;
         }
     }
 
