@@ -330,16 +330,6 @@ public class IrcStack
         }
 
         /**
-         * Set new nick name.
-         *
-         * @param nick nick name
-         */
-        public void setNickname(final String nick)
-        {
-            this.nick = checkNick(nick);
-        }
-
-        /**
          * Verify nick name.
          *
          * @param nick nick name
