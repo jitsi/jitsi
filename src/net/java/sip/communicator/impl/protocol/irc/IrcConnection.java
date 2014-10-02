@@ -97,6 +97,7 @@ public class IrcConnection
     /**
      * Manager component that manages current IRC presence.
      */
+    //FIXME expose presence manager with getter for direct use
     private PresenceManager presence = null;
 
     /**
@@ -243,7 +244,10 @@ public class IrcConnection
     private void queryIdentity()
     {
         // TODO Install temporary whois listener that handles the result.
-        this.irc.rawMessage("WHOIS " + this.connectionState.getNickname());
+        synchronized (this.irc)
+        {
+            this.irc.rawMessage("WHOIS " + this.connectionState.getNickname());
+        }
     }
 
     /**
@@ -481,8 +485,7 @@ public class IrcConnection
                                 if (!isRequestedChatRoom)
                                 {
                                     // We joined another chat room than the one
-                                    // we
-                                    // requested initially.
+                                    // we requested initially.
                                     if (LOGGER.isTraceEnabled())
                                     {
                                         LOGGER.trace("Callback for successful "
@@ -498,10 +501,8 @@ public class IrcConnection
                                             + "announced.");
                                     }
                                     // Remove original chat room id from
-                                    // joined-list
-                                    // since we aren't actually attempting to
-                                    // join
-                                    // this room anymore.
+                                    // joined-list since we aren't actually
+                                    // attempting to join this room anymore.
                                     IrcConnection.this.joined
                                         .remove(chatRoomId);
                                     IrcConnection.this.provider
@@ -517,11 +518,9 @@ public class IrcConnection
                                     joinSignal.setDone();
                                     joinSignal.notifyAll();
                                     // The channel that we were forwarded to
-                                    // will be
-                                    // handled by the Server Listener, since the
-                                    // channel join was unannounced, and we are
-                                    // done
-                                    // here.
+                                    // will be handled by the Server Listener,
+                                    // since the channel join was unannounced,
+                                    // and we are done here.
                                     return;
                                 }
 

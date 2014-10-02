@@ -117,18 +117,20 @@ public class IrcStack
                 return;
             }
 
-            final IRCApi irc = new IRCApiImpl(true);
             this.params.setServer(server);
-
-            if (LOGGER.isTraceEnabled())
-            {
-                // If tracing is enabled, register another listener that logs
-                // all IRC messages as published by the IRC client library.
-                irc.addListener(new DebugListener());
-            }
 
             try
             {
+                final IRCApi irc = new IRCApiImpl(true);
+
+                if (LOGGER.isTraceEnabled())
+                {
+                    // If tracing is enabled, register another listener that
+                    // logs all IRC messages as published by the IRC client
+                    // library.
+                    irc.addListener(new DebugListener());
+                }
+
                 final IrcConnection connection =
                     new IrcConnection(this.provider, this.params, irc);
                 this.session.set(connection);
