@@ -302,6 +302,6 @@ public class Account
     @Override
     public String toString()
     {
-        return protocolProvider.getAccountID().getDisplayName();
+        return accountID.getDisplayName();
     }
 }
