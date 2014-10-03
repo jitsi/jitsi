@@ -315,7 +315,7 @@ public class OperationSetPersistentPresenceIrcImpl
             this.parentProvider.getIrcStack().getConnection();
         if (connection != null && connection.isConnected())
         {
-            return connection.isAway() ? IrcStatusEnum.AWAY
+            return connection.getPresenceManager().isAway() ? IrcStatusEnum.AWAY
                 : IrcStatusEnum.ONLINE;
         }
         else
@@ -351,11 +351,11 @@ public class OperationSetPersistentPresenceIrcImpl
 
         if (status.getStatus() >= IrcStatusEnum.AVAILABLE_THRESHOLD)
         {
-            connection.away(false, statusMessage);
+            connection.getPresenceManager().away(false, statusMessage);
         }
         else if (status.getStatus() >= IrcStatusEnum.AWAY_THRESHOLD)
         {
-            connection.away(true, statusMessage);
+            connection.getPresenceManager().away(true, statusMessage);
         }
         else
         {
@@ -472,14 +472,14 @@ public class OperationSetPersistentPresenceIrcImpl
     @Override
     public String getCurrentStatusMessage()
     {
-        // FIXME look up active status message in case of away or "" in case of
-        // available.
-        IrcConnection connection = this.parentProvider.getIrcStack().getConnection();
+        final IrcConnection connection =
+            this.parentProvider.getIrcStack().getConnection();
         if (connection == null)
         {
             return "";
         }
-        return connection.isAway() ? "" : "";
+        return connection.getPresenceManager().isAway() ? connection
+            .getPresenceManager().getMessage() : "";
     }
 
     /**

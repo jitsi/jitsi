@@ -26,6 +26,10 @@ import com.ircclouds.irc.api.state.*;
  *
  * TODO Do we need to cancel any join channel operations still in progress?
  *
+ * TODO Separate functionality into separate managers:
+ * 1. Channel manager
+ * 2. Identity manager
+ *
  * Common IRC network facilities:
  * 1. NickServ - nick related services
  * 2. ChanServ - channel related services
@@ -97,13 +101,12 @@ public class IrcConnection
     /**
      * Manager component that manages current IRC presence.
      */
-    //FIXME expose presence manager with getter for direct use
-    private PresenceManager presence = null;
+    private final PresenceManager presence;
 
     /**
      * Manager component for server channel listing.
      */
-    private ServerChannelLister channelLister;
+    private final ServerChannelLister channelLister;
 
     /**
      * The local user's identity as it will be used in server-client
@@ -149,7 +152,7 @@ public class IrcConnection
         // specific chat room or operation.
         irc.addListener(new ServerListener(irc));
         this.irc = irc;
-        this.connectionState = connectSynchronized(params, irc);
+        this.connectionState = connectSynchronized(this.provider, params, irc);
 
         // instantiate presence manager for the connection
         this.presence =
@@ -171,11 +174,14 @@ public class IrcConnection
     /**
      * Perform synchronized connect operation.
      *
+     * @param provider Parent protocol provider
+     * @param params Server connection parameters
      * @param irc IRC Api instance
      * @throws Exception exception thrown when connect fails
      */
-    private IIRCState connectSynchronized(final IServerParameters params,
-        final IRCApi irc) throws Exception
+    private static IIRCState connectSynchronized(
+        final ProtocolProviderServiceIrcImpl provider,
+        final IServerParameters params, final IRCApi irc) throws Exception
     {
         final Result<IIRCState, Exception> result =
             new Result<IIRCState, Exception>();
@@ -208,8 +214,7 @@ public class IrcConnection
                 }
             });
 
-            this.provider
-                .setCurrentRegistrationState(RegistrationState.REGISTERING);
+            provider.setCurrentRegistrationState(RegistrationState.REGISTERING);
 
             while (!result.isDone())
             {
@@ -263,33 +268,6 @@ public class IrcConnection
     }
 
     /**
-     * Check whether current state is away or online.
-     *
-     * @return returns true if away, or false if online
-     */
-    public boolean isAway()
-    {
-        return isConnected() && this.presence.isAway();
-    }
-
-    /**
-     * Set or unset away message. In case the awayMessage is null the away
-     * message will be disabled and as a consequence the away-status is removed.
-     *
-     * @param away away status, <tt>true</tt> for away, <tt>false</tt> for
-     *            available
-     * @param awayMessage the away message to set, or null to remove away-status
-     */
-    public void away(final boolean away, final String awayMessage)
-    {
-        if (!isConnected())
-        {
-            throw new IllegalStateException("Not connected to an IRC server.");
-        }
-        this.presence.away(away, awayMessage);
-    }
-
-    /**
      * Check whether or not a connection is established.
      *
      * @return true if connected, false otherwise.
@@ -328,6 +306,16 @@ public class IrcConnection
             // problem, but for now lets log it just to be sure.
             LOGGER.debug("exception occurred while disconnecting", e);
         }
+    }
+
+    /**
+     * Get the presence manager.
+     *
+     * @return returns the presence manager instance
+     */
+    public PresenceManager getPresenceManager()
+    {
+        return this.presence;
     }
 
     /**
@@ -455,9 +443,8 @@ public class IrcConnection
             new Result<Object, Exception>();
         synchronized (joinSignal)
         {
-            LOGGER
-                .trace("Issue join channel command to IRC library and wait for"
-                    + " join operation to complete (un)successfully.");
+            LOGGER.trace("Issue join channel command to IRC library and wait "
+                + "for join operation to complete (un)successfully.");
 
             this.joined.put(chatRoomId, null);
             synchronized (this.irc)
