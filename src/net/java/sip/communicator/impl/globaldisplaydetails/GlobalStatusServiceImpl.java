@@ -43,7 +43,7 @@ public class GlobalStatusServiceImpl
 
         if(pps.isRegistered())
         {
-            handleProviderRegistered(pps);
+            handleProviderRegistered(pps, false);
         }
     }
 
@@ -293,6 +293,26 @@ public class GlobalStatusServiceImpl
             ProtocolProviderService protocolProvider,
             PresenceStatus status)
     {
+        publishStatusInternal(protocolProvider, status, false);
+    }
+
+    /**
+     * Publish present status. We search for the highest value in the
+     * given interval.
+     *
+     * @param protocolProvider the protocol provider to which we
+     * change the status.
+     * @param status the status to publish.
+     * @param dueToRegistrationStateChanged whether the publish status is
+     * invoked after registrationStateChanged for a provider, where the provider
+     * is expected to be REGISTERED, if not we do nothing (means it has
+     * connection failed soon after firing registered).
+     */
+    private void publishStatusInternal(
+            ProtocolProviderService protocolProvider,
+            PresenceStatus status,
+            boolean dueToRegistrationStateChanged)
+    {
         OperationSetPresence presence
                 = protocolProvider.getOperationSet(OperationSetPresence.class);
 
@@ -329,15 +349,23 @@ public class GlobalStatusServiceImpl
             && registrationState != RegistrationState.AUTHENTICATING
             && status.isOnline())
         {
-            // If provider fires registered, and while dispatching
-            // the registered event a fatal error rise in the connection
-            // and the provider goes in connection_failed we can end up here
-            // calling login and going over the same cycle over and over again
-            logger.warn("Called publish status for provider in wrong state " +
-                " provider: " + protocolProvider + " registrationState: "
-                + registrationState + " status: " + status);
-            ///GlobalDisplayDetailsActivator.getUIService().getLoginManager()
-            //    .login(protocolProvider);
+            if(dueToRegistrationStateChanged)
+            {
+                // If provider fires registered, and while dispatching
+                // the registered event a fatal error rise in the connection
+                // and the provider goes in connection_failed we can end up here
+                // calling login and going over the same cycle over and over
+                // again
+                logger.warn("Called publish status for provider in wrong state "
+                    + " provider: " + protocolProvider + " registrationState: "
+                    + registrationState + " status: " + status);
+                return;
+            }
+            else
+            {
+                GlobalDisplayDetailsActivator.getUIService().getLoginManager()
+                    .login(protocolProvider);
+            }
         }
         else if (!status.isOnline()
                 && !(registrationState
@@ -677,7 +705,7 @@ public class GlobalStatusServiceImpl
         if(!evt.getNewState().equals(RegistrationState.REGISTERED))
             return;
 
-        handleProviderRegistered(evt.getProvider());
+        handleProviderRegistered(evt.getProvider(), true);
     }
 
     /**
@@ -686,7 +714,8 @@ public class GlobalStatusServiceImpl
      * are Online/Available/
      * @param pps the provider
      */
-    private void handleProviderRegistered(ProtocolProviderService pps)
+    private void handleProviderRegistered(ProtocolProviderService pps,
+                                          boolean dueToRegistrationStateChanged)
     {
         PresenceStatus status = getLastPresenceStatus(pps);
 
@@ -699,7 +728,7 @@ public class GlobalStatusServiceImpl
         if (status != null
             && status.getStatus() >= PresenceStatus.ONLINE_THRESHOLD)
         {
-            publishStatus(pps, status);
+            publishStatusInternal(pps, status, dueToRegistrationStateChanged);
         }
     }
 
