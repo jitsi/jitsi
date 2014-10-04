@@ -1,3 +1,9 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Distributable under LGPL license.
+ * See terms of license at gnu.org.
+ */
 package net.java.sip.communicator.impl.protocol.irc;
 
 import net.java.sip.communicator.util.*;
@@ -9,6 +15,12 @@ import com.ircclouds.irc.api.state.*;
 
 /**
  * Identity manager.
+ *
+ * TODO Add support for Identity Service (NickServ) instance that can be used
+ * for accessing remote identity facilities.
+ *
+ * TODO Implement OperationSetChangePassword once an identity service is
+ * available.
  *
  * @author Danny van Heumen
  */

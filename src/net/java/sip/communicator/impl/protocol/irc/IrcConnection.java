@@ -28,7 +28,6 @@ import com.ircclouds.irc.api.state.*;
  *
  * TODO Separate functionality into separate managers:
  * 1. Channel manager
- * 2. Identity manager
  *
  * Common IRC network facilities:
  * 1. NickServ - nick related services

@@ -27,49 +27,49 @@ public class ProtocolIconIrcImpl
      * The <tt>Logger</tt> used by the <tt>ProtocolIconIrcImpl</tt> class and
      * its instances for logging output.
      */
-    private static final Logger logger
+    private static final Logger LOGGER
         = Logger.getLogger(ProtocolIconIrcImpl.class);
 
     /**
      * A hash table containing the protocol icon in different sizes.
      */
-    private static final Map<String, byte[]> iconsTable
+    private static final Map<String, byte[]> ICONS_TABLE
         = new Hashtable<String, byte[]>();
     static
     {
-        iconsTable.put(ProtocolIcon.ICON_SIZE_16x16,
+        ICONS_TABLE.put(ProtocolIcon.ICON_SIZE_16x16,
             getImageInBytes("service.protocol.irc.IRC_16x16"));
 
-        iconsTable.put(ProtocolIcon.ICON_SIZE_32x32,
+        ICONS_TABLE.put(ProtocolIcon.ICON_SIZE_32x32,
             getImageInBytes("service.protocol.irc.IRC_32x32"));
 
-        iconsTable.put(ProtocolIcon.ICON_SIZE_48x48,
+        ICONS_TABLE.put(ProtocolIcon.ICON_SIZE_48x48,
             getImageInBytes("service.protocol.irc.IRC_48x48"));
 
-        iconsTable.put(ProtocolIcon.ICON_SIZE_64x64,
+        ICONS_TABLE.put(ProtocolIcon.ICON_SIZE_64x64,
             getImageInBytes("service.protocol.irc.IRC_64x64"));
     }
 
     /**
      * A hash table containing the path to the protocol icon in different sizes.
      */
-    private static final Map<String, String> iconPathsTable
+    private static final Map<String, String> ICONPATHS_TABLE
         = new Hashtable<String, String>();
     static
     {
-        iconPathsTable.put(ProtocolIcon.ICON_SIZE_16x16,
+        ICONPATHS_TABLE.put(ProtocolIcon.ICON_SIZE_16x16,
             IrcActivator.getResources().getImagePath(
                 "service.protocol.irc.IRC_16x16"));
 
-        iconPathsTable.put(ProtocolIcon.ICON_SIZE_32x32,
+        ICONPATHS_TABLE.put(ProtocolIcon.ICON_SIZE_32x32,
             IrcActivator.getResources().getImagePath(
                 "service.protocol.irc.IRC_32x32"));
 
-        iconPathsTable.put(ProtocolIcon.ICON_SIZE_48x48,
+        ICONPATHS_TABLE.put(ProtocolIcon.ICON_SIZE_48x48,
             IrcActivator.getResources().getImagePath(
                 "service.protocol.irc.IRC_48x48"));
 
-        iconPathsTable.put(ProtocolIcon.ICON_SIZE_64x64,
+        ICONPATHS_TABLE.put(ProtocolIcon.ICON_SIZE_64x64,
             IrcActivator.getResources().getImagePath(
                 "service.protocol.irc.IRC_64x64"));
     }
@@ -77,42 +77,51 @@ public class ProtocolIconIrcImpl
     /**
      * Implements the <tt>ProtocolIcon.getSupportedSizes()</tt> method. Returns
      * an iterator to a set containing the supported icon sizes.
+     *
      * @return an iterator to a set containing the supported icon sizes
      */
     public Iterator<String> getSupportedSizes()
     {
-        return iconsTable.keySet().iterator();
+        return ICONS_TABLE.keySet().iterator();
     }
 
     /**
      * Returns TRUE if a icon with the given size is supported, FALSE-otherwise.
+     *
+     * @param iconSize the icon size; one of ICON_SIZE_XXX constants
+     * @return returns <tt>true</tt> if size is supported or <tt>false</tt> if
+     *         not.
      */
-    public boolean isSizeSupported(String iconSize)
+    public boolean isSizeSupported(final String iconSize)
     {
-        return iconsTable.containsKey(iconSize);
+        return ICONS_TABLE.containsKey(iconSize);
     }
 
     /**
      * Returns the icon image in the given size.
+     *
      * @param iconSize the icon size; one of ICON_SIZE_XXX constants
+     * @return returns icon image
      */
-    public byte[] getIcon(String iconSize)
+    public byte[] getIcon(final String iconSize)
     {
-        return iconsTable.get(iconSize);
+        return ICONS_TABLE.get(iconSize);
     }
 
     /**
      * Returns a path to the icon with the given size.
-     * @param iconSize the size of the icon we're looking for
+     *
+     * @param iconSize the icon size; one of ICON_SIZE_XXX constants
      * @return the path to the icon with the given size
      */
-    public String getIconPath(String iconSize)
+    public String getIconPath(final String iconSize)
     {
-        return iconPathsTable.get(iconSize);
+        return ICONPATHS_TABLE.get(iconSize);
     }
 
     /**
      * Returns the icon image used to represent the protocol connecting state.
+     *
      * @return the icon image used to represent the protocol connecting state
      */
     public byte[] getConnectingIcon()
@@ -126,9 +135,9 @@ public class ProtocolIconIrcImpl
      *
      * @param imageID the identifier of the image
      * @return the byte representation of the image corresponding to the given
-     * identifier.
+     *         identifier.
      */
-    static byte[] getImageInBytes(String imageID)
+    static byte[] getImageInBytes(final String imageID)
     {
         InputStream in
             = IrcActivator.getResources().getImageInputStream(imageID);
@@ -144,7 +153,7 @@ public class ProtocolIconIrcImpl
             }
             catch (IOException e)
             {
-                logger.error("Failed to load image:" + imageID, e);
+                LOGGER.error("Failed to load image:" + imageID, e);
             }
         }
         return image;
