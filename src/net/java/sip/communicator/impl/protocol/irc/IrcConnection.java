@@ -87,6 +87,8 @@ public class IrcConnection
 
     /**
      * Instance of IRC Api.
+     *
+     * Use must be SYNCHRONIZED.
      */
     private final IRCApi irc;
 

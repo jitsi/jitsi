@@ -34,6 +34,8 @@ public class IdentityManager
 
     /**
      * The IRCApi instance.
+     *
+     * Use must be SYNCHRONIZED.
      */
     private final IRCApi irc;
 

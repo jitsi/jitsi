@@ -34,6 +34,8 @@ public class ChannelManager
 
     /**
      * IRCApi instance.
+     *
+     * Use must be SYNCHRONIZED.
      */
     private final IRCApi irc;
 

@@ -39,6 +39,8 @@ public class PresenceManager
 
     /**
      * IRC client library instance.
+     *
+     * Use must be SYNCHRONIZED.
      */
     private final IRCApi irc;
 

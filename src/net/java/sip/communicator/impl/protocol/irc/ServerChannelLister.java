@@ -48,6 +48,8 @@ public class ServerChannelLister
 
     /**
      * IRCApi instance.
+     *
+     * Use must be SYNCHRONIZED.
      */
     private final IRCApi irc;
 
