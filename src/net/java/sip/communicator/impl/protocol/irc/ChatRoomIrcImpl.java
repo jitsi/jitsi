@@ -161,7 +161,8 @@ public class ChatRoomIrcImpl
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
         this.chatRoomName =
-            verifyName(connection.getChannelTypes(), chatRoomName);
+            verifyName(connection.getChannelManager().getChannelTypes(),
+                chatRoomName);
         this.isSystem = isSystem;
     }
 
@@ -317,13 +318,13 @@ public class ChatRoomIrcImpl
                 OperationFailedException.NETWORK_FAILURE);
         }
 
-        if (connection.isJoined(this))
+        if (connection.getChannelManager().isJoined(this))
         {
             throw new OperationFailedException("Channel is already joined.",
                 OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
         }
 
-        connection.join(this);
+        connection.getChannelManager().join(this);
     }
 
     /**
@@ -339,7 +340,7 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        connection.join(this, password.toString());
+        connection.getChannelManager().join(this, password.toString());
     }
 
     /**
@@ -394,7 +395,7 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        return connection.isJoined(this);
+        return connection.getChannelManager().isJoined(this);
     }
 
     /**
@@ -408,7 +409,7 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        connection.leave(this);
+        connection.getChannelManager().leave(this);
         this.chatRoomMembers.clear();
     }
 
@@ -438,7 +439,8 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        connection.banParticipant(this, chatRoomMember, reason);
+        connection.getChannelManager().banParticipant(this, chatRoomMember,
+            reason);
     }
 
     /**
@@ -454,7 +456,8 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        connection.kickParticipant(this, chatRoomMember, reason);
+        connection.getChannelManager().kickParticipant(this, chatRoomMember,
+            reason);
     }
 
     /**
@@ -653,7 +656,7 @@ public class ChatRoomIrcImpl
         {
             final IrcConnection connection =
                 this.parentProvider.getIrcStack().getConnection();
-            connection.setSubject(this, subject);
+            connection.getChannelManager().setSubject(this, subject);
         }
         catch (RuntimeException e)
         {
@@ -817,7 +820,7 @@ public class ChatRoomIrcImpl
         // some-one.
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        connection.invite(userAddress, this);
+        connection.getChannelManager().invite(userAddress, this);
     }
 
     /**
@@ -1343,7 +1346,7 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        connection.grant(this, address, Mode.OPERATOR);
+        connection.getChannelManager().grant(this, address, Mode.OPERATOR);
     }
 
     /**
@@ -1356,7 +1359,7 @@ public class ChatRoomIrcImpl
         // TODO currently Voice == Membership.
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        connection.grant(this, address, Mode.VOICE);
+        connection.getChannelManager().grant(this, address, Mode.VOICE);
     }
 
     /**
@@ -1368,7 +1371,7 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        connection.grant(this, address, Mode.HALFOP);
+        connection.getChannelManager().grant(this, address, Mode.HALFOP);
     }
 
     /**
@@ -1380,7 +1383,7 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        connection.grant(this, address, Mode.OWNER);
+        connection.getChannelManager().grant(this, address, Mode.OWNER);
     }
 
     /**
@@ -1393,7 +1396,7 @@ public class ChatRoomIrcImpl
         // TODO currently Voice == Membership.
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        connection.grant(this, address, Mode.VOICE);
+        connection.getChannelManager().grant(this, address, Mode.VOICE);
     }
 
     /**
@@ -1405,7 +1408,7 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        connection.revoke(this, address, Mode.OPERATOR);
+        connection.getChannelManager().revoke(this, address, Mode.OPERATOR);
     }
 
     /**
@@ -1420,7 +1423,7 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        connection.revoke(this, address, Mode.VOICE);
+        connection.getChannelManager().revoke(this, address, Mode.VOICE);
     }
 
     /**
@@ -1433,7 +1436,7 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        connection.revoke(this, address, Mode.HALFOP);
+        connection.getChannelManager().revoke(this, address, Mode.HALFOP);
     }
 
     /**
@@ -1446,7 +1449,7 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        connection.revoke(this, address, Mode.OWNER);
+        connection.getChannelManager().revoke(this, address, Mode.OWNER);
     }
 
     /**
@@ -1458,7 +1461,7 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        connection.revoke(this, address, Mode.VOICE);
+        connection.getChannelManager().revoke(this, address, Mode.VOICE);
     }
 
     /**

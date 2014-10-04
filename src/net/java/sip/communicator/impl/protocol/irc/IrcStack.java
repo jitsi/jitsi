@@ -183,10 +183,8 @@ public class IrcStack
         SSLContext context = null;
         try
         {
-            CertificateService cs =
-                IrcActivator.getCertificateService();
-            X509TrustManager tm =
-                cs.getTrustManager(hostname);
+            CertificateService cs = IrcActivator.getCertificateService();
+            X509TrustManager tm = cs.getTrustManager(hostname);
             context = cs.getSSLContext(tm);
         }
         catch (GeneralSecurityException e)

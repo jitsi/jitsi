@@ -364,6 +364,8 @@ public class ProtocolProviderServiceIrcImpl
     public void unregister()
         throws OperationFailedException
     {
+        // TODO Consider removing the leave operations, as QUIT automatically
+        // leaves open channels.
         for (ChatRoom joinedChatRoom : multiUserChat
             .getCurrentlyJoinedChatRooms())
         {

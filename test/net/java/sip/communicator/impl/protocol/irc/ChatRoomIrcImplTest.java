@@ -16,6 +16,7 @@ public class ChatRoomIrcImplTest
     private ProtocolProviderServiceIrcImpl providerMock;
     private IrcStack stackMock;
     private IrcConnection connectionMock;
+    private ChannelManager channelMock;
 
     //@before
     public void setUp() throws Exception
@@ -25,23 +26,25 @@ public class ChatRoomIrcImplTest
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         this.stackMock = EasyMock.createMock(IrcStack.class);
         this.connectionMock = EasyMock.createMock(IrcConnection.class);
-        EasyMock.expect(this.providerMock.getIrcStack()).andReturn(stackMock);
+        this.channelMock = EasyMock.createMock(ChannelManager.class);
+        EasyMock.expect(this.providerMock.getIrcStack()).andReturn(this.stackMock);
         EasyMock.expect(this.stackMock.getConnection()).andReturn(this.connectionMock);
-        EasyMock.expect(this.connectionMock.getChannelTypes()).andReturn(
+        EasyMock.expect(this.connectionMock.getChannelManager()).andReturn(this.channelMock);
+        EasyMock.expect(this.channelMock.getChannelTypes()).andReturn(
             Collections.unmodifiableSet(Sets.newHashSet('#', '&')));
     }
 
     //@Test
     public void testConstruction()
     {
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         new ChatRoomIrcImpl("#test", this.providerMock);
     }
 
     //@Test(expected = IllegalArgumentException.class)
     public void testConstructionNullIdentifier()
     {
-        EasyMock.replay(this.providerMock, this.stackMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         try
         {
             new ChatRoomIrcImpl(null, this.providerMock);
@@ -69,7 +72,7 @@ public class ChatRoomIrcImplTest
     //@Test(expected = IllegalArgumentException.class)
     public void testEmptyName()
     {
-        EasyMock.replay(this.providerMock, this.stackMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         try
         {
             new ChatRoomIrcImpl("", this.providerMock);
@@ -83,7 +86,7 @@ public class ChatRoomIrcImplTest
     //@Test(expected = IllegalArgumentException.class)
     public void testTooLongName()
     {
-        EasyMock.replay(this.providerMock, this.stackMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         try
         {
             new ChatRoomIrcImpl(
@@ -102,7 +105,7 @@ public class ChatRoomIrcImplTest
     //@Test
     public void testAutoPrefixBadChannelName()
     {
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl room = new ChatRoomIrcImpl("!test", this.providerMock);
         Assert.assertEquals("#!test", room.getIdentifier());
     }
@@ -110,7 +113,7 @@ public class ChatRoomIrcImplTest
     //@Test(expected = IllegalArgumentException.class)
     public void testIllegalNameSpace()
     {
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         try
         {
             new ChatRoomIrcImpl("#test test", this.providerMock);
@@ -124,7 +127,7 @@ public class ChatRoomIrcImplTest
     //@Test(expected = IllegalArgumentException.class)
     public void testIllegalNameComma()
     {
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         try
         {
             new ChatRoomIrcImpl("#test,test", this.providerMock);
@@ -138,14 +141,14 @@ public class ChatRoomIrcImplTest
     //@Test
     public void testValidName()
     {
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
     }
     
     //@Test
     public void testCorrectConstruction()
     {
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
         Assert.assertEquals("#my-cool-channel", room.getIdentifier());
@@ -156,7 +159,7 @@ public class ChatRoomIrcImplTest
     //@Test
     public void testHashCodeNotFailing()
     {
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
         room.hashCode();
@@ -169,12 +172,13 @@ public class ChatRoomIrcImplTest
             .andReturn(this.stackMock).times(2);
         EasyMock.expect(this.stackMock.getConnection()).andReturn(
             this.connectionMock).times(2);
+        EasyMock.expect(this.connectionMock.getChannelManager()).andReturn(this.channelMock).times(2);
         EasyMock
             .expect(
-                this.connectionMock.isJoined(EasyMock
+                this.channelMock.isJoined(EasyMock
                     .anyObject(ChatRoomIrcImpl.class))).andReturn(false)
             .andReturn(true);
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
         Assert.assertFalse(room.isJoined());
@@ -184,7 +188,7 @@ public class ChatRoomIrcImplTest
     //@Test
     public void testIsPersistentRoom()
     {
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
         Assert.assertTrue(room.isPersistent());
@@ -193,7 +197,7 @@ public class ChatRoomIrcImplTest
     //@Test
     public void testDestroyRoom()
     {
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
         Assert.assertTrue(room.destroy("whatever", null));
@@ -202,7 +206,7 @@ public class ChatRoomIrcImplTest
     //@Test
     public void testSetLocalUserNull()
     {
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
         try
@@ -218,7 +222,7 @@ public class ChatRoomIrcImplTest
     //@Test
     public void testSetLocalUser()
     {
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
         Assert.assertEquals(ChatRoomMemberRole.SILENT_MEMBER,
@@ -243,7 +247,7 @@ public class ChatRoomIrcImplTest
     {
         ChatRoomMemberIrcImpl user =
             EasyMock.createMock(ChatRoomMemberIrcImpl.class);
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock,
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock,
             user);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
@@ -262,7 +266,7 @@ public class ChatRoomIrcImplTest
     {
         ChatRoomMemberIrcImpl user =
             EasyMock.createMock(ChatRoomMemberIrcImpl.class);
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock,
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock,
             user);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
@@ -278,7 +282,7 @@ public class ChatRoomIrcImplTest
     {
         ChatRoomMemberIrcImpl user =
             EasyMock.createMock(ChatRoomMemberIrcImpl.class);
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock,
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock,
             user);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
@@ -293,7 +297,7 @@ public class ChatRoomIrcImplTest
     //@Test
     public void testEqualsSame()
     {
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
         Assert.assertTrue(room.equals(room));
@@ -302,7 +306,7 @@ public class ChatRoomIrcImplTest
     //@Test
     public void testEqualsNull()
     {
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
         Assert.assertFalse(room.equals(null));
@@ -311,7 +315,7 @@ public class ChatRoomIrcImplTest
     //@Test
     public void testEqualsOtherClassInstance()
     {
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
         Assert.assertFalse(room.equals(new Object()));
@@ -325,9 +329,10 @@ public class ChatRoomIrcImplTest
         EasyMock.expect(providerMock2.getIrcStack()).andReturn(this.stackMock);
         EasyMock.expect(this.stackMock.getConnection()).andReturn(
             this.connectionMock);
-        EasyMock.expect(this.connectionMock.getChannelTypes()).andReturn(
+        EasyMock.expect(this.connectionMock.getChannelManager()).andReturn(this.channelMock);
+        EasyMock.expect(this.channelMock.getChannelTypes()).andReturn(
             Collections.unmodifiableSet(Sets.newHashSet('#', '$')));
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock,
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock,
             providerMock2);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
@@ -342,9 +347,10 @@ public class ChatRoomIrcImplTest
         EasyMock.expect(this.providerMock.getIrcStack()).andReturn(stackMock);
         EasyMock.expect(this.stackMock.getConnection()).andReturn(
             this.connectionMock);
-        EasyMock.expect(this.connectionMock.getChannelTypes()).andReturn(
+        EasyMock.expect(this.connectionMock.getChannelManager()).andReturn(this.channelMock);
+        EasyMock.expect(this.channelMock.getChannelTypes()).andReturn(
             Collections.unmodifiableSet(Sets.newHashSet('#', '$')));
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
         ChatRoomIrcImpl room2 =
@@ -358,9 +364,10 @@ public class ChatRoomIrcImplTest
         EasyMock.expect(this.providerMock.getIrcStack()).andReturn(stackMock);
         EasyMock.expect(this.stackMock.getConnection()).andReturn(
             this.connectionMock);
-        EasyMock.expect(this.connectionMock.getChannelTypes()).andReturn(
+        EasyMock.expect(this.connectionMock.getChannelManager()).andReturn(this.channelMock);
+        EasyMock.expect(this.channelMock.getChannelTypes()).andReturn(
             Collections.unmodifiableSet(Sets.newHashSet('#', '$')));
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
         ChatRoomIrcImpl room2 =
@@ -371,7 +378,7 @@ public class ChatRoomIrcImplTest
     //@Test
     public void testGetChatRoomSubject()
     {
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
         Assert.assertEquals("", room.getSubject());
@@ -381,17 +388,19 @@ public class ChatRoomIrcImplTest
     public void testSetChatRoomSubject() throws OperationFailedException
     {
         final String newSubject = "My test subject!";
-        this.connectionMock.setSubject(EasyMock.anyObject(ChatRoomIrcImpl.class),
+        EasyMock.expect(this.connectionMock.getChannelManager()).andReturn(this.channelMock);
+        this.channelMock.setSubject(EasyMock.anyObject(ChatRoomIrcImpl.class),
             EasyMock.eq(newSubject));
         EasyMock.expectLastCall();
         EasyMock.expect(this.providerMock.getIrcStack()).andReturn(
             this.stackMock);
         EasyMock.expect(this.stackMock.getConnection()).andReturn(
             this.connectionMock);
-        this.connectionMock.setSubject(EasyMock.anyObject(ChatRoomIrcImpl.class),
+        EasyMock.expect(this.connectionMock.getChannelManager()).andReturn(this.channelMock);
+        this.channelMock.setSubject(EasyMock.anyObject(ChatRoomIrcImpl.class),
             EasyMock.eq(newSubject));
         EasyMock.expectLastCall();
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
 
@@ -408,7 +417,8 @@ public class ChatRoomIrcImplTest
         throws OperationFailedException
     {
         final String newSubject = "My test subject!";
-        this.connectionMock.setSubject(EasyMock.anyObject(ChatRoomIrcImpl.class),
+        EasyMock.expect(this.connectionMock.getChannelManager()).andReturn(this.channelMock);
+        this.channelMock.setSubject(EasyMock.anyObject(ChatRoomIrcImpl.class),
             EasyMock.eq(newSubject));
         EasyMock.expectLastCall().andThrow(
             new RuntimeException("Some error", new IOException("Real cause")));
@@ -416,10 +426,11 @@ public class ChatRoomIrcImplTest
             this.stackMock);
         EasyMock.expect(this.stackMock.getConnection()).andReturn(
             this.connectionMock);
-        this.connectionMock.setSubject(EasyMock.anyObject(ChatRoomIrcImpl.class),
+        EasyMock.expect(this.connectionMock.getChannelManager()).andReturn(this.channelMock);
+        this.channelMock.setSubject(EasyMock.anyObject(ChatRoomIrcImpl.class),
             EasyMock.eq(newSubject));
         EasyMock.expectLastCall();
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
 
@@ -440,17 +451,19 @@ public class ChatRoomIrcImplTest
         throws OperationFailedException
     {
         final String newSubject = "My test subject!";
-        this.connectionMock.setSubject(EasyMock.anyObject(ChatRoomIrcImpl.class),
+        EasyMock.expect(this.connectionMock.getChannelManager()).andReturn(this.channelMock);
+        this.channelMock.setSubject(EasyMock.anyObject(ChatRoomIrcImpl.class),
             EasyMock.eq(newSubject));
         EasyMock.expectLastCall().andThrow(new RuntimeException("Some error"));
         EasyMock.expect(this.providerMock.getIrcStack()).andReturn(
             this.stackMock);
         EasyMock.expect(this.stackMock.getConnection()).andReturn(
             this.connectionMock);
-        this.connectionMock.setSubject(EasyMock.anyObject(ChatRoomIrcImpl.class),
+        EasyMock.expect(this.connectionMock.getChannelManager()).andReturn(this.channelMock);
+        this.channelMock.setSubject(EasyMock.anyObject(ChatRoomIrcImpl.class),
             EasyMock.eq(newSubject));
         EasyMock.expectLastCall();
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl room =
             new ChatRoomIrcImpl("#my-cool-channel", this.providerMock);
 
@@ -473,7 +486,7 @@ public class ChatRoomIrcImplTest
     // @Test
     public void testChatRoomWithAlternativePrefix()
     {
-        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock);
+        EasyMock.replay(this.providerMock, this.stackMock, this.connectionMock, this.channelMock);
         ChatRoomIrcImpl alternative =
             new ChatRoomIrcImpl("&MyAlternative-channel-prefix",
                 this.providerMock);
@@ -487,12 +500,14 @@ public class ChatRoomIrcImplTest
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         IrcStack specialStackMock = EasyMock.createMock(IrcStack.class);
         IrcConnection specialConnectionMock = EasyMock.createMock(IrcConnection.class);
+        ChannelManager specialChannelMock = EasyMock.createMock(ChannelManager.class);
         EasyMock.expect(specialProviderMock.getIrcStack()).andReturn(
             specialStackMock);
         EasyMock.expect(specialStackMock.getConnection()).andReturn(specialConnectionMock);
-        EasyMock.expect(specialConnectionMock.getChannelTypes()).andReturn(
+        EasyMock.expect(specialConnectionMock.getChannelManager()).andReturn(specialChannelMock);
+        EasyMock.expect(specialChannelMock.getChannelTypes()).andReturn(
             Sets.newHashSet('&'));
-        EasyMock.replay(specialProviderMock, specialStackMock, specialConnectionMock);
+        EasyMock.replay(specialProviderMock, specialStackMock, specialConnectionMock, specialChannelMock);
         ChatRoomIrcImpl alternative =
             new ChatRoomIrcImpl("channel-name-without-prefix",
                 specialProviderMock);
