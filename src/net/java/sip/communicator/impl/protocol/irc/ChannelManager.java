@@ -23,6 +23,8 @@ import com.ircclouds.irc.api.state.*;
 /**
  * Channel manager.
  *
+ * TODO Do we need to cancel any join channel operations still in progress?
+ *
  * @author Danny van Heumen
  */
 public class ChannelManager
@@ -50,11 +52,6 @@ public class ChannelManager
     private final ProtocolProviderServiceIrcImpl provider;
 
     /**
-     * Identity manager instance.
-     */
-    private final IdentityManager identity;
-
-    /**
      * Container for joined channels.
      *
      * There are two different cases:
@@ -72,17 +69,14 @@ public class ChannelManager
      * @param irc the IRCApi instance
      * @param connectionState the connection state
      * @param provider the provider instance
-     * @param identity the identity manager instance
      */
     public ChannelManager(final IRCApi irc, final IIRCState connectionState,
-        final ProtocolProviderServiceIrcImpl provider,
-        final IdentityManager identity)
+        final ProtocolProviderServiceIrcImpl provider)
     {
         if (irc == null)
         {
             throw new IllegalArgumentException("irc instance cannot be null");
         }
-        irc.addListener(new ManagerListener(irc));
         this.irc = irc;
         if (connectionState == null)
         {
@@ -95,12 +89,7 @@ public class ChannelManager
             throw new IllegalArgumentException("provider cannot be null");
         }
         this.provider = provider;
-        if (identity == null)
-        {
-            throw new IllegalArgumentException(
-                "IdentityManager instance cannot be null");
-        }
-        this.identity = identity;
+        this.irc.addListener(new ManagerListener());
     }
 
     /**
@@ -251,7 +240,7 @@ public class ChannelManager
                                         chatroom);
                                     ChannelManager.this.irc
                                         .addListener(new ChatRoomListener(
-                                            ChannelManager.this.irc, chatroom));
+                                            chatroom));
                                     prepareChatRoom(chatroom, channel);
                                 }
                                 finally
@@ -373,7 +362,7 @@ public class ChannelManager
                 member.addRole(role);
             }
             chatRoom.addChatRoomMember(member.getContactAddress(), member);
-            if (this.identity.getNick().equals(user.getNick()))
+            if (this.connectionState.getNickname().equals(user.getNick()))
             {
                 chatRoom.setLocalUser(member);
                 if (member.getRole() != ChatRoomMemberRole.SILENT_MEMBER)
@@ -588,22 +577,20 @@ public class ChannelManager
             IRCServerNumerics.CHANNEL_NICKS_END_OF_LIST;
 
         /**
-         * IRCApi instance.
-         */
-        private final IRCApi irc;
-
-        /**
-         * Constructor.
+         * Quit message event.
          *
-         * @param irc IRCApi instance
+         * @param msg QuitMessage
          */
-        public ManagerListener(final IRCApi irc)
+        @Override
+        public void onUserQuit(final QuitMessage msg)
         {
-            if (irc == null)
+            final String user = msg.getSource().getNick();
+            if (ChannelManager.this.connectionState.getNickname().equals(user))
             {
-                throw new IllegalArgumentException("irc cannot be null");
+                LOGGER.debug("Local user QUIT message received: removing "
+                    + "channel manager listener.");
+                ChannelManager.this.irc.deleteListener(this);
             }
-            this.irc = irc;
         }
 
         /**
@@ -654,7 +641,8 @@ public class ChannelManager
                             ChannelManager.this.provider);
                     ChannelManager.this.joined.put(channelName, chatRoom);
                 }
-                this.irc.addListener(new ChatRoomListener(this.irc, chatRoom));
+                ChannelManager.this.irc.addListener(new ChatRoomListener(
+                    chatRoom));
                 try
                 {
                     ChannelManager.this.provider.getMUC().openChatRoomWindow(
@@ -687,7 +675,6 @@ public class ChannelManager
      * messages that report state changes for the specified channel.
      *
      * @author Danny van Heumen
-     *
      */
     private final class ChatRoomListener
         extends VariousMessageListenerAdapter
@@ -705,11 +692,6 @@ public class ChannelManager
         private static final int IRC_ERR_NOTONCHANNEL = 442;
 
         /**
-         * IRCApi instance.
-         */
-        private final IRCApi irc;
-
-        /**
          * Chat room for which this listener is working.
          */
         private final ChatRoomIrcImpl chatroom;
@@ -720,19 +702,13 @@ public class ChannelManager
          * @param irc IRCApi instance
          * @param chatroom the chat room
          */
-        private ChatRoomListener(final IRCApi irc,
-            final ChatRoomIrcImpl chatroom)
+        private ChatRoomListener(final ChatRoomIrcImpl chatroom)
         {
             if (chatroom == null)
             {
                 throw new IllegalArgumentException("chatroom cannot be null");
             }
             this.chatroom = chatroom;
-            if (irc == null)
-            {
-                throw new IllegalArgumentException("irc cannot be null");
-            }
-            this.irc = irc;
         }
 
         /**
@@ -762,7 +738,6 @@ public class ChannelManager
             {
                 return;
             }
-
             processModeMessage(msg);
         }
 
@@ -778,7 +753,6 @@ public class ChannelManager
             {
                 return;
             }
-
             final String user = msg.getSource().getNick();
             final ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(ChannelManager.this.provider,
@@ -915,7 +889,7 @@ public class ChannelManager
             {
                 LOGGER.debug(
                     "Local user is kicked. Removing chat room listener.");
-                this.irc.deleteListener(this);
+                ChannelManager.this.irc.deleteListener(this);
                 ChannelManager.this.joined
                     .remove(this.chatroom.getIdentifier());
                 ChannelManager.this.provider.getMUC()
@@ -938,11 +912,11 @@ public class ChannelManager
             {
                 return;
             }
-            if (user.equals(ChannelManager.this.connectionState.getNickname()))
+            if (isMe(user))
             {
                 LOGGER.debug("Local user QUIT message received: removing chat "
                     + "room listener.");
-                this.irc.deleteListener(this);
+                ChannelManager.this.irc.deleteListener(this);
                 return;
             }
             final ChatRoomMember member = this.chatroom.getChatRoomMember(user);
@@ -1060,7 +1034,7 @@ public class ChannelManager
          */
         private void leaveChatRoom()
         {
-            this.irc.deleteListener(this);
+            ChannelManager.this.irc.deleteListener(this);
             ChannelManager.this.joined.remove(this.chatroom.getIdentifier());
             LOGGER.debug("Leaving chat room " + this.chatroom.getIdentifier()
                 + ". Chat room listener removed.");

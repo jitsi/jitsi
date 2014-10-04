@@ -94,8 +94,8 @@ public class PresenceManager
         {
             throw new IllegalArgumentException("irc cannot be null");
         }
-        irc.addListener(new PresenceListener());
         this.irc = irc;
+        this.irc.addListener(new PresenceListener());
     }
 
     /**
@@ -189,13 +189,6 @@ public class PresenceManager
          * Reply for acknowledging transition to away.
          */
         private static final int IRC_RPL_NOWAWAY = 306;
-
-        /**
-         * Presence listener constructor.
-         */
-        private PresenceListener()
-        {
-        }
 
         /**
          * Handle events for presence-related server replies.

@@ -69,7 +69,7 @@ public class IdentityManager
         }
         this.connectionState = connectionState;
         // query user's WHOIS identity as perceived by the IRC server
-        queryIdentity(this.irc, this.connectionState, this.identity);
+        queryIdentity();
     }
 
     /**
@@ -79,13 +79,12 @@ public class IdentityManager
      * @param connectionState the connection state
      * @param identity the identity container
      */
-    private static void queryIdentity(final IRCApi irc,
-        final IIRCState connectionState, final Identity identity)
+    private void queryIdentity()
     {
-        synchronized (irc)
+        synchronized (this.irc)
         {
-            irc.addListener(new WhoisListener(irc, connectionState, identity));
-            irc.rawMessage("WHOIS " + connectionState.getNickname());
+            this.irc.addListener(new WhoisListener());
+            this.irc.rawMessage("WHOIS " + this.connectionState.getNickname());
         }
     }
 
@@ -118,57 +117,13 @@ public class IdentityManager
      *
      * @author Danny van Heumen
      */
-    private static final class WhoisListener
+    private final class WhoisListener
         extends VariousMessageListenerAdapter
     {
         /**
          * IRC reply for WHOIS query.
          */
         private static final int RPL_WHOISUSER = 311;
-
-        /**
-         * The IRCApi instance.
-         */
-        private final IRCApi irc;
-
-        /**
-         * The connection state.
-         */
-        private final IIRCState connectionState;
-
-        /**
-         * The identity container that contains the WHOIS data for user and
-         * host.
-         */
-        private final Identity identity;
-
-        /**
-         * Constructor.
-         *
-         * @param irc the IRCApi instance
-         * @param connectionState the connection state
-         * @param identity the identity container
-         */
-        private WhoisListener(final IRCApi irc, final IIRCState connectionState,
-            final Identity identity)
-        {
-            if (irc == null)
-            {
-                throw new IllegalArgumentException("irc cannot be null");
-            }
-            this.irc = irc;
-            if (connectionState == null)
-            {
-                throw new IllegalArgumentException(
-                    "connectionState cannot be null");
-            }
-            this.connectionState = connectionState;
-            if (identity == null)
-            {
-                throw new IllegalArgumentException("identity cannot be null");
-            }
-            this.identity = identity;
-        }
 
         /**
          * On receiving a server numeric message.
@@ -184,7 +139,8 @@ public class IdentityManager
                 final String whoismsg = msg.getText();
                 final int endNickIndex = whoismsg.indexOf(' ');
                 final String nick = whoismsg.substring(0, endNickIndex);
-                if (!this.connectionState.getNickname().equals(nick))
+                if (!IdentityManager.this.connectionState.getNickname().equals(
+                    nick))
                 {
                     // We can only use WHOIS info about ourselves to discover
                     // our identity on the IRC server. So skip other WHOIS
@@ -195,10 +151,27 @@ public class IdentityManager
                 // Once the WHOIS reply is processed and the identity is
                 // updated, we can delete the listener as the purpose is
                 // fulfilled.
-                this.irc.deleteListener(this);
+                IdentityManager.this.irc.deleteListener(this);
                 break;
             default:
                 break;
+            }
+        }
+
+        /**
+         * OnUserQuit event.
+         *
+         * @param msg QuitMessage event.
+         */
+        @Override
+        public void onUserQuit(final QuitMessage msg)
+        {
+            final String user = msg.getSource().getNick();
+            if (IdentityManager.this.connectionState.getNickname().equals(user))
+            {
+                LOGGER.debug("Local user QUIT message received: removing "
+                    + "whois listener.");
+                IdentityManager.this.irc.deleteListener(this);
             }
         }
 
@@ -216,10 +189,12 @@ public class IdentityManager
                 whoismsg.substring(endNickIndex + 1, endUserIndex);
             final String host =
                 whoismsg.substring(endUserIndex + 1, endHostIndex);
-            this.identity.setHost(host);
-            this.identity.setUser(user);
-            LOGGER.debug(String.format("Current identity: %s!%s@%s",
-                this.connectionState.getNickname(), user, host));
+            IdentityManager.this.identity.setHost(host);
+            IdentityManager.this.identity.setUser(user);
+            LOGGER
+                .debug(String.format("Current identity: %s!%s@%s",
+                    IdentityManager.this.connectionState.getNickname(), user,
+                    host));
         }
     }
 

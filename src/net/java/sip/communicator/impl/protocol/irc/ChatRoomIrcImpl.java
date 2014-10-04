@@ -918,11 +918,11 @@ public class ChatRoomIrcImpl
                 this.parentProvider.getIrcStack().getConnection();
             if (((MessageIrcImpl) message).isCommand())
             {
-                connection.command(this, messagePortion);
+                connection.getMessageManager().command(this, messagePortion);
             }
             else
             {
-                connection.message(this, messagePortion);
+                connection.getMessageManager().message(this, messagePortion);
             }
 
             this.fireMessageDeliveredEvent(new MessageIrcImpl(messagePortion,

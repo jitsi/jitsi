@@ -123,11 +123,11 @@ public class OperationSetBasicInstantMessagingIrcImpl
                 {
                     if (!event.isMessageEncrypted() && message.isCommand())
                     {
-                        connection.command(to, message);
+                        connection.getMessageManager().command(to, message);
                     }
                     else
                     {
-                        connection.message(to, message);
+                        connection.getMessageManager().message(to, message);
                     }
                 }
                 catch (RuntimeException e)
@@ -228,7 +228,8 @@ public class OperationSetBasicInstantMessagingIrcImpl
             // FIXME how to handle this?
             return 0;
         }
-        return connection.calculateMaximumMessageSize(contact);
+        return connection.getMessageManager().calculateMaximumMessageSize(
+            contact);
     }
 
     /**

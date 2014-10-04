@@ -117,7 +117,7 @@ public class ServerChannelLister
                     try
                     {
                         this.irc.addListener(
-                            new ChannelListListener(this.irc, listSignal));
+                            new ChannelListListener(listSignal));
                         synchronized (this.irc)
                         {
                             this.irc.rawMessage("LIST");
@@ -237,7 +237,7 @@ public class ServerChannelLister
      * Special listener that processes LIST replies and signals once the list is
      * completely filled.
      */
-    private static final class ChannelListListener
+    private final class ChannelListListener
         extends VariousMessageListenerAdapter
     {
         /**
@@ -256,11 +256,6 @@ public class ServerChannelLister
         private static final int RPL_LISTEND = 323;
 
         /**
-         * Reference to the IRC API instance.
-         */
-        private final IRCApi api;
-
-        /**
          * Reference to the provided list instance.
          */
         private final Result<List<String>, Exception> signal;
@@ -271,16 +266,27 @@ public class ServerChannelLister
          * @param api irc-api library instance
          * @param signal signal for sync signaling
          */
-        private ChannelListListener(final IRCApi api,
+        private ChannelListListener(
             final Result<List<String>, Exception> signal)
         {
-            if (api == null)
-            {
-                throw new IllegalArgumentException(
-                    "IRC api instance cannot be null");
-            }
-            this.api = api;
             this.signal = signal;
+        }
+
+        /**
+         * On User Quit event.
+         *
+         * @param msg QuitMessage
+         */
+        @Override
+        public void onUserQuit(final QuitMessage msg)
+        {
+            final String user = msg.getSource().getNick();
+            if (ServerChannelLister.this.state.getNickname().equals(user))
+            {
+                LOGGER.debug("Local user QUIT message received: removing "
+                    + "server channel lister listener.");
+                ServerChannelLister.this.irc.deleteListener(this);
+            }
         }
 
         /**
@@ -328,7 +334,7 @@ public class ServerChannelLister
                 {
                     // Done collecting channels. Remove listener and then we're
                     // done.
-                    this.api.deleteListener(this);
+                    ServerChannelLister.this.irc.deleteListener(this);
                     this.signal.setDone();
                     this.signal.notifyAll();
                 }
