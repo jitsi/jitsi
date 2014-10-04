@@ -112,7 +112,7 @@ public class IrcConnection
      * The local user's identity as it will be used in server-client
      * communication for sent messages.
      */
-    private Identity identity;
+    private IdentityManager identity;
 
     /**
      * Container for joined channels.
@@ -163,8 +163,8 @@ public class IrcConnection
         this.channelLister =
             new ServerChannelLister(this.irc, this.connectionState);
 
-        // query WHOIS identity as perceived by the IRC server
-        queryIdentity();
+        // instantiate identity manager for the connection
+        this.identity = new IdentityManager(this.irc, this.connectionState);
 
         // TODO Read IRC network capabilities based on RPL_ISUPPORT
         // (005) replies if available. This information should be
@@ -244,30 +244,6 @@ public class IrcConnection
     }
 
     /**
-     * Issue WHOIS query to discover identity as seen by the server.
-     */
-    private void queryIdentity()
-    {
-        // TODO Install temporary whois listener that handles the result.
-        synchronized (this.irc)
-        {
-            this.irc.rawMessage("WHOIS " + this.connectionState.getNickname());
-        }
-    }
-
-    /**
-     * Get the current identity string, based on nick, user and host of local
-     * user.
-     *
-     * @return returns identity string
-     */
-    public String getIdentityString()
-    {
-        final String currentNick = this.connectionState.getNickname();
-        return this.identity.getIdentityString(currentNick);
-    }
-
-    /**
      * Check whether or not a connection is established.
      *
      * @return true if connected, false otherwise.
@@ -326,6 +302,16 @@ public class IrcConnection
     public ServerChannelLister getServerChannelLister()
     {
         return this.channelLister;
+    }
+
+    /**
+     * Get the identity manager instance.
+     *
+     * @return returns the identity manager instance
+     */
+    public IdentityManager getIdentityManager()
+    {
+        return this.identity;
     }
 
     /**
@@ -966,7 +952,7 @@ public class IrcConnection
     public int calculateMaximumMessageSize(final Contact contact)
     {
         final StringBuilder builder = new StringBuilder(":");
-        builder.append(getIdentityString());
+        builder.append(this.identity.getIdentityString());
         builder.append(" PRIVMSG ");
         builder.append(contact.getAddress());
         builder.append(" :");
@@ -985,11 +971,6 @@ public class IrcConnection
          * IRC reply containing away message.
          */
         private static final int RPL_AWAY = 301;
-
-        /**
-         * IRC reply for WHOIS query.
-         */
-        private static final int RPL_WHOISUSER = 311;
 
         /**
          * IRC reply code for end of list.
@@ -1174,31 +1155,6 @@ public class IrcConnection
                         .findOrCreateContactByID(awayUserNick);
                 IrcConnection.this.provider.getBasicInstantMessaging()
                     .fireMessageReceived(awayMessage, awayUser);
-                break;
-
-            case RPL_WHOISUSER:
-                final String whoismsg = msg.getText();
-                final int endNickIndex = whoismsg.indexOf(' ');
-                final String nick = whoismsg.substring(0, endNickIndex);
-                if (!IrcConnection.this.connectionState.getNickname().equals(nick))
-                {
-                    // We need WHOIS info on ourselves to discover our identity
-                    // on the IRC server. So skip other WHOIS replies.
-                    return;
-                }
-                final int endUserIndex =
-                    whoismsg.indexOf(' ', endNickIndex + 1);
-                final int endHostIndex =
-                    whoismsg.indexOf(' ', endUserIndex + 1);
-                final String user =
-                    whoismsg.substring(endNickIndex + 1, endUserIndex);
-                final String host =
-                    whoismsg.substring(endUserIndex + 1, endHostIndex);
-                LOGGER.debug(String.format("Current identity: %s!%s@%s",
-                    IrcConnection.this.connectionState.getNickname(), user,
-                    host));
-                IrcConnection.this.identity =
-                    new IrcConnection.Identity(user, host);
                 break;
 
             default:
@@ -1984,51 +1940,6 @@ public class IrcConnection
                 return false;
             }
             return userNick.equals(name);
-        }
-    }
-
-    /**
-     * Storage container for identity components.
-     *
-     * IRC identity components user and host are stored. The nick name component
-     * isn't stored, because it changes too frequently. When getting the
-     * identity string, the nick name component is provided at calling time.
-     *
-     * @author Danny van Heumen
-     */
-    private static final class Identity
-    {
-        /**
-         * User name.
-         */
-        private final String user;
-
-        /**
-         * Host name.
-         */
-        private final String host;
-
-        /**
-         * Constructor.
-         *
-         * @param user user
-         * @param host host
-         */
-        private Identity(final String user, final String host)
-        {
-            this.user = user;
-            this.host = host;
-        }
-
-        /**
-         * Get identity string.
-         *
-         * @param currentNick the current nick
-         * @return returns identity string
-         */
-        public String getIdentityString(final String currentNick)
-        {
-            return String.format("%s!%s@%s", currentNick, this.user, this.host);
         }
     }
 }
