@@ -111,7 +111,7 @@ public class IrcConnection
      * The local user's identity as it will be used in server-client
      * communication for sent messages.
      */
-    private IdentityManager identity;
+    private final IdentityManager identity;
 
     /**
      * Container for joined channels.
