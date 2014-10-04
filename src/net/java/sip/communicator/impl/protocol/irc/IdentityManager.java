@@ -88,6 +88,17 @@ public class IdentityManager
     }
 
     /**
+     * Get the nick name of the user.
+     *
+     * @return Returns either the acting nick if a connection is established or
+     *         the configured nick.
+     */
+    public String getNick()
+    {
+        return this.connectionState.getNickname();
+    }
+
+    /**
      * Get the current identity string, based on nick, user and host of local
      * user.
      *

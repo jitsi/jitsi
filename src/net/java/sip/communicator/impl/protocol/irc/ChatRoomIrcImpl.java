@@ -680,7 +680,7 @@ public class ChatRoomIrcImpl
         // individual chat rooms.
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        return connection.getNick();
+        return connection.getIdentityManager().getNick();
     }
 
     /**

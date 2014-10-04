@@ -328,17 +328,6 @@ public class IrcConnection
     }
 
     /**
-     * Get the nick name of the user.
-     *
-     * @return Returns either the acting nick if a connection is established or
-     *         the configured nick.
-     */
-    public String getNick()
-    {
-        return this.connectionState.getNickname();
-    }
-
-    /**
      * Set the subject of the specified chat room.
      *
      * @param chatroom The chat room for which to set the subject.
@@ -915,7 +904,7 @@ public class IrcConnection
                 member.addRole(role);
             }
             chatRoom.addChatRoomMember(member.getContactAddress(), member);
-            if (this.getNick().equals(user.getNick()))
+            if (this.identity.getNick().equals(user.getNick()))
             {
                 chatRoom.setLocalUser(member);
                 if (member.getRole() != ChatRoomMemberRole.SILENT_MEMBER)
