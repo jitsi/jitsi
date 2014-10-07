@@ -29,9 +29,7 @@
       </profile>
     </annotationProcessing>
   </component>
-  <component name="CopyrightManager" default="">
-    <module2copyright />
-  </component>
+  <component name="CopyrightManager" default="" />
   <component name="DependencyValidationManager">
     <option name="SKIP_IMPORT_STATEMENTS" value="false" />
   </component>
@@ -189,11 +187,6 @@
       </value>
     </option>
   </component>
-  <component name="ProjectInspectionProfilesVisibleTreeState">
-    <entry key="Project Default">
-      <profile-state />
-    </entry>
-  </component>
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../ice4j/Ice4j.iml" filepath="$PROJECT_DIR$/../ice4j/Ice4j.iml" />
@@ -262,6 +255,13 @@
     <mapping directory="$PROJECT_DIR$/../libjitsi" vcs="Git" />
   </component>
   <component name="libraryTable">
+    <library name="browserlauncher">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/sc-bundles/browserlauncher.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
     <library name="cpptasks">
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/../libjitsi/lib/installer-exclude/cpptasks.jar!/" />
@@ -269,9 +269,53 @@
       <JAVADOC />
       <SOURCES />
     </library>
+    <library name="felix">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/felix.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="galagonotification">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/sc-bundles/os-specific/linux/galagonotification.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="googlecontacts">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/sc-bundles/googlecontacts.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="growl4j">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/os-specific/mac/growl4j.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$PROJECT_DIR$/lib/os-specific/mac/growl4j.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="guava">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/sc-bundles/guava.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
     <library name="ice4j">
       <CLASSES>
         <root url="jar://$PROJECT_DIR$/../ice4j/ice4j.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="jna-platform">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/installer-exclude/jna-platform.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />
@@ -286,25 +330,53 @@
       <JAVADOC />
       <SOURCES />
     </library>
-    <library name="lib">
+    <library name="libjitsi">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/osgi.core.jar!/" />
-        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/sdes4j.jar!/" />
-        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/jain-sdp.jar!/" />
-        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/fmj.jar!/" />
-        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/bccontrib-1.0-SNAPSHOT.jar!/" />
-        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/jspeex.jar!/" />
-        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/json-simple-1.1.1.jar!/" />
-        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/ice4j.jar!/" />
-        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/bcprov-jdk15on-148.jar!/" />
-        <root url="jar://$PROJECT_DIR$/../libjitsi/lib/zrtp4j-light.jar!/" />
+        <root url="jar://$PROJECT_DIR$/../libjitsi/libjitsi.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />
     </library>
-    <library name="libjitsi">
+    <library name="libjitsi (2)">
       <CLASSES>
-        <root url="jar://$PROJECT_DIR$/../libjitsi/libjitsi.jar!/" />
+        <root url="jar://$PROJECT_DIR$/lib/installer-exclude/libjitsi.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="OrangeExtensions">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/os-specific/mac/OrangeExtensions.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES>
+        <root url="jar://$PROJECT_DIR$/lib/os-specific/mac/OrangeExtensions.jar!/" />
+      </SOURCES>
+    </library>
+    <library name="org.apache.felix.bundlerepository-1.6.4">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/bundle/org.apache.felix.bundlerepository-1.6.4.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="smacklib">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/sc-bundles/smacklib.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="swing-worker-1.2">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/installer-exclude/swing-worker-1.2.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="vlcj-frank">
+      <CLASSES>
+        <root url="jar://$PROJECT_DIR$/lib/installer-exclude/vlcj-frank.jar!/" />
       </CLASSES>
       <JAVADOC />
       <SOURCES />

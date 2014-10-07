@@ -1,0 +1,19 @@
+Bundle-Activator: net.java.sip.communicator.plugin.vlcj.VlcjPluginActivator
+Bundle-Name: Vlcj Plugin
+Bundle-Description: Vlcj Plugin
+Bundle-Vendor: frank
+Bundle-Version: 0.0.1
+Bundle-SymbolicName: net.java.sip.communicator.plugin.vlcj
+Import-Package: org.osgi.framework,
+ uk.co.caprica.vlcj.binding,
+ uk.co.caprica.vlcj.logger,
+ uk.co.caprica.vlcj.test.basic,
+ com.sun.jna,
+ uk.co.caprica.vlcj.runtime,
+ uk.co.caprica.vlcj.binding.internal,
+ javax.swing,
+ uk.co.caprica.vlcj.player.embedded,
+ uk.co.caprica.vlcj.player,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.event,
+ net.java.sip.communicator.util
