@@ -622,7 +622,8 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      * Returns the port tracker that we are supposed to use when binding ports
      * for the specified {@link MediaType}.
      *
-     * @param mediaType the media type that we want to obtain a locator for.
+     * @param mediaType the media type that we want to obtain the port tracker
+     * for. Use <tt>null</tt> to obtain the default port tracker.
      *
      * @return the port tracker that we are supposed to use when binding ports
      * for the specified {@link MediaType}.
@@ -632,18 +633,26 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         //make sure our port numbers reflect the configuration service settings
         initializePortNumbers();
 
-        switch (mediaType)
+        if (mediaType != null)
         {
-        case AUDIO:
-            if (audioPortTracker != null)
-                return audioPortTracker;
-            else
-                break;
-        case VIDEO:
-            if (videoPortTracker != null)
-                return videoPortTracker;
-            else
-                break;
+            switch (mediaType)
+            {
+                case AUDIO:
+                    if (audioPortTracker != null)
+                        return audioPortTracker;
+                    else
+                        break;
+                case VIDEO:
+                    if (videoPortTracker != null)
+                        return videoPortTracker;
+                    else
+                        break;
+                case DATA:
+                    if (dataPortTracker != null)
+                        return dataPortTracker;
+                    else
+                        break;
+            }
         }
 
         return defaultPortTracker;
@@ -656,7 +665,7 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      * port tracker.
      *
      * @param mediaTypeStr the name of the media type that we want to obtain a
-     * locator for.
+     * port tracker for.
      *
      * @return the port tracker that we are supposed to use when binding ports
      * for the {@link MediaType} with the specified name or the default tracker
