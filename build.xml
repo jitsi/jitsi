@@ -1500,7 +1500,10 @@ javax.swing.event, javax.swing.border"/>
         <jar compress="false" destfile="${bundles.dest}/protocol.jar"
             manifest="${src}/net/java/sip/communicator/service/protocol/protocol.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol"
-                prefix="net/java/sip/communicator/service/protocol"/>
+                prefix="net/java/sip/communicator/service/protocol">
+                <!-- the media package lives in the protocol-media bundle -->
+                <exclude name="media/**/*"/>
+            </zipfileset>
             <zipfileset dir="${resources}/images"
                 prefix="resources/images">
                 <include name="protocol/icq/**/*"/>
