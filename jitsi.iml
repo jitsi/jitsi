@@ -9,6 +9,28 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="ice4j" level="application" />
     <orderEntry type="library" name="jitsi-dependencies" level="application" />
+    <orderEntry type="library" name="felix" level="project" />
+    <orderEntry type="library" name="libjitsi (2)" level="project" />
+    <orderEntry type="library" name="browserlauncher" level="project" />
+    <orderEntry type="library" name="growl4j" level="project" />
+    <orderEntry type="library" name="OrangeExtensions" level="project" />
+    <orderEntry type="library" name="org.apache.felix.bundlerepository-1.6.4" level="project" />
+    <orderEntry type="library" name="galagonotification" level="project" />
+    <orderEntry type="library" name="googlecontacts" level="project" />
+    <orderEntry type="library" name="guava" level="project" />
+    <orderEntry type="library" name="swing-worker-1.2" level="project" />
+    <orderEntry type="library" name="vlcj-frank" level="project" />
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/../libjitsi/lib/jna.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="library" name="jna-platform" level="project" />
+    <orderEntry type="library" name="smacklib" level="project" />
   </component>
 </module>
 

@@ -916,6 +916,7 @@
                 path="${ld.library.path}:${path}:${dyld.library.path}"/>
             <sysproperty key="jna.library.path"
                 path="${ld.library.path}:${path}:${dyld.library.path}"/>
+            <jvmarg value="-Djna.nosys=true"/>
 
             <env key="LD_LIBRARY_PATH" path="${ld.library.path}"/>
             <env key="PATH" path="${path}"/>
@@ -1055,7 +1056,7 @@
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
         bundle-jnalib,bundle-phonenumbers,
         bundle-irc-api,bundle-irc,bundle-plugin-ircaccregwizz,
-        bundle-msn,bundle-msn-slick,bundle-yahoo,bundle-yahoo-slick,
+        bundle-msn,bundle-msn-slick,bundle-plugin-vlcj,bundle-yahoo,bundle-yahoo-slick,
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
         bundle-plugin-msnaccregwizz,bundle-plugin-sipaccregwizz,
@@ -1674,6 +1675,18 @@ javax.swing.event, javax.swing.border"/>
                 prefix="net/java/sip/communicator/plugin/sshaccregwizz"/>
         </jar>
     </target>
+
+
+    <!--BUNDLE-PLUGIN-VLCJ-->
+    <target name="bundle-plugin-vlcj">
+        <jar compress="false" destfile="${bundles.dest}/vlcj.jar"
+             manifest="${src}/net/java/sip/communicator/plugin/vlcj/vlcj.plugin.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/vlcj"
+                        prefix="net/java/sip/communicator/plugin/vlcj"/>
+            <zipfileset src="${lib.noinst}/vlcj-frank.jar" prefix=""/>
+        </jar>
+    </target>
+
 
     <!-- BUNDLE-YAHOO -->
     <target name="bundle-yahoo">
