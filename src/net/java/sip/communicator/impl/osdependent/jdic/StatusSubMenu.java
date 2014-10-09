@@ -19,6 +19,7 @@ import net.java.sip.communicator.plugin.desktoputil.presence.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.globalstatus.*;
+import net.java.sip.communicator.util.*;
 
 import org.osgi.framework.*;
 
@@ -279,37 +280,21 @@ public class StatusSubMenu
      */
     private List<ProtocolProviderService> getProtocolProviders()
     {
-        List<ProtocolProviderService> providers
+        BundleContext bundleContext = OsDependentActivator.bundleContext;
+        Collection<ServiceReference<ProtocolProviderService>> ppsRefs
+            = ServiceUtils.getServiceReferences(
+                    bundleContext,
+                    ProtocolProviderService.class);
+        List<ProtocolProviderService> protocolProviders
             = new ArrayList<ProtocolProviderService>();
-        ServiceReference[] protocolProviderRefs = null;
-        try
-        {
-            protocolProviderRefs
-                = OsDependentActivator.bundleContext.getServiceReferences(
-                    ProtocolProviderService.class.getName(), null);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            return providers;
-        }
-        catch(IllegalStateException ise)
-        {
-            // happens sometimes on stopping felix
-        }
 
         // in case we found any
-        if (protocolProviderRefs != null)
+        if ((ppsRefs != null) && !ppsRefs.isEmpty())
         {
-            for (ServiceReference protocolProviderRef : protocolProviderRefs)
-            {
-                providers.add(
-                    (ProtocolProviderService)
-                        OsDependentActivator
-                            .bundleContext.getService(protocolProviderRef));
-            }
+            for (ServiceReference<ProtocolProviderService> ppsRef : ppsRefs)
+                protocolProviders.add(bundleContext.getService(ppsRef));
         }
-
-        return providers;
+        return protocolProviders;
     }
 
     /**
@@ -540,7 +525,7 @@ public class StatusSubMenu
         {
             //if the event is caused by a bundle being stopped, we don't want to
             //know
-            ServiceReference serviceRef = event.getServiceReference();
+            ServiceReference<?> serviceRef = event.getServiceReference();
 
             if(serviceRef.getBundle().getState() == Bundle.STOPPING)
                 return;

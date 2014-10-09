@@ -15,8 +15,8 @@ import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.service.shutdown.*;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.*;
-
 import net.java.sip.communicator.util.Logger;
+
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
@@ -26,7 +26,7 @@ import org.osgi.framework.*;
  * Registers the <tt>Systray</tt> in the UI Service.
  *
  * @author Nicolas Chamouard
- * @author Lubomir Marinov
+ * @author Lyubomir Marinov
  */
 public class OsDependentActivator
     implements BundleActivator
@@ -36,11 +36,7 @@ public class OsDependentActivator
      */
     public static BundleContext bundleContext;
 
-    public static UIService uiService;
-
     private static ConfigurationService configService;
-
-    private static ResourceManagementService resourcesService;
 
     private static GlobalStatusService globalStatusService;
 
@@ -51,14 +47,101 @@ public class OsDependentActivator
     private static final Logger logger
         = Logger.getLogger(OsDependentActivator.class);
 
+    private static ResourceManagementService resourcesService;
+
+    public static UIService uiService;
+
+    /**
+     * Returns the <tt>ConfigurationService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>ConfigurationService</tt> obtained from the bundle
+     * context
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if(configService == null)
+        {
+            configService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ConfigurationService.class);
+        }
+        return configService;
+    }
+
+    /**
+     * Returns the <tt>GlobalStatusService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>GlobalStatusService</tt> obtained from the bundle
+     * context
+     */
+    public static GlobalStatusService getGlobalStatusService()
+    {
+        if (globalStatusService == null)
+        {
+            globalStatusService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        GlobalStatusService.class);
+        }
+        return globalStatusService;
+    }
+
+
+    /**
+     * Returns the <tt>ResourceManagementService</tt>, through which we will
+     * access all resources.
+     *
+     * @return the <tt>ResourceManagementService</tt>, through which we will
+     * access all resources.
+     */
+    public static ResourceManagementService getResources()
+    {
+        if (resourcesService == null)
+        {
+            resourcesService
+                = ResourceManagementServiceUtils.getService(bundleContext);
+        }
+        return resourcesService;
+    }
+
+    /**
+     * Gets a reference to a <tt>ShutdownService</tt> implementation currently
+     * registered in the <tt>BundleContext</tt> of the active
+     * <tt>OsDependentActivator</tt> instance.
+     * <p>
+     * The returned reference to <tt>ShutdownService</tt> is not cached.
+     * </p>
+     *
+     * @return reference to a <tt>ShutdownService</tt> implementation currently
+     * registered in the <tt>BundleContext</tt> of the active
+     * <tt>OsDependentActivator</tt> instance
+     */
+    public static ShutdownService getShutdownService()
+    {
+        return ServiceUtils.getService(bundleContext, ShutdownService.class);
+    }
+
+    /**
+     * Returns the <tt>UIService</tt> obtained from the bundle context.
+     * @return the <tt>UIService</tt> obtained from the bundle context
+     */
+    public static UIService getUIService()
+    {
+        if(uiService == null)
+            uiService = ServiceUtils.getService(bundleContext, UIService.class);
+        return uiService;
+    }
+
     /**
      * Called when this bundle is started.
      *
      * @param bc The execution context of the bundle being started.
-     * @throws Exception If
+     * @throws Exception
      */
+    @Override
     public void start(BundleContext bc)
-            throws Exception
+        throws Exception
     {
         bundleContext = bc;
 
@@ -110,108 +193,14 @@ public class OsDependentActivator
      * bundle-specific activities necessary to stop the bundle.
      *
      * @param bc The execution context of the bundle being stopped.
-     * @throws Exception If this method throws an exception, the bundle is
-     *   still marked as stopped, and the Framework will remove the bundle's
-     *   listeners, unregister all services registered by the bundle, and
-     *   release all services used by the bundle.
+     * @throws Exception If this method throws an exception, the bundle is still
+     * marked as stopped, and the Framework will remove the bundle's listeners,
+     * unregister all services registered by the bundle, and release all
+     * services used by the bundle.
      */
+    @Override
     public void stop(BundleContext bc)
             throws Exception
     {
-    }
-
-
-    /**
-     * Returns the <tt>ConfigurationService</tt> obtained from the bundle
-     * context.
-     * @return the <tt>ConfigurationService</tt> obtained from the bundle
-     * context
-     */
-    public static ConfigurationService getConfigurationService()
-    {
-        if(configService == null) {
-            ServiceReference configReference = bundleContext
-                .getServiceReference(ConfigurationService.class.getName());
-
-            configService = (ConfigurationService) bundleContext
-                .getService(configReference);
-        }
-
-        return configService;
-    }
-
-    /**
-     * Gets a reference to a <code>ShutdownService</code> implementation
-     * currently registered in the bundle context of the active
-     * <code>OsDependentActivator</code> instance.
-     * <p>
-     * The returned reference to <code>ShutdownService</code> is not being
-     * cached.
-     * </p>
-     *
-     * @return reference to a <code>ShutdownService</code> implementation
-     *         currently registered in the bundle context of the active
-     *         <code>OsDependentActivator</code> instance
-     */
-    public static ShutdownService getShutdownService()
-    {
-        return
-            (ShutdownService)
-                bundleContext.getService(
-                    bundleContext.getServiceReference(
-                        ShutdownService.class.getName()));
-    }
-
-    /**
-     * Returns the <tt>UIService</tt> obtained from the bundle
-     * context.
-     * @return the <tt>UIService</tt> obtained from the bundle
-     * context
-     */
-    public static UIService getUIService()
-    {
-        if(uiService == null)
-        {
-            ServiceReference serviceRef = bundleContext
-                .getServiceReference(UIService.class.getName());
-
-            if (serviceRef != null)
-                uiService = (UIService) bundleContext.getService(serviceRef);
-        }
-
-        return uiService;
-    }
-
-    /**
-     * Returns the <tt>ResourceManagementService</tt>, through which we will
-     * access all resources.
-     *
-     * @return the <tt>ResourceManagementService</tt>, through which we will
-     * access all resources.
-     */
-    public static ResourceManagementService getResources()
-    {
-        if (resourcesService == null)
-            resourcesService =
-                ResourceManagementServiceUtils.getService(bundleContext);
-        return resourcesService;
-    }
-
-    /**
-     * Returns the <tt>GlobalStatusService</tt> obtained from the bundle
-     * context.
-     * @return the <tt>GlobalStatusService</tt> obtained from the bundle
-     * context
-     */
-    public static GlobalStatusService getGlobalStatusService()
-    {
-        if (globalStatusService == null)
-        {
-            globalStatusService
-                = ServiceUtils.getService(
-                bundleContext,
-                GlobalStatusService.class);
-        }
-        return globalStatusService;
     }
 }

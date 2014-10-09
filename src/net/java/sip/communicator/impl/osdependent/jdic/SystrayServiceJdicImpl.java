@@ -22,7 +22,6 @@ import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.Logger;
 
-import org.jitsi.service.configuration.*;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
 
@@ -56,13 +55,6 @@ public class SystrayServiceJdicImpl
      * The menu that spring with a right click.
      */
     private Object menu;
-
-    /**
-     * The <tt>ConfigurationService</tt> obtained from the associated
-     * <tt>BundleActivator</tt>.
-     */
-    private final ConfigurationService cfg
-        = OsDependentActivator.getConfigurationService();
 
     /**
      * The <tt>Logger</tt> used by the <tt>SystrayServiceJdicImpl</tt> class and
