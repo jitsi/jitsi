@@ -355,10 +355,9 @@ public class OperationSetMultiUserChatIrcImpl
         }
         else
         {
-            return new ChatRoomMemberIrcImpl(
-                ircProvider,
-                serverChatRoom,
-                ircProvider.getAccountID().getService(),
+            return new ChatRoomMemberIrcImpl(ircProvider, serverChatRoom,
+                ircProvider.getAccountID().getService(), "", ircProvider
+                    .getAccountID().getServerAddress(),
                 ChatRoomMemberRole.GUEST);
         }
     }

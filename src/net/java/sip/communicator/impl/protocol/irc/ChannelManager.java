@@ -25,6 +25,8 @@ import com.ircclouds.irc.api.state.*;
  *
  * TODO Do we need to cancel any join channel operations still in progress?
  *
+ * TODO Check ISUPPORT 'CHANNELLEN' for maximum channel name length.
+ *
  * @author Danny van Heumen
  */
 public class ChannelManager
@@ -342,7 +344,8 @@ public class ChannelManager
         {
             ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(this.provider, chatRoom,
-                    user.getNick(), ChatRoomMemberRole.SILENT_MEMBER);
+                    user.getNick(), user.getIdent(), user.getHostname(),
+                    ChatRoomMemberRole.SILENT_MEMBER);
             ChatRoomMemberRole role;
             for (IRCUserStatus status : channel.getStatusesForUser(user))
             {
@@ -367,6 +370,8 @@ public class ChannelManager
 
     /**
      * Set the subject of the specified chat room.
+     *
+     * TODO check ISUPPORT for maximum topic length
      *
      * @param chatroom The chat room for which to set the subject.
      * @param subject The subject.
@@ -476,16 +481,23 @@ public class ChannelManager
      *             trouble.
      */
     public void banParticipant(final ChatRoomIrcImpl chatroom,
-        final ChatRoomMember member, final String reason)
+        final ChatRoomMemberIrcImpl member, final String reason)
         throws OperationFailedException
     {
-        // TODO Implement banParticipant.
-        throw new OperationFailedException("Not implemented yet.",
-            OperationFailedException.NOT_SUPPORTED_OPERATION);
+        if (!this.connectionState.isConnected())
+        {
+            return;
+        }
+        kickParticipant(chatroom, member, reason);
+        this.irc.changeMode(String.format("%s +b %s!%s@%s",
+            chatroom.getIdentifier(), "*",
+            member.getIdent(), member.getHostname()));
     }
 
     /**
      * Kick channel member.
+     *
+     * TODO Check ISUPPORT 'KICKLEN' for maximum kick message length.
      *
      * @param chatroom channel to kick from
      * @param member member to kick
@@ -723,9 +735,12 @@ public class ChannelManager
                 return;
             }
             final String user = msg.getSource().getNick();
+            final String ident = msg.getSource().getIdent();
+            final String host = msg.getSource().getHostname();
             final ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(ChannelManager.this.provider,
-                    this.chatroom, user, ChatRoomMemberRole.SILENT_MEMBER);
+                    this.chatroom, user, ident, host,
+                    ChatRoomMemberRole.SILENT_MEMBER);
             this.chatroom.fireMemberPresenceEvent(member, null,
                 ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED, null);
         }
@@ -946,7 +961,8 @@ public class ChannelManager
                 MessageIrcImpl.newMessageFromIRC(msg.getText());
             final ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(ChannelManager.this.provider,
-                    this.chatroom, msg.getSource().getNick(),
+                    this.chatroom, msg.getSource().getNick(), msg.getSource()
+                        .getIdent(), msg.getSource().getHostname(),
                     ChatRoomMemberRole.MEMBER);
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
                 ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
@@ -968,7 +984,8 @@ public class ChannelManager
             String userNick = msg.getSource().getNick();
             ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(ChannelManager.this.provider,
-                    this.chatroom, userNick, ChatRoomMemberRole.MEMBER);
+                    this.chatroom, userNick, msg.getSource().getIdent(), msg
+                        .getSource().getHostname(), ChatRoomMemberRole.MEMBER);
             MessageIrcImpl message =
                 MessageIrcImpl.newActionFromIRC(member, msg.getText());
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
@@ -991,7 +1008,8 @@ public class ChannelManager
             final String userNick = msg.getSource().getNick();
             final ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(ChannelManager.this.provider,
-                    this.chatroom, userNick, ChatRoomMemberRole.MEMBER);
+                    this.chatroom, userNick, msg.getSource().getIdent(), msg
+                        .getSource().getHostname(), ChatRoomMemberRole.MEMBER);
             final MessageIrcImpl message =
                 MessageIrcImpl.newNoticeFromIRC(member, msg.getText());
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
@@ -1217,7 +1235,8 @@ public class ChannelManager
                 // an IRC server as a chat room member?
                 member =
                     new ChatRoomMemberIrcImpl(ChannelManager.this.provider,
-                        this.chatroom, "", ChatRoomMemberRole.ADMINISTRATOR);
+                        this.chatroom, "", "", "",
+                        ChatRoomMemberRole.ADMINISTRATOR);
             }
             else if (source instanceof IRCUser)
             {

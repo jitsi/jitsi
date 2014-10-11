@@ -19,7 +19,8 @@ import com.ircclouds.irc.api.state.*;
 /**
  * Manager for message-related operations.
  *
- * FIXME MessageManager may miss some quick events such as NickServ messages right after establishing a connection.
+ * FIXME MessageManager may miss some quick events such as NickServ messages
+ * right after establishing a connection.
  *
  * @author Danny van Heumen
  */

@@ -38,6 +38,16 @@ public class ChatRoomMemberIrcImpl
     private String contactID;
 
     /**
+     * The ident of the contact.
+     */
+    private final String ident;
+
+    /**
+     * The host name of the contact.
+     */
+    private final String hostname;
+
+    /**
      * The provider that created us.
      */
     private final ProtocolProviderServiceIrcImpl parentProvider;
@@ -58,13 +68,15 @@ public class ChatRoomMemberIrcImpl
      * chat room belongs
      * @param chatRoom the chat room, where this member is joined
      * @param contactID the nickname of the member
+     * @param ident ident of member
+     * @param hostname host name of member
      * @param chatRoomMemberRole the role that this member has in the
      * corresponding chat room
      */
     public ChatRoomMemberIrcImpl(
         final ProtocolProviderServiceIrcImpl parentProvider,
-        final ChatRoom chatRoom, final String contactID,
-        final ChatRoomMemberRole chatRoomMemberRole)
+        final ChatRoom chatRoom, final String contactID, final String ident,
+        final String hostname, final ChatRoomMemberRole chatRoomMemberRole)
     {
         if (parentProvider == null)
         {
@@ -83,6 +95,16 @@ public class ChatRoomMemberIrcImpl
             throw new IllegalArgumentException("contact ID cannot be null");
         }
         this.contactID = contactID;
+        if (ident == null)
+        {
+            throw new IllegalArgumentException("ident cannot be null");
+        }
+        this.ident = ident;
+        if (hostname == null)
+        {
+            throw new IllegalArgumentException("hostname cannot be null");
+        }
+        this.hostname = hostname;
         if (chatRoomMemberRole == null)
         {
             throw new IllegalArgumentException("member role cannot be null");
@@ -122,6 +144,26 @@ public class ChatRoomMemberIrcImpl
     public String getContactAddress()
     {
         return this.contactID;
+    }
+
+    /**
+     * Return the contact ident.
+     *
+     * @return returns ident
+     */
+    public String getIdent()
+    {
+        return this.ident;
+    }
+
+    /**
+     * Return the contact host name.
+     *
+     * @return returns host name
+     */
+    public String getHostname()
+    {
+        return this.hostname;
     }
 
     /**

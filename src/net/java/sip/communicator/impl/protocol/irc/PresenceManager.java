@@ -151,6 +151,8 @@ public class PresenceManager
      * Set new prepared away message for later moment when IRC connection is set
      * to away.
      *
+     * TODO Check ISUPPORT 'AWAYLEN' for maximum away message length.
+     *
      * @param message the away message to prepare
      * @return returns message after verification
      */

@@ -19,8 +19,8 @@ public class ChatRoomMemberIrcImplTest
         ChatRoom chatroom = EasyMock.createMock(ChatRoom.class);
         try
         {
-            new ChatRoomMemberIrcImpl(null, chatroom, "user",
-                ChatRoomMemberRole.SILENT_MEMBER);
+            new ChatRoomMemberIrcImpl(null, chatroom, "user", "user",
+                "host.name", ChatRoomMemberRole.SILENT_MEMBER);
             Assert.fail("should throw IAE for parent provider instance");
         }
         catch (IllegalArgumentException e)
@@ -35,8 +35,8 @@ public class ChatRoomMemberIrcImplTest
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         try
         {
-            new ChatRoomMemberIrcImpl(provider, null, "user",
-                ChatRoomMemberRole.SILENT_MEMBER);
+            new ChatRoomMemberIrcImpl(provider, null, "user", "user",
+                "host.name", ChatRoomMemberRole.SILENT_MEMBER);
             Assert.fail("should throw IAE for ChatRoom instance");
         }
         catch (IllegalArgumentException e)
@@ -52,7 +52,41 @@ public class ChatRoomMemberIrcImplTest
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         try
         {
-            new ChatRoomMemberIrcImpl(provider, chatroom, null,
+            new ChatRoomMemberIrcImpl(provider, chatroom, null, "user",
+                "host.name", ChatRoomMemberRole.SILENT_MEMBER);
+            Assert.fail("should throw IAE for ChatRoom instance");
+        }
+        catch (IllegalArgumentException e)
+        {
+            // this is good
+        }
+    }
+
+    public void testConstructorNullIdent()
+    {
+        ChatRoom chatroom = EasyMock.createMock(ChatRoom.class);
+        ProtocolProviderServiceIrcImpl provider =
+            EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
+        try
+        {
+            new ChatRoomMemberIrcImpl(provider, chatroom, "user", null,
+                "host.name", ChatRoomMemberRole.SILENT_MEMBER);
+            Assert.fail("should throw IAE for ChatRoom instance");
+        }
+        catch (IllegalArgumentException e)
+        {
+            // this is good
+        }
+    }
+
+    public void testConstructorNullHostname()
+    {
+        ChatRoom chatroom = EasyMock.createMock(ChatRoom.class);
+        ProtocolProviderServiceIrcImpl provider =
+            EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
+        try
+        {
+            new ChatRoomMemberIrcImpl(provider, chatroom, "user", "user", null,
                 ChatRoomMemberRole.SILENT_MEMBER);
             Assert.fail("should throw IAE for ChatRoom instance");
         }
@@ -69,7 +103,8 @@ public class ChatRoomMemberIrcImplTest
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         try
         {
-            new ChatRoomMemberIrcImpl(provider, chatroom, "user", null);
+            new ChatRoomMemberIrcImpl(provider, chatroom, "user", "user",
+                "host.name", null);
             Assert.fail("should throw IAE for ChatRoom instance");
         }
         catch (IllegalArgumentException e)
@@ -84,7 +119,7 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         Assert.assertNotNull(new ChatRoomMemberIrcImpl(provider, chatroom,
-            "user", ChatRoomMemberRole.SILENT_MEMBER));
+            "user", "user", "host.name", ChatRoomMemberRole.SILENT_MEMBER));
     }
     
     public void testCheckGetters()
@@ -93,7 +128,7 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member = new ChatRoomMemberIrcImpl(provider, chatroom,
-            "user", ChatRoomMemberRole.SILENT_MEMBER);
+            "user", "user", "host.name", ChatRoomMemberRole.SILENT_MEMBER);
         Assert.assertEquals(provider, member.getProtocolProvider());
         Assert.assertEquals(chatroom, member.getChatRoom());
         Assert.assertEquals("user", member.getContactAddress());
@@ -107,8 +142,8 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member =
-            new ChatRoomMemberIrcImpl(provider, chatroom, "user",
-                ChatRoomMemberRole.SILENT_MEMBER);
+            new ChatRoomMemberIrcImpl(provider, chatroom, "user", "user",
+                "host.name", ChatRoomMemberRole.SILENT_MEMBER);
         Assert.assertEquals("user", member.getContactAddress());
         Assert.assertEquals("user", member.getName());
         try
@@ -128,7 +163,7 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member = new ChatRoomMemberIrcImpl(provider, chatroom,
-            "user", ChatRoomMemberRole.SILENT_MEMBER);
+            "user", "user", "host.name", ChatRoomMemberRole.SILENT_MEMBER);
         Assert.assertEquals("user", member.getContactAddress());
         Assert.assertEquals("user", member.getName());
         member.setName("myNewName");
@@ -142,7 +177,7 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member =
-            new ChatRoomMemberIrcImpl(provider, chatroom, "user",
+            new ChatRoomMemberIrcImpl(provider, chatroom, "user", "user", "host.name",
                 ChatRoomMemberRole.SILENT_MEMBER);
         member.setRole(null);
     }
@@ -153,7 +188,7 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member = new ChatRoomMemberIrcImpl(provider, chatroom,
-            "user", ChatRoomMemberRole.SILENT_MEMBER);
+            "user", "user", "host.name", ChatRoomMemberRole.SILENT_MEMBER);
         Assert.assertSame(ChatRoomMemberRole.SILENT_MEMBER, member.getRole());
         member.setRole(ChatRoomMemberRole.ADMINISTRATOR);
         Assert.assertSame(ChatRoomMemberRole.SILENT_MEMBER, member.getRole());
@@ -165,7 +200,7 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member =
-            new ChatRoomMemberIrcImpl(provider, chatroom, "user",
+            new ChatRoomMemberIrcImpl(provider, chatroom, "user", "user", "host.name",
                 ChatRoomMemberRole.SILENT_MEMBER);
         Assert.assertSame(ChatRoomMemberRole.SILENT_MEMBER, member.getRole());
         member.addRole(ChatRoomMemberRole.ADMINISTRATOR);
@@ -178,7 +213,7 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member =
-            new ChatRoomMemberIrcImpl(provider, chatroom, "user",
+            new ChatRoomMemberIrcImpl(provider, chatroom, "user", "user", "host.name",
                 ChatRoomMemberRole.SILENT_MEMBER);
         member.addRole(ChatRoomMemberRole.ADMINISTRATOR);
         Assert.assertSame(ChatRoomMemberRole.ADMINISTRATOR, member.getRole());
@@ -192,7 +227,7 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member =
-            new ChatRoomMemberIrcImpl(provider, chatroom, "user",
+            new ChatRoomMemberIrcImpl(provider, chatroom, "user", "user", "host.name",
                 ChatRoomMemberRole.ADMINISTRATOR);
         Assert.assertSame(ChatRoomMemberRole.ADMINISTRATOR, member.getRole());
         member.addRole(ChatRoomMemberRole.MEMBER);
@@ -205,7 +240,7 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member =
-            new ChatRoomMemberIrcImpl(provider, chatroom, "user",
+            new ChatRoomMemberIrcImpl(provider, chatroom, "user", "user", "host.name",
                 ChatRoomMemberRole.ADMINISTRATOR);
         member.addRole(ChatRoomMemberRole.MEMBER);
         Assert.assertSame(ChatRoomMemberRole.ADMINISTRATOR, member.getRole());
@@ -223,7 +258,7 @@ public class ChatRoomMemberIrcImplTest
         EasyMock.expect(provider.getPersistentPresence()).andReturn(pp);
         EasyMock.replay(provider);
         ChatRoomMemberIrcImpl member =
-            new ChatRoomMemberIrcImpl(provider, chatroom, "user",
+            new ChatRoomMemberIrcImpl(provider, chatroom, "user", "user", "host.name",
                 ChatRoomMemberRole.SILENT_MEMBER);
         Assert.assertNull(member.getContact());
     }
@@ -234,7 +269,7 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member =
-            new ChatRoomMemberIrcImpl(provider, chatroom, "user",
+            new ChatRoomMemberIrcImpl(provider, chatroom, "user", "user", "host.name",
                 ChatRoomMemberRole.SILENT_MEMBER);
         Assert.assertNull(member.getAvatar());
     }
@@ -245,7 +280,7 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member = new ChatRoomMemberIrcImpl(provider, chatroom,
-            "user", ChatRoomMemberRole.SILENT_MEMBER);
+            "user", "user", "host.name", ChatRoomMemberRole.SILENT_MEMBER);
         Assert.assertTrue(member.equals(member));
     }
     
@@ -255,7 +290,7 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member = new ChatRoomMemberIrcImpl(provider, chatroom,
-            "user", ChatRoomMemberRole.SILENT_MEMBER);
+            "user", "user", "host.name", ChatRoomMemberRole.SILENT_MEMBER);
         Assert.assertFalse(member.equals(null));        
     }
 
@@ -265,7 +300,7 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member = new ChatRoomMemberIrcImpl(provider, chatroom,
-            "user", ChatRoomMemberRole.SILENT_MEMBER);
+            "user", "user", "host.name", ChatRoomMemberRole.SILENT_MEMBER);
         Assert.assertFalse(member.equals(new Object()));        
     }
     
@@ -275,11 +310,11 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member1 = new ChatRoomMemberIrcImpl(provider, chatroom,
-            "user", ChatRoomMemberRole.SILENT_MEMBER);
+            "user", "user", "host.name", ChatRoomMemberRole.SILENT_MEMBER);
         ProtocolProviderServiceIrcImpl provider2 =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member2 = new ChatRoomMemberIrcImpl(provider2, chatroom,
-            "user", ChatRoomMemberRole.SILENT_MEMBER);
+            "user", "user", "host.name", ChatRoomMemberRole.SILENT_MEMBER);
         Assert.assertFalse(member1.equals(member2));        
     }
     
@@ -289,9 +324,9 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member1 = new ChatRoomMemberIrcImpl(provider, chatroom,
-            "user", ChatRoomMemberRole.SILENT_MEMBER);
+            "user", "user", "host.name", ChatRoomMemberRole.SILENT_MEMBER);
         ChatRoomMemberIrcImpl member2 = new ChatRoomMemberIrcImpl(provider, chatroom,
-            "susy", ChatRoomMemberRole.SILENT_MEMBER);
+            "susy", "user", "host.name", ChatRoomMemberRole.SILENT_MEMBER);
         Assert.assertFalse(member1.equals(member2));        
     }
     
@@ -301,9 +336,9 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member1 = new ChatRoomMemberIrcImpl(provider, chatroom,
-            "susy", ChatRoomMemberRole.SILENT_MEMBER);
+            "susy", "user", "host.name", ChatRoomMemberRole.SILENT_MEMBER);
         ChatRoomMemberIrcImpl member2 = new ChatRoomMemberIrcImpl(provider, chatroom,
-            "susy", ChatRoomMemberRole.SILENT_MEMBER);
+            "susy", "user", "host.name", ChatRoomMemberRole.SILENT_MEMBER);
         Assert.assertTrue(member1.equals(member2));
     }
     
@@ -313,8 +348,30 @@ public class ChatRoomMemberIrcImplTest
         ProtocolProviderServiceIrcImpl provider =
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         ChatRoomMemberIrcImpl member =
-            new ChatRoomMemberIrcImpl(provider, chatroom, "ET",
+            new ChatRoomMemberIrcImpl(provider, chatroom, "ET", "user", "host.name",
                 ChatRoomMemberRole.ADMINISTRATOR);
         member.hashCode();
+    }
+    
+    public void testGetIdent()
+    {
+        ChatRoom chatroom = EasyMock.createMock(ChatRoom.class);
+        ProtocolProviderServiceIrcImpl provider =
+            EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
+        ChatRoomMemberIrcImpl member =
+            new ChatRoomMemberIrcImpl(provider, chatroom, "ET", "user", "host.name",
+                ChatRoomMemberRole.ADMINISTRATOR);
+        Assert.assertEquals("user", member.getIdent());
+    }
+
+    public void testGetHostname()
+    {
+        ChatRoom chatroom = EasyMock.createMock(ChatRoom.class);
+        ProtocolProviderServiceIrcImpl provider =
+            EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
+        ChatRoomMemberIrcImpl member =
+            new ChatRoomMemberIrcImpl(provider, chatroom, "ET", "user", "host.name",
+                ChatRoomMemberRole.ADMINISTRATOR);
+        Assert.assertEquals("host.name", member.getHostname());
     }
 }

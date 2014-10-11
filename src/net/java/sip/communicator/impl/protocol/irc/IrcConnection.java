@@ -20,6 +20,9 @@ import com.ircclouds.irc.api.state.*;
 /**
  * IRC Connection.
  *
+ * TODO Find out how irc-api responds to losing a connection (no response). Does
+ * it use ping/pong messages to determine connectivity?
+ *
  * Common IRC network facilities:
  * 1. NickServ - nick related services
  * 2. ChanServ - channel related services
@@ -29,19 +32,6 @@ import com.ircclouds.irc.api.state.*;
  */
 public class IrcConnection
 {
-    /**
-     * TODO In the far far future ...
-     *
-     * <p>
-     * Some of the less pressing features that may one day be useful ...
-     * </p>
-     *
-     * <pre>
-     * - Handle 404 ERR_CANNOTSENDTOCHAN in case of +n channel mode and not
-     *   joined to the channel where you send a message to.
-     * </pre>
-     */
-
     /**
      * Logger.
      */

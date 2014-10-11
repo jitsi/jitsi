@@ -437,10 +437,17 @@ public class ChatRoomIrcImpl
     public void banParticipant(final ChatRoomMember chatRoomMember,
         final String reason) throws OperationFailedException
     {
+        if (!(chatRoomMember instanceof ChatRoomMemberIrcImpl))
+        {
+            LOGGER
+                .trace("Cannot ban chat room member that is not an instance of "
+                    + ChatRoomMemberIrcImpl.class.getCanonicalName());
+            return;
+        }
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        connection.getChannelManager().banParticipant(this, chatRoomMember,
-            reason);
+        connection.getChannelManager().banParticipant(this,
+            (ChatRoomMemberIrcImpl) chatRoomMember, reason);
     }
 
     /**

@@ -25,8 +25,6 @@ import com.ircclouds.irc.api.listeners.*;
 /**
  * An implementation of IRC using the irc-api library.
  *
- * TODO Find out how irc-api responds to losing a connection (no response). Does it use ping/pong messages to determine connectivity?
- *
  * @author Danny van Heumen
  */
 public class IrcStack
