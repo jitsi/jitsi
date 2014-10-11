@@ -25,6 +25,8 @@ import com.ircclouds.irc.api.listeners.*;
 /**
  * An implementation of IRC using the irc-api library.
  *
+ * TODO Find out how irc-api responds to losing a connection (no response). Does it use ping/pong messages to determine connectivity?
+ *
  * @author Danny van Heumen
  */
 public class IrcStack
@@ -131,8 +133,11 @@ public class IrcStack
                     irc.addListener(new DebugListener());
                 }
 
+                // Synchronized IRCApi instance passed on to the connection
+                // instance.
                 final IrcConnection connection =
-                    new IrcConnection(this.provider, this.params, irc);
+                    new IrcConnection(this.provider, this.params,
+                        new SynchronizedIRCApi(irc));
                 this.session.set(connection);
 
                 // if connecting succeeded, set state to registered
@@ -244,6 +249,8 @@ public class IrcStack
 
     /**
      * Container for storing server parameters.
+     *
+     * @author Danny van Heumen
      */
     private static final class ServerParameters
         implements IServerParameters

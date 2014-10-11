@@ -35,7 +35,7 @@ public class IdentityManager
     /**
      * The IRCApi instance.
      *
-     * Use must be SYNCHRONIZED.
+     * Instance must be thread-safe!
      */
     private final IRCApi irc;
 
@@ -52,7 +52,7 @@ public class IdentityManager
     /**
      * Constructor.
      *
-     * @param irc the IRCApi instance
+     * @param irc thread-safe IRCApi instance
      * @param connectionState the connection state
      */
     public IdentityManager(final IRCApi irc, final IIRCState connectionState)
@@ -74,18 +74,11 @@ public class IdentityManager
 
     /**
      * Issue WHOIS query to discover identity as seen by the server.
-     *
-     * @param irc IRCApi instance
-     * @param connectionState the connection state
-     * @param identity the identity container
      */
     private void queryIdentity()
     {
-        synchronized (this.irc)
-        {
-            this.irc.addListener(new WhoisListener());
-            this.irc.rawMessage("WHOIS " + this.connectionState.getNickname());
-        }
+        this.irc.addListener(new WhoisListener());
+        this.irc.rawMessage("WHOIS " + this.connectionState.getNickname());
     }
 
     /**

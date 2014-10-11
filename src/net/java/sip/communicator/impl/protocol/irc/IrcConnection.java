@@ -75,7 +75,7 @@ public class IrcConnection
     /**
      * Instance of IRC Api.
      *
-     * Use must be SYNCHRONIZED.
+     * Instance must be thread-safe!
      */
     private final IRCApi irc;
 
@@ -132,6 +132,7 @@ public class IrcConnection
             throw new IllegalArgumentException("irc instance cannot be null");
         }
         this.irc = irc;
+
         // Install a listener for everything that is not directly related to a
         // specific chat room or operation.
         this.irc.addListener(new ServerListener());
@@ -265,10 +266,7 @@ public class IrcConnection
     {
         try
         {
-            synchronized (this.irc)
-            {
-                this.irc.disconnect();
-            }
+            this.irc.disconnect();
         }
         catch (RuntimeException e)
         {

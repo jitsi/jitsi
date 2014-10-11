@@ -49,7 +49,7 @@ public class ServerChannelLister
     /**
      * IRCApi instance.
      *
-     * Use must be SYNCHRONIZED.
+     * Instance must be thread-safe!
      */
     private final IRCApi irc;
 
@@ -70,7 +70,7 @@ public class ServerChannelLister
     /**
      * Constructor.
      *
-     * @param irc irc api instance
+     * @param irc thread-safe irc api instance
      * @param state irc connection state
      */
     public ServerChannelLister(final IRCApi irc, final IIRCState state)
@@ -116,12 +116,9 @@ public class ServerChannelLister
                 {
                     try
                     {
-                        this.irc.addListener(
-                            new ChannelListListener(listSignal));
-                        synchronized (this.irc)
-                        {
-                            this.irc.rawMessage("LIST");
-                        }
+                        this.irc
+                            .addListener(new ChannelListListener(listSignal));
+                        this.irc.rawMessage("LIST");
                         while (!listSignal.isDone())
                         {
                             LOGGER.trace("Waiting for list ...");

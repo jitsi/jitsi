@@ -18,7 +18,7 @@ import com.ircclouds.irc.api.state.*;
 
 /**
  * Manager for message-related operations.
- * 
+ *
  * FIXME MessageManager may miss some quick events such as NickServ messages right after establishing a connection.
  *
  * @author Danny van Heumen
@@ -39,7 +39,7 @@ public class MessageManager
     /**
      * IRCApi instance.
      *
-     * Use must be SYNCHRONIZED.
+     * Instance must be thread-safe!
      */
     private final IRCApi irc;
 
@@ -61,7 +61,7 @@ public class MessageManager
     /**
      * Constructor.
      *
-     * @param irc IRCApi instance
+     * @param irc thread-safe IRCApi instance
      * @param connectionState the connection state
      * @param provider the provider instance
      * @param identity the identity manager
@@ -144,18 +144,12 @@ public class MessageManager
             }
             final String target = part.substring(0, endOfNick);
             final String command = part.substring(endOfNick + 1);
-            synchronized (this.irc)
-            {
-                this.irc.message(target, command);
-            }
+            this.irc.message(target, command);
         }
         else if (msg.startsWith("/me "))
         {
             final String command = message.substring(4);
-            synchronized (this.irc)
-            {
-                this.irc.act(source, command);
-            }
+            this.irc.act(source, command);
         }
         else if (msg.startsWith("/join "))
         {
@@ -175,18 +169,12 @@ public class MessageManager
             }
             if (channel.matches("[^,\\n\\r\\s\\a]+"))
             {
-                synchronized (this.irc)
-                {
-                    this.irc.joinChannel(channel, password);
-                }
+                this.irc.joinChannel(channel, password);
             }
         }
         else
         {
-            synchronized (this.irc)
-            {
-                this.irc.message(source, message);
-            }
+            this.irc.message(source, message);
         }
     }
 
@@ -203,10 +191,7 @@ public class MessageManager
             throw new IllegalStateException("Not connected to an IRC server.");
         }
         final String target = chatroom.getIdentifier();
-        synchronized (this.irc)
-        {
-            this.irc.message(target, message);
-        }
+        this.irc.message(target, message);
     }
 
     /**
@@ -224,10 +209,7 @@ public class MessageManager
         final String target = contact.getAddress();
         try
         {
-            synchronized (this.irc)
-            {
-                this.irc.message(target, message.getContent());
-            }
+            this.irc.message(target, message.getContent());
             LOGGER.trace("Message delivered to server successfully.");
         }
         catch (RuntimeException e)

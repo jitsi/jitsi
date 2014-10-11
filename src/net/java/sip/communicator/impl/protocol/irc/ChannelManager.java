@@ -37,7 +37,7 @@ public class ChannelManager
     /**
      * IRCApi instance.
      *
-     * Use must be SYNCHRONIZED.
+     * Instance must be thread-safe!
      */
     private final IRCApi irc;
 
@@ -66,7 +66,7 @@ public class ChannelManager
 
     /**
      * Constructor.
-     * @param irc the IRCApi instance
+     * @param irc thread-safe IRCApi instance
      * @param connectionState the connection state
      * @param provider the provider instance
      */
@@ -171,149 +171,137 @@ public class ChannelManager
                 + "for join operation to complete (un)successfully.");
 
             this.joined.put(chatRoomId, null);
-            synchronized (this.irc)
-            {
-                // TODO Refactor this ridiculous nesting of functions and
-                // classes.
-                this.irc.joinChannel(chatRoomId, password,
-                    new Callback<IRCChannel>()
+            // TODO Refactor this ridiculous nesting of functions and
+            // classes.
+            this.irc.joinChannel(chatRoomId, password,
+                new Callback<IRCChannel>()
+                {
+
+                    @Override
+                    public void onSuccess(final IRCChannel channel)
                     {
-
-                        @Override
-                        public void onSuccess(final IRCChannel channel)
+                        if (LOGGER.isTraceEnabled())
                         {
-                            if (LOGGER.isTraceEnabled())
+                            LOGGER.trace("Started callback for successful "
+                                + "join of channel '"
+                                + chatroom.getIdentifier() + "'.");
+                        }
+                        boolean isRequestedChatRoom =
+                            channel.getName().equalsIgnoreCase(chatRoomId);
+                        synchronized (joinSignal)
+                        {
+                            if (!isRequestedChatRoom)
                             {
-                                LOGGER
-                                    .trace("Started callback for successful "
-                                        + "join of channel '"
-                                        + chatroom.getIdentifier() + "'.");
+                                // We joined another chat room than the one
+                                // we requested initially.
+                                if (LOGGER.isTraceEnabled())
+                                {
+                                    LOGGER.trace("Callback for successful "
+                                        + "join finished prematurely "
+                                        + "since we got forwarded from '"
+                                        + chatRoomId + "' to '"
+                                        + channel.getName()
+                                        + "'. Joining of forwarded channel "
+                                        + "gets handled by Server Listener "
+                                        + "since that channel was not "
+                                        + "announced.");
+                                }
+                                // Remove original chat room id from
+                                // joined-list since we aren't actually
+                                // attempting to join this room anymore.
+                                ChannelManager.this.joined.remove(chatRoomId);
+                                ChannelManager.this.provider
+                                    .getMUC()
+                                    .fireLocalUserPresenceEvent(
+                                        chatroom,
+                                        LocalUserChatRoomPresenceChangeEvent
+                                            .LOCAL_USER_JOIN_FAILED,
+                                        "We got forwarded to channel '"
+                                            + channel.getName() + "'.");
+                                // Notify waiting threads of finished
+                                // execution.
+                                joinSignal.setDone();
+                                joinSignal.notifyAll();
+                                // The channel that we were forwarded to
+                                // will be handled by the Server Listener,
+                                // since the channel join was unannounced,
+                                // and we are done here.
+                                return;
                             }
-                            boolean isRequestedChatRoom =
-                                channel.getName().equalsIgnoreCase(chatRoomId);
-                            synchronized (joinSignal)
-                            {
-                                if (!isRequestedChatRoom)
-                                {
-                                    // We joined another chat room than the one
-                                    // we requested initially.
-                                    if (LOGGER.isTraceEnabled())
-                                    {
-                                        LOGGER.trace("Callback for successful "
-                                            + "join finished prematurely "
-                                            + "since we got forwarded from "
-                                            + "'"
-                                            + chatRoomId
-                                            + "' to '"
-                                            + channel.getName()
-                                            + "'. Joining of forwarded channel "
-                                            + "gets handled by Server Listener "
-                                            + "since that channel was not "
-                                            + "announced.");
-                                    }
-                                    // Remove original chat room id from
-                                    // joined-list since we aren't actually
-                                    // attempting to join this room anymore.
-                                    ChannelManager.this.joined
-                                        .remove(chatRoomId);
-                                    ChannelManager.this.provider.getMUC()
-                                        .fireLocalUserPresenceEvent(
-                                            chatroom,
-                                            LocalUserChatRoomPresenceChangeEvent
-                                                .LOCAL_USER_JOIN_FAILED,
-                                            "We got forwarded to channel '"
-                                                + channel.getName() + "'.");
-                                    // Notify waiting threads of finished
-                                    // execution.
-                                    joinSignal.setDone();
-                                    joinSignal.notifyAll();
-                                    // The channel that we were forwarded to
-                                    // will be handled by the Server Listener,
-                                    // since the channel join was unannounced,
-                                    // and we are done here.
-                                    return;
-                                }
 
-                                try
+                            try
+                            {
+                                ChannelManager.this.joined.put(chatRoomId,
+                                    chatroom);
+                                ChannelManager.this.irc
+                                    .addListener(
+                                        new ChatRoomListener(chatroom));
+                                prepareChatRoom(chatroom, channel);
+                            }
+                            finally
+                            {
+                                // In any case, issue the local user
+                                // presence, since the irc library notified
+                                // us of a successful join. We should wait
+                                // as long as possible though. First we need
+                                // to fill the list of chat room members and
+                                // other chat room properties.
+                                ChannelManager.this.provider
+                                    .getMUC()
+                                    .fireLocalUserPresenceEvent(
+                                        chatroom,
+                                        LocalUserChatRoomPresenceChangeEvent
+                                            .LOCAL_USER_JOINED,
+                                        null);
+                                if (LOGGER.isTraceEnabled())
                                 {
-                                    ChannelManager.this.joined.put(chatRoomId,
-                                        chatroom);
-                                    ChannelManager.this.irc
-                                        .addListener(new ChatRoomListener(
-                                            chatroom));
-                                    prepareChatRoom(chatroom, channel);
+                                    LOGGER.trace("Finished successful join "
+                                        + "callback for channel '" + chatRoomId
+                                        + "'. Waking up original thread.");
                                 }
-                                finally
-                                {
-                                    // In any case, issue the local user
-                                    // presence, since the irc library notified
-                                    // us of a successful join. We should wait
-                                    // as long as possible though. First we need
-                                    // to fill the list of chat room members and
-                                    // other chat room properties.
-                                    ChannelManager.this.provider.getMUC()
-                                        .fireLocalUserPresenceEvent(
-                                            chatroom,
-                                            LocalUserChatRoomPresenceChangeEvent
-                                                .LOCAL_USER_JOINED,
-                                            null);
-                                    if (LOGGER.isTraceEnabled())
-                                    {
-                                        LOGGER
-                                            .trace("Finished successful join "
-                                                + "callback for channel '"
-                                                + chatRoomId
-                                                + "'. Waking up original "
-                                                + "thread.");
-                                    }
-                                    // Notify waiting threads of finished
-                                    // execution.
-                                    joinSignal.setDone();
-                                    joinSignal.notifyAll();
-                                }
+                                // Notify waiting threads of finished
+                                // execution.
+                                joinSignal.setDone();
+                                joinSignal.notifyAll();
                             }
                         }
+                    }
 
-                        @Override
-                        public void onFailure(final Exception e)
+                    @Override
+                    public void onFailure(final Exception e)
+                    {
+                        LOGGER.trace("Started callback for failed attempt to "
+                            + "join channel '" + chatRoomId + "'.");
+                        synchronized (joinSignal)
                         {
-                            LOGGER
-                                .trace("Started callback for failed attempt to "
-                                    + "join channel '" + chatRoomId + "'.");
-                            synchronized (joinSignal)
+                            try
                             {
-                                try
+                                ChannelManager.this.joined.remove(chatRoomId);
+                                ChannelManager.this.provider
+                                    .getMUC()
+                                    .fireLocalUserPresenceEvent(
+                                        chatroom,
+                                        LocalUserChatRoomPresenceChangeEvent
+                                            .LOCAL_USER_JOIN_FAILED,
+                                        e.getMessage());
+                            }
+                            finally
+                            {
+                                if (LOGGER.isTraceEnabled())
                                 {
-                                    ChannelManager.this.joined
-                                        .remove(chatRoomId);
-                                    ChannelManager.this.provider.getMUC()
-                                        .fireLocalUserPresenceEvent(
-                                            chatroom,
-                                            LocalUserChatRoomPresenceChangeEvent
-                                                .LOCAL_USER_JOIN_FAILED,
-                                            e.getMessage());
+                                    LOGGER.trace("Finished callback for "
+                                        + "failed attempt to join "
+                                        + "channel '" + chatRoomId
+                                        + "'. Waking up original thread.");
                                 }
-                                finally
-                                {
-                                    if (LOGGER.isTraceEnabled())
-                                    {
-                                        LOGGER
-                                            .trace("Finished callback for "
-                                                + "failed attempt to join "
-                                                + "channel '"
-                                                + chatRoomId
-                                                + "'. Waking up original "
-                                                + "thread.");
-                                    }
-                                    // Notify waiting threads of finished
-                                    // execution
-                                    joinSignal.setDone(e);
-                                    joinSignal.notifyAll();
-                                }
+                                // Notify waiting threads of finished
+                                // execution
+                                joinSignal.setDone(e);
+                                joinSignal.notifyAll();
                             }
                         }
-                    });
-            }
+                    }
+                });
 
             try
             {
@@ -395,11 +383,8 @@ public class ChannelManager
             throw new IllegalArgumentException("Cannot have a null chatroom");
         }
         LOGGER.trace("Setting chat room topic to '" + subject + "'");
-        synchronized (this.irc)
-        {
-            this.irc.changeTopic(chatroom.getIdentifier(), subject == null ? ""
-                : subject);
-        }
+        this.irc.changeTopic(chatroom.getIdentifier(), subject == null ? ""
+            : subject);
     }
 
     /**
@@ -427,10 +412,7 @@ public class ChannelManager
 
         try
         {
-            synchronized (this.irc)
-            {
-                this.irc.leaveChannel(chatRoomName);
-            }
+            this.irc.leaveChannel(chatRoomName);
         }
         catch (ApiException e)
         {
@@ -457,11 +439,8 @@ public class ChannelManager
             throw new IllegalArgumentException(
                 "This mode does not modify user permissions.");
         }
-        synchronized (this.irc)
-        {
-            this.irc.changeMode(chatRoom.getIdentifier() + " +"
-                + mode.getSymbol() + " " + userAddress);
-        }
+        this.irc.changeMode(chatRoom.getIdentifier() + " +" + mode.getSymbol()
+            + " " + userAddress);
     }
 
     /**
@@ -483,11 +462,8 @@ public class ChannelManager
             throw new IllegalArgumentException(
                 "This mode does not modify user permissions.");
         }
-        synchronized (this.irc)
-        {
-            this.irc.changeMode(chatRoom.getIdentifier() + " -"
-                + mode.getSymbol() + " " + userAddress);
-        }
+        this.irc.changeMode(chatRoom.getIdentifier() + " -" + mode.getSymbol()
+            + " " + userAddress);
     }
 
     /**
@@ -522,11 +498,8 @@ public class ChannelManager
         {
             return;
         }
-        synchronized (this.irc)
-        {
-            this.irc.kick(chatroom.getIdentifier(), member.getContactAddress(),
-                reason);
-        }
+        this.irc.kick(chatroom.getIdentifier(), member.getContactAddress(),
+            reason);
     }
 
     /**
@@ -541,11 +514,8 @@ public class ChannelManager
         {
             throw new IllegalStateException("Not connected to an IRC server.");
         }
-        synchronized (this.irc)
-        {
-            this.irc.rawMessage("INVITE " + memberId + " "
-                + chatroom.getIdentifier());
-        }
+        this.irc.rawMessage("INVITE " + memberId + " "
+            + chatroom.getIdentifier());
     }
 
     /**
@@ -699,7 +669,6 @@ public class ChannelManager
         /**
          * Constructor. Instantiate listener for the provided chat room.
          *
-         * @param irc IRCApi instance
          * @param chatroom the chat room
          */
         private ChatRoomListener(final ChatRoomIrcImpl chatroom)

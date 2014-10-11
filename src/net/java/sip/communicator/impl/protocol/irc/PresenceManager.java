@@ -40,7 +40,7 @@ public class PresenceManager
     /**
      * IRC client library instance.
      *
-     * Use must be SYNCHRONIZED.
+     * Instance must be thread-safe!
      */
     private final IRCApi irc;
 
@@ -72,7 +72,7 @@ public class PresenceManager
     /**
      * Constructor.
      *
-     * @param irc irc client library instance
+     * @param irc thread-safe irc client library instance
      * @param state irc client connection state instance
      * @param operationSet OperationSetPersistentPresence irc implementation for
      *            handling presence changes.
@@ -138,18 +138,12 @@ public class PresenceManager
 
         if (isAway && (!this.away || awayMessage != null))
         {
-            synchronized (this.irc)
-            {
-                // In case we aren't AWAY yet, or if there is a message to set.
-                this.irc.rawMessage("AWAY :" + this.submittedMessage);
-            }
+            // In case we aren't AWAY yet, or if there is a message to set.
+            this.irc.rawMessage("AWAY :" + this.submittedMessage);
         }
         else if (isAway != this.away)
         {
-            synchronized (this.irc)
-            {
-                this.irc.rawMessage("AWAY");
-            }
+            this.irc.rawMessage("AWAY");
         }
     }
 
