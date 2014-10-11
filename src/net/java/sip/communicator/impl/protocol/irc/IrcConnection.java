@@ -140,6 +140,18 @@ public class IrcConnection
         // Now actually connect to the IRC server.
         this.connectionState = connectSynchronized(this.provider, params, irc);
 
+        // instantiate identity manager for the connection
+        this.identity = new IdentityManager(this.irc, this.connectionState);
+
+        // instantiate message manager for the connection
+        this.message =
+            new MessageManager(this.irc, this.connectionState, this.provider,
+                this.identity);
+
+        // instantiate channel manager for the connection
+        this.channel =
+            new ChannelManager(this.irc, this.connectionState, this.provider);
+
         // instantiate presence manager for the connection
         this.presence =
             new PresenceManager(this.irc, this.connectionState,
@@ -148,18 +160,6 @@ public class IrcConnection
         // instantiate server channel lister
         this.channelLister =
             new ServerChannelLister(this.irc, this.connectionState);
-
-        // instantiate identity manager for the connection
-        this.identity = new IdentityManager(this.irc, this.connectionState);
-
-        // instantiate channel manager for the connection
-        this.channel =
-            new ChannelManager(this.irc, this.connectionState, this.provider);
-
-        // instantiate message manager for the connection
-        this.message =
-            new MessageManager(this.irc, this.connectionState, this.provider,
-                this.identity);
 
         // TODO Read IRC network capabilities based on RPL_ISUPPORT
         // (005) replies if available. This information should be
