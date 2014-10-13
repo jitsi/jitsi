@@ -173,6 +173,7 @@ public class MessageManager
                 this.irc.joinChannel(channel, password);
             }
         }
+        // TODO add /nick command for nick changing
         else
         {
             // FIXME don't send as normal message just in case it contains

@@ -395,7 +395,7 @@ public class ServerChannelLister
          * difference is within specified bound. Otherwise return null.
          *
          * @param bound maximum time difference that is allowed.
-         * @return returns instance if within bounds, or null otherwise
+         * @return returns set value if within bounds, or null otherwise
          */
         public T get(final long bound)
         {

@@ -27,6 +27,8 @@ import com.ircclouds.irc.api.state.*;
  *
  * TODO Check ISUPPORT 'CHANNELLEN' for maximum channel name length.
  *
+ * TODO Check ISUPPORT 'CHANLIMIT' for maximum number of joined channels.
+ *
  * @author Danny van Heumen
  */
 public class ChannelManager
@@ -340,14 +342,14 @@ public class ChannelManager
         final IRCTopic topic = channel.getTopic();
         chatRoom.updateSubject(topic.getValue());
 
-        for (IRCUser user : channel.getUsers())
+        for (final IRCUser user : channel.getUsers())
         {
-            ChatRoomMemberIrcImpl member =
+            final ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(this.provider, chatRoom,
                     user.getNick(), user.getIdent(), user.getHostname(),
                     ChatRoomMemberRole.SILENT_MEMBER);
             ChatRoomMemberRole role;
-            for (IRCUserStatus status : channel.getStatusesForUser(user))
+            for (final IRCUserStatus status : channel.getStatusesForUser(user))
             {
                 role = convertMemberMode(status.getChanModeType().charValue());
                 member.addRole(role);
