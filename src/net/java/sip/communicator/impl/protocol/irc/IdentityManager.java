@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import java.util.*;
+
 import net.java.sip.communicator.util.*;
 
 import com.ircclouds.irc.api.*;
@@ -31,6 +33,22 @@ public class IdentityManager
      */
     private static final Logger LOGGER = Logger
         .getLogger(IdentityManager.class);
+
+    /**
+     * Reserved symbols. These symbols have special meaning and cannot be
+     * used to start nick names.
+     */
+    private static final Set<Character> RESERVED;
+
+    /**
+     * Initialize RESERVED symbols set.
+     */
+    static {
+        final HashSet<Character> reserved = new HashSet<Character>();
+        reserved.add('#');
+        reserved.add('&');
+        RESERVED = Collections.unmodifiableSet(reserved);
+    }
 
     /**
      * The IRCApi instance.
@@ -90,6 +108,41 @@ public class IdentityManager
     public String getNick()
     {
         return this.connectionState.getNickname();
+    }
+
+    /**
+     * Set a new nick name.
+     *
+     * TODO Check ISUPPORT 'NICKLEN' for maximum nick length.
+     *
+     * @param nick new nick
+     */
+    public void setNick(final String nick)
+    {
+        this.irc.changeNick(checkNick(nick));
+    }
+
+    /**
+     * Verify nick name.
+     *
+     * @param nick nick name
+     * @return returns nick name
+     */
+    public static String checkNick(final String nick)
+    {
+        if (nick == null)
+        {
+            throw new IllegalArgumentException(
+                "a nick name must be provided");
+        }
+        // TODO Add '+' and '!' to reserved symbols too?
+        if (RESERVED.contains(nick.charAt(0)))
+        {
+            throw new IllegalArgumentException(
+                "the nick name must not start with '#' or '&' "
+                    + "since this is reserved for IRC channels");
+        }
+        return nick;
     }
 
     /**
@@ -211,16 +264,6 @@ public class IdentityManager
          * Host name.
          */
         private String host = null;
-
-        /**
-         * Constructor.
-         *
-         * @param user user
-         * @param host host
-         */
-        private Identity()
-        {
-        }
 
         /**
          * Set user.

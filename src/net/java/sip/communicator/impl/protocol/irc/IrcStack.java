@@ -259,22 +259,6 @@ public class IrcStack
         private static final int NUM_INCREMENTS_FOR_ALTERNATIVES = 10;
 
         /**
-         * Reserved symbols. These symbols have special meaning and cannot be
-         * used to start nick names.
-         */
-        private static final Set<Character> RESERVED;
-
-        /**
-         * Initialize RESERVED symbols set.
-         */
-        static {
-            final HashSet<Character> reserved = new HashSet<Character>();
-            reserved.add('#');
-            reserved.add('&');
-            RESERVED = Collections.unmodifiableSet(reserved);
-        }
-
-        /**
          * Nick name.
          */
         private String nick;
@@ -309,7 +293,7 @@ public class IrcStack
         private ServerParameters(final String nickName, final String realName,
             final String ident, final IRCServer server)
         {
-            this.nick = checkNick(nickName);
+            this.nick = IdentityManager.checkNick(nickName);
             this.alternativeNicks.add(nickName + "_");
             this.alternativeNicks.add(nickName + "__");
             this.alternativeNicks.add(nickName + "___");
@@ -332,29 +316,6 @@ public class IrcStack
         public String getNickname()
         {
             return this.nick;
-        }
-
-        /**
-         * Verify nick name.
-         *
-         * @param nick nick name
-         * @return returns nick name
-         */
-        private static String checkNick(final String nick)
-        {
-            if (nick == null)
-            {
-                throw new IllegalArgumentException(
-                    "a nick name must be provided");
-            }
-            // TODO Add '+' and '!' to reserved symbols too?
-            if (RESERVED.contains(nick.charAt(0)))
-            {
-                throw new IllegalArgumentException(
-                    "the nick name must not start with '#' or '&' "
-                        + "since this is reserved for IRC channels");
-            }
-            return nick;
         }
 
         /**

@@ -175,6 +175,8 @@ public class MessageManager
         }
         else
         {
+            // FIXME don't send as normal message just in case it contains
+            // valuable/vulnerable information (or if simply wasn't intended)
             this.irc.message(source, message);
         }
     }

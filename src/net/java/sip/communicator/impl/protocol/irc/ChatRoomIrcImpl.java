@@ -340,6 +340,10 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            return;
+        }
         connection.getChannelManager().join(this, password.toString());
     }
 
@@ -349,16 +353,20 @@ public class ChatRoomIrcImpl
      * contains a user with this nickname, the method would throw an
      * OperationFailedException with code IDENTIFICATION_CONFLICT.
      *
+     * The provided nick name is ignored, since IRC does not support nick
+     * changes limited to a single chat room.
+     *
      * @param nickname the nickname to use.
      * @throws OperationFailedException with the corresponding code if an error
      *             occurs while joining the room.
      */
     public void joinAs(final String nickname) throws OperationFailedException
     {
-        // TODO consider not supporting setting a nickname here, and re-enabling
-        // set nick name option such that it is still possible to change nick on
-        // demand.
-        this.setUserNickname(nickname);
+        if (LOGGER.isDebugEnabled())
+        {
+            LOGGER.debug("Not setting nick name upon chat room join, since a "
+                + "nick change is not limited to a single chat room.");
+        }
         this.join();
     }
 
@@ -367,6 +375,9 @@ public class ChatRoomIrcImpl
      * user would start receiving events and messages for it. If the chatroom
      * already contains a user with this nickname, the method would throw an
      * OperationFailedException with code IDENTIFICATION_CONFLICT.
+     *
+     * The provided nick name is ignored, since IRC does not support nick
+     * changes limited to a single chat room.
      *
      * @param nickname the nickname to use.
      * @param password a password necessary to authenticate when joining the
@@ -377,10 +388,11 @@ public class ChatRoomIrcImpl
     public void joinAs(final String nickname, final byte[] password)
         throws OperationFailedException
     {
-        // TODO consider not supporting setting a nickname here, and re-enabling
-        // set nick name option such that it is still possible to change nick on
-        // demand.
-        this.setUserNickname(nickname);
+        if (LOGGER.isDebugEnabled())
+        {
+            LOGGER.debug("Not setting nick name upon chat room join, since a "
+                + "nick change is not limited to a single chat room.");
+        }
         this.join(password);
     }
 
@@ -707,14 +719,13 @@ public class ChatRoomIrcImpl
     public void setUserNickname(final String nickName)
         throws OperationFailedException
     {
-        // TODO Joining a chat room fails altogether if we throw an
-        // OperationFailedException here.
-        LOGGER.info("Setting a nick name for an individual chat room is not "
-            + "supported for IRC.");
-        // throw new OperationFailedException(
-        // "Nick names are managed by the connection to the IRC server. They "
-        // + "cannot be changed on the level of an invididual chat room.",
-        // OperationFailedException.NOT_SUPPORTED_OPERATION);
+        final IrcConnection connection =
+            this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            return;
+        }
+        connection.getIdentityManager().setNick(nickName);
     }
 
     /**
