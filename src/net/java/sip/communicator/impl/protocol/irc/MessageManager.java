@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import net.java.sip.communicator.impl.protocol.irc.exception.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -173,12 +174,12 @@ public class MessageManager
                 this.irc.joinChannel(channel, password);
             }
         }
-        // TODO add /nick command for nick changing
+        // FIXME add /nick command for nick changing
         else
         {
-            // FIXME don't send as normal message just in case it contains
-            // valuable/vulnerable information (or if simply wasn't intended)
-            this.irc.message(source, message);
+            final int index = msg.indexOf(' ');
+            final int end = index <= -1 ? msg.length() : index;
+            throw new UnsupportedCommandException(msg.substring(1, end));
         }
     }
 

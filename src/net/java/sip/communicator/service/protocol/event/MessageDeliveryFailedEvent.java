@@ -25,38 +25,46 @@ public class MessageDeliveryFailedEvent
     private static final long serialVersionUID = 0L;
 
     /**
-      * The contact that this message has been sent to.
-      */
-     private Contact to = null;
+     * The contact that this message has been sent to.
+     */
+    private Contact to = null;
 
-     /**
-      * Set when no other error code can describe the exception that occurred.
-      */
-     public static final int UNKNOWN_ERROR = 1;
+    /**
+     * Set when no other error code can describe the exception that occurred.
+     */
+    public static final int UNKNOWN_ERROR = 1;
 
-     /**
-      * Set when delivery fails due to a failure in network communications or
-      * a transport error.
-      */
-     public static final int NETWORK_FAILURE = 2;
+    /**
+     * Set when delivery fails due to a failure in network communications or
+     * a transport error.
+     */
+    public static final int NETWORK_FAILURE = 2;
 
-     /**
-      * Set to indicate that delivery has failed because the provider was not
-      * registered.
-      */
-     public static final int PROVIDER_NOT_REGISTERED = 3;
+    /**
+     * Set to indicate that delivery has failed because the provider was not
+     * registered.
+     */
+    public static final int PROVIDER_NOT_REGISTERED = 3;
 
-     /**
-      * Set when delivery fails for implementation specific reasons.
-      */
-     public static final int INTERNAL_ERROR = 4;
+    /**
+     * Set when delivery fails for implementation specific reasons.
+     */
+    public static final int INTERNAL_ERROR = 4;
 
-     /**
-      * Set when delivery fails because we're trying to send a message to a
-      * contact that is currently offline and the server does not support
-      * offline messages.
-      */
-     public static final int OFFLINE_MESSAGES_NOT_SUPPORTED = 5;
+    /**
+     * Set when delivery fails because we're trying to send a message to a
+     * contact that is currently offline and the server does not support
+     * offline messages.
+     */
+    public static final int OFFLINE_MESSAGES_NOT_SUPPORTED = 5;
+
+    /**
+     * Set when delivery fails because of dependency on an operation that is
+     * unsupported. For example, because it is unknown or not supported at that
+     * particular moment. (Skipped value 6 just in case, since it is used in
+     * ChatRoomMessageDeliveryFailedEvent.)
+     */
+    public static final int UNSUPPORTED_OPERATION = 7;
 
      /**
       * An error code indicating the reason for the failure of this delivery.

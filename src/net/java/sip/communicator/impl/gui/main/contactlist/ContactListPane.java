@@ -556,6 +556,12 @@ public class ContactListPane
             errorMsg = GuiActivator.getResources().getI18NString(
                     "service.gui.MSG_DELIVERY_INTERNAL_ERROR");
         }
+        else if (evt.getErrorCode()
+                == MessageDeliveryFailedEvent.UNSUPPORTED_OPERATION)
+        {
+            errorMsg = GuiActivator.getResources().getI18NString(
+                "service.gui.MSG_DELIVERY_UNSUPPORTED_OPERATION");
+        }
         else
         {
             errorMsg = GuiActivator.getResources().getI18NString(

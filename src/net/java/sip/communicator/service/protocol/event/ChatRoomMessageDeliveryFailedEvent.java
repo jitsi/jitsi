@@ -66,6 +66,13 @@ public class ChatRoomMessageDeliveryFailedEvent
      public static final int FORBIDDEN = 6;
 
      /**
+      * Set when delivery fails because of dependency on an operation that is
+      * unsupported. For example, because it is unknown or not supported at that
+      * particular moment.
+      */
+     public static final int UNSUPPORTED_OPERATION = 7;
+
+     /**
       * An error code indicating the reason for the failure of this delivery.
       */
      private int errorCode = UNKNOWN_ERROR;

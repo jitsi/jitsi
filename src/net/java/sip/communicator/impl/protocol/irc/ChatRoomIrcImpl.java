@@ -10,6 +10,7 @@ import java.beans.*;
 import java.io.*;
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.irc.exception.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -936,16 +937,29 @@ public class ChatRoomIrcImpl
                 this.parentProvider.getIrcStack().getConnection();
             if (((MessageIrcImpl) message).isCommand())
             {
-                connection.getMessageManager().command(this, messagePortion);
+                try
+                {
+                    connection.getMessageManager()
+                        .command(this, messagePortion);
+                    this.fireMessageReceivedEvent(message, this.user,
+                        new Date(),
+                        ChatRoomMessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+                }
+                catch (final UnsupportedCommandException e)
+                {
+                    this.fireMessageDeliveryFailedEvent(
+                        ChatRoomMessageDeliveryFailedEvent
+                            .UNSUPPORTED_OPERATION,
+                        e.getMessage(), new Date(), message);
+                }
             }
             else
             {
                 connection.getMessageManager().message(this, messagePortion);
+                this.fireMessageDeliveredEvent(new MessageIrcImpl(
+                    messagePortion, message.getContentType(), message
+                        .getEncoding(), message.getSubject()));
             }
-
-            this.fireMessageDeliveredEvent(new MessageIrcImpl(messagePortion,
-                message.getContentType(), message.getEncoding(), message
-                    .getSubject()));
         }
     }
 

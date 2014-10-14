@@ -10,6 +10,7 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import net.java.sip.communicator.impl.protocol.irc.exception.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -123,11 +124,22 @@ public class OperationSetBasicInstantMessagingIrcImpl
                 {
                     if (!event.isMessageEncrypted() && message.isCommand())
                     {
-                        connection.getMessageManager().command(to, message);
+                        try
+                        {
+                            connection.getMessageManager().command(to, message);
+                            fireMessageDelivered(original, to);
+                        }
+                        catch (final UnsupportedCommandException e)
+                        {
+                            fireMessageDeliveryFailed(message, to,
+                                MessageDeliveryFailedEvent
+                                    .UNSUPPORTED_OPERATION);
+                        }
                     }
                     else
                     {
                         connection.getMessageManager().message(to, message);
+                        fireMessageDelivered(original, to);
                     }
                 }
                 catch (RuntimeException e)
@@ -136,7 +148,6 @@ public class OperationSetBasicInstantMessagingIrcImpl
                     throw e;
                 }
             }
-            fireMessageDelivered(original, to);
         }
         catch (RuntimeException e)
         {
