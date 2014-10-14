@@ -432,4 +432,13 @@ public class CandidatePacketExtension extends AbstractPacketExtension
             return null;
         }
     }
+
+    /**
+     * Sets the TCP type for this <tt>CandidatePacketExtension</tt>.
+     * @param tcpType
+     */
+    public void setTcpType(CandidateTcpType tcpType)
+    {
+        setAttribute(TCPTYPE_ATTR_NAME, tcpType.toString());
+    }
 }
