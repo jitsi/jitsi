@@ -73,6 +73,10 @@ public class OperationSetMultiUserChatIrcImpl
     {
         final IrcConnection connection =
             this.ircProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         return connection.getServerChannelLister().getList();
     }
 

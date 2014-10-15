@@ -161,6 +161,10 @@ public class ChatRoomIrcImpl
         this.parentProvider = parentProvider;
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         this.chatRoomName =
             verifyName(connection.getChannelManager().getChannelTypes(),
                 chatRoomName);
@@ -408,6 +412,10 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         return connection.getChannelManager().isJoined(this);
     }
 
@@ -422,6 +430,10 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         connection.getChannelManager().leave(this);
         this.chatRoomMembers.clear();
     }
@@ -459,6 +471,10 @@ public class ChatRoomIrcImpl
         }
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         connection.getChannelManager().banParticipant(this,
             (ChatRoomMemberIrcImpl) chatRoomMember, reason);
     }
@@ -476,6 +492,10 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         connection.getChannelManager().kickParticipant(this, chatRoomMember,
             reason);
     }
@@ -676,6 +696,10 @@ public class ChatRoomIrcImpl
         {
             final IrcConnection connection =
                 this.parentProvider.getIrcStack().getConnection();
+            if (connection == null)
+            {
+                throw new IllegalStateException("Connection is not available.");
+            }
             connection.getChannelManager().setSubject(this, subject);
         }
         catch (RuntimeException e)
@@ -703,6 +727,10 @@ public class ChatRoomIrcImpl
         // individual chat rooms.
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         return connection.getIdentityManager().getNick();
     }
 
@@ -724,7 +752,9 @@ public class ChatRoomIrcImpl
             this.parentProvider.getIrcStack().getConnection();
         if (connection == null)
         {
-            return;
+            throw new OperationFailedException(
+                "IRC connection is not established.",
+                OperationFailedException.NETWORK_FAILURE);
         }
         connection.getIdentityManager().setNick(nickName);
     }
@@ -839,6 +869,10 @@ public class ChatRoomIrcImpl
         // some-one.
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         connection.getChannelManager().invite(userAddress, this);
     }
 
@@ -935,6 +969,10 @@ public class ChatRoomIrcImpl
 
             final IrcConnection connection =
                 this.parentProvider.getIrcStack().getConnection();
+            if (connection == null)
+            {
+                throw new IllegalStateException("Connection is not available.");
+            }
             if (((MessageIrcImpl) message).isCommand())
             {
                 try
@@ -1378,6 +1416,10 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         connection.getChannelManager().grant(this, address, Mode.OPERATOR);
     }
 
@@ -1391,6 +1433,10 @@ public class ChatRoomIrcImpl
         // TODO currently Voice == Membership.
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         connection.getChannelManager().grant(this, address, Mode.VOICE);
     }
 
@@ -1403,6 +1449,10 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         connection.getChannelManager().grant(this, address, Mode.HALFOP);
     }
 
@@ -1415,6 +1465,10 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         connection.getChannelManager().grant(this, address, Mode.OWNER);
     }
 
@@ -1428,6 +1482,10 @@ public class ChatRoomIrcImpl
         // TODO currently Voice == Membership.
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         connection.getChannelManager().grant(this, address, Mode.VOICE);
     }
 
@@ -1440,6 +1498,10 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         connection.getChannelManager().revoke(this, address, Mode.OPERATOR);
     }
 
@@ -1455,6 +1517,10 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         connection.getChannelManager().revoke(this, address, Mode.VOICE);
     }
 
@@ -1468,6 +1534,10 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         connection.getChannelManager().revoke(this, address, Mode.HALFOP);
     }
 
@@ -1481,6 +1551,10 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         connection.getChannelManager().revoke(this, address, Mode.OWNER);
     }
 
@@ -1493,6 +1567,10 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
         connection.getChannelManager().revoke(this, address, Mode.VOICE);
     }
 

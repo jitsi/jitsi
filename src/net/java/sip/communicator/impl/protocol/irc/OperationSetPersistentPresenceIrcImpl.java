@@ -341,7 +341,7 @@ public class OperationSetPersistentPresenceIrcImpl
             this.parentProvider.getIrcStack().getConnection();
         if (connection == null)
         {
-            return;
+            throw new IllegalStateException("Connection is not available.");
         }
         if (statusMessage != null && statusMessage.isEmpty())
         {
@@ -476,7 +476,7 @@ public class OperationSetPersistentPresenceIrcImpl
             this.parentProvider.getIrcStack().getConnection();
         if (connection == null)
         {
-            return "";
+            throw new IllegalStateException("Connection is not available.");
         }
         return connection.getPresenceManager().isAway() ? connection
             .getPresenceManager().getMessage() : "";

@@ -120,6 +120,11 @@ public class OperationSetBasicInstantMessagingIrcImpl
 
                 final IrcConnection connection =
                     this.provider.getIrcStack().getConnection();
+                if (connection == null)
+                {
+                    throw new IllegalStateException(
+                        "Connection is not available.");
+                }
                 try
                 {
                     if (!event.isMessageEncrypted() && message.isCommand())
@@ -236,8 +241,7 @@ public class OperationSetBasicInstantMessagingIrcImpl
         IrcConnection connection = this.provider.getIrcStack().getConnection();
         if (connection == null)
         {
-            // FIXME how to handle this?
-            return 0;
+            throw new IllegalStateException("Connection is not available.");
         }
         return connection.getMessageManager().calculateMaximumMessageSize(
             contact);

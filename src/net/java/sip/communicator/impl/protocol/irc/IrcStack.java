@@ -167,7 +167,6 @@ public class IrcStack
      */
     public IrcConnection getConnection()
     {
-        // FIXME do we need to check all users of getConnection() to see if they test for getConnection() == null?
         return this.session.get();
     }
 
