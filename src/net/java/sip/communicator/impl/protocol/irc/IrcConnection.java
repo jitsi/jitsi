@@ -351,14 +351,12 @@ public class IrcConnection
                 LOGGER
                     .debug("ERROR: " + msg.getSource() + ": " + msg.getText());
             }
-            if (IrcConnection.this.connectionState != null)
+            if (IrcConnection.this.connectionState != null
+                && !IrcConnection.this.connectionState.isConnected())
             {
-                if (!IrcConnection.this.connectionState.isConnected())
-                {
-                    IrcConnection.this.provider
-                        .setCurrentRegistrationState(
-                            RegistrationState.CONNECTION_FAILED);
-                }
+                IrcConnection.this.provider
+                    .setCurrentRegistrationState(RegistrationState
+                        .CONNECTION_FAILED);
             }
         }
 
