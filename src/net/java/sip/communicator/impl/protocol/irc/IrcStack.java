@@ -133,14 +133,8 @@ public class IrcStack
 
                 // Synchronized IRCApi instance passed on to the connection
                 // instance.
-                final IrcConnection connection =
-                    new IrcConnection(this.provider, this.params,
-                        new SynchronizedIRCApi(irc));
-                this.session.set(connection);
-
-                // if connecting succeeded, set state to registered
-                this.provider
-                    .setCurrentRegistrationState(RegistrationState.REGISTERED);
+                this.session.set(new IrcConnection(this.provider, this.params,
+                    new SynchronizedIRCApi(irc)));
             }
             catch (IOException e)
             {
@@ -158,6 +152,11 @@ public class IrcStack
                 throw e;
             }
         }
+
+        // This code should not be reached if a connection cannot be
+        // instantiated successfully.
+        this.provider
+            .setCurrentRegistrationState(RegistrationState.REGISTERED);
     }
 
     /**
