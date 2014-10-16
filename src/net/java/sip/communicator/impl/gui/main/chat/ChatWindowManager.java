@@ -263,17 +263,17 @@ public class ChatWindowManager
      */
     private void closeAllChats(ChatContainer chatContainer)
     {
-        Collection<ChatPanel> chatPanels = new HashSet<ChatPanel>();
+        Collection<ChatPanel> chatPanelsToClose = new HashSet<ChatPanel>();
 
-        chatPanels.addAll(chatContainer.getChats());
+        chatPanelsToClose.addAll(chatContainer.getChats());
         synchronized (chatPanels)
         {
-            chatPanels.addAll(chatPanels);
+            chatPanelsToClose.addAll(chatPanels);
         }
 
         ChatPanel currentChat = chatContainer.getCurrentChat();
 
-        for (ChatPanel chatPanel : chatPanels)
+        for (ChatPanel chatPanel : chatPanelsToClose)
         {
             /*
              * We'll close the current ChatPanel last in order to avoid multiple
@@ -412,7 +412,7 @@ public class ChatWindowManager
         // if we are not creating a ui we don't need any execution
         // in event dispatch thread, lets execute now
         if(!create)
-            return getContactChat(metaContact, null, null, create, null);
+            return getContactChat(metaContact, null, null, false, null);
         else
         {
             // we may create using event dispatch thread
@@ -447,7 +447,7 @@ public class ChatWindowManager
             return getContactChat(  metaContact,
                                     null,
                                     null,
-                                    create,
+                                    false,
                                     escapedMessageID);
         else
         {
@@ -631,7 +631,7 @@ public class ChatWindowManager
             boolean create)
     {
         if(!create)
-            return getMultiChatInternal(chatRoomWrapper, create);
+            return getMultiChatInternal(chatRoomWrapper, false);
         else
         {
             // tries to execute creating of the ui on the
@@ -689,7 +689,7 @@ public class ChatWindowManager
             boolean create)
     {
         if(!create)
-            return getMultiChatInternal(chatRoomWrapper, create);
+            return getMultiChatInternal(chatRoomWrapper, false);
         else
         {
             // tries to execute creating of the ui on the
@@ -794,7 +794,7 @@ public class ChatWindowManager
                                   String escapedMessageID)
     {
         if(!create)
-            return getMultiChatInternal(chatRoom, create, escapedMessageID);
+            return getMultiChatInternal(chatRoom, false, escapedMessageID);
         else
         {
             return new CreateChatRoomRunner(chatRoom, escapedMessageID)
@@ -880,7 +880,7 @@ public class ChatWindowManager
     {
         if(!create)
             return getMultiChatInternal(
-                adHocChatRoom, create, escapedMessageID);
+                adHocChatRoom, false, escapedMessageID);
         else
             return new CreateAdHocChatRoomRunner(
                 adHocChatRoom, escapedMessageID).getChatPanel();
@@ -968,9 +968,13 @@ public class ChatWindowManager
         List<ProtocolProviderService> imProviders
             = AccountUtils.getRegisteredProviders(
                     OperationSetBasicInstantMessaging.class);
+        List<ProtocolProviderService> smsProviders
+            = AccountUtils.getRegisteredProviders(
+                    OperationSetSmsMessaging.class);
 
-        if (imProviders.size() < 1)
-            throw new IllegalStateException("imProviders");
+        if ((imProviders.size()
+            + (smsProviders == null ? 0 : smsProviders.size())) < 1)
+            throw new IllegalStateException("No im or sms providers!");
 
         Contact contact = null;
         MetaContactListService metaContactListService
@@ -1027,10 +1031,6 @@ public class ChatWindowManager
         {
             // nothing found but we want to send sms, lets check and create
             // the contact as it may not exist
-            List<ProtocolProviderService> smsProviders
-                = AccountUtils.getRegisteredProviders(
-                        OperationSetSmsMessaging.class);
-
             if(smsProviders == null || smsProviders.size() == 0)
                 return;
 
@@ -1046,7 +1046,7 @@ public class ChatWindowManager
                     = metaContactListService.findMetaContactByContact(contact);
                 if (metaContact != null)
                 {
-                    startChat(metaContact, contact, isSmsEnabled);
+                    startChat(metaContact, contact, true);
                 }
             }
         }
@@ -1461,9 +1461,9 @@ public class ChatWindowManager
         /**
          * Creates a chat window
          *
-         * @param metaContact
-         * @param protocolContact
-         * @param isSmsSelected
+         * @param metaContact the meta contact to which we will talk.
+         * @param protocolContact the destination protocol contact
+         * @param isSmsSelected whether the sms option should be selected
          */
         public RunChatWindow(   MetaContact metaContact,
                                 Contact protocolContact,
@@ -1690,7 +1690,8 @@ public class ChatWindowManager
 
         /**
          * Constructs.
-         * @param chatRoomWrapper
+         * @param chatRoomWrapper the <tt>ChatRoomWrapper</tt> to use
+         * for creating a panel.
          */
         private CreateChatRoomWrapperRunner(ChatRoomWrapper chatRoomWrapper)
         {
@@ -1720,7 +1721,8 @@ public class ChatWindowManager
 
         /**
          * Constructs.
-         * @param chatRoomWrapper
+         * @param chatRoomWrapper the <tt>AdHocChatRoom</tt>, for which
+         * the chat will be created.
          */
         private CreateAdHocChatRoomWrapperRunner(
             AdHocChatRoomWrapper chatRoomWrapper)
@@ -1753,7 +1755,8 @@ public class ChatWindowManager
 
         /**
          * Constructs.
-         * @param chatRoom
+         * @param chatRoom the <tt>ChatRoom</tt> used to create the
+         * corresponding <tt>ChatPanel</tt>.
          */
         private CreateChatRoomRunner(ChatRoom chatRoom,
                                     String escapedMessageID)
@@ -1787,7 +1790,8 @@ public class ChatWindowManager
 
         /**
          * Constructs.
-         * @param adHocChatRoom
+         * @param adHocChatRoom the <tt>AdHocChatRoom</tt> used to create
+         * the corresponding <tt>ChatPanel</tt>.
          */
         private CreateAdHocChatRoomRunner(AdHocChatRoom adHocChatRoom,
                                     String escapedMessageID)
