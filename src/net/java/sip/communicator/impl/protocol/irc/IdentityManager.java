@@ -87,16 +87,26 @@ public class IdentityManager
         }
         this.connectionState = connectionState;
         // query user's WHOIS identity as perceived by the IRC server
-        queryIdentity();
+        queryIdentity(this.irc, this.connectionState, new WhoisListener());
     }
 
     /**
      * Issue WHOIS query to discover identity as seen by the server.
      */
-    private void queryIdentity()
+    private static void queryIdentity(final IRCApi irc, final IIRCState state,
+        final WhoisListener listener)
     {
-        this.irc.addListener(new WhoisListener());
-        this.irc.rawMessage("WHOIS " + this.connectionState.getNickname());
+        // This method should be as light-weight as possible, since it is called
+        // from the constructor.
+        new Thread()
+        {
+
+            public void run()
+            {
+                irc.addListener(listener);
+                irc.rawMessage("WHOIS " + state.getNickname());
+            };
+        }.start();
     }
 
     /**
