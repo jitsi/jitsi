@@ -427,7 +427,6 @@ public class OperationSetPersistentPresenceIrcImpl
     @Override
     public Contact findContactByID(final String contactID)
     {
-        LOGGER.trace("Finding contact for nick name '" + contactID + "'");
         if (contactID == null)
         {
             return null;
@@ -447,7 +446,6 @@ public class OperationSetPersistentPresenceIrcImpl
                 return contact;
             }
         }
-        LOGGER.trace("No contact found for nick name '" + contactID + "'");
         return null;
     }
 
