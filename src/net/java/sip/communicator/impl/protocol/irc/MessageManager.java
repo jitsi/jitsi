@@ -20,9 +20,6 @@ import com.ircclouds.irc.api.state.*;
 /**
  * Manager for message-related operations.
  *
- * FIXME MessageManager may miss some quick events such as NickServ messages
- * right after establishing a connection.
- *
  * @author Danny van Heumen
  */
 public class MessageManager
@@ -174,7 +171,24 @@ public class MessageManager
                 this.irc.joinChannel(channel, password);
             }
         }
-        // FIXME add /nick command for nick changing
+        else if (msg.startsWith("/nick "))
+        {
+            final String part = message.substring(6);
+            final String newNick;
+            int indexOfSep = part.indexOf(' ');
+            if (indexOfSep == -1)
+            {
+                newNick = part;
+            }
+            else
+            {
+                newNick = part.substring(0, indexOfSep);
+            }
+            if (newNick.length() > 0)
+            {
+                this.irc.changeNick(newNick);
+            }
+        }
         else
         {
             final int index = msg.indexOf(' ');

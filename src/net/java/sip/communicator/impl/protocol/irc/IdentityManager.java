@@ -24,6 +24,9 @@ import com.ircclouds.irc.api.state.*;
  * TODO Implement OperationSetChangePassword once an identity service is
  * available.
  *
+ * TODO Query remote identity service for current identity-state such as:
+ * unknown, unauthenticated, authenticated.
+ *
  * @author Danny van Heumen
  */
 public class IdentityManager
