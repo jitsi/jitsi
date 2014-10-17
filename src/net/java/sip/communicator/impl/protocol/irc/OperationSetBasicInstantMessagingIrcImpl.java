@@ -111,10 +111,8 @@ public class OperationSetBasicInstantMessagingIrcImpl
                 String transformedContent =
                     event.getSourceMessage().getContent();
 
-                // FIXME how to handle HTML content?
-
                 // Note: can't set subject since it leaks information while
-                // message content actually gets encrypted.
+                // message content actually did get encrypted.
                 MessageIrcImpl message = this.createMessage(transformedContent,
                     original.getContentType(), original.getEncoding(), "");
 
