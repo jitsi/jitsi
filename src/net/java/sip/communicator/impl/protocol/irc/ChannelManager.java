@@ -84,6 +84,13 @@ public class ChannelManager
     private final Integer isupportTopicLen;
 
     /**
+     * Maximum kick message length according to server ISUPPORT instructions.
+     *
+     * <p>This value is not guaranteed, so it may be <tt>null</tt>.</p>
+     */
+    private final Integer isupportKickLen;
+
+    /**
      * Constructor.
      * @param irc thread-safe IRCApi instance
      * @param connectionState the connection state
@@ -111,6 +118,7 @@ public class ChannelManager
         this.irc.addListener(new ManagerListener());
         this.isupportChannelLen = parseISupportChannelLen(this.connectionState);
         this.isupportTopicLen = parseISupportTopicLen(this.connectionState);
+        this.isupportKickLen = parseISupportKickLen(this.connectionState);
     }
 
     /**
@@ -155,6 +163,29 @@ public class ChannelManager
         {
             LOGGER.debug("Setting ISUPPORT parameter "
                 + ISupport.TOPICLEN.name() + " to " + value);
+        }
+        return new Integer(value);
+    }
+
+    /**
+     * Parse the ISUPPORT parameter for server's kick message length.
+     *
+     * @param state the connection state
+     * @return returns instance with max kick message length or <tt>null</tt> if
+     *         not specified.
+     */
+    private Integer parseISupportKickLen(final IIRCState state)
+    {
+        final String value =
+            state.getServerOptions().getKey(ISupport.KICKLEN.name());
+        if (value == null)
+        {
+            return null;
+        }
+        if (LOGGER.isDebugEnabled())
+        {
+            LOGGER.debug("Setting ISUPPORT parameter "
+                + ISupport.KICKLEN.name() + " to " + value);
         }
         return new Integer(value);
     }
@@ -574,8 +605,6 @@ public class ChannelManager
     /**
      * Kick channel member.
      *
-     * TODO Check ISUPPORT 'KICKLEN' for maximum kick message length.
-     *
      * @param chatroom channel to kick from
      * @param member member to kick
      * @param reason kick message to deliver
@@ -586,6 +615,13 @@ public class ChannelManager
         if (!this.connectionState.isConnected())
         {
             return;
+        }
+        if (this.isupportKickLen != null
+            && reason.length() > this.isupportKickLen.intValue())
+        {
+            throw new IllegalArgumentException("the kick reason must not be "
+                + "longer than " + this.isupportKickLen.intValue()
+                + " characters according to server parameters.");
         }
         this.irc.kick(chatroom.getIdentifier(), member.getContactAddress(),
             reason);
