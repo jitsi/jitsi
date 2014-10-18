@@ -291,7 +291,7 @@ public class IrcStack
         private ServerParameters(final String nickName, final String realName,
             final String ident, final IRCServer server)
         {
-            this.nick = IdentityManager.checkNick(nickName);
+            this.nick = IdentityManager.checkNick(nickName, null);
             this.alternativeNicks.add(nickName + "_");
             this.alternativeNicks.add(nickName + "__");
             this.alternativeNicks.add(nickName + "___");

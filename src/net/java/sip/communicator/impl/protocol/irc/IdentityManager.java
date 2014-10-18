@@ -71,6 +71,13 @@ public class IdentityManager
     private final Identity identity = new Identity();
 
     /**
+     * Maximum nick length according to server ISUPPORT instructions.
+     *
+     * <p>This value is not guaranteed, so it may be <tt>null</tt>.</p>
+     */
+    private final Integer isupportNickLen;
+
+    /**
      * Constructor.
      *
      * @param irc thread-safe IRCApi instance
@@ -91,6 +98,7 @@ public class IdentityManager
         this.connectionState = connectionState;
         // query user's WHOIS identity as perceived by the IRC server
         queryIdentity(this.irc, this.connectionState, new WhoisListener());
+        isupportNickLen = parseISupportNickLen(this.connectionState);
     }
 
     /**
@@ -120,6 +128,29 @@ public class IdentityManager
     }
 
     /**
+     * Parse the ISUPPORT parameter for server's max nick length.
+     *
+     * @param state the connection state
+     * @return returns instance with max nick length or <tt>null</tt> if not
+     *         specified.
+     */
+    private static Integer parseISupportNickLen(final IIRCState state)
+    {
+        final String value =
+            state.getServerOptions().getKey(ISupport.NICKLEN.name());
+        if (value == null)
+        {
+            return null;
+        }
+        if (LOGGER.isDebugEnabled())
+        {
+            LOGGER.debug("Setting ISUPPORT parameter "
+                + ISupport.NICKLEN.name() + " to " + value);
+        }
+        return new Integer(value);
+    }
+
+    /**
      * Get the nick name of the user.
      *
      * @return Returns either the acting nick if a connection is established or
@@ -133,22 +164,23 @@ public class IdentityManager
     /**
      * Set a new nick name.
      *
-     * TODO Check ISUPPORT 'NICKLEN' for maximum nick length.
-     *
      * @param nick new nick
      */
     public void setNick(final String nick)
     {
-        this.irc.changeNick(checkNick(nick));
+        this.irc.changeNick(checkNick(nick, this.isupportNickLen));
     }
 
     /**
      * Verify nick name.
      *
      * @param nick nick name
+     * @param isupportNickLen maximum nick length according to server
+     *            parameters.
      * @return returns nick name
      */
-    public static String checkNick(final String nick)
+    public static String checkNick(final String nick,
+        final Integer isupportNickLen)
     {
         if (nick == null)
         {
@@ -161,6 +193,13 @@ public class IdentityManager
             throw new IllegalArgumentException(
                 "the nick name must not start with '#' or '&' "
                     + "since these are reserved for IRC's channels");
+        }
+        if (isupportNickLen != null
+            && nick.length() > isupportNickLen.intValue())
+        {
+            throw new IllegalArgumentException("the nick name must not be "
+                + "longer than " + isupportNickLen.intValue() + " characters "
+                + "according to server parameters.");
         }
         return nick;
     }
