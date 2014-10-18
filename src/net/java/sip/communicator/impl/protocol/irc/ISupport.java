@@ -22,5 +22,9 @@ public enum ISupport
     /**
      * Maximum kick message length allowed by IRC server.
      */
-    KICKLEN;
+    KICKLEN,
+    /**
+     * Maximum away message length allowed by IRC server.
+     */
+    AWAYLEN;
 }

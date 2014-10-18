@@ -16,8 +16,6 @@ import com.ircclouds.irc.api.state.*;
 /**
  * Manager for presence status of IRC connection.
  *
- * TODO Check length of away message against server allowed size.
- *
  * TODO Support for 'a' (Away) user mode. (Check this again, since I also see
  * 'a' used for other purposes. This may be one of those ambiguous letters that
  * every server interprets differently.)
@@ -56,6 +54,13 @@ public class PresenceManager
      * Instance of OperationSetPersistentPresence for updates.
      */
     private final OperationSetPersistentPresenceIrcImpl operationSet;
+
+    /**
+     * Maximum away message length according to server ISUPPORT instructions.
+     *
+     * <p>This value is not guaranteed, so it may be <tt>null</tt>.</p>
+     */
+    private final Integer isupportAwayLen;
 
     /**
      * Current presence status.
@@ -99,6 +104,30 @@ public class PresenceManager
         }
         this.irc = irc;
         this.irc.addListener(new PresenceListener());
+        this.isupportAwayLen = parseISupportAwayLen(this.state);
+    }
+
+    /**
+     * Parse the ISUPPORT parameter for server's away message length.
+     *
+     * @param state the connection state
+     * @return returns instance with max away message length or <tt>null</tt> if
+     *         not specified.
+     */
+    private Integer parseISupportAwayLen(final IIRCState state)
+    {
+        final String value =
+            state.getServerOptions().getKey(ISupport.AWAYLEN.name());
+        if (value == null)
+        {
+            return null;
+        }
+        if (LOGGER.isDebugEnabled())
+        {
+            LOGGER.debug("Setting ISUPPORT parameter "
+                + ISupport.AWAYLEN.name() + " to " + value);
+        }
+        return new Integer(value);
     }
 
     /**
@@ -154,8 +183,6 @@ public class PresenceManager
      * Set new prepared away message for later moment when IRC connection is set
      * to away.
      *
-     * TODO Check ISUPPORT 'AWAYLEN' for maximum away message length.
-     *
      * @param message the away message to prepare
      * @return returns message after verification
      */
@@ -165,6 +192,14 @@ public class PresenceManager
         {
             throw new IllegalArgumentException(
                 "away message must be non-null and non-empty");
+        }
+        if (this.isupportAwayLen != null
+            && message.length() > this.isupportAwayLen.intValue())
+        {
+            throw new IllegalArgumentException(
+                "the away message must not be longer than "
+                    + this.isupportAwayLen.intValue()
+                    + " characters according to server's parameters.");
         }
         return message;
     }
