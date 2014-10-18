@@ -116,7 +116,8 @@ public class IrcStack
                 final IrcConnection current = this.session.get();
                 if (current != null && current.isConnected())
                 {
-                    // TODO What if current.isConnected() == false? (Call disconnect, and continue on?)
+                    // TODO What if current.isConnected() == false?
+                    // (Call disconnect, and continue on?)
                     return;
                 }
 

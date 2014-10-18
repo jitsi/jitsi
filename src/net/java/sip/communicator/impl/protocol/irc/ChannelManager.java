@@ -23,6 +23,9 @@ import com.ircclouds.irc.api.state.*;
 /**
  * Channel manager.
  *
+ * TODO Implement channel services (ChanServ - channel related services) that
+ * can be used for accessing remove channel facilities.
+ *
  * TODO Do we need to cancel any join channel operations still in progress?
  *
  * TODO Check ISUPPORT 'CHANNELLEN' for maximum channel name length.

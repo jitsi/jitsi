@@ -27,6 +27,9 @@ import com.ircclouds.irc.api.state.*;
  * TODO Monitor presence using ISON, WATCH or MONITOR. (Monitor does not seem to
  * support away status, though)
  *
+ * TODO ERR_NOSUCHNICKCHAN: Check if target is Contact, then update contact
+ * presence status to off-line since the nick apparently does not exist anymore.
+ *
  * @author Danny van Heumen
  */
 public class PresenceManager

@@ -106,8 +106,15 @@ public class IdentityManager
 
             public void run()
             {
-                irc.addListener(listener);
-                irc.rawMessage("WHOIS " + state.getNickname());
+                try
+                {
+                    irc.addListener(listener);
+                    irc.rawMessage("WHOIS " + state.getNickname());
+                }
+                catch (final RuntimeException e)
+                {
+                    LOGGER.error("Failed to deliver WHOIS message.", e);
+                }
             };
         }.start();
     }
@@ -153,7 +160,7 @@ public class IdentityManager
         {
             throw new IllegalArgumentException(
                 "the nick name must not start with '#' or '&' "
-                    + "since this is reserved for IRC channels");
+                    + "since these are reserved for IRC's channels");
         }
         return nick;
     }
@@ -296,6 +303,17 @@ public class IdentityManager
         private void setHost(final String host)
         {
             this.host = host;
+        }
+
+        /**
+         * Check whether or not the Identity information is set.
+         *
+         * @return returns <tt>true</tt> if identity is set, or <tt>false</tt>
+         *         if it is not (yet) set.
+         */
+        private boolean isSet()
+        {
+            return this.user != null && this.host != null;
         }
 
         /**

@@ -23,11 +23,6 @@ import com.ircclouds.irc.api.state.*;
  * TODO Find out how irc-api responds to losing a connection (no response). Does
  * it use ping/pong messages to determine connectivity?
  *
- * Common IRC network facilities:
- * 1. NickServ - nick related services
- * 2. ChanServ - channel related services
- * 3. MemoServ - message relaying services
- *
  * @author Danny van Heumen
  */
 public class IrcConnection
@@ -150,10 +145,6 @@ public class IrcConnection
         // instantiate server channel lister
         this.channelLister =
             new ServerChannelLister(this.irc, this.connectionState);
-
-        // TODO Read IRC network capabilities based on RPL_ISUPPORT
-        // (005) replies if available. This information should be
-        // available in irc-api if possible.
     }
 
     /**

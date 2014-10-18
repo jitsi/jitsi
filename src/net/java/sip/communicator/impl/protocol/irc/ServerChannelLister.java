@@ -135,8 +135,8 @@ public class ServerChannelLister
                 this.channellist.set(list);
                 LOGGER.trace("Finished retrieving server chat room list.");
 
-                // Set timer to clean up the cache after use, since otherwise it
-                // could stay in memory for a long time.
+                // Set timer to clean up the cache after use, since otherwise
+                // this data could stay in memory for a long time.
                 createCleanUpJob(this.channellist);
             }
             else
@@ -151,7 +151,7 @@ public class ServerChannelLister
      * Create a clean up job that checks the container after the cache has
      * expired. If the container is still populated, then remove it. This clean
      * up makes sure that there are no references left to an otherwise useless
-     * list of channels.
+     * outdated list of channels.
      *
      * @param channellist the container carrying the list of channel names
      */

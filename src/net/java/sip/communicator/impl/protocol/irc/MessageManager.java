@@ -20,6 +20,9 @@ import com.ircclouds.irc.api.state.*;
 /**
  * Manager for message-related operations.
  *
+ * TODO Implement messaging service for offline messages and such. (MemoServ -
+ * message relaying services)
+ *
  * @author Danny van Heumen
  */
 public class MessageManager
@@ -296,9 +299,6 @@ public class MessageManager
             switch (msg.getNumericCode().intValue())
             {
             case ERR_NO_SUCH_NICK_CHANNEL:
-                // TODO Check if target is Contact, then update contact presence
-                // status to off-line since the nick apparently does not exist
-                // anymore.
                 if (LOGGER.isTraceEnabled())
                 {
                     LOGGER.trace("Message did not get delivered: "
@@ -379,11 +379,6 @@ public class MessageManager
             }
             catch (RuntimeException e)
             {
-                // TODO remove once this is stable. Don't want to lose message
-                // when an accidental error occurs.
-                // It is likely that errors occurred because of some issues with
-                // MetaContactGroup for NonPersistent group, since this is an
-                // outstanding error.
                 LOGGER.error(
                     "Error occurred while delivering private message from user"
                         + " '" + user + "': " + msg.getText(), e);
