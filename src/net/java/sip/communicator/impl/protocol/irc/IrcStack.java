@@ -109,18 +109,19 @@ public class IrcStack
             server = new IRCServer(host, port, password, false);
         }
 
-        synchronized (this.session)
+        try
         {
-            final IrcConnection current = this.session.get();
-            if (current != null && current.isConnected())
+            synchronized (this.session)
             {
-                return;
-            }
+                final IrcConnection current = this.session.get();
+                if (current != null && current.isConnected())
+                {
+                    // TODO What if current.isConnected() == false? (Call disconnect, and continue on?)
+                    return;
+                }
 
-            this.params.setServer(server);
+                this.params.setServer(server);
 
-            try
-            {
                 final IRCApi irc = new IRCApiImpl(true);
 
                 if (LOGGER.isTraceEnabled())
@@ -136,27 +137,25 @@ public class IrcStack
                 this.session.set(new IrcConnection(this.provider, this.params,
                     new SynchronizedIRCApi(irc)));
             }
-            catch (IOException e)
-            {
-                // Also SSL exceptions will be caught here.
-                this.provider
-                    .setCurrentRegistrationState(RegistrationState
-                        .CONNECTION_FAILED);
-                throw e;
-            }
-            catch (InterruptedException e)
-            {
-                this.provider
-                    .setCurrentRegistrationState(RegistrationState
-                        .UNREGISTERED);
-                throw e;
-            }
+        }
+        catch (IOException e)
+        {
+            // Also SSL exceptions will be caught here.
+            this.provider
+                .setCurrentRegistrationState(RegistrationState
+                    .CONNECTION_FAILED);
+            throw e;
+        }
+        catch (InterruptedException e)
+        {
+            this.provider
+                .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
+            throw e;
         }
 
-        // This code should not be reached if a connection cannot be
-        // instantiated successfully.
-        this.provider
-            .setCurrentRegistrationState(RegistrationState.REGISTERED);
+        // This code should only be reached if a connection is instantiated
+        // successfully.
+        this.provider.setCurrentRegistrationState(RegistrationState.REGISTERED);
     }
 
     /**
