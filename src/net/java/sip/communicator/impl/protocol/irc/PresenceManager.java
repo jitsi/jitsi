@@ -48,7 +48,7 @@ public class PresenceManager
     /**
      * IRC client connection state.
      */
-    private final IIRCState state;
+    private final IIRCState connectionState;
 
     /**
      * Instance of OperationSetPersistentPresence for updates.
@@ -81,18 +81,19 @@ public class PresenceManager
      * Constructor.
      *
      * @param irc thread-safe irc client library instance
-     * @param state irc client connection state instance
+     * @param connectionState irc client connection state instance
      * @param operationSet OperationSetPersistentPresence irc implementation for
      *            handling presence changes.
      */
-    public PresenceManager(final IRCApi irc, final IIRCState state,
+    public PresenceManager(final IRCApi irc, final IIRCState connectionState,
         final OperationSetPersistentPresenceIrcImpl operationSet)
     {
-        if (state == null)
+        if (connectionState == null)
         {
-            throw new IllegalArgumentException("state cannot be null");
+            throw new IllegalArgumentException(
+                "connectionState cannot be null");
         }
-        this.state = state;
+        this.connectionState = connectionState;
         if (operationSet == null)
         {
             throw new IllegalArgumentException("operationSet cannot be null");
@@ -104,7 +105,7 @@ public class PresenceManager
         }
         this.irc = irc;
         this.irc.addListener(new PresenceListener());
-        this.isupportAwayLen = parseISupportAwayLen(this.state);
+        this.isupportAwayLen = parseISupportAwayLen(this.connectionState);
     }
 
     /**
@@ -267,7 +268,7 @@ public class PresenceManager
         {
             final String user = msg.getSource().getNick();
             if (user == null
-                || !user.equals(PresenceManager.this.state.getNickname()))
+                || !user.equals(PresenceManager.this.connectionState.getNickname()))
             {
                 return;
             }
