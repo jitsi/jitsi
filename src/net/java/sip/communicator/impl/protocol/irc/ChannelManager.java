@@ -28,8 +28,6 @@ import com.ircclouds.irc.api.state.*;
  *
  * TODO Do we need to cancel any join channel operations still in progress?
  *
- * TODO Check ISUPPORT 'CHANNELLEN' for maximum channel name length.
- *
  * TODO Check ISUPPORT 'CHANLIMIT' for maximum number of joined channels.
  *
  * @author Danny van Heumen
@@ -72,6 +70,13 @@ public class ChannelManager
         .synchronizedMap(new HashMap<String, ChatRoomIrcImpl>());
 
     /**
+     * Maximum channel name length according to server ISUPPORT instructions.
+     *
+     * <p>This value is not guaranteed, so it may be <tt>null</tt>.</p>
+     */
+    private final Integer isupportChannelLen;
+
+    /**
      * Constructor.
      * @param irc thread-safe IRCApi instance
      * @param connectionState the connection state
@@ -97,6 +102,30 @@ public class ChannelManager
         }
         this.provider = provider;
         this.irc.addListener(new ManagerListener());
+        this.isupportChannelLen = parseISupportChannelLen(this.connectionState);
+    }
+
+    /**
+     * Parse the ISUPPORT parameter for server's max channel name length.
+     *
+     * @param state the connection state
+     * @return returns instance with max channel name length or <tt>null</tt> if
+     *         not specified.
+     */
+    private Integer parseISupportChannelLen(final IIRCState state)
+    {
+        final String value =
+            state.getServerOptions().getKey(ISupport.CHANNELLEN.name());
+        if (value == null)
+        {
+            return null;
+        }
+        if (LOGGER.isDebugEnabled())
+        {
+            LOGGER.debug("Setting ISUPPORT parameter "
+                + ISupport.CHANNELLEN.name() + " to " + value);
+        }
+        return new Integer(value);
     }
 
     /**
@@ -167,6 +196,13 @@ public class ChannelManager
             // If we already joined this particular chatroom, no further action
             // is required.
             return;
+        }
+        if (this.isupportChannelLen != null
+            && chatRoomId.length() > this.isupportChannelLen.intValue())
+        {
+            throw new IllegalArgumentException("the channel name must not be "
+                + "longer than " + this.isupportChannelLen.intValue()
+                + " characters according to server parameters.");
         }
 
         LOGGER.trace("Start joining channel " + chatRoomId);

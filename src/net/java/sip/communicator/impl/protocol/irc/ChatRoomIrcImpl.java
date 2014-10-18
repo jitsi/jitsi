@@ -329,7 +329,15 @@ public class ChatRoomIrcImpl
                 OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
         }
 
-        connection.getChannelManager().join(this);
+        try
+        {
+            connection.getChannelManager().join(this);
+        }
+        catch (final IllegalArgumentException e)
+        {
+            throw new OperationFailedException(e.getMessage(),
+                OperationFailedException.CHAT_ROOM_NOT_JOINED, e);
+        }
     }
 
     /**
@@ -347,9 +355,26 @@ public class ChatRoomIrcImpl
             this.parentProvider.getIrcStack().getConnection();
         if (connection == null)
         {
-            return;
+            throw new OperationFailedException(
+                "We are currently not connected to the server.",
+                OperationFailedException.NETWORK_FAILURE);
         }
-        connection.getChannelManager().join(this, password.toString());
+
+        if (connection.getChannelManager().isJoined(this))
+        {
+            throw new OperationFailedException("Channel is already joined.",
+                OperationFailedException.SUBSCRIPTION_ALREADY_EXISTS);
+        }
+
+        try
+        {
+            connection.getChannelManager().join(this, password.toString());
+        }
+        catch (final IllegalArgumentException e)
+        {
+            throw new OperationFailedException(e.getMessage(),
+                OperationFailedException.CHAT_ROOM_NOT_JOINED, e);
+        }
     }
 
     /**

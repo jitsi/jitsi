@@ -10,5 +10,9 @@ public enum ISupport
     /**
      * Maximum nick length allowed by IRC server.
      */
-    NICKLEN;
+    NICKLEN,
+    /**
+     * Maximum channel name length allowed by IRC server.
+     */
+    CHANNELLEN;
 }
