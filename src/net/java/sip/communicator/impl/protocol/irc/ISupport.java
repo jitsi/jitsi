@@ -14,5 +14,9 @@ public enum ISupport
     /**
      * Maximum channel name length allowed by IRC server.
      */
-    CHANNELLEN;
+    CHANNELLEN,
+    /**
+     * Maximum topic length allowed by IRC server.
+     */
+    TOPICLEN;
 }

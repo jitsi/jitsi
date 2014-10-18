@@ -77,6 +77,13 @@ public class ChannelManager
     private final Integer isupportChannelLen;
 
     /**
+     * Maximum topic length according to server ISUPPORT instructions.
+     *
+     * <p>This value is not guaranteed, so it may be <tt>null</tt>.</p>
+     */
+    private final Integer isupportTopicLen;
+
+    /**
      * Constructor.
      * @param irc thread-safe IRCApi instance
      * @param connectionState the connection state
@@ -103,6 +110,7 @@ public class ChannelManager
         this.provider = provider;
         this.irc.addListener(new ManagerListener());
         this.isupportChannelLen = parseISupportChannelLen(this.connectionState);
+        this.isupportTopicLen = parseISupportTopicLen(this.connectionState);
     }
 
     /**
@@ -124,6 +132,29 @@ public class ChannelManager
         {
             LOGGER.debug("Setting ISUPPORT parameter "
                 + ISupport.CHANNELLEN.name() + " to " + value);
+        }
+        return new Integer(value);
+    }
+
+    /**
+     * Parse the ISUPPORT parameter for server's max topic length.
+     *
+     * @param state the connection state
+     * @return returns instance with max topic length or <tt>null</tt> if
+     *         not specified.
+     */
+    private Integer parseISupportTopicLen(final IIRCState state)
+    {
+        final String value =
+            state.getServerOptions().getKey(ISupport.TOPICLEN.name());
+        if (value == null)
+        {
+            return null;
+        }
+        if (LOGGER.isDebugEnabled())
+        {
+            LOGGER.debug("Setting ISUPPORT parameter "
+                + ISupport.TOPICLEN.name() + " to " + value);
         }
         return new Integer(value);
     }
@@ -412,8 +443,6 @@ public class ChannelManager
     /**
      * Set the subject of the specified chat room.
      *
-     * TODO check ISUPPORT for maximum topic length
-     *
      * @param chatroom The chat room for which to set the subject.
      * @param subject The subject.
      */
@@ -427,6 +456,13 @@ public class ChannelManager
         if (chatroom == null)
         {
             throw new IllegalArgumentException("Cannot have a null chatroom");
+        }
+        if (this.isupportTopicLen != null
+            && subject.length() > this.isupportTopicLen.intValue())
+        {
+            throw new IllegalArgumentException("the topic length must not be "
+                + "longer than " + this.isupportTopicLen.intValue()
+                + " characters according to server parameters.");
         }
         LOGGER.trace("Setting chat room topic to '" + subject + "'");
         this.irc.changeTopic(chatroom.getIdentifier(), subject == null ? ""
