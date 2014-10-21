@@ -21,6 +21,21 @@ public class KeywordReplacer
     implements Replacer
 {
     /**
+     * Index of the optional prefix group in the regex.
+     */
+    private static final int INDEX_OPTIONAL_PREFIX_GROUP = 1;
+
+    /**
+     * Index of the keyword match group in the regex.
+     */
+    private static final int INDEX_KEYWORD_MATCH_GROUP = 2;
+
+    /**
+     * Index of the optional suffix group in the regex.
+     */
+    private static final int INDEX_OPTIONAL_SUFFIX_GROUP = 3;
+
+    /**
      * The keyword to highlight.
      */
     private final String keyword;
@@ -65,15 +80,17 @@ public class KeywordReplacer
         }
 
         final Matcher m =
-            Pattern.compile(Pattern.quote(keyword), Pattern.CASE_INSENSITIVE)
-                .matcher(piece);
+            Pattern.compile("(^|\\W)(" + Pattern.quote(keyword) + ")(\\W|$)",
+                Pattern.CASE_INSENSITIVE).matcher(piece);
         int prevEnd = 0;
         while (m.find())
         {
             target.append(StringEscapeUtils.escapeHtml4(piece.substring(
-                prevEnd, m.start())));
-            prevEnd = m.end();
-            final String keywordMatch = m.group().trim();
+                prevEnd, m.start()
+                    + m.group(INDEX_OPTIONAL_PREFIX_GROUP).length())));
+            prevEnd = m.end() - m.group(INDEX_OPTIONAL_SUFFIX_GROUP).length();
+            final String keywordMatch =
+                m.group(INDEX_KEYWORD_MATCH_GROUP).trim();
             target.append("<b>");
             target.append(StringEscapeUtils.escapeHtml4(keywordMatch));
             target.append("</b>");
