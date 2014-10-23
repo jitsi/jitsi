@@ -437,11 +437,8 @@ public class ChatRoomIrcImpl
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
-        if (connection == null)
-        {
-            throw new IllegalStateException("Connection is not available.");
-        }
-        return connection.getChannelManager().isJoined(this);
+        return connection != null
+            && connection.getChannelManager().isJoined(this);
     }
 
     /**
