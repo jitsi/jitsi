@@ -34,7 +34,7 @@ public class ProtocolProviderServiceIrcImpl
     /**
      * The irc server.
      */
-    private IrcStack ircStack = null;
+    private IrcStack ircstack = null;
 
     /**
      * The id of the account that this protocol provider represents.
@@ -146,13 +146,7 @@ public class ProtocolProviderServiceIrcImpl
 
             final String user = getAccountID().getUserID();
 
-            ircStack
-                = new IrcStack(
-                        this,
-                        user,
-                        user,
-                        "Jitsi",
-                        user);
+            ircstack = new IrcStack(this, user, user, "Jitsi", user);
 
             isInitialized = true;
         }
@@ -303,7 +297,7 @@ public class ProtocolProviderServiceIrcImpl
 
         try
         {
-            this.ircStack.connect(serverAddress, serverPort, serverPassword,
+            this.ircstack.connect(serverAddress, serverPort, serverPassword,
                 secureConnection, autoNickChange);
         }
         catch (Exception e)
@@ -328,29 +322,21 @@ public class ProtocolProviderServiceIrcImpl
             LOGGER.trace("Killing the Irc Protocol Provider.");
         }
 
-        if (isRegistered())
+        try
         {
-            try
+            synchronized (this.initializationLock)
             {
-                //do the un-registration
-                synchronized (this.initializationLock)
-                {
-                    unregister();
-                    this.ircStack.dispose();
-                    ircStack = null;
-                }
-            }
-            catch (OperationFailedException ex)
-            {
-                //we're shutting down so we need to silence the exception here
-                LOGGER.error(
-                    "Failed to properly unregister before shutting down. "
-                    + getAccountID()
-                    , ex);
+                unregister();
+                this.ircstack.dispose();
+                ircstack = null;
             }
         }
-
-        isInitialized = false;
+        catch (OperationFailedException ex)
+        {
+            // we're shutting down so we need to silence the exception here
+            LOGGER.error("Failed to properly unregister before shutting down. "
+                + getAccountID(), ex);
+        }
     }
 
     /**
@@ -361,22 +347,13 @@ public class ProtocolProviderServiceIrcImpl
      *   registration fails for some reason (e.g. a networking error or an
      *   implementation problem).
      */
-    public void unregister()
-        throws OperationFailedException
+    public void unregister() throws OperationFailedException
     {
-        // TODO Consider removing the leave operations, as QUIT automatically
-        // leaves open channels.
-        for (ChatRoom joinedChatRoom : multiUserChat
-            .getCurrentlyJoinedChatRooms())
+        if (this.ircstack == null)
         {
-            joinedChatRoom.leave();
+            return;
         }
-
-        final IrcConnection connection = this.ircStack.getConnection();
-        if (connection != null)
-        {
-            this.ircStack.disconnect();
-        }
+        this.ircstack.disconnect();
     }
 
     /**
@@ -388,7 +365,7 @@ public class ProtocolProviderServiceIrcImpl
     @Override
     public boolean isSignalingTransportSecure()
     {
-        final IrcConnection connection = this.ircStack.getConnection();
+        final IrcConnection connection = this.ircstack.getConnection();
         return connection != null && connection.isSecureConnection();
     }
 
@@ -420,7 +397,7 @@ public class ProtocolProviderServiceIrcImpl
      */
     public IrcStack getIrcStack()
     {
-        return ircStack;
+        return ircstack;
     }
 
     /**

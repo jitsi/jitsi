@@ -116,8 +116,6 @@ public class IrcStack
                 final IrcConnection current = this.session.get();
                 if (current != null && current.isConnected())
                 {
-                    // TODO What if current.isConnected() == false?
-                    // (Call disconnect, and continue on?)
                     return;
                 }
 
@@ -137,11 +135,14 @@ public class IrcStack
                 // instance.
                 this.session.set(new IrcConnection(this.provider, this.params,
                     new SynchronizedIRCApi(irc)));
+
+                this.provider
+                    .setCurrentRegistrationState(RegistrationState.REGISTERED);
             }
         }
         catch (IOException e)
         {
-            // Also SSL exceptions will be caught here.
+            // SSL exceptions will be caught here too.
             this.provider
                 .setCurrentRegistrationState(RegistrationState
                     .CONNECTION_FAILED);
@@ -153,10 +154,6 @@ public class IrcStack
                 .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
             throw e;
         }
-
-        // This code should only be reached if a connection is instantiated
-        // successfully.
-        this.provider.setCurrentRegistrationState(RegistrationState.REGISTERED);
     }
 
     /**
@@ -206,10 +203,10 @@ public class IrcStack
             // synchronization needed to ensure that no other process (such as
             // connection attempt) is in progress
             connection = this.session.getAndSet(null);
-        }
-        if (connection != null)
-        {
-            connection.disconnect();
+            if (connection != null)
+            {
+                connection.disconnect();
+            }
         }
         this.provider
             .setCurrentRegistrationState(RegistrationState.UNREGISTERED);

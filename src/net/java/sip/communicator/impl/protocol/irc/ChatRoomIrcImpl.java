@@ -457,7 +457,7 @@ public class ChatRoomIrcImpl
             this.parentProvider.getIrcStack().getConnection();
         if (connection == null)
         {
-            throw new IllegalStateException("Connection is not available.");
+            return;
         }
         connection.getChannelManager().leave(this);
         this.chatRoomMembers.clear();
