@@ -144,6 +144,9 @@ public class ProtocolProviderServiceIrcImpl
             // TODO Implement OperationSetServerStoredAccountInfo so we can
             // suggest a display name to use when adding new chat rooms?
 
+            // TODO Implement OperationSetChangePassword and channel password
+            // changes to IRC remote identity services such as NickServ
+
             final String user = getAccountID().getUserID();
 
             ircstack = new IrcStack(this, user, user, "Jitsi", user);

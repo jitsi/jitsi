@@ -258,7 +258,7 @@ public class IrcConnection
     }
 
     /**
-     * Get the presence manager.
+     * Get the presence manager. (Guaranteed to be non-null.)
      *
      * @return returns the presence manager instance
      */
@@ -269,6 +269,7 @@ public class IrcConnection
 
     /**
      * Get the channel lister that facilitates server channel queries.
+     * (Guaranteed to be non-null.)
      *
      * @return returns the channel lister instance
      */
@@ -278,7 +279,7 @@ public class IrcConnection
     }
 
     /**
-     * Get the identity manager instance.
+     * Get the identity manager instance. (Guaranteed to be non-null.)
      *
      * @return returns the identity manager instance
      */
@@ -288,7 +289,7 @@ public class IrcConnection
     }
 
     /**
-     * Get the channel manager instance.
+     * Get the channel manager instance. (Guaranteed to be non-null.)
      *
      * @return returns the channel manager instance
      */
@@ -298,7 +299,7 @@ public class IrcConnection
     }
 
     /**
-     * Get the message manager instance.
+     * Get the message manager instance. (Guaranteed to be non-null.)
      *
      * @return returns the message manager instance
      */
