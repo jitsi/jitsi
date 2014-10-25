@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.irc;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 import net.java.sip.communicator.impl.protocol.irc.ModeParser.ModeEntry;
 import net.java.sip.communicator.service.protocol.*;
@@ -27,8 +28,6 @@ import com.ircclouds.irc.api.state.*;
  * can be used for accessing remove channel facilities.
  *
  * TODO Do we need to cancel any join channel operations still in progress?
- *
- * TODO Check ISUPPORT 'CHANLIMIT' for maximum number of joined channels.
  *
  * @author Danny van Heumen
  */
@@ -91,7 +90,17 @@ public class ChannelManager
     private final Integer isupportKickLen;
 
     /**
+     * Maximum number of joined channels according to server ISUPPORT
+     * instructions. Limits are stored per channel type (#, &, etc.)
+     *
+     * <p>This value is not guaranteed, so it may be <tt>null</tt>.</p>
+     */
+    private final Map<Character, Integer> isupportChanLimit
+            = new HashMap<Character, Integer>();
+
+    /**
      * Constructor.
+     *
      * @param irc thread-safe IRCApi instance
      * @param connectionState the connection state
      * @param provider the provider instance
@@ -116,78 +125,62 @@ public class ChannelManager
         }
         this.provider = provider;
         this.irc.addListener(new ManagerListener());
-        this.isupportChannelLen = parseISupportChannelLen(this.connectionState);
-        this.isupportTopicLen = parseISupportTopicLen(this.connectionState);
-        this.isupportKickLen = parseISupportKickLen(this.connectionState);
+
+        // parse ISUPPORT parameters
+        this.isupportChannelLen = parseISupportInteger(this.connectionState,
+                ISupport.CHANNELLEN);
+        this.isupportTopicLen = parseISupportInteger(this.connectionState,
+                ISupport.TOPICLEN);
+        this.isupportKickLen = parseISupportInteger(this.connectionState,
+                ISupport.KICKLEN);
+        parseISupportChanLimit(this.isupportChanLimit, this.connectionState);
     }
 
     /**
-     * Parse the ISUPPORT parameter for server's max channel name length.
+     * Parse the ISUPPORT parameter for Integer value.
      *
      * @param state the connection state
-     * @return returns instance with max channel name length or <tt>null</tt> if
+     * @return returns instance with parameter value or <tt>null</tt> if
      *         not specified.
      */
-    private Integer parseISupportChannelLen(final IIRCState state)
+    private static Integer parseISupportInteger(final IIRCState state,
+            final ISupport param)
     {
-        final String value =
-            state.getServerOptions().getKey(ISupport.CHANNELLEN.name());
+        final String value = state.getServerOptions().getKey(param.name());
         if (value == null)
         {
             return null;
         }
         if (LOGGER.isDebugEnabled())
         {
-            LOGGER.debug("Setting ISUPPORT parameter "
-                + ISupport.CHANNELLEN.name() + " to " + value);
+            LOGGER.debug("Setting ISUPPORT parameter " + param.name() + " to "
+                    + value);
         }
         return new Integer(value);
     }
 
     /**
-     * Parse the ISUPPORT parameter for server's max topic length.
+     * Parse the raw ISUPPORT CHANLIMIT value, extract its values into the
+     * destination map.
      *
-     * @param state the connection state
-     * @return returns instance with max topic length or <tt>null</tt> if
-     *         not specified.
+     * @param destination the destination map
+     * @param state the IRC connection state
      */
-    private Integer parseISupportTopicLen(final IIRCState state)
+    private static void parseISupportChanLimit(
+        final Map<Character, Integer> destination, final IIRCState state)
     {
-        final String value =
-            state.getServerOptions().getKey(ISupport.TOPICLEN.name());
-        if (value == null)
-        {
-            return null;
-        }
+        final String rawChanLimitValue =
+            state.getServerOptions().getKey(ISupport.CHANLIMIT.name());
+        ISupport.parseChanLimit(destination, rawChanLimitValue);
         if (LOGGER.isDebugEnabled())
         {
-            LOGGER.debug("Setting ISUPPORT parameter "
-                + ISupport.TOPICLEN.name() + " to " + value);
+            LOGGER.debug("Parsed ISUPPORT CHANLIMIT parameter: "
+                + rawChanLimitValue);
+            for (Entry<Character, Integer> e : destination.entrySet())
+            {
+                LOGGER.debug(e.getKey() + ":" + e.getValue());
+            }
         }
-        return new Integer(value);
-    }
-
-    /**
-     * Parse the ISUPPORT parameter for server's kick message length.
-     *
-     * @param state the connection state
-     * @return returns instance with max kick message length or <tt>null</tt> if
-     *         not specified.
-     */
-    private Integer parseISupportKickLen(final IIRCState state)
-    {
-        final String value =
-            state.getServerOptions().getKey(ISupport.KICKLEN.name());
-        if (value == null)
-        {
-            return null;
-        }
-        if (LOGGER.isDebugEnabled())
-        {
-            LOGGER.debug("Setting ISUPPORT parameter "
-                + ISupport.KICKLEN.name() + " to " + value);
-        }
-        return new Integer(value);
     }
 
     /**
@@ -260,11 +253,21 @@ public class ChannelManager
             return;
         }
         if (this.isupportChannelLen != null
-            && chatRoomId.length() > this.isupportChannelLen.intValue())
+            && chatRoomId.length() > this.isupportChannelLen)
         {
             throw new IllegalArgumentException("the channel name must not be "
                 + "longer than " + this.isupportChannelLen.intValue()
                 + " characters according to server parameters.");
+        }
+
+        // Verify max channel limit based on server parameters (ISupport)
+        final Integer limit = this.isupportChanLimit.get(chatRoomId.charAt(0));
+        if (limit != null && this.joined.size() >= limit)
+        {
+            throw new IllegalStateException("already joined to the maximum "
+                    + "allowed number of channels ("
+                    + this.isupportChanLimit.toString() + ") according to "
+                    + "server parameters.");
         }
 
         LOGGER.trace("Start joining channel " + chatRoomId);
@@ -452,7 +455,7 @@ public class ChannelManager
             ChatRoomMemberRole role;
             for (final IRCUserStatus status : channel.getStatusesForUser(user))
             {
-                role = convertMemberMode(status.getChanModeType().charValue());
+                role = convertMemberMode(status.getChanModeType());
                 member.addRole(role);
             }
             chatRoom.addChatRoomMember(member.getContactAddress(), member);
@@ -489,10 +492,10 @@ public class ChannelManager
             throw new IllegalArgumentException("Cannot have a null chatroom");
         }
         if (this.isupportTopicLen != null
-            && subject.length() > this.isupportTopicLen.intValue())
+            && subject.length() > this.isupportTopicLen)
         {
             throw new IllegalArgumentException("the topic length must not be "
-                + "longer than " + this.isupportTopicLen.intValue()
+                + "longer than " + this.isupportTopicLen
                 + " characters according to server parameters.");
         }
         LOGGER.trace("Setting chat room topic to '" + subject + "'");
@@ -617,7 +620,7 @@ public class ChannelManager
             return;
         }
         if (this.isupportKickLen != null
-            && reason.length() > this.isupportKickLen.intValue())
+            && reason.length() > this.isupportKickLen)
         {
             throw new IllegalArgumentException("the kick reason must not be "
                 + "longer than " + this.isupportKickLen.intValue()
