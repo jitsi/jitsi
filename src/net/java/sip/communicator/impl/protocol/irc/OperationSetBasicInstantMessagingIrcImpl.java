@@ -1,12 +1,8 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
-<<<<<<< HEAD
- * Distributable under LGPL license. See terms of license at gnu.org.
-=======
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
->>>>>>> Restructured and extract IrcConnection type for better separation of
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
