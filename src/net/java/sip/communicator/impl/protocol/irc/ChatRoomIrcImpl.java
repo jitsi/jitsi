@@ -1625,6 +1625,8 @@ public class ChatRoomIrcImpl
             LOGGER.debug("Getting private contact for nick name '" + name
                 + "'.");
         }
+        // TODO Also register contact address as interesting contact for
+        // presence status updates at IrcConnection.PresenceManager.
         return this.parentProvider.getPersistentPresence()
             .findOrCreateContactByID(name);
     }
