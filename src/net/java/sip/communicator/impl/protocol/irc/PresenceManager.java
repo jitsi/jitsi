@@ -268,7 +268,8 @@ public class PresenceManager
         {
             final String user = msg.getSource().getNick();
             if (user == null
-                || !user.equals(PresenceManager.this.connectionState.getNickname()))
+                || !user.equals(
+                        PresenceManager.this.connectionState.getNickname()))
             {
                 return;
             }

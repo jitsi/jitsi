@@ -357,11 +357,6 @@ public class OperationSetPersistentPresenceIrcImpl
         {
             connection.getPresenceManager().away(true, statusMessage);
         }
-        else
-        {
-            // There's nothing to do in case of OFFLINE, since the whole account
-            // will be unregistered.
-        }
     }
 
     /**

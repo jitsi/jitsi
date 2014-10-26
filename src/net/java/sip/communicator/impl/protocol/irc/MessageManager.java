@@ -293,6 +293,11 @@ public class MessageManager
             }
         }
 
+        /**
+         * Message-related server numeric messages.
+         *
+         * @param msg the message
+         */
         @Override
         public void onServerNumericMessage(final ServerNumericMessage msg)
         {
