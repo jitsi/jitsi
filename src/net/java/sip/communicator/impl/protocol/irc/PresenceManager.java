@@ -277,5 +277,18 @@ public class PresenceManager
                 + "presence listener.");
             PresenceManager.this.irc.deleteListener(this);
         }
+
+        /**
+         * In case a fatal error occurs, remove the presence listener.
+         */
+        @Override
+        public void onError(final ErrorMessage aMsg)
+        {
+            // Errors signal fatal situation, so unregister and assume
+            // connection lost.
+            LOGGER.debug("Local user received ERROR message: removing presence "
+                + "listener.");
+            PresenceManager.this.irc.deleteListener(this);
+        }
     }
 }

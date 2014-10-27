@@ -692,6 +692,19 @@ public class ChannelManager
         }
 
         /**
+         * In case a fatal error occurs, remove the ChannelManager listener.
+         */
+        @Override
+        public void onError(final ErrorMessage aMsg)
+        {
+            // Errors signal fatal situation, so unregister and assume
+            // connection lost.
+            LOGGER.debug("Local user received ERROR message: removing "
+                + "ChannelManager listener.");
+            ChannelManager.this.irc.deleteListener(this);
+        }
+
+        /**
          * Server numeric message.
          *
          * @param msg server numeric message
@@ -1026,6 +1039,19 @@ public class ChannelManager
                     ChatRoomMemberPresenceChangeEvent.MEMBER_QUIT,
                     msg.getQuitMsg());
             }
+        }
+
+        /**
+         * In case a fatal error occurs, remove the ChatRoomListener.
+         */
+        @Override
+        public void onError(final ErrorMessage aMsg)
+        {
+            // Errors signal fatal situation, so unregister and assume
+            // connection lost.
+            LOGGER.debug("Local user received ERROR message: removing "
+                + "ChatRoomListener.");
+            ChannelManager.this.irc.deleteListener(this);
         }
 
         /**

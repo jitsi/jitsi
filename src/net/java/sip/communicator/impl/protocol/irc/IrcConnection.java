@@ -343,13 +343,21 @@ public class IrcConnection
                 LOGGER
                     .debug("ERROR: " + msg.getSource() + ": " + msg.getText());
             }
-            if (IrcConnection.this.connectionState != null
-                && !IrcConnection.this.connectionState.isConnected())
-            {
-                IrcConnection.this.provider
-                    .setCurrentRegistrationState(RegistrationState
-                        .CONNECTION_FAILED);
-            }
+
+            // FIXME correctly handle unexpected errors (not caused by QUIT)
+//            if (IrcConnection.this.connectionState != null
+//                && !IrcConnection.this.connectionState.isConnected())
+//            {
+//                IrcConnection.this.provider
+//                    .setCurrentRegistrationState(RegistrationState
+//                        .CONNECTION_FAILED);
+//            }
+
+            // Errors signal fatal situation, so unregister and assume
+            // connection lost.
+            LOGGER.debug("Local user received ERROR message: removing server "
+                + "listener.");
+            IrcConnection.this.irc.deleteListener(this);
         }
 
         /**

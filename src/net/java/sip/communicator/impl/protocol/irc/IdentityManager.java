@@ -281,6 +281,19 @@ public class IdentityManager
         }
 
         /**
+         * In case a fatal error occurs, remove the WhoisListener.
+         */
+        @Override
+        public void onError(final ErrorMessage aMsg)
+        {
+            // Errors signal fatal situation, so unregister and assume
+            // connection lost.
+            LOGGER.debug("Local user received ERROR message: removing "
+                + "WhoisListener.");
+            IdentityManager.this.irc.deleteListener(this);
+        }
+
+        /**
          * Update the identity container instance with received WHOIS data.
          *
          * @param whoismsg the WHOIS reply message content

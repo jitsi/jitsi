@@ -294,6 +294,19 @@ public class MessageManager
         }
 
         /**
+         * In case a fatal error occurs, remove the MessageManager.
+         */
+        @Override
+        public void onError(final ErrorMessage aMsg)
+        {
+            // Errors signal fatal situation, so unregister and assume
+            // connection lost.
+            LOGGER.debug("Local user received ERROR message: removing "
+                + "MessageManager.");
+            MessageManager.this.irc.deleteListener(this);
+        }
+
+        /**
          * Message-related server numeric messages.
          *
          * @param msg the message

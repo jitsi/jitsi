@@ -287,6 +287,19 @@ public class ServerChannelLister
         }
 
         /**
+         * In case a fatal error occurs, remove the ChannelListLister listener.
+         */
+        @Override
+        public void onError(final ErrorMessage aMsg)
+        {
+            // Errors signal fatal situation, so unregister and assume
+            // connection lost.
+            LOGGER.debug("Local user received ERROR message: removing "
+                + "ChannelListListener listener.");
+            ServerChannelLister.this.irc.deleteListener(this);
+        }
+
+        /**
          * Act on LIST messages:
          * <pre>
          * - 321 RPL_LISTSTART,
