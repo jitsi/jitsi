@@ -27,7 +27,7 @@ import com.ircclouds.irc.api.listeners.*;
  *
  * @author Danny van Heumen
  */
-public class IrcStack
+public class IrcStack implements IrcConnectionListener
 {
     /**
      * Logger.
@@ -134,7 +134,7 @@ public class IrcStack
                 // Synchronized IRCApi instance passed on to the connection
                 // instance.
                 this.session.set(new IrcConnection(this.provider, this.params,
-                    new SynchronizedIRCApi(irc)));
+                    new SynchronizedIRCApi(irc), this));
 
                 this.provider
                     .setCurrentRegistrationState(RegistrationState.REGISTERED);
@@ -202,6 +202,9 @@ public class IrcStack
         {
             // synchronization needed to ensure that no other process (such as
             // connection attempt) is in progress
+
+            // Set session to null first, such that we can identify that we
+            // disconnect intentionally.
             connection = this.session.getAndSet(null);
             if (connection != null)
             {
@@ -370,5 +373,30 @@ public class IrcStack
             }
             this.server = server;
         }
+    }
+
+    /**
+     * Event for any kind of connection interruption, including normal QUIT
+     * events.
+     *
+     * @param connection the connection that gets interrupted
+     */
+    @Override
+    public void connectionInterrupted(final IrcConnection connection)
+    {
+        // Disconnected sessions are nulled before disconnect() is called. Hence
+        // we can detect by IrcConnection instance contained in the session
+        // whether or not the connection interruption is unintended.
+        if (this.session.get() != connection)
+        {
+            // Interruption was intended: instance either nulled or a new
+            // instance is already set.
+            LOGGER.debug("Interrupted connection is not the current connection"
+                + ", so assuming that connection interruption was intended.");
+            return;
+        }
+        LOGGER.warn("IRC connection interrupted unexpectedly.");
+        this.provider
+            .setCurrentRegistrationState(RegistrationState.CONNECTION_FAILED);
     }
 }

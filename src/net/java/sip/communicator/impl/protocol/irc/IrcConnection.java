@@ -70,6 +70,11 @@ public class IrcConnection
     private final IIRCState connectionState;
 
     /**
+     * Callback to inform on connection interruptions.
+     */
+    private final IrcConnectionListener connectionListener;
+
+    /**
      * Manager component that manages current IRC presence.
      */
     private final PresenceManager presence;
@@ -101,10 +106,13 @@ public class IrcConnection
      * @param provider ProtocolProviderService instance
      * @param params connection parameters
      * @param irc IRC api instance
+     * @param connectionListener listener for callback upon connection
+     *            interruption
      * @throws Exception Throws IOException in case of connection problems.
      */
     public IrcConnection(final ProtocolProviderServiceIrcImpl provider,
-        final IServerParameters params, final IRCApi irc)
+        final IServerParameters params, final IRCApi irc,
+        final IrcConnectionListener connectionListener)
         throws Exception
     {
         if (provider == null)
@@ -117,6 +125,7 @@ public class IrcConnection
             throw new IllegalArgumentException("irc instance cannot be null");
         }
         this.irc = irc;
+        this.connectionListener = connectionListener;
 
         // Install a listener for everything that is not directly related to a
         // specific chat room or operation.
@@ -344,20 +353,18 @@ public class IrcConnection
                     .debug("ERROR: " + msg.getSource() + ": " + msg.getText());
             }
 
-            // FIXME correctly handle unexpected errors (not caused by QUIT)
-//            if (IrcConnection.this.connectionState != null
-//                && !IrcConnection.this.connectionState.isConnected())
-//            {
-//                IrcConnection.this.provider
-//                    .setCurrentRegistrationState(RegistrationState
-//                        .CONNECTION_FAILED);
-//            }
-
             // Errors signal fatal situation, so unregister and assume
             // connection lost.
             LOGGER.debug("Local user received ERROR message: removing server "
                 + "listener.");
             IrcConnection.this.irc.deleteListener(this);
+
+            // If listener is available, inform of connection interrupt.
+            if (IrcConnection.this.connectionListener != null)
+            {
+                IrcConnection.this.connectionListener
+                    .connectionInterrupted(IrcConnection.this);
+            }
         }
 
         /**
