@@ -1946,7 +1946,7 @@ public class ColibriConferenceIQ
         /**
          * The XML name of the <tt>path</tt> attribute.
          */
-        public static final String PATH_ATTR_NAME = "path";
+        public static final String DIRECTORY_ATTR_NAME = "directory";
 
         /**
          * The XML name of the <tt>state</tt> attribute.
@@ -1958,7 +1958,7 @@ public class ColibriConferenceIQ
          */
         public static final String TOKEN_ATTR_NAME = "token";
 
-        private String path;
+        private String directory;
 
         private boolean state;
 
@@ -1976,9 +1976,9 @@ public class ColibriConferenceIQ
             this.token = token;
         }
 
-        public String getPath()
+        public String getDirectory()
         {
-            return path;
+            return directory;
         }
 
         public boolean getState()
@@ -1996,9 +1996,9 @@ public class ColibriConferenceIQ
             this.token = token;
         }
 
-        public void setPath(String path)
+        public void setDirectory(String directory)
         {
-            this.path = path;
+            this.directory = directory;
         }
 
         public void toXML(StringBuilder xml)
@@ -2011,10 +2011,10 @@ public class ColibriConferenceIQ
                 xml.append(' ').append(TOKEN_ATTR_NAME).append("='")
                         .append(token).append('\'');
             }
-            if (path != null)
+            if (directory != null)
             {
-                xml.append(' ').append(PATH_ATTR_NAME).append("='")
-                        .append(path).append('\'');
+                xml.append(' ').append(DIRECTORY_ATTR_NAME).append("='")
+                        .append(directory).append('\'');
             }
             xml.append("/>");
         }
