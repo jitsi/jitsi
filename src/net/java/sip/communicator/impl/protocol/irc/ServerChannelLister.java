@@ -295,7 +295,7 @@ public class ServerChannelLister
             // Errors signal fatal situation, so unregister and assume
             // connection lost.
             LOGGER.debug("Local user received ERROR message: removing "
-                + "ChannelListListener listener.");
+                + "server channel lister listener.");
             ServerChannelLister.this.irc.deleteListener(this);
         }
 

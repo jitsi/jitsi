@@ -302,7 +302,7 @@ public class MessageManager
             // Errors signal fatal situation, so unregister and assume
             // connection lost.
             LOGGER.debug("Local user received ERROR message: removing "
-                + "MessageManager.");
+                + "message manager listener.");
             MessageManager.this.irc.deleteListener(this);
         }
 

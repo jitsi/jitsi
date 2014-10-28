@@ -110,7 +110,7 @@ public class IrcConnection
      *            interruption
      * @throws Exception Throws IOException in case of connection problems.
      */
-    public IrcConnection(final ProtocolProviderServiceIrcImpl provider,
+    IrcConnection(final ProtocolProviderServiceIrcImpl provider,
         final IServerParameters params, final IRCApi irc,
         final IrcConnectionListener connectionListener)
         throws Exception
@@ -379,12 +379,20 @@ public class IrcConnection
         public void onUserQuit(final QuitMessage msg)
         {
             final String user = msg.getSource().getNick();
-            if (IrcConnection.this.connectionState.getNickname().equals(user))
+            if (!IrcConnection.this.connectionState.getNickname().equals(user))
             {
-                LOGGER.debug("Local user's QUIT message received: removing "
-                    + "server listener.");
-                IrcConnection.this.irc.deleteListener(this);
                 return;
+            }
+
+            LOGGER.debug("Local user's QUIT message received: removing "
+                + "server listener.");
+            IrcConnection.this.irc.deleteListener(this);
+
+            // If listener is available, inform of connection interrupt.
+            if (IrcConnection.this.connectionListener != null)
+            {
+                IrcConnection.this.connectionListener
+                    .connectionInterrupted(IrcConnection.this);
             }
         }
     }

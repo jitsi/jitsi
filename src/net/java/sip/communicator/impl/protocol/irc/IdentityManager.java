@@ -288,8 +288,8 @@ public class IdentityManager
         {
             // Errors signal fatal situation, so unregister and assume
             // connection lost.
-            LOGGER.debug("Local user received ERROR message: removing "
-                + "WhoisListener.");
+            LOGGER.debug("Local user received ERROR message: removing whois "
+                + "listener.");
             IdentityManager.this.irc.deleteListener(this);
         }
 

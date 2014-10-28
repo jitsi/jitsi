@@ -700,7 +700,7 @@ public class ChannelManager
             // Errors signal fatal situation, so unregister and assume
             // connection lost.
             LOGGER.debug("Local user received ERROR message: removing "
-                + "ChannelManager listener.");
+                + "channel manager listener.");
             ChannelManager.this.irc.deleteListener(this);
         }
 
@@ -1050,7 +1050,7 @@ public class ChannelManager
             // Errors signal fatal situation, so unregister and assume
             // connection lost.
             LOGGER.debug("Local user received ERROR message: removing "
-                + "ChatRoomListener.");
+                + "chat room listener.");
             ChannelManager.this.irc.deleteListener(this);
         }
 
