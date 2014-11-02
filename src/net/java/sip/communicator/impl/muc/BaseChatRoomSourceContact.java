@@ -59,7 +59,7 @@ public class BaseChatRoomSourceContact
         this.parentQuery = query;
 
         initContactProperties(ChatRoomPresenceStatus.CHAT_ROOM_OFFLINE);
-
+        setDisplayDetails(pps.getAccountID().getDisplayName());
     }
 
 
