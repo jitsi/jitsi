@@ -396,6 +396,14 @@ public class ChatRoomTableDialog
                         false,
                         false);
 
+                if (chatRoomWrapper == null)
+                {
+                    // In case the protocol failed to create a chat room, null
+                    // is returned, so we can stop preparing the UI to open the
+                    // (null) chat room.
+                    return;
+                }
+
                 if(!chatRoomWrapper.isPersistent())
                 {
                     chatRoomWrapper.setPersistent(true);

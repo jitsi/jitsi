@@ -412,7 +412,8 @@ public class MUCServiceImpl
      * @param join whether we should join the room after creating it.
      * @param persistent whether the newly created room will be persistent.
      * @param isPrivate whether the room will be private or public.
-     * @return the <tt>ChatRoomWrapper</tt> corresponding to the created room
+     * @return the <tt>ChatRoomWrapper</tt> corresponding to the created room or
+     *         <tt>null</tt> if the protocol fails to create the chat room.
      */
     public ChatRoomWrapper createChatRoom(
         String roomName,
