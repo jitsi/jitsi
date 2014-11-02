@@ -6,6 +6,7 @@
 package net.java.sip.communicator.impl.protocol.irc;
 
 import junit.framework.*;
+import net.java.sip.communicator.impl.protocol.irc.exception.*;
 import net.java.sip.communicator.service.protocol.*;
 
 public class ModeTest
@@ -28,7 +29,7 @@ public class ModeTest
             .assertTrue(Mode.OPERATOR.getRole() instanceof ChatRoomMemberRole);
     }
 
-    public void testGetBySymbol()
+    public void testGetBySymbol() throws UnknownModeException
     {
         Assert.assertSame(Mode.OPERATOR, Mode.bySymbol('o'));
     }
@@ -38,9 +39,9 @@ public class ModeTest
         try
         {
             Mode.bySymbol('&');
-            Assert.fail("Expected IllegalArgumentException");
+            Assert.fail("Expected UnknownModeException");
         }
-        catch (IllegalArgumentException e)
+        catch (UnknownModeException e)
         {
         }
     }

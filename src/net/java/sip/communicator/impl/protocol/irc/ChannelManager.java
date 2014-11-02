@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import net.java.sip.communicator.impl.protocol.irc.ModeParser.ModeEntry;
+import net.java.sip.communicator.impl.protocol.irc.exception.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -455,8 +456,17 @@ public class ChannelManager
             ChatRoomMemberRole role;
             for (final IRCUserStatus status : channel.getStatusesForUser(user))
             {
-                role = convertMemberMode(status.getChanModeType());
-                member.addRole(role);
+                try
+                {
+                    role = convertMemberMode(status.getChanModeType());
+                    member.addRole(role);
+                }
+                catch (UnknownModeException e)
+                {
+                    LOGGER.info(
+                        "Unknown mode encountered. This mode will be ignored.",
+                        e);
+                }
             }
             chatRoom.addChatRoomMember(member.getContactAddress(), member);
             if (this.connectionState.getNickname().equals(user.getNick()))
@@ -652,8 +662,11 @@ public class ChannelManager
      * @param modeSymbol The member mode character.
      * @return Return the instance of ChatRoomMemberRole corresponding to the
      *         member mode character.
+     * @throws UnknownModeException returns UnknownModeException in case unknown
+     *             mode is encountered
      */
     private static ChatRoomMemberRole convertMemberMode(final char modeSymbol)
+        throws UnknownModeException
     {
         return Mode.bySymbol(modeSymbol).getRole();
     }

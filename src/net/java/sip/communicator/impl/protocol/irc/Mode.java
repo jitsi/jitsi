@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import net.java.sip.communicator.impl.protocol.irc.exception.*;
 import net.java.sip.communicator.service.protocol.*;
 
 /**
@@ -71,8 +72,10 @@ public enum Mode
      *
      * @param symbol mode char
      * @return returns instance
+     * @throws UnknownModeException throws exception in case of unknown mode
+     *             symbol
      */
-    public static Mode bySymbol(final char symbol)
+    public static Mode bySymbol(final char symbol) throws UnknownModeException
     {
         for (Mode mode : Mode.values())
         {
@@ -81,8 +84,7 @@ public enum Mode
                 return mode;
             }
         }
-        throw new IllegalArgumentException("Unknown mode symbol provided. ('"
-            + symbol + "')");
+        throw new UnknownModeException(symbol);
     }
 
     /**
