@@ -143,6 +143,15 @@ public class ServerChannelLister
             {
                 LOGGER.trace("Using cached list of server chat rooms.");
             }
+
+            if (LOGGER.isDebugEnabled())
+            {
+                // Report on number of channels to give an impression of the
+                // kind of result that will be returned.
+                LOGGER.debug("Server channel list contains " + list.size()
+                    + " channels.");
+            }
+
             return Collections.unmodifiableList(list);
         }
     }
