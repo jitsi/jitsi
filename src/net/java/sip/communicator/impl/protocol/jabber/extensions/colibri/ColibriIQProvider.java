@@ -375,6 +375,16 @@ public class ColibriIQProvider
                             channel.setAdaptiveLastN(
                                     Boolean.parseBoolean(adaptiveLastN));
 
+                        String adaptiveSimulcast
+                                = parser.getAttributeValue(
+                                "",
+                                ColibriConferenceIQ.Channel
+                                        .ADAPTIVE_SIMULCAST_ATTR_NAME);
+
+                        if (!StringUtils.isNullOrEmpty(adaptiveSimulcast))
+                            channel.setAdaptiveSimulcast(
+                                    Boolean.parseBoolean(adaptiveSimulcast));
+
                         // receiving simulcast layer
                         String receivingSimulcastLayer
                                 = parser.getAttributeValue(

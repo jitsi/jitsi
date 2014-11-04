@@ -406,6 +406,13 @@ public class ColibriConferenceIQ
             = "adaptive-last-n";
 
         /**
+         * The XML name of the <tt>adaptive-simulcast</tt> attribute of a video
+         * <tt>channel</tt>.
+         */
+        public static final String ADAPTIVE_SIMULCAST_ATTR_NAME
+                = "adaptive-simulcast";
+
+        /**
          * The XML name of the <tt>receive-simulcast-layer</tt> attribute of a
          * video <tt>Channel</tt> which specifies the target quality of the
          * simulcast substreams to be sent from Jitsi Videobridge to the
@@ -475,6 +482,11 @@ public class ColibriConferenceIQ
          * The 'adaptive-last-n' flag.
          */
         private Boolean adaptiveLastN;
+
+        /**
+         * The 'adaptive-simulcast' flag.
+         */
+        private Boolean adaptiveSimulcast;
 
         /**
          * The <tt>payload-type</tt> elements defined by XEP-0167: Jingle RTP
@@ -687,6 +699,15 @@ public class ColibriConferenceIQ
         public Boolean getAdaptiveLastN()
         {
             return adaptiveLastN;
+        }
+
+        /**
+         * Gets the value of the 'adaptive-simulcast' flag.
+         * @return the value of the 'adaptive-simulcast' flag.
+         */
+        public Boolean getAdaptiveSimulcast()
+        {
+            return adaptiveSimulcast;
         }
 
         /**
@@ -1028,6 +1049,15 @@ public class ColibriConferenceIQ
         public void setAdaptiveLastN(Boolean adaptiveLastN)
         {
             this.adaptiveLastN = adaptiveLastN;
+        }
+
+        /**
+         * Sets the value of the 'adaptive-simulcast' flag.
+         * @param adaptiveSimulcast the value to set.
+         */
+        public void setAdaptiveSimulcast(Boolean adaptiveSimulcast)
+        {
+            this.adaptiveSimulcast = adaptiveSimulcast;
         }
 
         /**
