@@ -299,7 +299,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * activity (i.e. neither outgoing nor incoming messags) for more than
      * JID_INACTIVITY_TIMEOUT. Note that this method is not synchronous and that
      * it is only meant for use by the {@link #getThreadIDForAddress(String)} and
-     * {@link #putJidForAddress(String, String, Chat)}
+     * {@link #putJidForAddress(String, String)}
      */
     private void purgeOldJids()
     {
@@ -327,7 +327,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * entries that haven't seen any activity (i.e. no one has tried to get or
      * remap it) for a delay longer than <tt>JID_INACTIVITY_TIMEOUT</tt>.
      *
-     * @param address the <tt>address</tt> that we'd like to obtain a jid for.
+     * @param jid the <tt>jid</tt> that we'd like to obtain a threadID for.
      *
      * @return the last jid that the party with the specified <tt>address</tt>
      * contacted us from or <tt>null</tt> if we don't have a jid for the
@@ -355,8 +355,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * the specified <tt>address</tt> to the <tt>jid</tt> that they last
      * contacted us from.
      *
-     * @param address the bare address (i.e. no resource included) of the
-     * contact that we'd like to set a jid for.
+     * @param threadID the threadID of conversation.
      * @param jid the jid (i.e. address/resource) that the contact with the
      * specified <tt>address</tt> last contacted us from.
      */
@@ -494,10 +493,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
             putJidForAddress(toJID, threadID);
         }
 
-        MessageDeliveredEvent msgDeliveredEvt =
-            new MessageDeliveredEvent(message, to, toResource);
-
-        return msgDeliveredEvt;
+        return new MessageDeliveredEvent(message, to, toResource);
     }
 
     /**
@@ -815,9 +811,13 @@ public class OperationSetBasicInstantMessagingJabberImpl
             String userBareID = StringUtils.parseBareAddress(userFullId);
 
             boolean isPrivateMessaging = false;
-            ChatRoom privateContactRoom = ((OperationSetMultiUserChatJabberImpl)
-                jabberProvider.getOperationSet(OperationSetMultiUserChat.class))
-                    .getChatRoom(userBareID);
+            ChatRoom privateContactRoom = null;
+            OperationSetMultiUserChatJabberImpl mucOpSet =
+                (OperationSetMultiUserChatJabberImpl)jabberProvider
+                    .getOperationSet(OperationSetMultiUserChat.class);
+            if(mucOpSet != null)
+                privateContactRoom = mucOpSet.getChatRoom(userBareID);
+
             if(privateContactRoom != null)
             {
                 isPrivateMessaging = true;
@@ -1128,7 +1128,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     Integer.toString( threadCount )//{2} - thread count
                 });
 
-        StringBuffer message = new StringBuffer(newMailHeader);
+        StringBuilder message = new StringBuilder(newMailHeader);
 
         //we now start an html table for the threads.
         message.append("<table width=100% cellpadding=2 cellspacing=0 ");
@@ -1195,7 +1195,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
          */
         public void processPacket(Packet packet)
         {
-            if(packet != null &&  !(packet instanceof MailboxIQ))
+            if(packet != null && !(packet instanceof MailboxIQ))
                 return;
 
             MailboxIQ mailboxIQ = (MailboxIQ) packet;

@@ -487,7 +487,8 @@ public class OperationSetTelephonyConferencingJabberImpl
             = (OperationSetMultiUserChatJabberImpl)
                 parentProvider.getOperationSet(OperationSetMultiUserChat.class);
         ChatRoom room = null;
-        room = opSetMUC.getChatRoom(chatRoomName);
+        if(opSetMUC != null)
+            room = opSetMUC.getChatRoom(chatRoomName);
         
         if(room != null)
             return "xmpp:" + chatRoomName + "/" + room.getUserNickname();

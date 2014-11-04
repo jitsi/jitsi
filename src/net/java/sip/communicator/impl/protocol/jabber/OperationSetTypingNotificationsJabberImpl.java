@@ -163,7 +163,7 @@ public class OperationSetTypingNotificationsJabberImpl
                 + " to " + toJID);
 
 
-        ChatState chatState = null;
+        ChatState chatState;
 
         if(state == STATE_TYPING)
         {
@@ -395,7 +395,6 @@ public class OperationSetTypingNotificationsJabberImpl
         /**
          * Called by smack when the state of a chat changes.
          *
-         * @param chat the chat that is concerned by this event.
          * @param state the new state of the chat.
          * @param message the message containing the new chat state
          */
@@ -410,15 +409,20 @@ public class OperationSetTypingNotificationsJabberImpl
 
             String fromID = StringUtils.parseBareAddress(fromJID);
 
-            List<ChatRoom> chatRooms = parentProvider.getOperationSet(
-                OperationSetMultiUserChat.class).getCurrentlyJoinedChatRooms();
             boolean isPrivateMessagingAddress = false;
-            for(ChatRoom chatRoom : chatRooms)
+            OperationSetMultiUserChat mucOpSet = parentProvider
+                .getOperationSet(OperationSetMultiUserChat.class);
+            if(mucOpSet != null)
             {
-                if(chatRoom.getName().equals(fromID))
+                List<ChatRoom> chatRooms
+                    = mucOpSet.getCurrentlyJoinedChatRooms();
+                for(ChatRoom chatRoom : chatRooms)
                 {
-                    isPrivateMessagingAddress = true;
-                    break;
+                    if(chatRoom.getName().equals(fromID))
+                    {
+                        isPrivateMessagingAddress = true;
+                        break;
+                    }
                 }
             }
 

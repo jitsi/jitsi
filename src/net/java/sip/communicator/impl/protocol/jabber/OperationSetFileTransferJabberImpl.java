@@ -146,8 +146,10 @@ public class OperationSetFileTransferJabberImpl
             // and is with highest priority if more than one found
             // if we have equals priorities
             // choose the one that is more available
-            if(jabberProvider.getOperationSet(OperationSetMultiUserChat.class)
-                .isPrivateMessagingContact(toContact.getAddress()))
+            OperationSetMultiUserChat mucOpSet = jabberProvider
+                .getOperationSet(OperationSetMultiUserChat.class);
+            if(mucOpSet != null
+                && mucOpSet.isPrivateMessagingContact(toContact.getAddress()))
             {
                 fullJid = toContact.getAddress();
             }

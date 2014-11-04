@@ -81,10 +81,13 @@ public class IncomingFileTransferRequestJabberImpl
         sender = opSetPersPresence.findContactByID(fromUserID);
         if(sender == null)
         {
-            ChatRoom privateContactRoom 
-                = ((OperationSetMultiUserChatJabberImpl)
-                    jabberProvider.getOperationSet(
-                        OperationSetMultiUserChat.class))
+            ChatRoom privateContactRoom = null;
+            OperationSetMultiUserChatJabberImpl mucOpSet =
+                (OperationSetMultiUserChatJabberImpl)jabberProvider
+                    .getOperationSet(OperationSetMultiUserChat.class);
+
+            if(mucOpSet != null)
+                privateContactRoom = mucOpSet
                     .getChatRoom(StringUtils.parseBareAddress(fromUserID));
             if(privateContactRoom != null)
             {

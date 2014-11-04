@@ -1298,18 +1298,22 @@ public class OperationSetPersistentPresenceJabberImpl
                 String userID
                     = StringUtils.parseBareAddress(presence.getFrom());
 
-                List<ChatRoom> chatRooms = parentProvider.getOperationSet(
-                    OperationSetMultiUserChat.class)
-                        .getCurrentlyJoinedChatRooms();
-                for(ChatRoom chatRoom : chatRooms)
+                OperationSetMultiUserChat mucOpSet =
+                    parentProvider.getOperationSet(
+                        OperationSetMultiUserChat.class);
+                if(mucOpSet != null)
                 {
-                    if(chatRoom.getName().equals(userID))
+                    List<ChatRoom> chatRooms
+                        = mucOpSet.getCurrentlyJoinedChatRooms();
+                    for(ChatRoom chatRoom : chatRooms)
                     {
-                        userID = presence.getFrom();
-                        break;
+                        if(chatRoom.getName().equals(userID))
+                        {
+                            userID = presence.getFrom();
+                            break;
+                        }
                     }
                 }
-
 
                 if (logger.isDebugEnabled())
                     logger.debug("Received a status update for buddy=" + userID);

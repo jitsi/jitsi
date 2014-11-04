@@ -169,12 +169,19 @@ public class VolatileContactJabberImpl
     {
         if(!isPrivateMessagingContact)
             return getAddress();
-        ChatRoomMemberJabberImpl chatRoomMember
-            = ((OperationSetMultiUserChatJabberImpl)getProtocolProvider()
-                    .getOperationSet(OperationSetMultiUserChat.class))
-                    .getChatRoom(StringUtils.parseBareAddress(contactId))
-                    .findMemberForNickName(
-                        StringUtils.parseResource(contactId));
+
+
+        ChatRoomMemberJabberImpl chatRoomMember = null;
+        OperationSetMultiUserChatJabberImpl mucOpSet =
+            (OperationSetMultiUserChatJabberImpl)getProtocolProvider()
+                .getOperationSet(OperationSetMultiUserChat.class);
+        if(mucOpSet != null)
+        {
+            chatRoomMember = mucOpSet
+                .getChatRoom(StringUtils.parseBareAddress(contactId))
+                .findMemberForNickName(
+                    StringUtils.parseResource(contactId));
+        }
         return ((chatRoomMember == null)? null : StringUtils.parseBareAddress(
             chatRoomMember.getJabberID()));
     }

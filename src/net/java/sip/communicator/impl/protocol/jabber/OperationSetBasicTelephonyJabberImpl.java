@@ -353,9 +353,12 @@ public class OperationSetBasicTelephonyJabberImpl
                                     calleeAddress.indexOf('@') + 1)))
                 || isGoogleVoice;
 
-        boolean isPrivateMessagingContact = getProtocolProvider()
-            .getOperationSet(OperationSetMultiUserChat.class)
-            .isPrivateMessagingContact(calleeAddress);
+        boolean isPrivateMessagingContact = false;
+        OperationSetMultiUserChat mucOpSet = getProtocolProvider()
+            .getOperationSet(OperationSetMultiUserChat.class);
+        if(mucOpSet != null)
+            isPrivateMessagingContact
+                = mucOpSet.isPrivateMessagingContact(calleeAddress);
 
         if((!getProtocolProvider().getConnection().getRoster().contains(
             StringUtils.parseBareAddress(calleeAddress)) &&
