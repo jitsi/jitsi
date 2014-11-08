@@ -27,7 +27,6 @@ import net.java.sip.communicator.util.Logger;
 
 import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.x509.*;
-import org.bouncycastle.asn1.x509.X509Extension;
 import org.bouncycastle.x509.extension.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
@@ -840,7 +839,7 @@ public class CertificateServiceImpl
                     // found
                     byte[] aiaBytes =
                         current.getExtensionValue(
-                            X509Extension.authorityInfoAccess.getId());
+                            Extension.authorityInfoAccess.getId());
                     if (aiaBytes == null)
                         break;
 
