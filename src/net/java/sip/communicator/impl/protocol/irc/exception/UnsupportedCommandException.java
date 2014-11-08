@@ -13,7 +13,7 @@ package net.java.sip.communicator.impl.protocol.irc.exception;
  * @author Danny van Heumen
  */
 public class UnsupportedCommandException
-    extends IllegalArgumentException
+    extends Exception
 {
     /**
      * Serialization version.

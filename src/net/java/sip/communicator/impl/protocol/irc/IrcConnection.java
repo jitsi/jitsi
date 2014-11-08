@@ -139,8 +139,8 @@ public class IrcConnection
 
         // instantiate message manager for the connection
         this.message =
-            new MessageManager(this.irc, this.connectionState, this.provider,
-                this.identity);
+            new MessageManager(this, this.irc, this.connectionState,
+                this.provider, this.identity);
 
         // instantiate channel manager for the connection
         this.channel =
@@ -264,6 +264,16 @@ public class IrcConnection
             // problem, but for now lets log it just to be sure.
             LOGGER.debug("exception occurred while disconnecting", e);
         }
+    }
+
+    /**
+     * Get the IRC client library instance.
+     *
+     * @return returns the client instance
+     */
+    public IRCApi getClient()
+    {
+        return this.irc;
     }
 
     /**

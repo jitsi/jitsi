@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import net.java.sip.communicator.impl.protocol.irc.command.*;
 import net.java.sip.communicator.impl.protocol.irc.exception.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -38,6 +39,19 @@ public class MessageManager
      */
     private static final int IRC_PROTOCOL_MAXIMUM_MESSAGE_SIZE = 510;
 
+    static
+    {
+        CommandFactory.registerCommand("me", Me.class);
+        CommandFactory.registerCommand("msg", Msg.class);
+        CommandFactory.registerCommand("join", Join.class);
+        CommandFactory.registerCommand("nick", Nick.class);
+    }
+
+    /**
+     * IrcConnection instance.
+     */
+    private final IrcConnection connection;
+
     /**
      * IRCApi instance.
      *
@@ -56,6 +70,11 @@ public class MessageManager
     private final ProtocolProviderServiceIrcImpl provider;
 
     /**
+     * The command factory.
+     */
+    private final CommandFactory commandFactory;
+
+    /**
      * Identity manager.
      */
     private final IdentityManager identity;
@@ -63,15 +82,22 @@ public class MessageManager
     /**
      * Constructor.
      *
+     * @param connection IrcConnection instance
      * @param irc thread-safe IRCApi instance
      * @param connectionState the connection state
      * @param provider the provider instance
      * @param identity the identity manager
      */
-    public MessageManager(final IRCApi irc, final IIRCState connectionState,
-        final ProtocolProviderServiceIrcImpl provider,
-        final IdentityManager identity)
+    public MessageManager(final IrcConnection connection, final IRCApi irc,
+            final IIRCState connectionState,
+            final ProtocolProviderServiceIrcImpl provider,
+            final IdentityManager identity)
     {
+        if (connection == null)
+        {
+            throw new IllegalArgumentException("connection cannot be null");
+        }
+        this.connection = connection;
         if (irc == null)
         {
             throw new IllegalArgumentException("irc cannot be null");
@@ -94,6 +120,8 @@ public class MessageManager
         }
         this.identity = identity;
         this.irc.addListener(new MessageManagerListener());
+        this.commandFactory =
+                new CommandFactory(this.provider, this.connection);
     }
 
     /**
@@ -101,10 +129,16 @@ public class MessageManager
      *
      * @param chatroom the chat room
      * @param message the command message
+     * @throws UnsupportedCommandException for unknown or unsupported commands
      */
     public void command(final ChatRoomIrcImpl chatroom, final String message)
+            throws UnsupportedCommandException
     {
-        this.command(chatroom.getIdentifier(), message);
+        if (!this.connectionState.isConnected())
+        {
+            throw new IllegalStateException("Not connected to IRC server.");
+        }
+        command(chatroom.getIdentifier(), message);
     }
 
     /**
@@ -112,92 +146,40 @@ public class MessageManager
      *
      * @param contact the chat room
      * @param message the command message
+     * @throws UnsupportedCommandException for unknown or unsupported commands
      */
     public void command(final Contact contact, final MessageIrcImpl message)
-    {
-        this.command(contact.getAddress(), message.getContent());
-    }
-
-    /**
-     * Implementation of some commands. If the command is not recognized or
-     * implemented, it will be sent as if it were a normal message.
-     *
-     * TODO Eventually replace this with a factory such that we can easily
-     * extend with new commands.
-     *
-     * @param source Source contact or chat room from which the message is sent.
-     * @param message Command message that is sent.
-     */
-    private void command(final String source, final String message)
+            throws UnsupportedCommandException
     {
         if (!this.connectionState.isConnected())
         {
             throw new IllegalStateException("Not connected to IRC server.");
         }
+        command(contact.getAddress(), message.getContent());
+    }
+
+    /**
+     * Issue a command representing a command interaction with IRC server.
+     *
+     * @param source Source contact or chat room from which the message is sent.
+     * @param message Command message
+     */
+    private void command(final String source, final String message)
+            throws UnsupportedCommandException
+    {
         final String msg = message.toLowerCase();
-        if (msg.startsWith("/msg "))
+        final int end = msg.indexOf(' ');
+        final String command;
+        if (end == -1)
         {
-            final String part = message.substring(5);
-            int endOfNick = part.indexOf(' ');
-            if (endOfNick == -1)
-            {
-                throw new IllegalArgumentException("Invalid private message "
-                    + "format. Message was not sent.");
-            }
-            final String target = part.substring(0, endOfNick);
-            final String command = part.substring(endOfNick + 1);
-            this.irc.message(target, command);
-        }
-        else if (msg.startsWith("/me "))
-        {
-            final String command = message.substring(4);
-            this.irc.act(source, command);
-        }
-        else if (msg.startsWith("/join "))
-        {
-            final String part = message.substring(6);
-            final String channel;
-            final String password;
-            int indexOfSep = part.indexOf(' ');
-            if (indexOfSep == -1)
-            {
-                channel = part;
-                password = "";
-            }
-            else
-            {
-                channel = part.substring(0, indexOfSep);
-                password = part.substring(indexOfSep + 1);
-            }
-            if (channel.matches("[^,\\n\\r\\s\\a]+"))
-            {
-                this.irc.joinChannel(channel, password);
-            }
-        }
-        else if (msg.startsWith("/nick "))
-        {
-            final String part = message.substring(6);
-            final String newNick;
-            int indexOfSep = part.indexOf(' ');
-            if (indexOfSep == -1)
-            {
-                newNick = part;
-            }
-            else
-            {
-                newNick = part.substring(0, indexOfSep);
-            }
-            if (newNick.length() > 0)
-            {
-                this.irc.changeNick(newNick);
-            }
+            command = msg;
         }
         else
         {
-            final int index = msg.indexOf(' ');
-            final int end = index <= -1 ? msg.length() : index;
-            throw new UnsupportedCommandException(msg.substring(1, end));
+            command = message.substring(1, end);
         }
+        final Command cmd = this.commandFactory.createCommand(command);
+        cmd.execute(source, msg);
     }
 
     /**

@@ -89,7 +89,7 @@ public class ProtocolProviderServiceIrcImpl
     }
 
     /**
-     * Initializes the service implementation, and puts it in a sate where it
+     * Initializes the service implementation, and puts it in a state where it
      * could operate with other services. It is strongly recommended that
      * properties in this Map be mapped to property names as specified by
      * <tt>AccountProperties</tt>.
