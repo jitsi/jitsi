@@ -199,6 +199,49 @@ public class CertificateServiceImpl
             System.getProperties().remove("javax.net.ssl.trustStorePassword");
     }
 
+    /**
+     * Appends an index number to the alias of each entry in the KeyStore.
+     * 
+     * The Windows TrustStore might contain multiple entries with the same
+     * "Friendly Name", which is directly used as the "Alias" for the KeyStore.
+     * As all operations of the KeyStore operate with these non-unique names,
+     * PKIX path building could fail and in the end lead to certificate warnings
+     * for perfectly valid certificates.
+     * 
+     * @throws Exception when the aliases could not be renamed.
+     */
+    private static int keyStoreAppendIndex(KeyStore ks) throws Exception
+    {
+        Field keyStoreSpiField = ks.getClass().getDeclaredField("keyStoreSpi");
+        keyStoreSpiField.setAccessible(true);
+        KeyStoreSpi keyStoreSpi = (KeyStoreSpi) keyStoreSpiField.get(ks);
+
+        if ("sun.security.mscapi.KeyStore$ROOT".equals(keyStoreSpi.getClass()
+            .getName()))
+        {
+            Field entriesField =
+                keyStoreSpi.getClass().getEnclosingClass()
+                    .getDeclaredField("entries");
+            entriesField.setAccessible(true);
+            Collection<?> entries =
+                (Collection<?>) entriesField.get(keyStoreSpi);
+
+            int i = 0;
+            for (Object entry : entries)
+            {
+                Field aliasField = entry.getClass().getDeclaredField("alias");
+                aliasField.setAccessible(true);
+                String alias = (String) aliasField.get(entry);
+                aliasField.set(entry,
+                    alias.concat("_").concat(Integer.toString(i++)));
+            }
+
+            return i;
+        }
+
+        return -1;
+    }
+
     // ------------------------------------------------------------------------
     // Client authentication configuration
     // ------------------------------------------------------------------------
@@ -612,7 +655,29 @@ public class CertificateServiceImpl
         TrustManagerFactory tmFactory =
             TrustManagerFactory.getInstance(TrustManagerFactory
                 .getDefaultAlgorithm());
-        tmFactory.init((KeyStore) null);
+
+        //workaround for https://bugs.openjdk.java.net/browse/JDK-6672015
+        KeyStore ks = null;
+        String tsType =
+            System.getProperty("javax.net.ssl.trustStoreType", null);
+        if ("Windows-ROOT".equals(tsType))
+        {
+            try
+            {
+                ks = KeyStore.getInstance(tsType);
+                ks.load(null, null);
+                int numEntries = keyStoreAppendIndex(ks);
+                logger.info(
+                    "Using Windows-ROOT. Aliases sucessfully renamed on "
+                        + numEntries + " root certificates.");
+            }
+            catch (Exception e)
+            {
+                logger.error("Could not rename Windows-ROOT aliases", e);
+            }
+        }
+
+        tmFactory.init(ks);
         for (TrustManager m : tmFactory.getTrustManagers())
         {
             if (m instanceof X509TrustManager)
