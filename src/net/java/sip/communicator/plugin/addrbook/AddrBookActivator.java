@@ -105,7 +105,8 @@ public class AddrBookActivator
     /**
      * List of the providers with registration listener.
      */
-    private static List<ProtocolProviderService> providers;
+    private static List<ProtocolProviderService> providers
+        = new ArrayList<ProtocolProviderService>();
 
     /**
      * The registered PhoneNumberI18nService.
@@ -503,42 +504,38 @@ public class AddrBookActivator
     public static List<ProtocolProviderService> getProtocolProviders()
     {
         List<ProtocolProviderService> result;
-        
-        if(providers == null)
+        synchronized(providers)
         {
-            providers = new ArrayList<ProtocolProviderService>();
-            synchronized(providers)
+            ServiceReference[] ppsRefs;
+            try
             {
-                ServiceReference[] ppsRefs;
-                try
+                ppsRefs
+                    = bundleContext.getServiceReferences(
+                            ProtocolProviderService.class.getName(),
+                            null);
+            }
+            catch (InvalidSyntaxException ise)
+            {
+                ppsRefs = null;
+            }
+
+            if ((ppsRefs != null) && (ppsRefs.length != 0))
+            {
+                for (ServiceReference ppsRef : ppsRefs)
                 {
-                    ppsRefs
-                        = bundleContext.getServiceReferences(
-                                ProtocolProviderService.class.getName(),
-                                null);
-                }
-                catch (InvalidSyntaxException ise)
-                {
-                    ppsRefs = null;
-                }
-                if ((ppsRefs != null) && (ppsRefs.length != 0))
-                {
-                    for (ServiceReference ppsRef : ppsRefs)
-                    {
-                        ProtocolProviderService pps
-                            = (ProtocolProviderService)
-                                bundleContext.getService(ppsRef);
-                        providers.add(pps);
-                    }
+                    ProtocolProviderService pps
+                        = (ProtocolProviderService)
+                            bundleContext.getService(ppsRef);
+                    providers.add(pps);
                 }
             }
         }
-        
+
         synchronized(providers)
         {
             result = new ArrayList<ProtocolProviderService>(providers);
         }
-        
+
         return result;
     }
 
