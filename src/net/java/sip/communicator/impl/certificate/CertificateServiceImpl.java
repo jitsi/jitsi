@@ -778,10 +778,11 @@ public class CertificateServiceImpl
                         switch (verify(chain, message))
                         {
                         case DO_NOT_TRUST:
+                            logger.info("Untrusted certificate", e);
                             throw new CertificateException(
                                 "The peer provided certificate with Subject <"
                                     + chain[0].getSubjectDN()
-                                    + "> is not trusted");
+                                    + "> is not trusted", e);
                         case TRUST_ALWAYS:
                             for (String propName : propNames)
                             {
