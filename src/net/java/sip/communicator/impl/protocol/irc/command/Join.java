@@ -17,6 +17,11 @@ import net.java.sip.communicator.impl.protocol.irc.*;
 public class Join implements Command
 {
     /**
+     * Index of end of command prefix.
+     */
+    private static final int END_OF_COMMAND_PREFIX = 6;
+
+    /**
      * Instance of the IRC connection.
      */
     private IrcConnection connection;
@@ -47,7 +52,11 @@ public class Join implements Command
     @Override
     public void execute(final String source, final String line)
     {
-        final String part = line.substring(6);
+        if (line.length() < END_OF_COMMAND_PREFIX)
+        {
+            return;
+        }
+        final String part = line.substring(END_OF_COMMAND_PREFIX);
         final String channel;
         final String password;
         int indexOfSep = part.indexOf(' ');
@@ -61,9 +70,11 @@ public class Join implements Command
             channel = part.substring(0, indexOfSep);
             password = part.substring(indexOfSep + 1);
         }
-        if (channel.matches("[^,\\n\\r\\s\\a]+"))
+        if (!channel.matches("[^,\\n\\r\\s\\a]+"))
         {
-            this.connection.getClient().joinChannel(channel, password);
+            throw new IllegalArgumentException(
+                "Invalid chat room name specified.");
         }
+        this.connection.getClient().joinChannel(channel, password);
     }
 }

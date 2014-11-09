@@ -58,8 +58,13 @@ public class Mode implements Command
             // results.
             return;
         }
-        final String rawModeString = line.substring(END_OF_MODE_COMMAND_PREFIX);
-        this.connection.getClient().rawMessage(
-                "MODE " + source + " " + rawModeString);
+        final String rawModeString =
+            line.substring(END_OF_MODE_COMMAND_PREFIX);
+        if (rawModeString.trim().isEmpty())
+        {
+            throw new IllegalArgumentException(
+                "The mode command needs mode parameters to function.");
+        }
+        this.connection.getClient().changeMode(source + " " + rawModeString);
     }
 }
