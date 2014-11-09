@@ -59,7 +59,7 @@ public class Nick implements Command
         }
         if (newNick.length() > 0)
         {
-            this.connection.getClient().changeNick(newNick);
+            this.connection.getIdentityManager().setNick(newNick);
         }
     }
 }
