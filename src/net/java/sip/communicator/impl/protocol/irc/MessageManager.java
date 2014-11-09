@@ -296,7 +296,7 @@ public class MessageManager
         @Override
         public void onServerNumericMessage(final ServerNumericMessage msg)
         {
-            switch (msg.getNumericCode().intValue())
+            switch (msg.getNumericCode())
             {
             case ERR_NO_SUCH_NICK_CHANNEL:
                 if (LOGGER.isTraceEnabled())
