@@ -7,6 +7,8 @@
 package net.java.sip.communicator.impl.protocol.irc;
 
 import java.util.*;
+import java.util.Map.Entry;
+
 import net.java.sip.communicator.impl.protocol.irc.exception.*;
 import net.java.sip.communicator.util.*;
 
@@ -29,6 +31,16 @@ public class CommandFactory
             = new HashMap<String, Class<? extends Command>>();
 
     /**
+     * Get an unmodifiable map of registered commands.
+     *
+     * @return returns an unmodifiable map of registered commands
+     */
+    public static Map<String, Class<? extends Command>> getCommands()
+    {
+        return Collections.unmodifiableMap(COMMANDS);
+    }
+
+    /**
      * Register a new command at the factory.
      *
      * @param command the command word
@@ -37,12 +49,44 @@ public class CommandFactory
     public static void registerCommand(final String command,
             final Class<? extends Command> type)
     {
+        if (command == null)
+        {
+            throw new IllegalArgumentException("command cannot be null");
+        }
+        if (type == null)
+        {
+            throw new IllegalArgumentException("type cannot be null");
+        }
         if (LOGGER.isDebugEnabled())
         {
             LOGGER.debug("Registered command '" + command + "' ("
                     + type.toString() + ")");
         }
         COMMANDS.put(command, type);
+    }
+
+    /**
+     * Unregister a command from the factory.
+     *
+     * @param type the type to unregister
+     * @param command (optional) specify the command for which the type is
+     *            registered. This can be used to unregister only one of
+     *            multiple commands for the same implementation type.
+     */
+    public static void unregisterCommand(final Class<? extends Command> type,
+        final String command)
+    {
+        Iterator<Entry<String, Class<? extends Command>>> it =
+            COMMANDS.entrySet().iterator();
+        while (it.hasNext())
+        {
+            Entry<String, Class<? extends Command>> entry = it.next();
+            if (entry.getValue() == type
+                && (command == null || command.equals(entry.getKey())))
+            {
+                it.remove();
+            }
+        }
     }
 
     /**
@@ -87,9 +131,10 @@ public class CommandFactory
     public Command createCommand(final String command)
             throws UnsupportedCommandException
     {
-        if (command == null)
+        if (command == null || command.isEmpty())
         {
-            throw new IllegalArgumentException("command cannot be null");
+            throw new IllegalArgumentException(
+                "command cannot be null or empty");
         }
         final Class<? extends Command> type = COMMANDS.get(command);
         if (type == null)
