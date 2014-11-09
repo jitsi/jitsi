@@ -18,6 +18,11 @@ public class Me
         implements Command
 {
     /**
+     * Me command prefix index.
+     */
+    private static final int END_OF_ME_COMMAND_PREFIX = 4;
+
+    /**
      * IRC connection instance.
      */
     private IrcConnection connection;
@@ -42,12 +47,22 @@ public class Me
     /**
      * Execute the /me command: send ACT command.
      *
+     * @param source source chat room or user from which the command originated.
      * @param line the command message line
      */
     @Override
     public void execute(final String source, final String line)
     {
-        final String command = line.substring(4);
-        this.connection.getClient().act(source, command);
+        if (line.length() < END_OF_ME_COMMAND_PREFIX)
+        {
+            return;
+        }
+        final String message = line.substring(4);
+        if (message.isEmpty())
+        {
+            throw new IllegalArgumentException(
+                "Invalid /me command: message cannot be empty.");
+        }
+        this.connection.getClient().act(source, message);
     }
 }
