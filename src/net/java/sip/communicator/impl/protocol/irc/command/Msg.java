@@ -16,6 +16,11 @@ import net.java.sip.communicator.impl.protocol.irc.*;
 public class Msg implements Command
 {
     /**
+     * Index of start of nick and message parameters.
+     */
+    private static final int END_OF_MSG_COMMAND_PREFIX = 5;
+
+    /**
      * Instance of the IRC connection.
      */
     private IrcConnection connection;
@@ -47,15 +52,32 @@ public class Msg implements Command
     @Override
     public void execute(final String source, final String line)
     {
+        if (line.length() < END_OF_MSG_COMMAND_PREFIX)
+        {
+            return;
+        }
         final String part = line.substring(5);
         int endOfNick = part.indexOf(' ');
         if (endOfNick == -1)
         {
             throw new IllegalArgumentException("Invalid private message "
-                    + "format. Message was not sent.");
+                    + "format: Expecting both nick and message. Message was "
+                    + "not sent.");
         }
         final String target = part.substring(0, endOfNick);
-        final String command = part.substring(endOfNick + 1);
-        this.connection.getClient().message(target, command);
+        if (target.length() == 0)
+        {
+            throw new IllegalArgumentException("Invalid private message "
+                + "format: Zero-length nick is not allowed. Message was not "
+                + "sent.");
+        }
+        final String message = part.substring(endOfNick + 1);
+        if (message.length() == 0)
+        {
+            throw new IllegalArgumentException("Invalid private message "
+                + "format: Zero-length message is not allowed. Message was not "
+                + "sent.");
+        }
+        this.connection.getClient().message(target, message);
     }
 }

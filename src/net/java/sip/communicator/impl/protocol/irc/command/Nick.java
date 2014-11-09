@@ -46,6 +46,11 @@ public class Nick implements Command
     @Override
     public void execute(final String source, final String line)
     {
+        if (line.length() <= 5)
+        {
+            // no name parameter available, so nothing to do here
+            return;
+        }
         final String part = line.substring(6);
         final String newNick;
         int indexOfSep = part.indexOf(' ');
