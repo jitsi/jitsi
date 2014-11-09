@@ -45,6 +45,8 @@ public class MessageManager
         CommandFactory.registerCommand("msg", Msg.class);
         CommandFactory.registerCommand("join", Join.class);
         CommandFactory.registerCommand("nick", Nick.class);
+        CommandFactory.registerCommand("mode",
+                net.java.sip.communicator.impl.protocol.irc.command.Mode.class);
     }
 
     /**
