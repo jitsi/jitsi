@@ -205,7 +205,7 @@ public class JingleNodesCandidateDatagramSocket extends DatagramSocket
      *
      * @param p The last packet received.
      */
-    public void updateRtpLosses(DatagramPacket p)
+    private void updateRtpLosses(DatagramPacket p)
     {
         // If this is not a STUN/TURN packet, then this is a RTP packet.
         if(!StunDatagramPacketFilter.isStunPacket(p))
