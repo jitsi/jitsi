@@ -99,49 +99,16 @@ public class MessageIrcImpl
     }
 
     /**
-     * Create a new instance from an IRC text and parse the IRC message. (See
-     * {@link #newMessageFromIRC(String)}.)
-     *
-     * @param user the originating user
-     * @param message the IRC action message
-     * @return returns a new message instance
-     */
-    public static MessageIrcImpl newActionFromIRC(
-        final ChatRoomMemberIrcImpl user, final String message)
-    {
-        return newActionFromIRC(user.getContactAddress(), message);
-    }
-
-    /**
-     * Create a new instance from an IRC text and parse the IRC message. (See
-     * {@link #newMessageFromIRC(String)}.)
-     *
-     * @param user the originating user
-     * @param message the IRC action message
-     * @return returns a new message instance
-     */
-    public static MessageIrcImpl newActionFromIRC(final Contact user,
-        final String message)
-    {
-        return newActionFromIRC(user.getAddress(), message);
-    }
-
-    /**
      * Construct the new action message.
      *
-     * @param user the originating user
      * @param message the IRC action message
      * @return returns a new message instance
      */
-    private static MessageIrcImpl newActionFromIRC(final String user,
-        final String message)
+    public static MessageIrcImpl newActionFromIRC(final String message)
     {
         String text = Utils.parseIrcMessage(message);
-        // TODO consider returning message starting with "/me " and let Jitsi do
-        // the /me formatting.
-        text = Utils.styleAsAction(text, user);
-        return new MessageIrcImpl(text, HTML_MIME_TYPE, DEFAULT_MIME_ENCODING,
-            null);
+        return new MessageIrcImpl("/me " + text, HTML_MIME_TYPE,
+                DEFAULT_MIME_ENCODING, null);
     }
 
     /**

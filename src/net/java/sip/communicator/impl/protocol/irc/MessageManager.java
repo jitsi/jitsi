@@ -424,7 +424,7 @@ public class MessageManager
                 MessageManager.this.provider.getPersistentPresence()
                     .findContactByID(user);
             final MessageIrcImpl message =
-                MessageIrcImpl.newActionFromIRC(from, msg.getText());
+                MessageIrcImpl.newActionFromIRC(msg.getText());
             MessageManager.this.provider.getBasicInstantMessaging()
                 .fireMessageReceived(message, from);
         }

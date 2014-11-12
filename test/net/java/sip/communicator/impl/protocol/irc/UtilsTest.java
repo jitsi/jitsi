@@ -194,12 +194,4 @@ public class UtilsTest
         Assert.assertEquals("<i>MrNiceGuy</i>: hello world",
             Utils.styleAsNotice(message, nick));
     }
-
-    public void testStyleAsAction()
-    {
-        String message = "is absolutely crazy!";
-        String nick = "AbsoluteLunatic";
-        Assert.assertEquals("<b>*AbsoluteLunatic</b> is absolutely crazy!",
-            Utils.styleAsAction(message, nick));
-    }
 }

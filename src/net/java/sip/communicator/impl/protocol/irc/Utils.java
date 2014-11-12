@@ -212,18 +212,6 @@ public final class Utils
     }
 
     /**
-     * Format message as HTML-formatted action.
-     *
-     * @param message original IRC message
-     * @param user user nick name
-     * @return returns HTML-formatted action
-     */
-    public static String styleAsAction(final String message, final String user)
-    {
-        return "<b>*" + user + "</b> " + message;
-    }
-
-    /**
      * Format message as HTML-formatted away message.
      *
      * @param text away message

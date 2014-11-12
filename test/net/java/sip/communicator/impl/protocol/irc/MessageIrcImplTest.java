@@ -68,13 +68,9 @@ public class MessageIrcImplTest
         // Test with chat room member.
         ChatRoomMemberIrcImpl chatRoomMember =
             EasyMock.createMock(ChatRoomMemberIrcImpl.class);
-        EasyMock.expect(chatRoomMember.getContactAddress())
-            .andReturn("IamUser");
         EasyMock.replay(chatRoomMember);
-        MessageIrcImpl message =
-            MessageIrcImpl.newActionFromIRC(chatRoomMember, text);
-        Assert.assertEquals(Utils.styleAsAction(text, "IamUser"),
-            message.getContent());
+        MessageIrcImpl message = MessageIrcImpl.newActionFromIRC(text);
+        Assert.assertEquals("/me Hello world.", message.getContent());
         Assert.assertEquals(MessageIrcImpl.HTML_MIME_TYPE,
             message.getContentType());
         Assert.assertEquals(MessageIrcImpl.DEFAULT_MIME_ENCODING,
@@ -83,11 +79,9 @@ public class MessageIrcImplTest
 
         // Test with contact.
         ContactIrcImpl contact = EasyMock.createMock(ContactIrcImpl.class);
-        EasyMock.expect(contact.getAddress()).andReturn("IamUser");
         EasyMock.replay(contact);
-        message = MessageIrcImpl.newActionFromIRC(contact, text);
-        Assert.assertEquals(Utils.styleAsAction(text, "IamUser"),
-            message.getContent());
+        message = MessageIrcImpl.newActionFromIRC(text);
+        Assert.assertEquals("/me Hello world.", message.getContent());
         Assert.assertEquals(MessageIrcImpl.HTML_MIME_TYPE,
             message.getContentType());
         Assert.assertEquals(MessageIrcImpl.DEFAULT_MIME_ENCODING,

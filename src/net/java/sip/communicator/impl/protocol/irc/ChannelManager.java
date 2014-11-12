@@ -1142,7 +1142,7 @@ public class ChannelManager
                     this.chatroom, userNick, msg.getSource().getIdent(), msg
                         .getSource().getHostname(), ChatRoomMemberRole.MEMBER);
             MessageIrcImpl message =
-                MessageIrcImpl.newActionFromIRC(member, msg.getText());
+                MessageIrcImpl.newActionFromIRC(msg.getText());
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
                 ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
         }
