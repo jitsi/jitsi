@@ -15,8 +15,8 @@ import net.java.sip.communicator.service.history.records.*;
  * @author Alexander Pelov
  * @author Hristo Terezov
  */
-public interface HistoryWriter {
-
+public interface HistoryWriter
+{
     /**
      * Stores the passed record complying with the historyRecordStructure.
      *
@@ -25,7 +25,8 @@ public interface HistoryWriter {
      *
      * @throws IOException
      */
-    void addRecord(HistoryRecord record) throws IOException;
+    public void addRecord(HistoryRecord record)
+        throws IOException;
 
     /**
      * Stores the passed propertyValues complying with the
@@ -36,7 +37,8 @@ public interface HistoryWriter {
      *
      * @throws IOException
      */
-    void addRecord(String[] propertyValues) throws IOException;
+    public void addRecord(String[] propertyValues)
+        throws IOException;
 
     /**
      * Stores the passed propertyValues complying with the
@@ -64,7 +66,8 @@ public interface HistoryWriter {
      *
      * @throws IOException
      */
-    void addRecord(String[] propertyValues, Date timestamp) throws IOException;
+    public void addRecord(String[] propertyValues, Date timestamp)
+        throws IOException;
 
     /**
      * Updates a record by searching for record with idProperty which have idValue
@@ -75,8 +78,9 @@ public interface HistoryWriter {
      * @param property the property to change
      * @param newValue the value of the changed property.
      */
-    public void updateRecord(String idProperty, String idValue,
-        String property, String newValue) throws IOException;
+    public void updateRecord(
+            String idProperty, String idValue, String property, String newValue)
+        throws IOException;
 
     /**
      * Updates history record using given <tt>HistoryRecordUpdater</tt> instance
@@ -84,7 +88,8 @@ public interface HistoryWriter {
      * the fields
      * @param updater the <tt>HistoryRecordUpdater</tt> instance.
      */
-    public void updateRecord(HistoryRecordUpdater updater) throws IOException;
+    public void updateRecord(HistoryRecordUpdater updater)
+        throws IOException;
 
     /**
      * This interface is used to find a history record to update and to get the
