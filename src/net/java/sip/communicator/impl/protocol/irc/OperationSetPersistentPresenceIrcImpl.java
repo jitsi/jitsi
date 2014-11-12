@@ -455,10 +455,8 @@ public class OperationSetPersistentPresenceIrcImpl
     }
 
     /**
-     * IRC does not have a status message, so it will always return an empty
-     * string.
-     *
-     * TODO Consider using this for showing the away message if set.
+     * IRC will return the away message if AWAY status is active, or an empty
+     * string if user is not away.
      *
      * @return returns empty string
      */

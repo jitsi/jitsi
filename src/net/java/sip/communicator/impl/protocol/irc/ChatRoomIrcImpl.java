@@ -1096,8 +1096,19 @@ public class ChatRoomIrcImpl
 
         for (ChatRoomMessageListener listener : listeners)
         {
-            // TODO shouldn't we catch in case of exception?
-            listener.messageDelivered(msgDeliveredEvt);
+            try
+            {
+                listener.messageDelivered(msgDeliveredEvt);
+            }
+            catch (RuntimeException e)
+            {
+                LOGGER.error(String.format(
+                    "Listener '%s' threw a runtime exception during execution."
+                        + " This is probably due to a bug in the listener's "
+                        + "implementation.",
+                    listener.getClass().getCanonicalName()),
+                    e);
+            }
         }
     }
 
@@ -1129,8 +1140,19 @@ public class ChatRoomIrcImpl
 
         for (ChatRoomMessageListener listener : listeners)
         {
-            // TODO shouldn't we catch in case of exception?
-            listener.messageReceived(event);
+            try
+            {
+                listener.messageReceived(event);
+            }
+            catch (RuntimeException e)
+            {
+                LOGGER.error(String.format(
+                    "Listener '%s' threw a runtime exception during execution."
+                        + " This is probably due to a bug in the listener's "
+                        + "implementation.",
+                    listener.getClass().getCanonicalName()),
+                    e);
+            }
         }
     }
 
@@ -1158,8 +1180,19 @@ public class ChatRoomIrcImpl
 
         for (final ChatRoomMessageListener listener : listeners)
         {
-            // TODO shouldn't we catch in case of exception?
-            listener.messageDeliveryFailed(event);
+            try
+            {
+                listener.messageDeliveryFailed(event);
+            }
+            catch (RuntimeException e)
+            {
+                LOGGER.error(String.format(
+                    "Listener '%s' threw a runtime exception during execution."
+                        + " This is probably due to a bug in the listener's "
+                        + "implementation.",
+                    listener.getClass().getCanonicalName()),
+                    e);
+            }
         }
     }
 
