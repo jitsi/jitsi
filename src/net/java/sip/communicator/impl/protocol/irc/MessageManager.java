@@ -39,6 +39,10 @@ public class MessageManager
      */
     private static final int IRC_PROTOCOL_MAXIMUM_MESSAGE_SIZE = 510;
 
+    /**
+     * Register some basic commands immediately so that these are guaranteed to
+     * be available.
+     */
     static
     {
         CommandFactory.registerCommand("me", Me.class);

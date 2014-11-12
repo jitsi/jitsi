@@ -35,9 +35,10 @@ public class CommandFactory
      *
      * @return returns an unmodifiable map of registered commands
      */
-    public static Map<String, Class<? extends Command>> getCommands()
+    public static synchronized Map<String, Class<? extends Command>>
+    getCommands()
     {
-        return Collections.unmodifiableMap(COMMANDS);
+        return new HashMap<String, Class<? extends Command>>(COMMANDS);
     }
 
     /**
@@ -46,7 +47,7 @@ public class CommandFactory
      * @param command the command word
      * @param type the type to instantiate for command execution
      */
-    public static void registerCommand(final String command,
+    public static synchronized void registerCommand(final String command,
             final Class<? extends Command> type)
     {
         if (command == null)
@@ -57,12 +58,12 @@ public class CommandFactory
         {
             throw new IllegalArgumentException("type cannot be null");
         }
+        COMMANDS.put(command, type);
         if (LOGGER.isDebugEnabled())
         {
             LOGGER.debug("Registered command '" + command + "' ("
                     + type.toString() + ")");
         }
-        COMMANDS.put(command, type);
     }
 
     /**
@@ -73,8 +74,9 @@ public class CommandFactory
      *            registered. This can be used to unregister only one of
      *            multiple commands for the same implementation type.
      */
-    public static void unregisterCommand(final Class<? extends Command> type,
-        final String command)
+    public static synchronized void unregisterCommand(
+            final Class<? extends Command> type,
+            final String command)
     {
         Iterator<Entry<String, Class<? extends Command>>> it =
             COMMANDS.entrySet().iterator();
@@ -85,6 +87,11 @@ public class CommandFactory
                 && (command == null || command.equals(entry.getKey())))
             {
                 it.remove();
+                if (LOGGER.isDebugEnabled())
+                {
+                    LOGGER.debug("Unregistered command '" + command + "' ("
+                            + type.toString() + ")");
+                }
             }
         }
     }
