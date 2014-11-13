@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import java.util.*;
+
 import net.java.sip.communicator.util.*;
 
 import com.ircclouds.irc.api.*;
@@ -25,9 +27,6 @@ import com.ircclouds.irc.api.state.*;
  * TODO Monitor presence using ISON, WATCH or MONITOR. (Monitor does not seem to
  * support away status, though)
  *
- * TODO ERR_NOSUCHNICKCHAN: Check if target is Contact, then update contact
- * presence status to off-line since the nick apparently does not exist anymore.
- *
  * @author Danny van Heumen
  */
 public class PresenceManager
@@ -37,6 +36,11 @@ public class PresenceManager
      */
     private static final Logger LOGGER = Logger
         .getLogger(PresenceManager.class);
+
+    /**
+     * Period for the presence watcher timer.
+     */
+    private static final long PRESENCE_WATCHER_PERIOD = 60000L;
 
     /**
      * IRC client library instance.
@@ -56,6 +60,12 @@ public class PresenceManager
     private final OperationSetPersistentPresenceIrcImpl operationSet;
 
     /**
+     * Set of nicks to watch for presence changes.
+     */
+    private final SortedSet<String> nickWatchList = Collections
+        .synchronizedSortedSet(new TreeSet<String>());
+
+    /**
      * Maximum away message length according to server ISUPPORT instructions.
      *
      * <p>This value is not guaranteed, so it may be <tt>null</tt>.</p>
@@ -70,7 +80,7 @@ public class PresenceManager
     /**
      * Active away message.
      */
-    private String currentMessage = "";
+    private volatile String currentMessage = "";
 
     /**
      * Proposed away message.
@@ -106,6 +116,23 @@ public class PresenceManager
         this.irc = irc;
         this.irc.addListener(new PresenceListener());
         this.isupportAwayLen = parseISupportAwayLen(this.connectionState);
+        setUpPresenceWatcher();
+    }
+
+    /**
+     * Set up a timer for watching the presence of nicks in the watch list.
+     *
+     * @param watchList the watch list
+     * @param irc the IRC instance
+     * @param connectionState the IRC connection state
+     */
+    private void setUpPresenceWatcher()
+    {
+        final Timer presenceWatcher = new Timer();
+        irc.addListener(new PresenceReplyListener(presenceWatcher));
+        presenceWatcher.schedule(new PresenceWatcherTask(this.nickWatchList,
+            this.irc), PRESENCE_WATCHER_PERIOD, PRESENCE_WATCHER_PERIOD);
+        LOGGER.trace("Presence watcher set up.");
     }
 
     /**
@@ -206,6 +233,26 @@ public class PresenceManager
     }
 
     /**
+     * Add new nick to watch list.
+     *
+     * @param nick nick to add to watch list
+     */
+    public void addNickWatch(final String nick)
+    {
+        this.nickWatchList.add(nick);
+    }
+
+    /**
+     * Remove nick from watch list.
+     *
+     * @param nick nick to remove from watch list
+     */
+    public void removeNickWatch(final String nick)
+    {
+        this.nickWatchList.remove(nick);
+    }
+
+    /**
      * Presence listener implementation for keeping track of presence changes in
      * the IRC connection.
      *
@@ -289,6 +336,205 @@ public class PresenceManager
             LOGGER.debug("Local user received ERROR message: removing presence "
                 + "listener.");
             PresenceManager.this.irc.deleteListener(this);
+        }
+    }
+
+    /**
+     * Task for watching nick presence.
+     *
+     * @author Danny van Heumen
+     */
+    private static final class PresenceWatcherTask extends TimerTask
+    {
+        /**
+         * List containing nicks that must be watched.
+         */
+        private final SortedSet<String> watchList;
+
+        /**
+         * IRC instance.
+         */
+        private final IRCApi irc;
+
+        /**
+         * Constructor.
+         *
+         * @param watchList the list of nicks to watch
+         * @param irc the irc instance
+         */
+        public PresenceWatcherTask(final SortedSet<String> watchList,
+            final IRCApi irc)
+        {
+            if (watchList == null)
+            {
+                throw new IllegalArgumentException("watchList cannot be null");
+            }
+            this.watchList = watchList;
+            if (irc == null)
+            {
+                throw new IllegalArgumentException("irc cannot be null");
+            }
+            this.irc = irc;
+        }
+
+        /**
+         * The implementation of the task.
+         */
+        @Override
+        public void run()
+        {
+            if (this.watchList.isEmpty())
+            {
+                return;
+            }
+            // FIXME naive implementation: should split on 510 byte message
+            // limit.
+            final StringBuilder query = new StringBuilder("ISON ");
+            for (String nick : this.watchList)
+            {
+                query.append(nick);
+                query.append(' ');
+            }
+            if (LOGGER.isTraceEnabled())
+            {
+                LOGGER.trace("Querying presence of nicks on watch list: "
+                    + query.toString());
+            }
+            this.irc.rawMessage(query.toString());
+        }
+    }
+
+    /**
+     * Presence reply listener.
+     *
+     * Listener that acts on various replies that give an indication of actual
+     * presence or presence changes, such as RPL_ISON and ERR_NOSUCHNICKCHAN.
+     *
+     * @author Danny van Heumen
+     */
+    private final class PresenceReplyListener
+        extends VariousMessageListenerAdapter
+    {
+        /**
+         * Reply for ISON query.
+         */
+        private static final int RPL_ISON = 303;
+
+        /**
+         * Error reply in case nick does not exist on server.
+         */
+        private static final int ERR_NOSUCHNICK = 401;
+
+        /**
+         * Timer for presence watcher task.
+         */
+        private final Timer timer;
+
+        /**
+         * Constructor.
+         *
+         * @param irc IRC instance
+         * @param connectionState IRC connection state
+         * @param timer Timer for presence watcher task
+         * @param watchList List of nicks to watch for
+         */
+        public PresenceReplyListener(final Timer timer)
+        {
+            if (timer == null)
+            {
+                throw new IllegalArgumentException("timer cannot be null");
+            }
+            this.timer = timer;
+        }
+
+        /**
+         * Message handling.
+         *
+         * TODO ERR_NOSUCHNICKCHAN: Check if target is Contact, then update
+         * contact presence status to off-line since the nick apparently does
+         * not exist anymore.
+         */
+        @Override
+        public void onServerNumericMessage(final ServerNumericMessage msg)
+        {
+            if (msg == null)
+            {
+                return;
+            }
+            switch (msg.getNumericCode())
+            {
+            case RPL_ISON:
+                LOGGER.debug(msg.getText());
+                final HashSet<String> offline =
+                    new HashSet<String>(PresenceManager.this.nickWatchList);
+                String[] nicks = msg.getText().substring(1).split(" ");
+                // FIXME naive implementation: only handles single reply
+                // correctly.
+                for (String nick : nicks)
+                {
+                    PresenceManager.this.operationSet
+                        .updateNickContactPresence(nick, IrcStatusEnum.ONLINE);
+                    offline.remove(nick);
+                }
+                for (String nick : offline)
+                {
+                    PresenceManager.this.operationSet
+                        .updateNickContactPresence(nick, IrcStatusEnum.OFFLINE);
+                }
+                // FIXME optimize implementation, now not very efficient with
+                // its sets
+                break;
+            case ERR_NOSUCHNICK:
+                final String errortext = msg.getText();
+                final int idx = errortext.indexOf(' ');
+                if (idx == -1)
+                {
+                    LOGGER.debug("ERR_NOSUCHNICK message does not have "
+                        + "expected format.");
+                    return;
+                }
+                final String errNick = errortext.substring(0, idx);
+                PresenceManager.this.operationSet.updateNickContactPresence(
+                    errNick, IrcStatusEnum.OFFLINE);
+                break;
+            default:
+                break;
+            }
+        }
+
+        /**
+         * In case the user quits, remove the listener.
+         */
+        @Override
+        public void onUserQuit(final QuitMessage msg)
+        {
+            final String user = msg.getSource().getNick();
+            if (user == null
+                || !user.equals(PresenceManager.this.connectionState
+                    .getNickname()))
+            {
+                return;
+            }
+            LOGGER.debug("Local user's QUIT message received: removing "
+                + "PresenceReplyListener.");
+            PresenceManager.this.irc.deleteListener(this);
+            // Additionally, stop presence watcher task.
+            this.timer.cancel();
+        }
+
+        /**
+         * In case a fatal error occurs, remove the listener.
+         */
+        @Override
+        public void onError(final ErrorMessage aMsg)
+        {
+            // Errors signal fatal situation, so unregister and assume
+            // connection lost.
+            LOGGER.debug("Local user received ERROR message: removing "
+                + "PresenceReplyListener");
+            PresenceManager.this.irc.deleteListener(this);
+            // Additionally, stop presence watcher task.
+            this.timer.cancel();
         }
     }
 }

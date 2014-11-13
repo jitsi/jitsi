@@ -63,6 +63,12 @@ public class OperationSetPersistentPresenceIrcImpl
         this.fireSubscriptionEvent(newVolatileContact, volatileGroup,
             SubscriptionEvent.SUBSCRIPTION_CREATED);
 
+        // FIXME Clean this stuff up, is here just for testing!!!
+        IrcConnection connection = this.parentProvider.getIrcStack().getConnection();
+        if (connection != null) {
+            connection.getPresenceManager().addNickWatch(id);
+        }
+
         return newVolatileContact;
     }
 
@@ -492,5 +498,34 @@ public class OperationSetPersistentPresenceIrcImpl
                 + " for nick name '" + id + "'.");
         }
         return contact;
+    }
+
+    /**
+     * Update presence based for user's nick.
+     *
+     * @param nick the nick
+     * @param newStatus the new status
+     */
+    void updateNickContactPresence(final String nick, final PresenceStatus newStatus)
+    {
+        LOGGER.trace("Received presence update for nick '" + nick
+            + "', status: " + newStatus.getStatus());
+        final Contact contact = findContactByID(nick);
+        if (contact == null)
+        {
+            LOGGER.trace("null contact instance found: presence will not be "
+                + "processed.");
+            return;
+        }
+        if (!(contact instanceof ContactIrcImpl))
+        {
+            throw new IllegalArgumentException(
+                "Expected contact to be an IRC contact instance.");
+        }
+        final ContactIrcImpl contactIrc = (ContactIrcImpl) contact;
+        final ContactGroup group = contact.getParentContactGroup();
+        final PresenceStatus previous = contactIrc.getPresenceStatus();
+        contactIrc.setPresenceStatus(newStatus);
+        fireContactPresenceStatusChangeEvent(contact, group, previous);
     }
 }

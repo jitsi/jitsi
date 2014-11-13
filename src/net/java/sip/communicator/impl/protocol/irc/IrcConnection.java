@@ -21,8 +21,19 @@ import com.ircclouds.irc.api.state.*;
 /**
  * IRC Connection.
  *
+ * TODO Show MOTD in Jitsi "System Room" or something similar, since the MOTD is
+ * aimed directly at the local user.
+ *
  * TODO Find out how irc-api responds to losing a connection (no response). Does
  * it use ping/pong messages to determine connectivity?
+ *
+ * TODO Create abstract class that extends from VariousMessageListener such that
+ * we can have a generic implementation for QUIT/ERROR signal handling related
+ * to local user. (And implement for all existing listeners.)
+ *
+ * TODO Where possible, fire threads for handling events, instead of executing
+ * everything (including calling listeners) inside the event handling loop of
+ * irc-api instance.
  *
  * @author Danny van Heumen
  */
