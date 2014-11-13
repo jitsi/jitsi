@@ -43,8 +43,6 @@ public final class Utils
     /**
      * Parse IRC text message and process possible control codes.
      *
-     * TODO Support for color 99 (Transparent)
-     *
      * @param text the message
      * @return returns the processed message or null if text message was null,
      *         since there is nothing to modify there
@@ -111,6 +109,7 @@ public final class Utils
                     builder.apply(new ControlChar.ColorFormat(foreground,
                         background));
                 }
+                // Need to implement support for color 99 (Transparent)
                 break;
             case ControlChar.Normal.CODE:
                 builder.cancelAll();
