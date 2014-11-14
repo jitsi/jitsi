@@ -117,10 +117,12 @@ public class OperationSetPersistentPresenceIrcImpl
     }
 
     /**
-     * IRC currently does not implement subscribing.
+     * Subscribes to presence updates for specified contact identifier.
      *
-     * @param contactIdentifier contact
-     * @throws OperationFailedException if not implemented
+     * @param contactIdentifier the contact's identifier
+     * @throws IllegalArgumentException on bad input
+     * @throws IllegalStateException if disconnected
+     * @throws OperationFailedException on failed operation
      */
     @Override
     public void subscribe(final String contactIdentifier)
@@ -128,17 +130,28 @@ public class OperationSetPersistentPresenceIrcImpl
         IllegalStateException,
         OperationFailedException
     {
-        LOGGER.trace("subscribe(\"" + contactIdentifier + "\") called");
-        throw new OperationFailedException("Not implemented.",
-            OperationFailedException.NOT_SUPPORTED_OPERATION);
+        if (contactIdentifier == null)
+        {
+            throw new IllegalArgumentException(
+                "contactIdentifier cannot be null");
+        }
+        final IrcConnection connection =
+            this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            return;
+        }
+        connection.getPresenceManager().addNickWatch(contactIdentifier);
     }
 
     /**
-     * IRC currently does not implement subscribing.
+     * Subscribes to presence updates for specified contact identifier.
      *
      * @param parent contact group
      * @param contactIdentifier contact
      * @throws OperationFailedException if not implemented
+     * @throws IllegalArgumentException on bad input
+     * @throws IllegalStateException if disconnected
      */
     @Override
     public void subscribe(final ContactGroup parent,
@@ -147,17 +160,27 @@ public class OperationSetPersistentPresenceIrcImpl
         IllegalStateException,
         OperationFailedException
     {
-        LOGGER.trace("subscribe(\"" + parent.getGroupName() + "\", \""
-            + contactIdentifier + "\") called");
-        throw new OperationFailedException("Not implemented.",
-            OperationFailedException.NOT_SUPPORTED_OPERATION);
+        if (contactIdentifier == null)
+        {
+            throw new IllegalArgumentException(
+                "contactIdentifier cannot be null");
+        }
+        final IrcConnection connection =
+            this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            return;
+        }
+        connection.getPresenceManager().addNickWatch(contactIdentifier);
     }
 
     /**
-     * IRC currently does not implement unsubscribing.
+     * Unsubscribe for presence change events for specified contact.
      *
-     * @param contact contact to unsubscribe
-     * @throws OperationFailedException if not implemented
+     * @param contact contact instance
+     * @throws IllegalArgumentException on bad input
+     * @throws IllegalStateException if disconnected
+     * @throws OperationFailedException if something went wrong
      */
     @Override
     public void unsubscribe(final Contact contact)
@@ -165,9 +188,17 @@ public class OperationSetPersistentPresenceIrcImpl
         IllegalStateException,
         OperationFailedException
     {
-        LOGGER.trace("unsubscribe(\"" + contact.getAddress() + "\") called");
-        throw new OperationFailedException("Not implemented.",
-            OperationFailedException.NOT_SUPPORTED_OPERATION);
+        if (contact == null)
+        {
+            throw new IllegalArgumentException("contact cannot be null");
+        }
+        final IrcConnection connection =
+            this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            return;
+        }
+        connection.getPresenceManager().removeNickWatch(contact.getAddress());
     }
 
     /**
