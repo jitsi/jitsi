@@ -128,6 +128,8 @@ public class PresenceManager
      */
     private void setUpPresenceWatcher()
     {
+        // FIFO query list to be shared between presence watcher task and
+        // presence reply listener.
         final List<SortedSet<String>> queryList =
             Collections.synchronizedList(new LinkedList<SortedSet<String>>());
         final Timer presenceWatcher = new Timer();
@@ -406,8 +408,8 @@ public class PresenceManager
             {
                 return;
             }
+            final StringBuilder query = new StringBuilder();
             TreeSet<String> nicks = new TreeSet<String>();
-            StringBuilder query = new StringBuilder();
             for (String nick : this.watchList)
             {
                 // FIXME determine maximum length of IRC ISON query
@@ -492,7 +494,7 @@ public class PresenceManager
         @Override
         public void onServerNumericMessage(final ServerNumericMessage msg)
         {
-            if (msg == null)
+            if (msg == null || msg.getNumericCode() == null)
             {
                 return;
             }
