@@ -61,6 +61,9 @@ public class PresenceManager
 
     /**
      * Set of nicks to watch for presence changes.
+     *
+     * FIXME nick watch list should persist over disconnects, so we need to
+     * store that in the IrcStack instance or something ...
      */
     private final SortedSet<String> nickWatchList = Collections
         .synchronizedSortedSet(new TreeSet<String>());
@@ -130,8 +133,8 @@ public class PresenceManager
     {
         // FIFO query list to be shared between presence watcher task and
         // presence reply listener.
-        final List<SortedSet<String>> queryList =
-            Collections.synchronizedList(new LinkedList<SortedSet<String>>());
+        final List<List<String>> queryList =
+            Collections.synchronizedList(new LinkedList<List<String>>());
         final Timer presenceWatcher = new Timer();
         irc.addListener(new PresenceReplyListener(presenceWatcher, queryList));
         presenceWatcher.schedule(new PresenceWatcherTask(this.nickWatchList,
@@ -320,8 +323,8 @@ public class PresenceManager
         {
             final String user = msg.getSource().getNick();
             if (user == null
-                || !user.equals(
-                        PresenceManager.this.connectionState.getNickname()))
+                || !user.equals(PresenceManager.this.connectionState
+                    .getNickname()))
             {
                 return;
             }
@@ -365,7 +368,7 @@ public class PresenceManager
          * FIFO list storing each ISON query that is sent, for use when
          * responses return.
          */
-        private final List<SortedSet<String>> queryList;
+        private final List<List<String>> queryList;
 
         /**
          * IRC instance.
@@ -379,7 +382,7 @@ public class PresenceManager
          * @param irc the irc instance
          */
         public PresenceWatcherTask(final SortedSet<String> watchList,
-            final List<SortedSet<String>> queryList, final IRCApi irc)
+            final List<List<String>> queryList, final IRCApi irc)
         {
             if (watchList == null)
             {
@@ -409,17 +412,22 @@ public class PresenceManager
                 return;
             }
             final StringBuilder query = new StringBuilder();
-            TreeSet<String> nicks = new TreeSet<String>();
-            for (String nick : this.watchList)
+            final LinkedList<String> list;
+            synchronized (this.watchList)
+            {
+                list = new LinkedList<String>(this.watchList);
+            }
+            LinkedList<String> nicks = new LinkedList<String>();
+            for (String nick : list)
             {
                 // FIXME determine maximum length of IRC ISON query
                 if (query.length() + nick.length() >= MAX_ISON_QUERY_LENGTH)
                 {
-                    this.irc.rawMessage("ISON " + query.toString());
+                    this.irc.rawMessage(createQuery(query));
                     this.queryList.add(nicks);
                     // Initialize new data types
                     query.delete(0, query.length());
-                    nicks = new TreeSet<String>();
+                    nicks = new LinkedList<String>();
                 }
                 query.append(nick);
                 query.append(' ');
@@ -428,9 +436,21 @@ public class PresenceManager
             if (query.length() > 0)
             {
                 // Send remaining entries.
-                this.irc.rawMessage("ISON " + query.toString());
+                this.irc.rawMessage(createQuery(query));
                 this.queryList.add(nicks);
             }
+        }
+
+        /**
+         * Create an ISON query from the StringBuilder containing the list of
+         * nicks.
+         *
+         * @param nicklist the list of nicks as a StringBuilder instance
+         * @return returns the ISON query string
+         */
+        private String createQuery(final StringBuilder nicklist)
+        {
+            return "ISON " + nicklist;
         }
     }
 
@@ -461,18 +481,18 @@ public class PresenceManager
         private final Timer timer;
 
         /**
-         * FIFO query list containing set of nicks for each query.
+         * FIFO list containing list of nicks for each query.
          */
-        private final List<SortedSet<String>> queryList;
+        private final List<List<String>> queryList;
 
         /**
          * Constructor.
          *
          * @param timer Timer for presence watcher task
-         * @param queryList List of executed queries with expected nicks sets.
+         * @param queryList List of executed queries with expected nicks lists.
          */
         public PresenceReplyListener(final Timer timer,
-            final List<SortedSet<String>> queryList)
+            final List<List<String>> queryList)
         {
             if (timer == null)
             {
@@ -506,10 +526,13 @@ public class PresenceManager
                     LOGGER.debug("RPL_ISON received: " + msg.asRaw());
                 }
                 final String[] nicks = msg.getText().substring(1).split(" ");
-                final SortedSet<String> offline;
+                final List<String> offline;
                 if (this.queryList.isEmpty())
                 {
-                    offline = new TreeSet<String>();
+                    // If no query list exists, we can only update nicks that
+                    // are online, since we do not know who we have actually
+                    // queried for.
+                    offline = new LinkedList<String>();
                 }
                 else
                 {
@@ -517,14 +540,12 @@ public class PresenceManager
                 }
                 for (String nick : nicks)
                 {
-                    PresenceManager.this.operationSet
-                        .updateNickContactPresence(nick, IrcStatusEnum.ONLINE);
+                    update(nick, IrcStatusEnum.ONLINE);
                     offline.remove(nick);
                 }
                 for (String nick : offline)
                 {
-                    PresenceManager.this.operationSet
-                        .updateNickContactPresence(nick, IrcStatusEnum.OFFLINE);
+                    update(nick, IrcStatusEnum.OFFLINE);
                 }
                 break;
             case ERR_NOSUCHNICK:
@@ -532,13 +553,12 @@ public class PresenceManager
                 final int idx = errortext.indexOf(' ');
                 if (idx == -1)
                 {
-                    LOGGER.debug("ERR_NOSUCHNICK message does not have "
+                    LOGGER.info("ERR_NOSUCHNICK message does not have "
                         + "expected format.");
                     return;
                 }
                 final String errNick = errortext.substring(0, idx);
-                PresenceManager.this.operationSet.updateNickContactPresence(
-                    errNick, IrcStatusEnum.OFFLINE);
+                update(errNick, IrcStatusEnum.OFFLINE);
                 break;
             default:
                 break;
@@ -552,13 +572,11 @@ public class PresenceManager
         public void onChannelJoin(final ChanJoinMessage msg)
         {
             final String user = msg.getSource().getNick();
-            if (user == null
-                || !PresenceManager.this.nickWatchList.contains(user))
+            if (user == null)
             {
                 return;
             }
-            PresenceManager.this.operationSet.updateNickContactPresence(user,
-                IrcStatusEnum.ONLINE);
+            update(user, IrcStatusEnum.ONLINE);
         }
 
         /**
@@ -581,17 +599,11 @@ public class PresenceManager
                 PresenceManager.this.irc.deleteListener(this);
                 // Additionally, stop presence watcher task.
                 this.timer.cancel();
+                updateAll(IrcStatusEnum.OFFLINE);
             }
             else
             {
-                // User is some other user, so check if we are watching that
-                // nick.
-                if (!PresenceManager.this.nickWatchList.contains(user))
-                {
-                    return;
-                }
-                PresenceManager.this.operationSet.updateNickContactPresence(
-                    user, IrcStatusEnum.OFFLINE);
+                update(user, IrcStatusEnum.OFFLINE);
             }
         }
 
@@ -608,6 +620,45 @@ public class PresenceManager
             PresenceManager.this.irc.deleteListener(this);
             // Additionally, stop presence watcher task.
             this.timer.cancel();
+            updateAll(IrcStatusEnum.OFFLINE);
+        }
+
+        /**
+         * Update the status of a single nick.
+         *
+         * @param nick the nick to update
+         * @param status the new status
+         */
+        private void update(final String nick, final IrcStatusEnum status)
+        {
+            // User is some other user, so check if we are watching that
+            // nick.
+            if (!PresenceManager.this.nickWatchList.contains(nick))
+            {
+                return;
+            }
+            PresenceManager.this.operationSet.updateNickContactPresence(nick,
+                status);
+        }
+
+        /**
+         * Update the status of all contacts in the nick watch list.
+         *
+         * @param status the new status
+         */
+        private void updateAll(final IrcStatusEnum status)
+        {
+            final LinkedList<String> list;
+            synchronized (PresenceManager.this.nickWatchList)
+            {
+                list =
+                    new LinkedList<String>(PresenceManager.this.nickWatchList);
+            }
+            for (String nick : list)
+            {
+                PresenceManager.this.operationSet.updateNickContactPresence(
+                    nick, status);
+            }
         }
     }
 }
