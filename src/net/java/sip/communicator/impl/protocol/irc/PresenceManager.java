@@ -85,7 +85,7 @@ public class PresenceManager
     /**
      * Proposed away message.
      */
-    private String submittedMessage = "Away";
+    private volatile String submittedMessage = "Away";
 
     /**
      * Constructor.
