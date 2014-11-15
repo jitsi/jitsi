@@ -371,30 +371,31 @@ public class OperationSetPersistentPresenceIrcImpl
      */
     @Override
     public void publishPresenceStatus(final PresenceStatus status,
-        String statusMessage)
+        final String statusMessage)
         throws IllegalArgumentException,
         IllegalStateException,
         OperationFailedException
     {
         final IrcConnection connection =
             this.parentProvider.getIrcStack().getConnection();
+        String message = statusMessage;
         if (connection == null)
         {
             throw new IllegalStateException("Connection is not available.");
         }
-        if (statusMessage != null && statusMessage.isEmpty())
+        if (message != null && message.isEmpty())
         {
             // if we provide a message, make sure it isn't empty
-            statusMessage = null;
+            message = null;
         }
 
         if (status.getStatus() >= IrcStatusEnum.AVAILABLE_THRESHOLD)
         {
-            connection.getPresenceManager().away(false, statusMessage);
+            connection.getPresenceManager().away(false, message);
         }
         else if (status.getStatus() >= IrcStatusEnum.AWAY_THRESHOLD)
         {
-            connection.getPresenceManager().away(true, statusMessage);
+            connection.getPresenceManager().away(true, message);
         }
     }
 

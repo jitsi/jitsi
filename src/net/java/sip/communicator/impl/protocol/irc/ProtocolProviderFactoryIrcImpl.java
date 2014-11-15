@@ -204,9 +204,8 @@ public class ProtocolProviderFactoryIrcImpl
         this.storeAccount(accountID);
 
         registration =
-            (ServiceRegistration<ProtocolProviderService>) context
-                .registerService(ProtocolProviderService.class.getName(),
-                    protocolProvider, properties);
+            context.registerService(ProtocolProviderService.class,
+                protocolProvider, properties);
 
         registeredAccounts.put(accountID, registration);
     }
