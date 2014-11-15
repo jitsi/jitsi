@@ -60,14 +60,16 @@ public class OperationSetPersistentPresenceIrcImpl
             new ContactIrcImpl(this.parentProvider, id, volatileGroup);
         volatileGroup.addContact(newVolatileContact);
 
-        this.fireSubscriptionEvent(newVolatileContact, volatileGroup,
-            SubscriptionEvent.SUBSCRIPTION_CREATED);
-
-        // FIXME Clean this stuff up, is here just for testing!!!
-        IrcConnection connection = this.parentProvider.getIrcStack().getConnection();
-        if (connection != null) {
+        // Add nick to watch list of presence manager.
+        final IrcConnection connection =
+            this.parentProvider.getIrcStack().getConnection();
+        if (connection != null)
+        {
             connection.getPresenceManager().addNickWatch(id);
         }
+
+        this.fireSubscriptionEvent(newVolatileContact, volatileGroup,
+            SubscriptionEvent.SUBSCRIPTION_CREATED);
 
         return newVolatileContact;
     }
