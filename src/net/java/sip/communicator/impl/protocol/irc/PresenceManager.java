@@ -11,6 +11,7 @@ import java.util.*;
 import net.java.sip.communicator.util.*;
 
 import com.ircclouds.irc.api.*;
+import com.ircclouds.irc.api.domain.*;
 import com.ircclouds.irc.api.domain.messages.*;
 import com.ircclouds.irc.api.listeners.*;
 import com.ircclouds.irc.api.state.*;
@@ -18,14 +19,18 @@ import com.ircclouds.irc.api.state.*;
 /**
  * Manager for presence status of IRC connection.
  *
+ * There is (somewhat primitive) support for online presence by periodically
+ * querying IRC server with ISON requests for each of the members in the contact
+ * list.
+ *
  * TODO Support for 'a' (Away) user mode. (Check this again, since I also see
  * 'a' used for other purposes. This may be one of those ambiguous letters that
  * every server interprets differently.)
  *
  * TODO Jitsi is currently missing support for presence in MUC (ChatRoomMember).
  *
- * TODO Monitor presence using ISON, WATCH or MONITOR. (Monitor does not seem to
- * support away status, though)
+ * TODO Improve presence watcher by using WATCH or MONITOR. (Monitor does not
+ * seem to support away status, though)
  *
  * @author Danny van Heumen
  */
@@ -523,9 +528,9 @@ public class PresenceManager
         }
 
         /**
-         * Message handling.
+         * Message handling for RPL_ISON message and other indicators.
          *
-         * FIXME update presence upon receiving PRIVMSG/NOTICE/ACTION from user
+         * @param msg the message
          */
         @Override
         public void onServerNumericMessage(final ServerNumericMessage msg)
@@ -582,6 +587,57 @@ public class PresenceManager
         }
 
         /**
+         * Upon receiving a private message from a user, conclude that the user
+         * must then be online and update its presence status.
+         *
+         * @param msg the message
+         */
+        @Override
+        public void onUserPrivMessage(final UserPrivMsg msg)
+        {
+            if (msg == null || msg.getSource() == null)
+            {
+                return;
+            }
+            final IRCUser user = msg.getSource();
+            update(user.getNick(), IrcStatusEnum.ONLINE);
+        }
+
+        /**
+         * Upon receiving a notice from a user, conclude that the user
+         * must then be online and update its presence status.
+         *
+         * @param msg the message
+         */
+        @Override
+        public void onUserNotice(final UserNotice msg)
+        {
+            if (msg == null || msg.getSource() == null)
+            {
+                return;
+            }
+            final IRCUser user = msg.getSource();
+            update(user.getNick(), IrcStatusEnum.ONLINE);
+        }
+
+        /**
+         * Upon receiving an action from a user, conclude that the user
+         * must then be online and update its presence status.
+         *
+         * @param msg the message
+         */
+        @Override
+        public void onUserAction(final UserActionMsg msg)
+        {
+            if (msg == null || msg.getSource() == null)
+            {
+                return;
+            }
+            final IRCUser user = msg.getSource();
+            update(user.getNick(), IrcStatusEnum.ONLINE);
+        }
+
+        /**
          * Handler for channel join events.
          */
         @Override
@@ -597,6 +653,8 @@ public class PresenceManager
 
         /**
          * Handler for user quit events.
+         *
+         * @param msg the quit message
          */
         @Override
         public void onUserQuit(final QuitMessage msg)
@@ -625,9 +683,11 @@ public class PresenceManager
 
         /**
          * In case a fatal error occurs, remove the listener.
+         *
+         * @param msg the error message
          */
         @Override
-        public void onError(final ErrorMessage aMsg)
+        public void onError(final ErrorMessage msg)
         {
             // Errors signal fatal situation, so unregister and assume
             // connection lost.

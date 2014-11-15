@@ -464,12 +464,12 @@ public class IrcStack implements IrcConnectionListener
         /**
          * The protocol provider service instance.
          */
-        public final ProtocolProviderServiceIrcImpl provider;
+        final ProtocolProviderServiceIrcImpl provider;
 
         /**
          * The nick watch list.
          */
-        public final SortedSet<String> nickWatchList = Collections
+        final SortedSet<String> nickWatchList = Collections
             .synchronizedSortedSet(new TreeSet<String>());
 
         /**
