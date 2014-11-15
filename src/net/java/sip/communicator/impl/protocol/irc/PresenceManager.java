@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.irc;
 
 import java.util.*;
+import java.util.concurrent.atomic.*;
 
 import net.java.sip.communicator.util.*;
 
@@ -82,6 +83,12 @@ public class PresenceManager
     private final Integer isupportAwayLen;
 
     /**
+     * Server identity.
+     */
+    private final AtomicReference<String> serverIdentity =
+        new AtomicReference<String>(null);
+
+    /**
      * Current presence status.
      */
     private volatile boolean away = false;
@@ -154,8 +161,10 @@ public class PresenceManager
             Collections.synchronizedList(new LinkedList<List<String>>());
         final Timer presenceWatcher = new Timer();
         irc.addListener(new PresenceReplyListener(presenceWatcher, queryList));
-        presenceWatcher.schedule(new PresenceWatcherTask(this.nickWatchList,
-            queryList, this.irc), INITIAL_PRESENCE_WATCHER_DELAY,
+        final PresenceWatcherTask task =
+            new PresenceWatcherTask(this.nickWatchList, queryList, this.irc,
+                this.connectionState, this.serverIdentity);
+        presenceWatcher.schedule(task, INITIAL_PRESENCE_WATCHER_DELAY,
             PRESENCE_WATCHER_PERIOD);
         LOGGER.trace("Presence watcher set up.");
     }
@@ -303,6 +312,11 @@ public class PresenceManager
         @Override
         public void onServerNumericMessage(final ServerNumericMessage msg)
         {
+            if (PresenceManager.this.serverIdentity.get() == null)
+            {
+                PresenceManager.this.serverIdentity.set(msg.getSource()
+                    .getHostname());
+            }
             Integer msgCode = msg.getNumericCode();
             if (msgCode == null)
             {
@@ -372,9 +386,12 @@ public class PresenceManager
     private static final class PresenceWatcherTask extends TimerTask
     {
         /**
-         * Maximum length of an ISON query.
+         * Static overhead for ISON response message.
+         *
+         * Additional 10 chars extra overhead as fail-safe, as I was not able to
+         * find the exact number in the overhead computation.
          */
-        private static final int MAX_ISON_QUERY_LENGTH = 475;
+        private static final int ISON_RESPONSE_STATIC_MESSAGE_OVERHEAD = 18;
 
         /**
          * List containing nicks that must be watched.
@@ -393,13 +410,29 @@ public class PresenceManager
         private final IRCApi irc;
 
         /**
+         * IRC connection state.
+         */
+        private final IIRCState connectionState;
+
+        /**
+         * Reference to the current server identity.
+         */
+        private final AtomicReference<String> serverIdentity;
+
+        /**
          * Constructor.
          *
          * @param watchList the list of nicks to watch
+         * @param queryList list containing list of nicks of each ISON query
          * @param irc the irc instance
+         * @param connectionState the connection state instance
+         * @param serverIdentity container with the current server identity for
+         *            use in overhead calculation
          */
         public PresenceWatcherTask(final SortedSet<String> watchList,
-            final List<List<String>> queryList, final IRCApi irc)
+            final List<List<String>> queryList, final IRCApi irc,
+            final IIRCState connectionState,
+            final AtomicReference<String> serverIdentity)
         {
             if (watchList == null)
             {
@@ -416,6 +449,18 @@ public class PresenceManager
                 throw new IllegalArgumentException("irc cannot be null");
             }
             this.irc = irc;
+            if (connectionState == null)
+            {
+                throw new IllegalArgumentException(
+                    "connectionState cannot be null");
+            }
+            this.connectionState = connectionState;
+            if (serverIdentity == null)
+            {
+                throw new IllegalArgumentException(
+                    "serverIdentity reference cannot be null");
+            }
+            this.serverIdentity = serverIdentity;
         }
 
         /**
@@ -439,13 +484,16 @@ public class PresenceManager
                 list = new LinkedList<String>(this.watchList);
             }
             LinkedList<String> nicks = new LinkedList<String>();
+            // The ISON reply contains the most overhead, so base the maximum
+            // number of nicks limit on that.
+            final int maxQueryLength =
+                MessageManager.IRC_PROTOCOL_MAXIMUM_MESSAGE_SIZE - overhead();
             for (String nick : list)
             {
-                // FIXME determine maximum length of IRC ISON query
-                if (query.length() + nick.length() >= MAX_ISON_QUERY_LENGTH)
+                if (query.length() + nick.length() >= maxQueryLength)
                 {
-                    this.irc.rawMessage(createQuery(query));
                     this.queryList.add(nicks);
+                    this.irc.rawMessage(createQuery(query));
                     // Initialize new data types
                     query.delete(0, query.length());
                     nicks = new LinkedList<String>();
@@ -457,8 +505,8 @@ public class PresenceManager
             if (query.length() > 0)
             {
                 // Send remaining entries.
-                this.irc.rawMessage(createQuery(query));
                 this.queryList.add(nicks);
+                this.irc.rawMessage(createQuery(query));
             }
         }
 
@@ -472,6 +520,18 @@ public class PresenceManager
         private String createQuery(final StringBuilder nicklist)
         {
             return "ISON " + nicklist;
+        }
+
+        /**
+         * Calculate overhead for ISON response message.
+         *
+         * @return returns amount of overhead in response message
+         */
+        private int overhead()
+        {
+            return ISON_RESPONSE_STATIC_MESSAGE_OVERHEAD
+                + this.serverIdentity.get().length()
+                + this.connectionState.getNickname().length();
         }
     }
 
@@ -542,10 +602,6 @@ public class PresenceManager
             switch (msg.getNumericCode())
             {
             case RPL_ISON:
-                if (LOGGER.isTraceEnabled())
-                {
-                    LOGGER.debug("RPL_ISON received: " + msg.asRaw());
-                }
                 final String[] nicks = msg.getText().substring(1).split(" ");
                 final List<String> offline;
                 if (this.queryList.isEmpty())

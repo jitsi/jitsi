@@ -41,7 +41,7 @@ public class MessageManager
      * Maximum message size for IRC messages given the spec specifies a buffer
      * of 512 bytes. The command ending (CRLF) takes up 2 bytes.
      */
-    private static final int IRC_PROTOCOL_MAXIMUM_MESSAGE_SIZE = 510;
+    public static final int IRC_PROTOCOL_MAXIMUM_MESSAGE_SIZE = 510;
 
     /**
      * IrcConnection instance.
