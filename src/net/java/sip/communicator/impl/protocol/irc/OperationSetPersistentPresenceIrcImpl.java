@@ -539,7 +539,8 @@ public class OperationSetPersistentPresenceIrcImpl
      * @param nick the nick
      * @param newStatus the new status
      */
-    void updateNickContactPresence(final String nick, final PresenceStatus newStatus)
+    void updateNickContactPresence(final String nick,
+        final PresenceStatus newStatus)
     {
         LOGGER.trace("Received presence update for nick '" + nick
             + "', status: " + newStatus.getStatus());
