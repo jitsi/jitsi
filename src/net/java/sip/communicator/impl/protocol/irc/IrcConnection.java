@@ -65,14 +65,12 @@ public class IrcConnection
     }
 
     /**
-     * Instance of the protocol provider service.
+     * Context.
      */
-    private final ProtocolProviderServiceIrcImpl provider;
+    private final IrcStack.PersistentContext context;
 
     /**
-     * Instance of IRC Api.
-     *
-     * Instance must be thread-safe!
+     * IRC Api instance.
      */
     private final IRCApi irc;
 
@@ -115,23 +113,23 @@ public class IrcConnection
     /**
      * Constructor.
      *
-     * @param provider ProtocolProviderService instance
+     * @param context persistent context that crosses connections
+     * @param irc the irc instance
      * @param params connection parameters
-     * @param irc IRC api instance
      * @param connectionListener listener for callback upon connection
      *            interruption
      * @throws Exception Throws IOException in case of connection problems.
      */
-    IrcConnection(final ProtocolProviderServiceIrcImpl provider,
-        final IServerParameters params, final IRCApi irc,
+    IrcConnection(final IrcStack.PersistentContext context, final IRCApi irc,
+        final IServerParameters params,
         final IrcConnectionListener connectionListener)
         throws Exception
     {
-        if (provider == null)
+        if (context == null)
         {
-            throw new IllegalArgumentException("provider cannot be null");
+            throw new IllegalArgumentException("context cannot be null");
         }
-        this.provider = provider;
+        this.context = context;
         if (irc == null)
         {
             throw new IllegalArgumentException("irc instance cannot be null");
@@ -144,7 +142,8 @@ public class IrcConnection
         this.irc.addListener(new ServerListener());
 
         // Now actually connect to the IRC server.
-        this.connectionState = connectSynchronized(this.provider, params, irc);
+        this.connectionState =
+            connectSynchronized(this.context.provider, params, this.irc);
 
         // instantiate identity manager for the connection
         this.identity = new IdentityManager(this.irc, this.connectionState);
@@ -152,16 +151,18 @@ public class IrcConnection
         // instantiate message manager for the connection
         this.message =
             new MessageManager(this, this.irc, this.connectionState,
-                this.provider, this.identity);
+                this.context.provider, this.identity);
 
         // instantiate channel manager for the connection
         this.channel =
-            new ChannelManager(this.irc, this.connectionState, this.provider);
+            new ChannelManager(this.irc, this.connectionState,
+                this.context.provider);
 
         // instantiate presence manager for the connection
         this.presence =
             new PresenceManager(this.irc, this.connectionState,
-                this.provider.getPersistentPresence());
+                this.context.provider.getPersistentPresence(),
+                this.context.nickWatchList);
 
         // instantiate server channel lister
         this.channelLister =

@@ -38,6 +38,11 @@ public class PresenceManager
         .getLogger(PresenceManager.class);
 
     /**
+     * Delay before starting the presence watcher task for the first time.
+     */
+    private static final long INITIAL_PRESENCE_WATCHER_DELAY = 3000L;
+
+    /**
      * Period for the presence watcher timer.
      */
     private static final long PRESENCE_WATCHER_PERIOD = 60000L;
@@ -61,12 +66,8 @@ public class PresenceManager
 
     /**
      * Set of nicks to watch for presence changes.
-     *
-     * FIXME nick watch list should persist over disconnects, so we need to
-     * store that in the IrcStack instance or something ...
      */
-    private final SortedSet<String> nickWatchList = Collections
-        .synchronizedSortedSet(new TreeSet<String>());
+    private final SortedSet<String> nickWatchList;
 
     /**
      * Maximum away message length according to server ISUPPORT instructions.
@@ -97,9 +98,11 @@ public class PresenceManager
      * @param connectionState irc client connection state instance
      * @param operationSet OperationSetPersistentPresence irc implementation for
      *            handling presence changes.
+     * @param persistentNickWatchList persistent nick watch list to use
      */
     public PresenceManager(final IRCApi irc, final IIRCState connectionState,
-        final OperationSetPersistentPresenceIrcImpl operationSet)
+        final OperationSetPersistentPresenceIrcImpl operationSet,
+        final SortedSet<String> persistentNickWatchList)
     {
         if (connectionState == null)
         {
@@ -117,6 +120,15 @@ public class PresenceManager
             throw new IllegalArgumentException("irc cannot be null");
         }
         this.irc = irc;
+        if (persistentNickWatchList == null)
+        {
+            this.nickWatchList =
+                Collections.synchronizedSortedSet(new TreeSet<String>());
+        }
+        else
+        {
+            this.nickWatchList = persistentNickWatchList;
+        }
         this.irc.addListener(new PresenceListener());
         this.isupportAwayLen = parseISupportAwayLen(this.connectionState);
         setUpPresenceWatcher();
@@ -138,7 +150,7 @@ public class PresenceManager
         final Timer presenceWatcher = new Timer();
         irc.addListener(new PresenceReplyListener(presenceWatcher, queryList));
         presenceWatcher.schedule(new PresenceWatcherTask(this.nickWatchList,
-            queryList, this.irc), PRESENCE_WATCHER_PERIOD,
+            queryList, this.irc), INITIAL_PRESENCE_WATCHER_DELAY,
             PRESENCE_WATCHER_PERIOD);
         LOGGER.trace("Presence watcher set up.");
     }
@@ -409,8 +421,12 @@ public class PresenceManager
         {
             if (this.watchList.isEmpty())
             {
+                LOGGER.trace("Watch list is empty. Not querying for online "
+                    + "presence.");
                 return;
             }
+            LOGGER
+                .trace("Watch list contains nicks: querying presence status.");
             final StringBuilder query = new StringBuilder();
             final LinkedList<String> list;
             synchronized (this.watchList)

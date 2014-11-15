@@ -50,6 +50,11 @@ public class IrcStack implements IrcConnectionListener
     private final ServerParameters params;
 
     /**
+     * The persistent context that will survive (dis)connects.
+     */
+    private final PersistentContext context;
+
+    /**
      * Instance of the irc connection contained in an AtomicReference.
      *
      * This field serves 2 purposes:
@@ -84,6 +89,7 @@ public class IrcStack implements IrcConnectionListener
         }
         this.provider = parentProvider;
         this.params = new IrcStack.ServerParameters(nick, login, finger, null);
+        this.context = new PersistentContext(this.provider);
     }
 
     /**
@@ -139,8 +145,8 @@ public class IrcStack implements IrcConnectionListener
 
                 // Synchronized IRCApi instance passed on to the connection
                 // instance.
-                this.session.set(new IrcConnection(this.provider, this.params,
-                    new SynchronizedIRCApi(irc), this));
+                this.session.set(new IrcConnection(this.context, irc,
+                    this.params, this));
 
                 this.provider.setCurrentRegistrationState(
                     RegistrationState.REGISTERED,
@@ -446,5 +452,38 @@ public class IrcStack implements IrcConnectionListener
         this.provider.setCurrentRegistrationState(
             RegistrationState.CONNECTION_FAILED,
             RegistrationStateChangeEvent.REASON_NOT_SPECIFIED);
+    }
+
+    /**
+     * Persistent context that is used to survive (dis)connects.
+     *
+     * @author Danny van Heumen
+     */
+    static final class PersistentContext
+    {
+        /**
+         * The protocol provider service instance.
+         */
+        public final ProtocolProviderServiceIrcImpl provider;
+
+        /**
+         * The nick watch list.
+         */
+        public final SortedSet<String> nickWatchList = Collections
+            .synchronizedSortedSet(new TreeSet<String>());
+
+        /**
+         * Private constructor to ensure use only by IrcStack itself.
+         *
+         * @param provider the provider instance
+         */
+        private PersistentContext(final ProtocolProviderServiceIrcImpl provider)
+        {
+            if (provider == null)
+            {
+                throw new IllegalArgumentException("provider cannot be null");
+            }
+            this.provider = provider;
+        }
     }
 }
