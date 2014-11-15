@@ -15,7 +15,11 @@ import net.java.sip.communicator.impl.protocol.irc.*;
  */
 public class Nick implements Command
 {
+    /**
+     * Index for end of nick command prefix.
+     */
     private static final int END_OF_COMMAND_PREFIX_INDEX = 6;
+
     /**
      * Instance of the IRC connection.
      */
