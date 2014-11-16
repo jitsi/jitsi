@@ -573,6 +573,11 @@ public class OperationSetPersistentPresenceIrcImpl
     void updateNick(final String oldNick, final String newNick)
     {
         ContactIrcImpl contact = findContactByID(oldNick);
+        if (contact == null)
+        {
+            // Nick change is not meant for any known contact. Ignoring.
+            return;
+        }
         contact.setAddress(newNick);
         fireContactPropertyChangeEvent(
             ContactPropertyChangeEvent.PROPERTY_DISPLAY_NAME, contact, oldNick,
