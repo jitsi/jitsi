@@ -141,9 +141,6 @@ public class ProtocolProviderServiceIrcImpl
             addSupportedOperationSet(OperationSetPresence.class,
                 persistentPresence);
 
-            // TODO Implement OperationSetServerStoredAccountInfo so we can
-            // suggest a display name to use when adding new chat rooms?
-
             // TODO Implement OperationSetChangePassword and channel password
             // changes to IRC remote identity services such as NickServ
 
