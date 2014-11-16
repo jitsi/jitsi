@@ -467,7 +467,7 @@ public class IrcStack implements IrcConnectionListener
         final ProtocolProviderServiceIrcImpl provider;
 
         /**
-         * The nick watch list.
+         * The nick watch list as a SYNCHRONIZED sorted set.
          */
         final SortedSet<String> nickWatchList = Collections
             .synchronizedSortedSet(new TreeSet<String>());

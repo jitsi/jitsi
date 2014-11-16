@@ -71,7 +71,7 @@ public class PresenceManager
     private final OperationSetPersistentPresenceIrcImpl operationSet;
 
     /**
-     * Set of nicks to watch for presence changes.
+     * Synchronized set of nicks to watch for presence changes.
      */
     private final SortedSet<String> nickWatchList;
 
@@ -110,7 +110,8 @@ public class PresenceManager
      * @param connectionState irc client connection state instance
      * @param operationSet OperationSetPersistentPresence irc implementation for
      *            handling presence changes.
-     * @param persistentNickWatchList persistent nick watch list to use
+     * @param persistentNickWatchList persistent nick watch list to use (The
+     *            sortedset implementation must be synchronized!)
      */
     public PresenceManager(final IRCApi irc, final IIRCState connectionState,
         final OperationSetPersistentPresenceIrcImpl operationSet,
@@ -588,6 +589,37 @@ public class PresenceManager
         }
 
         /**
+         * Update nick watch list upon receiving a nick change message for a
+         * nick that is on the watch list.
+         *
+         * @param msg the nick message
+         */
+        @Override
+        public void onNickChange(final NickMessage msg)
+        {
+            if (msg == null || msg.getSource() == null)
+            {
+                return;
+            }
+            final String oldNick = msg.getSource().getNick();
+            final String newNick = msg.getNewNick();
+            if (oldNick == null || newNick == null)
+            {
+                LOGGER.error("Incomplete nick change message. Old nick: '"
+                    + oldNick + "', new nick: '" + newNick + "'.");
+                return;
+            }
+            synchronized (PresenceManager.this.nickWatchList)
+            {
+                if (PresenceManager.this.nickWatchList.contains(oldNick))
+                {
+                    PresenceManager.this.nickWatchList.remove(oldNick);
+                    PresenceManager.this.nickWatchList.add(newNick);
+                }
+            }
+        }
+
+        /**
          * Message handling for RPL_ISON message and other indicators.
          *
          * @param msg the message
@@ -699,11 +731,11 @@ public class PresenceManager
         @Override
         public void onChannelJoin(final ChanJoinMessage msg)
         {
-            final String user = msg.getSource().getNick();
-            if (user == null)
+            if (msg == null || msg.getSource() == null)
             {
                 return;
             }
+            final String user = msg.getSource().getNick();
             update(user, IrcStatusEnum.ONLINE);
         }
 
