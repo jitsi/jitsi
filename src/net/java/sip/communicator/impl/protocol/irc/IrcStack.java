@@ -280,6 +280,9 @@ public class IrcStack implements IrcConnectionListener
      * Listener for debugging purposes. If logging level is set high enough,
      * this listener is added to the irc-api client so it can show all IRC
      * messages as they are handled.
+     * 
+     * FIXME delete listener in case of local user "QUIT :&lt;message&gt;"
+     * FIXME delete listener in case of "ERROR :&lt;message&gt;"
      *
      * @author Danny van Heumen
      */

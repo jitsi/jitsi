@@ -37,8 +37,11 @@ public class IdentityManager
         .getLogger(IdentityManager.class);
 
     /**
-     * Reserved symbols. These symbols have special meaning and cannot be
-     * used to start nick names.
+     * Reserved symbols. These symbols have special meaning and cannot be used
+     * to start nick names.
+     *
+     * FIXME remove this reserved symbol list, after checkNick(...) was
+     * improved.
      */
     private static final Set<Character> RESERVED;
 
@@ -200,13 +203,14 @@ public class IdentityManager
             throw new IllegalArgumentException(
                 "a nick name must be provided");
         }
-        // TODO Add '+' and '!' to reserved symbols too?
         if (RESERVED.contains(nick.charAt(0)))
         {
             throw new IllegalArgumentException(
                 "the nick name must not start with '#' or '&' "
                     + "since these are reserved for IRC's channels");
         }
+        // FIXME Improve nick verification corresponding to RFC1459, section
+        // 2.3.1
         if (isupportNickLen != null
             && nick.length() > isupportNickLen.intValue())
         {
