@@ -19,7 +19,6 @@ import com.ircclouds.irc.api.*;
 import com.ircclouds.irc.api.domain.*;
 import com.ircclouds.irc.api.domain.messages.*;
 import com.ircclouds.irc.api.domain.messages.interfaces.*;
-import com.ircclouds.irc.api.listeners.*;
 import com.ircclouds.irc.api.state.*;
 
 /**
@@ -679,7 +678,7 @@ public class ChannelManager
      *
      * @author Danny van Heumen
      */
-    private final class ManagerListener extends VariousMessageListenerAdapter
+    private final class ManagerListener extends AbstractIrcMessageListener
     {
         /**
          * IRC reply code for end of list.
@@ -688,33 +687,11 @@ public class ChannelManager
             IRCServerNumerics.CHANNEL_NICKS_END_OF_LIST;
 
         /**
-         * Quit message event.
-         *
-         * @param msg QuitMessage
+         * Constructor.
          */
-        @Override
-        public void onUserQuit(final QuitMessage msg)
+        public ManagerListener()
         {
-            final String user = msg.getSource().getNick();
-            if (ChannelManager.this.connectionState.getNickname().equals(user))
-            {
-                LOGGER.debug("Local user QUIT message received: removing "
-                    + "channel manager listener.");
-                ChannelManager.this.irc.deleteListener(this);
-            }
-        }
-
-        /**
-         * In case a fatal error occurs, remove the ChannelManager listener.
-         */
-        @Override
-        public void onError(final ErrorMessage aMsg)
-        {
-            // Errors signal fatal situation, so unregister and assume
-            // connection lost.
-            LOGGER.debug("Local user received ERROR message: removing "
-                + "channel manager listener.");
-            ChannelManager.this.irc.deleteListener(this);
+            super(ChannelManager.this.irc, ChannelManager.this.connectionState);
         }
 
         /**
@@ -725,7 +702,7 @@ public class ChannelManager
         @Override
         public void onServerNumericMessage(final ServerNumericMessage msg)
         {
-            switch (msg.getNumericCode().intValue())
+            switch (msg.getNumericCode())
             {
             case RPL_LISTEND:
                 // CHANNEL_NICKS_END_OF_LIST indicates the end of a nick list as
@@ -758,15 +735,13 @@ public class ChannelManager
                     // propagated, the channel join event has been completely
                     // handled by IRCApi.
                     channel =
-                        ChannelManager.this.connectionState
-                            .getChannelByName(channelName);
+                        this.connectionState.getChannelByName(channelName);
                     chatRoom =
                         new ChatRoomIrcImpl(channelName,
                             ChannelManager.this.provider);
                     ChannelManager.this.joined.put(channelName, chatRoom);
                 }
-                ChannelManager.this.irc.addListener(new ChatRoomListener(
-                    chatRoom));
+                this.irc.addListener(new ChatRoomListener(chatRoom));
                 try
                 {
                     ChannelManager.this.provider.getMUC().openChatRoomWindow(
@@ -801,7 +776,7 @@ public class ChannelManager
      * @author Danny van Heumen
      */
     private final class ChatRoomListener
-        extends VariousMessageListenerAdapter
+        extends AbstractIrcMessageListener
     {
         /**
          * IRC error code for case when user cannot send a message to the
@@ -827,6 +802,7 @@ public class ChannelManager
          */
         private ChatRoomListener(final ChatRoomIrcImpl chatroom)
         {
+            super(ChannelManager.this.irc, ChannelManager.this.connectionState);
             if (chatroom == null)
             {
                 throw new IllegalArgumentException("chatroom cannot be null");
@@ -901,7 +877,7 @@ public class ChannelManager
             }
 
             final IRCUser user = msg.getSource();
-            if (isMe(user))
+            if (localUser(user))
             {
                 leaveChatRoom();
                 return;
@@ -943,7 +919,7 @@ public class ChannelManager
                 return;
             }
             final String raw = msg.getText();
-            switch (code.intValue())
+            switch (code)
             {
             case IRC_ERR_NOTONCHANNEL:
                 final String channel = raw.substring(0, raw.indexOf(" "));
@@ -993,7 +969,7 @@ public class ChannelManager
                 return;
             }
 
-            if (!ChannelManager.this.connectionState.isConnected())
+            if (!this.connectionState.isConnected())
             {
                 LOGGER.error("Not currently connected to IRC Server. "
                     + "Aborting message handling.");
@@ -1011,11 +987,11 @@ public class ChannelManager
                     ChatRoomMemberPresenceChangeEvent.MEMBER_KICKED,
                     msg.getText());
             }
-            if (isMe(kickedUser))
+            if (localUser(kickedUser))
             {
                 LOGGER.debug(
                     "Local user is kicked. Removing chat room listener.");
-                ChannelManager.this.irc.deleteListener(this);
+                this.irc.deleteListener(this);
                 ChannelManager.this.joined
                     .remove(this.chatroom.getIdentifier());
                 ChannelManager.this.provider.getMUC()
@@ -1034,37 +1010,18 @@ public class ChannelManager
         public void onUserQuit(final QuitMessage msg)
         {
             String user = msg.getSource().getNick();
-            if (user == null)
+            super.onUserQuit(msg);
+            if (!localUser(user))
             {
-                return;
+                final ChatRoomMember member =
+                    this.chatroom.getChatRoomMember(user);
+                if (member != null)
+                {
+                    this.chatroom.fireMemberPresenceEvent(member, null,
+                        ChatRoomMemberPresenceChangeEvent.MEMBER_QUIT,
+                        msg.getQuitMsg());
+                }
             }
-            if (isMe(user))
-            {
-                LOGGER.debug("Local user QUIT message received: removing chat "
-                    + "room listener.");
-                ChannelManager.this.irc.deleteListener(this);
-                return;
-            }
-            final ChatRoomMember member = this.chatroom.getChatRoomMember(user);
-            if (member != null)
-            {
-                this.chatroom.fireMemberPresenceEvent(member, null,
-                    ChatRoomMemberPresenceChangeEvent.MEMBER_QUIT,
-                    msg.getQuitMsg());
-            }
-        }
-
-        /**
-         * In case a fatal error occurs, remove the ChatRoomListener.
-         */
-        @Override
-        public void onError(final ErrorMessage aMsg)
-        {
-            // Errors signal fatal situation, so unregister and assume
-            // connection lost.
-            LOGGER.debug("Local user received ERROR message: removing "
-                + "chat room listener.");
-            ChannelManager.this.irc.deleteListener(this);
         }
 
         /**
@@ -1176,7 +1133,7 @@ public class ChannelManager
          */
         private void leaveChatRoom()
         {
-            ChannelManager.this.irc.deleteListener(this);
+            this.irc.deleteListener(this);
             ChannelManager.this.joined.remove(this.chatroom.getIdentifier());
             LOGGER.debug("Leaving chat room " + this.chatroom.getIdentifier()
                 + ". Chat room listener removed.");
@@ -1286,7 +1243,7 @@ public class ChannelManager
                 final ChatRoomLocalUserRoleChangeEvent event =
                     new ChatRoomLocalUserRoleChangeEvent(this.chatroom,
                         originalRole, newRole, false);
-                if (isMe(targetMember.getContactAddress()))
+                if (localUser(targetMember.getContactAddress()))
                 {
                     this.chatroom.fireLocalUserRoleChangedEvent(event);
                 }
@@ -1425,26 +1382,9 @@ public class ChannelManager
          * @param user the source user
          * @return returns true if this use, or false otherwise
          */
-        private boolean isMe(final IRCUser user)
+        private boolean localUser(final IRCUser user)
         {
-            return isMe(user.getNick());
-        }
-
-        /**
-         * Test whether the user nick is this user.
-         *
-         * @param name nick of the user
-         * @return returns true if so, false otherwise
-         */
-        private boolean isMe(final String name)
-        {
-            final String userNick =
-                ChannelManager.this.connectionState.getNickname();
-            if (userNick == null)
-            {
-                return false;
-            }
-            return userNick.equals(name);
+            return localUser(user.getNick());
         }
     }
 }

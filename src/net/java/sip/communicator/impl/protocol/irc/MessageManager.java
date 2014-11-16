@@ -14,7 +14,6 @@ import net.java.sip.communicator.util.*;
 import com.ircclouds.irc.api.*;
 import com.ircclouds.irc.api.domain.*;
 import com.ircclouds.irc.api.domain.messages.*;
-import com.ircclouds.irc.api.listeners.*;
 import com.ircclouds.irc.api.state.*;
 
 /**
@@ -287,7 +286,7 @@ public class MessageManager
      * @author Danny van Heumen
      */
     private final class MessageManagerListener
-        extends VariousMessageListenerAdapter
+        extends AbstractIrcMessageListener
     {
         /**
          * IRC reply containing away message.
@@ -301,33 +300,11 @@ public class MessageManager
             IRCServerNumerics.NO_SUCH_NICK_CHANNEL;
 
         /**
-         * On User Quit event.
-         *
-         * @param msg user quit message
+         * Constructor.
          */
-        @Override
-        public void onUserQuit(final QuitMessage msg)
+        public MessageManagerListener()
         {
-            final String user = msg.getSource().getNick();
-            if (MessageManager.this.connectionState.getNickname().equals(user))
-            {
-                LOGGER.debug("Local user QUIT message received: removing "
-                    + "message manager listener.");
-                MessageManager.this.irc.deleteListener(this);
-            }
-        }
-
-        /**
-         * In case a fatal error occurs, remove the MessageManager.
-         */
-        @Override
-        public void onError(final ErrorMessage aMsg)
-        {
-            // Errors signal fatal situation, so unregister and assume
-            // connection lost.
-            LOGGER.debug("Local user received ERROR message: removing "
-                + "message manager listener.");
-            MessageManager.this.irc.deleteListener(this);
+            super(MessageManager.this.irc, MessageManager.this.connectionState);
         }
 
         /**

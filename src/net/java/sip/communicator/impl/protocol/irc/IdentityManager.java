@@ -12,7 +12,6 @@ import net.java.sip.communicator.util.*;
 
 import com.ircclouds.irc.api.*;
 import com.ircclouds.irc.api.domain.messages.*;
-import com.ircclouds.irc.api.listeners.*;
 import com.ircclouds.irc.api.state.*;
 
 /**
@@ -46,7 +45,8 @@ public class IdentityManager
     /**
      * Initialize RESERVED symbols set.
      */
-    static {
+    static
+    {
         final HashSet<Character> reserved = new HashSet<Character>();
         reserved.add('#');
         reserved.add('&');
@@ -236,12 +236,21 @@ public class IdentityManager
      * @author Danny van Heumen
      */
     private final class WhoisListener
-        extends VariousMessageListenerAdapter
+        extends AbstractIrcMessageListener
     {
         /**
          * IRC reply for WHOIS query.
          */
         private static final int RPL_WHOISUSER = 311;
+
+        /**
+         * Constructor.
+         */
+        public WhoisListener()
+        {
+            super(IdentityManager.this.irc,
+                IdentityManager.this.connectionState);
+        }
 
         /**
          * On receiving a server numeric message.
@@ -257,8 +266,7 @@ public class IdentityManager
                 final String whoismsg = msg.getText();
                 final int endNickIndex = whoismsg.indexOf(' ');
                 final String nick = whoismsg.substring(0, endNickIndex);
-                if (!IdentityManager.this.connectionState.getNickname().equals(
-                    nick))
+                if (!localUser(nick))
                 {
                     // We can only use WHOIS info about ourselves to discover
                     // our identity on the IRC server. So skip other WHOIS
@@ -269,41 +277,11 @@ public class IdentityManager
                 // Once the WHOIS reply is processed and the identity is
                 // updated, we can delete the listener as the purpose is
                 // fulfilled.
-                IdentityManager.this.irc.deleteListener(this);
+                this.irc.deleteListener(this);
                 break;
             default:
                 break;
             }
-        }
-
-        /**
-         * OnUserQuit event.
-         *
-         * @param msg QuitMessage event.
-         */
-        @Override
-        public void onUserQuit(final QuitMessage msg)
-        {
-            final String user = msg.getSource().getNick();
-            if (IdentityManager.this.connectionState.getNickname().equals(user))
-            {
-                LOGGER.debug("Local user QUIT message received: removing "
-                    + "whois listener.");
-                IdentityManager.this.irc.deleteListener(this);
-            }
-        }
-
-        /**
-         * In case a fatal error occurs, remove the WhoisListener.
-         */
-        @Override
-        public void onError(final ErrorMessage aMsg)
-        {
-            // Errors signal fatal situation, so unregister and assume
-            // connection lost.
-            LOGGER.debug("Local user received ERROR message: removing whois "
-                + "listener.");
-            IdentityManager.this.irc.deleteListener(this);
         }
 
         /**
@@ -322,10 +300,8 @@ public class IdentityManager
                 whoismsg.substring(endUserIndex + 1, endHostIndex);
             IdentityManager.this.identity.setHost(host);
             IdentityManager.this.identity.setUser(user);
-            LOGGER
-                .debug(String.format("Current identity: %s!%s@%s",
-                    IdentityManager.this.connectionState.getNickname(), user,
-                    host));
+            LOGGER.debug(String.format("Current identity: %s!%s@%s",
+                this.connectionState.getNickname(), user, host));
         }
     }
 
@@ -335,8 +311,16 @@ public class IdentityManager
      * @author Danny van Heumen
      */
     private final class IdentityListener
-        extends VariousMessageListenerAdapter
+        extends AbstractIrcMessageListener
     {
+        /**
+         * Constructor.
+         */
+        public IdentityListener()
+        {
+            super(IdentityManager.this.irc,
+                IdentityManager.this.connectionState);
+        }
 
         /**
          * Nick change event.
@@ -360,37 +344,6 @@ public class IdentityManager
             }
             IdentityManager.this.provider.getPersistentPresence().updateNick(
                 oldNick, newNick);
-        }
-
-        /**
-         * OnUserQuit event.
-         *
-         * @param msg QuitMessage event.
-         */
-        @Override
-        public void onUserQuit(final QuitMessage msg)
-        {
-            final String user = msg.getSource().getNick();
-            if (IdentityManager.this.connectionState.getNickname().equals(user))
-            {
-                LOGGER.debug("Local user QUIT message received: removing "
-                    + "whois listener.");
-                IdentityManager.this.irc.deleteListener(this);
-            }
-        }
-
-        /**
-         * In case a fatal error occurs, we assume the connection has died, so
-         * remove the listener.
-         */
-        @Override
-        public void onError(final ErrorMessage aMsg)
-        {
-            // Errors signal fatal situation, so unregister and assume
-            // connection lost.
-            LOGGER.debug("Local user received ERROR message: removing whois "
-                + "listener.");
-            IdentityManager.this.irc.deleteListener(this);
         }
     }
 

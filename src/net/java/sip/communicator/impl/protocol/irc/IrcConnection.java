@@ -27,10 +27,6 @@ import com.ircclouds.irc.api.state.*;
  * TODO Find out how irc-api responds to losing a connection (no response). Does
  * it use ping/pong messages to determine connectivity?
  *
- * TODO Create abstract class that extends from VariousMessageListener such that
- * we can have a generic implementation for QUIT/ERROR signal handling related
- * to local user. (And implement for all existing listeners.)
- *
  * TODO Where possible, fire threads for handling events, instead of executing
  * everything (including calling listeners) inside the event handling loop of
  * irc-api instance.
@@ -54,7 +50,8 @@ public class IrcConnection
     /**
      * Initialize set of special characters.
      */
-    static {
+    static
+    {
         HashSet<Character> specials = new HashSet<Character>();
         specials.add('\0');
         specials.add('\n');

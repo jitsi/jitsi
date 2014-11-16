@@ -14,7 +14,6 @@ import net.java.sip.communicator.util.*;
 import com.ircclouds.irc.api.*;
 import com.ircclouds.irc.api.domain.*;
 import com.ircclouds.irc.api.domain.messages.*;
-import com.ircclouds.irc.api.listeners.*;
 import com.ircclouds.irc.api.state.*;
 
 /**
@@ -149,10 +148,6 @@ public class PresenceManager
 
     /**
      * Set up a timer for watching the presence of nicks in the watch list.
-     *
-     * @param watchList the watch list
-     * @param irc the IRC instance
-     * @param connectionState the IRC connection state
      */
     private void setUpPresenceWatcher()
     {
@@ -294,7 +289,7 @@ public class PresenceManager
      * @author Danny van Heumen
      */
     private final class PresenceListener
-        extends VariousMessageListenerAdapter
+        extends AbstractIrcMessageListener
     {
         /**
          * Reply for acknowledging transition to available (not away any
@@ -306,6 +301,15 @@ public class PresenceManager
          * Reply for acknowledging transition to away.
          */
         private static final int IRC_RPL_NOWAWAY = 306;
+
+        /**
+         * Constructor.
+         */
+        public PresenceListener()
+        {
+            super(PresenceManager.this.irc,
+                PresenceManager.this.connectionState);
+        }
 
         /**
          * Handle events for presence-related server replies.
@@ -345,37 +349,6 @@ public class PresenceManager
             default:
                 break;
             }
-        }
-
-        /**
-         * In case the user quits, remove the presence listener.
-         */
-        @Override
-        public void onUserQuit(final QuitMessage msg)
-        {
-            final String user = msg.getSource().getNick();
-            if (user == null
-                || !user.equals(PresenceManager.this.connectionState
-                    .getNickname()))
-            {
-                return;
-            }
-            LOGGER.debug("Local user's QUIT message received: removing "
-                + "presence listener.");
-            PresenceManager.this.irc.deleteListener(this);
-        }
-
-        /**
-         * In case a fatal error occurs, remove the presence listener.
-         */
-        @Override
-        public void onError(final ErrorMessage aMsg)
-        {
-            // Errors signal fatal situation, so unregister and assume
-            // connection lost.
-            LOGGER.debug("Local user received ERROR message: removing presence "
-                + "listener.");
-            PresenceManager.this.irc.deleteListener(this);
         }
     }
 
@@ -545,7 +518,7 @@ public class PresenceManager
      * @author Danny van Heumen
      */
     private final class PresenceReplyListener
-        extends VariousMessageListenerAdapter
+        extends AbstractIrcMessageListener
     {
         /**
          * Reply for ISON query.
@@ -576,6 +549,8 @@ public class PresenceManager
         public PresenceReplyListener(final Timer timer,
             final List<List<String>> queryList)
         {
+            super(PresenceManager.this.irc,
+                PresenceManager.this.connectionState);
             if (timer == null)
             {
                 throw new IllegalArgumentException("timer cannot be null");
@@ -752,19 +727,15 @@ public class PresenceManager
         @Override
         public void onUserQuit(final QuitMessage msg)
         {
+            super.onUserQuit(msg);
             final String user = msg.getSource().getNick();
             if (user == null)
             {
                 return;
             }
-            if (user.equals(PresenceManager.this.connectionState.getNickname()))
+            if (localUser(user))
             {
-                // User is local user, stop all operations, cancel presence
-                // watcher timer and unregister listener.
-                LOGGER.debug("Local user's QUIT message received: removing "
-                    + "PresenceReplyListener.");
-                PresenceManager.this.irc.deleteListener(this);
-                // Additionally, stop presence watcher task.
+                // Stop presence watcher task.
                 this.timer.cancel();
                 updateAll(IrcStatusEnum.OFFLINE);
             }
@@ -782,12 +753,8 @@ public class PresenceManager
         @Override
         public void onError(final ErrorMessage msg)
         {
-            // Errors signal fatal situation, so unregister and assume
-            // connection lost.
-            LOGGER.debug("Local user received ERROR message: removing "
-                + "PresenceReplyListener");
-            PresenceManager.this.irc.deleteListener(this);
-            // Additionally, stop presence watcher task.
+            super.onError(msg);
+            // Stop presence watcher task.
             this.timer.cancel();
             updateAll(IrcStatusEnum.OFFLINE);
         }
@@ -800,8 +767,7 @@ public class PresenceManager
          */
         private void update(final String nick, final IrcStatusEnum status)
         {
-            // User is some other user, so check if we are watching that
-            // nick.
+            // User is some other user, so check if we are watching that nick.
             if (!PresenceManager.this.nickWatchList.contains(nick))
             {
                 return;
