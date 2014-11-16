@@ -460,13 +460,13 @@ public class OperationSetPersistentPresenceIrcImpl
      * @return contact instance if found or null if nothing found
      */
     @Override
-    public Contact findContactByID(final String contactID)
+    public ContactIrcImpl findContactByID(final String contactID)
     {
         if (contactID == null)
         {
             return null;
         }
-        Contact contact = this.rootGroup.getContact(contactID);
+        ContactIrcImpl contact = this.rootGroup.getContact(contactID);
         if (contact != null)
         {
             return contact;
@@ -474,7 +474,7 @@ public class OperationSetPersistentPresenceIrcImpl
         Iterator<ContactGroup> groups = this.rootGroup.subgroups();
         while (groups.hasNext())
         {
-            ContactGroup group = groups.next();
+            ContactGroupIrcImpl group = (ContactGroupIrcImpl) groups.next();
             contact = group.getContact(contactID);
             if (contact != null)
             {
@@ -562,5 +562,20 @@ public class OperationSetPersistentPresenceIrcImpl
         final PresenceStatus previous = contactIrc.getPresenceStatus();
         contactIrc.setPresenceStatus(newStatus);
         fireContactPresenceStatusChangeEvent(contact, group, previous);
+    }
+
+    /**
+     * Update the nick/id for an IRC contact.
+     *
+     * @param oldNick the old nick
+     * @param newNick the new nick
+     */
+    void updateNick(final String oldNick, final String newNick)
+    {
+        ContactIrcImpl contact = findContactByID(oldNick);
+        contact.setAddress(newNick);
+        fireContactPropertyChangeEvent(
+            ContactPropertyChangeEvent.PROPERTY_DISPLAY_NAME, contact, oldNick,
+            newNick);
     }
 }

@@ -592,6 +592,11 @@ public class PresenceManager
          * Update nick watch list upon receiving a nick change message for a
          * nick that is on the watch list.
          *
+         * NOTE: This nick change event could be handled earlier than the
+         * handler that fires the contact rename event. This will result in a
+         * missed presence update. However, since the nick change was just
+         * announced, it is reasonable to assume that the user is still online.
+         *
          * @param msg the nick message
          */
         @Override

@@ -19,7 +19,7 @@ public class ContactIrcImpl
     /**
      * Parent provider.
      */
-    private ProtocolProviderServiceIrcImpl provider;
+    private final ProtocolProviderServiceIrcImpl provider;
 
     /**
      * Contact id.
@@ -73,6 +73,23 @@ public class ContactIrcImpl
     public String getAddress()
     {
         return this.id;
+    }
+
+    /**
+     * Set a new contact id (a.k.a. address)
+     *
+     * IRC allows nick change and the nick is also the identity of the user on
+     * the IRC networks, so we allow nick changes.
+     *
+     * @param address the new address
+     */
+    public void setAddress(final String address)
+    {
+        if (address == null)
+        {
+            throw new IllegalArgumentException("address cannot be null");
+        }
+        this.id = address;
     }
 
     /**

@@ -146,7 +146,9 @@ public class IrcConnection
             connectSynchronized(this.context.provider, params, this.irc);
 
         // instantiate identity manager for the connection
-        this.identity = new IdentityManager(this.irc, this.connectionState);
+        this.identity =
+            new IdentityManager(this.irc, this.connectionState,
+                this.context.provider);
 
         // instantiate message manager for the connection
         this.message =

@@ -164,7 +164,7 @@ public class ContactGroupIrcImpl
      * @return returns contact or null if contact cannot be found
      */
     @Override
-    public Contact getContact(final String id)
+    public ContactIrcImpl getContact(final String id)
     {
         if (id == null)
         {

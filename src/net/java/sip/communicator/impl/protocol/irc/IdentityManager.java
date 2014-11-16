@@ -66,6 +66,11 @@ public class IdentityManager
     private final IIRCState connectionState;
 
     /**
+     * The protocol provider instance.
+     */
+    private final ProtocolProviderServiceIrcImpl provider;
+
+    /**
      * The identity container.
      */
     private final Identity identity = new Identity();
@@ -82,8 +87,10 @@ public class IdentityManager
      *
      * @param irc thread-safe IRCApi instance
      * @param connectionState the connection state
+     * @param provider the protocol provider instance
      */
-    public IdentityManager(final IRCApi irc, final IIRCState connectionState)
+    public IdentityManager(final IRCApi irc, final IIRCState connectionState,
+        final ProtocolProviderServiceIrcImpl provider)
     {
         if (irc == null)
         {
@@ -96,6 +103,12 @@ public class IdentityManager
                 "connectionState instance cannot be null");
         }
         this.connectionState = connectionState;
+        if (provider == null)
+        {
+            throw new IllegalArgumentException("provider cannot be null");
+        }
+        this.provider = provider;
+        this.irc.addListener(new IdentityListener());
         // query user's WHOIS identity as perceived by the IRC server
         queryIdentity(this.irc, this.connectionState, new WhoisListener());
         isupportNickLen = parseISupportNickLen(this.connectionState);
@@ -313,6 +326,71 @@ public class IdentityManager
                 .debug(String.format("Current identity: %s!%s@%s",
                     IdentityManager.this.connectionState.getNickname(), user,
                     host));
+        }
+    }
+
+    /**
+     * General listener for identity-related events.
+     *
+     * @author Danny van Heumen
+     */
+    private final class IdentityListener
+        extends VariousMessageListenerAdapter
+    {
+
+        /**
+         * Nick change event.
+         *
+         * @param msg nick change event message
+         */
+        @Override
+        public void onNickChange(final NickMessage msg)
+        {
+            if (msg == null || msg.getSource() == null)
+            {
+                return;
+            }
+            final String oldNick = msg.getSource().getNick();
+            final String newNick = msg.getNewNick();
+            if (oldNick == null || newNick == null)
+            {
+                LOGGER.error("Incomplete nick change message. Old nick: '"
+                    + oldNick + "', new nick: '" + newNick + "'.");
+                return;
+            }
+            IdentityManager.this.provider.getPersistentPresence().updateNick(
+                oldNick, newNick);
+        }
+
+        /**
+         * OnUserQuit event.
+         *
+         * @param msg QuitMessage event.
+         */
+        @Override
+        public void onUserQuit(final QuitMessage msg)
+        {
+            final String user = msg.getSource().getNick();
+            if (IdentityManager.this.connectionState.getNickname().equals(user))
+            {
+                LOGGER.debug("Local user QUIT message received: removing "
+                    + "whois listener.");
+                IdentityManager.this.irc.deleteListener(this);
+            }
+        }
+
+        /**
+         * In case a fatal error occurs, we assume the connection has died, so
+         * remove the listener.
+         */
+        @Override
+        public void onError(final ErrorMessage aMsg)
+        {
+            // Errors signal fatal situation, so unregister and assume
+            // connection lost.
+            LOGGER.debug("Local user received ERROR message: removing whois "
+                + "listener.");
+            IdentityManager.this.irc.deleteListener(this);
         }
     }
 
