@@ -34,6 +34,11 @@ public class MessageManager
     private static final Logger LOGGER = Logger.getLogger(MessageManager.class);
 
     /**
+     * Index for the start of the command in a command message.
+     */
+    private static final int START_OF_COMMAND_INDEX = 1;
+
+    /**
      * Maximum message size for IRC messages given the spec specifies a buffer
      * of 512 bytes. The command ending (CRLF) takes up 2 bytes.
      */
@@ -178,11 +183,11 @@ public class MessageManager
         final String command;
         if (end == -1)
         {
-            command = msg;
+            command = msg.substring(START_OF_COMMAND_INDEX);
         }
         else
         {
-            command = message.substring(1, end);
+            command = message.substring(START_OF_COMMAND_INDEX, end);
         }
         final Command cmd = this.commandFactory.createCommand(command);
         cmd.execute(source, msg);
