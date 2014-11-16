@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import com.ircclouds.irc.api.*;
@@ -199,7 +200,8 @@ public class IrcConnection
                 }
             });
 
-            provider.setCurrentRegistrationState(RegistrationState.REGISTERING);
+            provider.setCurrentRegistrationState(RegistrationState.REGISTERING,
+                RegistrationStateChangeEvent.REASON_USER_REQUEST);
 
             while (!result.isDone())
             {

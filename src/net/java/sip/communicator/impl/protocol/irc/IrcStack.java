@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.irc;
 
 import java.io.*;
 import java.security.*;
+import java.security.cert.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
@@ -15,6 +16,7 @@ import javax.net.ssl.*;
 
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import com.ircclouds.irc.api.*;
@@ -91,11 +93,13 @@ public class IrcStack implements IrcConnectionListener
      * @param secureConnection true to set up secure connection, or false if
      *            not.
      * @param autoNickChange do automatic nick changes if nick is in use
+     * @throws OperationFailedException in case of user canceling because of
+     *             certificate errors
      * @throws Exception throws exceptions
      */
     public void connect(final String host, final int port,
         final String password, final boolean secureConnection,
-        final boolean autoNickChange) throws Exception
+        final boolean autoNickChange) throws OperationFailedException, Exception
     {
         final IRCServer server;
         if (secureConnection)
@@ -136,24 +140,64 @@ public class IrcStack implements IrcConnectionListener
                 this.session.set(new IrcConnection(this.provider, this.params,
                     new SynchronizedIRCApi(irc), this));
 
-                this.provider
-                    .setCurrentRegistrationState(RegistrationState.REGISTERED);
+                this.provider.setCurrentRegistrationState(
+                    RegistrationState.REGISTERED,
+                    RegistrationStateChangeEvent.REASON_USER_REQUEST);
             }
         }
         catch (IOException e)
         {
-            // SSL exceptions will be caught here too.
-            this.provider
-                .setCurrentRegistrationState(RegistrationState
-                    .CONNECTION_FAILED);
-            throw e;
+            if (isCausedByCertificateException(e))
+            {
+                LOGGER.info("Connection aborted due to server certificate.");
+                // If it is caused by a certificate exception, it is because the
+                // user doesn't trust the certificate. Set to unregistered
+                // instead of indicating a failure to connect.
+                this.provider.setCurrentRegistrationState(
+                    RegistrationState.UNREGISTERED,
+                    RegistrationStateChangeEvent.REASON_USER_REQUEST);
+                throw new OperationFailedException(
+                    "Failed certificate verification.",
+                    OperationFailedException.OPERATION_CANCELED);
+            }
+            else
+            {
+                // SSL exceptions will be caught here too.
+                this.provider.setCurrentRegistrationState(
+                    RegistrationState.CONNECTION_FAILED,
+                    RegistrationStateChangeEvent.REASON_NOT_SPECIFIED);
+                throw e;
+            }
         }
         catch (InterruptedException e)
         {
-            this.provider
-                .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
+            this.provider.setCurrentRegistrationState(
+                RegistrationState.UNREGISTERED,
+                RegistrationStateChangeEvent.REASON_USER_REQUEST);
             throw e;
         }
+    }
+
+    /**
+     * Check to see if a certificate exception is the root cause for the
+     * exception.
+     *
+     * @param e the exception
+     * @return returns <tt>true</tt> if certificate exception is root cause, or
+     *         <tt>false</tt> otherwise.
+     */
+    private boolean isCausedByCertificateException(final Exception e)
+    {
+        Throwable cause = e;
+        while (cause != null)
+        {
+            if (cause instanceof CertificateException)
+            {
+                return true;
+            }
+            cause = cause.getCause();
+        }
+        return false;
     }
 
     /**
@@ -211,8 +255,9 @@ public class IrcStack implements IrcConnectionListener
                 connection.disconnect();
             }
         }
-        this.provider
-            .setCurrentRegistrationState(RegistrationState.UNREGISTERED);
+        this.provider.setCurrentRegistrationState(
+            RegistrationState.UNREGISTERED,
+            RegistrationStateChangeEvent.REASON_USER_REQUEST);
     }
 
     /**
@@ -396,7 +441,8 @@ public class IrcStack implements IrcConnectionListener
             return;
         }
         LOGGER.warn("IRC connection interrupted unexpectedly.");
-        this.provider
-            .setCurrentRegistrationState(RegistrationState.CONNECTION_FAILED);
+        this.provider.setCurrentRegistrationState(
+            RegistrationState.CONNECTION_FAILED,
+            RegistrationStateChangeEvent.REASON_NOT_SPECIFIED);
     }
 }

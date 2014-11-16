@@ -300,9 +300,15 @@ public class ProtocolProviderServiceIrcImpl
             this.ircstack.connect(serverAddress, serverPort, serverPassword,
                 secureConnection, autoNickChange);
         }
+        catch (OperationFailedException e)
+        {
+            // Just rethrow operation failed exception. No need to wrap.
+            throw e;
+        }
         catch (Exception e)
         {
-            throw new OperationFailedException(e.getMessage(), 0, e);
+            throw new OperationFailedException(e.getMessage(),
+                OperationFailedException.GENERAL_ERROR, e);
         }
     }
 
@@ -414,18 +420,17 @@ public class ProtocolProviderServiceIrcImpl
      * Sets the current registration state of this protocol provider.
      *
      * @param regState the new registration state to set
+     * @param reason reason for the state change
      */
     protected void setCurrentRegistrationState(
-        final RegistrationState regState)
+        final RegistrationState regState, final int reason)
     {
         final RegistrationState oldState = this.currentRegistrationState;
-
         this.currentRegistrationState = regState;
-
         fireRegistrationStateChanged(
             oldState,
             this.currentRegistrationState,
-            RegistrationStateChangeEvent.REASON_USER_REQUEST,
+            reason,
             null);
     }
 }
