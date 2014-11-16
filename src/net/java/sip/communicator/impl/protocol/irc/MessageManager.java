@@ -190,7 +190,18 @@ public class MessageManager
             command = message.substring(START_OF_COMMAND_INDEX, end);
         }
         final Command cmd = this.commandFactory.createCommand(command);
-        cmd.execute(source, msg);
+        try
+        {
+            // FIXME catch IllegalArgumentException and print help information
+            // for command
+            cmd.execute(source, msg);
+        }
+        catch (RuntimeException e)
+        {
+            LOGGER.error(
+                "Failed to execute command '" + command + "': "
+                    + e.getMessage(), e);
+        }
     }
 
     /**

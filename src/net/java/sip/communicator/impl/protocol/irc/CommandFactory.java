@@ -151,6 +151,8 @@ public class CommandFactory
         final Command cmd;
         try
         {
+            // FIXME change to construct with provider and connection instance,
+            // remove init() method from interface
             cmd = type.newInstance();
             cmd.init(this.provider, this.connection);
             return cmd;
