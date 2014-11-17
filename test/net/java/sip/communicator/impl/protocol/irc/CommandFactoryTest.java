@@ -23,19 +23,7 @@ public class CommandFactoryTest
     {
         try
         {
-            CommandFactory.registerCommand(null, new Command()
-            {
-                @Override
-                public void init(ProtocolProviderServiceIrcImpl provider,
-                    IrcConnection connection)
-                {
-                }
-
-                @Override
-                public void execute(String source, String line)
-                {
-                }
-            }.getClass());
+            CommandFactory.registerCommand(null, Test.class);
             Assert.fail();
         }
         catch (IllegalArgumentException e)
@@ -83,12 +71,6 @@ public class CommandFactoryTest
         Command anotherType = new Command() {
 
             @Override
-            public void init(ProtocolProviderServiceIrcImpl provider,
-                IrcConnection connection)
-            {
-            }
-
-            @Override
             public void execute(String source, String line)
             {
             }};
@@ -124,9 +106,7 @@ public class CommandFactoryTest
 
     public static class Test implements Command
     {
-
-        @Override
-        public void init(ProtocolProviderServiceIrcImpl provider,
+        public Test(ProtocolProviderServiceIrcImpl provider,
             IrcConnection connection)
         {
         }
@@ -177,7 +157,7 @@ public class CommandFactoryTest
         new CommandFactory(provider, connection);
     }
 
-    public void testNonExistingCommand()
+    public void testNonExistingCommand() throws BadCommandException
     {
         ProtocolProviderServiceIrcImpl provider = EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         IrcConnection connection = EasyMock.createMock(IrcConnection.class);
@@ -194,7 +174,7 @@ public class CommandFactoryTest
         }
     }
 
-    public void testCreateNullCommandName() throws UnsupportedCommandException
+    public void testCreateNullCommandName() throws UnsupportedCommandException, BadCommandException
     {
         ProtocolProviderServiceIrcImpl provider = EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         IrcConnection connection = EasyMock.createMock(IrcConnection.class);
@@ -213,7 +193,7 @@ public class CommandFactoryTest
         CommandFactory.unregisterCommand(Test.class, null);
     }
 
-    public void testCreateEmptyCommandName() throws UnsupportedCommandException
+    public void testCreateEmptyCommandName() throws UnsupportedCommandException, BadCommandException
     {
         ProtocolProviderServiceIrcImpl provider = EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         IrcConnection connection = EasyMock.createMock(IrcConnection.class);
@@ -235,7 +215,7 @@ public class CommandFactoryTest
         }
     }
 
-    public void testExistingCommand() throws UnsupportedCommandException
+    public void testExistingCommand() throws UnsupportedCommandException, BadCommandException
     {
         ProtocolProviderServiceIrcImpl provider = EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         IrcConnection connection = EasyMock.createMock(IrcConnection.class);
@@ -268,7 +248,7 @@ public class CommandFactoryTest
             factory.createCommand("test");
             Assert.fail();
         }
-        catch (IllegalStateException e)
+        catch (BadCommandException e)
         {
         }
         finally
@@ -290,7 +270,7 @@ public class CommandFactoryTest
             factory.createCommand("test");
             Assert.fail();
         }
-        catch (IllegalStateException e)
+        catch (BadCommandException e)
         {
         }
         finally
@@ -299,11 +279,9 @@ public class CommandFactoryTest
         }
     }
 
-    private static class Unreachable implements Command
+    private static final class Unreachable implements Command
     {
-
-        @Override
-        public void init(ProtocolProviderServiceIrcImpl provider,
+        private Unreachable(ProtocolProviderServiceIrcImpl provider,
             IrcConnection connection)
         {
         }
@@ -316,5 +294,9 @@ public class CommandFactoryTest
 
     public abstract static class BadImplementation implements Command
     {
+        public BadImplementation(ProtocolProviderServiceIrcImpl provider,
+            IrcConnection connection)
+        {
+        }
     }
 }

@@ -24,7 +24,7 @@ public class Join implements Command
     /**
      * Instance of the IRC connection.
      */
-    private IrcConnection connection;
+    private final IrcConnection connection;
 
     /**
      * Initialization of the /join command. Join a channel.
@@ -32,9 +32,8 @@ public class Join implements Command
      * @param provider the provider instance
      * @param connection the IRC connection instance
      */
-    @Override
-    public void init(final ProtocolProviderServiceIrcImpl provider,
-            final IrcConnection connection)
+    public Join(final ProtocolProviderServiceIrcImpl provider,
+        final IrcConnection connection)
     {
         if (connection == null)
         {

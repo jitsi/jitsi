@@ -15,7 +15,7 @@ import net.java.sip.communicator.impl.protocol.irc.*;
  * @author Danny van Heumen
  */
 public class Me
-        implements Command
+    implements Command
 {
     /**
      * Me command prefix index.
@@ -25,7 +25,7 @@ public class Me
     /**
      * IRC connection instance.
      */
-    private IrcConnection connection;
+    private final IrcConnection connection;
 
     /**
      * Initialization of the /me command.
@@ -33,8 +33,7 @@ public class Me
      * @param provider the provider instance
      * @param connection the connection instance
      */
-    @Override
-    public void init(final ProtocolProviderServiceIrcImpl provider,
+    public Me(final ProtocolProviderServiceIrcImpl provider,
             final IrcConnection connection)
     {
         if (connection == null)

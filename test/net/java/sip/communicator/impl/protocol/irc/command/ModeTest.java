@@ -17,18 +17,12 @@ public class ModeTest
     extends TestCase
 {
 
-    public void testConstruction()
-    {
-        new Mode();
-    }
-
     public void testGoodInit()
     {
         IrcConnection connection = EasyMock.createMock(IrcConnection.class);
         EasyMock.replay(connection);
 
-        Mode mode = new Mode();
-        mode.init(null, connection);
+        Mode mode = new Mode(null, connection);
     }
 
     public void testBadInit()
@@ -37,10 +31,9 @@ public class ModeTest
             EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         EasyMock.replay(provider);
 
-        Mode mode = new Mode();
         try
         {
-            mode.init(provider, null);
+            Mode mode = new Mode(provider, null);
             Assert.fail();
         }
         catch (IllegalArgumentException e)
@@ -53,8 +46,7 @@ public class ModeTest
         IrcConnection connection = EasyMock.createMock(IrcConnection.class);
         EasyMock.replay(connection);
 
-        Mode mode = new Mode();
-        mode.init(null, connection);
+        Mode mode = new Mode(null, connection);
         mode.execute("#test", "/mode");
     }
 
@@ -63,8 +55,7 @@ public class ModeTest
         IrcConnection connection = EasyMock.createMock(IrcConnection.class);
         EasyMock.replay(connection);
 
-        Mode mode = new Mode();
-        mode.init(null, connection);
+        Mode mode = new Mode(null, connection);
         mode.execute("#test", "/mode ");
     }
 
@@ -73,8 +64,7 @@ public class ModeTest
         IrcConnection connection = EasyMock.createMock(IrcConnection.class);
         EasyMock.replay(connection);
 
-        Mode mode = new Mode();
-        mode.init(null, connection);
+        Mode mode = new Mode(null, connection);
         try
         {
             mode.execute("#test", "/mode   ");
@@ -93,8 +83,7 @@ public class ModeTest
         EasyMock.expectLastCall();
         EasyMock.replay(connection, client);
 
-        Mode mode = new Mode();
-        mode.init(null, connection);
+        Mode mode = new Mode(null, connection);
         mode.execute("#test", "/mode +o ThaDud3");
     }
 }

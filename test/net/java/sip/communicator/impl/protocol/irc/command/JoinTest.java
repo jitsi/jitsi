@@ -17,18 +17,12 @@ public class JoinTest
     extends TestCase
 {
 
-    public void testConstruction()
-    {
-        new Join();
-    }
-
     public void testGoodInit()
     {
         IrcConnection connection = EasyMock.createMock(IrcConnection.class);
         EasyMock.replay(connection);
 
-        Join join = new Join();
-        join.init(null, connection);
+        new Join(null, connection);
     }
 
     public void testBadInit()
@@ -36,10 +30,9 @@ public class JoinTest
         ProtocolProviderServiceIrcImpl provider = EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         EasyMock.replay(provider);
 
-        Join join = new Join();
         try
         {
-            join.init(provider, null);
+            new Join(provider, null);
             Assert.fail();
         }
         catch (IllegalArgumentException e)
@@ -52,8 +45,7 @@ public class JoinTest
         IrcConnection connection = EasyMock.createMock(IrcConnection.class);
         EasyMock.replay(connection);
 
-        Join join = new Join();
-        join.init(null, connection);
+        Join join = new Join(null, connection);
         join.execute("#test", "/join");
     }
 
@@ -62,8 +54,7 @@ public class JoinTest
         IrcConnection connection = EasyMock.createMock(IrcConnection.class);
         EasyMock.replay(connection);
 
-        Join join = new Join();
-        join.init(null, connection);
+        Join join = new Join(null, connection);
         try
         {
             join.execute("#test", "/join ");
@@ -83,8 +74,7 @@ public class JoinTest
         EasyMock.expectLastCall();
         EasyMock.replay(connection, client);
 
-        Join join = new Join();
-        join.init(null, connection);
+        Join join = new Join(null, connection);
         join.execute("#test", "/join #test");
     }
 
@@ -97,8 +87,7 @@ public class JoinTest
         EasyMock.expectLastCall();
         EasyMock.replay(connection, client);
 
-        Join join = new Join();
-        join.init(null, connection);
+        Join join = new Join(null, connection);
         join.execute("#test", "/join #test top-secret");
     }
 }

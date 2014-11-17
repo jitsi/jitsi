@@ -16,18 +16,12 @@ import com.ircclouds.irc.api.*;
 public class MeTest extends TestCase
 {
 
-    public void testConstruction()
-    {
-        new Me();
-    }
-
     public void testGoodInit()
     {
         IrcConnection connection = EasyMock.createMock(IrcConnection.class);
         EasyMock.replay(connection);
 
-        Me me = new Me();
-        me.init(null, connection);
+        Me me = new Me(null, connection);
     }
 
     public void testBadInit()
@@ -35,10 +29,9 @@ public class MeTest extends TestCase
         ProtocolProviderServiceIrcImpl provider = EasyMock.createMock(ProtocolProviderServiceIrcImpl.class);
         EasyMock.replay(provider);
 
-        Me me = new Me();
         try
         {
-            me.init(provider, null);
+            Me me = new Me(provider, null);
             Assert.fail();
         }
         catch (IllegalArgumentException e)
@@ -52,8 +45,7 @@ public class MeTest extends TestCase
         IrcConnection connection = EasyMock.createMock(IrcConnection.class);
         EasyMock.replay(provider, connection);
 
-        Me me = new Me();
-        me.init(provider, connection);
+        Me me = new Me(provider, connection);
         me.execute("#test", "/me");
     }
 
@@ -63,8 +55,7 @@ public class MeTest extends TestCase
         IrcConnection connection = EasyMock.createMock(IrcConnection.class);
         EasyMock.replay(provider, connection);
 
-        Me me = new Me();
-        me.init(provider, connection);
+        Me me = new Me(provider, connection);
         try
         {
             me.execute("#test", "/me ");
@@ -85,8 +76,7 @@ public class MeTest extends TestCase
         EasyMock.expectLastCall();
         EasyMock.replay(provider, connection, client);
 
-        Me me = new Me();
-        me.init(provider, connection);
+        Me me = new Me(provider, connection);
         me.execute("#test", "/me says hello world!");
     }
 }

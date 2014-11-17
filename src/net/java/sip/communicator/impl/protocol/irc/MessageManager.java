@@ -24,6 +24,8 @@ import com.ircclouds.irc.api.state.*;
  * TODO Implement messaging service for offline messages and such. (MemoServ -
  * message relaying services)
  *
+ * TODO move IRC commands to separate package
+ *
  * @author Danny van Heumen
  */
 public class MessageManager
@@ -141,9 +143,12 @@ public class MessageManager
      * @param chatroom the chat room
      * @param message the command message
      * @throws UnsupportedCommandException for unknown or unsupported commands
+     * @throws BadCommandException in case of incompatible command or bad
+     *             implementation
      */
     public void command(final ChatRoomIrcImpl chatroom, final String message)
-            throws UnsupportedCommandException
+        throws UnsupportedCommandException,
+        BadCommandException
     {
         if (!this.connectionState.isConnected())
         {
@@ -158,9 +163,11 @@ public class MessageManager
      * @param contact the chat room
      * @param message the command message
      * @throws UnsupportedCommandException for unknown or unsupported commands
+     * @throws BadCommandException in case of a bad command implementation
      */
     public void command(final Contact contact, final MessageIrcImpl message)
-            throws UnsupportedCommandException
+        throws UnsupportedCommandException,
+        BadCommandException
     {
         if (!this.connectionState.isConnected())
         {
@@ -174,9 +181,14 @@ public class MessageManager
      *
      * @param source Source contact or chat room from which the message is sent.
      * @param message Command message
+     * @throws UnsupportedCommandException in case a suitable command could not
+     *             be found
+     * @throws BadCommandException in case of an incompatible command or a bad
+     *             implementation
      */
     private void command(final String source, final String message)
-            throws UnsupportedCommandException
+        throws UnsupportedCommandException,
+        BadCommandException
     {
         final String msg = message.toLowerCase();
         final int end = msg.indexOf(' ');

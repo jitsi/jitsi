@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import java.lang.reflect.*;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -14,6 +15,9 @@ import net.java.sip.communicator.util.*;
 
 /**
  * Command factory.
+ *
+ * TODO Consider implementing 1 "management" command for querying the registered
+ * commands at runtime and maybe some other things. Not very urgent, though.
  *
  * @author Danny van Heumen
  */
@@ -134,9 +138,12 @@ public class CommandFactory
      * @param command the command to look up and instantiate
      * @return returns a command instance
      * @throws UnsupportedCommandException in case command cannot be found
+     * @throws BadCommandException In case of a incompatible command or bad
+     *             implementation.
      */
     public Command createCommand(final String command)
-            throws UnsupportedCommandException
+        throws UnsupportedCommandException,
+        BadCommandException
     {
         if (command == null || command.isEmpty())
         {
@@ -148,29 +155,40 @@ public class CommandFactory
         {
             throw new UnsupportedCommandException(command);
         }
-        final Command cmd;
         try
         {
-            // FIXME change to construct with provider and connection instance,
-            // remove init() method from interface
-            cmd = type.newInstance();
-            cmd.init(this.provider, this.connection);
-            return cmd;
+            Constructor<? extends Command> cmdCtor =
+                type.getConstructor(ProtocolProviderServiceIrcImpl.class,
+                    IrcConnection.class);
+            return cmdCtor.newInstance(this.provider, this.connection);
         }
-        catch (InstantiationException ex)
+        catch (NoSuchMethodException e)
         {
-            throw new IllegalStateException(
-                    "A bad command implementation has been registered. It fails"
-                    + " to instantiate.",
-                    ex);
+            throw new BadCommandException(command, type,
+                "There is no compatible constructor for instantiating this "
+                    + "command.", e);
         }
-        catch (IllegalAccessException ex)
+        catch (InstantiationException e)
         {
-            throw new IllegalStateException(
-                    "A bad command implementation has been registered. It does "
-                    + "not allow access to its constructor and therefore cannot"
-                    + " be instantiated.",
-                    ex);
+            throw new BadCommandException(command, type,
+                "Unable to instantiate this command class.", e);
+        }
+        catch (IllegalAccessException e)
+        {
+            throw new BadCommandException(command, type,
+                "Unable to access the constructor of this command class.", e);
+        }
+        catch (InvocationTargetException e)
+        {
+            throw new BadCommandException(command, type,
+                "An exception occurred while executing the constructor.", e);
+        }
+        catch (IllegalArgumentException e)
+        {
+            throw new BadCommandException(command, type,
+                "Invalid arguments were passed to the "
+                    + "constructor. This may be a bug in the CommandFactory "
+                    + "implementation.", e);
         }
     }
 }

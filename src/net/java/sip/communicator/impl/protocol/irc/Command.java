@@ -6,35 +6,39 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import net.java.sip.communicator.impl.protocol.irc.exception.*;
+
 /**
  * Interface for the implementation of individual IRC commands.
  *
  * This interface defines the format for the implementation of commands that can
  * be called for via the messaging input field.
  *
- * A command is instantiated for each encounter. {@link #init} will be upon
- * instantiation to set up the state before actually performing the command.
- * Then {@link #execute} is called in order to execute the command.
+ * A new command object is instantiated for each encounter. Then
+ * {@link #execute} is called to execute the command.
+ *
+ * Instantiation will be done by the CommandFactory. The CommandFactory expects
+ * to find a constructor with the following types as arguments (in order):
+ * <ol>
+ * <li>{@link ProtocolProviderServiceIrcImpl}</li>
+ * <li>{@link IrcConnection}</li>
+ * </ol>
+ *
+ * If no suitable constructor is found, an {@link BadCommandException} will be
+ * thrown.
+ *
+ * For more advanced IRC commands, one can register listeners with the
+ * underlying IRC client. This way you can intercept IRC messages as they are
+ * received. Using this method you can send messages, receive replies and act on
+ * (other) events.
+ *
+ * FIXME Additionally, describe the AbstractIrcMessageListener type once this
+ * implementation is merged with Jitsi main line.
  *
  * @author Danny van Heumen
  */
 public interface Command
 {
-    /**
-     * Initialize this instance of a command. Initialization may include
-     * registering listeners for the current connection such that a command can
-     * act upon the server's response.
-     *
-     * {@link #init} is guaranteed to be called before the command gets
-     * executed and thus can be used to initialize any dependencies or listeners
-     * that are required for the command to be executed.
-     *
-     * @param provider the protocol provider service
-     * @param connection the IRC connection instance
-     */
-    void init(ProtocolProviderServiceIrcImpl provider,
-            IrcConnection connection);
-
     /**
      * Execute the command using the full line.
      *

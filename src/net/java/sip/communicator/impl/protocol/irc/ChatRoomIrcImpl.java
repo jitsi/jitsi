@@ -1012,6 +1012,18 @@ public class ChatRoomIrcImpl
                             .UNSUPPORTED_OPERATION,
                         e.getMessage(), new Date(), message);
                 }
+                catch (BadCommandException e)
+                {
+                    LOGGER.error("An error occurred while constructing "
+                        + "the command. This is most likely due to a bug "
+                        + "in the implementation of the command. Message: "
+                        + message + "'", e);
+                    this.fireMessageDeliveryFailedEvent(
+                        ChatRoomMessageDeliveryFailedEvent.INTERNAL_ERROR,
+                        "Command cannot be executed. This is most likely due "
+                            + "to a bug in the implementation.", new Date(),
+                        message);
+                }
             }
             else
             {

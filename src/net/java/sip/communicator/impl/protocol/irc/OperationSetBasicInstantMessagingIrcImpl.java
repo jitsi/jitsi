@@ -134,6 +134,14 @@ public class OperationSetBasicInstantMessagingIrcImpl
                                 MessageDeliveryFailedEvent
                                     .UNSUPPORTED_OPERATION);
                         }
+                        catch (BadCommandException e)
+                        {
+                            LOGGER.error("Error during command execution. "
+                                + "This is most likely due to a bug in the "
+                                + "implementation of the command.", e);
+                            fireMessageDeliveryFailed(message, to,
+                                MessageDeliveryFailedEvent.INTERNAL_ERROR);
+                        }
                     }
                     else
                     {
