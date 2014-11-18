@@ -22,7 +22,8 @@ import org.jvnet.lafwidget.animation.*;
  *
  * @author Yana Stamcheva
  */
-public class SIPCommTextButton extends JButton
+public class SIPCommTextButton
+    extends JButton
 {
     /**
      * Serial version UID.
@@ -184,16 +185,17 @@ public class SIPCommTextButton extends JButton
     * @see UIDefaults#getUI
     */
    @Override
-public String getUIClassID()
-   {
-       return UIClassID;
-   }
+    public String getUIClassID()
+    {
+        return UIClassID;
+    }
 
     /**
      * The <tt>ButtonRepaintCallback</tt> is charged to repaint this button
      * when the fade animation is performed.
      */
-    private class ButtonRepaintCallback implements FadeTrackerCallback
+    private class ButtonRepaintCallback
+        implements FadeTrackerCallback
     {
         public void fadeEnded(FadeKind arg0)
         {
