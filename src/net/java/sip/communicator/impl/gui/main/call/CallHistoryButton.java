@@ -6,17 +6,16 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
-import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.customcontrols.*;
 import net.java.sip.communicator.impl.gui.main.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.*;
 import net.java.sip.communicator.impl.gui.utils.*;
-import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
@@ -27,36 +26,11 @@ import net.java.sip.communicator.util.skin.*;
  * @author Adam Netocny
  */
 public class CallHistoryButton
-    extends SIPCommTextButton
+    extends SIPCommNotificationsButton
     implements  UINotificationListener,
+                ActionListener,
                 Skinnable
 {
-    /**
-     * The history icon.
-     */
-    private Image historyImage;
-
-    /**
-     * The history pressed icon.
-     */
-    private Image pressedImage;
-
-    /**
-     * The notification image.
-     */
-    private Image notificationImage;
-
-    /**
-     * Indicates if the history is visible.
-     */
-    private boolean isHistoryVisible = false;
-
-    /**
-     * Indicates if this button currently shows the number of unread
-     * notifications or the just the history icon.
-     */
-    private boolean isNotificationsView = false;
-
     /**
      * The tool tip shown by default over the history button.
      */
@@ -80,43 +54,45 @@ public class CallHistoryButton
 
         UINotificationManager.addNotificationListener(this);
 
-        // All items are now instantiated and could safely load the skin.
-        loadSkin();
-
-        this.setForeground(Color.WHITE);
-        this.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        this.setFont(getFont().deriveFont(Font.BOLD, 10f));
         this.setToolTipText(callHistoryToolTip);
-        this.setBackground(new Color(255, 255, 255, 160));
 
-        this.addActionListener(new ActionListener()
+        this.addActionListener(this);
+    }
+
+    /**
+     * Action performed on clicking the button.
+     * @param e
+     */
+    public void actionPerformed(ActionEvent e)
+    {
+        if(isToggleDisabled()
+            && GuiActivator.getContactList().getCurrentFilter()
+                    .equals(TreeContactList.historyFilter))
+            return;
+
+        if (!isToggleDisabled()
+            && isHistoryVisible() && !hasNotifications())
         {
-            public void actionPerformed(ActionEvent e)
-            {
-                if (isHistoryVisible && !isNotificationsView)
-                {
-                    GuiActivator.getContactList()
-                        .setDefaultFilter(TreeContactList.presenceFilter);
-                    GuiActivator.getContactList().applyDefaultFilter();
+            GuiActivator.getContactList()
+                .setDefaultFilter(TreeContactList.presenceFilter);
+            GuiActivator.getContactList().applyDefaultFilter();
 
-                    isHistoryVisible = false;
-                }
-                else
-                {
-                    GuiActivator.getContactList()
-                        .setDefaultFilter(TreeContactList.historyFilter);
-                    GuiActivator.getContactList().applyDefaultFilter();
+            setHistoryVisible(false);
+        }
+        else
+        {
+            GuiActivator.getContactList()
+                .setDefaultFilter(TreeContactList.historyFilter);
+            GuiActivator.getContactList().applyDefaultFilter();
 
-                    UINotificationManager.removeAllNotifications();
+            UINotificationManager.removeAllNotifications();
 
-                    isHistoryVisible = true;
-                }
-                setHistoryView();
+            setHistoryVisible(true);
+        }
+        setHistoryView();
 
-                GuiActivator.getContactList().requestFocusInWindow();
-                repaint();
-            }
-        });
+        GuiActivator.getContactList().requestFocusInWindow();
+        repaint();
     }
 
     /**
@@ -129,7 +105,7 @@ public class CallHistoryButton
         Collection<UINotificationGroup> notificationGroups
             = UINotificationManager.getNotificationGroups();
 
-        if (!isHistoryVisible && notificationGroups.size() > 0)
+        if (!isHistoryVisible() && notificationGroups.size() > 0)
         {
             setNotificationView(notificationGroups);
         }
@@ -147,22 +123,16 @@ public class CallHistoryButton
      */
     private void setHistoryView()
     {
-        if (isNotificationsView)
-            isNotificationsView = false;
-        else
-            setIcon(null);
+        clearNotifications();
 
-        if (isHistoryVisible)
+        if (!isToggleDisabled() && isHistoryVisible())
         {
-            setBgImage(pressedImage);
             setToolTipText(showContactListToolTip);
         }
         else
         {
-            setBgImage(historyImage);
             setToolTipText(callHistoryToolTip);
         }
-        setText("");
     }
 
     /**
@@ -186,7 +156,6 @@ public class CallHistoryButton
         }
 
         int notificationCount = 0;
-        isNotificationsView = true;
 
         Iterator<UINotificationGroup> groupsIter
             = notificationGroups.iterator();
@@ -222,50 +191,34 @@ public class CallHistoryButton
 
         this.setToolTipText(tooltipText + "</html>");
 
-        this.setBackground(new Color(200, 0, 0));
-        this.setVerticalTextPosition(SwingConstants.TOP);
+        setNotifications(notificationCount);
+    }
 
-        Image iconImage = ImageLoader.getImage(notificationImage,
-            new Integer(notificationCount).toString(), this);
+    private boolean isHistoryVisible()
+    {
+        return isDefaultViewVisible();
+    }
 
-        if (isHistoryVisible)
-        {
-            setBgImage(ImageLoader.getImage(
-                pressedImage,
-                iconImage,
-                pressedImage.getWidth(null)/2
-                    - notificationImage.getWidth(null)/2,
-                0));
-        }
-        else
-        {
-            setBgImage(ImageLoader.getImage(
-                historyImage,
-                iconImage,
-                pressedImage.getWidth(null)/2
-                    - notificationImage.getWidth(null)/2,
-                0));
-        }
+    private void setHistoryVisible(boolean value)
+    {
+        setDefaultViewVisible(value);
     }
 
     /**
      * Loads images and sets history view.
      */
+    @Override
     public void loadSkin()
     {
-        historyImage
+        defaultImage
             = ImageLoader.getImage(ImageLoader.CALL_HISTORY_BUTTON);
 
-        pressedImage
-            = ImageLoader.getImage(ImageLoader.CALL_HISTORY_BUTTON_PRESSED);
-
-        notificationImage
-            = ImageLoader.getImage(
-                ImageLoader.CALL_HISTORY_BUTTON_NOTIFICATION);
-
-        this.setPreferredSize(new Dimension(historyImage.getWidth(this),
-                                            historyImage.getHeight(this)));
+        if(!isToggleDisabled())
+            pressedImage
+                = ImageLoader.getImage(ImageLoader.CALL_HISTORY_BUTTON_PRESSED);
 
         setHistoryView();
+
+        super.loadSkin();
     }
 }
