@@ -1892,4 +1892,14 @@ public class ServerStoredContactListJabberImpl
 
         return id;
     }
+
+    /**
+     * Return all the presences for the user.
+     * @param user the id of the user to check for presences.
+     * @return all the presences available for the user.
+     */
+    public Iterator<Presence> getPresences(String user)
+    {
+        return roster.getPresences(user);
+    }
 }

@@ -525,4 +525,17 @@ public abstract class AbstractOperationSetPersistentPresence<T extends ProtocolP
         throws IllegalArgumentException
     {
     }
+
+    /**
+     * Returns the protocol specific contact instance representing the local
+     * user or null if it is not supported.
+     *
+     * @return the Contact that the Provider implementation is communicating
+     * on behalf of or null if not supported.
+     */
+    public Contact getLocalContact()
+    {
+        return null;
+    }
+
 }

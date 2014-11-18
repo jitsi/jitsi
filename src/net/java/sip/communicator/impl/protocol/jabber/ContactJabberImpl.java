@@ -83,6 +83,12 @@ public class ContactJabberImpl
     private boolean mobile = false;
 
     /**
+     * Indicates whether or not this Contact instance represents the user used
+     * by this protocol provider to connect to the service.
+     */
+    private boolean isLocal = false;
+
+    /**
      * Creates an JabberContactImpl
      * @param rosterEntry the RosterEntry object that we will be encapsulating.
      * @param ssclCallback a reference to the ServerStoredContactListImpl
@@ -155,8 +161,7 @@ public class ContactJabberImpl
      */
     public boolean isLocal()
     {
-        // TODO Auto-generated method stub
-        return false;
+        return isLocal;
     }
 
     /**
@@ -555,5 +560,14 @@ public class ContactJabberImpl
     void setMobile(boolean mobile)
     {
         this.mobile = mobile;
+    }
+
+    /**
+     * Changes the isLocal indicator.
+     * @param isLocal the new value.
+     */
+    void setLocal(boolean isLocal)
+    {
+        this.isLocal = isLocal;
     }
 }
