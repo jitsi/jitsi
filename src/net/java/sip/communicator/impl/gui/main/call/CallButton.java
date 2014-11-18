@@ -12,6 +12,7 @@ import java.util.List;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.*;
+import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.event.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -102,16 +103,16 @@ public class CallButton
     {
         image
             = GuiActivator.getResources()
-                .getImage("service.gui.buttons.CALL_NUMBER_BUTTON").getImage();
+                .getImage(ImageLoader.CALL_BUTTON_SMALL.getId()).getImage();
 
         pressedImage
             = GuiActivator.getResources()
-                .getImage("service.gui.buttons.CALL_NUMBER_BUTTON_PRESSED")
+                .getImage(ImageLoader.CALL_BUTTON_SMALL_PRESSED.getId())
                     .getImage();
 
         rolloverImage
             = GuiActivator.getResources()
-                .getImage("service.gui.buttons.CALL_NUMBER_BUTTON_ROLLOVER")
+                .getImage(ImageLoader.CALL_BUTTON_SMALL_ROLLOVER.getId())
                     .getImage();
 
         setBackgroundImage(image);
