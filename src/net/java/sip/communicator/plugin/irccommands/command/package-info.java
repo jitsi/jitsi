@@ -5,6 +5,8 @@
  * See terms of license at gnu.org.
  */
 /**
- * Implementations of IRC commands.
+ * Package containing implementations of IRC commands.
+ *
+ * @author Danny van Heumen
  */
-package net.java.sip.communicator.impl.protocol.irc.command;
+package net.java.sip.communicator.plugin.irccommands.command;

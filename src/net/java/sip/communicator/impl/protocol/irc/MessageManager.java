@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
-import net.java.sip.communicator.impl.protocol.irc.command.*;
 import net.java.sip.communicator.impl.protocol.irc.exception.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -23,8 +22,6 @@ import com.ircclouds.irc.api.state.*;
  *
  * TODO Implement messaging service for offline messages and such. (MemoServ -
  * message relaying services)
- *
- * TODO move IRC commands to separate package
  *
  * @author Danny van Heumen
  */
@@ -45,20 +42,6 @@ public class MessageManager
      * of 512 bytes. The command ending (CRLF) takes up 2 bytes.
      */
     private static final int IRC_PROTOCOL_MAXIMUM_MESSAGE_SIZE = 510;
-
-    /**
-     * Register some basic commands immediately so that these are guaranteed to
-     * be available.
-     */
-    static
-    {
-        CommandFactory.registerCommand("me", Me.class);
-        CommandFactory.registerCommand("msg", Msg.class);
-        CommandFactory.registerCommand("join", Join.class);
-        CommandFactory.registerCommand("nick", Nick.class);
-        CommandFactory.registerCommand("mode",
-                net.java.sip.communicator.impl.protocol.irc.command.Mode.class);
-    }
 
     /**
      * IrcConnection instance.

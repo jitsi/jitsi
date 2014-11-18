@@ -1,0 +1,10 @@
+Bundle-Activator: net.java.sip.communicator.plugin.irccommands.IrcCommandsActivator
+Bundle-Name: IRC commands
+Bundle-Description: IRC commands package
+Bundle-Vendor: jitsi.org
+Bundle-Version: 0.0.1
+Bundle-SymbolicName: net.java.sip.communicator.plugin.irccommands
+Import-Package: org.osgi.framework,
+ net.java.sip.communicator.util,
+ net.java.sip.communicator.impl.protocol.irc,
+ com.ircclouds.irc.api

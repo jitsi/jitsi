@@ -1054,7 +1054,7 @@
         bundle-icq-slick,bundle-mock,bundle-smacklib,bundle-jmdnslib,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
         bundle-jnalib,bundle-phonenumbers,
-        bundle-irc-api,bundle-irc,bundle-plugin-ircaccregwizz,
+        bundle-irc-api,bundle-irc,bundle-irc-commands,bundle-plugin-ircaccregwizz,
         bundle-msn,bundle-msn-slick,bundle-yahoo,bundle-yahoo-slick,
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
@@ -2095,6 +2095,16 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/protocol/irc/irc.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/irc"
                         prefix="net/java/sip/communicator/impl/protocol/irc"/>
+        </jar>
+    </target>
+
+    <!-- BUNDLE-IRC-COMMANDS -->
+    <target name="bundle-irc-commands" depends="bundle-irc">
+        <!-- Creates a bundle containing the IRC impl of the protocol provider.-->
+        <jar compress="false" destfile="${bundles.dest}/irc-commands.jar"
+            manifest="${src}/net/java/sip/communicator/plugin/irccommands/irccommands.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/irccommands"
+                        prefix="net/java/sip/communicator/plugin/irccommands"/>
         </jar>
     </target>
 

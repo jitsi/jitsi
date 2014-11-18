@@ -93,8 +93,8 @@ public class CommandFactory
                 it.remove();
                 if (LOGGER.isDebugEnabled())
                 {
-                    LOGGER.debug("Unregistered command '" + command + "' ("
-                            + type.toString() + ")");
+                    LOGGER.debug("Unregistered command '" + entry.getKey()
+                        + "' (" + type.toString() + ")");
                 }
             }
         }

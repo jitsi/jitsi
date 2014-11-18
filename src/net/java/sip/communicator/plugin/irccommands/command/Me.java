@@ -4,7 +4,7 @@
  * Distributable under LGPL license.
  * See terms of license at gnu.org.
  */
-package net.java.sip.communicator.impl.protocol.irc.command;
+package net.java.sip.communicator.plugin.irccommands.command;
 
 import net.java.sip.communicator.impl.protocol.irc.*;
 
