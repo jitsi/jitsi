@@ -94,6 +94,8 @@ public class TestMsgHistoryService
         suite.addTest(
             new TestMsgHistoryService("specialChars"));
         suite.addTest(
+            new TestMsgHistoryService("insertRecords"));
+        suite.addTest(
             new TestMsgHistoryService("writeRecordsToMultiChat"));
         suite.addTest(
             new TestMsgHistoryService("readRecordsFromMultiChat"));
@@ -434,6 +436,26 @@ public class TestMsgHistoryService
 
         assertTrue("Message not found",
             msgs.contains(messagesToSend[6].getContent()));
+    }
+
+    /**
+     * Inserts a message between the control dates and queries to check
+     * of the expected number of messages.
+     */
+    public void insertRecords()
+    {
+        if(!(msgHistoryService instanceof MessageHistoryAdvancedService))
+            return;
+
+        ((MessageHistoryAdvancedService)msgHistoryService).insertMessage(
+            "out", null, testContact, messagesToSend[1],
+            new Date(controlDate1.getTime() + 50), false);
+
+        Collection<EventObject> rs
+            = msgHistoryService.findByPeriod(
+                testMetaContact, controlDate1, controlDate2);
+        List<String> msgs = getMessages(rs);
+        assertEquals("Messages must be 3", 3, msgs.size());
     }
 
     private static void waitWrite(long timeout)

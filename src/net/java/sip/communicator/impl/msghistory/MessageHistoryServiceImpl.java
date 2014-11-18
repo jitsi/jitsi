@@ -43,6 +43,7 @@ import org.osgi.framework.*;
  */
 public class MessageHistoryServiceImpl
     implements  MessageHistoryService,
+                MessageHistoryAdvancedService,
                 MessageListener,
                 ChatRoomMessageListener,
                 AdHocChatRoomMessageListener,
@@ -1479,6 +1480,58 @@ public class MessageHistoryServiceImpl
                     sdf.format(messageTimestamp),
                     null},
                     new Date()); // this date is when the history record is written
+        } catch (IOException e)
+        {
+            logger.error("Could not add message to history", e);
+        }
+    }
+
+    /**
+     * Inserts message to the history. Allows to update the laready saved
+     * history.
+     * @param direction String direction of the message in or out.
+     * @param source The source Contact
+     * @param destination The destination Contact
+     * @param message Message message to be written
+     * @param messageTimestamp Date this is the timestamp when was message
+     * received that came from the protocol provider
+     * @param isSmsSubtype whether message to write is an sms
+     */
+    public void insertMessage(
+        String direction,
+        Contact source,
+        Contact destination,
+        Message message,
+        Date messageTimestamp,
+        boolean isSmsSubtype)
+    {
+        try
+        {
+            MetaContact metaContact = MessageHistoryActivator
+                .getContactListService().findMetaContactByContact(destination);
+            if(metaContact != null
+                && !isHistoryLoggingEnabled(
+                metaContact.getMetaUID()))
+            {
+                // logging is switched off for this particular contact
+                return;
+            }
+
+            History history = this.getHistory(source, destination);
+
+            HistoryWriter historyWriter = history.getWriter();
+            SimpleDateFormat sdf
+                = new SimpleDateFormat(HistoryService.DATE_FORMAT);
+            historyWriter.insertRecord(new String[]{direction,
+                    message.getContent(), message.getContentType(),
+                    message.getEncoding(), message.getMessageUID(),
+                    message.getSubject(), sdf.format(messageTimestamp),
+                    isSmsSubtype ? MSG_SUBTYPE_SMS : null},
+                messageTimestamp,
+                STRUCTURE_NAMES[6]);
+                // this date is when the history record to be written
+                // as we are inserting
+
         } catch (IOException e)
         {
             logger.error("Could not add message to history", e);

@@ -145,54 +145,8 @@ public class HistoryWriterImpl
                     removeFirstRecord(root);
                 }
 
-                Element elem = this.currentDoc.createElement("record");
-                SimpleDateFormat sdf
-                    = new SimpleDateFormat(DATE_FORMAT);
-                elem.setAttribute("timestamp", sdf.format(date));
-
-                for (int i = 0; i < propertyNames.length; i++)
-                {
-                    String propertyName = propertyNames[i];
-
-                    if(propertyName.endsWith(CDATA_SUFFIX))
-                    {
-                        if (propertyValues[i] != null)
-                        {
-                            propertyName =
-                                propertyName.replaceFirst(CDATA_SUFFIX, "");
-
-                            Element propertyElement = this.currentDoc
-                                .createElement(propertyName);
-
-                            Text value = this.currentDoc
-                                .createCDATASection(
-                                    XmlEscapers.xmlContentEscaper().escape(
-                                        propertyValues[i].replaceAll("\0", " ")
-                                    ));
-                            propertyElement.appendChild(value);
-
-                            elem.appendChild(propertyElement);
-                        }
-                    }
-                    else
-                    {
-                        if (propertyValues[i] != null)
-                        {
-                            Element propertyElement = this.currentDoc
-                                .createElement(propertyName);
-
-                            Text value = this.currentDoc
-                                .createTextNode(
-                                    XmlEscapers.xmlContentEscaper().escape(
-                                        propertyValues[i].replaceAll("\0", " ")
-                                    ));
-                            propertyElement.appendChild(value);
-
-                            elem.appendChild(propertyElement);
-                        }
-                    }
-                }
-
+                Element elem = createRecord(
+                    this.currentDoc, propertyNames, propertyValues, date);
                 root.appendChild(elem);
                 this.currentDocElements++;
             }
@@ -206,6 +160,66 @@ public class HistoryWriterImpl
             else
                 this.historyImpl.writeFile(this.currentFile, this.currentDoc);
         }
+    }
+
+    /**
+     * Creates an element.
+     * @param doc the parent of the element.
+     * @param propertyNames property names for the element
+     * @param propertyValues values for the properties
+     * @param date the of creation of the record
+     * @return the newly created element.
+     */
+    private Element createRecord(Document doc,
+                                 String[] propertyNames,
+                                 String[] propertyValues,
+                                 Date date)
+    {
+        Element elem = doc.createElement("record");
+        SimpleDateFormat sdf
+            = new SimpleDateFormat(DATE_FORMAT);
+        elem.setAttribute("timestamp", sdf.format(date));
+
+        for (int i = 0; i < propertyNames.length; i++)
+        {
+            String propertyName = propertyNames[i];
+
+            if(propertyName.endsWith(CDATA_SUFFIX))
+            {
+                if (propertyValues[i] != null)
+                {
+                    propertyName =
+                        propertyName.replaceFirst(CDATA_SUFFIX, "");
+
+                    Element propertyElement = doc.createElement(propertyName);
+
+                    Text value = doc.createCDATASection(
+                        XmlEscapers.xmlContentEscaper().escape(
+                            propertyValues[i].replaceAll("\0", " ")
+                        ));
+                    propertyElement.appendChild(value);
+
+                    elem.appendChild(propertyElement);
+                }
+            }
+            else
+            {
+                if (propertyValues[i] != null)
+                {
+                    Element propertyElement = doc.createElement(propertyName);
+
+                    Text value = doc.createTextNode(
+                        XmlEscapers.xmlContentEscaper().escape(
+                            propertyValues[i].replaceAll("\0", " ")
+                        ));
+                    propertyElement.appendChild(value);
+
+                    elem.appendChild(propertyElement);
+                }
+            }
+        }
+
+        return elem;
     }
 
     /**
@@ -252,6 +266,99 @@ public class HistoryWriterImpl
             root.removeChild(oldestNode);
     }
 
+    /**
+     * Stores the passed propertyValues complying with the
+     * historyRecordStructure.
+     *
+     * @param propertyValues
+     *            The values of the record.
+     * @param timestamp
+     *            The timestamp of the record.
+     *
+     * @throws IOException
+     */
+    public void insertRecord(
+            String[] propertyValues, Date timestamp, String timestampProperty)
+        throws IOException
+    {
+        SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
+        Iterator<String> fileIterator
+            = HistoryReaderImpl.filterFilesByDate(
+                    this.historyImpl.getFileList(), timestamp, null)
+                .iterator();
+        String filename = null;
+        while (fileIterator.hasNext())
+        {
+            filename = fileIterator.next();
+
+            Document doc = this.historyImpl.getDocumentForFile(filename);
+
+            if(doc == null)
+                continue;
+
+            NodeList nodes = doc.getElementsByTagName("record");
+
+            boolean changed = false;
+
+            Node node;
+            for (int i = 0; i < nodes.getLength(); i++)
+            {
+                node = nodes.item(i);
+
+                Element idNode = XMLUtils.findChild(
+                    (Element)node, timestampProperty);
+                if(idNode == null)
+                    continue;
+
+                Node nestedNode = idNode.getFirstChild();
+                if(nestedNode == null)
+                    continue;
+
+                // Get nested TEXT node's value
+                String nodeValue = nestedNode.getNodeValue();
+
+                Date nodeTimeStamp;
+                try
+                {
+                    nodeTimeStamp = sdf.parse(nodeValue);
+                }
+                catch (ParseException e)
+                {
+                    nodeTimeStamp = new Date(Long.parseLong(nodeValue));
+                }
+
+                if(nodeTimeStamp.before(timestamp))
+                    continue;
+
+                Element newElem = createRecord(
+                    doc, structPropertyNames, propertyValues, timestamp);
+
+                doc.getFirstChild().insertBefore(newElem, node);
+
+                changed = true;
+                break;
+            }
+
+            if(changed)
+            {
+                // write changes
+                synchronized (this.docWriteLock)
+                {
+                    this.historyImpl.writeFile(filename, doc);
+                }
+
+                // this prevents that the current writer, which holds
+                // instance for the last document he is editing will not
+                // override our last changes to the document
+                if(filename.equals(this.currentFile))
+                {
+                    this.currentDoc = doc;
+                }
+
+                break;
+            }
+        }
+    }
 
     /**
      * If no file is currently loaded loads the last opened file. If it does not

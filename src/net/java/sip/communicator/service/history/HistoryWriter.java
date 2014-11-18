@@ -70,6 +70,21 @@ public interface HistoryWriter
         throws IOException;
 
     /**
+     * Stores the passed propertyValues complying with the
+     * historyRecordStructure.
+     *
+     * @param propertyValues
+     *            The values of the record.
+     * @param timestamp
+     *            The timestamp of the record.
+     *
+     * @throws IOException
+     */
+    public void insertRecord(
+            String[] propertyValues, Date timestamp, String timestampProperty)
+        throws IOException;
+
+    /**
      * Updates a record by searching for record with idProperty which have idValue
      * and updating/creating the property with newValue.
      *
