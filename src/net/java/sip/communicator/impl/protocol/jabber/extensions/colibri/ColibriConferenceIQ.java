@@ -8,10 +8,13 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
 import org.jitsi.service.neomedia.*;
+
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.packet.IQ;
 
 /**
  * Implements the Jitsi Videobridge <tt>conference</tt> IQ within the
@@ -78,6 +81,52 @@ public class ColibriConferenceIQ
     private Recording recording;
 
     private RTCPTerminationStrategy rtcpTerminationStrategy;
+
+    /**
+     * Indicates if the information about graceful shutdown status is being
+     * carried by this IQ.
+     */
+    private boolean gracefulShutdown;
+
+    /**
+     * Returns an error response for given <tt>IQ</tt> that is returned by
+     * the videobridge after it has entered graceful shutdown mode and new
+     * conferences can no longer be created.
+     *
+     * @param request the IQ for which error response will be created.
+     * @return an IQ of 'error' type and 'service-unavailable' condition plus
+     *         the body of request IQ.
+     */
+    public static IQ createGracefulShutdownErrorResponse(final IQ request)
+    {
+        if (!(request.getType() == Type.GET || request.getType() == Type.SET))
+        {
+            throw new IllegalArgumentException(
+                "IQ must be of type 'set' or 'get'. Original IQ: "
+                    + request.toXML());
+        }
+
+        final XMPPError error
+            = new XMPPError(XMPPError.Condition.service_unavailable);
+
+        error.addExtension(new GracefulShutdown());
+
+        final IQ result = new IQ()
+        {
+            public String getChildElementXML()
+            {
+                return request.getChildElementXML() + error.toXML();
+            }
+        };
+
+        result.setType(Type.ERROR);
+        result.setPacketID(request.getPacketID());
+        result.setFrom(request.getTo());
+        result.setTo(request.getFrom());
+        result.setError(error);
+
+        return result;
+    }
 
     /** Initializes a new <tt>ColibriConferenceIQ</tt> instance. */
     public ColibriConferenceIQ()
@@ -204,6 +253,7 @@ public class ColibriConferenceIQ
         boolean hasChildren
             = (recording != null)
                 || (rtcpTerminationStrategy != null)
+                || (gracefulShutdown)
                 || (contents.size() > 0)
                 || (channelBundles.size() > 0);
 
@@ -222,6 +272,8 @@ public class ColibriConferenceIQ
                 recording.toXML(xml);
             if (rtcpTerminationStrategy != null)
                 rtcpTerminationStrategy.toXML(xml);
+            if (gracefulShutdown)
+                xml.append(new GracefulShutdown().toXML());
 
             xml.append("</").append(ELEMENT_NAME).append('>');
         }
@@ -356,6 +408,27 @@ public class ColibriConferenceIQ
             RTCPTerminationStrategy rtcpTerminationStrategy)
     {
         this.rtcpTerminationStrategy = rtcpTerminationStrategy;
+    }
+
+    /**
+     * Sets whether this IQ should contain the information about graceful
+     * shutdown in progress status.
+     *
+     * @param isGracefulShutdown <tt>true</tt> if graceful shutdown status
+     *        should be indicated in this IQ.
+     */
+    public void setGracefulShutdown(boolean isGracefulShutdown)
+    {
+        this.gracefulShutdown = isGracefulShutdown;
+    }
+
+    /**
+     * Returns <tt>true</tt> if graceful shutdown status info is indicated in
+     * this <tt>ColibriConferenceIQ</tt> instance.
+     */
+    public boolean isGracefulShutdown()
+    {
+        return gracefulShutdown;
     }
 
     /**
@@ -2017,6 +2090,22 @@ public class ColibriConferenceIQ
                         .append(directory).append('\'');
             }
             xml.append("/>");
+        }
+    }
+
+    /**
+     * Packet extension indicating graceful shutdown in progress status.
+     */
+    public static class GracefulShutdown
+        extends AbstractPacketExtension
+    {
+        public static final String ELEMENT_NAME = "graceful-shutdown";
+
+        public static final String NAMESPACE = ColibriConferenceIQ.NAMESPACE;
+
+        public GracefulShutdown()
+        {
+            super(ColibriConferenceIQ.NAMESPACE, ELEMENT_NAME);
         }
     }
 

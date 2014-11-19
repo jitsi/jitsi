@@ -275,6 +275,11 @@ public class ColibriIQProvider
                         conference.setRecording(recording);
                         recording = null;
                     }
+                    else if (ColibriConferenceIQ.GracefulShutdown.ELEMENT_NAME
+                        .equals(name))
+                    {
+                        conference.setGracefulShutdown(true);
+                    }
                     break;
                 }
 
@@ -675,6 +680,38 @@ public class ColibriIQProvider
             }
 
             iq = conference;
+        }
+        else if (GracefulShutdownIQ.ELEMENT_NAME.equals(parser.getName())
+                    && GracefulShutdownIQ.NAMESPACE.equals(namespace))
+        {
+            String rootElement = parser.getName();
+
+            iq = new GracefulShutdownIQ();
+
+            boolean done = false;
+
+            while (!done)
+            {
+                switch (parser.next())
+                {
+                    case XmlPullParser.END_TAG:
+                    {
+                        String name = parser.getName();
+
+                        if (rootElement.equals(name))
+                        {
+                            done = true;
+                        }
+                        break;
+                    }
+
+                    case XmlPullParser.TEXT:
+                    {
+                        // Parse some text here
+                        break;
+                    }
+                }
+            }
         }
         else
             iq = null;
