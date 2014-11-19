@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import java.util.*;
+
 import net.java.sip.communicator.impl.protocol.irc.exception.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -141,6 +143,25 @@ public class OperationSetBasicInstantMessagingIrcImpl
                                 + "implementation of the command.", e);
                             fireMessageDeliveryFailed(message, to,
                                 MessageDeliveryFailedEvent.INTERNAL_ERROR);
+                        }
+                        catch (BadCommandInvocationException e)
+                        {
+                            MessageIrcImpl helpMessage =
+                                new MessageIrcImpl(
+                                    e.getHelp(),
+                                    OperationSetBasicInstantMessaging
+                                        .DEFAULT_MIME_TYPE,
+                                    OperationSetBasicInstantMessaging
+                                        .DEFAULT_MIME_ENCODING,
+                                    "Command usage:");
+                            MessageReceivedEvent helpEvent =
+                                new MessageReceivedEvent(
+                                    helpMessage,
+                                    to,
+                                    new Date(),
+                                    MessageReceivedEvent
+                                        .SYSTEM_MESSAGE_RECEIVED);
+                            fireMessageEvent(helpEvent);
                         }
                     }
                     else

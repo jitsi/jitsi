@@ -79,4 +79,13 @@ public class Msg implements Command
         }
         this.connection.getClient().message(target, message);
     }
+
+    /**
+     * Usage instructions.
+     */
+    @Override
+    public String help()
+    {
+        return "Usage: /msg <user> <message>";
+    }
 }

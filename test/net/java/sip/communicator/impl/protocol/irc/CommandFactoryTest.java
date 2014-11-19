@@ -73,6 +73,12 @@ public class CommandFactoryTest
             @Override
             public void execute(String source, String line)
             {
+            }
+
+            @Override
+            public String help()
+            {
+                return null;
             }};
         CommandFactory.registerCommand("test", Test.class);
         CommandFactory.registerCommand("foo", anotherType.getClass());
@@ -114,6 +120,12 @@ public class CommandFactoryTest
         @Override
         public void execute(String source, String line)
         {
+        }
+
+        @Override
+        public String help()
+        {
+            return null;
         }
     }
 
@@ -289,6 +301,12 @@ public class CommandFactoryTest
         @Override
         public void execute(String source, String line)
         {
+        }
+
+        @Override
+        public String help()
+        {
+            return null;
         }
     }
 

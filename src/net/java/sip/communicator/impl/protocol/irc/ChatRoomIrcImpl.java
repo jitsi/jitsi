@@ -1024,6 +1024,20 @@ public class ChatRoomIrcImpl
                             + "to a bug in the implementation.", new Date(),
                         message);
                 }
+                catch (BadCommandInvocationException e)
+                {
+                    MessageIrcImpl helpMessage =
+                        new MessageIrcImpl(
+                            e.getHelp(),
+                            OperationSetBasicInstantMessaging
+                                .DEFAULT_MIME_TYPE,
+                            OperationSetBasicInstantMessaging
+                                .DEFAULT_MIME_ENCODING,
+                            "Command usage:");
+                    this.fireMessageReceivedEvent(helpMessage, this.user,
+                        new Date(),
+                        MessageReceivedEvent.SYSTEM_MESSAGE_RECEIVED);
+                }
             }
             else
             {

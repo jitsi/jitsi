@@ -128,10 +128,15 @@ public class MessageManager
      * @throws UnsupportedCommandException for unknown or unsupported commands
      * @throws BadCommandException in case of incompatible command or bad
      *             implementation
+     * @throws BadCommandInvocationException in case of bad usage of the
+     *             command. An exception will be thrown that contains the root
+     *             cause and optionally a help text containing usage information
+     *             for that particular command.
      */
     public void command(final ChatRoomIrcImpl chatroom, final String message)
         throws UnsupportedCommandException,
-        BadCommandException
+        BadCommandException,
+        BadCommandInvocationException
     {
         if (!this.connectionState.isConnected())
         {
@@ -147,10 +152,15 @@ public class MessageManager
      * @param message the command message
      * @throws UnsupportedCommandException for unknown or unsupported commands
      * @throws BadCommandException in case of a bad command implementation
+     * @throws BadCommandInvocationException in case of bad usage of the
+     *             command. An exception will be thrown that contains the root
+     *             cause and optionally a help text containing usage information
+     *             for that particular command.
      */
     public void command(final Contact contact, final MessageIrcImpl message)
         throws UnsupportedCommandException,
-        BadCommandException
+        BadCommandException,
+        BadCommandInvocationException
     {
         if (!this.connectionState.isConnected())
         {
@@ -168,10 +178,15 @@ public class MessageManager
      *             be found
      * @throws BadCommandException in case of an incompatible command or a bad
      *             implementation
+     * @throws BadCommandInvocationException in case of bad usage of the
+     *             command. An exception will be thrown that contains the root
+     *             cause and optionally a help text containing usage
+     *             information for that particular command.
      */
     private void command(final String source, final String message)
         throws UnsupportedCommandException,
-        BadCommandException
+        BadCommandException,
+        BadCommandInvocationException
     {
         final String msg = message.toLowerCase();
         final int end = msg.indexOf(' ');
@@ -187,9 +202,12 @@ public class MessageManager
         final Command cmd = this.commandFactory.createCommand(command);
         try
         {
-            // FIXME catch IllegalArgumentException and print help information
-            // for command
             cmd.execute(source, msg);
+        }
+        catch (IllegalArgumentException e)
+        {
+            final String help = cmd.help();
+            throw new BadCommandInvocationException(msg, help, e);
         }
         catch (RuntimeException e)
         {

@@ -66,4 +66,13 @@ public class Mode implements Command
         }
         this.connection.getClient().changeMode(source + " " + rawModeString);
     }
+
+    /**
+     * Usage instructions.
+     */
+    @Override
+    public String help()
+    {
+        return "Usage: /mode <mode> [params ...]";
+    }
 }

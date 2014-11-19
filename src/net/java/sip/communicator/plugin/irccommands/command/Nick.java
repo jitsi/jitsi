@@ -66,4 +66,13 @@ public class Nick implements Command
             this.connection.getIdentityManager().setNick(newNick);
         }
     }
+
+    /**
+     * Usage instructions.
+     */
+    @Override
+    public String help()
+    {
+        return "Usage: /nick <new-nick>";
+    }
 }

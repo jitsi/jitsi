@@ -76,4 +76,13 @@ public class Join implements Command
         }
         this.connection.getClient().joinChannel(channel, password);
     }
+
+    /**
+     * Command usage instructions.
+     */
+    @Override
+    public String help()
+    {
+        return "Usage: /join <channel> [password]";
+    }
 }

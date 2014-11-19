@@ -64,4 +64,13 @@ public class Me
         }
         this.connection.getClient().act(source, message);
     }
+
+    /**
+     * Command usage instructions.
+     */
+    @Override
+    public String help()
+    {
+        return "Usage: /me <message>";
+    }
 }
