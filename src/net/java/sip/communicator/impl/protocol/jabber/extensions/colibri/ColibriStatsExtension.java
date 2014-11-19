@@ -58,7 +58,7 @@ public class ColibriStatsExtension
     }
 
     public static class Stat
-        implements PacketExtension
+        extends AbstractPacketExtension
     {
         /**
          * The XML element name of a <tt>content</tt> of a Jitsi Videobridge
@@ -92,6 +92,7 @@ public class ColibriStatsExtension
 
         public Stat()
         {
+            super(NAMESPACE, ELEMENT_NAME);
         }
 
         /**
@@ -101,6 +102,7 @@ public class ColibriStatsExtension
          */
         public Stat(String name, Object value)
         {
+            this();
             this.setName(name);
             this.setValue(value);
         }

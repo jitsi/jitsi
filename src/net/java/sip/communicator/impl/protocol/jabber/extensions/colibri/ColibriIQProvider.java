@@ -58,6 +58,24 @@ public class ColibriIQProvider
                 ParameterPacketExtension.ELEMENT_NAME,
                 SourcePacketExtension.NAMESPACE,
                 parameterProvider);
+        // ColibriStatsExtension
+        PacketExtensionProvider statsProvider
+            = new DefaultPacketExtensionProvider<ColibriStatsExtension>(
+                    ColibriStatsExtension.class);
+
+        providerManager.addExtensionProvider(
+            ColibriStatsExtension.ELEMENT_NAME,
+            ColibriStatsExtension.NAMESPACE,
+            statsProvider);
+        // ColibriStatsExtension.Stat
+        PacketExtensionProvider statProvider
+            = new DefaultPacketExtensionProvider<ColibriStatsExtension.Stat>(
+                    ColibriStatsExtension.Stat.class);
+
+        providerManager.addExtensionProvider(
+            ColibriStatsExtension.Stat.ELEMENT_NAME,
+            ColibriStatsExtension.NAMESPACE,
+            statProvider);
     }
 
     private void addChildExtension(
