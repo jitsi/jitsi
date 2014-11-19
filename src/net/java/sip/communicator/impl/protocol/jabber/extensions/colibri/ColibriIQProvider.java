@@ -58,6 +58,22 @@ public class ColibriIQProvider
                 ParameterPacketExtension.ELEMENT_NAME,
                 SourcePacketExtension.NAMESPACE,
                 parameterProvider);
+        // Shutdown IQ
+        providerManager.addIQProvider(
+                GracefulShutdownIQ.ELEMENT_NAME,
+                GracefulShutdownIQ.NAMESPACE,
+                this);
+        // Shutdown extension
+        PacketExtensionProvider shutdownProvider
+            = new DefaultPacketExtensionProvider
+                    <ColibriConferenceIQ.GracefulShutdown>(
+                            ColibriConferenceIQ.GracefulShutdown.class);
+
+        providerManager.addExtensionProvider(
+            ColibriConferenceIQ.GracefulShutdown.ELEMENT_NAME,
+            ColibriConferenceIQ.GracefulShutdown.NAMESPACE,
+            shutdownProvider);
+        
         // ColibriStatsExtension
         PacketExtensionProvider statsProvider
             = new DefaultPacketExtensionProvider<ColibriStatsExtension>(
@@ -397,16 +413,6 @@ public class ColibriIQProvider
                         if (!StringUtils.isNullOrEmpty(adaptiveLastN))
                             channel.setAdaptiveLastN(
                                     Boolean.parseBoolean(adaptiveLastN));
-
-                        String adaptiveSimulcast
-                                = parser.getAttributeValue(
-                                "",
-                                ColibriConferenceIQ.Channel
-                                        .ADAPTIVE_SIMULCAST_ATTR_NAME);
-
-                        if (!StringUtils.isNullOrEmpty(adaptiveSimulcast))
-                            channel.setAdaptiveSimulcast(
-                                    Boolean.parseBoolean(adaptiveSimulcast));
 
                         // receiving simulcast layer
                         String receivingSimulcastLayer
