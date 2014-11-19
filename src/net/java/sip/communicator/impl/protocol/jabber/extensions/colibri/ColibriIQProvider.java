@@ -73,7 +73,13 @@ public class ColibriIQProvider
             ColibriConferenceIQ.GracefulShutdown.ELEMENT_NAME,
             ColibriConferenceIQ.GracefulShutdown.NAMESPACE,
             shutdownProvider);
-        
+
+        // ColibriStatsIQ
+        providerManager.addIQProvider(
+            ColibriStatsIQ.ELEMENT_NAME,
+            ColibriStatsIQ.NAMESPACE,
+            this);
+
         // ColibriStatsExtension
         PacketExtensionProvider statsProvider
             = new DefaultPacketExtensionProvider<ColibriStatsExtension>(
@@ -725,6 +731,72 @@ public class ColibriIQProvider
                         if (rootElement.equals(name))
                         {
                             done = true;
+                        }
+                        break;
+                    }
+
+                    case XmlPullParser.TEXT:
+                    {
+                        // Parse some text here
+                        break;
+                    }
+                }
+            }
+        }
+        else if (ColibriStatsIQ.ELEMENT_NAME.equals(parser.getName())
+            && ColibriStatsIQ.NAMESPACE.equals(namespace))
+        {
+            String rootElement = parser.getName();
+
+            ColibriStatsIQ statsIQ = new ColibriStatsIQ();
+            iq = statsIQ;
+            ColibriStatsExtension.Stat stat = null;
+
+            boolean done = false;
+
+            while (!done)
+            {
+                switch (parser.next())
+                {
+                    case XmlPullParser.START_TAG:
+                    {
+                        String name = parser.getName();
+
+                        if (ColibriStatsExtension.Stat
+                                    .ELEMENT_NAME.equals(name))
+                        {
+                            stat = new ColibriStatsExtension.Stat();
+
+                            String statName
+                                = parser.getAttributeValue(
+                                    "",
+                                    ColibriStatsExtension.Stat.NAME_ATTR_NAME);
+                            stat.setName(statName);
+
+                            String statValue
+                                = parser.getAttributeValue(
+                                    "",
+                                    ColibriStatsExtension.Stat.VALUE_ATTR_NAME);
+                            stat.setValue(statValue);
+                        }
+                        break;
+                    }
+                    case XmlPullParser.END_TAG:
+                    {
+                        String name = parser.getName();
+
+                        if (rootElement.equals(name))
+                        {
+                            done = true;
+                        }
+                        else if (ColibriStatsExtension.Stat.ELEMENT_NAME
+                            .equals(name))
+                        {
+                            if (stat != null)
+                            {
+                                statsIQ.addStat(stat);
+                                stat = null;
+                            }
                         }
                         break;
                     }
