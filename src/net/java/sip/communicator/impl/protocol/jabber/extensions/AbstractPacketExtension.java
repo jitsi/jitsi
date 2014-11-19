@@ -469,4 +469,33 @@ public abstract class AbstractPacketExtension
 
         return result;
     }
+
+    /**
+     * Clones the attributes, namespace and text of a specific
+     * <tt>AbstractPacketExtension</tt> into a new
+     * <tt>AbstractPacketExtension</tt> instance of the same run-time type.
+     *
+     * @param src the <tt>AbstractPacketExtension</tt> to be cloned
+     * @return a new <tt>AbstractPacketExtension</tt> instance of the run-time
+     * type of the specified <tt>src</tt> which has the same attributes,
+     * namespace and text
+     * @throws Exception if an error occurs during the cloning of the specified
+     * <tt>src</tt>
+     */
+    public static <T extends AbstractPacketExtension> T clone(T src)
+        throws Exception
+    {
+        @SuppressWarnings("unchecked")
+        T dst = (T) src.getClass().newInstance();
+
+        // attributes
+        for (String name : src.getAttributeNames())
+            dst.setAttribute(name, src.getAttribute(name));
+        // namespace
+        dst.setNamespace(src.getNamespace());
+        // text
+        dst.setText(src.getText());
+
+        return dst;
+    }
 }

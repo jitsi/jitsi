@@ -17,6 +17,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
  * Source-Specific Media Attributes in Jingle</a>.
  *
  * @author Lyubomir Marinov
+ * @author Pawel Domas
  */
 public class SourcePacketExtension
     extends AbstractPacketExtension
@@ -37,7 +38,7 @@ public class SourcePacketExtension
      * The XML name of the <tt>setup</tt> element's attribute which corresponds
      * to the <tt>ssrc</tt> media attribute in SDP.
      */
-    private static final String SSRC_ATTR_NAME = "ssrc";
+    public static final String SSRC_ATTR_NAME = "ssrc";
 
     /** Initializes a new <tt>SourcePacketExtension</tt> instance. */
     public SourcePacketExtension()
@@ -91,5 +92,28 @@ public class SourcePacketExtension
             removeAttribute(SSRC_ATTR_NAME);
         else
             setAttribute(SSRC_ATTR_NAME, Long.toString(0xffffffffL & ssrc));
+    }
+
+    /**
+     * Returns deep copy of this <tt>SourcePacketExtension</tt>.
+     * @throws Exception
+     */
+    public SourcePacketExtension copy()
+        throws Exception
+    {
+        SourcePacketExtension copy
+            = AbstractPacketExtension.clone(this);
+
+        // COPY SSRC PARAMS
+        for (ParameterPacketExtension ppe : getParameters())
+        {
+            ParameterPacketExtension ppeCopy
+                = new ParameterPacketExtension(
+                ppe.getName(), ppe.getValue());
+
+            copy.addParameter(ppeCopy);
+        }
+
+        return copy;
     }
 }

@@ -231,6 +231,7 @@ public class ColibriIQProvider
             ColibriConferenceIQ.Recording recording = null;
             ColibriConferenceIQ.Endpoint conferenceEndpoint = null;
             StringBuilder ssrc = null;
+            SourcePacketExtension ssrcPe = null;
 
             while (!done)
             {
@@ -295,6 +296,15 @@ public class ColibriIQProvider
                             channel.addSSRC(i);
                         }
                         ssrc = null;
+                    }
+                    else if (SourcePacketExtension.ELEMENT_NAME.equals(name))
+                    {
+                        if (channel != null && ssrcPe != null)
+                        {
+                            channel.addSource(ssrcPe);
+                        }
+
+                        ssrcPe = null;
                     }
                     else if (ColibriConferenceIQ.Content.ELEMENT_NAME.equals(
                             name))
@@ -502,6 +512,20 @@ public class ColibriIQProvider
                             .equals(name))
                     {
                         ssrc = new StringBuilder();
+                    }
+                    else if (SourcePacketExtension.ELEMENT_NAME.equals(name))
+                    {
+                        ssrcPe = new SourcePacketExtension();
+
+                        String ssrcStr
+                            = parser.getAttributeValue(
+                                    "",
+                                    SourcePacketExtension.SSRC_ATTR_NAME);
+
+                        if (!StringUtils.isNullOrEmpty(ssrcStr))
+                        {
+                            ssrcPe.setSSRC(Long.parseLong(ssrcStr));
+                        }
                     }
                     else if (ColibriConferenceIQ.Content.ELEMENT_NAME.equals(
                             name))
