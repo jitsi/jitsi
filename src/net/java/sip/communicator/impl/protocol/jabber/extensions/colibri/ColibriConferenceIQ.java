@@ -99,25 +99,12 @@ public class ColibriConferenceIQ
      */
     public static IQ createGracefulShutdownErrorResponse(final IQ request)
     {
-        if (!(request.getType() == Type.GET || request.getType() == Type.SET))
-        {
-            throw new IllegalArgumentException(
-                "IQ must be of type 'set' or 'get'. Original IQ: "
-                    + request.toXML());
-        }
-
         final XMPPError error
             = new XMPPError(XMPPError.Condition.service_unavailable);
 
         error.addExtension(new GracefulShutdown());
 
-        final IQ result = new IQ()
-        {
-            public String getChildElementXML()
-            {
-                return request.getChildElementXML() + error.toXML();
-            }
-        };
+        final IQ result = IQ.createErrorResponse(request, error);
 
         result.setType(Type.ERROR);
         result.setPacketID(request.getPacketID());
