@@ -6,7 +6,6 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.io.*;
 import java.math.*;
 import java.net.*;
 import java.security.*;
@@ -20,8 +19,8 @@ import net.java.sip.communicator.impl.protocol.jabber.debugger.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.carbon.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.coin.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingleinfo.*;
@@ -42,11 +41,10 @@ import org.jitsi.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
+import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smack.util.StringUtils;
-import org.jivesoftware.smack.util.TLSUtils;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.packet.*;
-import org.osgi.framework.*;
 import org.xmlpull.v1.*;
 import org.xmpp.jnodes.smack.*;
 
@@ -460,13 +458,10 @@ public class ProtocolProviderServiceJabberImpl
     {
         if(guiVerification == null)
         {
-            ServiceReference guiVerifyReference
-                = JabberActivator.getBundleContext().getServiceReference(
-                    CertificateService.class.getName());
-            if(guiVerifyReference != null)
-                guiVerification = (CertificateService)
-                    JabberActivator.getBundleContext().getService(
-                        guiVerifyReference);
+            guiVerification
+                = ServiceUtils.getService(
+                        JabberActivator.getBundleContext(),
+                        CertificateService.class);
         }
 
         return guiVerification;
