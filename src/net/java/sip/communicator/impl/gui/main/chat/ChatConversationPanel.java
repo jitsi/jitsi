@@ -1705,7 +1705,11 @@ public class ChatConversationPanel
 
         if (lastMsgElement == null)
         {
-            logger.warn("Could not find message with ID " + lastMessageUID);
+            // This will happen if the last message is a non-user message, such
+            // as a system message. For these messages we *do* update the
+            // lastMessageUID, however we do *not* include the new UID in the
+            // newly appended message.
+            logger.info("Could not find message with ID " + lastMessageUID);
             return false;
         }
 
