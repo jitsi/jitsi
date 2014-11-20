@@ -726,7 +726,7 @@ public class ChatRoomJabberImpl
      * <tt>Occupant.getRole()</tt>.
      * @return ChatRoomMemberRole
      */
-    static ChatRoomMemberRole smackRoleToScRole(String smackRole,
+    public static ChatRoomMemberRole smackRoleToScRole(String smackRole,
                                                 String affiliation)
     {
         if(affiliation != null)
