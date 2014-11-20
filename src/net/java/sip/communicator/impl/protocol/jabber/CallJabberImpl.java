@@ -420,10 +420,7 @@ public class CallJabberImpl
             ContentPacketExtension remoteContent = e.getValue();
             ContentPacketExtension cpe
                 = (remoteContent == null) ? localContent : remoteContent;
-            RtpDescriptionPacketExtension rdpe
-                = cpe.getFirstChildOfType(
-                        RtpDescriptionPacketExtension.class);
-            MediaType mediaType = MediaType.parseString(rdpe.getMedia());
+            MediaType mediaType = JingleUtils.getMediaType(cpe);
             ColibriConferenceIQ.Content contentResponse
                 = conferenceResponse.getContent(mediaType.toString());
 

@@ -9,9 +9,9 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.net.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
@@ -318,10 +318,7 @@ public abstract class TransportManagerJabberImpl
 
             for (ContentPacketExtension cpe : cpes)
             {
-                RtpDescriptionPacketExtension rdpe
-                    = cpe.getFirstChildOfType(
-                            RtpDescriptionPacketExtension.class);
-                MediaType mediaType = MediaType.parseString(rdpe.getMedia());
+                MediaType mediaType = JingleUtils.getMediaType(cpe);
 
                 /*
                  * The existence of a content for the mediaType and regardless
@@ -366,11 +363,8 @@ public abstract class TransportManagerJabberImpl
                     if (cpe == null)
                         cpe = e.getKey();
 
-                    RtpDescriptionPacketExtension rdpe
-                        = cpe.getFirstChildOfType(
-                                RtpDescriptionPacketExtension.class);
-
-                    colibri.getOrCreateContent(rdpe.getMedia());
+                    colibri.getOrCreateContent(
+                        JingleUtils.getMediaType(cpe).toString());
                 }
 
                 ColibriConferenceIQ conferenceResult
@@ -623,48 +617,16 @@ public abstract class TransportManagerJabberImpl
                 contentIter.remove();
 
                 // closeStreamConnector
-                RtpDescriptionPacketExtension rtpDescription
-                    = content.getFirstChildOfType(
-                            RtpDescriptionPacketExtension.class);
-
-                if (rtpDescription != null)
+                MediaType mediaType = JingleUtils.getMediaType(content);
+                if (mediaType != null)
                 {
-                    closeStreamConnector(
-                        MediaType.parseString(rtpDescription.getMedia()));
+                    closeStreamConnector(mediaType);
                 }
 
                 return content;
             }
         }
         return null;
-    }
-
-    /**
-     * Clones the attributes, namespace and text of a specific
-     * <tt>AbstractPacketExtension</tt> into a new
-     * <tt>AbstractPacketExtension</tt> instance of the same run-time type.
-     *
-     * @param src the <tt>AbstractPacketExtension</tt> to be cloned
-     * @return a new <tt>AbstractPacketExtension</tt> instance of the run-time
-     * type of the specified <tt>src</tt> which has the same attributes,
-     * namespace and text
-     * @throws Exception if an error occurs during the cloning of the specified
-     * <tt>src</tt>
-     */
-    private static <T extends AbstractPacketExtension> T clone(T src)
-        throws Exception
-    {
-        @SuppressWarnings("unchecked")
-        T dst = (T) src.getClass().newInstance();
-
-        // attributes
-        for (String name : src.getAttributeNames())
-            dst.setAttribute(name, src.getAttribute(name));
-        // namespace
-        dst.setNamespace(src.getNamespace());
-        // text
-        dst.setText(src.getText());
-        return dst;
     }
 
     /**
@@ -682,32 +644,22 @@ public abstract class TransportManagerJabberImpl
             IceUdpTransportPacketExtension src)
         throws OperationFailedException
     {
-        IceUdpTransportPacketExtension dst = null;
-
-        if (src != null)
+        try
         {
-            try
-            {
-                dst = clone(src);
-
-                for (CandidatePacketExtension srcCand : src.getCandidateList())
-                {
-                    if (!(srcCand instanceof RemoteCandidatePacketExtension))
-                        dst.addCandidate(clone(srcCand));
-                }
-            }
-            catch (Exception e)
-            {
-                dst = null;
-                ProtocolProviderServiceJabberImpl
-                    .throwOperationFailedException(
-                            "Failed to close transport and candidates.",
-                            OperationFailedException.GENERAL_ERROR,
-                            e,
-                            logger);
-            }
+            return IceUdpTransportPacketExtension
+                    .cloneTransportAndCandidates(src);
         }
-        return dst;
+        catch (Exception e)
+        {
+            ProtocolProviderServiceJabberImpl
+                .throwOperationFailedException(
+                        "Failed to close transport and candidates.",
+                        OperationFailedException.GENERAL_ERROR,
+                        e,
+                        logger);
+
+        }
+        return null;
     }
 
     /**
