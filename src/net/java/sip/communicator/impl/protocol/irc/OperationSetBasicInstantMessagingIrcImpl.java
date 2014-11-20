@@ -128,7 +128,14 @@ public class OperationSetBasicInstantMessagingIrcImpl
                         try
                         {
                             connection.getMessageManager().command(to, message);
-                            fireMessageDelivered(original, to);
+                            MessageReceivedEvent systemEvent =
+                                new MessageReceivedEvent(
+                                    message,
+                                    to,
+                                    new Date(),
+                                    MessageReceivedEvent
+                                        .SYSTEM_MESSAGE_RECEIVED);
+                            fireMessageEvent(systemEvent);
                         }
                         catch (final UnsupportedCommandException e)
                         {
