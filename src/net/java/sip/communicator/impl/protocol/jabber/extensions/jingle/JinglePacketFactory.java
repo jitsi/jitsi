@@ -261,6 +261,45 @@ public class JinglePacketFactory
     }
 
     /**
+     * Creates a {@link JingleIQ} <tt>transport-info</tt> packet with the
+     * specified <tt>from</tt>, <tt>to</tt>, <tt>sid</tt>, and
+     * <tt>contentList</tt>.
+     * Given our role in a conversation, we would assume that the <tt>from</tt>
+     * value should also be used for the value of the Jingle <tt>responder</tt>.
+     *
+     * @param from our JID
+     * @param to the destination JID
+     * @param sid the ID of the Jingle session that this message will be
+     *        terminating.
+     * @param contentList the content elements containing media transport
+     *        descriptions.
+     *
+     * @return the newly constructed {@link JingleIQ} <tt>transport-info</tt>
+     * packet.
+     */
+    public static JingleIQ createTransportInfo(
+            String                           from,
+            String                           to,
+            String                           sid,
+            Iterable<ContentPacketExtension> contentList)
+    {
+        JingleIQ descriptionInfo = new JingleIQ();
+
+        descriptionInfo.setTo(to);
+        descriptionInfo.setFrom(from);
+        descriptionInfo.setInitiator(from);
+        descriptionInfo.setType(IQ.Type.SET);
+
+        descriptionInfo.setSID(sid);
+        descriptionInfo.setAction(JingleAction.TRANSPORT_INFO);
+
+        for(ContentPacketExtension content : contentList)
+            descriptionInfo.addContent(content);
+
+        return descriptionInfo;
+    }
+
+    /**
      * Creates a new {@link JingleIQ} with the <tt>session-initiate</tt> action.
      *
      * @param from our JID
