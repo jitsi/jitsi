@@ -53,7 +53,8 @@ public class Msg implements Command
     {
         if (line.length() < END_OF_MSG_COMMAND_PREFIX)
         {
-            return;
+            throw new IllegalArgumentException(
+                "Both target nick and message are missing.");
         }
         final String part = line.substring(5);
         int endOfNick = part.indexOf(' ');

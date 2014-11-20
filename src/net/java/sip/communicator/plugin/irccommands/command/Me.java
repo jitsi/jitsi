@@ -54,7 +54,7 @@ public class Me
     {
         if (line.length() < END_OF_ME_COMMAND_PREFIX)
         {
-            return;
+            throw new IllegalArgumentException("The message is missing.");
         }
         final String message = line.substring(4);
         if (message.isEmpty())

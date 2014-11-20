@@ -15,6 +15,7 @@ import net.java.sip.communicator.impl.protocol.irc.*;
  */
 public class Nick implements Command
 {
+    private static final int END_OF_COMMAND_PREFIX_INDEX = 6;
     /**
      * Instance of the IRC connection.
      */
@@ -45,12 +46,12 @@ public class Nick implements Command
     @Override
     public void execute(final String source, final String line)
     {
-        if (line.length() <= 5)
+        if (line.length() <= END_OF_COMMAND_PREFIX_INDEX)
         {
             // no name parameter available, so nothing to do here
-            return;
+            throw new IllegalArgumentException("New nick name is missing.");
         }
-        final String part = line.substring(6);
+        final String part = line.substring(END_OF_COMMAND_PREFIX_INDEX);
         final String newNick;
         int indexOfSep = part.indexOf(' ');
         if (indexOfSep == -1)

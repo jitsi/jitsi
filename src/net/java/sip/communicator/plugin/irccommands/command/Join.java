@@ -53,7 +53,7 @@ public class Join implements Command
     {
         if (line.length() < END_OF_COMMAND_PREFIX)
         {
-            return;
+            throw new IllegalArgumentException("Missing channel to join.");
         }
         final String part = line.substring(END_OF_COMMAND_PREFIX);
         final String channel;

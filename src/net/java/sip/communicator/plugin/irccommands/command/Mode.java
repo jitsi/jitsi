@@ -55,7 +55,7 @@ public class Mode implements Command
         {
             // does not currently support requesting (and displaying) mode query
             // results.
-            return;
+            throw new IllegalArgumentException("Mode parameters are missing.");
         }
         final String rawModeString =
             line.substring(END_OF_MODE_COMMAND_PREFIX);
