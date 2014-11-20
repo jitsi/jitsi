@@ -12,7 +12,6 @@ import java.security.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -26,6 +25,7 @@ import org.jivesoftware.smack.util.Base64;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.packet.*;
+import org.osgi.framework.*;
 import org.xmlpull.mxp1.*;
 import org.xmlpull.v1.*;
 
@@ -45,6 +45,16 @@ public class EntityCapsManager
      */
     private static final Logger logger
         = Logger.getLogger(EntityCapsManager.class);
+
+    /**
+     * Static OSGi bundle context used by this class.
+     */
+    private static BundleContext bundleContext;
+
+    /**
+     * Configuration service instance used by this class.
+     */
+    private static ConfigurationService configService;
 
     /**
      * The prefix of the <tt>ConfigurationService</tt> properties which persist
@@ -152,9 +162,8 @@ public class EntityCapsManager
 
                 if ((xml != null) && (xml.length() != 0))
                 {
-                    JabberActivator
-                        .getConfigurationService()
-                            .setProperty(getCapsPropertyName(caps), xml);
+                    getConfigService()
+                        .setProperty(getCapsPropertyName(caps), xml);
                 }
             }
         }
@@ -174,6 +183,33 @@ public class EntityCapsManager
         return
             CAPS_PROPERTY_NAME_PREFIX
                 + caps.node + '#' + caps.hash + '#' + caps.ver;
+    }
+
+    /**
+     * Returns cached instance of {@link ConfigurationService}.
+     */
+    private static ConfigurationService getConfigService()
+    {
+        if (configService == null)
+        {
+            configService = ServiceUtils.getService(
+                bundleContext, ConfigurationService.class);
+        }
+        return configService;
+    }
+
+    /**
+     * Sets OSGi bundle context instance that will be used by this class.
+     * @param bundleContext the <tt>BundleContext</tt> instance to be used by
+     *                      this class or <tt>null</tt> to clear the reference.
+     */
+    public static void setBundleContext(BundleContext bundleContext)
+    {
+        if (bundleContext == null)
+        {
+            configService = null;
+        }
+        EntityCapsManager.bundleContext = bundleContext;
     }
 
     /**
@@ -422,7 +458,7 @@ public class EntityCapsManager
             if (discoverInfo == null)
             {
                 ConfigurationService configurationService
-                    = JabberActivator.getConfigurationService();
+                    = getConfigService();
                 String capsPropertyName = getCapsPropertyName(caps);
                 String xml = configurationService.getString(capsPropertyName);
 

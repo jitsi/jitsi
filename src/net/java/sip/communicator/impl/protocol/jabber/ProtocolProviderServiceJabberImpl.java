@@ -1406,6 +1406,7 @@ public class ProtocolProviderServiceJabberImpl
         discoveryManager
             = new ScServiceDiscoveryManager(
                     this,
+                    connection,
                     new String[] { "http://jabber.org/protocol/commands"},
                     // Add features Jitsi supports in addition to smack.
                     supportedFeatures.toArray(

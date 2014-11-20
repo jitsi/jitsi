@@ -65,7 +65,7 @@ public class ScServiceDiscoveryManager
     /**
      * The parent provider
      */
-    private final ProtocolProviderServiceJabberImpl parentProvider;
+    private final ProtocolProviderService parentProvider;
 
     /**
      * The {@link XMPPConnection} that this manager is responsible for.
@@ -104,6 +104,8 @@ public class ScServiceDiscoveryManager
      * discovery manager of the specified <tt>connection</tt>.
      *
      * @param parentProvider the parent provider that creates discovery manager.
+     * @param connection Smack connection object that will be used by this
+     * instance to handle XMPP connection.
      * @param featuresToRemove an array of <tt>String</tt>s representing the
      * features to be removed from the <tt>ServiceDiscoveryManager</tt> of the
      * specified <tt>connection</tt> which is to be wrapped by the new instance
@@ -113,12 +115,13 @@ public class ScServiceDiscoveryManager
      * which is to be wrapped by the new instance
      */
     public ScServiceDiscoveryManager(
-            ProtocolProviderServiceJabberImpl parentProvider,
+            ProtocolProviderService parentProvider,
+            XMPPConnection connection,
             String[] featuresToRemove,
             String[] featuresToAdd)
     {
         this.parentProvider = parentProvider;
-        this.connection = parentProvider.getConnection();
+        this.connection = connection;
 
         this.discoveryManager
             = ServiceDiscoveryManager.getInstanceFor(connection);
@@ -560,7 +563,7 @@ public class ScServiceDiscoveryManager
      *
      * @throws XMPPException if the operation failed for some reason.
      */
-    private DiscoverInfo discoverInfo(String entityID, String node)
+    public DiscoverInfo discoverInfo(String entityID, String node)
         throws XMPPException
     {
         return discoveryManager.discoverInfo(entityID, node);

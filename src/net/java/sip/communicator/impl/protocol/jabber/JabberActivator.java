@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.googlecontacts.*;
@@ -138,6 +139,7 @@ public class JabberActivator
     public void start(BundleContext context) throws Exception
     {
         JabberActivator.bundleContext = context;
+        EntityCapsManager.setBundleContext(context);
 
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
         hashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.JABBER);
@@ -247,6 +249,7 @@ public class JabberActivator
         mediaService = null;
         networkAddressManagerService = null;
         credentialsService = null;
+        EntityCapsManager.setBundleContext(null);
     }
 
     /**
