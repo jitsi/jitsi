@@ -246,11 +246,8 @@ public class NetworkAddressManagerServiceImpl
                 else
                 // an IPv4 destination
                 {
-                    // first try the easy way
-                    localHost = InetAddress.getLocalHost();
-
                     // Make sure we got an IPv4 address.
-                    if (!(localHost instanceof Inet4Address))
+                    if (intendedDestination instanceof Inet4Address)
                     {
                         // return the first non-loopback interface we find.
                         boolean done = false;
