@@ -150,14 +150,14 @@ public class SIPCommunicator
             switch (new SipCommunicatorLock().tryLock(args))
             {
             case SipCommunicatorLock.LOCK_ERROR:
-                System.err.println("Failed to lock SIP Communicator's "
+                System.err.println("Failed to lock Jitsi's "
                                 +"configuration directory.\n"
                                 +"Try launching with the --multiple param.");
                 System.exit(SipCommunicatorLock.LOCK_ERROR);
                 break;
             case SipCommunicatorLock.ALREADY_STARTED:
                 System.out.println(
-                    "SIP Communicator is already running and will "
+                    "Jitsi is already running and will "
                     +"handle your parameters (if any).\n"
                     +"Launch with the --multiple param to override this "
                     +"behaviour.");
