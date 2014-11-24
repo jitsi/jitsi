@@ -230,8 +230,11 @@ public class UriHandlerSipImpl
             Hashtable<String, String> registrationProperties =
                 new Hashtable<String, String>();
 
-            registrationProperties.put(UriHandler.PROTOCOL_PROPERTY,
-                getProtocol());
+            for (String protocol : getProtocol())
+            {
+                registrationProperties.put(UriHandler.PROTOCOL_PROPERTY,
+                    protocol);
+            }
 
             ourServiceRegistration =
                 SipActivator.bundleContext.registerService(UriHandler.class
@@ -262,9 +265,11 @@ public class UriHandlerSipImpl
      * @return the "sip" string to indicate that this handler is responsible for
      *         handling "sip" uris.
      */
-    public String getProtocol()
+    @Override
+    public String[] getProtocol()
     {
-        return "sip";
+        return new String[]
+        { "sip", "tel" };
     }
 
     /**

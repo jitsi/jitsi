@@ -221,8 +221,11 @@ public class UriHandlerJabberImpl
             Hashtable<String, String> registrationProperties =
                 new Hashtable<String, String>();
 
-            registrationProperties.put(UriHandler.PROTOCOL_PROPERTY,
-                getProtocol());
+            for (String protocol : getProtocol())
+            {
+                registrationProperties.put(UriHandler.PROTOCOL_PROPERTY,
+                    protocol);
+            }
 
             ourServiceRegistration =
                 JabberActivator.bundleContext.registerService(UriHandler.class
@@ -253,9 +256,11 @@ public class UriHandlerJabberImpl
      * @return the &quot;xmpp&quot; string to indicate that this handler is
      * responsible for handling &quot;xmpp&quot; uris.
      */
-    public String getProtocol()
+    @Override
+    public String[] getProtocol()
     {
-        return "xmpp";
+        return new String[]
+        { "xmpp" };
     }
 
     /**

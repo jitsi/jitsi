@@ -22,11 +22,11 @@ public interface UriHandler
     public static final String PROTOCOL_PROPERTY = "ProtocolName";
 
     /**
-     * Returns the protocol that this handler is responsible for.
+     * Returns the protocols that this handler is responsible for.
      *
-     * @return protocol that this handler is responsible for
+     * @return protocols that this handler is responsible for
      */
-    public String getProtocol();
+    public String[] getProtocol();
 
     /**
      * Handles/opens the URI.

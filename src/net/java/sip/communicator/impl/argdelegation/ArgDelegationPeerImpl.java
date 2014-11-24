@@ -63,7 +63,10 @@ public class ArgDelegationPeerImpl
                     UriHandler uriHandler
                         = bundleContext.getService(uriHandlerRef);
 
-                    uriHandlers.put(uriHandler.getProtocol(), uriHandler);
+                    for (String protocol : uriHandler.getProtocol())
+                    {
+                        uriHandlers.put(protocol, uriHandler);
+                    }
                 }
             }
         }
@@ -104,14 +107,19 @@ public class ArgDelegationPeerImpl
             {
             case ServiceEvent.MODIFIED:
             case ServiceEvent.REGISTERED:
-                uriHandlers.put(uriHandler.getProtocol(), uriHandler);
+                for (String protocol : uriHandler.getProtocol())
+                {
+                    uriHandlers.put(protocol, uriHandler);
+                }
                 break;
 
             case ServiceEvent.UNREGISTERING:
-                String protocol = uriHandler.getProtocol();
+                for (String protocol : uriHandler.getProtocol())
+                {
+                    if(uriHandlers.get(protocol) == uriHandler)
+                        uriHandlers.remove(protocol);
+                }
 
-                if(uriHandlers.get(protocol) == uriHandler)
-                    uriHandlers.remove(protocol);
                 break;
             }
         }
