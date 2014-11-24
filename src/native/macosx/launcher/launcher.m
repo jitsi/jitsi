@@ -71,10 +71,17 @@ int main(int argc, char *argv[])
 JLI_Launch_t getJLILaunch(NSString *parentPath)
 {
     void *libJLI = NULL;
-    for (NSString *path
-            in @[@"Contents/Libraries/libjli.jnilib",
-                 @"Contents/Home/jre/lib/jli/libjli.dylib",
-                 @"Contents/Home/lib/jli/libjli.dylib"])
+
+    NSDictionary *paths = @{
+        @"Contents/Libraries/libjli.jnilib"
+            : @"Contents/Libraries/libsplashscreen.jnilib",
+        @"Contents/Home/jre/lib/jli/libjli.dylib"
+            : @"Contents/Home/jre/lib/libsplashscreen.dylib",
+        @"Contents/Home/lib/jli/libjli.dylib"
+            : @"Contents/Home/lib/libsplashscreen.dylib"
+    };
+
+    for (NSString *path in paths)
     {
         const char *libjliPath =
             [[parentPath stringByAppendingPathComponent:path]
@@ -150,7 +157,9 @@ JLI_Launch_t getLauncher(NSDictionary *javaDictionary)
 
         if (vms != nil)
         {
-            for (NSString *vmFolderName in vms)
+            NSArray*  sortedFiles = [[vms reverseObjectEnumerator] allObjects];
+
+            for (NSString *vmFolderName in sortedFiles)
             {
                 NSString *bundlePath =
                     [jvmPath stringByAppendingPathComponent:vmFolderName];
@@ -265,7 +274,17 @@ void launchJitsi(int argMainCount, char *argMainValues[])
     }
 
     // Get the VM options
-    NSString *options = [javaDictionary objectForKey:@JVM_OPTIONS_KEY];
+    NSString *optionsStrValue = [javaDictionary objectForKey:@JVM_OPTIONS_KEY];
+    NSArray *options = NULL;
+    if(optionsStrValue != NULL)
+    {
+        optionsStrValue = [optionsStrValue
+            stringByReplacingOccurrencesOfString:@JAVA_ROOT_PREFIX
+            withString:workingDirectory];
+        optionsStrValue = [optionsStrValue stringByTrimmingCharactersInSet:
+            [NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        options = [optionsStrValue componentsSeparatedByString:@" "];
+    }
 
     // Get the system properties
     NSDictionary *sprops = [javaDictionary objectForKey:@JVM_PROPERTIES_KEY];
@@ -280,7 +299,7 @@ void launchJitsi(int argMainCount, char *argMainValues[])
     // Initialize the arguments to JLI_Launch()
     int argc = 2 + [sprops count] + 1 + appArgc - psnArgsCount;
     if(options != NULL)
-        argc++;
+        argc += [options count];
 
     char *argv[argc];
 
@@ -290,12 +309,10 @@ void launchJitsi(int argMainCount, char *argMainValues[])
 
     if(options != NULL)
     {
-        NSString *op =
-            [options stringByReplacingOccurrencesOfString:@JAVA_ROOT_PREFIX
-                    withString:workingDirectory];
-        op = [op stringByTrimmingCharactersInSet:
-                    [NSCharacterSet whitespaceAndNewlineCharacterSet]];
-        argv[i++] = strdup([op UTF8String]);
+        for ( NSString *op in options)
+        {
+            argv[i++] = strdup([op UTF8String]);
+        }
     }
 
     for( NSString *sPropKey in sprops )
