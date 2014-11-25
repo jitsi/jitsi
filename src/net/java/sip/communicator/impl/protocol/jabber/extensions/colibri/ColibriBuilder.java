@@ -198,16 +198,9 @@ public class ColibriBuilder
                         IceUdpTransportPacketExtension.class);
             if (transport != null)
             {
-                try
-                {
-                    bundle.setTransport(
-                        IceUdpTransportPacketExtension
-                            .cloneTransportAndCandidates(transport, true));
-                }
-                catch (Exception e)
-                {
-                    logger.error("Error cloning transport", e);
-                }
+                bundle.setTransport(
+                    IceUdpTransportPacketExtension
+                        .cloneTransportAndCandidates(transport, true));
             }
 
             request.addChannelBundle(bundle);
@@ -254,19 +247,9 @@ public class ColibriBuilder
 
             if (channel != null)
             {
-                IceUdpTransportPacketExtension transport;
-
-                try
-                {
-                    transport = IceUdpTransportPacketExtension
-                        .cloneTransportAndCandidates(e.getValue(), true);
-                }
-                catch (Exception ofe)
-                {
-                    transport = null;
-                }
-                if (transport == null)
-                    continue;
+                IceUdpTransportPacketExtension transport
+                    = IceUdpTransportPacketExtension
+                            .cloneTransportAndCandidates(e.getValue(), true);
 
                 ColibriConferenceIQ.ChannelCommon channelRequest
                     = channel instanceof ColibriConferenceIQ.Channel
@@ -349,15 +332,8 @@ public class ColibriBuilder
 
         IceUdpTransportPacketExtension transportUpdate;
 
-        try
-        {
-            transportUpdate = IceUdpTransportPacketExtension
-                .cloneTransportAndCandidates(transport, true);
-        }
-        catch (Exception ofe)
-        {
-            transportUpdate = null;
-        }
+        transportUpdate = IceUdpTransportPacketExtension
+            .cloneTransportAndCandidates(transport, true);
 
         bundleUpdate.setTransport(transportUpdate);
 
@@ -607,20 +583,13 @@ public class ColibriBuilder
         IceUdpTransportPacketExtension iceUdpTransportPacketExtension
             = content.getFirstChildOfType(
                     IceUdpTransportPacketExtension.class);
-        try
-        {
-            IceUdpTransportPacketExtension iceUdpCopy
-                = IceUdpTransportPacketExtension
-                        .cloneTransportAndCandidates(
-                            iceUdpTransportPacketExtension, true);
 
-            remoteChannelRequest.setTransport(iceUdpCopy);
-        }
-        catch (Exception e)
-        {
-            //FIXME: fix handling
-            logger.error(e, e);
-        }
+        IceUdpTransportPacketExtension iceUdpCopy
+            = IceUdpTransportPacketExtension
+                    .cloneTransportAndCandidates(
+                        iceUdpTransportPacketExtension, true);
+
+        remoteChannelRequest.setTransport(iceUdpCopy);
     }
 
     /**
