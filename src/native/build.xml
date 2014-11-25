@@ -311,7 +311,7 @@
       <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" />
 
       <linkerarg value="-o" location="end" />
-      <linkerarg value="libAEGetURLEventHandlerAgent.jnilib" location="end" />
+      <linkerarg value="libAEGetURLEventHandlerAgent.dylib" location="end" />
       <linkerarg value="-arch" />
       <linkerarg value="x86_64" />
       <linkerarg value="-framework" />

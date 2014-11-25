@@ -1043,7 +1043,7 @@
         <delete failonerror="false" file="${macosx.resrc.dir}/logging.properties"/>
         <delete failonerror="false" file="${macosx.resrc.dir}/felix.client.run.properties"/>
         <symlink action="delete" failonerror="false"
-                 link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.jnilib"/>
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.dylib"/>
 
         <symlink action="delete" failonerror="false"
                  link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Headers"/>
@@ -1268,12 +1268,8 @@
       <true/>
       <key>CFBundleName</key>]]></replacevalue>
       </replace>
-      <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.jnilib"
-               link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.jnilib"/>
-      <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.jnilib"
+      <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.dylib"
                link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.dylib"/>
-      <symlink resource="libAEGetURLEventHandlerAgent.jnilib"
-               link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/libAEGetURLEventHandlerAgent.dylib"/>
 
       <copy file="${macosx.resrc.dir}/JavaApplicationStub_Old"
             tofile="${macosx.app.dir}/${application.name}.app/Contents/MacOS/${application.name}_Launcher"/>
