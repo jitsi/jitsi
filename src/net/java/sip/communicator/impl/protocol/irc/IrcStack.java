@@ -27,6 +27,8 @@ import com.ircclouds.irc.api.listeners.*;
 /**
  * An implementation of IRC using the irc-api library.
  *
+ * TODO remove Debug listener in case of disconnect by QUIT or ERROR
+ *
  * @author Danny van Heumen
  */
 public class IrcStack implements IrcConnectionListener
