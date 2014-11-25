@@ -46,7 +46,14 @@ public class MeTest extends TestCase
         EasyMock.replay(provider, connection);
 
         Me me = new Me(provider, connection);
-        me.execute("#test", "/me");
+        try
+        {
+            me.execute("#test", "/me");
+            Assert.fail();
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
     }
 
     public void testZeroLengthMessage()
