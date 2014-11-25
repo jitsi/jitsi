@@ -143,23 +143,61 @@ JLI_Launch_t getLauncher(NSDictionary *javaDictionary)
             return jli_LaunchFxnPtr;
     }
 
+    // first test builtInPlugins folder, if we have embedded one we want it
+    NSError *error = nil;
+    NSString *pluginsFolder = [[NSBundle mainBundle] builtInPlugInsPath];
+    NSArray *pluginsFolderContents = [[NSFileManager defaultManager]
+        contentsOfDirectoryAtPath:pluginsFolder error:&error];
+    if (pluginsFolderContents != nil)
+    {
+        for (NSString *pFolderName in pluginsFolderContents)
+        {
+            NSString *bundlePath
+                = [pluginsFolder stringByAppendingPathComponent:pFolderName];
+
+            if ([pFolderName hasSuffix:@".jdk"]
+                || [pFolderName hasSuffix:@".jre"])
+            {
+                NSBundle *bundle = [NSBundle bundleWithPath:bundlePath];
+
+                NSDictionary *jdict =
+                    [bundle.infoDictionary valueForKey:@"JavaVM"];
+
+                if(jdict == NULL)
+                    continue;
+
+                NSString *jvmVersion = [jdict valueForKey:@"JVMVersion"];
+
+                if (jvmVersion == NULL
+                    || !satisfies(jvmVersion, required))
+                    continue;
+
+                JLI_Launch_t jli_LaunchFxnPtr = getJLILaunch(bundlePath);
+
+                if(jli_LaunchFxnPtr != NULL)
+                {
+                    return jli_LaunchFxnPtr;
+                }
+            }
+        }
+    }
+
+    // Now let's try some other common locations
+    NSMutableDictionary *foundVersions = [NSMutableDictionary new];
     for (NSString *jvmPath
-            in @[[[NSBundle mainBundle] builtInPlugInsPath],
-                 @"Library/Java/JavaVirtualMachines",
+            in @[@"Library/Java/JavaVirtualMachines",
                  @"/Library/Java/JavaVirtualMachines",
                  @"/System/Library/Java/JavaVirtualMachines",
                  @"/Library/Internet Plug-Ins/JavaAppletPlugin.plugin"])
     {
-        NSError *error = nil;
+
         NSArray *vms =
             [[NSFileManager defaultManager]
                 contentsOfDirectoryAtPath:jvmPath error:&error];
 
         if (vms != nil)
         {
-            NSArray*  sortedFiles = [[vms reverseObjectEnumerator] allObjects];
-
-            for (NSString *vmFolderName in sortedFiles)
+            for (NSString *vmFolderName in vms)
             {
                 NSString *bundlePath =
                     [jvmPath stringByAppendingPathComponent:vmFolderName];
@@ -180,15 +218,26 @@ JLI_Launch_t getLauncher(NSDictionary *javaDictionary)
                     if (jvmVersion == NULL
                         || !satisfies(jvmVersion, required))
                         continue;
-                }
 
-                JLI_Launch_t jli_LaunchFxnPtr = getJLILaunch(bundlePath);
-
-                if(jli_LaunchFxnPtr != NULL)
-                {
-                    return jli_LaunchFxnPtr;
+                    [foundVersions setObject:bundlePath forKey:jvmVersion];
                 }
             }
+        }
+    }
+
+    NSArray *sortedKeys =
+        [foundVersions keysSortedByValueUsingComparator:
+           ^NSComparisonResult(id obj1, id obj2) {
+               return [obj2 compare:obj1];
+           }];
+
+    for (id key in sortedKeys)
+    {
+        JLI_Launch_t jli_LaunchFxnPtr = getJLILaunch(foundVersions[key]);
+
+        if(jli_LaunchFxnPtr != NULL)
+        {
+            return jli_LaunchFxnPtr;
         }
     }
 

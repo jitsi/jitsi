@@ -1142,7 +1142,7 @@
                   signature="sipc"
                   mainclass="net.java.sip.communicator.launcher.SIPCommunicator"
                   icon="resources/images/logo/sc_logo_128x128.icns"
-                  jvmversion="1.6*"
+                  jvmversion="1.7+"
                   version="${sip-communicator.version}"
                   build="${sparkle.build}"
                   infostring="${application.name}"
@@ -1150,8 +1150,7 @@
                   stubfile="${macosx.app.dir}/tmp/${macosx.stub.filename}"
                   extraclasspath="/System/Library/Java,$JAVAROOT"
                   workingdirectory="$APP_PACKAGE/Contents/Resources/Java"
-                  splashfile="$JAVAROOT/splash.gif"
-                  vmoptions="-agentlib:AEGetURLEventHandlerAgent ${jvmarg}">
+                  vmoptions="-agentlib:AEGetURLEventHandlerAgent -splash:splash.gif ${jvmarg}">
 
         <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
         <javaproperty name="apple.awt.brushMetalRounded" value="true"/>
@@ -1275,6 +1274,11 @@
                link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.dylib"/>
       <symlink resource="libAEGetURLEventHandlerAgent.jnilib"
                link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/libAEGetURLEventHandlerAgent.dylib"/>
+
+      <copy file="${macosx.resrc.dir}/JavaApplicationStub_Old"
+            tofile="${macosx.app.dir}/${application.name}.app/Contents/MacOS/${application.name}_Launcher"/>
+      <chmod file="${macosx.app.dir}/${application.name}.app/Contents/MacOS/${application.name}_Launcher"
+             perm="ugo+rx"/>
 
       <copy file="${macosx.resrc.dir}/libgrowl4j.dylib"
             todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/"/>
