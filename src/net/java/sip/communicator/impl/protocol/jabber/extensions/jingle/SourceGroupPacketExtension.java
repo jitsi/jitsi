@@ -86,4 +86,29 @@ public class SourceGroupPacketExtension
         }
 
     }
+
+    /**
+     * Returns deep copy of this <tt>SourceGroupPacketExtension</tt> instance.
+     */
+    public SourceGroupPacketExtension copy()
+    {
+        SourceGroupPacketExtension copy
+            = AbstractPacketExtension.clone(this);
+
+        copy.setSemantics(getSemantics());
+
+        List<SourcePacketExtension> sources = getSources();
+
+        List<SourcePacketExtension> sourcesCopy
+            = new ArrayList<SourcePacketExtension>(sources.size());
+
+        for (SourcePacketExtension source : sources)
+        {
+            sourcesCopy.add(source.copy());
+        }
+
+        copy.addSources(sourcesCopy);
+
+        return copy;
+    }
 }
