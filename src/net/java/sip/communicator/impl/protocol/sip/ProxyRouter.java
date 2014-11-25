@@ -102,7 +102,7 @@ public class ProxyRouter
         // so we are logging a stack trace here.
         logger.fatal("If you see this then please please describe your SIP "
             + "setup and send the following stack trace to"
-            + "dev@sip-communicator.dev.java.net", new Exception());
+            + "dev@jitsi.org", new Exception());
         return null;
     }
 
