@@ -327,33 +327,63 @@
                 <include name="bin/javaws.exe" />
                 <include name="lib/javaws.jar" />
                 <include name="lib/javaws/**" />
+                <include name="lib/jfr/**" />
+                <include name="lib/jfr.jar" />
+
                 <include name="bin/javacpl.exe" />
                 <include name="bin/jucheck.exe" />
                 <include name="bin/jusched.exe" />
+                <include name="bin/dtplugin/**" />
+                <include name="bin/jabswitch.exe" />
+                <include name="bin/JavaAccessBridge-32.dll" />
+                <include name="bin/JavaAccessBridge.dll" />
+                <include name="bin/JAWTAccessBridge-32.dll" />
+                <include name="bin/JAWTAccessBridge.dll" />
+                <include name="bin/WindowsAccessBridge-32.dll" />
+                <include name="bin/WindowsAccessBridge.dll" />
                 <include name="bin/wsdetect.dll" />
-                <include name="bin/npjpi*.dll" />
-                <include name="bin/npjava11.dll" />
-                <include name="bin/npjava12.dll" />
-                <include name="bin/npjava13.dll" />
-                <include name="bin/npjava14.dll" />
-                <include name="bin/npjava32.dll" />
-                <include name="bin/npoji610.dll" />
-                <include name="bin/regutils.dll" />
-                <include name="bin/axbridge.dll" />
+                <include name="bin/plugin2/**" />
                 <include name="bin/deploy.dll" />
-                <include name="bin/jpicom.dll" />
+                <include name="bin/jfr.dll" />
                 <include name="bin/javacpl.cpl" />
-                <include name="bin/jpiexp.dll" />
-                <include name="bin/jpinscp.dll" />
-                <include name="bin/jpioji.dll" />
-                <include name="bin/jpishare.dll" />
-                <include name="lib/deploy.jar" />
-                <include name="lib/plugin.jar" />
-
-                <include name="bin/new_plugin/**" />
-                <include name="bin/jp2*.exe" />
+                <include name="bin/deploy.jar" />
+                <include name="bin/plugin.jar" />
                 <include name="lib/deploy/**" />
-                <include name="bin/jqs*.exe" />
+
+                <include name="bin/decora-sse.dll" />
+                <include name="bin/fxplugins.dll" />
+                <include name="bin/glass.dll" />
+                <include name="bin/glib-lite.dll" />
+                <include name="bin/gstreamer-lite.dll" />
+                <include name="bin/javafx-font.dll" />
+                <include name="bin/javafx_font_t2k.dll" />
+                <include name="bin/javafx-iio.dll" />
+                <include name="bin/jfxmedia.dll" />
+                <include name="bin/jfxwebkit.dll" />
+                <include name="bin/prism_common.dll" />
+                <include name="bin/prism-d3d.dll" />
+                <include name="bin/prism_es2.dll" />
+                <include name="bin/prism_sw.dll" />
+
+                <include name="bin/jp2*.exe" />
+
+                <include name="lib/javafx.properties" />
+                <include name="lib/jfxswt.jar" />
+                <include name="bin/decora-sse.dll" />
+                <include name="bin/fxplugins.dll" />
+                <include name="bin/glass.dll" />
+                <include name="bin/glib-lite.dll" />
+                <include name="bin/gstreamer-lite.dll" />
+                <include name="bin/javafx-font.dll" />
+                <include name="bin/javafx_font_t2k.dll" />
+                <include name="bin/javafx-iio.dll" />
+                <include name="bin/jfxmedia.dll" />
+                <include name="bin/jfxwebkit.dll" />
+                <include name="bin/prism_common.dll" />
+                <include name="bin/prism-d3d.dll" />
+                <include name="bin/prism_es2.dll" />
+                <include name="bin/prism_sw.dll" />
+
             </fileset>
         </delete>
     </target>
@@ -1306,14 +1336,47 @@
                   <include name="${jre.folder.name}/Contents/Info.plist"/>
                   <include name="${jre.folder.name}/Contents/Home/jre/"/>
                   <exclude name="${jre.folder.name}/Contents/Home/bin/"/>
-                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/"/>
+
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/rmid"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/rmiregistry"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/tnameserv"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/keytool"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/kinit"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/klist"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/ktab"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/policytool"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/orbd"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/servertool"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/javaws"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/java"/>
+
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/javaws.jar"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/jfr/"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/jfr.jar"/>
                   <exclude name="${jre.folder.name}/Contents/Home/jre/lib/deploy/"/>
                   <exclude name="${jre.folder.name}/Contents/Home/jre/lib/deploy.jar"/>
-                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/javaws.jar"/>
-                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libdeploy.dylib"/>
-                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libnpjp2.dylib"/>
                   <exclude name="${jre.folder.name}/Contents/Home/jre/lib/plugin.jar"/>
-                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/security/javaws.policy"/>
+
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libdeploy.dylib"/>
+
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/javafx.properties"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/jfxswt.jar"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/fxplugins.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libdecora_sse.so"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libdecora-sse.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libfxplugins.so"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libglass.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libglib-lite.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libgstreamer-lite.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libjavafx_font_t2k.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libjavafx-font.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libjavafx-iio.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libjfxmedia.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libjfxwebkit.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libprism_common.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libprism_sw.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libprism-es2.dylib"/>
+
               </fileset>
         </copy>
 
