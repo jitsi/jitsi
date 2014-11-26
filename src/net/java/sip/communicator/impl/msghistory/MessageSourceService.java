@@ -595,6 +595,12 @@ public class MessageSourceService
                 }
             }
 
+            // handleProviderRemoved can be invoked due to stopped
+            // history service, if this is the case we do not want to
+            // update messages
+            if(!this.messageHistoryService.isHistoryLoggingEnabled())
+                return;
+
             // lets do the same as we enable provider
             // for all registered providers and finally fire events
             List<ComparableEvtObj> contactsToAdd
