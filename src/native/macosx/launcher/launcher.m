@@ -346,7 +346,9 @@ void launchJitsi(int argMainCount, char *argMainValues[])
         appArgc = jargc;
 
     // Initialize the arguments to JLI_Launch()
-    int argc = 2 + [sprops count] + 1 + appArgc - psnArgsCount;
+    // 2 for argMainValues and classPath
+    // 1 + 1 - the dock.name + mainclass
+    int argc = 2 + [sprops count] + 1 + 1 + appArgc - psnArgsCount;
     if(options != NULL)
         argc += [options count];
 
@@ -376,6 +378,9 @@ void launchJitsi(int argMainCount, char *argMainValues[])
                     withString:workingDirectory]]
             UTF8String]);
     }
+
+    argv[i++] = strdup(
+        [[NSString stringWithFormat:@"-Xdock:name=%@", pname] UTF8String]);
 
     argv[i++] = strdup([mainClassName UTF8String]);
 
