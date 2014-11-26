@@ -167,6 +167,10 @@ public class GroupNode
         
             index = getIndex(contactNode);
         }
+
+        // not found
+        if(index == -1)
+            return;
         
         int selectedIndex = getLeadSelectionRow();
 
@@ -230,9 +234,13 @@ public class GroupNode
             if (groupNode == null)
                 return;
         }
-        
-            
+
         int index = getIndex(groupNode);
+
+        // not found
+        if(index == -1)
+            return;
+
         int selectedIndex = getLeadSelectionRow();
 
         // We remove the node directly from the list, thus skipping all the
