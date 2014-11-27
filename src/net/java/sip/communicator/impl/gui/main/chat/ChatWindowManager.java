@@ -1212,8 +1212,7 @@ public class ChatWindowManager
             this.chatPanels.add(chatPanel);
         }
 
-        if (ConfigurationUtils.isHistoryShown())
-            chatPanel.loadHistory(escapedMessageID);
+        chatPanel.loadHistory(escapedMessageID);
 
         fireChatCreated(chatPanel);
         return chatPanel;
@@ -1314,8 +1313,7 @@ public class ChatWindowManager
             this.chatPanels.add(chatPanel);
         }
 
-        if (ConfigurationUtils.isHistoryShown())
-            chatPanel.loadHistory(escapedMessageID);
+        chatPanel.loadHistory(escapedMessageID);
 
         fireChatCreated(chatPanel);
         return chatPanel;
@@ -1347,8 +1345,7 @@ public class ChatWindowManager
             this.chatPanels.add(chatPanel);
         }
 
-        if (ConfigurationUtils.isHistoryShown())
-            chatPanel.loadHistory(escapedMessageID);
+        chatPanel.loadHistory(escapedMessageID);
 
         fireChatCreated(chatPanel);
         return chatPanel;

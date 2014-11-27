@@ -1968,6 +1968,12 @@ public class ChatPanel
      */
     public void loadHistory(final String escapedMessageID)
     {
+        if (!ConfigurationUtils.isHistoryShown())
+        {
+            isHistoryLoaded = true;
+            return;
+        }
+
         SwingWorker historyWorker = new SwingWorker()
         {
             private Collection<Object> historyList;
