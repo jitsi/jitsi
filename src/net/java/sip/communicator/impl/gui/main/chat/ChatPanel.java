@@ -1147,32 +1147,6 @@ public class ChatPanel
      * or INCOMING_MESSAGE.
      * @param message The message text.
      * @param contentType the content type of the message (html or plain text)
-     *
-     * @return a string containing the processed message.
-     */
-    private String processHistoryMessage(String contactName,
-                                         String contactDisplayName,
-                                         Date date,
-                                         String messageType,
-                                         String message,
-                                         String contentType)
-    {
-      return processHistoryMessage(contactName, contactDisplayName,
-              date, messageType, message, contentType, null);
-    }
-
-    /**
-     * Passes the message to the contained <code>ChatConversationPanel</code>
-     * for processing.
-     *
-     * @param contactName The name of the contact sending the message.
-     * @param contactDisplayName the display name of the contact sending the
-     * message
-     * @param date The time at which the message is sent or received.
-     * @param messageType The type of the message. One of OUTGOING_MESSAGE
-     * or INCOMING_MESSAGE.
-     * @param message The message text.
-     * @param contentType the content type of the message (html or plain text)
      * @param messageId The ID of the message.
      *
      * @return a string containing the processed message.
