@@ -37,6 +37,7 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 
+import org.apache.commons.lang3.*;
 import org.jitsi.util.*;
 
 /**
@@ -3078,12 +3079,16 @@ public class ChatPanel
      */
     public void chatRoomPropertyChanged(ChatRoomMemberPropertyChangeEvent event)
     {
+        String message = GuiActivator.getResources().getI18NString(
+            "service.gui.CHAT_NICKNAME_CHANGE",
+            new String[]{
+                (String) event.getOldValue(),
+                (String) event.getNewValue()
+            });
         this.conversationPanel
             .appendMessageToEnd(
                 "<DIV identifier=\"message\" style=\"color:#707070;\">"
-                + event.getOldValue()
-                + " is now known as "
-                + event.getNewValue() + "</DIV>",
+                + StringEscapeUtils.escapeHtml4(message) + "</DIV>",
                 ChatHtmlUtils.HTML_CONTENT_TYPE);
     }
 
