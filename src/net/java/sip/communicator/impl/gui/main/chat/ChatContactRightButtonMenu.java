@@ -213,7 +213,7 @@ public class ChatContactRightButtonMenu
                 ? room.getUserRole()
                 : ((ChatRoomMember) chatContact.getDescriptor()).getRole();
         int roleIndex = role.getRoleIndex();
-        String roleName = role.getRoleName();
+        String roleName = role.getLocalizedRoleName();
 
         JLabel jl_username
             = new JLabel(" "+chatContact.getName()+" ("+roleName+") ");

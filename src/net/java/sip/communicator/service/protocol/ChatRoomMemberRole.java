@@ -19,38 +19,38 @@ public enum ChatRoomMemberRole
     /**
      * A role implying the full set of chat room permissions
      */
-    OWNER("Owner", 70),
+    OWNER("Owner", "service.gui.chat.role.OWNER", 70),
 
     /**
      * A role implying administrative permissions.
      */
-    ADMINISTRATOR("Administrator", 60),
+    ADMINISTRATOR("Administrator", "service.gui.chat.role.ADMINISTRATOR", 60),
 
     /**
      * A role implying moderator permissions.
      */
-    MODERATOR("Moderator", 50),
+    MODERATOR("Moderator", "service.gui.chat.role.MODERATOR", 50),
 
     /**
      * A role implying standard participant permissions.
      */
-    MEMBER("Member", 40),
+    MEMBER("Member", "service.gui.chat.role.MEMBER", 40),
 
     /**
      * A role implying standard participant permissions.
      */
-    GUEST("Guest", 30),
+    GUEST("Guest", "service.gui.chat.role.GUEST", 30),
 
     /**
      * A role implying standard participant permissions without the right to
      * send messages/speak.
      */
-    SILENT_MEMBER("SilentMember", 20),
+    SILENT_MEMBER("SilentMember", "service.gui.chat.role.SILENT_MEMBER", 20),
 
     /**
      * A role implying an explicit ban for the user to join the room.
      */
-    OUTCAST("Outcast", 10);
+    OUTCAST("Outcast", "service.gui.chat.role.OUTCAST", 10);
 
     /**
      * the name of this role.
@@ -66,24 +66,31 @@ public enum ChatRoomMemberRole
     private final int roleIndex;
 
     /**
+     * Resource name for localization.
+     */
+    private final String resourceName;
+
+    /**
      * Creates a role with the specified <tt>roleName</tt>. The constructor
      * is protected in case protocol implementations need to add extra roles
      * (this should only be done when absolutely necessary in order to assert
      * smooth interoperability with the user interface).
      *
      * @param roleName the name of this role.
+     * @param resource the resource name to localize the enum.
      * @param roleIndex an int that would allow to compare this role to others
      * according to the set of permissions that it implies.
      *
      * @throws java.lang.NullPointerException if roleName is null.
      */
-    private ChatRoomMemberRole(String roleName, int roleIndex)
+    private ChatRoomMemberRole(String roleName, String resource, int roleIndex)
         throws NullPointerException
     {
         if(roleName == null)
             throw new NullPointerException("Role Name can't be null.");
 
         this.roleName = roleName;
+        this.resourceName = resource;
         this.roleIndex = roleIndex;
     }
 
@@ -104,7 +111,7 @@ public enum ChatRoomMemberRole
      */
     public String getLocalizedRoleName()
     {
-        return this.roleName;
+        return this.resourceName;
     }
 
     /**
