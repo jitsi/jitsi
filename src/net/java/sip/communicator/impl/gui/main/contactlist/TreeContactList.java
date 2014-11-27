@@ -349,10 +349,22 @@ public class TreeContactList
      * @param uiContact the existing UIContact
      * @param sourceUI the contact source service UI representation
      */
-    private void contactChanged(SourceContact sourceContact,
-                                UIContact uiContact,
-                                UIContactSource sourceUI)
+    private void contactChanged(final SourceContact sourceContact,
+                                final UIContact uiContact,
+                                final UIContactSource sourceUI)
     {
+        if (!SwingUtilities.isEventDispatchThread())
+        {
+            LowPriorityEventQueue.invokeLater(new Runnable()
+            {
+                public void run()
+                {
+                    contactChanged(sourceContact, uiContact, sourceUI);
+                }
+            });
+            return;
+        }
+
         if(!(uiContact instanceof UIContactImpl))
             return;
 
