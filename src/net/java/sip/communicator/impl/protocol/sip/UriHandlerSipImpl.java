@@ -269,7 +269,7 @@ public class UriHandlerSipImpl
     public String[] getProtocol()
     {
         return new String[]
-        { "sip", "tel" };
+        { "sip", "tel", "callto" };
     }
 
     /**
