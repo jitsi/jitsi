@@ -129,8 +129,8 @@ public class MessageHistoryServiceImpl
                                                     Date startDate)
         throws RuntimeException
     {
-        TreeSet<EventObject> result =
-            new TreeSet<EventObject>(new MessageEventComparator<EventObject>());
+        HashSet<EventObject> result = new HashSet<EventObject>();
+
         // get the readers for this contact
         Map<Contact, HistoryReader> readers = getHistoryReaders(contact);
 
@@ -177,8 +177,7 @@ public class MessageHistoryServiceImpl
                                                     Date endDate)
         throws RuntimeException
     {
-        TreeSet<EventObject> result = new TreeSet<EventObject>(
-            new MessageEventComparator<EventObject>());
+        HashSet<EventObject> result = new HashSet<EventObject>();
 
         // get the readers for this contact
         Map<Contact, HistoryReader> readers = getHistoryReaders(contact);
@@ -221,8 +220,7 @@ public class MessageHistoryServiceImpl
                                                 Date endDate)
         throws RuntimeException
     {
-        TreeSet<EventObject> result
-            = new TreeSet<EventObject>(new MessageEventComparator<EventObject>());
+        HashSet<EventObject> result = new HashSet<EventObject>();
 
         // get the readers for this contact
         Map<Contact, HistoryReader> readers = getHistoryReaders(contact);
@@ -316,9 +314,7 @@ public class MessageHistoryServiceImpl
     public Collection<EventObject> findLast(MetaContact contact, int count)
         throws RuntimeException
     {
-        TreeSet<EventObject> result
-            = new TreeSet<EventObject>(
-                new MessageEventComparator<EventObject>());
+        LinkedList<EventObject> result = new LinkedList<EventObject>();
 
         Iterator<Contact> iter = contact.getContacts();
         while (iter.hasNext())
@@ -337,20 +333,19 @@ public class MessageHistoryServiceImpl
                         convertHistoryRecordToMessageEvent(recs.next(), item));
 
                 }
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 logger.error("Could not read history", e);
             }
         }
 
-        LinkedList<EventObject> resultAsList
-            = new LinkedList<EventObject>(result);
-        int startIndex = resultAsList.size() - count;
-
+        Collections.sort(result, new MessageEventComparator<EventObject>());
+        int startIndex = result.size() - count;
         if(startIndex < 0)
             startIndex = 0;
 
-        return resultAsList.subList(startIndex, resultAsList.size());
+        return result.subList(startIndex, result.size());
     }
 
     /**
@@ -394,9 +389,7 @@ public class MessageHistoryServiceImpl
             boolean isSMSEnabled)
         throws RuntimeException
     {
-        TreeSet<EventObject> result
-            = new TreeSet<EventObject>(
-                    new MessageEventComparator<EventObject>(true));
+        HashSet<EventObject> result = new HashSet<EventObject>();
 
         List<HistoryID> historyIDs=
             this.historyService.getExistingHistories(
@@ -605,8 +598,7 @@ public class MessageHistoryServiceImpl
                                                             int count)
         throws RuntimeException
     {
-        TreeSet<EventObject> result = new TreeSet<EventObject>(
-            new MessageEventComparator<EventObject>());
+        LinkedList<EventObject> result = new LinkedList<EventObject>();
 
         Iterator<Contact> iter = contact.getContacts();
         while (iter.hasNext())
@@ -633,7 +625,8 @@ public class MessageHistoryServiceImpl
                             item));
 
                 }
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 logger.error("Could not read history", e);
             }
@@ -663,14 +656,12 @@ public class MessageHistoryServiceImpl
                 startIx++;
         }
 
-        LinkedList<EventObject> resultAsList
-            = new LinkedList<EventObject>(result);
-
+        Collections.sort(result, new MessageEventComparator<EventObject>());
         int toIndex = startIx + count;
-        if(toIndex > resultAsList.size())
-            toIndex = resultAsList.size();
+        if(toIndex > result.size())
+            toIndex = result.size();
 
-        return resultAsList.subList(startIx, toIndex);
+        return result.subList(startIx, toIndex);
     }
 
     /**
@@ -688,8 +679,7 @@ public class MessageHistoryServiceImpl
                                                             int count)
         throws RuntimeException
     {
-        TreeSet<EventObject> result = new TreeSet<EventObject>(
-            new MessageEventComparator<EventObject>());
+        LinkedList<EventObject> result = new LinkedList<EventObject>();
 
         Iterator<Contact> iter = contact.getContacts();
         while (iter.hasNext())
@@ -710,20 +700,19 @@ public class MessageHistoryServiceImpl
                             item));
 
                 }
-            } catch (IOException e)
+            }
+            catch (IOException e)
             {
                 logger.error("Could not read history", e);
             }
         }
 
-        LinkedList<EventObject> resultAsList
-            = new LinkedList<EventObject>(result);
-        int startIndex = resultAsList.size() - count;
-
+        Collections.sort(result, new MessageEventComparator<EventObject>());
+        int startIndex = result.size() - count;
         if(startIndex < 0)
             startIndex = 0;
 
-        return resultAsList.subList(startIndex, resultAsList.size());
+        return result.subList(startIndex, result.size());
     }
 
     /**
@@ -1867,7 +1856,7 @@ public class MessageHistoryServiceImpl
                                    boolean caseSensitive)
         throws RuntimeException
     {
-        TreeSet<EventObject> result = new TreeSet<EventObject>(new MessageEventComparator<EventObject>());
+        HashSet<EventObject> result = new HashSet<EventObject>();
         // get the readers for this contact
         Map<Contact, HistoryReader> readers = getHistoryReaders(contact);
 
@@ -1908,7 +1897,7 @@ public class MessageHistoryServiceImpl
                                     boolean caseSensitive)
         throws RuntimeException
     {
-        TreeSet<EventObject> result = new TreeSet<EventObject>(new MessageEventComparator<EventObject>());
+        HashSet<EventObject> result = new HashSet<EventObject>();
         // get the readers for this contact
         Map<Contact, HistoryReader> readers = getHistoryReaders(contact);
 
@@ -1949,7 +1938,7 @@ public class MessageHistoryServiceImpl
                                      boolean caseSensitive)
         throws RuntimeException
     {
-        TreeSet<EventObject> result = new TreeSet<EventObject>(new MessageEventComparator<EventObject>());
+        HashSet<EventObject> result = new HashSet<EventObject>();
         // get the readers for this contact
         Map<Contact, HistoryReader> readers = getHistoryReaders(contact);
 
@@ -2032,7 +2021,7 @@ public class MessageHistoryServiceImpl
     public Collection<EventObject> findByStartDate(ChatRoom room, Date startDate)
         throws RuntimeException
     {
-        TreeSet<EventObject> result = new TreeSet<EventObject>(new ChatRoomMessageEventComparator<EventObject>());
+        HashSet<EventObject> result = new HashSet<EventObject>();
         try
         {
             // get the readers for this room
@@ -2069,7 +2058,7 @@ public class MessageHistoryServiceImpl
     public Collection<EventObject> findByEndDate(ChatRoom room, Date endDate)
         throws RuntimeException
     {
-        TreeSet<EventObject> result = new TreeSet<EventObject>(new ChatRoomMessageEventComparator<EventObject>());
+        HashSet<EventObject> result = new HashSet<EventObject>();
         try
         {
             // get the readers for this room
@@ -2107,7 +2096,7 @@ public class MessageHistoryServiceImpl
     public Collection<EventObject> findByPeriod(ChatRoom room, Date startDate, Date endDate)
         throws RuntimeException
     {
-        TreeSet<EventObject> result = new TreeSet<EventObject>(new ChatRoomMessageEventComparator<EventObject>());
+        HashSet<EventObject> result = new HashSet<EventObject>();
         try
         {
             // get the readers for this room
@@ -2168,8 +2157,7 @@ public class MessageHistoryServiceImpl
             Date endDate, String[] keywords, boolean caseSensitive)
         throws RuntimeException
     {
-        TreeSet<EventObject> result = new TreeSet<EventObject>(
-            new ChatRoomMessageEventComparator<EventObject>());
+        HashSet<EventObject> result = new HashSet<EventObject>();
         try
         {
             // get the readers for this room
@@ -2225,8 +2213,7 @@ public class MessageHistoryServiceImpl
             boolean caseSensitive)
         throws RuntimeException
     {
-        TreeSet<EventObject> result = new TreeSet<EventObject>(
-            new ChatRoomMessageEventComparator<EventObject>());
+        HashSet<EventObject> result = new HashSet<EventObject>();
         try
         {
             // get the readers for this room
@@ -2284,8 +2271,7 @@ public class MessageHistoryServiceImpl
                                                     boolean caseSensitive)
         throws RuntimeException
     {
-        TreeSet<EventObject> result = new TreeSet<EventObject>(
-            new ChatRoomMessageEventComparator<EventObject>());
+        HashSet<EventObject> result = new HashSet<EventObject>();
         try
         {
             // get the readers for this room
@@ -2324,8 +2310,7 @@ public class MessageHistoryServiceImpl
     public Collection<EventObject> findLast(ChatRoom room, int count)
         throws RuntimeException
     {
-        TreeSet<EventObject> result = new TreeSet<EventObject>(
-            new ChatRoomMessageEventComparator<EventObject>());
+        LinkedList<EventObject> result = new LinkedList<EventObject>();
 
         try
         {
@@ -2340,19 +2325,19 @@ public class MessageHistoryServiceImpl
                         room));
 
             }
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             logger.error("Could not read history", e);
         }
 
-        LinkedList<EventObject> resultAsList
-        = new LinkedList<EventObject>(result);
-        int startIndex = resultAsList.size() - count;
-
+        Collections.sort(result,
+            new ChatRoomMessageEventComparator<EventObject>());
+        int startIndex = result.size() - count;
         if(startIndex < 0)
             startIndex = 0;
 
-        return resultAsList.subList(startIndex, resultAsList.size());
+        return result.subList(startIndex, result.size());
     }
 
     /**
@@ -2370,8 +2355,7 @@ public class MessageHistoryServiceImpl
                                                             int count)
         throws RuntimeException
     {
-        TreeSet<EventObject> result = new TreeSet<EventObject>(
-            new ChatRoomMessageEventComparator<EventObject>());
+        LinkedList<EventObject> result = new LinkedList<EventObject>();
 
         try
         {
@@ -2386,19 +2370,19 @@ public class MessageHistoryServiceImpl
                         room));
 
             }
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             logger.error("Could not read history", e);
         }
 
-        LinkedList<EventObject> resultAsList
-            = new LinkedList<EventObject>(result);
-
+        Collections.sort(result,
+            new ChatRoomMessageEventComparator<EventObject>());
         int toIndex = count;
-        if(toIndex > resultAsList.size())
-            toIndex = resultAsList.size();
+        if(toIndex > result.size())
+            toIndex = result.size();
 
-        return resultAsList.subList(0, toIndex);
+        return result.subList(0, toIndex);
     }
 
     /**
@@ -2416,8 +2400,7 @@ public class MessageHistoryServiceImpl
                                                             int count)
         throws RuntimeException
     {
-        TreeSet<EventObject> result = new TreeSet<EventObject>(
-            new ChatRoomMessageEventComparator<EventObject>());
+        LinkedList<EventObject> result = new LinkedList<EventObject>();
 
         try
         {
@@ -2432,19 +2415,19 @@ public class MessageHistoryServiceImpl
                         room));
 
             }
-        } catch (IOException e)
+        }
+        catch (IOException e)
         {
             logger.error("Could not read history", e);
         }
 
-        LinkedList<EventObject> resultAsList
-            = new LinkedList<EventObject>(result);
-        int startIndex = resultAsList.size() - count;
-
+        Collections.sort(result,
+            new ChatRoomMessageEventComparator<EventObject>());
+        int startIndex = result.size() - count;
         if(startIndex < 0)
             startIndex = 0;
 
-        return resultAsList.subList(startIndex, resultAsList.size());
+        return result.subList(startIndex, result.size());
     }
 
     /**
