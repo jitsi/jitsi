@@ -81,6 +81,26 @@ public class ColibriBuilder
     private boolean hasAnyChannelsToExpire = false;
 
     /**
+     * Channel 'last-n' option that will be added when channels are created.
+     * Set to <tt>null</tt> in order to omit.
+     */
+    private Integer channelLastN;
+
+    /**
+     * Channel 'adaptive-last-n' option that will be added when channels are
+     * created.
+     * Set to <tt>null</tt> in order to omit.
+     */
+    private Boolean adaptiveLastN;
+
+    /**
+     * Channel 'adaptive-simulcast' option that will be added when channels are
+     * created.
+     * Set to <tt>null</tt> in order to omit.
+     */
+    private Boolean adaptiveSimulcast;
+
+    /**
      * Creates new instance of {@link ColibriBuilder} for given
      * <tt>conferenceState</tt>.
      *
@@ -165,6 +185,11 @@ public class ColibriBuilder
 
                 for (PayloadTypePacketExtension ptpe : rdpe.getPayloadTypes())
                     remoteRtpChannelRequest.addPayloadType(ptpe);
+
+                // Config options
+                remoteRtpChannelRequest.setLastN(channelLastN);
+                remoteRtpChannelRequest.setAdaptiveLastN(adaptiveLastN);
+                remoteRtpChannelRequest.setAdaptiveSimulcast(adaptiveSimulcast);
             }
 
             // Copy transport
@@ -599,6 +624,76 @@ public class ColibriBuilder
     public boolean hasAnyChannelsToExpire()
     {
         return hasAnyChannelsToExpire;
+    }
+
+    /**
+     * Channel 'last-n' option that will be added when channels are created.
+     * Set to <tt>null</tt> in order to omit. Value is reset after
+     * {@link #reset} is called.
+     *
+     * @return an integer value or <tt>null</tt> if option is unspecified.
+     */
+    public Integer getChannelLastN()
+    {
+        return channelLastN;
+    }
+
+    /**
+     * Sets channel 'last-n' option that will be added to the request when
+     * channels are created.
+     * @param channelLastN an integer value to specify 'last-n' option or
+     *        <tt>null</tt> in order to omit in requests.
+     */
+    public void setChannelLastN(Integer channelLastN)
+    {
+        this.channelLastN = channelLastN;
+    }
+
+    /**
+     * Channel 'adaptive-last-n' option that will be added when channels are
+     * created.
+     * Set to <tt>null</tt> in order to omit. Value is reset after
+     * {@link #reset} is called.
+     *
+     * @return a boolean value or <tt>null</tt> if option is unspecified.
+     */
+    public Boolean getAdaptiveLastN()
+    {
+        return adaptiveLastN;
+    }
+
+    /**
+     * Sets channel 'adaptive-last-n' option that will be added to the request
+     * when channels are created.
+     *
+     * @param adaptiveLastN a boolean value to specify 'adaptive-last-n' option
+     *                      or <tt>null</tt> in order  to omit in requests.
+     */
+    public void setAdaptiveLastN(Boolean adaptiveLastN)
+    {
+        this.adaptiveLastN = adaptiveLastN;
+    }
+
+    /**
+     * Channel 'adaptive-simulcast' option that will be added when channels are
+     * created. Set to <tt>null</tt> in order to omit.
+     *
+     * @return a boolean value or <tt>null</tt> if option is unspecified.
+     */
+    public Boolean getAdaptiveSimulcast()
+    {
+        return adaptiveSimulcast;
+    }
+
+    /**
+     * Sets channel 'adaptive-simulcast' option that will be added to the
+     * request when channels are created.
+     * @param adaptiveSimulcast a boolean value to specify 'adaptive-simulcast'
+     *        option or <tt>null</tt> in order to omit in requests.
+     */
+    public void setAdaptiveSimulcast(Boolean adaptiveSimulcast)
+    {
+        this.adaptiveSimulcast = adaptiveSimulcast;
     }
 
     /**
