@@ -214,7 +214,10 @@ public class HistoryServiceImpl
     protected synchronized Document parse(File file)
         throws SAXException, IOException
     {
-        return builder.parse(file);
+        FileInputStream fis = new FileInputStream(file);
+        Document doc = builder.parse(fis);
+        fis.close();
+        return doc;
     }
 
     /**
