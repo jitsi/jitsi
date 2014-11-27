@@ -773,6 +773,20 @@ public class CallHistoryServiceImpl
     }
 
     /**
+     * Permanently removes all locally stored call history.
+     *
+     * @throws java.io.IOException
+     *         Thrown if the history could not be removed due to a IO error.
+     */
+    public void eraseLocallyStoredHistory()
+        throws IOException
+    {
+        HistoryID historyId = HistoryID.createFromRawID(
+                    new String[] {  "callhistory" });
+        historyService.purgeLocallyStoredHistory(historyId);
+    }
+
+    /**
      * When new protocol provider is registered we check
      * does it supports BasicTelephony and if so add a listener to it
      *
