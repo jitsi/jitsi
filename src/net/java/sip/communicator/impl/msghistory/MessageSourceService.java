@@ -705,10 +705,7 @@ public class MessageSourceService
 
             if(history == null)
             {
-                if (historyService.isHistoryExisting(historyID))
-                    history = historyService.getHistory(historyID);
-                else
-                    history = historyService.createHistory(
+                history = historyService.createHistory(
                         historyID, recordStructure);
 
                 // lets check the version if not our version, re-create

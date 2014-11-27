@@ -333,8 +333,6 @@ public class CallHistoryServiceImpl
      */
     private History getHistory(Contact localContact, Contact remoteContact)
             throws IOException {
-        History retVal = null;
-
         String localId = localContact == null ? "default" : localContact
                 .getAddress();
         String remoteId = remoteContact == null ? "default" : remoteContact
@@ -345,18 +343,7 @@ public class CallHistoryServiceImpl
                             localId,
                             remoteId });
 
-        if (this.historyService.isHistoryExisting(historyId))
-        {
-            retVal = this.historyService.getHistory(historyId);
-            retVal.setHistoryRecordsStructure(recordStructure);
-        }
-        else
-        {
-            retVal = this.historyService.createHistory(historyId,
-                    recordStructure);
-        }
-
-        return retVal;
+        return this.historyService.createHistory(historyId, recordStructure);
     }
 
     /**

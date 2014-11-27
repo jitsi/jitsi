@@ -63,13 +63,8 @@ public class TestHistoryService extends TestCase {
         HistoryID testID = HistoryID.createFromRawID(new String[] { "test",
                 "alltests" });
 
-        if (!this.historyService.isHistoryExisting(testID))
-        {
-            this.history = this.historyService.createHistory(testID,
+        this.history = this.historyService.createHistory(testID,
                     recordStructure);
-        } else {
-            this.history = this.historyService.getHistory(testID);
-        }
     }
 
     @Override

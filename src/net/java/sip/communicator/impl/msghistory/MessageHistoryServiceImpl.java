@@ -371,16 +371,8 @@ public class MessageHistoryServiceImpl
         if(!this.historyService.isHistoryCreated(historyID))
             return false;
 
-        History history;
-        if (this.historyService.isHistoryExisting(historyID))
-        {
-            history = this.historyService.getHistory(historyID);
-        }
-        else
-        {
-            history = this.historyService.createHistory(historyID,
+        History history = this.historyService.createHistory(historyID,
                 recordStructure);
-        }
 
         return history.getReader().findLast(
             1, keywords, field, caseSensitive).hasNext();
@@ -451,16 +443,8 @@ public class MessageHistoryServiceImpl
                 if(descriptor == null)
                     continue;
 
-                History history;
-                if (this.historyService.isHistoryExisting(id))
-                {
-                    history = this.historyService.getHistory(id);
-                }
-                else
-                {
-                    history = this.historyService.createHistory(id,
+                History history = this.historyService.createHistory(id,
                         recordStructure);
-                }
 
                 HistoryReader reader = history.getReader();
 
@@ -753,8 +737,6 @@ public class MessageHistoryServiceImpl
      */
     private History getHistory(Contact localContact, Contact remoteContact)
             throws IOException {
-        History retVal = null;
-
         String localId = localContact == null ? "default" : localContact
                 .getAddress();
         String remoteId = remoteContact == null ? "default" : remoteContact
@@ -797,17 +779,7 @@ public class MessageHistoryServiceImpl
             }
         }
 
-        if (this.historyService.isHistoryExisting(historyId))
-        {
-            retVal = this.historyService.getHistory(historyId);
-        }
-        else
-        {
-            retVal = this.historyService.createHistory(historyId,
-                recordStructure);
-        }
-
-        return retVal;
+        return this.historyService.createHistory(historyId, recordStructure);
     }
 
     /**
@@ -874,8 +846,6 @@ public class MessageHistoryServiceImpl
                         String channel)
         throws IOException
     {
-        History retVal = null;
-
         String localId = localContact == null ? "default" : localContact
                 .getAddress();
 
@@ -885,15 +855,7 @@ public class MessageHistoryServiceImpl
                             account,
                             channel + "@" + server });
 
-        if (this.historyService.isHistoryExisting(historyId))
-        {
-            retVal = this.historyService.getHistory(historyId);
-        } else {
-            retVal = this.historyService.createHistory(historyId,
-                    recordStructure);
-        }
-
-        return retVal;
+        return this.historyService.createHistory(historyId, recordStructure);
     }
 
     /**

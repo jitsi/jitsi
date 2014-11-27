@@ -639,8 +639,6 @@ public class FileHistoryServiceImpl
     private History getHistory(Contact localContact, Contact remoteContact)
             throws IOException
     {
-        History retVal = null;
-
         String localId = localContact == null ? "default" : localContact
                 .getAddress();
         String remoteId = remoteContact == null ? "default" : remoteContact
@@ -657,16 +655,7 @@ public class FileHistoryServiceImpl
                             account,
                             remoteId });
 
-        if (this.historyService.isHistoryExisting(historyId))
-        {
-            retVal = this.historyService.getHistory(historyId);
-        } else
-        {
-            retVal = this.historyService.createHistory(historyId,
-                    recordStructure);
-        }
-
-        return retVal;
+        return this.historyService.createHistory(historyId, recordStructure);
     }
 
     /**
