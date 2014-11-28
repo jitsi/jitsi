@@ -260,7 +260,7 @@ public class ProtocolContactSourceServiceImpl
                         = new SortedGenericSourceContact(
                                 this,
                                 ProtocolContactSourceServiceImpl.this,
-                                contactDisplayName,
+                                metaContact.getDisplayName(),
                                 contactDetails);
 
                     if (!contactAddress.equals(contactDisplayName))
