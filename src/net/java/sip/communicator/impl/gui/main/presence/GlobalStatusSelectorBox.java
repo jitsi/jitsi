@@ -122,7 +122,8 @@ public class GlobalStatusSelectorBox
 
         firstStatusIndex = getItemCount();
 
-        addAvailableStatuses();
+        if(isPresenceOpSetForProvidersAvailable())
+            addAvailableStatuses();
 
         group.add(createMenuItem(GlobalStatusEnum.OFFLINE, -1));
 
@@ -162,10 +163,11 @@ public class GlobalStatusSelectorBox
     /**
      * Adds the available global statuses. All the statuses except ONLINE and
      * OFFLINE, those that will be inserted between them.
+     * Check first whether the statuses are not already inserted.
      */
     private void addAvailableStatuses()
     {
-        if(countAvailableStatuses() != 0)
+        if(hasAvailableStatuses())
             return;
 
         int index = firstStatusIndex;
@@ -196,21 +198,23 @@ public class GlobalStatusSelectorBox
                 continue;
 
             JCheckBoxMenuItem item = getItemFromStatus(status);
+
+            if(item == null)
+                continue;
+
             group.remove(item);
             this.remove(item);
         }
     }
 
     /**
-     * Count the number of available statuses we have in the menu.
+     * Check for available statuses we have in the menu.
      * All except ONLINE and OFFLINE one.
      * @return
      */
-    private int countAvailableStatuses()
+    private boolean hasAvailableStatuses()
     {
-        int count = 0;
-
-        // count menu item entries for every global status
+        // check menu item entries for every global status
         // except ONLINE and OFFLINE
         for(GlobalStatusEnum status : GlobalStatusEnum.globalStatusSet)
         {
@@ -219,10 +223,10 @@ public class GlobalStatusSelectorBox
                 continue;
 
             if(getItemFromStatus(status) != null)
-                count++;
+                return true;
         }
 
-        return count;
+        return false;
     }
 
     /**
@@ -311,6 +315,11 @@ public class GlobalStatusSelectorBox
         {
             add(itemToAdd);
             isFirstAccount = false;
+
+            // if we have a provider with opset presence add available statuses
+            if(presenceOpSet != null)
+                addAvailableStatuses();
+
             return;
         }
 
@@ -354,6 +363,10 @@ public class GlobalStatusSelectorBox
 
         if (!isMenuAdded)
             add(itemToAdd);
+
+        // if we have a provider with opset presence add available statuses
+        if(presenceOpSet != null)
+            addAvailableStatuses();
     }
 
     /**
@@ -371,6 +384,32 @@ public class GlobalStatusSelectorBox
             menu.dispose();
             remove(menu.getEntryComponent());
         }
+
+        // if we do not have provider with presence opset
+        // remove available statuses
+        if(!isPresenceOpSetForProvidersAvailable())
+            removeAvailableStatuses();
+    }
+
+    /**
+     * Check the available providers for operation set presence.
+     * @return do we have a provider with opset presence.
+     */
+    private boolean isPresenceOpSetForProvidersAvailable()
+    {
+        for (Component c : getPopupMenu().getComponents())
+        {
+            if(!(c instanceof StatusEntry))
+                continue;
+
+            StatusEntry menu = (StatusEntry) c;
+
+            if(menu.getProtocolProvider()
+                .getOperationSet(OperationSetPresence.class) != null)
+                return true;
+        }
+
+        return false;
     }
 
     /**
@@ -663,28 +702,6 @@ public class GlobalStatusSelectorBox
                 return menu;
         }
         return null;
-    }
-
-    /**
-     * Returns whether we have any the <tt>StatusEntry</tt> corresponding to a
-     * <tt>protocolProvider</tt>.
-     * @return whether we have any <tt>StatusEntry</tt> corresponding to a
-     * <tt>protocolProvider</tt>
-     */
-    private boolean hasStatusEntry()
-    {
-        for (Component c : getPopupMenu().getComponents())
-        {
-            if (!(c instanceof StatusEntry))
-                continue;
-
-            StatusEntry menu = (StatusEntry) c;
-
-            if (menu.getProtocolProvider() != null
-                && menu.getProtocolProvider().equals(protocolProvider))
-                return true;
-        }
-        return false;
     }
 
     /**
