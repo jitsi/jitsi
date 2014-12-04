@@ -23,7 +23,6 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.fileaccess.*;
-import org.jitsi.util.xml.*;
 import org.osgi.framework.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
@@ -240,9 +239,8 @@ public class JabberServerChooserDialog
             }
 
             FileInputStream fis = new FileInputStream(localServersListFile);
-            DocumentBuilderFactory factory
-                = DocumentBuilderFactory.newInstance();
-            XMLUtils.disableExternalEntities(factory);
+            DocumentBuilderFactory factory = DocumentBuilderFactory
+                .newInstance();
             DocumentBuilder constructor = factory.newDocumentBuilder();
             Document document = constructor.parse(fis);
             Element root = document.getDocumentElement();
@@ -316,7 +314,6 @@ public class JabberServerChooserDialog
                 // Create a builder factory
                 DocumentBuilderFactory factory
                     = DocumentBuilderFactory.newInstance();
-                XMLUtils.disableExternalEntities(factory);
 
                 // Create the builder and parse the file
                 serverComments = factory.newDocumentBuilder()

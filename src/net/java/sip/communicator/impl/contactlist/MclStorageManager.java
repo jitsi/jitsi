@@ -348,7 +348,6 @@ public class MclStorageManager
             // load the contact list
             DocumentBuilderFactory factory =
                 DocumentBuilderFactory.newInstance();
-            XMLUtils.disableExternalEntities(factory);
             DocumentBuilder builder = factory.newDocumentBuilder();
             if (contactlistFile.length() == 0)
             {

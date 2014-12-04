@@ -16,7 +16,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
 import net.java.sip.communicator.util.*;
 
-import org.jitsi.util.xml.*;
 import org.w3c.dom.*;
 
 /**
@@ -103,7 +102,6 @@ public class WhiteboardObjectRectJabberImpl
     {
         DocumentBuilderFactory factory =
           DocumentBuilderFactory.newInstance ();
-        XMLUtils.disableExternalEntities(factory);
         DocumentBuilder builder;
         try
         {

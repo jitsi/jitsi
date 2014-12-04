@@ -224,11 +224,8 @@ public class ConferenceInfoDocument
 
         try
         {
-            DocumentBuilderFactory factory
-                = DocumentBuilderFactory.newInstance();
-            XMLUtils.disableExternalEntities(factory);
             document
-                = factory.newDocumentBuilder()
+                    = DocumentBuilderFactory.newInstance().newDocumentBuilder()
                     .parse(new ByteArrayInputStream(bytes));
         }
         catch (Exception e)
