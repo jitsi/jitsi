@@ -13,6 +13,7 @@ import javax.xml.parsers.*;
 
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.util.xml.*;
 import org.w3c.dom.*;
 
 /**
@@ -97,6 +98,7 @@ public class ThumbnailElement
     {
         DocumentBuilderFactory factory =
             DocumentBuilderFactory.newInstance();
+        XMLUtils.disableExternalEntities(factory);
 
           DocumentBuilder builder;
           try

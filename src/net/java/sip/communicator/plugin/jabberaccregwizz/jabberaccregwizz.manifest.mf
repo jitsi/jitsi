@@ -46,5 +46,6 @@ Import-Package: org.osgi.framework,
  javax.swing.tree,
  javax.swing.undo,
  javax.swing.border,
+ org.jitsi.util.xml,
  org.jivesoftware.smack,
  org.jivesoftware.smack.packet
