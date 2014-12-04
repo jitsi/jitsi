@@ -49,6 +49,12 @@ public class AccountStatusPanel
         AccountStatusPanel.class.getName() +  "OpaquePanelUI";
 
     /**
+     * Property name to disable the avatar change menu.
+     */
+    private static final String PNAME_DISABLE_AVATAR_MENU
+        = "net.java.sip.communicator.gui.DISABLE_AVATAR_MENU";
+
+    /**
      * Adds the ui class to UIDefaults.
      */
     static
@@ -149,7 +155,12 @@ public class AccountStatusPanel
                                 .getImage(ImageLoader.DEFAULT_USER_PHOTO)),
                     AVATAR_ICON_WIDTH,
                     AVATAR_ICON_HEIGHT);
-        imageWithMenu.setPopupMenu(new SelectAvatarMenu(imageWithMenu));
+        if (!GuiActivator.getConfigurationService().getBoolean(
+            PNAME_DISABLE_AVATAR_MENU, false))
+        {
+            imageWithMenu.setPopupMenu(new SelectAvatarMenu(imageWithMenu));
+        }
+
         this.accountImageLabel = imageWithMenu;
 
         accountNameLabel.setFont(
