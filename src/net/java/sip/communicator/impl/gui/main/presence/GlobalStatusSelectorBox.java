@@ -83,13 +83,21 @@ public class GlobalStatusSelectorBox
      * Take care for global status items, that only one is selected.
      */
     private ButtonGroup group = new ButtonGroup();
-    
+
+    /**
+     * The global status message menu.
+     */
     private final GlobalStatusMessageMenu globalStatusMessageMenu;
 
     /**
      * The parent panel that creates us.
      */
     private final AccountStatusPanel accountStatusPanel;
+
+    /**
+     * The index of the first status, the online one.
+     */
+    private int firstStatusIndex = -1;
 
     /**
      * Creates an instance of <tt>SimpleStatusSelectorBox</tt>.
@@ -108,15 +116,15 @@ public class GlobalStatusSelectorBox
         this.add(titleLabel);
         this.addSeparator();
 
-        PresenceStatus offlineStatus = null;
-        // creates menu item entry for every global status
-        for(GlobalStatusEnum status : GlobalStatusEnum.globalStatusSet)
-        {
-            group.add(createMenuItem(status));
+        GlobalStatusEnum offlineStatus = GlobalStatusEnum.ONLINE;
 
-            if(status.getStatus() < 1)
-                offlineStatus = status;
-        }
+        group.add(createMenuItem(offlineStatus, -1));
+
+        firstStatusIndex = getItemCount();
+
+        addAvailableStatuses();
+
+        group.add(createMenuItem(GlobalStatusEnum.OFFLINE, -1));
 
         this.addSeparator();
 
@@ -152,6 +160,72 @@ public class GlobalStatusSelectorBox
     }
 
     /**
+     * Adds the available global statuses. All the statuses except ONLINE and
+     * OFFLINE, those that will be inserted between them.
+     */
+    private void addAvailableStatuses()
+    {
+        if(countAvailableStatuses() != 0)
+            return;
+
+        int index = firstStatusIndex;
+
+        // creates menu item entry for every global status
+        // except ONLINE and OFFLINE
+        for(GlobalStatusEnum status : GlobalStatusEnum.globalStatusSet)
+        {
+            if(status.equals(GlobalStatusEnum.OFFLINE)
+                || status.equals(GlobalStatusEnum.ONLINE))
+                continue;
+
+            group.add(createMenuItem(status, index++));
+        }
+    }
+
+    /**
+     * Removes the available global statuses (those except ONLINE and OFFLINE)
+     */
+    private void removeAvailableStatuses()
+    {
+        // removes menu item entry for every global status
+        // except ONLINE and OFFLINE
+        for(GlobalStatusEnum status : GlobalStatusEnum.globalStatusSet)
+        {
+            if(status.equals(GlobalStatusEnum.OFFLINE)
+                || status.equals(GlobalStatusEnum.ONLINE))
+                continue;
+
+            JCheckBoxMenuItem item = getItemFromStatus(status);
+            group.remove(item);
+            this.remove(item);
+        }
+    }
+
+    /**
+     * Count the number of available statuses we have in the menu.
+     * All except ONLINE and OFFLINE one.
+     * @return
+     */
+    private int countAvailableStatuses()
+    {
+        int count = 0;
+
+        // count menu item entries for every global status
+        // except ONLINE and OFFLINE
+        for(GlobalStatusEnum status : GlobalStatusEnum.globalStatusSet)
+        {
+            if(status.equals(GlobalStatusEnum.OFFLINE)
+                || status.equals(GlobalStatusEnum.ONLINE))
+                continue;
+
+            if(getItemFromStatus(status) != null)
+                count++;
+        }
+
+        return count;
+    }
+
+    /**
      * Changes the tooltip to default or the current set status message.
      * @param message
      */
@@ -177,9 +251,13 @@ public class GlobalStatusSelectorBox
      * <tt>name</tt>.
      *
      * @param status the global status
+     * @param index index the position in the container's list at which to
+     * insert the status, where <code>-1</code> means append to the end
      * @return the created <tt>JCheckBoxMenuItem</tt>
      */
-    private JCheckBoxMenuItem createMenuItem(GlobalStatusEnum status)
+    private JCheckBoxMenuItem createMenuItem(
+        GlobalStatusEnum status,
+        int index)
     {
         JCheckBoxMenuItem menuItem
             = new JCheckBoxMenuItem(
@@ -189,7 +267,10 @@ public class GlobalStatusSelectorBox
         menuItem.setName(status.getStatusName());
         menuItem.addActionListener(this);
 
-        add(menuItem);
+        if(index == -1)
+            add(menuItem);
+        else
+            add(menuItem, index);
 
         return menuItem;
     }
@@ -582,6 +663,28 @@ public class GlobalStatusSelectorBox
                 return menu;
         }
         return null;
+    }
+
+    /**
+     * Returns whether we have any the <tt>StatusEntry</tt> corresponding to a
+     * <tt>protocolProvider</tt>.
+     * @return whether we have any <tt>StatusEntry</tt> corresponding to a
+     * <tt>protocolProvider</tt>
+     */
+    private boolean hasStatusEntry()
+    {
+        for (Component c : getPopupMenu().getComponents())
+        {
+            if (!(c instanceof StatusEntry))
+                continue;
+
+            StatusEntry menu = (StatusEntry) c;
+
+            if (menu.getProtocolProvider() != null
+                && menu.getProtocolProvider().equals(protocolProvider))
+                return true;
+        }
+        return false;
     }
 
     /**
