@@ -1026,9 +1026,15 @@ public class ChatRoomIrcImpl
                 }
                 catch (BadCommandInvocationException e)
                 {
+                    StringBuilder helpText = new StringBuilder();
+                    if (e.getCause() != null) {
+                        helpText.append(e.getCause().getMessage());
+                        helpText.append('\n');
+                    }
+                    helpText.append(e.getHelp());
                     MessageIrcImpl helpMessage =
                         new MessageIrcImpl(
-                            e.getHelp(),
+                            helpText.toString(),
                             OperationSetBasicInstantMessaging
                                 .DEFAULT_MIME_TYPE,
                             OperationSetBasicInstantMessaging
