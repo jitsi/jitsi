@@ -211,6 +211,12 @@ public class MessageManager
             throw new BadCommandInvocationException(msg, error + "\n" + help,
                 e);
         }
+        catch (IllegalStateException e) {
+            final String error = e.getMessage();
+            final String help = cmd.help();
+            throw new BadCommandInvocationException(msg, error + "\n" + help,
+                e);
+        }
         catch (RuntimeException e)
         {
             LOGGER.error(

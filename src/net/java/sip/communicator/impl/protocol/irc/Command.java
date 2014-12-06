@@ -61,16 +61,32 @@ public interface Command
      *             Jitsi will consequently call {@link #help()} to query a help
      *             message that will be passed on as a system message to the
      *             user.
+     * @throws IllegalStateException IllegalStateException signals bad usage of
+     *             a command given the current state, i.e. called at the wrong
+     *             time. Jitsi will consequently call {@link #help()} to query a
+     *             help message that will be passed on as a system message to
+     *             the user.
      */
     void execute(String source, String line);
 
     /**
      * Return help information to output.
      *
+     * <p>
      * {@link #help()} is called whenever a command execution fails with
-     * {@link IllegalArgumentException}. IllegalArgumentException suggests that
-     * the command was called incorrectly. The help information will then be
-     * displayed to explain the user how to use the command.
+     * {@link IllegalArgumentException} or an {@link IllegalStateException}.
+     * IllegalArgumentException suggests that the command was called
+     * incorrectly. IllegalStateException suggests that the command was called
+     * at the wrong time, when it is not appropriate to call this command. The
+     * help information will then be displayed to explain the user how to use
+     * the command.
+     * </p>
+     * 
+     * <p>
+     * Since a new command instance is constructed for each command message, the
+     * help message can be adapted to reflect the earlier call to
+     * {@link #execute}, if any.
+     * </p>
      *
      * @return returns help information to display
      */
