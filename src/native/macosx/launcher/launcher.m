@@ -9,7 +9,8 @@
 #import <Cocoa/Cocoa.h>
 #include <dlfcn.h>
 
-#define JVM_JAVA_KEY "Java"
+#define JVM_JAVA_KEY "Javax" // Cannot be Java
+                             // or OSX requests the old Apple JVM
 #define JVM_WORKING_DIR_KEY "WorkingDirectory"
 #define JVM_MAIN_CLASS_NAME_KEY "MainClass"
 #define JVM_CLASSPATH_KEY "ClassPath"

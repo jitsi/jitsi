@@ -1291,6 +1291,13 @@
       </array>
       <key>CFBundleName</key>]]></replacevalue>
       </replace>
+
+      <!-- Rename Java dict to Javax to prevent OSX asking for the old Apple JVM -->
+        <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
+          <replacetoken><![CDATA[<key>Java</key>]]></replacetoken>
+          <replacevalue><![CDATA[<key>Javax</key>]]></replacevalue>
+      </replace>
+
       <!-- Add property for high resolution displays -->
       <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
         <replacetoken><![CDATA[<key>CFBundleName</key>]]></replacetoken>
