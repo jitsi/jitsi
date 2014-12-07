@@ -215,8 +215,9 @@ public class ChatContactRightButtonMenu
         int roleIndex = role.getRoleIndex();
         String roleName = role.getLocalizedRoleName();
 
-        JLabel jl_username
-            = new JLabel(" "+chatContact.getName()+" ("+roleName+") ");
+        JLabel jl_username =
+            new JLabel(" " + chatContact.getName() + " ("
+                + GuiActivator.getResources().getI18NString(roleName) + ") ");
         jl_username.setFont(jl_username.getFont().deriveFont(Font.BOLD));
 
         this.add(jl_username);

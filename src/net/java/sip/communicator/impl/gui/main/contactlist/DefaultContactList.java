@@ -13,6 +13,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
@@ -190,10 +191,12 @@ public class DefaultContactList
             if(descriptor instanceof ChatRoomMember)
             {
                 ChatRoomMember member = (ChatRoomMember)descriptor;
+                String roleName =
+                    GuiActivator.getResources().getI18NString(
+                        member.getRole().getLocalizedRoleName());
 
-                tip.addLine(
-                    ChatContactRoleIcon.getRoleIcon(member.getRole()),
-                    member.getRole().getLocalizedRoleName());
+                tip.addLine(ChatContactRoleIcon.getRoleIcon(member.getRole()),
+                    roleName);
             }
         }
 
