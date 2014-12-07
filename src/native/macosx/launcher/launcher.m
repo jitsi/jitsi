@@ -285,12 +285,7 @@ void launchJitsi(int argMainCount, char *argMainValues[])
 
     if(jli_LaunchFxnPtr == NULL)
     {
-        NSString *oldLauncher =
-            [NSMutableString stringWithFormat:@"%@/Contents/MacOS/%@_Launcher",
-                                        [mainBundle bundlePath], pname];
-
-        execv([oldLauncher fileSystemRepresentation], argMainValues);
-
+        NSLog(@"No java found!");
         exit(-1);
     }
 
