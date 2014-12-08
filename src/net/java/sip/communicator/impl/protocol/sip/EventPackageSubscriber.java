@@ -391,9 +391,9 @@ public class EventPackageSubscriber
      *            the subscription duration to be set into the Expires header of
      *            the specified SUBSCRIBE <tt>Request</tt>
      * @throws OperationFailedException if we fail parsing or populating the
-     * subsctiption request.
+     * subscription request.
      */
-    private void populateSubscribeRequest(
+    protected void populateSubscribeRequest(
             Request req,
             Subscription subscription,
             int expires)

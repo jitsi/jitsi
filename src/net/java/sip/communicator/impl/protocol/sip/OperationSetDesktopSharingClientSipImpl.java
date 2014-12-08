@@ -112,6 +112,12 @@ public class OperationSetDesktopSharingClientSipImpl
     {
         super(parentProvider);
 
+        final boolean desktopControlOutOfDialogEnabled
+            = SipActivator.getConfigurationService().getBoolean(
+                    DesktopSharingCallSipImpl
+                        .ENABLE_OUTOFDIALOG_DESKTOP_CONTROL_PROP,
+                    false);
+
         notifier
             = new EventPackageNotifier(
                     this.parentProvider,
@@ -120,6 +126,10 @@ public class OperationSetDesktopSharingClientSipImpl
                     DesktopSharingProtocolSipImpl.CONTENT_SUB_TYPE,
                     this.timer)
             {
+                // the received dssid from the subscription and
+                // the one to be used in the notify requests
+                private String dssid = null;
+
                 @Override
                 protected Subscription createSubscription(
                         Address fromAddress,
@@ -137,6 +147,17 @@ public class OperationSetDesktopSharingClientSipImpl
                 @Override
                 public boolean processRequest(RequestEvent requestEvent)
                 {
+                    if(desktopControlOutOfDialogEnabled)
+                    {
+                        Header dssidHeader = requestEvent.getRequest()
+                            .getHeader(DesktopSharingCallSipImpl.DSSID_HEADER);
+                        if(dssidHeader != null)
+                        {
+                            dssid = dssidHeader.toString().replaceAll(
+                                dssidHeader.getName() + ":", "").trim();
+                        }
+                    }
+
                     boolean ret = super.processRequest(requestEvent);
                     if(requestEvent == null || requestEvent.getDialog() == null
                         || requestEvent.getDialog().getCallId() == null)
@@ -178,6 +199,56 @@ public class OperationSetDesktopSharingClientSipImpl
                         response,
                         eventId,
                         clientTransaction);
+                }
+
+                /**
+                 * Creates a NOTIFY request which is to notify about a
+                 * specific subscription state and carry a specific content.
+                 * This request MUST be sent using <tt>Dialog#sendRequest()</tt>
+                 *
+                 * @param dialog the <tt>Dialog</tt> to create the NOTIFY
+                 * request in
+                 * @param content the content to be carried by the NOTIFY
+                 * request to be created
+                 * @param subscriptionState the subscription state
+                 * @param reason the reason for the specified subscription state
+                 * <tt>null</tt> for no reason
+                 *
+                 * @return a valid <tt>ClientTransaction</tt> ready to send the
+                 * request
+                 *
+                 * @throws OperationFailedException if something goes wrong
+                 * during the creation of the request
+                 */
+                @Override
+                protected ClientTransaction createNotify( Dialog dialog,
+                                                          byte[] content,
+                                                          String subscriptionState,
+                                                          String reason)
+                    throws OperationFailedException
+                {
+                    ClientTransaction res = super.createNotify(
+                        dialog, content, subscriptionState, reason);
+
+                    if(desktopControlOutOfDialogEnabled)
+                    {
+                        try
+                        {
+                            Header dssidHeader =
+                                OperationSetDesktopSharingClientSipImpl.this
+                                    .parentProvider.getHeaderFactory()
+                                    .createHeader(
+                                        DesktopSharingCallSipImpl.DSSID_HEADER,
+                                        dssid);
+                            res.getRequest().setHeader(dssidHeader);
+                        }
+                        catch(ParseException ex)
+                        {
+                            logger.error("error ", ex);
+                        }
+                    }
+
+                    return res;
                 }
             };
     }

@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.text.*;
 import java.util.*;
 
 import javax.sdp.*;
@@ -176,7 +177,24 @@ public class CallSipImpl
                     containingTransaction.getDialog().getRemoteParty(),
                     this,
                     containingTransaction,
-                    sourceProvider);
+                    sourceProvider)
+        {
+            /**
+             * A place where we can handle any headers we need for requests
+             * and responses.
+             * @param message the SIP <tt>Message</tt> in which a header change
+             * is to be reflected
+             * @throws ParseException if modifying the specified SIP
+             * <tt>Message</tt> to reflect the header change fails
+             */
+            protected void processExtraHeaders(javax.sip.message.Message message)
+                throws ParseException
+            {
+                super.processExtraHeaders(message);
+
+                CallSipImpl.this.processExtraHeaders(message);
+            }
+        };
 
         addCallPeer(callPeer);
 
@@ -610,6 +628,19 @@ public class CallSipImpl
     }
 
     /**
+     * A place where we can handle any headers we need for requests
+     * and responses.
+     * @param message the SIP <tt>Message</tt> in which a header change
+     * is to be reflected
+     * @throws java.text.ParseException if modifying the specified SIP
+     * <tt>Message</tt> to reflect the header change fails
+     */
+    protected void processExtraHeaders(javax.sip.message.Message message)
+        throws ParseException
+    {
+    }
+
+    /**
      * Task that will retransmit ringing response
      */
     private class RingingResponseTask
@@ -641,7 +672,6 @@ public class CallSipImpl
          * @param serverTran the transaction.
          * @param peer the peer.
          * @param timer the timer.
-         * @param stateListener the state listener.
          */
         RingingResponseTask(Response response, ServerTransaction serverTran,
             CallPeerSipImpl peer, Timer timer)
