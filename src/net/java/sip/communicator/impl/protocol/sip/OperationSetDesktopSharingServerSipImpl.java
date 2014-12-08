@@ -517,6 +517,13 @@ public class OperationSetDesktopSharingServerSipImpl
                     List<ComponentEvent> events = null;
                     Point p = getOrigin();
 
+                    if(size == null)
+                    {
+                        size = (((VideoMediaFormat)
+                            callPeer.getCall()
+                            .getDefaultDevice(MediaType.VIDEO).getFormat())
+                            .getSize());
+                    }
                     events = DesktopSharingProtocolSipImpl.parse(root, size, p);
 
                     for(ComponentEvent evt : events)
