@@ -890,14 +890,22 @@ public class IceUdpTransportManager
             if (iceAgentStateIsRunning && (candidates.size() == 0))
                 return false;
 
+            String media = e.getKey();
+            IceMediaStream stream = iceAgent.getStream(media);
+
+            if (stream == null)
+            {
+                logger.warn(
+                    "No ICE media stream for media: " + media
+                        + " - ignored candidates.");
+                continue;
+            }
+
             // Sort the remote candidates (host < reflexive < relayed) in order
             // to create first the host, then the reflexive, the relayed
             // candidates and thus be able to set the relative-candidate
             // matching the rel-addr/rel-port attribute.
             Collections.sort(candidates);
-
-            String media = e.getKey();
-            IceMediaStream stream = iceAgent.getStream(media);
 
             // Different stream may have different ufrag/password
             String ufrag = transport.getUfrag();

@@ -79,6 +79,12 @@ public class JingleUtils
                                      DynamicPayloadTypeRegistry    ptRegistry)
     {
         List<MediaFormat> mediaFmts = new ArrayList<MediaFormat>();
+
+        if (description == null)
+        {
+            return mediaFmts;
+        }
+
         List<PayloadTypePacketExtension> payloadTypes
                                             = description.getPayloadTypes();
 
@@ -235,6 +241,11 @@ public class JingleUtils
                                          DynamicRTPExtensionsRegistry  extMap)
     {
         List<RTPExtension> extensionsList = new ArrayList<RTPExtension>();
+
+        if (desc == null)
+        {
+            return extensionsList;
+        }
 
         List<RTPHdrExtPacketExtension> extmapList = desc.getExtmapList();
 

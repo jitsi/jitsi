@@ -1790,7 +1790,9 @@ public class ChatRoomJabberImpl
                 = new ConferenceDescriptionPacketExtension(cd);
         if (lastPresenceSent != null)
         {
-            setConferenceDescriptionPacketExtension(lastPresenceSent, ext);
+            setPacketExtension(
+                lastPresenceSent, ext,
+                ConferenceDescriptionPacketExtension.NAMESPACE);
             provider.getConnection().sendPacket(lastPresenceSent);
         }
         else
@@ -1820,28 +1822,66 @@ public class ChatRoomJabberImpl
     }
 
     /**
-     * Sets <tt>ext</tt> as the only
-     * <tt>ConferenceDescriptionPacketExtension</tt> of <tt>presence</tt>.
+     * Sets <tt>ext</tt> as the only <tt>PacketExtension</tt> that belongs to
+     * given <tt>namespace</tt> of the <tt>packet</tt>.
      *
-     * @param packet the <tt>Packet<tt>
-     * @param ext the <tt>ConferenceDescriptionPacketExtension<tt> to set,
+     * @param packet the <tt>Packet<tt> to be modified.
+     * @param extension the <tt>ConferenceDescriptionPacketExtension<tt> to set,
      * or <tt>null</tt> to not set one.
+     * @param namespace the namespace of <tt>PacketExtension</tt>.
      */
-    private void setConferenceDescriptionPacketExtension(
+    private static void setPacketExtension(
             Packet packet,
-            ConferenceDescriptionPacketExtension ext)
+            PacketExtension extension,
+            String namespace)
     {
+        if (org.jitsi.util.StringUtils.isNullOrEmpty(namespace))
+        {
+            return;
+        }
+
         //clear previous announcements
         PacketExtension pe;
-        while (null !=
-                (pe = packet.getExtension(
-                        ConferenceDescriptionPacketExtension.NAMESPACE)))
+        while (null != (pe = packet.getExtension(namespace)))
         {
             packet.removeExtension(pe);
         }
 
-        if (ext != null)
-            packet.addExtension(ext);
+        if (extension != null)
+        {
+            packet.addExtension(extension);
+        }
+    }
+
+    /**
+     * Publishes new status message in chat room presence.
+     * @param newStatus the new status message to be published in the MUC.
+     */
+    public void publishPresenceStatus(String newStatus)
+    {
+        if (lastPresenceSent != null)
+        {
+            lastPresenceSent.setStatus(newStatus);
+
+            provider.getConnection().sendPacket(lastPresenceSent);
+        }
+    }
+
+    /**
+     * Adds given <tt>PacketExtension</tt> to the MUC presence and publishes it
+     * immediately.
+     * @param extension the <tt>PacketExtension</tt> to be included in MUC
+     *                  presence.
+     */
+    public void sendPresenceExtension(PacketExtension extension)
+    {
+        if (lastPresenceSent != null)
+        {
+            setPacketExtension(
+                lastPresenceSent, extension, extension.getNamespace());
+
+            provider.getConnection().sendPacket(lastPresenceSent);
+        }
     }
 
     /**
@@ -2972,9 +3012,10 @@ public class ChatRoomJabberImpl
         {
             if (packet instanceof Presence)
             {
-                setConferenceDescriptionPacketExtension(
-                        packet,
-                        publishedConferenceExt);
+                setPacketExtension(
+                    packet,
+                    publishedConferenceExt,
+                    ConferenceDescriptionPacketExtension.NAMESPACE);
 
                 lastPresenceSent = (Presence) packet;
             }

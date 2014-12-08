@@ -1715,6 +1715,10 @@ public class ProtocolProviderServiceJabberImpl
                 new OperationSetMultiUserChatJabberImpl(this));
 
             addSupportedOperationSet(
+                OperationSetJitsiMeetTools.class,
+                new OperationSetJitsiMeetToolsJabberImpl(this));
+
+            addSupportedOperationSet(
                 OperationSetServerStoredContactInfo.class,
                 new OperationSetServerStoredContactInfoJabberImpl(
                         infoRetreiver));

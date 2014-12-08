@@ -611,6 +611,8 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
             return audioDirectionUserPreference;
         case VIDEO:
             return videoDirectionUserPreference;
+        case DATA:
+            return MediaDirection.INACTIVE;
         default:
             throw new IllegalArgumentException("mediaType");
         }
@@ -655,7 +657,10 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     protected List<RTPExtension> getExtensionsForType(MediaType type)
     {
-        return getDefaultDevice(type).getSupportedExtensions();
+        MediaDevice device = getDefaultDevice(type);
+        return device != null
+            ? device.getSupportedExtensions()
+            : new ArrayList<RTPExtension>();
     }
 
     /**
