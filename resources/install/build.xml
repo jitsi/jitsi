@@ -1308,11 +1308,6 @@
       <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.dylib"
                link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.dylib"/>
 
-      <copy file="${macosx.resrc.dir}/JavaApplicationStub_Old"
-            tofile="${macosx.app.dir}/${application.name}.app/Contents/MacOS/${application.name}_Launcher"/>
-      <chmod file="${macosx.app.dir}/${application.name}.app/Contents/MacOS/${application.name}_Launcher"
-             perm="ugo+rx"/>
-
       <copy file="${macosx.resrc.dir}/libgrowl4j.dylib"
             todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/"/>
 
