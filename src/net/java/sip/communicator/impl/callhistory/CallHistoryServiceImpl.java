@@ -1455,6 +1455,7 @@ public class CallHistoryServiceImpl
 
             if (evt.getNewValue().equals(CallState.CALL_ENDED))
             {
+                boolean writeRecord = true;
                 if(evt.getOldValue().equals(CallState.CALL_INITIALIZATION))
                 {
                     callRecord.setEndTime(callRecord.getStartTime());
@@ -1466,12 +1467,20 @@ public class CallHistoryServiceImpl
                                 CallPeerChangeEvent.NORMAL_CALL_CLEARING)
                     {
                         callRecord.setEndReason(evt.getCause().getReasonCode());
+                        if ("Call completed elsewhere".equals(
+                            evt.getCause().getReasonString()))
+                        {
+                            writeRecord = false;
+                        }
                     }
                 }
                 else
                     callRecord.setEndTime(new Date());
 
-                writeCall(callRecord, null, null);
+                if (writeRecord)
+                {
+                    writeCall(callRecord, null, null);
+                }
                 synchronized (currentCallRecords)
                 {
                     currentCallRecords.remove(callRecord);
