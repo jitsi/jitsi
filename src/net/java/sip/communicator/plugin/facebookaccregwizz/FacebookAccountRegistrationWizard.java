@@ -276,4 +276,14 @@ public class FacebookAccountRegistrationWizard
     {
         return null;
     }
+
+    /**
+     * Whether the advanced configuration is enabled. Gives an option
+     * to disable/hide advanced config button.
+     * @return whether the advanced configuration is enabled.
+     */
+    public boolean isAdvancedConfigurationEnabled()
+    {
+        return false;
+    }
 }
