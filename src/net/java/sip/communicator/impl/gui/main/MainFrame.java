@@ -339,7 +339,13 @@ public class MainFrame
 
         searchPanel.add(searchField);
         searchPanel.add(new DialPadButton(), BorderLayout.WEST);
-        searchPanel.add(createButtonPanel(), BorderLayout.EAST);
+
+        if(!GuiActivator.getConfigurationService().getBoolean(
+            "net.java.sip.communicator.impl.gui.CALL_HISTORY_BUTTON_DISABLED",
+            false))
+        {
+            searchPanel.add(createButtonPanel(), BorderLayout.EAST);
+        }
 
         northPanel.add(accountStatusPanel, BorderLayout.CENTER);
         northPanel.add(searchPanel, BorderLayout.SOUTH);
@@ -382,7 +388,7 @@ public class MainFrame
         boolean isCallButtonEnabled = false;
 
         // Indicates if the big call button outside the search is enabled.
-        String callButtonEnabledString = UtilActivator.getResources()
+        String callButtonEnabledString = GuiActivator.getResources()
             .getSettingsString("impl.gui.CALL_BUTTON_ENABLED");
 
         if (callButtonEnabledString != null
