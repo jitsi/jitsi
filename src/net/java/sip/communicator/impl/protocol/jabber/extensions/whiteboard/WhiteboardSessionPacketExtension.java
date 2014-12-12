@@ -13,6 +13,7 @@ import javax.xml.parsers.*;
 import net.java.sip.communicator.impl.protocol.jabber.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.util.xml.*;
 import org.jivesoftware.smack.packet.*;
 import org.w3c.dom.*;
 
@@ -84,13 +85,10 @@ public class WhiteboardSessionPacketExtension
      */
     public  WhiteboardSessionPacketExtension (String xml)
     {
-        DocumentBuilderFactory factory =
-          DocumentBuilderFactory.newInstance ();
-
-        DocumentBuilder builder;
         try
         {
-            builder = factory.newDocumentBuilder ();
+            DocumentBuilder builder
+                    = XMLUtils.newDocumentBuilderFactory().newDocumentBuilder();
             InputStream in = new ByteArrayInputStream (xml.getBytes ());
             Document doc = builder.parse (in);
 

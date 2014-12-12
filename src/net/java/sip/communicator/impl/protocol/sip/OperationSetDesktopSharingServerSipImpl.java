@@ -27,6 +27,7 @@ import net.java.sip.communicator.util.*;
 import org.jitsi.service.neomedia.MediaType;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;
+import org.jitsi.util.xml.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 
@@ -562,9 +563,10 @@ public class OperationSetDesktopSharingServerSipImpl
 
                 try
                 {
+                    DocumentBuilderFactory factory
+                        = XMLUtils.newDocumentBuilderFactory();
                     document
-                        = DocumentBuilderFactory.newInstance()
-                            .newDocumentBuilder()
+                        = factory.newDocumentBuilder()
                                 .parse(new ByteArrayInputStream(rawContent));
                 }
                 catch (IOException ioe)

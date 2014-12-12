@@ -346,9 +346,8 @@ public class MclStorageManager
         try
         {
             // load the contact list
-            DocumentBuilderFactory factory =
-                DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
+            DocumentBuilder builder
+                = XMLUtils.newDocumentBuilderFactory().newDocumentBuilder();
             if (contactlistFile.length() == 0)
             {
                 // if the contact list does not exist - create it.

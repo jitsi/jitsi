@@ -225,8 +225,8 @@ public class ConferenceInfoDocument
         try
         {
             document
-                    = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-                    .parse(new ByteArrayInputStream(bytes));
+                = XMLUtils.newDocumentBuilderFactory().newDocumentBuilder()
+                        .parse(new ByteArrayInputStream(bytes));
         }
         catch (Exception e)
         {
@@ -401,9 +401,6 @@ public class ConferenceInfoDocument
      * This is not part of RFC4575 and is here because we are temporarily using
      * it in our XMPP implementation.
      * TODO: remote it when we define another way to handle the Jingle SID
-     *
-     * @param sid the value to set the <tt>sid</tt> attribute of the
-     * <tt>conference-info</tt> element to.
      */
     public String getSid()
     {

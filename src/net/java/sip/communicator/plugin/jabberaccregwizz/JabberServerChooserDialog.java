@@ -23,6 +23,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.fileaccess.*;
+import org.jitsi.util.xml.*;
 import org.osgi.framework.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
@@ -239,9 +240,8 @@ public class JabberServerChooserDialog
             }
 
             FileInputStream fis = new FileInputStream(localServersListFile);
-            DocumentBuilderFactory factory = DocumentBuilderFactory
-                .newInstance();
-            DocumentBuilder constructor = factory.newDocumentBuilder();
+            DocumentBuilder constructor
+                = XMLUtils.newDocumentBuilderFactory().newDocumentBuilder();
             Document document = constructor.parse(fis);
             Element root = document.getDocumentElement();
 
@@ -311,14 +311,11 @@ public class JabberServerChooserDialog
         {
             try
             {
-                // Create a builder factory
-                DocumentBuilderFactory factory
-                    = DocumentBuilderFactory.newInstance();
-
                 // Create the builder and parse the file
-                serverComments = factory.newDocumentBuilder()
-                    .parse(Resources.getPropertyInputStream(
-                        "plugin.jabberaccregwizz.SERVER_COMMENTS"));
+                serverComments
+                    = XMLUtils.newDocumentBuilderFactory().newDocumentBuilder()
+                            .parse(Resources.getPropertyInputStream(
+                                    "plugin.jabberaccregwizz.SERVER_COMMENTS"));
             }
             catch (SAXException e)
             {
