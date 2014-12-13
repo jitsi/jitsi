@@ -1252,20 +1252,11 @@
       <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Versions/Current"
                resource="./A"/>
       <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Headers"
-               resource="./Versions/Current/Headers"/>
+               resource="../Versions/Current/Headers"/>
       <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Resources"
-               resource="./Versions/Current/Resources"/>
+               resource="../Versions/Current/Resources"/>
       <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Growl"
-               resource="./Versions/Current/Growl"/>
-
-      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Versions/Current"
-               resource="./A"/>
-      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Headers"
-               resource="./Versions/Current/Headers"/>
-      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Resources"
-               resource="./Versions/Current/Resources"/>
-      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Growl"
-               resource="./Versions/Current/Growl"/>
+               resource="../Versions/Current/Growl"/>
 
       <!-- Add the url types in the Info.plist file -->
       <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
@@ -1590,6 +1581,7 @@
 
         <!-- signing -->
         <exec executable="/usr/bin/codesign" os="Mac OS X" failonerror="true">
+            <arg value="--deep"/>
             <arg value="-s"/>
             <arg value="${macosx.sign.certid}"/>
             <arg value="--keychain"/>
