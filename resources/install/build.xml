@@ -1085,15 +1085,6 @@
                  link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Versions/Current"/>
 
         <symlink action="delete" failonerror="false"
-                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Headers"/>
-        <symlink action="delete" failonerror="false"
-                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Resources"/>
-        <symlink action="delete" failonerror="false"
-                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Growl"/>
-        <symlink action="delete" failonerror="false"
-                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Versions/Current"/>
-
-        <symlink action="delete" failonerror="false"
                  link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Headers"/>
         <symlink action="delete" failonerror="false"
                  link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Resources/fr_CA.lproj"/>
