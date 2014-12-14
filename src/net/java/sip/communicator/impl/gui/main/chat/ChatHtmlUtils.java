@@ -249,7 +249,7 @@ public class ChatHtmlUtils
         messageBuff.append("<table width=\"100%\" ");
         messageBuff.append(NAME_ATTRIBUTE).append("=\"")
             .append(Tag.TABLE.toString())
-            .append("\" id=\"messageHeader\"");
+            .append("\" id=\"messageHeader\" ");
         messageBuff.append("style=\"background-color:");
         messageBuff.append(MSG_NAME_BACKGROUND).append(";\">");
         messageBuff.append("<tr>");
@@ -639,12 +639,12 @@ public class ChatHtmlUtils
         StringBuilder messageTag = new StringBuilder();
 
         SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
-        messageTag.append(String.format("<div id='%s' %s = '%s' ",
+        messageTag.append(String.format("<div id='%s' %s='%s' ",
                 MESSAGE_TEXT_ID + messageID, NAME_ATTRIBUTE,
                 contactName));
         messageTag.append(DATE_ATTRIBUTE).append("=\"")
             .append(sdf.format(date)).append("\" ");
-        messageTag.append(String.format("%s = '%s' ",
+        messageTag.append(String.format("%s='%s' ",
                 ORIGINAL_MESSAGE_ATTRIBUTE, GuiUtils.escapeHTMLChars(message)));
         messageTag.append(IncomingMessageStyle
             .createSingleMessageStyle(isHistory, isEdited, true));
@@ -689,12 +689,12 @@ public class ChatHtmlUtils
         StringBuilder messageTag = new StringBuilder();
 
         SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
-        messageTag.append(String.format("<div id='%s' %s = '%s' ",
+        messageTag.append(String.format("<div id='%s' %s='%s' ",
                 MESSAGE_TEXT_ID + messageID, NAME_ATTRIBUTE,
                 contactName));
         messageTag.append(DATE_ATTRIBUTE).append("=\"")
             .append(sdf.format(date)).append("\" ");
-        messageTag.append(String.format("%s = '%s' ",
+        messageTag.append(String.format("%s='%s' ",
                 ORIGINAL_MESSAGE_ATTRIBUTE, GuiUtils.escapeHTMLChars(message)));
         messageTag.append(IncomingMessageStyle
             .createSingleMessageStyle(isHistory, isEdited, false));

@@ -608,8 +608,9 @@ public class ChatConversationPanel
         }
         else if (messageType.equals(Chat.STATUS_MESSAGE))
         {
-            chatString = "<h4 id=\"statusMessage\" date=\"" + date + "\">";
-            endHeaderTag = "</h4>";
+            chatString = "<div id=\"statusMessage\" date=\"" + date + "\""
+                + " style=\"color: #8F8F8F; font-size: 8px;\">";
+            endHeaderTag = "</div>";
 
             chatString +=
                 GuiUtils.formatTime(date)
