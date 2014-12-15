@@ -650,9 +650,9 @@ public class ChatConversationPanel
 
             endHeaderTag = "</h6>";
 
-            String errorIcon = "<IMG SRC='"
+            String errorIcon = "<IMG SRC=\""
                 + ImageLoader.getImageUri(ImageLoader.EXCLAMATION_MARK)
-                + "' </IMG>";
+                + "\"></IMG>";
 
             // If the message title is null do not show it and show the error
             // icon on the same line as the actual error message.
