@@ -1243,11 +1243,11 @@
       <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Versions/Current"
                resource="./A"/>
       <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Headers"
-               resource="../Versions/Current/Headers"/>
+               resource="./Versions/Current/Headers"/>
       <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Resources"
-               resource="../Versions/Current/Resources"/>
+               resource="./Versions/Current/Resources"/>
       <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Growl"
-               resource="../Versions/Current/Growl"/>
+               resource="./Versions/Current/Growl"/>
 
       <!-- Add the url types in the Info.plist file -->
       <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
@@ -1555,11 +1555,24 @@
               quiet="yes" failonerror="false"/>
     </target>
 
+    <!-- Signs the specified path in param path-to-sign, using force -->
+    <target name="-codesign-path">
+        <exec executable="/usr/bin/codesign" os="Mac OS X" failonerror="true">
+            <arg value="--force"/>
+            <arg value="-s"/>
+            <arg value="${macosx.sign.certid}"/>
+            <arg value="--keychain"/>
+            <arg value="${macosx.sign.keychain}"/>
+            <arg value="${path-to-sign}"/>
+        </exec>
+    </target>
+
     <!--
         If there is a property enabling the keychain name
         we can sign.
      -->
-    <target name="macosx-sign-app" if="macosx.sign.keychain">
+    <target name="macosx-sign-app" if="macosx.sign.keychain"
+            depends="define-ant-contrib-task">
         <echo message="Signing application!"/>
 
         <!-- unlocking the keychain -->
@@ -1569,6 +1582,31 @@
             <arg value=""/>
             <arg value="${macosx.sign.keychain}"/>
         </exec>
+
+        <!-- force codesigning of growl framework as it has reosource 1
+        signiture and will cause Jitsi.app to fail verifying
+        Also sign the other frameworks and plugins (jre if exists).
+         -->
+        <delete dir="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Versions/A/_CodeSignature"
+                quiet="yes" failonerror="false"/>
+        <antcall target="-codesign-path">
+            <param name="path-to-sign"
+                   value="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Versions/A"/>
+        </antcall>
+        <antcall target="-codesign-path">
+            <param name="path-to-sign"
+                   value="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Versions/A"/>
+        </antcall>
+
+        <foreach param="path-to-sign" target="-codesign-path"
+                 inheritall="true" inheritrefs="true">
+            <path>
+                <dirset
+                    dir="${macosx.app.dir}/${application.name}.app/Contents">
+                        <include name="PlugIns/*"/>
+                </dirset>
+            </path>
+        </foreach>
 
         <!-- signing -->
         <exec executable="/usr/bin/codesign" os="Mac OS X" failonerror="true">
@@ -1587,8 +1625,14 @@
 
         <!-- just print sign info
             To test is sign accepted do $ sudo spctl -a -v -->
-        <exec executable="/usr/bin/codesign" os="Mac OS X" failonerror="true">
+        <exec executable="/usr/bin/codesign" os="Mac OS X" failonerror="false">
             <arg value="-dvvv"/>
+            <arg value="${macosx.app.dir}/${application.name}.app"/>
+        </exec>
+        <exec executable="/usr/bin/codesign" os="Mac OS X" failonerror="false">
+            <arg value="--verify"/>
+            <arg value="--deep"/>
+            <arg value="-v"/>
             <arg value="${macosx.app.dir}/${application.name}.app"/>
         </exec>
 
