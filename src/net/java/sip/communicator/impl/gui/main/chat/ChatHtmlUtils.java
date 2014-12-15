@@ -5,6 +5,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat;
 
+import java.io.*;
 import java.text.*;
 import java.util.*;
 
@@ -644,8 +645,10 @@ public class ChatHtmlUtils
                 contactName));
         messageTag.append(DATE_ATTRIBUTE).append("=\"")
             .append(sdf.format(date)).append("\" ");
-        messageTag.append(String.format("%s='%s' ",
-                ORIGINAL_MESSAGE_ATTRIBUTE, GuiUtils.escapeHTMLChars(message)));
+        final byte[] encodedMessageBytes =
+            Base64.encode(getMessageBytes(message));
+        messageTag.append(String.format("%s=\"%s\" ",
+            ORIGINAL_MESSAGE_ATTRIBUTE, new String(encodedMessageBytes)));
         messageTag.append(IncomingMessageStyle
             .createSingleMessageStyle(isHistory, isEdited, true));
         messageTag.append(">");
@@ -694,8 +697,10 @@ public class ChatHtmlUtils
                 contactName));
         messageTag.append(DATE_ATTRIBUTE).append("=\"")
             .append(sdf.format(date)).append("\" ");
-        messageTag.append(String.format("%s='%s' ",
-                ORIGINAL_MESSAGE_ATTRIBUTE, GuiUtils.escapeHTMLChars(message)));
+        final byte[] encodedMessageBytes =
+            Base64.encode(getMessageBytes(message));
+        messageTag.append(String.format("%s=\"%s\" ",
+            ORIGINAL_MESSAGE_ATTRIBUTE, new String(encodedMessageBytes)));
         messageTag.append(IncomingMessageStyle
             .createSingleMessageStyle(isHistory, isEdited, false));
         messageTag.append(">");
@@ -715,6 +720,19 @@ public class ChatHtmlUtils
         messageTag.append("</div>");
 
         return messageTag.toString();
+    }
+
+    private static byte[] getMessageBytes(final String message) {
+        try
+        {
+            return message.getBytes("UTF-8");
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            // this should not happen since we hard-code the character encoding
+            throw new IllegalStateException("This should not happen since we "
+                + "hard-code the required character encoding.");
+        }
     }
 
     /**
