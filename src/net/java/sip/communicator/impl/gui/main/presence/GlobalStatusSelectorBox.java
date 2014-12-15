@@ -63,6 +63,13 @@ public class GlobalStatusSelectorBox
     private static final int IMAGE_INDENT = 10;
 
     /**
+     * Property that controls whether we hide or show global status message
+     * menu.
+     */
+    private static final String HIDE_GLOBAL_STATUS_MESSAGE
+        = "net.java.sip.communicator.impl.gui.main.HIDE_GLOBAL_STATUS_MESSAGE";
+
+    /**
      * The arrow icon shown on the right of the status and indicating that
      * this is a menu.
      */
@@ -87,7 +94,7 @@ public class GlobalStatusSelectorBox
     /**
      * The global status message menu.
      */
-    private final GlobalStatusMessageMenu globalStatusMessageMenu;
+    private GlobalStatusMessageMenu globalStatusMessageMenu = null;
 
     /**
      * The parent panel that creates us.
@@ -127,22 +134,28 @@ public class GlobalStatusSelectorBox
 
         group.add(createMenuItem(GlobalStatusEnum.OFFLINE, -1));
 
-        this.addSeparator();
-
-        globalStatusMessageMenu = new GlobalStatusMessageMenu(true);
-        globalStatusMessageMenu.addPropertyChangeListener(new PropertyChangeListener()
+        if(!GuiActivator.getConfigurationService()
+                .getBoolean(HIDE_GLOBAL_STATUS_MESSAGE, false))
         {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt)
-            {
-                if(evt.getPropertyName().equals(
-                    GlobalStatusMessageMenu.STATUS_MESSAGE_UPDATED_PROP))
+            this.addSeparator();
+
+            globalStatusMessageMenu = new GlobalStatusMessageMenu(true);
+            globalStatusMessageMenu.addPropertyChangeListener(
+                new PropertyChangeListener()
                 {
-                    changeTooltip((String)evt.getNewValue());
-                }
-            }
-        });
-        this.add((JMenu)globalStatusMessageMenu.getMenu());
+                    @Override
+                    public void propertyChange(PropertyChangeEvent evt)
+                    {
+                        if(evt.getPropertyName().equals(
+                            GlobalStatusMessageMenu.
+                                STATUS_MESSAGE_UPDATED_PROP))
+                        {
+                            changeTooltip((String)evt.getNewValue());
+                        }
+                    }
+                });
+            this.add((JMenu)globalStatusMessageMenu.getMenu());
+        }
 
         if(!ConfigurationUtils.isHideAccountStatusSelectorsEnabled())
             this.addSeparator();
@@ -237,7 +250,9 @@ public class GlobalStatusSelectorBox
     {
         if(StringUtils.isNullOrEmpty(message))
         {
-            globalStatusMessageMenu.clearSelectedItems();
+            if(globalStatusMessageMenu != null)
+                globalStatusMessageMenu.clearSelectedItems();
+
             this.setToolTipText("<html><b>" + GuiActivator.getResources()
                 .getI18NString("service.gui.SET_GLOBAL_STATUS")
                 + "</b></html>");
