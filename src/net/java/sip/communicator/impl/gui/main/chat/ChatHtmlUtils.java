@@ -244,7 +244,7 @@ public class ChatHtmlUtils
         headerBuffer.append("</a>");
         headerBuffer.append("</h2>");
 
-        StringBuffer messageBuff = new StringBuffer();
+        final StringBuilder messageBuff = new StringBuilder();
 
         messageBuff.append("<table width=\"100%\" ");
         messageBuff.append(NAME_ATTRIBUTE).append("=\"")
