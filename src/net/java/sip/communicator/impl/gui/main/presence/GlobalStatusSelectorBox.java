@@ -135,7 +135,8 @@ public class GlobalStatusSelectorBox
         group.add(createMenuItem(GlobalStatusEnum.OFFLINE, -1));
 
         if(!GuiActivator.getConfigurationService()
-                .getBoolean(HIDE_GLOBAL_STATUS_MESSAGE, false))
+                .getBoolean(HIDE_GLOBAL_STATUS_MESSAGE, false)
+            && isPresenceOpSetForProvidersAvailable())
         {
             this.addSeparator();
 
