@@ -645,8 +645,8 @@ public class ChatHtmlUtils
                 contactName));
         messageTag.append(DATE_ATTRIBUTE).append("=\"")
             .append(sdf.format(date)).append("\" ");
-        final byte[] encodedMessageBytes =
-            Base64.encode(getMessageBytes(message));
+        final byte[] encodedMessageBytes = net.java.sip.communicator.util.Base64
+            .encode(getMessageBytes(message));
         messageTag.append(String.format("%s=\"%s\" ",
             ORIGINAL_MESSAGE_ATTRIBUTE, new String(encodedMessageBytes)));
         messageTag.append(IncomingMessageStyle
@@ -697,8 +697,8 @@ public class ChatHtmlUtils
                 contactName));
         messageTag.append(DATE_ATTRIBUTE).append("=\"")
             .append(sdf.format(date)).append("\" ");
-        final byte[] encodedMessageBytes =
-            Base64.encode(getMessageBytes(message));
+        final byte[] encodedMessageBytes =net.java.sip.communicator.util.Base64
+            .encode(getMessageBytes(message));
         messageTag.append(String.format("%s=\"%s\" ",
             ORIGINAL_MESSAGE_ATTRIBUTE, new String(encodedMessageBytes)));
         messageTag.append(IncomingMessageStyle

@@ -478,7 +478,8 @@ public class ChatConversationPanel
             return null;
         }
 
-        String res = new String(Base64.decode(original_message.toString()));
+        String res = new String(net.java.sip.communicator.util.Base64
+            .decode(original_message.toString()));
         // Remove all newline characters that were inserted to make copying
         // newlines from the conversation panel work.
         // They shouldn't be in the write panel, because otherwise a newline
