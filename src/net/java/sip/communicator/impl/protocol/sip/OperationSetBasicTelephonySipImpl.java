@@ -1982,7 +1982,7 @@ public class OperationSetBasicTelephonySipImpl
          * may choose to require a valid Referred-By token.
          */
         refer.addHeader( ((HeaderFactoryImpl) headerFactory)
-                .createReferredByHeader(sipPeer.getPeerAddress()));
+                .createReferredByHeader(dialog.getLocalParty()));
 
         protocolProvider.sendInDialogRequest(
                         sipPeer.getJainSipProvider(), refer, dialog);
