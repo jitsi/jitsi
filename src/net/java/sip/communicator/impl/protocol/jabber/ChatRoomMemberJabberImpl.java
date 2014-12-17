@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.jabber.*;
+import net.java.sip.communicator.service.protocol.jabberconstants.*;
 
 import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.muc.*;
@@ -249,5 +250,18 @@ public class ChatRoomMemberJabberImpl
      public void setContact(Contact contact)
      {
          this.contact = contact;
+     }
+
+     /**
+      * Current presence status of chat room member.
+      *
+      * @return returns current presence status
+      */
+     @Override
+     public PresenceStatus getPresenceStatus()
+     {
+         // FIXME implement accurate status for chat room member
+         return ((ProtocolProviderServiceJabberImpl) getProtocolProvider())
+             .getJabberStatusEnum().getStatus(JabberStatusEnum.AVAILABLE);
      }
 }

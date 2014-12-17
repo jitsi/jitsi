@@ -89,4 +89,15 @@ public interface ChatRoomMember
      * to set for this member in its containing chat room.
      */
     public void setRole(ChatRoomMemberRole role);
+
+    /**
+     * Returns the status of the chat room member as per the last status update
+     * we've received for it. Note that this method is not to perform any
+     * network operations and will simply return the status received in the last
+     * status update message.
+     *
+     * @return the PresenceStatus that we've received in the last status update
+     *         pertaining to this contact.
+     */
+    public PresenceStatus getPresenceStatus();
 }

@@ -6,8 +6,7 @@
  */
 package net.java.sip.communicator.impl.msghistory;
 
-import static
-    net.java.sip.communicator.service.history.HistoryService.DATE_FORMAT;
+import static net.java.sip.communicator.service.history.HistoryService.*;
 
 import java.beans.*;
 import java.io.*;
@@ -24,9 +23,10 @@ import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.msghistory.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
-
 import net.java.sip.communicator.util.account.*;
+
 import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
@@ -2719,6 +2719,13 @@ public class MessageHistoryServiceImpl
         public void setConferenceDescription(ConferenceDescription cd)
         {
             return;
+        }
+
+        @Override
+        public PresenceStatus getPresenceStatus()
+        {
+            // FIXME is this correct response?
+            return GlobalStatusEnum.ONLINE;
         }
     }
 

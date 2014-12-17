@@ -31,6 +31,11 @@ public class ChatRoomMemberPropertyChangeEvent
     public static final String MEMBER_NICKNAME = "MemberNickname";
 
     /**
+     * The presence status of the <tt>ChatRoomMember</tt> property.
+     */
+    public static final String MEMBER_PRESENCE = "MemberPresence";
+
+    /**
      * The <tt>ChatRoom</tt>, to which the corresponding member belongs.
      */
     private ChatRoom memberChatRoom;

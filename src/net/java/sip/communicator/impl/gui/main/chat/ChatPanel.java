@@ -3059,17 +3059,20 @@ public class ChatPanel
      */
     public void chatRoomPropertyChanged(ChatRoomMemberPropertyChangeEvent event)
     {
-        String message = GuiActivator.getResources().getI18NString(
-            "service.gui.CHAT_NICKNAME_CHANGE",
-            new String[]{
-                (String) event.getOldValue(),
-                (String) event.getNewValue()
-            });
-        this.conversationPanel
-            .appendMessageToEnd(
+        if (ChatRoomMemberPropertyChangeEvent.MEMBER_NICKNAME.equals(event
+            .getPropertyName()))
+        {
+            String message =
+                GuiActivator.getResources().getI18NString(
+                    "service.gui.CHAT_NICKNAME_CHANGE",
+                    new String[]
+                    { (String) event.getOldValue(),
+                        (String) event.getNewValue() });
+            this.conversationPanel.appendMessageToEnd(
                 "<DIV identifier=\"message\" style=\"color:#707070;\">"
-                + StringEscapeUtils.escapeHtml4(message) + "</DIV>",
+                    + StringEscapeUtils.escapeHtml4(message) + "</DIV>",
                 ChatHtmlUtils.HTML_CONTENT_TYPE);
+        }
     }
 
     /**

@@ -451,7 +451,7 @@ public class ChannelManager
             final ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(this.provider, chatRoom,
                     user.getNick(), user.getIdent(), user.getHostname(),
-                    ChatRoomMemberRole.SILENT_MEMBER);
+                    ChatRoomMemberRole.SILENT_MEMBER, IrcStatusEnum.ONLINE);
             ChatRoomMemberRole role;
             for (final IRCUserStatus status : channel.getStatusesForUser(user))
             {
@@ -791,9 +791,24 @@ public class ChannelManager
         private static final int IRC_ERR_NOTONCHANNEL = 442;
 
         /**
+         * IRC reply code for WHO reply entry for an individual user.
+         */
+        private static final int IRC_RPL_WHOREPLY = 352;
+
+        /**
+         * IRC reply code for end of WHO reply list.
+         */
+        private static final int IRC_RPL_ENDOFWHO = 315;
+
+        /**
          * Chat room for which this listener is working.
          */
         private final ChatRoomIrcImpl chatroom;
+
+        /**
+         * Periodic task timer.
+         */
+        private final Timer presenceTaskTimer;
 
         /**
          * Constructor. Instantiate listener for the provided chat room.
@@ -808,6 +823,27 @@ public class ChannelManager
                 throw new IllegalArgumentException("chatroom cannot be null");
             }
             this.chatroom = chatroom;
+            this.presenceTaskTimer = createPeriodicPresenceWatcher();
+        }
+
+        /**
+         * Create periodic task for updating channel presence statuses.
+         */
+        private Timer createPeriodicPresenceWatcher() {
+            final Timer presence = new Timer();
+            final TimerTask task = new TimerTask()
+            {
+                @Override
+                public void run()
+                {
+                    irc.rawMessage("WHO " + chatroom.getIdentifier());
+                }
+            };
+            // FIXME create constants
+            presence.schedule(task, 1000L, 60000L);
+            LOGGER.debug("Scheduled periodic task for querying member presence "
+                + "for channel " + this.chatroom.getIdentifier());
+            return presence;
         }
 
         /**
@@ -858,7 +894,7 @@ public class ChannelManager
             final ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(ChannelManager.this.provider,
                     this.chatroom, user, ident, host,
-                    ChatRoomMemberRole.SILENT_MEMBER);
+                    ChatRoomMemberRole.SILENT_MEMBER, IrcStatusEnum.ONLINE);
             this.chatroom.fireMemberPresenceEvent(member, null,
                 ChatRoomMemberPresenceChangeEvent.MEMBER_JOINED, null);
         }
@@ -951,9 +987,46 @@ public class ChannelManager
                 }
                 break;
 
+            case IRC_RPL_WHOREPLY:
+                // FIXME filter out replies not for this channel
+                final String[] messageComponents = msg.getText().split(" ");
+                final String nick = messageComponents[4];
+                final ChatRoomMemberIrcImpl member =
+                    (ChatRoomMemberIrcImpl) this.chatroom
+                        .getChatRoomMember(nick);
+                if (member != null)
+                {
+                    final IrcStatusEnum status =
+                        determineStatus(messageComponents[5]);
+                    final IrcStatusEnum previous =
+                        member.setPresenceStatus(status);
+                    final ChatRoomMemberPropertyChangeEvent presenceEvent =
+                        new ChatRoomMemberPropertyChangeEvent(member,
+                            this.chatroom,
+                            ChatRoomMemberPropertyChangeEvent.MEMBER_PRESENCE,
+                            previous, status);
+                    this.chatroom.fireMemberPropertyChangeEvent(presenceEvent);
+                }
+                break;
+
             default:
                 break;
             }
+        }
+
+        /**
+         * Determine the presence status by the code in the IRC WHO reply.
+         *
+         * @param presenceReply presence code
+         * @return returns corresponding IrcStatusEnum instance
+         */
+        private IrcStatusEnum determineStatus(final String presenceReply)
+        {
+            if (presenceReply != null && presenceReply.startsWith("G"))
+            {
+                return IrcStatusEnum.AWAY;
+            }
+            return IrcStatusEnum.ONLINE;
         }
 
         /**
@@ -1009,9 +1082,12 @@ public class ChannelManager
         @Override
         public void onUserQuit(final QuitMessage msg)
         {
-            String user = msg.getSource().getNick();
-            super.onUserQuit(msg);
-            if (!localUser(user))
+            final String user = msg.getSource().getNick();
+            if (localUser(user))
+            {
+                this.presenceTaskTimer.cancel();
+            }
+            else
             {
                 final ChatRoomMember member =
                     this.chatroom.getChatRoomMember(user);
@@ -1022,6 +1098,18 @@ public class ChannelManager
                         msg.getQuitMsg());
                 }
             }
+            super.onUserQuit(msg);
+        }
+
+        /**
+         * Event in case of error. Cancel running timer then do the regular
+         * onError stuff.
+         */
+        @Override
+        public void onError(ErrorMessage msg)
+        {
+            this.presenceTaskTimer.cancel();
+            super.onError(msg);
         }
 
         /**
@@ -1071,11 +1159,12 @@ public class ChannelManager
 
             final MessageIrcImpl message =
                 MessageIrcImpl.newMessageFromIRC(msg.getText());
+            // FIXME why create a new instance?
             final ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(ChannelManager.this.provider,
                     this.chatroom, msg.getSource().getNick(), msg.getSource()
                         .getIdent(), msg.getSource().getHostname(),
-                    ChatRoomMemberRole.MEMBER);
+                    ChatRoomMemberRole.MEMBER, IrcStatusEnum.ONLINE);
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
                 ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
         }
@@ -1094,10 +1183,12 @@ public class ChannelManager
             }
 
             String userNick = msg.getSource().getNick();
+            // FIXME why create a new instance?
             ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(ChannelManager.this.provider,
                     this.chatroom, userNick, msg.getSource().getIdent(), msg
-                        .getSource().getHostname(), ChatRoomMemberRole.MEMBER);
+                        .getSource().getHostname(), ChatRoomMemberRole.MEMBER,
+                    IrcStatusEnum.ONLINE);
             MessageIrcImpl message =
                 MessageIrcImpl.newActionFromIRC(msg.getText());
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
@@ -1118,10 +1209,12 @@ public class ChannelManager
             }
 
             final String userNick = msg.getSource().getNick();
+            // FIXME why create a new instance?
             final ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(ChannelManager.this.provider,
                     this.chatroom, userNick, msg.getSource().getIdent(), msg
-                        .getSource().getHostname(), ChatRoomMemberRole.MEMBER);
+                        .getSource().getHostname(), ChatRoomMemberRole.MEMBER,
+                    IrcStatusEnum.ONLINE);
             final MessageIrcImpl message =
                 MessageIrcImpl.newNoticeFromIRC(member, msg.getText());
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
@@ -1133,6 +1226,7 @@ public class ChannelManager
          */
         private void leaveChatRoom()
         {
+            this.presenceTaskTimer.cancel();
             this.irc.deleteListener(this);
             ChannelManager.this.joined.remove(this.chatroom.getIdentifier());
             LOGGER.debug("Leaving chat room " + this.chatroom.getIdentifier()
@@ -1348,7 +1442,7 @@ public class ChannelManager
                 member =
                     new ChatRoomMemberIrcImpl(ChannelManager.this.provider,
                         this.chatroom, "", "", "",
-                        ChatRoomMemberRole.ADMINISTRATOR);
+                        ChatRoomMemberRole.ADMINISTRATOR, IrcStatusEnum.ONLINE);
             }
             else if (source instanceof IRCUser)
             {

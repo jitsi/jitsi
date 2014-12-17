@@ -362,7 +362,7 @@ public class OperationSetMultiUserChatIrcImpl
             return new ChatRoomMemberIrcImpl(ircProvider, serverChatRoom,
                 ircProvider.getAccountID().getService(), "", ircProvider
                     .getAccountID().getServerAddress(),
-                ChatRoomMemberRole.GUEST);
+                ChatRoomMemberRole.GUEST, IrcStatusEnum.ONLINE);
         }
     }
 

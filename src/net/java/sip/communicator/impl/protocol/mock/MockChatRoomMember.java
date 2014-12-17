@@ -134,4 +134,14 @@ public class MockChatRoomMember
     {
         return contact;
     }
+
+    /**
+     * Returns status for fully available mock chat room member.
+     */
+    @Override
+    public PresenceStatus getPresenceStatus()
+    {
+        // mock fully available
+        return MockStatusEnum.MOCK_STATUS_100;
+    }
 }

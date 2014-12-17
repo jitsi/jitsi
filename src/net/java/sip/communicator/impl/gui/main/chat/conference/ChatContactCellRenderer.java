@@ -91,9 +91,18 @@ public class ChatContactCellRenderer
             if(memberRole != null)
                 this.nameLabel.setIcon(
                     ChatContactRoleIcon.getRoleIcon(memberRole));
-        }
 
-        if (contactForegroundColor != null)
+            // FIXME Make solution more generic by querying color from presence
+            // status instance.
+            final int presenceStatus = member.getPresenceStatus().getStatus();
+            if (presenceStatus >= PresenceStatus.AVAILABLE_THRESHOLD) {
+                this.nameLabel.setForeground(Color.BLACK);
+            }
+            else if (presenceStatus >= PresenceStatus.AWAY_THRESHOLD) {
+                this.nameLabel.setForeground(Color.GRAY);
+            }
+        }
+        else if (contactForegroundColor != null)
             this.nameLabel.setForeground(contactForegroundColor);
 
         this.setBorder(BorderFactory.createEmptyBorder(1, 5, 1, 1));
