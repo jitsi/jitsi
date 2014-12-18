@@ -254,7 +254,7 @@ public class ChatRoomMemberJabberImpl
      @Override
      public PresenceStatus getPresenceStatus()
      {
-         // FIXME implement accurate status for chat room member
+         // TODO implement current presence status for chat room member
          return ((ProtocolProviderServiceJabberImpl) getProtocolProvider())
              .getJabberStatusEnum().getStatus(JabberStatusEnum.AVAILABLE);
      }
