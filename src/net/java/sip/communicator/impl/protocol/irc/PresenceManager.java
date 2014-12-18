@@ -45,7 +45,7 @@ public class PresenceManager
     /**
      * Delay before starting the presence watcher task for the first time.
      */
-    private static final long INITIAL_PRESENCE_WATCHER_DELAY = 3000L;
+    private static final long INITIAL_PRESENCE_WATCHER_DELAY = 10000L;
 
     /**
      * Period for the presence watcher timer.
@@ -447,6 +447,12 @@ public class PresenceManager
             {
                 LOGGER.trace("Watch list is empty. Not querying for online "
                     + "presence.");
+                return;
+            }
+            if (this.serverIdentity.get() == null)
+            {
+                LOGGER.trace("Server identity not available yet. Skipping "
+                    + "this presence status query.");
                 return;
             }
             LOGGER
