@@ -988,8 +988,15 @@ public class ChannelManager
                 break;
 
             case IRC_RPL_WHOREPLY:
-                // FIXME filter out replies not for this channel
                 final String[] messageComponents = msg.getText().split(" ");
+                if (messageComponents.length < 6
+                    || !isThisChatRoom(messageComponents[0]))
+                {
+                    // We need at least 6 components in order to process this
+                    // message correctly, so stop processing if this is not the
+                    // case. Or if this reply was not targeted at this channel.
+                    return;
+                }
                 final String nick = messageComponents[4];
                 final ChatRoomMemberIrcImpl member =
                     (ChatRoomMemberIrcImpl) this.chatroom
