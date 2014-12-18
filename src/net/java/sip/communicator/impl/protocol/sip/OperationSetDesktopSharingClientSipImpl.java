@@ -136,9 +136,15 @@ public class OperationSetDesktopSharingClientSipImpl
                         String eventId)
                 {
                     /* new subscription received */
-                    return new RemoteControlNotifierSubscription(
-                            fromAddress,
-                            eventId);
+                    RemoteControlNotifierSubscription rcNotifierSubscription
+                        = new RemoteControlNotifierSubscription(
+                        fromAddress,
+                        eventId);
+
+                    if(dssid != null)
+                        rcNotifierSubscription.setDSSID(dssid);
+
+                    return rcNotifierSubscription;
                 }
 
                 /**
@@ -169,9 +175,14 @@ public class OperationSetDesktopSharingClientSipImpl
 
                     if(subs instanceof RemoteControlNotifierSubscription)
                     {
-                        fireRemoteControlGranted(
-                            ((RemoteControlNotifierSubscription)subs).
-                                getCallPeer());
+                        RemoteControlNotifierSubscription rcnSub
+                            = (RemoteControlNotifierSubscription)subs;
+
+                        fireRemoteControlGranted(rcnSub.getCallPeer());
+
+                        // if we have dssid set it to notifier
+                        if(dssid != null)
+                            rcnSub.setDSSID(dssid);
                     }
 
                     return ret;
@@ -429,6 +440,12 @@ public class OperationSetDesktopSharingClientSipImpl
         private CallPeerSipImpl callPeer = null;
 
         /**
+         * The received dssid from the subscription and the one to be used
+         * in the notify requests.
+         */
+        private String dssid = null;
+
+        /**
          * Initializes a new <tt>RemoteControlNotifierSubscription</tt> instance
          * with a specific subscription <tt>Address</tt>/Request URI and a
          * specific id tag of the associated Event headers.
@@ -530,11 +547,19 @@ public class OperationSetDesktopSharingClientSipImpl
 
                     if (basicTelephony != null)
                     {
-                        callPeer
+                        ActiveCallsRepositorySipImpl callRepo
                             = ((OperationSetBasicTelephonySipImpl)
-                                    basicTelephony)
-                               .getActiveCallsRepository()
-                                   .findCallPeer(dialog);
+                                    basicTelephony).getActiveCallsRepository();
+
+                        callPeer = callRepo.findCallPeer(dialog);
+
+                        // if call peer is still null and we have enabled
+                        // working out of dialog desktop sharing, search the
+                        // peer based on the dssid we have
+                        if(callPeer == null && dssid != null)
+                        {
+                            callPeer = findCallPeerByDSSID(callRepo);
+                        }
 
                         if (callPeer != null)
                             callPeer.addCallPeerListener(callPeerListener);
@@ -542,6 +567,48 @@ public class OperationSetDesktopSharingClientSipImpl
                 }
             }
             return callPeer;
+        }
+
+        /**
+         * Sets dssid value.
+         * @param value
+         */
+        public void setDSSID(String value)
+        {
+            this.dssid = value;
+        }
+
+        /**
+         * Finds a call peer by a call with same <tt>dssid</tt> if any.
+         * @param callRepo the active call repository to use while
+         * searching calls.
+         * @return a matching call peer.
+         */
+        public CallPeerSipImpl findCallPeerByDSSID(
+            ActiveCallsRepositorySipImpl callRepo)
+        {
+            if(dssid == null)
+                return null;
+
+            for (Iterator<CallSipImpl> activeCalls = callRepo.getActiveCalls();
+                    activeCalls.hasNext();)
+            {
+                CallSipImpl call = activeCalls.next();
+
+                if(call instanceof DesktopSharingCallSipImpl)
+                {
+                    DesktopSharingCallSipImpl dsCall
+                        = (DesktopSharingCallSipImpl)call;
+
+                    if( dsCall.getDesktopSharingSessionID() != null
+                        && dsCall.getDesktopSharingSessionID().equals(dssid))
+                    {
+                        return dsCall.getCallPeers().next();
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }
