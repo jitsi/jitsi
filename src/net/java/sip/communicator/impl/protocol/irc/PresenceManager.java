@@ -27,8 +27,6 @@ import com.ircclouds.irc.api.state.*;
  * 'a' used for other purposes. This may be one of those ambiguous letters that
  * every server interprets differently.)
  *
- * TODO Jitsi is currently missing support for presence in MUC (ChatRoomMember).
- *
  * TODO Improve presence watcher by using WATCH or MONITOR. (Monitor does not
  * seem to support away status, though)
  *
@@ -109,11 +107,13 @@ public class PresenceManager
      * @param connectionState irc client connection state instance
      * @param operationSet OperationSetPersistentPresence irc implementation for
      *            handling presence changes.
+     * @param config Client configuration
      * @param persistentNickWatchList persistent nick watch list to use (The
      *            sortedset implementation must be synchronized!)
      */
     public PresenceManager(final IRCApi irc, final IIRCState connectionState,
         final OperationSetPersistentPresenceIrcImpl operationSet,
+        final ClientConfig config,
         final SortedSet<String> persistentNickWatchList)
     {
         if (connectionState == null)
@@ -143,7 +143,10 @@ public class PresenceManager
         }
         this.irc.addListener(new PresenceListener());
         this.isupportAwayLen = parseISupportAwayLen(this.connectionState);
-        setUpPresenceWatcher();
+        if (config.isContactPresenceTaskEnabled())
+        {
+            setUpPresenceWatcher();
+        }
     }
 
     /**

@@ -56,6 +56,11 @@ public class ChannelManager
     private final ProtocolProviderServiceIrcImpl provider;
 
     /**
+     * Client configuration.
+     */
+    private final ClientConfig config;
+
+    /**
      * Container for joined channels.
      *
      * There are two different cases:
@@ -104,9 +109,11 @@ public class ChannelManager
      * @param irc thread-safe IRCApi instance
      * @param connectionState the connection state
      * @param provider the provider instance
+     * @param config client configuration
      */
     public ChannelManager(final IRCApi irc, final IIRCState connectionState,
-        final ProtocolProviderServiceIrcImpl provider)
+        final ProtocolProviderServiceIrcImpl provider,
+        final ClientConfig config)
     {
         if (irc == null)
         {
@@ -124,6 +131,11 @@ public class ChannelManager
             throw new IllegalArgumentException("provider cannot be null");
         }
         this.provider = provider;
+        if (config == null)
+        {
+            throw new IllegalArgumentException("client config cannot be null");
+        }
+        this.config = config;
         this.irc.addListener(new ManagerListener());
 
         // parse ISUPPORT parameters
@@ -342,8 +354,9 @@ public class ChannelManager
                                 ChannelManager.this.joined.put(chatRoomId,
                                     chatroom);
                                 ChannelManager.this.irc
-                                    .addListener(
-                                        new ChatRoomListener(chatroom));
+                                    .addListener(new ChatRoomListener(chatroom,
+                                        ChannelManager.this.config
+                                            .isChannelPresenceTaskEnabled()));
                                 prepareChatRoom(chatroom, channel);
                             }
                             finally
@@ -741,7 +754,8 @@ public class ChannelManager
                             ChannelManager.this.provider);
                     ChannelManager.this.joined.put(channelName, chatRoom);
                 }
-                this.irc.addListener(new ChatRoomListener(chatRoom));
+                this.irc.addListener(new ChatRoomListener(chatRoom,
+                    ChannelManager.this.config.isChannelPresenceTaskEnabled()));
                 try
                 {
                     ChannelManager.this.provider.getMUC().openChatRoomWindow(
@@ -801,21 +815,32 @@ public class ChannelManager
         private static final int IRC_RPL_ENDOFWHO = 315;
 
         /**
+         * Presence task initial delay.
+         */
+        private static final long TASK_INITIAL_DELAY = 1000L;
+
+        /**
+         * Presence task period.
+         */
+        private static final long TASK_PERIOD = 60000L;
+
+        /**
          * Chat room for which this listener is working.
          */
         private final ChatRoomIrcImpl chatroom;
 
         /**
-         * Periodic task timer.
+         * Presence task timer.
          */
-        private final Timer presenceTaskTimer;
+        private final Timer presenceTaskTimer = new Timer();
 
         /**
          * Constructor. Instantiate listener for the provided chat room.
          *
          * @param chatroom the chat room
          */
-        private ChatRoomListener(final ChatRoomIrcImpl chatroom)
+        private ChatRoomListener(final ChatRoomIrcImpl chatroom,
+            final boolean activatePresenceWatcher)
         {
             super(ChannelManager.this.irc, ChannelManager.this.connectionState);
             if (chatroom == null)
@@ -823,14 +848,16 @@ public class ChannelManager
                 throw new IllegalArgumentException("chatroom cannot be null");
             }
             this.chatroom = chatroom;
-            this.presenceTaskTimer = createPeriodicPresenceWatcher();
+            if (activatePresenceWatcher)
+            {
+                createPeriodicPresenceWatcher();
+            }
         }
 
         /**
          * Create periodic task for updating channel presence statuses.
          */
-        private Timer createPeriodicPresenceWatcher() {
-            final Timer presence = new Timer();
+        private void createPeriodicPresenceWatcher() {
             final TimerTask task = new TimerTask()
             {
                 @Override
@@ -839,11 +866,10 @@ public class ChannelManager
                     irc.rawMessage("WHO " + chatroom.getIdentifier());
                 }
             };
-            // FIXME create constants
-            presence.schedule(task, 1000L, 60000L);
+            this.presenceTaskTimer.schedule(task, TASK_INITIAL_DELAY,
+                TASK_PERIOD);
             LOGGER.debug("Scheduled periodic task for querying member presence "
                 + "for channel " + this.chatroom.getIdentifier());
-            return presence;
         }
 
         /**

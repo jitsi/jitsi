@@ -67,6 +67,13 @@ public class IrcConnection
     private final IrcStack.PersistentContext context;
 
     /**
+     * IRC client configuration for managing (more advanced) client behaviour
+     * such as the use of periodic tasks for querying presence of contacts and
+     * channel members.
+     */
+    private final ClientConfig config;
+
+    /**
      * IRC Api instance.
      */
     private final IRCApi irc;
@@ -111,13 +118,15 @@ public class IrcConnection
      * Constructor.
      *
      * @param context persistent context that crosses connections
+     * @param config client configuration
      * @param irc the irc instance
      * @param params connection parameters
      * @param connectionListener listener for callback upon connection
      *            interruption
      * @throws Exception Throws IOException in case of connection problems.
      */
-    IrcConnection(final IrcStack.PersistentContext context, final IRCApi irc,
+    IrcConnection(final IrcStack.PersistentContext context,
+        final ClientConfig config, final IRCApi irc,
         final IServerParameters params,
         final IrcConnectionListener connectionListener)
         throws Exception
@@ -127,6 +136,11 @@ public class IrcConnection
             throw new IllegalArgumentException("context cannot be null");
         }
         this.context = context;
+        if (config == null)
+        {
+            throw new IllegalArgumentException("client config cannot be null");
+        }
+        this.config = config;
         if (irc == null)
         {
             throw new IllegalArgumentException("irc instance cannot be null");
@@ -155,13 +169,13 @@ public class IrcConnection
         // instantiate channel manager for the connection
         this.channel =
             new ChannelManager(this.irc, this.connectionState,
-                this.context.provider);
+                this.context.provider, this.config);
 
         // instantiate presence manager for the connection
         this.presence =
             new PresenceManager(this.irc, this.connectionState,
                 this.context.provider.getPersistentPresence(),
-                this.context.nickWatchList);
+                this.config, this.context.nickWatchList);
 
         // instantiate server channel lister
         this.channelLister =

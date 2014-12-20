@@ -99,13 +99,16 @@ public class IrcStack implements IrcConnectionListener
      * @param secureConnection true to set up secure connection, or false if
      *            not.
      * @param autoNickChange do automatic nick changes if nick is in use
+     * @param config Client configuration
      * @throws OperationFailedException in case of user canceling because of
      *             certificate errors
      * @throws Exception throws exceptions
      */
     public void connect(final String host, final int port,
         final String password, final boolean secureConnection,
-        final boolean autoNickChange) throws OperationFailedException, Exception
+        final boolean autoNickChange, final ClientConfig config)
+        throws OperationFailedException,
+        Exception
     {
         final IRCServer server;
         if (secureConnection)
@@ -143,7 +146,7 @@ public class IrcStack implements IrcConnectionListener
 
                 // Synchronized IRCApi instance passed on to the connection
                 // instance.
-                this.session.set(new IrcConnection(this.context, irc,
+                this.session.set(new IrcConnection(this.context, config, irc,
                     this.params, this));
 
                 this.provider.setCurrentRegistrationState(
@@ -280,9 +283,9 @@ public class IrcStack implements IrcConnectionListener
      * messages as they are handled.
      *
      * <p>
-     * This listener is <em>intentionally</em> not deleted be deleted upon
-     * disconnect (ERROR or QUIT), for purpose of tracking any remaining
-     * activity that may occur in case of a implementation issue.
+     * This listener is <em>intentionally</em> not deleted upon disconnect
+     * (ERROR or QUIT), for purpose of tracking any remaining activity that may
+     * occur in case of a implementation issue.
      * </p>
      *
      * @author Danny van Heumen

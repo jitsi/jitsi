@@ -253,6 +253,12 @@ public class ProtocolProviderServiceIrcImpl
         boolean secureConnection =
             accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactory.DEFAULT_ENCRYPTION, true);
+        boolean channelPresenceTask =
+            accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactoryIrcImpl.CHANNEL_PRESENCE_TASK, true);
+        boolean contactPresenceTask =
+            accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactoryIrcImpl.CONTACT_PRESENCE_TASK, true);
 
         //if we don't - retrieve it from the user through the security authority
         if (serverPassword == null && passwordRequired)
@@ -295,10 +301,15 @@ public class ProtocolProviderServiceIrcImpl
             }
         }
 
+        // configure client options according to account properties
+        final ClientConfigImpl config = new ClientConfigImpl();
+        config.setContactPresenceTaskEnabled(contactPresenceTask);
+        config.setChannelPresenceTaskEnabled(channelPresenceTask);
+
         try
         {
             this.ircstack.connect(serverAddress, serverPort, serverPassword,
-                secureConnection, autoNickChange);
+                secureConnection, autoNickChange, config);
         }
         catch (OperationFailedException e)
         {
