@@ -1033,6 +1033,11 @@ public class ChannelManager
                         determineStatus(messageComponents[5]);
                     final IrcStatusEnum previous =
                         member.setPresenceStatus(status);
+                    if (previous == status) {
+                        // if there is no change in status, do not fire member
+                        // property change event
+                        return;
+                    }
                     final ChatRoomMemberPropertyChangeEvent presenceEvent =
                         new ChatRoomMemberPropertyChangeEvent(member,
                             this.chatroom,
