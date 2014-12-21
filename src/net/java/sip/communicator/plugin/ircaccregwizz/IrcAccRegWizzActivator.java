@@ -109,9 +109,7 @@ public class IrcAccRegWizzActivator
     {
         ServiceReference<?>[] serRefs = null;
 
-        String osgiFilter = "("
-            + ProtocolProviderFactory.PROTOCOL
-            + "=" + "IRC" + ")";
+        String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL + "=IRC)";
 
         try
         {

@@ -17,8 +17,8 @@ import org.osgi.framework.*;
 
 /**
  * The <tt>IrcAccountRegistrationWizard</tt> is an implementation of the
- * <tt>AccountRegistrationWizard</tt> for the IRC protocol. It allows
- * the user to create and configure a new IRC account.
+ * <tt>AccountRegistrationWizard</tt> for the IRC protocol. It allows the user
+ * to create and configure a new IRC account.
  *
  * @author Lionel Ferreira & Michael Tarantino
  * @author Danny van Heumen
@@ -29,6 +29,23 @@ public class IrcAccountRegistrationWizard
     private static final int WIZARD_DIALOG_HEIGHT = 500;
 
     private static final int WIZARD_DIALOG_WIDTH = 600;
+
+    /**
+     * Repeated contact presence task configuration key from
+     * ProtocolProviderFactoryIrcImpl here to avoid having to import irc
+     * protocol package directly. See
+     * ProtocolProviderFactoryIrcImpl.CONTACT_PRESENCE_TASK.
+     */
+    public static final String CONTACT_PRESENCE_TASK = "CONTACT_PRESENCE_TASK";
+
+    /**
+     * Repeated chat room presence task configuration key from
+     * ProtocolProviderFactoryIrcImpl here to avoid having to import irc
+     * protocol package directly. See
+     * ProtocolProviderFactoryIrcImpl.CHAT_ROOM_PRESENCE_TASK.
+     */
+    public static final String CHAT_ROOM_PRESENCE_TASK =
+        "CHAT_ROOM_PRESENCE_TASK";
 
     private final Logger logger
         = Logger.getLogger(IrcAccountRegistrationWizard.class);
@@ -154,11 +171,16 @@ public class IrcAccountRegistrationWizard
             port = ":" + port;
         }
 
+        // FIXME i18n
         summaryTable.put("Password", pass);
         summaryTable.put("Nickname", registration.getUserID());
         summaryTable.put("Server IRC", registration.getServer() + port);
         summaryTable.put("Secure connection",
             registration.isSecureConnection() ? "yes" : "no");
+        summaryTable.put("Contact presence",
+            "" + registration.isContactPresenceTaskEnabled());
+        summaryTable.put("Chat room presence",
+            "" + registration.isChatRoomPresenceTaskEnabled());
 
         return summaryTable.entrySet().iterator();
     }
@@ -250,6 +272,11 @@ public class IrcAccountRegistrationWizard
 
         accountProperties.put(ProtocolProviderFactory.DEFAULT_ENCRYPTION,
             new Boolean(registration.isSecureConnection()).toString());
+
+        accountProperties.put(CONTACT_PRESENCE_TASK,
+            Boolean.toString(registration.isContactPresenceTaskEnabled()));
+        accountProperties.put(CHAT_ROOM_PRESENCE_TASK,
+            Boolean.toString(registration.isChatRoomPresenceTaskEnabled()));
 
         if (isModification())
         {

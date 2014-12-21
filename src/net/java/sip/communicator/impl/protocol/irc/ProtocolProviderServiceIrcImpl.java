@@ -255,7 +255,7 @@ public class ProtocolProviderServiceIrcImpl
                 ProtocolProviderFactory.DEFAULT_ENCRYPTION, true);
         boolean channelPresenceTask =
             accountID.getAccountPropertyBoolean(
-                ProtocolProviderFactoryIrcImpl.CHANNEL_PRESENCE_TASK, true);
+                ProtocolProviderFactoryIrcImpl.CHAT_ROOM_PRESENCE_TASK, true);
         boolean contactPresenceTask =
             accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactoryIrcImpl.CONTACT_PRESENCE_TASK, true);

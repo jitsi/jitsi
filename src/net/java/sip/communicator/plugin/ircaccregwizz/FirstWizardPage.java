@@ -22,6 +22,7 @@ import net.java.sip.communicator.service.protocol.*;
  * and the password of the account.
  *
  * @author Lionel Ferreira & Michael Tarantino
+ * @author Danny van Heumen
  */
 public class FirstWizardPage
     extends TransparentPanel
@@ -120,6 +121,12 @@ public class FirstWizardPage
     private JCheckBox useSecureConnection = new SIPCommCheckBox(
         Resources.getString("plugin.ircaccregwizz.USE_SECURE_CONNECTION"));
 
+    private JCheckBox enableContactPresenceTask = new SIPCommCheckBox(
+        Resources.getString("plugin.ircaccregwizz.ENABLE_CONTACT_PRESENCE"));
+
+    private JCheckBox enableChatRoomPresenceTask = new SIPCommCheckBox(
+        Resources.getString("plugin.ircaccregwizz.ENABLE_CHAT_ROOM_PRESENCE"));
+
     private JPanel mainPanel = new TransparentPanel();
 
     private Object nextPageIdentifier = WizardPage.SUMMARY_PAGE_IDENTIFIER;
@@ -193,6 +200,8 @@ public class FirstWizardPage
         this.defaultPort.setSelected(true);
         this.passwordNotRequired.setSelected(true);
         this.useSecureConnection.setSelected(true);
+        this.enableContactPresenceTask.setSelected(true);
+        this.enableChatRoomPresenceTask.setSelected(true);
         this.portField
             .setText(this.useSecureConnection.isSelected() ? DEFAULT_SECURE_PORT
                 : DEFAULT_PLAINTEXT_PORT);
@@ -251,8 +260,13 @@ public class FirstWizardPage
         serverPanel.setBorder(BorderFactory.createTitledBorder(
             Resources.getString("plugin.ircaccregwizz.IRC_SERVER")));
 
-        optionsPanel.add(rememberPassBox, BorderLayout.CENTER);
-        optionsPanel.add(autoNickChange, BorderLayout.SOUTH);
+        optionsPanel.add(rememberPassBox, BorderLayout.NORTH);
+        optionsPanel.add(autoNickChange, BorderLayout.CENTER);
+        JPanel partition = new TransparentPanel();
+        optionsPanel.add(partition);
+        partition.setLayout(new BorderLayout());
+        partition.add(enableContactPresenceTask, BorderLayout.WEST);
+        partition.add(enableChatRoomPresenceTask, BorderLayout.EAST);
 
         optionsPanel.setBorder(BorderFactory.createTitledBorder(
             Resources.getString("service.gui.OPTIONS")));
@@ -345,6 +359,11 @@ public class FirstWizardPage
         registration.setAutoChangeNick(autoNickChange.isSelected());
         registration.setRequiredPassword(!passwordNotRequired.isSelected());
         registration.setSecureConnection(useSecureConnection.isSelected());
+        registration
+            .setContactPresenceTaskEnabled(this.enableContactPresenceTask
+                .isSelected());
+        registration.setChatRoomPresenceTaskEnabled(enableChatRoomPresenceTask
+            .isSelected());
 
         isCommitted = true;
     }
@@ -448,6 +467,14 @@ public class FirstWizardPage
             accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactory.DEFAULT_ENCRYPTION, true);
 
+        boolean contactPresenceTaskEnabled =
+            accountID.getAccountPropertyBoolean(
+                IrcAccountRegistrationWizard.CONTACT_PRESENCE_TASK, true);
+
+        boolean chatRoomPresenceTaskEnabled =
+            accountID.getAccountPropertyBoolean(
+                IrcAccountRegistrationWizard.CHAT_ROOM_PRESENCE_TASK, true);
+
         this.userIDField.setEnabled(false);
         this.userIDField.setText(accountID.getUserID());
         this.serverField.setText(server);
@@ -486,6 +513,9 @@ public class FirstWizardPage
         }
 
         this.useSecureConnection.setSelected(useSecureConnection);
+        this.enableContactPresenceTask.setSelected(contactPresenceTaskEnabled);
+        this.enableChatRoomPresenceTask
+            .setSelected(chatRoomPresenceTaskEnabled);
     }
 
     /**

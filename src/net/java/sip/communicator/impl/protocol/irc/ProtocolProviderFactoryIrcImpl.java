@@ -26,16 +26,13 @@ public class ProtocolProviderFactoryIrcImpl
     /**
      * Property indicating whether or not to enable a periodic task for querying
      * channel member presence (available, away).
-     *
-     * TODO add configuration option in account wizard
      */
-    public static final String CHANNEL_PRESENCE_TASK = "CHANNEL_PRESENCE_TASK";
+    public static final String CHAT_ROOM_PRESENCE_TASK =
+        "CHAT_ROOM_PRESENCE_TASK";
 
     /**
      * Property indicating whether or not to enable a periodic task for querying
      * contact presence (offline, online).
-     *
-     * TODO add configuration option in account wizard
      */
     public static final String CONTACT_PRESENCE_TASK = "CONTACT_PRESENCE_TASK";
 

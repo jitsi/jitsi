@@ -11,6 +11,7 @@ package net.java.sip.communicator.plugin.ircaccregwizz;
  * through the <tt>IrcAccountRegistrationWizard</tt>.
  *
  * @author Lionel Ferreira & Michael Tarantino
+ * @author Danny van Heumen
  */
 public class IrcAccountRegistration
 {
@@ -22,6 +23,16 @@ public class IrcAccountRegistration
     private boolean autoChangeNick;
     private boolean isRequiredPassword;
     private boolean secureConnection;
+
+    /**
+     * Option for activating contact presence task.
+     */
+    private boolean contactPresenceTaskEnabled;
+
+    /**
+     * Option for activating chat room members presence task.
+     */
+    private boolean chatroomPresenceTaskEnabled;
 
     /**
      * Returns the User ID of the IRC registration account.
@@ -190,5 +201,45 @@ public class IrcAccountRegistration
     public void setSecureConnection(boolean secureConnection)
     {
         this.secureConnection = secureConnection;
+    }
+
+    /**
+     * Get contact presence task enabled.
+     *
+     * @return returns <tt>true</tt> if task should be enabled
+     */
+    public boolean isContactPresenceTaskEnabled()
+    {
+        return this.contactPresenceTaskEnabled;
+    }
+
+    /**
+     * Set contact presence task.
+     *
+     * @param value value
+     */
+    public void setContactPresenceTaskEnabled(final boolean value)
+    {
+        this.contactPresenceTaskEnabled = value;
+    }
+
+    /**
+     * Get chat room presence task.
+     *
+     * @return returns <tt>true</tt> if task should be enabled
+     */
+    public boolean isChatRoomPresenceTaskEnabled()
+    {
+        return this.chatroomPresenceTaskEnabled;
+    }
+
+    /**
+     * Set chat room presence task.
+     *
+     * @param value value
+     */
+    public void setChatRoomPresenceTaskEnabled(final boolean value)
+    {
+        this.chatroomPresenceTaskEnabled = value;
     }
 }
