@@ -9,7 +9,8 @@
 #import <Cocoa/Cocoa.h>
 #include <dlfcn.h>
 
-#define JVM_JAVA_KEY "Java"
+#define JVM_JAVA_KEY "Javax" // Cannot be Java
+                             // or OSX requests the old Apple JVM
 #define JVM_WORKING_DIR_KEY "WorkingDirectory"
 #define JVM_MAIN_CLASS_NAME_KEY "MainClass"
 #define JVM_CLASSPATH_KEY "ClassPath"
@@ -71,10 +72,17 @@ int main(int argc, char *argv[])
 JLI_Launch_t getJLILaunch(NSString *parentPath)
 {
     void *libJLI = NULL;
-    for (NSString *path
-            in @[@"Contents/Libraries/libjli.jnilib",
-                 @"Contents/Home/jre/lib/jli/libjli.dylib",
-                 @"Contents/Home/lib/jli/libjli.dylib"])
+
+    NSDictionary *paths = @{
+        @"Contents/Libraries/libjli.jnilib"
+            : @"Contents/Libraries/libsplashscreen.jnilib",
+        @"Contents/Home/jre/lib/jli/libjli.dylib"
+            : @"Contents/Home/jre/lib/libsplashscreen.dylib",
+        @"Contents/Home/lib/jli/libjli.dylib"
+            : @"Contents/Home/lib/libsplashscreen.dylib"
+    };
+
+    for (NSString *path in paths)
     {
         const char *libjliPath =
             [[parentPath stringByAppendingPathComponent:path]
@@ -136,14 +144,54 @@ JLI_Launch_t getLauncher(NSDictionary *javaDictionary)
             return jli_LaunchFxnPtr;
     }
 
+    // first test builtInPlugins folder, if we have embedded one we want it
+    NSError *error = nil;
+    NSString *pluginsFolder = [[NSBundle mainBundle] builtInPlugInsPath];
+    NSArray *pluginsFolderContents = [[NSFileManager defaultManager]
+        contentsOfDirectoryAtPath:pluginsFolder error:&error];
+    if (pluginsFolderContents != nil)
+    {
+        for (NSString *pFolderName in pluginsFolderContents)
+        {
+            NSString *bundlePath
+                = [pluginsFolder stringByAppendingPathComponent:pFolderName];
+
+            if ([pFolderName hasSuffix:@".jdk"]
+                || [pFolderName hasSuffix:@".jre"])
+            {
+                NSBundle *bundle = [NSBundle bundleWithPath:bundlePath];
+
+                NSDictionary *jdict =
+                    [bundle.infoDictionary valueForKey:@"JavaVM"];
+
+                if(jdict == NULL)
+                    continue;
+
+                NSString *jvmVersion = [jdict valueForKey:@"JVMVersion"];
+
+                if (jvmVersion == NULL
+                    || !satisfies(jvmVersion, required))
+                    continue;
+
+                JLI_Launch_t jli_LaunchFxnPtr = getJLILaunch(bundlePath);
+
+                if(jli_LaunchFxnPtr != NULL)
+                {
+                    return jli_LaunchFxnPtr;
+                }
+            }
+        }
+    }
+
+    // Now let's try some other common locations
+    NSMutableDictionary *foundVersions = [NSMutableDictionary new];
     for (NSString *jvmPath
-            in @[[[NSBundle mainBundle] builtInPlugInsPath],
-                 @"Library/Java/JavaVirtualMachines",
+            in @[@"Library/Java/JavaVirtualMachines",
                  @"/Library/Java/JavaVirtualMachines",
                  @"/System/Library/Java/JavaVirtualMachines",
                  @"/Library/Internet Plug-Ins/JavaAppletPlugin.plugin"])
     {
-        NSError *error = nil;
+
         NSArray *vms =
             [[NSFileManager defaultManager]
                 contentsOfDirectoryAtPath:jvmPath error:&error];
@@ -171,15 +219,26 @@ JLI_Launch_t getLauncher(NSDictionary *javaDictionary)
                     if (jvmVersion == NULL
                         || !satisfies(jvmVersion, required))
                         continue;
-                }
 
-                JLI_Launch_t jli_LaunchFxnPtr = getJLILaunch(bundlePath);
-
-                if(jli_LaunchFxnPtr != NULL)
-                {
-                    return jli_LaunchFxnPtr;
+                    [foundVersions setObject:bundlePath forKey:jvmVersion];
                 }
             }
+        }
+    }
+
+    NSArray *sortedKeys =
+        [foundVersions keysSortedByValueUsingComparator:
+           ^NSComparisonResult(id obj1, id obj2) {
+               return [obj2 compare:obj1];
+           }];
+
+    for (id key in sortedKeys)
+    {
+        JLI_Launch_t jli_LaunchFxnPtr = getJLILaunch(foundVersions[key]);
+
+        if(jli_LaunchFxnPtr != NULL)
+        {
+            return jli_LaunchFxnPtr;
         }
     }
 
@@ -226,12 +285,7 @@ void launchJitsi(int argMainCount, char *argMainValues[])
 
     if(jli_LaunchFxnPtr == NULL)
     {
-        NSString *oldLauncher =
-            [NSMutableString stringWithFormat:@"%@/Contents/MacOS/%@_Launcher",
-                                        [mainBundle bundlePath], pname];
-
-        execv([oldLauncher fileSystemRepresentation], argMainValues);
-
+        NSLog(@"No java found!");
         exit(-1);
     }
 
@@ -265,7 +319,17 @@ void launchJitsi(int argMainCount, char *argMainValues[])
     }
 
     // Get the VM options
-    NSString *options = [javaDictionary objectForKey:@JVM_OPTIONS_KEY];
+    NSString *optionsStrValue = [javaDictionary objectForKey:@JVM_OPTIONS_KEY];
+    NSArray *options = NULL;
+    if(optionsStrValue != NULL)
+    {
+        optionsStrValue = [optionsStrValue
+            stringByReplacingOccurrencesOfString:@JAVA_ROOT_PREFIX
+            withString:workingDirectory];
+        optionsStrValue = [optionsStrValue stringByTrimmingCharactersInSet:
+            [NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        options = [optionsStrValue componentsSeparatedByString:@" "];
+    }
 
     // Get the system properties
     NSDictionary *sprops = [javaDictionary objectForKey:@JVM_PROPERTIES_KEY];
@@ -278,9 +342,11 @@ void launchJitsi(int argMainCount, char *argMainValues[])
         appArgc = jargc;
 
     // Initialize the arguments to JLI_Launch()
-    int argc = 2 + [sprops count] + 1 + appArgc - psnArgsCount;
+    // 2 for argMainValues and classPath
+    // 1 + 1 - the dock.name + mainclass
+    int argc = 2 + [sprops count] + 1 + 1 + appArgc - psnArgsCount;
     if(options != NULL)
-        argc++;
+        argc += [options count];
 
     char *argv[argc];
 
@@ -290,12 +356,10 @@ void launchJitsi(int argMainCount, char *argMainValues[])
 
     if(options != NULL)
     {
-        NSString *op =
-            [options stringByReplacingOccurrencesOfString:@JAVA_ROOT_PREFIX
-                    withString:workingDirectory];
-        op = [op stringByTrimmingCharactersInSet:
-                    [NSCharacterSet whitespaceAndNewlineCharacterSet]];
-        argv[i++] = strdup([op UTF8String]);
+        for ( NSString *op in options)
+        {
+            argv[i++] = strdup([op UTF8String]);
+        }
     }
 
     for( NSString *sPropKey in sprops )
@@ -310,6 +374,9 @@ void launchJitsi(int argMainCount, char *argMainValues[])
                     withString:workingDirectory]]
             UTF8String]);
     }
+
+    argv[i++] = strdup(
+        [[NSString stringWithFormat:@"-Xdock:name=%@", pname] UTF8String]);
 
     argv[i++] = strdup([mainClassName UTF8String]);
 

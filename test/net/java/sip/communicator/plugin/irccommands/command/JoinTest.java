@@ -46,7 +46,14 @@ public class JoinTest
         EasyMock.replay(connection);
 
         Join join = new Join(null, connection);
-        join.execute("#test", "/join");
+        try
+        {
+            join.execute("#test", "/join");
+            Assert.fail();
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
     }
 
     public void testJoinEmptyChannelNoPassword()

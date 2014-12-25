@@ -57,7 +57,14 @@ public class NickTest
         EasyMock.replay(provider, connection);
 
         Nick nick = new Nick(provider, connection);
-        nick.execute("#test", "/nick");
+        try
+        {
+            nick.execute("#test", "/nick");
+            Assert.fail();
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
     }
 
     public void testEmptyNickCommandWithSpace()
@@ -68,7 +75,14 @@ public class NickTest
         EasyMock.replay(provider, connection);
 
         Nick nick = new Nick(provider, connection);
-        nick.execute("#test", "/nick ");
+        try
+        {
+            nick.execute("#test", "/nick ");
+            Assert.fail();
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
     }
 
     public void testEmptyNickCommandWithDoubleSpace()

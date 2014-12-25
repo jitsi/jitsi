@@ -171,6 +171,11 @@ public abstract class AbstractOperationSetBasicTelephony
 
         for (CallListener listener : listeners)
         {
+            if (logger.isDebugEnabled())
+                logger.debug(
+                    "Dispatching a CallEvent to "
+                        + listener.getClass() + " . The event is: "+ event);
+
             switch (eventID)
             {
             case CallEvent.CALL_INITIATED:

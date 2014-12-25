@@ -500,6 +500,9 @@ public class ImageUtils
      */
     public static Image getBytesInImage(byte[] imageBytes)
     {
+        if (imageBytes == null || !(imageBytes.length > 0))
+            return null;
+
         Image image = null;
         try
         {

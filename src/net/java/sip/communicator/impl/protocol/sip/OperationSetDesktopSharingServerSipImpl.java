@@ -141,7 +141,61 @@ public class OperationSetDesktopSharingServerSipImpl
                 DesktopSharingProtocolSipImpl.SUBSCRIPTION_DURATION,
                 DesktopSharingProtocolSipImpl.CONTENT_SUB_TYPE,
                 this.timer,
-                DesktopSharingProtocolSipImpl.REFRESH_MARGIN);
+                DesktopSharingProtocolSipImpl.REFRESH_MARGIN)
+        {
+            /**
+             * Populates a specific <tt>Request</tt> instance with the headers
+             * common to dialog-creating <tt>Request</tt>s and ones sent inside
+             * existing dialogs and specific to the general event package
+             * subscription functionality that this instance and a specific
+             * <tt>Subscription</tt> represent.
+             *
+             * @param req the <tt>Request</tt> instance to be populated with
+             * common headers and ones specific to the event package of a
+             * specific <tt>Subscription</tt>
+             * @param subscription the <tt>Subscription</tt> which is to be
+             * described in the specified <tt>Request</tt> i.e. its properties
+             * are to be used to populate the specified <tt>Request</tt>
+             * @param expires the subscription duration to be set into the
+             * Expires header of the specified SUBSCRIBE <tt>Request</tt>
+             * @throws OperationFailedException if we fail parsing or populating
+             * the subscription request.
+             */
+            @Override
+            protected void populateSubscribeRequest(
+                Request req,
+                Subscription subscription,
+                int expires)
+                throws
+                OperationFailedException
+            {
+                super.populateSubscribeRequest(req, subscription, expires);
+
+                RemoteControlSubscriberSubscription
+                    rControlSubs = (RemoteControlSubscriberSubscription)subscription;
+
+                // add DSSID for subscribe if needed, if out of dialog
+                // desktop control is enabled
+                if(rControlSubs.callPeer.getCall()
+                        instanceof DesktopSharingCallSipImpl)
+                {
+                    try
+                    {
+                        Header dssidHeader = parentProvider.getHeaderFactory()
+                            .createHeader(
+                                DesktopSharingCallSipImpl.DSSID_HEADER,
+                                ((DesktopSharingCallSipImpl)rControlSubs
+                                    .callPeer.getCall())
+                                    .getDesktopSharingSessionID());
+                        req.setHeader(dssidHeader);
+                    }
+                    catch(ParseException ex)
+                    {
+                        logger.error("error ", ex);
+                    }
+                }
+            }
+        };
     }
 
     /**
@@ -479,7 +533,26 @@ public class OperationSetDesktopSharingServerSipImpl
                 byte[] rawContent)
         {
             if(requestEvent.getDialog() != callPeer.getDialog())
-                return;
+            {
+                if(callPeer.getCall() instanceof DesktopSharingCallSipImpl)
+                {
+                    Header dssidHeader = requestEvent.getRequest()
+                        .getHeader(DesktopSharingCallSipImpl.DSSID_HEADER);
+                    if(dssidHeader != null)
+                    {
+                        String dssid = dssidHeader.toString().replaceAll(
+                            dssidHeader.getName() + ":", "").trim();
+                        if(!dssid.equals(
+                                ((DesktopSharingCallSipImpl)callPeer.getCall())
+                                    .getDesktopSharingSessionID()))
+                            return;
+                    }
+                    else
+                        return;
+                }
+                else
+                    return;
+            }
 
             if (rawContent != null)
             {
@@ -517,6 +590,13 @@ public class OperationSetDesktopSharingServerSipImpl
                     List<ComponentEvent> events = null;
                     Point p = getOrigin();
 
+                    if(size == null)
+                    {
+                        size = (((VideoMediaFormat)
+                            callPeer.getCall()
+                            .getDefaultDevice(MediaType.VIDEO).getFormat())
+                            .getSize());
+                    }
                     events = DesktopSharingProtocolSipImpl.parse(root, size, p);
 
                     for(ComponentEvent evt : events)

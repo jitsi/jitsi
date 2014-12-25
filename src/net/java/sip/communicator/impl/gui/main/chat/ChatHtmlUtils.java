@@ -5,6 +5,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.chat;
 
+import java.io.*;
 import java.text.*;
 import java.util.*;
 
@@ -232,8 +233,8 @@ public class ChatHtmlUtils
 
         SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
         headerBuffer.append("<h2 id=\"").append(MESSAGE_HEADER_ID).append("\" ");
-        headerBuffer.append(DATE_ATTRIBUTE).append("='")
-            .append(sdf.format(date)).append("'>");
+        headerBuffer.append(DATE_ATTRIBUTE).append("=\"")
+            .append(sdf.format(date)).append("\">");
         headerBuffer.append("<a style=\"color:");
         headerBuffer.append(MSG_IN_NAME_FOREGROUND).append(";");
         headerBuffer.append("font-weight:bold;");
@@ -244,12 +245,12 @@ public class ChatHtmlUtils
         headerBuffer.append("</a>");
         headerBuffer.append("</h2>");
 
-        StringBuffer messageBuff = new StringBuffer();
+        final StringBuilder messageBuff = new StringBuilder();
 
         messageBuff.append("<table width=\"100%\" ");
         messageBuff.append(NAME_ATTRIBUTE).append("=\"")
             .append(Tag.TABLE.toString())
-            .append("\" id=\"messageHeader\"");
+            .append("\" id=\"messageHeader\" ");
         messageBuff.append("style=\"background-color:");
         messageBuff.append(MSG_NAME_BACKGROUND).append(";\">");
         messageBuff.append("<tr>");
@@ -302,8 +303,8 @@ public class ChatHtmlUtils
 
         SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
         headerBuffer.append("<h3 id=\"").append(MESSAGE_HEADER_ID).append("\" ");
-        headerBuffer.append(DATE_ATTRIBUTE).append("='")
-            .append(sdf.format(date)).append("'>");
+        headerBuffer.append(DATE_ATTRIBUTE).append("=\"")
+            .append(sdf.format(date)).append("\">");
         headerBuffer.append("<a style=\"color:#535353;");
         headerBuffer.append("font-weight:bold;");
         headerBuffer.append("text-decoration:none;\" ");
@@ -600,9 +601,9 @@ public class ChatHtmlUtils
         StringBuilder res = new StringBuilder();
         // Use a <cite /> tag here as most of the other inline tags (e.g. h1-7,
         // b, i) cause different problems when used in setOuterHTML.
-        res.append("<cite id='");
+        res.append("<cite id=\"");
         res.append(messageUID);
-        res.append("-editedAt'> ");
+        res.append("-editedAt\"> ");
         if (date > 0)
         {
             res.append("&nbsp;");
@@ -639,13 +640,15 @@ public class ChatHtmlUtils
         StringBuilder messageTag = new StringBuilder();
 
         SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
-        messageTag.append(String.format("<div id='%s' %s = '%s' ",
+        messageTag.append(String.format("<div id=\"%s\" %s=\"%s\" ",
                 MESSAGE_TEXT_ID + messageID, NAME_ATTRIBUTE,
                 contactName));
         messageTag.append(DATE_ATTRIBUTE).append("=\"")
             .append(sdf.format(date)).append("\" ");
-        messageTag.append(String.format("%s = '%s' ",
-                ORIGINAL_MESSAGE_ATTRIBUTE, GuiUtils.escapeHTMLChars(message)));
+        final byte[] encodedMessageBytes = net.java.sip.communicator.util.Base64
+            .encode(getMessageBytes(message));
+        messageTag.append(String.format("%s=\"%s\" ",
+            ORIGINAL_MESSAGE_ATTRIBUTE, new String(encodedMessageBytes)));
         messageTag.append(IncomingMessageStyle
             .createSingleMessageStyle(isHistory, isEdited, true));
         messageTag.append(">");
@@ -689,13 +692,15 @@ public class ChatHtmlUtils
         StringBuilder messageTag = new StringBuilder();
 
         SimpleDateFormat sdf = new SimpleDateFormat(HistoryService.DATE_FORMAT);
-        messageTag.append(String.format("<div id='%s' %s = '%s' ",
+        messageTag.append(String.format("<div id=\"%s\" %s=\"%s\" ",
                 MESSAGE_TEXT_ID + messageID, NAME_ATTRIBUTE,
                 contactName));
         messageTag.append(DATE_ATTRIBUTE).append("=\"")
             .append(sdf.format(date)).append("\" ");
-        messageTag.append(String.format("%s = '%s' ",
-                ORIGINAL_MESSAGE_ATTRIBUTE, GuiUtils.escapeHTMLChars(message)));
+        final byte[] encodedMessageBytes =net.java.sip.communicator.util.Base64
+            .encode(getMessageBytes(message));
+        messageTag.append(String.format("%s=\"%s\" ",
+            ORIGINAL_MESSAGE_ATTRIBUTE, new String(encodedMessageBytes)));
         messageTag.append(IncomingMessageStyle
             .createSingleMessageStyle(isHistory, isEdited, false));
         messageTag.append(">");
@@ -715,6 +720,19 @@ public class ChatHtmlUtils
         messageTag.append("</div>");
 
         return messageTag.toString();
+    }
+
+    private static byte[] getMessageBytes(final String message) {
+        try
+        {
+            return message.getBytes("UTF-8");
+        }
+        catch (UnsupportedEncodingException e)
+        {
+            // this should not happen since we hard-code the character encoding
+            throw new IllegalStateException("This should not happen since we "
+                + "hard-code the required character encoding.");
+        }
     }
 
     /**

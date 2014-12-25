@@ -89,6 +89,13 @@ public class OperationSetBasicInstantMessagingIrcImpl
             return;
         }
 
+        final IrcConnection connection =
+            this.provider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("Connection is not available.");
+        }
+
         // OTR seems to be compatible with the command syntax (starts with '/')
         // and there were no other obvious problems so we decided to implement
         // IRC command support for IM infrastructure too.
@@ -96,6 +103,13 @@ public class OperationSetBasicInstantMessagingIrcImpl
         final MessageDeliveredEvent[] msgDeliveryPendingEvts =
             messageDeliveryPendingTransform(new MessageDeliveredEvent(original,
                 to));
+
+        if (msgDeliveryPendingEvts.length == 0)
+        {
+            LOGGER.warn("Message transformation result does not contain a "
+                + "single message. Nothing to send.");
+            return;
+        }
 
         try
         {
@@ -111,16 +125,11 @@ public class OperationSetBasicInstantMessagingIrcImpl
 
                 // Note: can't set subject since it leaks information while
                 // message content actually did get encrypted.
+                // FIXME should get contentType and contentEncoding from
+                // transformed messages, just in case
                 MessageIrcImpl message = this.createMessage(transformedContent,
                     original.getContentType(), original.getEncoding(), "");
 
-                final IrcConnection connection =
-                    this.provider.getIrcStack().getConnection();
-                if (connection == null)
-                {
-                    throw new IllegalStateException(
-                        "Connection is not available.");
-                }
                 try
                 {
                     if (!event.isMessageEncrypted() && message.isCommand())
@@ -128,14 +137,6 @@ public class OperationSetBasicInstantMessagingIrcImpl
                         try
                         {
                             connection.getMessageManager().command(to, message);
-                            MessageReceivedEvent systemEvent =
-                                new MessageReceivedEvent(
-                                    message,
-                                    to,
-                                    new Date(),
-                                    MessageReceivedEvent
-                                        .SYSTEM_MESSAGE_RECEIVED);
-                            fireMessageEvent(systemEvent);
                         }
                         catch (final UnsupportedCommandException e)
                         {
@@ -153,9 +154,15 @@ public class OperationSetBasicInstantMessagingIrcImpl
                         }
                         catch (BadCommandInvocationException e)
                         {
+                            StringBuilder helpText = new StringBuilder();
+                            if (e.getCause() != null) {
+                                helpText.append(e.getCause().getMessage());
+                                helpText.append('\n');
+                            }
+                            helpText.append(e.getHelp());
                             MessageIrcImpl helpMessage =
                                 new MessageIrcImpl(
-                                    e.getHelp(),
+                                    helpText.toString(),
                                     OperationSetBasicInstantMessaging
                                         .DEFAULT_MIME_TYPE,
                                     OperationSetBasicInstantMessaging
@@ -174,7 +181,6 @@ public class OperationSetBasicInstantMessagingIrcImpl
                     else
                     {
                         connection.getMessageManager().message(to, message);
-                        fireMessageDelivered(original, to);
                     }
                 }
                 catch (RuntimeException e)
@@ -183,6 +189,7 @@ public class OperationSetBasicInstantMessagingIrcImpl
                     throw e;
                 }
             }
+            fireMessageDelivered(original, to);
         }
         catch (RuntimeException e)
         {

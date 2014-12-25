@@ -247,6 +247,16 @@ public abstract class AccountRegistrationWizard
     }
 
     /**
+     * Whether the advanced configuration is enabled. Gives an option
+     * to disable/hide advanced config button.
+     * @return whether the advanced configuration is enabled.
+     */
+    public boolean isAdvancedConfigurationEnabled()
+    {
+        return true;
+    }
+
+    /**
      * Returns the wizard container, where all pages are added.
      *
      * @return the wizard container, where all pages are added

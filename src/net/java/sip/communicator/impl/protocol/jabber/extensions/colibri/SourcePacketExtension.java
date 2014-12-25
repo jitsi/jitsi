@@ -96,10 +96,8 @@ public class SourcePacketExtension
 
     /**
      * Returns deep copy of this <tt>SourcePacketExtension</tt>.
-     * @throws Exception
      */
     public SourcePacketExtension copy()
-        throws Exception
     {
         SourcePacketExtension copy
             = AbstractPacketExtension.clone(this);

@@ -489,12 +489,7 @@ public class CallPeerSipImpl
         {
             response = messageFactory.createResponse(Response.OK, invite);
 
-            /*
-             * If the local peer represented by the Call of this CallPeer is
-             * acting as a conference focus, it must indicate it in its Contact
-             * header.
-             */
-            reflectConferenceFocus(response);
+            processExtraHeaders(response);
 
             String sdpAnswer;
             if(sdpOffer != null)
@@ -1262,12 +1257,7 @@ public class CallPeerSipImpl
         {
             ok = messageFactory.createResponse(Response.OK, invite);
 
-            /*
-             * If the local peer represented by the Call of this CallPeer is
-             * acting as a conference focus, it must indicate it in its Contact
-             * header.
-             */
-            reflectConferenceFocus(ok);
+            processExtraHeaders(ok);
         }
         catch (ParseException ex)
         {
@@ -1433,12 +1423,7 @@ public class CallPeerSipImpl
                         .getHeaderFactory()
                             .createContentTypeHeader("application", "sdp"));
 
-            /*
-             * If the local peer represented by the Call of this CallPeer is
-             * acting as a conference focus, it must indicate it in its Contact
-             * header.
-             */
-            reflectConferenceFocus(invite);
+            processExtraHeaders(invite);
         }
         catch (ParseException ex)
         {
@@ -1482,12 +1467,7 @@ public class CallPeerSipImpl
                     getMediaHandler().createOffer(),
                     contentTypeHeader);
 
-            /*
-             * If the local peer represented by the Call of this CallPeer is
-             * acting as a conference focus, it must indicate it in its Contact
-             * header.
-             */
-            reflectConferenceFocus(invite);
+            processExtraHeaders(invite);
 
             inviteTran.sendRequest();
             if (logger.isDebugEnabled())
@@ -1501,6 +1481,26 @@ public class CallPeerSipImpl
                     ex,
                     logger);
         }
+    }
+
+    /**
+     * A place where we can handle any headers we need for requests
+     * and responses. Such a case is reflecting the focus state in contact
+     * header.
+     * @param message the SIP <tt>Message</tt> in which a header change
+     * is to be reflected
+     * @throws ParseException if modifying the specified SIP <tt>Message</tt> to
+     * reflect the header change fails
+     */
+    protected void processExtraHeaders(javax.sip.message.Message message)
+        throws ParseException
+    {
+        /*
+         * If the local peer represented by the Call of this CallPeer is
+         * acting as a conference focus, it must indicate it in its Contact
+         * header.
+         */
+        reflectConferenceFocus(message);
     }
 
     /**

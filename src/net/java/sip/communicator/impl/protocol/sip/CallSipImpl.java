@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import java.text.*;
 import java.util.*;
 
 import javax.sdp.*;
@@ -14,6 +15,7 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
+import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.stack.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
@@ -43,6 +45,13 @@ public class CallSipImpl
      * Our class logger.
      */
     private static final Logger logger = Logger.getLogger(CallSipImpl.class);
+
+    /**
+     * Name of extra INVITE header which specifies name of MUC room that is
+     * hosting the Jitsi Meet conference.
+     */
+    public static final String JITSI_MEET_ROOM_HEADER
+            = "Jitsi-Conference-Room";
 
     /**
      * When starting call we may have quality preferences we must use
@@ -168,7 +177,24 @@ public class CallSipImpl
                     containingTransaction.getDialog().getRemoteParty(),
                     this,
                     containingTransaction,
-                    sourceProvider);
+                    sourceProvider)
+        {
+            /**
+             * A place where we can handle any headers we need for requests
+             * and responses.
+             * @param message the SIP <tt>Message</tt> in which a header change
+             * is to be reflected
+             * @throws ParseException if modifying the specified SIP
+             * <tt>Message</tt> to reflect the header change fails
+             */
+            protected void processExtraHeaders(javax.sip.message.Message message)
+                throws ParseException
+            {
+                super.processExtraHeaders(message);
+
+                CallSipImpl.this.processExtraHeaders(message);
+            }
+        };
 
         addCallPeer(callPeer);
 
@@ -472,6 +498,19 @@ public class CallSipImpl
         if (alternativeIMPPAddress != null)
             peer.setAlternativeIMPPAddress(alternativeIMPPAddress);
 
+        // Parses Jitsi Meet room name header
+        SIPHeader joinRoomHeader
+            = (SIPHeader) invite.getHeader(JITSI_MEET_ROOM_HEADER);
+        if (joinRoomHeader != null)
+        {
+            OperationSetJitsiMeetToolsSipImpl jitsiMeetTools
+                = (OperationSetJitsiMeetToolsSipImpl) getProtocolProvider()
+                        .getOperationSet(OperationSetJitsiMeetTools.class);
+
+            jitsiMeetTools.notifyJoinJitsiMeetRoom(
+                this, joinRoomHeader.getValue());
+        }
+
         //send a ringing response
         Response response = null;
         try
@@ -589,6 +628,19 @@ public class CallSipImpl
     }
 
     /**
+     * A place where we can handle any headers we need for requests
+     * and responses.
+     * @param message the SIP <tt>Message</tt> in which a header change
+     * is to be reflected
+     * @throws java.text.ParseException if modifying the specified SIP
+     * <tt>Message</tt> to reflect the header change fails
+     */
+    protected void processExtraHeaders(javax.sip.message.Message message)
+        throws ParseException
+    {
+    }
+
+    /**
      * Task that will retransmit ringing response
      */
     private class RingingResponseTask
@@ -620,7 +672,6 @@ public class CallSipImpl
          * @param serverTran the transaction.
          * @param peer the peer.
          * @param timer the timer.
-         * @param stateListener the state listener.
          */
         RingingResponseTask(Response response, ServerTransaction serverTran,
             CallPeerSipImpl peer, Timer timer)

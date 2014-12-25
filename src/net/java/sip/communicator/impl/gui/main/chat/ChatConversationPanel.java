@@ -478,7 +478,8 @@ public class ChatConversationPanel
             return null;
         }
 
-        String res = original_message.toString();
+        String res = new String(net.java.sip.communicator.util.Base64
+            .decode(original_message.toString()));
         // Remove all newline characters that were inserted to make copying
         // newlines from the conversation panel work.
         // They shouldn't be in the write panel, because otherwise a newline
@@ -608,8 +609,9 @@ public class ChatConversationPanel
         }
         else if (messageType.equals(Chat.STATUS_MESSAGE))
         {
-            chatString = "<h4 id=\"statusMessage\" date=\"" + date + "\">";
-            endHeaderTag = "</h4>";
+            chatString = "<div id=\"statusMessage\" date=\"" + date + "\""
+                + " style=\"color: #8F8F8F; font-size: 8px;\">";
+            endHeaderTag = "</div>";
 
             chatString +=
                 GuiUtils.formatTime(date)
@@ -649,9 +651,9 @@ public class ChatConversationPanel
 
             endHeaderTag = "</h6>";
 
-            String errorIcon = "<IMG SRC='"
+            String errorIcon = "<IMG SRC=\""
                 + ImageLoader.getImageUri(ImageLoader.EXCLAMATION_MARK)
-                + "' </IMG>";
+                + "\"></IMG>";
 
             // If the message title is null do not show it and show the error
             // icon on the same line as the actual error message.

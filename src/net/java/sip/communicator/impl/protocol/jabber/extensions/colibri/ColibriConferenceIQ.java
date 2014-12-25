@@ -889,6 +889,10 @@ public class ColibriConferenceIQ
             if (!payloadTypes.isEmpty())
                 return true;
 
+            List<SourceGroupPacketExtension> sourceGroups = getSourceGroups();
+            if (sourceGroups != null && !getSourceGroups().isEmpty())
+                return true;
+
             List<SourcePacketExtension> sources = getSources();
             if (!sources.isEmpty())
                 return true;

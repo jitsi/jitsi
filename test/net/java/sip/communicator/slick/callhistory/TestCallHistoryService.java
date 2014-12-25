@@ -65,10 +65,6 @@ public class TestCallHistoryService
     {
         TestSuite suite = new TestSuite();
         suite.addTest(
-            new TestCallHistoryService("setupContact"));
-        suite.addTest(
-            new TestCallHistoryService("writeRecords"));
-        suite.addTest(
             new TestCallHistoryService("readRecords"));
         suite.addTest(
             new TestCallHistoryService("checkRecordCompleteness"));
@@ -79,6 +75,9 @@ public class TestCallHistoryService
     @Override
     protected void setUp() throws Exception
     {
+        setupContact();
+        callHistoryService.eraseLocallyStoredHistory();
+        writeRecords();
     }
 
     @Override
@@ -86,7 +85,7 @@ public class TestCallHistoryService
     {
     }
 
-    public void setupContact()
+    private void setupContact()
     {
         // changes the history service target derictory
         System.setProperty("HistoryServiceDirectory", "test-callhistory");
@@ -131,18 +130,20 @@ public class TestCallHistoryService
     /**
      *  First create calls
      */
-    public void writeRecords()
+    private void writeRecords()
     {
         logger.info("write records ");
 
         generateCall(participantAddresses.get(0));
 
+        waitSeconds(1);
         controlDate1 = new Date();
 
         generateCall(participantAddresses.get(1));
 
         generateCall(participantAddresses.get(2));
 
+        waitSeconds(1);
         controlDate2 = new Date();
 
         generateCall(participantAddresses.get(3));

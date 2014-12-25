@@ -14,6 +14,7 @@ import net.java.sip.communicator.impl.protocol.mock.*;
 import net.java.sip.communicator.service.callhistory.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.filehistory.*;
+import net.java.sip.communicator.service.history.*;
 import net.java.sip.communicator.service.metahistory.*;
 import net.java.sip.communicator.service.msghistory.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -94,10 +95,6 @@ public class TestMetaHistoryService
     {
         TestSuite suite = new TestSuite();
         suite.addTest(
-            new TestMetaHistoryService("setupContact"));
-        suite.addTest(
-            new TestMetaHistoryService("writeRecords"));
-        suite.addTest(
             new TestMetaHistoryService("messageTests"));
         suite.addTest(
             new TestMetaHistoryService("callTests"));
@@ -105,8 +102,6 @@ public class TestMetaHistoryService
             new TestMetaHistoryService("fileTests"));
         suite.addTest(
             new TestMetaHistoryService("metaTests"));
-        suite.addTest(
-            new TestMetaHistoryService("testPurgeLocalContactListCopy"));
 
         return suite;
     }
@@ -114,11 +109,18 @@ public class TestMetaHistoryService
     @Override
     protected void setUp() throws Exception
     {
+        setupContact();
+        ServiceUtils.getService(MetaHistoryServiceLick.bc,
+            MessageHistoryService.class).eraseLocallyStoredHistory();
+        ServiceUtils.getService(MetaHistoryServiceLick.bc,
+            HistoryService.class).purgeLocallyCachedHistories();
+        writeRecords();
     }
 
     @Override
     protected void tearDown() throws Exception
     {
+        testPurgeLocalContactListCopy();
     }
 
     public void setupContact()
@@ -252,6 +254,7 @@ public class TestMetaHistoryService
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_1, messagesToSend[0]);
         waitSeconds(200);
         mockBImOpSet.deliverMessage(TEST_CONTACT_NAME_2, messagesToSend[1]);
+        waitSeconds(200);
 
         controlDate1 = new Date();
 
@@ -427,7 +430,7 @@ public class TestMetaHistoryService
             new String[]{MessageHistoryService.class.getName()},
             testMetaContact, controlDate1, controlDate2);
 
-        assertTrue("Nothing found findByPeriod", !rs.isEmpty());
+        assertFalse("Nothing found findByPeriod", rs.isEmpty());
 
         msgs = getMessages(rs);
 

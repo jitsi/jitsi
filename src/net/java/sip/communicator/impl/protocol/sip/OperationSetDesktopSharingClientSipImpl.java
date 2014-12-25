@@ -112,6 +112,12 @@ public class OperationSetDesktopSharingClientSipImpl
     {
         super(parentProvider);
 
+        final boolean desktopControlOutOfDialogEnabled
+            = SipActivator.getConfigurationService().getBoolean(
+                    DesktopSharingCallSipImpl
+                        .ENABLE_OUTOFDIALOG_DESKTOP_CONTROL_PROP,
+                    false);
+
         notifier
             = new EventPackageNotifier(
                     this.parentProvider,
@@ -120,15 +126,25 @@ public class OperationSetDesktopSharingClientSipImpl
                     DesktopSharingProtocolSipImpl.CONTENT_SUB_TYPE,
                     this.timer)
             {
+                // the received dssid from the subscription and
+                // the one to be used in the notify requests
+                private String dssid = null;
+
                 @Override
                 protected Subscription createSubscription(
                         Address fromAddress,
                         String eventId)
                 {
                     /* new subscription received */
-                    return new RemoteControlNotifierSubscription(
-                            fromAddress,
-                            eventId);
+                    RemoteControlNotifierSubscription rcNotifierSubscription
+                        = new RemoteControlNotifierSubscription(
+                        fromAddress,
+                        eventId);
+
+                    if(dssid != null)
+                        rcNotifierSubscription.setDSSID(dssid);
+
+                    return rcNotifierSubscription;
                 }
 
                 /**
@@ -137,6 +153,17 @@ public class OperationSetDesktopSharingClientSipImpl
                 @Override
                 public boolean processRequest(RequestEvent requestEvent)
                 {
+                    if(desktopControlOutOfDialogEnabled)
+                    {
+                        Header dssidHeader = requestEvent.getRequest()
+                            .getHeader(DesktopSharingCallSipImpl.DSSID_HEADER);
+                        if(dssidHeader != null)
+                        {
+                            dssid = dssidHeader.toString().replaceAll(
+                                dssidHeader.getName() + ":", "").trim();
+                        }
+                    }
+
                     boolean ret = super.processRequest(requestEvent);
                     if(requestEvent == null || requestEvent.getDialog() == null
                         || requestEvent.getDialog().getCallId() == null)
@@ -148,9 +175,14 @@ public class OperationSetDesktopSharingClientSipImpl
 
                     if(subs instanceof RemoteControlNotifierSubscription)
                     {
-                        fireRemoteControlGranted(
-                            ((RemoteControlNotifierSubscription)subs).
-                                getCallPeer());
+                        RemoteControlNotifierSubscription rcnSub
+                            = (RemoteControlNotifierSubscription)subs;
+
+                        fireRemoteControlGranted(rcnSub.getCallPeer());
+
+                        // if we have dssid set it to notifier
+                        if(dssid != null)
+                            rcnSub.setDSSID(dssid);
                     }
 
                     return ret;
@@ -178,6 +210,56 @@ public class OperationSetDesktopSharingClientSipImpl
                         response,
                         eventId,
                         clientTransaction);
+                }
+
+                /**
+                 * Creates a NOTIFY request which is to notify about a
+                 * specific subscription state and carry a specific content.
+                 * This request MUST be sent using <tt>Dialog#sendRequest()</tt>
+                 *
+                 * @param dialog the <tt>Dialog</tt> to create the NOTIFY
+                 * request in
+                 * @param content the content to be carried by the NOTIFY
+                 * request to be created
+                 * @param subscriptionState the subscription state
+                 * @param reason the reason for the specified subscription state
+                 * <tt>null</tt> for no reason
+                 *
+                 * @return a valid <tt>ClientTransaction</tt> ready to send the
+                 * request
+                 *
+                 * @throws OperationFailedException if something goes wrong
+                 * during the creation of the request
+                 */
+                @Override
+                protected ClientTransaction createNotify( Dialog dialog,
+                                                          byte[] content,
+                                                          String subscriptionState,
+                                                          String reason)
+                    throws OperationFailedException
+                {
+                    ClientTransaction res = super.createNotify(
+                        dialog, content, subscriptionState, reason);
+
+                    if(desktopControlOutOfDialogEnabled)
+                    {
+                        try
+                        {
+                            Header dssidHeader =
+                                OperationSetDesktopSharingClientSipImpl.this
+                                    .parentProvider.getHeaderFactory()
+                                    .createHeader(
+                                        DesktopSharingCallSipImpl.DSSID_HEADER,
+                                        dssid);
+                            res.getRequest().setHeader(dssidHeader);
+                        }
+                        catch(ParseException ex)
+                        {
+                            logger.error("error ", ex);
+                        }
+                    }
+
+                    return res;
                 }
             };
     }
@@ -358,6 +440,12 @@ public class OperationSetDesktopSharingClientSipImpl
         private CallPeerSipImpl callPeer = null;
 
         /**
+         * The received dssid from the subscription and the one to be used
+         * in the notify requests.
+         */
+        private String dssid = null;
+
+        /**
          * Initializes a new <tt>RemoteControlNotifierSubscription</tt> instance
          * with a specific subscription <tt>Address</tt>/Request URI and a
          * specific id tag of the associated Event headers.
@@ -459,11 +547,19 @@ public class OperationSetDesktopSharingClientSipImpl
 
                     if (basicTelephony != null)
                     {
-                        callPeer
+                        ActiveCallsRepositorySipImpl callRepo
                             = ((OperationSetBasicTelephonySipImpl)
-                                    basicTelephony)
-                               .getActiveCallsRepository()
-                                   .findCallPeer(dialog);
+                                    basicTelephony).getActiveCallsRepository();
+
+                        callPeer = callRepo.findCallPeer(dialog);
+
+                        // if call peer is still null and we have enabled
+                        // working out of dialog desktop sharing, search the
+                        // peer based on the dssid we have
+                        if(callPeer == null && dssid != null)
+                        {
+                            callPeer = findCallPeerByDSSID(callRepo);
+                        }
 
                         if (callPeer != null)
                             callPeer.addCallPeerListener(callPeerListener);
@@ -471,6 +567,48 @@ public class OperationSetDesktopSharingClientSipImpl
                 }
             }
             return callPeer;
+        }
+
+        /**
+         * Sets dssid value.
+         * @param value
+         */
+        public void setDSSID(String value)
+        {
+            this.dssid = value;
+        }
+
+        /**
+         * Finds a call peer by a call with same <tt>dssid</tt> if any.
+         * @param callRepo the active call repository to use while
+         * searching calls.
+         * @return a matching call peer.
+         */
+        public CallPeerSipImpl findCallPeerByDSSID(
+            ActiveCallsRepositorySipImpl callRepo)
+        {
+            if(dssid == null)
+                return null;
+
+            for (Iterator<CallSipImpl> activeCalls = callRepo.getActiveCalls();
+                    activeCalls.hasNext();)
+            {
+                CallSipImpl call = activeCalls.next();
+
+                if(call instanceof DesktopSharingCallSipImpl)
+                {
+                    DesktopSharingCallSipImpl dsCall
+                        = (DesktopSharingCallSipImpl)call;
+
+                    if( dsCall.getDesktopSharingSessionID() != null
+                        && dsCall.getDesktopSharingSessionID().equals(dssid))
+                    {
+                        return dsCall.getCallPeers().next();
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }

@@ -62,16 +62,17 @@ public class ConfigurationActivator
                             ".usedatabaseconfig",
                             FileCategory.PROFILE);
             }
-            catch (IllegalStateException ise)
+            catch (Exception ise)
             {
-                /*
-                 * There is somewhat of a chicken-and-egg dependency between
-                 * FileConfigurationServiceImpl and ConfigurationServiceImpl:
-                 * FileConfigurationServiceImpl throws IllegalStateException if
-                 * certain System properties are not set,
-                 * ConfigurationServiceImpl will make sure that these properties
-                 * are set but it will do that later.
-                 */
+
+                // There is somewhat of a chicken-and-egg dependency between
+                // FileConfigurationServiceImpl and ConfigurationServiceImpl:
+                // FileConfigurationServiceImpl throws IllegalStateException if
+                // certain System properties are not set,
+                // ConfigurationServiceImpl will make sure that these properties
+                //are set but it will do that later.
+                // A SecurityException is thrown when the destination
+                // is not writable or we do not have access to that folder
                 useDatabaseConfig = null;
             }
 

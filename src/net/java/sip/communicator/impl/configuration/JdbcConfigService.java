@@ -151,7 +151,20 @@ public final class JdbcConfigService
     {
         if (this.connection != null && this.connection.isValid(1))
         {
-            return;
+            try
+            {
+                PreparedStatement st = this.connection.prepareStatement(
+                    "SELECT 1 FROM INFORMATION_SCHEMA.SYSTEM_USERS");
+                if (st.execute())
+                {
+                    return;
+                }
+            }
+            catch(Exception e)
+            {
+                this.connection = null;
+                logger.error("Database connection is invalid, recreating", e);
+            }
         }
 
         String filename;

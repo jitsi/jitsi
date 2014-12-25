@@ -199,7 +199,7 @@ public class MetaHistoryServiceImpl
         MessageProgressWrapper listenWrapper
             = new MessageProgressWrapper(services.length);
 
-        TreeSet<Object> result = new TreeSet<Object>(new RecordsComparator());
+        LinkedList<Object> result = new LinkedList<Object>();
         for (int i = 0; i < services.length; i++)
         {
             String name = services[i];
@@ -244,6 +244,7 @@ public class MetaHistoryServiceImpl
         }
         listenWrapper.fireLastProgress(startDate, endDate, null);
 
+        Collections.sort(result, new RecordsComparator());
         return result;
     }
 

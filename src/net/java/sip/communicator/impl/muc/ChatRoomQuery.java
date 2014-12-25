@@ -157,7 +157,7 @@ public class ChatRoomQuery
     /**
      * Handles chat room presence status updates.
      * 
-     * @param evt the <tt>LocalUserChatRoomPresenceChangeEvent</tt> instance 
+     * @param evt the <tt>LocalUserChatRoomPresenceChangeEvent</tt> instance
      * containing the chat room and the type, and reason of the change
      */
     @Override
@@ -324,8 +324,7 @@ public class ChatRoomQuery
 
                     for (ChatRoomSourceContact contact : tmpContactResults)
                     {
-                        if (contactEqualsChatRoom(contact,
-                            chatRoom.getChatRoom()))
+                    if (contactEqualsChatRoom(contact, chatRoom))
                         {
                             contactResults.remove(contact);
                             fireContactRemoved(contact);
@@ -397,6 +396,25 @@ public class ChatRoomQuery
     {
         return contact.getProvider() == chatRoom.getParentProvider()
             && contact.getContactAddress().equals(chatRoom.getIdentifier());
+    }
+
+    /**
+     * Test equality of contact to chat room wrapper. This method does not rely
+     * on a chat room instance, since that may not be available in case of
+     * removal.
+     *
+     * @param contact the contact
+     * @param chatRoomWrapper the chat room wrapper
+     * @return returns <tt>true</tt> if they are equal, or <tt>false</tt> if
+     *         they are different.
+     */
+    private boolean contactEqualsChatRoom(final ChatRoomSourceContact contact,
+        final ChatRoomWrapper chatRoomWrapper)
+    {
+        return contact.getProvider() == chatRoomWrapper.getParentProvider()
+            .getProtocolProvider()
+            && contact.getContactAddress().equals(
+                chatRoomWrapper.getChatRoomID());
     }
 
     /**

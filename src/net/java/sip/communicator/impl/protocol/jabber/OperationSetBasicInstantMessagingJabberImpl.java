@@ -929,20 +929,29 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 if (logger.isInfoEnabled())
                     logger.info("Message error received from " + userBareID);
 
-                int errorCode = packet.getError().getCode();
                 int errorResultCode = MessageDeliveryFailedEvent.UNKNOWN_ERROR;
-
-                if(errorCode == 503)
+                if (packet.getError() != null)
                 {
-                    org.jivesoftware.smackx.packet.MessageEvent msgEvent =
-                        (org.jivesoftware.smackx.packet.MessageEvent)
-                            packet.getExtension("x", "jabber:x:event");
-                    if(msgEvent != null && msgEvent.isOffline())
+                    int errorCode = packet.getError().getCode();
+    
+                    if(errorCode == 503)
                     {
-                        errorResultCode =
-                            MessageDeliveryFailedEvent
-                                .OFFLINE_MESSAGES_NOT_SUPPORTED;
+                        org.jivesoftware.smackx.packet.MessageEvent msgEvent =
+                            (org.jivesoftware.smackx.packet.MessageEvent)
+                                packet.getExtension("x", "jabber:x:event");
+                        if(msgEvent != null && msgEvent.isOffline())
+                        {
+                            errorResultCode =
+                                MessageDeliveryFailedEvent
+                                    .OFFLINE_MESSAGES_NOT_SUPPORTED;
+                        }
                     }
+                }
+
+                if (sourceContact == null)
+                {
+                    sourceContact = opSetPersPresence.createVolatileContact(
+                        userFullId, isPrivateMessaging);
                 }
 
                 MessageDeliveryFailedEvent ev

@@ -63,6 +63,13 @@ public class GlobalStatusSelectorBox
     private static final int IMAGE_INDENT = 10;
 
     /**
+     * Property that controls whether we hide or show global status message
+     * menu.
+     */
+    private static final String HIDE_GLOBAL_STATUS_MESSAGE
+        = "net.java.sip.communicator.impl.gui.main.HIDE_GLOBAL_STATUS_MESSAGE";
+
+    /**
      * The arrow icon shown on the right of the status and indicating that
      * this is a menu.
      */
@@ -83,13 +90,21 @@ public class GlobalStatusSelectorBox
      * Take care for global status items, that only one is selected.
      */
     private ButtonGroup group = new ButtonGroup();
-    
-    private final GlobalStatusMessageMenu globalStatusMessageMenu;
+
+    /**
+     * The global status message menu.
+     */
+    private GlobalStatusMessageMenu globalStatusMessageMenu = null;
 
     /**
      * The parent panel that creates us.
      */
     private final AccountStatusPanel accountStatusPanel;
+
+    /**
+     * The index of the first status, the online one.
+     */
+    private int firstStatusIndex = -1;
 
     /**
      * Creates an instance of <tt>SimpleStatusSelectorBox</tt>.
@@ -108,32 +123,40 @@ public class GlobalStatusSelectorBox
         this.add(titleLabel);
         this.addSeparator();
 
-        PresenceStatus offlineStatus = null;
-        // creates menu item entry for every global status
-        for(GlobalStatusEnum status : GlobalStatusEnum.globalStatusSet)
+        GlobalStatusEnum offlineStatus = GlobalStatusEnum.ONLINE;
+
+        group.add(createMenuItem(offlineStatus, -1));
+
+        firstStatusIndex = getItemCount();
+
+        if(isPresenceOpSetForProvidersAvailable())
+            addAvailableStatuses();
+
+        group.add(createMenuItem(GlobalStatusEnum.OFFLINE, -1));
+
+        if(!GuiActivator.getConfigurationService()
+                .getBoolean(HIDE_GLOBAL_STATUS_MESSAGE, false)
+            && isPresenceOpSetForProvidersAvailable())
         {
-            group.add(createMenuItem(status));
+            this.addSeparator();
 
-            if(status.getStatus() < 1)
-                offlineStatus = status;
-        }
-
-        this.addSeparator();
-
-        globalStatusMessageMenu = new GlobalStatusMessageMenu(true);
-        globalStatusMessageMenu.addPropertyChangeListener(new PropertyChangeListener()
-        {
-            @Override
-            public void propertyChange(PropertyChangeEvent evt)
-            {
-                if(evt.getPropertyName().equals(
-                    GlobalStatusMessageMenu.STATUS_MESSAGE_UPDATED_PROP))
+            globalStatusMessageMenu = new GlobalStatusMessageMenu(true);
+            globalStatusMessageMenu.addPropertyChangeListener(
+                new PropertyChangeListener()
                 {
-                    changeTooltip((String)evt.getNewValue());
-                }
-            }
-        });
-        this.add((JMenu)globalStatusMessageMenu.getMenu());
+                    @Override
+                    public void propertyChange(PropertyChangeEvent evt)
+                    {
+                        if(evt.getPropertyName().equals(
+                            GlobalStatusMessageMenu.
+                                STATUS_MESSAGE_UPDATED_PROP))
+                        {
+                            changeTooltip((String)evt.getNewValue());
+                        }
+                    }
+                });
+            this.add((JMenu)globalStatusMessageMenu.getMenu());
+        }
 
         if(!ConfigurationUtils.isHideAccountStatusSelectorsEnabled())
             this.addSeparator();
@@ -152,6 +175,75 @@ public class GlobalStatusSelectorBox
     }
 
     /**
+     * Adds the available global statuses. All the statuses except ONLINE and
+     * OFFLINE, those that will be inserted between them.
+     * Check first whether the statuses are not already inserted.
+     */
+    private void addAvailableStatuses()
+    {
+        if(hasAvailableStatuses())
+            return;
+
+        int index = firstStatusIndex;
+
+        // creates menu item entry for every global status
+        // except ONLINE and OFFLINE
+        for(GlobalStatusEnum status : GlobalStatusEnum.globalStatusSet)
+        {
+            if(status.equals(GlobalStatusEnum.OFFLINE)
+                || status.equals(GlobalStatusEnum.ONLINE))
+                continue;
+
+            group.add(createMenuItem(status, index++));
+        }
+    }
+
+    /**
+     * Removes the available global statuses (those except ONLINE and OFFLINE)
+     */
+    private void removeAvailableStatuses()
+    {
+        // removes menu item entry for every global status
+        // except ONLINE and OFFLINE
+        for(GlobalStatusEnum status : GlobalStatusEnum.globalStatusSet)
+        {
+            if(status.equals(GlobalStatusEnum.OFFLINE)
+                || status.equals(GlobalStatusEnum.ONLINE))
+                continue;
+
+            JCheckBoxMenuItem item = getItemFromStatus(status);
+
+            if(item == null)
+                continue;
+
+            group.remove(item);
+            this.remove(item);
+        }
+    }
+
+    /**
+     * Check for available statuses we have in the menu.
+     * All except ONLINE and OFFLINE one.
+     * @return
+     */
+    private boolean hasAvailableStatuses()
+    {
+        // check menu item entries for every global status
+        // except ONLINE and OFFLINE
+        for(GlobalStatusEnum status : GlobalStatusEnum.globalStatusSet)
+        {
+            if(status.equals(GlobalStatusEnum.OFFLINE)
+                || status.equals(GlobalStatusEnum.ONLINE))
+                continue;
+
+            if(getItemFromStatus(status) != null)
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Changes the tooltip to default or the current set status message.
      * @param message
      */
@@ -159,7 +251,9 @@ public class GlobalStatusSelectorBox
     {
         if(StringUtils.isNullOrEmpty(message))
         {
-            globalStatusMessageMenu.clearSelectedItems();
+            if(globalStatusMessageMenu != null)
+                globalStatusMessageMenu.clearSelectedItems();
+
             this.setToolTipText("<html><b>" + GuiActivator.getResources()
                 .getI18NString("service.gui.SET_GLOBAL_STATUS")
                 + "</b></html>");
@@ -177,9 +271,13 @@ public class GlobalStatusSelectorBox
      * <tt>name</tt>.
      *
      * @param status the global status
+     * @param index index the position in the container's list at which to
+     * insert the status, where <code>-1</code> means append to the end
      * @return the created <tt>JCheckBoxMenuItem</tt>
      */
-    private JCheckBoxMenuItem createMenuItem(GlobalStatusEnum status)
+    private JCheckBoxMenuItem createMenuItem(
+        GlobalStatusEnum status,
+        int index)
     {
         JCheckBoxMenuItem menuItem
             = new JCheckBoxMenuItem(
@@ -189,7 +287,10 @@ public class GlobalStatusSelectorBox
         menuItem.setName(status.getStatusName());
         menuItem.addActionListener(this);
 
-        add(menuItem);
+        if(index == -1)
+            add(menuItem);
+        else
+            add(menuItem, index);
 
         return menuItem;
     }
@@ -230,6 +331,11 @@ public class GlobalStatusSelectorBox
         {
             add(itemToAdd);
             isFirstAccount = false;
+
+            // if we have a provider with opset presence add available statuses
+            if(presenceOpSet != null)
+                addAvailableStatuses();
+
             return;
         }
 
@@ -273,6 +379,10 @@ public class GlobalStatusSelectorBox
 
         if (!isMenuAdded)
             add(itemToAdd);
+
+        // if we have a provider with opset presence add available statuses
+        if(presenceOpSet != null)
+            addAvailableStatuses();
     }
 
     /**
@@ -290,6 +400,32 @@ public class GlobalStatusSelectorBox
             menu.dispose();
             remove(menu.getEntryComponent());
         }
+
+        // if we do not have provider with presence opset
+        // remove available statuses
+        if(!isPresenceOpSetForProvidersAvailable())
+            removeAvailableStatuses();
+    }
+
+    /**
+     * Check the available providers for operation set presence.
+     * @return do we have a provider with opset presence.
+     */
+    private boolean isPresenceOpSetForProvidersAvailable()
+    {
+        for (Component c : getPopupMenu().getComponents())
+        {
+            if(!(c instanceof StatusEntry))
+                continue;
+
+            StatusEntry menu = (StatusEntry) c;
+
+            if(menu.getProtocolProvider()
+                .getOperationSet(OperationSetPresence.class) != null)
+                return true;
+        }
+
+        return false;
     }
 
     /**

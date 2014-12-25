@@ -47,7 +47,14 @@ public class ModeTest
         EasyMock.replay(connection);
 
         Mode mode = new Mode(null, connection);
-        mode.execute("#test", "/mode");
+        try
+        {
+            mode.execute("#test", "/mode");
+            Assert.fail();
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
     }
 
     public void testEmptyModeLine()
@@ -56,7 +63,13 @@ public class ModeTest
         EasyMock.replay(connection);
 
         Mode mode = new Mode(null, connection);
-        mode.execute("#test", "/mode ");
+        try
+        {
+            mode.execute("#test", "/mode ");
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
     }
 
     public void testSpacesModeLine()

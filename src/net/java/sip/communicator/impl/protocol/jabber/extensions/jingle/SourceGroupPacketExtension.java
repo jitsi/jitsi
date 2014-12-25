@@ -15,6 +15,8 @@ import java.util.*;
  * Represents <tt>ssrc-group</tt> elements described in XEP-0339.
  *
  * Created by gp on 07/08/14.
+ * @author George Politis
+ * @author Pawel Domas
  */
 public class SourceGroupPacketExtension
         extends AbstractPacketExtension
@@ -34,6 +36,25 @@ public class SourceGroupPacketExtension
      * The name of the payload <tt>id</tt> SDP argument.
      */
     public static final String SEMANTICS_ATTR_NAME = "semantics";
+
+    /**
+     * The constant used for signaling simulcast semantics.
+     */
+    public static final String SEMANTICS_SIMULCAST = "SIM";
+
+    /**
+     * Return new instance of <tt>SourceGroupPacketExtension</tt> with simulcast
+     * semantics pre-configured.
+     */
+    public static SourceGroupPacketExtension createSimulcastGroup()
+    {
+        SourceGroupPacketExtension simulcastGroupPe
+            = new SourceGroupPacketExtension();
+
+        simulcastGroupPe.setSemantics(SEMANTICS_SIMULCAST);
+
+        return simulcastGroupPe;
+    }
 
     /**
      * Creates a new {@link SourceGroupPacketExtension} instance with the proper
@@ -85,5 +106,30 @@ public class SourceGroupPacketExtension
                 this.addChildExtension(source);
         }
 
+    }
+
+    /**
+     * Returns deep copy of this <tt>SourceGroupPacketExtension</tt> instance.
+     */
+    public SourceGroupPacketExtension copy()
+    {
+        SourceGroupPacketExtension copy
+            = AbstractPacketExtension.clone(this);
+
+        copy.setSemantics(getSemantics());
+
+        List<SourcePacketExtension> sources = getSources();
+
+        List<SourcePacketExtension> sourcesCopy
+            = new ArrayList<SourcePacketExtension>(sources.size());
+
+        for (SourcePacketExtension source : sources)
+        {
+            sourcesCopy.add(source.copy());
+        }
+
+        copy.addSources(sourcesCopy);
+
+        return copy;
     }
 }

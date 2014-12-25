@@ -37,6 +37,7 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 
+import org.apache.commons.lang3.*;
 import org.jitsi.util.*;
 
 /**
@@ -1146,32 +1147,6 @@ public class ChatPanel
      * or INCOMING_MESSAGE.
      * @param message The message text.
      * @param contentType the content type of the message (html or plain text)
-     *
-     * @return a string containing the processed message.
-     */
-    private String processHistoryMessage(String contactName,
-                                         String contactDisplayName,
-                                         Date date,
-                                         String messageType,
-                                         String message,
-                                         String contentType)
-    {
-      return processHistoryMessage(contactName, contactDisplayName,
-              date, messageType, message, contentType, null);
-    }
-
-    /**
-     * Passes the message to the contained <code>ChatConversationPanel</code>
-     * for processing.
-     *
-     * @param contactName The name of the contact sending the message.
-     * @param contactDisplayName the display name of the contact sending the
-     * message
-     * @param date The time at which the message is sent or received.
-     * @param messageType The type of the message. One of OUTGOING_MESSAGE
-     * or INCOMING_MESSAGE.
-     * @param message The message text.
-     * @param contentType the content type of the message (html or plain text)
      * @param messageId The ID of the message.
      *
      * @return a string containing the processed message.
@@ -1967,6 +1942,12 @@ public class ChatPanel
      */
     public void loadHistory(final String escapedMessageID)
     {
+        if (!ConfigurationUtils.isHistoryShown())
+        {
+            isHistoryLoaded = true;
+            return;
+        }
+
         SwingWorker historyWorker = new SwingWorker()
         {
             private Collection<Object> historyList;
@@ -3078,12 +3059,16 @@ public class ChatPanel
      */
     public void chatRoomPropertyChanged(ChatRoomMemberPropertyChangeEvent event)
     {
+        String message = GuiActivator.getResources().getI18NString(
+            "service.gui.CHAT_NICKNAME_CHANGE",
+            new String[]{
+                (String) event.getOldValue(),
+                (String) event.getNewValue()
+            });
         this.conversationPanel
             .appendMessageToEnd(
                 "<DIV identifier=\"message\" style=\"color:#707070;\">"
-                + event.getOldValue()
-                + " is now known as "
-                + event.getNewValue() + "</DIV>",
+                + StringEscapeUtils.escapeHtml4(message) + "</DIV>",
                 ChatHtmlUtils.HTML_CONTENT_TYPE);
     }
 

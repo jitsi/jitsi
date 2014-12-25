@@ -327,33 +327,63 @@
                 <include name="bin/javaws.exe" />
                 <include name="lib/javaws.jar" />
                 <include name="lib/javaws/**" />
+                <include name="lib/jfr/**" />
+                <include name="lib/jfr.jar" />
+
                 <include name="bin/javacpl.exe" />
                 <include name="bin/jucheck.exe" />
                 <include name="bin/jusched.exe" />
+                <include name="bin/dtplugin/**" />
+                <include name="bin/jabswitch.exe" />
+                <include name="bin/JavaAccessBridge-32.dll" />
+                <include name="bin/JavaAccessBridge.dll" />
+                <include name="bin/JAWTAccessBridge-32.dll" />
+                <include name="bin/JAWTAccessBridge.dll" />
+                <include name="bin/WindowsAccessBridge-32.dll" />
+                <include name="bin/WindowsAccessBridge.dll" />
                 <include name="bin/wsdetect.dll" />
-                <include name="bin/npjpi*.dll" />
-                <include name="bin/npjava11.dll" />
-                <include name="bin/npjava12.dll" />
-                <include name="bin/npjava13.dll" />
-                <include name="bin/npjava14.dll" />
-                <include name="bin/npjava32.dll" />
-                <include name="bin/npoji610.dll" />
-                <include name="bin/regutils.dll" />
-                <include name="bin/axbridge.dll" />
+                <include name="bin/plugin2/**" />
                 <include name="bin/deploy.dll" />
-                <include name="bin/jpicom.dll" />
+                <include name="bin/jfr.dll" />
                 <include name="bin/javacpl.cpl" />
-                <include name="bin/jpiexp.dll" />
-                <include name="bin/jpinscp.dll" />
-                <include name="bin/jpioji.dll" />
-                <include name="bin/jpishare.dll" />
-                <include name="lib/deploy.jar" />
-                <include name="lib/plugin.jar" />
-
-                <include name="bin/new_plugin/**" />
-                <include name="bin/jp2*.exe" />
+                <include name="bin/deploy.jar" />
+                <include name="bin/plugin.jar" />
                 <include name="lib/deploy/**" />
-                <include name="bin/jqs*.exe" />
+
+                <include name="bin/decora-sse.dll" />
+                <include name="bin/fxplugins.dll" />
+                <include name="bin/glass.dll" />
+                <include name="bin/glib-lite.dll" />
+                <include name="bin/gstreamer-lite.dll" />
+                <include name="bin/javafx-font.dll" />
+                <include name="bin/javafx_font_t2k.dll" />
+                <include name="bin/javafx-iio.dll" />
+                <include name="bin/jfxmedia.dll" />
+                <include name="bin/jfxwebkit.dll" />
+                <include name="bin/prism_common.dll" />
+                <include name="bin/prism-d3d.dll" />
+                <include name="bin/prism_es2.dll" />
+                <include name="bin/prism_sw.dll" />
+
+                <include name="bin/jp2*.exe" />
+
+                <include name="lib/javafx.properties" />
+                <include name="lib/jfxswt.jar" />
+                <include name="bin/decora-sse.dll" />
+                <include name="bin/fxplugins.dll" />
+                <include name="bin/glass.dll" />
+                <include name="bin/glib-lite.dll" />
+                <include name="bin/gstreamer-lite.dll" />
+                <include name="bin/javafx-font.dll" />
+                <include name="bin/javafx_font_t2k.dll" />
+                <include name="bin/javafx-iio.dll" />
+                <include name="bin/jfxmedia.dll" />
+                <include name="bin/jfxwebkit.dll" />
+                <include name="bin/prism_common.dll" />
+                <include name="bin/prism-d3d.dll" />
+                <include name="bin/prism_es2.dll" />
+                <include name="bin/prism_sw.dll" />
+
             </fileset>
         </delete>
     </target>
@@ -1043,7 +1073,7 @@
         <delete failonerror="false" file="${macosx.resrc.dir}/logging.properties"/>
         <delete failonerror="false" file="${macosx.resrc.dir}/felix.client.run.properties"/>
         <symlink action="delete" failonerror="false"
-                 link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.jnilib"/>
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.dylib"/>
 
         <symlink action="delete" failonerror="false"
                  link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Headers"/>
@@ -1053,15 +1083,6 @@
                  link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Growl"/>
         <symlink action="delete" failonerror="false"
                  link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Versions/Current"/>
-
-        <symlink action="delete" failonerror="false"
-                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Headers"/>
-        <symlink action="delete" failonerror="false"
-                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Resources"/>
-        <symlink action="delete" failonerror="false"
-                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Growl"/>
-        <symlink action="delete" failonerror="false"
-                 link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Versions/Current"/>
 
         <symlink action="delete" failonerror="false"
                  link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Headers"/>
@@ -1142,7 +1163,7 @@
                   signature="sipc"
                   mainclass="net.java.sip.communicator.launcher.SIPCommunicator"
                   icon="resources/images/logo/sc_logo_128x128.icns"
-                  jvmversion="1.6*"
+                  jvmversion="1.7+"
                   version="${sip-communicator.version}"
                   build="${sparkle.build}"
                   infostring="${application.name}"
@@ -1150,8 +1171,7 @@
                   stubfile="${macosx.app.dir}/tmp/${macosx.stub.filename}"
                   extraclasspath="/System/Library/Java,$JAVAROOT"
                   workingdirectory="$APP_PACKAGE/Contents/Resources/Java"
-                  splashfile="$JAVAROOT/splash.gif"
-                  vmoptions="-agentlib:AEGetURLEventHandlerAgent ${jvmarg}">
+                  vmoptions="-agentlib:AEGetURLEventHandlerAgent -splash:splash.gif ${jvmarg}">
 
         <javaproperty name="apple.laf.useScreenMenuBar" value="true"/>
         <javaproperty name="apple.awt.brushMetalRounded" value="true"/>
@@ -1229,15 +1249,6 @@
       <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Growl"
                resource="./Versions/Current/Growl"/>
 
-      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Versions/Current"
-               resource="./A"/>
-      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Headers"
-               resource="./Versions/Current/Headers"/>
-      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Resources"
-               resource="./Versions/Current/Resources"/>
-      <symlink link="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Legacy/Growl.framework/Growl"
-               resource="./Versions/Current/Growl"/>
-
       <!-- Add the url types in the Info.plist file -->
       <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
         <replacetoken><![CDATA[<key>CFBundleName</key>]]></replacetoken>
@@ -1262,6 +1273,13 @@
       </array>
       <key>CFBundleName</key>]]></replacevalue>
       </replace>
+
+      <!-- Rename Java dict to Javax to prevent OSX asking for the old Apple JVM -->
+        <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
+          <replacetoken><![CDATA[<key>Java</key>]]></replacetoken>
+          <replacevalue><![CDATA[<key>Javax</key>]]></replacevalue>
+      </replace>
+
       <!-- Add property for high resolution displays -->
       <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
         <replacetoken><![CDATA[<key>CFBundleName</key>]]></replacetoken>
@@ -1269,12 +1287,8 @@
       <true/>
       <key>CFBundleName</key>]]></replacevalue>
       </replace>
-      <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.jnilib"
-               link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.jnilib"/>
-      <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.jnilib"
+      <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.dylib"
                link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.dylib"/>
-      <symlink resource="libAEGetURLEventHandlerAgent.jnilib"
-               link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/libAEGetURLEventHandlerAgent.dylib"/>
 
       <copy file="${macosx.resrc.dir}/libgrowl4j.dylib"
             todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/"/>
@@ -1306,14 +1320,47 @@
                   <include name="${jre.folder.name}/Contents/Info.plist"/>
                   <include name="${jre.folder.name}/Contents/Home/jre/"/>
                   <exclude name="${jre.folder.name}/Contents/Home/bin/"/>
-                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/"/>
+
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/rmid"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/rmiregistry"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/tnameserv"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/keytool"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/kinit"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/klist"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/ktab"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/policytool"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/orbd"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/servertool"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/javaws"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/bin/java"/>
+
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/javaws.jar"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/jfr/"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/jfr.jar"/>
                   <exclude name="${jre.folder.name}/Contents/Home/jre/lib/deploy/"/>
                   <exclude name="${jre.folder.name}/Contents/Home/jre/lib/deploy.jar"/>
-                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/javaws.jar"/>
-                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libdeploy.dylib"/>
-                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libnpjp2.dylib"/>
                   <exclude name="${jre.folder.name}/Contents/Home/jre/lib/plugin.jar"/>
-                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/security/javaws.policy"/>
+
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libdeploy.dylib"/>
+
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/javafx.properties"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/jfxswt.jar"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/fxplugins.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libdecora_sse.so"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libdecora-sse.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libfxplugins.so"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libglass.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libglib-lite.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libgstreamer-lite.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libjavafx_font_t2k.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libjavafx-font.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libjavafx-iio.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libjfxmedia.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libjfxwebkit.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libprism_common.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libprism_sw.dylib"/>
+                  <exclude name="${jre.folder.name}/Contents/Home/jre/lib/libprism-es2.dylib"/>
+
               </fileset>
         </copy>
 
@@ -1508,11 +1555,24 @@
               quiet="yes" failonerror="false"/>
     </target>
 
+    <!-- Signs the specified path in param path-to-sign, using force -->
+    <target name="-codesign-path">
+        <exec executable="/usr/bin/codesign" os="Mac OS X" failonerror="true">
+            <arg value="--force"/>
+            <arg value="-s"/>
+            <arg value="${macosx.sign.certid}"/>
+            <arg value="--keychain"/>
+            <arg value="${macosx.sign.keychain}"/>
+            <arg value="${path-to-sign}"/>
+        </exec>
+    </target>
+
     <!--
         If there is a property enabling the keychain name
         we can sign.
      -->
-    <target name="macosx-sign-app" if="macosx.sign.keychain">
+    <target name="macosx-sign-app" if="macosx.sign.keychain"
+            depends="define-ant-contrib-task">
         <echo message="Signing application!"/>
 
         <!-- unlocking the keychain -->
@@ -1523,8 +1583,34 @@
             <arg value="${macosx.sign.keychain}"/>
         </exec>
 
+        <!-- force codesigning of growl framework as it has reosource 1
+        signiture and will cause Jitsi.app to fail verifying
+        Also sign the other frameworks and plugins (jre if exists).
+         -->
+        <delete dir="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Versions/A/_CodeSignature"
+                quiet="yes" failonerror="false"/>
+        <antcall target="-codesign-path">
+            <param name="path-to-sign"
+                   value="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Versions/A"/>
+        </antcall>
+        <antcall target="-codesign-path">
+            <param name="path-to-sign"
+                   value="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/Sparkle.framework/Versions/A"/>
+        </antcall>
+
+        <foreach param="path-to-sign" target="-codesign-path"
+                 inheritall="true" inheritrefs="true">
+            <path>
+                <dirset
+                    dir="${macosx.app.dir}/${application.name}.app/Contents">
+                        <include name="PlugIns/*"/>
+                </dirset>
+            </path>
+        </foreach>
+
         <!-- signing -->
         <exec executable="/usr/bin/codesign" os="Mac OS X" failonerror="true">
+            <arg value="--deep"/>
             <arg value="-s"/>
             <arg value="${macosx.sign.certid}"/>
             <arg value="--keychain"/>
@@ -1539,8 +1625,14 @@
 
         <!-- just print sign info
             To test is sign accepted do $ sudo spctl -a -v -->
-        <exec executable="/usr/bin/codesign" os="Mac OS X" failonerror="true">
+        <exec executable="/usr/bin/codesign" os="Mac OS X" failonerror="false">
             <arg value="-dvvv"/>
+            <arg value="${macosx.app.dir}/${application.name}.app"/>
+        </exec>
+        <exec executable="/usr/bin/codesign" os="Mac OS X" failonerror="false">
+            <arg value="--verify"/>
+            <arg value="--deep"/>
+            <arg value="-v"/>
             <arg value="${macosx.app.dir}/${application.name}.app"/>
         </exec>
 

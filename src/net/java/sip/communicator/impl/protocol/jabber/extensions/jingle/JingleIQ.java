@@ -375,6 +375,29 @@ public class JingleIQ extends IQ
     }
 
     /**
+     * Finds <tt>ContentPacketExtension</tt> that matches given
+     * <tt>contentName</tt>.
+     * @param contentName the name of the content for which extension will be
+     *                    returned
+     * @return <tt>ContentPacketExtension</tt> that matches given
+     *         <tt>contentName</tt> or <tt>null</tt> if not found.
+     */
+    public ContentPacketExtension getContentByName(String contentName)
+    {
+        synchronized(contentList)
+        {
+            for(ContentPacketExtension content : contentList)
+            {
+                if (contentName.equals(content.getName()))
+                {
+                    return content;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Sets <tt>si</tt> as the session info extension for this packet.
      *
      * @param si a {@link SessionInfoPacketExtension} that we'd like to add

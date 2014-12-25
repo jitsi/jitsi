@@ -11,6 +11,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
 /**
@@ -29,6 +30,13 @@ public class CallDialog
      * Serial version UID.
      */
     private static final long serialVersionUID = 0L;
+
+    /**
+     * Enabling force minimized mode will always open call dialog minimized.
+     * The call dialog still can be shown, but by default it will be minimized.
+     */
+    private static final String FORCE_MINIMIZED_MODE
+        = "net.java.sip.communicator.impl.gui.main.call.FORCE_MINIMIZED_MODE";
 
     /**
      * Finds a <tt>Container</tt> which is an ancestor of a specific
@@ -109,6 +117,13 @@ public class CallDialog
         if (!isVisible())
         {
             pack();
+
+            // checks whether we need to open the call dialog in minimized mode
+            if(GuiActivator.getConfigurationService()
+                    .getBoolean(FORCE_MINIMIZED_MODE, false))
+            {
+                setState(ICONIFIED);
+            }
             setVisible(true);
         }
     }

@@ -49,7 +49,15 @@ public class MsgTest
         EasyMock.replay(provider, connection);
 
         Msg msg = new Msg(provider, connection);
-        msg.execute("#test", "/msg");
+        try
+        {
+            msg.execute("#test", "/msg");
+            Assert
+                .fail("Should have thrown IAE for missing target and message.");
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
     }
 
     public void testMessageZeroLengthMsg()

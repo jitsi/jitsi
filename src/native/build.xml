@@ -131,10 +131,6 @@
       <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
       <compilerarg value="-arch" if="is.running.macos" />
       <compilerarg value="x86_64" if="is.running.macos" />
-      <compilerarg value="-arch" if="is.running.macos" />
-      <compilerarg value="i386" if="is.running.macos" />
-      <compilerarg value="-arch" if="is.running.macos" />
-      <compilerarg value="ppc" if="is.running.macos" />
       <compilerarg value="-I/System/Library/Frameworks/ApplicationServices.framework/Headers" if="is.running.macos" />
       <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" if="is.running.macos" />
       
@@ -142,10 +138,6 @@
       <linkerarg value="libjnscreencapture.jnilib" location="end" if="is.running.macos" />
       <linkerarg value="-arch" if="is.running.macos" />
       <linkerarg value="x86_64" if="is.running.macos" />
-      <linkerarg value="-arch" if="is.running.macos" />
-      <linkerarg value="i386" if="is.running.macos" />
-      <linkerarg value="-arch" if="is.running.macos" />
-      <linkerarg value="ppc" if="is.running.macos" />
       <linkerarg value="-framework" if="is.running.macos" />
       <linkerarg value="ApplicationServices" if="is.running.macos" />
       
@@ -186,19 +178,11 @@
       <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
       <compilerarg value="-arch" if="is.running.macos" />
       <compilerarg value="x86_64" if="is.running.macos" />
-      <compilerarg value="-arch" if="is.running.macos" />
-      <compilerarg value="i386" if="is.running.macos" />
-      <compilerarg value="-arch" if="is.running.macos" />
-      <compilerarg value="ppc" if="is.running.macos" />
       <compilerarg value="-I/System/Library/Frameworks/ApplicationServices.framework/Headers" if="is.running.macos" />
       <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" if="is.running.macos" />
 
       <linkerarg value="-arch" if="is.running.macos" />
       <linkerarg value="x86_64" if="is.running.macos" />
-      <linkerarg value="-arch" if="is.running.macos" />
-      <linkerarg value="i386" if="is.running.macos" />
-      <linkerarg value="-arch" if="is.running.macos" />
-      <linkerarg value="ppc" if="is.running.macos" />
       <linkerarg value="-framework" if="is.running.macos" />
       <linkerarg value="ApplicationServices" if="is.running.macos" />
       <linkerarg value="-framework" if="is.running.macos" />
@@ -250,20 +234,12 @@
       <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
       <compilerarg value="-arch" if="is.running.macos" />
       <compilerarg value="x86_64" if="is.running.macos" />
-      <compilerarg value="-arch" if="is.running.macos" />
-      <compilerarg value="i386" if="is.running.macos" />
-      <compilerarg value="-arch" if="is.running.macos" />
-      <compilerarg value="ppc" if="is.running.macos" />
       <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" if="is.running.macos" />
 
       <linkerarg value="-o" location="end" if="is.running.macos" />
       <linkerarg value="libhwaddressretriever.jnilib" location="end" if="is.running.macos" />
       <linkerarg value="-arch" if="is.running.macos" />
       <linkerarg value="x86_64" if="is.running.macos" />
-      <linkerarg value="-arch" if="is.running.macos" />
-      <linkerarg value="i386" if="is.running.macos" />
-      <linkerarg value="-arch" if="is.running.macos" />
-      <linkerarg value="ppc" if="is.running.macos" />
     </cc>
   </target>
 
@@ -332,20 +308,12 @@
       <compilerarg value="-O2" />
       <compilerarg value="-arch" />
       <compilerarg value="x86_64" />
-      <compilerarg value="-arch" />
-      <compilerarg value="i386" />
-      <compilerarg value="-arch" />
-      <compilerarg value="ppc" />
       <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" />
 
       <linkerarg value="-o" location="end" />
-      <linkerarg value="libAEGetURLEventHandlerAgent.jnilib" location="end" />
+      <linkerarg value="libAEGetURLEventHandlerAgent.dylib" location="end" />
       <linkerarg value="-arch" />
       <linkerarg value="x86_64" />
-      <linkerarg value="-arch" />
-      <linkerarg value="i386" />
-      <linkerarg value="-arch" />
-      <linkerarg value="ppc" />
       <linkerarg value="-framework" />
       <linkerarg value="Foundation" />
 
@@ -354,7 +322,7 @@
   </target>
 
   <!-- compile sparkle library for Mac OS X (32-bit/64-bit/ppc)
-  make sure you do export MACOSX_DEPLOYMENT_TARGET=10.5
+  make sure you do export MACOSX_DEPLOYMENT_TARGET=10.6
   and also:
   install_name_tool -change "@loader_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle" "@executable_path/../Frameworks/Sparkle.framework/Versions/A/Sparkle" libsparkle_init.dylib
   -->
@@ -366,19 +334,11 @@
       <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
       <compilerarg value="-arch" />
       <compilerarg value="x86_64" />
-      <compilerarg value="-arch" />
-      <compilerarg value="i386" />
-      <compilerarg value="-arch" />
-      <compilerarg value="ppc" />
       <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers" />
       <compilerarg value="-I/System/Library/Frameworks/Sparkle.framework/Versions/A/Headers/" />
 
       <linkerarg value="-arch" />
       <linkerarg value="x86_64" />
-      <linkerarg value="-arch" />
-      <linkerarg value="i386" />
-      <linkerarg value="-arch" />
-      <linkerarg value="ppc" />
       <linkerarg value="-framework" />
       <linkerarg value="AppKit" />
       <linkerarg value="-framework" />
@@ -411,10 +371,6 @@
         <compilerarg value="-mmacosx-version-min=10.5" if="is.running.macos"/>
         <compilerarg value="-arch" if="is.running.macos"/>
         <compilerarg value="x86_64" if="is.running.macos"/>
-        <compilerarg value="-arch" if="is.running.macos"/>
-        <compilerarg value="i386" if="is.running.macos"/>
-        <compilerarg value="-arch" if="is.running.macos"/>
-        <compilerarg value="ppc" if="is.running.macos"/>
         <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers"
                    if="is.running.macos"/>
 
@@ -423,10 +379,6 @@
                    if="is.running.macos"/>
         <linkerarg value="-arch" if="is.running.macos"/>
         <linkerarg value="x86_64" if="is.running.macos"/>
-        <linkerarg value="-arch" if="is.running.macos"/>
-        <linkerarg value="i386" if="is.running.macos"/>
-        <linkerarg value="-arch" if="is.running.macos"/>
-        <linkerarg value="ppc" if="is.running.macos"/>
         <linkerarg value="-framework" if="is.running.macos"/>
         <linkerarg value="AppKit" if="is.running.macos"/>
         <linkerarg value="-framework" if="is.running.macos"/>
@@ -517,8 +469,6 @@
         <compilerarg value="-O2" if="is.running.macos"/>
         <compilerarg value="-arch" if="is.running.macos"/>
         <compilerarg value="x86_64" if="is.running.macos"/>
-        <compilerarg value="-arch" if="is.running.macos"/>
-        <compilerarg value="i386" if="is.running.macos"/>
         <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Headers"
                    if="is.running.macos"/>
 
@@ -527,8 +477,6 @@
                    if="is.running.macos"/>
         <linkerarg value="-arch" if="is.running.macos"/>
         <linkerarg value="x86_64" if="is.running.macos"/>
-        <linkerarg value="-arch" if="is.running.macos"/>
-        <linkerarg value="i386" if="is.running.macos"/>
         <linkerarg value="-framework" if="is.running.macos"/>
         <linkerarg value="Foundation" if="is.running.macos"/>
         <linkerarg value="-framework" if="is.running.macos"/>
@@ -772,8 +720,6 @@
         <compilerarg value="-O2" />
         <compilerarg value="-arch" />
         <compilerarg value="x86_64" />
-        <compilerarg value="-arch" />
-        <compilerarg value="i386" />
         <compilerarg value="-I${system.JAVA_HOME}/include" />
         <compilerarg value="-I${system.JAVA_HOME}/include/darwin" />
         <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers" />
@@ -781,8 +727,6 @@
 
         <linkerarg value="-arch" />
         <linkerarg value="x86_64" />
-        <linkerarg value="-arch" />
-        <linkerarg value="i386" />
         <linkerarg value="-framework" />
         <linkerarg value="Cocoa" />
 

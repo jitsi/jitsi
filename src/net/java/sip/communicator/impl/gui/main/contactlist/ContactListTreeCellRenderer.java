@@ -114,7 +114,7 @@ public class ContactListTreeCellRenderer
     /**
      * The vertical gap between rows in pixels;
      */
-    private static final int V_GAP = 3;
+    private static final int V_GAP = 2;
 
     /**
      * The calculated preferred height of a selected contact node.
@@ -604,12 +604,12 @@ public class ContactListTreeCellRenderer
             {
                 preferredNotSelectedContactNodeHeight
                     = ComponentUtils.getStringHeight(nameLabel)
-                    + V_GAP
+                    + V_GAP * 2
                     + ComponentUtils.getStringHeight(displayDetailsLabel);
 
                 preferredSelectedContactNodeHeight =
                     preferredNotSelectedContactNodeHeight
-                        + V_GAP
+                        + V_GAP * 2
                         + BUTTON_HEIGHT;
             }
         }

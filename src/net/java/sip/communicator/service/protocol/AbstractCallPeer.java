@@ -391,6 +391,11 @@ public abstract class AbstractCallPeer<T extends Call,
         {
             CallPeerListener listener = listeners.next();
 
+            if (logger.isDebugEnabled())
+                logger.debug("Dispatching a CallPeerChangeEvent event to "
+                    + listener.getClass()
+                    +" . event is: " + evt.toString());
+
             // catch any possible errors, so we are sure we dispatch events
             // to all listeners
             try

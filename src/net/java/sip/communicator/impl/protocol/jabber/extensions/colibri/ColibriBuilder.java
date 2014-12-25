@@ -81,6 +81,26 @@ public class ColibriBuilder
     private boolean hasAnyChannelsToExpire = false;
 
     /**
+     * Channel 'last-n' option that will be added when channels are created.
+     * Set to <tt>null</tt> in order to omit.
+     */
+    private Integer channelLastN;
+
+    /**
+     * Channel 'adaptive-last-n' option that will be added when channels are
+     * created.
+     * Set to <tt>null</tt> in order to omit.
+     */
+    private Boolean adaptiveLastN;
+
+    /**
+     * Channel 'adaptive-simulcast' option that will be added when channels are
+     * created.
+     * Set to <tt>null</tt> in order to omit.
+     */
+    private Boolean adaptiveSimulcast;
+
+    /**
      * Creates new instance of {@link ColibriBuilder} for given
      * <tt>conferenceState</tt>.
      *
@@ -165,6 +185,11 @@ public class ColibriBuilder
 
                 for (PayloadTypePacketExtension ptpe : rdpe.getPayloadTypes())
                     remoteRtpChannelRequest.addPayloadType(ptpe);
+
+                // Config options
+                remoteRtpChannelRequest.setLastN(channelLastN);
+                remoteRtpChannelRequest.setAdaptiveLastN(adaptiveLastN);
+                remoteRtpChannelRequest.setAdaptiveSimulcast(adaptiveSimulcast);
             }
 
             // Copy transport
@@ -198,16 +223,9 @@ public class ColibriBuilder
                         IceUdpTransportPacketExtension.class);
             if (transport != null)
             {
-                try
-                {
-                    bundle.setTransport(
-                        IceUdpTransportPacketExtension
-                            .cloneTransportAndCandidates(transport, true));
-                }
-                catch (Exception e)
-                {
-                    logger.error("Error cloning transport", e);
-                }
+                bundle.setTransport(
+                    IceUdpTransportPacketExtension
+                        .cloneTransportAndCandidates(transport, true));
             }
 
             request.addChannelBundle(bundle);
@@ -254,19 +272,9 @@ public class ColibriBuilder
 
             if (channel != null)
             {
-                IceUdpTransportPacketExtension transport;
-
-                try
-                {
-                    transport = IceUdpTransportPacketExtension
-                        .cloneTransportAndCandidates(e.getValue(), true);
-                }
-                catch (Exception ofe)
-                {
-                    transport = null;
-                }
-                if (transport == null)
-                    continue;
+                IceUdpTransportPacketExtension transport
+                    = IceUdpTransportPacketExtension
+                            .cloneTransportAndCandidates(e.getValue(), true);
 
                 ColibriConferenceIQ.ChannelCommon channelRequest
                     = channel instanceof ColibriConferenceIQ.Channel
@@ -349,15 +357,8 @@ public class ColibriBuilder
 
         IceUdpTransportPacketExtension transportUpdate;
 
-        try
-        {
-            transportUpdate = IceUdpTransportPacketExtension
-                .cloneTransportAndCandidates(transport, true);
-        }
-        catch (Exception ofe)
-        {
-            transportUpdate = null;
-        }
+        transportUpdate = IceUdpTransportPacketExtension
+            .cloneTransportAndCandidates(transport, true);
 
         bundleUpdate.setTransport(transportUpdate);
 
@@ -607,20 +608,13 @@ public class ColibriBuilder
         IceUdpTransportPacketExtension iceUdpTransportPacketExtension
             = content.getFirstChildOfType(
                     IceUdpTransportPacketExtension.class);
-        try
-        {
-            IceUdpTransportPacketExtension iceUdpCopy
-                = IceUdpTransportPacketExtension
-                        .cloneTransportAndCandidates(
-                            iceUdpTransportPacketExtension, true);
 
-            remoteChannelRequest.setTransport(iceUdpCopy);
-        }
-        catch (Exception e)
-        {
-            //FIXME: fix handling
-            logger.error(e, e);
-        }
+        IceUdpTransportPacketExtension iceUdpCopy
+            = IceUdpTransportPacketExtension
+                    .cloneTransportAndCandidates(
+                        iceUdpTransportPacketExtension, true);
+
+        remoteChannelRequest.setTransport(iceUdpCopy);
     }
 
     /**
@@ -630,6 +624,76 @@ public class ColibriBuilder
     public boolean hasAnyChannelsToExpire()
     {
         return hasAnyChannelsToExpire;
+    }
+
+    /**
+     * Channel 'last-n' option that will be added when channels are created.
+     * Set to <tt>null</tt> in order to omit. Value is reset after
+     * {@link #reset} is called.
+     *
+     * @return an integer value or <tt>null</tt> if option is unspecified.
+     */
+    public Integer getChannelLastN()
+    {
+        return channelLastN;
+    }
+
+    /**
+     * Sets channel 'last-n' option that will be added to the request when
+     * channels are created.
+     * @param channelLastN an integer value to specify 'last-n' option or
+     *        <tt>null</tt> in order to omit in requests.
+     */
+    public void setChannelLastN(Integer channelLastN)
+    {
+        this.channelLastN = channelLastN;
+    }
+
+    /**
+     * Channel 'adaptive-last-n' option that will be added when channels are
+     * created.
+     * Set to <tt>null</tt> in order to omit. Value is reset after
+     * {@link #reset} is called.
+     *
+     * @return a boolean value or <tt>null</tt> if option is unspecified.
+     */
+    public Boolean getAdaptiveLastN()
+    {
+        return adaptiveLastN;
+    }
+
+    /**
+     * Sets channel 'adaptive-last-n' option that will be added to the request
+     * when channels are created.
+     *
+     * @param adaptiveLastN a boolean value to specify 'adaptive-last-n' option
+     *                      or <tt>null</tt> in order  to omit in requests.
+     */
+    public void setAdaptiveLastN(Boolean adaptiveLastN)
+    {
+        this.adaptiveLastN = adaptiveLastN;
+    }
+
+    /**
+     * Channel 'adaptive-simulcast' option that will be added when channels are
+     * created. Set to <tt>null</tt> in order to omit.
+     *
+     * @return a boolean value or <tt>null</tt> if option is unspecified.
+     */
+    public Boolean getAdaptiveSimulcast()
+    {
+        return adaptiveSimulcast;
+    }
+
+    /**
+     * Sets channel 'adaptive-simulcast' option that will be added to the
+     * request when channels are created.
+     * @param adaptiveSimulcast a boolean value to specify 'adaptive-simulcast'
+     *        option or <tt>null</tt> in order to omit in requests.
+     */
+    public void setAdaptiveSimulcast(Boolean adaptiveSimulcast)
+    {
+        this.adaptiveSimulcast = adaptiveSimulcast;
     }
 
     /**

@@ -39,6 +39,7 @@ public class MsgHistoryServiceLick extends TestSuite implements BundleActivator 
         properties.put("service.pid", getName());
 
         addTest(TestMsgHistoryService.suite());
+        addTest(TestMsgHistoryServiceMultiChat.suite());
         bundleContext.registerService(getClass().getName(), this, properties);
 
         logger.debug("Successfully registered " + getClass().getName());

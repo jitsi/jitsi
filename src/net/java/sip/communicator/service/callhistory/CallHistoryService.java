@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.service.callhistory;
 
+import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.callhistory.event.*;
@@ -170,4 +171,12 @@ public interface CallHistoryService
      */
     public void removeCallHistoryRecordListener(
         CallHistoryPeerRecordListener listener);
+
+    /**
+     * Permanently removes all locally stored call history.
+     *
+     * @throws java.io.IOException Thrown if the history could not be removed
+     *             due to a IO error.
+     */
+    public void eraseLocallyStoredHistory() throws IOException;
 }

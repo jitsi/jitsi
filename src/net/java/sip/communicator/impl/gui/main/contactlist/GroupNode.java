@@ -167,6 +167,10 @@ public class GroupNode
         
             index = getIndex(contactNode);
         }
+
+        // not found
+        if(index == -1)
+            return;
         
         int selectedIndex = getLeadSelectionRow();
 
@@ -230,9 +234,13 @@ public class GroupNode
             if (groupNode == null)
                 return;
         }
-        
-            
+
         int index = getIndex(groupNode);
+
+        // not found
+        if(index == -1)
+            return;
+
         int selectedIndex = getLeadSelectionRow();
 
         // We remove the node directly from the list, thus skipping all the
@@ -277,16 +285,24 @@ public class GroupNode
         {
             // Instead of sorting after every addition, find the spot where we
             // should insert the node such that it is inserted in order.
-            final int insertionPoint = Collections.binarySearch(children,
+            int insertionPoint = Collections.binarySearch(children,
                     groupNode, nodeComparator);
             if (insertionPoint < 0)
             {
                 // index < 0 indicates that the node is not currently in the
                 // list and suggests an insertion point.
-                final int index = (insertionPoint + 1) * -1;
-                insert(groupNode, index);
-                fireNodeInserted(index);
+                insertionPoint = (insertionPoint + 1) * -1;
             }
+            else
+            {
+                // A node with this index was already found. As the index
+                // is not guaranteed to be unique, add this group after the
+                // one just found.
+                ++insertionPoint;
+            }
+
+            insert(groupNode, insertionPoint);
+            fireNodeInserted(insertionPoint);
         }
 
         return groupNode;

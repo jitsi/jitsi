@@ -266,7 +266,6 @@ public class IceUdpTransportPacketExtension
      */
     public static IceUdpTransportPacketExtension cloneTransportAndCandidates(
             IceUdpTransportPacketExtension src)
-        throws Exception
     {
         return cloneTransportAndCandidates(src, false);
     }
@@ -286,7 +285,6 @@ public class IceUdpTransportPacketExtension
      */
     public static IceUdpTransportPacketExtension cloneTransportAndCandidates(
             IceUdpTransportPacketExtension src, boolean copyDtls)
-        throws Exception
     {
         if (src == null)
             return null;

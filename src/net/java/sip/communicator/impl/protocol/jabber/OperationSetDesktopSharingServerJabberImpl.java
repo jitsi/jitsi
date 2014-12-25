@@ -263,6 +263,8 @@ public class OperationSetDesktopSharingServerJabberImpl
         /* enable remote-control */
         call.setLocalInputEvtAware(supported);
 
+        size = (((VideoMediaFormat)videoDevice.getFormat()).getSize());
+
         basicTelephony.createOutgoingCall(call, calleeAddress);
 
         new CallPeerJabberImpl(calleeAddress, call);
@@ -304,6 +306,10 @@ public class OperationSetDesktopSharingServerJabberImpl
     public void enableRemoteControl(CallPeer callPeer)
     {
         callPeer.addCallPeerListener(callPeerListener);
+
+        size = (((VideoMediaFormat)((CallJabberImpl)callPeer.getCall())
+            .getDefaultDevice(MediaType.VIDEO).getFormat()).getSize());
+
         this.modifyRemoteControl(callPeer, true);
     }
 
@@ -385,7 +391,7 @@ public class OperationSetDesktopSharingServerJabberImpl
             IQ ack = IQ.createResultIQ(inputIQ);
             parentProvider.getConnection().sendPacket(ack);
 
-            // Apply NOTIFY action only to peers which ahve remote control
+            // Apply NOTIFY action only to peers which have remote control
             // granted.
             if(callPeers.contains(inputIQ.getFrom()))
             {

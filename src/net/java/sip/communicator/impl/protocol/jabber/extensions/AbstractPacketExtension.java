@@ -482,11 +482,22 @@ public abstract class AbstractPacketExtension
      * @throws Exception if an error occurs during the cloning of the specified
      * <tt>src</tt>
      */
+    @SuppressWarnings("unchecked")
     public static <T extends AbstractPacketExtension> T clone(T src)
-        throws Exception
     {
-        @SuppressWarnings("unchecked")
-        T dst = (T) src.getClass().newInstance();
+        T dst = null;
+        try
+        {
+            dst = (T) src.getClass().newInstance();
+        }
+        catch (InstantiationException e)
+        {
+            throw new RuntimeException(e);
+        }
+        catch (IllegalAccessException e)
+        {
+            throw new RuntimeException(e);
+        }
 
         // attributes
         for (String name : src.getAttributeNames())

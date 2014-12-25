@@ -163,7 +163,10 @@ public class HistoryWriterImpl
     }
 
     /**
-     * Creates an element.
+     * Creates a record element for the supplied <tt>doc</tt> and populates it
+     * with the property names from <tt>propertyNames</tt> and corresponding
+     * values from <tt>propertyValues</tt>. The <tt>date</tt> will be used
+     * for the record timestamp attribute.
      * @param doc the parent of the element.
      * @param propertyNames property names for the element
      * @param propertyValues values for the properties
@@ -267,13 +270,17 @@ public class HistoryWriterImpl
     }
 
     /**
-     * Stores the passed propertyValues complying with the
-     * historyRecordStructure.
+     * Inserts a record from the passed <tt>propertyValues</tt> complying with
+     * the current historyRecordStructure.
+     * First searches for the file to use to import the record, as files hold
+     * records with consecutive times and this fact is used for searching and
+     * filtering records by date. This is why when inserting an old record
+     * we need to insert it on the correct position.
      *
-     * @param propertyValues
-     *            The values of the record.
-     * @param timestamp
-     *            The timestamp of the record.
+     * @param propertyValues The values of the record.
+     * @param timestamp The timestamp of the record.
+     * @param timestampProperty the property name for the timestamp of the
+     * record
      *
      * @throws IOException
      */

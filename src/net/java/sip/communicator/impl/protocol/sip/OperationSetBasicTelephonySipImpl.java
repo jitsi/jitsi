@@ -71,6 +71,11 @@ public class OperationSetBasicTelephonySipImpl
     private TransferAuthority transferAuthority = null;
 
     /**
+     * Whether handling desktop control out of dialog is enabled.
+     */
+    private boolean desktopControlOutOfDialogEnabled = false;
+
+    /**
      * Creates a new instance and adds itself as an <tt>INVITE</tt> method
      * handler in the creating protocolProvider.
      *
@@ -92,6 +97,12 @@ public class OperationSetBasicTelephonySipImpl
         protocolProvider.registerMethodProcessor(Request.NOTIFY, this);
 
         protocolProvider.registerEvent("refer");
+
+        desktopControlOutOfDialogEnabled
+            = SipActivator.getConfigurationService().getBoolean(
+                DesktopSharingCallSipImpl
+                    .ENABLE_OUTOFDIALOG_DESKTOP_CONTROL_PROP,
+                false);
     }
 
     /**
@@ -133,6 +144,9 @@ public class OperationSetBasicTelephonySipImpl
         throws OperationFailedException
     {
         assertRegistered();
+
+        if(desktopControlOutOfDialogEnabled)
+            return new DesktopSharingCallSipImpl(this);
 
         return new CallSipImpl(this);
     }
@@ -1057,7 +1071,13 @@ public class OperationSetBasicTelephonySipImpl
         }
 
         //no redirection necessary. moving on with regular invite processing
-        CallSipImpl call = new CallSipImpl(this);
+        CallSipImpl call;
+
+        if(desktopControlOutOfDialogEnabled)
+            call = new DesktopSharingCallSipImpl(this);
+        else
+            call = new CallSipImpl(this);
+
         MediaAwareCallPeer<?,?,?> peer =
             call.processInvite(sourceProvider, serverTransaction);
 
@@ -1962,7 +1982,7 @@ public class OperationSetBasicTelephonySipImpl
          * may choose to require a valid Referred-By token.
          */
         refer.addHeader( ((HeaderFactoryImpl) headerFactory)
-                .createReferredByHeader(sipPeer.getPeerAddress()));
+                .createReferredByHeader(dialog.getLocalParty()));
 
         protocolProvider.sendInDialogRequest(
                         sipPeer.getJainSipProvider(), refer, dialog);

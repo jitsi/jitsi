@@ -172,9 +172,11 @@ public class HistoryServiceImpl
         {
             if (this.histories.containsKey(id))
             {
-                throw new IllegalArgumentException(
-                        "There is already a history with the specified ID.");
-            } else {
+                retVal = this.histories.get(id);
+                retVal.setHistoryRecordsStructure(recordStructure);
+            }
+            else
+            {
                 File dir = this.createHistoryDirectories(id);
                 HistoryImpl history = new HistoryImpl(id, dir, recordStructure,
                         this);
@@ -212,7 +214,10 @@ public class HistoryServiceImpl
     protected synchronized Document parse(File file)
         throws SAXException, IOException
     {
-        return builder.parse(file);
+        FileInputStream fis = new FileInputStream(file);
+        Document doc = builder.parse(fis);
+        fis.close();
+        return doc;
     }
 
     /**

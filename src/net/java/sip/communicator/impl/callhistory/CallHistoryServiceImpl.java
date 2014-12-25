@@ -333,8 +333,6 @@ public class CallHistoryServiceImpl
      */
     private History getHistory(Contact localContact, Contact remoteContact)
             throws IOException {
-        History retVal = null;
-
         String localId = localContact == null ? "default" : localContact
                 .getAddress();
         String remoteId = remoteContact == null ? "default" : remoteContact
@@ -345,18 +343,7 @@ public class CallHistoryServiceImpl
                             localId,
                             remoteId });
 
-        if (this.historyService.isHistoryExisting(historyId))
-        {
-            retVal = this.historyService.getHistory(historyId);
-            retVal.setHistoryRecordsStructure(recordStructure);
-        }
-        else
-        {
-            retVal = this.historyService.createHistory(historyId,
-                    recordStructure);
-        }
-
-        return retVal;
+        return this.historyService.createHistory(historyId, recordStructure);
     }
 
     /**
@@ -783,6 +770,20 @@ public class CallHistoryServiceImpl
                     logger.debug("History service unregistered.");
             }
         }
+    }
+
+    /**
+     * Permanently removes all locally stored call history.
+     *
+     * @throws java.io.IOException
+     *         Thrown if the history could not be removed due to a IO error.
+     */
+    public void eraseLocallyStoredHistory()
+        throws IOException
+    {
+        HistoryID historyId = HistoryID.createFromRawID(
+                    new String[] {  "callhistory" });
+        historyService.purgeLocallyStoredHistory(historyId);
     }
 
     /**
@@ -1454,6 +1455,7 @@ public class CallHistoryServiceImpl
 
             if (evt.getNewValue().equals(CallState.CALL_ENDED))
             {
+                boolean writeRecord = true;
                 if(evt.getOldValue().equals(CallState.CALL_INITIALIZATION))
                 {
                     callRecord.setEndTime(callRecord.getStartTime());
@@ -1465,12 +1467,20 @@ public class CallHistoryServiceImpl
                                 CallPeerChangeEvent.NORMAL_CALL_CLEARING)
                     {
                         callRecord.setEndReason(evt.getCause().getReasonCode());
+                        if ("Call completed elsewhere".equals(
+                            evt.getCause().getReasonString()))
+                        {
+                            writeRecord = false;
+                        }
                     }
                 }
                 else
                     callRecord.setEndTime(new Date());
 
-                writeCall(callRecord, null, null);
+                if (writeRecord)
+                {
+                    writeCall(callRecord, null, null);
+                }
                 synchronized (currentCallRecords)
                 {
                     currentCallRecords.remove(callRecord);

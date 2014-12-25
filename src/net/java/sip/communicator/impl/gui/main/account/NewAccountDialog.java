@@ -363,6 +363,11 @@ public class NewAccountDialog
         if (!isEmptyAccountRegistrationWizard)
             getRootPane().setDefaultButton(addAccountButton);
 
+        if(!wizard.isAdvancedConfigurationEnabled())
+            advancedButton.setVisible(false);
+        else if(!advancedButton.isVisible())
+            advancedButton.setVisible(true);
+
         accountPanel.revalidate();
         accountPanel.repaint();
 
