@@ -29,7 +29,7 @@ public final class IrcStatusEnum
     public static final IrcStatusEnum OFFLINE
         = new IrcStatusEnum(
             0,
-            "Offline",
+            "service.gui.OFFLINE",
             getImageInBytes("service.protocol.irc.OFFLINE_STATUS_ICON"));
 
     /**
@@ -39,7 +39,7 @@ public final class IrcStatusEnum
     public static final IrcStatusEnum AWAY
         = new IrcStatusEnum(
             40,
-            "Away",
+            "service.gui.AWAY_STATUS",
             getImageInBytes("service.protocol.irc.AWAY_STATUS_ICON"));
 
     /**
@@ -49,14 +49,17 @@ public final class IrcStatusEnum
     public static final IrcStatusEnum ONLINE
         = new IrcStatusEnum(
             65,
-            "Online",
+            "service.gui.ONLINE",
             getImageInBytes("service.protocol.irc.IRC_16x16"));
 
     /**
-     * Initialize the list of supported status states.
+     * The list of supported status states.
      */
     private static final List<IrcStatusEnum> SUPPORTED_STATUS_SET;
 
+    /**
+     * Initialize an unmodifiable set of supported statuses.
+     */
     static
     {
         final LinkedList<IrcStatusEnum> statusSet =
@@ -89,6 +92,18 @@ public final class IrcStatusEnum
     static Iterator<IrcStatusEnum> supportedStatusSet()
     {
         return SUPPORTED_STATUS_SET.iterator();
+    }
+
+    /**
+     * Return <em>i18n</em> IRC presence status name.
+     *
+     * TODO promote i18n conversion to extended class and implement for all
+     * protocols
+     */
+    @Override
+    public String getStatusName()
+    {
+        return IrcActivator.getResources().getI18NString(super.getStatusName());
     }
 
     /**
