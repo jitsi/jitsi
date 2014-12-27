@@ -55,14 +55,16 @@ public final class IrcStatusEnum
     /**
      * Initialize the list of supported status states.
      */
-    private static final List<IrcStatusEnum> SUPPORTED_STATUS_SET
-        = new LinkedList<IrcStatusEnum>();
+    private static final List<IrcStatusEnum> SUPPORTED_STATUS_SET;
 
     static
     {
-        SUPPORTED_STATUS_SET.add(ONLINE);
-        SUPPORTED_STATUS_SET.add(AWAY);
-        SUPPORTED_STATUS_SET.add(OFFLINE);
+        final LinkedList<IrcStatusEnum> statusSet =
+            new LinkedList<IrcStatusEnum>();
+        statusSet.add(ONLINE);
+        statusSet.add(AWAY);
+        statusSet.add(OFFLINE);
+        SUPPORTED_STATUS_SET = Collections.unmodifiableList(statusSet);
     }
 
     /**
