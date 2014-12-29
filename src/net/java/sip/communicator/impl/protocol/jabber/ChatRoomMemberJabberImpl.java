@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.jabber.*;
 
 import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.muc.*;
@@ -17,7 +18,7 @@ import org.jivesoftware.smackx.muc.*;
  * @author Emil Ivov
  */
 public class ChatRoomMemberJabberImpl
-    implements ChatRoomMember
+    implements JabberChatRoomMember
 {
     /**
      * The chat room that we are a member of.
