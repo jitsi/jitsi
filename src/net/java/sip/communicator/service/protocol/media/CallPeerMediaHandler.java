@@ -2027,7 +2027,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
      public String getLabel(MediaType mediaType)
     {
-        return mediaType.toString();
+        return mediaType.toString() + hashCode();
     }
 
     /**
