@@ -25,8 +25,6 @@ import com.ircclouds.irc.api.state.*;
  * TODO Show MOTD in Jitsi "System Room" or something similar, since the MOTD is
  * aimed directly at the local user.
  *
- * TODO Find out how irc-api responds to losing a connection (no response). Does
- * it use ping/pong messages to determine connectivity?
  * @author Danny van Heumen
  */
 public class IrcConnection
@@ -152,6 +150,7 @@ public class IrcConnection
         final CapabilityNegotiator negotiator;
         if (config.isVersion3Allowed())
         {
+            // TODO get SASL authentication data from config
             negotiator = determineNegotiator(params.getNickname(), password);
         }
         else
@@ -433,13 +432,46 @@ public class IrcConnection
             if (LOGGER.isDebugEnabled())
             {
                 LOGGER
-                    .debug("ERROR: " + msg.getSource() + ": " + msg.getText());
+                    .debug("SERVER ERROR: " + msg.getSource() + ": " + msg.getText());
             }
 
             // Errors signal fatal situation, so unregister and assume
             // connection lost.
             LOGGER.debug("Local user received ERROR message: removing server "
                 + "listener.");
+            IrcConnection.this.irc.deleteListener(this);
+
+            // If listener is available, inform of connection interrupt.
+            if (IrcConnection.this.connectionListener != null)
+            {
+                IrcConnection.this.connectionListener
+                    .connectionInterrupted(IrcConnection.this);
+            }
+        }
+
+        /**
+         * Received Client error for "fatal" connectivity issues.
+         *
+         * In case of client-side discovered disruptive connectivity issues, we
+         * need to inform listeners, as the IRC server will not be able to do so
+         * anymore.
+         *
+         * @param msg the client-side error message
+         */
+        @Override
+        public void onClientError(ClientErrorMessage msg)
+        {
+            if (LOGGER.isDebugEnabled())
+            {
+                LOGGER.debug(
+                    "CLIENT ERROR: " + msg.getException().getMessage(),
+                    msg.getException());
+            }
+
+            // Errors signal fatal situation, so unregister and assume
+            // connection lost.
+            LOGGER.debug("Local user received CLIENT ERROR message: removing "
+                + "server listener.");
             IrcConnection.this.irc.deleteListener(this);
 
             // If listener is available, inform of connection interrupt.

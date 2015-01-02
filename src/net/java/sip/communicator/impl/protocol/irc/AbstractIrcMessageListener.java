@@ -99,6 +99,22 @@ public abstract class AbstractIrcMessageListener
     }
 
     /**
+     * In case a (fatal) error had occurred and we only find out after the fact
+     * at the client side.
+     *
+     * @param msg the client-side error message
+     */
+    @Override
+    public void onClientError(final ClientErrorMessage msg)
+    {
+        // Errors signal fatal situation, so assume connection is lost and
+        // unregister.
+        LOGGER.debug("Local user received ERROR message: removing "
+            + this.getClass().getCanonicalName());
+        this.irc.deleteListener(this);
+    }
+
+    /**
      * Test if local user is disconnecting or it is some arbitrary other IRC
      * user.
      *

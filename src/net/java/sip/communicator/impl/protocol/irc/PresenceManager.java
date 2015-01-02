@@ -551,7 +551,6 @@ public class PresenceManager
     private final class WhoisReplyListener
         extends AbstractIrcMessageListener
     {
-        // TODO handle ClientError once available
         /**
          * Reply for away message.
          */
@@ -676,6 +675,23 @@ public class PresenceManager
             {
                 this.result.setDone(new IllegalStateException(
                     "An error occurred: " + msg.getText()));
+                this.result.notifyAll();
+            }
+        }
+
+        /**
+         * In case a client-side fatal error occurs, remove the listener.
+         *
+         * @param msg the error message
+         */
+        @Override
+        public void onClientError(ClientErrorMessage msg)
+        {
+            super.onClientError(msg);
+            synchronized (this.result)
+            {
+                this.result.setDone(new IllegalStateException(
+                    "An error occurred: " + msg.asRaw()));
                 this.result.notifyAll();
             }
         }

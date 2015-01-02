@@ -524,6 +524,20 @@ class BasicPollerPresenceWatcher
         }
 
         /**
+         * In case a fatal error occurs, remove the listener.
+         *
+         * @param msg the error message
+         */
+        @Override
+        public void onClientError(ClientErrorMessage msg)
+        {
+            super.onClientError(msg);
+            // Stop presence watcher task.
+            this.timer.cancel();
+            updateAll(IrcStatusEnum.OFFLINE);
+        }
+
+        /**
          * Update the status of a single nick.
          *
          * @param nick the nick to update

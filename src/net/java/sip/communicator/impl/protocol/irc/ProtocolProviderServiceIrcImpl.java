@@ -303,6 +303,8 @@ public class ProtocolProviderServiceIrcImpl
 
         // configure client options according to account properties
         final ClientConfigImpl config = new ClientConfigImpl();
+        // TODO makes allow-version-3 configurable in GUI
+        config.setVersion3Allowed(true);
         config.setContactPresenceTaskEnabled(contactPresenceTask);
         config.setChannelPresenceTaskEnabled(channelPresenceTask);
 

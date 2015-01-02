@@ -7,6 +7,7 @@
 package net.java.sip.communicator.impl.protocol.irc;
 
 import java.io.*;
+import java.nio.channels.*;
 import java.security.*;
 import java.security.cert.*;
 import java.util.*;
@@ -144,7 +145,6 @@ public class IrcStack implements IrcConnectionListener
                     irc.addListener(new DebugListener());
                 }
 
-                // FIXME Add option to enable/disable IRCv3.
                 // Synchronized IRCApi instance passed on to the connection
                 // instance.
                 this.session.set(new IrcConnection(this.context, config, irc,
@@ -184,6 +184,23 @@ public class IrcStack implements IrcConnectionListener
             this.provider.setCurrentRegistrationState(
                 RegistrationState.UNREGISTERED,
                 RegistrationStateChangeEvent.REASON_USER_REQUEST);
+            throw e;
+        }
+        catch (NotYetConnectedException e)
+        {
+            this.provider.setCurrentRegistrationState(
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_NOT_SPECIFIED);
+            throw e;
+        }
+        catch (Exception e)
+        {
+            // For any other (unexpected error) first log the error itself for
+            // debugging purposes. Then rethrow.
+            LOGGER.error("Unanticipated exception occurred!", e);
+            this.provider.setCurrentRegistrationState(
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_INTERNAL_ERROR);
             throw e;
         }
     }

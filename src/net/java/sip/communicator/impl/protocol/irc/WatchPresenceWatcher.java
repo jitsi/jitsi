@@ -202,8 +202,6 @@ class WatchPresenceWatcher
          */
         private final Set<String> monitoredNickList;
 
-        // TODO Update to act on onClientError once available.
-
         /**
          * Constructor.
          *
@@ -292,6 +290,17 @@ class WatchPresenceWatcher
         public void onError(ErrorMessage msg)
         {
             super.onError(msg);
+            updateAll(IrcStatusEnum.OFFLINE);
+        }
+
+        /**
+         * Update all monitored nicks upon receiving a server-side ERROR
+         * response.
+         */
+        @Override
+        public void onClientError(ClientErrorMessage msg)
+        {
+            super.onClientError(msg);
             updateAll(IrcStatusEnum.OFFLINE);
         }
 
