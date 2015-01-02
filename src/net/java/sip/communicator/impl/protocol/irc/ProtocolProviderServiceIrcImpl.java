@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import java.net.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -307,6 +309,10 @@ public class ProtocolProviderServiceIrcImpl
         config.setVersion3Allowed(true);
         config.setContactPresenceTaskEnabled(contactPresenceTask);
         config.setChannelPresenceTaskEnabled(channelPresenceTask);
+        // TODO make proxy-configuration configurable in GUI
+        config.setProxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(
+            "localhost", 8080)));
+        config.setResolveByProxy(true);
 
         try
         {

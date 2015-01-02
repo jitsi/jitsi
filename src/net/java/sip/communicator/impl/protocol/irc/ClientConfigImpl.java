@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import java.net.*;
+
 /**
  * Basic implementation of ClientConfig.
  * 
@@ -33,6 +35,16 @@ public class ClientConfigImpl
      * Channel presence periodic task enable flag.
      */
     private boolean channelPresenceTaskEnabled = true;
+
+    /**
+     * The proxy configuration.
+     */
+    private Proxy proxy = null;
+
+    /**
+     * Resolve addresses through proxy.
+     */
+    private boolean resolveByProxy = true;
 
     /**
      * Get version 3 allowed flag.
@@ -95,5 +107,50 @@ public class ClientConfigImpl
     public void setChannelPresenceTaskEnabled(final boolean value)
     {
         this.channelPresenceTaskEnabled = value;
+    }
+
+    /**
+     * Get the proxy to use connecting to IRC server.
+     *
+     * @return returns proxy configuration or <tt>null</tt> if no proxy should
+     *         be used
+     */
+    @Override
+    public Proxy getProxy()
+    {
+        return this.proxy;
+    }
+
+    /**
+     * Set a new proxy instance.
+     *
+     * The proxy may be <tt>null</tt> signaling that a proxy connection is not
+     * necessary.
+     *
+     * @param proxy the new proxy instance
+     */
+    public void setProxy(final Proxy proxy)
+    {
+        this.proxy = proxy;
+    }
+
+    /**
+     * Get resolve by proxy value.
+     *
+     * @return returns <tt>true</tt> to resolve by proxy, or <tt>false</tt> to
+     *         resolve via (local) DNS.
+     */
+    public boolean isResolveByProxy()
+    {
+        return this.resolveByProxy;
+    }
+
+    /**
+     * Set resolve by proxy value. Indicates whether or not to use the proxy to
+     * resolve addresses.
+     */
+    public void setResolveByProxy(final boolean resolveByProxy)
+    {
+        this.resolveByProxy = resolveByProxy;
     }
 }

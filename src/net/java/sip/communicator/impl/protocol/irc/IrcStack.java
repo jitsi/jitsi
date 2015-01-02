@@ -116,11 +116,14 @@ public class IrcStack implements IrcConnectionListener
         {
             server =
                 new SecureIRCServer(host, port, password,
-                    getCustomSSLContext(host));
+                    getCustomSSLContext(host), config.getProxy(),
+                    config.isResolveByProxy());
         }
         else
         {
-            server = new IRCServer(host, port, password, false);
+            server =
+                new IRCServer(host, port, password, false, config.getProxy(),
+                    config.isResolveByProxy());
         }
 
         try

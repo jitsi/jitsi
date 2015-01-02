@@ -6,6 +6,8 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import java.net.*;
+
 /**
  * Configuration type for maintaining client configuration.
  *
@@ -40,4 +42,25 @@ public interface ClientConfig
      *         <tt>false</tt> otherwise.
      */
     boolean isChannelPresenceTaskEnabled();
+
+    /**
+     * Use a SOCKS proxy to connect to the configured IRC server.
+     *
+     * The proxy may be <tt>null</tt> which means that no proxy will be used
+     * when connecting to the IRC server.
+     *
+     * @return returns Proxy configuration or <tt>null</tt> if no proxy should
+     *         be used.
+     */
+    Proxy getProxy();
+
+    /**
+     * Resolve addresses through the proxy, instead of using a (local) DNS
+     * resolver.
+     *
+     * @return returns <tt>true</tt> if addresses should be resolved through
+     *         proxy, or <tt>false</tt> if it should NOT be resolved through
+     *         proxy
+     */
+    boolean isResolveByProxy();
 }
