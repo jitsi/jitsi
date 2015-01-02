@@ -45,9 +45,10 @@ public class SynchronizedIRCApi
 
     @Override
     public synchronized void connect(final IServerParameters aServerParameters,
-        final Callback<IIRCState> aCallback)
+        final Callback<IIRCState> aCallback,
+        final CapabilityNegotiator negotiator)
     {
-        this.irc.connect(aServerParameters, aCallback);
+        this.irc.connect(aServerParameters, aCallback, negotiator);
     }
 
     @Override

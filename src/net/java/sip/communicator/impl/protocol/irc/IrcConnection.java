@@ -16,6 +16,7 @@ import net.java.sip.communicator.util.*;
 import com.ircclouds.irc.api.*;
 import com.ircclouds.irc.api.domain.messages.*;
 import com.ircclouds.irc.api.listeners.*;
+import com.ircclouds.irc.api.negotiators.*;
 import com.ircclouds.irc.api.state.*;
 
 /**
@@ -116,13 +117,17 @@ public class IrcConnection
      * @param config client configuration
      * @param irc the irc instance
      * @param params connection parameters
+     * @param password the password for authentication
      * @param connectionListener listener for callback upon connection
      *            interruption
+     * @param allowV3 Allow IRC version 3 capability negotiation. If not
+     *            allowed, this may regress the IRC client to "classic" IRC
+     *            (RFC1459)
      * @throws Exception Throws IOException in case of connection problems.
      */
     IrcConnection(final IrcStack.PersistentContext context,
         final ClientConfig config, final IRCApi irc,
-        final IServerParameters params,
+        final IServerParameters params, final String password,
         final IrcConnectionListener connectionListener)
         throws Exception
     {
@@ -143,13 +148,25 @@ public class IrcConnection
         this.irc = irc;
         this.connectionListener = connectionListener;
 
+        // Prepare an IRC capability negotiator in case version 3 is allowed.
+        final CapabilityNegotiator negotiator;
+        if (config.isVersion3Allowed())
+        {
+            negotiator = determineNegotiator(params.getNickname(), password);
+        }
+        else
+        {
+            negotiator = null;
+        }
+
         // Install a listener for everything that is not directly related to a
         // specific chat room or operation.
         this.irc.addListener(new ServerListener());
 
         // Now actually connect to the IRC server.
         this.connectionState =
-            connectSynchronized(this.context.provider, params, this.irc);
+            connectSynchronized(this.context.provider, params, password,
+                this.irc, negotiator);
 
         // instantiate identity manager for the connection
         this.identity =
@@ -178,6 +195,35 @@ public class IrcConnection
     }
 
     /**
+     * Determine which capability negotiator needed.
+     *
+     * Decide on which capability negotiator will be used in IRC server
+     * registration. The null negotiator is used to skip negotiation completely.
+     * This may regress the client connection to plain IRC (RFC1459) as defined
+     * in the specification
+     * (http://ircv3.atheme.org/specification/capability-negotiation-3.1).
+     *
+     * The NoopNegotiator should be used to do IRCv3 negotiation but not set up
+     * anything at that moment.
+     *
+     * @param user the user nick used for authentication
+     * @param password the authentication password
+     * @return returns capability negotiator
+     */
+    private static CapabilityNegotiator determineNegotiator(final String user,
+        final String password)
+    {
+        if (password == null)
+        {
+            return new NoopNegotiator();
+        }
+        else
+        {
+            return new SaslNegotiator(user, password, null);
+        }
+    }
+
+    /**
      * Perform synchronized connect operation.
      *
      * @param provider Parent protocol provider
@@ -187,10 +233,15 @@ public class IrcConnection
      */
     private static IIRCState connectSynchronized(
         final ProtocolProviderServiceIrcImpl provider,
-        final IServerParameters params, final IRCApi irc) throws Exception
+        final IServerParameters params, final String password,
+        final IRCApi irc, final CapabilityNegotiator negotiator)
+        throws Exception
     {
         final Result<IIRCState, Exception> result =
             new Result<IIRCState, Exception>();
+        // FIXME Decide between SASL authentication and normal 'PASS'-parameter
+        // authentication. You cannot do both as some services will respond with
+        // already-authenticated warning.
         synchronized (result)
         {
             // start connecting to the specified server ...
@@ -218,7 +269,7 @@ public class IrcConnection
                         result.notifyAll();
                     }
                 }
-            });
+            }, negotiator);
 
             provider.setCurrentRegistrationState(RegistrationState.REGISTERING,
                 RegistrationStateChangeEvent.REASON_USER_REQUEST);

@@ -26,6 +26,9 @@ import com.ircclouds.irc.api.state.*;
  * TODO Query remote identity service for current identity-state such as:
  * unknown, unauthenticated, authenticated.
  *
+ * TODO Catch 900 (AUTHENTICATE LoggedIn) message and extract identity from
+ * there so that we do not have to do a separate WHOIS query.
+ *
  * @author Danny van Heumen
  */
 public class IdentityManager

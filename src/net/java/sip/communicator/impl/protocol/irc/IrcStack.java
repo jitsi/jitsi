@@ -144,10 +144,11 @@ public class IrcStack implements IrcConnectionListener
                     irc.addListener(new DebugListener());
                 }
 
+                // FIXME Add option to enable/disable IRCv3.
                 // Synchronized IRCApi instance passed on to the connection
                 // instance.
                 this.session.set(new IrcConnection(this.context, config, irc,
-                    this.params, this));
+                    this.params, password, this));
 
                 this.provider.setCurrentRegistrationState(
                     RegistrationState.REGISTERED,

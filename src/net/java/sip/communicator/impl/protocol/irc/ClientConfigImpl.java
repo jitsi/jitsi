@@ -20,6 +20,11 @@ public class ClientConfigImpl
     implements ClientConfig
 {
     /**
+     * Allow IRC version 3 capabilities.
+     */
+    private boolean version3Allowed = true;
+
+    /**
      * Contact presence periodic task enable flag.
      */
     private boolean contactPresenceTaskEnabled = true;
@@ -28,6 +33,27 @@ public class ClientConfigImpl
      * Channel presence periodic task enable flag.
      */
     private boolean channelPresenceTaskEnabled = true;
+
+    /**
+     * Get version 3 allowed flag.
+     *
+     * @return returns <tt>true</tt> if allowed, or <tt>false</tt> if not.
+     */
+    @Override
+    public boolean isVersion3Allowed()
+    {
+        return this.version3Allowed;
+    }
+
+    /**
+     * Set version 3 allowed.
+     *
+     * @param allowed version 3 allowed
+     */
+    public void setVersion3Allowed(final boolean allowed)
+    {
+        this.version3Allowed = allowed;
+    }
 
     /**
      * Get current value of contact presence enable flag.

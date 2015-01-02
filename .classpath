@@ -84,5 +84,6 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/jcalendar-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/hsqldb.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/irc-api-1.0.jar" sourcepath="lib/installer-exclude/irc-api-1.0-sources.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/commons-codec-1.4.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

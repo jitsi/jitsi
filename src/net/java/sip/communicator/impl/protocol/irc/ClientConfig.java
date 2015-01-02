@@ -14,6 +14,16 @@ package net.java.sip.communicator.impl.protocol.irc;
 public interface ClientConfig
 {
     /**
+     * Allow IRC version 3 capabilities.
+     *
+     * @return returns <tt>true</tt> if IRC version 3 capabilities are allowed,
+     *         or <tt>false</tt> if we explicitly disallow anything related to
+     *         IRCv3. (Disabling may regress the connection to "classic" IRC
+     *         (RFC1459).)
+     */
+    boolean isVersion3Allowed();
+
+    /**
      * Enable contact presence periodic task for keeping track of contact
      * presence (offline or online).
      *
