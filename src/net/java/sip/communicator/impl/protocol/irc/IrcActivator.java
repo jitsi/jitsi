@@ -15,6 +15,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
@@ -64,6 +65,11 @@ public class IrcActivator
      * UI Service instance.
      */
     private static UIService uiService;
+
+    /**
+     * Configuration Service instance.
+     */
+    private static ConfigurationService configService;
 
     /**
      * Called when this bundle is started. In here we'll export the
@@ -197,5 +203,19 @@ public class IrcActivator
                ServiceUtils.getService(bundleContext, CertificateService.class);
         }
         return certificateService;
+    }
+
+    /**
+     * Return the configuration service impl.
+     *
+     * @return the Configuration service
+     */
+    public static ConfigurationService getConfigurationService()
+    {
+        if(configService == null)
+        {
+            configService = ServiceUtils.getService(bundleContext, ConfigurationService.class);
+        }
+        return configService;
     }
 }

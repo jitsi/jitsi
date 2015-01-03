@@ -12,6 +12,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
+
 /**
  * An IRC implementation of the ProtocolProviderService.
  *
@@ -309,10 +311,10 @@ public class ProtocolProviderServiceIrcImpl
         config.setVersion3Allowed(true);
         config.setContactPresenceTaskEnabled(contactPresenceTask);
         config.setChannelPresenceTaskEnabled(channelPresenceTask);
-        // TODO make proxy-configuration configurable in GUI
-        config.setProxy(new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(
-            "localhost", 8080)));
-        config.setResolveByProxy(true);
+        config.setProxy(loadProxy());
+        config.setResolveByProxy(loadDNSThroughProxySetting());
+        // FIXME fix 'replacement' plugins which now (probably) don't use global
+        // proxy configuration when contacting URLs on the internet
 
         try
         {
@@ -329,6 +331,67 @@ public class ProtocolProviderServiceIrcImpl
             throw new OperationFailedException(e.getMessage(),
                 OperationFailedException.GENERAL_ERROR, e);
         }
+    }
+
+    /**
+     * Get proxy instance based on Jitsi's global proxy configuration.
+     *
+     * @return returns configured proxy instance
+     */
+    private Proxy loadProxy() throws OperationFailedException
+    {
+        final ConfigurationService configSvc =
+            IrcActivator.getConfigurationService();
+        if (configSvc == null)
+        {
+            return null;
+        }
+        final String globalProxyType =
+            configSvc.getString(ProxyInfo.CONNECTION_PROXY_TYPE_PROPERTY_NAME);
+        if (globalProxyType == null
+            || (!globalProxyType.equals(ProxyInfo.ProxyType.SOCKS4.name())
+                &&!globalProxyType.equals(ProxyInfo.ProxyType.SOCKS5.name())))
+        {
+            // Only SOCKS proxy is supported. The appropriate proxy type is not
+            // configured, so we're done.
+            return null;
+        }
+        final String globalProxyAddress =
+            configSvc
+                .getString(ProxyInfo.CONNECTION_PROXY_ADDRESS_PROPERTY_NAME);
+        final String globalProxyPortStr =
+            configSvc.getString(ProxyInfo.CONNECTION_PROXY_PORT_PROPERTY_NAME);
+        final int globalProxyPort;
+        try
+        {
+            globalProxyPort = Integer.parseInt(globalProxyPortStr);
+        }
+        catch (NumberFormatException e)
+        {
+            throw new OperationFailedException("invalid proxy port",
+                OperationFailedException.INVALID_ACCOUNT_PROPERTIES, e);
+        }
+        return new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(
+            globalProxyAddress, globalProxyPort));
+    }
+
+    /**
+     * Method for loading the current value for option to resolve DNS host names
+     * through SOCKS5 proxy.
+     *
+     * @return returns <tt>true</tt> to enable resolving through proxy, or
+     *         <tt>false</tt> for local DNS resolving
+     */
+    private boolean loadDNSThroughProxySetting()
+    {
+        final ConfigurationService configSvc =
+            IrcActivator.getConfigurationService();
+        if (configSvc == null)
+        {
+            return false;
+        }
+        // FIXME implement support for option to enable SOCKS5 DNS resolving
+        return true;
     }
 
     /**
