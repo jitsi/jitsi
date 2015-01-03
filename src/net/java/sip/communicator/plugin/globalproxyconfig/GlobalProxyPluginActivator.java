@@ -257,8 +257,12 @@ public class GlobalProxyPluginActivator implements BundleActivator
             if(getRequestingProtocol().startsWith(type)
                 && getRequestingHost().equals(host)
                 && port == getRequestingPort()
-                && getRequestorType().equals(Authenticator.RequestorType.SERVER))
+                && getRequestorType().equals(Authenticator.RequestorType.SERVER)
+                && username != null)
             {
+                // user name must be non-null, since otherwise SOCKS
+                // authenticate will fail immediately (HTTP authentication
+                // assumes non-null)
                 final char[] pass;
                 if (password == null)
                 {
