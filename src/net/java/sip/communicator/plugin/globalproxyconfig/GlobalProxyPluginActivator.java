@@ -259,8 +259,17 @@ public class GlobalProxyPluginActivator implements BundleActivator
                 && port == getRequestingPort()
                 && getRequestorType().equals(Authenticator.RequestorType.SERVER))
             {
-                return new PasswordAuthentication(
-                    username, password.toCharArray());
+                final char[] pass;
+                if (password == null)
+                {
+                    // empty password is not stored explicitly so will be null
+                    pass = new char[0];
+                }
+                else
+                {
+                    pass = password.toCharArray();
+                }
+                return new PasswordAuthentication(username, pass);
             }
             else
                 return super.getPasswordAuthentication();
