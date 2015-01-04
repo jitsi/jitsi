@@ -66,7 +66,7 @@ public interface Chat
      * The size of the buffer that indicates how many messages will be stored
      * in the conversation area in the chat window.
      */
-    public static final int CHAT_BUFFER_SIZE = 3000;
+    public static final int CHAT_BUFFER_SIZE = 50000;
 
     /**
      * Checks if this <tt>Chat</tt> is currently focused.
