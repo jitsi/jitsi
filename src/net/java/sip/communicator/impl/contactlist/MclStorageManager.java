@@ -1044,10 +1044,12 @@ public class MclStorageManager
     }
 
     /**
-     * Creates a node element corresponding to <tt>protoContact</tt>.
+     * Creates a node element corresponding to <tt>protoContact</tt>. If
+     * required data is missing returns null.
      *
      * @param protoContact the Contact whose element we'd like to create
-     * @return a XML Element corresponding to <tt>protoContact</tt>.
+     * @return a XML Element corresponding to <tt>protoContact</tt>
+     * or <tt>null</tt> if required data is not present.
      */
     private Element createProtoContactNode(Contact protoContact)
     {
@@ -1061,14 +1063,17 @@ public class MclStorageManager
         protoContactElement.setAttribute(ACCOUNT_ID_ATTR_NAME, protoContact
             .getProtocolProvider().getAccountID().getAccountUniqueID());
 
-        if(logger.isTraceEnabled()
+        if(logger.isInfoEnabled()
                         && protoContact.getParentContactGroup() == null)
         {
-            if (logger.isTraceEnabled())
-                logger.trace("the following contact looks weird:" + protoContact);
-            if (logger.isTraceEnabled())
-                logger.trace("group:" + protoContact.getParentContactGroup());
+            if (logger.isInfoEnabled())
+                logger.info("the following contact looks weird:" + protoContact);
+            if (logger.isInfoEnabled())
+                logger.info("group:" + protoContact.getParentContactGroup());
         }
+
+        if(protoContact.getParentContactGroup() == null)
+            return null;
 
         protoContactElement.setAttribute(PARENT_PROTO_GROUP_UID_ATTR_NAME,
             protoContact.getParentContactGroup().getUID());
@@ -1176,7 +1181,9 @@ public class MclStorageManager
         {
             Contact contact = contacts.next();
             Element contactElement = createProtoContactNode(contact);
-            metaContactElement.appendChild(contactElement);
+
+            if(contactElement != null)
+                metaContactElement.appendChild(contactElement);
         }
 
         return metaContactElement;
@@ -1941,6 +1948,13 @@ public class MclStorageManager
         }
 
         Element protoNode = createProtoContactNode(evt.getProtoContact());
+
+        if(protoNode == null)
+        {
+            logger.error("Failed to create proto contact node for: "
+                + evt.getProtoContact());
+            return;
+        }
 
         mcNode.appendChild(protoNode);
 
