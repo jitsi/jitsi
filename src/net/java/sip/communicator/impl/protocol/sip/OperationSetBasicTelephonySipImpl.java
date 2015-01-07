@@ -95,6 +95,7 @@ public class OperationSetBasicTelephonySipImpl
         protocolProvider.registerMethodProcessor(Request.BYE, this);
         protocolProvider.registerMethodProcessor(Request.REFER, this);
         protocolProvider.registerMethodProcessor(Request.NOTIFY, this);
+        protocolProvider.registerMethodProcessor(Request.UPDATE, this);
 
         protocolProvider.registerEvent("refer");
 
@@ -373,6 +374,12 @@ public class OperationSetBasicTelephonySipImpl
             if (logger.isDebugEnabled())
                 logger.debug("received NOTIFY");
             processed = processNotify(serverTransaction, request);
+        }
+        else if (requestMethod.equals(Request.UPDATE))
+        {
+            if (logger.isDebugEnabled())
+                logger.debug("received UPDATE");
+            processed = processUpdate(serverTransaction, request);
         }
 
         return processed;
@@ -1667,6 +1674,56 @@ public class OperationSetBasicTelephonySipImpl
                 logger.error("Failed to send BYE in response to refer NOTIFY "
                                 +"request.",ex);
             }
+        }
+
+        return true;
+    }
+
+    /**
+     * Processes a specific <tt>Request.UPDATE</tt> request for the purposes of
+     * telephony.
+     *
+     * @param serverTransaction the <tt>ServerTransaction</tt> containing the
+     * <tt>Request.UPDATE</tt> request
+     * @param updateRequest the <tt>Request.UPDATE</tt> request to be processed
+     *
+     * @return <tt>true</tt> if we have processed/consumed the request and
+     * <tt>false</tt> otherwise.
+     */
+    private boolean processUpdate(ServerTransaction serverTransaction,
+                                  Request updateRequest)
+    {
+        // if there is content in update request, do not process
+        ContentLengthHeader cl = updateRequest.getContentLength();
+        if (cl != null && cl.getContentLength() > 0)
+            return false;
+
+        // some systems send update requests before call is established
+        // to update call screening, if we do not process them and just send
+        // 501 we end the dialog and the call will fail to establish,
+        // so we just send ok
+
+        // OK
+        Response ok;
+        try
+        {
+            ok = messageFactory.createResponse(Response.OK, updateRequest);
+            serverTransaction.sendResponse(ok);
+        }
+        catch (ParseException ex)
+        {
+            String message = "Failed to create OK response to UPDATE.";
+
+            logger.error(message, ex);
+            return false;
+        }
+        catch (Exception ex)
+        {
+            String message =
+                "Failed to send OK response to UPDATE request.";
+
+            logger.error(message, ex);
+            return false;
         }
 
         return true;
