@@ -82,13 +82,16 @@ public class OperationSetJitsiMeetToolsSipImpl
      * @param call the incoming {@link Call} instance.
      * @param jitsiMeetRoom the name of the chat room of Jitsi Meet conference
      *                      to be joined.
+     * @param jitsiMeetRoomPass optional password required to join conference
+     *                          room(if room is protected)
      */
-    public void notifyJoinJitsiMeetRoom(Call call, String jitsiMeetRoom)
+    public void notifyJoinJitsiMeetRoom(
+        Call call, String jitsiMeetRoom, String jitsiMeetRoomPass)
     {
         boolean handled = false;
         for (JitsiMeetRequestListener l : requestHandlers)
         {
-            l.onJoinJitsiMeetRequest(call, jitsiMeetRoom);
+            l.onJoinJitsiMeetRequest(call, jitsiMeetRoom, jitsiMeetRoomPass);
             handled = true;
         }
         if (!handled)

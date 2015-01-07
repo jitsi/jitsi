@@ -54,6 +54,13 @@ public class CallSipImpl
             = "Jitsi-Conference-Room";
 
     /**
+     * Name of extra INVITE header which specifies password required to enter
+     * MUC room that is hosting the Jitsi Meet conference.
+     */
+    public static final String JITSI_MEET_ROOM_PASS_HEADER
+            = "Jitsi-Conference-Room-Pass";
+
+    /**
      * When starting call we may have quality preferences we must use
      * for the call.
      */
@@ -501,6 +508,10 @@ public class CallSipImpl
         // Parses Jitsi Meet room name header
         SIPHeader joinRoomHeader
             = (SIPHeader) invite.getHeader(JITSI_MEET_ROOM_HEADER);
+        // Optional password header
+        SIPHeader passwordHeader
+            = (SIPHeader) invite.getHeader(JITSI_MEET_ROOM_PASS_HEADER);
+
         if (joinRoomHeader != null)
         {
             OperationSetJitsiMeetToolsSipImpl jitsiMeetTools
@@ -508,7 +519,8 @@ public class CallSipImpl
                         .getOperationSet(OperationSetJitsiMeetTools.class);
 
             jitsiMeetTools.notifyJoinJitsiMeetRoom(
-                this, joinRoomHeader.getValue());
+                this, joinRoomHeader.getValue(),
+                passwordHeader != null ? passwordHeader.getValue() : null);
         }
 
         //send a ringing response

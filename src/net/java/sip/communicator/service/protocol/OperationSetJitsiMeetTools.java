@@ -73,7 +73,10 @@ public interface OperationSetJitsiMeetTools
          * @param call the incoming {@link Call} instance.
          * @param jitsiMeetRoom the name of multi user chat room that is hosting
          *                      Jitsi Meet conference.
+         * @param jitsiMeetRoomPass optional password required to join conference
+         *                          room(if it is protected)
          */
-        void onJoinJitsiMeetRequest(Call call, String jitsiMeetRoom);
+        void onJoinJitsiMeetRequest(
+            Call call, String jitsiMeetRoom, String jitsiMeetRoomPass);
     }
 }
