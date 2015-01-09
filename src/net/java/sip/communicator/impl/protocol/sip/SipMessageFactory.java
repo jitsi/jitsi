@@ -524,6 +524,9 @@ public class SipMessageFactory
             message.setHeader(userAgentHeader);
         }
 
+        // attach any custom headers pre-configured for the account
+        ConfigHeaders.attachConfigHeaders(message, protocolProvider);
+
         return message;
     }
 
