@@ -32,6 +32,16 @@ public class ChatContactCellRenderer
     extends ContactListCellRenderer
 {
     /**
+     * Color constant for contacts that are at least available.
+     */
+    private static final Color COLOR_AVAILABILITY_THRESHOLD = Color.BLACK;
+
+    /**
+     * Color constant for contacts that are at least away.
+     */
+    private static final Color COLOR_AWAY_THRESHOLD = Color.GRAY;
+
+    /**
      * Implements the <tt>ListCellRenderer</tt> method. Returns this panel that
      * has been configured to display a chat contact.
      *
@@ -92,14 +102,14 @@ public class ChatContactCellRenderer
                 this.nameLabel.setIcon(
                     ChatContactRoleIcon.getRoleIcon(memberRole));
 
-            // FIXME Make solution more generic by querying color from presence
-            // status instance.
             final int presenceStatus = member.getPresenceStatus().getStatus();
-            if (presenceStatus >= PresenceStatus.AVAILABLE_THRESHOLD) {
-                this.nameLabel.setForeground(Color.BLACK);
+            if (presenceStatus >= PresenceStatus.AVAILABLE_THRESHOLD)
+            {
+                this.nameLabel.setForeground(COLOR_AVAILABILITY_THRESHOLD);
             }
-            else if (presenceStatus >= PresenceStatus.AWAY_THRESHOLD) {
-                this.nameLabel.setForeground(Color.GRAY);
+            else if (presenceStatus >= PresenceStatus.AWAY_THRESHOLD)
+            {
+                this.nameLabel.setForeground(COLOR_AWAY_THRESHOLD);
             }
         }
         else if (contactForegroundColor != null)

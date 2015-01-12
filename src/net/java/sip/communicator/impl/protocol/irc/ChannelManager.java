@@ -1197,7 +1197,6 @@ public class ChannelManager
 
             final MessageIrcImpl message =
                 MessageIrcImpl.newMessageFromIRC(msg.getText());
-            // FIXME why create a new instance?
             final ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(ChannelManager.this.provider,
                     this.chatroom, msg.getSource().getNick(), msg.getSource()
@@ -1221,7 +1220,6 @@ public class ChannelManager
             }
 
             String userNick = msg.getSource().getNick();
-            // FIXME why create a new instance?
             ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(ChannelManager.this.provider,
                     this.chatroom, userNick, msg.getSource().getIdent(), msg
@@ -1247,7 +1245,6 @@ public class ChannelManager
             }
 
             final String userNick = msg.getSource().getNick();
-            // FIXME why create a new instance?
             final ChatRoomMemberIrcImpl member =
                 new ChatRoomMemberIrcImpl(ChannelManager.this.provider,
                     this.chatroom, userNick, msg.getSource().getIdent(), msg

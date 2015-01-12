@@ -42,8 +42,13 @@ import net.java.sip.communicator.impl.protocol.irc.exception.*;
  * (other) events.
  * </p>
  *
- * FIXME Additionally, describe the AbstractIrcMessageListener type once this
- * implementation is merged with Jitsi main line.
+ * <p>
+ * In the case of more advanced commands that register message listeners, please
+ * base your listeners on the AbstractIrcMessageListener or ensure by yourself
+ * that listeners get unregistered upon ERROR or QUIT events. It is expected
+ * that a listener that gets registered can determine for themselves when to
+ * unregister itself in order to properly dispose of it.
+ * </p>
  *
  * @author Danny van Heumen
  */

@@ -97,8 +97,7 @@ public final class IrcStatusEnum
     /**
      * Return <em>i18n</em> IRC presence status name.
      *
-     * TODO promote i18n conversion to extended class and implement for all
-     * protocols
+     * @return returns i18n status name
      */
     @Override
     public String getStatusName()

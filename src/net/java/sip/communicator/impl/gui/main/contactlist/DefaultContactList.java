@@ -197,7 +197,6 @@ public class DefaultContactList
 
                 tip.addLine(ChatContactRoleIcon.getRoleIcon(member.getRole()),
                     roleName);
-                // FIXME Needs i18n status name
                 PresenceStatus status = member.getPresenceStatus();
                 tip.addLine(null, status.getStatusName());
             }

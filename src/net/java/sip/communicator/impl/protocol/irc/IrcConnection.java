@@ -26,11 +26,6 @@ import com.ircclouds.irc.api.state.*;
  *
  * TODO Find out how irc-api responds to losing a connection (no response). Does
  * it use ping/pong messages to determine connectivity?
- *
- * TODO Where possible, fire threads for handling events, instead of executing
- * everything (including calling listeners) inside the event handling loop of
- * irc-api instance.
- *
  * @author Danny van Heumen
  */
 public class IrcConnection
