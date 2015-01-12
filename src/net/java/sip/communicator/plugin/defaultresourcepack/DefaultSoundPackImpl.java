@@ -60,7 +60,7 @@ public class DefaultSoundPackImpl
      */
     public String getDescription()
     {
-        return "Provide SIP Communicator default sounds resource pack.";
+        return "Provide Jitsi default sounds resource pack.";
     }
 
     /**

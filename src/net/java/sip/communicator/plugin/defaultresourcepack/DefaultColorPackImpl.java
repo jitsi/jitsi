@@ -60,7 +60,7 @@ public class DefaultColorPackImpl
      */
     public String getDescription()
     {
-        return "Provide SIP Communicator default color resource pack.";
+        return "Provide Jitsi default color resource pack.";
     }
 
     /**

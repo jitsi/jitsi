@@ -1,6 +1,6 @@
 Bundle-Activator: net.java.sip.communicator.plugin.notificationconfiguration.NotificationConfigurationActivator
 Bundle-Name: Plugin Manager Notification
-Bundle-Description: Manage all SIP Communicator notification.
+Bundle-Description: Manage all Jitsi notification.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 Bundle-SymbolicName: net.java.sip.communicator.plugin.notificationconfiguration

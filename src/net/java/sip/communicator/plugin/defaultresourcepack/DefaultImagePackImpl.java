@@ -60,7 +60,7 @@ public class DefaultImagePackImpl
      */
     public String getDescription()
     {
-        return "Provide SIP Communicator default Image resource pack.";
+        return "Provide Jitsi default Image resource pack.";
     }
 
     /**

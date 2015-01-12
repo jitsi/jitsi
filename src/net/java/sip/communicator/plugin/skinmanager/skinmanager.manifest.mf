@@ -1,6 +1,6 @@
 Bundle-Activator: net.java.sip.communicator.plugin.skinmanager.SkinManagerActivator
 Bundle-Name: Skin Manager plugin
-Bundle-Description: Manage all SIP Communicator skins.
+Bundle-Description: Manage all Jitsi skins.
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 Bundle-SymbolicName: net.java.sip.communicator.plugin.skinmanager

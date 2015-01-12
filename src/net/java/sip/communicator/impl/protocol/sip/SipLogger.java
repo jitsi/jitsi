@@ -458,7 +458,7 @@ public class SipLogger
      */
     public String getLoggerName()
     {
-        return "SIP Communicator JAIN SIP logger.";
+        return "Jitsi JAIN SIP logger.";
     }
 
     /**

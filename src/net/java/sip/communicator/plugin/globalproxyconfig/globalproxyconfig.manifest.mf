@@ -1,6 +1,6 @@
 Bundle-Activator: net.java.sip.communicator.plugin.globalproxyconfig.GlobalProxyPluginActivator
 Bundle-Name: Global Proxy Config Plugin
-Bundle-Description: A plugin to configure global proxy for sip communicator
+Bundle-Description: A plugin to configure global proxy for Jitsi
 Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 Bundle-SymbolicName: net.java.sip.communicator.plugin.globalproxyconfig

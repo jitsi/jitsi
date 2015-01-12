@@ -171,7 +171,7 @@ public class DefaultLanguagePackImpl
      */
     public String getDescription()
     {
-        return "Provide SIP Communicator default Language resource pack.";
+        return "Provide Jitsi default Language resource pack.";
     }
 
     /**

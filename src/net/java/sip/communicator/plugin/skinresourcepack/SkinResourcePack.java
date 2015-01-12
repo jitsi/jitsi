@@ -308,11 +308,11 @@ public class SkinResourcePack
         String name = resources.get("display_name");
         if(name != null)
         {
-            return "Provide SIP Communicator " + name + " skin resource pack.";
+            return "Provide Jitsi " + name + " skin resource pack.";
         }
         else
         {
-            return "Provide SIP Communicator skin resource pack.";
+            return "Provide Jitsi skin resource pack.";
         }
     }
 
