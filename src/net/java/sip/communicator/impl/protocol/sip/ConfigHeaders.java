@@ -10,7 +10,6 @@ import net.java.sip.communicator.util.*;
 
 import javax.sip.header.*;
 import javax.sip.message.*;
-import java.text.*;
 import java.util.*;
 
 /**
@@ -139,17 +138,59 @@ public class ConfigHeaders
 
             try
             {
+
                 Header customHeader = protocolProvider.getHeaderFactory()
                     .createHeader(
                         headerValues.get(ACC_PROPERTY_CONFIG_HEADER_NAME),
-                        headerValues.get(ACC_PROPERTY_CONFIG_HEADER_VALUE));
+                        processParams(
+                            headerValues.get(ACC_PROPERTY_CONFIG_HEADER_VALUE),
+                            request)
+                    );
 
                 request.setHeader(customHeader);
             }
-            catch(ParseException e)
+            catch(Exception e)
             {
                 logger.error("Cannot create custom header", e);
             }
         }
+    }
+
+    /**
+     * Checks for certain params existence in the value, and replace them
+     * with real values obtained from <tt>request</tt>.
+     * @param value the value of the header param
+     * @param request the request we are processing
+     * @return the value with replaced params
+     */
+    private static String processParams(String value, Request request)
+    {
+        if(value.indexOf("${from.address}") != -1)
+        {
+            FromHeader fromHeader
+                = (FromHeader)request.getHeader(FromHeader.NAME);
+
+            if(fromHeader != null)
+            {
+                value = value.replace(
+                    "${from.address}",
+                    fromHeader.getAddress().getURI().toString());
+            }
+        }
+
+        if(value.indexOf("${to.address}") != -1)
+        {
+            ToHeader toHeader =
+                (ToHeader)request.getHeader(ToHeader.NAME);
+
+            if(toHeader != null)
+            {
+                value = value.replace(
+                    "${to.address}",
+                    toHeader.getAddress().getURI().toString());
+            }
+        }
+
+        return value;
     }
 }
