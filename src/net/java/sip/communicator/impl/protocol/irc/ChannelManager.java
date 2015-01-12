@@ -793,6 +793,11 @@ public class ChannelManager
         extends AbstractIrcMessageListener
     {
         /**
+         * Indicator for those members whose AWAY message is set.
+         */
+        private static final String GONE = "G";
+
+        /**
          * IRC error code for case when user cannot send a message to the
          * channel, for example when this channel is moderated and user does not
          * have VOICE (+v).
@@ -1060,7 +1065,7 @@ public class ChannelManager
          */
         private IrcStatusEnum determineStatus(final String presenceReply)
         {
-            if (presenceReply != null && presenceReply.startsWith("G"))
+            if (presenceReply != null && presenceReply.startsWith(GONE))
             {
                 return IrcStatusEnum.AWAY;
             }
