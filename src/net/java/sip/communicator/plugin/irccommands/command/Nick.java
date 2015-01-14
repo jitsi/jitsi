@@ -66,7 +66,7 @@ public class Nick implements Command
         {
             newNick = part.substring(0, indexOfSep);
         }
-        if (newNick.length() > 0)
+        if (!newNick.isEmpty())
         {
             this.connection.getIdentityManager().setNick(newNick);
         }

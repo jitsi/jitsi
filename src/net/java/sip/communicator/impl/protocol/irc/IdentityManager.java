@@ -6,7 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
-import java.util.*;
+import java.util.regex.*;
 
 import net.java.sip.communicator.util.*;
 
@@ -37,24 +37,10 @@ public class IdentityManager
         .getLogger(IdentityManager.class);
 
     /**
-     * Reserved symbols. These symbols have special meaning and cannot be used
-     * to start nick names.
-     *
-     * FIXME remove this reserved symbol list, after checkNick(...) was
-     * improved.
+     * Pattern of a valid nick.
      */
-    private static final Set<Character> RESERVED;
-
-    /**
-     * Initialize RESERVED symbols set.
-     */
-    static
-    {
-        final HashSet<Character> reserved = new HashSet<Character>();
-        reserved.add('#');
-        reserved.add('&');
-        RESERVED = Collections.unmodifiableSet(reserved);
-    }
+    public static final Pattern NICK_PATTERN = Pattern
+        .compile("[A-Za-z][A-Za-z0-9\\-\\[\\]\\\\`\\^\\{\\}]*");
 
     /**
      * The IRCApi instance.
@@ -198,21 +184,17 @@ public class IdentityManager
     public static String checkNick(final String nick,
         final Integer isupportNickLen)
     {
-        if (nick == null)
+        if (nick == null || nick.isEmpty())
+        {
+            throw new IllegalArgumentException("a nick name must be provided");
+        }
+        if (!NICK_PATTERN.matcher(nick).matches())
         {
             throw new IllegalArgumentException(
-                "a nick name must be provided");
+                "nick name contains invalid characters: only letters, "
+                    + "digits and -, \\, [, ], `, ^, {, } are allowed");
         }
-        if (RESERVED.contains(nick.charAt(0)))
-        {
-            throw new IllegalArgumentException(
-                "the nick name must not start with '#' or '&' "
-                    + "since these are reserved for IRC's channels");
-        }
-        // FIXME Improve nick verification corresponding to RFC1459, section
-        // 2.3.1
-        if (isupportNickLen != null
-            && nick.length() > isupportNickLen.intValue())
+        if (isupportNickLen != null && nick.length() > isupportNickLen)
         {
             throw new IllegalArgumentException("the nick name must not be "
                 + "longer than " + isupportNickLen.intValue() + " characters "
