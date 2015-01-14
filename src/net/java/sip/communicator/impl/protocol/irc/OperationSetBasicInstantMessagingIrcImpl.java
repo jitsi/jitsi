@@ -120,15 +120,14 @@ public class OperationSetBasicInstantMessagingIrcImpl
                     continue;
                 }
 
-                String transformedContent =
-                    event.getSourceMessage().getContent();
+                final Message transformed = event.getSourceMessage();
 
                 // Note: can't set subject since it leaks information while
                 // message content actually did get encrypted.
-                // FIXME should get contentType and contentEncoding from
-                // transformed messages, just in case
-                MessageIrcImpl message = this.createMessage(transformedContent,
-                    original.getContentType(), original.getEncoding(), "");
+                MessageIrcImpl message =
+                    this.createMessage(transformed.getContent(),
+                        transformed.getContentType(),
+                        transformed.getEncoding(), "");
 
                 try
                 {
