@@ -40,7 +40,8 @@ public class IdentityManager
      * Pattern of a valid nick.
      */
     public static final Pattern NICK_PATTERN = Pattern
-        .compile("[A-Za-z][A-Za-z0-9\\-\\[\\]\\\\`\\^\\{\\}]*");
+        .compile("[A-Za-z\\[\\]\\\\`\\^\\{\\}_\\|]"
+            + "[A-Za-z0-9\\-\\[\\]\\\\`\\^\\{\\}_\\|]*");
 
     /**
      * The IRCApi instance.
@@ -192,7 +193,7 @@ public class IdentityManager
         {
             throw new IllegalArgumentException(
                 "nick name contains invalid characters: only letters, "
-                    + "digits and -, \\, [, ], `, ^, {, } are allowed");
+                    + "digits and -, \\, [, ], `, ^, {, }, |, _ are allowed");
         }
         if (isupportNickLen != null && nick.length() > isupportNickLen)
         {
