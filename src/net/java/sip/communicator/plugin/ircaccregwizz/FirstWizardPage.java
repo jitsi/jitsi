@@ -77,8 +77,8 @@ public class FirstWizardPage
     private JLabel infoPassword
         = new JLabel(Resources.getString("plugin.ircaccregwizz.INFO_PASSWORD"));
 
-    private JLabel nick
-        = new JLabel(Resources.getString("plugin.ircaccregwizz.USERNAME"));
+    private JLabel nick = new JLabel(
+        Resources.getString("plugin.ircaccregwizz.USERNAME") + ":");
 
     private JLabel passLabel = new JLabel(
         Resources.getString("service.gui.PASSWORD") + ":");

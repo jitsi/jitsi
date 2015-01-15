@@ -151,8 +151,8 @@ public class IrcAccountRegistrationWizard
     @Override
     public Iterator<Map.Entry<String, String>> getSummary()
     {
-        Hashtable<String, String> summaryTable =
-            new Hashtable<String, String>();
+        LinkedHashMap<String, String> summaryTable =
+            new LinkedHashMap<String, String>();
         String pass = new String();
         String port = new String();
 
@@ -170,17 +170,26 @@ public class IrcAccountRegistrationWizard
         {
             port = ":" + port;
         }
+        
+        final String yes = Resources.getString("service.gui.YES");
+        final String no = Resources.getString("service.gui.NO");
 
-        // FIXME i18n
-        summaryTable.put("Password", pass);
-        summaryTable.put("Nickname", registration.getUserID());
-        summaryTable.put("Server IRC", registration.getServer() + port);
-        summaryTable.put("Secure connection",
-            registration.isSecureConnection() ? "yes" : "no");
-        summaryTable.put("Contact presence",
-            "" + registration.isContactPresenceTaskEnabled());
-        summaryTable.put("Chat room presence",
-            "" + registration.isChatRoomPresenceTaskEnabled());
+        summaryTable.put(Resources.getString("plugin.ircaccregwizz.USERNAME"),
+            registration.getUserID());
+        summaryTable.put(Resources.getString("service.gui.PASSWORD"), pass);
+        summaryTable.put(
+            Resources.getString("plugin.ircaccregwizz.IRC_SERVER"),
+            registration.getServer() + port);
+        summaryTable.put(
+            Resources.getString("plugin.ircaccregwizz.USE_SECURE_CONNECTION"),
+            registration.isSecureConnection() ? yes : no);
+        summaryTable
+            .put(Resources
+                .getString("plugin.ircaccregwizz.ENABLE_CONTACT_PRESENCE"),
+                registration.isContactPresenceTaskEnabled() ? yes : no);
+        summaryTable.put(Resources
+            .getString("plugin.ircaccregwizz.ENABLE_CHAT_ROOM_PRESENCE"),
+            registration.isChatRoomPresenceTaskEnabled() ? yes : no);
 
         return summaryTable.entrySet().iterator();
     }
