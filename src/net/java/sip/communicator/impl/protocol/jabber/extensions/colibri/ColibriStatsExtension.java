@@ -80,16 +80,6 @@ public class ColibriStatsExtension
          */
         public static final String VALUE_ATTR_NAME = "value";
 
-        /**
-         * The name attribute value.
-         */
-        private String name;
-
-        /**
-         * The value attribute value.
-         */
-        private Object value;
-
         public Stat()
         {
             super(NAMESPACE, ELEMENT_NAME);
@@ -118,7 +108,7 @@ public class ColibriStatsExtension
          */
         public String getName()
         {
-            return name;
+            return getAttributeAsString(NAME_ATTR_NAME);
         }
 
         @Override
@@ -132,7 +122,7 @@ public class ColibriStatsExtension
          */
         public Object getValue()
         {
-            return value;
+            return getAttribute(VALUE_ATTR_NAME);
         }
 
         /**
@@ -140,7 +130,7 @@ public class ColibriStatsExtension
          */
         public void setName(String name)
         {
-            this.name = name;
+            setAttribute(NAME_ATTR_NAME, name);
         }
 
         /**
@@ -148,7 +138,7 @@ public class ColibriStatsExtension
          */
         public void setValue(Object value)
         {
-            this.value = value;
+            setAttribute(VALUE_ATTR_NAME, value);
         }
 
         @Override
