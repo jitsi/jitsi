@@ -111,6 +111,12 @@ public class OperationSetJitsiMeetToolsSipImpl
         throw new RuntimeException("Not implemented for SIP");
     }
 
+    @Override
+    public void removeSupportedFeature(String featureName)
+    {
+        throw new RuntimeException("Not implemented for SIP");
+    }
+
     /**
      * {@inheritDoc}
      */

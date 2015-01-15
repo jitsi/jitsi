@@ -26,6 +26,14 @@ public interface OperationSetJitsiMeetTools
     public void addSupportedFeature(String featureName);
 
     /**
+     * Removes given feature from communication protocol capabilities list of 
+     * parent {@link ProtocolProviderService}.
+     *
+     * @param featureName feature name to be removed from the capabilities list.
+     */
+    public void removeSupportedFeature(String featureName);
+
+    /**
      * Includes given <tt>PacketExtension</tt> in multi user chat presence and
      * sends presence update packet to the chat room.
      * @param chatRoom the <tt>ChatRoom</tt> for which the presence will be

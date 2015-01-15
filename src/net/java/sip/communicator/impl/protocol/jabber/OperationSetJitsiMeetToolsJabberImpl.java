@@ -42,6 +42,14 @@ public class OperationSetJitsiMeetToolsJabberImpl
     /**
      * {@inheritDoc}
      */
+    public void removeSupportedFeature(String featureName)
+    {
+        parentProvider.getDiscoveryManager().removeFeature(featureName);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void sendPresenceExtension(ChatRoom chatRoom,
                                       PacketExtension extension)
