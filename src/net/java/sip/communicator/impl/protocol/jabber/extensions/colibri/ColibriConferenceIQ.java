@@ -8,9 +8,11 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 
 import java.util.*;
 
+import com.google.i18n.phonenumbers.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
+import org.jitsi.util.*;
 import org.jitsi.service.neomedia.*;
 
 import org.jivesoftware.smack.packet.*;
@@ -45,6 +47,12 @@ public class ColibriConferenceIQ
      */
     public static final String NAMESPACE
         = "http://jitsi.org/protocol/colibri";
+
+    /**
+     * The logger instance used by this class.
+     */
+    private final static Logger logger
+            = Logger.getLogger(ColibriConferenceIQ.class);
 
     /**
      * An array of <tt>int</tt>s which represents the lack of any (RTP) SSRCs
@@ -556,6 +564,13 @@ public class ColibriConferenceIQ
             = new ArrayList<PayloadTypePacketExtension>();
 
         /**
+         * The <tt>rtp-hdrext</tt> elements defined by XEP-0294: Jingle RTP
+         * Header Extensions Negotiation associated with this channel.
+         */
+        private final Map<Integer, RTPHdrExtPacketExtension> rtpHeaderExtensions
+            = new HashMap<Integer, RTPHdrExtPacketExtension>();
+
+        /**
          * The target quality of the simulcast substreams to be sent from Jitsi
          * Videobridge to the endpoint associated with this video
          * <tt>Channel</tt>.
@@ -638,6 +653,48 @@ public class ColibriConferenceIQ
                 payloadTypes.contains(payloadType)
                     ? false
                     : payloadTypes.add(payloadType);
+        }
+
+        /**
+         * Adds an <tt>rtp-hdrext</tt> element defined by XEP-0294: Jingle RTP
+         * Header Extensions Negotiation to this <tt>Channel</tt>.
+         *
+         * @param ext the <tt>payload-type</tt> element to be added to
+         * this <tt>channel</tt>
+         * @return <tt>true</tt> if the list of <tt>rtp-hdrext</tt> elements
+         * associated with this <tt>channel</tt> has been modified as part of
+         * the method call; otherwise, <tt>false</tt>
+         * @throws NullPointerException if the specified <tt>ext</tt> is
+         * <tt>null</tt>
+         */
+        public void addRtpHeaderExtension(RTPHdrExtPacketExtension ext)
+        {
+            if (ext == null)
+                throw new NullPointerException("payloadType");
+
+            // Create a new instance, because we are going to modify the NS
+            RTPHdrExtPacketExtension newExt = new RTPHdrExtPacketExtension(ext);
+
+            // Make sure that the parent namespace (COLIBRI) is used.
+            newExt.setNamespace(null);
+
+            int id = -1;
+            try
+            {
+                id = Integer.valueOf(newExt.getID());
+            }
+            catch (NumberFormatException nfe)
+            {}
+
+            // Only accept valid extension IDs (4-bits, 0xF reserved)
+            if (id < 0 || id > 14)
+            {
+                logger.warn("Failed to add an RTP header extension element "
+                                    + "with an invalid ID: " + newExt.getID());
+                return;
+            }
+
+            rtpHeaderExtensions.put(id, newExt);
         }
 
         /**
@@ -781,6 +838,21 @@ public class ColibriConferenceIQ
         public List<PayloadTypePacketExtension> getPayloadTypes()
         {
             return Collections.unmodifiableList(payloadTypes);
+        }
+
+        /**
+         * Gets a list of <tt>rtp-hdrext</tt> elements defined by XEP-0294:
+         * Jingle RTP Header Extensions Negotiation added to this
+         * <tt>channel</tt>.
+         *
+         * @return an unmodifiable <tt>List</tt> of <tt>rtp-hdrext</tt>
+         * elements defined by XEP-0294: Jingle RTP Header Extensions
+         * Negotiation added to this <tt>channel</tt>
+         */
+        public Collection<RTPHdrExtPacketExtension> getRtpHeaderExtensions()
+        {
+            return Collections
+                    .unmodifiableCollection(rtpHeaderExtensions.values());
         }
 
         /**
@@ -964,18 +1036,23 @@ public class ColibriConferenceIQ
         protected void printContent(StringBuilder xml)
         {
             List<PayloadTypePacketExtension> payloadTypes = getPayloadTypes();
+            Collection<RTPHdrExtPacketExtension> rtpHdrExtPacketExtensions
+                    = getRtpHeaderExtensions();
             List<SourcePacketExtension> sources = getSources();
-            List<SourceGroupPacketExtension> souceGroups = getSourceGroups();
+            List<SourceGroupPacketExtension> sourceGroups = getSourceGroups();
             int[] ssrcs = getSSRCs();
 
             for (PayloadTypePacketExtension payloadType : payloadTypes)
                 xml.append(payloadType.toXML());
 
+            for (RTPHdrExtPacketExtension ext : rtpHdrExtPacketExtensions)
+                xml.append(ext.toXML());
+
             for (SourcePacketExtension source : sources)
                 xml.append(source.toXML());
 
-            if (souceGroups != null && souceGroups.size() != 0)
-                for (SourceGroupPacketExtension sourceGroup : souceGroups)
+            if (sourceGroups != null && sourceGroups.size() != 0)
+                for (SourceGroupPacketExtension sourceGroup : sourceGroups)
                     xml.append(sourceGroup.toXML());
 
             for (int i = 0; i < ssrcs.length; i++)
@@ -1000,6 +1077,32 @@ public class ColibriConferenceIQ
         public boolean removePayloadType(PayloadTypePacketExtension payloadType)
         {
             return payloadTypes.remove(payloadType);
+        }
+
+        /**
+         * Removes a <tt>rtp-hdrext</tt> element defined by XEP-0294: Jingle
+         * RTP Header Extensions Negotiation from this <tt>channel</tt>.
+         *
+         * @param ext the <tt>rtp-hdrext</tt> element to be removed
+         * from this <tt>channel</tt>
+         * @return <tt>true</tt> if the list of <tt>rtp-hdrext</tt> elements
+         * associated with this <tt>channel</tt> has been modified as part of
+         * the method call; otherwise, <tt>false</tt>
+         */
+        public void removeRtpHeaderExtension(RTPHdrExtPacketExtension ext)
+        {
+            int id = -1;
+            try
+            {
+                id = Integer.valueOf(ext.getID());
+            }
+            catch (NumberFormatException nfe)
+            {
+                logger.warn("Invalid ID: " + ext.getID());
+                return;
+            }
+
+            rtpHeaderExtensions.remove(id);
         }
 
         /**

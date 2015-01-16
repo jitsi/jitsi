@@ -230,7 +230,7 @@ public class JingleUtils
      *
      * @param desc the {@link RtpDescriptionPacketExtension} that we'd like to
      * probe for a list of {@link RTPExtension}s
-     * @param extMap a reference to the <tt>DynamycRTPExtensionsRegistry</tt>
+     * @param extMap a reference to the <tt>DynamicRTPExtensionsRegistry</tt>
      * where we should be registering newly added extension mappings.
      *
      * @return a <tt>List</tt> of {@link RTPExtension}s advertised in the
@@ -257,8 +257,7 @@ public class JingleUtils
                             getDirection(extmap.getSenders(), false),
                             extmap.getAttributes());
 
-            if(rtpExtension != null)
-                extensionsList.add( rtpExtension );
+            extensionsList.add(rtpExtension);
         }
 
         return extensionsList;

@@ -186,6 +186,9 @@ public class ColibriBuilder
                 for (PayloadTypePacketExtension ptpe : rdpe.getPayloadTypes())
                     remoteRtpChannelRequest.addPayloadType(ptpe);
 
+                for (RTPHdrExtPacketExtension ext : rdpe.getExtmapList())
+                    remoteRtpChannelRequest.addRtpHeaderExtension(ext);
+
                 // Config options
                 remoteRtpChannelRequest.setLastN(channelLastN);
                 remoteRtpChannelRequest.setAdaptiveLastN(adaptiveLastN);
