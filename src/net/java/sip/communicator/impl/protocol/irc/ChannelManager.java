@@ -1233,7 +1233,7 @@ public class ChannelManager
             MessageIrcImpl message =
                 MessageIrcImpl.newActionFromIRC(msg.getText());
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
-                ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
+                ChatRoomMessageReceivedEvent.ACTION_MESSAGE_RECEIVED);
         }
 
         /**
