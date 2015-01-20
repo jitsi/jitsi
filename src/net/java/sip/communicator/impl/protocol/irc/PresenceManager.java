@@ -134,6 +134,8 @@ public class PresenceManager
         this.irc = irc;
         if (persistentNickWatchList == null)
         {
+            // watch list will be non-persistent, since we create an instance at
+            // initialization time
             this.nickWatchList =
                 Collections.synchronizedSortedSet(new TreeSet<String>());
         }
@@ -604,6 +606,10 @@ public class PresenceManager
                 {
                     PresenceManager.this.nickWatchList.remove(oldNick);
                     PresenceManager.this.nickWatchList.add(newNick);
+                }
+                else if (PresenceManager.this.nickWatchList.contains(newNick))
+                {
+                    update(newNick, IrcStatusEnum.ONLINE);
                 }
             }
         }

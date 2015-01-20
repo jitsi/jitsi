@@ -42,9 +42,11 @@ public class ContactIrcImpl
      * @param provider Protocol provider service instance.
      * @param id Contact id.
      * @param parentGroup The parent group of the contact.
+     * @param presence the initial presence status of the new contact
      */
     public ContactIrcImpl(final ProtocolProviderServiceIrcImpl provider,
-        final String id, final ContactGroupIrcImpl parentGroup)
+        final String id, final ContactGroupIrcImpl parentGroup,
+        final IrcStatusEnum presence)
     {
         if (provider == null)
         {
@@ -61,7 +63,11 @@ public class ContactIrcImpl
             throw new IllegalArgumentException("parentGroup cannot be null");
         }
         this.parentGroup = parentGroup;
-        this.presence = IrcStatusEnum.ONLINE;
+        if (presence == null)
+        {
+            throw new IllegalArgumentException("presence cannot be null");
+        }
+        this.presence = presence;
     }
 
     /**
@@ -151,6 +157,20 @@ public class ContactIrcImpl
     }
 
     /**
+     * Set a new parent group.
+     *
+     * @param group the new parent group
+     */
+    public void setParentContactGroup(final ContactGroupIrcImpl group)
+    {
+        if (group == null)
+        {
+            throw new IllegalArgumentException("group cannot be null");
+        }
+        this.parentGroup = group;
+    }
+
+    /**
      * Get protocol provider service.
      *
      * @return returns IRC protocol provider service.
@@ -163,15 +183,18 @@ public class ContactIrcImpl
 
     /**
      * Is persistent contact.
+     * 
+     * Determine persistence by the group in which it is stored. As long as a
+     * contact is stored in the non-persistent contact group, we will consider
+     * it non-persistent. As soon as a contact is moved to another group, we
+     * assume it is valuable, so we consider it persistent.
      *
      * @return Returns true if contact is persistent, or false otherwise.
      */
     @Override
     public boolean isPersistent()
     {
-        // TODO implement notion of persistence based on whether or not the nick
-        // name is registered on the IRC network, for NickServ.
-        return false;
+        return this.parentGroup.isPersistent();
     }
 
     /**
@@ -186,7 +209,7 @@ public class ContactIrcImpl
         // is registered and the nick is currently "active" according to the
         // server, i.e. NickServ.
         // For now, we consider the contact unresolved ...
-        return false;
+        return true;
     }
 
     /**
