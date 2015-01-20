@@ -25,5 +25,6 @@ Import-Package: org.osgi.framework,
  com.ircclouds.irc.api.state,
  com.ircclouds.irc.api.commands,
  com.ircclouds.irc.api.negotiators,
+ com.ircclouds.irc.api.negotiators.capabilities,
  org.apache.commons.lang3,
  org.apache.commons.codec.binary

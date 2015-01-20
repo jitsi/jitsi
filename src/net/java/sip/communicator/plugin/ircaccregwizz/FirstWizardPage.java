@@ -61,6 +61,8 @@ public class FirstWizardPage
     private JPanel serverPanel = new TransparentPanel(new BorderLayout(10, 10));
 
     private JPanel optionsPanel = new TransparentPanel(new BorderLayout(10, 10));
+    
+    private JPanel saslPanel = new TransparentPanel(new BorderLayout(10, 10));
 
     private JPanel labelsPanel = new TransparentPanel();
 
@@ -126,6 +128,15 @@ public class FirstWizardPage
 
     private JCheckBox enableChatRoomPresenceTask = new SIPCommCheckBox(
         Resources.getString("plugin.ircaccregwizz.ENABLE_CHAT_ROOM_PRESENCE"));
+
+    private JCheckBox saslEnabled = new SIPCommCheckBox(
+        Resources.getString("plugin.ircaccregwizz.ENABLE_SASL_AUTHENTICATION"));
+
+    private JTextField saslUserIdField = new JTextField();
+
+    private JPasswordField saslPasswordField = new JPasswordField();
+
+    private JTextField saslRoleField = new JTextField();
 
     private JPanel mainPanel = new TransparentPanel();
 
@@ -223,18 +234,14 @@ public class FirstWizardPage
         labelsPanel.add(emptyPanel);
         labelsPanel.add(passLabel);
 
-//        labelsPanel.add(server);
-
         valuesPanel.add(userIDField);
         valuesPanel.add(nickExampleLabel);
         valuesPanel.add(passField);
-//        valuesPanel.add(serverField);
 
         userPassPanel.add(infoPassword, BorderLayout.NORTH);
         userPassPanel.add(labelsPanel, BorderLayout.WEST);
         userPassPanel.add(valuesPanel, BorderLayout.CENTER);
         userPassPanel.add(passwordNotRequired, BorderLayout.SOUTH);
-//        userPassPanel.add(autoChangeNick, BorderLayout.SOUTH);
 
         userPassPanel.setBorder(BorderFactory
                                 .createTitledBorder(Resources.getString(
@@ -271,15 +278,39 @@ public class FirstWizardPage
         optionsPanel.setBorder(BorderFactory.createTitledBorder(
             Resources.getString("service.gui.OPTIONS")));
 
+        saslPanel.add(this.saslEnabled, BorderLayout.NORTH);
+
+        TransparentPanel saslControlsPanel = new TransparentPanel();
+        saslControlsPanel.setLayout(new BoxLayout(saslControlsPanel, BoxLayout.Y_AXIS));
+        saslPanel.add(saslControlsPanel, BorderLayout.CENTER);
+
+        JLabel saslUserLabel = new JLabel(Resources.getString("plugin.ircaccregwizz.USERNAME") + ":");
+        saslControlsPanel.add(horizontal(100, saslUserLabel, saslUserIdField));
+        JLabel saslPassLabel = new JLabel(Resources.getString("service.gui.PASSWORD") + ":");
+        saslControlsPanel.add(horizontal(100, saslPassLabel, saslPasswordField));
+        JLabel saslRoleLabel = new JLabel(Resources.getString("plugin.ircaccregwizz.SASL_AUTHZ_ROLE") + ":");
+        saslControlsPanel.add(horizontal(100, saslRoleLabel, saslRoleField));
+
+        // FIXME continue implementation of the sasl authentication panel
+
+        saslPanel.setBorder(BorderFactory.createTitledBorder(Resources
+            .getString("plugin.ircaccregwizz.SASL_AUTHENTICATION_TITLE")));
+
         mainPanel.add(userPassPanel);
         mainPanel.add(serverPanel);
         mainPanel.add(optionsPanel);
+        mainPanel.add(saslPanel);
 
         this.add(mainPanel, BorderLayout.NORTH);
-//        this.add(serverPanel, BorderLayout.SOUTH);
-//        this.add(optionsPanel, BorderLayout.AFTER_LAST_LINE);
     }
 
+    private JPanel horizontal(int width, Component cmp1, Component cmp2) {
+        TransparentPanel panel = new TransparentPanel(new BorderLayout(10, 10));
+        cmp1.setPreferredSize(new Dimension(width, cmp1.getHeight()));
+        panel.add(cmp1, BorderLayout.WEST);
+        panel.add(cmp2, BorderLayout.CENTER);
+        return panel;
+    }
     /**
      * Implements the <code>WizardPage.getIdentifier</code> to return
      * this page identifier.
@@ -364,6 +395,10 @@ public class FirstWizardPage
                 .isSelected());
         registration.setChatRoomPresenceTaskEnabled(enableChatRoomPresenceTask
             .isSelected());
+        registration.setSaslEnabled(this.saslEnabled.isSelected());
+        registration.setSaslUser(this.saslUserIdField.getText());
+        registration.setSaslPass(new String(saslPasswordField.getPassword()));
+        registration.setSaslRole(this.saslRoleField.getText());
 
         isCommitted = true;
     }
@@ -475,6 +510,20 @@ public class FirstWizardPage
             accountID.getAccountPropertyBoolean(
                 IrcAccountRegistrationWizard.CHAT_ROOM_PRESENCE_TASK, true);
 
+        final boolean enableSaslAuthentication =
+            accountID.getAccountPropertyBoolean(
+                IrcAccountRegistrationWizard.SASL_ENABLED, false);
+        final String saslUser =
+            accountID.getAccountPropertyString(
+                IrcAccountRegistrationWizard.SASL_USERNAME, "");
+        // FIXME load password from secure password storage!
+        final String saslPass =
+            accountID.getAccountPropertyString(
+                IrcAccountRegistrationWizard.SASL_PASSWORD, "");
+        final String saslRole =
+            accountID.getAccountPropertyString(
+                IrcAccountRegistrationWizard.SASL_ROLE, "");
+
         this.userIDField.setEnabled(false);
         this.userIDField.setText(accountID.getUserID());
         this.serverField.setText(server);
@@ -516,6 +565,11 @@ public class FirstWizardPage
         this.enableContactPresenceTask.setSelected(contactPresenceTaskEnabled);
         this.enableChatRoomPresenceTask
             .setSelected(chatRoomPresenceTaskEnabled);
+
+        this.saslEnabled.setSelected(enableSaslAuthentication);
+        this.saslUserIdField.setText(saslUser);
+        this.saslPasswordField.setText(saslPass);
+        this.saslRoleField.setText(saslRole);
     }
 
     /**

@@ -23,6 +23,10 @@ public class IrcAccountRegistration
     private boolean autoChangeNick;
     private boolean isRequiredPassword;
     private boolean secureConnection;
+    private boolean saslEnabled;
+    private String saslUser;
+    private String saslPass;
+    private String saslRole;
 
     /**
      * Option for activating contact presence task.
@@ -241,5 +245,45 @@ public class IrcAccountRegistration
     public void setChatRoomPresenceTaskEnabled(final boolean value)
     {
         this.chatroomPresenceTaskEnabled = value;
+    }
+
+    public boolean isSaslEnabled()
+    {
+        return this.saslEnabled;
+    }
+
+    public void setSaslEnabled(final boolean enabled)
+    {
+        this.saslEnabled = enabled;
+    }
+
+    public String getSaslUser()
+    {
+        return this.saslUser;
+    }
+
+    public void setSaslUser(final String user)
+    {
+        this.saslUser = user;
+    }
+
+    public String getSaslPass()
+    {
+        return this.saslPass;
+    }
+
+    public void setSaslPass(final String pass)
+    {
+        this.saslPass = pass;
+    }
+
+    public String getSaslRole()
+    {
+        return this.saslRole;
+    }
+
+    public void setSaslRole(final String role)
+    {
+        this.saslRole = role;
     }
 }

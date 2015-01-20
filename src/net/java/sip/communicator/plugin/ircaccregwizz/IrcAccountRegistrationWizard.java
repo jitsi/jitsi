@@ -47,6 +47,26 @@ public class IrcAccountRegistrationWizard
     public static final String CHAT_ROOM_PRESENCE_TASK =
         "CHAT_ROOM_PRESENCE_TASK";
 
+    /**
+     * Property indicating SASL is enabled.
+     */
+    public static final String SASL_ENABLED = "SASL_ENABLED";
+
+    /**
+     * Property name for SASL user.
+     */
+    public static final String SASL_USERNAME = "SASL_USERNAME";
+
+    /**
+     * Property name for SASL password.
+     */
+    public static final String SASL_PASSWORD = "SASL_PASSWORD";
+
+    /**
+     * Property for SASL authorization role.
+     */
+    public static final String SASL_ROLE = "SASL_ROLE";
+    
     private final Logger logger
         = Logger.getLogger(IrcAccountRegistrationWizard.class);
 
@@ -190,6 +210,15 @@ public class IrcAccountRegistrationWizard
         summaryTable.put(Resources
             .getString("plugin.ircaccregwizz.ENABLE_CHAT_ROOM_PRESENCE"),
             registration.isChatRoomPresenceTaskEnabled() ? yes : no);
+        summaryTable.put(Resources
+            .getString("plugin.ircaccregwizz.ENABLE_SASL_AUTHENTICATION"),
+            registration.isSaslEnabled() ? yes : no);
+        summaryTable.put(
+            "SASL " + Resources.getString("plugin.ircaccregwizz.USERNAME"),
+            registration.getSaslUser());
+        summaryTable.put("SASL "
+                + Resources.getString("plugin.ircaccregwizz.SASL_AUTHZ_ROLE"),
+            registration.getSaslRole());
 
         return summaryTable.entrySet().iterator();
     }
@@ -233,10 +262,7 @@ public class IrcAccountRegistrationWizard
     {
         ProtocolProviderFactory factory
             = IrcAccRegWizzActivator.getIrcProtocolProviderFactory();
-
-        return this.installAccount(factory,
-                                   userName,
-                                   password);
+        return this.installAccount(factory, userName, password);
     }
 
     /**
@@ -282,10 +308,18 @@ public class IrcAccountRegistrationWizard
         accountProperties.put(ProtocolProviderFactory.DEFAULT_ENCRYPTION,
             new Boolean(registration.isSecureConnection()).toString());
 
+        // Presence-based background tasks
         accountProperties.put(CONTACT_PRESENCE_TASK,
             Boolean.toString(registration.isContactPresenceTaskEnabled()));
         accountProperties.put(CHAT_ROOM_PRESENCE_TASK,
             Boolean.toString(registration.isChatRoomPresenceTaskEnabled()));
+
+        // SASL properties
+        accountProperties.put(SASL_ENABLED,
+            Boolean.toString(registration.isSaslEnabled()));
+        accountProperties.put(SASL_USERNAME, registration.getSaslUser());
+        accountProperties.put(SASL_PASSWORD, registration.getSaslPass());
+        accountProperties.put(SASL_ROLE, registration.getSaslRole());
 
         if (isModification())
         {

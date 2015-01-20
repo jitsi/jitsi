@@ -218,8 +218,31 @@ public class IrcConnection
         }
         else
         {
+            // FIXME correctly determine capabilities and SASL authentication
+            // enabled
             return new SaslNegotiator(user, password, null);
         }
+        // FIXME DEBUG CODE remove
+//        final ArrayList<Capability> caps = new ArrayList<Capability>();
+//        caps.add(new SimpleCapability("away-notify"));
+//        if (password != null)
+//        {
+//            caps.add(new SaslCapability(true, null, user, password));
+//        }
+//        return new CompositeNegotiator(caps, new CompositeNegotiator.Host()
+//        {
+//            @Override
+//            public void reject(Capability cap)
+//            {
+//                LOGGER.warn("REJECTED: " + cap.getId());
+//            }
+//
+//            @Override
+//            public void acknowledge(Capability cap)
+//            {
+//                LOGGER.warn("ACKED: " + cap.getId());
+//            }
+//        });
     }
 
     /**

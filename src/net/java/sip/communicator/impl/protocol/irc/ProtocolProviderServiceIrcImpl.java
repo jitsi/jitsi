@@ -264,6 +264,15 @@ public class ProtocolProviderServiceIrcImpl
             accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactoryIrcImpl.CONTACT_PRESENCE_TASK, true);
 
+        boolean saslEnabled = accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactoryIrcImpl.SASL_ENABLED, false);
+        String saslUser = accountID.getAccountPropertyString(
+            ProtocolProviderFactoryIrcImpl.SASL_USERNAME);
+        String saslPass = accountID.getAccountPropertyString(
+            ProtocolProviderFactoryIrcImpl.SASL_PASSWORD);
+        String saslRole = accountID.getAccountPropertyString(
+            ProtocolProviderFactoryIrcImpl.SASL_ROLE);
+
         //if we don't - retrieve it from the user through the security authority
         if (serverPassword == null && passwordRequired)
         {
@@ -388,7 +397,8 @@ public class ProtocolProviderServiceIrcImpl
             IrcActivator.getConfigurationService();
         if (configSvc == null)
         {
-            return false;
+            // Assuming maximum use of configured proxy server is desirable.
+            return true;
         }
         // FIXME implement support for option to enable SOCKS5 DNS resolving
         return true;

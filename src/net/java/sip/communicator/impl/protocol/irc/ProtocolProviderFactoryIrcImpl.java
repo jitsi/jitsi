@@ -37,6 +37,26 @@ public class ProtocolProviderFactoryIrcImpl
     public static final String CONTACT_PRESENCE_TASK = "CONTACT_PRESENCE_TASK";
 
     /**
+     * Property indicating SASL is enabled.
+     */
+    public static final String SASL_ENABLED = "SASL_ENABLED";
+
+    /**
+     * Property for SASL user name.
+     */
+    public static final String SASL_USERNAME = "SASL_USERNAME";
+
+    /**
+     * Property for SASL password.
+     */
+    public static final String SASL_PASSWORD = "SASL_PASSWORD";
+
+    /**
+     * Property for SASL authorization role.
+     */
+    public static final String SASL_ROLE = "SASL_ROLE";
+
+    /**
      * Constructor.
      */
     public ProtocolProviderFactoryIrcImpl()
