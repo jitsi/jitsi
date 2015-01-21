@@ -8,7 +8,6 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 
 import java.util.*;
 
-import com.google.i18n.phonenumbers.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
