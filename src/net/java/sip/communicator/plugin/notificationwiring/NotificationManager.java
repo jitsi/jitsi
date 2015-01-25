@@ -18,6 +18,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
+import org.apache.commons.lang3.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.recording.*;
 import org.jitsi.service.protocol.event.*;
@@ -99,6 +100,11 @@ public class NotificationManager
     public static final String INCOMING_MESSAGE = "IncomingMessage";
 
     /**
+     * HTML content type.
+     */
+    private static final String HTML_CONTENT_TYPE = "text/html";
+
+    /**
      * The <tt>Logger</tt> used by the <tt>NotificationManager</tt> class and
      * its instances for logging output.
      */
@@ -130,6 +136,7 @@ public class NotificationManager
      * @param eventType the event type for which we fire a notification
      * @param messageTitle the title of the message
      * @param message the content of the message
+     * @param messageUID the message UID
      */
     public static void fireChatNotification(Object chatContact,
                                             String eventType,
@@ -1145,12 +1152,20 @@ public class NotificationManager
                     = NotificationWiringActivator.getResources().getI18NString(
                             "service.gui.MSG_RECEIVED",
                             new String[] { sourceParticipant.getDisplayName() });
-
+                final String htmlContent;
+                if (HTML_CONTENT_TYPE.equals(evt.getMessage().getContentType()))
+                {
+                    htmlContent = messageContent;
+                }
+                else
+                {
+                    htmlContent = StringEscapeUtils.escapeHtml4(messageContent);
+                }
                 fireChatNotification(
                     sourceChatRoom,
                     INCOMING_MESSAGE,
                     title,
-                    messageContent,
+                    htmlContent,
                     evt.getMessage().getMessageUID());
             }
         }
@@ -1178,7 +1193,8 @@ public class NotificationManager
             // Fire notification
             boolean fireChatNotification;
 
-            String messageContent = evt.getMessage().getContent();
+            final Message sourceMsg = evt.getMessage();
+            String messageContent = sourceMsg.getContent();
 
             /*
              * It is uncommon for IRC clients to display popup notifications for
@@ -1212,13 +1228,21 @@ public class NotificationManager
                     = NotificationWiringActivator.getResources().getI18NString(
                         "service.gui.MSG_RECEIVED",
                         new String[] { sourceMember.getName() });
-
+                final String htmlContent;
+                if (HTML_CONTENT_TYPE.equals(sourceMsg.getContentType()))
+                {
+                    htmlContent = messageContent;
+                }
+                else
+                {
+                    htmlContent = StringEscapeUtils.escapeHtml4(messageContent);
+                }
                 fireChatNotification(
                         sourceChatRoom,
                         INCOMING_MESSAGE,
                         title,
-                        messageContent,
-                        evt.getMessage().getMessageUID());
+                        htmlContent,
+                        sourceMsg.getMessageUID());
             }
         }
         catch(Throwable t)
@@ -1241,12 +1265,23 @@ public class NotificationManager
                 "service.gui.MSG_RECEIVED",
                 new String[]{evt.getSourceContact().getDisplayName()});
 
+            final Message sourceMsg = evt.getSourceMessage();
+            final String htmlContent;
+            if (HTML_CONTENT_TYPE.equals(sourceMsg.getContentType()))
+            {
+                htmlContent = sourceMsg.getContent();
+            }
+            else
+            {
+                htmlContent =
+                    StringEscapeUtils.escapeHtml4(sourceMsg.getContent());
+            }
             fireChatNotification(
                     evt.getSourceContact(),
                     INCOMING_MESSAGE,
                     title,
-                    evt.getSourceMessage().getContent(),
-                    evt.getSourceMessage().getMessageUID());
+                    htmlContent,
+                    sourceMsg.getMessageUID());
         }
         catch(Throwable t)
         {

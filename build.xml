@@ -2178,7 +2178,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-NOTIFICATION-WIRING -->
-    <target name="bundle-notification-wiring">
+    <target name="bundle-notification-wiring" depends="bundle-commons-lang">
         <!-- Creates a bundle for the notifications.-->
         <jar compress="false" destfile="${bundles.dest}/notification-wiring.jar"
             manifest="${src}/net/java/sip/communicator/plugin/notificationwiring/notificationwiring.manifest.mf">

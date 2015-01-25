@@ -17,5 +17,5 @@ Import-Package: javax.imageio,
  org.jitsi.service.neomedia.recording,
  org.jitsi.service.protocol.event,
  org.jitsi.service.resources,
- org.osgi.framework
-
+ org.osgi.framework,
+ org.apache.commons.lang3
