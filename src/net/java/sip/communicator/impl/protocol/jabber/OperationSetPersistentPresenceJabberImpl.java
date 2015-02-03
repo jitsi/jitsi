@@ -1056,6 +1056,10 @@ public class OperationSetPersistentPresenceJabberImpl
                     new PacketTypeFilter(RosterPacket.class)
                 );
 
+                // will be used to store presence events till roaster is
+                // initialized
+                contactChangesListener = new ContactChangesListener();
+
                 // Adds subscription listener as soon as connection is created
                 // or we can miss some subscription requests
                 if(subscribtionPacketListener == null)
@@ -1092,16 +1096,18 @@ public class OperationSetPersistentPresenceJabberImpl
                 fireProviderStatusChangeEvent(oldStatus, currentStatus);
 
                 ssContactList.cleanup();
-                subscribtionPacketListener = null;
 
                 XMPPConnection connection = parentProvider.getConnection();
                 if(connection != null)
                 {
+                    connection.removePacketListener(subscribtionPacketListener);
+
                     // the roster is guaranteed to be non-null
                     connection.getRoster()
                         .removeRosterListener(contactChangesListener);
                 }
 
+                subscribtionPacketListener = null;
                 contactChangesListener = null;
             }
         }
@@ -1395,6 +1401,24 @@ public class OperationSetPersistentPresenceJabberImpl
         }
 
         /**
+         * Whether listener is currently storing presence events.
+         * @return
+         */
+        boolean isStoringPresenceEvents()
+        {
+            return storeEvents;
+        }
+
+        /**
+         * Adds presence packet to the list.
+         * @param presence presence packet
+         */
+        void addPresenceEvent(Presence presence)
+        {
+            storedPresences.add(presence);
+        }
+
+        /**
          * Sets store events to true.
          */
         void storeEvents()
@@ -1672,6 +1696,12 @@ public class OperationSetPersistentPresenceJabberImpl
 
                 handler.processAuthorizationResponse(response, contact);
             }
+            else if (presenceType == Presence.Type.available
+                    && contactChangesListener != null
+                    && contactChangesListener.isStoringPresenceEvents())
+            {
+                contactChangesListener.addPresenceEvent(presence);
+            }
         }
 
         /**
@@ -1785,7 +1815,6 @@ public class OperationSetPersistentPresenceJabberImpl
                 .removePacketListener(this);
 
             // init ssList
-            contactChangesListener = new ContactChangesListener();
             ssContactList.init(contactChangesListener);
 
             // as we have dispatched the contact list and Roaster is ready
