@@ -110,7 +110,7 @@ public class SIPCommunicator
                     "dns,dnsjava");
         }
 
-        if (version.startsWith("1.4") || vmVendor.startsWith("Gnu") ||
+        if (version.startsWith("1.5") || vmVendor.startsWith("Gnu") ||
                 vmVendor.startsWith("Free"))
         {
             String os = "";
