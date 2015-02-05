@@ -152,7 +152,18 @@ public abstract class AbstractOperationSetBasicTelephony
             Call sourceCall,
             Map<MediaType, MediaDirection> mediaDirections)
     {
-        CallEvent event = new CallEvent(sourceCall, eventID, mediaDirections);
+        fireCallEvent(new CallEvent(sourceCall, eventID, mediaDirections));
+    }
+
+    /**
+     * Creates and dispatches a <tt>CallEvent</tt> notifying registered
+     * listeners that an event with id <tt>eventID</tt> has occurred on
+     * <tt>sourceCall</tt>.
+     *
+     * @param event the event to dispatch
+     */
+    public void fireCallEvent(CallEvent event)
+    {
         List<CallListener> listeners;
 
         synchronized (callListeners)
@@ -176,7 +187,7 @@ public abstract class AbstractOperationSetBasicTelephony
                     "Dispatching a CallEvent to "
                         + listener.getClass() + " . The event is: "+ event);
 
-            switch (eventID)
+            switch (event.getEventID())
             {
             case CallEvent.CALL_INITIATED:
                 listener.outgoingCallCreated(event);

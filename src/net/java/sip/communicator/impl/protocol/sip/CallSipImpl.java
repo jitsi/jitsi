@@ -291,12 +291,12 @@ public class CallSipImpl
                 logger.warn("Error getting media types", t);
             }
 
-            getParentOperationSet().fireCallEvent(
-                    incomingCall
-                        ? CallEvent.CALL_RECEIVED
-                        : CallEvent.CALL_INITIATED,
-                    this,
-                    mediaDirections);
+            fireCallEvent(
+                incomingCall
+                    ? CallEvent.CALL_RECEIVED
+                    : CallEvent.CALL_INITIATED,
+                this,
+                mediaDirections);
 
             if(hasZrtp)
             {
@@ -311,6 +311,24 @@ public class CallSipImpl
         }
 
         return callPeer;
+    }
+
+    /**
+     * Creates and dispatches a <tt>CallEvent</tt> notifying registered
+     * listeners that an event with id <tt>eventID</tt> has occurred on
+     * <tt>sourceCall</tt>.
+     *
+     * @param eventID the ID of the event to dispatch
+     * @param sourceCall the call on which the event has occurred.
+     * @param mediaDirections direction map for media types
+     */
+    protected void fireCallEvent(
+        int eventID,
+        Call sourceCall,
+        Map<MediaType, MediaDirection> mediaDirections)
+    {
+        getParentOperationSet().fireCallEvent(
+            eventID, sourceCall, mediaDirections);
     }
 
     /**
