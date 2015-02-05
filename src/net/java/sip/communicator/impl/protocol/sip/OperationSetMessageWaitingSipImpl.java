@@ -179,7 +179,7 @@ public class OperationSetMessageWaitingSipImpl
         {
             List<?> l = this.messageWaitingNotificationListeners.get(type);
             if(l != null)
-                this.messageWaitingNotificationListeners.remove(listener);
+                l.remove(listener);
         }
     }
 
