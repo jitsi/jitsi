@@ -101,8 +101,7 @@ public class DesktopSharingCallSipImpl
      */
     @Override
     protected void processExtraHeaders(javax.sip.message.Message message)
-        throws
-        ParseException
+        throws ParseException
     {
         if(message instanceof Request)
         {
