@@ -65,6 +65,12 @@ public class CallEvent
     private final CallConference conference;
 
     /**
+     * Indicate whether the call is recognized to be video call and
+     * desktop streaming call.
+     */
+    private boolean isDesktopStreaming = false;
+
+    /**
      * Creates an event instance indicating that an incoming/outgoing call
      * has been created
      *
@@ -172,6 +178,25 @@ public class CallEvent
             (direction == null)
                 ? false
                 : (direction == MediaDirection.SENDRECV);
+    }
+
+    /**
+     * Returns whether the current event is for video call and desktop streaming
+     * one.
+     * @return true if this is video call and desktop streaming one.
+     */
+    public boolean isDesktopStreaming()
+    {
+        return isDesktopStreaming;
+    }
+
+    /**
+     * Change the desktop streaming indication for this event.
+     * @param value the new value.
+     */
+    public void setDesktopStreaming(boolean value)
+    {
+        this.isDesktopStreaming = value;
     }
 
     /**

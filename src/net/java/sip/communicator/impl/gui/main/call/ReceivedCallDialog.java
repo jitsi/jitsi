@@ -53,15 +53,25 @@ public class ReceivedCallDialog
      * @param video if the call is a video call
      * @param existingCall true to answer the call in an existing call (thus
      * obtaining a conference call)
+     * @param desktopStreaming whether the incoming call is desktop streaming
      */
-    public ReceivedCallDialog(Call call, boolean video, boolean existingCall)
+    public ReceivedCallDialog(
+        Call call,
+        boolean video,
+        boolean existingCall,
+        boolean desktopStreaming)
     {
         super(GuiActivator.getResources()
             .getSettingsString("service.gui.APPLICATION_NAME")
             + " "
-            + GuiActivator.getResources()
-                .getI18NString("service.gui.INCOMING_CALL_STATUS")
-                    .toLowerCase(), video, existingCall);
+            + (desktopStreaming ?
+                GuiActivator.getResources()
+                    .getI18NString("service.gui.INCOMING_SCREEN_SHARE_STATUS")
+                    .toLowerCase()
+             : GuiActivator.getResources()
+                    .getI18NString("service.gui.INCOMING_CALL_STATUS")
+                    .toLowerCase())
+            , video, existingCall);
 
         this.incomingCall = call;
 

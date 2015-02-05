@@ -8,12 +8,17 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import java.awt.*;
 import java.text.*;
+import java.util.*;
 
 import javax.sip.address.*;
+import javax.sip.header.*;
+import javax.sip.message.*;
 
 import net.java.sip.communicator.service.protocol.*;
 
+import net.java.sip.communicator.service.protocol.event.*;
 import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.MediaType;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;
 
@@ -38,6 +43,11 @@ public class OperationSetDesktopStreamingSipImpl
     protected Point origin = null;
 
     /**
+     * Whether handling desktop control out of dialog is enabled.
+     */
+    private boolean desktopControlOutOfDialogEnabled = false;
+
+    /**
      * Initializes a new <tt>OperationSetDesktopStreamingSipImpl</tt> instance
      * which builds upon the telephony-related functionality of a specific
      * <tt>OperationSetBasicTelephonySipImpl</tt>.
@@ -49,6 +59,12 @@ public class OperationSetDesktopStreamingSipImpl
             OperationSetBasicTelephonySipImpl basicTelephony)
     {
         super(basicTelephony);
+
+        desktopControlOutOfDialogEnabled
+            = SipActivator.getConfigurationService().getBoolean(
+            DesktopSharingCallSipImpl
+                .ENABLE_OUTOFDIALOG_DESKTOP_CONTROL_PROP,
+            false);
     }
 
     /**
@@ -133,7 +149,37 @@ public class OperationSetDesktopStreamingSipImpl
     private Call createVideoCall(Address toAddress, MediaDevice mediaDevice)
         throws OperationFailedException
     {
-        CallSipImpl call = basicTelephony.createOutgoingCall();
+        basicTelephony.assertRegistered();
+
+        CallSipImpl call;
+        if(desktopControlOutOfDialogEnabled)
+        {
+            call = new DesktopSharingCallSipImpl(basicTelephony)
+            {
+                @Override
+                protected void processExtraHeaders(
+                      javax.sip.message.Message message)
+                    throws ParseException
+                {
+                    addDesktopShareHeader(message);
+                }
+            };
+        }
+        else
+        {
+            call = new CallSipImpl(basicTelephony)
+            {
+                @Override
+                protected void processExtraHeaders(
+                    javax.sip.message.Message message)
+                    throws
+                    ParseException
+                {
+                    addDesktopShareHeader(message);
+                }
+            };
+        }
+
         MediaUseCase useCase = getMediaUseCase();
 
         call.setVideoDevice(mediaDevice, useCase);
@@ -142,6 +188,22 @@ public class OperationSetDesktopStreamingSipImpl
         origin = getOriginForMediaDevice(mediaDevice);
 
         return call;
+    }
+
+    /**
+     * A place where we can handle any headers we need for requests
+     * and responses.
+     * @param message the SIP <tt>Message</tt> in which a header change
+     * is to be reflected
+     * @throws java.text.ParseException if modifying the specified SIP
+     * <tt>Message</tt> to reflect the header change fails
+     */
+    protected void addDesktopShareHeader(javax.sip.message.Message message)
+        throws ParseException
+    {
+        Header customDesktopShareHeader = parentProvider.getHeaderFactory()
+            .createHeader(CallSipImpl.DS_SHARING_HEADER, "true");
+        message.setHeader(customDesktopShareHeader);
     }
 
     /**

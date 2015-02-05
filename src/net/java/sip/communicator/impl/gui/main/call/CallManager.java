@@ -309,7 +309,8 @@ public class CallManager
             receivedCallDialog = new ReceivedCallDialog(
                 sourceCall,
                 isVideoCall,
-                (CallManager.getInProgressCalls().size() > 0));
+                (CallManager.getInProgressCalls().size() > 0),
+                ev.isDesktopStreaming());
 
             receivedCallDialog.setVisible(true);
 

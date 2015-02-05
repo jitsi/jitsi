@@ -907,10 +907,15 @@ public class NotificationManager
                 = fireNotification(
                         INCOMING_CALL,
                         "",
-                        NotificationWiringActivator.getResources()
-                                .getI18NString(
-                                        "service.gui.INCOMING_CALL",
-                                        new String[] { peerName }),
+                        ev.isDesktopStreaming() ?
+                            NotificationWiringActivator.getResources()
+                                    .getI18NString(
+                                            "service.gui.INCOMING_SCREEN_SHARE",
+                                            new String[] { peerName })
+                            : NotificationWiringActivator.getResources()
+                                    .getI18NString(
+                                            "service.gui.INCOMING_CALL",
+                                            new String[] { peerName }),
                         peerInfo,
                         new Callable<Boolean>()
                         {
