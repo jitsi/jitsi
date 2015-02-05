@@ -13,6 +13,7 @@ import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
 /**
@@ -28,6 +29,20 @@ public class AccountInfoActivator
         Logger.getLogger(AccountInfoActivator.class);
 
     /**
+     * Property to disable account info in tools menu.
+     */
+    private static final String ACCOUNT_INFO_TOOLS_MENU_DISABLED_PROP =
+        "net.java.sip.communicator.plugin.accountinfo" +
+            ".ACCOUNT_INFO_TOOLS_MENU_DISABLED_PROP";
+
+    /**
+     * Property to disable account info in account config.
+     */
+    private static final String ACCOUNT_INFO_ACC_CONFIG_DISABLED_PROP =
+        "net.java.sip.communicator.plugin.accountinfo" +
+            ".ACCOUNT_INFO_ACC_CONFIG_DISABLED_PROP";
+
+    /**
      * The OSGi bundle context.
      */
     public static BundleContext bundleContext;
@@ -38,43 +53,53 @@ public class AccountInfoActivator
     {
         AccountInfoActivator.bundleContext = bc;
 
-        Hashtable<String, String> containerFilter
-            = new Hashtable<String, String>();
-        containerFilter.put(
-            Container.CONTAINER_ID,
-            Container.CONTAINER_TOOLS_MENU.getID());
+        ConfigurationService config = ServiceUtils.getService(
+            bundleContext, ConfigurationService.class);
 
-        bundleContext.registerService(
-            PluginComponentFactory.class.getName(),
-            new PluginComponentFactory(Container.CONTAINER_TOOLS_MENU)
-            {
-                @Override
-                protected PluginComponent getPluginInstance()
+        if(!config.getBoolean(ACCOUNT_INFO_TOOLS_MENU_DISABLED_PROP, false))
+        {
+            Hashtable<String, String> containerFilter
+                = new Hashtable<String, String>();
+            containerFilter.put(
+                Container.CONTAINER_ID,
+                Container.CONTAINER_TOOLS_MENU.getID());
+
+            bundleContext.registerService(
+                PluginComponentFactory.class.getName(),
+                new PluginComponentFactory(Container.CONTAINER_TOOLS_MENU)
                 {
-                    return new AccountInfoMenuItemComponent(
-                        getContainer(), this);
-                }
-            },
-            containerFilter);
+                    @Override
+                    protected PluginComponent getPluginInstance()
+                    {
+                        return new AccountInfoMenuItemComponent(
+                            getContainer(), this);
+                    }
+                },
+                containerFilter);
+        }
 
-        containerFilter = new Hashtable<String, String>();
-        containerFilter.put(
-            Container.CONTAINER_ID,
-            Container.CONTAINER_ACCOUNT_RIGHT_BUTTON_MENU.getID());
+        if(!config.getBoolean(ACCOUNT_INFO_ACC_CONFIG_DISABLED_PROP, false))
+        {
+            Hashtable<String, String> containerFilter
+                = new Hashtable<String, String>();
+            containerFilter.put(
+                Container.CONTAINER_ID,
+                Container.CONTAINER_ACCOUNT_RIGHT_BUTTON_MENU.getID());
 
-        bundleContext.registerService(
-            PluginComponentFactory.class.getName(),
-            new PluginComponentFactory(
-                Container.CONTAINER_ACCOUNT_RIGHT_BUTTON_MENU)
-            {
-                @Override
-                protected PluginComponent getPluginInstance()
+            bundleContext.registerService(
+                PluginComponentFactory.class.getName(),
+                new PluginComponentFactory(
+                    Container.CONTAINER_ACCOUNT_RIGHT_BUTTON_MENU)
                 {
-                    return new AccountInfoMenuItemComponent(
-                        getContainer(), this);
-                }
-            },
-            containerFilter);
+                    @Override
+                    protected PluginComponent getPluginInstance()
+                    {
+                        return new AccountInfoMenuItemComponent(
+                            getContainer(), this);
+                    }
+                },
+                containerFilter);
+        }
     }
 
     public void stop(BundleContext bc) throws Exception {}

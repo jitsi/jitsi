@@ -12,6 +12,7 @@ import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 
 import org.osgi.framework.*;
@@ -35,6 +36,20 @@ public class ConnectionInfoActivator
 
     static ResourceManagementService R;
 
+    /**
+     * Property to disable connect info in tools menu.
+     */
+    private static final String CONNECT_INFO_TOOLS_MENU_DISABLED_PROP =
+        "net.java.sip.communicator.plugin.connectioninfo" +
+            ".CONNECT_INFO_TOOLS_MENU_DISABLED_PROP";
+
+    /**
+     * Property to disable connect info in account config.
+     */
+    private static final String CONNECT_INFO_ACC_CONFIG_DISABLED_PROP =
+        "net.java.sip.communicator.plugin.connectioninfo" +
+            ".CONNECT_INFO_ACC_CONFIG_DISABLED_PROP";
+
     private static GlobalDisplayDetailsService globalDisplayDetailsService;
 
     public void start(BundleContext bc) throws Exception
@@ -43,43 +58,53 @@ public class ConnectionInfoActivator
 
         R = ServiceUtils.getService(bc, ResourceManagementService.class);
 
-        Hashtable<String, String> containerFilter
-            = new Hashtable<String, String>();
-        containerFilter.put(
-            Container.CONTAINER_ID,
-            Container.CONTAINER_TOOLS_MENU.getID());
+        ConfigurationService config
+            = ServiceUtils.getService(bc, ConfigurationService.class);
 
-        bundleContext.registerService(
-            PluginComponentFactory.class.getName(),
-            new PluginComponentFactory(Container.CONTAINER_TOOLS_MENU)
-            {
-                @Override
-                protected PluginComponent getPluginInstance()
+        if(!config.getBoolean(CONNECT_INFO_TOOLS_MENU_DISABLED_PROP, false))
+        {
+            Hashtable<String, String> containerFilter
+                = new Hashtable<String, String>();
+            containerFilter.put(
+                Container.CONTAINER_ID,
+                Container.CONTAINER_TOOLS_MENU.getID());
+
+            bundleContext.registerService(
+                PluginComponentFactory.class.getName(),
+                new PluginComponentFactory(Container.CONTAINER_TOOLS_MENU)
                 {
-                    return new ConnectionInfoMenuItemComponent(
-                        getContainer(), this);
-                }
-            },
-            containerFilter);
+                    @Override
+                    protected PluginComponent getPluginInstance()
+                    {
+                        return new ConnectionInfoMenuItemComponent(
+                            getContainer(), this);
+                    }
+                },
+                containerFilter);
+        }
 
-        containerFilter = new Hashtable<String, String>();
-        containerFilter.put(
-            Container.CONTAINER_ID,
-            Container.CONTAINER_ACCOUNT_RIGHT_BUTTON_MENU.getID());
+        if(!config.getBoolean(CONNECT_INFO_ACC_CONFIG_DISABLED_PROP, false))
+        {
+            Hashtable<String, String> containerFilter
+                = new Hashtable<String, String>();
+            containerFilter.put(
+                Container.CONTAINER_ID,
+                Container.CONTAINER_ACCOUNT_RIGHT_BUTTON_MENU.getID());
 
-        bundleContext.registerService(
-            PluginComponentFactory.class.getName(),
-            new PluginComponentFactory(
-                Container.CONTAINER_ACCOUNT_RIGHT_BUTTON_MENU)
-            {
-                @Override
-                protected PluginComponent getPluginInstance()
+            bundleContext.registerService(
+                PluginComponentFactory.class.getName(),
+                new PluginComponentFactory(
+                    Container.CONTAINER_ACCOUNT_RIGHT_BUTTON_MENU)
                 {
-                    return new ConnectionInfoMenuItemComponent(
-                        getContainer(), this);
-                }
-            },
-            containerFilter);
+                    @Override
+                    protected PluginComponent getPluginInstance()
+                    {
+                        return new ConnectionInfoMenuItemComponent(
+                            getContainer(), this);
+                    }
+                },
+                containerFilter);
+        }
     }
 
     public void stop(BundleContext bc) throws Exception {}
