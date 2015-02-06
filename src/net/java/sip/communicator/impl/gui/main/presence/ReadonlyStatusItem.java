@@ -98,7 +98,9 @@ public class ReadonlyStatusItem
 
         tooltip = tooltip.substring(0, tooltip.lastIndexOf("<br>"));
 
-        this.setToolTipText(tooltip.concat("<br>" + status.getStatusName()));
+        if(status != null)
+            this.setToolTipText(
+                    tooltip.concat("<br>" + status.getStatusName()));
     }
 
     /**

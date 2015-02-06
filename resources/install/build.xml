@@ -441,6 +441,16 @@
         <mkdir dir="${light.dir}" />
 
         <!-- Build run.exe (which is the launcher of the application). -->
+        <!-- Create a comma based version property to add a proper file version attribute in the exe-->
+        <loadresource property="sip-communicator.version.comma">
+            <propertyresource name="sip-communicator.version"/>
+            <filterchain>
+                <tokenfilter>
+                  <filetokenizer/>
+                  <replacestring from="." to=","/>
+                </tokenfilter>
+            </filterchain>
+        </loadresource>
         <exec
                 dir="${src}/native/windows/run"
                 executable="make.exe"
@@ -451,6 +461,7 @@
             <arg value="MINGW_HOME=${mingw.home}" />
             <arg value="TARGET_DIR=${light.dir}" />
             <arg value="PRODUCTBUILDVERSION=${sip-communicator.version}" />
+            <arg value="PRODUCTBUILDVERSION_COMMA=${sip-communicator.version.comma}" />
             <arg value="TARGET_BASENAME=${wix.app.launcher.name}" />
         </exec>
         <antcall target="wix-sign-file">

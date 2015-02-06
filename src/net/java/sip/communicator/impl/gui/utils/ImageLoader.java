@@ -626,8 +626,32 @@ public class ImageLoader
     /**
      * A dial button icon.
      */
+    public static final ImageID ONE_DIAL_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.ONE_DIAL_BUTTON_PRESSED");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID ONE_DIAL_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.ONE_DIAL_BUTTON_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
     public static final ImageID TWO_DIAL_BUTTON
         = new ImageID("service.gui.buttons.TWO_DIAL_BUTTON");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID TWO_DIAL_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.TWO_DIAL_BUTTON_PRESSED");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID TWO_DIAL_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.TWO_DIAL_BUTTON_ROLLOVER");
 
     /**
      * A dial button icon.
@@ -638,8 +662,32 @@ public class ImageLoader
     /**
      * A dial button icon.
      */
+    public static final ImageID THREE_DIAL_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.THREE_DIAL_BUTTON_PRESSED");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID THREE_DIAL_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.THREE_DIAL_BUTTON_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
     public static final ImageID FOUR_DIAL_BUTTON
         = new ImageID("service.gui.buttons.FOUR_DIAL_BUTTON");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID FOUR_DIAL_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.FOUR_DIAL_BUTTON_PRESSED");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID FOUR_DIAL_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.FOUR_DIAL_BUTTON_ROLLOVER");
 
     /**
      * A dial button icon.
@@ -650,8 +698,32 @@ public class ImageLoader
     /**
      * A dial button icon.
      */
+    public static final ImageID FIVE_DIAL_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.FIVE_DIAL_BUTTON_PRESSED");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID FIVE_DIAL_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.FIVE_DIAL_BUTTON_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
     public static final ImageID SIX_DIAL_BUTTON
         = new ImageID("service.gui.buttons.SIX_DIAL_BUTTON");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID SIX_DIAL_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.SIX_DIAL_BUTTON_PRESSED");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID SIX_DIAL_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.SIX_DIAL_BUTTON_ROLLOVER");
 
     /**
      * A dial button icon.
@@ -662,8 +734,32 @@ public class ImageLoader
     /**
      * A dial button icon.
      */
+    public static final ImageID SEVEN_DIAL_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.SEVEN_DIAL_BUTTON_PRESSED");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID SEVEN_DIAL_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.SEVEN_DIAL_BUTTON_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
     public static final ImageID EIGHT_DIAL_BUTTON
         = new ImageID("service.gui.buttons.EIGHT_DIAL_BUTTON");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID EIGHT_DIAL_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.EIGHT_DIAL_BUTTON_PRESSED");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID EIGHT_DIAL_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.EIGHT_DIAL_BUTTON_ROLLOVER");
 
     /**
      * A dial button icon.
@@ -674,8 +770,32 @@ public class ImageLoader
     /**
      * A dial button icon.
      */
+    public static final ImageID NINE_DIAL_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.NINE_DIAL_BUTTON_PRESSED");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID NINE_DIAL_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.NINE_DIAL_BUTTON_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
     public static final ImageID STAR_DIAL_BUTTON
         = new ImageID("service.gui.buttons.STAR_DIAL_BUTTON");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID STAR_DIAL_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.STAR_DIAL_BUTTON_PRESSED");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID STAR_DIAL_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.STAR_DIAL_BUTTON_ROLLOVER");
 
     /**
      * A dial button icon.
@@ -686,8 +806,32 @@ public class ImageLoader
     /**
      * A dial button icon.
      */
+    public static final ImageID ZERO_DIAL_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.ZERO_DIAL_BUTTON_PRESSED");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID ZERO_DIAL_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.ZERO_DIAL_BUTTON_ROLLOVER");
+
+    /**
+     * A dial button icon.
+     */
     public static final ImageID DIEZ_DIAL_BUTTON
         = new ImageID("service.gui.buttons.DIEZ_DIAL_BUTTON");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID DIEZ_DIAL_BUTTON_PRESSED
+        = new ImageID("service.gui.buttons.DIEZ_DIAL_BUTTON_PRESSED");
+
+    /**
+     * A dial button icon.
+     */
+    public static final ImageID DIEZ_DIAL_BUTTON_ROLLOVER
+        = new ImageID("service.gui.buttons.DIEZ_DIAL_BUTTON_ROLLOVER");
 
     /**
      * A dial button icon. The icon shown in the CallPeer panel.

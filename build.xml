@@ -306,13 +306,13 @@
                 <compilerarg line="-Xlint -Xlint:-serial -Xmaxwarns ${maxwarns}"/>
         </javac>
         <!--
-            sc-launcher.jar needs to be compatible with 1.4 in order to enable
+            sc-launcher.jar needs to be compatible with 1.5 in order to enable
             notifying the user that a higher version of the jre is necessary.
         -->
         <javac classpathref="compile.class.path" debug="true"
             includeantruntime="false"
             deprecation="true" destdir="${dest}" nowarn="false"
-            source="1.4" target="1.4" memoryMaximumSize="400M" fork="true">
+            source="1.5" target="1.5" memoryMaximumSize="400M" fork="true">
                 <src path="${src}"/>
                 <src path="${src2}"/>
                 <include name="net/java/sip/communicator/launcher/*.java" />

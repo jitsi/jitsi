@@ -9,6 +9,7 @@ package net.java.sip.communicator.launcher;
 import java.awt.*;
 import java.io.*;
 
+import net.java.sip.communicator.impl.version.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.launchutils.*;
 
@@ -109,7 +110,7 @@ public class SIPCommunicator
                     "dns,dnsjava");
         }
 
-        if (version.startsWith("1.4") || vmVendor.startsWith("Gnu") ||
+        if (version.startsWith("1.5") || vmVendor.startsWith("Gnu") ||
                 vmVendor.startsWith("Free"))
         {
             String os = "";
@@ -171,9 +172,58 @@ public class SIPCommunicator
             }
         }
 
+        String currentVersion =
+            VersionImpl.VERSION_MAJOR + "." + VersionImpl.VERSION_MINOR;
+        File jitsiVersion
+            = new File(new File(
+                System.getProperty(PNAME_SC_CACHE_DIR_LOCATION),
+                System.getProperty(PNAME_SC_HOME_DIR_NAME)),
+                    ".lastversion");
+        if (jitsiVersion.exists())
+        {
+            BufferedReader r = new BufferedReader(new FileReader(jitsiVersion));
+            String lastVersion = r.readLine();
+            r.close();
+
+            if (!currentVersion.equals(lastVersion))
+            {
+                File felixCache =
+                    new File(new File(
+                        System.getProperty(PNAME_SC_CACHE_DIR_LOCATION),
+                        System.getProperty(PNAME_SC_HOME_DIR_NAME)),
+                        "sip-communicator.bin");
+                if (felixCache.exists())
+                {
+                    deleteRecursive(felixCache);
+                }
+            }
+        }
+
+        FileWriter fw = new FileWriter(jitsiVersion);
+        fw.write(currentVersion);
+        fw.close();
+
         //there was no error, continue;
         System.setOut(new ScStdOut(System.out));
         Main.main(new String[0]);
+    }
+
+    /**
+     * Recursively delete a directory.
+     * @param f The directory to the delete.
+     * @throws IOException
+     */
+    private static void deleteRecursive(File f) throws IOException
+    {
+        if (f.isDirectory())
+        {
+            for (File c : f.listFiles())
+            {
+                deleteRecursive(c);
+            }
+        }
+
+        f.delete();
     }
 
     /**

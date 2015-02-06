@@ -9,6 +9,7 @@ MINGW_HOME ?= C:/mingw
 PRODUCTNAME ?= Jitsi
 COMPANYNAME ?= jitsi.org
 PRODUCTBUILDVERSION ?= 1.0.0.0
+PRODUCTBUILDVERSION_COMMA ?= 1,0,0,0
 TARGET_BASENAME ?= run
 TARGET_DIR ?= ../../../../release/windows/tmp
 
@@ -47,7 +48,7 @@ $(cygwin.target.dir)/$(TARGET_BASENAME).exe: $(cygwin.target.dir)/config.h regis
 
 $(cygwin.target.dir)/config.h:
 	-rm.exe -f ../../../../resources/install/windows/config.h
-	echo.exe -e '#define PRODUCTNAME "$(PRODUCTNAME)"\n#define COMPANYNAME "$(COMPANYNAME)"\n#define PRODUCTBUILDVERSION "$(PRODUCTBUILDVERSION)"\n#define TARGET_BASENAME "$(TARGET_BASENAME)"\n#define TARGET_BASENAME_EXE "$(TARGET_BASENAME).exe"' > $(cygwin.target.dir)/config.h
+	echo.exe -e '#define PRODUCTNAME "$(PRODUCTNAME)"\n#define COMPANYNAME "$(COMPANYNAME)"\n#define PRODUCTBUILDVERSION "$(PRODUCTBUILDVERSION)"\n#define PRODUCTBUILDVERSION_COMMA $(PRODUCTBUILDVERSION_COMMA)\n#define TARGET_BASENAME "$(TARGET_BASENAME)"\n#define TARGET_BASENAME_EXE "$(TARGET_BASENAME).exe"' > $(cygwin.target.dir)/config.h
 
 $(cygwin.target.dir)/run.res: $(cygwin.target.dir)/config.h run.rc
 	$(WINDRES) -I../../../../resources/install/windows -I$(target.dir) run.rc -O coff -o $(target.dir)/run.res
