@@ -646,10 +646,9 @@ public class PresenceManager
             {
                 if (PresenceManager.this.nickWatchList.contains(oldNick))
                 {
-                    PresenceManager.this.nickWatchList.remove(oldNick);
-                    PresenceManager.this.nickWatchList.add(newNick);
+                    update(oldNick, IrcStatusEnum.OFFLINE);
                 }
-                else if (PresenceManager.this.nickWatchList.contains(newNick))
+                if (PresenceManager.this.nickWatchList.contains(newNick))
                 {
                     update(newNick, IrcStatusEnum.ONLINE);
                 }
