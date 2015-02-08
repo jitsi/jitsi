@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import java.io.*;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -520,11 +521,11 @@ public class OperationSetPersistentPresenceIrcImpl
     }
 
     /**
-     * IRC currently does not implement querying presence status.
+     * Query contact status using WHOIS query to IRC server.
      *
      * @param contactIdentifier contact id
      * @return returns current presence status
-     * @throws OperationFailedException for not supporting this feature
+     * @throws OperationFailedException in case of problems during query
      */
     @Override
     public PresenceStatus queryContactStatus(final String contactIdentifier)
@@ -532,9 +533,26 @@ public class OperationSetPersistentPresenceIrcImpl
         IllegalStateException,
         OperationFailedException
     {
-        // FIXME implement querying presence status of contact
-        throw new OperationFailedException("Not supported.",
-            OperationFailedException.NOT_SUPPORTED_OPERATION);
+        final IrcConnection connection =
+            this.parentProvider.getIrcStack().getConnection();
+        if (connection == null)
+        {
+            throw new IllegalStateException("not connected");
+        }
+        try
+        {
+            return connection.getPresenceManager().query(contactIdentifier);
+        }
+        catch (IOException e)
+        {
+            throw new OperationFailedException("Presence query failed.",
+                OperationFailedException.NETWORK_FAILURE, e);
+        }
+        catch (InterruptedException e)
+        {
+            throw new OperationFailedException("Presence query interrupted.",
+                OperationFailedException.GENERAL_ERROR, e);
+        }
     }
 
     /**

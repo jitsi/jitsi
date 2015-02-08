@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.irc;
 
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
@@ -265,6 +266,47 @@ public class PresenceManager
                     + " characters according to server's parameters.");
         }
         return message;
+    }
+
+    /**
+     * Query presence of provided nick.
+     *
+     * @param nick the nick
+     * @return returns presence status
+     * @throws InterruptedException interrupted exception in case waiting for
+     *             WHOIS reply is interrupted
+     * @throws IOException an exception occurred during the querying process
+     */
+    public IrcStatusEnum query(final String nick)
+        throws InterruptedException,
+        IOException
+    {
+        final Result<IrcStatusEnum, IllegalStateException> result =
+            new Result<IrcStatusEnum, IllegalStateException>(
+                IrcStatusEnum.OFFLINE);
+        synchronized (result)
+        {
+            this.irc.addListener(new WhoisReplyListener(nick, result));
+            this.irc.rawMessage("WHOIS "
+                + IdentityManager.checkNick(nick, null));
+            while (!result.isDone())
+            {
+                LOGGER.debug("Waiting for presence status based on WHOIS "
+                    + "reply ...");
+                result.wait();
+            }
+        }
+        final Exception exception = result.getException();
+        if (exception == null)
+        {
+            return result.getValue();
+        }
+        else
+        {
+            throw new IOException(
+                "An exception occured while querying whois info.",
+                result.getException());
+        }
     }
 
     /**
@@ -808,6 +850,145 @@ public class PresenceManager
             {
                 PresenceManager.this.operationSet.updateNickContactPresence(
                     nick, status);
+            }
+        }
+    }
+
+    /**
+     * Listener for WHOIS replies, such that we can query information of the
+     * user that we are querying.
+     *
+     * @author Danny van Heumen
+     */
+    private final class WhoisReplyListener
+        extends AbstractIrcMessageListener
+    {
+        // TODO handle ClientError once available
+        /**
+         * Reply for away message.
+         */
+        private static final int IRC_RPL_AWAY = 301;
+
+        /**
+         * Reply for WHOIS query with user info.
+         */
+        private static final int IRC_RPL_WHOISUSER = 311;
+
+        /**
+         * Reply for signaling end of WHOIS query.
+         */
+        private static final int IRC_RPL_ENDOFWHOIS = 318;
+
+        /**
+         * The nick that is being queried.
+         */
+        private final String nick;
+
+        /**
+         * The result instance that will be updated after having received the
+         * RPL_ENDOFWHOIS reply.
+         */
+        private final Result<IrcStatusEnum, IllegalStateException> result;
+
+        /**
+         * Intermediate presence status. Updated upon receiving new WHOIS
+         * information.
+         */
+        private IrcStatusEnum presence;
+
+        /**
+         * Constructor.
+         *
+         * @param nick the nick
+         * @param result the result
+         */
+        private WhoisReplyListener(final String nick,
+            final Result<IrcStatusEnum, IllegalStateException> result)
+        {
+            super(PresenceManager.this.irc,
+                PresenceManager.this.connectionState);
+            if (nick == null)
+            {
+                throw new IllegalArgumentException("Invalid nick specified.");
+            }
+            this.nick = nick;
+            if (result == null)
+            {
+                throw new IllegalArgumentException("Invalid result.");
+            }
+            this.result = result;
+            this.presence = IrcStatusEnum.OFFLINE;
+        }
+
+        /**
+         * Handle the numeric messages that the WHOIS answer consists of.
+         *
+         * @param msg the numeric message
+         */
+        @Override
+        public void onServerNumericMessage(final ServerNumericMessage msg)
+        {
+            if (!this.nick.equals(msg.getTarget()))
+            {
+                return;
+            }
+            switch (msg.getNumericCode())
+            {
+            case IRC_RPL_WHOISUSER:
+                if (this.presence != IrcStatusEnum.AWAY)
+                {
+                    // only update presence if not set to away, since away
+                    // status is more specific than the more general information
+                    // of being online
+                    this.presence = IrcStatusEnum.ONLINE;
+                }
+                break;
+            case IRC_RPL_AWAY:
+                this.presence = IrcStatusEnum.AWAY;
+                break;
+            case IRC_RPL_ENDOFWHOIS:
+                this.irc.deleteListener(this);
+                synchronized (this.result)
+                {
+                    this.result.setDone(this.presence);
+                    this.result.notifyAll();
+                }
+                break;
+            default:
+                break;
+            }
+        }
+
+        /**
+         * Upon connection quitting, set exception and return result.
+         */
+        @Override
+        public void onUserQuit(QuitMessage msg)
+        {
+            super.onUserQuit(msg);
+            if (localUser(msg.getSource().getNick()))
+            {
+                synchronized (this.result)
+                {
+                    this.result.setDone(new IllegalStateException(
+                        "Local user quit."));
+                    this.result.notifyAll();
+                }
+            }
+        }
+
+        /**
+         * Upon receiving an error, set exception and return result.
+         */
+        @Override
+        public void onError(ErrorMessage msg)
+        {
+            super.onError(msg);
+            synchronized (this.result)
+            {
+                this.result.setDone(new IllegalStateException(
+                    "An error occurred: " + msg.getText()));
+                this.result.notifyAll();
             }
         }
     }
