@@ -77,6 +77,7 @@ public class ConnectionInfoPanel
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         accountsComboBox = new JComboBox();
+        accountsComboBox.setOpaque(false);
         accountsComboBox.addItemListener(new ItemListener()
         {
             @Override
