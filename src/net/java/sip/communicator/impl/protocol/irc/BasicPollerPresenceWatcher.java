@@ -64,7 +64,7 @@ class BasicPollerPresenceWatcher
      * @param nickWatchList the nick watch list
      * @param serverIdentity the server identity
      */
-    public BasicPollerPresenceWatcher(final IRCApi irc,
+    BasicPollerPresenceWatcher(final IRCApi irc,
         final IIRCState connectionState,
         final OperationSetPersistentPresenceIrcImpl operationSet,
         final SortedSet<String> nickWatchList,

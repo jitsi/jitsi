@@ -138,9 +138,12 @@ public class PresenceManager
         this.isupportAwayLen = parseISupportAwayLen(this.connectionState);
         if (config.isContactPresenceTaskEnabled())
         {
-            this.watcher =
-                new BasicPollerPresenceWatcher(this.irc, this.connectionState,
-                    this.operationSet, nickWatchList, this.serverIdentity);
+            // FIXME check for availability of MONITOR by ISUPPORT param
+            // FIXME fine tune code.
+//            this.watcher =
+//                new BasicPollerPresenceWatcher(this.irc, this.connectionState,
+//                    this.operationSet, nickWatchList, this.serverIdentity);
+            this.watcher = new MonitorPresenceWatcher(this.irc, this.connectionState, nickWatchList, this.operationSet);
         }
         else
         {
