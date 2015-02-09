@@ -23,6 +23,11 @@ class MonitorPresenceWatcher
     implements PresenceWatcher
 {
     /**
+     * Static overhead in message payload required for 'MONITOR +' command.
+     */
+    private static final int MONITOR_ADD_CMD_STATIC_OVERHEAD = 10;
+
+    /**
      * Logger.
      */
     private static final Logger LOGGER = Logger
@@ -52,7 +57,8 @@ class MonitorPresenceWatcher
      * @param operationSet the persistent presence operation set
      */
     MonitorPresenceWatcher(final IRCApi irc, final IIRCState connectionState,
-        final SortedSet<String> nickWatchList, final OperationSetPersistentPresenceIrcImpl operationSet)
+        final SortedSet<String> nickWatchList,
+        final OperationSetPersistentPresenceIrcImpl operationSet)
     {
         if (irc == null)
         {
@@ -61,7 +67,8 @@ class MonitorPresenceWatcher
         this.irc = irc;
         if (connectionState == null)
         {
-            throw new IllegalArgumentException("connectionState cannot be null");
+            throw new IllegalArgumentException(
+                "connectionState cannot be null");
         }
         this.connectionState = connectionState;
         if (nickWatchList == null)
@@ -82,15 +89,15 @@ class MonitorPresenceWatcher
      * Created a static method as not to interfere too much with a state that is
      * still being initialized.
      */
-    private static void setUpMonitor(final IRCApi irc, final SortedSet<String> nickWatchList)
+    private static void setUpMonitor(final IRCApi irc,
+        final SortedSet<String> nickWatchList)
     {
         final List<String> current;
         synchronized (nickWatchList)
         {
             current = new LinkedList<String>(nickWatchList);
         }
-        // FIXME compute actual limit
-        final int maxLength = 400;
+        final int maxLength = 510 - MONITOR_ADD_CMD_STATIC_OVERHEAD;
         final StringBuilder query = new StringBuilder();
         for (String nick : current)
         {
@@ -136,8 +143,6 @@ class MonitorPresenceWatcher
      * monitoredNickList, since irc-api will do all listener calling, but still,
      * it couldn't hurt ... much.
      *
-     * FIXME upon QUIT/ERROR/CLIENTERROR updateAll monitored OFFLINE
-     *
      * @author Danny van Heumen
      */
     private final class MonitorReplyListener
@@ -174,7 +179,7 @@ class MonitorPresenceWatcher
          */
         private final SortedSet<String> monitoredNickList;
 
-        // TODO Update to act on ClientError once available.
+        // TODO Update to act on onClientError once available.
 
         /**
          * Constructor.
