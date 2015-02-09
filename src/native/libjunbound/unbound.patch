@@ -1,28 +1,31 @@
---- unbound-1.4.12-orig/libunbound/context.h	2009-02-05 10:48:02.000000000 +0100
-+++ unbound-1.4.12/libunbound/context.h	2011-12-13 23:19:23.706773580 +0100
-@@ -234,7 +234,7 @@
-  * @param cbarg: user arg for async queries.
-  * @return new ctx_query or NULL for malloc failure.
-  */
--struct ctx_query* context_new(struct ub_ctx* ctx, char* name, int rrtype,
-+struct ctx_query* context_create(struct ub_ctx* ctx, char* name, int rrtype,
-         int rrclass, ub_callback_t cb, void* cbarg);
- 
- /**
---- unbound-1.4.12-orig/libunbound/context.c	2009-10-08 19:05:53.000000000 +0200
-+++ unbound-1.4.12/libunbound/context.c	2011-12-13 23:19:26.042744210 +0100
-@@ -124,7 +124,7 @@
+diff -u -r unbound-1.5.1-orig/libunbound/context.c unbound-1.5.1/libunbound/context.c
+--- unbound-1.5.1-orig/libunbound/context.c	2014-02-07 14:28:39.000000000 +0100
++++ unbound-1.5.1/libunbound/context.c	2015-02-09 11:55:02.000000000 +0100
+@@ -125,7 +125,7 @@
  }
  
  struct ctx_query* 
--context_new(struct ub_ctx* ctx, char* name, int rrtype, int rrclass, 
-+context_create(struct ub_ctx* ctx, char* name, int rrtype, int rrclass, 
+-context_new(struct ub_ctx* ctx, const char* name, int rrtype, int rrclass, 
++context_create(struct ub_ctx* ctx, const char* name, int rrtype, int rrclass, 
  	ub_callback_t cb, void* cbarg)
  {
  	struct ctx_query* q = (struct ctx_query*)calloc(1, sizeof(*q));
---- unbound-1.4.12-orig/libunbound/libunbound.c	2010-07-07 15:13:36.000000000 +0200
-+++ unbound-1.4.12/libunbound/libunbound.c	2011-12-13 23:19:20.758810633 +0100
-@@ -564,7 +564,7 @@
+diff -u -r unbound-1.5.1-orig/libunbound/context.h unbound-1.5.1/libunbound/context.h
+--- unbound-1.5.1-orig/libunbound/context.h	2014-02-07 14:28:39.000000000 +0100
++++ unbound-1.5.1/libunbound/context.h	2015-02-09 11:54:44.000000000 +0100
+@@ -241,7 +241,7 @@
+  * @param cbarg: user arg for async queries.
+  * @return new ctx_query or NULL for malloc failure.
+  */
+-struct ctx_query* context_new(struct ub_ctx* ctx, const char* name, int rrtype,
++struct ctx_query* context_create(struct ub_ctx* ctx, const char* name, int rrtype,
+         int rrclass, ub_callback_t cb, void* cbarg);
+ 
+ /**
+diff -u -r unbound-1.5.1-orig/libunbound/libunbound.c unbound-1.5.1/libunbound/libunbound.c
+--- unbound-1.5.1-orig/libunbound/libunbound.c	2014-11-04 10:11:59.000000000 +0100
++++ unbound-1.5.1/libunbound/libunbound.c	2015-02-09 11:55:20.000000000 +0100
+@@ -634,7 +634,7 @@
  	}
  	/* create new ctx_query and attempt to add to the list */
  	lock_basic_unlock(&ctx->cfglock);
@@ -31,7 +34,16 @@
  	if(!q)
  		return UB_NOMEM;
  	/* become a resolver thread for a bit */
-@@ -624,7 +624,7 @@
+@@ -687,7 +687,7 @@
+ 	}
+ 
+ 	/* create new ctx_query and attempt to add to the list */
+-	q = context_new(ctx, name, rrtype, rrclass, (ub_callback_t)callback,
++	q = context_create(ctx, name, rrtype, rrclass, (ub_callback_t)callback,
+ 		mydata);
+ 	if(!q)
+ 		return UB_NOMEM;
+@@ -733,7 +733,7 @@
  	}
  
  	/* create new ctx_query and attempt to add to the list */
