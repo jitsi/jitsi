@@ -70,6 +70,16 @@ public class PresenceManager
     private final Integer isupportAwayLen;
 
     /**
+     * Maximum size of MONITOR list allowed by server.
+     *
+     * <p>
+     * This value is not guaranteed, so it may be <tt>null</tt>. If it is
+     * <tt>null</tt> this means that MONITOR is not supported by this server.
+     * </p>
+     */
+    private final Integer isupportMonitor;
+
+    /**
      * Server identity.
      */
     private final AtomicReference<String> serverIdentity =
@@ -135,15 +145,24 @@ public class PresenceManager
             nickWatchList = persistentNickWatchList;
         }
         this.irc.addListener(new LocalUserPresenceListener());
+        // TODO move parse methods to ISupport enum type
         this.isupportAwayLen = parseISupportAwayLen(this.connectionState);
+        this.isupportMonitor = parseISupportMonitor(this.connectionState);
         if (config.isContactPresenceTaskEnabled())
         {
-            // FIXME check for availability of MONITOR by ISUPPORT param
-            // FIXME fine tune code.
-//            this.watcher =
-//                new BasicPollerPresenceWatcher(this.irc, this.connectionState,
-//                    this.operationSet, nickWatchList, this.serverIdentity);
-            this.watcher = new MonitorPresenceWatcher(this.irc, this.connectionState, nickWatchList, this.operationSet);
+            if (this.isupportMonitor == null)
+            {
+                this.watcher =
+                    new BasicPollerPresenceWatcher(this.irc,
+                        this.connectionState, this.operationSet, nickWatchList,
+                        this.serverIdentity);
+            }
+            else
+            {
+                this.watcher =
+                    new MonitorPresenceWatcher(this.irc, this.connectionState,
+                        nickWatchList, this.operationSet);
+            }
         }
         else
         {
@@ -165,6 +184,8 @@ public class PresenceManager
             state.getServerOptions().getKey(ISupport.AWAYLEN.name());
         if (value == null)
         {
+            LOGGER.trace("No ISUPPORT parameter " + ISupport.AWAYLEN.name()
+                + " available.");
             return null;
         }
         if (LOGGER.isDebugEnabled())
@@ -172,7 +193,49 @@ public class PresenceManager
             LOGGER.debug("Setting ISUPPORT parameter "
                 + ISupport.AWAYLEN.name() + " to " + value);
         }
-        return new Integer(value);
+        try
+        {
+            return new Integer(value);
+        }
+        catch (RuntimeException e)
+        {
+            LOGGER.warn("Failed to parse AWAYLEN value.", e);
+            return null;
+        }
+    }
+
+    /**
+     * Parse the ISUPPORT parameter for MONITOR command support and list size.
+     *
+     * @param state the connection state
+     * @return Returns instance with maximum number of entries in MONITOR list.
+     *         Additionally, having this MONITOR property available, indicates
+     *         that MONITOR is supported by the server.
+     */
+    private Integer parseISupportMonitor(final IIRCState state)
+    {
+        final String value =
+            state.getServerOptions().getKey(ISupport.MONITOR.name());
+        if (value == null)
+        {
+            LOGGER.trace("No ISUPPORT parameter " + ISupport.MONITOR.name()
+                + " available.");
+            return null;
+        }
+        if (LOGGER.isDebugEnabled())
+        {
+            LOGGER.debug("Setting ISUPPORT parameter "
+                + ISupport.MONITOR.name() + " to " + value);
+        }
+        try
+        {
+            return new Integer(value);
+        }
+        catch (RuntimeException e)
+        {
+            LOGGER.warn("Failed to parse MONITOR value.", e);
+            return null;
+        }
     }
 
     /**

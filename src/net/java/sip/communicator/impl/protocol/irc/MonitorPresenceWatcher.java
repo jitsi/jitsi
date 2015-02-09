@@ -44,11 +44,6 @@ class MonitorPresenceWatcher
     private final SortedSet<String> nickWatchList;
 
     /**
-     * Set of nicks that are confirmed to be monitored by the server.
-     */
-    private final SortedSet<String> monitoredNickList;
-
-    /**
      * Constructor.
      *
      * @param irc the IRCApi instance
@@ -74,12 +69,11 @@ class MonitorPresenceWatcher
             throw new IllegalArgumentException("nickWatchList cannot be null");
         }
         this.nickWatchList = nickWatchList;
-        this.monitoredNickList =
-            Collections.synchronizedSortedSet(new TreeSet<String>());
         this.irc.addListener(new MonitorReplyListener(operationSet));
         setUpMonitor(this.irc, this.nickWatchList);
         // FIXME add basic poller watcher as a fallback method
         // FIXME adhere to limits according to ISUPPORT MONITOR=# entry
+        LOGGER.debug("MONITOR presence watcher initialized.");
     }
 
     /**
@@ -100,10 +94,10 @@ class MonitorPresenceWatcher
         final StringBuilder query = new StringBuilder();
         for (String nick : current)
         {
-            if (nick.length() + 1 > maxLength)
+            if (query.length() + nick.length() + 1 > maxLength)
             {
-                // payload is full, send monitor query now
-                irc.rawMessage(createMonitorCmd(query));
+                // full payload, send monitor query now
+                irc.rawMessage("MONITOR + " + query);
                 query.delete(0, query.length());
             }
             else if (query.length() > 0)
@@ -115,19 +109,8 @@ class MonitorPresenceWatcher
         if (query.length() > 0)
         {
             // send query for remaining nicks
-            irc.rawMessage(createMonitorCmd(query));
+            irc.rawMessage("MONITOR + " + query);
         }
-    }
-
-    /**
-     * Create a MONITOR add command with the provided nick list query.
-     *
-     * @param query the query
-     * @return returns the full command
-     */
-    private static String createMonitorCmd(final StringBuilder query)
-    {
-        return "MONITOR + " + query.toString();
     }
 
     @Override
@@ -148,6 +131,10 @@ class MonitorPresenceWatcher
 
     /**
      * Listener for MONITOR replies.
+     *
+     * Note: strictly speaking it is not necessary to synchronize
+     * monitoredNickList, since irc-api will do all listener calling, but still,
+     * it couldn't hurt ... much.
      *
      * FIXME upon QUIT/ERROR/CLIENTERROR updateAll monitored OFFLINE
      *
@@ -182,6 +169,11 @@ class MonitorPresenceWatcher
          */
         private final OperationSetPersistentPresenceIrcImpl operationSet;
 
+        /**
+         * Set of nicks that are confirmed to be monitored by the server.
+         */
+        private final SortedSet<String> monitoredNickList;
+
         // TODO Update to act on ClientError once available.
 
         /**
@@ -201,6 +193,8 @@ class MonitorPresenceWatcher
                     "operationSet cannot be null");
             }
             this.operationSet = operationSet;
+            this.monitoredNickList =
+                Collections.synchronizedSortedSet(new TreeSet<String>());
         }
 
         /**
@@ -210,26 +204,50 @@ class MonitorPresenceWatcher
         @Override
         public void onServerNumericMessage(final ServerNumericMessage msg)
         {
-            final List<String> confirmed;
+            final List<String> acknowledged;
             switch (msg.getNumericCode())
             {
             case IRC_RPL_MONONLINE:
-                confirmed = parseMonitorResponse(msg.getText());
-                for (String nick : confirmed)
+                acknowledged = parseMonitorResponse(msg.getText());
+                for (String nick : acknowledged)
                 {
                     update(nick, IrcStatusEnum.ONLINE);
                 }
-                MonitorPresenceWatcher.this.monitoredNickList.addAll(confirmed);
+                monitoredNickList.addAll(acknowledged);
                 break;
             case IRC_RPL_MONOFFLINE:
-                confirmed = parseMonitorResponse(msg.getText());
-                for (String nick : confirmed)
+                acknowledged = parseMonitorResponse(msg.getText());
+                for (String nick : acknowledged)
                 {
                     update(nick, IrcStatusEnum.OFFLINE);
                 }
-                MonitorPresenceWatcher.this.monitoredNickList.addAll(confirmed);
+                monitoredNickList.addAll(acknowledged);
                 break;
             }
+        }
+
+        /**
+         * Update all monitored nicks upon receiving a server-side QUIT message
+         * for local user.
+         */
+        @Override
+        public void onUserQuit(QuitMessage msg)
+        {
+            super.onUserQuit(msg);
+            if (localUser(msg.getSource().getNick())) {
+                updateAll(IrcStatusEnum.OFFLINE);
+            }
+        }
+
+        /**
+         * Update all monitored nicks upon receiving a server-side ERROR
+         * response.
+         */
+        @Override
+        public void onError(ErrorMessage msg)
+        {
+            super.onError(msg);
+            updateAll(IrcStatusEnum.OFFLINE);
         }
 
         /**
@@ -240,14 +258,35 @@ class MonitorPresenceWatcher
          */
         private List<String> parseMonitorResponse(final String message)
         {
-            final LinkedList<String> confirmed = new LinkedList<String>();
+            // Note: this should support both targets consisting of only a nick,
+            // and targets consisting of nick!ident@host formats. (And probably
+            // any variation on this that is typically allowed in IRC.)
+            final LinkedList<String> acknowledged = new LinkedList<String>();
             final String[] targets = message.substring(1).split(",");
             for (String target : targets)
             {
-                String[] parts = target.split("!");
-                confirmed.add(parts[0]);
+                String[] parts = target.trim().split("!");
+                acknowledged.add(parts[0]);
             }
-            return confirmed;
+            return acknowledged;
+        }
+
+        /**
+         * Update all monitored nicks to specified status.
+         *
+         * @param status the desired status
+         */
+        private void updateAll(final IrcStatusEnum status)
+        {
+            final LinkedList<String> nicks;
+            synchronized (monitoredNickList)
+            {
+                nicks = new LinkedList<String>(monitoredNickList);
+            }
+            for (String nick : nicks)
+            {
+                update(nick, status);
+            }
         }
 
         /**

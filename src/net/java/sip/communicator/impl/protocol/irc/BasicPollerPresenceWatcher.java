@@ -91,6 +91,7 @@ class BasicPollerPresenceWatcher
         }
         this.nickWatchList = nickWatchList;
         setUpPresenceWatcher(serverIdentity);
+        LOGGER.debug("Basic Poller presence watcher initialized.");
     }
 
     /**
