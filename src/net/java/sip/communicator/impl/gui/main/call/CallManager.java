@@ -544,7 +544,8 @@ public class CallManager
                     protocolProvider,
                     contact,
                     uiContact,
-                    desktopDevices.get(0));
+                    desktopDevices.get(0),
+                    true);
         }
         else if (deviceNumber > 1)
         {
@@ -557,7 +558,8 @@ public class CallManager
                         protocolProvider,
                         contact,
                         uiContact,
-                        selectDialog.getSelectedDevice());
+                        selectDialog.getSelectedDevice(),
+                        true);
         }
     }
 
@@ -624,7 +626,8 @@ public class CallManager
                         width,
                         height,
                         x,
-                        y));
+                        y),
+                    false);
         }
     }
 
@@ -636,17 +639,20 @@ public class CallManager
      * @param contact the contact to call to
      * @param uiContact the <tt>UIContactImpl</tt> we're calling
      * @param mediaDevice the media device corresponding to the screen to share
+     * @param fullscreen whether we are sharing the fullscreen
      */
     private static void createDesktopSharing(
                                     ProtocolProviderService protocolProvider,
                                     String contact,
                                     UIContactImpl uiContact,
-                                    MediaDevice mediaDevice)
+                                    MediaDevice mediaDevice,
+                                    boolean fullscreen)
     {
         new CreateDesktopSharingThread( protocolProvider,
                                         contact,
                                         uiContact,
-                                        mediaDevice).start();
+                                        mediaDevice,
+                                        fullscreen).start();
     }
 
     /**
@@ -666,6 +672,8 @@ public class CallManager
             List<MediaDevice> desktopDevices
                 = mediaService.getDevices(MediaType.VIDEO, MediaUseCase.DESKTOP);
             int deviceNumber = desktopDevices.size();
+
+            new FullScreenShareIndicator(call);
 
             if (deviceNumber == 1)
                 enableDesktopSharing(call, null, enable);
@@ -2782,6 +2790,11 @@ public class CallManager
         private final UIContactImpl uiContact;
 
         /**
+         * Whether user has selected sharing full screen or region.
+         */
+        private boolean fullscreen = false;
+
+        /**
          * Creates a desktop sharing session thread.
          *
          * @param protocolProvider protocol provider through which we share our
@@ -2796,12 +2809,14 @@ public class CallManager
                                     ProtocolProviderService protocolProvider,
                                     String contact,
                                     UIContactImpl uiContact,
-                                    MediaDevice mediaDevice)
+                                    MediaDevice mediaDevice,
+                                    boolean fullscreen)
         {
             this.protocolProvider = protocolProvider;
             this.stringContact = contact;
             this.uiContact = uiContact;
             this.mediaDevice = mediaDevice;
+            this.fullscreen = fullscreen;
         }
 
         @Override
@@ -2858,6 +2873,12 @@ public class CallManager
 
             if (uiContact != null && createdCall != null)
                 addUIContactCall(uiContact, createdCall);
+
+
+            if(createdCall != null && fullscreen)
+            {
+                new FullScreenShareIndicator(createdCall);
+            }
         }
     }
 
