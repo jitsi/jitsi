@@ -19,16 +19,16 @@ import com.ircclouds.irc.api.state.*;
 /**
  * Manager for presence status of IRC connection.
  *
- * There is (somewhat primitive) support for online presence by periodically
- * querying IRC server with ISON requests for each of the members in the contact
- * list.
+ * There is support for online presence by polling (periodically querying IRC
+ * server with ISON requests) for each of the members in the contact list or, if
+ * supported by the IRC server, for the MONITOR command to subscribe to presence
+ * notifications for the specified nick.
  *
  * TODO Support for 'a' (Away) user mode. (Check this again, since I also see
  * 'a' used for other purposes. This may be one of those ambiguous letters that
  * every server interprets differently.)
  *
- * TODO Improve presence watcher by using WATCH or MONITOR. (Monitor does not
- * seem to support away status, though)
+ * TODO Additionally add support for pub/sub presence notifications using WATCH.
  *
  * @author Danny van Heumen
  */
@@ -161,7 +161,7 @@ public class PresenceManager
             {
                 this.watcher =
                     new MonitorPresenceWatcher(this.irc, this.connectionState,
-                        nickWatchList, this.operationSet);
+                        nickWatchList, this.operationSet, this.isupportMonitor);
             }
         }
         else

@@ -58,7 +58,8 @@ class MonitorPresenceWatcher
      */
     MonitorPresenceWatcher(final IRCApi irc, final IIRCState connectionState,
         final SortedSet<String> nickWatchList,
-        final OperationSetPersistentPresenceIrcImpl operationSet)
+        final OperationSetPersistentPresenceIrcImpl operationSet,
+        final int maxListSize)
     {
         if (irc == null)
         {
@@ -77,9 +78,8 @@ class MonitorPresenceWatcher
         }
         this.nickWatchList = nickWatchList;
         this.irc.addListener(new MonitorReplyListener(operationSet));
-        setUpMonitor(this.irc, this.nickWatchList);
+        setUpMonitor(this.irc, this.nickWatchList, maxListSize);
         // FIXME add basic poller watcher as a fallback method
-        // FIXME adhere to limits according to ISUPPORT MONITOR=# entry
         LOGGER.debug("MONITOR presence watcher initialized.");
     }
 
@@ -90,12 +90,17 @@ class MonitorPresenceWatcher
      * still being initialized.
      */
     private static void setUpMonitor(final IRCApi irc,
-        final SortedSet<String> nickWatchList)
+        final SortedSet<String> nickWatchList, final int maxListSize)
     {
-        final List<String> current;
+        List<String> current;
         synchronized (nickWatchList)
         {
             current = new LinkedList<String>(nickWatchList);
+        }
+        if (current.size() > maxListSize)
+        {
+            // cut off list to maximum number of entries allowed by server
+            current = current.subList(0, maxListSize);
         }
         final int maxLength = 510 - MONITOR_ADD_CMD_STATIC_OVERHEAD;
         final StringBuilder query = new StringBuilder();
@@ -158,7 +163,6 @@ class MonitorPresenceWatcher
          */
         private static final int IRC_RPL_MONOFFLINE = 731;
 
-        // Unused constants. Listed for completeness.
         // /**
         // * Numeric message id for MONLIST entry.
         // */
@@ -168,6 +172,12 @@ class MonitorPresenceWatcher
         // * Numeric message id for ENDOFMONLIST.
         // */
         // private static final int IRC_RPL_ENDOFMONLIST = 733;
+
+        /**
+         * Error message signaling full list. Nick list provided are all nicks
+         * that failed to be added to the monitor list.
+         */
+        private static final int IRC_ERR_MONLISTFULL = 734;
 
         /**
          * Operation set persistent presence instance.
@@ -227,6 +237,11 @@ class MonitorPresenceWatcher
                     update(nick, IrcStatusEnum.OFFLINE);
                 }
                 monitoredNickList.addAll(acknowledged);
+                break;
+            case IRC_ERR_MONLISTFULL:
+                LOGGER.debug("MONITOR list full. Nick was not added. "
+                    + "Fall back Basic Poller will be used if it is enabled. ("
+                    + msg.getText() + ")");
                 break;
             }
         }
