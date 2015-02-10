@@ -461,7 +461,7 @@
             <arg value="MINGW_HOME=${mingw.home}" />
             <arg value="TARGET_DIR=${light.dir}" />
             <arg value="PRODUCTBUILDVERSION=${sip-communicator.version}" />
-            <arg value="PRODUCTBUILDVERSION_COMMA=${sip-communicator.version.comma}" />
+            <arg value="PRODUCTBUILDVERSION_COMMA=${sip-communicator.version.comma},0" />
             <arg value="TARGET_BASENAME=${wix.app.launcher.name}" />
         </exec>
         <antcall target="wix-sign-file">
