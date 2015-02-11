@@ -294,7 +294,7 @@ public class TestOperationSetPresence
      *
      * @throws java.lang.Exception if one of the transitions fails
      */
-    public void testQueryContactStatus()
+    public void disabled_testQueryContactStatus()
         throws Exception
     {
         //first create a local list containing the presence status instances
