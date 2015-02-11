@@ -1960,9 +1960,11 @@ public class OperationSetBasicTelephonySipImpl
     public String toString()
     {
         return getClass().getSimpleName() + "-[dn="
-            + protocolProvider.getOurDisplayName() + " addr=["
-            + protocolProvider.getRegistrarConnection().getAddressOfRecord()
-            + "]";
+            + protocolProvider.getOurDisplayName()
+            + (protocolProvider.getRegistrarConnection() != null ?
+                " addr=[" + protocolProvider.getRegistrarConnection()
+                    .getAddressOfRecord() + "]"
+                : "]");
     }
 
     /**
