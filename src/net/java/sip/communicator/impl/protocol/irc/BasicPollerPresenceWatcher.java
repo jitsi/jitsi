@@ -53,7 +53,7 @@ class BasicPollerPresenceWatcher
     /**
      * Synchronized set of nicks to watch for presence changes.
      */
-    private final SortedSet<String> nickWatchList;
+    private final Set<String> nickWatchList;
 
     /**
      * Constructor.
@@ -61,13 +61,13 @@ class BasicPollerPresenceWatcher
      * @param irc the IRCApi instance
      * @param connectionState the connection state
      * @param operationSet the persistent presence operation set
-     * @param nickWatchList the nick watch list
+     * @param nickWatchList SYNCHRONIZED the nick watch list
      * @param serverIdentity the server identity
      */
     BasicPollerPresenceWatcher(final IRCApi irc,
         final IIRCState connectionState,
         final OperationSetPersistentPresenceIrcImpl operationSet,
-        final SortedSet<String> nickWatchList,
+        final Set<String> nickWatchList,
         final AtomicReference<String> serverIdentity)
     {
         if (irc == null)
@@ -142,9 +142,9 @@ class BasicPollerPresenceWatcher
         private static final int ISON_RESPONSE_STATIC_MESSAGE_OVERHEAD = 18;
 
         /**
-         * List containing nicks that must be watched.
+         * Set containing nicks that must be watched.
          */
-        private final SortedSet<String> watchList;
+        private final Set<String> watchList;
 
         /**
          * FIFO list storing each ISON query that is sent, for use when
@@ -165,7 +165,7 @@ class BasicPollerPresenceWatcher
          * @param serverIdentity container with the current server identity for
          *            use in overhead calculation
          */
-        public PresenceWatcherTask(final SortedSet<String> watchList,
+        public PresenceWatcherTask(final Set<String> watchList,
             final List<List<String>> queryList,
             final AtomicReference<String> serverIdentity)
         {

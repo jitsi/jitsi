@@ -46,18 +46,21 @@ class MonitorPresenceWatcher
     /**
      * Complete nick watch list.
      */
-    private final SortedSet<String> nickWatchList;
+    private final Set<String> nickWatchList;
 
     /**
      * Constructor.
      *
      * @param irc the IRCApi instance
      * @param connectionState the connection state
-     * @param nickWatchList the nick watch list
+     * @param nickWatchList SYNCHRONIZED the nick watch list
+     * @param monitored SYNCHRONIZED The shared collection which contains all
+     *            the nicks that are confirmed to be subscribed to the MONITOR
+     *            command.
      * @param operationSet the persistent presence operation set
      */
     MonitorPresenceWatcher(final IRCApi irc, final IIRCState connectionState,
-        final SortedSet<String> nickWatchList,
+        final Set<String> nickWatchList, final Set<String> monitored,
         final OperationSetPersistentPresenceIrcImpl operationSet,
         final int maxListSize)
     {
@@ -77,9 +80,8 @@ class MonitorPresenceWatcher
             throw new IllegalArgumentException("nickWatchList cannot be null");
         }
         this.nickWatchList = nickWatchList;
-        this.irc.addListener(new MonitorReplyListener(operationSet));
+        this.irc.addListener(new MonitorReplyListener(monitored, operationSet));
         setUpMonitor(this.irc, this.nickWatchList, maxListSize);
-        // FIXME add basic poller watcher as a fallback method
         LOGGER.debug("MONITOR presence watcher initialized.");
     }
 
@@ -90,7 +92,7 @@ class MonitorPresenceWatcher
      * still being initialized.
      */
     private static void setUpMonitor(final IRCApi irc,
-        final SortedSet<String> nickWatchList, final int maxListSize)
+        final Collection<String> nickWatchList, final int maxListSize)
     {
         List<String> current;
         synchronized (nickWatchList)
@@ -144,10 +146,6 @@ class MonitorPresenceWatcher
     /**
      * Listener for MONITOR replies.
      *
-     * Note: strictly speaking it is not necessary to synchronize
-     * monitoredNickList, since irc-api will do all listener calling, but still,
-     * it couldn't hurt ... much.
-     *
      * @author Danny van Heumen
      */
     private final class MonitorReplyListener
@@ -187,17 +185,20 @@ class MonitorPresenceWatcher
         /**
          * Set of nicks that are confirmed to be monitored by the server.
          */
-        private final SortedSet<String> monitoredNickList;
+        private final Set<String> monitoredNickList;
 
         // TODO Update to act on onClientError once available.
 
         /**
          * Constructor.
          *
+         * @param monitored SYNCHRONIZED Collection of monitored nicks. This
+         *            collection will be updated with all nicks that are
+         *            confirmed to be subscribed by the MONITOR command.
          * @param operationSet the persistent presence opset used to update nick
          *            presence statuses.
          */
-        public MonitorReplyListener(
+        public MonitorReplyListener(final Set<String> monitored,
             final OperationSetPersistentPresenceIrcImpl operationSet)
         {
             super(MonitorPresenceWatcher.this.irc,
@@ -208,8 +209,11 @@ class MonitorPresenceWatcher
                     "operationSet cannot be null");
             }
             this.operationSet = operationSet;
-            this.monitoredNickList =
-                Collections.synchronizedSortedSet(new TreeSet<String>());
+            if (monitored == null)
+            {
+                throw new IllegalArgumentException("monitored cannot be null");
+            }
+            this.monitoredNickList = monitored;
         }
 
         /**

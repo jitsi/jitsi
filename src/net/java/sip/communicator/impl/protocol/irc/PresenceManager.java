@@ -10,6 +10,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
+import net.java.sip.communicator.impl.protocol.irc.collection.*;
 import net.java.sip.communicator.util.*;
 
 import com.ircclouds.irc.api.*;
@@ -29,6 +30,9 @@ import com.ircclouds.irc.api.state.*;
  * every server interprets differently.)
  *
  * TODO Additionally add support for pub/sub presence notifications using WATCH.
+ *
+ * TODO Support away-notify extension (CAP) and handle AWAY messages
+ * appropriately.
  *
  * @author Danny van Heumen
  */
@@ -159,9 +163,26 @@ public class PresenceManager
             }
             else
             {
+                // Share a list of monitored nicks between the
+                // MonitorPresenceWatcher and the BasicPollerPresenceWatcher.
+                // Now it is possible for the basic poller to determine whether
+                // or not to poll for a certain nick, such that we do not poll
+                // nicks that are already monitored.
+                final SortedSet<String> monitoredNicks =
+                    Collections.synchronizedSortedSet(new TreeSet<String>());
                 this.watcher =
                     new MonitorPresenceWatcher(this.irc, this.connectionState,
-                        nickWatchList, this.operationSet, this.isupportMonitor);
+                        nickWatchList, monitoredNicks, this.operationSet,
+                        this.isupportMonitor);
+                // Create a dynamic set that automatically computes the
+                // difference between the full nick list and the list of nicks
+                // that are subscribed to MONITOR. The difference will be the
+                // result that is used by the basic poller.
+                final Set<String> unmonitoredNicks =
+                    new DynamicDifferenceSet<String>(nickWatchList,
+                        monitoredNicks);
+                new BasicPollerPresenceWatcher(this.irc, this.connectionState,
+                    this.operationSet, unmonitoredNicks, this.serverIdentity);
             }
         }
         else
