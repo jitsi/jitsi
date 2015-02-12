@@ -582,6 +582,22 @@ public class OperationSetPersistentPresenceJabberImpl
             throw new IllegalArgumentException(status
                 + " is not a valid Jabber status");
 
+        // if we got publish presence and we are still in a process of
+        // initializing the roster, just save the status and we will dispatch
+        // it when we are ready with the roster as sending initial presence
+        // is recommended to be done after requesting the roster, but we want
+        // to also dispatch it
+        synchronized(ssContactList.getRosterInitLock())
+        {
+            if(!ssContactList.isRosterInitialized())
+            {
+                // store it
+                ssContactList.setInitialStatus(status);
+                ssContactList.setInitialStatusMessage(statusMessage);
+                return;
+            }
+        }
+
         if (status.equals(jabberStatusEnum.getStatus(JabberStatusEnum.OFFLINE)))
         {
             parentProvider.unregister();
@@ -1050,13 +1066,13 @@ public class OperationSetPersistentPresenceJabberImpl
                 // note that our listener will be added just before the
                 // one used in the Roster itself, but later we
                 // will wait for it to be ready
-                // (inside method XMPPConnection.getRoaster())
+                // (inside method XMPPConnection.getRoster())
                 parentProvider.getConnection().addPacketListener(
                     new ServerStoredListInit(),
                     new PacketTypeFilter(RosterPacket.class)
                 );
 
-                // will be used to store presence events till roaster is
+                // will be used to store presence events till roster is
                 // initialized
                 contactChangesListener = new ContactChangesListener();
 
@@ -1799,9 +1815,9 @@ public class OperationSetPersistentPresenceJabberImpl
 
     /**
      * Runnable that resolves our list against the server side roster.
-     * This thread is the one which will call getRoaster for the first time.
-     * And if roaster is currently processing will wait for it (the wait
-     * is internal into XMPPConnection.getRoaster method).
+     * This thread is the one which will call getRoster for the first time.
+     * And if roster is currently processing will wait for it (the wait
+     * is internal into XMPPConnection.getRoster method).
      */
     private class ServerStoredListInit
         implements Runnable,
@@ -1817,16 +1833,16 @@ public class OperationSetPersistentPresenceJabberImpl
             // init ssList
             ssContactList.init(contactChangesListener);
 
-            // as we have dispatched the contact list and Roaster is ready
+            // as we have dispatched the contact list and Roster is ready
             // lets start the jingle nodes discovery
             parentProvider.startJingleNodesDiscovery();
         }
 
         /**
-         * When roaster packet with no error is received we are ready to
+         * When roster packet with no error is received we are ready to
          * to dispatch the contact list, doing it in different thread
          * to avoid blocking xmpp packet receiving.
-         * @param packet the roaster packet
+         * @param packet the roster packet
          */
         public void processPacket(Packet packet)
         {

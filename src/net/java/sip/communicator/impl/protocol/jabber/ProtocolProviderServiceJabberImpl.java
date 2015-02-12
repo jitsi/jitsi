@@ -1153,6 +1153,12 @@ public class ProtocolProviderServiceJabberImpl
                 serviceName, proxy
         );
 
+        // if we have OperationSetPersistentPresence skip sending initial
+        // presence while login is executed, the OperationSet will take care
+        // of it
+        if(getOperationSet(OperationSetPersistentPresence.class) != null)
+            confConn.setSendPresence(false);
+
         confConn.setReconnectionAllowed(false);
         boolean tlsRequired = loginStrategy.isTlsRequired();
 
