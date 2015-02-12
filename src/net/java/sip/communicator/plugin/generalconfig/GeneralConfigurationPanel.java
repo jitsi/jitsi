@@ -716,8 +716,8 @@ public class GeneralConfigurationPanel
             LocaleItem lm = (LocaleItem)value;
             if (value != null)
             {
-                labels[0].setText(lm.locale.getDisplayLanguage());
-                labels[1].setText(lm.locale.getDisplayLanguage(lm.locale));
+                labels[0].setText(lm.locale.getDisplayName());
+                labels[1].setText(lm.locale.getDisplayName(lm.locale));
                 labels[2].setText(Resources.getString(
                     "plugin.generalconfig.DEFAULT_LANGUAGE_TRANSLATED",
                     new String[]{
