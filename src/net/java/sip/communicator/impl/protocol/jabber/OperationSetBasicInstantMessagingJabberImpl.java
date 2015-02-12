@@ -472,7 +472,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
             // msg.addExtension(new Version());
 
-            if (event.isMessageEncrypted())
+            if (event.isMessageEncrypted() && isCarbonEnabled)
             {
                 msg.addExtension(new CarbonPacketExtension.PrivateExtension());
             }
@@ -626,31 +626,14 @@ public class OperationSetBasicInstantMessagingJabberImpl
             }
             else if (evt.getNewState() == RegistrationState.REGISTERED)
             {
-                //subscribe for Google (Gmail or Google Apps) notifications
-                //for new mail messages.
-                boolean enableGmailNotifications
-                   = jabberProvider
-                       .getAccountID()
-                           .getAccountPropertyBoolean(
-                               "GMAIL_NOTIFICATIONS_ENABLED",
-                               false);
-
-                if (enableGmailNotifications)
-                    subscribeForGmailNotifications();
-
-                boolean enableCarbon
-                    = isCarbonSupported() && !jabberProvider.getAccountID()
-                            .getAccountPropertyBoolean(
-                                ProtocolProviderFactory.IS_CARBON_DISABLED,
-                                false);
-                if(enableCarbon)
+                new Thread(new Runnable()
                 {
-                    enableDisableCarbon(true);
-                }
-                else
-                {
-                    isCarbonEnabled = false;
-                }
+                    @Override
+                    public void run()
+                    {
+                        initAdditionalServices();
+                    }
+                }).start();
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
                 || evt.getNewState() == RegistrationState.CONNECTION_FAILED
@@ -666,9 +649,40 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 smackMessageListener = null;
             }
         }
-
     }
 
+    /**
+     * Initialize additional services, like gmail notifications and message
+     * carbons.
+     */
+    private void initAdditionalServices()
+    {
+        //subscribe for Google (Gmail or Google Apps) notifications
+        //for new mail messages.
+        boolean enableGmailNotifications
+            = jabberProvider
+            .getAccountID()
+            .getAccountPropertyBoolean(
+                "GMAIL_NOTIFICATIONS_ENABLED",
+                false);
+
+        if (enableGmailNotifications)
+            subscribeForGmailNotifications();
+
+        boolean enableCarbon
+            = isCarbonSupported() && !jabberProvider.getAccountID()
+            .getAccountPropertyBoolean(
+                ProtocolProviderFactory.IS_CARBON_DISABLED,
+                false);
+        if(enableCarbon)
+        {
+            enableDisableCarbon(true);
+        }
+        else
+        {
+            isCarbonEnabled = false;
+        }
+    }
 
     /**
      * Sends enable or disable carbon packet to the server.
@@ -730,7 +744,6 @@ public class OperationSetBasicInstantMessagingJabberImpl
         {
             isCarbonEnabled = true;
         }
-
     }
 
     /**
@@ -748,7 +761,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
         }
         catch (XMPPException e)
         {
-           logger.error("Failed to retrieve carbon support.",e);
+           logger.warn("Failed to retrieve carbon support." + e.getMessage());
         }
         return false;
     }
