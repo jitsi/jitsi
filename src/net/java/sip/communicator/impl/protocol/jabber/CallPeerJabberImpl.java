@@ -14,6 +14,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.SendersEnum;
 import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
@@ -925,8 +926,8 @@ public class CallPeerJabberImpl
         if(!roster.contains(StringUtils.parseBareAddress(calleeAddress)))
         {
             String failedMessage =
-                    "Tranfer impossible:\n"
-                    + "Account roster does not contain tansfer peer: "
+                    "Transfer impossible:\n"
+                    + "Account roster does not contain transfer peer: "
                     + StringUtils.parseBareAddress(calleeAddress);
             setState(CallPeerState.FAILED, failedMessage);
             logger.info(failedMessage);
@@ -1132,9 +1133,10 @@ public class CallPeerJabberImpl
 
         // If we are the focus of a conference and we are receiving media from
         // another CallPeer in the same Call, the direction should allow sending
-        if (getCall().isConferenceFocus())
+        CallJabberImpl call = getCall();
+        if (call != null && call.isConferenceFocus())
         {
-            for (CallPeerJabberImpl peer : getCall().getCallPeerList())
+            for (CallPeerJabberImpl peer : call.getCallPeerList())
             {
                 if (peer != this)
                 {
