@@ -12,6 +12,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.jabber.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
@@ -344,7 +345,7 @@ public class OperationSetBasicTelephonyJabberImpl
         }
 
         String bypassDomain = accountID.getAccountPropertyString(
-            "TELEPHONY_BYPASS_GTALK_CAPS");
+                JabberAccountID.TELEPHONY_BYPASS_GTALK_CAPS);
 
         boolean alwaysCallGtalk
             = ((bypassDomain != null)
@@ -373,7 +374,7 @@ public class OperationSetBasicTelephonyJabberImpl
         // connected one with highest priority.
         if (fullCalleeURI == null)
             fullCalleeURI = 
-                discoverFullJid(calleeAddress, alwaysCallGtalk);
+                discoverFullJid(calleeAddress);
 
         if (fullCalleeURI == null)
             throw new OperationFailedException(
@@ -465,12 +466,10 @@ public class OperationSetBasicTelephonyJabberImpl
      * priority which supports either Jingle or Gtalk. Returns the full JID.
      *
      * @param calleeAddress the address of the callee
-     * @param isAlwaysCallGtalk indicates if gtalk should be called
      *
      * @return the full callee URI
      */
-    private String discoverFullJid( String calleeAddress,
-                                    boolean isAlwaysCallGtalk)
+    private String discoverFullJid(String calleeAddress)
     {
         String fullCalleeURI = null;
         DiscoverInfo discoverInfo = null;
