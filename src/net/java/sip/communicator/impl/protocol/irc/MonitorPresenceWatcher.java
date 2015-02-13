@@ -49,6 +49,15 @@ class MonitorPresenceWatcher
     private final Set<String> nickWatchList;
 
     /**
+     * List of monitored nicks.
+     *
+     * The instance is stored here only for access in order to remove a nick
+     * from the list, since 'MONITOR - ' command does not reply so we cannot
+     * manage list removals from the reply listener.
+     */
+    private final Set<String> monitoredList;
+
+    /**
      * Constructor.
      *
      * @param irc the IRCApi instance
@@ -80,7 +89,12 @@ class MonitorPresenceWatcher
             throw new IllegalArgumentException("nickWatchList cannot be null");
         }
         this.nickWatchList = nickWatchList;
-        this.irc.addListener(new MonitorReplyListener(monitored, operationSet));
+        if (monitored == null)
+        {
+            throw new IllegalArgumentException("monitored cannot be null");
+        }
+        this.monitoredList = monitored;
+        this.irc.addListener(new MonitorReplyListener(this.monitoredList, operationSet));
         setUpMonitor(this.irc, this.nickWatchList, maxListSize);
         LOGGER.debug("MONITOR presence watcher initialized.");
     }
@@ -141,7 +155,9 @@ class MonitorPresenceWatcher
         LOGGER.trace("Removing nick '" + nick + "' from MONITOR watch list.");
         this.nickWatchList.remove(nick);
         this.irc.rawMessage("MONITOR - " + nick);
-        // FIXME Also remove from monitoredNicks list!
+        // 'MONITOR - nick' command does not send confirmation, so immediately
+        // remove nick from monitored list.
+        this.monitoredList.remove(nick);
     }
 
     /**
