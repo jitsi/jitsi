@@ -161,6 +161,8 @@ public class PresenceManager
         this.isupportAwayLen = parseISupportAwayLen(this.connectionState);
         this.isupportMonitor = parseISupportMonitor(this.connectionState);
         this.isupportWatch = parseISupportWatch(this.connectionState);
+        final boolean enablePresencePolling =
+            config.isContactPresenceTaskEnabled();
         if (this.isupportMonitor != null)
         {
             // Share a list of monitored nicks between the
@@ -174,15 +176,20 @@ public class PresenceManager
                 new MonitorPresenceWatcher(this.irc, this.connectionState,
                     nickWatchList, monitoredNicks, this.operationSet,
                     this.isupportMonitor);
-            // FIXME only set up basic poller if option enabled?
-            // Create a dynamic set that automatically computes the
-            // difference between the full nick list and the list of nicks
-            // that are subscribed to MONITOR. The difference will be the
-            // result that is used by the basic poller.
-            final Set<String> unmonitoredNicks =
-                new DynamicDifferenceSet<String>(nickWatchList, monitoredNicks);
-            new BasicPollerPresenceWatcher(this.irc, this.connectionState,
-                this.operationSet, unmonitoredNicks, this.serverIdentity);
+            if (enablePresencePolling)
+            {
+                // Enable basic poller as fall back mechanism.
+
+                // Create a dynamic set that automatically computes the
+                // difference between the full nick list and the list of nicks
+                // that are subscribed to MONITOR. The difference will be the
+                // result that is used by the basic poller.
+                final Set<String> unmonitoredNicks =
+                    new DynamicDifferenceSet<String>(nickWatchList,
+                        monitoredNicks);
+                new BasicPollerPresenceWatcher(this.irc, this.connectionState,
+                    this.operationSet, unmonitoredNicks, this.serverIdentity);
+            }
         }
         else if (this.isupportWatch != null)
         {
@@ -197,18 +204,24 @@ public class PresenceManager
                 new WatchPresenceWatcher(this.irc, this.connectionState,
                     nickWatchList, monitoredNicks, this.operationSet,
                     this.isupportWatch);
-            // FIXME only set up basic poller if option enabled?
-            // Create a dynamic set that automatically computes the
-            // difference between the full nick list and the list of nicks
-            // that are subscribed to WATCH. The difference will be the
-            // result that is used by the basic poller.
-            final Set<String> unmonitoredNicks =
-                new DynamicDifferenceSet<String>(nickWatchList, monitoredNicks);
-            new BasicPollerPresenceWatcher(this.irc, this.connectionState,
-                this.operationSet, unmonitoredNicks, this.serverIdentity);
+            if (enablePresencePolling)
+            {
+                // Enable basic poller as fall back mechanism.
+
+                // Create a dynamic set that automatically computes the
+                // difference between the full nick list and the list of nicks
+                // that are subscribed to WATCH. The difference will be the
+                // result that is used by the basic poller.
+                final Set<String> unmonitoredNicks =
+                    new DynamicDifferenceSet<String>(nickWatchList,
+                        monitoredNicks);
+                new BasicPollerPresenceWatcher(this.irc, this.connectionState,
+                    this.operationSet, unmonitoredNicks, this.serverIdentity);
+            }
         }
-        else if (config.isContactPresenceTaskEnabled())
+        else if (enablePresencePolling)
         {
+            // Enable basic poller as the only presence mechanism.
             this.watcher =
                 new BasicPollerPresenceWatcher(this.irc, this.connectionState,
                     this.operationSet, nickWatchList, this.serverIdentity);
