@@ -353,6 +353,12 @@ public class OperationSetContactCapabilitiesJabberImpl
                                     jid,
                                     features)))
             {
+                // XXX(boris): since Gtalk is not supported anymore, the
+                // features in OPERATION_SETS_TO_FEATURES needed to be supported
+                // cannot be overridden by capabilities.
+                opset = null;
+
+                /*
                 if(CAPS_OPERATION_SETS_TO_FEATURES.containsKey(opsetClass))
                 {
                     String[] extFeatures
@@ -377,6 +383,7 @@ public class OperationSetContactCapabilitiesJabberImpl
                 {
                     opset = null;
                 }
+                */
             }
         }
 

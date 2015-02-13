@@ -1426,19 +1426,15 @@ public class ProtocolProviderServiceJabberImpl
         if (accountID != null && accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactory.IS_CALLING_DISABLED_FOR_ACCOUNT,
                 false))
-            isCallingDisabled = true;
+            isCallingDisabledForAccount = true;
 
-        if(isGTalkTesting()
-                && !isCallingDisabled
-                && !isCallingDisabledForAccount)
+        if(!isCallingDisabled && !isCallingDisabledForAccount)
         {
-            // Add Google Talk "ext" capabilities
+            // XXX(boris): do we still need to advertise these, now that we do
+            // not support Gtalk?
             discoveryManager.addExtFeature(CAPS_GTALK_WEB_VOICE);
             discoveryManager.addExtFeature(CAPS_GTALK_WEB_VIDEO);
             discoveryManager.addExtFeature(CAPS_GTALK_WEB_CAMERA);
-            discoveryManager.addFeature(URN_GOOGLE_VOICE);
-            discoveryManager.addFeature(URN_GOOGLE_VIDEO);
-            discoveryManager.addFeature(URN_GOOGLE_CAMERA);
         }
 
         /*
@@ -2797,24 +2793,6 @@ public class ProtocolProviderServiceJabberImpl
     public SecurityAuthority getAuthority()
     {
         return authority;
-    }
-
-    /**
-     * Returns true if gtalktesting is enabled, false otherwise.
-     *
-     * @return true if gtalktesting is enabled, false otherwise.
-     */
-    public boolean isGTalkTesting()
-    {
-        return
-            Boolean.getBoolean("gtalktesting")
-                || JabberActivator.getConfigurationService().getBoolean(
-                        "net.java.sip.communicator.impl.protocol.jabber"
-                            + ".gtalktesting",
-                        false)
-                || accountID.getAccountPropertyBoolean(
-                        ProtocolProviderFactory.IS_USE_GOOGLE_ICE,
-                        true);
     }
 
     UserCredentials getUserCredentials()
