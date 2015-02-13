@@ -94,7 +94,8 @@ class MonitorPresenceWatcher
             throw new IllegalArgumentException("monitored cannot be null");
         }
         this.monitoredList = monitored;
-        this.irc.addListener(new MonitorReplyListener(this.monitoredList, operationSet));
+        this.irc.addListener(new MonitorReplyListener(this.monitoredList,
+            operationSet));
         setUpMonitor(this.irc, this.nickWatchList, maxListSize);
         LOGGER.debug("MONITOR presence watcher initialized.");
     }
