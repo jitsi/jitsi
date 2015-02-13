@@ -86,6 +86,8 @@ public class DesktopSharingCallSipImpl
             String dssid = dssidHeader.toString().replaceAll(
                 dssidHeader.getName() + ":", "").trim();
             desktopSharingSessionID = dssid;
+
+            setData(DSSID_HEADER, desktopSharingSessionID);
         }
 
         return super.processInvite(jainSipProvider, serverTran);
@@ -106,7 +108,10 @@ public class DesktopSharingCallSipImpl
         if(message instanceof Request)
         {
             if(desktopSharingSessionID == null)
+            {
                 desktopSharingSessionID = UUID.randomUUID().toString();
+                setData(DSSID_HEADER, desktopSharingSessionID);
+            }
 
             Header dssidHeader = getProtocolProvider().getHeaderFactory()
                 .createHeader(DSSID_HEADER, desktopSharingSessionID);

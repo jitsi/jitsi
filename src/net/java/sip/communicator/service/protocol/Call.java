@@ -18,6 +18,8 @@ import net.java.sip.communicator.util.*;
  * implementation. Extensions of this class might have names like
  * <tt>CallSipImpl</tt>, <tt>CallJabberImpl</tt>, or
  * <tt>CallAnyOtherTelephonyProtocolImpl</tt>.
+ * Call is DataObject, this way it will be able to store custom data and carry
+ * it to various parts of the project.
  *
  * @author Emil Ivov
  * @author Emanuel Onica
@@ -25,6 +27,7 @@ import net.java.sip.communicator.util.*;
  * @author Boris Grozev
  */
 public abstract class Call
+    extends DataObject
 {
     /**
      * Our class logger.
