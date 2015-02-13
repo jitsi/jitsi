@@ -15,23 +15,23 @@ import com.ircclouds.irc.api.domain.messages.*;
 import com.ircclouds.irc.api.state.*;
 
 /**
- * MONITOR presence watcher.
+ * WATCH presence watcher.
  *
  * @author Danny van Heumen
  */
-class MonitorPresenceWatcher
+class WatchPresenceWatcher
     implements PresenceWatcher
 {
     /**
-     * Static overhead in message payload required for 'MONITOR +' command.
+     * Static overhead in message payload required for 'WATCH ' command.
      */
-    private static final int MONITOR_ADD_CMD_STATIC_OVERHEAD = 10;
+    private static final int WATCH_ADD_CMD_STATIC_OVERHEAD = 6;
 
     /**
      * Logger.
      */
     private static final Logger LOGGER = Logger
-        .getLogger(MonitorPresenceWatcher.class);
+        .getLogger(WatchPresenceWatcher.class);
 
     /**
      * IRCApi instance.
@@ -59,7 +59,7 @@ class MonitorPresenceWatcher
      *            command.
      * @param operationSet the persistent presence operation set
      */
-    MonitorPresenceWatcher(final IRCApi irc, final IIRCState connectionState,
+    WatchPresenceWatcher(final IRCApi irc, final IIRCState connectionState,
         final Set<String> nickWatchList, final Set<String> monitored,
         final OperationSetPersistentPresenceIrcImpl operationSet,
         final int maxListSize)
@@ -80,9 +80,9 @@ class MonitorPresenceWatcher
             throw new IllegalArgumentException("nickWatchList cannot be null");
         }
         this.nickWatchList = nickWatchList;
-        this.irc.addListener(new MonitorReplyListener(monitored, operationSet));
-        setUpMonitor(this.irc, this.nickWatchList, maxListSize);
-        LOGGER.debug("MONITOR presence watcher initialized.");
+        this.irc.addListener(new WatchReplyListener(monitored, operationSet));
+        setUpWatch(this.irc, this.nickWatchList, maxListSize);
+        LOGGER.debug("WATCH presence watcher initialized.");
     }
 
     /**
@@ -91,7 +91,7 @@ class MonitorPresenceWatcher
      * Created a static method as not to interfere too much with a state that is
      * still being initialized.
      */
-    private static void setUpMonitor(final IRCApi irc,
+    private static void setUpWatch(final IRCApi irc,
         final Collection<String> nickWatchList, final int maxListSize)
     {
         List<String> current;
@@ -104,63 +104,77 @@ class MonitorPresenceWatcher
             // cut off list to maximum number of entries allowed by server
             current = current.subList(0, maxListSize);
         }
-        final int maxLength = 510 - MONITOR_ADD_CMD_STATIC_OVERHEAD;
+        final int maxLength = 510 - WATCH_ADD_CMD_STATIC_OVERHEAD;
         final StringBuilder query = new StringBuilder();
         for (String nick : current)
         {
-            if (query.length() + nick.length() + 1 > maxLength)
+            if (query.length() + nick.length() + 2 > maxLength)
             {
                 // full payload, send monitor query now
-                irc.rawMessage("MONITOR + " + query);
+                irc.rawMessage("WATCH " + query);
                 query.delete(0, query.length());
             }
             else if (query.length() > 0)
             {
-                query.append(",");
+                query.append(" ");
             }
-            query.append(nick);
+            query.append('+').append(nick);
         }
         if (query.length() > 0)
         {
             // send query for remaining nicks
-            irc.rawMessage("MONITOR + " + query);
+            irc.rawMessage("WATCH " + query);
         }
     }
 
     @Override
     public void add(final String nick)
     {
-        LOGGER.trace("Adding nick '" + nick + "' to MONITOR watch list.");
+        LOGGER.trace("Adding nick '" + nick + "' to WATCH watch list.");
         this.nickWatchList.add(nick);
-        this.irc.rawMessage("MONITOR + " + nick);
+        this.irc.rawMessage("WATCH +" + nick);
     }
 
     @Override
     public void remove(final String nick)
     {
-        LOGGER.trace("Removing nick '" + nick + "' from MONITOR watch list.");
+        LOGGER.trace("Removing nick '" + nick + "' from WATCH watch list.");
         this.nickWatchList.remove(nick);
-        this.irc.rawMessage("MONITOR - " + nick);
-        // FIXME Also remove from monitoredNicks list!
+        this.irc.rawMessage("WATCH -" + nick);
     }
 
     /**
-     * Listener for MONITOR replies.
+     * Listener for WATCH replies.
      *
      * @author Danny van Heumen
      */
-    private final class MonitorReplyListener
+    private final class WatchReplyListener
         extends AbstractIrcMessageListener
     {
         /**
+         * Numeric message id for notification that user logged on.
+         */
+        private static final int IRC_RPL_LOGON = 600;
+
+        /**
+         * Numeric message id for notification that user logged off.
+         */
+        private static final int IRC_RPL_LOGOFF = 601;
+
+        /**
+         * Numeric message id for when nick is removed from WATCH list.
+         */
+        private static final int IRC_RPL_WATCHOFF = 602;
+
+        /**
          * Numeric message id for ONLINE nick response.
          */
-        private static final int IRC_RPL_MONONLINE = 730;
+        private static final int IRC_RPL_NOWON = 604;
 
         /**
          * Numeric message id for OFFLINE nick response.
          */
-        private static final int IRC_RPL_MONOFFLINE = 731;
+        private static final int IRC_RPL_NOWOFF = 605;
 
         // /**
         // * Numeric message id for MONLIST entry.
@@ -174,9 +188,9 @@ class MonitorPresenceWatcher
 
         /**
          * Error message signaling full list. Nick list provided are all nicks
-         * that failed to be added to the monitor list.
+         * that failed to be added to the WATCH list.
          */
-        private static final int IRC_ERR_MONLISTFULL = 734;
+        private static final int IRC_ERR_LISTFULL = 512;
 
         /**
          * Operation set persistent presence instance.
@@ -195,15 +209,15 @@ class MonitorPresenceWatcher
          *
          * @param monitored SYNCHRONIZED Collection of monitored nicks. This
          *            collection will be updated with all nicks that are
-         *            confirmed to be subscribed by the MONITOR command.
+         *            confirmed to be subscribed by the WATCH command.
          * @param operationSet the persistent presence opset used to update nick
          *            presence statuses.
          */
-        public MonitorReplyListener(final Set<String> monitored,
+        public WatchReplyListener(final Set<String> monitored,
             final OperationSetPersistentPresenceIrcImpl operationSet)
         {
-            super(MonitorPresenceWatcher.this.irc,
-                MonitorPresenceWatcher.this.connectionState);
+            super(WatchPresenceWatcher.this.irc,
+                WatchPresenceWatcher.this.connectionState);
             if (operationSet == null)
             {
                 throw new IllegalArgumentException(
@@ -218,33 +232,39 @@ class MonitorPresenceWatcher
         }
 
         /**
-         * Numeric messages received in response to MONITOR commands or presence
+         * Numeric messages received in response to WATCH commands or presence
          * updates.
          */
         @Override
         public void onServerNumericMessage(final ServerNumericMessage msg)
         {
-            final List<String> acknowledged;
+            final String nick;
             switch (msg.getNumericCode())
             {
-            case IRC_RPL_MONONLINE:
-                acknowledged = parseMonitorResponse(msg.getText());
-                for (String nick : acknowledged)
-                {
-                    update(nick, IrcStatusEnum.ONLINE);
-                }
-                monitoredNickList.addAll(acknowledged);
+            case IRC_RPL_NOWON:
+                nick = parseWatchResponse(msg.getText());
+                monitoredNickList.add(nick);
+                update(nick, IrcStatusEnum.ONLINE);
                 break;
-            case IRC_RPL_MONOFFLINE:
-                acknowledged = parseMonitorResponse(msg.getText());
-                for (String nick : acknowledged)
-                {
-                    update(nick, IrcStatusEnum.OFFLINE);
-                }
-                monitoredNickList.addAll(acknowledged);
+            case IRC_RPL_LOGON:
+                nick = parseWatchResponse(msg.getText());
+                update(nick, IrcStatusEnum.ONLINE);
                 break;
-            case IRC_ERR_MONLISTFULL:
-                LOGGER.debug("MONITOR list full. Nick was not added. "
+            case IRC_RPL_NOWOFF:
+                nick = parseWatchResponse(msg.getText());
+                monitoredNickList.add(nick);
+                update(nick, IrcStatusEnum.OFFLINE);
+                break;
+            case IRC_RPL_LOGOFF:
+                nick = parseWatchResponse(msg.getText());
+                update(nick, IrcStatusEnum.OFFLINE);
+                break;
+            case IRC_RPL_WATCHOFF:
+                nick = parseWatchResponse(msg.getText());
+                monitoredNickList.remove(nick);
+                break;
+            case IRC_ERR_LISTFULL:
+                LOGGER.debug("WATCH list is full. Nick was not added. "
                     + "Fall back Basic Poller will be used if it is enabled. ("
                     + msg.getText() + ")");
                 break;
@@ -281,19 +301,10 @@ class MonitorPresenceWatcher
          * @param message the message
          * @return Returns the list of targets extracted.
          */
-        private List<String> parseMonitorResponse(final String message)
+        private String parseWatchResponse(final String message)
         {
-            // Note: this should support both targets consisting of only a nick,
-            // and targets consisting of nick!ident@host formats. (And probably
-            // any variation on this that is typically allowed in IRC.)
-            final LinkedList<String> acknowledged = new LinkedList<String>();
-            final String[] targets = message.substring(1).split(",");
-            for (String target : targets)
-            {
-                String[] parts = target.trim().split("!");
-                acknowledged.add(parts[0]);
-            }
-            return acknowledged;
+            final String[] parts = message.split(" ");
+            return parts[0];
         }
 
         /**

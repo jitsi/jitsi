@@ -43,7 +43,11 @@ public enum ISupport
     /**
      * Maximum number of entries in the MONITOR list supported by this server.
      */
-    MONITOR;
+    MONITOR,
+    /**
+     * Maximum number of entries in the WATCH list supported by this server.
+     */
+    WATCH;
 
     /**
      * Pattern for parsing ChanLimit ISUPPORT parameter.

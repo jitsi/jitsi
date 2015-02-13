@@ -84,6 +84,16 @@ public class PresenceManager
     private final Integer isupportMonitor;
 
     /**
+     * Maximum size of WATCH list allowed by server.
+     *
+     * <p>
+     * This value is not guaranteed, so it may be <tt>null</tt>. If it is
+     * <tt>null</tt> this means that WATCH is not supported by this server.
+     * </p>
+     */
+    private final Integer isupportWatch;
+
+    /**
      * Server identity.
      */
     private final AtomicReference<String> serverIdentity =
@@ -152,42 +162,59 @@ public class PresenceManager
         // TODO move parse methods to ISupport enum type
         this.isupportAwayLen = parseISupportAwayLen(this.connectionState);
         this.isupportMonitor = parseISupportMonitor(this.connectionState);
-        if (config.isContactPresenceTaskEnabled())
+        this.isupportWatch = parseISupportWatch(this.connectionState);
+        if (this.isupportMonitor != null)
         {
-            if (this.isupportMonitor == null)
-            {
-                this.watcher =
-                    new BasicPollerPresenceWatcher(this.irc,
-                        this.connectionState, this.operationSet, nickWatchList,
-                        this.serverIdentity);
-            }
-            else
-            {
-                // Share a list of monitored nicks between the
-                // MonitorPresenceWatcher and the BasicPollerPresenceWatcher.
-                // Now it is possible for the basic poller to determine whether
-                // or not to poll for a certain nick, such that we do not poll
-                // nicks that are already monitored.
-                final SortedSet<String> monitoredNicks =
-                    Collections.synchronizedSortedSet(new TreeSet<String>());
-                this.watcher =
-                    new MonitorPresenceWatcher(this.irc, this.connectionState,
-                        nickWatchList, monitoredNicks, this.operationSet,
-                        this.isupportMonitor);
-                // Create a dynamic set that automatically computes the
-                // difference between the full nick list and the list of nicks
-                // that are subscribed to MONITOR. The difference will be the
-                // result that is used by the basic poller.
-                final Set<String> unmonitoredNicks =
-                    new DynamicDifferenceSet<String>(nickWatchList,
-                        monitoredNicks);
-                new BasicPollerPresenceWatcher(this.irc, this.connectionState,
-                    this.operationSet, unmonitoredNicks, this.serverIdentity);
-            }
+            // Share a list of monitored nicks between the
+            // MonitorPresenceWatcher and the BasicPollerPresenceWatcher.
+            // Now it is possible for the basic poller to determine whether
+            // or not to poll for a certain nick, such that we do not poll
+            // nicks that are already monitored.
+            final SortedSet<String> monitoredNicks =
+                Collections.synchronizedSortedSet(new TreeSet<String>());
+            this.watcher =
+                new MonitorPresenceWatcher(this.irc, this.connectionState,
+                    nickWatchList, monitoredNicks, this.operationSet,
+                    this.isupportMonitor);
+            // FIXME only set up basic poller if option enabled?
+            // Create a dynamic set that automatically computes the
+            // difference between the full nick list and the list of nicks
+            // that are subscribed to MONITOR. The difference will be the
+            // result that is used by the basic poller.
+            final Set<String> unmonitoredNicks =
+                new DynamicDifferenceSet<String>(nickWatchList, monitoredNicks);
+            new BasicPollerPresenceWatcher(this.irc, this.connectionState,
+                this.operationSet, unmonitoredNicks, this.serverIdentity);
         }
-        else
+        else if (this.isupportWatch != null)
         {
-            // FIXME replace with NOOP watcher for code simplicity?
+            // Share a list of monitored nicks between the
+            // WatchPresenceWatcher and the BasicPollerPresenceWatcher.
+            // Now it is possible for the basic poller to determine whether
+            // or not to poll for a certain nick, such that we do not poll
+            // nicks that are already monitored.
+            final SortedSet<String> monitoredNicks =
+                Collections.synchronizedSortedSet(new TreeSet<String>());
+            this.watcher =
+                new WatchPresenceWatcher(this.irc, this.connectionState,
+                    nickWatchList, monitoredNicks, this.operationSet,
+                    this.isupportWatch);
+            // FIXME only set up basic poller if option enabled?
+            // Create a dynamic set that automatically computes the
+            // difference between the full nick list and the list of nicks
+            // that are subscribed to WATCH. The difference will be the
+            // result that is used by the basic poller.
+            final Set<String> unmonitoredNicks =
+                new DynamicDifferenceSet<String>(nickWatchList, monitoredNicks);
+            new BasicPollerPresenceWatcher(this.irc, this.connectionState,
+                this.operationSet, unmonitoredNicks, this.serverIdentity);
+        }
+        else if (config.isContactPresenceTaskEnabled())
+        {
+            this.watcher =
+                new BasicPollerPresenceWatcher(this.irc, this.connectionState,
+                    this.operationSet, nickWatchList, this.serverIdentity);
+        } else {
             this.watcher = null;
         }
     }
@@ -255,6 +282,40 @@ public class PresenceManager
         catch (RuntimeException e)
         {
             LOGGER.warn("Failed to parse MONITOR value.", e);
+            return null;
+        }
+    }
+
+    /**
+     * Parse the ISUPPORT parameter for WATCH command support and list size.
+     *
+     * @param state the connection state
+     * @return Returns instance with maximum number of entries in WATCH list.
+     *         Additionally, having this WATCH property available, indicates
+     *         that WATCH is supported by the server.
+     */
+    private Integer parseISupportWatch(final IIRCState state)
+    {
+        final String value =
+            state.getServerOptions().getKey(ISupport.WATCH.name());
+        if (value == null)
+        {
+            LOGGER.trace("No ISUPPORT parameter " + ISupport.WATCH.name()
+                + " available.");
+            return null;
+        }
+        if (LOGGER.isDebugEnabled())
+        {
+            LOGGER.debug("Setting ISUPPORT parameter " + ISupport.WATCH.name()
+                + " to " + value);
+        }
+        try
+        {
+            return new Integer(value);
+        }
+        catch (RuntimeException e)
+        {
+            LOGGER.warn("Failed to parse WATCH value.", e);
             return null;
         }
     }
