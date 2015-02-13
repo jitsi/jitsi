@@ -29,8 +29,6 @@ import com.ircclouds.irc.api.state.*;
  * 'a' used for other purposes. This may be one of those ambiguous letters that
  * every server interprets differently.)
  *
- * TODO Additionally add support for pub/sub presence notifications using WATCH.
- *
  * TODO Support away-notify extension (CAP) and handle AWAY messages
  * appropriately.
  *
