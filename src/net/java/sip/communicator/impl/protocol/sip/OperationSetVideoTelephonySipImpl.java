@@ -64,8 +64,8 @@ public class OperationSetVideoTelephonySipImpl
         super(basicTelephony);
 
         parentProvider.registerMethodProcessor(
-                Request.INFO,
-                new PictureFastUpdateMethodProcessor());
+            Request.INFO,
+            new PictureFastUpdateMethodProcessor());
     }
 
     /**
@@ -153,8 +153,33 @@ public class OperationSetVideoTelephonySipImpl
     public Call createVideoCall(String uri, QualityPreset qualityPreferences)
         throws OperationFailedException, ParseException
     {
-        Address toAddress = parentProvider.parseAddressString(uri);
+        return createVideoCall(
+            parentProvider.parseAddressString(uri), qualityPreferences);
+    }
 
+    /**
+     * Create a new video call and invite the specified CallPeer to it.
+     *
+     * @param toAddress the address of the callee that we should invite to a new
+     * call.
+     * @param qualityPreferences the quality preset we will use establishing
+     * the video call, and we will expect from the other side. When establishing
+     * call we don't have any indications whether remote part supports quality
+     * presets, so this setting can be ignored.
+     * @return CallPeer the CallPeer that will represented by the
+     * specified uri. All following state change events will be delivered
+     * through that call peer. The Call that this peer is a member
+     * of could be retrieved from the CallParticipatn instance with the use
+     * of the corresponding method.
+     * @throws OperationFailedException with the corresponding code if we fail
+     * to create the video call.
+     * @throws ParseException if <tt>callee</tt> is not a valid sip address
+     * string.
+     */
+    private Call createVideoCall(Address toAddress,
+                                 QualityPreset qualityPreferences)
+        throws OperationFailedException
+    {
         CallSipImpl call = basicTelephony.createOutgoingCall();
         call.setLocalVideoAllowed(true, getMediaUseCase());
         call.setInitialQualityPreferences(qualityPreferences);
@@ -198,12 +223,7 @@ public class OperationSetVideoTelephonySipImpl
             throw new IllegalArgumentException(ex.getMessage());
         }
 
-        CallSipImpl call = basicTelephony.createOutgoingCall();
-        call.setLocalVideoAllowed(true, getMediaUseCase());
-        call.setInitialQualityPreferences(qualityPreferences);
-        call.invite(toAddress, null);
-
-        return call;
+        return createVideoCall(toAddress, qualityPreferences);
     }
 
     /**

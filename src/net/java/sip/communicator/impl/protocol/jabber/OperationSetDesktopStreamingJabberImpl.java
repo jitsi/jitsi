@@ -92,7 +92,7 @@ public class OperationSetDesktopStreamingJabberImpl
      * @return CallPeer the CallPeer that will represented by the
      * specified uri. All following state change events will be delivered
      * through that call peer. The Call that this peer is a member
-     * of could be retrieved from the CallParticipatn instance with the use
+     * of could be retrieved from the CallParticipant instance with the use
      * of the corresponding method.
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the video call.
@@ -111,7 +111,7 @@ public class OperationSetDesktopStreamingJabberImpl
      * @return CallPeer the CallPeer that will represented by the
      * specified uri. All following state change events will be delivered
      * through that call peer. The Call that this peer is a member
-     * of could be retrieved from the CallParticipatn instance with the use
+     * of could be retrieved from the CallParticipant instance with the use
      * of the corresponding method.
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the video call.
@@ -136,20 +136,16 @@ public class OperationSetDesktopStreamingJabberImpl
      * @return CallPeer the CallPeer that will represented by the
      * specified uri. All following state change events will be delivered
      * through that call peer. The Call that this peer is a member
-     * of could be retrieved from the CallParticipatn instance with the use
+     * of could be retrieved from the CallParticipant instance with the use
      * of the corresponding method.
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the video call.
      */
     @Override
-    public Call createVideoCall(Contact callee) throws OperationFailedException
+    public Call createVideoCall(Contact callee)
+        throws OperationFailedException
     {
-        Call call = createOutgoingVideoCall(callee.getAddress());
-        MediaDevice device
-            = ((MediaAwareCall<?,?,?>) call).getDefaultDevice(MediaType.VIDEO);
-        size = (((VideoMediaFormat)device.getFormat()).getSize());
-        origin = getOriginForMediaDevice(device);
-        return call;
+        return createVideoCall(callee.getAddress());
     }
 
     /**
