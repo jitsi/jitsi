@@ -389,8 +389,6 @@ public class OperationSetPersistentPresenceIrcImpl
             new ContactIrcImpl(this.parentProvider, address,
                 (ContactGroupIrcImpl) parentGroup, IrcStatusEnum.OFFLINE);
         group.addContact(unresolvedContact);
-        // FIXME how to use this and be able to (IRC) MONITOR/WATCH the first
-        // 100 entries when PresenceManager is initialized?
         this.parentProvider.getIrcStack().getContext().nickWatchList
             .add(address);
         return unresolvedContact;
