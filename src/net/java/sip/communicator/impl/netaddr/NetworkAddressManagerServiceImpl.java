@@ -176,6 +176,19 @@ public class NetworkAddressManagerServiceImpl
                 }
             }
         }
+        else if (OSUtils.IS_MAC)
+        {
+            try
+            {
+                localHost = BsdLocalhostRetriever
+                    .getLocalSocketAddress(new InetSocketAddress(
+                        intendedDestination, RANDOM_ADDR_DISC_PORT));
+            }
+            catch (IOException e)
+            {
+                logger.warn("Failed to get localhost", e);
+            }
+        }
         else
         {
             //no point in making sure that the localHostFinderSocket is

@@ -18,7 +18,9 @@ Import-Package: org.jitsi.service.configuration,
  javax.crypto,
  javax.crypto.spec,
  javax.sdp,
- gov.nist.javax.sdp.fields
+ gov.nist.javax.sdp.fields,
+ com.sun.jna,
+ com.sun.jna.ptr
 Export-Package: net.java.sip.communicator.service.netaddr,
  net.java.sip.communicator.service.netaddr.event,
  org.ice4j,
