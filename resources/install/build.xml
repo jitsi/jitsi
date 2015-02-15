@@ -1298,6 +1298,19 @@
       <true/>
       <key>CFBundleName</key>]]></replacevalue>
       </replace>
+
+      <!-- Add property to indicate minimum OSX version:
+           - 10.7.3 for Java 7
+           - 10.8.3 for Java 8
+           http://java.com/en/download/help/sysreq.xml
+      -->
+      <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
+        <replacetoken><![CDATA[<key>CFBundleName</key>]]></replacetoken>
+        <replacevalue><![CDATA[<key>LSMinimumSystemVersion</key>
+      <string>10.8.3</string>
+      <key>CFBundleName</key>]]></replacevalue>
+      </replace>
+
       <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.dylib"
                link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.dylib"/>
 
