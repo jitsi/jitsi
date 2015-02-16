@@ -10,6 +10,7 @@ import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.*;
 
+import org.apache.commons.lang3.*;
 import org.growl4j.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
@@ -101,6 +102,10 @@ public class GrowlNotificationServiceImpl
         // remove eventual HTML code before showing the pop-up message
         messageBody = messageBody.replaceAll("</?\\w++[^>]*+>", "");
         messageTitle = messageTitle.replaceAll("</?\\w++[^>]*+>", "");
+
+        // unescape any chars that can be escaped inside the text
+        messageBody = StringEscapeUtils.unescapeHtml4(messageBody);
+        messageTitle = StringEscapeUtils.unescapeHtml4(messageTitle);
 
         growl.notifyGrowlOf(
                 messageTitle,
