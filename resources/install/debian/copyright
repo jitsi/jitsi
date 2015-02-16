@@ -23,11 +23,6 @@ Files: lib/src/jmyspell/*
 Copyright: UNKNOWN:
 License: LGPL-2.1
 
-Files: lib/src/java-jml/*
-Copyright:
- 2004 Roger Chen
-License: Apache-2.0
-
 Files: lib/src/jfontchooser/*
 Copyright:
  2004 Tim Eeckhaut

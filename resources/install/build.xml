@@ -2502,6 +2502,7 @@
                 <include name="**/*"/>
                 <exclude name="**/growlnotification/**"/>
                 <exclude name="${extra.exclude}"/>
+                <exclude name="${extra.exclude2}"/>
                 <exclude name="**/dict/**"/>
                 <exclude name="**/dictaccregwizz/**"/>
                 <exclude name="**/ssh/**"/>
@@ -2562,6 +2563,7 @@
         <antcall target="deb-copy-jitsi">
             <param name="target.dir" value="${debian.src.dir}"/>
             <param name="extra.exclude" value="**/impl/googlecontacts/**"/>
+            <param name="extra.exclude2" value="**/impl/protocol/msn/**"/>
         </antcall>
 
         <property name="debianize.dir" value="${debian.src.dir}/debian" />
@@ -2629,10 +2631,6 @@
         <!-- jingle nodes -->
         <unzip src="${sc.basedir}/../libsrc/jnsapi_src.zip"
                dest="${debian.src.dir}/lib/src/jnsapi"/>
-
-        <!-- java-jml-->
-        <unzip src="${sc.basedir}/../libsrc/java-jml.zip"
-               dest="${debian.src.dir}/lib/src"/>
 
         <!-- jymsg -->
         <unzip src="${sc.basedir}/../libsrc/jymsg.zip"
@@ -2714,8 +2712,6 @@
             <arg value="clean" />
         </exec>
         <delete dir="${debian.src.dir}/lib/src/jnsapi/classes"
-                failonerror="false"/>
-        <delete dir="${debian.src.dir}/lib/src/java-jml/classes"
                 failonerror="false"/>
         <ant dir="${debian.src.dir}/lib/src/misc"
             inheritAll="true"
@@ -2926,34 +2922,6 @@
         <symlink resource="/usr/share/java/dnsjava.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude/dnsjava.jar"/>
-
-        <!-- java-jml needs libcommons-logging-java -->
-        <mkdir dir="${debian.src.dir}/lib/src/java-jml/lib"/>
-        <symlink resource="/usr/share/java/httpcore.jar"
-             overwrite="true"
-             link="${debian.src.dir}/lib/src/java-jml/lib"/>
-        <symlink resource="/usr/share/java/commons-logging.jar"
-             overwrite="true"
-             link="${debian.src.dir}/lib/src/java-jml/lib"/>
-        <mkdir dir="${debian.src.dir}/lib/src/java-jml/classes"/>
-        <javac debug="true"
-            deprecation="true" destdir="${debian.src.dir}/lib/src/java-jml/classes"
-            nowarn="false"
-            source="1.5" target="1.5" fork="true">
-                <src path="${debian.src.dir}/lib/src/java-jml/src"/>
-                <include name="**/*.java" />
-            <classpath>
-                  <fileset dir="${debian.src.dir}/lib/src/java-jml/lib">
-                    <include name="*.jar"/>
-                  </fileset>
-            </classpath>
-        </javac>
-        <jar compress="true" destfile="${debian.src.dir}/lib/src/java-jml/java-jml.jar">
-            <zipfileset dir="${debian.src.dir}/lib/src/java-jml/classes"/>
-        </jar>
-        <symlink resource="../src/java-jml/java-jml.jar"
-             overwrite="true"
-             link="${debian.src.dir}/lib/installer-exclude/jml-1.0b5.jar"/>
 
         <!-- jdic misc -->
         <ant dir="${debian.src.dir}/lib/src/misc"

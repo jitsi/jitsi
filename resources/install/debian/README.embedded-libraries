@@ -31,12 +31,6 @@ Smack is an Open Source XMPP (Jabber) client library.
 Reason: We contributed several patches on version 3.2.2 in order to fix a memory leak, added code that handles some currently unchecked, fixes for discovery info parsing, a pubsub parsing problem and the option to use a custom javax.net.ssl.TrustManager. All of those have been sent to the smack community for integration about a year ago, but haven’t been integrated since.
 And there’s no Debian package.
 
-- java-jml http://sourceforge.net/apps/trac/java-jml
-JML is a Java API for communication with Windows Live Messenger/
-MSN Messenger services.
-Damian Minkov from Jitsi team is contributor and has commit right in the project.
-Reason: No Debian package.
-
 - jmyspell http://kenai.com/projects/jmyspell
 JMySpell is a 100% pure-Java implementation of the MySpell spell checker.
 Reason: No Debian package.
