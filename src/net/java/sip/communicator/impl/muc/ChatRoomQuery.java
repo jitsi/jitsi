@@ -395,7 +395,7 @@ public class ChatRoomQuery
         final ChatRoom chatRoom)
     {
         return contact.getProvider() == chatRoom.getParentProvider()
-            && contact.getContactAddress().equals(chatRoom.getIdentifier());
+            && chatRoom.getIdentifier().equals(contact.getContactAddress());
     }
 
     /**
