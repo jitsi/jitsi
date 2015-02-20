@@ -1412,6 +1412,10 @@
     <!-- if embed jre is disabled we want to run 1.6+
         change jvm version, add old launcher and add agent link that is 1.6
         compatible
+        To make growl4j work with 10.6:
+        export MACOSX_DEPLOYMENT_TARGET=10.6
+        ant
+        install_name_tool -change "@executable_path/../Frameworks/Growl.framework/Versions/A/Growl" "@executable_path/../Frameworks/GrowlFramework/Growl.framework/Versions/A/Growl" lib/libgrowl4j.dylib
     -->
     <target name="-macosx-no-jre"
             if="macosx.embed.jre.disabled">
