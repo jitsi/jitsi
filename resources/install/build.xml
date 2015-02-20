@@ -1115,14 +1115,10 @@
 
       <mkdir dir="${macosx.app.dir}"/>
 
-      <property name="macosx.stubfile"
-                value="${macosx.resrc.dir}/JavaApplicationStub"/>
       <condition property="macosx.stubfile"
-                 value="/System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub">
-        <equals arg1="${os.name}"
-                arg2="Mac OS X"
-                casesensitive="false"
-                trim="true"/>
+                 value="${macosx.resrc.dir}/JavaApplicationStub_no_jre"
+                 else="${macosx.resrc.dir}/JavaApplicationStub">
+          <istrue value="${macosx.embed.jre.disabled}"/>
       </condition>
 
       <!-- We copy macosx-specific bundles from
@@ -1285,29 +1281,11 @@
       <key>CFBundleName</key>]]></replacevalue>
       </replace>
 
-      <!-- Rename Java dict to Javax to prevent OSX asking for the old Apple JVM -->
-        <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
-          <replacetoken><![CDATA[<key>Java</key>]]></replacetoken>
-          <replacevalue><![CDATA[<key>Javax</key>]]></replacevalue>
-      </replace>
-
       <!-- Add property for high resolution displays -->
       <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
         <replacetoken><![CDATA[<key>CFBundleName</key>]]></replacetoken>
         <replacevalue><![CDATA[<key>NSHighResolutionCapable</key>
       <true/>
-      <key>CFBundleName</key>]]></replacevalue>
-      </replace>
-
-      <!-- Add property to indicate minimum OSX version:
-           - 10.7.3 for Java 7
-           - 10.8.3 for Java 8
-           http://java.com/en/download/help/sysreq.xml
-      -->
-      <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
-        <replacetoken><![CDATA[<key>CFBundleName</key>]]></replacetoken>
-        <replacevalue><![CDATA[<key>LSMinimumSystemVersion</key>
-      <string>10.8.3</string>
       <key>CFBundleName</key>]]></replacevalue>
       </replace>
 
@@ -1318,6 +1296,7 @@
             todir="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/lib/native/mac/"/>
 
       <antcall target="-macosx-include-jre"/>
+      <antcall target="-macosx-no-jre"/>
 
       <antcall target="enable-splash">
           <param name="target.dir"
@@ -1337,6 +1316,24 @@
 
         <basename property="jre.folder.name" file="${macosx.jre}"/>
         <dirname property="jre.parent.folder" file="${macosx.jre}"/>
+
+        <!-- Add property to indicate minimum OSX version:
+             - 10.7.3 for Java 7
+             - 10.8.3 for Java 8
+             http://java.com/en/download/help/sysreq.xml
+        -->
+        <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
+            <replacetoken><![CDATA[<key>CFBundleName</key>]]></replacetoken>
+            <replacevalue><![CDATA[<key>LSMinimumSystemVersion</key>
+        <string>10.8.3</string>
+        <key>CFBundleName</key>]]></replacevalue>
+        </replace>
+
+        <!-- Rename Java dict to Javax to prevent OSX asking for the old Apple JVM -->
+        <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
+            <replacetoken><![CDATA[<key>Java</key>]]></replacetoken>
+            <replacevalue><![CDATA[<key>Javax</key>]]></replacevalue>
+        </replace>
 
         <mkdir dir="${macosx.app.dir}/${application.name}.app/Contents/PlugIns"/>
         <copy todir="${macosx.app.dir}/${application.name}.app/Contents/PlugIns">
@@ -1410,6 +1407,27 @@
         <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
             <replacefilter token="__jre.folder.name__" value="${jre.folder.name}"/>
         </replace>
+    </target>
+
+    <!-- if embed jre is disabled we want to run 1.6+
+        change jvm version, add old launcher and add agent link that is 1.6
+        compatible
+    -->
+    <target name="-macosx-no-jre"
+            if="macosx.embed.jre.disabled">
+
+        <replace file="${macosx.app.dir}/${application.name}.app/Contents/Info.plist">
+            <replacetoken><![CDATA[<string>1.7+</string>]]></replacetoken>
+            <replacevalue><![CDATA[<string>1.6+</string>]]></replacevalue>
+        </replace>
+
+        <symlink resource="lib/native/mac/libAEGetURLEventHandlerAgent.dylib"
+                 link="${macosx.app.dir}/${application.name}.app/Contents/Resources/Java/libAEGetURLEventHandlerAgent.jnilib"/>
+
+        <copy file="${macosx.resrc.dir}/JavaApplicationStub_OldLauncher"
+              tofile="${macosx.app.dir}/${application.name}.app/Contents/MacOS/${application.name}_OldLauncher"/>
+        <chmod file="${macosx.app.dir}/${application.name}.app/Contents/MacOS/${application.name}_OldLauncher"
+               perm="ugo+rx"/>
     </target>
 
     <!-- Create a MacOSX application package with Sparkle support.

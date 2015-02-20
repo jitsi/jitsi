@@ -9,8 +9,13 @@
 #import <Cocoa/Cocoa.h>
 #include <dlfcn.h>
 
+#ifdef _JITSI_USE_1_6_
+#define JVM_JAVA_KEY "Java"
+#else
 #define JVM_JAVA_KEY "Javax" // Cannot be Java
                              // or OSX requests the old Apple JVM
+#endif
+
 #define JVM_WORKING_DIR_KEY "WorkingDirectory"
 #define JVM_MAIN_CLASS_NAME_KEY "MainClass"
 #define JVM_CLASSPATH_KEY "ClassPath"
@@ -234,7 +239,8 @@ JLI_Launch_t getLauncher(NSDictionary *javaDictionary)
 
     for (id key in sortedKeys)
     {
-        JLI_Launch_t jli_LaunchFxnPtr = getJLILaunch(foundVersions[key]);
+        JLI_Launch_t jli_LaunchFxnPtr =
+            getJLILaunch([foundVersions objectForKey:key]);
 
         if(jli_LaunchFxnPtr != NULL)
         {
@@ -285,6 +291,12 @@ void launchJitsi(int argMainCount, char *argMainValues[])
 
     if(jli_LaunchFxnPtr == NULL)
     {
+        NSString *oldLauncher =
+            [NSMutableString stringWithFormat:@"%@/Contents/MacOS/%@_OldLauncher",
+                                        [mainBundle bundlePath], pname];
+
+        execv([oldLauncher fileSystemRepresentation], argMainValues);
+
         NSLog(@"No java found!");
         exit(-1);
     }

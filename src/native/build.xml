@@ -720,13 +720,18 @@
         <compilerarg value="-O2" />
         <compilerarg value="-arch" />
         <compilerarg value="x86_64" />
+        <!--<compilerarg value="-arch" />-->
+        <!--<compilerarg value="i386" />-->
         <compilerarg value="-I${system.JAVA_HOME}/include" />
         <compilerarg value="-I${system.JAVA_HOME}/include/darwin" />
         <compilerarg value="-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers" />
         <compilerarg value="-mmacosx-version-min=10.6"/>
+        <!--<compilerarg value="-D_JITSI_USE_1_6_"/>-->
 
         <linkerarg value="-arch" />
         <linkerarg value="x86_64" />
+        <!--<linkerarg value="-arch" />-->
+        <!--<linkerarg value="i386" />-->
         <linkerarg value="-framework" />
         <linkerarg value="Cocoa" />
 
