@@ -24,10 +24,6 @@ public class OtrTransformLayer
      */
     public MessageDeliveredEvent messageDelivered(MessageDeliveredEvent evt)
     {
-        Contact contact = evt.getDestinationContact();
-        OtrContact otrContact =
-            OtrContactManager.getOtrContact(contact, evt.getContactResource());
-
         if (OtrActivator.scOtrEngine.isMessageUIDInjected(evt
             .getSourceMessage().getMessageUID()))
             // If this is a message otr4j injected earlier, don't display it,
