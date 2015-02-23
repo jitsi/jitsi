@@ -58,16 +58,6 @@ public class OperationSetContactCapabilitiesJabberImpl
         OPERATION_SETS_TO_FEATURES
             = new HashMap<Class<? extends OperationSet>, String[]>();
 
-    /**
-     * The <tt>Map</tt> which associates specific additional
-     * <tt>OperationSet</tt> class with the capabilities to be supported by a
-     * <tt>Contact</tt> in order to consider the <tt>Contact</tt> to possess the
-     * respective <tt>OperationSet</tt> capability.
-     */
-     private static final Map<Class<? extends OperationSet>, String[]>
-        CAPS_OPERATION_SETS_TO_FEATURES
-            = new HashMap<Class<? extends OperationSet>, String[]>();
-
     static
     {
         OFFLINE_OPERATION_SETS.add(OperationSetBasicInstantMessaging.class);
@@ -106,21 +96,6 @@ public class OperationSetContactCapabilitiesJabberImpl
                 new String[]
                 {
                     MessageCorrectionExtension.NAMESPACE
-                });
-
-        CAPS_OPERATION_SETS_TO_FEATURES.put(
-                OperationSetBasicTelephony.class,
-                new String[]
-                {
-                    ProtocolProviderServiceJabberImpl.CAPS_GTALK_WEB_VOICE,
-                });
-
-        CAPS_OPERATION_SETS_TO_FEATURES.put(
-                OperationSetVideoTelephony.class,
-                new String[]
-                {
-                    ProtocolProviderServiceJabberImpl.CAPS_GTALK_WEB_VOICE,
-                    ProtocolProviderServiceJabberImpl.CAPS_GTALK_WEB_VIDEO
                 });
     }
 
@@ -353,30 +328,7 @@ public class OperationSetContactCapabilitiesJabberImpl
                                     jid,
                                     features)))
             {
-                if(CAPS_OPERATION_SETS_TO_FEATURES.containsKey(opsetClass))
-                {
-                    String[] extFeatures
-                        = CAPS_OPERATION_SETS_TO_FEATURES.get(opsetClass);
-
-                    // test GTalk
-                    if (!parentProvider.isGTalkTesting())
-                    {
-                        opset = null;
-                    }
-                    else if((extFeatures == null)
-                            || ((extFeatures.length != 0)
-                                    && !parentProvider
-                                            .isExtFeatureListSupported(
-                                                    jid,
-                                                    extFeatures)))
-                    {
-                        opset = null;
-                    }
-                }
-                else
-                {
-                    opset = null;
-                }
+                opset = null;
             }
         }
 

@@ -17,7 +17,6 @@ import javax.net.ssl.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.debugger.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.carbon.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.coin.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
@@ -147,41 +146,6 @@ public class ProtocolProviderServiceJabberImpl
      */
     public static final String URN_XMPP_JINGLE_RTP_HDREXT =
         "urn:xmpp:jingle:apps:rtp:rtp-hdrext:0";
-
-    /**
-     * Capabilities name for audio call in Google Talk web version.
-     */
-    public static final String CAPS_GTALK_WEB_VOICE = "voice-v1";
-
-    /**
-     * Capabilities name for video call (receive side) in Google Talk web
-     * version.
-     */
-    public static final String CAPS_GTALK_WEB_VIDEO = "video-v1";
-
-    /**
-     * Capabilities name for video call (sender side) in Google Talk web
-     * version.
-     */
-    public static final String CAPS_GTALK_WEB_CAMERA = "camera-v1";
-
-    /**
-     * URN for Google voice.
-     */
-    public static final String URN_GOOGLE_VOICE =
-        "http://www.google.com/xmpp/protocol/voice/v1";
-
-    /**
-     * URN for Google camera.
-     */
-    public static final String URN_GOOGLE_CAMERA =
-        "http://www.google.com/xmpp/protocol/camera/v1";
-
-    /**
-     * URN for Google video.
-     */
-    public static final String URN_GOOGLE_VIDEO =
-        "http://www.google.com/xmpp/protocol/video/v1";
 
     /**
      * URN for XEP-0077 inband registration
@@ -1418,29 +1382,6 @@ public class ProtocolProviderServiceJabberImpl
                     supportedFeatures.toArray(
                             new String[supportedFeatures.size()]));
 
-        boolean isCallingDisabled
-                = JabberActivator.getConfigurationService()
-                .getBoolean(IS_CALLING_DISABLED, false);
-
-        boolean isCallingDisabledForAccount = false;
-        if (accountID != null && accountID.getAccountPropertyBoolean(
-                ProtocolProviderFactory.IS_CALLING_DISABLED_FOR_ACCOUNT,
-                false))
-            isCallingDisabled = true;
-
-        if(isGTalkTesting()
-                && !isCallingDisabled
-                && !isCallingDisabledForAccount)
-        {
-            // Add Google Talk "ext" capabilities
-            discoveryManager.addExtFeature(CAPS_GTALK_WEB_VOICE);
-            discoveryManager.addExtFeature(CAPS_GTALK_WEB_VIDEO);
-            discoveryManager.addExtFeature(CAPS_GTALK_WEB_CAMERA);
-            discoveryManager.addFeature(URN_GOOGLE_VOICE);
-            discoveryManager.addFeature(URN_GOOGLE_VIDEO);
-            discoveryManager.addFeature(URN_GOOGLE_CAMERA);
-        }
-
         /*
          * Expose the discoveryManager as service-public through the
          * OperationSetContactCapabilities of this ProtocolProviderService.
@@ -2374,61 +2315,6 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
-     * Determines if the given list of <tt>ext features</tt> is supported by the
-     * specified jabber id.
-     *
-     * @param jid the jabber id for which to check
-     * @param extFeatures the list of ext features to check for
-     *
-     * @return <tt>true</tt> if the list of ext features is supported;
-     * otherwise, <tt>false</tt>
-     */
-    public boolean isExtFeatureListSupported(String jid, String... extFeatures)
-    {
-        EntityCapsManager capsManager  = discoveryManager.getCapsManager();
-        EntityCapsManager.Caps caps = capsManager.getCapsByUser(jid);
-
-        String bypassDomain = accountID.getAccountPropertyString(
-            "TELEPHONY_BYPASS_GTALK_CAPS");
-        String domain = StringUtils.parseServer(jid);
-        boolean domainEquals = domain.equals(bypassDomain);
-
-        if(caps != null && caps.ext != null)
-        {
-            String exts[] = caps.ext.split(" ");
-            boolean found = false;
-
-            for(String extFeature : extFeatures)
-            {
-                // in case we have a domain that have to bypass GTalk caps
-                if(extFeature.equals(CAPS_GTALK_WEB_VOICE) && domainEquals)
-                {
-                    return true;
-                }
-
-                found = false;
-                for(String ext : exts)
-                {
-                    if(ext.equals(extFeature))
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-
-                if(!found)
-                {
-                    break;
-                }
-            }
-
-            return found;
-        }
-
-        return false;
-    }
-
-    /**
      * Determines if the given list of <tt>features</tt> is supported by the
      * specified jabber id.
      *
@@ -2797,24 +2683,6 @@ public class ProtocolProviderServiceJabberImpl
     public SecurityAuthority getAuthority()
     {
         return authority;
-    }
-
-    /**
-     * Returns true if gtalktesting is enabled, false otherwise.
-     *
-     * @return true if gtalktesting is enabled, false otherwise.
-     */
-    public boolean isGTalkTesting()
-    {
-        return
-            Boolean.getBoolean("gtalktesting")
-                || JabberActivator.getConfigurationService().getBoolean(
-                        "net.java.sip.communicator.impl.protocol.jabber"
-                            + ".gtalktesting",
-                        false)
-                || accountID.getAccountPropertyBoolean(
-                        ProtocolProviderFactory.IS_USE_GOOGLE_ICE,
-                        true);
     }
 
     UserCredentials getUserCredentials()

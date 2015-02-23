@@ -351,28 +351,6 @@ public class JabberAccountID
     }
 
     /**
-     * Indicates if ice should be used for this account.
-     * @return <tt>true</tt> if ICE should be used for this account, otherwise
-     * returns <tt>false</tt>
-     */
-    public boolean isUseGoogleIce()
-    {
-        return getAccountPropertyBoolean(
-                ProtocolProviderFactory.IS_USE_GOOGLE_ICE, true);
-    }
-
-    /**
-     * Sets the <tt>useGoogleIce</tt> property.
-     * @param isUseIce <tt>true</tt> to indicate that ICE should be used for
-     * this account, <tt>false</tt> - otherwise.
-     */
-    public void setUseGoogleIce(boolean isUseIce)
-    {
-        putAccountProperty(
-                ProtocolProviderFactory.IS_USE_GOOGLE_ICE, isUseIce);
-    }
-
-    /**
      * Indicates if the stun server should be automatically discovered.
      * @return <tt>true</tt> if the stun server should be automatically
      * discovered, otherwise returns <tt>false</tt>.

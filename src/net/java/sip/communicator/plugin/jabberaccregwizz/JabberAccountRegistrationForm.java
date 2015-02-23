@@ -322,7 +322,6 @@ public class JabberAccountRegistrationForm
         securityPanel.commitPanel(registration.getSecurityRegistration());
 
         registration.setUseIce(iceConfigPanel.isUseIce());
-        registration.setUseGoogleIce(iceConfigPanel.isUseGoogleIce());
         registration.setAutoDiscoverStun(iceConfigPanel.isAutoDiscoverStun());
         registration.setUseDefaultStunServer(
                 iceConfigPanel.isUseDefaultStunServer());
@@ -416,8 +415,6 @@ public class JabberAccountRegistrationForm
         securityPanel.loadAccount(accountReg.getSecurityRegistration());
 
         iceConfigPanel.setUseIce(accountReg.isUseIce());
-
-        iceConfigPanel.setUseGoogleIce(accountReg.isUseGoogleIce());
 
         iceConfigPanel.setAutoDiscoverStun(accountReg.isAutoDiscoverStun());
 
