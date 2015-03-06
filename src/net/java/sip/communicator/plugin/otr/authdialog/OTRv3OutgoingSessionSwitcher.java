@@ -244,9 +244,6 @@ public class OTRv3OutgoingSessionSwitcher
      */
     public void setCurrentContact(Contact contact, String resourceName)
     {
-        if (this.contact != null && this.contact.contact == contact)
-            return;
-
         if (resourceName == null)
         {
             this.contact =

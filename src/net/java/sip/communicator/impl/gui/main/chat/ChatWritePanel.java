@@ -55,7 +55,8 @@ public class ChatWritePanel
                 UndoableEditListener,
                 DocumentListener,
                 PluginComponentListener,
-                Skinnable
+                Skinnable,
+                ChatSessionChangeListener
 {
     /**
      * The <tt>Logger</tt> used by the <tt>ChatWritePanel</tt> class and its
@@ -122,6 +123,12 @@ public class ChatWritePanel
      * when available.
      */
     private boolean isOutdatedResource = true;
+
+    /**
+     * List of plugin components that are registered for updates.
+     */
+    private List<PluginComponent> pluginComponents = Collections
+        .synchronizedList(new ArrayList<PluginComponent>());
 
     /**
      * Creates an instance of <tt>ChatWritePanel</tt>.
@@ -1621,6 +1628,7 @@ public class ChatWritePanel
                     = GuiActivator.bundleContext.getService(serRef);
                 PluginComponent component
                     = factory.getPluginComponentInstance(this);
+                this.pluginComponents.add(component);
 
                 ChatSession chatSession = chatPanel.getChatSession();
 
@@ -1677,6 +1685,7 @@ public class ChatWritePanel
             return;
 
         PluginComponent component = factory.getPluginComponentInstance(this);
+        this.pluginComponents.add(component);
 
         ChatSession chatSession = chatPanel.getChatSession();
         if (chatSession != null)
@@ -1724,8 +1733,61 @@ public class ChatWritePanel
         Component c =
             (Component)factory.getPluginComponentInstance(this)
                 .getComponent();
+        this.pluginComponents.remove(c);
 
         this.centerPanel.remove(c);
         this.centerPanel.repaint();
+    }
+
+    @Override
+    public void currentChatTransportChanged(ChatSession chatSession)
+    {
+        List<PluginComponent> components;
+        synchronized (this.pluginComponents)
+        {
+            components = new ArrayList<PluginComponent>(this.pluginComponents);
+        }
+        final Contact contact;
+        if (chatSession.getDescriptor() instanceof MetaContact)
+        {
+            MetaContact meta = (MetaContact) chatSession.getDescriptor();
+            if (meta == null)
+            {
+                // In case of null MetaContact, just call setCurrentContact for
+                // null MetaContact and get out. Nothing else to do here.
+                for (PluginComponent c : components)
+                {
+                    c.setCurrentContact((MetaContact) null);
+                }
+                return;
+            }
+            contact = meta.getDefaultContact();
+        }
+        else
+        {
+            contact = (Contact) chatSession.getDescriptor();
+        }
+        final String resourceName =
+            chatSession.getCurrentChatTransport().getResourceName();
+        for (PluginComponent c : components)
+        {
+            try
+            {
+                c.setCurrentContact(contact, resourceName);
+            }
+            catch (RuntimeException e)
+            {
+                logger.error(
+                    "BUG: setCurrentContact of PluginComponent instance: "
+                        + c.getClass().getCanonicalName()
+                        + " throws a RuntimeException.", e);
+            }
+        }
+    }
+
+    @Override
+    public void currentChatTransportUpdated(int eventID)
+    {
+        // Nothing to do here, since we do not need to communicate update events
     }
 }

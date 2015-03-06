@@ -705,6 +705,7 @@ public class ChatPanel
     {
         setChatIcon(new ImageIcon(Constants.getStatusIcon(
             this.chatSession.getCurrentChatTransport().getStatus())));
+        this.writeMessagePanel.currentChatTransportChanged(chatSession);
     }
 
     /**
@@ -718,6 +719,7 @@ public class ChatPanel
             setChatIcon(new ImageIcon(Constants.getStatusIcon(
                 this.chatSession.getCurrentChatTransport().getStatus())));
         }
+        this.writeMessagePanel.currentChatTransportUpdated(eventID);
     }
 
     /**

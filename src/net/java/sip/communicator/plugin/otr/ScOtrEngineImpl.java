@@ -1304,8 +1304,7 @@ public class ScOtrEngineImpl
     public List<Session> getSessionInstances(OtrContact otrContact)
     {
         if (otrContact == null)
-            return null;
-
+            return Collections.emptyList();
         return getSession(otrContact).getInstances();
     }
 
