@@ -433,6 +433,7 @@ public class OTRv3OutgoingSessionSwitcher
      */
     private void updateEnableStatus()
     {
-        this.menu.setVisible(this.menu.getItemCount() > 1);
+        this.menu.setEnabled(this.menu.getItemCount() > 1);
+        this.menu.setVisible(true);
     }
 }
