@@ -744,9 +744,23 @@ public class ChatWindow
             }
         }
         else
-        {
-            GuiActivator
-                .getUIService().getChatWindowManager().closeAllChats(this, true);
+        {     
+            if(ConfigurationUtils.isMultiChatWindowEnabled())
+            {
+                GuiActivator
+                    .getUIService().getChatWindowManager().closeAllChats(this, true);
+            }
+            else
+            {
+                ChatPanel chatPanel = getCurrentChat();
+    
+                if(chatPanel == null
+                    || chatPanel.getChatConversationPanel() == null)
+                    return;
+                
+                GuiActivator
+                    .getUIService().getChatWindowManager().closeChat(chatPanel);
+            }
         }
     }
 
