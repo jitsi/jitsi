@@ -1739,6 +1739,12 @@ public class ChatWritePanel
         this.centerPanel.repaint();
     }
 
+    /**
+     * Event in case of chat transport changed, for example because a different
+     * transport was selected.
+     *
+     * @param chatSession the chat session
+     */
     @Override
     public void currentChatTransportChanged(ChatSession chatSession)
     {
@@ -1747,26 +1753,37 @@ public class ChatWritePanel
         {
             components = new ArrayList<PluginComponent>(this.pluginComponents);
         }
+        // determine contact instance to use in event handling when calling
+        // setCurrentContact
         final Contact contact;
-        if (chatSession.getDescriptor() instanceof MetaContact)
+        final Object descriptor = chatSession.getDescriptor();
+        if (descriptor instanceof MetaContact)
         {
-            MetaContact meta = (MetaContact) chatSession.getDescriptor();
-            if (meta == null)
+            contact = ((MetaContact) descriptor).getDefaultContact();
+        }
+        else if (descriptor instanceof Contact)
+        {
+            contact = (Contact) descriptor;
+        }
+        else if (descriptor == null)
+        {
+            // In case of null contact, just call setCurrentContact for
+            // null Contact and get out. Nothing else to do here.
+            for (PluginComponent c : components)
             {
-                // In case of null MetaContact, just call setCurrentContact for
-                // null MetaContact and get out. Nothing else to do here.
-                for (PluginComponent c : components)
-                {
-                    c.setCurrentContact((MetaContact) null);
-                }
-                return;
+                c.setCurrentContact((Contact) null);
             }
-            contact = meta.getDefaultContact();
+            return;
         }
         else
         {
-            contact = (Contact) chatSession.getDescriptor();
+            logger.warn(String.format("Unsupported descriptor type %s (%s),"
+                + "this event will not be propagated.", descriptor, descriptor
+                .getClass().getCanonicalName()));
+            return;
         }
+        // Call setCurrentContact on all registered pluginComponents such that
+        // all get updated on the new state of the chat session
         final String resourceName =
             chatSession.getCurrentChatTransport().getResourceName();
         for (PluginComponent c : components)
