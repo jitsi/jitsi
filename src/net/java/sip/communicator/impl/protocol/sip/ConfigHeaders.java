@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import net.java.sip.communicator.util.*;
 
+import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 import java.util.*;
@@ -91,12 +92,14 @@ public class ConfigHeaders
         for(Map.Entry<String, String> entry : props.entrySet())
         {
             String pName = entry.getKey();
-            String prefStr = entry.getValue().trim();
+            String prefStr = entry.getValue();
             String name;
             String ix;
 
-            if(!pName.startsWith(ACC_PROPERTY_CONFIG_HEADER))
+            if(!pName.startsWith(ACC_PROPERTY_CONFIG_HEADER) || prefStr == null)
                 continue;
+
+            prefStr = prefStr.trim();
 
             if(pName.contains("."))
             {
@@ -188,6 +191,31 @@ public class ConfigHeaders
                 value = value.replace(
                     "${to.address}",
                     toHeader.getAddress().getURI().toString());
+            }
+        }
+
+        if(value.indexOf("${to.userID}") != -1)
+        {
+            ToHeader toHeader =
+                (ToHeader)request.getHeader(ToHeader.NAME);
+
+            if(toHeader != null)
+            {
+                URI toURI = toHeader.getAddress().getURI();
+                String toAddr = toURI.toString();
+
+                // strips sip: or sips:
+                if(toURI.isSipURI())
+                {
+                    toAddr = toAddr.replaceFirst(toURI.getScheme() + ":", "");
+                }
+
+                // take the userID part
+                int index = toAddr.indexOf('@');
+                if ( index > -1 )
+                    toAddr = toAddr.substring(0, index);
+
+                value = value.replace("${to.userID}", toAddr);
             }
         }
 
