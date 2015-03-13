@@ -318,6 +318,15 @@ public class MainToolBar
         pluginContainer.dispose();
 
         historyButton.dispose();
+
+        if (this.chatSession != null
+            && this.chatSession instanceof MetaContactChatSession)
+            this.chatSession.removeChatTransportChangeListener(this);
+
+        if(this.chatSession != null
+            && this.chatSession instanceof ConferenceChatSession)
+            ((ConferenceChatSession) this.chatSession)
+                .removeLocalUserRoleListener(this);
     }
 
     /**
