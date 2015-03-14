@@ -121,6 +121,14 @@ public class SecurityPanel
             if(ciphers == null)
                 ciphers = defaultCiphers;
             //TODO the available ciphers should come from SDesControlImpl
+            data.add(new Entry(SrtpCryptoSuite.AES_256_CM_HMAC_SHA1_80, ciphers
+                .contains(SrtpCryptoSuite.AES_256_CM_HMAC_SHA1_80)));
+            data.add(new Entry(SrtpCryptoSuite.AES_256_CM_HMAC_SHA1_32, ciphers
+                .contains(SrtpCryptoSuite.AES_256_CM_HMAC_SHA1_32)));
+            data.add(new Entry(SrtpCryptoSuite.AES_192_CM_HMAC_SHA1_80, ciphers
+                .contains(SrtpCryptoSuite.AES_192_CM_HMAC_SHA1_80)));
+            data.add(new Entry(SrtpCryptoSuite.AES_192_CM_HMAC_SHA1_32, ciphers
+                .contains(SrtpCryptoSuite.AES_192_CM_HMAC_SHA1_32)));
             data.add(new Entry(SrtpCryptoSuite.AES_CM_128_HMAC_SHA1_80, ciphers
                 .contains(SrtpCryptoSuite.AES_CM_128_HMAC_SHA1_80)));
             data.add(new Entry(SrtpCryptoSuite.AES_CM_128_HMAC_SHA1_32, ciphers
