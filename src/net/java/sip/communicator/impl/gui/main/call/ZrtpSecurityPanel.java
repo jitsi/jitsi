@@ -161,12 +161,24 @@ public class ZrtpSecurityPanel
         this.peerRenderer = peerRenderer;
         this.callPeer = callPeer;
 
-        OperationSetVideoTelephony telephony
+        OperationSetVideoTelephony videoTelephony
             = callPeer.getProtocolProvider().getOperationSet(
                     OperationSetVideoTelephony.class);
 
-        telephony.addVideoListener(callPeer, this);
-        telephony.addPropertyChangeListener(callPeer.getCall(), this);
+        // Throwing a NullPointerException in the constructor of a UI element
+        // may cause more problems than it may (potentially) solve.
+        if (videoTelephony != null)
+        {
+            videoTelephony.addVideoListener(callPeer, this);
+
+            Call call = callPeer.getCall();
+
+            // The value of call may indeed be null because the values of the
+            // CallPeer properties are asynchronously updated (with respect to
+            // the UI).
+            if (call != null)
+                videoTelephony.addPropertyChangeListener(call, this);
+        }
 
         audioSecurityLabel = createSecurityLabel("", null);
         videoSecurityLabel = createSecurityLabel("", null);
@@ -202,7 +214,7 @@ public class ZrtpSecurityPanel
 
         closeButton.addActionListener(new ActionListener()
         {
-            public void actionPerformed(ActionEvent e)
+            public void actionPerformed(ActionEvent ev)
             {
                 peerRenderer.setSecurityPanelVisible(false);
             }
@@ -261,8 +273,8 @@ public class ZrtpSecurityPanel
     private JLabel createSecurityLabel(String text, Icon icon)
     {
         JLabel label = new JLabel(text, icon, JLabel.LEFT);
-        label.setForeground(Color.WHITE);
 
+        label.setForeground(Color.WHITE);
         return label;
     }
 
@@ -326,7 +338,7 @@ public class ZrtpSecurityPanel
 
         confirmButton.addActionListener(new ActionListener()
         {
-            public void actionPerformed(ActionEvent e)
+            public void actionPerformed(ActionEvent ev)
             {
                 if (getSecurityControl() != null)
                 {
@@ -430,7 +442,7 @@ public class ZrtpSecurityPanel
 
         zidNameButton.addActionListener(new ActionListener()
         {
-            public void actionPerformed(ActionEvent e)
+            public void actionPerformed(ActionEvent ev)
             {
                 // Set ZID name only for verified peers (SAS compared and
                 // confirmed).
@@ -449,19 +461,19 @@ public class ZrtpSecurityPanel
     /**
      * Refreshes the state of the SAS and the SAS verified padlock.
      *
-     * @param evt the security event of which we're notified
+     * @param ev the security event of which we're notified
      */
     @Override
-    public void securityOn(CallPeerSecurityOnEvent evt)
+    public void securityOn(CallPeerSecurityOnEvent ev)
     {
-        switch (evt.getSessionType())
+        switch (ev.getSessionType())
         {
-            case CallPeerSecurityStatusEvent.AUDIO_SESSION:
-                setAudioSecurityOn(true);
-                break;
-            case CallPeerSecurityStatusEvent.VIDEO_SESSION:
-                setVideoSecurityOn(true);
-                break;
+        case CallPeerSecurityStatusEvent.AUDIO_SESSION:
+            setAudioSecurityOn(true);
+            break;
+        case CallPeerSecurityStatusEvent.VIDEO_SESSION:
+            setVideoSecurityOn(true);
+            break;
         }
 
         String securityString = getSecurityControl().getSecurityString();
@@ -496,16 +508,16 @@ public class ZrtpSecurityPanel
      * Indicates that the security has gone off.
      */
     @Override
-    public void securityOff(CallPeerSecurityOffEvent evt)
+    public void securityOff(CallPeerSecurityOffEvent ev)
     {
-        switch (evt.getSessionType())
+        switch (ev.getSessionType())
         {
-            case CallPeerSecurityStatusEvent.AUDIO_SESSION:
-                setAudioSecurityOn(false);
-                break;
-            case CallPeerSecurityStatusEvent.VIDEO_SESSION:
-                setVideoSecurityOn(false);
-                break;
+        case CallPeerSecurityStatusEvent.AUDIO_SESSION:
+            setAudioSecurityOn(false);
+            break;
+        case CallPeerSecurityStatusEvent.VIDEO_SESSION:
+            setVideoSecurityOn(false);
+            break;
         }
 
         revalidate();
@@ -522,20 +534,16 @@ public class ZrtpSecurityPanel
     {
         removeAll();
 
-        encryptionVerifiedIcon = new ImageIcon(
-            ImageLoader.getImage(ImageLoader.ENCR_VERIFIED));
-
-        audioSecuredIcon = new ImageIcon(
-            ImageLoader.getImage(ImageLoader.SECURE_AUDIO_ON));
-
-        audioNotSecuredIcon = new ImageIcon(
-            ImageLoader.getImage(ImageLoader.SECURE_AUDIO_OFF));
-
-        videoSecuredIcon = new ImageIcon(
-            ImageLoader.getImage(ImageLoader.SECURE_VIDEO_ON));
-
-        videoNotSecuredIcon = new ImageIcon(
-            ImageLoader.getImage(ImageLoader.SECURE_VIDEO_OFF));
+        encryptionVerifiedIcon
+            = new ImageIcon(ImageLoader.getImage(ImageLoader.ENCR_VERIFIED));
+        audioSecuredIcon
+            = new ImageIcon(ImageLoader.getImage(ImageLoader.SECURE_AUDIO_ON));
+        audioNotSecuredIcon
+            = new ImageIcon(ImageLoader.getImage(ImageLoader.SECURE_AUDIO_OFF));
+        videoSecuredIcon
+            = new ImageIcon(ImageLoader.getImage(ImageLoader.SECURE_VIDEO_ON));
+        videoNotSecuredIcon
+            = new ImageIcon(ImageLoader.getImage(ImageLoader.SECURE_VIDEO_OFF));
 
         addComponents();
 
@@ -674,10 +682,10 @@ public class ZrtpSecurityPanel
     /**
      * {@inheritDoc}
      */
-    public void propertyChange(final PropertyChangeEvent event)
+    public void propertyChange(PropertyChangeEvent ev)
     {
-        if (OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING
-                .equals(event.getPropertyName()))
+        if (OperationSetVideoTelephony.LOCAL_VIDEO_STREAMING.equals(
+                ev.getPropertyName()))
         {
             setVideoSecurityOn(isVideoSecurityOn);
         }
@@ -686,7 +694,7 @@ public class ZrtpSecurityPanel
     /**
      * {@inheritDoc}
      */
-    public void videoAdded(VideoEvent event)
+    public void videoAdded(VideoEvent ev)
     {
         setVideoSecurityOn(isVideoSecurityOn);
     }
@@ -694,7 +702,7 @@ public class ZrtpSecurityPanel
     /**
      * {@inheritDoc}
      */
-    public void videoRemoved(VideoEvent event)
+    public void videoRemoved(VideoEvent ev)
     {
         setVideoSecurityOn(isVideoSecurityOn);
     }
@@ -702,7 +710,7 @@ public class ZrtpSecurityPanel
     /**
      * {@inheritDoc}
      */
-    public void videoUpdate(VideoEvent event)
+    public void videoUpdate(VideoEvent ev)
     {
         setVideoSecurityOn(isVideoSecurityOn);
     }
@@ -732,6 +740,7 @@ public class ZrtpSecurityPanel
         public ZidToNameThread()
         {
         }
+
         @Override
         public void run()
         {
