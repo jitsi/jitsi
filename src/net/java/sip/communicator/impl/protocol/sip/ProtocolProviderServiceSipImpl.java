@@ -559,6 +559,17 @@ public class ProtocolProviderServiceSipImpl
                 addSupportedOperationSet(
                     OperationSetJitsiMeetTools.class,
                     new OperationSetJitsiMeetToolsSipImpl());
+
+                boolean isParkingEnabled
+                    = accountID.getAccountPropertyBoolean(
+                        OperationSetTelephonyPark.IS_CALL_PARK_ENABLED,
+                        false);
+                if(isParkingEnabled)
+                {
+                    addSupportedOperationSet(
+                        OperationSetTelephonyPark.class,
+                        new OperationSetTelephonyParkSipImpl(this));
+                }
             }
 
             if (enablePresence)

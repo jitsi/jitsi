@@ -57,7 +57,10 @@ import org.osgi.framework.*;
  * 11 videoButton
  * 12 showHideVideoButton
  * 19 chatButton
- * 20 infoButton
+ * 25 parkButton
+ * 30 crmButton
+ * 50 infoButton
+ * 100 hangupButton
  *
  * @author Yana Stamcheva
  * @author Adam Netocny
@@ -319,6 +322,11 @@ public class CallPanel
      * CRM button.
      */
     private CallToolBarButton crmButton;
+
+    /**
+     * Park button.
+     */
+    private SIPCommButton parkButton;
 
     /**
      * Indicates if the call timer has been started.
@@ -866,6 +874,7 @@ public class CallPanel
         {
             settingsPanel.add(localLevel);
             settingsPanel.add(remoteLevel);
+            settingsPanel.remove(parkButton);
         }
         else
         {
@@ -987,6 +996,20 @@ public class CallPanel
             if (CallState.CALL_IN_PROGRESS != call.getCallState())
             {
                 allCallsConnected = false;
+            }
+
+            // if we are not in conf call and we have the needed opset
+            // add the button and enable it when call is connected
+            if(!isConference)
+            {
+                OperationSetTelephonyPark opsetPark
+                    = pps.getOperationSet(OperationSetTelephonyPark.class);
+
+                if(opsetPark != null)
+                {
+                    settingsPanel.add(parkButton);
+                    parkButton.setEnabled(allCallsConnected);
+                }
             }
         }
 
@@ -1426,6 +1449,8 @@ public class CallPanel
 
         chatButton.setIndex(19);
 
+        parkButton.setIndex(25);
+
         if (crmButton != null)
             crmButton.setIndex(30);
         if (infoButton != null)
@@ -1628,6 +1653,8 @@ public class CallPanel
                     false,
                     true)
                 .getComponent();
+
+        parkButton = new ParkCallButton(aCall);
 
         /*
          * Now that the buttons have been initialized, set their order indexes

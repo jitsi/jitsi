@@ -960,6 +960,12 @@ public class ImageLoader
         = new ImageID("service.gui.buttons.TRANSFER_CALL_BUTTON");
 
     /**
+     * A call-park button icon. The icon shown in the CallPeer panel.
+     */
+    public static final ImageID PARK_CALL_BUTTON
+        = new ImageID("service.gui.buttons.PARK_CALL_BUTTON");
+
+    /**
      * The secure button on icon. The icon shown in the CallPeer panel.
      */
     public static final ImageID SECURE_BUTTON_ON
