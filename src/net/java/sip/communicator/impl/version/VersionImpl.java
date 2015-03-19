@@ -31,7 +31,7 @@ public class VersionImpl
      * number changes when a relatively extensive set of new features and
      * possibly rearchitecturing have been applied to the Jitsi.
      */
-    public static final int VERSION_MINOR = 7;
+    public static final int VERSION_MINOR = 8;
 
     /**
      * Indicates whether this version represents a prerelease (i.e. a
