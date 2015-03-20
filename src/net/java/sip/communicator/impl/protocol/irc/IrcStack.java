@@ -221,6 +221,16 @@ public class IrcStack implements IrcConnectionListener
     }
 
     /**
+     * Get the stack's persistent context instance.
+     *
+     * @return returns this stack's persistent context instance
+     */
+    PersistentContext getContext()
+    {
+        return this.context;
+    }
+
+    /**
      * Create a custom SSL context for this particular server.
      *
      * @param hostname host name of the host we are connecting to such that we

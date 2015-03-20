@@ -39,7 +39,15 @@ public enum ISupport
     /**
      * Maximum number of joined channels allowed by IRC server.
      */
-    CHANLIMIT;
+    CHANLIMIT,
+    /**
+     * Maximum number of entries in the MONITOR list supported by this server.
+     */
+    MONITOR,
+    /**
+     * Maximum number of entries in the WATCH list supported by this server.
+     */
+    WATCH;
 
     /**
      * Pattern for parsing ChanLimit ISUPPORT parameter.
