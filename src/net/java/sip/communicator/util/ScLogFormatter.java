@@ -22,8 +22,6 @@ import java.util.logging.*;
 public class ScLogFormatter
     extends java.util.logging.Formatter
 {
-    static long startTime = System.currentTimeMillis();
-
     private static String lineSeparator = System.getProperty("line.separator");
     private static DecimalFormat twoDigFmt = new DecimalFormat("00");
     private static DecimalFormat threeDigFmt = new DecimalFormat("000");
@@ -40,11 +38,17 @@ public class ScLogFormatter
 
         //current time
         Calendar cal = Calendar.getInstance();
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH);
+        int day = cal.get(Calendar.DAY_OF_MONTH);
         int hour = cal.get(Calendar.HOUR_OF_DAY);
         int minutes = cal.get(Calendar.MINUTE);
         int seconds = cal.get(Calendar.SECOND);
         int millis = cal.get(Calendar.MILLISECOND);
 
+        sb.append(year).append('-');
+        sb.append(twoDigFmt.format(month)).append('-');
+        sb.append(twoDigFmt.format(day)).append(' ');
         sb.append(twoDigFmt.format(hour)).append(':');
         sb.append(twoDigFmt.format(minutes)).append(':');
         sb.append(twoDigFmt.format(seconds)).append('.');
