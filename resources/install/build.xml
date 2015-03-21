@@ -4026,6 +4026,28 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
                  token="reference:file:sc-bundles/ui-service.jar">
             <replacevalue>reference:file:/usr/share/jitsi-common/ui-service.jar</replacevalue>
         </replace>
+
+        <move file="${debian.bundles.dest}/reconnectplugin.jar"
+              tofile="${debian.bundles.common.dest}/reconnectplugin.jar"/>
+        <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+                 token="reference:file:sc-bundles/reconnectplugin.jar">
+            <replacevalue>reference:file:/usr/share/jitsi-common/reconnectplugin.jar</replacevalue>
+        </replace>
+
+        <move file="${debian.bundles.dest}/sysactivitynotifications.jar"
+              tofile="${debian.bundles.common.dest}/sysactivitynotifications.jar"/>
+        <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+                 token="reference:file:sc-bundles/sysactivitynotifications.jar">
+            <replacevalue>reference:file:/usr/share/jitsi-common/sysactivitynotifications.jar</replacevalue>
+        </replace>
+
+        <move file="${debian.bundles.dest}/credentialsstorage.jar"
+              tofile="${debian.bundles.common.dest}/credentialsstorage.jar"/>
+        <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
+                 token="reference:file:sc-bundles/credentialsstorage.jar">
+            <replacevalue>reference:file:/usr/share/jitsi-common/credentialsstorage.jar</replacevalue>
+        </replace>
+
     </target>
     <target name="deb-bundle-slf4j">
         <delete file="${debian.bundles.dest}/slf4j-api.jar" failonerror="false"/>
