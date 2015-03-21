@@ -53,14 +53,15 @@ public class SwingNotificationActivator implements BundleActivator
 
         bundleContext = bc;
 
-        PopupMessageHandler handler = null;
-        handler = new PopupMessageHandlerSwingImpl();
-
         getConfigurationService();
 
         bc.registerService(
                 PopupMessageHandler.class.getName()
-                , handler
+                , new PopupMessageHandlerSwingImpl()
+                , null);
+        bc.registerService(
+                PopupMessageHandler.class.getName()
+                , new NonePopupMessageHandlerImpl()
                 , null);
 
         if (logger.isInfoEnabled())
