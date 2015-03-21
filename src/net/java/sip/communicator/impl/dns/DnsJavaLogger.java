@@ -18,7 +18,7 @@ import java.net.*;
  * @author Damian Minkov
  */
 public class DnsJavaLogger
-    implements CustomLogger
+    implements PacketLogger
 {
     /**
      * The logger.
@@ -49,9 +49,10 @@ public class DnsJavaLogger
     }
 
     @Override
-    public void log(SocketAddress local,
+    public void log(String prefix,
+                    SocketAddress local,
                     SocketAddress remote,
-                    String prefix, byte[] data)
+                    byte[] data)
     {
         // make sure that error here will not stop further processing
         try

@@ -111,7 +111,7 @@ public class DnsUtilActivator
         if(Logger.getLogger("org.xbill").isTraceEnabled())
             Options.set("verbose", "1");
 
-        Lookup.setCustomLogger(new DnsJavaLogger());
+        Lookup.setPacketLogger(new DnsJavaLogger());
 
         if(loadDNSProxyForward())
         {
