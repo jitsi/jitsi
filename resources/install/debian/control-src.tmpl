@@ -59,9 +59,9 @@ Package: _PACKAGE_NAME_
 Architecture: all
 Depends: ${misc:Depends},
          _PACKAGE_NAME_-jni (>= ${source:Version}),
-         _PACKAGE_NAME_-common (>= ${source:Version}),
-         libjitsi (>= 415-0),
-         libjitsi-jni (>= 415-0),
+         _PACKAGE_NAME_-common (= ${source:Version}),
+         libjitsi (= ${libjitsi:version}),
+         libjitsi-jni (= ${libjitsi:version}),
          default-jre | java6-runtime,
          libunixsocket-java,
          libhttpcore-java,

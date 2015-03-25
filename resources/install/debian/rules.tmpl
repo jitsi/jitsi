@@ -7,7 +7,9 @@ export PACKAGE_NAME=_PACKAGE_NAME_
 export ANT=ant
 
 # Uncomment this to turn on verbose mode.
-export DH_VERBOSE=1
+#export DH_VERBOSE=1
+
+libjitsiVersion = $(shell dpkg -s libjitsi | grep Version: | awk '{print $$2}')
 
 %:
 	dh $@ --with javahelper
@@ -37,6 +39,9 @@ override_jh_manifest:
 
 override_dh_auto_clean:
 	dh_auto_clean -- clean-debuild
+
+override_dh_gencontrol:
+	dh_gencontrol -- -Vlibjitsi:version="$(libjitsiVersion)"
 
 get-orig-source:
 	uscan
