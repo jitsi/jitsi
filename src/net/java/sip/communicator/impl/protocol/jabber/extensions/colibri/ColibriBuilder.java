@@ -213,7 +213,7 @@ public class ColibriBuilder
             }
         }
 
-        if (useBundle)
+        if (useBundle && contents.size() >= 1)
         {
             // Copy first transport to bundle
             ColibriConferenceIQ.ChannelBundle bundle
