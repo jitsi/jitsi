@@ -9,8 +9,10 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.io.*;
 import java.net.*;
 
+import net.java.sip.communicator.util.*;
 import org.ice4j.*;
 import org.ice4j.socket.*;
+import org.ice4j.stack.*;
 
 /**
  * Represents an application-purposed (as opposed to an ICE-specific)
@@ -20,6 +22,121 @@ import org.ice4j.socket.*;
  */
 public class JingleNodesCandidateDatagramSocket extends DatagramSocket
 {
+    /**
+     * The <tt>Logger</tt> used by the
+     * <tt>JingleNodesCandidateDatagramSocket</tt> class and its instances for
+     * logging output.
+     */
+    private static final Logger logger
+            = Logger.getLogger(JingleNodesCandidateDatagramSocket.class);
+
+    /**
+     * Determines whether a packet should be logged, given the number of sent
+     * or received packets.
+     *
+     * @param numOfPacket the number of packets sent or received.
+     */
+    private static boolean logPacket(long numOfPacket)
+    {
+        return (numOfPacket == 1)
+                || (numOfPacket == 300)
+                || (numOfPacket == 500)
+                || (numOfPacket == 1000)
+                || ((numOfPacket % 5000) == 0);
+    }
+
+    /**
+     * Logs information about RTP losses if there is more then 5% of RTP packet
+     * lost (at most every 5 seconds).
+     *
+     * @param totalNbLost The total number of lost packet since the beginning of
+     * this stream.
+     * @param totalNbReceived The total number of received packet since the
+     * beginning of this stream.
+     * @param lastLogTime The last time we have logged information about RTP
+     * losses.
+     *
+     * @return the last log time updated if this function as log new information
+     * about RTP losses. Otherwise, returns the same last log time value as
+     * given in parameter.
+     */
+    private static long logRtpLosses(
+            long totalNbLost,
+            long totalNbReceived,
+            long lastLogTime)
+    {
+        double percentLost = ((double) totalNbLost)
+                / ((double) (totalNbLost + totalNbReceived));
+        // Log the information if the loss rate is upper 5% and if the last
+        // log is before 5 seconds.
+        if(percentLost > 0.05)
+        {
+            long currentTime = System.currentTimeMillis();
+            if(currentTime - lastLogTime >= 5000)
+            {
+                logger.info("RTP lost > 5%: " + percentLost);
+                return currentTime;
+            }
+        }
+        return lastLogTime;
+    }
+
+    /**
+     * Return the number of loss between the 2 last RTP packets received.
+     *
+     * @param lastRtpSequenceNumber The previous RTP sequence number.
+     * @param newSeq The current RTP sequence number.
+     *
+     * @return the number of loss between the 2 last RTP packets received.
+     */
+    private static long getNbLost(
+            long lastRtpSequenceNumber,
+            long newSeq)
+    {
+        long newNbLost = 0;
+        if(lastRtpSequenceNumber <= newSeq)
+        {
+            newNbLost = newSeq - lastRtpSequenceNumber;
+        }
+        else
+        {
+            newNbLost = (0xffff - lastRtpSequenceNumber) + newSeq;
+        }
+
+        if(newNbLost > 1)
+        {
+            if(newNbLost < 0x00ff)
+            {
+                return newNbLost - 1;
+            }
+            // Else the paquet is desequenced, then count it as a
+            // single loss.
+            else
+            {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Determines the sequence number of an RTP packet.
+     *
+     * @param p the last RTP packet received.
+     * @return The last RTP sequence number.
+     */
+    private static long getRtpSequenceNumber(DatagramPacket p)
+    {
+        // The sequence number is contained in the third and fourth bytes of the
+        // RTP header (stored in big endian).
+        byte[] data = p.getData();
+        int offset = p.getOffset();
+        long seq_high = data[offset + 2] & 0xff;
+        long seq_low = data[offset + 3] & 0xff;
+
+        return seq_high << 8 | seq_low;
+    }
+
     /**
      * <tt>TransportAddress</tt> of the Jingle Nodes relay where we will send
      * our packet.
@@ -107,14 +224,14 @@ public class JingleNodesCandidateDatagramSocket extends DatagramSocket
         //XXX reuse an existing DatagramPacket ?
         super.send(packet);
 
-        // no exception packet is successfully sent, log it.
-        ++nbSentRtpPackets;
-        DelegatingDatagramSocket.logPacketToPcap(
-                packet,
-                this.nbSentRtpPackets,
-                true,
-                super.getLocalAddress(),
-                super.getLocalPort());
+        if (logPacket(++nbSentRtpPackets))
+        {
+            StunStack.logPacketToPcap(
+                    packet,
+                    true,
+                    super.getLocalAddress(),
+                    super.getLocalPort());
+        }
     }
 
     /**
@@ -131,14 +248,14 @@ public class JingleNodesCandidateDatagramSocket extends DatagramSocket
     {
         super.receive(p);
 
-        // no exception packet is successfully received, log it.
-        ++nbReceivedRtpPackets;
-        DelegatingDatagramSocket.logPacketToPcap(
-                p,
-                this.nbReceivedRtpPackets,
-                false,
-                super.getLocalAddress(),
-                super.getLocalPort());
+        if (logPacket(++nbReceivedRtpPackets))
+        {
+            StunStack.logPacketToPcap(
+                    p,
+                    false,
+                    super.getLocalAddress(),
+                    super.getLocalPort());
+        }
         // Log RTP losses if > 5%.
         updateRtpLosses(p);
     }
@@ -210,15 +327,16 @@ public class JingleNodesCandidateDatagramSocket extends DatagramSocket
         // If this is not a STUN/TURN packet, then this is a RTP packet.
         if(!StunDatagramPacketFilter.isStunPacket(p))
         {
-            long newSeq = DelegatingDatagramSocket.getRtpSequenceNumber(p);
+            long newSeq = getRtpSequenceNumber(p);
             if(this.lastRtpSequenceNumber != -1)
             {
-                nbLostRtpPackets += DelegatingDatagramSocket
-                    .getNbLost(this.lastRtpSequenceNumber, newSeq);
+                nbLostRtpPackets +=
+                        getNbLost(this.lastRtpSequenceNumber, newSeq);
             }
             this.lastRtpSequenceNumber = newSeq;
 
-            this.lastLostPacketLogTime = DelegatingDatagramSocket.logRtpLosses(
+            this.lastLostPacketLogTime
+                = logRtpLosses(
                     this.nbLostRtpPackets,
                     this.nbReceivedRtpPackets,
                     this.lastLostPacketLogTime);
