@@ -317,7 +317,7 @@ public class UriHandlerJabberImpl
                 = provider
                     .getOperationSet(OperationSetPersistentPresence.class);
 
-            String contactId = uri.replaceFirst(getProtocol() + ":", "");
+            String contactId = uri.substring(uri.indexOf(':') + 1);
 
             //todo check url!!
             //Set the email pattern string
