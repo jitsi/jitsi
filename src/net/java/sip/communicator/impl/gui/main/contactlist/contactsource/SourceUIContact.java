@@ -460,10 +460,6 @@ public class SourceUIContact
         if (displayDetails != null)
             tip.addLine(new JLabel[]{new JLabel(getDisplayDetails())});
 
-        // skip details for some types
-        if(sourceContact.getContactSource().getType()
-            == ContactSourceService.RECENT_MESSAGES_TYPE)
-            return tip;
 
         try
         {
@@ -499,6 +495,13 @@ public class SourceUIContact
         }
         catch (OperationNotSupportedException e)
         {
+            List<ContactDetail> telDetails
+                = sourceContact.getContactDetails(
+                    OperationSetBasicTelephony.class);
+            // if there is no telephony
+            if(telDetails == null || telDetails.isEmpty())
+                return tip;
+
             // Categories aren't supported. This is the case for history
             // records.
             List<ContactDetail> allDetails = sourceContact.getContactDetails();
