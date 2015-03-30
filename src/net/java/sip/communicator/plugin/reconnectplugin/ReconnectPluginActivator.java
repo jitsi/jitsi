@@ -753,7 +753,8 @@ public class ReconnectPluginActivator
 
                 if(logger.isTraceEnabled())
                 {
-                    logger.trace("Got Connection Failed for " + pp);
+                    logger.trace("Got Connection Failed for " + pp,
+                        new Exception("tracing exception"));
                     traceCurrentPPState();
                 }
             }
