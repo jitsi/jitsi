@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.irc;
 
 import java.net.*;
 
+import net.java.sip.communicator.impl.protocol.irc.ClientConfigImpl.SASLImpl;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -268,6 +269,7 @@ public class ProtocolProviderServiceIrcImpl
                 ProtocolProviderFactoryIrcImpl.SASL_ENABLED, false);
         String saslUser = accountID.getAccountPropertyString(
             ProtocolProviderFactoryIrcImpl.SASL_USERNAME);
+        // FIXME Retrieve SASL password from Jitsi secure storage!
         String saslPass = accountID.getAccountPropertyString(
             ProtocolProviderFactoryIrcImpl.SASL_PASSWORD);
         String saslRole = accountID.getAccountPropertyString(
@@ -322,6 +324,13 @@ public class ProtocolProviderServiceIrcImpl
         config.setChannelPresenceTaskEnabled(channelPresenceTask);
         config.setProxy(loadProxy());
         config.setResolveByProxy(loadDNSThroughProxySetting());
+        if (saslEnabled)
+        {
+            final SASLImpl sasl =
+                new ClientConfigImpl.SASLImpl(saslUser, saslPass, saslRole);
+            config.setSASL(sasl);
+        }
+
         // FIXME fix 'replacement' plugins which now (probably) don't use global
         // proxy configuration when contacting URLs on the internet
 

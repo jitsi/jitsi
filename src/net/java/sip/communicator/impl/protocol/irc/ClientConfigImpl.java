@@ -47,6 +47,11 @@ public class ClientConfigImpl
     private boolean resolveByProxy = true;
 
     /**
+     * Get SASL authentication data.
+     */
+    private SASLImpl sasl = null;
+
+    /**
      * Get version 3 allowed flag.
      *
      * @return returns <tt>true</tt> if allowed, or <tt>false</tt> if not.
@@ -140,6 +145,7 @@ public class ClientConfigImpl
      * @return returns <tt>true</tt> to resolve by proxy, or <tt>false</tt> to
      *         resolve via (local) DNS.
      */
+    @Override
     public boolean isResolveByProxy()
     {
         return this.resolveByProxy;
@@ -152,5 +158,116 @@ public class ClientConfigImpl
     public void setResolveByProxy(final boolean resolveByProxy)
     {
         this.resolveByProxy = resolveByProxy;
+    }
+
+    /**
+     * Get the configured SASL authentication data.
+     *
+     * @return Returns the SASL authentication data if set, or null if no
+     *         authentication data is set. If no authentication data is set,
+     *         this would mean SASL authentication need not be used.
+     */
+    @Override
+    public SASL getSASL()
+    {
+        return this.sasl;
+    }
+
+    /**
+     * Set SASL authentication data.
+     *
+     * @param sasl the SASL authentication data
+     */
+    public void setSASL(final SASLImpl sasl)
+    {
+        this.sasl = sasl;
+    }
+
+    /**
+     * Type for storing SASL authentication data.
+     *
+     * @author Danny van Heumen
+     */
+    public static class SASLImpl implements SASL
+    {
+        /**
+         * User name.
+         */
+        private final String user;
+
+        /**
+         * Password.
+         */
+        private final String pass;
+
+        /**
+         * Authorization role.
+         */
+        private final String role;
+
+        /**
+         * Constructor for authentication without an explicit authorization
+         * role.
+         *
+         * @param userName the user name
+         * @param password the password
+         */
+        public SASLImpl(final String userName, final String password)
+        {
+            this(userName, password, null);
+        }
+
+        /**
+         * Constructor for authentication with authorization role.
+         *
+         * @param userName the user name
+         * @param password the password
+         * @param role the authorization role
+         */
+        public SASLImpl(final String userName, final String password,
+            final String role)
+        {
+            if (userName == null)
+            {
+                throw new NullPointerException("userName");
+            }
+            this.user = userName;
+            if (password == null)
+            {
+                throw new NullPointerException("password");
+            }
+            this.pass = password;
+            this.role = role;
+        }
+
+        /**
+         * Get the user name.
+         *
+         * @return Returns the user name.
+         */
+        public String getUser()
+        {
+            return this.user;
+        }
+
+        /**
+         * Get the password.
+         *
+         * @return Returns the password.
+         */
+        public String getPass()
+        {
+            return this.pass;
+        }
+
+        /**
+         * Get the authorization role.
+         *
+         * @return Returns the authorization role.
+         */
+        public String getRole()
+        {
+            return this.role;
+        }
     }
 }

@@ -63,4 +63,42 @@ public interface ClientConfig
      *         proxy
      */
     boolean isResolveByProxy();
+
+    /**
+     * Get the configured SASL authentication data.
+     *
+     * @return Returns the SASL authentication data if set, or null if no
+     *         authentication data is set. If no authentication data is set,
+     *         this would mean SASL authentication need not be used.
+     */
+    SASL getSASL();
+
+    /**
+     * SASL authentication data.
+     *
+     * @author Danny van Heumen
+     */
+    static interface SASL
+    {
+        /**
+         * Get user name.
+         *
+         * @return Returns the user name.
+         */
+        String getUser();
+
+        /**
+         * Get password.
+         *
+         * @return Returns the password.
+         */
+        String getPass();
+
+        /**
+         * Get authorization role.
+         *
+         * @return Returns the authorization role if set. (Optional)
+         */
+        String getRole();
+    }
 }

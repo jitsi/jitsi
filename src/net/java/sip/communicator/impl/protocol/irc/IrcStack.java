@@ -28,6 +28,8 @@ import com.ircclouds.irc.api.listeners.*;
 /**
  * An implementation of IRC using the irc-api library.
  *
+ * TODO Correctly disconnect IRC connection upon quitting.
+ *
  * @author Danny van Heumen
  */
 public class IrcStack implements IrcConnectionListener
@@ -112,17 +114,18 @@ public class IrcStack implements IrcConnectionListener
         Exception
     {
         final IRCServer server;
+        final String plainPass = config.getSASL() == null ? password : null;
         if (secureConnection)
         {
             server =
-                new SecureIRCServer(host, port, password,
+                new SecureIRCServer(host, port, plainPass,
                     getCustomSSLContext(host), config.getProxy(),
                     config.isResolveByProxy());
         }
         else
         {
             server =
-                new IRCServer(host, port, password, false, config.getProxy(),
+                new IRCServer(host, port, plainPass, false, config.getProxy(),
                     config.isResolveByProxy());
         }
 

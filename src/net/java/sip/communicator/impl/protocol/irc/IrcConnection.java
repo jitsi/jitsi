@@ -9,6 +9,7 @@ package net.java.sip.communicator.impl.protocol.irc;
 import java.io.*;
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.irc.ClientConfig.SASL;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -150,8 +151,8 @@ public class IrcConnection
         final CapabilityNegotiator negotiator;
         if (config.isVersion3Allowed())
         {
-            // TODO get SASL authentication data from config
-            negotiator = determineNegotiator(params.getNickname(), password);
+            negotiator =
+                determineNegotiator(params.getNickname(), password, config);
         }
         else
         {
@@ -164,8 +165,8 @@ public class IrcConnection
 
         // Now actually connect to the IRC server.
         this.connectionState =
-            connectSynchronized(this.context.provider, params, password,
-                this.irc, negotiator);
+            connectSynchronized(this.context.provider, params, this.irc,
+                negotiator);
 
         // instantiate identity manager for the connection
         this.identity =
@@ -202,47 +203,23 @@ public class IrcConnection
      * in the specification
      * (http://ircv3.atheme.org/specification/capability-negotiation-3.1).
      *
-     * The NoopNegotiator should be used to do IRCv3 negotiation but not set up
-     * anything at that moment.
+     * The NoopNegotiator should be used to do IRCv3 negotiation (enabling IRCv3
+     * in the process) but not set up anything at that moment.
      *
      * @param user the user nick used for authentication
      * @param password the authentication password
      * @return returns capability negotiator
      */
     private static CapabilityNegotiator determineNegotiator(final String user,
-        final String password)
+        final String password, final ClientConfig config)
     {
-        if (password == null)
+        final SASL sasl = config.getSASL();
+        if (sasl == null)
         {
             return new NoopNegotiator();
         }
-        else
-        {
-            // FIXME correctly determine capabilities and SASL authentication
-            // enabled
-            return new SaslNegotiator(user, password, null);
-        }
-        // FIXME DEBUG CODE remove
-//        final ArrayList<Capability> caps = new ArrayList<Capability>();
-//        caps.add(new SimpleCapability("away-notify"));
-//        if (password != null)
-//        {
-//            caps.add(new SaslCapability(true, null, user, password));
-//        }
-//        return new CompositeNegotiator(caps, new CompositeNegotiator.Host()
-//        {
-//            @Override
-//            public void reject(Capability cap)
-//            {
-//                LOGGER.warn("REJECTED: " + cap.getId());
-//            }
-//
-//            @Override
-//            public void acknowledge(Capability cap)
-//            {
-//                LOGGER.warn("ACKED: " + cap.getId());
-//            }
-//        });
+        return new SaslNegotiator(sasl.getUser(), sasl.getPass(),
+            sasl.getRole());
     }
 
     /**
@@ -255,9 +232,8 @@ public class IrcConnection
      */
     private static IIRCState connectSynchronized(
         final ProtocolProviderServiceIrcImpl provider,
-        final IServerParameters params, final String password,
-        final IRCApi irc, final CapabilityNegotiator negotiator)
-        throws Exception
+        final IServerParameters params, final IRCApi irc,
+        final CapabilityNegotiator negotiator) throws Exception
     {
         final Result<IIRCState, Exception> result =
             new Result<IIRCState, Exception>();
