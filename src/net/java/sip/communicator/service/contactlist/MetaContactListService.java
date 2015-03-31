@@ -397,11 +397,4 @@ public interface MetaContactListService
      * beginning the tests with an empty local contact list.
      */
     public void purgeLocallyStoredContactListCopy();
-    
-    /**
-     * Returns the index of the contact source in the result list.
-     *
-     * @return the index of the contact source in the result list
-     */
-    public int getSourceIndex();
 }

@@ -44,35 +44,11 @@ public class PresenceFilter
     private static final int INITIAL_CONTACT_COUNT = 30;
 
     /**
-     * Preferences for the external contact sources. Lists the type of contact
-     * contact sources that will be displayed in the filter and the order of the
-     * contact sources.
-     */
-    private static Map<Integer, Integer> contactSourcePreferences
-        = new HashMap<Integer, Integer>();
-
-    /**
      * Creates an instance of <tt>PresenceFilter</tt>.
      */
     public PresenceFilter()
     {
         isShowOffline = ConfigurationUtils.isShowOffline();
-        initContactSourcePreferences();
-    }
-
-    /**
-     * Initializes the contact source preferences. The preferences are for the
-     * visibility of the contact source and their order.
-     */
-    private void initContactSourcePreferences()
-    {
-        //This entry will be used to set the index for chat room contact sources
-        //The index is used to order the contact sources in the contact list.
-        // And recent messages first in the list
-        contactSourcePreferences.put(
-            ContactSourceService.RECENT_MESSAGES_TYPE, 0);
-        //The chat room sources will be ordered before the meta contact list.
-        contactSourcePreferences.put(ContactSourceService.CHAT_ROOM_TYPE, 1);
     }
 
     /**
@@ -89,40 +65,48 @@ public class PresenceFilter
         // Add this query to the filterQuery.
         filterQuery.addContactQuery(query);
 
-        for(int cssType : contactSourcePreferences.keySet())
+        TreeContactList contactList = GuiActivator.getContactList();
+
+        Collection<UIContactSource> uiContactSourceCollection
+            = contactList.getContactSources(
+            ContactSourceService.CONTACT_LIST_TYPE);
+
+        Iterator<UIContactSource> filterSources
+            = uiContactSourceCollection.iterator();
+        int maxIndex = 0;
+        while (filterSources.hasNext())
         {
-            Iterator<UIContactSource> filterSources
-                = GuiActivator.getContactList().getContactSources(cssType)
-                    .iterator();
+            UIContactSource filterSource = filterSources.next();
+            int currIx = filterSource.getContactSourceService().getIndex();
+            if(maxIndex < currIx)
+                maxIndex = currIx;
+        }
 
-            while (filterSources.hasNext())
-            {
-                UIContactSource filterSource = filterSources.next();
+        contactList.getMetaContactListSource().setIndex(maxIndex + 1);
 
-                Integer prefValue = contactSourcePreferences.get(cssType);
-                //We are setting the index from contactSourcePreferences map to
-                //the contact source. This index is set to reorder the sources
-                //in the contact list.
-                if(prefValue != null)
-                    filterSource.setContactSourceIndex(prefValue);
+        filterSources = uiContactSourceCollection.iterator();
+        while (filterSources.hasNext())
+        {
+            UIContactSource filterSource = filterSources.next();
 
-                ContactSourceService sourceService
-                    = filterSource.getContactSourceService();
+            filterSource.setContactSourceIndex(
+                filterSource.getContactSourceService().getIndex());
 
-                ContactQuery contactQuery
-                    = sourceService.createContactQuery(null);
+            ContactSourceService sourceService
+                = filterSource.getContactSourceService();
 
-                if(contactQuery == null)
-                    continue;
+            ContactQuery contactQuery
+                = sourceService.createContactQuery(null);
 
-                // Add this query to the filterQuery.
-                filterQuery.addContactQuery(contactQuery);
+            if(contactQuery == null)
+                continue;
 
-                contactQuery.addContactQueryListener(
-                    GuiActivator.getContactList());
+            // Add this query to the filterQuery.
+            filterQuery.addContactQuery(contactQuery);
 
-                contactQuery.start();
-            }
+            contactQuery.addContactQueryListener(contactList);
+
+            contactQuery.start();
         }
 
         // Closes this filter to indicate that we finished adding queries to it.
@@ -228,9 +212,8 @@ public class PresenceFilter
         return
             isShowOffline
                 || contact.getPresenceStatus().isOnline()
-                || GuiActivator.getMUCService().isMUCSourceContact(contact)
                 || contact.getContactSource().getType()
-                        == ContactSourceService.RECENT_MESSAGES_TYPE;
+                        == ContactSourceService.CONTACT_LIST_TYPE;
     }
 
     /**

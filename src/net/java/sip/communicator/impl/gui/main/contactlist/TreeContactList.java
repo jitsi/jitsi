@@ -224,7 +224,6 @@ public class TreeContactList
      */
     public void contactReceived(ContactReceivedEvent event)
     {
-
         final SourceContact sourceContact = event.getContact();
 
         ContactSourceService contactSource
@@ -643,8 +642,7 @@ public class TreeContactList
                         = treeModel.getRoot().getChildAfter(groupNode);
                     // do not show the contacts group in history filter
                     if( group.getSourceIndex()
-                            < (GuiActivator.getContactListService()
-                                .getSourceIndex() * UIGroup.MAX_GROUPS)
+                            < (mclSource.getIndex() * UIGroup.MAX_GROUPS)
                         && rootUIGroup == null
                         && (!(node instanceof GroupNode))
                         && (node != null)
@@ -730,7 +728,7 @@ public class TreeContactList
             @Override
             public int getSourceIndex()
             {
-                return GuiActivator.getContactListService().getSourceIndex()
+                return mclSource.getIndex()
                     * net.java.sip.communicator.service.gui.UIGroup.MAX_GROUPS;
             }
 

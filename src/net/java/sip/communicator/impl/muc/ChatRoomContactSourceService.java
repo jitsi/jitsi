@@ -22,7 +22,7 @@ public class ChatRoomContactSourceService
      */
     public int getType()
     {
-        return CHAT_ROOM_TYPE;
+        return CONTACT_LIST_TYPE;
     }
 
     /**
@@ -75,7 +75,7 @@ public class ChatRoomContactSourceService
     @Override
     public int getIndex()
     {
-        return 0;
+        return 1;
     }
 
 }

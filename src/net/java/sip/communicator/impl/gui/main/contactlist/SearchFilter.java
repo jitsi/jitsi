@@ -53,12 +53,6 @@ public class SearchFilter
                 + ".DISABLE_CALL_HISTORY_SEARCH_IN_CONTACT_LIST";
 
     /**
-     * Defines custom order for the contact sources.
-     */
-    private static Map<Integer, Integer> contactSourceOrder
-        = new HashMap<Integer, Integer>();
-
-    /**
      * If set, we are searching a phone number and will use the phone number
      * service to try matching the numbers.
      */
@@ -70,7 +64,6 @@ public class SearchFilter
     public SearchFilter(MetaContactListSource contactListSource)
     {
         this.mclSource = contactListSource;
-        initContactSourceOrder();
     }
 
     /**
@@ -80,19 +73,6 @@ public class SearchFilter
     {
         this.mclSource = null;
         this.sourceContactList = sourceContactList;
-        initContactSourceOrder();
-    }
-
-    /**
-     * Initializes the custom contact source order map.
-     */
-    private void initContactSourceOrder()
-    {
-        //This entry will be used to set the index for chat room contact sources
-        //The index is used to order the contact sources in the contact list.
-        //The chat room sources will be ordered after the meta contact list.
-        contactSourceOrder.put(ContactSourceService.CHAT_ROOM_TYPE,
-            GuiActivator.getContactListService().getSourceIndex() + 1);
     }
 
     /**
@@ -154,13 +134,13 @@ public class SearchFilter
             if (sourceContactList.getDefaultFilter()
                 .equals(TreeContactList.presenceFilter))
             {
-                Integer contactSourceIndex = contactSourceOrder.get(
-                    filterSource.getContactSourceService().getType());
-                if(contactSourceIndex != null)
+                if(filterSource.getContactSourceService().getType()
+                    == ContactSourceService.CONTACT_LIST_TYPE)
                 {
                     //We are setting the index from contactSourceOrder map. This
                     //index is set to reorder the sources in the contact list.
-                    filterSource.setContactSourceIndex(contactSourceIndex);
+                    filterSource.setContactSourceIndex(
+                        this.mclSource.getIndex() + 1);
                 }
             }
             // If we have stopped filtering in the mean time we return here.

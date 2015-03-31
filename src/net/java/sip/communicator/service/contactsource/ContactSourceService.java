@@ -31,14 +31,9 @@ public interface ContactSourceService
     public static final int HISTORY_TYPE = 2;
     
     /**
-     * Type of a chat room source.
+     * Type of a contact list source. Queries to be shown in the contact list.
      */
-    public static final int CHAT_ROOM_TYPE = 3;
-
-    /**
-     * Type of a recent messages source.
-     */
-    public static final int RECENT_MESSAGES_TYPE = 4;
+    public static final int CONTACT_LIST_TYPE = 3;
 
     /**
      * Returns the type of this contact source.

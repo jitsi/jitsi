@@ -163,7 +163,8 @@ public class MetaUIContact
         if(parentGroup != null)
             groupSourceIndex = parentGroup.indexOf(parentMetaContactGroup) 
                 * UIGroup.MAX_CONTACTS;
-        return  GuiActivator.getContactListService().getSourceIndex() 
+        return GuiActivator.getContactList()
+                .getMetaContactListSource().getIndex()
             * UIGroup.MAX_GROUPS + groupSourceIndex +
             parentMetaContactGroup.indexOf(metaContact) + 1;
     }

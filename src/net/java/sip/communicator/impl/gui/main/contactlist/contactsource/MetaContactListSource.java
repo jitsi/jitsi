@@ -80,6 +80,11 @@ public class MetaContactListSource
     private static MetaUIContact customActionContact;
 
     /**
+     * The current index.
+     */
+    private int index = 0;
+
+    /**
      * The logger.
      */
     private static final Logger logger
@@ -1141,6 +1146,25 @@ public class MetaContactListSource
                 }
             }
         }
+    }
+
+    /**
+     * Returns the index of the contact source in the result list.
+     *
+     * @return the index of the contact source in the result list
+     */
+    public int getIndex()
+    {
+        return index;
+    }
+
+    /**
+     * Changes the index.
+     * @param index the new value.
+     */
+    public void setIndex(int index)
+    {
+        this.index = index;
     }
 
     /**

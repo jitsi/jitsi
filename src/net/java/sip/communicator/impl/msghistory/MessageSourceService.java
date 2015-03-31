@@ -54,7 +54,7 @@ public class MessageSourceService
     /**
      * The type of the source service, the place to be shown in the ui.
      */
-    private int sourceServiceType = RECENT_MESSAGES_TYPE;
+    private int sourceServiceType = CONTACT_LIST_TYPE;
 
     /**
      * Whether to show recent messages in history or in contactlist.

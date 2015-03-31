@@ -3655,14 +3655,4 @@ public class MetaContactListServiceImpl
                                 metaContactImpl,
                                 metaContactImpl);
     }
-    
-    /**
-     * Returns the index of the contact source in the result list.
-     *
-     * @return the index of the contact source in the result list
-     */
-    public int getSourceIndex()
-    {
-        return 2;
-    }
 }
