@@ -700,6 +700,72 @@ public class ColibriBuilder
     }
 
     /**
+     * Adds next payload type information update request to
+     * {@link RequestType#RTP_DESCRIPTION_UPDATE} query currently being built.
+     *
+     * @param map the map of content name to RTP description packet extension.
+     * @param localChannelsInfo {@link ColibriConferenceIQ} holding info about
+     *        Colibri channels to be updated.
+     *
+     * @return this instance for calls chaining purpose.
+     */
+    public ColibriBuilder addRtpDescription(
+            Map<String, RtpDescriptionPacketExtension> map,
+            ColibriConferenceIQ localChannelsInfo) {
+
+        if (conferenceState == null
+                || StringUtils.isNullOrEmpty(conferenceState.getID()))
+        {
+            // We are not initialized yet
+            return null;
+        }
+
+        assertRequestType(RequestType.RTP_DESCRIPTION_UPDATE);
+
+        request.setType(IQ.Type.SET);
+
+        for (Map.Entry<String, RtpDescriptionPacketExtension> e
+                : map.entrySet())
+        {
+            String contentName = e.getKey();
+            ColibriConferenceIQ.ChannelCommon channel
+                    = getColibriChannel(localChannelsInfo, contentName);
+
+            if (channel != null
+                    && channel instanceof ColibriConferenceIQ.Channel)
+            {
+                RtpDescriptionPacketExtension rtpPE = e.getValue();
+                if (rtpPE == null)
+                {
+                    continue;
+                }
+
+                List<PayloadTypePacketExtension> pts = rtpPE.getPayloadTypes();
+                if (pts == null || pts.isEmpty())
+                {
+                    continue;
+                }
+
+                ColibriConferenceIQ.Channel channelRequest
+                        = new ColibriConferenceIQ.Channel();
+
+                channelRequest.setID(channel.getID());
+
+                for (PayloadTypePacketExtension ptPE : rtpPE.getPayloadTypes())
+                {
+                    channelRequest.addPayloadType(ptPE);
+                }
+
+                request.getOrCreateContent(contentName)
+                        .addChannel(channelRequest);
+            }
+
+        }
+
+        return this;
+    }
+
+    /**
      * The types of request that can be built with {@link ColibriBuilder}.
      */
     public enum RequestType
@@ -718,6 +784,11 @@ public class ColibriBuilder
          * Updates channel transport information(ICE transport candidates).
          */
         TRANSPORT_UPDATE,
+
+        /**
+         * Updates the RTP description of a channel (payload types).
+         */
+        RTP_DESCRIPTION_UPDATE,
 
         /**
          * Expires specified Colibri channels.
