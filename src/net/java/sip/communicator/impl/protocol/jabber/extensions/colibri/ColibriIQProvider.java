@@ -36,6 +36,11 @@ public class ColibriIQProvider
                 new DefaultPacketExtensionProvider<PayloadTypePacketExtension>(
                         PayloadTypePacketExtension.class));
         providerManager.addExtensionProvider(
+                RtcpFbPacketExtension.ELEMENT_NAME,
+                RtcpFbPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<RtcpFbPacketExtension>(
+                        RtcpFbPacketExtension.class));
+        providerManager.addExtensionProvider(
                 RTPHdrExtPacketExtension.ELEMENT_NAME,
                 ColibriConferenceIQ.NAMESPACE,
                 new DefaultPacketExtensionProvider<RTPHdrExtPacketExtension>(
@@ -679,6 +684,19 @@ public class ColibriIQProvider
                         }
                         else if (PayloadTypePacketExtension.ELEMENT_NAME.equals(
                                 name))
+                        {
+                            /*
+                             * The channel element of the Jitsi Videobridge
+                             * protocol reuses the payload-type element defined
+                             * in XEP-0167: Jingle RTP Sessions.
+                             */
+                            peName = name;
+                            peNamespace = namespace;
+                        }
+                        else if (RtcpFbPacketExtension.ELEMENT_NAME.equals(
+                                name)
+                                && RtcpFbPacketExtension.NAMESPACE
+                                .equals(parser.getNamespace()))
                         {
                             /*
                              * The channel element of the Jitsi Videobridge
