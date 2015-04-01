@@ -173,7 +173,7 @@ public class OperationSetBasicTelephonySipImpl
      * @throws OperationFailedException with the corresponding code if we fail
      * to create the call.
      */
-    private synchronized CallSipImpl createOutgoingCall(
+    synchronized CallSipImpl createOutgoingCall(
             Address calleeAddress,
             javax.sip.message.Message cause,
             CallConference conference)

@@ -650,6 +650,15 @@ public class ProtocolProviderServiceSipImpl
                     new OperationSetCusaxUtilsSipImpl(this));
             }
 
+            if(accountID.getAccountPropertyBoolean(
+                OperationSetTelephonyBLFSipImpl.BLF_ENABLED_ACC_PROP,
+                false))
+            {
+                addSupportedOperationSet(
+                    OperationSetTelephonyBLF.class,
+                    new OperationSetTelephonyBLFSipImpl(this));
+            }
+
             //initialize our OPTIONS handler
             this.capabilities = new ClientCapabilities(this);
 

@@ -339,7 +339,7 @@ public class OperationSetVideoTelephonySipImpl
             }
             catch (Exception e)
             {
-                e.printStackTrace(System.err);
+                logger.error("Error creating server transaction" , e);
                 return false;
             }
             if (serverTransaction == null)
