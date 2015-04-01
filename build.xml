@@ -1070,6 +1070,7 @@
         bundle-notification-service,bundle-notification-handlers,
         bundle-notification-wiring,bundle-notification-config,
         bundle-contacteventhandler,
+        bundle-plugin-blf,
         bundle-plugin-contactinfo,bundle-plugin-chatalerter, bundle-keybindings,
         bundle-plugin-keybindingChooser,bundle-plugin-globalproxyconfig,
         bundle-jfontchooserlib,bundle-update,bundle-plugin-update,
@@ -2750,6 +2751,15 @@ org.bouncycastle.util"/>
             manifest="${src}/net/java/sip/communicator/plugin/chatconfig/chatconfig.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/chatconfig"
                 prefix="net/java/sip/communicator/plugin/chatconfig" />
+        </jar>
+    </target>
+
+    <!--BUNDLE-PLUGIN-BLF-->
+    <target name="bundle-plugin-blf">
+        <jar compress="false" destfile="${bundles.dest}/plugin-blf.jar"
+             manifest="${src}/net/java/sip/communicator/plugin/busylampfield/busylampfield.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/busylampfield"
+                        prefix="net/java/sip/communicator/plugin/busylampfield"/>
         </jar>
     </target>
 

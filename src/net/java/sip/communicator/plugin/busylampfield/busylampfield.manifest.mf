@@ -1,0 +1,14 @@
+Bundle-Activator: net.java.sip.communicator.plugin.busylampfield.BLFActivator
+Bundle-Name: Busy Lamp Field Plugin
+Bundle-Description: Contact Sources that show and control BLF operation sets
+Bundle-Vendor: jitsi.org
+Bundle-Version: 0.0.1
+Bundle-SymbolicName: net.java.sip.communicator.plugin.busylampfield
+Import-Package: org.osgi.framework,
+ org.jitsi.service.configuration,
+ net.java.sip.communicator.service.contactsource,
+ net.java.sip.communicator.service.customcontactactions,
+ net.java.sip.communicator.service.protocol,
+ net.java.sip.communicator.service.protocol.event,
+ net.java.sip.communicator.service.resources, org.jitsi.service.resources,
+ net.java.sip.communicator.util, org.jitsi.util
