@@ -25,7 +25,7 @@ Build-Depends: debhelper (>= 9), javahelper,
                liblog4j1.2-java,
                libjgoodies-forms-java,
                libjmdns-java,
-               libdnsjava-java,
+               libdnsjava-java (>= 2.1.7~),
                libmac-widgets-java,
                libfelix-main-java,
                libfelix-framework-java,
@@ -111,7 +111,7 @@ Package: _PACKAGE_NAME_-common
 Section: libs
 Architecture: all
 Depends: ${misc:Depends}, ${shlibs:Depends},
-         libdnsjava-java,
+         libdnsjava-java (>= 2.1.7~),
          libxpp3-java,
          libjzlib-java,
          libbcpkix-java
