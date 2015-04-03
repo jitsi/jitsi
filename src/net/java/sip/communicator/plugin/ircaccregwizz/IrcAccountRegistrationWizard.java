@@ -58,11 +58,6 @@ public class IrcAccountRegistrationWizard
     public static final String SASL_USERNAME = "SASL_USERNAME";
 
     /**
-     * Property name for SASL password.
-     */
-    public static final String SASL_PASSWORD = "SASL_PASSWORD";
-
-    /**
      * Property for SASL authorization role.
      */
     public static final String SASL_ROLE = "SASL_ROLE";
@@ -318,7 +313,6 @@ public class IrcAccountRegistrationWizard
         accountProperties.put(SASL_ENABLED,
             Boolean.toString(registration.isSaslEnabled()));
         accountProperties.put(SASL_USERNAME, registration.getSaslUser());
-        accountProperties.put(SASL_PASSWORD, registration.getSaslPass());
         accountProperties.put(SASL_ROLE, registration.getSaslRole());
 
         if (isModification())

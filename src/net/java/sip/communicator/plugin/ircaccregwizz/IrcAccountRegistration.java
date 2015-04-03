@@ -25,7 +25,6 @@ public class IrcAccountRegistration
     private boolean secureConnection;
     private boolean saslEnabled;
     private String saslUser;
-    private String saslPass;
     private String saslRole;
 
     /**
@@ -265,16 +264,6 @@ public class IrcAccountRegistration
     public void setSaslUser(final String user)
     {
         this.saslUser = user;
-    }
-
-    public String getSaslPass()
-    {
-        return this.saslPass;
-    }
-
-    public void setSaslPass(final String pass)
-    {
-        this.saslPass = pass;
     }
 
     public String getSaslRole()

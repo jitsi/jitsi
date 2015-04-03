@@ -269,9 +269,6 @@ public class ProtocolProviderServiceIrcImpl
                 ProtocolProviderFactoryIrcImpl.SASL_ENABLED, false);
         String saslUser = accountID.getAccountPropertyString(
             ProtocolProviderFactoryIrcImpl.SASL_USERNAME);
-        // FIXME Retrieve SASL password from Jitsi secure storage!
-        String saslPass = accountID.getAccountPropertyString(
-            ProtocolProviderFactoryIrcImpl.SASL_PASSWORD);
         String saslRole = accountID.getAccountPropertyString(
             ProtocolProviderFactoryIrcImpl.SASL_ROLE);
 
@@ -327,7 +324,8 @@ public class ProtocolProviderServiceIrcImpl
         if (saslEnabled)
         {
             final SASLImpl sasl =
-                new ClientConfigImpl.SASLImpl(saslUser, saslPass, saslRole);
+                new ClientConfigImpl.SASLImpl(saslUser, serverPassword,
+                    saslRole);
             config.setSASL(sasl);
         }
 

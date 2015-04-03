@@ -134,8 +134,6 @@ public class FirstWizardPage
 
     private JTextField saslUserIdField = new JTextField();
 
-    private JPasswordField saslPasswordField = new JPasswordField();
-
     private JTextField saslRoleField = new JTextField();
 
     private JPanel mainPanel = new TransparentPanel();
@@ -202,6 +200,8 @@ public class FirstWizardPage
         this.defaultPort.addActionListener(this);
         this.passwordNotRequired.addActionListener(this);
         this.useSecureConnection.addActionListener(this);
+
+        this.saslEnabled.addActionListener(this);
 
         this.userIDField.setText(userId);
         this.serverField.setText(server);
@@ -281,17 +281,22 @@ public class FirstWizardPage
         saslPanel.add(this.saslEnabled, BorderLayout.NORTH);
 
         TransparentPanel saslControlsPanel = new TransparentPanel();
-        saslControlsPanel.setLayout(new BoxLayout(saslControlsPanel, BoxLayout.Y_AXIS));
+        saslControlsPanel.setLayout(new BoxLayout(saslControlsPanel,
+            BoxLayout.Y_AXIS));
         saslPanel.add(saslControlsPanel, BorderLayout.CENTER);
 
-        JLabel saslUserLabel = new JLabel(Resources.getString("plugin.ircaccregwizz.USERNAME") + ":");
-        saslControlsPanel.add(horizontal(100, saslUserLabel, saslUserIdField));
-        JLabel saslPassLabel = new JLabel(Resources.getString("service.gui.PASSWORD") + ":");
-        saslControlsPanel.add(horizontal(100, saslPassLabel, saslPasswordField));
-        JLabel saslRoleLabel = new JLabel(Resources.getString("plugin.ircaccregwizz.SASL_AUTHZ_ROLE") + ":");
-        saslControlsPanel.add(horizontal(100, saslRoleLabel, saslRoleField));
-
-        // FIXME continue implementation of the sasl authentication panel
+        JLabel saslUserLabel = new JLabel(
+            Resources.getString("plugin.ircaccregwizz.SASL_USERNAME") + ":");
+        saslControlsPanel.add(horizontal(100,
+            saslUserLabel, this.saslUserIdField));
+        JLabel saslPassLabel = new JLabel(
+            Resources.getString("service.gui.PASSWORD") + ":");
+        saslControlsPanel.add(horizontal(100, saslPassLabel, new JLabel(
+            Resources.getString("plugin.ircaccregwizz.SASL_IRC_PASSWORD_USED"))));
+        JLabel saslRoleLabel = new JLabel(
+            Resources.getString("plugin.ircaccregwizz.SASL_AUTHZ_ROLE") + ":");
+        saslControlsPanel
+            .add(horizontal(100, saslRoleLabel, this.saslRoleField));
 
         saslPanel.setBorder(BorderFactory.createTitledBorder(Resources
             .getString("plugin.ircaccregwizz.SASL_AUTHENTICATION_TITLE")));
@@ -395,9 +400,9 @@ public class FirstWizardPage
                 .isSelected());
         registration.setChatRoomPresenceTaskEnabled(enableChatRoomPresenceTask
             .isSelected());
-        registration.setSaslEnabled(this.saslEnabled.isSelected());
+        registration.setSaslEnabled(!this.passwordNotRequired.isSelected()
+            && this.saslEnabled.isSelected());
         registration.setSaslUser(this.saslUserIdField.getText());
-        registration.setSaslPass(new String(saslPasswordField.getPassword()));
         registration.setSaslRole(this.saslRoleField.getText());
 
         isCommitted = true;
@@ -516,10 +521,6 @@ public class FirstWizardPage
         final String saslUser =
             accountID.getAccountPropertyString(
                 IrcAccountRegistrationWizard.SASL_USERNAME, "");
-        // FIXME load password from secure password storage!
-        final String saslPass =
-            accountID.getAccountPropertyString(
-                IrcAccountRegistrationWizard.SASL_PASSWORD, "");
         final String saslRole =
             accountID.getAccountPropertyString(
                 IrcAccountRegistrationWizard.SASL_ROLE, "");
@@ -553,11 +554,10 @@ public class FirstWizardPage
 
         if (noPasswordRequired != null)
         {
-            boolean isPassRequired
-                = !(new Boolean(noPasswordRequired).booleanValue());
+            boolean isPassRequired = !Boolean.valueOf(noPasswordRequired);
 
             this.passwordNotRequired.setSelected(!isPassRequired);
-
+            this.rememberPassBox.setEnabled(isPassRequired);
             passField.setEnabled(isPassRequired);
         }
 
@@ -568,7 +568,6 @@ public class FirstWizardPage
 
         this.saslEnabled.setSelected(enableSaslAuthentication);
         this.saslUserIdField.setText(saslUser);
-        this.saslPasswordField.setText(saslPass);
         this.saslRoleField.setText(saslRole);
     }
 
@@ -590,17 +589,25 @@ public class FirstWizardPage
             portField.setEnabled(true);
         }
 
-        if (passwordNotRequired.isSelected())
+        boolean passwordRequired = !this.passwordNotRequired.isSelected();
+        if (passwordRequired)
+        {
+            passField.setEnabled(true);
+            rememberPassBox.setEnabled(true);
+            this.saslEnabled.setEnabled(true);
+        }
+        else
         {
             passField.setText("");
             passField.setEnabled(false);
             rememberPassBox.setEnabled(false);
+            this.saslEnabled.setEnabled(false);
         }
-        else
-        {
-            passField.setEnabled(true);
-            rememberPassBox.setEnabled(true);
-        }
+
+        boolean enableSaslControls =
+            passwordRequired && this.saslEnabled.isSelected();
+        saslUserIdField.setEnabled(enableSaslControls);
+        saslRoleField.setEnabled(enableSaslControls);
 
         setNextButtonAccordingToUserID();
     }

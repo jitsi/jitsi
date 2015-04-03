@@ -47,11 +47,6 @@ public class ProtocolProviderFactoryIrcImpl
     public static final String SASL_USERNAME = "SASL_USERNAME";
 
     /**
-     * Property for SASL password.
-     */
-    public static final String SASL_PASSWORD = "SASL_PASSWORD";
-
-    /**
      * Property for SASL authorization role.
      */
     public static final String SASL_ROLE = "SASL_ROLE";
