@@ -252,6 +252,9 @@ public class ProtocolProviderServiceIrcImpl
         boolean autoNickChange =
             accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactory.AUTO_CHANGE_USER_NAME, true);
+        boolean resolveDnsThroughProxy =
+            accountID.getAccountPropertyBoolean(
+                ProtocolProviderFactoryIrcImpl.RESOLVE_DNS_THROUGH_PROXY, true);
         boolean passwordRequired =
             !accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactory.NO_PASSWORD_REQUIRED, true);
@@ -315,12 +318,12 @@ public class ProtocolProviderServiceIrcImpl
 
         // configure client options according to account properties
         final ClientConfigImpl config = new ClientConfigImpl();
-        // TODO makes allow-version-3 configurable in GUI
         config.setVersion3Allowed(true);
         config.setContactPresenceTaskEnabled(contactPresenceTask);
         config.setChannelPresenceTaskEnabled(channelPresenceTask);
-        config.setProxy(loadProxy());
-        config.setResolveByProxy(loadDNSThroughProxySetting());
+        final Proxy proxy = loadProxy();
+        config.setProxy(proxy);
+        config.setResolveByProxy(resolveDnsThroughProxy);
         if (saslEnabled)
         {
             final SASLImpl sasl =
@@ -389,26 +392,6 @@ public class ProtocolProviderServiceIrcImpl
         }
         return new Proxy(Proxy.Type.SOCKS, new InetSocketAddress(
             globalProxyAddress, globalProxyPort));
-    }
-
-    /**
-     * Method for loading the current value for option to resolve DNS host names
-     * through SOCKS5 proxy.
-     *
-     * @return returns <tt>true</tt> to enable resolving through proxy, or
-     *         <tt>false</tt> for local DNS resolving
-     */
-    private boolean loadDNSThroughProxySetting()
-    {
-        final ConfigurationService configSvc =
-            IrcActivator.getConfigurationService();
-        if (configSvc == null)
-        {
-            // Assuming maximum use of configured proxy server is desirable.
-            return true;
-        }
-        // FIXME implement support for option to enable SOCKS5 DNS resolving
-        return true;
     }
 
     /**

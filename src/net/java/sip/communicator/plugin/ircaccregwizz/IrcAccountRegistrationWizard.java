@@ -61,7 +61,16 @@ public class IrcAccountRegistrationWizard
      * Property for SASL authorization role.
      */
     public static final String SASL_ROLE = "SASL_ROLE";
-    
+
+    /**
+     * Property for resolving DNS names through configured proxy server.
+     */
+    public static final String RESOLVE_DNS_THROUGH_PROXY =
+        "RESOLVE_DNS_THROUGH_PROXY";
+
+    /**
+     * Logger.
+     */
     private final Logger logger
         = Logger.getLogger(IrcAccountRegistrationWizard.class);
 
@@ -198,6 +207,9 @@ public class IrcAccountRegistrationWizard
         summaryTable.put(
             Resources.getString("plugin.ircaccregwizz.USE_SECURE_CONNECTION"),
             registration.isSecureConnection() ? yes : no);
+        summaryTable.put(Resources
+            .getString("plugin.ircaccregwizz.RESOLVE_DNS_THROUGH_PROXY"),
+            registration.isResolveDnsThroughProxy() ? yes : no);
         summaryTable
             .put(Resources
                 .getString("plugin.ircaccregwizz.ENABLE_CONTACT_PRESENCE"),
@@ -294,14 +306,18 @@ public class IrcAccountRegistrationWizard
 
         accountProperties.put(
                 ProtocolProviderFactory.AUTO_CHANGE_USER_NAME,
-                new Boolean(registration.isAutoChangeNick()).toString());
+                Boolean.toString(registration.isAutoChangeNick()));
+
+        accountProperties.put(
+            IrcAccountRegistrationWizard.RESOLVE_DNS_THROUGH_PROXY,
+            Boolean.toString(registration.isResolveDnsThroughProxy()));
 
         accountProperties.put(
                 ProtocolProviderFactory.NO_PASSWORD_REQUIRED,
-                new Boolean(!registration.isRequiredPassword()).toString());
+                Boolean.toString(!registration.isRequiredPassword()));
 
         accountProperties.put(ProtocolProviderFactory.DEFAULT_ENCRYPTION,
-            new Boolean(registration.isSecureConnection()).toString());
+            Boolean.toString(registration.isSecureConnection()).toString());
 
         // Presence-based background tasks
         accountProperties.put(CONTACT_PRESENCE_TASK,

@@ -52,6 +52,13 @@ public class ProtocolProviderFactoryIrcImpl
     public static final String SASL_ROLE = "SASL_ROLE";
 
     /**
+     * Property for indicating that DNS names should be resolved through the
+     * SOCKS proxy if a proxy server is configured.
+     */
+    public static final String RESOLVE_DNS_THROUGH_PROXY =
+        "RESOLVE_DNS_THROUGH_PROXY";
+
+ /**
      * Constructor.
      */
     public ProtocolProviderFactoryIrcImpl()

@@ -114,6 +114,9 @@ public class FirstWizardPage
         = new SIPCommCheckBox(
             Resources.getString("plugin.ircaccregwizz.AUTO_NICK_CHANGE"));
 
+    private JCheckBox resolveDnsThroughProxy = new SIPCommCheckBox(
+        Resources.getString("plugin.ircaccregwizz.RESOLVE_DNS_THROUGH_PROXY"));
+
     private JCheckBox defaultPort = new SIPCommCheckBox(
             Resources.getString("plugin.ircaccregwizz.USE_DEFAULT_PORT"));
 
@@ -182,6 +185,7 @@ public class FirstWizardPage
         this.portField.setEnabled(false);
         this.rememberPassBox.setEnabled(false);
         this.useSecureConnection.setEnabled(true);
+        this.resolveDnsThroughProxy.setEnabled(true);
     }
 
     /**
@@ -208,6 +212,7 @@ public class FirstWizardPage
         this.passField.setEnabled(false);
         this.rememberPassBox.setSelected(true);
         this.autoNickChange.setSelected(true);
+        this.resolveDnsThroughProxy.setSelected(true);
         this.defaultPort.setSelected(true);
         this.passwordNotRequired.setSelected(true);
         this.useSecureConnection.setSelected(true);
@@ -267,10 +272,14 @@ public class FirstWizardPage
         serverPanel.setBorder(BorderFactory.createTitledBorder(
             Resources.getString("plugin.ircaccregwizz.IRC_SERVER")));
 
-        optionsPanel.add(rememberPassBox, BorderLayout.NORTH);
-        optionsPanel.add(autoNickChange, BorderLayout.CENTER);
-        JPanel partition = new TransparentPanel();
-        optionsPanel.add(partition);
+        final JPanel optionsSubPanel = new TransparentPanel();
+        optionsSubPanel.setLayout(new BoxLayout(optionsSubPanel, BoxLayout.Y_AXIS));
+        optionsPanel.add(optionsSubPanel, BorderLayout.WEST);
+        optionsSubPanel.add(rememberPassBox);
+        optionsSubPanel.add(autoNickChange);
+        final JPanel partition = new TransparentPanel();
+        optionsSubPanel.add(resolveDnsThroughProxy);
+        optionsPanel.add(partition, BorderLayout.SOUTH);
         partition.setLayout(new BorderLayout());
         partition.add(enableContactPresenceTask, BorderLayout.WEST);
         partition.add(enableChatRoomPresenceTask, BorderLayout.EAST);
@@ -404,6 +413,8 @@ public class FirstWizardPage
             && this.saslEnabled.isSelected());
         registration.setSaslUser(this.saslUserIdField.getText());
         registration.setSaslRole(this.saslRoleField.getText());
+        registration.setResolveDnsThroughProxy(this.resolveDnsThroughProxy
+            .isSelected());
 
         isCommitted = true;
     }
@@ -507,6 +518,10 @@ public class FirstWizardPage
             accountID.getAccountPropertyBoolean(
                 ProtocolProviderFactory.DEFAULT_ENCRYPTION, true);
 
+        boolean resolveDnsThroughProxy =
+            accountID.getAccountPropertyBoolean(
+                IrcAccountRegistrationWizard.RESOLVE_DNS_THROUGH_PROXY, true);
+
         boolean contactPresenceTaskEnabled =
             accountID.getAccountPropertyBoolean(
                 IrcAccountRegistrationWizard.CONTACT_PRESENCE_TASK, true);
@@ -551,6 +566,8 @@ public class FirstWizardPage
             this.autoNickChange.setSelected(
                 new Boolean(autoNickChange).booleanValue());
         }
+
+        this.resolveDnsThroughProxy.setSelected(resolveDnsThroughProxy);
 
         if (noPasswordRequired != null)
         {

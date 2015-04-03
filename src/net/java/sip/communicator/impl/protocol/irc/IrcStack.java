@@ -113,21 +113,9 @@ public class IrcStack implements IrcConnectionListener
         throws OperationFailedException,
         Exception
     {
-        final IRCServer server;
-        final String plainPass = config.getSASL() == null ? password : null;
-        if (secureConnection)
-        {
-            server =
-                new SecureIRCServer(host, port, plainPass,
-                    getCustomSSLContext(host), config.getProxy(),
-                    config.isResolveByProxy());
-        }
-        else
-        {
-            server =
-                new IRCServer(host, port, plainPass, false, config.getProxy(),
-                    config.isResolveByProxy());
-        }
+        final String plainPass = determinePlainPassword(password, config);
+        final IRCServer server =
+            createServer(config, host, port, secureConnection, plainPass);
 
         try
         {
@@ -209,6 +197,64 @@ public class IrcStack implements IrcConnectionListener
                 RegistrationStateChangeEvent.REASON_INTERNAL_ERROR);
             throw e;
         }
+    }
+
+    /**
+     * Create matching IRCServer instances based on connection parameters.
+     *
+     * @param config the IRC config
+     * @param host the IRC server host
+     * @param port the IRC server port
+     * @param secureConnection <tt>true</tt> for a secure connection,
+     *            <tt>false</tt> for plain text connection
+     * @param password the normal IRC password (<tt>Note</tt> this is not the
+     *            password used for SASL authentication. This password may be
+     *            null in case SASL authentication is required.)
+     * @return Returns a server instance that matches the provided parameters.
+     */
+    private IRCServer createServer(final ClientConfig config,
+        final String host, final int port, final boolean secureConnection,
+        final String password)
+    {
+        final IRCServer server;
+        if (secureConnection)
+        {
+            server =
+                new SecureIRCServer(host, port, password,
+                    getCustomSSLContext(host), config.getProxy(),
+                    config.isResolveByProxy());
+        }
+        else
+        {
+            server =
+                new IRCServer(host, port, password, false, config.getProxy(),
+                    config.isResolveByProxy());
+        }
+        return server;
+    }
+
+    /**
+     * Determine the correct plain IRC password for the provided IRC
+     * configuration.
+     *
+     * @param password the user-specified password
+     * @param config the IRC configuration, which includes possible SASL
+     *            preferences
+     * @return Returns the IRC plain password to use in the connection,
+     *         determined by the provided IRC configuration.
+     */
+    private String determinePlainPassword(final String password,
+        final ClientConfig config)
+    {
+        final String plainPass;
+        if (config.isVersion3Allowed() && config.getSASL() != null) {
+            plainPass = null;
+        }
+        else
+        {
+            plainPass = password;
+        }
+        return plainPass;
     }
 
     /**

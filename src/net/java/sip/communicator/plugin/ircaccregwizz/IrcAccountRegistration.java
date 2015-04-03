@@ -26,6 +26,7 @@ public class IrcAccountRegistration
     private boolean saslEnabled;
     private String saslUser;
     private String saslRole;
+    private boolean resolveDnsThroughProxy;
 
     /**
      * Option for activating contact presence task.
@@ -186,7 +187,7 @@ public class IrcAccountRegistration
     
     /**
      * Indicates if the the connection must be secure or not.
-     * 
+     *
      * @return returns <code>true</code> to indicate that the connection should
      *         be secure, or false for unsecured connection.
      */
@@ -197,7 +198,7 @@ public class IrcAccountRegistration
     
     /**
      * Set the <tt>useSecureConnection</tt> property.
-     * 
+     *
      * @param secureConnection true to require secure connection, or false
      *            for unsecured connections
      */
@@ -246,33 +247,86 @@ public class IrcAccountRegistration
         this.chatroomPresenceTaskEnabled = value;
     }
 
+    /**
+     * Get SASL enable status.
+     *
+     * @return Returns <tt>true</tt> if SASL is enabled, or <tt>false</tt> if
+     *         SASL is disabled.
+     */
     public boolean isSaslEnabled()
     {
         return this.saslEnabled;
     }
 
+    /**
+     * Set SASL enabled.
+     *
+     * @param enabled <tt>true</tt> to enable SASL, <tt>false</tt> to disable
+     */
     public void setSaslEnabled(final boolean enabled)
     {
         this.saslEnabled = enabled;
     }
 
+    /**
+     * Get SASL user name.
+     *
+     * @return Returns SASL user name.
+     */
     public String getSaslUser()
     {
         return this.saslUser;
     }
 
+    /**
+     * Set SASL user name. (Mandatory)
+     *
+     * @param user SASL user name
+     */
     public void setSaslUser(final String user)
     {
         this.saslUser = user;
     }
 
+    /**
+     * Get SASL authorization role. (Optional)
+     *
+     * @return Returns the SASL authorization role if configured, of
+     *         <tt>null</tt> if no role known.
+     */
     public String getSaslRole()
     {
         return this.saslRole;
     }
 
+    /**
+     * Set SASL authorization role.
+     *
+     * @param role the SASL authorization role
+     */
     public void setSaslRole(final String role)
     {
         this.saslRole = role;
+    }
+
+    /**
+     * Get property for resolving DNS names through configured proxy server.
+     * <tt>true</tt> to resolve DNS names through configured proxy server, or
+     * <tt>false</tt> to resolve using own DNS server.
+     */
+    public boolean isResolveDnsThroughProxy()
+    {
+        return this.resolveDnsThroughProxy;
+    }
+
+    /**
+     * Set property for resolving DNS through configured proxy server.
+     *
+     * @param value <tt>true</tt> to enable resolving through proxy server, or
+     *            <tt>false</tt> to resolve via local DNS server
+     */
+    public void setResolveDnsThroughProxy(final boolean value)
+    {
+        this.resolveDnsThroughProxy = value;
     }
 }
