@@ -71,10 +71,16 @@ public class SIPCommFrame
     private KeybindingSet bindings = null;
 
     /**
-     * Indicates if the size and location of this dialog are stored after
+     * Indicates if the size of this dialog is stored after
      * closing. By default we store window size and location.
      */
-    private boolean isSaveSizeAndLocation = true;
+    private boolean saveSize = true;
+
+    /**
+     * Indicates if the location of this dialog is stored after
+     * closing. By default we store window size and location.
+     */
+    private boolean saveLocation = true;
 
     /**
      * Creates a <tt>SIPCommFrame</tt>.
@@ -166,14 +172,28 @@ public class SIPCommFrame
      * Creates an instance of <tt>SIPCommFrame</tt> by specifying explicitly
      * if the size and location properties are saved. By default size and
      * location are stored.
-     * @param isSaveSizeAndLocation indicates whether to save the size and
+     * @param saveSizeAndLocation indicates whether to save the size and
      * location of this dialog
      */
-    public SIPCommFrame(boolean isSaveSizeAndLocation)
+    public SIPCommFrame(boolean saveSizeAndLocation)
+    {
+        this(saveSizeAndLocation, saveSizeAndLocation);
+    }
+
+    /**
+     * Creates an instance of <tt>SIPCommFrame</tt> by specifying explicitly
+     * if the size and location properties are saved. By default size and
+     * location are stored.
+     * @param saveLocation indicates whether to save the
+     * location of this dialog
+     * @param saveSize indicates whether to save the size of this dialog
+     */
+    public SIPCommFrame(boolean saveLocation, boolean saveSize)
     {
         this();
 
-        this.isSaveSizeAndLocation = isSaveSizeAndLocation;
+        this.saveLocation = saveLocation;
+        this.saveSize = saveSize;
     }
 
     /**
@@ -189,7 +209,7 @@ public class SIPCommFrame
 
         public void actionPerformed(ActionEvent e)
         {
-            if (isSaveSizeAndLocation)
+            if (saveLocation || saveSize)
                 saveSizeAndLocation();
             close(false);
         }
@@ -208,7 +228,7 @@ public class SIPCommFrame
 
         public void actionPerformed(ActionEvent e)
         {
-            if (isSaveSizeAndLocation)
+            if (saveLocation || saveSize)
                 saveSizeAndLocation();
             close(true);
         }
@@ -278,7 +298,7 @@ public class SIPCommFrame
          * Before closing the application window save the current size and
          * position through the ConfigurationService.
          */
-        if(isSaveSizeAndLocation)
+        if(saveLocation || saveSize)
             saveSizeAndLocation();
 
         close(false);
@@ -302,7 +322,7 @@ public class SIPCommFrame
     {
         try
         {
-            saveSizeAndLocation(this);
+            saveSizeAndLocation(this, saveSize, saveLocation);
         }
         catch (ConfigPropertyVetoException e)
         {
@@ -323,17 +343,26 @@ public class SIPCommFrame
      * does not accept the saving because of objections from its
      * <tt>PropertyVetoListener</tt>s.
      */
-    static void saveSizeAndLocation(Component component)
+    static void saveSizeAndLocation(Component component,
+                                    boolean saveSize,
+                                    boolean saveLocation)
         throws ConfigPropertyVetoException
     {
         Map<String, Object> props = new HashMap<String, Object>();
         String className
             = component.getClass().getName().replaceAll("\\$", "_");
 
-        props.put(className + ".width", component.getWidth());
-        props.put(className + ".height", component.getHeight());
-        props.put(className + ".x", component.getX());
-        props.put(className + ".y", component.getY());
+        if(saveSize)
+        {
+            props.put(className + ".width", component.getWidth());
+            props.put(className + ".height", component.getHeight());
+        }
+
+        if(saveLocation)
+        {
+            props.put(className + ".x", component.getX());
+            props.put(className + ".y", component.getY());
+        }
         DesktopUtilActivator.getConfigurationService().setProperties(props);
     }
 
@@ -342,7 +371,7 @@ public class SIPCommFrame
      */
     public void setSizeAndLocation()
     {
-        if (!isSaveSizeAndLocation)
+        if (!(saveLocation || saveSize))
         {
             return;
         }
@@ -350,47 +379,52 @@ public class SIPCommFrame
         ConfigurationService configService =
             DesktopUtilActivator.getConfigurationService();
         String className = this.getClass().getName();
-        String widthString = configService.getString(className + ".width");
-        String heightString = configService.getString(className + ".height");
-        String xString = configService.getString(className + ".x");
-        String yString = configService.getString(className + ".y");
 
-        int width = 0;
-        int height = 0;
-
-        if (widthString != null && heightString != null)
+        if(saveSize)
         {
-            width = Integer.parseInt(widthString);
-            height = Integer.parseInt(heightString);
+            String widthString
+                = configService.getString(className + ".width");
+            String heightString
+                = configService.getString(className + ".height");
 
-            if (width > 0 && height > 0)
+            if(widthString != null && heightString != null)
             {
-                Dimension screenSize =
-                    Toolkit.getDefaultToolkit().getScreenSize();
-                if (width <= screenSize.width && height <= screenSize.height)
-                    this.setSize(width, height);
+                int width = Integer.parseInt(widthString);
+                int height = Integer.parseInt(heightString);
+
+                if(width > 0 && height > 0)
+                {
+                    Dimension screenSize =
+                        Toolkit.getDefaultToolkit().getScreenSize();
+                    if(width <= screenSize.width && height <= screenSize.height)
+                        this.setSize(width, height);
+                }
             }
         }
 
-        int x = 0;
-        int y = 0;
-
-        if (xString != null && yString != null)
+        if(saveLocation)
         {
-            x = Integer.parseInt(xString);
-            y = Integer.parseInt(yString);
+            String xString = configService.getString(className + ".x");
+            String yString = configService.getString(className + ".y");
 
-            if(ScreenInformation.
-                isTitleOnScreen(new Rectangle(x, y, width, height))
-                || configService.getBoolean(
+            if(xString != null && yString != null)
+            {
+                int x = Integer.parseInt(xString);
+                int y = Integer.parseInt(yString);
+
+                if(ScreenInformation.
+                    isTitleOnScreen(
+                        new Rectangle(x, y, this.getWidth(), this.getHeight()))
+                    || configService.getBoolean(
                     SIPCommFrame.PNAME_CALCULATED_POSITIONING, true))
-            {
-                this.setLocation(x, y);
+                {
+                    this.setLocation(x, y);
+                }
             }
-        }
-        else
-        {
-            this.setCenterLocation();
+            else
+            {
+                this.setCenterLocation();
+            }
         }
     }
 
@@ -575,7 +609,7 @@ public class SIPCommFrame
     @Override
     public void dispose()
     {
-        if (isSaveSizeAndLocation)
+        if (saveLocation || saveSize)
             saveSizeAndLocation();
 
         /*

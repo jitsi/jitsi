@@ -262,7 +262,7 @@ public class SIPCommDialog
     {
         try
         {
-            SIPCommFrame.saveSizeAndLocation(this);
+            SIPCommFrame.saveSizeAndLocation(this, true, true);
         }
         catch (ConfigPropertyVetoException e1)
         {

@@ -95,7 +95,7 @@ public class CallDialog
      */
     public CallDialog()
     {
-        super(false);
+        super(true, false);
 
         setMinimumSize(new Dimension(360, 300));
     }
