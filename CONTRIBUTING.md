@@ -2,6 +2,16 @@
 We would love to have your help. Before you start working however, please read
 and follow this short guide.
 
+# Reporting Issues
+Before you open an issue on GitHub, please discuss it on one of our
+[mailing lists](https://jitsi.org/Development/MailingLists) and wait for a confirmation
+from one of the comitters. If you have that permission, please be as precise as possible.
+Mention the version of Jitsi you are using, your operating system and explain how the
+problem can be reproduced.
+
+Please note that issues that are reported against a version older than the current stable
+release will be closed without further investigation.
+
 # Translation
 Please go to our [translation website](http://translate.jitsi.org), which is a
 [Pootle](http://pootle.translatehouse.org/) instance that allows for easy
