@@ -380,7 +380,7 @@ public class OperationSetBasicTelephonyJabberImpl
             throw new OperationFailedException(
                     "Failed to create outgoing call to " + calleeAddress
                             + ". Could not find a resource which supports " +
-                            "Jingle or Google Talk",
+                            "Jingle",
                     OperationFailedException.INTERNAL_ERROR);
 
         DiscoverInfo di = null;
@@ -408,7 +408,7 @@ public class OperationSetBasicTelephonyJabberImpl
 
             throw new OperationFailedException(
                     "Failed to create an outgoing call.\n"
-                    + fullCalleeURI + " does not support jingle or Google Talk",
+                    + fullCalleeURI + " does not support jingle",
                     OperationFailedException.INTERNAL_ERROR);
         }
 
