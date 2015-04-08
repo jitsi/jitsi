@@ -30,6 +30,7 @@ Reason: No Debian package.
 Smack is an Open Source XMPP (Jabber) client library.
 Reason: We contributed several patches on version 3.2.2 in order to fix a memory leak, added code that handles some currently unchecked, fixes for discovery info parsing, a pubsub parsing problem and the option to use a custom javax.net.ssl.TrustManager. All of those have been sent to the smack community for integration about a year ago, but haven’t been integrated since.
 And there’s no Debian package.
+ITP: https://bugs.debian.org/640873
 
 - jmyspell http://kenai.com/projects/jmyspell
 JMySpell is a 100% pure-Java implementation of the MySpell spell checker.
@@ -58,6 +59,7 @@ Reason: No Debian package.
 - swingworker
 Part of jdesktop.org JDNC project.
 Reason: No Debian package.
+ITP: https://bugs.debian.org/494018
 
 - irc-api https://code.google.com/p/irc-api/
 IRC-API is a state(ful)/(less), (a)synchronous IRC API written in Java.
