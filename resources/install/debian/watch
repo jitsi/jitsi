@@ -1,2 +1,2 @@
 version=3
-https://download.jitsi.org/jitsi/nightly/debian-src jitsi_(.+).orig.tar.gz
+https://download.jitsi.org/jitsi/debian-src jitsi_(.+).orig.tar.gz
