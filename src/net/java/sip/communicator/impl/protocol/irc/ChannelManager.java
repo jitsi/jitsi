@@ -743,7 +743,7 @@ public class ChannelManager
                     // We aren't currently attempting to join, so this join is
                     // unannounced.
                     LOGGER.trace("Starting unannounced join of chat room '"
-                        + channelName);
+                        + channelName + "'");
                     // Assuming that at the time that NICKS_END_OF_LIST is
                     // propagated, the channel join event has been completely
                     // handled by IRCApi.
