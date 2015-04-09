@@ -565,7 +565,7 @@ public class SourceUIContact
                 labelText = contactDetail.getDetail();
             }
 
-            jLabels[i] = new JLabel(labelText);
+            jLabels[i] = new JLabel(filterAddressDisplay(labelText));
 
             toolTip.addLine(jLabels);
         }

@@ -496,7 +496,9 @@ public class MetaUIContact
             String contactAddress = protocolContact.getAddress();
             //String statusMessage = protocolContact.getStatusMessage();
 
-            tip.addLine(protocolStatusIcon, contactAddress);
+            tip.addLine(
+                protocolStatusIcon,
+                filterAddressDisplay(contactAddress));
 
             addContactResourceTooltipLines(tip, protocolContact);
 
@@ -619,7 +621,7 @@ public class MetaUIContact
     {
         while(phones.hasNext())
         {
-            tip.addSubLine(null, phones.next(), 27);
+            tip.addSubLine(null, filterAddressDisplay(phones.next()), 27);
         }
 
         tip.revalidate();

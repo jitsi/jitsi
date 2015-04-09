@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 
 import javax.swing.*;
 
+import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.service.gui.*;
 
 /**
@@ -19,6 +20,14 @@ import net.java.sip.communicator.service.gui.*;
 public abstract class UIContactImpl
     extends UIContact
 {
+    /**
+     * Whether we should filter all addresses shown in tooltips
+     * and to remove the domain part.
+     */
+    private static final String FILTER_DOMAIN_IN_TIP_ADDRESSES
+        = "net.java.sip.communicator.impl.gui.main.contactlist" +
+            ".FILTER_DOMAIN_IN_TIP_ADDRESSES";
+
     /**
      * Returns the corresponding <tt>ContactNode</tt>. The <tt>ContactNode</tt>
      * is the real node that is stored in the contact list component data model.
@@ -75,4 +84,34 @@ public abstract class UIContactImpl
      */
     @Override
     public abstract String getDisplayName();
+
+    /**
+     * Filter address display if enabled will remove domain part of the
+     * addresses to show.
+     *
+     * @param addressToDisplay the address to change
+     * @return if enabled the address with removed domain part
+     */
+    protected String filterAddressDisplay(String addressToDisplay)
+    {
+        if(!GuiActivator.getConfigurationService()
+            .getBoolean(FILTER_DOMAIN_IN_TIP_ADDRESSES, false))
+            return addressToDisplay;
+
+        int ix = addressToDisplay.indexOf("@");
+        int typeIx = addressToDisplay.indexOf("(");
+
+        if(ix != -1)
+        {
+            if(typeIx != -1)
+                addressToDisplay =
+                    addressToDisplay.substring(0, ix)
+                    + " "
+                    + addressToDisplay.substring(
+                            typeIx, addressToDisplay.length());
+            else
+                addressToDisplay = addressToDisplay.substring(0, ix);
+        }
+        return addressToDisplay;
+    }
 }
