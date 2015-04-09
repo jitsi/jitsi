@@ -11,7 +11,9 @@ import java.beans.*;
 import java.util.*;
 import java.util.List;
 
-import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.OperationFailedException;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.event.DTMFListener;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
@@ -19,6 +21,7 @@ import org.jitsi.service.neomedia.control.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.event.*;
 import org.jitsi.service.neomedia.format.*;
+import org.jitsi.service.protocol.*;
 import org.jitsi.util.event.*;
 
 /**
@@ -183,6 +186,18 @@ public class MediaHandler
 
     private final List<SrtpListener> srtpListeners
         = new LinkedList<SrtpListener>();
+
+    /**
+     * The set of listeners in the application (<tt>Jitsi</tt>) which are to
+     * be notified of DTMF events.
+     */
+    private final Set<DTMFListener> dtmfListeners
+        = new HashSet<DTMFListener>();
+
+    /**
+     * The listener registered to receive DTMF events from {@link #audioStream}.
+     */
+    private final MyDTMFListener dtmfListener = new MyDTMFListener();
 
     /**
      * The <tt>SimpleAudioLeveListener</tt> that this instance sets on its
@@ -442,6 +457,27 @@ public class MediaHandler
                     srtpListeners.add(listener);
             }
         }
+    }
+
+    /**
+     * Adds a <tt>DTMFListener</tt> which will be notified when DTMF events
+     * are received from the <tt>MediaHandler</tt>'s audio stream.
+     * @param listener the listener to add.
+     */
+    void addDtmfListener(DTMFListener listener)
+    {
+        if (listener != null)
+            dtmfListeners.add(listener);
+    }
+
+    /**
+     * Removes a <tt>DTMFListener</tt> from the set of listeners to be notified
+     * for DTMF events from this <tt>MediaHandler</tt>'s audio steam.
+     * @param listener the listener to remove.
+     */
+    void removeDtmfListener(DTMFListener listener)
+    {
+        dtmfListeners.remove(listener);
     }
 
     /**
@@ -1201,6 +1237,8 @@ public class MediaHandler
 
                 this.audioStream.removePropertyChangeListener(
                         streamPropertyChangeListener);
+                this.audioStream.removeDTMFListener(dtmfListener);
+
                 this.audioStream.close();
             }
 
@@ -1240,6 +1278,8 @@ public class MediaHandler
                                 streamAudioLevelListener);
                     }
                 }
+
+                this.audioStream.addDTMFListener(dtmfListener);
             }
             else
             {
@@ -1492,6 +1532,55 @@ public class MediaHandler
                         newVisualComponent,
                         VideoEvent.REMOTE);
                 }
+            }
+        }
+    }
+
+    /**
+     * Implements a <tt>libjitsi</tt> <tt>DTMFListener</tt>, which receives
+     * events from an <tt>AudioMediaStream</tt>, translate them into
+     * <tt>Jitsi</tt> events (<tt>DTMFReceivedEvent</tt>s) and forward them to
+     * any registered listeners.
+     */
+    private class MyDTMFListener
+        implements org.jitsi.service.neomedia.event.DTMFListener
+    {
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void dtmfToneReceptionStarted(DTMFToneEvent dtmfToneEvent)
+        {
+            fireEvent(
+                new DTMFReceivedEvent(
+                    this,
+                    DTMFTone.getDTMFTone(dtmfToneEvent.getDtmfTone().getValue()),
+                    true));
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void dtmfToneReceptionEnded(DTMFToneEvent dtmfToneEvent)
+        {
+            fireEvent(
+                    new DTMFReceivedEvent(
+                            this,
+                            DTMFTone.getDTMFTone(dtmfToneEvent.getDtmfTone().getValue()),
+                            false));
+        }
+
+        /**
+         * Sends an <tt>DTMFReceivedEvent</tt> to all listeners.
+         * @param event the event to send.
+         */
+        private void fireEvent(DTMFReceivedEvent event)
+        {
+            for (net.java.sip.communicator.service.protocol.event.DTMFListener
+                    listener : dtmfListeners)
+            {
+                listener.toneReceived(event);
             }
         }
     }

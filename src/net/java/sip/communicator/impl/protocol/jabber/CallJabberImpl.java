@@ -1401,4 +1401,32 @@ public class CallJabberImpl
         }
         return this.jitsiVideobridge;
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Implements
+     * {@link net.java.sip.communicator.service.protocol.event.DTMFListener#toneReceived(net.java.sip.communicator.service.protocol.event.DTMFReceivedEvent)}
+     *
+     * Forwards DTMF events to the <tt>IncomingDTMF</tt> operation set, setting
+     * this <tt>Call</tt> as the source.
+     */
+    @Override
+    public void toneReceived(DTMFReceivedEvent evt)
+    {
+        OperationSetIncomingDTMF opSet
+            = getProtocolProvider()
+                .getOperationSet(OperationSetIncomingDTMF.class);
+
+        if (opSet != null && opSet instanceof OperationSetIncomingDTMFJabberImpl)
+        {
+            // Re-fire the event using this Call as the source.
+            ((OperationSetIncomingDTMFJabberImpl) opSet).toneReceived(
+                    new DTMFReceivedEvent(
+                            this,
+                            evt.getValue(),
+                            evt.getDuration(),
+                            evt.getStart()));
+        }
+    }
 }

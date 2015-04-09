@@ -12,6 +12,7 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
+import net.java.sip.communicator.service.protocol.event.DTMFListener;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.event.*;
@@ -41,7 +42,8 @@ public abstract class MediaAwareCall<
                 V extends ProtocolProviderService>
     extends AbstractCall<T, V>
     implements CallPeerListener,
-               PropertyChangeListener
+               PropertyChangeListener,
+               DTMFListener
 {
     /**
      * The name of the property of <tt>MediaAwareCall</tt> the value of which
@@ -959,5 +961,17 @@ public abstract class MediaAwareCall<
     public void setConference(CallConference conference)
     {
         super.setConference(conference);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Implements
+     * {@link net.java.sip.communicator.service.protocol.event.DTMFListener#toneReceived(net.java.sip.communicator.service.protocol.event.DTMFReceivedEvent)}
+     */
+    @Override
+    public void toneReceived(DTMFReceivedEvent evt)
+    {
+        // Stub
     }
 }

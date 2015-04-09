@@ -1831,10 +1831,14 @@ public class ProtocolProviderServiceJabberImpl
                 }
 
                 // init DTMF
-                OperationSetDTMFJabberImpl operationSetDTMFSip
+                OperationSetDTMFJabberImpl operationSetDTMF
                     = new OperationSetDTMFJabberImpl(this);
                 addSupportedOperationSet(
-                    OperationSetDTMF.class, operationSetDTMFSip);
+                    OperationSetDTMF.class, operationSetDTMF);
+
+                addSupportedOperationSet(
+                    OperationSetIncomingDTMF.class,
+                    new OperationSetIncomingDTMFJabberImpl());
 
                 addJingleFeatures();
 

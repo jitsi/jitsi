@@ -289,7 +289,7 @@ public class DTMFInfo
         return processed;
     }
 
-    /*
+    /**
      * Receives dtmf info requests.
      */
     @Override

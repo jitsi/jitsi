@@ -27,7 +27,7 @@ import org.jitsi.util.event.*;
  * A utility class implementing media control code shared between current
  * telephony implementations. This class is only meant for use by protocol
  * implementations and should not be accessed by bundles that are simply using
- * the telephony functionalities.
+ * the telephony functionality.
  *
  * @param <T> the peer extension class like for example <tt>CallPeerSipImpl</tt>
  * or <tt>CallPeerJabberImpl</tt>
@@ -1806,6 +1806,11 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
                 if (srtpListener != null)
                     this.mediaHandler.removeSrtpListener(srtpListener);
                 this.mediaHandler.removeVideoListener(videoStreamVideoListener);
+
+                // We intentionally do not remove our Call from the list of
+                // DTMF listeners. It should stay there as long as the
+                // MediaHandler is used by at least one CallPeer/CPMH.
+                //this.mediaHandler.removeDtmfListener(getPeer().getCall());
             }
 
             this.mediaHandler = mediaHandler;
@@ -1843,6 +1848,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
                 if (srtpListener != null)
                     this.mediaHandler.addSrtpListener(srtpListener);
                 this.mediaHandler.addVideoListener(videoStreamVideoListener);
+                this.mediaHandler.addDtmfListener(getPeer().getCall());
             }
         }
     }
