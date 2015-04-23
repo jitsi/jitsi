@@ -315,16 +315,6 @@ public class ProtocolProviderServiceJabberImpl
     private org.jivesoftware.smack.proxy.ProxyInfo proxy;
 
     /**
-     * Our provider manager instances.
-     */
-    private static ProviderManager providerManager = null;
-
-    /**
-     * Lock for creating provider.
-     */
-    private static Object providerCreationLock = new Object();
-
-    /**
      * State for connect and login state.
      */
     enum ConnectState
@@ -1553,26 +1543,6 @@ public class ProtocolProviderServiceJabberImpl
             this.clearRegistrationStateChangeListener();
             this.clearSupportedOperationSet();
 
-            synchronized(providerCreationLock)
-            {
-                if(providerManager == null)
-                {
-                    try
-                    {
-                        ProviderManager.setInstance(new ProviderManagerExt());
-                    }
-                    catch(Throwable t)
-                    {
-                        // once loaded if we try to set instance second time
-                        // IllegalStateException is thrown
-                    }
-                    finally
-                    {
-                        providerManager = ProviderManager.getInstance();
-                    }
-                }
-            }
-
             String protocolIconPath
                 = accountID.getAccountPropertyString(
                         ProtocolProviderFactory.PROTOCOL_ICON_PATH);
@@ -1719,6 +1689,9 @@ public class ProtocolProviderServiceJabberImpl
 
             // RTP HDR extension
             supportedFeatures.add(URN_XMPP_JINGLE_RTP_HDREXT);
+
+            ProviderManager providerManager
+                = ProtocolProviderFactoryJabberImpl.providerManager;
 
             //register our jingle provider
             providerManager.addIQProvider( JingleIQ.ELEMENT_NAME,

@@ -139,7 +139,6 @@ public class JabberActivator
     public void start(BundleContext context) throws Exception
     {
         JabberActivator.bundleContext = context;
-        EntityCapsManager.setBundleContext(context);
 
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
         hashtable.put(ProtocolProviderFactory.PROTOCOL, ProtocolNames.JABBER);
@@ -158,6 +157,8 @@ public class JabberActivator
                     ProtocolProviderFactory.class.getName(),
                     jabberProviderFactory,
                     hashtable);
+
+        EntityCapsManager.setBundleContext(context);
     }
 
     /**
