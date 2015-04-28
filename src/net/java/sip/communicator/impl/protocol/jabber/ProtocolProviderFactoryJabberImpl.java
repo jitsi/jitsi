@@ -33,11 +33,26 @@ public class ProtocolProviderFactoryJabberImpl
 
     static
     {
-        ProviderManager.setInstance(new ProviderManagerExt());
+        try
+        {
+            ProviderManager.setInstance(new ProviderManagerExt());
+        }
+        catch(Throwable t)
+        {
+            // once loaded if we try to set instance second time
+            // IllegalStateException is thrown
+        }
+        finally
+        {
+            providerManager = ProviderManager.getInstance();
+        }
 
-        providerManager = ProviderManager.getInstance();
-
-        if (!(providerManager instanceof ProviderManagerExt))
+        // checks class names, not using instanceof
+        // tests do unloading and loading the protocol bundle and
+        // ProviderManagerExt class get loaded two times from different
+        // classloaders
+        if (!(providerManager.getClass().getName()
+                .equals(ProviderManagerExt.class.getName())))
         {
             throw new RuntimeException(
                 "ProviderManager set to the default one");
