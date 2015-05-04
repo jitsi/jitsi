@@ -6,6 +6,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
+import gov.nist.javax.sip.header.*;
 import net.java.sip.communicator.util.*;
 
 import javax.sip.address.*;
@@ -142,8 +143,7 @@ public class ConfigHeaders
             try
             {
 
-                Header customHeader = protocolProvider.getHeaderFactory()
-                    .createHeader(
+                Header customHeader = new CustomHeader(
                         headerValues.get(ACC_PROPERTY_CONFIG_HEADER_NAME),
                         processParams(
                             headerValues.get(ACC_PROPERTY_CONFIG_HEADER_VALUE),
@@ -220,5 +220,39 @@ public class ConfigHeaders
         }
 
         return value;
+    }
+
+    /**
+     * Custom header to instert. Custom name and value.
+     */
+    private static class CustomHeader
+        extends SIPHeader
+    {
+        /**
+         * The header value.
+         */
+        private String value;
+
+        /**
+         * Constructs header.
+         * @param name header name
+         * @param value header value
+         */
+        CustomHeader(String name, String value)
+        {
+            super(name);
+            this.value = value;
+        }
+
+        /**
+         * Just the encoded body of the header.
+         * @param buffer the insert result
+         * @return the string encoded header body.
+         */
+        @Override
+        protected StringBuilder encodeBody(StringBuilder buffer)
+        {
+            return value != null ? buffer.append(value) : buffer.append("");
+        }
     }
 }
