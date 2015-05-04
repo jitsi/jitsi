@@ -666,6 +666,11 @@
             <sysproperty key="net.java.sip.communicator.service.media.DISABLE_AUDIO_SUPPORT"
                          value="true"/>
 
+            <!-- Disables cert checking as it can triger user/desktop interaction
+             which is not available durring tests -->
+            <sysproperty key="net.java.sip.communicator.service.gui.ALWAYS_TRUST_MODE_ENABLED"
+                         value="true"/>
+
         </java>
 
         <!-- Generate the html report.
