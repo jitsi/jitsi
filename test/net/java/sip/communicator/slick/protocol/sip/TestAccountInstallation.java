@@ -9,9 +9,12 @@ package net.java.sip.communicator.slick.protocol.sip;
 import java.util.*;
 
 import junit.framework.*;
+import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import net.java.sip.communicator.service.protocol.sip.*;
+import net.java.sip.communicator.util.*;
+import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
 
 public class TestAccountInstallation
@@ -52,6 +55,9 @@ public class TestAccountInstallation
      */
     public void testInstallAccount()
     {
+        ServiceUtils.getService(SipSlickFixture.bc, ConfigurationService.class)
+            .setProperty(CertificateService.PNAME_ALWAYS_TRUST, true);
+
         // first obtain a reference to the provider factory
         ServiceReference[] serRefs = null;
         String osgiFilter = "(" + ProtocolProviderFactory.PROTOCOL
