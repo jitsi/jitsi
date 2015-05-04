@@ -142,13 +142,26 @@ public class ConfigHeaders
 
             try
             {
+                String name = headerValues.get(ACC_PROPERTY_CONFIG_HEADER_NAME);
+                String value = processParams(
+                    headerValues.get(ACC_PROPERTY_CONFIG_HEADER_VALUE),
+                    request);
 
-                Header customHeader = new CustomHeader(
-                        headerValues.get(ACC_PROPERTY_CONFIG_HEADER_NAME),
-                        processParams(
-                            headerValues.get(ACC_PROPERTY_CONFIG_HEADER_VALUE),
-                            request)
-                    );
+                Header customHeader;
+
+                // use the custom header for those custom headers that has
+                // multiple values, as the factory will switch on the header
+                // parser for standard headers and will produce multiple headers
+                // that ends with an error creating/sending the request
+                if(value.contains(","))
+                {
+                    customHeader = new CustomHeader(name, value);
+                }
+                else
+                {
+                    customHeader = protocolProvider.getHeaderFactory()
+                        .createHeader(name, value);
+                }
 
                 request.setHeader(customHeader);
             }
