@@ -190,6 +190,12 @@ public class OperationSetBasicInstantMessagingIrcImpl
             }
             fireMessageDelivered(original, to);
         }
+        catch (OperationFailedException e)
+        {
+            // Message delivery failed. Most obvious possibility is that the
+            // message was too large for the IRC network to handle.
+            fireMessageDeliveryFailed(original, to, e.getErrorCode());
+        }
         catch (RuntimeException e)
         {
             LOGGER.warn("Failed to deliver message: " + original, e);

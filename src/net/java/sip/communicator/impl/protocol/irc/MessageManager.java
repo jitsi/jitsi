@@ -234,24 +234,39 @@ public class MessageManager
      *
      * @param chatroom The chat room to send the message to.
      * @param message The message to send.
+     * @throws OperationFailedException OperationFailedException is thrown when
+     *             message is too large to be processed by IRC server.
      */
     public void message(final ChatRoomIrcImpl chatroom, final String message)
+        throws OperationFailedException
     {
         if (!this.connectionState.isConnected())
         {
             throw new IllegalStateException("Not connected to an IRC server.");
         }
         final String target = chatroom.getIdentifier();
-        // message format as forwarded by IRC server:
+        // message format as forwarded by IRC server to clients:
         // :<user> PRIVMSG <nick> :<message>
         final int maxMsgSize = calculateMaximumMessageSize(0, target);
         if (maxMsgSize < message.length())
         {
             LOGGER.warn("Message for " + target
-                + " is too large. At best only sent message up to: "
+                + " is too large. At best you can send the message up to: "
                 + message.substring(0, maxMsgSize));
+            throw new OperationFailedException(
+                "Message is too large for this IRC server.",
+                OperationFailedException.ILLEGAL_ARGUMENT);
         }
-        this.irc.message(target, message);
+        try
+        {
+            this.irc.message(target, message);
+            LOGGER.trace("Message delivered to server successfully.");
+        }
+        catch (RuntimeException e)
+        {
+            LOGGER.trace("Failed to deliver message: " + e.getMessage(), e);
+            throw e;
+        }
     }
 
     /**
@@ -259,22 +274,31 @@ public class MessageManager
      *
      * @param contact The contact to send the message to.
      * @param message The message to send.
+     * @throws OperationFailedException OperationFailedException is thrown when
+     *             message is too large to be processed by IRC server.
      */
     public void message(final Contact contact, final Message message)
+        throws OperationFailedException
     {
         if (!this.connectionState.isConnected())
         {
             throw new IllegalStateException("Not connected to an IRC server.");
         }
         final String target = contact.getAddress();
-        // message format as forwarded by IRC server:
-        //:<user> PRIVMSG <nick> :<message>
+        // message format as forwarded by IRC server to clients:
+        // :<user> PRIVMSG <nick> :<message>
         final int maxMsgSize = calculateMaximumMessageSize(0, target);
         if (maxMsgSize < message.getContent().length())
         {
+            // Message is definitely too large to be sent to a standard IRC
+            // network. Sending is not attempted, since we would send a partial
+            // message, even though the user is not informed of this.
             LOGGER.warn("Message for " + target
-                + " is too large. At best only sent message up to: "
+                + " is too large. At best you can send the message up to: "
                 + message.getContent().substring(0, maxMsgSize));
+            throw new OperationFailedException(
+                "Message is too large for this IRC server.",
+                OperationFailedException.ILLEGAL_ARGUMENT);
         }
         try
         {
