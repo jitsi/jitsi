@@ -217,7 +217,8 @@ class BasicPollerPresenceWatcher
             // The ISON reply contains the most overhead, so base the maximum
             // number of nicks limit on that.
             final int maxQueryLength =
-                MessageManager.IRC_PROTOCOL_MAXIMUM_MESSAGE_SIZE - overhead();
+                MessageManager.IRC_PROTOCOL_MAX_MESSAGE_SIZE
+                    - MessageManager.SAFETY_NET - overhead();
             for (String nick : list)
             {
                 if (query.length() + nick.length() >= maxQueryLength)

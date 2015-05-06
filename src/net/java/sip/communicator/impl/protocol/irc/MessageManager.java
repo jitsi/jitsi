@@ -37,10 +37,16 @@ public class MessageManager
     private static final int START_OF_COMMAND_INDEX = 1;
 
     /**
-     * Maximum message size for IRC messages given the spec specifies a buffer
-     * of 512 bytes. The command ending (CRLF) takes up 2 bytes.
+     * Safety net of 5 bytes to use as extra slack to prevent off-by-one
+     * failures.
      */
-    public static final int IRC_PROTOCOL_MAXIMUM_MESSAGE_SIZE = 510;
+    public static final int SAFETY_NET = 5;
+
+    /**
+     * Maximum message size for IRC messages given the spec specifies a buffer
+     * of 512 bytes. The command ending (CRLF) takes up 2 bytes, so max is 510.
+     */
+    public static final int IRC_PROTOCOL_MAX_MESSAGE_SIZE = 510;
 
     /**
      * IrcConnection instance.
@@ -236,6 +242,15 @@ public class MessageManager
             throw new IllegalStateException("Not connected to an IRC server.");
         }
         final String target = chatroom.getIdentifier();
+        // message format as forwarded by IRC server:
+        // :<user> PRIVMSG <nick> :<message>
+        final int maxMsgSize = calculateMaximumMessageSize(0, target);
+        if (maxMsgSize < message.length())
+        {
+            LOGGER.warn("Message for " + target
+                + " is too large. At best only sent message up to: "
+                + message.substring(0, maxMsgSize));
+        }
         this.irc.message(target, message);
     }
 
@@ -252,6 +267,15 @@ public class MessageManager
             throw new IllegalStateException("Not connected to an IRC server.");
         }
         final String target = contact.getAddress();
+        // message format as forwarded by IRC server:
+        //:<user> PRIVMSG <nick> :<message>
+        final int maxMsgSize = calculateMaximumMessageSize(0, target);
+        if (maxMsgSize < message.getContent().length())
+        {
+            LOGGER.warn("Message for " + target
+                + " is too large. At best only sent message up to: "
+                + message.getContent().substring(0, maxMsgSize));
+        }
         try
         {
             this.irc.message(target, message.getContent());
@@ -272,12 +296,39 @@ public class MessageManager
      */
     public int calculateMaximumMessageSize(final Contact contact)
     {
+        return calculateMaximumMessageSize(SAFETY_NET, contact.getAddress());
+    }
+
+    /**
+     * Calculate maximum message size that can be transmitted.
+     *
+     * @param room receiving chat room
+     * @return Returns maximum message size.
+     */
+    public int calculateMaximumMessageSize(final ChatRoomIrcImpl room)
+    {
+        return calculateMaximumMessageSize(SAFETY_NET, room.getIdentifier());
+    }
+
+    /**
+     * Calculate maximum message size by given identifier and based on local
+     * user's own identity.
+     *
+     * @param safety Number of chars extra slack as safety measure for resulting
+     *            value. (This may just save you in case of off-by-one errors by
+     *            an IRC server.)
+     * @param identifier the identifier
+     * @return Returns number of chars available for message.
+     */
+    private int calculateMaximumMessageSize(final int safety,
+        final String identifier)
+    {
         final StringBuilder builder = new StringBuilder(":");
         builder.append(this.identity.getIdentityString());
         builder.append(" PRIVMSG ");
-        builder.append(contact.getAddress());
+        builder.append(identifier);
         builder.append(" :");
-        return IRC_PROTOCOL_MAXIMUM_MESSAGE_SIZE - builder.length();
+        return IRC_PROTOCOL_MAX_MESSAGE_SIZE - safety - builder.length();
     }
 
     /**
