@@ -218,6 +218,10 @@ public class IrcConnection
         {
             return new NoopNegotiator();
         }
+        // TODO In time, replace SaslNegotiator with CompositeNegotiator and
+        // SaslCapability together with any supported other capabilities.
+        // 'away-notify' would be an interesting option, so we do not have to
+        // periodically query channel status.
         return new SaslNegotiator(sasl.getUser(), sasl.getPass(),
             sasl.getRole());
     }
@@ -237,9 +241,6 @@ public class IrcConnection
     {
         final Result<IIRCState, Exception> result =
             new Result<IIRCState, Exception>();
-        // FIXME Decide between SASL authentication and normal 'PASS'-parameter
-        // authentication. You cannot do both as some services will respond with
-        // already-authenticated warning.
         synchronized (result)
         {
             // start connecting to the specified server ...
