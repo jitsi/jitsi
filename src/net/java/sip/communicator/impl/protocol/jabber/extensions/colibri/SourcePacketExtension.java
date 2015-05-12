@@ -70,6 +70,21 @@ public class SourcePacketExtension
     }
 
     /**
+     * Finds the value of SSRC parameter identified by given name.
+     * @param name the name of SSRC parameter to find.
+     * @return value of SSRC parameter
+     */
+    public String getParameter(String name)
+    {
+        for (ParameterPacketExtension param : getParameters())
+        {
+            if (name.equals(param.getName()))
+                return param.getValue();
+        }
+        return null;
+    }
+
+    /**
      * Gets the synchronization source (SSRC) ID of this source.
      *
      * @return the synchronization source (SSRC) ID of this source

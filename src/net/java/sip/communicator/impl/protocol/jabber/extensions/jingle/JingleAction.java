@@ -213,19 +213,15 @@ public enum JingleAction
      * @param jingleActionStr the action <tt>String</tt> that we'd like to
      * parse.
      * @return a <tt>JingleAction</tt> value corresponding to the specified
-     * <tt>jingleActionStr</tt>.
-     *
-     * @throws IllegalArgumentException in case <tt>jingleActionStr</tt> is
-     * not a valid media direction.
+     * <tt>jingleActionStr</tt> or <tt>null</tt> if given <tt>String</tt> can
+     * not be matched with any of enumeration values.
      */
     public static JingleAction parseString(String jingleActionStr)
-        throws IllegalArgumentException
     {
         for (JingleAction value : values())
             if (value.toString().equals(jingleActionStr))
                 return value;
 
-        throw new IllegalArgumentException(
-            jingleActionStr + " is not a valid jingle action");
+        return null;
     }
 }
