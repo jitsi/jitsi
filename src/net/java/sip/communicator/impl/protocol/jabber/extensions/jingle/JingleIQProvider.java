@@ -58,6 +58,12 @@ public class JingleIQProvider implements IQProvider
             new DefaultPacketExtensionProvider
                 <RTPHdrExtPacketExtension>(RTPHdrExtPacketExtension.class));
 
+        // <sctpmap/> provider
+        providerManager.addExtensionProvider(
+            SctpMapExtension.ELEMENT_NAME,
+            SctpMapExtension.NAMESPACE,
+            new SctpMapExtensionProvider());
+
         //<encryption/> provider
         providerManager.addExtensionProvider(
             EncryptionPacketExtension.ELEMENT_NAME,

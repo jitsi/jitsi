@@ -13,6 +13,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
  * element defined by XEP-0320: Use of DTLS-SRTP in Jingle Sessions.
  *
  * @author Lyubomir Marinov
+ * @author Pawel Domas
  */
 public class DtlsFingerprintPacketExtension
     extends AbstractPacketExtension
@@ -40,6 +41,24 @@ public class DtlsFingerprintPacketExtension
      * XEP-0320: Use of DTLS-SRTP in Jingle Sessions.
      */
     private static final String REQUIRED_ATTR_NAME = "required";
+
+    /**
+     * The XML name of the <tt>fingerprint</tt> element's attribute which
+     * specifies setup role that indicates which of the end points should
+     * initiate the connection establishment. Correct values:<br/>
+     * <li>
+     * 'active': The endpoint will initiate an outgoing connection.
+     * </li><li>
+     * 'passive': The endpoint will accept an incoming connection.
+     * </li><li>
+     * 'actpass': The endpoint is willing to accept an incoming connection or
+     *            to initiate an outgoing connection.
+     * </li><li>
+     * 'holdconn': The endpoint does not want the connection to be established
+     *             for the time being.
+     * </li>
+     */
+    private static final String SETUP_ATTR_NAME = "setup";
 
     /** Initializes a new <tt>DtlsFingerprintPacketExtension</tt> instance. */
     public DtlsFingerprintPacketExtension()
@@ -81,6 +100,15 @@ public class DtlsFingerprintPacketExtension
     }
 
     /**
+     * Returns value of 'setup' attribute. See {@link #SETUP_ATTR_NAME} for more
+     * info.
+     */
+    public String getSetup()
+    {
+        return getAttributeAsString(SETUP_ATTR_NAME);
+    }
+
+    /**
      * Sets the fingerprint to be carried/represented by this instance.
      *
      * @param fingerprint the fingerprint to be carried/represented by this
@@ -110,5 +138,14 @@ public class DtlsFingerprintPacketExtension
     public void setRequired(boolean required)
     {
         setAttribute(REQUIRED_ATTR_NAME, Boolean.valueOf(required));
+    }
+
+    /**
+     * Sets new value for 'setup' attribute.
+     * @param setup see {@link #SETUP_ATTR_NAME} for the list of allowed values.
+     */
+    public void setSetup(String setup)
+    {
+        setAttribute(SETUP_ATTR_NAME, setup);
     }
 }
