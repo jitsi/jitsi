@@ -225,7 +225,8 @@ public class IrcConnection
         final SASL sasl = config.getSASL();
         if (sasl != null)
         {
-            capabilities.add(new SaslCapability(true, sasl.getRole(), sasl.getUser(), sasl.getPass()));
+            capabilities.add(new SaslCapability(true, sasl.getRole(), sasl
+                .getUser(), sasl.getPass()));
         }
         return new CompositeNegotiator(capabilities, handler);
     }
@@ -526,7 +527,9 @@ public class IrcConnection
      *
      * @author Danny van Heumen
      */
-    private static class NegotiationHandler implements CompositeNegotiator.Host {
+    private static class NegotiationHandler
+        implements CompositeNegotiator.Host
+    {
 
         /**
          * Constant for id of away notify capability.
@@ -542,7 +545,8 @@ public class IrcConnection
         public void acknowledge(Capability cap)
         {
             LOGGER.info("Capability " + cap.getId() + " acknowledged.");
-            if (AWAY_NOTIFY.equals(cap.getId())) {
+            if (AWAY_NOTIFY.equals(cap.getId()))
+            {
                 this.awayNotify = true;
             }
         }
@@ -551,7 +555,8 @@ public class IrcConnection
         public void reject(Capability cap)
         {
             LOGGER.info("Capability " + cap.getId() + " rejected.");
-            if (AWAY_NOTIFY.equals(cap.getId())) {
+            if (AWAY_NOTIFY.equals(cap.getId()))
+            {
                 this.awayNotify = false;
             }
         }
