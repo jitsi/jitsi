@@ -104,6 +104,11 @@ public class ChannelManager
             = new HashMap<Character, Integer>();
 
     /**
+     * Flag for indicating availability of Away Notify capability.
+     */
+    private final boolean awayNotify;
+
+    /**
      * Constructor.
      *
      * @param irc thread-safe IRCApi instance
@@ -113,7 +118,7 @@ public class ChannelManager
      */
     public ChannelManager(final IRCApi irc, final IIRCState connectionState,
         final ProtocolProviderServiceIrcImpl provider,
-        final ClientConfig config)
+        final ClientConfig config, final boolean awayNotifyCapability)
     {
         if (irc == null)
         {
@@ -146,6 +151,7 @@ public class ChannelManager
         this.isupportKickLen = parseISupportInteger(this.connectionState,
                 ISupport.KICKLEN);
         parseISupportChanLimit(this.isupportChanLimit, this.connectionState);
+        this.awayNotify = awayNotifyCapability;
     }
 
     /**
@@ -356,7 +362,8 @@ public class ChannelManager
                                 ChannelManager.this.irc
                                     .addListener(new ChatRoomListener(chatroom,
                                         ChannelManager.this.config
-                                            .isChannelPresenceTaskEnabled()));
+                                            .isChannelPresenceTaskEnabled(),
+                                            ChannelManager.this.awayNotify));
                                 prepareChatRoom(chatroom, channel);
                             }
                             finally
@@ -755,7 +762,8 @@ public class ChannelManager
                     ChannelManager.this.joined.put(channelName, chatRoom);
                 }
                 this.irc.addListener(new ChatRoomListener(chatRoom,
-                    ChannelManager.this.config.isChannelPresenceTaskEnabled()));
+                    ChannelManager.this.config.isChannelPresenceTaskEnabled(),
+                    ChannelManager.this.awayNotify));
                 try
                 {
                     ChannelManager.this.provider.getMUC().openChatRoomWindow(
@@ -786,6 +794,8 @@ public class ChannelManager
      * A chat room listener is registered for each chat room that we join. The
      * chat room listener updates chat room data and fires events based on IRC
      * messages that report state changes for the specified channel.
+     *
+     * FIXME handle AWAY messages (from away-notify) for fellow channel members
      *
      * @author Danny van Heumen
      */
@@ -820,14 +830,18 @@ public class ChannelManager
         private static final int IRC_RPL_ENDOFWHO = 315;
 
         /**
-         * Presence task initial delay.
-         */
-        private static final long TASK_INITIAL_DELAY = 1000L;
-
-        /**
          * Presence task period.
          */
         private static final long TASK_PERIOD = 60000L;
+
+        /**
+         * Presence task initial delay.
+         *
+         * The first WHO-request is fired during ChatRoomListener constructions,
+         * as we need at least 1 such request, even if away-notify capability is
+         * active.
+         */
+        private static final long TASK_INITIAL_DELAY = TASK_PERIOD;
 
         /**
          * Chat room for which this listener is working.
@@ -843,9 +857,15 @@ public class ChannelManager
          * Constructor. Instantiate listener for the provided chat room.
          *
          * @param chatroom the chat room
+         * @param activatePresenceWatcher flag indicating whether or not to
+         *            activate the periodic presence watcher task
+         * @param awayNotifyCapability flag indicating whether or not away
+         *            notifications are active. If they are active, there is no
+         *            need to periodically query presence status.
          */
         private ChatRoomListener(final ChatRoomIrcImpl chatroom,
-            final boolean activatePresenceWatcher)
+            final boolean activatePresenceWatcher,
+            final boolean awayNotifyCapability)
         {
             super(ChannelManager.this.irc, ChannelManager.this.connectionState);
             if (chatroom == null)
@@ -853,10 +873,17 @@ public class ChannelManager
                 throw new IllegalArgumentException("chatroom cannot be null");
             }
             this.chatroom = chatroom;
-            if (activatePresenceWatcher)
+            if (activatePresenceWatcher && !awayNotifyCapability)
             {
                 createPeriodicPresenceWatcher();
             }
+            else
+            {
+                LOGGER.info("Not activating periodic presence watcher. "
+                    + "(away-notify capability is " + awayNotifyCapability
+                    + ")");
+            }
+            this.irc.rawMessage("WHO " + chatroom.getIdentifier());
         }
 
         /**
