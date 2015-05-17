@@ -795,8 +795,6 @@ public class ChannelManager
      * chat room listener updates chat room data and fires events based on IRC
      * messages that report state changes for the specified channel.
      *
-     * FIXME handle AWAY messages (from away-notify) for fellow channel members
-     *
      * @author Danny van Heumen
      */
     private final class ChatRoomListener
@@ -1063,19 +1061,7 @@ public class ChannelManager
                 {
                     final IrcStatusEnum status =
                         determineStatus(messageComponents[5]);
-                    final IrcStatusEnum previous =
-                        member.setPresenceStatus(status);
-                    if (previous == status) {
-                        // if there is no change in status, do not fire member
-                        // property change event
-                        return;
-                    }
-                    final ChatRoomMemberPropertyChangeEvent presenceEvent =
-                        new ChatRoomMemberPropertyChangeEvent(member,
-                            this.chatroom,
-                            ChatRoomMemberPropertyChangeEvent.MEMBER_PRESENCE,
-                            previous, status);
-                    this.chatroom.fireMemberPropertyChangeEvent(presenceEvent);
+                    updateMemberPresence(member, status);
                 }
                 break;
 
@@ -1297,6 +1283,48 @@ public class ChannelManager
                 MessageIrcImpl.newNoticeFromIRC(member, msg.getText());
             this.chatroom.fireMessageReceivedEvent(message, member, new Date(),
                 ChatRoomMessageReceivedEvent.CONVERSATION_MESSAGE_RECEIVED);
+        }
+
+        /**
+         * Event in case of user away message (CAP away-notify)
+         *
+         * @param aMsg away message
+         */
+        @Override
+        public void onUserAway(AwayMessage msg)
+        {
+            final ChatRoomMemberIrcImpl member =
+                (ChatRoomMemberIrcImpl) this.chatroom.getChatRoomMember(msg
+                    .getSource().getNick());
+            if (member != null)
+            {
+                final IrcStatusEnum status =
+                    msg.isAway() ? IrcStatusEnum.AWAY : IrcStatusEnum.ONLINE;
+                updateMemberPresence(member, status);
+            }
+        }
+
+        /**
+         * Update member presence status.
+         *
+         * @param member the member
+         * @param newStatus the new presence status
+         */
+        private void updateMemberPresence(ChatRoomMemberIrcImpl member,
+            IrcStatusEnum newStatus)
+        {
+            final IrcStatusEnum previous = member.setPresenceStatus(newStatus);
+            if (previous == newStatus) {
+                // if there is no change in status, do not fire member
+                // property change event
+                return;
+            }
+            final ChatRoomMemberPropertyChangeEvent presenceEvent =
+                new ChatRoomMemberPropertyChangeEvent(member,
+                    this.chatroom,
+                    ChatRoomMemberPropertyChangeEvent.MEMBER_PRESENCE,
+                    previous, newStatus);
+            this.chatroom.fireMemberPropertyChangeEvent(presenceEvent);
         }
 
         /**
