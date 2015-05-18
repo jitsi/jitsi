@@ -169,10 +169,14 @@ public class KeepAliveManager
         if(packet instanceof KeepAliveEvent)
         {
             // replay only to server pings, to avoid leak of presence
+            // skip if this is reply with error (like not supported)
+            // we can still receive errors, but as this is keep-alive ping
+            // we don't care for errors, as packets has already done its goal
             KeepAliveEvent evt = (KeepAliveEvent)packet;
             if(evt.getFrom() != null
                && evt.getFrom()
-                    .equals(parentProvider.getAccountID().getService()))
+                    .equals(parentProvider.getAccountID().getService())
+                && evt.getError() == null)
             {
                 parentProvider.getConnection().sendPacket(
                     IQ.createResultIQ(evt));
