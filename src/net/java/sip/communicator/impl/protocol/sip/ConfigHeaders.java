@@ -147,23 +147,7 @@ public class ConfigHeaders
                     headerValues.get(ACC_PROPERTY_CONFIG_HEADER_VALUE),
                     request);
 
-                Header customHeader;
-
-                // use the custom header for those custom headers that has
-                // multiple values, as the factory will switch on the header
-                // parser for standard headers and will produce multiple headers
-                // that ends with an error creating/sending the request
-                if(value.contains(","))
-                {
-                    customHeader = new CustomHeader(name, value);
-                }
-                else
-                {
-                    customHeader = protocolProvider.getHeaderFactory()
-                        .createHeader(name, value);
-                }
-
-                request.setHeader(customHeader);
+                request.addHeader(new CustomHeaderList(name, value));
             }
             catch(Exception e)
             {
@@ -191,6 +175,32 @@ public class ConfigHeaders
                 value = value.replace(
                     "${from.address}",
                     fromHeader.getAddress().getURI().toString());
+            }
+        }
+
+        if(value.indexOf("${from.userID}") != -1)
+        {
+            FromHeader fromHeader
+                = (FromHeader)request.getHeader(FromHeader.NAME);
+
+            if(fromHeader != null)
+            {
+                URI fromURI = fromHeader.getAddress().getURI();
+                String fromAddr = fromURI.toString();
+
+                // strips sip: or sips:
+                if(fromURI.isSipURI())
+                {
+                    fromAddr
+                        = fromAddr.replaceFirst(fromURI.getScheme() + ":", "");
+                }
+
+                // take the userID part
+                int index = fromAddr.indexOf('@');
+                if ( index > -1 )
+                    fromAddr = fromAddr.substring(0, index);
+
+                value = value.replace("${from.userID}", fromAddr);
             }
         }
 
@@ -233,39 +243,5 @@ public class ConfigHeaders
         }
 
         return value;
-    }
-
-    /**
-     * Custom header to instert. Custom name and value.
-     */
-    private static class CustomHeader
-        extends SIPHeader
-    {
-        /**
-         * The header value.
-         */
-        private String value;
-
-        /**
-         * Constructs header.
-         * @param name header name
-         * @param value header value
-         */
-        CustomHeader(String name, String value)
-        {
-            super(name);
-            this.value = value;
-        }
-
-        /**
-         * Just the encoded body of the header.
-         * @param buffer the insert result
-         * @return the string encoded header body.
-         */
-        @Override
-        protected StringBuilder encodeBody(StringBuilder buffer)
-        {
-            return value != null ? buffer.append(value) : buffer.append("");
-        }
     }
 }
