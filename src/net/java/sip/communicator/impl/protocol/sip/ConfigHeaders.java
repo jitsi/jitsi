@@ -147,7 +147,17 @@ public class ConfigHeaders
                     headerValues.get(ACC_PROPERTY_CONFIG_HEADER_VALUE),
                     request);
 
-                request.addHeader(new CustomHeaderList(name, value));
+                Header h = request.getHeader(name);
+
+                // makes possible overriding already created headers which
+                // are not custom one
+                if(h != null && !(h instanceof CustomHeader))
+                {
+                    request.setHeader(protocolProvider.getHeaderFactory()
+                        .createHeader(name, value));
+                }
+                else
+                    request.addHeader(new CustomHeaderList(name, value));
             }
             catch(Exception e)
             {
