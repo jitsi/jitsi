@@ -151,7 +151,10 @@ public class ConfigHeaders
 
                 // makes possible overriding already created headers which
                 // are not custom one
-                if(h != null && !(h instanceof CustomHeader))
+                // RouteHeader is used by ProxyRouter/DefaultRouter and we
+                // cannot use it as custom header if we want to add it
+                if((h != null && !(h instanceof CustomHeader))
+                    || name.equals(SIPHeaderNames.ROUTE))
                 {
                     request.setHeader(protocolProvider.getHeaderFactory()
                         .createHeader(name, value));
