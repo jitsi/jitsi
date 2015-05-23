@@ -222,6 +222,7 @@ public class IrcConnection
     {
         final ArrayList<Capability> capabilities = new ArrayList<Capability>();
         capabilities.add(new SimpleCapability("away-notify"));
+        capabilities.add(new SimpleCapability("multi-prefix"));
         final SASL sasl = config.getSASL();
         if (sasl != null)
         {

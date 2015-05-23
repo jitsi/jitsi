@@ -477,6 +477,12 @@ public class ChannelManager
             {
                 try
                 {
+                    if (LOGGER.isTraceEnabled())
+                    {
+                        LOGGER.trace("Processing role " + status.getPrefix()
+                            + " for member " + user.getNick() + " in channel "
+                            + channel.getName());
+                    }
                     role = convertMemberMode(status.getChanModeType());
                     member.addRole(role);
                 }
