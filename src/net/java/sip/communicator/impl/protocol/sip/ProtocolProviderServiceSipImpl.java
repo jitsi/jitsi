@@ -2390,7 +2390,11 @@ public class ProtocolProviderServiceSipImpl
         {
             uriStr = "sip:" + uriStr;
         }
-
+	
+	      if(uriStr.indexOf("+") != -1) {
+		       uriStr = uriStr.replaceFirst("\\+","");
+	         }
+	      uriStr += ";user=phone";
         Address toAddress = getAddressFactory().createAddress(uriStr);
 
         return toAddress;

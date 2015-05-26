@@ -142,12 +142,17 @@ public class ConfigHeaders
 
             try
             {
+                String headerValue = headerValues.get(ACC_PROPERTY_CONFIG_HEADER_VALUE);
                 String name = headerValues.get(ACC_PROPERTY_CONFIG_HEADER_NAME);
-                String value = processParams(
-                    headerValues.get(ACC_PROPERTY_CONFIG_HEADER_VALUE),
-                    request);
+                String value = processParams(headerValue,request);
+
+        	      if(name.equals("P-Asserted-Identity")) {
+		               value = value.split(":")[0] + ":+" + value.split(":")[1];
+                   }	
 
                 Header h = request.getHeader(name);
+
+ 		            logger.info("Header : " + name + " : " + value);
 
                 // makes possible overriding already created headers which
                 // are not custom one
@@ -254,7 +259,11 @@ public class ConfigHeaders
                 value = value.replace("${to.userID}", toAddr);
             }
         }
-
+        // Needed of IMS
+  	if(value.indexOf("+") != -1) {
+	  	logger.info("Replacing + character !!");
+	   	value = value.replaceFirst("\\+","");
+          }	
         return value;
     }
 }
