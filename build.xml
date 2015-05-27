@@ -1320,6 +1320,7 @@
             <zipfileset src="${lib.noinst}/bcpkix-jdk15on-151.jar" prefix=""
                 excludes="META-INF/BCKEY.*"/>
             <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jitsi-lgpl-dependencies.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/libjitsi.jar" prefix=""/>
         </jar>
     </target>

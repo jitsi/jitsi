@@ -3250,6 +3250,10 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         <symlink resource="/usr/share/libjitsi/lib/ice4j.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude"/>
+        <!-- jitsi-lgpl-dependencies -->
+        <symlink resource="/usr/share/libjitsi/lib/jitsi-lgpl-dependencies.jar"
+             overwrite="true"
+             link="${debian.src.dir}/lib/installer-exclude/"/>
         <!-- fmj -->
         <symlink resource="/usr/share/libjitsi/lib/fmj.jar"
              overwrite="true"
@@ -3767,6 +3771,8 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
                  link="${debian.bundles.common.dest}/libjitsi.jar/"/>
         <symlink resource="/usr/share/libjitsi/libjitsi.jar"
                  link="${debian.bundles.common.dest}/libjitsi.jar/"/>
+        <symlink resource="/usr/share/libjitsi/lib/jitsi-lgpl-dependencies.jar"
+                 link="${debian.bundles.common.dest}/libjitsi.jar/"/>
         <symlink resource="/usr/share/libjitsi/lib/fmj.jar"
                  link="${debian.bundles.common.dest}/libjitsi.jar/"/>
 
@@ -3791,7 +3797,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
             destfile="${debian.bundles.common.dest}/libjitsi.jar/META-INF/MANIFEST.MF"
             append="true"
             eol="crlf"
-            fixlastline="true">Bundle-ClassPath: .,libjitsi-impl.jar,fmj.jar,libjitsi.jar,bcpkix.jar&#013;&#010;&#013;&#010;</concat>
+            fixlastline="true">Bundle-ClassPath: .,libjitsi-impl.jar,fmj.jar,jitsi-lgpl-dependencies.jar,libjitsi.jar,bcpkix.jar&#013;&#010;&#013;&#010;</concat>
         <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
                  token="reference:file:sc-bundles/libjitsi.jar">
             <replacevalue>reference:file:/usr/share/jitsi-common/libjitsi.jar</replacevalue>
