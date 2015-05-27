@@ -2,6 +2,7 @@ package net.java.sip.communicator.impl.netaddr;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
@@ -136,12 +137,6 @@ public class BsdLocalhostRetriever
         }
 
         @Override
-        public int getFamily()
-        {
-            return LibC.AF_INET;
-        }
-
-        @Override
         public sockaddr createEmpty()
         {
             sockaddr_in v4 = new sockaddr_in();
@@ -153,6 +148,27 @@ public class BsdLocalhostRetriever
         public InetAddress getAddress() throws UnknownHostException
         {
             return InetAddress.getByAddress(sin_addr);
+        }
+
+        @Override
+        public int getFamily()
+        {
+            return LibC.AF_INET;
+        }
+
+        @Override
+        protected List getFieldOrder()
+        {
+            return
+                Arrays.asList(
+                        new String[]
+                        {
+                            "sin_len",
+                            "sin_family",
+                            "sin_port",
+                            "sin_addr",
+                            "sin_zero"
+                        });
         }
     }
 
@@ -167,18 +183,12 @@ public class BsdLocalhostRetriever
         public short sin6_port;
         public int sin6_flowinfo;
         public byte[] sin6_addr;
-        public int sin_scope_id;
+        public int sin6_scope_id;
 
         public sockaddr_in6()
         {
             sin6_family = LibC.AF_INET6;
             sin6_addr = new byte[16];
-        }
-
-        @Override
-        public int getFamily()
-        {
-            return LibC.AF_INET6;
         }
 
         @Override
@@ -193,6 +203,28 @@ public class BsdLocalhostRetriever
         public InetAddress getAddress() throws UnknownHostException
         {
             return InetAddress.getByAddress(sin6_addr);
+        }
+
+        @Override
+        public int getFamily()
+        {
+            return LibC.AF_INET6;
+        }
+
+        @Override
+        protected List getFieldOrder()
+        {
+            return
+                Arrays.asList(
+                        new String[]
+                        {
+                            "sin6_len",
+                            "sin6_family",
+                            "sin6_port",
+                            "sin6_flowinfo",
+                            "sin6_addr",
+                            "sin6_scope_id"
+                        });
         }
     }
 
