@@ -1309,19 +1309,27 @@
     </target>
 
     <!--BUNDLE-LIBJITSI -->
-    <target name="bundle-libjitsi">
-        <jar
-            compress="false"
-            destfile="${bundles.dest}/libjitsi.jar"
-            manifest="${src}/net/java/sip/communicator/impl/libjitsi/libjitsi.manifest.mf">
-
+    <target name="bundle-libjitsi"
+            depends="bundle-libjitsi-dynamically,bundle-libjitsi-statically" />
+    <target name="bundle-libjitsi-dynamically" if="dynamic.linking">
+        <jar compress="false" destfile="${bundles.dest}/libjitsi.jar"
+                manifest="${src}/net/java/sip/communicator/impl/libjitsi/libjitsi.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/libjitsi"
-                prefix="net/java/sip/communicator/impl/libjitsi"/>
+                    prefix="net/java/sip/communicator/impl/libjitsi" />
+            <zipfileset src="${lib.noinst}/libjitsi.jar" prefix="" />
+        </jar>
+    </target>
+    <target name="bundle-libjitsi-statically" unless="dynamic.linking">
+        <jar compress="false" destfile="${bundles.dest}/libjitsi.jar"
+                manifest="${src}/net/java/sip/communicator/impl/libjitsi/libjitsi.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/libjitsi"
+                    prefix="net/java/sip/communicator/impl/libjitsi" />
             <zipfileset src="${lib.noinst}/bcpkix-jdk15on-151.jar" prefix=""
-                excludes="META-INF/BCKEY.*"/>
-            <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jitsi-lgpl-dependencies.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/libjitsi.jar" prefix=""/>
+                    excludes="META-INF/BCKEY.*" />
+            <zipfileset src="${lib.noinst}/fmj.jar" prefix="" />
+            <zipfileset src="${lib.noinst}/jitsi-lgpl-dependencies.jar"
+                    prefix="" />
+            <zipfileset src="${lib.noinst}/libjitsi.jar" prefix="" />
         </jar>
     </target>
 
