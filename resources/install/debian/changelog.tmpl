@@ -1,6 +1,12 @@
 _PACKAGE_NAME_ (_VERSION_) unstable; urgency=low
 
   * Updates upstream.
+  * Adjust build-time deps for easier backporting. (Closes: #729904)
+  * Reuses already installed on the system spellcheck
+    ditionaries. (Closes: #719201)
+  * Fixes processing incoming xmpp ping error packets and showing
+    many stack traces in console. (Closes: #785299)
+  * Removes java6-runtime alternative. (Closes: #735904)
 
  -- Damian Minkov <damencho@jitsi.org>  _DATE_
 
