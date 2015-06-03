@@ -1995,7 +1995,7 @@
         dpkg-cross
         dpkg -add-architecture i386 (the option is with two dashes!)
         apt-get update
-        apt-get install libc6:i386 libpulse0:i386 libx11-6:i386 libxv1:i386 libstdc++6:i386 libasound2:i386
+        apt-get install libc6:i386 libpulse0:i386 libx11-6:i386 libxv1:i386 libstdc++6:i386 libasound2:i386 libssl1.0.0:i386
     -->
     <target name="-make-deb-package" depends="init,version,load-properties,dpkg-build-warning"
             if="dpkg.build.present"
