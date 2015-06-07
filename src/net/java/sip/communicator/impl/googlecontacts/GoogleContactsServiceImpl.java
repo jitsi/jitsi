@@ -269,14 +269,11 @@ public class GoogleContactsServiceImpl
 
             try
             {
-                contactFeed = cnxImpl.getGoogleService().query(
-                        query, ContactFeed.class);
+                contactFeed = cnxImpl.query(query);
             }
             catch(Exception e)
             {
-                logger.info(
-                        "Problem occurred during Google Contacts retrievment",
-                        e);
+                logger.warn("Problem occurred during Google Contacts query", e);
                 return ret;
             }
 

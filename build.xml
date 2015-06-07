@@ -1391,6 +1391,10 @@
             <zipfileset src="${lib.noinst}/gdata-contacts-meta-3.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/gdata-client-1.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/gdata-client-meta-1.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/google-oauth-client-1.20.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/google-http-client-1.20.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/google-http-client-jackson2-1.20.0.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/jackson-core-2.5.3.jar" prefix=""/>
         </jar>
     </target>
 
