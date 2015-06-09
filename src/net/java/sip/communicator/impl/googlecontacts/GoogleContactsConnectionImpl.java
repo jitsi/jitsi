@@ -227,9 +227,15 @@ public class GoogleContactsConnectionImpl
         return prefix;
     }
 
+    /**
+     * Exception for signaling failed contact query.
+     *
+     * @author Danny van Heumen
+     */
     public static class FailedContactQueryException
         extends Exception
     {
+        private static final long serialVersionUID = -5451421392081973669L;
 
         private FailedContactQueryException(Throwable cause)
         {

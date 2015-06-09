@@ -192,7 +192,7 @@ public class OAuth2TokenStore
                     ((UrlEncodedContent) request.getContent()).getData();
                 if (data instanceof RefreshTokenRequest)
                 {
-                    // Insert client authentication credentials in requests.
+                    // Inject client authentication credentials in requests.
                     final RefreshTokenRequest content =
                         (RefreshTokenRequest) data;
                     content.put("client_id", GOOGLE_API_CLIENT_ID);
@@ -206,7 +206,7 @@ public class OAuth2TokenStore
                 }
                 else
                 {
-                    LOGGER.info("Unexpected type of request found.");
+                    LOGGER.debug("Unexpected type of request found.");
                 }
             }
         });
@@ -243,12 +243,26 @@ public class OAuth2TokenStore
         return credential;
     }
 
+    /**
+     * Request an authentication token using the approval code received from the
+     * user.
+     * 
+     * @param approvalCode the approval code
+     * @return Returns the acquired token data from OAuth 2 token server.
+     */
     private static TokenData requestAuthenticationToken(final String approvalCode)
     {
         // FIXME actually acquire credential
         return new TokenData("", "", 3600L);
     }
 
+    /**
+     * OAuth 2 approval dialog for instructing user for instructing the user to
+     * open a web browser and approve Jitsi Google Contacts plugin access and
+     * for receiving the resulting approval code.
+     *
+     * @author Danny van Heumen
+     */
     private static class OAuthApprovalDialog extends SIPCommDialog {
         private static final long serialVersionUID = 6792589736608633346L;
 
@@ -256,7 +270,7 @@ public class OAuth2TokenStore
 
         private final SIPCommTextField code = new SIPCommTextField("");
 
-        public OAuthApprovalDialog() throws MalformedURLException
+        public OAuthApprovalDialog()
         {
             this.setModal(true);
             this.label = new SIPCommLinkButton("Click here to approve.");
@@ -287,20 +301,47 @@ public class OAuth2TokenStore
             this.pack();
         }
 
+        /**
+         * Get approval code entered by the user in the dialog input field.
+         *
+         * @return Returns the approval code.
+         */
         public String getApprovalCode() {
             return this.code.getText();
         }
     }
 
+    /**
+     * Container for token data for internal use.
+     *
+     * @author Danny van Heumen
+     */
     private static class TokenData
     {
+        /**
+         * OAuth 2 access token.
+         */
         private final String accessToken;
 
+        /**
+         * OAuth 2 refresh token.
+         */
         private final String refreshToken;
 
+        /**
+         * Available time before expiration of the current access token.
+         */
         private final long expiration;
 
-        private TokenData(final String accessToken, final String refreshToken, final long expirationTime)
+        /**
+         * Constructor for TokenData container.
+         *
+         * @param accessToken the access token
+         * @param refreshToken the refresh token
+         * @param expirationTime the expiration time
+         */
+        private TokenData(final String accessToken, final String refreshToken,
+            final long expirationTime)
         {
             if (accessToken == null)
             {
@@ -312,10 +353,21 @@ public class OAuth2TokenStore
                 throw new NullPointerException("refresh token cannot be null");
             }
             this.refreshToken = refreshToken;
+            if (expirationTime < 0)
+            {
+                throw new IllegalArgumentException(
+                    "Expiration time cannot be null");
+            }
             this.expiration = expirationTime;
         }
     }
 
+    /**
+     * Exception for error case where we failed to acquire initial credential
+     * for OAuth 2 authentication and authorization.
+     * 
+     * @author Danny van Heumen
+     */
     public static class FailedAcquireCredentialException
         extends Exception
     {
@@ -327,6 +379,12 @@ public class OAuth2TokenStore
         }
     }
 
+    /**
+     * Exception for error case where we failed to refresh the OAuth 2 authn
+     * token.
+     * 
+     * @author Danny van Heumen
+     */
     public static class FailedTokenRefreshException
         extends Exception
     {
