@@ -1029,7 +1029,7 @@ public class ColibriConferenceIQ
 
             if (simulcastMode != null)
             {
-                xml.append(' ').append(SIMULCAST_MODE_ATTR_NAME).append("=")
+                xml.append(' ').append(SIMULCAST_MODE_ATTR_NAME).append("='")
                         .append(simulcastMode).append('\'');
             }
 
