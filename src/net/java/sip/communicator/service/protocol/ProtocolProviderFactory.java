@@ -65,6 +65,8 @@ public abstract class ProtocolProviderFactory
      * on the protocol network..
      */
     public static final String USER_ID = "USER_ID";
+    
+    public static final String DOMAIN = "DOMAIN";
 
     /**
      * The name that should be displayed to others when we are calling or
