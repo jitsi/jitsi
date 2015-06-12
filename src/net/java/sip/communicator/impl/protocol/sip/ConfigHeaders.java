@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import gov.nist.javax.sip.header.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 
 import javax.sip.address.*;
 import javax.sip.header.*;
@@ -144,7 +145,7 @@ public class ConfigHeaders
             {
                 String headerValue = headerValues.get(ACC_PROPERTY_CONFIG_HEADER_VALUE);
                 String name = headerValues.get(ACC_PROPERTY_CONFIG_HEADER_NAME);
-                String value = processParams(headerValue,request);
+                String value = processParams(headerValue,request,props);
 
         	      if(name.equals("P-Asserted-Identity")) {
 		               value = value.split(":")[0] + ":+" + value.split(":")[1];
@@ -181,7 +182,7 @@ public class ConfigHeaders
      * @param request the request we are processing
      * @return the value with replaced params
      */
-    private static String processParams(String value, Request request)
+    private static String processParams(String value, Request request, Map<String, String> props)
     {
         if(value.indexOf("${from.address}") != -1)
         {
@@ -259,6 +260,14 @@ public class ConfigHeaders
                 value = value.replace("${to.userID}", toAddr);
             }
         }
+        
+        if (value.indexOf("{domain}") != -1)
+        {
+            value =
+                value.replaceFirst("${domain}",
+                    props.get(ProtocolProviderFactory.DOMAIN));
+        }
+        
         // Needed of IMS
   	if(value.indexOf("+") != -1) {
 	  	logger.info("Replacing + character !!");
