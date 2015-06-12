@@ -261,10 +261,10 @@ public class ConfigHeaders
             }
         }
         
-        if (value.indexOf("{domain}") != -1)
+        if (value.indexOf("${domain}") != -1)
         {
             value =
-                value.replaceFirst("${domain}",
+                value.replace("${domain}",
                     props.get(ProtocolProviderFactory.DOMAIN));
         }
         
