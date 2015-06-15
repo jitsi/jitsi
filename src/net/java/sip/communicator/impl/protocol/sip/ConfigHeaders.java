@@ -83,9 +83,20 @@ public class ConfigHeaders
             return;
 
         Request request = (Request)message;
+        
+        ToHeader toHeader =
+            (ToHeader) request.getHeader(ToHeader.NAME);
+        String domainName = toHeader.getAddress().getURI().toString();
+        if(domainName.contains(";")) {
+            domainName = domainName.substring(domainName.indexOf("@"), domainName.indexOf(";"));
+        } else {
+            domainName = domainName.substring(domainName.indexOf("@"));
+        }
 
-        Map<String, String> props
-            = protocolProvider.getAccountID().getAccountProperties();
+        Map<String, String> props =
+            protocolProvider.getAccountID().getAccountProperties();
+
+        props.put("DomainName", domainName);
 
         Map<String,Map<String,String>> headers
             = new HashMap<String, Map<String, String>>();
@@ -195,6 +206,12 @@ public class ConfigHeaders
                     "${from.address}",
                     fromHeader.getAddress().getURI().toString());
             }
+            
+            if (value.contains(props.get(ProtocolProviderFactory.DOMAIN)))
+            {
+                value = value.replace(value.substring(value.indexOf("@"),value.indexOf("@") + props.get(ProtocolProviderFactory.DOMAIN).length() + 1), props.get("DomainName"));
+                logger.info("from.address new value : " + value);
+            }
         }
 
         if(value.indexOf("${from.userID}") != -1)
@@ -269,10 +286,10 @@ public class ConfigHeaders
         }
         
         // Needed of IMS
-  	if(value.indexOf("+") != -1) {
-	  	logger.info("Replacing + character !!");
-	   	value = value.replaceFirst("\\+","");
-          }	
+        if(value.indexOf("+") != -1 && !Boolean.parseBoolean(props.get(ProtocolProviderFactory.PLUS_ENABLED))) {
+                logger.info("Replacing + character !!");
+                value = value.replace("+","");
+        }	
         return value;
     }
 }
