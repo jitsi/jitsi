@@ -67,6 +67,8 @@ public abstract class ProtocolProviderFactory
     public static final String USER_ID = "USER_ID";
     
     public static final String DOMAIN = "DOMAIN";
+    
+    public static final String PLUS_ENABLED = "PLUS_ENABLED";
 
     /**
      * The name that should be displayed to others when we are calling or
