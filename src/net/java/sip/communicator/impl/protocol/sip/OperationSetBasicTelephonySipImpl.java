@@ -125,9 +125,6 @@ public class OperationSetBasicTelephonySipImpl
         throws OperationFailedException,
                ParseException
     {
-       if(callee.indexOf("+") != -1) {
-  	      callee = callee.replaceFirst("\\+","");
-          }	
         Address toAddress = protocolProvider.parseAddressString(callee);
 
         return createOutgoingCall(toAddress, null, conference);
