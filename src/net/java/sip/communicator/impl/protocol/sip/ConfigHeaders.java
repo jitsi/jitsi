@@ -207,10 +207,13 @@ public class ConfigHeaders
                     fromHeader.getAddress().getURI().toString());
             }
             
-            if (value.contains(props.get(ProtocolProviderFactory.DOMAIN)))
+            if (props.containsKey(ProtocolProviderFactory.DOMAIN))
             {
-                value = value.replace(props.get(ProtocolProviderFactory.DOMAIN), props.get("DomainName"));
-                logger.info("from.address new value : " + value);
+            	if (value.contains(props.get(ProtocolProviderFactory.DOMAIN)))
+            	{
+        		value = value.replace(props.get(ProtocolProviderFactory.DOMAIN), props.get("DomainName"));
+                	logger.info("from.address new value : " + value);
+            	}
             }
         }
 
