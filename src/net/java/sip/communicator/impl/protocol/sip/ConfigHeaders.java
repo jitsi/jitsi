@@ -209,7 +209,7 @@ public class ConfigHeaders
             
             if (value.contains(props.get(ProtocolProviderFactory.DOMAIN)))
             {
-                value = value.replace(value.substring(value.indexOf("@"),value.indexOf("@") + props.get(ProtocolProviderFactory.DOMAIN).length() + 1), props.get("DomainName"));
+                value = value.replace(ProtocolProviderFactory.DOMAIN, props.get("DomainName"));
                 logger.info("from.address new value : " + value);
             }
         }
