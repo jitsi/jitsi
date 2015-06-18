@@ -247,7 +247,6 @@ public class ColibriIQProvider
             ColibriConferenceIQ.Content content = null;
             ColibriConferenceIQ.Recording recording = null;
             ColibriConferenceIQ.Endpoint conferenceEndpoint = null;
-            ColibriConferenceIQ.RoomName room = null;
             StringBuilder ssrc = null;
             SourcePacketExtension ssrcPe = null;
 
@@ -293,13 +292,6 @@ public class ColibriIQProvider
                         conference.addEndpoint(conferenceEndpoint);
                         conferenceEndpoint = null;
                     }
-                    else if (ColibriConferenceIQ.RoomName.ELEMENT_NAME
-                        .equals(name))
-                {
-                    conference.setRoomName(room);
-                    conferenceEndpoint = null;
-                }
-                    
                     else if (ColibriConferenceIQ.Channel.SSRC_ELEMENT_NAME
                             .equals(name))
                     {
@@ -454,17 +446,6 @@ public class ColibriIQProvider
                         if (!StringUtils.isNullOrEmpty(adaptiveLastN))
                             channel.setAdaptiveLastN(
                                     Boolean.parseBoolean(adaptiveLastN));
-
-                        // simulcastMode
-                        String simulcastMode
-                                = parser.getAttributeValue(
-                                "",
-                                ColibriConferenceIQ.Channel
-                                        .SIMULCAST_MODE_ATTR_NAME);
-
-                        if (!StringUtils.isNullOrEmpty(simulcastMode))
-                            channel.setSimulcastMode(
-                                    SimulcastMode.fromString(simulcastMode));
 
                         // receiving simulcast layer
                         String receivingSimulcastLayer

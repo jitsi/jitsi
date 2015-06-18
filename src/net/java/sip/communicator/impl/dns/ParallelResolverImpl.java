@@ -122,9 +122,9 @@ public class ParallelResolverImpl
         }
         catch(UnknownHostException exc)
         {
-            logger.warn(
-                    "Seems like the primary DNS is down, trying fallback to "
-                        + customResolverIP);
+            logger
+                .warn("Seems like the primary DNS is down, trying fallback to "
+                    + customResolverIP);
         }
 
         if(resolverAddress == null)
@@ -170,22 +170,20 @@ public class ParallelResolverImpl
     {
         try
         {
-            backupResolver = new ExtendedResolver(new SimpleResolver[0]);
-            for(InetSocketAddress backupServer : backupServers)
+            backupResolver = new ExtendedResolver(new SimpleResolver[]{});
+            for(InetSocketAddress backupServer : backupServers )
             {
                 SimpleResolver sr = new SimpleResolver();
-
                 sr.setAddress(backupServer);
                 backupResolver.addResolver(sr);
             }
         }
         catch (UnknownHostException e)
         {
-            // this shouldn't be thrown since we don't do any DNS querying in
-            // here. this is why we take an InetSocketAddress as a param.
-            throw new IllegalStateException(
-                    "The impossible just happened: we could not initialize our"
-                        + " backup DNS resolver.");
+            //this shouldn't be thrown since we don't do any DNS querying
+            //in here. this is why we take an InetSocketAddress as a param.
+            throw new IllegalStateException("The impossible just happened: "
+                        + "we could not initialize our backup DNS resolver");
         }
     }
 
@@ -504,7 +502,6 @@ public class ParallelResolverImpl
         public void run()
         {
             Message localResponse = null;
-
             try
             {
                 localResponse = defaultResolver.send(query);
@@ -512,12 +509,12 @@ public class ParallelResolverImpl
             catch (SocketTimeoutException exc)
             {
                 logger.info("Default DNS resolver timed out.");
-                exception = exc;
+                this.exception = exc;
             }
             catch (Throwable exc)
             {
                 logger.info("Default DNS resolver failed", exc);
-                exception = exc;
+                this.exception = exc;
             }
 
             //if the backup resolvers had already replied we ignore the
@@ -567,9 +564,8 @@ public class ParallelResolverImpl
                     }
                     catch (Throwable exc)
                     {
-                        logger.info(
-                                "Exception occurred during backup DNS resolving "
-                                    + exc);
+                        logger.info("Exception occurred during backup "
+                                    +"DNS resolving" + exc);
 
                         //keep this so that we can rethrow it
                         exception = exc;

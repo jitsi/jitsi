@@ -1370,8 +1370,7 @@ public class ProtocolProviderServiceJabberImpl
                     new String[] { "http://jabber.org/protocol/commands"},
                     // Add features Jitsi supports in addition to smack.
                     supportedFeatures.toArray(
-                            new String[supportedFeatures.size()]),
-                    true);
+                            new String[supportedFeatures.size()]));
 
         /*
          * Expose the discoveryManager as service-public through the

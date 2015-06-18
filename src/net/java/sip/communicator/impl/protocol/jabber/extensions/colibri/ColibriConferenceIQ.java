@@ -13,7 +13,9 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
 import org.jitsi.util.*;
 import org.jitsi.service.neomedia.*;
+
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.packet.IQ;
 
 /**
  * Implements the Jitsi Videobridge <tt>conference</tt> IQ within the
@@ -79,15 +81,6 @@ public class ColibriConferenceIQ
      * The ID of the conference represented by this IQ.
      */
     private String id;
-    
-    /**
-     * The room name of the conference represented by this IQ.
-     */
-    private String roomName;
-    
-    
-    
-    
 
     /**
      * Media recording.
@@ -194,8 +187,7 @@ public class ColibriConferenceIQ
     {
         endpoints.add(endpoint);
     }
-    
-   
+
     /**
      * Returns a list of the <tt>ChannelBundle</tt>s included into this
      * <tt>conference</tt> IQ.
@@ -334,16 +326,6 @@ public class ColibriConferenceIQ
     {
         return id;
     }
-    
-    public String getRoomName()
-    {
-        return roomName;
-    }
-    public void setRoomName(RoomName room)
-    {
-       this.roomName = room.getRoomName();
-    }
-    
 
     /**
      * Returns a <tt>Content</tt> from the list of <tt>Content</tt>s of this
@@ -498,13 +480,6 @@ public class ColibriConferenceIQ
                 = "adaptive-simulcast";
 
         /**
-         * The XML name of the <tt>simulcast-mode</tt> attribute of a video
-         * <tt>channel</tt>.
-         */
-        public static final String SIMULCAST_MODE_ATTR_NAME
-                = "simulcast-mode";
-
-        /**
          * The XML name of the <tt>receive-simulcast-layer</tt> attribute of a
          * video <tt>Channel</tt> which specifies the target quality of the
          * simulcast substreams to be sent from Jitsi Videobridge to the
@@ -579,11 +554,6 @@ public class ColibriConferenceIQ
          * The 'adaptive-simulcast' flag.
          */
         private Boolean adaptiveSimulcast;
-
-        /**
-         * The 'simulcast-mode' flag.
-         */
-        private SimulcastMode simulcastMode;
 
         /**
          * The <tt>payload-type</tt> elements defined by XEP-0167: Jingle RTP
@@ -857,15 +827,6 @@ public class ColibriConferenceIQ
         }
 
         /**
-         * Gets the value of the 'simulcast-mode' flag.
-         * @return the value of the 'simulcast-mode' flag.
-         */
-        public SimulcastMode getSimulcastMode()
-        {
-            return simulcastMode;
-        }
-
-        /**
          * Gets a list of <tt>payload-type</tt> elements defined by XEP-0167:
          * Jingle RTP Sessions added to this <tt>channel</tt>.
          *
@@ -1040,15 +1001,6 @@ public class ColibriConferenceIQ
             {
                 xml.append(' ').append(LAST_N_ATTR_NAME).append("='")
                         .append(lastN).append('\'');
-            }
-
-            // simulcastMode
-            SimulcastMode simulcastMode = getSimulcastMode();
-
-            if (simulcastMode != null)
-            {
-                xml.append(' ').append(SIMULCAST_MODE_ATTR_NAME).append("='")
-                        .append(simulcastMode).append('\'');
             }
 
             // rtcpPort
@@ -1275,15 +1227,6 @@ public class ColibriConferenceIQ
         }
 
         /**
-         * Sets the value of the 'simulcast-mode' flag.
-         * @param simulcastMode the value to set.
-         */
-        public void setSimulcastMode(SimulcastMode simulcastMode)
-        {
-            this.simulcastMode = simulcastMode;
-        }
-
-        /**
          * Sets the target quality of the simulcast substreams to be sent from
          * Jitsi Videobridge to the endpoint associated with this video
          * <tt>Channel</tt>.
@@ -1490,18 +1433,6 @@ public class ColibriConferenceIQ
          * point of view of Jitsi Videobridge.
          */
         public static final String ENDPOINT_ATTR_NAME = "endpoint";
-        
-        
-        /**
-         * The XML name of the <tt>roomname</tt> attribute which specifies the
-         * room name of the conference associated with a <tt>channel</tt>. The value of the
-         * <tt>roomname</tt> attribute is an opaque <tt>String</tt> from the
-         * point of view of Jitsi Videobridge.
-         */
-        public static final String ROOMNAME_ATTR_NAME = "roomname";
-        
-        
-        
 
         /**
          * The XML name of the <tt>expire</tt> attribute of a <tt>channel</tt>
@@ -1549,22 +1480,6 @@ public class ColibriConferenceIQ
          * associated with this <tt>Channel</tt>.
          */
         private String endpoint;
-        
-        /**
-         * The room name associated with this <tt>Channel</tt>.
-         */
-        private  String roomName;
-        
-
-        public String getRoomName()
-        {
-            return roomName;
-        }
-
-        public void setRoomName(String roomName)
-        {
-            this.roomName = roomName;
-        }
 
         /**
          * The number of seconds of inactivity after which the <tt>channel</tt>
@@ -1780,15 +1695,6 @@ public class ColibriConferenceIQ
             {
                 xml.append(' ').append(ENDPOINT_ATTR_NAME).append("='")
                     .append(endpoint).append('\'');
-            }
-            
-            // roomname
-            String roomName = getRoomName();
-
-            if (roomName != null)
-            {
-                xml.append(' ').append(ROOMNAME_ATTR_NAME).append("='")
-                    .append(roomName).append('\'');
             }
 
             // expire
@@ -2193,86 +2099,6 @@ public class ColibriConferenceIQ
         }
     }
 
-    
-    
-    
-   
-    
-    
-    
-    public static class RoomName
-    {
-        
-
-        /**
-         * The name of the 'roomname' element.
-         */
-        public static final String ELEMENT_NAME = "roomname";
-
-        
-        /**
-         * The 'room name' of this <tt>Room</tt>.
-         */
-        private String roomName;
-        
-
-        /**
-         * Initializes a new <tt>RoomName</tt> with the given room name.
-         * @param roomName the room name.
-         */
-        public RoomName(String roomName)
-        {
-            this.roomName = roomName;
-        }
-        
-        /**
-         * Returns the room name of this <tt>Room</tt>.
-         * @return the room name of this <tt>Room</tt>.
-         */
-        
-        
-        public String getRoomName()
-        {
-            return roomName;
-        }
-        
-        /**
-         * Sets the room name of this <tt>RoomName</tt>.
-         * @param roomName the room name to set.
-         */
-        
-        public void setRoomName(String roomName)
-        {
-            this.roomName = roomName;
-        }
-        
-    }
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     /**
      * Represents a <tt>recording</tt> element.
      */

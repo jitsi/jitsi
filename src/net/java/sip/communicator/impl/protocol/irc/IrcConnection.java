@@ -18,8 +18,6 @@ import com.ircclouds.irc.api.*;
 import com.ircclouds.irc.api.domain.messages.*;
 import com.ircclouds.irc.api.listeners.*;
 import com.ircclouds.irc.api.negotiators.*;
-import com.ircclouds.irc.api.negotiators.CompositeNegotiator.Capability;
-import com.ircclouds.irc.api.negotiators.capabilities.*;
 import com.ircclouds.irc.api.state.*;
 
 /**
@@ -151,12 +149,10 @@ public class IrcConnection
 
         // Prepare an IRC capability negotiator in case version 3 is allowed.
         final CapabilityNegotiator negotiator;
-        final NegotiationHandler handler = new NegotiationHandler();
         if (config.isVersion3Allowed())
         {
             negotiator =
-                determineNegotiator(params.getNickname(), password, config,
-                    handler);
+                determineNegotiator(params.getNickname(), password, config);
         }
         else
         {
@@ -185,7 +181,7 @@ public class IrcConnection
         // instantiate channel manager for the connection
         this.channel =
             new ChannelManager(this.irc, this.connectionState,
-                this.context.provider, this.config, handler.awayNotify);
+                this.context.provider, this.config);
 
         // instantiate presence manager for the connection
         this.presence =
@@ -212,24 +208,18 @@ public class IrcConnection
      *
      * @param user the user nick used for authentication
      * @param password the authentication password
-     * @param config the client configuration
-     * @param handler the negotiation handler for updates during negotiation
      * @return returns capability negotiator
      */
     private static CapabilityNegotiator determineNegotiator(final String user,
-        final String password, final ClientConfig config,
-        final CompositeNegotiator.Host handler)
+        final String password, final ClientConfig config)
     {
-        final ArrayList<Capability> capabilities = new ArrayList<Capability>();
-        capabilities.add(new SimpleCapability("away-notify"));
-        capabilities.add(new SimpleCapability("multi-prefix"));
         final SASL sasl = config.getSASL();
-        if (sasl != null)
+        if (sasl == null)
         {
-            capabilities.add(new SaslCapability(true, sasl.getRole(), sasl
-                .getUser(), sasl.getPass()));
+            return new NoopNegotiator();
         }
-        return new CompositeNegotiator(capabilities, handler);
+        return new SaslNegotiator(sasl.getUser(), sasl.getPass(),
+            sasl.getRole());
     }
 
     /**
@@ -238,7 +228,6 @@ public class IrcConnection
      * @param provider Parent protocol provider
      * @param params Server connection parameters
      * @param irc IRC Api instance
-     * @param negotiator the capability negotiator for enabling IRCv3 features
      * @throws Exception exception thrown when connect fails
      */
     private static IIRCState connectSynchronized(
@@ -248,6 +237,9 @@ public class IrcConnection
     {
         final Result<IIRCState, Exception> result =
             new Result<IIRCState, Exception>();
+        // FIXME Decide between SASL authentication and normal 'PASS'-parameter
+        // authentication. You cannot do both as some services will respond with
+        // already-authenticated warning.
         synchronized (result)
         {
             // start connecting to the specified server ...
@@ -515,50 +507,6 @@ public class IrcConnection
             {
                 IrcConnection.this.connectionListener
                     .connectionInterrupted(IrcConnection.this);
-            }
-        }
-    }
-
-    /**
-     * Capability negotiation handler.
-     *
-     * This handler receives the negotiation results for each capability as soon
-     * as it is known. This class is used to get an update on what capabilities
-     * are available to the client.
-     *
-     * @author Danny van Heumen
-     */
-    private static class NegotiationHandler
-        implements CompositeNegotiator.Host
-    {
-
-        /**
-         * Constant for id of away notify capability.
-         */
-        private static final String AWAY_NOTIFY = "away-notify";
-
-        /**
-         * Availability of 'away-notify' capability.
-         */
-        private boolean awayNotify = false;
-
-        @Override
-        public void acknowledge(Capability cap)
-        {
-            LOGGER.info("Capability " + cap.getId() + " acknowledged.");
-            if (AWAY_NOTIFY.equals(cap.getId()))
-            {
-                this.awayNotify = true;
-            }
-        }
-
-        @Override
-        public void reject(Capability cap)
-        {
-            LOGGER.info("Capability " + cap.getId() + " rejected.");
-            if (AWAY_NOTIFY.equals(cap.getId()))
-            {
-                this.awayNotify = false;
             }
         }
     }

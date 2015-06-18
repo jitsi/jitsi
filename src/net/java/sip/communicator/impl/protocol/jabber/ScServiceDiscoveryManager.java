@@ -42,10 +42,10 @@ public class ScServiceDiscoveryManager
     /**
      * The flag which indicates whether we are currently storing non-caps.
      */
-    private final boolean cacheNonCaps;
+    private static final boolean CACHE_NON_CAPS = true;
 
     /**
-     * The cache of non-caps. Used only if {@link #cacheNonCaps} is
+     * The cache of non-caps. Used only if {@link #CACHE_NON_CAPS} is
      * <tt>true</tt>.
      */
     private final Map<String, DiscoverInfo> nonCapsCache
@@ -113,15 +113,12 @@ public class ScServiceDiscoveryManager
      * features to be added to the new instance and to the
      * <tt>ServiceDiscoveryManager</tt> of the specified <tt>connection</tt>
      * which is to be wrapped by the new instance
-     * @param cacheNonCaps <tt>true</tt> if we want to cache entity features
-     *                     even though it does not support XEP-0115
      */
     public ScServiceDiscoveryManager(
             ProtocolProviderService parentProvider,
             XMPPConnection connection,
             String[] featuresToRemove,
-            String[] featuresToAdd,
-            boolean cacheNonCaps)
+            String[] featuresToAdd)
     {
         this.parentProvider = parentProvider;
         this.connection = connection;
@@ -132,8 +129,6 @@ public class ScServiceDiscoveryManager
         this.features = new ArrayList<String>();
         this.unmodifiableFeatures = Collections.unmodifiableList(this.features);
         this.identities = new ArrayList<DiscoverInfo.Identity>();
-
-        this.cacheNonCaps = cacheNonCaps;
 
         DiscoverInfo.Identity identity
             = new DiscoverInfo.Identity(
@@ -489,7 +484,7 @@ public class ScServiceDiscoveryManager
         EntityCapsManager.Caps caps = capsManager.getCapsByUser(entityID);
 
         // if caps is not valid, has empty hash
-        if (cacheNonCaps && (caps == null || !caps.isValid(discoverInfo)))
+        if (CACHE_NON_CAPS && (caps == null || !caps.isValid(discoverInfo)))
         {
             discoverInfo = nonCapsCache.get(entityID);
             if (discoverInfo != null)
@@ -514,7 +509,7 @@ public class ScServiceDiscoveryManager
 
         if (caps == null)
         {
-            if (cacheNonCaps)
+            if (CACHE_NON_CAPS)
                 nonCapsCache.put(entityID, discoverInfo);
         }
         else
@@ -541,7 +536,7 @@ public class ScServiceDiscoveryManager
         EntityCapsManager.Caps caps = capsManager.getCapsByUser(entityID);
 
         // if caps is not valid, has empty hash
-        if (cacheNonCaps && (caps == null || !caps.isValid(discoverInfo)))
+        if (CACHE_NON_CAPS && (caps == null || !caps.isValid(discoverInfo)))
         {
             discoverInfo = nonCapsCache.get(entityID);
             if (discoverInfo != null)
@@ -761,11 +756,11 @@ public class ScServiceDiscoveryManager
                     caps = null;
                 }
 
-                boolean fireEvent = false;
+                boolean fireEvent;
 
                 if (caps == null)
                 {
-                    if (cacheNonCaps)
+                    if (CACHE_NON_CAPS)
                     {
                         nonCapsCache.put(entityID, discoverInfo);
                         fireEvent = true;

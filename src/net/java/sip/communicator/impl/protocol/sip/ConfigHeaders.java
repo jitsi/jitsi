@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import gov.nist.javax.sip.header.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 
 import javax.sip.address.*;
 import javax.sip.header.*;
@@ -82,9 +83,20 @@ public class ConfigHeaders
             return;
 
         Request request = (Request)message;
+        
+        ToHeader toHeader =
+            (ToHeader) request.getHeader(ToHeader.NAME);
+        String domainName = toHeader.getAddress().getURI().toString();
+        if(domainName.contains(";")) {
+            domainName = domainName.substring(domainName.indexOf("@"), domainName.indexOf(";"));
+        } else {
+            domainName = domainName.substring(domainName.indexOf("@"));
+        }
 
-        Map<String, String> props
-            = protocolProvider.getAccountID().getAccountProperties();
+        Map<String, String> props =
+            protocolProvider.getAccountID().getAccountProperties();
+
+        props.put("DomainName", domainName);
 
         Map<String,Map<String,String>> headers
             = new HashMap<String, Map<String, String>>();
@@ -142,12 +154,17 @@ public class ConfigHeaders
 
             try
             {
+                String headerValue = headerValues.get(ACC_PROPERTY_CONFIG_HEADER_VALUE);
                 String name = headerValues.get(ACC_PROPERTY_CONFIG_HEADER_NAME);
-                String value = processParams(
-                    headerValues.get(ACC_PROPERTY_CONFIG_HEADER_VALUE),
-                    request);
+                String value = processParams(headerValue,request,props);
+
+        	      if(name.equals("P-Asserted-Identity")) {
+		               value = value.split(":")[0] + ":+" + value.split(":")[1];
+                   }	
 
                 Header h = request.getHeader(name);
+
+ 		            logger.info("Header : " + name + " : " + value);
 
                 // makes possible overriding already created headers which
                 // are not custom one
@@ -176,7 +193,7 @@ public class ConfigHeaders
      * @param request the request we are processing
      * @return the value with replaced params
      */
-    private static String processParams(String value, Request request)
+    private static String processParams(String value, Request request, Map<String, String> props)
     {
         if(value.indexOf("${from.address}") != -1)
         {
@@ -188,6 +205,15 @@ public class ConfigHeaders
                 value = value.replace(
                     "${from.address}",
                     fromHeader.getAddress().getURI().toString());
+            }
+            
+            if (props.containsKey(ProtocolProviderFactory.DOMAIN))
+            {
+            	if (value.contains(props.get(ProtocolProviderFactory.DOMAIN)))
+            	{
+        		value = value.replace(props.get(ProtocolProviderFactory.DOMAIN), props.get("DomainName"));
+                	logger.info("from.address new value : " + value);
+            	}
             }
         }
 
@@ -254,7 +280,19 @@ public class ConfigHeaders
                 value = value.replace("${to.userID}", toAddr);
             }
         }
-
+        
+        if (value.indexOf("${domain}") != -1)
+        {
+            value =
+                value.replace("${domain}",
+                    props.get(ProtocolProviderFactory.DOMAIN));
+        }
+        
+        // Needed of IMS
+        if(value.indexOf("+") != -1 && !Boolean.parseBoolean(props.get(ProtocolProviderFactory.PLUS_ENABLED))) {
+                logger.info("Replacing + character !!");
+                value = value.replace("+","");
+        }	
         return value;
     }
 }
