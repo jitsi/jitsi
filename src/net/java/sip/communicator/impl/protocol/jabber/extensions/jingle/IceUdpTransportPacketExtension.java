@@ -315,6 +315,7 @@ public class IceUdpTransportPacketExtension
                 copy.setFingerprint(dtlsFingerprint.getFingerprint());
                 copy.setHash(dtlsFingerprint.getHash());
                 copy.setRequired(dtlsFingerprint.getRequired());
+                copy.setSetup(dtlsFingerprint.getSetup());
 
                 dst.addChildExtension(copy);
             }

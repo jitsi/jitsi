@@ -101,6 +101,13 @@ public class ColibriBuilder
     private Boolean adaptiveSimulcast;
 
     /**
+     * Channel 'simulcast-mode' option that will be added when channels are
+     * created.
+     * Set to <tt>null</tt> in order to omit.
+     */
+    private SimulcastMode simulcastMode;
+
+    /**
      * Creates new instance of {@link ColibriBuilder} for given
      * <tt>conferenceState</tt>.
      *
@@ -146,7 +153,7 @@ public class ColibriBuilder
      */
     public ColibriBuilder addAllocateChannelsReq(
             boolean useBundle,
-            String endpointName,
+            String endpointName,String roomName, 
             boolean peerIsInitiator,
             List<ContentPacketExtension> contents)
     {
@@ -168,6 +175,7 @@ public class ColibriBuilder
 
             remoteChannelRequest.setEndpoint(endpointName);
             remoteChannelRequest.setInitiator(peerIsInitiator);
+            remoteChannelRequest.setRoomName(roomName);
 
             if (useBundle)
             {
@@ -193,6 +201,7 @@ public class ColibriBuilder
                 remoteRtpChannelRequest.setLastN(channelLastN);
                 remoteRtpChannelRequest.setAdaptiveLastN(adaptiveLastN);
                 remoteRtpChannelRequest.setAdaptiveSimulcast(adaptiveSimulcast);
+                remoteRtpChannelRequest.setSimulcastMode(simulcastMode);
             }
 
             // Copy transport
@@ -697,6 +706,18 @@ public class ColibriBuilder
     public void setAdaptiveSimulcast(Boolean adaptiveSimulcast)
     {
         this.adaptiveSimulcast = adaptiveSimulcast;
+    }
+
+    /**
+     * Sets channel 'simulcast-mode' option that will be added to the
+     * request when channels are created.
+     * @param simulcastMode a <tt>SimulcastMode</tt> value to specify
+     *        'simulcast-mode' option or <tt>null</tt> in order to omit in
+     *        requests.
+     */
+    public void setSimulcastMode(SimulcastMode simulcastMode)
+    {
+        this.simulcastMode = simulcastMode;
     }
 
     /**

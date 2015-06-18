@@ -557,8 +557,8 @@
         </cc>
     </target>
 
-  <!-- Cleanup object file and shared libraries -->
-  <target name="clean-native" description="Clean all object file and libraries.">
+  <!-- Cleanup object files and shared libraries -->
+  <target name="clean-native" description="Clean all object files and libraries.">
     <delete failonerror="false" includeemptydirs="true">
         <fileset dir="${obj}" />
         <fileset dir="${src}/native/" includes="*.dll *.so *.dyld *.jnilib *.manifest *.o *.obj *.lib *.exp history.xml" />
