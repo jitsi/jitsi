@@ -151,9 +151,9 @@ public class ColibriBuilder
      *
      * @return this instance fo calls chaining purpose.
      */
-    public ColibriBuilder addAllocateChannelsReq(
+     public ColibriBuilder addAllocateChannelsReq(
             boolean useBundle,
-            String endpointName,
+            String endpointName,String roomName, 
             boolean peerIsInitiator,
             List<ContentPacketExtension> contents)
     {
@@ -175,6 +175,7 @@ public class ColibriBuilder
 
             remoteChannelRequest.setEndpoint(endpointName);
             remoteChannelRequest.setInitiator(peerIsInitiator);
+            remoteChannelRequest.setRoomName(roomName);
 
             if (useBundle)
             {

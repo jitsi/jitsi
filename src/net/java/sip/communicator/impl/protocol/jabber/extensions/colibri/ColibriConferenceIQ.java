@@ -13,9 +13,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
 import org.jitsi.util.*;
 import org.jitsi.service.neomedia.*;
-
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.packet.IQ;
 
 /**
  * Implements the Jitsi Videobridge <tt>conference</tt> IQ within the
@@ -81,6 +79,15 @@ public class ColibriConferenceIQ
      * The ID of the conference represented by this IQ.
      */
     private String id;
+    
+    /**
+     * The room name of the conference represented by this IQ.
+     */
+    private String roomName;
+    
+    
+    
+    
 
     /**
      * Media recording.
@@ -187,7 +194,8 @@ public class ColibriConferenceIQ
     {
         endpoints.add(endpoint);
     }
-
+    
+   
     /**
      * Returns a list of the <tt>ChannelBundle</tt>s included into this
      * <tt>conference</tt> IQ.
@@ -326,6 +334,8 @@ public class ColibriConferenceIQ
     {
         return id;
     }
+    
+    
 
     /**
      * Returns a <tt>Content</tt> from the list of <tt>Content</tt>s of this
@@ -1472,6 +1482,18 @@ public class ColibriConferenceIQ
          * point of view of Jitsi Videobridge.
          */
         public static final String ENDPOINT_ATTR_NAME = "endpoint";
+        
+        
+        /**
+         * The XML name of the <tt>roomname</tt> attribute which specifies the
+         * room name of the conference associated with a <tt>channel</tt>. The value of the
+         * <tt>roomname</tt> attribute is an opaque <tt>String</tt> from the
+         * point of view of Jitsi Videobridge.
+         */
+        public static final String ROOMNAME_ATTR_NAME = "roomname";
+        
+        
+        
 
         /**
          * The XML name of the <tt>expire</tt> attribute of a <tt>channel</tt>
@@ -1519,6 +1541,22 @@ public class ColibriConferenceIQ
          * associated with this <tt>Channel</tt>.
          */
         private String endpoint;
+        
+        /**
+         * The room name associated with this <tt>Channel</tt>.
+         */
+        private  String roomName;
+        
+
+        public String getRoomName()
+        {
+            return roomName;
+        }
+
+        public void setRoomName(String roomName)
+        {
+            this.roomName = roomName;
+        }
 
         /**
          * The number of seconds of inactivity after which the <tt>channel</tt>
@@ -1734,6 +1772,15 @@ public class ColibriConferenceIQ
             {
                 xml.append(' ').append(ENDPOINT_ATTR_NAME).append("='")
                     .append(endpoint).append('\'');
+            }
+            
+            // roomname
+            String roomName = getRoomName();
+
+            if (roomName != null)
+            {
+                xml.append(' ').append(ROOMNAME_ATTR_NAME).append("='")
+                    .append(roomName).append('\'');
             }
 
             // expire
@@ -2138,6 +2185,38 @@ public class ColibriConferenceIQ
         }
     }
 
+    
+    
+    
+   
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     /**
      * Represents a <tt>recording</tt> element.
      */
