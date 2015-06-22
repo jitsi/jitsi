@@ -1064,7 +1064,7 @@
         bundle-version-impl,bundle-shutdown-timeout,bundle-windows-clean-shutdown,
         bundle-growlnotification,bundle-swingnotification,bundle-galagonotification,
         bundle-sparkle, bundle-plugin-branding,
-        bundle-systemactivitynotifications,
+        bundle-sysactivitynotifications,
         bundle-osdependent,bundle-browserlauncher,bundle-systray-service,
         bundle-pluginmanager,bundle-skinmanager,
         bundle-notification-service,bundle-notification-handlers,
@@ -1309,18 +1309,27 @@
     </target>
 
     <!--BUNDLE-LIBJITSI -->
-    <target name="bundle-libjitsi">
-        <jar
-            compress="false"
-            destfile="${bundles.dest}/libjitsi.jar"
-            manifest="${src}/net/java/sip/communicator/impl/libjitsi/libjitsi.manifest.mf">
-
+    <target name="bundle-libjitsi"
+            depends="bundle-libjitsi-dynamically,bundle-libjitsi-statically" />
+    <target name="bundle-libjitsi-dynamically" if="dynamic.linking">
+        <jar compress="false" destfile="${bundles.dest}/libjitsi.jar"
+                manifest="${src}/net/java/sip/communicator/impl/libjitsi/libjitsi.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/libjitsi"
-                prefix="net/java/sip/communicator/impl/libjitsi"/>
+                    prefix="net/java/sip/communicator/impl/libjitsi" />
+            <zipfileset src="${lib.noinst}/libjitsi.jar" prefix="" />
+        </jar>
+    </target>
+    <target name="bundle-libjitsi-statically" unless="dynamic.linking">
+        <jar compress="false" destfile="${bundles.dest}/libjitsi.jar"
+                manifest="${src}/net/java/sip/communicator/impl/libjitsi/libjitsi.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/libjitsi"
+                    prefix="net/java/sip/communicator/impl/libjitsi" />
             <zipfileset src="${lib.noinst}/bcpkix-jdk15on-151.jar" prefix=""
-                excludes="META-INF/BCKEY.*"/>
-            <zipfileset src="${lib.noinst}/fmj.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/libjitsi.jar" prefix=""/>
+                    excludes="META-INF/BCKEY.*" />
+            <zipfileset src="${lib.noinst}/fmj.jar" prefix="" />
+            <zipfileset src="${lib.noinst}/jitsi-lgpl-dependencies.jar"
+                    prefix="" />
+            <zipfileset src="${lib.noinst}/libjitsi.jar" prefix="" />
         </jar>
     </target>
 
@@ -1430,16 +1439,27 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!--BUNDLE-NETADDR -->
-    <target name="bundle-netaddr">
+    <!-- BUNDLE-NETADDR -->
+    <target name="bundle-netaddr"
+            depends="bundle-netaddr-dynamically,bundle-netaddr-statically" />
+    <target name="bundle-netaddr-dynamically" if="dynamic.linking">
         <jar compress="false" destfile="${bundles.dest}/netaddr.jar"
-            manifest="${src}/net/java/sip/communicator/impl/netaddr/netaddr.manifest.mf">
+                manifest="${src}/net/java/sip/communicator/impl/netaddr/netaddr.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/netaddr"
-                prefix="net/java/sip/communicator/service/netaddr"/>
+                    prefix="net/java/sip/communicator/service/netaddr" />
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/netaddr"
-                prefix="net/java/sip/communicator/impl/netaddr"/>
-            <zipfileset src="${lib.noinst}/ice4j.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/weupnp-0.1.2-SNAPSHOT.jar" prefix=""/>
+                    prefix="net/java/sip/communicator/impl/netaddr" />
+        </jar>
+    </target>
+    <target name="bundle-netaddr-statically" unless="dynamic.linking">
+        <jar compress="false" destfile="${bundles.dest}/netaddr.jar"
+                manifest="${src}/net/java/sip/communicator/impl/netaddr/netaddr.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/netaddr"
+                    prefix="net/java/sip/communicator/service/netaddr" />
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/netaddr"
+                    prefix="net/java/sip/communicator/impl/netaddr" />
+            <zipfileset src="${lib.noinst}/ice4j.jar" prefix="" />
+            <zipfileset src="${lib.noinst}/weupnp-0.1.2-SNAPSHOT.jar" prefix="" />
         </jar>
     </target>
 
@@ -2872,16 +2892,28 @@ org.bouncycastle.util"/>
         </jar>
     </target>
 
-    <target name="bundle-systemactivitynotifications">
+    <!-- BUNDLE-SYSACTIVITYNOTIFICATIONS -->
+    <target name="bundle-sysactivitynotifications"
+            depends="bundle-sysactivitynotifications-dynamically,bundle-sysactivitynotifications-statically" />
+    <target name="bundle-sysactivitynotifications-dynamically" if="dynamic.linking">
         <jar compress="false" destfile="${bundles.dest}/sysactivitynotifications.jar"
-            manifest="${src}/net/java/sip/communicator/impl/sysactivity/sysactivity.impl.manifest.mf">
+                manifest="${src}/net/java/sip/communicator/impl/sysactivity/sysactivity.impl.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/sysactivity"
-                prefix="net/java/sip/communicator/impl/sysactivity" />
+                    prefix="net/java/sip/communicator/impl/sysactivity" />
             <zipfileset dir="${dest}/net/java/sip/communicator/service/sysactivity"
-                prefix="net/java/sip/communicator/service/sysactivity"/>
-            <zipfileset src="${lib.noinst}/libdbus-java-2.7.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/unix-0.5.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/hexdump-0.2.jar" prefix=""/>
+                    prefix="net/java/sip/communicator/service/sysactivity" />
+        </jar>
+    </target>
+    <target name="bundle-sysactivitynotifications-statically" unless="dynamic.linking">
+        <jar compress="false" destfile="${bundles.dest}/sysactivitynotifications.jar"
+                manifest="${src}/net/java/sip/communicator/impl/sysactivity/sysactivity.impl.manifest.mf">
+            <zipfileset dir="${dest}/net/java/sip/communicator/impl/sysactivity"
+                    prefix="net/java/sip/communicator/impl/sysactivity" />
+            <zipfileset dir="${dest}/net/java/sip/communicator/service/sysactivity"
+                    prefix="net/java/sip/communicator/service/sysactivity" />
+            <zipfileset src="${lib.noinst}/libdbus-java-2.7.jar" prefix="" />
+            <zipfileset src="${lib.noinst}/unix-0.5.jar" prefix="" />
+            <zipfileset src="${lib.noinst}/hexdump-0.2.jar" prefix="" />
         </jar>
     </target>
 

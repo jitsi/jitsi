@@ -480,6 +480,13 @@ public class ColibriConferenceIQ
                 = "adaptive-simulcast";
 
         /**
+         * The XML name of the <tt>simulcast-mode</tt> attribute of a video
+         * <tt>channel</tt>.
+         */
+        public static final String SIMULCAST_MODE_ATTR_NAME
+                = "simulcast-mode";
+
+        /**
          * The XML name of the <tt>receive-simulcast-layer</tt> attribute of a
          * video <tt>Channel</tt> which specifies the target quality of the
          * simulcast substreams to be sent from Jitsi Videobridge to the
@@ -554,6 +561,11 @@ public class ColibriConferenceIQ
          * The 'adaptive-simulcast' flag.
          */
         private Boolean adaptiveSimulcast;
+
+        /**
+         * The 'simulcast-mode' flag.
+         */
+        private SimulcastMode simulcastMode;
 
         /**
          * The <tt>payload-type</tt> elements defined by XEP-0167: Jingle RTP
@@ -827,6 +839,15 @@ public class ColibriConferenceIQ
         }
 
         /**
+         * Gets the value of the 'simulcast-mode' flag.
+         * @return the value of the 'simulcast-mode' flag.
+         */
+        public SimulcastMode getSimulcastMode()
+        {
+            return simulcastMode;
+        }
+
+        /**
          * Gets a list of <tt>payload-type</tt> elements defined by XEP-0167:
          * Jingle RTP Sessions added to this <tt>channel</tt>.
          *
@@ -1001,6 +1022,15 @@ public class ColibriConferenceIQ
             {
                 xml.append(' ').append(LAST_N_ATTR_NAME).append("='")
                         .append(lastN).append('\'');
+            }
+
+            // simulcastMode
+            SimulcastMode simulcastMode = getSimulcastMode();
+
+            if (simulcastMode != null)
+            {
+                xml.append(' ').append(SIMULCAST_MODE_ATTR_NAME).append("='")
+                        .append(simulcastMode).append('\'');
             }
 
             // rtcpPort
@@ -1224,6 +1254,15 @@ public class ColibriConferenceIQ
         public void setAdaptiveSimulcast(Boolean adaptiveSimulcast)
         {
             this.adaptiveSimulcast = adaptiveSimulcast;
+        }
+
+        /**
+         * Sets the value of the 'simulcast-mode' flag.
+         * @param simulcastMode the value to set.
+         */
+        public void setSimulcastMode(SimulcastMode simulcastMode)
+        {
+            this.simulcastMode = simulcastMode;
         }
 
         /**

@@ -1995,7 +1995,7 @@
         dpkg-cross
         dpkg -add-architecture i386 (the option is with two dashes!)
         apt-get update
-        apt-get install libc6:i386 libpulse0:i386 libx11-6:i386 libxv1:i386 libstdc++6:i386 libasound2:i386
+        apt-get install libc6:i386 libpulse0:i386 libx11-6:i386 libxv1:i386 libstdc++6:i386 libasound2:i386 libssl1.0.0:i386
     -->
     <target name="-make-deb-package" depends="init,version,load-properties,dpkg-build-warning"
             if="dpkg.build.present"
@@ -2674,8 +2674,8 @@
         <!-- irc-api -->
         <copy todir="${debian.src.dir}/lib/src/irc-api">
             <fileset dir="${sc.basedir}/../irc-api">
-                <include name="src/main/**"/>
-                <exclude name="**/.svn/**"/>
+                <include name="**"/>
+                <exclude name="**/.git/**"/>
             </fileset>
         </copy>
 
@@ -3016,61 +3016,19 @@
                  link="${debian.src.dir}/lib/installer-exclude"/>
 
         <!-- irc-api -->
-        <path id="irc-api-classpath">
-            <fileset dir="/usr/share/java" includes="slf4j-api.jar" />
-        </path>
-        <mkdir dir="${debian.src.dir}/lib/src/irc-api/classes" />
-        <javac target="1.6" source="1.6"
-               srcdir="${debian.src.dir}/lib/src/irc-api/src"
-               destdir="${debian.src.dir}/lib/src/irc-api/classes"
-               classpathref="irc-api-classpath"
-               debug="On" />
-        <jar destfile="${debian.src.dir}/lib/src/irc-api/irc-api-1.0.jar"
-             basedir="${debian.src.dir}/lib/src/irc-api/classes">
-            <manifest>
-                <attribute name="Bundle-Name" value="IRC API"/>
-                <attribute name="Bundle-Description"
-                           value="A Java implementation of the irc api"/>
-                <attribute name="Bundle-SymbolicName"
-                           value="com.ircclouds.irc.api"/>
-                <attribute name="Bundle-ManifestVersion" value="2"/>
-                <attribute name="Bundle-Version" value="1.0.0.0015-SNAPSHOT"/>
-
-                <attribute name="Import-Package"
-                           value="javax.net.ssl,org.slf4j"/>
-                <attribute name="Export-Package"
-                           value="com.ircclouds.irc.api;uses:=&quot;com.ircclouds.irc.api.commands,
-com.ircclouds.irc.api.comms,com.ircclouds.irc.api.ctcp,com.ircclouds.irc.api.domain,
-com.ircclouds.irc.api.domain.messages.interfaces,com.ircclouds.irc.api.filters,
-com.ircclouds.irc.api.listeners,com.ircclouds.irc.api.state&quot;;version=&quot;1.0.0&quot;,
-com.ircclouds.irc.api.commands;uses:=&quot;com.ircclouds.irc.api,
-com.ircclouds.irc.api.domain.messages&quot;version=&quot;1.0.0&quot;,
-com.ircclouds.irc.api.comms;uses:=&quot;javax.net.ssl&quot;;version=&quot;1.0.0&quot;,
-com.ircclouds.irc.api.ctcp;uses:=&quot;com.ircclouds.irc.api&quot;;version=&quot;1.0.0&quot;,
-com.ircclouds.irc.api.domain;uses:=&quot;com.ircclouds.irc.api.domain.messages.interfaces,
-javax.net.ssl&quot;;version=&quot;1.0.0&quot;,
-com.ircclouds.irc.api.domain.messages;uses:=&quot;com.ircclouds.irc.api.domain,
-com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;,
-com.ircclouds.irc.api.domain.messages.interfaces;uses:=&quot;com.ircclouds.irc.api.domain&quot;;version=&quot;1.0.0&quot;,
-com.ircclouds.irc.api.filters;uses:=&quot;com.ircclouds.irc.api.domain.messages.interfaces,
-com.ircclouds.irc.api.listeners&quot;;version=&quot;1.0.0&quot;,
-com.ircclouds.irc.api.listeners;uses:=&quot;com.ircclouds.irc.api,
-com.ircclouds.irc.api.domain,com.ircclouds.irc.api.domain.messages,
-com.ircclouds.irc.api.domain.messages.interfaces,
-com.ircclouds.irc.api.state&quot;;version=&quot;1.0.0&quot;,
-com.ircclouds.irc.api.om;uses:=&quot;com.ircclouds.irc.api.domain,
-com.ircclouds.irc.api.domain.messages,
-com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;,
-com.ircclouds.irc.api.state;uses:=&quot;com.ircclouds.irc.api.domain,
-com.ircclouds.irc.api.domain.messages,
-com.ircclouds.irc.api.listeners&quot;;version=&quot;1.0.0&quot;,
-com.ircclouds.irc.api.utils;uses:=&quot;com.ircclouds.irc.api.domain,
-com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;"/>
-            </manifest>
-        </jar>
-        <symlink resource="../src/irc-api/irc-api-1.0.jar"
+        <exec   dir="${debian.src.dir}/lib/src/irc-api"
+                executable="mvn-debian"
+                resolveexecutable="true"
+                failonerror="true">
+            <arg value="-f" />
+            <arg value="pom.xml" />
+            <arg value="-Dmaven.test.skip=true" />
+            <arg value="-Dpackaging=bundle" />
+            <arg value="package" />
+        </exec>
+        <symlink resource="../src/irc-api/target/irc-api-1.0-0015-SNAPSHOT.jar"
                  overwrite="true"
-                 link="${debian.src.dir}/lib/installer-exclude"/>
+                 link="${debian.src.dir}/lib/installer-exclude/irc-api-1.0.jar"/>
         <symlink resource="/usr/share/java/slf4j-api.jar"
                  overwrite="true"
                  link="${debian.src.dir}/lib/installer-exclude/slf4j-api-1.7.5.jar"/>
@@ -3250,6 +3208,10 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
         <symlink resource="/usr/share/libjitsi/lib/ice4j.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude"/>
+        <!-- jitsi-lgpl-dependencies -->
+        <symlink resource="/usr/share/libjitsi/lib/jitsi-lgpl-dependencies.jar"
+             overwrite="true"
+             link="${debian.src.dir}/lib/installer-exclude/"/>
         <!-- fmj -->
         <symlink resource="/usr/share/libjitsi/lib/fmj.jar"
              overwrite="true"
@@ -3767,6 +3729,8 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
                  link="${debian.bundles.common.dest}/libjitsi.jar/"/>
         <symlink resource="/usr/share/libjitsi/libjitsi.jar"
                  link="${debian.bundles.common.dest}/libjitsi.jar/"/>
+        <symlink resource="/usr/share/libjitsi/lib/jitsi-lgpl-dependencies.jar"
+                 link="${debian.bundles.common.dest}/libjitsi.jar/"/>
         <symlink resource="/usr/share/libjitsi/lib/fmj.jar"
                  link="${debian.bundles.common.dest}/libjitsi.jar/"/>
 
@@ -3791,7 +3755,7 @@ com.ircclouds.irc.api.domain.messages.interfaces&quot;;version=&quot;1.0.0&quot;
             destfile="${debian.bundles.common.dest}/libjitsi.jar/META-INF/MANIFEST.MF"
             append="true"
             eol="crlf"
-            fixlastline="true">Bundle-ClassPath: .,libjitsi-impl.jar,fmj.jar,libjitsi.jar,bcpkix.jar&#013;&#010;&#013;&#010;</concat>
+            fixlastline="true">Bundle-ClassPath: .,libjitsi-impl.jar,fmj.jar,jitsi-lgpl-dependencies.jar,libjitsi.jar,bcpkix.jar&#013;&#010;&#013;&#010;</concat>
         <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
                  token="reference:file:sc-bundles/libjitsi.jar">
             <replacevalue>reference:file:/usr/share/jitsi-common/libjitsi.jar</replacevalue>
