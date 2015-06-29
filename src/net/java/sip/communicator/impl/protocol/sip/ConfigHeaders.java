@@ -288,6 +288,14 @@ public class ConfigHeaders
                     props.get(ProtocolProviderFactory.DOMAIN));
         }
         
+        if (value.indexOf("${tag}") != -1)
+        {
+                FromHeader fromHeader
+                        = (FromHeader)request.getHeader(FromHeader.NAME);
+
+                value = value.replace("${tag}",fromHeader.getTag());
+        }
+        
         // Needed of IMS
         if(value.indexOf("+") != -1 && !Boolean.parseBoolean(props.get(ProtocolProviderFactory.PLUS_ENABLED))) {
                 logger.info("Replacing + character !!");
