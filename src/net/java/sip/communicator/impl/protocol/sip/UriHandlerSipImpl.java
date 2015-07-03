@@ -259,11 +259,7 @@ public class UriHandlerSipImpl
     }
 
     /**
-     * Returns the protocol that this handler is responsible for or "sip" in
-     * other words.
-     *
-     * @return the "sip" string to indicate that this handler is responsible for
-     *         handling "sip" uris.
+     * {@inheritDoc}
      */
     @Override
     public String[] getProtocol()

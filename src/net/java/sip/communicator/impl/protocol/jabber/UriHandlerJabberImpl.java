@@ -250,11 +250,7 @@ public class UriHandlerJabberImpl
     }
 
     /**
-     * Returns the protocol that this handler is responsible for or
-     * &quot;xmpp&quot; in other words.
-     *
-     * @return the &quot;xmpp&quot; string to indicate that this handler is
-     * responsible for handling &quot;xmpp&quot; uris.
+     * {@inheritDoc}
      */
     @Override
     public String[] getProtocol()

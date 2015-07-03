@@ -2363,10 +2363,12 @@ public class ProtocolProviderServiceSipImpl
     {
         uriStr = uriStr.trim();
 
-        //we don't know how to handle the "tel:" scheme ... or rather we handle
-        //it same as sip so replace:
+        //we don't know how to handle the "tel:" and "callto:" schemes ... or
+        // rather we handle them same as sip so replace:
         if(uriStr.toLowerCase().startsWith("tel:"))
             uriStr = "sip:" + uriStr.substring("tel:".length());
+        else if(uriStr.toLowerCase().startsWith("callto:"))
+            uriStr = "sip:" + uriStr.substring("callto:".length());
 
         //Handle default domain name (i.e. transform 1234 -> 1234@sip.com)
         //assuming that if no domain name is specified then it should be the
