@@ -135,7 +135,7 @@ public class GoogleContactsConnectionImpl
     {
         try
         {
-            googleService.setOAuth2Credentials(this.store.get());
+            googleService.setOAuth2Credentials(this.store.get(this.login));
             return ConnectionStatus.SUCCESS;
         }
         catch (FailedAcquireCredentialException e)

@@ -68,7 +68,7 @@ public class GoogleContactsServiceImpl
     /**
      * Path where to store the account settings
      */
-    private final static String CONFIGURATION_PATH =
+    final static String CONFIGURATION_PATH =
         "net.java.sip.communicator.impl.googlecontacts";
 
     /**

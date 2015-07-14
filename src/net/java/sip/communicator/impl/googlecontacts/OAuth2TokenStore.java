@@ -19,16 +19,27 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+import java.util.*;
 import java.util.concurrent.atomic.*;
 
 import javax.swing.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.util.*;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.*;
+import org.apache.http.client.entity.*;
+import org.apache.http.client.methods.*;
+import org.apache.http.impl.client.*;
+import org.apache.http.message.*;
 
 import com.google.api.client.auth.oauth2.*;
 import com.google.api.client.http.*;
+import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.javanet.*;
+import com.google.api.client.json.*;
 import com.google.api.client.json.jackson2.*;
 
 /**
@@ -42,7 +53,37 @@ public class OAuth2TokenStore
     /**
      * Logger.
      */
-    private static final Logger LOGGER = Logger.getLogger(OAuth2TokenStore.class);
+    private static final Logger LOGGER = Logger
+        .getLogger(OAuth2TokenStore.class);
+
+    /**
+     * Symbol for refresh token in token server response.
+     */
+    private static final String REFRESH_TOKEN_SYMBOL = "refresh_token";
+
+    /**
+     * Symbol for access token in token server response.
+     */
+    private static final String ACCESS_TOKEN_SYMBOL = "access_token";
+
+    /**
+     * Symbol for expiration time in token server response.
+     */
+    private static final String EXPIRES_IN_SYMBOL = "expires_in";
+
+    /**
+     * Interesting token server response fields.
+     */
+    private static final Set<String> TOKEN_RESPONSE_FIELDS;
+
+    static
+    {
+        final HashSet<String> set = new HashSet<String>();
+        set.add(REFRESH_TOKEN_SYMBOL);
+        set.add(ACCESS_TOKEN_SYMBOL);
+        set.add(EXPIRES_IN_SYMBOL);
+        TOKEN_RESPONSE_FIELDS = Collections.unmodifiableSet(set);
+    }
 
     /**
      * Google OAuth 2 token server.
@@ -73,13 +114,17 @@ public class OAuth2TokenStore
         "urn:ietf:wg:oauth:2.0:oob";
 
     /**
+     * Grant type for communication with token server.
+     */
+    private static final String GOOGLE_API_GRANT_TYPE = "authorization_code";
+
+    /**
      * Approval URL.
      */
     private static final String APPROVAL_URL = String.format(
-        "https://accounts.google.com/o/oauth2/auth?scope=%s&redirect_uri=%s&response_type=code&client_id=%s",
-        GOOGLE_API_OAUTH2_SCOPES,
-        GOOGLE_API_OAUTH2_REDIRECT_URI,
-        GOOGLE_API_CLIENT_ID);
+        "https://accounts.google.com/o/oauth2/auth?scope=%s&redirect_uri=%s"
+            + "&response_type=code&client_id=%s", GOOGLE_API_OAUTH2_SCOPES,
+        GOOGLE_API_OAUTH2_REDIRECT_URI, GOOGLE_API_CLIENT_ID);
 
     /**
      * The credential store.
@@ -96,17 +141,19 @@ public class OAuth2TokenStore
      * exist, acquire one preferrably from the password store. Optionally,
      * involve the user if a credential is not yet stored.
      * 
+     * @param identity The identity of the API token.
      * @return Returns the credential.
      * @throws FailedAcquireCredentialException 
      * @throws MalformedURLException In case requesting authn token failed.
      */
-    public Credential get() throws FailedAcquireCredentialException
+    public Credential get(final String identity)
+        throws FailedAcquireCredentialException
     {
         if (this.store.get() == null)
         {
             try
             {
-                acquireCredential(this.store);
+                acquireCredential(this.store, identity);
             }
             catch (Exception e)
             {
@@ -122,23 +169,67 @@ public class OAuth2TokenStore
      *
      * @param store credential store to update upon refreshing and other
      *            operations
+     * @param identity the identity to which the refresh token belongs
      * @return Acquires and returns the credential instance.
-     * @throws MalformedURLException In case of bad redirect URL.
      * @throws URISyntaxException In case of bad redirect URI.
+     * @throws IOException 
+     * @throws ClientProtocolException 
      */
     private static void acquireCredential(
-        final AtomicReference<Credential> store)
-        throws MalformedURLException,
-        URISyntaxException
+        final AtomicReference<Credential> store, final String identity)
+        throws URISyntaxException, ClientProtocolException, IOException
     {
-        LOGGER.info("No credentials available yet. Requesting user to "
-            + "approve access to Contacts API using URL: " + APPROVAL_URL);
-        final OAuthApprovalDialog dialog = new OAuthApprovalDialog();
-        dialog.setVisible(true);
-        final String approvalCode = dialog.getApprovalCode();
-        LOGGER.debug("Approval code from user: " + approvalCode);
-        final TokenData data = requestAuthenticationToken(approvalCode);
-        store.set(createCredential(store, data));
+        final TokenData token;
+        String refreshToken = restoreRefreshToken(identity);
+        if (refreshToken == null)
+        {
+            LOGGER.info("No credentials available yet. Requesting user to "
+                + "approve access to Contacts API for identity " + identity
+                + " using URL: " + APPROVAL_URL);
+            final OAuthApprovalDialog dialog =
+                new OAuthApprovalDialog(identity);
+            dialog.setVisible(true);
+            final String approvalCode = dialog.getApprovalCode();
+            LOGGER.debug("Approval code from user: " + approvalCode);
+            token = requestAuthenticationToken(approvalCode);
+            saveRefreshToken(token, identity);
+        }
+        else
+        {
+            token = new TokenData("TOKEN_NOT_AVAILABLE", refreshToken, 0);
+        }
+        store.set(createCredential(store, token));
+    }
+
+    /**
+     * Restore refresh token from encrypted credentials store.
+     *
+     * @param identity The identity corresponding to the refresh token.
+     * @return Returns the refresh token.
+     */
+    private static String restoreRefreshToken(final String identity)
+    {
+        final CredentialsStorageService credentials =
+            GoogleContactsActivator.getCredentialsService();
+        return credentials
+            .loadPassword(GoogleContactsServiceImpl.CONFIGURATION_PATH + "."
+                + identity);
+    }
+
+    /**
+     * Save refresh token for provided identity.
+     *
+     * @param token The refresh token.
+     * @param identity The identity.
+     * @throws IOException An IOException in case of errors.
+     */
+    private static void saveRefreshToken(final TokenData token,
+        final String identity) throws IOException
+    {
+        final CredentialsStorageService credentials =
+            GoogleContactsActivator.getCredentialsService();
+        credentials.storePassword(GoogleContactsServiceImpl.CONFIGURATION_PATH
+            + "." + identity, token.refreshToken);
     }
 
     /**
@@ -174,7 +265,8 @@ public class OAuth2TokenStore
      * @throws URISyntaxException In case of bad OAuth 2 redirect URI.
      */
     private static Credential createCredential(
-        final AtomicReference<Credential> store, final TokenData data) throws URISyntaxException
+        final AtomicReference<Credential> store, final TokenData data)
+        throws URISyntaxException
     {
         final Credential.Builder builder =
             new Credential.Builder(
@@ -198,7 +290,7 @@ public class OAuth2TokenStore
                     content.put("client_id", GOOGLE_API_CLIENT_ID);
                     content.put("client_secret", GOOGLE_API_CLIENT_SECRET);
                     LOGGER.info("Inserting client authentication data into "
-                        + " refresh token request.");
+                        + "refresh token request.");
                     if (LOGGER.isDebugEnabled())
                     {
                         LOGGER.debug("Request: " + content.toString());
@@ -249,11 +341,57 @@ public class OAuth2TokenStore
      * 
      * @param approvalCode the approval code
      * @return Returns the acquired token data from OAuth 2 token server.
+     * @throws IOException 
+     * @throws ClientProtocolException 
      */
-    private static TokenData requestAuthenticationToken(final String approvalCode)
+    private static TokenData requestAuthenticationToken(
+        final String approvalCode) throws ClientProtocolException, IOException
     {
-        // FIXME actually acquire credential
-        return new TokenData("", "", 3600L);
+        final HttpClient client = new DefaultHttpClient();
+        final HttpPost post = new HttpPost(GOOGLE_OAUTH2_TOKEN_SERVER.toURI());
+        final UrlEncodedFormEntity entity =
+            new UrlEncodedFormEntity(Arrays.asList(new BasicNameValuePair(
+                "code", approvalCode), new BasicNameValuePair("client_id",
+                GOOGLE_API_CLIENT_ID), new BasicNameValuePair("client_secret",
+                GOOGLE_API_CLIENT_SECRET), new BasicNameValuePair(
+                "redirect_uri", GOOGLE_API_OAUTH2_REDIRECT_URI),
+                new BasicNameValuePair("grant_type", GOOGLE_API_GRANT_TYPE)));
+        post.setEntity(entity);
+        final HttpResponse httpResponse = client.execute(post);
+        final JsonParser parser =
+            JacksonFactory.getDefaultInstance().createJsonParser(
+                httpResponse.getEntity().getContent());
+        try
+        {
+            // Token response components initialized with defaults in case
+            // fields are missing in the token server response.
+            String accessToken = "";
+            String refreshToken = "";
+            long expiresIn = 3600;
+            // Parse token server response.
+            String found;
+            while (parser.nextToken() != JsonToken.END_OBJECT)
+            {
+                found = parser.skipToKey(TOKEN_RESPONSE_FIELDS);
+                if (REFRESH_TOKEN_SYMBOL.equals(found))
+                {
+                    refreshToken = parser.getText();
+                }
+                else if (ACCESS_TOKEN_SYMBOL.equals(found))
+                {
+                    accessToken = parser.getText();
+                }
+                else if (EXPIRES_IN_SYMBOL.equals(found))
+                {
+                    expiresIn = parser.getLongValue();
+                }
+            }
+            return new TokenData(accessToken, refreshToken, expiresIn);
+        }
+        finally
+        {
+            parser.close();
+        }
     }
 
     /**
@@ -270,10 +408,13 @@ public class OAuth2TokenStore
 
         private final SIPCommTextField code = new SIPCommTextField("");
 
-        public OAuthApprovalDialog()
+        public OAuthApprovalDialog(final String identity)
         {
             this.setModal(true);
-            this.label = new SIPCommLinkButton("Click here to approve.");
+            this.label =
+                new SIPCommLinkButton(
+                    "Click here to approve. Make sure you log in as "
+                        + identity);
             this.label.addActionListener(new ActionListener()
             {
 
