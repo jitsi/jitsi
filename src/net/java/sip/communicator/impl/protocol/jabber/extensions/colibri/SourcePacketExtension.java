@@ -10,6 +10,9 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import net.java.sip.communicator.util.*;
+
+import org.jivesoftware.smack.packet.*;
 
 /**
  * Implements <tt>AbstractPacketExtension</tt> for the <tt>source</tt> element
@@ -22,6 +25,9 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 public class SourcePacketExtension
     extends AbstractPacketExtension
 {
+    private final static Logger logger
+        = Logger.getLogger(SourcePacketExtension.class);
+
     /**
      * The XML name of the <tt>setup</tt> element defined by Source-Specific
      * Media Attributes in Jingle.
@@ -118,13 +124,18 @@ public class SourcePacketExtension
             = AbstractPacketExtension.clone(this);
 
         // COPY SSRC PARAMS
-        for (ParameterPacketExtension ppe : getParameters())
+        for (PacketExtension ppe : getChildExtensions())
         {
-            ParameterPacketExtension ppeCopy
-                = new ParameterPacketExtension(
-                ppe.getName(), ppe.getValue());
-
-            copy.addParameter(ppeCopy);
+            if (ppe instanceof AbstractPacketExtension)
+            {
+                copy.addChildExtension(
+                    AbstractPacketExtension.clone(
+                        (AbstractPacketExtension) ppe));
+            }
+            else
+            {
+                logger.error("Failed to clone " + ppe);
+            }
         }
 
         return copy;

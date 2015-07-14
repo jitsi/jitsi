@@ -191,6 +191,13 @@ public class JingleIQProvider implements IQProvider
                 IceUdpTransportPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<RtcpmuxPacketExtension>(
                         RtcpmuxPacketExtension.class));
+
+        //ssrcInfo
+        providerManager.addExtensionProvider(
+                SSRCInfoPacketExtension.ELEMENT_NAME,
+                SSRCInfoPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<SSRCInfoPacketExtension>(
+                        SSRCInfoPacketExtension.class));
     }
 
     /**
