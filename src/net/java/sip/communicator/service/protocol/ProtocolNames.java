@@ -53,11 +53,6 @@ public interface ProtocolNames
     public static final String AIM = "AIM";
 
     /**
-     * The MSN messenger protocol.
-     */
-    public static final String MSN = "MSN";
-
-    /**
      * The Yahoo! messenger protocol.
      */
     public static final String YAHOO  = "Yahoo!";

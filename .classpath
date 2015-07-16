@@ -42,7 +42,6 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/jdic_misc.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jfontchooser-1.0.5.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jmdns.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/jml-1.0b5.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jmyspell-core.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jna.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jnsapi.jar"/>

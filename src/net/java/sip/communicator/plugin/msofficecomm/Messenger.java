@@ -17,7 +17,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
-import net.java.sip.communicator.service.protocol.msnconstants.*;
 import net.java.sip.communicator.service.protocol.yahooconstants.*;
 import net.java.sip.communicator.util.*;
 
@@ -1115,11 +1114,6 @@ public class Messenger
                 {
                     mistatus = MISTATUS_ON_THE_PHONE;
                 }
-                else if (ProtocolNames.MSN.equalsIgnoreCase(protocolName)
-                        && MsnStatusEnum.ON_THE_PHONE.equals(presenceStatus))
-                {
-                    mistatus = MISTATUS_ON_THE_PHONE;
-                }
                 else if (ProtocolNames.YAHOO.equalsIgnoreCase(protocolName)
                         && YahooStatusEnum.ON_THE_PHONE.equals(presenceStatus))
                 {
@@ -1129,11 +1123,6 @@ public class Messenger
                     && ProtocolNames.JABBER.equalsIgnoreCase(protocolName)
                     && JabberStatusEnum.IN_A_MEETING.equalsIgnoreCase(
                             presenceStatus.getStatusName()))
-                {
-                    mistatus = MISTATUS_IN_A_MEETING;
-                }
-                else if (ProtocolNames.MSN.equalsIgnoreCase(protocolName)
-                    && MsnStatusEnum.IN_A_MEETING.equals(presenceStatus))
                 {
                     mistatus = MISTATUS_IN_A_MEETING;
                 }

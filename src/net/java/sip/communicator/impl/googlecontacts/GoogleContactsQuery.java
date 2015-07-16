@@ -346,12 +346,6 @@ public class GoogleContactsQuery
                     OperationSetBasicTelephony.class,
                     ProtocolNames.JABBER);
             break;
-        case MSN:
-            supportedOpSets.add(OperationSetBasicInstantMessaging.class);
-            preferredProtocols.put(
-                    OperationSetBasicInstantMessaging.class,
-                    ProtocolNames.MSN);
-            break;
         case YAHOO:
             supportedOpSets.add(OperationSetBasicInstantMessaging.class);
             preferredProtocols.put(

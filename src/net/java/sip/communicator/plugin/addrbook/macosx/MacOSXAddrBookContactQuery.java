@@ -1229,12 +1229,6 @@ public class MacOSXAddrBookContactQuery
         case kABPhoneProperty:
             supportedOpSets.add(OperationSetBasicTelephony.class);
             break;
-        case kABMSNInstantProperty:
-            supportedOpSets.add(OperationSetBasicInstantMessaging.class);
-            preferredProtocols.put(
-                    OperationSetBasicInstantMessaging.class,
-                    ProtocolNames.MSN);
-            break;
         case kABYahooInstantProperty:
             supportedOpSets.add(OperationSetBasicInstantMessaging.class);
             preferredProtocols.put(

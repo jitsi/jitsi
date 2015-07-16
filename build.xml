@@ -1531,7 +1531,6 @@ javax.swing.event, javax.swing.border"/>
                 <include name="protocol/googletalk/**/*"/>
                 <include name="protocol/facebook/**/*"/>
                 <include name="protocol/jabber/**/*"/>
-                <include name="protocol/msn/**/*"/>
                 <include name="protocol/yahoo/**/*"/>
                 <!-- the media package lives in the protocol-media bundle -->
                 <exclude name="protocol/media/**/*"/>
@@ -1649,30 +1648,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${testsrc}/net/java/sip/communicator/slick/protocol/jabber/jabber.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/jabber"
                 prefix="net/java/sip/communicator/slick/protocol/jabber"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/generic"
-                prefix="net/java/sip/communicator/slick/protocol/generic"/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-MSN -->
-    <target name="bundle-msn">
-        <!-- Creates a bundle containing the msn impl of the protocol provider.-->
-        <jar compress="false" destfile="${bundles.dest}/protocol-msn.jar"
-            manifest="${src}/net/java/sip/communicator/impl/protocol/msn/msn.provider.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/msn"
-                prefix="net/java/sip/communicator/impl/protocol/msn"/>
-            <zipfileset src="${lib.noinst}/jml-1.0b5.jar" prefix=""/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-MSN-SLICK -->
-    <!-- Creates a bundle containing the slick for the Msn protocol provider.-->
-    <target name="bundle-msn-slick">
-        <jar compress="false" destfile="${bundles.dest}/protocol-msn-slick.jar"
-            manifest="${testsrc}/net/java/sip/communicator/slick/protocol/msn/msn.provider.slick.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/msn"
-                prefix="net/java/sip/communicator/slick/protocol/msn"/>
-            <zipfileset src="${lib.noinst}/jml-1.0b5.jar" prefix=""/>
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/generic"
                 prefix="net/java/sip/communicator/slick/protocol/generic"/>
         </jar>
@@ -1837,16 +1812,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/googletalkaccregwizz/googletalkaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/googletalkaccregwizz"
                 prefix="net/java/sip/communicator/plugin/googletalkaccregwizz"/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-PLUGIN-MSNACCREGWIZZ -->
-    <target name="bundle-plugin-msnaccregwizz">
-        <!-- Creates a bundle for the plugin Msn Account Registration Wizard.-->
-        <jar compress="false" destfile="${bundles.dest}/msnaccregwizz.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/msnaccregwizz/msnaccregwizz.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/msnaccregwizz"
-                prefix="net/java/sip/communicator/plugin/msnaccregwizz"/>
         </jar>
     </target>
 
