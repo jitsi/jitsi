@@ -21,7 +21,6 @@ import java.util.*;
 public class SourceGroupPacketExtension
         extends AbstractPacketExtension
 {
-
     /**
      * The name of the "ssrc-group" element.
      */
@@ -41,6 +40,11 @@ public class SourceGroupPacketExtension
      * The constant used for signaling simulcast semantics.
      */
     public static final String SEMANTICS_SIMULCAST = "SIM";
+
+    /**
+     * The constant used for flow identification (see RFC5888).
+     */
+    public static final String SEMANTICS_FID = "FID";
 
     /**
      * Return new instance of <tt>SourceGroupPacketExtension</tt> with simulcast
