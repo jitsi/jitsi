@@ -189,10 +189,22 @@ public class OAuth2TokenStore
             final OAuthApprovalDialog dialog =
                 new OAuthApprovalDialog(identity);
             dialog.setVisible(true);
-            final String approvalCode = dialog.getApprovalCode();
-            LOGGER.debug("Approval code from user: " + approvalCode);
-            token = requestAuthenticationToken(approvalCode);
-            saveRefreshToken(token, identity);
+            switch (dialog.getResponse())
+            {
+            case CONFIRMED:
+                // dialog is confirmed, so process entered approval code
+                final String approvalCode = dialog.getApprovalCode();
+                LOGGER.debug("Approval code from user: " + approvalCode);
+                token = requestAuthenticationToken(approvalCode);
+                saveRefreshToken(token, identity);
+                break;
+            case CANCELLED:
+            default:
+                // user one time cancellation
+                // let token remain null, as we do not have new information yet
+                token = null;
+                break;
+            }
         }
         else
         {
@@ -408,6 +420,8 @@ public class OAuth2TokenStore
 
         private final SIPCommTextField code = new SIPCommTextField("");
 
+        private UserResponseType response = UserResponseType.CANCELLED;
+
         public OAuthApprovalDialog(final String identity)
         {
             this.setModal(true);
@@ -429,16 +443,21 @@ public class OAuth2TokenStore
             this.add(this.label, BorderLayout.NORTH);
             this.add(new JLabel("Code"), BorderLayout.WEST);
             this.add(this.code, BorderLayout.CENTER);
-            final JButton button = new JButton("Done");
-            button.addActionListener(new ActionListener() {
+            // buttons panel
+            final JPanel buttonPanel = new JPanel(new BorderLayout());
+            final JButton doneButton = new JButton("Done");
+            doneButton.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
+                    OAuthApprovalDialog.this.response =
+                        UserResponseType.CONFIRMED;
                     OAuthApprovalDialog.this.dispose();
                 }
             });
-            this.add(button, BorderLayout.SOUTH);
+            buttonPanel.add(doneButton, BorderLayout.EAST);
+            this.add(buttonPanel, BorderLayout.SOUTH);
             this.pack();
         }
 
@@ -447,8 +466,19 @@ public class OAuth2TokenStore
          *
          * @return Returns the approval code.
          */
-        public String getApprovalCode() {
+        public String getApprovalCode()
+        {
             return this.code.getText();
+        }
+
+        /**
+         * Is approval dialog confirmed with "Done" button.
+         *
+         * @return Returns whether or not the dialog is confirmed.
+         */
+        public UserResponseType getResponse()
+        {
+            return this.response;
         }
     }
 
