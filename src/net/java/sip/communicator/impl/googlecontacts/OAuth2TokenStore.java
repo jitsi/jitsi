@@ -146,7 +146,7 @@ public class OAuth2TokenStore
      * @throws FailedAcquireCredentialException 
      * @throws MalformedURLException In case requesting authn token failed.
      */
-    public Credential get(final String identity)
+    public synchronized Credential get(final String identity)
         throws FailedAcquireCredentialException
     {
         if (this.store.get() == null)
@@ -239,7 +239,7 @@ public class OAuth2TokenStore
      * @throws FailedTokenRefreshException In case of failed token refresh
      *             operation.
      */
-    public void refresh() throws IOException, FailedTokenRefreshException
+    public synchronized void refresh() throws IOException, FailedTokenRefreshException
     {
         final Credential credential = this.store.get();
         if (credential == null)
@@ -412,17 +412,17 @@ public class OAuth2TokenStore
         {
             this.setModal(true);
             this.label =
-                new SIPCommLinkButton(
-                    "Click here to approve. Make sure you log in as "
-                        + identity);
+                new SIPCommLinkButton("Approve Jitsi's access to " + identity);
             this.label.addActionListener(new ActionListener()
             {
 
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    LOGGER.info("Request user for approval via web page: " + APPROVAL_URL);
-                    // FIXME open browser
+                    LOGGER.info("Request user for approval via web page: "
+                        + APPROVAL_URL);
+                    GoogleContactsActivator.getBrowserLauncherService()
+                        .openURL(APPROVAL_URL);
                 }
             });
             this.setLayout(new BorderLayout());

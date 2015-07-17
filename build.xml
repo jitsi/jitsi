@@ -1379,7 +1379,7 @@
     </target>
 
     <!--BUNDLE-GOOGLECONTACTS-->
-    <target name="bundle-googlecontacts" depends="bundle-httputil">
+    <target name="bundle-googlecontacts" depends="bundle-httputil,bundle-browserlauncher">
         <jar compress="false" destfile="${bundles.dest}/googlecontacts.jar"
             manifest="${src}/net/java/sip/communicator/impl/googlecontacts/googlecontacts.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/googlecontacts"

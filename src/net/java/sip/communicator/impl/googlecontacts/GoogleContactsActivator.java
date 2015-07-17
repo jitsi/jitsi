@@ -8,6 +8,7 @@ package net.java.sip.communicator.impl.googlecontacts;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.googlecontacts.*;
@@ -64,6 +65,11 @@ public class GoogleContactsActivator implements BundleActivator
      * Google contacts service.
      */
     private static GoogleContactsServiceImpl googleContactsService;
+
+    /**
+     * Browser launcher service.
+     */
+    private static BrowserLauncherService browserLauncherService;
 
     /**
      * List of contact source service registrations.
@@ -141,6 +147,22 @@ public class GoogleContactsActivator implements BundleActivator
                 ResourceManagementServiceUtils.getService(bundleContext);
         }
         return resourceService;
+    }
+
+    /**
+     * Return reference to a browser launcher service implementation.
+     *
+     * @return Returns the browser launcher service instance.
+     */
+    public static BrowserLauncherService getBrowserLauncherService()
+    {
+        if (browserLauncherService == null)
+        {
+            browserLauncherService =
+                ServiceUtils.getService(bundleContext,
+                    BrowserLauncherService.class);
+        }
+        return browserLauncherService;
     }
 
     /**
