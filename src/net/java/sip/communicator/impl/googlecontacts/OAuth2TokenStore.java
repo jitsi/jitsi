@@ -208,7 +208,7 @@ public class OAuth2TokenStore
         }
         else
         {
-            token = new TokenData("TOKEN_NOT_AVAILABLE", refreshToken, 0);
+            token = new TokenData(null, refreshToken, 0);
         }
         store.set(createCredential(store, token));
     }
@@ -508,16 +508,12 @@ public class OAuth2TokenStore
          * Constructor for TokenData container.
          *
          * @param accessToken the access token
-         * @param refreshToken the refresh token
-         * @param expirationTime the expiration time
+         * @param refreshToken the refresh token (cannot be null)
+         * @param expirationTime the expiration time (must be >= 0)
          */
         private TokenData(final String accessToken, final String refreshToken,
             final long expirationTime)
         {
-            if (accessToken == null)
-            {
-                throw new NullPointerException("access token cannot be null");
-            }
             this.accessToken = accessToken;
             if (refreshToken == null)
             {

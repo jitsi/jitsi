@@ -273,14 +273,12 @@ public class GoogleContactsActivator implements BundleActivator
                 className = className.substring(0, className.lastIndexOf('.'));
                 String acc = ProtocolProviderFactory.findAccountPrefix(
                         bundleContext, provider.getAccountID(), className);
-                String password = getCredentialsService().loadPassword(acc);
 
                 if(configService.getBoolean(acc + ".GOOGLE_CONTACTS_ENABLED",
                     true))
                 {
                     enableContactSource(
                         provider.getAccountID().getAccountAddress(),
-                        password,
                         provider.getProtocolDisplayName().equals(
                             "Google Talk"));
                 }
@@ -341,16 +339,15 @@ public class GoogleContactsActivator implements BundleActivator
      * <tt>GoogleContactsConnection</tt>.
      *
      * @param login login
-     * @param password password
      * @param googleTalk if the provider service is GoogleTalk
      * @return a <tt>GoogleContactsSourceService</tt> instance
      */
     public static GoogleContactsSourceService enableContactSource(
-                                                String login, String password,
+                                                String login,
                                                 boolean googleTalk)
     {
-        GoogleContactsSourceService css = new GoogleContactsSourceService(
-                login, password);
+        GoogleContactsSourceService css =
+            new GoogleContactsSourceService(login);
         ServiceRegistration<?> cssServiceRegistration = null;
 
         css.setGoogleTalk(googleTalk);

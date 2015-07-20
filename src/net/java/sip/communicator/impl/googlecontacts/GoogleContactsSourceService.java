@@ -40,11 +40,6 @@ public class GoogleContactsSourceService
     private final String login;
 
     /**
-     * Password.
-     */
-    private final String password;
-
-    /**
      * The prefix for all google contact phone numbers.
      */
     private String phoneNumberprefix;
@@ -71,11 +66,10 @@ public class GoogleContactsSourceService
      * @param login login
      * @param password password
      */
-    public GoogleContactsSourceService(String login, String password)
+    public GoogleContactsSourceService(String login)
     {
         super();
         this.login = login;
-        this.password = password;
     }
 
     /**
@@ -88,7 +82,6 @@ public class GoogleContactsSourceService
         super();
         this.cnx = cnx;
         this.login = cnx.getLogin();
-        this.password = cnx.getPassword();
         this.phoneNumberprefix = cnx.getPrefix();
     }
 
@@ -219,7 +212,7 @@ public class GoogleContactsSourceService
             {
                 if(cnx == null)
                 {
-                    cnx = new GoogleContactsConnectionImpl(login, password);
+                    cnx = new GoogleContactsConnectionImpl(login);
 
                     if(cnx.connect() ==
                         GoogleContactsConnection.ConnectionStatus.

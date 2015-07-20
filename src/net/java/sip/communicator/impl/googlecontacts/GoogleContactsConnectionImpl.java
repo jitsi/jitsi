@@ -43,11 +43,6 @@ public class GoogleContactsConnectionImpl
     private String login = null;
 
     /**
-     * Password.
-     */
-    private String password = null;
-
-    /**
      * If the connection is enabled.
      */
     private boolean enabled = false;
@@ -67,12 +62,10 @@ public class GoogleContactsConnectionImpl
      * Constructor.
      *
      * @param login the login to connect to the service
-     * @param password the password to connect to the service
      */
-    public GoogleContactsConnectionImpl(String login, String password)
+    public GoogleContactsConnectionImpl(String login)
     {
         this.login = login;
-        this.password = password;
         googleService.useSsl();
     }
 
@@ -97,16 +90,6 @@ public class GoogleContactsConnectionImpl
     }
 
     /**
-     * get password.
-     *
-     * @return password to connect to the service
-     */
-    public String getPassword()
-    {
-        return password;
-    }
-
-    /**
      * Set login.
      *
      * @param login login to connect to the service
@@ -114,16 +97,6 @@ public class GoogleContactsConnectionImpl
     public void setLogin(String login)
     {
         this.login = login;
-    }
-
-    /**
-     * Set password.
-     *
-     * @param password password to connect to the service
-     */
-    public void setPassword(String password)
-    {
-        this.password = password;
     }
 
     /**
@@ -169,12 +142,22 @@ public class GoogleContactsConnectionImpl
         {
             return this.googleService.query(query, ContactFeed.class);
         }
+        catch (NullPointerException e)
+        {
+            // Don't include a stack trace, since this is will happen at start
+            // of Jitsi, as we do not have a valid access token available yet.
+            logger.info("Executing query failed with NPE. "
+                + "Refreshing access token and trying again.");
+            // Maybe we should request an access token immediately after loading
+            // the refresh token from the credentials store?
+            this.store.refresh();
+        }
         catch (Exception e)
         {
-            // FIXME if possible narrow down the exceptions on which to
-            // refresh token
-            logger.info("Failed to execute query. Going to refresh token"
-                + " and try again.", e);
+            // Catch all and retry with refreshed token. We may need to let this
+            // case go through.
+            logger.warn("Query failed with unexpected exception. Going to try "
+                + "refreshing token anyways ...", e);
             this.store.refresh();
         }
         try

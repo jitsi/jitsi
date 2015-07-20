@@ -43,25 +43,11 @@ public interface GoogleContactsConnection
     public String getLogin();
 
     /**
-     * Get password.
-     *
-     * @return password to connect to the service
-     */
-    public String getPassword();
-
-    /**
      * Set login.
      *
      * @param login login to connect to the service
      */
     public void setLogin(String login);
-
-    /**
-     * Set password.
-     *
-     * @param password password to connect to the service
-     */
-    public void setPassword(String password);
 
     /**
      * Initialize connection.

@@ -31,12 +31,15 @@ public interface GoogleContactsService
     /**
      * Get a <tt>GoogleContactsConnection</tt>.
      *
+     * Get a connection to Google Contacts. Only the login name may be provided.
+     * Passwords are not supported anymore. Authorization is acquired by
+     * requesting the user to go to Google and acquire an OAuth 2 approval for
+     * Jitsi.
+     *
      * @param login login to connect to the service
-     * @param password password to connect to the service
      * @return <tt>GoogleContactsConnection</tt>.
      */
-    public GoogleContactsConnection getConnection(String login,
-            String password);
+    public GoogleContactsConnection getConnection(String login);
 
     /**
      * Get the full contacts list.
@@ -50,9 +53,8 @@ public interface GoogleContactsService
      * <tt>GoogleContactsConnection</tt>.
      *
      * @param login login
-     * @param password password
      */
-    public void addContactSource(String login, String password);
+    public void addContactSource(String login);
 
     /**
      * Add a contact source service with the specified
