@@ -94,12 +94,14 @@ public class OAuth2TokenStore
     /**
      * Client ID for OAuth 2 based authentication.
      */
-    private static final String GOOGLE_API_CLIENT_ID = null;
+    private static final String GOOGLE_API_CLIENT_ID
+        = GoogleAPIClientToken.GOOGLE_API_CLIENT_ID;
 
     /**
      * Client secret for OAuth 2 based authentication.
      */
-    private static final String GOOGLE_API_CLIENT_SECRET = null;
+    private static final String GOOGLE_API_CLIENT_SECRET
+        = GoogleAPIClientToken.GOOGLE_API_CLIENT_SECRET;
 
     /**
      * Required OAuth 2 authentication scopes.

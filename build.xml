@@ -293,7 +293,7 @@
     </target>
 
     <!-- java compile -->
-    <target name="compile" depends="init,version">
+    <target name="compile" depends="init,version,-pre-googlecontacts">
         <!--internal-target- compiles the entire project source tree -->
         <javac classpathref="compile.class.path" debug="true"
             deprecation="true" destdir="${dest}" nowarn="false"
@@ -1376,6 +1376,39 @@
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/ldap"
                 prefix="net/java/sip/communicator/impl/ldap" />
         </jar>
+    </target>
+
+    <!-- Fills google client code id and secret if any -->
+    <target name="-pre-googlecontacts"
+            depends="-pre-googlecontacts-none"
+            if="google.api.client.id" >
+        <!-- create a class that would contain our id and secret if any -->
+        <copy file="${src}/net/java/sip/communicator/impl/googlecontacts/GoogleAPIClientToken.java.tmpl"
+              tofile="${src}/net/java/sip/communicator/impl/googlecontacts/GoogleAPIClientToken.java"
+              overwrite="true"/>
+
+        <!-- set the id and secret according to the property -->
+        <replace file="${src}/net/java/sip/communicator/impl/googlecontacts/GoogleAPIClientToken.java"
+                 token="google.api.client.id" value="${google.api.client.id}"/>
+
+        <!-- set the secret according to the property -->
+        <replace file="${src}/net/java/sip/communicator/impl/googlecontacts/GoogleAPIClientToken.java"
+                 token="google.api.client.secret" value="${google.api.client.secret}"/>
+    </target>
+    <!-- if nothing is set just replace it with null -->
+    <target name="-pre-googlecontacts-none" unless="google.api.client.id" >
+        <!-- create a class that would contain our id and secret if any -->
+        <copy file="${src}/net/java/sip/communicator/impl/googlecontacts/GoogleAPIClientToken.java.tmpl"
+              tofile="${src}/net/java/sip/communicator/impl/googlecontacts/GoogleAPIClientToken.java"
+              overwrite="true"/>
+
+        <!-- set the id and secret according to the property -->
+        <replace file="${src}/net/java/sip/communicator/impl/googlecontacts/GoogleAPIClientToken.java"
+                 token="&#34;google.api.client.id&#34;" value="null"/>
+
+        <!-- set the secret according to the property -->
+        <replace file="${src}/net/java/sip/communicator/impl/googlecontacts/GoogleAPIClientToken.java"
+                 token="&#34;google.api.client.secret&#34;" value="null"/>
     </target>
 
     <!--BUNDLE-GOOGLECONTACTS-->
