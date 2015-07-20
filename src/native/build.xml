@@ -451,8 +451,12 @@
     </target>
 
     <target name="globalshortcut" description="Build globalshortcut"
-            depends="init-native,globalshortcut-windows" unless="is.running.windows">
-
+            depends="init-native,globalshortcut-windows,globalshortcut-mac" unless="is.running.windows"/>
+    <target name="globalshortcut-mac" unless="is.running.linux"
+            depends="globalshortcut-linux">
+        <echo message="For building mac os x binary checkout: https://github.com/jitsi/DDHotKey"/>
+    </target>
+    <target name="globalshortcut-linux" if="is.running.linux">
     <cc outtype="shared" name="gcc" outfile="${native_install_dir}/globalshortcut"
         objdir="${obj}">
         <!-- common compiler flags -->
