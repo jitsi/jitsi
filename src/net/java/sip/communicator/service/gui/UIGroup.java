@@ -17,10 +17,9 @@
  */
 package net.java.sip.communicator.service.gui;
 
-import net.java.sip.communicator.plugin.desktoputil.*;
-
 import java.awt.*;
 import java.util.*;
+import javax.swing.*;
 
 /**
  * The <tt>UIGroup</tt> represents the user interface contact list group.
@@ -164,7 +163,7 @@ public abstract class UIGroup
      *
      * @return a list of all custom action buttons for this group
      */
-    public Collection<SIPCommButton> getCustomActionButtons()
+    public Collection<? extends JButton> getCustomActionButtons()
     {
         return null;
     }

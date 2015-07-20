@@ -1143,7 +1143,7 @@ public class ContactListTreeCellRenderer
 
         // The list of the contact actions
         // we will create a button for every action
-        Collection<SIPCommButton> contactActions
+        Collection<? extends JButton> contactActions
             = uiContact.getContactCustomActionButtons();
 
         int lastGridX = gridX;
@@ -1179,7 +1179,7 @@ public class ContactListTreeCellRenderer
 
         // The list of the actions
         // we will create a button for every action
-        Collection<SIPCommButton> contactActions
+        Collection<? extends JButton> contactActions
             = uiGroup.getCustomActionButtons();
 
         int lastGridX = gridX;
@@ -1236,17 +1236,17 @@ public class ContactListTreeCellRenderer
      * @return the new grid X coordinate after adding all the buttons
      */
     private int initGroupActionButtons(
-        Collection<SIPCommButton> contactActionButtons,
+        Collection<? extends JButton> contactActionButtons,
         int gridX,
         int xBounds)
     {
         // Reinit the labels to take the whole horizontal space.
         addLabels(gridX + contactActionButtons.size());
 
-        Iterator<SIPCommButton> actionsIter = contactActionButtons.iterator();
+        Iterator<? extends JButton> actionsIter = contactActionButtons.iterator();
         while (actionsIter.hasNext())
         {
-            final SIPCommButton actionButton = actionsIter.next();
+            final SIPCommButton actionButton = (SIPCommButton) actionsIter.next();
 
             // We need to explicitly remove the buttons from the tooltip manager,
             // because we're going to manager the tooltip ourselves in the
@@ -1276,17 +1276,17 @@ public class ContactListTreeCellRenderer
      * @return the new grid X coordiante after adding all the buttons
      */
     private int initContactActionButtons(
-        Collection<SIPCommButton> contactActionButtons,
+        Collection<? extends JButton> contactActionButtons,
         int gridX,
         int xBounds)
     {
         // Reinit the labels to take the whole horizontal space.
         addLabels(gridX + contactActionButtons.size());
 
-        Iterator<SIPCommButton> actionsIter = contactActionButtons.iterator();
+        Iterator<? extends JButton> actionsIter = contactActionButtons.iterator();
         while (actionsIter.hasNext())
         {
-            final SIPCommButton actionButton = actionsIter.next();
+            final SIPCommButton actionButton = (SIPCommButton) actionsIter.next();
 
             // We need to explicitly remove the buttons from the tooltip manager,
             // because we're going to manager the tooltip ourselves in the

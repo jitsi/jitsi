@@ -138,7 +138,7 @@ public abstract class UIContact
      *
      * @return a list of all custom action buttons for this notification contact
      */
-    public abstract Collection<SIPCommButton> getContactCustomActionButtons();
+    public abstract Collection<? extends JButton> getContactCustomActionButtons();
 
     /**
      * Returns the preferred height of this group in the contact list.
