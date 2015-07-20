@@ -149,6 +149,12 @@ public class OAuth2TokenStore
     public synchronized Credential get(final String identity)
         throws FailedAcquireCredentialException
     {
+        if (GOOGLE_API_CLIENT_ID == null || GOOGLE_API_CLIENT_SECRET == null)
+        {
+            throw new IllegalStateException("Missing client ID or client "
+                + "secret. It is not possible to use Google Contacts API "
+                + "without it.");
+        }
         if (this.store.get() == null)
         {
             try
