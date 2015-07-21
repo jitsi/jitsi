@@ -24,7 +24,6 @@ import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.bytestreams.ibb.provider.*;
-import org.jivesoftware.smackx.bytestreams.socks5.provider.*;
 import org.jivesoftware.smackx.packet.*;
 import org.jivesoftware.smackx.provider.*;
 
@@ -166,7 +165,7 @@ public class ProviderManagerExt
         addProvider("si", "http://jabber.org/protocol/si",
             StreamInitiationProvider.class);
         addProvider("query", "http://jabber.org/protocol/bytestreams",
-            BytestreamsProvider.class);
+            org.jivesoftware.smackx.bytestreams.socks5.provider.BytestreamsProvider.class);
         addProvider("open", "http://jabber.org/protocol/ibb",
             OpenIQProvider.class);
         addProvider("data", "http://jabber.org/protocol/ibb",
