@@ -1,0 +1,15 @@
+package net.java.sip.communicator.util;
+
+import java.util.logging.*;
+
+public class MyLevel extends Level
+{
+    public static final Level AUDIT = new MyLevel("AUDIT", Level.INFO.intValue() + 1);
+    
+    protected MyLevel(String name, int value)
+    {
+        super(name, value);
+        
+    }
+    
+}

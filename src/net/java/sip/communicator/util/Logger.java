@@ -8,13 +8,28 @@ package net.java.sip.communicator.util;
 
 import java.util.logging.*;
 
+
+
+
+
 /**
  * Standard logging methods.
  *
  * @author Emil Ivov
  */
-public class Logger
+public class Logger 
 {
+   
+   
+   
+    
+    
+    
+    
+    
+    
+    
+    
     /**
      * The java.util.Logger that would actually be doing the logging.
      */
@@ -193,6 +208,21 @@ public class Logger
         loggerDelegate.info(msg!=null?msg.toString():"null");
     }
 
+    public void audit(Object msg)
+    {
+        loggerDelegate.log(MyLoggerLevel.AUDIT,msg!=null?msg.toString():"null");
+    }
+    
+    
+    
+    
+    public void audit(Object msg, Throwable t)
+    {
+        loggerDelegate.log(MyLoggerLevel.AUDIT, msg!=null?msg.toString():"null", t);
+    }
+    
+    
+    
     /**
      * Log a message, with associated Throwable information.
      * <p>
@@ -293,6 +323,11 @@ public class Logger
     public void setLevelError()
     {
         setLevel(Level.SEVERE);
+    }
+    
+    public void setLevelAudit()
+    {
+        setLevel(MyLoggerLevel.AUDIT);
     }
 
     /**
