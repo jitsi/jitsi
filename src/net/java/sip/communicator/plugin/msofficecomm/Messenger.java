@@ -1,8 +1,19 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * Copyright @ 2015 Atlassian Pty Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package net.java.sip.communicator.plugin.msofficecomm;
 
@@ -17,7 +28,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
-import net.java.sip.communicator.service.protocol.msnconstants.*;
 import net.java.sip.communicator.service.protocol.yahooconstants.*;
 import net.java.sip.communicator.util.*;
 
@@ -1115,11 +1125,6 @@ public class Messenger
                 {
                     mistatus = MISTATUS_ON_THE_PHONE;
                 }
-                else if (ProtocolNames.MSN.equalsIgnoreCase(protocolName)
-                        && MsnStatusEnum.ON_THE_PHONE.equals(presenceStatus))
-                {
-                    mistatus = MISTATUS_ON_THE_PHONE;
-                }
                 else if (ProtocolNames.YAHOO.equalsIgnoreCase(protocolName)
                         && YahooStatusEnum.ON_THE_PHONE.equals(presenceStatus))
                 {
@@ -1129,11 +1134,6 @@ public class Messenger
                     && ProtocolNames.JABBER.equalsIgnoreCase(protocolName)
                     && JabberStatusEnum.IN_A_MEETING.equalsIgnoreCase(
                             presenceStatus.getStatusName()))
-                {
-                    mistatus = MISTATUS_IN_A_MEETING;
-                }
-                else if (ProtocolNames.MSN.equalsIgnoreCase(protocolName)
-                    && MsnStatusEnum.IN_A_MEETING.equals(presenceStatus))
                 {
                     mistatus = MISTATUS_IN_A_MEETING;
                 }

@@ -86,9 +86,6 @@
 	<lib name="jmdns.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jmdns.jar!/"/>
 	</lib>
-	<lib name="jml-1.0b5.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jml-1.0b5.jar!/"/>
-	</lib>
 	<lib name="jmyspell-core.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/installer-exclude/jmyspell-core.jar!/"/>
 	</lib>

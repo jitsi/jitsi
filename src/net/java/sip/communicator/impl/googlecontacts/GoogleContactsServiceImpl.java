@@ -1,8 +1,19 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * Copyright @ 2015 Atlassian Pty Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package net.java.sip.communicator.impl.googlecontacts;
 
@@ -12,7 +23,6 @@ import java.util.*;
 import java.util.regex.*;
 
 import net.java.sip.communicator.impl.googlecontacts.configform.*;
-import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.googlecontacts.*;
 import net.java.sip.communicator.util.*;
 
@@ -68,7 +78,7 @@ public class GoogleContactsServiceImpl
     /**
      * Path where to store the account settings
      */
-    private final static String CONFIGURATION_PATH =
+    final static String CONFIGURATION_PATH =
         "net.java.sip.communicator.impl.googlecontacts";
 
     /**
@@ -103,8 +113,6 @@ public class GoogleContactsServiceImpl
     {
         ConfigurationService configService =
             GoogleContactsActivator.getConfigService();
-        CredentialsStorageService credentialsService =
-            GoogleContactsActivator.getCredentialsService();
 
         List<String> list = configService.getPropertyNamesByPrefix(
                     CONFIGURATION_PATH, true);
@@ -124,10 +132,8 @@ public class GoogleContactsServiceImpl
             if(prefix == null)
                 prefix = "";
 
-            String password = credentialsService.loadPassword(path);
-
             GoogleContactsConnectionImpl cnx = (GoogleContactsConnectionImpl)
-                getConnection(login, password);
+                getConnection(login);
             cnx.setEnabled(enabled);
             cnx.setPrefix(prefix);
 
@@ -188,9 +194,6 @@ public class GoogleContactsServiceImpl
         ConfigurationService configService =
             GoogleContactsActivator.getConfigService();
 
-        CredentialsStorageService credentialsService =
-            GoogleContactsActivator.getCredentialsService();
-
         String login = cnx.getLogin();
         String path = CONFIGURATION_PATH + ".acc" + Math.abs(login.hashCode());
 
@@ -207,8 +210,6 @@ public class GoogleContactsServiceImpl
         configService.setProperty(
             path + ".prefix",
             ((GoogleContactsConnectionImpl)cnx).getPrefix());
-
-        credentialsService.storePassword(path, cnx.getPassword());
     }
 
     /**
@@ -269,14 +270,11 @@ public class GoogleContactsServiceImpl
 
             try
             {
-                contactFeed = cnxImpl.getGoogleService().query(
-                        query, ContactFeed.class);
+                contactFeed = cnxImpl.query(query);
             }
             catch(Exception e)
             {
-                logger.info(
-                        "Problem occurred during Google Contacts retrievment",
-                        e);
+                logger.warn("Problem occurred during Google Contacts query", e);
                 return ret;
             }
 
@@ -414,15 +412,13 @@ public class GoogleContactsServiceImpl
      * Get a <tt>GoogleContactsConnection</tt>.
      *
      * @param login login to connect to the service
-     * @param password password to connect to the service
      * @return <tt>GoogleContactsConnection</tt>.
      */
-    public GoogleContactsConnection getConnection(String login,
-            String password)
+    public GoogleContactsConnection getConnection(String login)
     {
         try
         {
-            return new GoogleContactsConnectionImpl(login, password);
+            return new GoogleContactsConnectionImpl(login);
         }
         catch(Exception e)
         {
@@ -450,11 +446,10 @@ public class GoogleContactsServiceImpl
      * <tt>GoogleContactsConnection</tt>.
      *
      * @param login login
-     * @param password password
      */
-    public void addContactSource(String login, String password)
+    public void addContactSource(String login)
     {
-        GoogleContactsActivator.enableContactSource(login, password, false);
+        GoogleContactsActivator.enableContactSource(login, false);
     }
 
     /**

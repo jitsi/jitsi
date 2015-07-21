@@ -1,18 +1,31 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * Copyright @ 2015 Atlassian Pty Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package net.java.sip.communicator.impl.googlecontacts;
 
 import java.util.*;
 
+import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.googlecontacts.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
@@ -37,7 +50,7 @@ public class GoogleContactsActivator implements BundleActivator
      * The OSGi <tt>ServiceRegistration</tt> of
      * <tt>GoogleContactsServiceImpl</tt>.
      */
-    private ServiceRegistration serviceRegistration = null;
+    private ServiceRegistration<?> serviceRegistration = null;
 
     /**
      * BundleContext from the OSGI bus.
@@ -65,10 +78,15 @@ public class GoogleContactsActivator implements BundleActivator
     private static GoogleContactsServiceImpl googleContactsService;
 
     /**
+     * Browser launcher service.
+     */
+    private static BrowserLauncherService browserLauncherService;
+
+    /**
      * List of contact source service registrations.
      */
-    private static Map<GoogleContactsSourceService, ServiceRegistration> cssList
-        = new HashMap<GoogleContactsSourceService, ServiceRegistration>();
+    private static Map<GoogleContactsSourceService, ServiceRegistration<?>> cssList
+        = new HashMap<GoogleContactsSourceService, ServiceRegistration<?>>();
 
     /**
      * The registered PhoneNumberI18nService.
@@ -86,12 +104,9 @@ public class GoogleContactsActivator implements BundleActivator
     {
         if(configService == null)
         {
-            ServiceReference confReference
-                = bundleContext.getServiceReference(
-                        ConfigurationService.class.getName());
-            configService
-                = (ConfigurationService) bundleContext.getService(
-                        confReference);
+            configService =
+                ServiceUtils.getService(bundleContext,
+                    ConfigurationService.class);
         }
         return configService;
     }
@@ -120,12 +135,9 @@ public class GoogleContactsActivator implements BundleActivator
     {
         if(credentialsService == null)
         {
-            ServiceReference confReference
-                = bundleContext.getServiceReference(
-                        CredentialsStorageService.class.getName());
-            credentialsService
-                = (CredentialsStorageService) bundleContext.getService(
-                        confReference);
+            credentialsService =
+                ServiceUtils.getService(bundleContext,
+                    CredentialsStorageService.class);
         }
         return credentialsService;
     }
@@ -142,14 +154,26 @@ public class GoogleContactsActivator implements BundleActivator
     {
         if(resourceService == null)
         {
-            ServiceReference confReference
-                = bundleContext.getServiceReference(
-                        ResourceManagementService.class.getName());
-            resourceService
-                = (ResourceManagementService) bundleContext.getService(
-                        confReference);
+            resourceService =
+                ResourceManagementServiceUtils.getService(bundleContext);
         }
         return resourceService;
+    }
+
+    /**
+     * Return reference to a browser launcher service implementation.
+     *
+     * @return Returns the browser launcher service instance.
+     */
+    public static BrowserLauncherService getBrowserLauncherService()
+    {
+        if (browserLauncherService == null)
+        {
+            browserLauncherService =
+                ServiceUtils.getService(bundleContext,
+                    BrowserLauncherService.class);
+        }
+        return browserLauncherService;
     }
 
     /**
@@ -207,7 +231,7 @@ public class GoogleContactsActivator implements BundleActivator
      */
     private void serviceChanged(ServiceEvent event)
     {
-        ServiceReference serviceRef = event.getServiceReference();
+        ServiceReference<?> serviceRef = event.getServiceReference();
 
         // if the event is caused by a bundle being stopped, we don't want to
         // know
@@ -260,14 +284,12 @@ public class GoogleContactsActivator implements BundleActivator
                 className = className.substring(0, className.lastIndexOf('.'));
                 String acc = ProtocolProviderFactory.findAccountPrefix(
                         bundleContext, provider.getAccountID(), className);
-                String password = getCredentialsService().loadPassword(acc);
 
                 if(configService.getBoolean(acc + ".GOOGLE_CONTACTS_ENABLED",
                     true))
                 {
                     enableContactSource(
                         provider.getAccountID().getAccountAddress(),
-                        password,
                         provider.getProtocolDisplayName().equals(
                             "Google Talk"));
                 }
@@ -303,7 +325,7 @@ public class GoogleContactsActivator implements BundleActivator
         }
 
         /* remove contact source services */
-        for(Map.Entry<GoogleContactsSourceService, ServiceRegistration> entry :
+        for(Map.Entry<GoogleContactsSourceService, ServiceRegistration<?>> entry :
             cssList.entrySet())
         {
             if (entry.getValue() != null)
@@ -328,17 +350,16 @@ public class GoogleContactsActivator implements BundleActivator
      * <tt>GoogleContactsConnection</tt>.
      *
      * @param login login
-     * @param password password
      * @param googleTalk if the provider service is GoogleTalk
      * @return a <tt>GoogleContactsSourceService</tt> instance
      */
     public static GoogleContactsSourceService enableContactSource(
-                                                String login, String password,
+                                                String login,
                                                 boolean googleTalk)
     {
-        GoogleContactsSourceService css = new GoogleContactsSourceService(
-                login, password);
-        ServiceRegistration cssServiceRegistration = null;
+        GoogleContactsSourceService css =
+            new GoogleContactsSourceService(login);
+        ServiceRegistration<?> cssServiceRegistration = null;
 
         css.setGoogleTalk(googleTalk);
 
@@ -380,7 +401,7 @@ public class GoogleContactsActivator implements BundleActivator
                                                 boolean googleTalk)
     {
         GoogleContactsSourceService css = new GoogleContactsSourceService(cnx);
-        ServiceRegistration cssServiceRegistration = null;
+        ServiceRegistration<?> cssServiceRegistration = null;
 
         css.setGoogleTalk(googleTalk);
 
@@ -418,7 +439,7 @@ public class GoogleContactsActivator implements BundleActivator
     {
         GoogleContactsSourceService found = null;
 
-        for(Map.Entry<GoogleContactsSourceService, ServiceRegistration> entry :
+        for(Map.Entry<GoogleContactsSourceService, ServiceRegistration<?>> entry :
             cssList.entrySet())
         {
             String cssName = entry.getKey().getLogin();
@@ -459,7 +480,7 @@ public class GoogleContactsActivator implements BundleActivator
             return;
         }
 
-        for(Map.Entry<GoogleContactsSourceService, ServiceRegistration> entry :
+        for(Map.Entry<GoogleContactsSourceService, ServiceRegistration<?>> entry :
             cssList.entrySet())
         {
             String cssName = entry.getKey().getLogin();

@@ -6,7 +6,7 @@ Source: http://www.jitsi.org
 Files: *
 Copyright:
  2004-2012 Emil Ivov
-License: LGPL-2.1
+License: Apache-2.0
 
 Files: lib/src/dhcp4java/*
 Copyright:

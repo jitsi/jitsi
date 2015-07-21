@@ -1,8 +1,19 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * Copyright @ 2015 Atlassian Pty Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package net.java.sip.communicator.impl.protocol.sip;
 
@@ -2364,10 +2375,12 @@ public class ProtocolProviderServiceSipImpl
     {
         uriStr = uriStr.trim();
 
-        //we don't know how to handle the "tel:" scheme ... or rather we handle
-        //it same as sip so replace:
+        //we don't know how to handle the "tel:" and "callto:" schemes ... or
+        // rather we handle them same as sip so replace:
         if(uriStr.toLowerCase().startsWith("tel:"))
             uriStr = "sip:" + uriStr.substring("tel:".length());
+        else if(uriStr.toLowerCase().startsWith("callto:"))
+            uriStr = "sip:" + uriStr.substring("callto:".length());
 
         //Handle default domain name (i.e. transform 1234 -> 1234@sip.com)
         //assuming that if no domain name is specified then it should be the

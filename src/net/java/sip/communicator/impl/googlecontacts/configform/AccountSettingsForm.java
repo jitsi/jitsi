@@ -1,8 +1,19 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * Copyright @ 2015 Atlassian Pty Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package net.java.sip.communicator.impl.googlecontacts.configform;
 
@@ -34,11 +45,6 @@ public class AccountSettingsForm
      * component holding the name
      */
     private JTextField nameField;
-
-    /**
-     * the component holding the password
-     */
-    private JPasswordField passwordField;
 
     /**
      * The prefix field.
@@ -133,29 +139,6 @@ public class AccountSettingsForm
         c.anchor = GridBagConstraints.LINE_START;
         basePanel.add(nameExampleLabel, c);
 
-        JLabel passwordLabel = new JLabel(
-                Resources.getString("impl.googlecontacts.PASSWORD"));
-        this.passwordField = new JPasswordField();
-        nameLabel.setLabelFor(passwordField);
-        c.gridx = 0;
-        c.gridy = 2;
-        c.weightx = 0;
-        c.weighty = 0;
-        c.gridwidth = 1;
-        c.insets = new Insets(2, 50, 0, 5);
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.LINE_START;
-        basePanel.add(passwordLabel, c);
-        c.gridx = 1;
-        c.gridy = 2;
-        c.weightx = 1;
-        c.weighty = 0;
-        c.gridwidth = GridBagConstraints.REMAINDER;
-        c.insets = new Insets(2, 5, 0, 50);
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.LINE_END;
-        basePanel.add(passwordField, c);
-
         JLabel prefixLabel = new JLabel(
                 Resources.getString("service.gui.PREFIX"));
         this.prefixField = new JTextField();
@@ -184,7 +167,6 @@ public class AccountSettingsForm
 
         /* listeners */
         this.nameField.addActionListener(this);
-        this.passwordField.addActionListener(this);
         this.saveBtn.addActionListener(this);
         this.cancelBtn.addActionListener(this);
 
@@ -207,14 +189,12 @@ public class AccountSettingsForm
         if(cnx != null)
         {
             this.nameField.setText(cnx.getLogin());
-            this.passwordField.setText(cnx.getPassword());
             this.prefixField.setText(cnx.getPrefix());
             this.cnx = (GoogleContactsConnectionImpl) cnx;
         }
         else
         {
             this.nameField.setText("");
-            this.passwordField.setText("");
             this.cnx = null;
         }
     }
@@ -231,19 +211,17 @@ public class AccountSettingsForm
         if(src == saveBtn)
         {
             String login = nameField.getText();
-            String password = new String(passwordField.getPassword());
             String prefix = prefixField.getText();
 
             if(cnx == null)
             {
-                cnx = (GoogleContactsConnectionImpl) GoogleContactsActivator
-                    .getGoogleContactsService()
-                        .getConnection(login, password);
+                cnx =
+                    (GoogleContactsConnectionImpl) GoogleContactsActivator
+                        .getGoogleContactsService().getConnection(login);
             }
             else
             {
                 cnx.setLogin(login);
-                cnx.setPassword(password);
             }
 
             cnx.setPrefix(prefix);

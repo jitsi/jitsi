@@ -189,47 +189,6 @@ accounts.jabber.CONTACT_LIST=
 # list of icq accounts to notify during testing (optional)
 accounts.reporting.JABBER_REPORT_LIST=
 
-# MSN PROPERTIES
-
-# MSN ACCOUNT 1
-# The user email needed to log onto the server
-accounts.msn.account1.USER_ID=
-
-# The password (in plain text) needed to log the user specified in USER_ID
-# on the server
-accounts.msn.account1.PASSWORD=
-
-# MSN ACCOUNT 2
-
-# The user email needed to log onto the server
-accounts.msn.account2.USER_ID=
-
-# The password (in plain text) needed to log the user specified in USER_ID
-# on the server
-accounts.msn.account2.PASSWORD=
-
-# MSN ACCOUNT 3
-
-# The user email needed to log onto the server
-accounts.msn.account3.USER_ID=
-
-# The password (in plain text) needed to log the user specified in USER_ID
-# on the server
-accounts.msn.account3.PASSWORD=
-
-# The following describes the contact list that we will store on the Msn
-# server for the tested account implementation. The value of the CONTACT_LIST
-# property must be a space separated string containing elements each of which
-# is in the format: GroupName.UIN
-#
-#
-# VERY IMPORTANT!!! All other users in this contact list will be removed and
-# the contacts and contact groups enumerated beneath will be added instead
-accounts.msn.CONTACT_LIST=
-
-# list of msn accounts to notify during testing (optional)
-accounts.reporting.MSN_REPORT_LIST=
-
 # YAHOO PROPERTIES
 
 # YAHOO ACCOUNT 1
@@ -258,7 +217,7 @@ accounts.yahoo.account3.USER_ID=
 # on the server
 accounts.yahoo.account3.PASSWORD=
 
-# The following describes the contact list that we will store on the Msn
+# The following describes the contact list that we will store on the yahoo
 # server for the tested account implementation. The value of the CONTACT_LIST
 # property must be a space separated string containing elements each of which
 # is in the format: GroupName.UIN

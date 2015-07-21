@@ -1,8 +1,19 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
- * Distributable under LGPL license.
- * See terms of license at gnu.org.
+ * Copyright @ 2015 Atlassian Pty Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package net.java.sip.communicator.impl.gui.main.contactlist;
 
@@ -1132,7 +1143,7 @@ public class ContactListTreeCellRenderer
 
         // The list of the contact actions
         // we will create a button for every action
-        Collection<SIPCommButton> contactActions
+        Collection<? extends JButton> contactActions
             = uiContact.getContactCustomActionButtons();
 
         int lastGridX = gridX;
@@ -1168,7 +1179,7 @@ public class ContactListTreeCellRenderer
 
         // The list of the actions
         // we will create a button for every action
-        Collection<SIPCommButton> contactActions
+        Collection<? extends JButton> contactActions
             = uiGroup.getCustomActionButtons();
 
         int lastGridX = gridX;
@@ -1225,17 +1236,17 @@ public class ContactListTreeCellRenderer
      * @return the new grid X coordinate after adding all the buttons
      */
     private int initGroupActionButtons(
-        Collection<SIPCommButton> contactActionButtons,
+        Collection<? extends JButton> contactActionButtons,
         int gridX,
         int xBounds)
     {
         // Reinit the labels to take the whole horizontal space.
         addLabels(gridX + contactActionButtons.size());
 
-        Iterator<SIPCommButton> actionsIter = contactActionButtons.iterator();
+        Iterator<? extends JButton> actionsIter = contactActionButtons.iterator();
         while (actionsIter.hasNext())
         {
-            final SIPCommButton actionButton = actionsIter.next();
+            final SIPCommButton actionButton = (SIPCommButton) actionsIter.next();
 
             // We need to explicitly remove the buttons from the tooltip manager,
             // because we're going to manager the tooltip ourselves in the
@@ -1265,17 +1276,17 @@ public class ContactListTreeCellRenderer
      * @return the new grid X coordiante after adding all the buttons
      */
     private int initContactActionButtons(
-        Collection<SIPCommButton> contactActionButtons,
+        Collection<? extends JButton> contactActionButtons,
         int gridX,
         int xBounds)
     {
         // Reinit the labels to take the whole horizontal space.
         addLabels(gridX + contactActionButtons.size());
 
-        Iterator<SIPCommButton> actionsIter = contactActionButtons.iterator();
+        Iterator<? extends JButton> actionsIter = contactActionButtons.iterator();
         while (actionsIter.hasNext())
         {
-            final SIPCommButton actionButton = actionsIter.next();
+            final SIPCommButton actionButton = (SIPCommButton) actionsIter.next();
 
             // We need to explicitly remove the buttons from the tooltip manager,
             // because we're going to manager the tooltip ourselves in the
