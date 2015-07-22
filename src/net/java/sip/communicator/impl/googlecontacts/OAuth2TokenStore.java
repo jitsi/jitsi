@@ -445,6 +445,11 @@ public class OAuth2TokenStore
 
         private UserResponseType response = UserResponseType.CANCELLED;
 
+        /**
+         * Construct and initialize the OAuth 2 approval dialog.
+         *
+         * @param identity The identity for which approval is requested.
+         */
         public OAuthApprovalDialog(final String identity)
         {
             final ResourceManagementService resources =
@@ -453,6 +458,8 @@ public class OAuth2TokenStore
                 resources.getI18NString("impl.googlecontacts.INSTRUCTIONS");
 
             // configure dialog
+            this.setTitle(resources
+                .getI18NString("impl.googlecontacts.OAUTH_DIALOG_TITLE"));
             this.setMinimumSize(new Dimension(20, 20));
             this.setPreferredSize(new Dimension(650, 200));
             this.setBounds(10, 10, this.getWidth() - 20, this.getHeight() - 20);
