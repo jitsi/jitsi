@@ -452,6 +452,8 @@ public class OAuth2TokenStore
          */
         public OAuthApprovalDialog(final String identity)
         {
+            super(false);
+
             final ResourceManagementService resources =
                 GoogleContactsActivator.getResourceManagementService();
             final String instructionsText =
@@ -461,18 +463,21 @@ public class OAuth2TokenStore
             this.setTitle(resources
                 .getI18NString("impl.googlecontacts.OAUTH_DIALOG_TITLE"));
             this.setMinimumSize(new Dimension(20, 20));
-            this.setPreferredSize(new Dimension(650, 200));
+            this.setPreferredSize(new Dimension(650, 220));
             this.setBounds(10, 10, this.getWidth() - 20, this.getHeight() - 20);
             this.setModal(true);
 
             // main panel layout
-            this.setLayout(new BorderLayout());
-            final JPanel instructionPanel = new JPanel(new BorderLayout());
-            instructionPanel.setOpaque(false);
-            this.add(instructionPanel, BorderLayout.NORTH);
-            final JPanel buttonPanel = new JPanel(new BorderLayout());
-            buttonPanel.setOpaque(false);
-            this.add(buttonPanel, BorderLayout.SOUTH);
+            JPanel mainPanel = new TransparentPanel(new BorderLayout());
+            mainPanel.setBorder(
+                BorderFactory.createEmptyBorder(10, 10, 5, 10));
+
+            final JPanel instructionPanel
+                = new TransparentPanel(new BorderLayout());
+            mainPanel.add(instructionPanel, BorderLayout.NORTH);
+
+            final JPanel buttonPanel = new TransparentPanel(new BorderLayout());
+            mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
             // populate instruction dialog
             final JLabel instructionLabel = new JLabel(instructionsText);
@@ -500,8 +505,8 @@ public class OAuth2TokenStore
             final JLabel codeLabel =
                 new JLabel(resources.getI18NString("impl.googlecontacts.CODE"));
             codeLabel.setOpaque(false);
-            this.add(codeLabel, BorderLayout.WEST);
-            this.add(this.code, BorderLayout.CENTER);
+            mainPanel.add(codeLabel, BorderLayout.WEST);
+            mainPanel.add(this.code, BorderLayout.CENTER);
 
             // buttons panel
             final JButton doneButton =
@@ -519,6 +524,8 @@ public class OAuth2TokenStore
                 }
             });
             buttonPanel.add(doneButton, BorderLayout.EAST);
+
+            this.add(mainPanel);
 
             this.pack();
         }
