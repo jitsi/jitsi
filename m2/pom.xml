@@ -1,0 +1,54 @@
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.jitsi</groupId>
+    <artifactId>jitsi-universe</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <relativePath>../../jitsi-universe/pom.xml</relativePath>
+  </parent>
+
+  <artifactId>jitsi</artifactId>
+  <version>2.9-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>jitsi</name>
+  <url>https://jitsi.org</url>
+
+  <modules>
+    <module>jitsi-configuration</module>
+    <module>jitsi-contactlist</module>
+    <module>jitsi-credentialsstorage</module>
+    <module>jitsi-dnsservice</module>
+    <module>jitsi-fileaccess</module>
+    <module>jitsi-libjitsi</module>
+    <module>jitsi-netaddr</module>
+    <module>jitsi-packetlogging</module>
+    <module>jitsi-protocol</module>
+    <module>jitsi-protocol-jabber</module>
+    <module>jitsi-protocol-media</module>
+    <module>jitsi-resourcemanager</module>
+    <module>jitsi-ui-service</module>
+    <module>jitsi-util</module>
+  </modules>
+
+  <build>
+    <sourceDirectory>../../src</sourceDirectory>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <excludes>
+              <exclude>**/*.manifest.mf</exclude>
+            </excludes>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+</project>
