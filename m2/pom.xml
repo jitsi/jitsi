@@ -21,6 +21,7 @@
   <modules>
     <module>jitsi-configuration</module>
     <module>jitsi-contactlist</module>
+    <module>jitsi-credentialsstorage</module>
     <module>jitsi-dnsservice</module>
     <module>jitsi-fileaccess</module>
     <module>jitsi-libjitsi</module>
