@@ -858,8 +858,11 @@ public class CallPeerSipImpl
 
             // as its connected, set initial mute status,
             // corresponding call status
-            if(isMute() != this.getCall().isMute())
+            if (this.getCall() != null
+                && isMute() != this.getCall().isMute())
+            {
                 setMute(this.getCall().isMute());
+            }
         }
 
         fireResponseProcessed(ok, null);
