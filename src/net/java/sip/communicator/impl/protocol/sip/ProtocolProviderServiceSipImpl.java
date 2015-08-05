@@ -37,7 +37,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
-import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 
 import org.jitsi.service.version.Version;
 import org.jitsi.util.*;
@@ -2404,12 +2403,7 @@ public class ProtocolProviderServiceSipImpl
         {
             uriStr = "sip:" + uriStr;
         }
-	
-	if(uriStr.indexOf("+") != -1 && !Boolean.parseBoolean(getAccountID().getAccountProperties().get(ProtocolProviderFactory.PLUS_ENABLED)))
-        {
-                uriStr = uriStr.replace("+","");
-        }
-        uriStr += ";user=phone";
+
         Address toAddress = getAddressFactory().createAddress(uriStr);
 
         return toAddress;

@@ -34,6 +34,7 @@ import org.apache.http.client.entity.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.*;
 import org.apache.http.message.*;
+import org.jitsi.service.resources.*;
 
 import com.google.api.client.auth.oauth2.*;
 import com.google.api.client.http.*;
@@ -196,7 +197,12 @@ public class OAuth2TokenStore
                 + " using URL: " + APPROVAL_URL);
             final OAuthApprovalDialog dialog =
                 new OAuthApprovalDialog(identity);
-            dialog.setVisible(true);
+            // Synchronize on OAuth approval dialog CLASS, to ensure that only
+            // one dialog shows at a time.
+            synchronized (OAuthApprovalDialog.class)
+            {
+                dialog.setVisible(true);
+            }
             switch (dialog.getResponse())
             {
             case CONFIRMED:
@@ -209,7 +215,8 @@ public class OAuth2TokenStore
             case CANCELLED:
             default:
                 // user one time cancellation
-                // let token remain null, as we do not have new information yet
+                // let token remain null, as we do not have new information
+                // yet
                 token = null;
                 break;
             }
@@ -421,40 +428,92 @@ public class OAuth2TokenStore
      *
      * @author Danny van Heumen
      */
-    private static class OAuthApprovalDialog extends SIPCommDialog {
+    private static class OAuthApprovalDialog
+        extends SIPCommDialog
+    {
         private static final long serialVersionUID = 6792589736608633346L;
 
-        private final SIPCommLinkButton label;
+        private final SIPCommLinkButton link;
 
         private final SIPCommTextField code = new SIPCommTextField("");
 
+        // Initialize behavior of code input field.
+        {
+            code.setFont(code.getFont().deriveFont(Font.BOLD, 12));
+            code.setForeground(Color.BLACK);
+        }
+
         private UserResponseType response = UserResponseType.CANCELLED;
 
+        /**
+         * Construct and initialize the OAuth 2 approval dialog.
+         *
+         * @param identity The identity for which approval is requested.
+         */
         public OAuthApprovalDialog(final String identity)
         {
+            super(false);
+
+            final ResourceManagementService resources =
+                GoogleContactsActivator.getResourceManagementService();
+            final String instructionsText =
+                resources.getI18NString("impl.googlecontacts.INSTRUCTIONS");
+
+            // configure dialog
+            this.setTitle(resources
+                .getI18NString("impl.googlecontacts.OAUTH_DIALOG_TITLE"));
+            this.setMinimumSize(new Dimension(20, 20));
+            this.setPreferredSize(new Dimension(650, 220));
+            this.setBounds(10, 10, this.getWidth() - 20, this.getHeight() - 20);
             this.setModal(true);
-            this.label =
-                new SIPCommLinkButton("Approve Jitsi's access to " + identity);
-            this.label.addActionListener(new ActionListener()
+
+            // main panel layout
+            JPanel mainPanel = new TransparentPanel(new BorderLayout());
+            mainPanel.setBorder(
+                BorderFactory.createEmptyBorder(10, 10, 5, 10));
+
+            final JPanel instructionPanel
+                = new TransparentPanel(new BorderLayout());
+            mainPanel.add(instructionPanel, BorderLayout.NORTH);
+
+            final JPanel buttonPanel = new TransparentPanel(new BorderLayout());
+            mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+            // populate instruction dialog
+            final JLabel instructionLabel = new JLabel(instructionsText);
+            instructionPanel.add(instructionLabel,
+                BorderLayout.CENTER);
+            this.link =
+                new SIPCommLinkButton(resources.getI18NString(
+                    "impl.googlecontacts.HYPERLINK_TEXT", new String[]
+                    { identity }));
+            this.link.addActionListener(new ActionListener()
             {
 
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    LOGGER.info("Request user for approval via web page: "
+                    LOGGER.info("Requesting user for approval via web page: "
                         + APPROVAL_URL);
                     GoogleContactsActivator.getBrowserLauncherService()
                         .openURL(APPROVAL_URL);
                 }
             });
-            this.setLayout(new BorderLayout());
-            this.add(this.label, BorderLayout.NORTH);
-            this.add(new JLabel("Code"), BorderLayout.WEST);
-            this.add(this.code, BorderLayout.CENTER);
+            instructionPanel.add(this.link, BorderLayout.SOUTH);
+
+            // input controls on main panel
+            final JLabel codeLabel =
+                new JLabel(resources.getI18NString("impl.googlecontacts.CODE"));
+            codeLabel.setOpaque(false);
+            mainPanel.add(codeLabel, BorderLayout.WEST);
+            mainPanel.add(this.code, BorderLayout.CENTER);
+
             // buttons panel
-            final JPanel buttonPanel = new JPanel(new BorderLayout());
-            final JButton doneButton = new JButton("Done");
-            doneButton.addActionListener(new ActionListener() {
+            final JButton doneButton =
+                new JButton(resources.getI18NString("service.gui.SAVE"));
+            doneButton.setMnemonic('s');
+            doneButton.addActionListener(new ActionListener()
+            {
 
                 @Override
                 public void actionPerformed(ActionEvent e)
@@ -465,7 +524,9 @@ public class OAuth2TokenStore
                 }
             });
             buttonPanel.add(doneButton, BorderLayout.EAST);
-            this.add(buttonPanel, BorderLayout.SOUTH);
+
+            this.add(mainPanel);
+
             this.pack();
         }
 

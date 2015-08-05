@@ -22,7 +22,7 @@ import java.util.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
-import net.java.sip.communicator.util.Base64;
+import net.java.sip.communicator.util.Base64; //disambiguate from java.util.Base64
 
 import org.jitsi.service.configuration.*;
 import org.osgi.framework.*;
@@ -216,12 +216,18 @@ public class AccountManager
             }
             catch (Exception ex)
             {
-
                 /*
                  * Swallow the exception in order to prevent a single account
                  * from halting the loading of subsequent accounts.
                  */
                 logger.error("Failed to load account " + accountProperties, ex);
+            }
+            catch (ExceptionInInitializerError ex)
+            {
+                // In case we fail to instantiate the ProtocolProviderService.
+                logger.error(
+                    "Failed to create account service instance for account "
+                        + accountProperties, ex);
             }
         }
     }

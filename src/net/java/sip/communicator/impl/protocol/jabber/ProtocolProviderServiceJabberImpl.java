@@ -1157,7 +1157,7 @@ public class ProtocolProviderServiceJabberImpl
                         getTrustManager(cvs, serviceName));
 
                 // log SSL/TLS algorithms and protocols
-                if (logger.isDebugEnabled())
+                if (logger.isDebugEnabled() && sslContext != null)
                 {
                     final StringBuilder buff = new StringBuilder();
                     buff.append("Available TLS protocols and algorithms:\n");
