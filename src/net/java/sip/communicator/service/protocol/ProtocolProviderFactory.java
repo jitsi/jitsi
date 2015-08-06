@@ -78,6 +78,17 @@ public abstract class ProtocolProviderFactory
     public static final String USER_ID = "USER_ID";
 
     /**
+     * The name of a configuration property representing the domain.
+     */
+    public static final String DOMAIN = "DOMAIN";
+
+    /**
+     * The name of a configuration property which specifies whether
+     * plus should be enabled/disabled from the config headers.
+     */
+    public static final String PLUS_DISABLED = "PLUS_DISABLED";
+
+    /**
      * The name that should be displayed to others when we are calling or
      * writing them.
      */

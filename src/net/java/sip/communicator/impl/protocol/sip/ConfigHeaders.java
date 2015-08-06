@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import gov.nist.javax.sip.header.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 
 import javax.sip.address.*;
 import javax.sip.header.*;
@@ -94,8 +95,19 @@ public class ConfigHeaders
 
         Request request = (Request)message;
 
+        ToHeader toHeader =
+            (ToHeader) request.getHeader(ToHeader.NAME);
+        String domainName = toHeader.getAddress().getURI().toString();
+        if(domainName.contains(";")) {
+            domainName = domainName.substring(domainName.indexOf("@"), domainName.indexOf(";"));
+        } else {
+            domainName = domainName.substring(domainName.indexOf("@"));
+        }
+
         Map<String, String> props
             = protocolProvider.getAccountID().getAccountProperties();
+
+        props.put("DomainName", domainName);
 
         Map<String,Map<String,String>> headers
             = new HashMap<String, Map<String, String>>();
@@ -156,7 +168,7 @@ public class ConfigHeaders
                 String name = headerValues.get(ACC_PROPERTY_CONFIG_HEADER_NAME);
                 String value = processParams(
                     headerValues.get(ACC_PROPERTY_CONFIG_HEADER_VALUE),
-                    request);
+                    request, props);
 
                 Header h = request.getHeader(name);
 
@@ -187,7 +199,8 @@ public class ConfigHeaders
      * @param request the request we are processing
      * @return the value with replaced params
      */
-    private static String processParams(String value, Request request)
+    private static String processParams(String value, Request request, 
+        Map<String, String> props)
     {
         if(value.indexOf("${from.address}") != -1)
         {
@@ -199,6 +212,26 @@ public class ConfigHeaders
                 value = value.replace(
                     "${from.address}",
                     fromHeader.getAddress().getURI().toString());
+            }
+        }
+
+        if(value.indexOf("${from.domain}") != -1)
+        {
+            FromHeader fromHeader
+                = (FromHeader)request.getHeader(FromHeader.NAME);
+
+            if(fromHeader != null)
+            {
+                value = value.replace(
+                    "${from.domain}",
+                    fromHeader.getAddress().getURI().toString());
+            }
+
+            if (value.contains(props.get(ProtocolProviderFactory.DOMAIN)))
+            {
+                value = value.replace(props.get(ProtocolProviderFactory.DOMAIN),
+                    props.get(ProtocolProviderFactory.ACCOUNT_UID).substring(
+                    props.get(ProtocolProviderFactory.ACCOUNT_UID).indexOf("@")));
             }
         }
 
@@ -264,6 +297,35 @@ public class ConfigHeaders
 
                 value = value.replace("${to.userID}", toAddr);
             }
+        }
+
+        if (value.indexOf("${domain}") != -1)
+        {
+            value = value.replace("${domain}", props.get(ProtocolProviderFactory.DOMAIN));
+        }
+
+        if (value.indexOf("${tag}") != -1)
+        {
+            FromHeader fromHeader
+                = (FromHeader)request.getHeader(FromHeader.NAME);
+            value = value.replace("${tag}",fromHeader.getTag());
+        }
+
+        if (value.indexOf("${user.domain}") != -1)
+        {
+            ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME);
+            URI toURI = toHeader.getAddress().getURI();
+            String toAddr = toURI.toString();
+            int endIndex = toAddr.indexOf("@") > toAddr.lastIndexOf(":") ? toAddr.indexOf(";") : toAddr.lastIndexOf(":");
+            String userDomain = toAddr.substring(toAddr.indexOf("@") + 1, endIndex);
+            value = value.replace("${user.domain}",userDomain);
+        }
+
+        // Needed of IMS
+        if(value.indexOf("+") != -1 && !Boolean.parseBoolean(props.get(ProtocolProviderFactory.PLUS_DISABLED)))
+        {
+            logger.info("Replacing + character !!");
+            value = value.replace("+","");
         }
 
         return value;
