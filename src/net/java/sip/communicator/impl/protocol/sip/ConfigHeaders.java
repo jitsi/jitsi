@@ -322,7 +322,7 @@ public class ConfigHeaders
         }
 
         // Needed of IMS
-        if(value.indexOf("+") != -1 && !Boolean.parseBoolean(props.get(ProtocolProviderFactory.PLUS_DISABLED)))
+        if(value.indexOf("+") != -1 && Boolean.parseBoolean(props.get(ProtocolProviderFactory.PLUS_DISABLED)))
         {
             logger.info("Replacing + character !!");
             value = value.replace("+","");
