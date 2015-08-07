@@ -24,7 +24,9 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
 import org.jitsi.util.*;
 import org.jitsi.service.neomedia.*;
+
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.packet.IQ;
 
 /**
  * Implements the Jitsi Videobridge <tt>conference</tt> IQ within the
@@ -96,10 +98,6 @@ public class ColibriConferenceIQ
      */
     private String roomName;
     
-    
-    
-    
-
     /**
      * Media recording.
      */
@@ -205,8 +203,7 @@ public class ColibriConferenceIQ
     {
         endpoints.add(endpoint);
     }
-    
-   
+
     /**
      * Returns a list of the <tt>ChannelBundle</tt>s included into this
      * <tt>conference</tt> IQ.
@@ -345,8 +342,6 @@ public class ColibriConferenceIQ
     {
         return id;
     }
-    
-    
 
     /**
      * Returns a <tt>Content</tt> from the list of <tt>Content</tt>s of this
@@ -2196,38 +2191,6 @@ public class ColibriConferenceIQ
         }
     }
 
-    
-    
-    
-   
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     /**
      * Represents a <tt>recording</tt> element.
      */
@@ -2255,16 +2218,26 @@ public class ColibriConferenceIQ
 
         private String directory;
 
-        private boolean state;
+        private State state;
 
         private String token;
 
-        public Recording(boolean state)
+        public Recording(String state)
+        {
+            this.state = State.parseString(state);
+        }
+
+        public Recording(State state)
         {
             this.state = state;
         }
 
-        public Recording(boolean state, String token)
+        public Recording(String state, String token)
+        {
+            this(State.parseString(state), token);
+        }
+
+        public Recording(State state, String token)
         {
             this(state);
 
@@ -2276,7 +2249,7 @@ public class ColibriConferenceIQ
             return directory;
         }
 
-        public boolean getState()
+        public State getState()
         {
             return state;
         }
@@ -2312,6 +2285,63 @@ public class ColibriConferenceIQ
                         .append(directory).append('\'');
             }
             xml.append("/>");
+        }
+
+        /**
+         * The recording state.
+         */
+        public enum State
+        {
+            /**
+             * Recording is started.
+             */
+            ON("on"),
+            /**
+             * Recording is stopped.
+             */
+            OFF("off"),
+            /**
+             * Recording is pending. Record has been requested but no conference
+             * has been established and it will be started once this is done.
+             */
+            PENDING("pending");
+
+            /**
+             * The name.
+             */
+            private String name;
+
+            /**
+             * Constructs new state.
+             * @param name
+             */
+            private State(String name)
+            {
+                this.name = name;
+            }
+
+            /**
+             * Returns state name.
+             * @return returns state name.
+             */
+            public String toString()
+            {
+                return name;
+            }
+
+            /**
+             * Parses state.
+             * @param s state name.
+             * @return the state found.
+             */
+            public static State parseString(String s)
+            {
+                if (ON.toString().equalsIgnoreCase(s))
+                    return ON;
+                else if (PENDING.toString().equalsIgnoreCase(s))
+                    return PENDING;
+                return OFF;
+            }
         }
     }
 

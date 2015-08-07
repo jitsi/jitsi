@@ -587,8 +587,6 @@ public class ColibriIQProvider
                                 = parser.getAttributeValue(
                                 "",
                                 ColibriConferenceIQ.Recording.STATE_ATTR_NAME);
-                        boolean state = Boolean.parseBoolean(stateStr);
-
                         String token
                                 = parser.getAttributeValue(
                                 "",
@@ -596,7 +594,7 @@ public class ColibriIQProvider
 
                         recording
                                 = new ColibriConferenceIQ.Recording(
-                                state,
+                                stateStr,
                                 token);
                     }
                     else if (ColibriConferenceIQ.SctpConnection.ELEMENT_NAME
