@@ -225,7 +225,7 @@ public class JabberServerChooserDialog
         try
         {
             localServersListFile = faService.getTemporaryFile();
-            URL file = new URL("http://xmpp.net/services.xml");
+            URL file = new URL("https://xmpp.net/services.php");
             InputStream stream = file.openStream();
 
             try
