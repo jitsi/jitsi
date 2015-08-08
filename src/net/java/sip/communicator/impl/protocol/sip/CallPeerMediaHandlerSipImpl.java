@@ -1325,7 +1325,7 @@ public class CallPeerMediaHandlerSipImpl
                     String proto = protos[pi];
                     int ri = result.indexOf(proto);
 
-                    if (ri > 0)
+                    if (ri >= 0)
                         result.remove(ri);
                     result.add(0, proto);
                 }
