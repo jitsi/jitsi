@@ -196,7 +196,8 @@ public abstract class AccountID
 
     /**
      * Returns a name that can be displayed to the user when referring to this
-     * account.
+     * account. WARNING: This property actually refers to
+     * <code>ACCOUNT_DISPLAY_NAME</code>!
      *
      * @return A String identifying the user inside this particular service.
      */
@@ -492,29 +493,6 @@ public abstract class AccountID
     public String getServerAddress()
     {
         return getAccountPropertyString(ProtocolProviderFactory.SERVER_ADDRESS);
-    }
-
-    /**
-     * Get the {@link ProtocolProviderFactory#ACCOUNT_DISPLAY_NAME} property.
-     *
-     * @return the {@link ProtocolProviderFactory#ACCOUNT_DISPLAY_NAME}
-     *         property value.
-     */
-    public String getAccountDisplayName()
-    {
-        return getAccountPropertyString(
-                ProtocolProviderFactory.ACCOUNT_DISPLAY_NAME);
-    }
-
-    /**
-     * Sets {@link ProtocolProviderFactory#ACCOUNT_DISPLAY_NAME} property value.
-     *
-     * @param displayName the account display name value to set.
-     */
-    public void setAccountDisplayName(String displayName)
-    {
-        setOrRemoveIfEmpty(ProtocolProviderFactory.ACCOUNT_DISPLAY_NAME,
-                displayName);
     }
 
     /**

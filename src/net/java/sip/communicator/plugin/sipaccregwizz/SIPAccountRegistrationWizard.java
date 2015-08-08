@@ -167,7 +167,8 @@ public class SIPAccountRegistrationWizard
         boolean rememberPswd = registration.isRememberPassword();
         String rememberPswdString = Resources.getString(
                 rememberPswd ? "service.gui.YES" : "service.gui.NO");
-        String displayName = registration.getAccountDisplayName();
+        String displayName = registration.getAccountPropertyString(
+            ProtocolProviderFactory.DISPLAY_NAME);
         if(displayName != null && displayName.length() > 0)
             summaryTable.put(
                         Resources.getString("plugin.sipaccregwizz.DISPLAY_NAME"),
