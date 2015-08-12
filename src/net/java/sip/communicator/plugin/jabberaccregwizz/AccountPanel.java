@@ -439,15 +439,15 @@ public class AccountPanel
 
                 mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
                 mainPanel.add(userIDPassPanel);
-                mainPanel.add(Box.createVerticalStrut(10));
-
-                if (registerPanel.getComponentCount() > 0)
-                {
-                    registerPanel.setBorder(
-                        BorderFactory.createTitledBorder(""));
-
-                    mainPanel.add(registerPanel);
-                }
+//                mainPanel.add(Box.createVerticalStrut(10));
+//
+//                if (registerPanel.getComponentCount() > 0)
+//                {
+//                    registerPanel.setBorder(
+//                        BorderFactory.createTitledBorder(""));
+//
+//                    mainPanel.add(registerPanel);
+//                }
             }
         }
         else
