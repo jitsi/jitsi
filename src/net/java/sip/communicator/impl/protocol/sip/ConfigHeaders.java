@@ -251,6 +251,14 @@ public class ConfigHeaders
                     fromAddr
                         = fromAddr.replaceFirst(fromURI.getScheme() + ":", "");
                 }
+                
+                if (props.containsKey(ProtocolProviderFactory.DOMAIN))
+                {
+                    fromAddr = fromAddr
+                        .contains(props.get(ProtocolProviderFactory.DOMAIN))
+                            ? fromAddr.replace(props.get(ProtocolProviderFactory.DOMAIN), "")
+                            : fromAddr;
+                }
 
                 // take the userID part
                 int index = fromAddr.indexOf('@');
