@@ -249,6 +249,12 @@ public class ColibriIQProvider
             if ((conferenceID != null) && (conferenceID.length() != 0))
                 conference.setID(conferenceID);
 
+            String conferenceName = parser
+                .getAttributeValue("", ColibriConferenceIQ.NAME_ATTR_NAME);
+
+            if ((conferenceName != null) && (conferenceName.length() != 0))
+                conference.setName(conferenceName);
+
             boolean done = false;
             ColibriConferenceIQ.Channel channel = null;
             ColibriConferenceIQ.RTCPTerminationStrategy rtcpTerminationStrategy

@@ -146,6 +146,7 @@ public class ColibriBuilder
         // that new conference will be allocated
         request = new ColibriConferenceIQ();
         request.setID(conferenceState.getID());
+        request.setName(conferenceState.getName());
     }
 
     /**

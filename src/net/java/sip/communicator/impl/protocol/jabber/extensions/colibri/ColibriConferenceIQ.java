@@ -52,6 +52,13 @@ public class ColibriConferenceIQ
     public static final String ID_ATTR_NAME = "id";
 
     /**
+     * The XML name of the <tt>name</tt> attribute of the Jitsi Videobridge
+     * <tt>conference</tt> IQ which represents the value of the <tt>name</tt>
+     * property of <tt>ColibriConferenceIQ</tt> if available.
+     */
+    public static final String NAME_ATTR_NAME = "name";
+
+    /**
      * The XML COnferencing with LIghtweight BRIdging namespace of the Jitsi
      * Videobridge <tt>conference</tt> IQ.
      */
@@ -105,6 +112,11 @@ public class ColibriConferenceIQ
      * carried by this IQ.
      */
     private boolean gracefulShutdown;
+
+    /**
+     * World readable name for the conference.
+     */
+    private String name;
 
     /**
      * Returns an error response for given <tt>IQ</tt> that is returned by
@@ -250,6 +262,10 @@ public class ColibriConferenceIQ
 
         if (id != null)
             xml.append(' ').append(ID_ATTR_NAME).append("='").append(id)
+                    .append('\'');
+
+        if (name != null)
+            xml.append(' ').append(NAME_ATTR_NAME).append("='").append(name)
                     .append('\'');
 
         List<Content> contents = getContents();
@@ -434,6 +450,24 @@ public class ColibriConferenceIQ
     public boolean isGracefulShutdown()
     {
         return gracefulShutdown;
+    }
+
+    /**
+     * The world readable name of the conference.
+     * @return name of the conference.
+     */
+    public String getName()
+    {
+        return name;
+    }
+
+    /**
+     * Sets name.
+     * @param name the name to set.
+     */
+    public void setName(String name)
+    {
+        this.name = name;
     }
 
     /**
@@ -2174,27 +2208,53 @@ public class ColibriConferenceIQ
          */
         public static final String TOKEN_ATTR_NAME = "token";
 
+        /**
+         * The target directory.
+         */
         private String directory;
 
+        /**
+         * State of the recording..
+         */
         private State state;
 
+        /**
+         * Access token.
+         */
         private String token;
 
+        /**
+         * Construct new recording element.
+         * @param state the state as string
+         */
         public Recording(String state)
         {
             this.state = State.parseString(state);
         }
 
+        /**
+         * Construct new recording element.
+         * @param state
+         */
         public Recording(State state)
         {
             this.state = state;
         }
 
+        /**
+         * Construct new recording element.
+         * @param state the state as string
+         * @param token the token to authenticate
+         */
         public Recording(String state, String token)
         {
             this(State.parseString(state), token);
         }
-
+        /**
+         * Construct new recording element.
+         * @param state the state
+         * @param token the token to authenticate
+         */
         public Recording(State state, String token)
         {
             this(state);
