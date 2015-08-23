@@ -21,7 +21,6 @@ import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
-import org.jitsi.service.protocol.*;
 
 /**
  * A wrapper of media quality control.
@@ -51,18 +50,17 @@ public class QualityControlWrapper
      * with those settings.
      *
      * @param preset the desired video settings
-     * @throws OperationFailedException
+     * @throws MediaException when the re-invite fails
      */
     @Override
     public void setPreferredRemoteSendMaxPreset(QualityPreset preset)
-        throws OperationFailedException
+        throws MediaException
     {
         QualityControl qControls = getMediaQualityControl();
 
         if(qControls != null)
         {
             qControls.setRemoteSendMaxPreset(preset);
-
             try
             {
                 // re-invites the peer with the new settings
@@ -75,9 +73,9 @@ public class QualityControlWrapper
 
                 logger.error(message, cause);
 
-                throw new OperationFailedException(
+                throw new MediaException(
                         message,
-                        OperationFailedException.INTERNAL_ERROR,
+                        MediaException.GENERAL_ERROR,
                         cause);
             }
         }

@@ -32,7 +32,6 @@ import org.jitsi.service.neomedia.control.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.event.*;
 import org.jitsi.service.neomedia.format.*;
-import org.jitsi.service.protocol.*;
 import org.jitsi.util.event.*;
 
 /**
