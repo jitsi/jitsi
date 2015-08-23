@@ -28,8 +28,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.skin.*;
 
-import org.jitsi.service.protocol.event.*;
-
 /**
  * Depicts a specific <tt>CallPeer</tt> who is a focus of a telephony conference
  * and the <tt>ConferenceMember</tt>s whom the specified <tt>CallPeer</tt> is

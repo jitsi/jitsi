@@ -40,7 +40,6 @@ import net.java.sip.communicator.util.call.CallPeerAdapter;
 import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.service.neomedia.*;
-import org.jitsi.service.protocol.event.*;
 import org.jitsi.util.swing.*;
 
 /**

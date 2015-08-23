@@ -36,7 +36,6 @@ import net.java.sip.communicator.util.skin.*;
 import net.java.sip.communicator.util.call.CallPeerAdapter;
 
 import org.jitsi.service.neomedia.*;
-import org.jitsi.service.protocol.event.*;
 import org.jitsi.service.resources.*;
 
 /**

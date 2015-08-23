@@ -30,7 +30,6 @@ import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.service.neomedia.*;
-import org.jitsi.service.protocol.event.*;
 
 /**
  * The basic panel used to render any conference participant. Meant to be
