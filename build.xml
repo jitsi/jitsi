@@ -2155,7 +2155,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!--BUNDLE-COMMONS-CODEC -->
     <target name="bundle-commons-codec">
-        <copy file="${lib.noinst}/commons-codec-1.4.jar"
+        <copy file="${lib.noinst}/commons-codec-1.6.jar"
             tofile="${bundles.dest}/commons-codec.jar"/>
     </target>
 
