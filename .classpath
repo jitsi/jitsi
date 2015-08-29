@@ -20,7 +20,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/installer-exclude/easymock-3.1.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/fmj.jar" sourcepath="/fmj"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/fmj-1.0-SNAPSHOT.jar" sourcepath="/fmj"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/forms-1.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/gdata-client-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/gdata-client-meta-1.0.jar"/>
@@ -58,7 +58,7 @@
 			<attribute name="javadoc_location" value="http://dbus.freedesktop.org/doc/dbus-java/api/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi.jar" sourcepath="/libjitsi/src"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi-1.0-SNAPSHOT.jar" sourcepath="/libjitsi/src"/>
 	<classpathentry kind="lib" path="lib/bundle/log4j.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/mac_widgets-0.9.5.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/objenesis-1.2.jar"/>
