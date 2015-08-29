@@ -497,7 +497,7 @@
 
             <classpath>
                 <pathelement path="${dest}"/>
-                <pathelement location="${lib.noinst}/libjitsi.jar"/>
+                <pathelement location="${lib.noinst}/libjitsi-1.0-SNAPSHOT.jar"/>
             </classpath>
         </taskdef>
 
@@ -1309,28 +1309,11 @@
     </target>
 
     <!--BUNDLE-LIBJITSI -->
-    <target name="bundle-libjitsi"
-            depends="bundle-libjitsi-dynamically,bundle-libjitsi-statically" />
-    <target name="bundle-libjitsi-dynamically" if="dynamic.linking">
-        <jar compress="false" destfile="${bundles.dest}/libjitsi.jar"
-                manifest="${src}/net/java/sip/communicator/impl/libjitsi/libjitsi.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/libjitsi"
-                    prefix="net/java/sip/communicator/impl/libjitsi" />
-            <zipfileset src="${lib.noinst}/libjitsi.jar" prefix="" />
-        </jar>
-    </target>
-    <target name="bundle-libjitsi-statically" unless="dynamic.linking">
-        <jar compress="false" destfile="${bundles.dest}/libjitsi.jar"
-                manifest="${src}/net/java/sip/communicator/impl/libjitsi/libjitsi.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/libjitsi"
-                    prefix="net/java/sip/communicator/impl/libjitsi" />
-            <zipfileset src="${lib.noinst}/bcpkix-jdk15on-151.jar" prefix=""
-                    excludes="META-INF/BCKEY.*" />
-            <zipfileset src="${lib.noinst}/fmj.jar" prefix="" />
-            <zipfileset src="${lib.noinst}/jitsi-lgpl-dependencies.jar"
-                    prefix="" />
-            <zipfileset src="${lib.noinst}/libjitsi.jar" prefix="" />
-        </jar>
+    <target name="bundle-libjitsi">
+        <copy file="${lib.noinst}/libjitsi-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/libjitsi.jar"/>
+        <copy file="${lib.noinst}/fmj-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/fmj.jar"/>
+        <copy file="${lib.noinst}/jitsi-lgpl-dependencies-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/jitsi-lgpl-dependencies.jar"/>
+        <copy file="${lib.noinst}/bcpkix-jdk15on-151.jar" tofile="${bundles.dest}/bcpkix.jar"/>
     </target>
 
     <!--BUNDLE-NEOMEDIA-->
@@ -2155,7 +2138,7 @@ javax.swing.event, javax.swing.border"/>
 
     <!--BUNDLE-COMMONS-CODEC -->
     <target name="bundle-commons-codec">
-        <copy file="${lib.noinst}/commons-codec-1.4.jar"
+        <copy file="${lib.noinst}/commons-codec-1.6.jar"
             tofile="${bundles.dest}/commons-codec.jar"/>
     </target>
 
@@ -2513,14 +2496,7 @@ org.bouncycastle.util"/>
 
     <!--BUNDLE-SDES4J -->
     <target name="bundle-sdes4j">
-        <jar compress="true" destfile="${bundles.dest}/sdes4j.jar"
-            filesetmanifest="merge">
-
-            <zipfileset src="${lib.noinst}/sdes4j.jar" prefix=""/>
-            <manifest>
-                <attribute name="System-Bundle" value="yes"/>
-            </manifest>
-        </jar>
+    	<copy file="${lib.noinst}/sdes4j-1.1.3.jar" tofile="${bundles.dest}/sdes4j.jar"/>
     </target>
 
     <!--BUNDLE-JSON -->

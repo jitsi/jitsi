@@ -30,7 +30,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
-import org.jitsi.service.protocol.*;
+import org.jitsi.service.neomedia.*;
 
 /**
  * Handles DTMF sending and playing sound notifications for that.

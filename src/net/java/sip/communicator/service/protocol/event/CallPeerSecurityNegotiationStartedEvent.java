@@ -20,7 +20,6 @@ package net.java.sip.communicator.service.protocol.event;
 import net.java.sip.communicator.service.protocol.*;
 
 import org.jitsi.service.neomedia.*;
-import org.jitsi.service.protocol.event.*;
 
 /**
  * The <tt>CallPeerSecurityNegotiationStartedEvent</tt> is triggered whenever a

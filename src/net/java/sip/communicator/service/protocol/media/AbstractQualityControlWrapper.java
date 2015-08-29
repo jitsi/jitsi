@@ -18,7 +18,6 @@
 package net.java.sip.communicator.service.protocol.media;
 
 import org.jitsi.service.neomedia.*;
-import org.jitsi.service.protocol.*;
 
 /**
  * A wrapper of media quality control.
@@ -153,8 +152,8 @@ public abstract class AbstractQualityControlWrapper<
      * with those settings.
      *
      * @param preset the desired video settings
-     * @throws OperationFailedException
+     * @throws MediaException
      */
     public abstract void setPreferredRemoteSendMaxPreset(QualityPreset preset)
-        throws OperationFailedException;
+        throws MediaException;
 }

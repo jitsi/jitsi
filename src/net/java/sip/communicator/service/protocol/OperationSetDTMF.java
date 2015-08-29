@@ -17,7 +17,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
-import org.jitsi.service.protocol.*;
+import org.jitsi.service.neomedia.*;
 
 /**
  * An <tt>OperationSet</tt> that allows other modules to send DMF tones through

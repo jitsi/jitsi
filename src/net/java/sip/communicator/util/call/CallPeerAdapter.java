@@ -23,8 +23,6 @@ import net.java.sip.communicator.service.gui.call.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
-import org.jitsi.service.protocol.event.*;
-
 /**
  * <tt>CallPeerAdapter</tt> implements common <tt>CallPeer</tt> related
  * listeners in order to facilitate the task of implementing

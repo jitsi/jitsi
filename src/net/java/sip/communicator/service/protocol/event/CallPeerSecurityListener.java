@@ -19,8 +19,6 @@ package net.java.sip.communicator.service.protocol.event;
 
 import java.util.*;
 
-import org.jitsi.service.protocol.event.*;
-
 /**
  * CallPeerSecurityListener interface extends EventListener. This is the
  * listener interface used to handle an event related with a change in security
