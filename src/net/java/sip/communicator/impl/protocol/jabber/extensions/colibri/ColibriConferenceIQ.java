@@ -1069,6 +1069,18 @@ public class ColibriConferenceIQ
                         .append(lastN).append('\'');
             }
 
+            if (adaptiveLastN != null)
+            {
+                xml.append(' ').append(ADAPTIVE_LAST_N_ATTR_NAME).append("='")
+                        .append(adaptiveLastN).append('\'');
+            }
+
+            if (adaptiveSimulcast != null)
+            {
+                xml.append(' ').append(adaptiveSimulcast).append("='")
+                        .append(adaptiveSimulcast).append('\'');
+            }
+
             // simulcastMode
             SimulcastMode simulcastMode = getSimulcastMode();
 
