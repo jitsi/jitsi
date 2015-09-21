@@ -2112,7 +2112,7 @@ public class CallManager
                         qualityControl.setPreferredRemoteSendMaxPreset(
                                 qualityPreset);
                     }
-                    catch(org.jitsi.service.protocol.OperationFailedException e)
+                    catch(Exception e)
                     {
                         logger.info("Unable to change video quality.", e);
 

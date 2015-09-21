@@ -146,6 +146,7 @@ public class ColibriBuilder
         // that new conference will be allocated
         request = new ColibriConferenceIQ();
         request.setID(conferenceState.getID());
+        request.setName(conferenceState.getName());
     }
 
     /**
@@ -162,9 +163,9 @@ public class ColibriBuilder
      *
      * @return this instance fo calls chaining purpose.
      */
-     public ColibriBuilder addAllocateChannelsReq(
+    public ColibriBuilder addAllocateChannelsReq(
             boolean useBundle,
-            String endpointName,String roomName, 
+            String endpointName,
             boolean peerIsInitiator,
             List<ContentPacketExtension> contents)
     {
@@ -186,7 +187,6 @@ public class ColibriBuilder
 
             remoteChannelRequest.setEndpoint(endpointName);
             remoteChannelRequest.setInitiator(peerIsInitiator);
-            remoteChannelRequest.setRoomName(roomName);
 
             if (useBundle)
             {

@@ -33,7 +33,7 @@ import net.java.sip.communicator.service.protocol.OperationFailedException;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
-import org.jitsi.service.protocol.*;
+import org.jitsi.service.neomedia.*;
 
 /**
  * Sending DTMFs with SIP INFO.

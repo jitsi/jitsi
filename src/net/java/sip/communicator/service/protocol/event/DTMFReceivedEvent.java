@@ -19,7 +19,7 @@ package net.java.sip.communicator.service.protocol.event;
 
 import java.util.*;
 
-import org.jitsi.service.protocol.*;
+import org.jitsi.service.neomedia.*;
 
 /**
  * <tt>DTMFReceivedEvent</tt>s indicate reception of a DTMF tone.

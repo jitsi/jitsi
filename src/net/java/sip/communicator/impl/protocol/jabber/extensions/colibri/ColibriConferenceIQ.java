@@ -52,6 +52,13 @@ public class ColibriConferenceIQ
     public static final String ID_ATTR_NAME = "id";
 
     /**
+     * The XML name of the <tt>name</tt> attribute of the Jitsi Videobridge
+     * <tt>conference</tt> IQ which represents the value of the <tt>name</tt>
+     * property of <tt>ColibriConferenceIQ</tt> if available.
+     */
+    public static final String NAME_ATTR_NAME = "name";
+
+    /**
      * The XML COnferencing with LIghtweight BRIdging namespace of the Jitsi
      * Videobridge <tt>conference</tt> IQ.
      */
@@ -92,12 +99,7 @@ public class ColibriConferenceIQ
      * The ID of the conference represented by this IQ.
      */
     private String id;
-    
-    /**
-     * The room name of the conference represented by this IQ.
-     */
-    private String roomName;
-    
+
     /**
      * Media recording.
      */
@@ -110,6 +112,11 @@ public class ColibriConferenceIQ
      * carried by this IQ.
      */
     private boolean gracefulShutdown;
+
+    /**
+     * World readable name for the conference.
+     */
+    private String name;
 
     /**
      * Returns an error response for given <tt>IQ</tt> that is returned by
@@ -255,6 +262,10 @@ public class ColibriConferenceIQ
 
         if (id != null)
             xml.append(' ').append(ID_ATTR_NAME).append("='").append(id)
+                    .append('\'');
+
+        if (name != null)
+            xml.append(' ').append(NAME_ATTR_NAME).append("='").append(name)
                     .append('\'');
 
         List<Content> contents = getContents();
@@ -439,6 +450,24 @@ public class ColibriConferenceIQ
     public boolean isGracefulShutdown()
     {
         return gracefulShutdown;
+    }
+
+    /**
+     * The world readable name of the conference.
+     * @return name of the conference.
+     */
+    public String getName()
+    {
+        return name;
+    }
+
+    /**
+     * Sets name.
+     * @param name the name to set.
+     */
+    public void setName(String name)
+    {
+        this.name = name;
     }
 
     /**
@@ -1040,6 +1069,18 @@ public class ColibriConferenceIQ
                         .append(lastN).append('\'');
             }
 
+            if (adaptiveLastN != null)
+            {
+                xml.append(' ').append(ADAPTIVE_LAST_N_ATTR_NAME).append("='")
+                        .append(adaptiveLastN).append('\'');
+            }
+
+            if (adaptiveSimulcast != null)
+            {
+                xml.append(' ').append(adaptiveSimulcast).append("='")
+                        .append(adaptiveSimulcast).append('\'');
+            }
+
             // simulcastMode
             SimulcastMode simulcastMode = getSimulcastMode();
 
@@ -1488,18 +1529,6 @@ public class ColibriConferenceIQ
          * point of view of Jitsi Videobridge.
          */
         public static final String ENDPOINT_ATTR_NAME = "endpoint";
-        
-        
-        /**
-         * The XML name of the <tt>roomname</tt> attribute which specifies the
-         * room name of the conference associated with a <tt>channel</tt>. The value of the
-         * <tt>roomname</tt> attribute is an opaque <tt>String</tt> from the
-         * point of view of Jitsi Videobridge.
-         */
-        public static final String ROOMNAME_ATTR_NAME = "roomname";
-        
-        
-        
 
         /**
          * The XML name of the <tt>expire</tt> attribute of a <tt>channel</tt>
@@ -1547,22 +1576,6 @@ public class ColibriConferenceIQ
          * associated with this <tt>Channel</tt>.
          */
         private String endpoint;
-        
-        /**
-         * The room name associated with this <tt>Channel</tt>.
-         */
-        private  String roomName;
-        
-
-        public String getRoomName()
-        {
-            return roomName;
-        }
-
-        public void setRoomName(String roomName)
-        {
-            this.roomName = roomName;
-        }
 
         /**
          * The number of seconds of inactivity after which the <tt>channel</tt>
@@ -1778,15 +1791,6 @@ public class ColibriConferenceIQ
             {
                 xml.append(' ').append(ENDPOINT_ATTR_NAME).append("='")
                     .append(endpoint).append('\'');
-            }
-            
-            // roomname
-            String roomName = getRoomName();
-
-            if (roomName != null)
-            {
-                xml.append(' ').append(ROOMNAME_ATTR_NAME).append("='")
-                    .append(roomName).append('\'');
             }
 
             // expire
@@ -2216,27 +2220,53 @@ public class ColibriConferenceIQ
          */
         public static final String TOKEN_ATTR_NAME = "token";
 
+        /**
+         * The target directory.
+         */
         private String directory;
 
+        /**
+         * State of the recording..
+         */
         private State state;
 
+        /**
+         * Access token.
+         */
         private String token;
 
+        /**
+         * Construct new recording element.
+         * @param state the state as string
+         */
         public Recording(String state)
         {
             this.state = State.parseString(state);
         }
 
+        /**
+         * Construct new recording element.
+         * @param state
+         */
         public Recording(State state)
         {
             this.state = state;
         }
 
+        /**
+         * Construct new recording element.
+         * @param state the state as string
+         * @param token the token to authenticate
+         */
         public Recording(String state, String token)
         {
             this(State.parseString(state), token);
         }
-
+        /**
+         * Construct new recording element.
+         * @param state the state
+         * @param token the token to authenticate
+         */
         public Recording(State state, String token)
         {
             this(state);

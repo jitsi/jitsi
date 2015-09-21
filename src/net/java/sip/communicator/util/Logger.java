@@ -19,28 +19,13 @@ package net.java.sip.communicator.util;
 
 import java.util.logging.*;
 
-
-
-
-
 /**
  * Standard logging methods.
  *
  * @author Emil Ivov
  */
-public class Logger 
+public class Logger
 {
-   
-   
-   
-    
-    
-    
-    
-    
-    
-    
-    
     /**
      * The java.util.Logger that would actually be doing the logging.
      */

@@ -535,7 +535,7 @@ public class JabberAccountRegistrationForm
      */
     public JabberAccountCreationFormService getCreateAccountService()
     {
-         return wizard.getCreateAccountService();
+         return null; //wizard.getCreateAccountService();
     }
 
     /**
