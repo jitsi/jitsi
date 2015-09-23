@@ -129,8 +129,7 @@ public class ConnectionPanel
             }
         });
 
-        proxyForceBypassCheckBox =
-            new SIPCommCheckBox(
+        proxyForceBypassCheckBox = new SIPCommCheckBox(
                 Resources.getString("plugin.sipaccregwizz.PROXY_FORCE_BYPASS"),
                 regform.getRegistration().isProxyForceBypassConfigure());
         enablesProxyForceBypassConfigure(proxyForceBypassCheckBox.isSelected());
@@ -861,7 +860,7 @@ public class ConnectionPanel
      */
     boolean isProxyForceBypassConfigureEnabled()
     {
-        return proxyAutoCheckBox.isSelected();
+        return proxyForceBypassCheckBox.isSelected();
     }
 
     /**

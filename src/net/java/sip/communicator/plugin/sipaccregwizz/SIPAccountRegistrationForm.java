@@ -433,6 +433,7 @@ public class SIPAccountRegistrationForm
         connectionPanel.setCertificateId(clientTlsCertificateId);
 
         connectionPanel.enablesProxyAutoConfigure(proxyAutoConfigureEnabled);
+        connectionPanel.enablesProxyForceBypassConfigure(proxyForceBypassConfigureEnabled);
         connectionPanel.setServerPort(serverPort);
         connectionPanel.setProxy(proxyAddress);
 
