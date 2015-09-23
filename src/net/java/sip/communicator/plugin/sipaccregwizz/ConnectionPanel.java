@@ -1,19 +1,19 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
- * 
+ *
  * Copyright @ 2015 Atlassian Pty Ltd
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package net.java.sip.communicator.plugin.sipaccregwizz;
 
@@ -25,9 +25,9 @@ import javax.swing.event.*;
 
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.sip.*;
-
 import org.jitsi.util.*;
 
 /**
@@ -38,7 +38,9 @@ import org.jitsi.util.*;
  */
 public class ConnectionPanel
     extends TransparentPanel
-    implements ItemListener, DocumentListener, ValidatingPanel
+    implements ItemListener,
+               DocumentListener,
+               ValidatingPanel
 {
     /**
      * Serial version UID.
@@ -65,22 +67,29 @@ public class ConnectionPanel
 
     private final JComboBox certificate = new JComboBox();
 
-    private JComboBox transportCombo = new JComboBox(new String[]
-    { "UDP", "TCP", "TLS" });
+    private JComboBox transportCombo
+        = new JComboBox(new String[] { "UDP", "TCP", "TLS" });
 
-    private JComboBox keepAliveMethodBox = new JComboBox(new String[]
-    { "NONE", "REGISTER", "OPTIONS", "CRLF" });
+    private JComboBox keepAliveMethodBox
+        = new JComboBox(new String[] { "NONE", "REGISTER", "OPTIONS", "CRLF" });
 
-    private JTextField keepAliveIntervalValue =
-        new JTextField(
-            SipAccountID
-                .getDefaultStr(ProtocolProviderFactory.KEEP_ALIVE_INTERVAL));
+    private JTextField keepAliveIntervalValue
+            = new JTextField(SipAccountID.getDefaultStr(
+                    ProtocolProviderFactory.KEEP_ALIVE_INTERVAL));
 
-    private JComboBox dtmfMethodBox = new JComboBox(new String[]
-    { Resources.getString("plugin.sipaccregwizz.DTMF_AUTO"),
-        Resources.getString("plugin.sipaccregwizz.DTMF_RTP"),
-        Resources.getString("plugin.sipaccregwizz.DTMF_SIP_INFO"),
-        Resources.getString("plugin.sipaccregwizz.DTMF_INBAND") });
+    private JComboBox dtmfMethodBox
+        = new JComboBox(
+                new String[]
+                        {
+                            Resources.getString(
+                                    "plugin.sipaccregwizz.DTMF_AUTO"),
+                            Resources.getString(
+                                    "plugin.sipaccregwizz.DTMF_RTP"),
+                            Resources.getString(
+                                    "plugin.sipaccregwizz.DTMF_SIP_INFO"),
+                            Resources.getString(
+                                    "plugin.sipaccregwizz.DTMF_INBAND")
+                        });
 
     /**
      * The text field used to change the DTMF minimal tone duration.
@@ -95,7 +104,6 @@ public class ConnectionPanel
 
     /**
      * Creates an instance of the <tt>ConnectionPanel</tt>.
-     * 
      * @param regform the parent registration form
      */
     public ConnectionPanel(SIPAccountRegistrationForm regform)
@@ -105,10 +113,9 @@ public class ConnectionPanel
         this.regform = regform;
         this.regform.addValidatingPanel(this);
 
-        proxyAutoCheckBox =
-            new SIPCommCheckBox(
-                Resources.getString("plugin.sipaccregwizz.PROXY_AUTO"), regform
-                    .getRegistration().isProxyAutoConfigure());
+        proxyAutoCheckBox = new SIPCommCheckBox(
+                Resources.getString("plugin.sipaccregwizz.PROXY_AUTO"),
+                regform.getRegistration().isProxyAutoConfigure());
         enablesProxyAutoConfigure(proxyAutoCheckBox.isSelected());
         proxyAutoCheckBox.addActionListener(new ActionListener()
         {
@@ -142,8 +149,8 @@ public class ConnectionPanel
 
         this.transportCombo.addItemListener(this);
 
-        transportCombo.setSelectedItem(regform.getRegistration()
-            .getPreferredTransport());
+        transportCombo.setSelectedItem(
+            regform.getRegistration().getPreferredTransport());
 
         JPanel mainPanel = new TransparentPanel();
         mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -151,21 +158,23 @@ public class ConnectionPanel
         JPanel registrarMainPanel =
             new TransparentPanel(new BorderLayout(10, 10));
 
-        JPanel labelsPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
-        JPanel valuesPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+        JPanel labelsPanel
+            = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+        JPanel valuesPanel
+            = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-        JLabel serverLabel =
-            new JLabel(Resources.getString("plugin.sipaccregwizz.REGISTRAR"));
+        JLabel serverLabel
+            = new JLabel(Resources.getString("plugin.sipaccregwizz.REGISTRAR"));
 
-        JLabel authNameLabel =
-            new JLabel(Resources.getString("plugin.sipaccregwizz.AUTH_NAME"));
+        JLabel authNameLabel
+            = new JLabel(Resources.getString(
+                "plugin.sipaccregwizz.AUTH_NAME"));
 
-        JLabel serverPortLabel =
-            new JLabel(Resources.getString("service.gui.PORT"));
+        JLabel serverPortLabel
+            = new JLabel(Resources.getString("service.gui.PORT"));
 
-        JLabel certLabel =
-            new JLabel(
-                Resources.getString("plugin.sipaccregwizz.CLIENT_CERTIFICATE"));
+        JLabel certLabel = new JLabel(
+            Resources.getString("plugin.sipaccregwizz.CLIENT_CERTIFICATE"));
 
         labelsPanel.add(serverLabel);
         labelsPanel.add(authNameLabel);
@@ -176,7 +185,8 @@ public class ConnectionPanel
 
         JPanel serverPanel = new TransparentPanel(new BorderLayout(5, 5));
         serverPanel.add(serverField, BorderLayout.CENTER);
-        JPanel serverPortPanel = new TransparentPanel(new BorderLayout(5, 5));
+        JPanel serverPortPanel = new TransparentPanel(
+                new BorderLayout(5, 5));
         serverPortPanel.add(serverPortLabel, BorderLayout.WEST);
         serverPortPanel.add(serverPortField, BorderLayout.EAST);
         serverPanel.add(serverPortPanel, BorderLayout.EAST);
@@ -188,38 +198,43 @@ public class ConnectionPanel
 
         registrarMainPanel.add(labelsPanel, BorderLayout.WEST);
         registrarMainPanel.add(valuesPanel, BorderLayout.CENTER);
-        registrarMainPanel.setBorder(BorderFactory.createEmptyBorder(10, 5, 10,
-            5));
+        registrarMainPanel.setBorder(
+                BorderFactory.createEmptyBorder(10, 5, 10, 5));
 
         mainPanel.add(registrarMainPanel);
 
-        proxyAutoCheckBox.setSelected(regform.getRegistration()
-            .isProxyAutoConfigure());
+        proxyAutoCheckBox.setSelected(
+            regform.getRegistration().isProxyAutoConfigure());
+
         proxyForceBypassCheckBox.setSelected(regform.getRegistration()
             .isProxyForceBypassConfigure());
-        if (!StringUtils.isNullOrEmpty(regform.getRegistration().getProxy()))
+
+        if (!StringUtils.isNullOrEmpty(
+                regform.getRegistration().getProxy()))
             proxyField.setText(regform.getRegistration().getProxy());
-        if (!StringUtils
-            .isNullOrEmpty(regform.getRegistration().getProxyPort()))
+        if(!StringUtils.isNullOrEmpty(
+                regform.getRegistration().getProxyPort()))
             proxyPortField.setText(regform.getRegistration().getProxyPort());
 
-        JLabel proxyLabel =
-            new JLabel(Resources.getString("plugin.sipaccregwizz.PROXY"));
+        JLabel proxyLabel
+            = new JLabel(Resources.getString("plugin.sipaccregwizz.PROXY"));
 
-        JLabel proxyPortLabel =
-            new JLabel(Resources.getString("service.gui.PORT"));
+        JLabel proxyPortLabel
+            = new JLabel(Resources.getString("service.gui.PORT"));
 
-        JLabel transportLabel =
-            new JLabel(
-                Resources.getString("plugin.sipaccregwizz.PREFERRED_TRANSPORT"));
+        JLabel transportLabel
+            = new JLabel(Resources.getString(
+                "plugin.sipaccregwizz.PREFERRED_TRANSPORT"));
 
-        JPanel proxyMainPanel = new TransparentPanel(new BorderLayout(10, 10));
+        JPanel proxyMainPanel
+            = new TransparentPanel(new BorderLayout(10, 10));
 
         proxyField.getDocument().addDocumentListener(this);
         proxyPortField.getDocument().addDocumentListener(this);
         JPanel proxyPanel = new TransparentPanel(new BorderLayout(5, 5));
         proxyPanel.add(proxyField, BorderLayout.CENTER);
-        JPanel proxyPortPanel = new TransparentPanel(new BorderLayout(5, 5));
+        JPanel proxyPortPanel = new TransparentPanel(
+                new BorderLayout(5, 5));
         proxyPortPanel.add(proxyPortLabel, BorderLayout.WEST);
         proxyPortPanel.add(proxyPortField, BorderLayout.EAST);
         proxyPanel.add(proxyPortPanel, BorderLayout.EAST);
@@ -240,43 +255,40 @@ public class ConnectionPanel
         proxyMainPanel.add(proxyNorthPanel, BorderLayout.NORTH);
         proxyMainPanel.add(labelsPanel, BorderLayout.WEST);
         proxyMainPanel.add(valuesPanel, BorderLayout.CENTER);
-        proxyMainPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("plugin.sipaccregwizz.PROXY_OPTIONS")));
+        proxyMainPanel.setBorder(BorderFactory.createTitledBorder(
+            Resources.getString("plugin.sipaccregwizz.PROXY_OPTIONS")));
 
         mainPanel.add(proxyMainPanel);
         mainPanel.add(Box.createVerticalStrut(5));
         mainPanel.add(createKeepAlivePanel());
 
-        JPanel encryptionPanel =
-            new TransparentPanel(new GridLayout(1, 2, 2, 2));
+        JPanel encryptionPanel
+            = new TransparentPanel(new GridLayout(1, 2, 2, 2));
 
         mainPanel.add(Box.createVerticalStrut(5));
         mainPanel.add(encryptionPanel);
 
         JPanel voicemailPanel = new TransparentPanel(new BorderLayout(10, 10));
-        JPanel voicemailUriPanelLabels =
-            new TransparentPanel(new GridLayout(0, 1, 10, 10));
-        JPanel voicemailUriPanelValues =
-            new TransparentPanel(new GridLayout(0, 1, 10, 10));
+        JPanel voicemailUriPanelLabels
+            = new TransparentPanel(new GridLayout(0, 1, 10, 10));
+        JPanel voicemailUriPanelValues
+            = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
-        mwiCheckBox =
-            new SIPCommCheckBox(
-                Resources.getString("plugin.sipaccregwizz.MWI"), regform
-                    .getRegistration().isMessageWaitingIndicationsEnabled());
+        mwiCheckBox = new SIPCommCheckBox(
+            Resources.getString("plugin.sipaccregwizz.MWI"),
+            regform.getRegistration().isMessageWaitingIndicationsEnabled());
 
-        voicemailUriPanelLabels.add(new JLabel(Resources
-            .getString("plugin.sipaccregwizz.VOICEMAIL_URI")));
-        voicemailUriPanelLabels.add(new JLabel(Resources
-            .getString("plugin.sipaccregwizz.VOICEMAIL_CHECK_URI")));
+        voicemailUriPanelLabels.add(new JLabel(
+                    Resources.getString("plugin.sipaccregwizz.VOICEMAIL_URI")));
+        voicemailUriPanelLabels.add(new JLabel(
+            Resources.getString("plugin.sipaccregwizz.VOICEMAIL_CHECK_URI")));
         voicemailUriPanelValues.add(voicemailAliasField);
         voicemailUriPanelValues.add(voicemailCheckField);
-        voicemailPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("plugin.sipaccregwizz.VOICEMAIL")));
+        voicemailPanel.setBorder(BorderFactory.createTitledBorder(
+                    Resources.getString("plugin.sipaccregwizz.VOICEMAIL")));
 
-        voicemailAliasField
-            .setText(regform.getRegistration().getVoicemailURI());
-        voicemailCheckField.setText(regform.getRegistration()
-            .getVoicemailCheckURI());
+        voicemailAliasField.setText(regform.getRegistration().getVoicemailURI());
+        voicemailCheckField.setText(regform.getRegistration().getVoicemailCheckURI());
 
         voicemailPanel.add(mwiCheckBox, BorderLayout.NORTH);
         voicemailPanel.add(voicemailUriPanelLabels, BorderLayout.WEST);
@@ -295,13 +307,15 @@ public class ConnectionPanel
     {
         certificate.removeAllItems();
         certificate.insertItemAt(
-            Resources.getString("plugin.sipaccregwizz.NO_CERTIFICATE"), 0);
+                Resources.getString("plugin.sipaccregwizz.NO_CERTIFICATE"),
+                0);
         certificate.setSelectedIndex(0);
-        for (CertificateConfigEntry e : SIPAccRegWizzActivator
-            .getCertificateService().getClientAuthCertificateConfigs())
+        for(CertificateConfigEntry e
+                : SIPAccRegWizzActivator.getCertificateService()
+                        .getClientAuthCertificateConfigs())
         {
             certificate.addItem(e);
-            if (e.getId().equals(id))
+            if(e.getId().equals(id))
                 certificate.setSelectedItem(e);
         }
     }
@@ -309,7 +323,6 @@ public class ConnectionPanel
     /**
      * Parse the server part from the sip id and set it to server as default
      * value. If Advanced option is enabled Do nothing.
-     * 
      * @param serverAddress the address of the server
      */
     public void setServerFieldAccordingToUIN(String serverAddress)
@@ -317,35 +330,33 @@ public class ConnectionPanel
         if (!regform.isModification() || !isServerOverridden)
         {
             serverField.setText(serverAddress);
-            // proxyField.setText(serverAddress);
+            //proxyField.setText(serverAddress);
         }
     }
 
     /**
      * Indicates that the state of the item has changed.
-     * 
      * @param e the <tt>ItemEvent</tt> that notified us
      */
     public void itemStateChanged(ItemEvent e)
     {
         // do not set default values cause they are counted
         // as overrrided ones
-        // if (e.getStateChange() == ItemEvent.SELECTED
-        // && e.getItem().equals("TLS"))
-        // {
-        // serverPortField.setText(SIPAccountRegistration.DEFAULT_TLS_PORT);
-        // proxyPortField.setText(SIPAccountRegistration.DEFAULT_TLS_PORT);
-        // }
-        // else
-        // {
-        // serverPortField.setText(SIPAccountRegistration.DEFAULT_PORT);
-        // proxyPortField.setText(SIPAccountRegistration.DEFAULT_PORT);
-        // }
+//        if (e.getStateChange() == ItemEvent.SELECTED
+//            && e.getItem().equals("TLS"))
+//        {
+//            serverPortField.setText(SIPAccountRegistration.DEFAULT_TLS_PORT);
+//            proxyPortField.setText(SIPAccountRegistration.DEFAULT_TLS_PORT);
+//        }
+//        else
+//        {
+//            serverPortField.setText(SIPAccountRegistration.DEFAULT_PORT);
+//            proxyPortField.setText(SIPAccountRegistration.DEFAULT_PORT);
+//        }
     }
 
     /**
      * Creates the keep alive panel.
-     * 
      * @return the created keep alive panel
      */
     private Component createKeepAlivePanel()
@@ -353,40 +364,39 @@ public class ConnectionPanel
         JPanel emptyLabelPanel = new TransparentPanel();
         emptyLabelPanel.setMaximumSize(new Dimension(40, 35));
 
-        JPanel keepAlivePanel = new TransparentPanel(new BorderLayout(10, 10));
+        JPanel keepAlivePanel
+            = new TransparentPanel(new BorderLayout(10, 10));
 
-        JPanel keepAliveLabels =
-            new TransparentPanel(new GridLayout(0, 1, 5, 5));
+        JPanel keepAliveLabels
+            = new TransparentPanel(new GridLayout(0, 1, 5, 5));
 
-        JPanel keepAliveValues =
-            new TransparentPanel(new GridLayout(0, 1, 5, 5));
+        JPanel keepAliveValues
+            = new TransparentPanel(new GridLayout(0, 1, 5, 5));
 
-        JLabel keepAliveMethodLabel =
-            new JLabel(
-                Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_METHOD"));
+        JLabel keepAliveMethodLabel = new JLabel(
+            Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_METHOD"));
 
-        JLabel keepAliveIntervalLabel =
-            new JLabel(
-                Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_INTERVAL"));
+        JLabel keepAliveIntervalLabel = new JLabel(
+            Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_INTERVAL"));
 
-        JLabel keepAliveIntervalExampleLabel =
-            new JLabel(
-                Resources
-                    .getString("plugin.sipaccregwizz.KEEP_ALIVE_INTERVAL_INFO"));
+        JLabel keepAliveIntervalExampleLabel = new JLabel(
+            Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE_INTERVAL_INFO"));
 
         keepAliveLabels.add(keepAliveMethodLabel);
         keepAliveLabels.add(keepAliveIntervalLabel);
         keepAliveLabels.add(emptyLabelPanel);
 
         keepAliveIntervalExampleLabel.setForeground(Color.GRAY);
-        keepAliveIntervalExampleLabel.setFont(keepAliveIntervalExampleLabel
-            .getFont().deriveFont(8));
-        keepAliveIntervalExampleLabel.setMaximumSize(new Dimension(40, 35));
-        keepAliveIntervalExampleLabel.setBorder(BorderFactory
-            .createEmptyBorder(0, 0, 8, 0));
+        keepAliveIntervalExampleLabel
+            .setFont(keepAliveIntervalExampleLabel.getFont().deriveFont(8));
+        keepAliveIntervalExampleLabel
+            .setMaximumSize(new Dimension(40, 35));
+        keepAliveIntervalExampleLabel
+            .setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
 
-        keepAliveMethodBox.setSelectedItem(SipAccountID
-            .getDefaultStr(ProtocolProviderFactory.KEEP_ALIVE_METHOD));
+        keepAliveMethodBox.setSelectedItem(
+                SipAccountID.getDefaultStr(
+                        ProtocolProviderFactory.KEEP_ALIVE_METHOD));
         keepAliveValues.add(keepAliveMethodBox);
         keepAliveValues.add(keepAliveIntervalValue);
         keepAliveValues.add(keepAliveIntervalExampleLabel);
@@ -394,15 +404,14 @@ public class ConnectionPanel
         keepAlivePanel.add(keepAliveLabels, BorderLayout.WEST);
         keepAlivePanel.add(keepAliveValues, BorderLayout.CENTER);
 
-        keepAlivePanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("plugin.sipaccregwizz.KEEP_ALIVE")));
+        keepAlivePanel.setBorder(BorderFactory.createTitledBorder(
+            Resources.getString("plugin.sipaccregwizz.KEEP_ALIVE")));
 
         return keepAlivePanel;
     }
 
     /**
      * Creates the DTMF panel.
-     * 
      * @return the created DTMF panel
      */
     private Component createDTMFPanel()
@@ -411,12 +420,11 @@ public class ConnectionPanel
 
         // Labels.
         JPanel dtmfLabels = new TransparentPanel(new GridLayout(0, 1, 5, 5));
-        JLabel dtmfMethodLabel =
-            new JLabel(Resources.getString("plugin.sipaccregwizz.DTMF_METHOD"));
-        JLabel minimalDTMFToneDurationLabel =
-            new JLabel(
-                Resources
-                    .getString("plugin.sipaccregwizz.DTMF_MINIMAL_TONE_DURATION"));
+        JLabel dtmfMethodLabel = new JLabel(
+            Resources.getString("plugin.sipaccregwizz.DTMF_METHOD"));
+        JLabel minimalDTMFToneDurationLabel = new JLabel(
+            Resources.getString(
+                "plugin.sipaccregwizz.DTMF_MINIMAL_TONE_DURATION"));
         dtmfLabels.add(dtmfMethodLabel);
         dtmfLabels.add(minimalDTMFToneDurationLabel);
         dtmfLabels.add(emptyLabelPanel);
@@ -424,46 +432,46 @@ public class ConnectionPanel
         // Values
         JPanel dtmfValues = new TransparentPanel(new GridLayout(0, 1, 5, 5));
         dtmfMethodBox.addItemListener(new ItemListener()
-        {
-            public void itemStateChanged(ItemEvent e)
-            {
-                boolean isEnabled = false;
-                String selectedItem = (String) dtmfMethodBox.getSelectedItem();
-                if (selectedItem != null
-                    && (selectedItem.equals(Resources
-                        .getString("plugin.sipaccregwizz.DTMF_AUTO")) || selectedItem
-                        .equals(Resources
-                            .getString("plugin.sipaccregwizz.DTMF_RTP"))))
                 {
-                    isEnabled = true;
-                }
-                dtmfMinimalToneDurationValue.setEnabled(isEnabled);
-            }
-        });
-        dtmfMethodBox
-            .setSelectedItem(regform.getRegistration().getDTMFMethod());
-        dtmfMinimalToneDurationValue.setText(regform.getRegistration()
-            .getDtmfMinimalToneDuration());
-        JLabel dtmfMinimalToneDurationExampleLabel =
-            new JLabel(
-                Resources
-                    .getString("plugin.sipaccregwizz.DTMF_MINIMAL_TONE_DURATION_INFO"));
+                    public void itemStateChanged(ItemEvent e)
+                    {
+                        boolean isEnabled = false;
+                        String selectedItem
+                            = (String) dtmfMethodBox.getSelectedItem();
+                        if(selectedItem != null
+                            && (selectedItem.equals(Resources.getString(
+                                    "plugin.sipaccregwizz.DTMF_AUTO"))
+                                || selectedItem.equals(Resources.getString(
+                                        "plugin.sipaccregwizz.DTMF_RTP")))
+                          )
+                        {
+                            isEnabled = true;
+                        }
+                        dtmfMinimalToneDurationValue.setEnabled(isEnabled);
+                    }
+                });
+        dtmfMethodBox.setSelectedItem(
+                regform.getRegistration().getDTMFMethod());
+        dtmfMinimalToneDurationValue
+            .setText(regform.getRegistration().getDtmfMinimalToneDuration());
+        JLabel dtmfMinimalToneDurationExampleLabel = new JLabel(
+                Resources.getString(
+                    "plugin.sipaccregwizz.DTMF_MINIMAL_TONE_DURATION_INFO"));
         dtmfMinimalToneDurationExampleLabel.setForeground(Color.GRAY);
-        dtmfMinimalToneDurationExampleLabel
-            .setFont(dtmfMinimalToneDurationExampleLabel.getFont()
-                .deriveFont(8));
-        dtmfMinimalToneDurationExampleLabel
-            .setMaximumSize(new Dimension(40, 35));
-        dtmfMinimalToneDurationExampleLabel.setBorder(BorderFactory
-            .createEmptyBorder(0, 0, 8, 0));
+        dtmfMinimalToneDurationExampleLabel.setFont(
+                dtmfMinimalToneDurationExampleLabel.getFont().deriveFont(8));
+        dtmfMinimalToneDurationExampleLabel.setMaximumSize(
+                new Dimension(40, 35));
+        dtmfMinimalToneDurationExampleLabel.setBorder(
+                BorderFactory.createEmptyBorder(0, 0, 8, 0));
         dtmfValues.add(dtmfMethodBox);
         dtmfValues.add(dtmfMinimalToneDurationValue);
         dtmfValues.add(dtmfMinimalToneDurationExampleLabel);
 
         // DTMF panel
         JPanel dtmfPanel = new TransparentPanel(new BorderLayout(10, 10));
-        dtmfPanel.setBorder(BorderFactory.createTitledBorder(Resources
-            .getString("plugin.sipaccregwizz.DTMF")));
+        dtmfPanel.setBorder(BorderFactory.createTitledBorder(
+            Resources.getString("plugin.sipaccregwizz.DTMF")));
         dtmfPanel.add(dtmfLabels, BorderLayout.WEST);
         dtmfPanel.add(dtmfValues, BorderLayout.CENTER);
 
@@ -472,7 +480,6 @@ public class ConnectionPanel
 
     /**
      * Returns the server address.
-     * 
      * @return the server address
      */
     String getServerAddress()
@@ -482,7 +489,6 @@ public class ConnectionPanel
 
     /**
      * Sets the server address.
-     * 
      * @param serverAddress the server address
      */
     void setServerAddress(String serverAddress)
@@ -492,9 +498,8 @@ public class ConnectionPanel
 
     /**
      * Enables/disables the server text field.
-     * 
      * @param isEnabled <tt>true</tt> to enable the server text field,
-     *            <tt>false</tt> - otherwise
+     * <tt>false</tt> - otherwise
      */
     void setServerEnabled(boolean isEnabled)
     {
@@ -503,7 +508,6 @@ public class ConnectionPanel
 
     /**
      * Returns the authentication name.
-     * 
      * @return the authentication name
      */
     String getAuthenticationName()
@@ -513,7 +517,6 @@ public class ConnectionPanel
 
     /**
      * Sets the authentication name.
-     * 
      * @param authName the authentication name
      */
     void setAuthenticationName(String authName)
@@ -523,7 +526,6 @@ public class ConnectionPanel
 
     /**
      * Returns the server port.
-     * 
      * @return the server port
      */
     String getServerPort()
@@ -533,7 +535,6 @@ public class ConnectionPanel
 
     /**
      * Sets the server port.
-     * 
      * @param serverPort the server port
      */
     void setServerPort(String serverPort)
@@ -543,7 +544,6 @@ public class ConnectionPanel
 
     /**
      * Returns the proxy.
-     * 
      * @return the proxy
      */
     String getProxy()
@@ -553,7 +553,6 @@ public class ConnectionPanel
 
     /**
      * Sets the proxy address.
-     * 
      * @param proxyAddress the proxy address
      */
     void setProxy(String proxyAddress)
@@ -563,7 +562,6 @@ public class ConnectionPanel
 
     /**
      * Return the proxy port.
-     * 
      * @return the proxy port
      */
     String getProxyPort()
@@ -573,7 +571,6 @@ public class ConnectionPanel
 
     /**
      * Sets the proxy port.
-     * 
      * @param proxyPort the proxy port
      */
     void setProxyPort(String proxyPort)
@@ -583,16 +580,15 @@ public class ConnectionPanel
 
     /**
      * Returns the selected transport.
-     * 
      * @return the selected transport
      */
     String getSelectedTransport()
     {
-        // Emil: it appears that sometimes the selected item may be null even
-        // though the combo box does not allow a null selection.
+        //Emil: it appears that sometimes the selected item may be null even
+        //though the combo box does not allow a null selection.
         Object selectedItem = transportCombo.getSelectedItem();
 
-        if (selectedItem == null)
+        if(selectedItem == null)
             selectedItem = transportCombo.getItemAt(0);
 
         return selectedItem.toString();
@@ -600,7 +596,6 @@ public class ConnectionPanel
 
     /**
      * Sets the selected transport.
-     * 
      * @param preferredTransport the transport to select
      */
     void setSelectedTransport(String preferredTransport)
@@ -619,8 +614,8 @@ public class ConnectionPanel
     {
         Object selectedItem = certificate.getSelectedItem();
 
-        if ((selectedItem != null)
-            && (selectedItem instanceof CertificateConfigEntry))
+        if((selectedItem != null)
+                && (selectedItem instanceof CertificateConfigEntry))
         {
             return ((CertificateConfigEntry) selectedItem).getId();
         }
@@ -629,7 +624,6 @@ public class ConnectionPanel
 
     /**
      * Sets the selected client TLS certificate entry.
-     * 
      * @param id The ID of the entry to select.
      */
     void setCertificateId(String id)
@@ -639,14 +633,13 @@ public class ConnectionPanel
 
     /**
      * Returns the keep alive method.
-     * 
      * @return the keep alive method
      */
     String getKeepAliveMethod()
     {
         Object selItem = keepAliveMethodBox.getSelectedItem();
 
-        if (selItem != null)
+        if(selItem != null)
             return selItem.toString();
         else
             return null;
@@ -654,7 +647,6 @@ public class ConnectionPanel
 
     /**
      * Sets the keep alive method.
-     * 
      * @param keepAliveMethod the keep alive method
      */
     void setKeepAliveMethod(String keepAliveMethod)
@@ -664,7 +656,6 @@ public class ConnectionPanel
 
     /**
      * Returns the keep alive interval
-     * 
      * @return the keep alive interval
      */
     String getKeepAliveInterval()
@@ -674,7 +665,6 @@ public class ConnectionPanel
 
     /**
      * Returns the DTMF method.
-     * 
      * @return the DTMF method
      */
     String getDTMFMethod()
@@ -682,24 +672,25 @@ public class ConnectionPanel
         Object selItem = dtmfMethodBox.getSelectedItem();
 
         // By default sets DTMF mezthod to auto.
-        if (selItem == null)
+        if(selItem == null)
         {
             return null;
         }
 
         String selString = selItem.toString();
-        if (selString.equals(Resources
-            .getString("plugin.sipaccregwizz.DTMF_RTP")))
+        if(selString.equals(
+                    Resources.getString("plugin.sipaccregwizz.DTMF_RTP")))
         {
             return "RTP_DTMF";
         }
-        else if (selString.equals(Resources
-            .getString("plugin.sipaccregwizz.DTMF_SIP_INFO")))
+        else if(selString.equals(
+                    Resources.getString(
+                        "plugin.sipaccregwizz.DTMF_SIP_INFO")))
         {
             return "SIP_INFO_DTMF";
         }
-        else if (selString.equals(Resources
-            .getString("plugin.sipaccregwizz.DTMF_INBAND")))
+        else if(selString.equals(
+                    Resources.getString("plugin.sipaccregwizz.DTMF_INBAND")))
         {
             return "INBAND_DTMF";
         }
@@ -711,29 +702,28 @@ public class ConnectionPanel
 
     /**
      * Sets the DTMF method.
-     * 
      * @param dtmfMethod the DTMF method
      */
     void setDTMFMethod(String dtmfMethod)
     {
-        if (dtmfMethod == null)
+        if(dtmfMethod == null)
         {
             dtmfMethodBox.setSelectedItem(0);
         }
         else
         {
             String selString;
-            if (dtmfMethod.equals("RTP_DTMF"))
+            if(dtmfMethod.equals("RTP_DTMF"))
             {
                 selString =
                     Resources.getString("plugin.sipaccregwizz.DTMF_RTP");
             }
-            else if (dtmfMethod.equals("SIP_INFO_DTMF"))
+            else if(dtmfMethod.equals("SIP_INFO_DTMF"))
             {
                 selString =
                     Resources.getString("plugin.sipaccregwizz.DTMF_SIP_INFO");
             }
-            else if (dtmfMethod.equals("INBAND_DTMF"))
+            else if(dtmfMethod.equals("INBAND_DTMF"))
             {
                 selString =
                     Resources.getString("plugin.sipaccregwizz.DTMF_INBAND");
@@ -759,7 +749,6 @@ public class ConnectionPanel
 
     /**
      * Sets the keep alive interval
-     * 
      * @param keepAliveInterval the keep alive interval
      */
     void setKeepAliveInterval(String keepAliveInterval)
@@ -769,7 +758,6 @@ public class ConnectionPanel
 
     /**
      * Returns the voicemail URI.
-     * 
      * @return the voicemail URI.
      */
     String getVoicemailURI()
@@ -779,7 +767,6 @@ public class ConnectionPanel
 
     /**
      * Sets the voicemail URI.
-     * 
      * @param voicemailURI the voicemail URI.
      */
     void setVoicemailURI(String voicemailURI)
@@ -789,7 +776,6 @@ public class ConnectionPanel
 
     /**
      * Returns the voicemail check URI.
-     * 
      * @return the voicemail URI.
      */
     String getVoicemailCheckURI()
@@ -799,7 +785,6 @@ public class ConnectionPanel
 
     /**
      * Sets the voicemail check URI.
-     * 
      * @param voicemailCheckURI the voicemail URI.
      */
     void setVoicemailCheckURI(String voicemailCheckURI)
@@ -809,7 +794,6 @@ public class ConnectionPanel
 
     /**
      * Returns is message waiting indications is enabled.
-     * 
      * @return is message waiting indications is enabled.
      */
     boolean isMessageWaitingEnabled()
@@ -819,7 +803,6 @@ public class ConnectionPanel
 
     /**
      * Sets is message waiting indications is enabled.
-     * 
      * @param enabled is message waiting indications is enabled.
      */
     void setMessageWaitingIndications(boolean enabled)
@@ -839,9 +822,8 @@ public class ConnectionPanel
 
     /**
      * Sets the <tt>serverOverridden</tt> property.
-     * 
      * @param isServerOverridden <tt>true</tt> to indicate that the server is
-     *            overridden, <tt>false</tt> - otherwise
+     * overridden, <tt>false</tt> - otherwise
      */
     void setServerOverridden(boolean isServerOverridden)
     {
@@ -850,9 +832,8 @@ public class ConnectionPanel
 
     /**
      * Indicates if the proxy auto-configure is enabled.
-     * 
      * @return <tt>true</tt> if the proxy auto-configuration is enabled,
-     *         <tt>false</tt> - otherwise
+     * <tt>false</tt> - otherwise
      */
     boolean isProxyAutoConfigureEnabled()
     {
@@ -861,9 +842,8 @@ public class ConnectionPanel
 
     /**
      * Enables/disables the proxy auto-configuration.
-     * 
      * @param isEnable <tt>true</tt> to enable proxy auto-configuration,
-     *            <tt>false</tt> - otherwise
+     * <tt>false</tt> - otherwise
      */
     void enablesProxyAutoConfigure(boolean isEnable)
     {
@@ -876,8 +856,7 @@ public class ConnectionPanel
 
     /**
      * Indicates if the proxy force bypass-configure is enabled.
-     * 
-     * @return <tt>true</tt> if the proxy force bypass-configuration is enabled,
+     *      * @return <tt>true</tt> if the proxy force bypass-configuration is enabled,
      *         <tt>false</tt> - otherwise
      */
     boolean isProxyForceBypassConfigureEnabled()
@@ -898,12 +877,10 @@ public class ConnectionPanel
     }
 
     /**
-     * Handles the <tt>DocumentEvent</tt> triggered when user types in the proxy
-     * or port field. Enables or disables the "Next" wizard button according to
-     * whether the fields are empty.
-     * 
-     * @param e the <tt>DocumentEvent</tt> that notified us
-     */
+     * Handles the <tt>DocumentEvent</tt> triggered when user types in the
+     * proxy or port field. Enables or disables the "Next" wizard button
+     * according to whether the fields are empty.
+     * @param e the <tt>DocumentEvent</tt> that notified us     */
     public void insertUpdate(DocumentEvent e)
     {
         regform.reValidateInput();
@@ -913,7 +890,6 @@ public class ConnectionPanel
      * Handles the <tt>DocumentEvent</tt> triggered when user deletes letters
      * from the proxy and port fields. Enables or disables the "Next" wizard
      * button according to whether the fields are empty.
-     * 
      * @param e the <tt>DocumentEvent</tt> that notified us
      */
     public void removeUpdate(DocumentEvent e)
@@ -926,26 +902,26 @@ public class ConnectionPanel
      *
      * @param e the document event
      */
-    public void changedUpdate(DocumentEvent e)
-    {
-    }
+    public void changedUpdate(DocumentEvent e){}
 
     /**
-     * Whether current inserted values into the panel are valid and enough to
-     * continue with account creation/modification. Checks whether proxy field
-     * values are ok to continue with account creating.
+     * Whether current inserted values into the panel are valid and enough
+     * to continue with account creation/modification.
+     * Checks whether proxy field values are ok to continue with
+     * account creating.
      *
      * @return whether the input values are ok to continue with account
-     *         creation/modification.
+     * creation/modification.
      */
     public boolean isValidated()
     {
-        if (!proxyAutoCheckBox.isSelected())
+        if(!proxyAutoCheckBox.isSelected())
         {
-            return proxyField.getText() != null
-                && proxyField.getText().length() > 0
+            return
+                proxyField.getText() != null
+                    && proxyField.getText().length() > 0
                 && proxyPortField.getText() != null
-                && proxyPortField.getText().length() > 0;
+                    && proxyPortField.getText().length() > 0;
         }
 
         return true;
