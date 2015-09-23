@@ -1031,7 +1031,13 @@ public class SipStackSharing
         while (iterPP.hasNext())
         {
             ProtocolProviderServiceSipImpl candidate = iterPP.next();
-
+            if(candidate.getAccountID()
+                .getAccountPropertyBoolean(
+                    ProtocolProviderFactory.FORCE_PROXY_BYPASS, false))
+            {
+                // Proxy check is disabled all connections are ok (HA sipXecs, sipXcom, ...)
+                continue;
+            }
             if(candidate.getRegistrarConnection() == null)
             {
                 //RegistrarLess connections are ok
