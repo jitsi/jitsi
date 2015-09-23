@@ -185,6 +185,27 @@ public class SipAccountID
         putAccountProperty(ProtocolProviderFactory.PROXY_AUTO_CONFIG,
                 proxyAutoConfigure);
     }
+    
+    /**
+     * Is proxy force bypass configured.
+     * @return <tt>true</tt> if proxy is force bypass configured.
+     */
+    public boolean isProxyForceBypassConfigure()
+    {
+        return getAccountPropertyBoolean(
+                ProtocolProviderFactory.FORCE_PROXY_BYPASS, false);
+    }
+
+    /**
+     * Sets force bypass configuration of proxy enabled or disabled.
+     * @param proxyForceBypassConfigure <tt>true</tt> if the proxy will bypassed
+     *                           needed for HA scenarios with load balancing.
+     */
+    public void setProxyForceBypassConfigure(boolean proxyForceBypassConfigure)
+    {
+        putAccountProperty(ProtocolProviderFactory.FORCE_PROXY_BYPASS,
+                proxyForceBypassConfigure);
+    }
 
     /**
      * Sets the proxy port.
