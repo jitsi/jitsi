@@ -342,17 +342,28 @@ public class GlobalProxyConfigForm
         }
         else
         {
-            configService.setProperty(
-                    ProxyInfo.CONNECTION_PROXY_TYPE_PROPERTY_NAME,
-                    ((ProxyInfo.ProxyType)typeCombo.getSelectedItem()).name());
-
+            // If there is no proxy server address or port entered skip the
+            // configuration, otherwise it can lead to unusable state of the
+            // providers with only proxy type setting and no server
+            // or port
             String serverAddress = serverAddressField.getText();
+            String port = portField.getText();
+
+            if(serverAddress == null || serverAddress.length() == 0
+                || port == null || port.length() == 0)
+            {
+                return;
+            }
+
+            configService.setProperty(
+                ProxyInfo.CONNECTION_PROXY_TYPE_PROPERTY_NAME,
+                ((ProxyInfo.ProxyType)typeCombo.getSelectedItem()).name());
+
             if(serverAddress != null && serverAddress.length() > 0)
                 configService.setProperty(
                     ProxyInfo.CONNECTION_PROXY_ADDRESS_PROPERTY_NAME,
                     serverAddress);
 
-            String port = portField.getText();
             if(port != null && port.length() > 0)
                 configService.setProperty(
                     ProxyInfo.CONNECTION_PROXY_PORT_PROPERTY_NAME, port);
