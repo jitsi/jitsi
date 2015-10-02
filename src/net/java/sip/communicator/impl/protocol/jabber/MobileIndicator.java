@@ -222,11 +222,13 @@ public class MobileIndicator
     /**
      * Caps for user has been changed.
      * @param user the user (full JID)
+     * @param fullJids a list of all resources of the user (full JIDs)
      * @param node the entity caps node#ver
      * @param online indicates if the user for which we're notified is online
      */
     @Override
-    public void userCapsNodeAdded(String user, String node, boolean online)
+    public void userCapsNodeAdded(String user, ArrayList<String> fullJids,
+        String node, boolean online)
     {
         updateMobileIndicatorUsingCaps(user);
     }
@@ -234,11 +236,13 @@ public class MobileIndicator
     /**
      * Caps for user has been changed.
      * @param user the user (full JID)
+     * @param fullJids a list of all resources of the user (full JIDs)
      * @param node the entity caps node#ver
      * @param online indicates if the user for which we're notified is online
      */
     @Override
-    public void userCapsNodeRemoved(String user, String node, boolean online)
+    public void userCapsNodeRemoved(String user, ArrayList<String> fullJids,
+        String node, boolean online)
     {
         updateMobileIndicatorUsingCaps(user);
     }

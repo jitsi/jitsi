@@ -276,6 +276,41 @@ public class OperationSetContactCapabilitiesJabberImpl
     }
 
     /**
+     * Gets the largest set of <tt>OperationSet</tt>s supported from a
+     * list of full JIDs. The returned <tt>OperationSet</tt>s are considered
+     * by the associated protocol provider to capabilities possessed by the
+     * specified <tt>contact</tt>.
+     *
+     * @param fullJids a list of full JIDs in which to find the resource with
+     * the most capabilities.
+     * @return the <tt>Map</tt> listing the most <tt>OperationSet</tt>s
+     * considered by the associated protocol provider to be supported by the
+     * specified <tt>contact</tt> (i.e. to be possessed as capabilities).
+     * Each supported <tt>OperationSet</tt> capability is represented by a
+     * <tt>Map.Entry</tt> with key equal to the <tt>OperationSet</tt> class
+     * name and value equal to the respective <tt>OperationSet</tt> instance
+     */
+    protected Map<String, OperationSet> getLargestSupportedOperationSet(
+            ArrayList<String> fullJids)
+    {
+        Map<String, OperationSet> supportedOperationSets =
+            new HashMap<String, OperationSet>();
+        if (fullJids!=null){
+            for (String fullJid : fullJids)
+            {
+                Map<String, OperationSet> newSupportedOperationSets=
+                getSupportedOperationSets(fullJid, true);
+                if (newSupportedOperationSets.size()>
+                supportedOperationSets.size())
+                {
+                    supportedOperationSets = newSupportedOperationSets;
+                }
+            }
+        }
+        return supportedOperationSets;
+    }
+
+    /**
      * Gets the <tt>OperationSet</tt> corresponding to the specified
      * <tt>Class</tt> and supported by the specified <tt>Contact</tt>. If the
      * returned value is non-<tt>null</tt>, it indicates that the
@@ -387,17 +422,19 @@ public class OperationSetContactCapabilitiesJabberImpl
      * record for a specific user about the caps node the user has.
      *
      * @param user the user (full JID)
+     * @param fullJids a list of all resources of the user (full JIDs)
      * @param node the entity caps node#ver
      * @param online indicates if the user is currently online
      * @see UserCapsNodeListener#userCapsNodeAdded(String, String, boolean)
      */
-    public void userCapsNodeAdded(String user, String node, boolean online)
+    public void userCapsNodeAdded(String user, ArrayList<String> fullJids,
+        String node, boolean online)
     {
         /*
          * It doesn't matter to us whether a caps node has been added or removed
          * for the specified user because we report all changes.
          */
-        userCapsNodeRemoved(user, node, online);
+        userCapsNodeChanged(user, fullJids, node, online);
     }
 
     /**
@@ -405,19 +442,39 @@ public class OperationSetContactCapabilitiesJabberImpl
      * record for a specific user about the caps node the user has.
      *
      * @param user the user (full JID)
+     * @param fullJids a list of all resources of the user (full JIDs)
+     * @param node the entity caps node#ver
+     * @param online indicates if the user is currently online
+     * @see UserCapsNodeListener#userCapsNodeAdded(String, String, boolean)
+     */
+    public void userCapsNodeRemoved(String user, ArrayList<String> fullJids,
+        String node, boolean online)
+    {
+        /*
+         * It doesn't matter to us whether a caps node has been added or removed
+         * for the specified user because we report all changes.
+         */
+        userCapsNodeChanged(user, fullJids, node, online);
+    }
+
+    /**
+     * Notifies this listener that an <tt>EntityCapsManager</tt> has changed a
+     * record for a specific user about the caps node the user has.
+     *
+     * @param user the user (full JID)
+     * @param fullJids a list of all resources of the user (full JIDs)
      * @param node the entity caps node#ver
      * @param online indicates if the given user is online
-     * @see UserCapsNodeListener#userCapsNodeRemoved(String, String, boolean)
      */
-    public void userCapsNodeRemoved(String user, String node, boolean online)
+    public void userCapsNodeChanged(String user, ArrayList<String> fullJids, String node, boolean online)
     {
         OperationSetPresence opsetPresence
             = parentProvider.getOperationSet(OperationSetPresence.class);
 
         if (opsetPresence != null)
         {
-            String jid = StringUtils.parseBareAddress(user);
-            Contact contact = opsetPresence.findContactByID(jid);
+            String bareJid = StringUtils.parseBareAddress(user);
+            Contact contact = opsetPresence.findContactByID(bareJid);
 
             // If the contact isn't null and is online we try to discover the
             // new set of operation sets and to notify interested parties.
@@ -432,8 +489,7 @@ public class OperationSetContactCapabilitiesJabberImpl
                     fireContactCapabilitiesEvent(
                         contact,
                         ContactCapabilitiesEvent.SUPPORTED_OPERATION_SETS_CHANGED,
-                        getSupportedOperationSets(user,
-                            online));
+                        getLargestSupportedOperationSet(fullJids));
                 }
                 else
                 {
@@ -443,7 +499,7 @@ public class OperationSetContactCapabilitiesJabberImpl
                     fireContactCapabilitiesEvent(
                         contact,
                         ContactCapabilitiesEvent.SUPPORTED_OPERATION_SETS_CHANGED,
-                        getSupportedOperationSets(contact));
+                        getLargestSupportedOperationSet(fullJids));
                 }
             }
         }
