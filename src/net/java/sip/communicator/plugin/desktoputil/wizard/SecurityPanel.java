@@ -33,8 +33,6 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 import org.jitsi.service.neomedia.*;
 
-import ch.imvs.sdes4j.srtp.*;
-
 /**
  * Contains the security settings for SIP media encryption.
  *
@@ -132,13 +130,15 @@ public class SecurityPanel
 
             if(ciphers == null)
                 ciphers = defaultCiphers;
-            //TODO the available ciphers should come from SDesControlImpl
-            data.add(new Entry(SrtpCryptoSuite.AES_CM_128_HMAC_SHA1_80, ciphers
-                .contains(SrtpCryptoSuite.AES_CM_128_HMAC_SHA1_80)));
-            data.add(new Entry(SrtpCryptoSuite.AES_CM_128_HMAC_SHA1_32, ciphers
-                .contains(SrtpCryptoSuite.AES_CM_128_HMAC_SHA1_32)));
-            data.add(new Entry(SrtpCryptoSuite.F8_128_HMAC_SHA1_80, ciphers
-                .contains(SrtpCryptoSuite.F8_128_HMAC_SHA1_80)));
+
+            MediaService ms = DesktopUtilActivator.getMediaService();
+            SDesControl srtp =
+                (SDesControl) ms.createSrtpControl(SrtpControlType.SDES);
+            for (String cipher : srtp.getSupportedCryptoSuites())
+            {
+                data.add(new Entry(cipher, ciphers.contains(cipher)));
+            }
+
             fireTableDataChanged();
         }
 
