@@ -246,6 +246,19 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
+     * Indicates whether or not this provider must registered
+     * when placing outgoing calls.
+     *
+     * @return <tt>true</tt> if the provider must be registered when placing a
+     * call and <tt>false</tt> otherwise.
+     */
+    public boolean isRegistrationRequiredForCalling()
+    {
+        return getAccountID().getAccountPropertyBoolean(
+                        ProtocolProviderFactory.MUST_REGISTER_TO_CALL, true);
+    }
+
+    /**
      * Returns the state of the registration of this protocol provider with the
      * corresponding registration service.
      * @return ProviderRegistrationState

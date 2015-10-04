@@ -185,6 +185,12 @@ public abstract class ProtocolProviderFactory
     public static final String FORCE_PROXY_BYPASS = "FORCE_PROXY_BYPASS";
 
     /**
+     * The name of the property that indicates whether the client must
+     * be registered with a registrar when making outgoing calls.
+     */
+    public static final String MUST_REGISTER_TO_CALL = "MUST_REGISTER_TO_CALL";
+
+    /**
      * The name of the property under which we store the user preference for a
      * transport protocol to use (i.e. tcp or udp).
      */

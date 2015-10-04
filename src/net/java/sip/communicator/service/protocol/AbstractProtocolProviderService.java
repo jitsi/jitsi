@@ -315,6 +315,18 @@ public abstract class AbstractProtocolProviderService
     }
 
     /**
+     * Indicates whether or not this provider must registered
+     * when placing outgoing calls.
+     *
+     * @return <tt>true</tt> if the provider must be registered when placing a
+     * call and <tt>false</tt> otherwise.
+     */
+    public boolean isRegistrationRequiredForCalling()
+    {
+        return true;
+    }
+
+    /**
      * Removes the specified registration state change listener so that it does
      * not receive any further notifications upon changes of the
      * RegistrationState of this provider.

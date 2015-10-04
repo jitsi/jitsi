@@ -103,6 +103,13 @@ public interface ProtocolProviderService
     public boolean isRegistered();
 
     /**
+     * Indicates whether or not this provider must registered
+     * when placing outgoing calls.
+     * @return true if the provider must be registered when placing a call.
+     */
+    public boolean isRegistrationRequiredForCalling();
+
+    /**
      * Returns the state of the registration of this protocol provider with the
      * corresponding registration service.
      * @return ProviderRegistrationState
