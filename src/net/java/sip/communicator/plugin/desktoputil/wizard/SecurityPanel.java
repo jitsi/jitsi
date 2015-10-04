@@ -54,7 +54,7 @@ public class SecurityPanel
     private JPanel pnlAdvancedSettings;
     private JCheckBox enableDefaultEncryption;
     private JCheckBox enableSipZrtpAttribute;
-    private JComboBox cboSavpOption;
+    private JComboBox<SavpOption> cboSavpOption;
     private JTable tabCiphers;
     private CipherTableModel cipherModel;
     private JLabel cmdExpandAdvancedSettings;
@@ -410,7 +410,7 @@ public class SecurityPanel
             pnlAdvancedSettings.add(new JSeparator(), c);
         }
 
-        cboSavpOption = new JComboBox(new SavpOption[]{
+        cboSavpOption = new JComboBox<SavpOption>(new SavpOption[]{
             new SavpOption(0),
             new SavpOption(1),
             new SavpOption(2)
