@@ -113,8 +113,10 @@ public class SecurityPanel
         private static final long serialVersionUID = 0L;
 
         private List<Entry> data = new ArrayList<Entry>();
-        private final String defaultCiphers = UtilActivator.getResources()
-            .getSettingsString(SDesControl.SDES_CIPHER_SUITES);
+
+        private final String defaultCiphers =
+            UtilActivator.getConfigurationService()
+                .getString(SDesControl.SDES_CIPHER_SUITES);
 
         CipherTableModel(String ciphers)
         {
