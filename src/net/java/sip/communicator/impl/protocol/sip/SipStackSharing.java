@@ -1027,11 +1027,21 @@ public class SipStackSharing
                     List<ProtocolProviderServiceSipImpl> candidates,
                     Request                              request)
     {
-        Iterator<ProtocolProviderServiceSipImpl> iterPP = candidates.iterator();
+        Iterator<ProtocolProviderServiceSipImpl> iterPP =
+            candidates.iterator();
         while (iterPP.hasNext())
         {
             ProtocolProviderServiceSipImpl candidate = iterPP.next();
-
+            boolean forceProxyBypass
+                = candidate.getAccountID()
+                    .getAccountPropertyBoolean(
+                        ProtocolProviderFactory.FORCE_PROXY_BYPASS, false);
+            if(forceProxyBypass)
+            {
+                // Proxy check is disabled all connections are
+                // ok (HA sipXecs, sipXcom, ...)
+                continue;
+            } 
             if(candidate.getRegistrarConnection() == null)
             {
                 //RegistrarLess connections are ok

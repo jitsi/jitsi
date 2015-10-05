@@ -297,6 +297,9 @@ public class SIPAccountRegistrationForm
         registration.setProxyAutoConfigure(
             connectionPanel.isProxyAutoConfigureEnabled());
 
+        registration.setProxyForceBypassConfigure(
+            connectionPanel.isProxyForceBypassConfigureEnabled());
+        
         registration.setEnablePresence(
             presencePanel.isPresenceEnabled());
         registration.setForceP2PMode(
@@ -381,7 +384,11 @@ public class SIPAccountRegistrationForm
 
         String clientTlsCertificateId = sipAccReg.getTlsClientCertificate();
 
-        boolean proxyAutoConfigureEnabled = sipAccReg.isProxyAutoConfigure();
+        boolean proxyAutoConfigureEnabled = 
+            sipAccReg.isProxyAutoConfigure();
+        
+        boolean proxyForceBypassConfigureEnabled = 
+            sipAccReg.isProxyForceBypassConfigure();
 
         String pollingPeriod = sipAccReg.getPollingPeriod();
 
@@ -427,7 +434,10 @@ public class SIPAccountRegistrationForm
             connectionPanel.setAuthenticationName(authName);
         connectionPanel.setCertificateId(clientTlsCertificateId);
 
-        connectionPanel.enablesProxyAutoConfigure(proxyAutoConfigureEnabled);
+        connectionPanel.enablesProxyAutoConfigure(
+                proxyAutoConfigureEnabled);
+        connectionPanel.enablesProxyForceBypassConfigure(
+                proxyForceBypassConfigureEnabled);
         connectionPanel.setServerPort(serverPort);
         connectionPanel.setProxy(proxyAddress);
 
