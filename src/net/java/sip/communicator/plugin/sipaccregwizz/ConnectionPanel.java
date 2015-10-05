@@ -855,8 +855,8 @@ public class ConnectionPanel
 
     /**
      * Indicates if the proxy force bypass-configure is enabled.
-     *      * @return <tt>true</tt> if the proxy force bypass-configuration is enabled,
-     *         <tt>false</tt> - otherwise
+     * @return <tt>true</tt> if the proxy force bypass-configuration is
+     * enabled, <tt>false</tt> - otherwise
      */
     boolean isProxyForceBypassConfigureEnabled()
     {
@@ -866,8 +866,8 @@ public class ConnectionPanel
     /**
      * Enables/disables the proxy force bypass-configuration.
      * 
-     * @param isEnable <tt>true</tt> to enable force proxy bypass-configuration,
-     *            <tt>false</tt> - otherwise
+     * @param isEnable <tt>true</tt> to enable force proxy bypass-
+     * configuration, <tt>false</tt> - otherwise
      */
     void enablesProxyForceBypassConfigure(boolean isEnable)
     {
