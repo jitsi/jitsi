@@ -634,6 +634,58 @@
     </exec>
   </target>
 
+  <!--
+       Compile jmsofficecomm library for Windows
+       - install tdm-gcc-64 for both 32 and 64 bit
+       - install the OCS 2007 SDK from: 
+         http://www.microsoft.com/en-us/download/details.aspx?id=10176
+       - compile the tlb:
+         cd src/native/windows/msofficecomm
+         midl "C:\Program Files (x86)\Microsoft Office Communicator\SDK\"
+       - run ant:
+         ant msofficecomm -DOCS2007SDK=<path here, escape \ with \\> -Darch=32
+         ant msofficecomm -DOCS2007SDK=<path here, escape \ with \\> -Darch=64
+  -->
+  <target
+      name="msofficecomm"
+      description="Build jmsofficecomm shared library for Windows"
+      if="is.running.windows"
+      depends="init-native">
+    <fail message="OCS 2007 SDK not set!" unless="OCS2007SDK" />
+    <cc
+        name="gcc"
+        objdir="${obj}"
+        outfile="${native_install_dir}/jmsofficecomm"
+        outtype="shared">
+      <compilerarg value="-D_JNI_IMPLEMENTATION_" />
+      <compilerarg value="-D_WIN32_WINNT=0x0502" />
+      <compilerarg value="-DWINVER=0x0502" />
+      <compilerarg value="-DUNICODE" />
+      <compilerarg value="-D_UNICODE" />
+      <compilerarg value="-I${system.JAVA_HOME}/include" />
+      <compilerarg value="-I${system.JAVA_HOME}/include/win32" />
+      <compilerarg value="-I${OCS2007SDK}" />
+      <compilerarg value="-m32" if="cross_32" />
+      <compilerarg value="-m64" if="cross_64" />
+      <compilerarg value="-O2" />
+      <compilerarg value="-Wall" />
+
+      <linkerarg value="-ojmsofficecomm.dll" />
+      <linkerarg value="-m32" if="cross_32" />
+      <linkerarg value="-m64" if="cross_64" />
+      <linkerarg value="-Wl,--kill-at" />
+      <linkerarg value="-Wl,--subsystem,windows" />
+      <linkerarg value="-Wl,-Bstatic" location="end" if="is.running.windows" />
+      <libset libs="advapi32, uuid, ole32, oleaut32, msi, stdc++" />
+
+      <fileset dir="${src}\native\windows\msofficecomm" includes="*.cxx" />
+    </cc>
+    <exec executable="strip">
+      <arg value="-x"/>
+      <arg value="${native_install_dir}/jmsofficecomm.dll"/>
+    </exec>
+  </target>
+
   <!-- compile msoutlookaddrbookserver executable for Windows -->
   <target
       name="msoutlookaddrbookcomserver"
