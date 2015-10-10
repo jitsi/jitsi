@@ -22,6 +22,7 @@ import java.io.*;
 import java.sql.*;
 import java.sql.Statement;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;
@@ -950,6 +951,36 @@ public final class JdbcConfigService
         for (PropertyChangeListener l : listeners.get(null))
         {
             l.propertyChange(evt);
+        }
+    }
+
+    @Override
+    public void logConfigurationProperties(String excludePattern)
+    {
+        if (!logger.isInfoEnabled())
+            return;
+
+        Pattern exclusion = null;
+        if (!StringUtils.isNullOrEmpty(excludePattern))
+        {
+            exclusion = Pattern.compile(
+                excludePattern, Pattern.CASE_INSENSITIVE);
+        }
+
+        for (String p : getAllPropertyNames())
+        {
+            Object v = getProperty(p);
+
+            // Not sure if this can happen, but just in case...
+            if (v == null)
+                continue;
+
+            if (exclusion != null && exclusion.matcher(p).find())
+            {
+                v = "**********";
+            }
+
+            logger.info(p + "=" + v);
         }
     }
 }
