@@ -242,88 +242,89 @@ STDMETHODIMP MessengerContact::get_PhoneNumber(MPHONE_TYPE PhoneType, BSTR *bstr
 STDMETHODIMP
 MessengerContact::get_PresenceProperties(VARIANT *pvPresenceProperties)
 {
-    HRESULT hr;
-
-    if (pvPresenceProperties)
+    if (!pvPresenceProperties)
     {
-        MISTATUS status;
+        return E_INVALIDARG;
+    }
 
-        hr = get_Status(&status);
-        if (SUCCEEDED(hr))
+    MISTATUS status;
+    HRESULT hr = get_Status(&status);
+    if (FAILED(hr))
+    {
+        return hr;
+    }
+
+    hr = (VT_EMPTY == pvPresenceProperties->vt)
+            ? S_OK
+            : (::VariantClear(pvPresenceProperties));
+    if (FAILED(hr))
+    {
+        return hr;
+    }
+
+    SAFEARRAY *sa = ::SafeArrayCreateVector(VT_VARIANT, 0, PRESENCE_PROP_MAX);
+    if (!sa)
+    {
+        return E_FAIL;
+    }
+
+    LONG mstateIndex = PRESENCE_PROP_MSTATE;
+    VARIANT vtMState;
+    ::VariantInit(&vtMState);
+    vtMState.vt = VT_I4;
+    vtMState.lVal = status;
+    hr = ::SafeArrayPutElement(sa, &mstateIndex, &vtMState);
+    if (SUCCEEDED(hr))
+    {
+        LONG availability;
+        switch (status)
         {
-            hr
-                = (VT_EMPTY == pvPresenceProperties->vt)
-                    ? S_OK
-                    : (::VariantClear(pvPresenceProperties));
-            if (SUCCEEDED(hr))
-            {
-                SAFEARRAY *sa
-                    = ::SafeArrayCreateVector(VT_VARIANT, 0, PRESENCE_PROP_MAX);
+            case MISTATUS_AWAY:
+            case MISTATUS_OUT_OF_OFFICE:
+                availability = 15000;
+                break;
+            case MISTATUS_BE_RIGHT_BACK:
+                availability = 12000;
+                break;
+            case MISTATUS_BUSY:
+            case MISTATUS_IN_A_CONFERENCE:
+            case MISTATUS_ON_THE_PHONE:
+                availability = 6000;
+                break;
+            case MISTATUS_DO_NOT_DISTURB:
+            case MISTATUS_ALLOW_URGENT_INTERRUPTIONS:
+                availability = 9000;
+                break;
+            case MISTATUS_INVISIBLE:
+                availability = 18000;
+                break;
+            case MISTATUS_ONLINE:
+                availability = 3000;
+                break;
+            default:
+                availability = 0;
+                break;
+        }
 
-                if (sa)
-                {
-                    LONG i;
-                    VARIANT v;
-
-                    i = PRESENCE_PROP_MSTATE;
-                    ::VariantInit(&v);
-                    v.vt = VT_I4;
-                    v.lVal = status;
-                    hr = ::SafeArrayPutElement(sa, &i, &v);
-                    if (SUCCEEDED(hr))
-                    {
-                        LONG availability;
-
-                        switch (status)
-                        {
-                        case MISTATUS_AWAY:
-                        case MISTATUS_OUT_OF_OFFICE:
-                            availability = 15000;
-                            break;
-                        case MISTATUS_BE_RIGHT_BACK:
-                            availability = 12000;
-                            break;
-                        case MISTATUS_BUSY:
-                        case MISTATUS_IN_A_CONFERENCE:
-                        case MISTATUS_ON_THE_PHONE:
-                            availability = 6000;
-                            break;
-                        case MISTATUS_DO_NOT_DISTURB:
-                        case MISTATUS_ALLOW_URGENT_INTERRUPTIONS:
-                            availability = 9000;
-                            break;
-                        case MISTATUS_INVISIBLE:
-                            availability = 18000;
-                            break;
-                        case MISTATUS_ONLINE:
-                            availability = 3000;
-                            break;
-                        default:
-                            availability = 0;
-                            break;
-                        }
-                        if (availability)
-                        {
-                            i = PRESENCE_PROP_AVAILABILITY;
-                            v.lVal = availability;
-                            hr = ::SafeArrayPutElement(sa, &i, &v);
-                        }
-                    }
-                    if (SUCCEEDED(hr))
-                    {
-                        pvPresenceProperties->vt = VT_ARRAY;
-                        pvPresenceProperties->parray = sa;
-                    }
-                    else
-                        ::SafeArrayDestroy(sa);
-                }
-                else
-                    hr = E_FAIL;
-            }
+        if (availability)
+        {
+            LONG availIndex = PRESENCE_PROP_AVAILABILITY;
+            VARIANT vtAvailability;
+            ::VariantInit(&vtAvailability);
+            vtAvailability.vt = VT_I4;
+            vtAvailability.lVal = availability;
+            hr = ::SafeArrayPutElement(sa, &availIndex, &vtAvailability);
         }
     }
+
+    if (SUCCEEDED(hr))
+    {
+        pvPresenceProperties->vt = VT_VARIANT | VT_ARRAY;
+        pvPresenceProperties->parray = sa;
+    }
     else
-        hr = E_INVALIDARG;
+        ::SafeArrayDestroy(sa);
+
     return hr;
 }
 
