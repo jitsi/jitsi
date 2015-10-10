@@ -1,0 +1,7 @@
+LIBRARY jmsofficecomm
+EXPORTS
+	Java_net_java_sip_communicator_plugin_msofficecomm_Messenger_onContactStatusChange
+	Java_net_java_sip_communicator_plugin_msofficecomm_OutOfProcessServer_start
+	Java_net_java_sip_communicator_plugin_msofficecomm_OutOfProcessServer_stop
+	JNI_OnLoad
+	JNI_OnUnload

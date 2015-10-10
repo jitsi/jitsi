@@ -825,7 +825,7 @@ HRESULT Messenger::stop(JNIEnv *env)
 
 HRESULT Messenger::toString(JNIEnv *env, VARIANT &v, jstring *string)
 {
-    BSTR bstr;
+    BSTR bstr = NULL;
     HRESULT hr;
 
     if (VT_BSTR == v.vt)
