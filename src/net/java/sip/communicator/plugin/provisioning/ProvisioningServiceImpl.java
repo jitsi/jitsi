@@ -444,7 +444,7 @@ public class ProvisioningServiceImpl
                                         getNetworkAddressManagerService().
                                             getHardwareAddress(iface);
 
-                                if(hw == null)
+                                if(hw == null || hw.length == 0)
                                     continue;
 
                                 StringBuffer buf =

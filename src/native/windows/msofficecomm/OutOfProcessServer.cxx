@@ -31,7 +31,7 @@ JNIEXPORT jint JNICALL
 Java_net_java_sip_communicator_plugin_msofficecomm_OutOfProcessServer_start
     (JNIEnv *env, jclass clazz)
 {
-    LPSTR functionName = ::strdup(__FUNCTION__);
+    LPSTR functionName = ::_strdup(__FUNCTION__);
     LPSTR packageName;
 
     if (functionName)
@@ -579,7 +579,7 @@ HRESULT OutOfProcessServer::start(JNIEnv *env, jclass clazz, LPCSTR packageName)
     HRESULT hr;
 
     if (packageName)
-        hr = ((_packageName = ::strdup(packageName))) ? S_OK : E_OUTOFMEMORY;
+        hr = ((_packageName = ::_strdup(packageName))) ? S_OK : E_OUTOFMEMORY;
     else
     {
         _packageName = NULL;

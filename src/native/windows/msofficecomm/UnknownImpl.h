@@ -23,9 +23,15 @@
 #include "StringUtils.h"
 #include "WeakReferenceSource.h"
 
+#ifdef _MSC_VER
+#define FUNC_NAME_MACRO __FUNCSIG__
+#else
+#define FUNC_NAME_MACRO __PRETTY_FUNCTION__
+#endif
+
 #define STDMETHODIMP_E_NOTIMPL_STUB \
     { \
-        Log::d(_T("%s\n"), __PRETTY_FUNCTION__); \
+        Log::d(_T("%s\n"), FUNC_NAME_MACRO); \
         return E_NOTIMPL; \
     }
 

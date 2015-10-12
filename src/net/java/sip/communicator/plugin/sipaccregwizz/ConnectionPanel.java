@@ -63,6 +63,8 @@ public class ConnectionPanel
 
     private final JCheckBox proxyAutoCheckBox;
 
+    private final JCheckBox proxyForceBypassCheckBox;
+
     private final JComboBox certificate = new JComboBox();
 
     private JComboBox transportCombo
@@ -127,6 +129,24 @@ public class ConnectionPanel
             }
         });
 
+        proxyForceBypassCheckBox = new SIPCommCheckBox(
+                Resources.getString("plugin.sipaccregwizz.PROXY_FORCE_BYPASS"),
+                regform.getRegistration().isProxyForceBypassConfigure());
+        enablesProxyForceBypassConfigure(
+                proxyForceBypassCheckBox.isSelected());
+        proxyForceBypassCheckBox.addActionListener(new ActionListener()
+        {
+            /**
+             * Invoked when an action occurs.
+             */
+            public void actionPerformed(ActionEvent e)
+            {
+                enablesProxyForceBypassConfigure(
+                    proxyForceBypassCheckBox.isSelected());
+                ConnectionPanel.this.regform.reValidateInput();
+            }
+        });
+
         this.transportCombo.addItemListener(this);
 
         transportCombo.setSelectedItem(
@@ -185,7 +205,11 @@ public class ConnectionPanel
 
         proxyAutoCheckBox.setSelected(
             regform.getRegistration().isProxyAutoConfigure());
-        if(!StringUtils.isNullOrEmpty(
+
+        proxyForceBypassCheckBox.setSelected(regform.getRegistration()
+            .isProxyForceBypassConfigure());
+
+        if (!StringUtils.isNullOrEmpty(
                 regform.getRegistration().getProxy()))
             proxyField.setText(regform.getRegistration().getProxy());
         if(!StringUtils.isNullOrEmpty(
@@ -215,6 +239,8 @@ public class ConnectionPanel
         proxyPortPanel.add(proxyPortField, BorderLayout.EAST);
         proxyPanel.add(proxyPortPanel, BorderLayout.EAST);
 
+        JPanel proxyNorthPanel =
+            new TransparentPanel(new GridLayout(2, 1, 10, 1));
         labelsPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
         valuesPanel = new TransparentPanel(new GridLayout(0, 1, 10, 10));
 
@@ -222,8 +248,11 @@ public class ConnectionPanel
         labelsPanel.add(transportLabel);
         valuesPanel.add(proxyPanel);
         valuesPanel.add(transportCombo);
+        proxyNorthPanel.add(proxyForceBypassCheckBox);
+        proxyNorthPanel.add(proxyAutoCheckBox);
+        
 
-        proxyMainPanel.add(proxyAutoCheckBox, BorderLayout.NORTH);
+        proxyMainPanel.add(proxyNorthPanel, BorderLayout.NORTH);
         proxyMainPanel.add(labelsPanel, BorderLayout.WEST);
         proxyMainPanel.add(valuesPanel, BorderLayout.CENTER);
         proxyMainPanel.setBorder(BorderFactory.createTitledBorder(
@@ -822,6 +851,28 @@ public class ConnectionPanel
         proxyField.setEnabled(!isEnable);
         proxyPortField.setEnabled(!isEnable);
         transportCombo.setEnabled(!isEnable);
+        regform.reValidateInput();
+    }
+
+    /**
+     * Indicates if the proxy force bypass-configure is enabled.
+     * @return <tt>true</tt> if the proxy force bypass-configuration is
+     * enabled, <tt>false</tt> - otherwise
+     */
+    boolean isProxyForceBypassConfigureEnabled()
+    {
+        return proxyForceBypassCheckBox.isSelected();
+    }
+
+    /**
+     * Enables/disables the proxy force bypass-configuration.
+     * 
+     * @param isEnable <tt>true</tt> to enable force proxy bypass-
+     * configuration, <tt>false</tt> - otherwise
+     */
+    void enablesProxyForceBypassConfigure(boolean isEnable)
+    {
+        proxyForceBypassCheckBox.setSelected(isEnable);
         regform.reValidateInput();
     }
 

@@ -301,4 +301,10 @@ public class MockProvider
     {
         return null;
     }
+
+    @Override
+    public boolean isRegistrationRequiredForCalling()
+    {
+        return false;
+    }
 }

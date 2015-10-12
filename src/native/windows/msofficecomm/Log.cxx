@@ -138,7 +138,11 @@ FILE *Log::open()
                     str += logLength;
                     *str = '\0';
 
+#ifdef _MSC_VER
+                    ::_tfopen_s(&_stderr, logPath, _T("w"));
+#else
                     _stderr = ::_tfopen(logPath, _T("w"));
+#endif
                 }
                 ::free(logPath);
             }
