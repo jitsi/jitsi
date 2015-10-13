@@ -57,20 +57,23 @@ public class ScLogFormatter
         int seconds = cal.get(Calendar.SECOND);
         int millis = cal.get(Calendar.MILLISECOND);
 
-        sb.append(year).append('-');
+        sb.append("[" + year).append('-');
         sb.append(twoDigFmt.format(month)).append('-');
         sb.append(twoDigFmt.format(day)).append(' ');
         sb.append(twoDigFmt.format(hour)).append(':');
         sb.append(twoDigFmt.format(minutes)).append(':');
         sb.append(twoDigFmt.format(seconds)).append('.');
-        sb.append(threeDigFmt.format(millis)).append(' ');
+        sb.append(threeDigFmt.format(millis) + "]").append(' ');
 
         //log level
-        sb.append(record.getLevel().getLocalizedName());
+        sb.append("[" + record.getLevel().getLocalizedName() + "]");
         sb.append(": ");
+        
+        //rtc server details
+        sb.append("[rtc-srvr=" + hostname() + "] ");
 
         // Thread ID
-        sb.append("[" + record.getThreadID() + "] ");
+        sb.append("[" + record.getThreadID() + "] [");
 
         //caller method
         int lineNumber = inferCaller(record);
@@ -98,7 +101,7 @@ public class ScLogFormatter
             else
                 sb.append("()");
         }
-        sb.append(" ");
+        sb.append("] ");
         sb.append(record.getMessage());
         sb.append(lineSeparator);
         if (record.getThrown() != null)
@@ -163,5 +166,31 @@ public class ScLogFormatter
         }
 
         return lineNumber;
+    }
+    
+    public String hostname()
+    {
+        String result = "";
+        InputStream inputStream = null;
+        try {
+            Properties prop = new Properties();
+            inputStream = new FileInputStream("/etc/prosody/conf.d/component.cfg.lua");
+            prop.load(inputStream);
+
+            // get the property value and print it out
+            String rtc_server_fqdn = prop.getProperty("rtc_server_fqdn");
+
+            result = rtc_server_fqdn;
+        } catch (Exception e) {
+        } finally {
+            try
+            {
+                inputStream.close();
+            }
+            catch (IOException e)
+            {
+            }
+        }
+        return result;
     }
 }
