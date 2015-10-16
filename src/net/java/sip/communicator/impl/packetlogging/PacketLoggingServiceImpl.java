@@ -321,6 +321,8 @@ public class PacketLoggingServiceImpl
                     return cfg.isRTPLoggingEnabled();
                 case ICE4J:
                     return cfg.isIce4JLoggingEnabled();
+                case ARBITRARY:
+                    return cfg.isArbitraryLoggingEnabled();
                 default:
                     /*
                      * It may seem like it was unnecessary to invoke
