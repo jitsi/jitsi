@@ -1199,8 +1199,10 @@ public class ServerStoredContactListYahooImpl
                 Contact srcContact = findContactById(ev.getFrom());
 
                 if(srcContact == null)
+                {
                     if (logger.isTraceEnabled())
                         logger.trace("No contact found");
+                }
                 else
                     handler.processAuthorizationResponse(
                         new AuthorizationResponse(
@@ -1215,8 +1217,10 @@ public class ServerStoredContactListYahooImpl
                 Contact srcContact = findContactById(ev.getFrom());
 
                 if(srcContact == null)
+                {
                     if (logger.isTraceEnabled())
                         logger.trace("No contact found");
+                }
                 else
                 {
                     handler.processAuthorizationResponse(
