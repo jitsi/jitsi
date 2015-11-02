@@ -226,142 +226,139 @@ public class CallPeerMediaHandlerSipImpl
                 = dev.getDirection().and(getDirectionUserPreference(mediaType));
 
             if(isLocallyOnHold())
-                direction = direction.and(MediaDirection.SENDONLY);
+                direction = direction.and(MediaDirection.INACTIVE);
 
-            if(direction != MediaDirection.INACTIVE)
+            for (String proto : getRtpTransports())
             {
-                for (String proto : getRtpTransports())
+                /*
+                 * If we start an audio-only call and re-INVITE the remote
+                 * peer for desktop sharing/streaming later on, we will have
+                 * effectively switched from the webcam to the
+                 * display/screen. It seems beneficial in such a scenario to
+                 * not have a send quality preset unless we actually intend
+                 * to send video.
+                 */
+                QualityPreset effectiveSendQualityPreset
+                    = direction.allowsSending() ? sendQualityPreset : null;
+                MediaDescription md
+                    = createMediaDescription(
+                            proto,
+                            getLocallySupportedFormats(
+                                    dev,
+                                    effectiveSendQualityPreset,
+                                    receiveQualityPreset),
+                            getTransportManager().getStreamConnector(
+                                    mediaType),
+                            direction,
+                            dev.getSupportedExtensions());
+
+                try
+                {
+                    switch (mediaType)
+                    {
+                    case AUDIO:
+                        /*
+                         * Let the remote peer know that we support RTCP XR
+                         * in general and VoIP Metrics Report Block in
+                         * particular.
+                         */
+                        String rtcpxr
+                            = md.getAttribute(
+                                    RTCPExtendedReport.SDP_ATTRIBUTE);
+
+                        if (rtcpxr == null)
+                        {
+                            md.setAttribute(
+                                    RTCPExtendedReport.SDP_ATTRIBUTE,
+                                    RTCPExtendedReport
+                                        .VoIPMetricsReportBlock
+                                            .SDP_PARAMETER);
+                        }
+
+                        int ptimeSetting
+                            = SipActivator.getConfigurationService().getInt(
+                                "net.java.sip.communicator.impl.protocol" +
+                                    ".sip.PTIME_VALUE",
+                                20);
+                        // the default value is 20ms
+                        if(ptimeSetting != 20)
+                        {
+                            md.setAttribute(
+                                "ptime",
+                                String.valueOf(ptimeSetting));
+                        }
+
+                        break;
+                    case VIDEO:
+                        // If we have a video preset, let's send info about
+                        // the desired frame rate.
+                        if (receiveQualityPreset != null)
+                        {
+                            // doing only int frame rate for now
+                            int frameRate
+                                = (int) receiveQualityPreset.getFameRate();
+
+                            if (frameRate > 0)
+                            {
+                                md.setAttribute(
+                                        "framerate",
+                                        String.valueOf(frameRate));
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                    }
+                }
+                catch(SdpException e)
+                {
+                    // do nothing in case of error.
+                }
+
+                if (DtlsControl.UDP_TLS_RTP_SAVP.equals(proto)
+                        || DtlsControl.UDP_TLS_RTP_SAVPF.equals(proto))
                 {
                     /*
-                     * If we start an audio-only call and re-INVITE the remote
-                     * peer for desktop sharing/streaming later on, we will have
-                     * effectively switched from the webcam to the
-                     * display/screen. It seems beneficial in such a scenario to
-                     * not have a send quality preset unless we actually intend
-                     * to send video.
+                     * RFC 5764 "Datagram Transport Layer Security (DTLS)
+                     * Extension to Establish Keys for the Secure Real-time
+                     * Transport Protocol (SRTP)"
                      */
-                    QualityPreset effectiveSendQualityPreset
-                        = direction.allowsSending() ? sendQualityPreset : null;
-                    MediaDescription md
-                        = createMediaDescription(
-                                proto,
-                                getLocallySupportedFormats(
-                                        dev,
-                                        effectiveSendQualityPreset,
-                                        receiveQualityPreset),
-                                getTransportManager().getStreamConnector(
-                                        mediaType),
-                                direction,
-                                dev.getSupportedExtensions());
-
-                    try
-                    {
-                        switch (mediaType)
-                        {
-                        case AUDIO:
-                            /*
-                             * Let the remote peer know that we support RTCP XR
-                             * in general and VoIP Metrics Report Block in
-                             * particular.
-                             */
-                            String rtcpxr
-                                = md.getAttribute(
-                                        RTCPExtendedReport.SDP_ATTRIBUTE);
-
-                            if (rtcpxr == null)
-                            {
-                                md.setAttribute(
-                                        RTCPExtendedReport.SDP_ATTRIBUTE,
-                                        RTCPExtendedReport
-                                            .VoIPMetricsReportBlock
-                                                .SDP_PARAMETER);
-                            }
-
-                            int ptimeSetting
-                                = SipActivator.getConfigurationService().getInt(
-                                    "net.java.sip.communicator.impl.protocol" +
-                                        ".sip.PTIME_VALUE",
-                                    20);
-                            // the default value is 20ms
-                            if(ptimeSetting != 20)
-                            {
-                                md.setAttribute(
-                                    "ptime",
-                                    String.valueOf(ptimeSetting));
-                            }
-
-                            break;
-                        case VIDEO:
-                            // If we have a video preset, let's send info about
-                            // the desired frame rate.
-                            if (receiveQualityPreset != null)
-                            {
-                                // doing only int frame rate for now
-                                int frameRate
-                                    = (int) receiveQualityPreset.getFameRate();
-
-                                if (frameRate > 0)
-                                {
-                                    md.setAttribute(
-                                            "framerate",
-                                            String.valueOf(frameRate));
-                                }
-                            }
-                            break;
-                        default:
-                            break;
-                        }
-                    }
-                    catch(SdpException e)
-                    {
-                        // do nothing in case of error.
-                    }
-
-                    if (DtlsControl.UDP_TLS_RTP_SAVP.equals(proto)
-                            || DtlsControl.UDP_TLS_RTP_SAVPF.equals(proto))
+                    updateMediaDescriptionForDtls(mediaType, md, null);
+                }
+                else
+                {
+                    /*
+                     * According to RFC 6189 "ZRTP: Media Path Key Agreement
+                     * for Unicast Secure RTP", "ZRTP utilizes normal
+                     * RTP/AVP (Audio-Visual Profile) profiles", "[t]he
+                     * Secure RTP/AVP (SAVP) profile MAY be used in
+                     * subsequent offer/answer exchanges after a successful
+                     * ZRTP exchange has resulted in an SRTP session, or if
+                     * it is known that the other endpoint supports this
+                     * profile" and "[o]ther profiles MAY also be used."
+                     */
+                    updateMediaDescriptionForZrtp(mediaType, md, null);
+                    if (SrtpControl.RTP_SAVP.equals(proto)
+                            || SrtpControl.RTP_SAVPF.equals(proto))
                     {
                         /*
-                         * RFC 5764 "Datagram Transport Layer Security (DTLS)
-                         * Extension to Establish Keys for the Secure Real-time
-                         * Transport Protocol (SRTP)"
+                         * According to Ingo Bauersachs, SDES "[b]asically
+                         * requires SAVP per RFC."
+                         */
+                        updateMediaDescriptionForSDes(mediaType, md, null);
+                    }
+                    if (SrtpControl.RTP_SAVPF.equals(proto))
+                    {
+                        /*
+                         * draft-ietf-rtcweb-rtp-usage-09 "Web Real-Time
+                         * Communication (WebRTC): Media Transport and Use
+                         * of RTP"
                          */
                         updateMediaDescriptionForDtls(mediaType, md, null);
                     }
-                    else
-                    {
-                        /*
-                         * According to RFC 6189 "ZRTP: Media Path Key Agreement
-                         * for Unicast Secure RTP", "ZRTP utilizes normal
-                         * RTP/AVP (Audio-Visual Profile) profiles", "[t]he
-                         * Secure RTP/AVP (SAVP) profile MAY be used in
-                         * subsequent offer/answer exchanges after a successful
-                         * ZRTP exchange has resulted in an SRTP session, or if
-                         * it is known that the other endpoint supports this
-                         * profile" and "[o]ther profiles MAY also be used."
-                         */
-                        updateMediaDescriptionForZrtp(mediaType, md, null);
-                        if (SrtpControl.RTP_SAVP.equals(proto)
-                                || SrtpControl.RTP_SAVPF.equals(proto))
-                        {
-                            /*
-                             * According to Ingo Bauersachs, SDES "[b]asically
-                             * requires SAVP per RFC."
-                             */
-                            updateMediaDescriptionForSDes(mediaType, md, null);
-                        }
-                        if (SrtpControl.RTP_SAVPF.equals(proto))
-                        {
-                            /*
-                             * draft-ietf-rtcweb-rtp-usage-09 "Web Real-Time
-                             * Communication (WebRTC): Media Transport and Use
-                             * of RTP"
-                             */
-                            updateMediaDescriptionForDtls(mediaType, md, null);
-                        }
-                    }
-
-                    mediaDescs.add(md);
                 }
+
+                mediaDescs.add(md);
             }
         }
 
@@ -1483,7 +1480,7 @@ public class CallPeerMediaHandlerSipImpl
             // where we set a direction and the other side don't agree with us
             // we need to be in the state we have offered
             if(isLocallyOnHold())
-                direction = direction.and(MediaDirection.SENDONLY);
+                direction = direction.and(MediaDirection.INACTIVE);
 
             // update the RTP extensions that we will be exchanging.
             List<RTPExtension> remoteRTPExtensions

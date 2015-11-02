@@ -206,7 +206,7 @@ public class Logger
 
     public void audit(Object msg)
     {
-        loggerDelegate.log(MyLoggerLevel.AUDIT,msg!=null?msg.toString():"null");
+        loggerDelegate.log(AuditLevel.AUDIT,msg!=null?msg.toString():"null");
     }
     
     
@@ -214,7 +214,7 @@ public class Logger
     
     public void audit(Object msg, Throwable t)
     {
-        loggerDelegate.log(MyLoggerLevel.AUDIT, msg!=null?msg.toString():"null", t);
+        loggerDelegate.log(AuditLevel.AUDIT, msg!=null?msg.toString():"null", t);
     }
     
     
@@ -323,7 +323,7 @@ public class Logger
     
     public void setLevelAudit()
     {
-        setLevel(MyLoggerLevel.AUDIT);
+        setLevel(AuditLevel.AUDIT);
     }
 
     /**

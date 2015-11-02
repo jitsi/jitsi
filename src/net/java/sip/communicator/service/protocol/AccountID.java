@@ -364,18 +364,6 @@ public abstract class AccountID
         return (value == null) ? defValue : value;
     }
 
-   /**
-     * Get the {@link ProtocolProviderFactory#ACCOUNT_DISPLAY_NAME} property.
-     *
-     * @return the {@link ProtocolProviderFactory#ACCOUNT_DISPLAY_NAME}
-     *         property value.
-     */
-    public String getAccountDisplayName()
-    {
-        return getAccountPropertyString(
-                ProtocolProviderFactory.ACCOUNT_DISPLAY_NAME);
-    }
-
     /**
      * Adds a property to the map of properties for this account identifier.
      *

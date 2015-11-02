@@ -149,6 +149,9 @@ public class ConfigHeaders
             headerValues.put(name, prefStr);
         }
 
+        CSeqHeader cSeqHeader = (CSeqHeader) request.getHeader(SIPHeaderNames.CSEQ);
+        Long seqNumber = cSeqHeader.getSeqNumber();
+
         // process the found custom headers
         for(Map<String, String> headerValues : headers.values())
         {
@@ -171,6 +174,15 @@ public class ConfigHeaders
                     request, props);
 
                 Header h = request.getHeader(name);
+
+                if (name.equals(SIPHeaderNames.ROUTE) 
+                    || name.equals("P-Asserted-Identity"))
+                {
+                    if (seqNumber != 1)
+                    {
+                        continue;
+                    }
+                }
 
                 // makes possible overriding already created headers which
                 // are not custom one

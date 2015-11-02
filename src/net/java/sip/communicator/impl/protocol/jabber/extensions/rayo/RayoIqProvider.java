@@ -54,6 +54,24 @@ public class RayoIqProvider
             NAMESPACE,
             this);
 
+        // <hold>
+        providerManager.addIQProvider(
+            HoldIq.ELEMENT_NAME,
+            NAMESPACE,
+            this);
+
+        // <unhold>
+        providerManager.addIQProvider(
+            UnHoldIq.ELEMENT_NAME,
+            NAMESPACE,
+            this);
+
+        // <merge>
+        providerManager.addIQProvider(
+            MergeIq.ELEMENT_NAME,
+            NAMESPACE,
+            this);
+
         // <ref>
         providerManager.addIQProvider(
             RefIq.ELEMENT_NAME,
@@ -101,6 +119,9 @@ public class RayoIqProvider
         RayoIq iq;
         DialIq dial;
         RefIq ref;
+        HoldIq hold;
+        UnHoldIq unHold;
+        MergeIq merge;
         //End end = null;
 
         if (DialIq.ELEMENT_NAME.equals(rootElement))
@@ -129,6 +150,18 @@ public class RayoIqProvider
         else if (HangUp.ELEMENT_NAME.equals(rootElement))
         {
             iq = new HangUp();
+        }
+        else if (HoldIq.ELEMENT_NAME.equals(rootElement))
+        {
+            iq = hold = new HoldIq();
+        }
+        else if (UnHoldIq.ELEMENT_NAME.equals(rootElement))
+        {
+            iq = unHold = new UnHoldIq();
+        }
+        else if (MergeIq.ELEMENT_NAME.equals(rootElement))
+        {
+            iq = merge = new MergeIq();
         }
         /*else if (End.ELEMENT_NAME.equals(rootElement))
         {
@@ -337,6 +370,132 @@ public class RayoIqProvider
 
             headerExt.setValue(value);
         }
+    }
+
+    /**
+     * The 'unhold' IQ used to resume a call which is on hold.
+     */
+    public static class UnHoldIq
+        extends RayoIq
+    {
+
+        /**
+         * The name of XML element for this IQ.
+         */
+        public static final String ELEMENT_NAME = "unhold";
+
+        /**
+         * Creates new instance of <tt>UnHoldIq</tt>.
+         */
+        public UnHoldIq()
+        {
+            super(UnHoldIq.ELEMENT_NAME);
+        }
+
+        /**
+         * Creates new <tt>UnHoldIq</tt>.
+         * @return new <tt>UnHoldIq</tt>.
+         */
+        public static UnHoldIq create()
+        {
+            UnHoldIq unHoldIq = new UnHoldIq();
+
+            return unHoldIq;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected void printAttributes(StringBuilder out)
+        {
+            out.toString();
+        }
+
+    }
+
+    /**
+     * The 'hold' IQ used to put a call on hold.
+     */
+    public static class HoldIq
+        extends RayoIq
+    {
+
+        /**
+         * The name of XML element for this IQ.
+         */
+        public static final String ELEMENT_NAME = "hold";
+
+        /**
+         * Creates new instance of <tt>HoldIq</tt>.
+         */
+        public HoldIq()
+        {
+            super(HoldIq.ELEMENT_NAME);
+        }
+
+        /**
+         * Creates new <tt>HoldIq</tt>.
+         * @return new <tt>HoldIq</tt>.
+         */
+        public static HoldIq create()
+        {
+            HoldIq holdIq = new HoldIq();
+
+            return holdIq;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected void printAttributes(StringBuilder out)
+        {
+            out.toString();
+        }
+
+    }
+
+    /**
+     * The 'merge' IQ used to merge multiple calls.
+     */
+    public static class MergeIq
+        extends RayoIq
+    {
+
+        /**
+         * The name of XML element for this IQ.
+         */
+        public static final String ELEMENT_NAME = "merge";
+
+        /**
+         * Creates new instance of <tt>MergeIq</tt>.
+         */
+        public MergeIq()
+        {
+            super(MergeIq.ELEMENT_NAME);
+        }
+
+        /**
+         * Creates new <tt>MergeIq</tt>.
+         * @return new <tt>MergeIq</tt>.
+         */
+        public static MergeIq create()
+        {
+            MergeIq mergeIq = new MergeIq();
+
+            return mergeIq;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected void printAttributes(StringBuilder out)
+        {
+            out.toString();
+        }
+
     }
 
     /**
