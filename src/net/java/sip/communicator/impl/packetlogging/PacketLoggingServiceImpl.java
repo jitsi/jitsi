@@ -20,6 +20,7 @@ package net.java.sip.communicator.impl.packetlogging;
 import java.io.*;
 import java.util.*;
 
+import com.google.common.collect.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.fileaccess.*;
@@ -321,6 +322,8 @@ public class PacketLoggingServiceImpl
                     return cfg.isRTPLoggingEnabled();
                 case ICE4J:
                     return cfg.isIce4JLoggingEnabled();
+                case ARBITRARY:
+                    return cfg.isArbitraryLoggingEnabled();
                 default:
                     /*
                      * It may seem like it was unnecessary to invoke
@@ -767,7 +770,7 @@ public class PacketLoggingServiceImpl
         /**
          * List of packets queued to be written in the file.
          */
-        private final List<Packet> pktsToSave = new ArrayList<Packet>();
+        private final Queue<Packet> pktsToSave = EvictingQueue.create(10);
 
         /**
          * Initializes a new <tt>SaverThread</tt>.
@@ -803,7 +806,7 @@ public class PacketLoggingServiceImpl
                         continue;
                     }
 
-                    pktToSave = pktsToSave.remove(0);
+                    pktToSave = pktsToSave.poll();
                 }
 
                 if(pktToSave != null)

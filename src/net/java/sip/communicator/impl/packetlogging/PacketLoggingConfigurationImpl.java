@@ -60,6 +60,10 @@ public class PacketLoggingConfigurationImpl
             configService.getBoolean(
                 PACKET_LOGGING_ICE4J_ENABLED_PROPERTY_NAME,
                 isIce4JLoggingEnabled()));
+        super.setArbitraryLoggingEnabled(
+            configService.getBoolean(
+                PACKET_LOGGING_ARBITRARY_ENABLED_PROPERTY_NAME,
+                isArbitraryLoggingEnabled()));
         super.setLimit(
             configService.getLong(
                 PACKET_LOGGING_FILE_SIZE_PROPERTY_NAME,
