@@ -16,4 +16,5 @@ Import-Package: org.osgi.framework,
  javax.swing,
  javax.swing.border,
  javax.swing.event,
- javax.swing.text
+ javax.swing.text,
+ com.google.common.collect
