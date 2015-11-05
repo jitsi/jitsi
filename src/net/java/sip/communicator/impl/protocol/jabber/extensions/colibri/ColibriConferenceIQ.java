@@ -631,7 +631,7 @@ public class ColibriConferenceIQ
          * Videobridge to the endpoint associated with this video
          * <tt>Channel</tt>.
          */
-        private Integer receivingSimulcastLayer;
+        private Integer receivingSimulcastStream;
 
         /**
          * The RTCP port of the <tt>channel</tt> represented by this instance.
@@ -929,9 +929,9 @@ public class ColibriConferenceIQ
          * from Jitsi Videobridge to the endpoint associated with this video
          * <tt>Channel</tt>.
          */
-        public Integer getReceivingSimulcastLayer()
+        public Integer getReceivingSimulcastStream()
         {
-            return receivingSimulcastLayer;
+            return receivingSimulcastStream;
         }
 
         /**
@@ -1327,13 +1327,13 @@ public class ColibriConferenceIQ
          * Jitsi Videobridge to the endpoint associated with this video
          * <tt>Channel</tt>.
          *
-         * @param simulcastLayer the target quality of the simulcast substreams
+         * @param simulcastStream the target quality of the simulcast substreams
          * to be sent from Jitsi Videobridge to the endpoint associated with
          * this video <tt>Channel</tt>.
          */
-        public void setReceivingSimulcastLayer(Integer simulcastLayer)
+        public void setReceivingSimulcastStream(Integer simulcastStream)
         {
-            this.receivingSimulcastLayer = simulcastLayer;
+            this.receivingSimulcastStream = simulcastStream;
         }
 
         /**
