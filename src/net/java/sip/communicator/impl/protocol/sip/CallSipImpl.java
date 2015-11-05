@@ -78,6 +78,24 @@ public class CallSipImpl
     public static final String DS_SHARING_HEADER = "X-Desktop-Share";
 
     /**
+     * Custom header name prefix that can be added to the call instance.
+     * Several headers can be specified in the form of:
+     * EXTRA_HEADER_NAME.1=...
+     * EXTRA_HEADER_NAME.2=...
+     * Index starting from 1.
+     */
+    public static final String EXTRA_HEADER_NAME = "EXTRA_HEADER_NAME";
+
+    /**
+     * Custom header value prefix that can be added to the call instance.
+     * Several headers can be specified in the form of:
+     * EXTRA_HEADER_VALUE.1=...
+     * EXTRA_HEADER_VALUE.2=...
+     * Index starting from 1.
+     */
+    public static final String EXTRA_HEADER_VALUE = "EXTRA_HEADER_VALUE";
+
+    /**
      * When starting call we may have quality preferences we must use
      * for the call.
      */
@@ -706,6 +724,22 @@ public class CallSipImpl
     protected void processExtraHeaders(javax.sip.message.Message message)
         throws ParseException
     {
+        // If there are custom headers added to the call instance, add those
+        // headers
+        int extraHeaderIx = 1;
+
+        Object name = getData(EXTRA_HEADER_NAME + "." + extraHeaderIx);
+        while(name != null)
+        {
+            Object value = getData(EXTRA_HEADER_VALUE + "." + extraHeaderIx);
+
+            Header header = getProtocolProvider().getHeaderFactory()
+                .createHeader((String) name, (String) value);
+            message.setHeader(header);
+
+            extraHeaderIx++;
+            name = getData(EXTRA_HEADER_NAME + "." + extraHeaderIx);
+        }
     }
 
     /**
