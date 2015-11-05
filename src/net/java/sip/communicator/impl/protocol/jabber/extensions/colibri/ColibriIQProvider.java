@@ -476,16 +476,16 @@ public class ColibriIQProvider
                                     SimulcastMode.fromString(simulcastMode));
 
                         // receiving simulcast layer
-                        String receivingSimulcastStream
+                        String receivingSimulcastLayer
                                 = parser.getAttributeValue(
                                 "",
                                 ColibriConferenceIQ.Channel
                                             .RECEIVING_SIMULCAST_LAYER);
 
-                        if ((receivingSimulcastStream != null)
-                                && (receivingSimulcastStream.length() != 0))
-                            channel.setReceivingSimulcastStream(
-                                    Integer.parseInt(receivingSimulcastStream));
+                        if ((receivingSimulcastLayer != null)
+                                && (receivingSimulcastLayer.length() != 0))
+                            channel.setReceivingSimulcastLayer(
+                                    Integer.parseInt(receivingSimulcastLayer));
 
                         // rtcpPort
                         String rtcpPort
