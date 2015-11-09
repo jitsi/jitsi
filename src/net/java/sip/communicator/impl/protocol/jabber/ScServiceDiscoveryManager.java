@@ -27,6 +27,7 @@ import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.packet.*;
 
@@ -791,7 +792,11 @@ public class ScServiceDiscoveryManager
                 // fire event
                 if(fireEvent && capabilitiesOpSet != null)
                 {
-                    capabilitiesOpSet.fireContactCapabilitiesChanged(entityID);
+                    capabilitiesOpSet.fireContactCapabilitiesChanged(
+                        entityID,
+                        capsManager.getFullJidsByBareJid(
+                            StringUtils.parseBareAddress(entityID))
+                        );
                 }
             }
             catch(XMPPException ex)

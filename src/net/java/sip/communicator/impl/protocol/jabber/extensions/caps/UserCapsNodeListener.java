@@ -17,6 +17,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.caps;
 
+import java.util.ArrayList;
+
 /**
  * Represents a listener of events notifying about changes in the list of user
  * caps nodes of <tt>EntityCapsManager</tt>.
@@ -30,18 +32,22 @@ public interface UserCapsNodeListener
      * record for a specific user about the caps node the user has.
      *
      * @param user the user (full JID)
+     * @param fullJids a list of all resources of the user (full JIDs)
      * @param node the entity caps node#ver
      * @param online indicates if the user for which we're notified is online
      */
-    public void userCapsNodeAdded(String user, String node, boolean online);
+    public void userCapsNodeAdded(String user, ArrayList<String> fullJids,
+        String node, boolean online);
 
     /**
      * Notifies this listener that an <tt>EntityCapsManager</tt> has removed a
      * record for a specific user about the caps node the user has.
      *
      * @param user the user (full JID)
+     * @param fullJids a list of all resources of the user (full JIDs)
      * @param node the entity caps node#ver
      * @param online indicates if the user for which we're notified is online
      */
-    public void userCapsNodeRemoved(String user, String node, boolean online);
+    public void userCapsNodeRemoved(String user, ArrayList<String> fullJids,
+        String node, boolean online);
 }

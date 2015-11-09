@@ -26,7 +26,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smack.util.*;
 
 /**
  * Represents an <tt>OperationSet</tt> to query the <tt>OperationSet</tt>s
@@ -50,6 +50,19 @@ public class OperationSetContactCapabilitiesJabberImpl
      */
     private static final Logger logger
         = Logger.getLogger(OperationSetContactCapabilitiesJabberImpl.class);
+
+    /**
+     * The name of the property used to control whether to use
+     * all resources to show capabilities
+     */
+    public static final String PROP_XMPP_USE_ALL_RESOURCES_FOR_CAPABILITIES =
+        "net.java.sip.communicator.XMPP_USE_ALL_RESOURCES_FOR_CAPABILITIES";
+
+    /**
+     * The default value for the capabilities setting
+     */
+    public static final boolean USE_ALL_RESOURCES_FOR_CAPABILITIES_DEFAULT =
+        true;
 
     /**
      * The list of <tt>OperationSet</tt> capabilities presumed to be supported
@@ -276,6 +289,42 @@ public class OperationSetContactCapabilitiesJabberImpl
     }
 
     /**
+     * Gets the largest set of <tt>OperationSet</tt>s supported from a
+     * list of full JIDs. The returned <tt>OperationSet</tt>s are considered
+     * by the associated protocol provider to capabilities possessed by the
+     * specified <tt>contact</tt>.
+     *
+     * @param fullJids a list of full JIDs in which to find the resource with
+     * the most capabilities.
+     * @return the <tt>Map</tt> listing the most <tt>OperationSet</tt>s
+     * considered by the associated protocol provider to be supported by the
+     * specified <tt>contact</tt> (i.e. to be possessed as capabilities).
+     * Each supported <tt>OperationSet</tt> capability is represented by a
+     * <tt>Map.Entry</tt> with key equal to the <tt>OperationSet</tt> class
+     * name and value equal to the respective <tt>OperationSet</tt> instance
+     */
+    protected Map<String, OperationSet> getLargestSupportedOperationSet(
+            ArrayList<String> fullJids)
+    {
+        Map<String, OperationSet> supportedOperationSets =
+            new HashMap<String, OperationSet>();
+        if (fullJids!=null)
+        {
+            for (String fullJid : fullJids)
+            {
+                Map<String, OperationSet> newSupportedOperationSets=
+                getSupportedOperationSets(fullJid, true);
+                if (newSupportedOperationSets.size()>
+                    supportedOperationSets.size())
+                {
+                    supportedOperationSets = newSupportedOperationSets;
+                }
+            }
+        }
+        return supportedOperationSets;
+    }
+
+    /**
      * Gets the <tt>OperationSet</tt> corresponding to the specified
      * <tt>Class</tt> and supported by the specified <tt>Contact</tt>. If the
      * returned value is non-<tt>null</tt>, it indicates that the
@@ -387,17 +436,19 @@ public class OperationSetContactCapabilitiesJabberImpl
      * record for a specific user about the caps node the user has.
      *
      * @param user the user (full JID)
+     * @param fullJids a list of all resources of the user (full JIDs)
      * @param node the entity caps node#ver
      * @param online indicates if the user is currently online
      * @see UserCapsNodeListener#userCapsNodeAdded(String, String, boolean)
      */
-    public void userCapsNodeAdded(String user, String node, boolean online)
+    public void userCapsNodeAdded(String user, ArrayList<String> fullJids,
+        String node, boolean online)
     {
         /*
          * It doesn't matter to us whether a caps node has been added or removed
          * for the specified user because we report all changes.
          */
-        userCapsNodeRemoved(user, node, online);
+        userCapsNodeChanged(user, fullJids, node, online);
     }
 
     /**
@@ -405,45 +456,85 @@ public class OperationSetContactCapabilitiesJabberImpl
      * record for a specific user about the caps node the user has.
      *
      * @param user the user (full JID)
+     * @param fullJids a list of all resources of the user (full JIDs)
+     * @param node the entity caps node#ver
+     * @param online indicates if the user is currently online
+     * @see UserCapsNodeListener#userCapsNodeAdded(String, String, boolean)
+     */
+    public void userCapsNodeRemoved(String user, ArrayList<String> fullJids,
+        String node, boolean online)
+    {
+        /*
+         * It doesn't matter to us whether a caps node has been added or removed
+         * for the specified user because we report all changes.
+         */
+        userCapsNodeChanged(user, fullJids, node, online);
+    }
+
+    /**
+     * Notifies this listener that an <tt>EntityCapsManager</tt> has changed a
+     * record for a specific user about the caps node the user has.
+     *
+     * @param user the user (full JID)
+     * @param fullJids a list of all resources of the user (full JIDs)
      * @param node the entity caps node#ver
      * @param online indicates if the given user is online
-     * @see UserCapsNodeListener#userCapsNodeRemoved(String, String, boolean)
      */
-    public void userCapsNodeRemoved(String user, String node, boolean online)
+    public void userCapsNodeChanged(String user, ArrayList<String> fullJids,
+        String node, boolean online)
     {
         OperationSetPresence opsetPresence
-            = parentProvider.getOperationSet(OperationSetPresence.class);
-
-        if (opsetPresence != null)
-        {
-            String jid = StringUtils.parseBareAddress(user);
-            Contact contact = opsetPresence.findContactByID(jid);
-
-            // If the contact isn't null and is online we try to discover the
-            // new set of operation sets and to notify interested parties.
-            // Otherwise we ignore the event.
-            if (contact != null)
+        = parentProvider.getOperationSet(OperationSetPresence.class);
+        if (opsetPresence != null) {
+            if(JabberActivator.getConfigurationService()
+                .getBoolean(
+                    PROP_XMPP_USE_ALL_RESOURCES_FOR_CAPABILITIES,
+                    USE_ALL_RESOURCES_FOR_CAPABILITIES_DEFAULT))
             {
-                if(online)
+                String bareJid = StringUtils.parseBareAddress(user);
+                Contact contact = opsetPresence.findContactByID(bareJid);
+                if (contact != null)
                 {
-                    // when going online we have received a presence
-                    // and make sure we discover this particular jid
-                    // for getSupportedOperationSets
                     fireContactCapabilitiesEvent(
                         contact,
-                        ContactCapabilitiesEvent.SUPPORTED_OPERATION_SETS_CHANGED,
-                        getSupportedOperationSets(user,
-                            online));
+                        ContactCapabilitiesEvent.
+                        SUPPORTED_OPERATION_SETS_CHANGED,
+                        getLargestSupportedOperationSet(fullJids));
                 }
-                else
+            }
+            else
+            {
+                String jid = StringUtils.parseBareAddress(user);
+                Contact contact = opsetPresence.findContactByID(jid);
+
+                // If the contact isn't null and is online we try to discover
+                // the new set of operation sets and to notify interested
+                // parties. Otherwise we ignore the event.
+                if (contact != null)
                 {
-                    // when offline, we use the contact, and selecting
-                    // the most connected jid
-                    // for getSupportedOperationSets
-                    fireContactCapabilitiesEvent(
-                        contact,
-                        ContactCapabilitiesEvent.SUPPORTED_OPERATION_SETS_CHANGED,
-                        getSupportedOperationSets(contact));
+                    if(online)
+                    {
+                        // when going online we have received a presence
+                        // and make sure we discover this particular jid
+                        // for getSupportedOperationSets
+                        fireContactCapabilitiesEvent(
+                            contact,
+                            ContactCapabilitiesEvent.
+                            SUPPORTED_OPERATION_SETS_CHANGED,
+                            getSupportedOperationSets(user,
+                                online));
+                    }
+                    else
+                    {
+                        // when offline, we use the contact, and selecting
+                        // the most connected jid
+                        // for getSupportedOperationSets
+                        fireContactCapabilitiesEvent(
+                            contact,
+                            ContactCapabilitiesEvent.
+                            SUPPORTED_OPERATION_SETS_CHANGED,
+                            getSupportedOperationSets(contact));
+                    }
                 }
             }
         }
@@ -460,7 +551,8 @@ public class OperationSetContactCapabilitiesJabberImpl
     {
         // If the user goes offline we ensure to remove the caps node.
         if (capsManager != null
-            && evt.getNewStatus().getStatus() < PresenceStatus.ONLINE_THRESHOLD)
+            && evt.getNewStatus().getStatus() < PresenceStatus.ONLINE_THRESHOLD
+            && !evt.isResourceChanged())
         {
             capsManager.removeContactCapsNode(evt.getSourceContact());
         }
@@ -469,31 +561,59 @@ public class OperationSetContactCapabilitiesJabberImpl
     /**
      * Fires event that contact capabilities has changed.
      * @param user the user to search for its contact.
+     * @param fullJids a list of all resources of the user (full JIDs)
      */
-    public void fireContactCapabilitiesChanged(String user)
+    public void fireContactCapabilitiesChanged(String user,
+        ArrayList<String> fullJids)
     {
-        OperationSetPresence opsetPresence
+        if(!JabberActivator.getConfigurationService()
+            .getBoolean(
+                PROP_XMPP_USE_ALL_RESOURCES_FOR_CAPABILITIES,
+                USE_ALL_RESOURCES_FOR_CAPABILITIES_DEFAULT)
+            ||fullJids.isEmpty())
+        {
+            OperationSetPresence opsetPresence
             = parentProvider.getOperationSet(OperationSetPresence.class);
 
-        if (opsetPresence != null)
-        {
-            String userID = StringUtils.parseBareAddress(user);
-            Contact contact = opsetPresence.findContactByID(userID);
-
-            // this called by received discovery info for particular jid
-            // so we use its online and opsets for this particular jid
-            boolean online = false;
-            Presence presence = parentProvider.getConnection().getRoster()
-                .getPresence(user);
-            if(presence != null)
-                online = presence.isAvailable();
-
-            if(contact != null)
+            if (opsetPresence != null)
             {
-                fireContactCapabilitiesEvent(
-                    contact,
-                    ContactCapabilitiesEvent.SUPPORTED_OPERATION_SETS_CHANGED,
-                    getSupportedOperationSets(user, online));
+                String userID = StringUtils.parseBareAddress(user);
+                Contact contact = opsetPresence.findContactByID(userID);
+
+                // this called by received discovery info for particular jid
+                // so we use its online and opsets for this particular jid
+                boolean online = false;
+                Presence presence = parentProvider.getConnection().getRoster()
+                    .getPresence(user);
+                if(presence != null)
+                    online = presence.isAvailable();
+
+                if(contact != null)
+                {
+                    fireContactCapabilitiesEvent(
+                        contact,
+                        ContactCapabilitiesEvent.
+                        SUPPORTED_OPERATION_SETS_CHANGED,
+                        getSupportedOperationSets(user, online));
+                }
+            }
+        }
+        else
+        {
+            OperationSetPresence opsetPresence
+            = parentProvider.getOperationSet(OperationSetPresence.class);
+            if (opsetPresence != null)
+            {
+                String bareJid = StringUtils.parseBareAddress(user);
+                Contact contact = opsetPresence.findContactByID(bareJid);
+                if(contact != null)
+                {
+                    fireContactCapabilitiesEvent(
+                        contact,
+                        ContactCapabilitiesEvent.
+                        SUPPORTED_OPERATION_SETS_CHANGED,
+                        getLargestSupportedOperationSet(fullJids));
+                }
             }
         }
     }

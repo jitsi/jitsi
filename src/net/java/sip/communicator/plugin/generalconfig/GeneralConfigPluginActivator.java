@@ -108,6 +108,14 @@ public class GeneralConfigPluginActivator
         "net.java.sip.communicator.plugin.generalconfig.sipconfig.DISABLED";
 
     /**
+     * Indicates if the XMPP configuration form should be disabled, i.e.
+     * not visible to the user.
+     */
+    private static final String XMPP_CONFIG_DISABLED_PROP
+        =
+        "net.java.sip.communicator.plugin.generalconfig.xmppconfig.DISABLED";
+
+    /**
      * Starts this bundle.
      */
     @Override
@@ -152,6 +160,22 @@ public class GeneralConfigPluginActivator
                     getClass().getClassLoader(),
                     null,
                     "plugin.generalconfig.SIP_CALL_CONFIG",
+                    52, true),
+                properties);
+        }
+        if (!getConfigurationService()
+            .getBoolean(XMPP_CONFIG_DISABLED_PROP, false))
+        {
+            // Registers the XMPP config panel as advanced configuration form.
+            properties.put( ConfigurationForm.FORM_TYPE,
+                            ConfigurationForm.ADVANCED_TYPE);
+            bundleContext.registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                    XMPPConfigForm.class.getName(),
+                    getClass().getClassLoader(),
+                    null,
+                    "plugin.generalconfig.XMPP_CONFIG",
                     52, true),
                 properties);
         }
