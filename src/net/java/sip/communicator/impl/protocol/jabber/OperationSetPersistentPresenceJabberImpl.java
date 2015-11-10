@@ -1528,6 +1528,19 @@ public class OperationSetPersistentPresenceJabberImpl
                                         o2, parentProvider).getStatus()
                                       - jabberStatusToPresenceStatus(
                                             o1, parentProvider).getStatus();
+                                // We have run out of "logical" ways to order
+                                // the presences inside the TreeSet. We have
+                                // make sure we are consinstent with equals.
+                                // We do this by comparing the unique resource
+                                // names. If this evaluates to 0 again, then we
+                                // can safely assume this presence object 
+                                // represents the same resource and by that the
+                                // same client.
+                                if(res == 0)
+                                {
+                                    res = o1.getFrom().compareTo(
+                                        o2.getFrom());
+                                }
                             }
 
                             return res;
