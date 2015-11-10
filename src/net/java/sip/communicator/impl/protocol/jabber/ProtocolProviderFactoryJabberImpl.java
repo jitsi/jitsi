@@ -21,6 +21,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 
+import net.java.sip.communicator.service.protocol.jabber.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.*;
 import org.osgi.framework.*;
@@ -46,7 +47,14 @@ public class ProtocolProviderFactoryJabberImpl
     {
         try
         {
+            
+            // Set the extension provider manager for classes that use 
+            // it directly
             ProviderManager.setInstance(new ProviderManagerExt());
+            // Set the Smack interop implementation for the classes that need
+            // to support Smackv4 interoperation
+            AbstractSmackInteroperabilityLayer.setImplementationClass(
+                    SmackV3InteroperabilityLayer.class);
         }
         catch(Throwable t)
         {

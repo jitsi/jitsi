@@ -21,6 +21,7 @@ import java.math.*;
 import java.security.*;
 import java.util.*;
 
+import net.java.sip.communicator.service.protocol.jabber.*;
 import org.jivesoftware.smack.packet.*;
 
 /**
@@ -62,7 +63,8 @@ public class JingleIQ extends IQ
      * The name of the argument that contains the session id.
      */
     public static final String SID_ATTR_NAME = "sid";
-
+    
+    
     /**
      * The <tt>JingleAction</tt> that describes the purpose of this
      * <tt>jingle</tt> element.
@@ -104,8 +106,8 @@ public class JingleIQ extends IQ
      * The list of "content" elements included in this IQ.
      */
     private final List<ContentPacketExtension> contentList
-                                = new ArrayList<ContentPacketExtension>();
-
+            = new ArrayList<ContentPacketExtension>();
+    
     /**
      * Returns the XML string of this Jingle IQ's "section" sub-element.
      *
@@ -124,17 +126,18 @@ public class JingleIQ extends IQ
 
         if( initiator != null)
             bldr.append(" " + INITIATOR_ATTR_NAME
-                                + "='" + getInitiator() + "'");
+                    + "='" + getInitiator() + "'");
 
         if( responder != null)
             bldr.append(" " + RESPONDER_ATTR_NAME
-                                + "='" + getResponder() + "'");
+                    + "='" + getResponder() + "'");
 
         bldr.append(" " + SID_ATTR_NAME
-                            + "='" + getSID() + "'");
+                + "='" + getSID() + "'");
 
-        String extensionsXML = getExtensionsXML();
-
+        CharSequence extensionsXMLSeq = getExtensionsXML();
+        String extensionsXML = extensionsXMLSeq.toString();
+        
         if ((contentList.size() == 0)
                 && (reason == null)
                 && (sessionInfo == null)
@@ -348,7 +351,7 @@ public class JingleIQ extends IQ
      * otherwise.
      */
     public boolean containsContentChildOfType(
-                        Class<? extends PacketExtension> contentType)
+            Class<? extends PacketExtension> contentType)
     {
         if(getContentForType(contentType) != null)
             return true;
@@ -369,14 +372,14 @@ public class JingleIQ extends IQ
      * found.
      */
     public ContentPacketExtension getContentForType(
-                        Class<? extends PacketExtension> contentType)
+            Class<? extends PacketExtension> contentType)
     {
         synchronized(contentList)
         {
             for(ContentPacketExtension content : contentList)
             {
                 PacketExtension child
-                                  = content.getFirstChildOfType(contentType);
+                        = content.getFirstChildOfType(contentType);
                 if(child != null)
                     return content;
             }
