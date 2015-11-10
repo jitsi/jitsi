@@ -489,7 +489,8 @@ public class OperationSetContactCapabilitiesJabberImpl
             if(JabberActivator.getConfigurationService()
                 .getBoolean(
                     PROP_XMPP_USE_ALL_RESOURCES_FOR_CAPABILITIES,
-                    USE_ALL_RESOURCES_FOR_CAPABILITIES_DEFAULT))
+                    USE_ALL_RESOURCES_FOR_CAPABILITIES_DEFAULT)
+                && !fullJids.isEmpty())
             {
                 String bareJid = StringUtils.parseBareAddress(user);
                 Contact contact = opsetPresence.findContactByID(bareJid);
@@ -570,7 +571,7 @@ public class OperationSetContactCapabilitiesJabberImpl
             .getBoolean(
                 PROP_XMPP_USE_ALL_RESOURCES_FOR_CAPABILITIES,
                 USE_ALL_RESOURCES_FOR_CAPABILITIES_DEFAULT)
-            ||fullJids.isEmpty())
+            || fullJids.isEmpty())
         {
             OperationSetPresence opsetPresence
             = parentProvider.getOperationSet(OperationSetPresence.class);
