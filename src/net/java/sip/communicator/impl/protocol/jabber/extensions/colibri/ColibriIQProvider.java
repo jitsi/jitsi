@@ -41,7 +41,7 @@ public class ColibriIQProvider
     /**
      * Smack interoperation layer
      */
-    AbstractSmackInteroperabilityLayer smackInteroperabilityLayer =
+    private AbstractSmackInteroperabilityLayer smackInteroperabilityLayer =
             AbstractSmackInteroperabilityLayer.getInstance();
     
     /** Initializes a new <tt>ColibriIQProvider</tt> instance. */

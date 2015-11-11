@@ -48,22 +48,24 @@ abstract public class AbstractSmackInteroperabilityLayer {
             implementationClass;
 
     /**
-     * The instance of 
+     *  The instance of Smack interoperability layer implementation class
      */
-    private static AbstractSmackInteroperabilityLayer proxyInstance;
+    private static AbstractSmackInteroperabilityLayer
+            interopLayerInstance;
 
     /**
-     * Get the instance of Smack interoperation layer implementation class
+     * Get the instance of Smack interoperability layer implementation class
      * 
      * @return Smack interoperation layer implementation class
      */
     public static AbstractSmackInteroperabilityLayer getInstance() 
     {
-        if (proxyInstance == null) 
+        if (interopLayerInstance == null) 
         {
             try
             {
-                proxyInstance = implementationClass.newInstance();
+                interopLayerInstance = 
+                        implementationClass.newInstance();
             }
             catch (IllegalAccessException e)
             {
@@ -82,7 +84,7 @@ abstract public class AbstractSmackInteroperabilityLayer {
                         "Please fix the implementation");
             }
         }
-        return proxyInstance;
+        return interopLayerInstance;
     }
     
     /**

@@ -32,7 +32,6 @@ import org.jivesoftware.smack.packet.*;
  *
  * @author Emil Ivov
  * @author Lyubomir Marinov
- * 
  */
 public abstract class AbstractPacketExtension
     implements PacketExtension
