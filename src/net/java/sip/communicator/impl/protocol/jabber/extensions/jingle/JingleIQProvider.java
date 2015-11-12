@@ -20,6 +20,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet.*;
+import net.java.sip.communicator.service.protocol.jabber.*;
 import org.jivesoftware.smack.provider.*;
 import org.xmlpull.v1.*;
 
@@ -37,174 +38,187 @@ public class JingleIQProvider implements IQProvider
      */
     public JingleIQProvider()
     {
-        ProviderManager providerManager = ProviderManager.getInstance();
+
+        AbstractSmackInteroperabilityLayer smackInteroperabilityLayer = 
+                AbstractSmackInteroperabilityLayer.getInstance();
 
         //<description/> provider
-        providerManager.addExtensionProvider(
-            RtpDescriptionPacketExtension.ELEMENT_NAME,
-            RtpDescriptionPacketExtension.NAMESPACE,
-            new DefaultPacketExtensionProvider
-                <RtpDescriptionPacketExtension>(
-                                RtpDescriptionPacketExtension.class));
+        smackInteroperabilityLayer.addExtensionProvider(
+                RtpDescriptionPacketExtension.ELEMENT_NAME,
+                RtpDescriptionPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                        <RtpDescriptionPacketExtension>(
+                        RtpDescriptionPacketExtension.class));
 
         //<payload-type/> provider
-        providerManager.addExtensionProvider(
-            PayloadTypePacketExtension.ELEMENT_NAME,
-            RtpDescriptionPacketExtension.NAMESPACE,
-            new DefaultPacketExtensionProvider
-                <PayloadTypePacketExtension>(
-                                PayloadTypePacketExtension.class));
+        smackInteroperabilityLayer.addExtensionProvider(
+                PayloadTypePacketExtension.ELEMENT_NAME,
+                RtpDescriptionPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                        <PayloadTypePacketExtension>(
+                        PayloadTypePacketExtension.class));
 
         //<parameter/> provider
-        providerManager.addExtensionProvider(
-            ParameterPacketExtension.ELEMENT_NAME,
-            RtpDescriptionPacketExtension.NAMESPACE,
-            new DefaultPacketExtensionProvider
-                <ParameterPacketExtension>(ParameterPacketExtension.class));
+        smackInteroperabilityLayer.addExtensionProvider(
+                ParameterPacketExtension.ELEMENT_NAME,
+                RtpDescriptionPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                        <ParameterPacketExtension>
+                        (ParameterPacketExtension.class));
 
         //<rtp-hdrext/> provider
-        providerManager.addExtensionProvider(
-            RTPHdrExtPacketExtension.ELEMENT_NAME,
-            RTPHdrExtPacketExtension.NAMESPACE,
-            new DefaultPacketExtensionProvider
-                <RTPHdrExtPacketExtension>(RTPHdrExtPacketExtension.class));
+        smackInteroperabilityLayer.addExtensionProvider(
+                RTPHdrExtPacketExtension.ELEMENT_NAME,
+                RTPHdrExtPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                        <RTPHdrExtPacketExtension>
+                        (RTPHdrExtPacketExtension.class));
 
         // <sctpmap/> provider
-        providerManager.addExtensionProvider(
-            SctpMapExtension.ELEMENT_NAME,
-            SctpMapExtension.NAMESPACE,
-            new SctpMapExtensionProvider());
+        smackInteroperabilityLayer.addExtensionProvider(
+                SctpMapExtension.ELEMENT_NAME,
+                SctpMapExtension.NAMESPACE,
+                new SctpMapExtensionProvider());
 
         //<encryption/> provider
-        providerManager.addExtensionProvider(
-            EncryptionPacketExtension.ELEMENT_NAME,
-            RtpDescriptionPacketExtension.NAMESPACE,
-            new DefaultPacketExtensionProvider
-                <EncryptionPacketExtension>(EncryptionPacketExtension.class));
+        smackInteroperabilityLayer.addExtensionProvider(
+                EncryptionPacketExtension.ELEMENT_NAME,
+                RtpDescriptionPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                        <EncryptionPacketExtension>
+                        (EncryptionPacketExtension.class));
 
         //<zrtp-hash/> provider
-        providerManager.addExtensionProvider(
-            ZrtpHashPacketExtension.ELEMENT_NAME,
-            ZrtpHashPacketExtension.NAMESPACE,
-            new DefaultPacketExtensionProvider
-                <ZrtpHashPacketExtension>(ZrtpHashPacketExtension.class));
+        smackInteroperabilityLayer.addExtensionProvider(
+                ZrtpHashPacketExtension.ELEMENT_NAME,
+                ZrtpHashPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                        <ZrtpHashPacketExtension>
+                        (ZrtpHashPacketExtension.class));
 
         //<crypto/> provider
-        providerManager.addExtensionProvider(
-            CryptoPacketExtension.ELEMENT_NAME,
-            RtpDescriptionPacketExtension.NAMESPACE,
-            new DefaultPacketExtensionProvider
-                <CryptoPacketExtension>(CryptoPacketExtension.class));
+        smackInteroperabilityLayer.addExtensionProvider(
+                CryptoPacketExtension.ELEMENT_NAME,
+                RtpDescriptionPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                        <CryptoPacketExtension>
+                        (CryptoPacketExtension.class));
 
         // <bundle/> provider
-        providerManager.addExtensionProvider(
-            BundlePacketExtension.ELEMENT_NAME,
-            BundlePacketExtension.NAMESPACE,
-            new DefaultPacketExtensionProvider
-                <BundlePacketExtension>(BundlePacketExtension.class));
+        smackInteroperabilityLayer.addExtensionProvider(
+                BundlePacketExtension.ELEMENT_NAME,
+                BundlePacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                        <BundlePacketExtension>
+                        (BundlePacketExtension.class));
 
         // <group/> provider
-        providerManager.addExtensionProvider(
-            GroupPacketExtension.ELEMENT_NAME,
-            GroupPacketExtension.NAMESPACE,
-            new DefaultPacketExtensionProvider
-                <GroupPacketExtension>(GroupPacketExtension.class));
+        smackInteroperabilityLayer.addExtensionProvider(
+                GroupPacketExtension.ELEMENT_NAME,
+                GroupPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                        <GroupPacketExtension>(GroupPacketExtension.class));
 
         //ice-udp transport
-        providerManager.addExtensionProvider(
-            IceUdpTransportPacketExtension.ELEMENT_NAME,
-            IceUdpTransportPacketExtension.NAMESPACE,
-            new DefaultPacketExtensionProvider<IceUdpTransportPacketExtension>(
-                            IceUdpTransportPacketExtension.class));
+        smackInteroperabilityLayer.addExtensionProvider(
+                IceUdpTransportPacketExtension.ELEMENT_NAME,
+                IceUdpTransportPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                        <IceUdpTransportPacketExtension>(
+                        IceUdpTransportPacketExtension.class));
 
         //<raw-udp/> provider
-        providerManager.addExtensionProvider(
-            RawUdpTransportPacketExtension.ELEMENT_NAME,
-            RawUdpTransportPacketExtension.NAMESPACE,
-            new DefaultPacketExtensionProvider<RawUdpTransportPacketExtension>(
-                            RawUdpTransportPacketExtension.class));
+        smackInteroperabilityLayer.addExtensionProvider(
+                RawUdpTransportPacketExtension.ELEMENT_NAME,
+                RawUdpTransportPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                        <RawUdpTransportPacketExtension>(
+                        RawUdpTransportPacketExtension.class));
 
         //ice-udp <candidate/> provider
-        providerManager.addExtensionProvider(
-            CandidatePacketExtension.ELEMENT_NAME,
-            IceUdpTransportPacketExtension.NAMESPACE,
-            new DefaultPacketExtensionProvider<CandidatePacketExtension>(
-                            CandidatePacketExtension.class));
+        smackInteroperabilityLayer.addExtensionProvider(
+                CandidatePacketExtension.ELEMENT_NAME,
+                IceUdpTransportPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                        <CandidatePacketExtension>(
+                        CandidatePacketExtension.class));
 
         //raw-udp <candidate/> provider
-        providerManager.addExtensionProvider(
-            CandidatePacketExtension.ELEMENT_NAME,
-            RawUdpTransportPacketExtension.NAMESPACE,
-            new DefaultPacketExtensionProvider<CandidatePacketExtension>(
-                            CandidatePacketExtension.class));
+        smackInteroperabilityLayer.addExtensionProvider(
+                CandidatePacketExtension.ELEMENT_NAME,
+                RawUdpTransportPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                        <CandidatePacketExtension>(
+                        CandidatePacketExtension.class));
 
         //ice-udp <remote-candidate/> provider
-        providerManager.addExtensionProvider(
-            RemoteCandidatePacketExtension.ELEMENT_NAME,
-            IceUdpTransportPacketExtension.NAMESPACE,
-            new DefaultPacketExtensionProvider<RemoteCandidatePacketExtension>(
-                            RemoteCandidatePacketExtension.class));
+        smackInteroperabilityLayer.addExtensionProvider(
+                RemoteCandidatePacketExtension.ELEMENT_NAME,
+                IceUdpTransportPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider
+                        <RemoteCandidatePacketExtension>(
+                        RemoteCandidatePacketExtension.class));
 
         //inputevt <inputevt/> provider
-        providerManager.addExtensionProvider(
+        smackInteroperabilityLayer.addExtensionProvider(
                 InputEvtPacketExtension.ELEMENT_NAME,
                 InputEvtPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<InputEvtPacketExtension>(
                         InputEvtPacketExtension.class));
 
         //coin <conference-info/> provider
-        providerManager.addExtensionProvider(
+        smackInteroperabilityLayer.addExtensionProvider(
                 CoinPacketExtension.ELEMENT_NAME,
                 CoinPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<CoinPacketExtension>(
                         CoinPacketExtension.class));
 
         // DTLS-SRTP
-        providerManager.addExtensionProvider(
+        smackInteroperabilityLayer.addExtensionProvider(
                 DtlsFingerprintPacketExtension.ELEMENT_NAME,
                 DtlsFingerprintPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
-                    <DtlsFingerprintPacketExtension>(
+                        <DtlsFingerprintPacketExtension>(
                         DtlsFingerprintPacketExtension.class));
 
         /*
          * XEP-0251: Jingle Session Transfer <transfer/> and <transferred>
          * providers
          */
-        providerManager.addExtensionProvider(
+        smackInteroperabilityLayer.addExtensionProvider(
                 TransferPacketExtension.ELEMENT_NAME,
                 TransferPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<TransferPacketExtension>(
                         TransferPacketExtension.class));
-        providerManager.addExtensionProvider(
+        smackInteroperabilityLayer.addExtensionProvider(
                 TransferredPacketExtension.ELEMENT_NAME,
                 TransferredPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<TransferredPacketExtension>(
                         TransferredPacketExtension.class));
 
         //conference description <callid/> provider
-        providerManager.addExtensionProvider(
+        smackInteroperabilityLayer.addExtensionProvider(
                 ConferenceDescriptionPacketExtension.CALLID_ELEM_NAME,
                 ConferenceDescriptionPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<CallIdPacketExtension>(
                         CallIdPacketExtension.class));
 
         //rtcp-fb
-        providerManager.addExtensionProvider(
-            RtcpFbPacketExtension.ELEMENT_NAME,
-            RtcpFbPacketExtension.NAMESPACE,
-            new DefaultPacketExtensionProvider<RtcpFbPacketExtension>(
-                RtcpFbPacketExtension.class));
+        smackInteroperabilityLayer.addExtensionProvider(
+                RtcpFbPacketExtension.ELEMENT_NAME,
+                RtcpFbPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<RtcpFbPacketExtension>(
+                        RtcpFbPacketExtension.class));
 
         //rtcp-mux
-        providerManager.addExtensionProvider(
+        smackInteroperabilityLayer.addExtensionProvider(
                 RtcpmuxPacketExtension.ELEMENT_NAME,
                 IceUdpTransportPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<RtcpmuxPacketExtension>(
                         RtcpmuxPacketExtension.class));
 
         //ssrcInfo
-        providerManager.addExtensionProvider(
+        smackInteroperabilityLayer.addExtensionProvider(
                 SSRCInfoPacketExtension.ELEMENT_NAME,
                 SSRCInfoPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<SSRCInfoPacketExtension>(

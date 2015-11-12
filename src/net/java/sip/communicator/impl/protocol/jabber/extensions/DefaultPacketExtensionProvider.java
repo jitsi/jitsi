@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions;
 
 import java.util.logging.*;
 
+import net.java.sip.communicator.service.protocol.jabber.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.xmlpull.v1.*;
@@ -40,6 +41,13 @@ public class DefaultPacketExtensionProvider<C extends AbstractPacketExtension>
     private static final Logger logger = Logger
                     .getLogger(DefaultPacketExtensionProvider.class.getName());
 
+    /**
+     * The <tt>AbstractSmackInteroperabilityLayer</tt> instance implementing
+     * necessary methods
+     */
+    private AbstractSmackInteroperabilityLayer smackInteroperabilityLayer = 
+            AbstractSmackInteroperabilityLayer.getInstance();
+    
     /**
      * The {@link Class} that the packets we will be parsing here belong to.
      */
@@ -100,8 +108,7 @@ public class DefaultPacketExtensionProvider<C extends AbstractPacketExtension>
 
             if (eventType == XmlPullParser.START_TAG)
             {
-                PacketExtensionProvider provider
-                    = (PacketExtensionProvider)ProviderManager.getInstance()
+                PacketExtensionProvider provider = smackInteroperabilityLayer
                         .getExtensionProvider( elementName, namespace );
 
                 if(provider == null)
