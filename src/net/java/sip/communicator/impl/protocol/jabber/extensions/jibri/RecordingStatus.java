@@ -23,6 +23,11 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
  * The packet extension added to Jicofo presence to broadcast current recording
  * status to all conference participants.
  *
+ * Status meaning:
+ * <tt>{@link JibriIq.Status#UNDEFINED}</tt> - recording not available
+ * <tt>{@link JibriIq.Status#OFF}</tt> - recording stopped(available to start)
+ * <tt>{@link JibriIq.Status#PENDING}</tt> - starting recording
+ * <tt>{@link JibriIq.Status#ON}</tt> - recording in progress
  */
 public class RecordingStatus
     extends AbstractPacketExtension
