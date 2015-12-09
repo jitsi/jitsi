@@ -314,24 +314,22 @@ public class PacketLoggingServiceImpl
         {
             switch(protocol)
             {
-                case SIP:
-                    return cfg.isSipLoggingEnabled();
-                case JABBER:
-                    return cfg.isJabberLoggingEnabled();
-                case RTP:
-                    return cfg.isRTPLoggingEnabled();
-                case ICE4J:
-                    return cfg.isIce4JLoggingEnabled();
-                case ARBITRARY:
-                    return cfg.isArbitraryLoggingEnabled();
-                default:
-                    /*
-                     * It may seem like it was unnecessary to invoke
-                     * getConfiguration and isGlobalLoggingEnabled prior to
-                     * checking that the specified protocol is supported but,
-                     * actually, there are no other ProtocolName values.
-                     */
-                    return false;
+            case SIP:
+                return cfg.isSipLoggingEnabled();
+            case JABBER:
+                return cfg.isJabberLoggingEnabled();
+            case RTP:
+                return cfg.isRTPLoggingEnabled();
+            case ICE4J:
+                return cfg.isIce4JLoggingEnabled();
+            case ARBITRARY:
+                return cfg.isArbitraryLoggingEnabled();
+            default:
+                // It may seem like it was unnecessary to invoke
+                // getConfiguration and isGlobalLoggingEnabled prior to checking
+                // that the specified protocol is supported but, actually, there
+                // are no other ProtocolName values.
+                return false;
             }
         }
         else
