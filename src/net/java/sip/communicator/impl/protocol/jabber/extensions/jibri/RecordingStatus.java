@@ -44,6 +44,8 @@ public class RecordingStatus
 
     private static final String STATUS_ATTRIBUTE = "status";
 
+    private static final String URL_ATTRIBUTE = "url";
+
     public RecordingStatus()
     {
         super(NAMESPACE, ELEMENT_NAME);
@@ -59,5 +61,15 @@ public class RecordingStatus
     public void setStatus(JibriIq.Status status)
     {
         setAttribute(STATUS_ATTRIBUTE, String.valueOf(status));
+    }
+
+    public String getUrl()
+    {
+        return getAttributeAsString(URL_ATTRIBUTE);
+    }
+
+    public void setAttribute(String url)
+    {
+        setAttribute(URL_ATTRIBUTE, url);
     }
 }
