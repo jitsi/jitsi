@@ -2,6 +2,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jibri;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import org.jitsi.util.*;
+import org.jivesoftware.smack.provider.*;
 
 /**
  * Status extension included in MUC presence by Jibri to indicate it's status.
@@ -18,12 +19,12 @@ public class JibriStatusPacketExt
     /**
      * The namespace of this packet extension.
      */
-    private static final String NAMESPACE = JibriIq.NAMESPACE;
+    public static final String NAMESPACE = JibriIq.NAMESPACE;
 
     /**
      * XML element name of this packet extension.
      */
-    private static final String ELEMENT_NAME = "jibri-status";
+    public static final String ELEMENT_NAME = "jibri-status";
 
     private static final String STATUS_ATTRIBUTE = "status";
 
@@ -33,6 +34,16 @@ public class JibriStatusPacketExt
     public JibriStatusPacketExt()
     {
         super(NAMESPACE, ELEMENT_NAME);
+    }
+
+    static public void registerExtensionProvider()
+    {
+        ProviderManager.getInstance().addExtensionProvider(
+                ELEMENT_NAME,
+                NAMESPACE,
+                new DefaultPacketExtensionProvider<JibriStatusPacketExt>(
+                        JibriStatusPacketExt.class)
+        );
     }
 
     public Status getStatus()
