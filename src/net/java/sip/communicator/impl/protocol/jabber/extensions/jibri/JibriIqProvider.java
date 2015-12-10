@@ -63,6 +63,9 @@ public class JibriIqProvider
                 iq.setUrl(url);
             if (streamId != null)
                 iq.setStreamId(streamId);
+            String followEntity = parser.getAttributeValue("", "follow-entity");
+            if (followEntity != null)
+                iq.setFollowEntity(followEntity);
         }
         else
         {

@@ -24,8 +24,6 @@ import org.jivesoftware.smack.packet.*;
 import java.util.*;
 
 /**
- * The IQ used to communicate with Jirecon recording container.
- *
  * @author lishunyang
  * @author Pawel Domas
  */
@@ -49,6 +47,18 @@ public class JibriIq
     private Action action = Action.UNDEFINED;
     private Status status = Status.UNDEFINED;
     private String url = null;
+
+    public String getFollowEntity()
+    {
+        return followEntity;
+    }
+
+    public void setFollowEntity(String followEntity)
+    {
+        this.followEntity = followEntity;
+    }
+
+    private String followEntity = null;
 
     public String getStreamId()
     {
@@ -98,6 +108,11 @@ public class JibriIq
         if (streamId != null)
         {
             printStringAttribute(xml, "streamid", streamId);
+        }
+
+        if (followEntity != null)
+        {
+            printStringAttribute(xml, "follow-entity", followEntity);
         }
 
 
