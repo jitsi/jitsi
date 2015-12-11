@@ -87,8 +87,12 @@ public class ColibriIQProvider
                 parameterProvider);
         // Shutdown IQ
         smackInteroperabilityLayer.addIQProvider(
-                GracefulShutdownIQ.ELEMENT_NAME,
-                GracefulShutdownIQ.NAMESPACE,
+                ShutdownIQ.GRACEFUL_ELEMENT_NAME,
+                ShutdownIQ.NAMESPACE,
+                this);
+        smackInteroperabilityLayer.addIQProvider(
+                ShutdownIQ.FORCE_ELEMENT_NAME,
+                ShutdownIQ.NAMESPACE,
                 this);
         // Shutdown extension
         PacketExtensionProvider shutdownProvider
@@ -810,12 +814,12 @@ public class ColibriIQProvider
 
             iq = conference;
         }
-        else if (GracefulShutdownIQ.ELEMENT_NAME.equals(parser.getName())
-                    && GracefulShutdownIQ.NAMESPACE.equals(namespace))
+        else if (ShutdownIQ.NAMESPACE.equals(namespace) &&
+                 ShutdownIQ.isValidElementName(parser.getName()))
         {
             String rootElement = parser.getName();
 
-            iq = new GracefulShutdownIQ();
+            iq = ShutdownIQ.createShutdownIQ(rootElement);
 
             boolean done = false;
 
