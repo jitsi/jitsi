@@ -19,19 +19,30 @@
   <url>https://jitsi.org</url>
 
   <modules>
+    <module>jitsi-certificate</module>
     <module>jitsi-configuration</module>
     <module>jitsi-contactlist</module>
     <module>jitsi-credentialsstorage</module>
+    <module>jitsi-desktoputil</module>
+    <module>jitsi-dns</module>
     <module>jitsi-dnsservice</module>
     <module>jitsi-fileaccess</module>
+    <module>jitsi-globaldisplaydetails</module>
+    <module>jitsi-muc</module>
+    <module>jitsi-neomedia</module>
     <module>jitsi-netaddr</module>
+    <module>jitsi-notification-service</module>
     <module>jitsi-packetlogging</module>
     <module>jitsi-protocol</module>
     <module>jitsi-protocol-jabber</module>
     <module>jitsi-protocol-media</module>
+    <module>jitsi-reconnect</module>
     <module>jitsi-resourcemanager</module>
+    <module>jitsi-sysactivity</module>
+    <module>jitsi-systray-service</module>
     <module>jitsi-ui-service</module>
     <module>jitsi-util</module>
+    <module>jitsi-version</module>
   </modules>
 
   <build>
