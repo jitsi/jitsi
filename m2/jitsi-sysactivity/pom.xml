@@ -75,11 +75,11 @@
             <Private-Package>net.java.sip.communicator.impl.sysactivity.*</Private-Package>
             <Bundle-Activator>net.java.sip.communicator.impl.sysactivity.SysActivityActivator</Bundle-Activator>
             <Bundle-NativeCode>
-              darwin/libsysactivitynotifications.jnilib;osname=Mac OS X;processor=x86-64
-              <!--linux/libsysactivitynotifications.so;osname=Linux;processor=x86,-->
-              <!--linux-64/libsysactivitynotifications.so;osname=Linux;processor=x86-64,-->
-              <!--windows/sysactivitynotifications.dll;osname=Win32;processor=x86,-->
-              <!--windows-64/sysactivitynotifications.dll;osname=Win32;processor=x86-64-->
+              darwin/libsysactivitynotifications.jnilib;osname=Mac OS X;processor=x86-64,
+              linux-x86/libsysactivitynotifications.so;osname=Linux;processor=x86,
+              linux-x86-64/libsysactivitynotifications.so;osname=Linux;processor=x86-64,
+              win32-x86/sysactivitynotifications.dll;osname=Win32;processor=x86,
+              win32-x86-64/sysactivitynotifications.dll;osname=Win32;processor=x86-64
             </Bundle-NativeCode>
           </instructions>
         </configuration>
