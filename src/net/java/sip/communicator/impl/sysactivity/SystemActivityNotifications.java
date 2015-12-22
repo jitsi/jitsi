@@ -17,7 +17,8 @@
  */
 package net.java.sip.communicator.impl.sysactivity;
 
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
+import org.jitsi.util.*;
 
 /**
  * @author Damian Minkov
@@ -113,7 +114,8 @@ public class SystemActivityNotifications
             // Don't load native library on Android to prevent the exception
             if(!org.jitsi.util.OSUtils.IS_ANDROID)
             {
-                System.loadLibrary("sysactivitynotifications");
+                JNIUtils.loadLibrary("sysactivitynotifications",
+                    SystemActivityNotifications.class.getClassLoader());
 
                 ptr = allocAndInit();
                 if (ptr == -1)
