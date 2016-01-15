@@ -117,6 +117,7 @@
     <locale label="Occitan (France)" isoCode="oc,fr" dictionaryUrl="http://dictionaries.jitsi.net/oc_FR.zip" flagIcon="fr"/>
     <locale label="Persian (Iran)" isoCode="fa,ir" dictionaryUrl="http://dictionaries.jitsi.net/fa_IR.zip" flagIcon="ir"/>
     <locale label="Polish (Poland)" isoCode="pl,pl" dictionaryUrl="http://dictionaries.jitsi.net/pl_PL.zip" flagIcon="pl"/>
+    <locale label="Portuguese (Brazil)" isoCode="pt,br" dictionaryUrl="http://dictionaries.jitsi.net/pt_BR.zip" flagIcon="br"/>
     <locale label="Portuguese (Portugal)" isoCode="pt,pt" dictionaryUrl="http://dictionaries.jitsi.net/pt_PT.zip" flagIcon="pt"/>
     <locale label="Punjabi (India)" isoCode="xx,in" dictionaryUrl="http://dictionaries.jitsi.net/xx_IN.zip" flagIcon="in"/>
     <locale label="Romanian (Romania)" isoCode="ro,ro" dictionaryUrl="http://dictionaries.jitsi.net/ro_RO.zip" flagIcon="ro"/>
