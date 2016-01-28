@@ -1,4 +1,5 @@
 mkdir -p $HOME/.sip-communicator/log
+cd `dirname $0`
 
 export PATH=$PATH:native
 export JAVA_HOME=jre
