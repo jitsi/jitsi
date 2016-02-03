@@ -33,10 +33,42 @@ import java.util.logging.*;
 public class ScLogFormatter
     extends java.util.logging.Formatter
 {
+
+    /**
+     * Program name logging property name
+     */
+    private static final String PROGRAM_NAME_PROPERTY = ".programname";
+    
+    
+    /**
+     * Line separator used by current platform
+     */
     private static String lineSeparator = System.getProperty("line.separator");
+    
+    /**
+     * Two digit <tt>DecimalFormat</tt> instance, used to format datetime
+     */
     private static DecimalFormat twoDigFmt = new DecimalFormat("00");
+
+    /**
+     * Three digit <tt>DecimalFormat</tt> instance, used to format datetime
+     */
     private static DecimalFormat threeDigFmt = new DecimalFormat("000");
 
+    /**
+     * The application name used to generate this log
+     */
+    private static String programName;
+
+    /**
+     * The default constructor for <tt>ScLogFormatter</tt> which loads 
+     * program name property from logging.properties file, if it exists
+     */
+    public ScLogFormatter()
+    {
+        loadProgramNameProperty();
+    }
+    
     /**
      * Format the given LogRecord.
      * @param record the log record to be formatted.
@@ -46,6 +78,15 @@ public class ScLogFormatter
     public synchronized String format(LogRecord record)
     {
         StringBuffer sb = new StringBuffer();
+        
+        
+        if (programName != null)
+        {
+            // Program name
+            sb.append(programName);
+
+            sb.append(' ');
+        }
 
         //current time
         Calendar cal = Calendar.getInstance();
@@ -146,7 +187,8 @@ public class ScLogFormatter
             }
             ix++;
         }
-        // Now search for the first frame before the SIP Communicator Logger class.
+        // Now search for the first frame 
+        // before the SIP Communicator Logger class.
         while (ix < stack.length)
         {
             StackTraceElement frame = stack[ix];
@@ -164,4 +206,16 @@ public class ScLogFormatter
 
         return lineNumber;
     }
+
+    /**
+     * Load the programname property to be used in logs to identify Jitsi-based
+     * application which produced the logs
+     */
+    private void loadProgramNameProperty()
+    {
+        LogManager manager = LogManager.getLogManager();
+        String cname = this.getClass().getName();
+        programName = manager.getProperty(cname + PROGRAM_NAME_PROPERTY);
+    }
+    
 }
