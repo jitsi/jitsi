@@ -55,6 +55,13 @@ public class ChatRoomTableDialog
                 "REMOVE_ROOM_ON_FIRST_JOIN_FAILED";
 
     /**
+     * Whether we should make rooms autojoin by default.
+     */
+    private static final String ENABLE_ROOM_AUTO_JOIN_ON_CREATION
+         = "net.java.sip.communicator.impl.gui.main.chatroomslist." +
+                "ENABLE_ROOM_AUTO_JOIN_ON_CREATION";
+
+    /**
      * The global/shared <code>ChatRoomTableDialog</code> currently showing.
      */
     private static ChatRoomTableDialog chatRoomTableDialog;
@@ -425,6 +432,12 @@ public class ChatRoomTableDialog
                         chatRoomWrapper.getChatRoomID(),
                         chatRoomWrapper.getChatRoomID(),
                         chatRoomWrapper.getChatRoomName());
+
+                    if(GuiActivator.getConfigurationService()
+                        .getBoolean(ENABLE_ROOM_AUTO_JOIN_ON_CREATION, false))
+                    {
+                        chatRoomWrapper.setAutoJoin(true);
+                    }
                 }
 
                 String nickName = nicknameField.getText().trim();
