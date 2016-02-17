@@ -837,12 +837,6 @@ public class ColibriIQProvider
                         }
                         break;
                     }
-
-                    case XmlPullParser.TEXT:
-                    {
-                        // Parse some text here
-                        break;
-                    }
                 }
             }
         }
@@ -903,12 +897,6 @@ public class ColibriIQProvider
                         }
                         break;
                     }
-
-                    case XmlPullParser.TEXT:
-                    {
-                        // Parse some text here
-                        break;
-                    }
                 }
             }
         }
@@ -933,12 +921,6 @@ public class ColibriIQProvider
                         {
                             done = true;
                         }
-                        break;
-                    }
-
-                    case XmlPullParser.TEXT:
-                    {
-                        // Parse some text here
                         break;
                     }
                 }
