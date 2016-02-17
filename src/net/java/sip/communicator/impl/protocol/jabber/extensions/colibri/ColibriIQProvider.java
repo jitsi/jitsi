@@ -837,12 +837,6 @@ public class ColibriIQProvider
                         }
                         break;
                     }
-
-                    case XmlPullParser.TEXT:
-                    {
-                        // Parse some text here
-                        break;
-                    }
                 }
             }
         }
@@ -903,10 +897,30 @@ public class ColibriIQProvider
                         }
                         break;
                     }
+                }
+            }
+        }
+        else if (HealthCheckIQ.ELEMENT_NAME.equals(parser.getName())
+            && HealthCheckIQ.NAMESPACE.equals(namespace))
+        {
+            String rootElement = parser.getName();
 
-                    case XmlPullParser.TEXT:
+            iq = new HealthCheckIQ();
+
+            boolean done = false;
+
+            while (!done)
+            {
+                switch (parser.next())
+                {
+                    case XmlPullParser.END_TAG:
                     {
-                        // Parse some text here
+                        String name = parser.getName();
+
+                        if (rootElement.equals(name))
+                        {
+                            done = true;
+                        }
                         break;
                     }
                 }
