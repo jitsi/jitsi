@@ -912,6 +912,38 @@ public class ColibriIQProvider
                 }
             }
         }
+        else if (HealthCheckIQ.ELEMENT_NAME.equals(parser.getName())
+            && HealthCheckIQ.NAMESPACE.equals(namespace))
+        {
+            String rootElement = parser.getName();
+
+            iq = new HealthCheckIQ();
+
+            boolean done = false;
+
+            while (!done)
+            {
+                switch (parser.next())
+                {
+                    case XmlPullParser.END_TAG:
+                    {
+                        String name = parser.getName();
+
+                        if (rootElement.equals(name))
+                        {
+                            done = true;
+                        }
+                        break;
+                    }
+
+                    case XmlPullParser.TEXT:
+                    {
+                        // Parse some text here
+                        break;
+                    }
+                }
+            }
+        }
         else
             iq = null;
 
