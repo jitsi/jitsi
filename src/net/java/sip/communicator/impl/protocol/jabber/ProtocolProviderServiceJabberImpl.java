@@ -152,6 +152,14 @@ public class ProtocolProviderServiceJabberImpl
     public static final String URN_IETF_RFC_3264 = "urn:ietf:rfc:3264";
 
     /**
+     * http://xmpp.org/extensions/xep-0092.html Software Version.
+     *
+     */
+    // Used in JVB
+    @SuppressWarnings("unused")
+    public static final String URN_XMPP_IQ_VERSION = "jabber:iq:version";
+
+    /**
      * Jingle's Discovery Info URN for "XEP-0294: Jingle RTP Header Extensions
      * Negotiation" support.
      */
