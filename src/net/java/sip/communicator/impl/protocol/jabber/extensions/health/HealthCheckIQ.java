@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
+package net.java.sip.communicator.impl.protocol.jabber.extensions.health;
 
 import org.jivesoftware.smack.packet.*;
 
@@ -35,7 +35,8 @@ public class HealthCheckIQ
     /**
      * XML namespace name for health check IQs.
      */
-    final static public String NAMESPACE = ColibriConferenceIQ.NAMESPACE;
+    final static public String NAMESPACE
+        = "http://jitsi.org/protocol/healthcheck";
 
     /**
      * {@inheritDoc}
