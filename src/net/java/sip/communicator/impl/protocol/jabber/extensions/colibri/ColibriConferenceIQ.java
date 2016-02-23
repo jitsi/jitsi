@@ -161,7 +161,7 @@ public class ColibriConferenceIQ
             throw new NullPointerException("channelBundle");
 
         return
-            channelBundles.contains(channelBundles)
+            channelBundles.contains(channelBundle)
                ? false
                : channelBundles.add(channelBundle);
     }
