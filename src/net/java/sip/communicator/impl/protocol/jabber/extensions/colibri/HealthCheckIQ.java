@@ -15,30 +15,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.java.sip.communicator.impl.gui.main.menus;
+package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 
-import com.apple.eawt.*;
+import org.jivesoftware.smack.packet.*;
 
 /**
- * @author Lubomir Marinov
+ * The health check IQ used to trigger health checks on the Jitsi Videobridge.
+ *
+ * @author Pawel Domas
  */
-public final class MacOSXPreferencesRegistration
+public class HealthCheckIQ
+    extends IQ
 {
-    public static boolean run(final Object userData)
+    /**
+     * Health check IQ element name.
+     */
+    final static public String ELEMENT_NAME = "healthcheck";
+
+    /**
+     * XML namespace name for health check IQs.
+     */
+    final static public String NAMESPACE = ColibriConferenceIQ.NAMESPACE;
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getChildElementXML()
     {
-        Application application = Application.getApplication();
-        if (application != null)
-        {
-            application.setPreferencesHandler(new PreferencesHandler()
-            {
-                public void handlePreferences(
-                    AppEvent.PreferencesEvent preferencesEvent)
-                {
-                    ((ToolsMenu) userData).configActionPerformed();
-                }
-            });
-            return true;
-        }
-        return false;
+        return "<" + ELEMENT_NAME + " xmlns='" + NAMESPACE + "' />";
     }
 }
