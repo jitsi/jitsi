@@ -573,7 +573,7 @@
                 todir="${light.dir}"
                 overwrite="true" />
 
-        <property name="wix.home" value="C:\win35" />
+        <property name="wix.home" value="C:\wix310" />
 
         <!-- Execute heat.exe -->
         <exec
