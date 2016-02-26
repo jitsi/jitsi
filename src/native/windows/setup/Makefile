@@ -33,7 +33,8 @@ else
 endif
 
 CC = $(MINGW_HOME)/bin/gcc.exe
-ARCH = $(shell $(CC) -dumpmachine | sed.exe -e s/x86_64-.*/x64/ -e s/i.86-.*/x86/ -e s/mingw32/x86/)
+#ARCH = $(shell $(CC) -dumpmachine | sed.exe -e s/x86_64-.*/x64/ -e s/i.86-.*/x86/ -e s/mingw32/x86/)
+ARCH = x86
 
 CPPFLAGS = \
 	-O2 \
