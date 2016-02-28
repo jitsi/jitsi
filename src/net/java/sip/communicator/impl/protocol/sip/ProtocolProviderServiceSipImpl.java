@@ -610,50 +610,50 @@ public class ProtocolProviderServiceSipImpl
                 addSupportedOperationSet(
                     OperationSetPresence.class,
                     opSetPersPresence);
-
-                // Only init messaging and typing if enabled.
-                boolean isMessagingDisabled
-                    = SipActivator.getConfigurationService()
-                        .getBoolean(IS_MESSAGING_DISABLED, false);
-
-                if (!isMessagingDisabled)
-                {
-                    // init instant messaging
-                    this.opSetBasicIM =
-                        new OperationSetBasicInstantMessagingSipImpl(this);
-
-                    addSupportedOperationSet(
-                        OperationSetBasicInstantMessaging.class,
-                        opSetBasicIM);
-
-                    // init typing notifications
-                    this.opSetTypingNotif
-                        = new OperationSetTypingNotificationsSipImpl(
-                            this, opSetBasicIM);
-                    addSupportedOperationSet(
-                        OperationSetTypingNotifications.class,
-                        opSetTypingNotif);
-
-                    addSupportedOperationSet(
-                        OperationSetInstantMessageTransform.class,
-                        new OperationSetInstantMessageTransformImpl());
-                }
-
-                this.opSetSSAccountInfo =
-                    new OperationSetServerStoredAccountInfoSipImpl(this);
-
-                // Set the display name.
-                opSetSSAccountInfo.setOurDisplayName(ourDisplayName);
-
-                // init avatar
-                addSupportedOperationSet(
-                    OperationSetServerStoredAccountInfo.class,
-                    opSetSSAccountInfo);
-
-                addSupportedOperationSet(
-                    OperationSetAvatar.class,
-                    new OperationSetAvatarSipImpl(this, opSetSSAccountInfo));
             }
+
+            // Only init messaging and typing if enabled.
+            boolean isMessagingDisabled
+                = SipActivator.getConfigurationService()
+                    .getBoolean(IS_MESSAGING_DISABLED, false);
+
+            if (!isMessagingDisabled)
+            {
+                // init instant messaging
+                this.opSetBasicIM =
+                    new OperationSetBasicInstantMessagingSipImpl(this);
+
+                addSupportedOperationSet(
+                    OperationSetBasicInstantMessaging.class,
+                    opSetBasicIM);
+
+                // init typing notifications
+                this.opSetTypingNotif
+                    = new OperationSetTypingNotificationsSipImpl(
+                        this, opSetBasicIM);
+                addSupportedOperationSet(
+                    OperationSetTypingNotifications.class,
+                    opSetTypingNotif);
+
+                addSupportedOperationSet(
+                    OperationSetInstantMessageTransform.class,
+                    new OperationSetInstantMessageTransformImpl());
+            }
+
+            this.opSetSSAccountInfo =
+                new OperationSetServerStoredAccountInfoSipImpl(this);
+
+            // Set the display name.
+            opSetSSAccountInfo.setOurDisplayName(ourDisplayName);
+
+            // init avatar
+            addSupportedOperationSet(
+                OperationSetServerStoredAccountInfo.class,
+                opSetSSAccountInfo);
+
+            addSupportedOperationSet(
+                OperationSetAvatar.class,
+                new OperationSetAvatarSipImpl(this, opSetSSAccountInfo));
 
             // MWI is enabled by default
             if(accountID.getAccountPropertyBoolean(
