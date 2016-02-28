@@ -97,9 +97,4 @@ public interface ProtocolNames
      * The Dict protocol.
      */
     public static final String DICT = "Dict";
-
-    /**
-     * The Facebook protocol.
-     */
-    public static final String FACEBOOK = "Facebook";
 }

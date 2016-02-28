@@ -1078,7 +1078,7 @@
         bundle-plugin-googletalkaccregwizz,bundle-argdelegation-service,
         bundle-argdelegation,bundle-zrtp4j,bundle-sdes4j,bundle-json,
         bundle-filehistory,bundle-metahistory,bundle-metahistory-slick,
-        bundle-plugin-facebookaccregwizz,bundle-plugin-ippiaccregwizz,
+        bundle-plugin-ippiaccregwizz,
         bundle-bouncycastle,bundle-plugin-otr,bundle-plugin-iptelaccregwizz,
         bundle-contactsource,bundle-plugin-reconnect,bundle-plugin-securityconfig,
         bundle-plugin-advancedconfig,
@@ -1549,7 +1549,6 @@ javax.swing.event, javax.swing.border"/>
                 prefix="resources/images">
                 <include name="protocol/icq/**/*"/>
                 <include name="protocol/googletalk/**/*"/>
-                <include name="protocol/facebook/**/*"/>
                 <include name="protocol/jabber/**/*"/>
                 <include name="protocol/yahoo/**/*"/>
                 <!-- the media package lives in the protocol-media bundle -->
@@ -1893,17 +1892,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/gibberishaccregwizz/gibberishaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/gibberishaccregwizz"
                 prefix="net/java/sip/communicator/plugin/gibberishaccregwizz"/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-PLUGIN-FACEBOOKACCREGWIZZ -->
-    <target name="bundle-plugin-facebookaccregwizz">
-        <!-- Creates a bundle for the plugin Facebook Account Registration
-             Wizard.-->
-        <jar compress="false" destfile="${bundles.dest}/facebookaccregwizz.jar"
-                manifest="${src}/net/java/sip/communicator/plugin/facebookaccregwizz/facebookaccregwizz.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/facebookaccregwizz"
-                    prefix="net/java/sip/communicator/plugin/facebookaccregwizz" />
         </jar>
     </target>
 
