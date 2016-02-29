@@ -42,6 +42,14 @@ public class PacketLoggingServiceImpl
             = Logger.getLogger(PacketLoggingServiceImpl.class);
 
     /**
+     * The max size of the <tt>EvictingQueue</tt> that the saver thread
+     * is using.
+     *
+     * TODO this needs to be configurable eventually.
+     */
+    private static final int EVICTING_QUEUE_MAX_SIZE = 1000;
+
+    /**
      * The OutputStream we are currently writing to.
      */
     private FileOutputStream outputStream = null;
@@ -768,7 +776,8 @@ public class PacketLoggingServiceImpl
         /**
          * List of packets queued to be written in the file.
          */
-        private final Queue<Packet> pktsToSave = EvictingQueue.create(10);
+        private final EvictingQueue<Packet> pktsToSave
+            = EvictingQueue.create(EVICTING_QUEUE_MAX_SIZE);
 
         /**
          * Initializes a new <tt>SaverThread</tt>.
@@ -843,6 +852,11 @@ public class PacketLoggingServiceImpl
          */
         public synchronized void queuePacket(Packet packet)
         {
+            if (pktsToSave.remainingCapacity() == 0)
+            {
+                logger.warn("Queue is full, packets are being evicted.");
+            }
+
             pktsToSave.add(packet);
             notifyAll();
         }
