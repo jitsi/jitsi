@@ -852,7 +852,7 @@ public class PacketLoggingServiceImpl
          */
         public synchronized void queuePacket(Packet packet)
         {
-            if (pktsToSave.remainingCapacity() == 0)
+            if (EVICTING_QUEUE_MAX_SIZE - pktsToSave.size() == 0)
             {
                 logger.warn("Queue is full, packets are being evicted.");
             }
