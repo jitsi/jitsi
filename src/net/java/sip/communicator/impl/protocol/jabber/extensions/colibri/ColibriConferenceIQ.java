@@ -1077,8 +1077,8 @@ public class ColibriConferenceIQ
 
             if (adaptiveSimulcast != null)
             {
-                xml.append(' ').append(adaptiveSimulcast).append("='")
-                        .append(adaptiveSimulcast).append('\'');
+                xml.append(' ').append(ADAPTIVE_SIMULCAST_ATTR_NAME)
+                        .append("='").append(adaptiveSimulcast).append('\'');
             }
 
             // simulcastMode
