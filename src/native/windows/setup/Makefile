@@ -28,12 +28,11 @@ ifeq ($(wildcard /bin/cygpath.*),/bin/cygpath.exe)
     target.dir := $(shell cygpath --mixed "$(TARGET_DIR)")
     cygwin.target.dir := $(shell cygpath --unix "$(TARGET_DIR)")
 else
-    target.dir := "$(TARGET_DIR)"
-    cygwin.target.dir := "$(TARGET_DIR)"
+    target.dir := $(TARGET_DIR)
+    cygwin.target.dir := $(TARGET_DIR)
 endif
 
 CC = $(MINGW_HOME)/bin/gcc.exe
-ARCH = $(shell $(CC) -dumpmachine | sed.exe -e s/x86_64-.*/x64/ -e s/i.86-.*/x86/ -e s/mingw32/x86/)
 
 CPPFLAGS = \
 	-O2 \
@@ -50,6 +49,14 @@ LDFLAGS = \
 LIBS = -ladvapi32 -lbz2 -llzma -lole32 -lshell32
 
 MACHINE = $(shell $(CC) -dumpmachine)
+ifneq (,$(findstring x86_64-,$(MACHINE)))
+	ARCH = x64
+else ifneq (,$(findstring i.86-,$(MACHINE)))
+	ARCH = x86
+else ifeq ("$(MACHINE)","mingw32")
+	ARCH = x86
+endif
+
 WINDRES = $(MINGW_HOME)/bin/windres.exe
 ifneq ("x$(MACHINE)","x")
 ifeq ($(wildcard $(MINGW_HOME)/bin/$(MACHINE)-windres.*),$(MINGW_HOME)/bin/$(MACHINE)-windres.exe)
@@ -76,7 +83,10 @@ $(cygwin.target.dir)/$(TARGET_BASENAME).exe: bspatch.c $(cygwin.target.dir)/conf
 
 $(cygwin.target.dir)/config.h:
 	-rm.exe -f ../../../../resources/install/windows/config.h
-	echo.exe -e '#define PRODUCTNAME "$(PRODUCTNAME)"\n#$(DEFINE_PACKAGECODE)\n#$(DEFINE_PACKAGESIZE)\n#define PRODUCTBUILDVERSION "$(PRODUCTBUILDVERSION)"' > $(cygwin.target.dir)/config.h
+	echo #define PRODUCTNAME "$(PRODUCTNAME)" > $(cygwin.target.dir)/config.h
+	echo #$(DEFINE_PACKAGECODE) >> $(cygwin.target.dir)/config.h
+	echo #$(DEFINE_PACKAGESIZE) >> $(cygwin.target.dir)/config.h
+	echo #define PRODUCTBUILDVERSION "$(PRODUCTBUILDVERSION)" >> $(cygwin.target.dir)/config.h
 
 $(cygwin.target.dir)/setup.res: $(cygwin.target.dir)/config.h setup.rc
 	$(WINDRES) -I../../../../resources/install/windows -I$(target.dir) setup.rc -O coff -o $(target.dir)/setup.res

@@ -28,13 +28,12 @@ ifeq ($(wildcard /bin/cygpath.*),/bin/cygpath.exe)
     target.dir := $(shell cygpath --mixed "$(TARGET_DIR)")
     cygwin.target.dir := $(shell cygpath --unix "$(TARGET_DIR)")
 else
-    target.dir := "$(TARGET_DIR)"
-    cygwin.target.dir := "$(TARGET_DIR)"
+    target.dir := $(TARGET_DIR)
+    cygwin.target.dir := $(TARGET_DIR)
 endif
 
 CC = $(MINGW_HOME)/bin/gcc.exe
 CPPFLAGS := $(CPPFLAGS) \
-	-O2 \
 	-Wall -Wreturn-type \
 	-DPSAPI_VERSION=1 \
 	-DWINVER=0x0502 -D_WIN32_WINNT=0x0502 \
@@ -59,7 +58,12 @@ $(cygwin.target.dir)/$(TARGET_BASENAME).exe: $(cygwin.target.dir)/config.h regis
 
 $(cygwin.target.dir)/config.h:
 	-rm.exe -f ../../../../resources/install/windows/config.h
-	echo.exe -e '#define PRODUCTNAME "$(PRODUCTNAME)"\n#define COMPANYNAME "$(COMPANYNAME)"\n#define PRODUCTBUILDVERSION "$(PRODUCTBUILDVERSION)"\n#define PRODUCTBUILDVERSION_COMMA $(PRODUCTBUILDVERSION_COMMA)\n#define TARGET_BASENAME "$(TARGET_BASENAME)"\n#define TARGET_BASENAME_EXE "$(TARGET_BASENAME).exe"' > $(cygwin.target.dir)/config.h
+	echo #define PRODUCTNAME "$(PRODUCTNAME)" > $(cygwin.target.dir)/config.h
+	echo #define COMPANYNAME "$(COMPANYNAME)" >> $(cygwin.target.dir)/config.h
+	echo #define PRODUCTBUILDVERSION "$(PRODUCTBUILDVERSION)" >> $(cygwin.target.dir)/config.h
+	echo #define PRODUCTBUILDVERSION_COMMA $(PRODUCTBUILDVERSION_COMMA) >> $(cygwin.target.dir)/config.h
+	echo #define TARGET_BASENAME "$(TARGET_BASENAME)" >> $(cygwin.target.dir)/config.h
+	echo #define TARGET_BASENAME_EXE "$(TARGET_BASENAME).exe" >> $(cygwin.target.dir)/config.h
 
 $(cygwin.target.dir)/run.res: $(cygwin.target.dir)/config.h run.rc
 	$(WINDRES) -I../../../../resources/install/windows -I$(target.dir) run.rc -O coff -o $(target.dir)/run.res
