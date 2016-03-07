@@ -34,7 +34,6 @@ endif
 
 CC = $(MINGW_HOME)/bin/gcc.exe
 CPPFLAGS := $(CPPFLAGS) \
-	-O2 \
 	-Wall -Wreturn-type \
 	-DPSAPI_VERSION=1 \
 	-DWINVER=0x0502 -D_WIN32_WINNT=0x0502 \
