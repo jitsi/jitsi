@@ -595,6 +595,35 @@ public final class JdbcConfigService
      * (non-Javadoc)
      * 
      * @see
+     * org.jitsi.service.configuration.ConfigurationService#getDouble(java.lang
+     * .String, double)
+     */
+    @Override
+    public double getDouble(String propertyName, double defaultValue)
+    {
+        Object value = this.getProperty(propertyName);
+        if (value == null || "".equals(value.toString()))
+        {
+            return defaultValue;
+        }
+
+        try
+        {
+            return Double.parseDouble(value.toString());
+        }
+        catch (NumberFormatException ex)
+        {
+            logger.error(String.format(
+                "'%s' for property %s not a double, returning default (%s)",
+                value, propertyName, defaultValue), ex);
+            return defaultValue;
+        }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
      * org.jitsi.service.configuration.ConfigurationService#getLong(java.lang
      * .String, long)
      */
