@@ -33,8 +33,6 @@ else
 endif
 
 CC = $(MINGW_HOME)/bin/gcc.exe
-#ARCH = $(shell $(CC) -dumpmachine | sed.exe -e s/x86_64-.*/x64/ -e s/i.86-.*/x86/ -e s/mingw32/x86/)
-ARCH = x86
 
 CPPFLAGS = \
 	-O2 \
@@ -51,6 +49,14 @@ LDFLAGS = \
 LIBS = -ladvapi32 -lbz2 -llzma -lole32 -lshell32
 
 MACHINE = $(shell $(CC) -dumpmachine)
+ifneq (,$(findstring x86_64-,$(MACHINE)))
+	ARCH = x64
+else ifneq (,$(findstring i.86-,$(MACHINE)))
+	ARCH = x86
+else ifeq ("$(MACHINE)","mingw32")
+	ARCH = x86
+endif
+
 WINDRES = $(MINGW_HOME)/bin/windres.exe
 ifneq ("x$(MACHINE)","x")
 ifeq ($(wildcard $(MINGW_HOME)/bin/$(MACHINE)-windres.*),$(MINGW_HOME)/bin/$(MACHINE)-windres.exe)
