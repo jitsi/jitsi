@@ -24,64 +24,125 @@ import org.jivesoftware.smack.packet.*;
 import java.util.*;
 
 /**
+ * The IQ used to control conference recording with Jibri component.
+ *
+ * Start the recording:
+ *
+ * 1. Send Jibri IQ with {@link Action#START} to Jibri.
+ * 2. Jibri replies with RESULT and status {@link Status#PENDING}.
+ * 3. Jibri sends SET IQ with status {@link Status#ON} once recording actually
+ *    starts.
+ *
+ * Stop the recording:
+ *
+ * 1. Send Jibri IQ with {@link Action#STOP} to Jibri.
+ * 2. Jibri replies with {@link Status#OFF} immediately if the recording has
+ *    been stopped already or sends separate Jibri SET IQ later on if it takes
+ *    more time.
+ *
  * @author lishunyang
  * @author Pawel Domas
  */
 public class JibriIq
     extends IQ
 {
-    public static final String NAMESPACE = "http://jitsi.org/protocol/jibri";
-
-    public static final String ELEMENT_NAME = "jibri";
-
     /**
      * Attribute name of "action".
      */
     public static final String ACTION_ATTR_NAME = "action";
 
     /**
-     * Attribute name of "status".
+     * XML element name of the Jibri IQ.
      */
-    public static final String STATUS_ATTR_NAME = "status";
+    public static final String ELEMENT_NAME = "jibri";
 
+    /**
+     * XML namespace of the Jibri IQ.
+     */
+    public static final String NAMESPACE = "http://jitsi.org/protocol/jibri";
+
+    /**
+     * The name of XML attribute which stores the recording status.
+     */
+    static final String STATUS_ATTR_NAME = "status";
+
+    /**
+     * The name of XML attribute which stores the stream id.
+     */
+    static final String STREAM_ID_ATTR_NAME = "streamid";
+
+    /**
+     * The name of XML attribute which stores the url.
+     */
+    static final String URL_ATTR_NAME = "url";
+
+    /**
+     * Holds the action.
+     */
     private Action action = Action.UNDEFINED;
+
+    /**
+     * Holds recording status.
+     */
     private Status status = Status.UNDEFINED;
+
+    /**
+     * The ID of the stream which will be used to record the conference. The
+     * value depends on recording service provider.
+     */
+    private String streamId = null;
+
+    /**
+     * The conference URL which contains the full address like
+     * "https://conference.com/room1".
+     */
     private String url = null;
 
-    public String getFollowEntity()
-    {
-        return followEntity;
-    }
-
-    public void setFollowEntity(String followEntity)
-    {
-        this.followEntity = followEntity;
-    }
-
-    private String followEntity = null;
-
+    /**
+     * Returns the value of {@link #STREAM_ID_ATTR_NAME} attribute.
+     * @return a <tt>String</tt> which contains the value of "stream id"
+     *         attribute or <tt>null</tt> if empty.
+     */
     public String getStreamId()
     {
         return streamId;
     }
 
+    /**
+     * Sets the value for {@link #STREAM_ID_ATTR_NAME} attribute.
+     * @param streamId a <tt>String</tt> for the stream id attribute or
+     *        <tt>null</tt> to remove it from XML element.
+     */
     public void setStreamId(String streamId)
     {
         this.streamId = streamId;
     }
 
+    /**
+     * Returns the value of {@link #URL_ATTR_NAME} attribute.
+     * @return a <tt>String</tt> which contains the value of the URL attribute
+     *         or <tt>null</tt> if empty.
+     * @see #url
+     */
     public String getUrl()
     {
         return url;
     }
 
+    /**
+     * Sets the value for {@link #URL_ATTR_NAME} attribute.
+     * @param url a <tt>String</tt> for the URL attribute or
+     *        <tt>null</tt> to remove it from XML element.
+     * @see #url
+     */
     public void setUrl(String url)
     {
         this.url = url;
     }
 
-    private String streamId = null;
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getChildElementXML()
     {
@@ -102,19 +163,13 @@ public class JibriIq
 
         if (url != null)
         {
-            printStringAttribute(xml, "url", url);
+            printStringAttribute(xml, URL_ATTR_NAME, url);
         }
 
         if (streamId != null)
         {
-            printStringAttribute(xml, "streamid", streamId);
+            printStringAttribute(xml, STREAM_ID_ATTR_NAME, streamId);
         }
-
-        if (followEntity != null)
-        {
-            printStringAttribute(xml, "follow-entity", followEntity);
-        }
-
 
         Collection<PacketExtension> extensions =  getExtensions();
         if (extensions.size() > 0)
@@ -185,8 +240,17 @@ public class JibriIq
      */
     public enum Action
     {
+        /**
+         * Start the recording.
+         */
         START("start"),
+        /**
+         * Stop the recording.
+         */
         STOP("stop"),
+        /**
+         * Unknown/uninitialized
+         */
         UNDEFINED("undefined");
 
         private String name;
@@ -227,20 +291,48 @@ public class JibriIq
         }
     }
 
+    /**
+     * The enumeration of recording status values.
+     */
     public enum Status
     {
+        /**
+         * Recording is in progress.
+         */
         ON("on"),
+
+        /**
+         * Recording stopped.
+         */
         OFF("off"),
+
+        /**
+         * Starting the recording process.
+         */
         PENDING("pending"),
+
+        /**
+         * Unknown/uninitialized.
+         */
         UNDEFINED("undefined");
 
+        /**
+         * Status name holder.
+         */
         private String name;
 
+        /**
+         * Creates new {@link Status} instance.
+         * @param name a string corresponding to one of {@link Status} values.
+         */
         Status(String name)
         {
             this.name = name;
         }
 
+        /**
+         * {@inheritDoc}
+         */
         @Override
         public String toString()
         {

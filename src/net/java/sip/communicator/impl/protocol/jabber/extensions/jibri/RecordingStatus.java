@@ -20,8 +20,8 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jibri;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 /**
- * The packet extension added to Jicofo presence to broadcast current recording
- * status to all conference participants.
+ * The packet extension added to Jicofo MUC presence to broadcast current
+ * recording status to all conference participants.
  *
  * Status meaning:
  * <tt>{@link JibriIq.Status#UNDEFINED}</tt> - recording not available
@@ -42,15 +42,20 @@ public class RecordingStatus
      */
     public static final String ELEMENT_NAME = "jibri-recording-status";
 
+    /**
+     * The name of XML attribute which holds the recording status.
+     */
     private static final String STATUS_ATTRIBUTE = "status";
-
-    private static final String URL_ATTRIBUTE = "url";
 
     public RecordingStatus()
     {
         super(NAMESPACE, ELEMENT_NAME);
     }
 
+    /**
+     * Returns the value of current recording status stored in it's attribute.
+     * @return one of {@link JibriIq.Status}
+     */
     public JibriIq.Status getStatus()
     {
         String statusAttr = getAttributeAsString(STATUS_ATTRIBUTE);
@@ -58,18 +63,12 @@ public class RecordingStatus
         return JibriIq.Status.parse(statusAttr);
     }
 
+    /**
+     * Sets new value for the recording status.
+     * @param status one of {@link JibriIq.Status}
+     */
     public void setStatus(JibriIq.Status status)
     {
         setAttribute(STATUS_ATTRIBUTE, String.valueOf(status));
-    }
-
-    public String getUrl()
-    {
-        return getAttributeAsString(URL_ATTRIBUTE);
-    }
-
-    public void setAttribute(String url)
-    {
-        setAttribute(URL_ATTRIBUTE, url);
     }
 }

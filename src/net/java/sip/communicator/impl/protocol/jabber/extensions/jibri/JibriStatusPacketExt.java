@@ -1,12 +1,31 @@
+/*
+ * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
+ *
+ * Copyright @ 2015 Atlassian Pty Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jibri;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
+
 import org.jitsi.util.*;
+
 import org.jivesoftware.smack.provider.*;
 
 /**
  * Status extension included in MUC presence by Jibri to indicate it's status.
- * On of:
+ * One of:
  * <li>idle</li> - the instance is idle and can be used for recording
  * <li>busy</li> - the instance is currently recording or doing something very
  *                 important and should not be disturbed

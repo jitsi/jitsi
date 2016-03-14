@@ -17,11 +17,16 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jibri;
 
+import org.jitsi.util.*;
+
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 
 import org.xmlpull.v1.*;
 
+/**
+ * Parses {@link JibriIq}.
+ */
 public class JibriIqProvider
     implements IQProvider
 {
@@ -50,21 +55,26 @@ public class JibriIqProvider
 
             String action
                 = parser.getAttributeValue("", JibriIq.ACTION_ATTR_NAME);
-            String status
-                = parser.getAttributeValue("", JibriIq.STATUS_ATTR_NAME);
-
             iq.setAction(JibriIq.Action.parse(action));
 
+            String status
+                = parser.getAttributeValue("", JibriIq.STATUS_ATTR_NAME);
             iq.setStatus(JibriIq.Status.parse(status));
 
-            String url = parser.getAttributeValue("", "url");
-            String streamId = parser.getAttributeValue("", "streamid");
-            if (url != null)
+            String url
+                = parser.getAttributeValue("", JibriIq.URL_ATTR_NAME);
+            if (!StringUtils.isNullOrEmpty(url))
                 iq.setUrl(url);
-            if (streamId != null)
+
+            String streamId
+                = parser.getAttributeValue("", JibriIq.STREAM_ID_ATTR_NAME);
+            if (!StringUtils.isNullOrEmpty(streamId))
                 iq.setStreamId(streamId);
-            String followEntity = parser.getAttributeValue("", "follow-entity");
-            if (followEntity != null)
+
+            String followEntity
+                = parser.getAttributeValue(
+                        "", JibriIq.FOLLOW_ENTITY_ATTR_NAME);
+            if (!StringUtils.isNullOrEmpty(followEntity))
                 iq.setFollowEntity(followEntity);
         }
         else
@@ -86,12 +96,6 @@ public class JibriIqProvider
                     {
                         done = true;
                     }
-                    break;
-                }
-
-                case XmlPullParser.TEXT:
-                {
-                    // Parse some text here
                     break;
                 }
             }
