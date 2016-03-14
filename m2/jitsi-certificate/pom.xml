@@ -20,18 +20,26 @@
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk15on</artifactId>
+      <!--
+      everywhere we use a patched version of ours from the branch
+      r1rv51-patched of gpolitis/bc-java (at GitHub).
+      -->
+      <version>1.51-jitsi-1</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpclient</artifactId>
+      <version>4.4</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpcore</artifactId>
+      <version>4.4</version>
     </dependency>
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpmime</artifactId>
+      <version>4.4</version>
     </dependency>
     <!-- org.jitsi -->
     <dependency>

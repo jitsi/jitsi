@@ -32,6 +32,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.carbon.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.coin.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingleinfo.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive.*;
@@ -1739,6 +1740,12 @@ public class ProtocolProviderServiceJabberImpl
                     ColibriConferenceIQ.ELEMENT_NAME,
                     ColibriConferenceIQ.NAMESPACE,
                     new ColibriIQProvider());
+
+            providerManager.addIQProvider(
+                    JibriIq.ELEMENT_NAME,
+                    JibriIq.NAMESPACE,
+                    new JibriIqProvider()
+            );
 
             providerManager.addExtensionProvider(
                     ConferenceDescriptionPacketExtension.ELEMENT_NAME,
