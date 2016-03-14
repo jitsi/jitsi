@@ -70,12 +70,6 @@ public class JibriIqProvider
                 = parser.getAttributeValue("", JibriIq.STREAM_ID_ATTR_NAME);
             if (!StringUtils.isNullOrEmpty(streamId))
                 iq.setStreamId(streamId);
-
-            String followEntity
-                = parser.getAttributeValue(
-                        "", JibriIq.FOLLOW_ENTITY_ATTR_NAME);
-            if (!StringUtils.isNullOrEmpty(followEntity))
-                iq.setFollowEntity(followEntity);
         }
         else
         {
