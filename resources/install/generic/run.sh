@@ -6,7 +6,7 @@ ARCH=`uname -m | sed -e s/x86_64/64/ -e s/i.86/32/`
 # Additionnal JVM arguments
 CLIENTARGS=""
 
-if [ $ARCH -eq 32 ]
+if [ $ARCH = 32 ]
 then
     CLIENTARGS="-client -Xmx256m"
 fi
