@@ -61,10 +61,10 @@ public class JibriIqProvider
                 = parser.getAttributeValue("", JibriIq.STATUS_ATTR_NAME);
             iq.setStatus(JibriIq.Status.parse(status));
 
-            String url
-                = parser.getAttributeValue("", JibriIq.URL_ATTR_NAME);
-            if (!StringUtils.isNullOrEmpty(url))
-                iq.setUrl(url);
+            String room
+                = parser.getAttributeValue("", JibriIq.ROOM_ATTR_NAME);
+            if (!StringUtils.isNullOrEmpty(room))
+                iq.setRoom(room);
 
             String streamId
                 = parser.getAttributeValue("", JibriIq.STREAM_ID_ATTR_NAME);

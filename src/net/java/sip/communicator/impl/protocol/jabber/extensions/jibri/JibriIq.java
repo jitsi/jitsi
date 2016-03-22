@@ -72,9 +72,10 @@ public class JibriIq
     static final String STREAM_ID_ATTR_NAME = "streamid";
 
     /**
-     * The name of XML attribute which stores the url.
+     * The name of XML attribute which stores the name of the conference room to
+     * be recorded.
      */
-    static final String URL_ATTR_NAME = "url";
+    static final String ROOM_ATTR_NAME = "room";
 
     /**
      * Holds the action.
@@ -93,10 +94,9 @@ public class JibriIq
     private String streamId = null;
 
     /**
-     * The conference URL which contains the full address like
-     * "https://conference.com/room1".
+     * The name of the conference room to be recorded.
      */
-    private String url = null;
+    private String room = null;
 
     /**
      * Returns the value of {@link #STREAM_ID_ATTR_NAME} attribute.
@@ -119,25 +119,25 @@ public class JibriIq
     }
 
     /**
-     * Returns the value of {@link #URL_ATTR_NAME} attribute.
-     * @return a <tt>String</tt> which contains the value of the URL attribute
+     * Returns the value of {@link #ROOM_ATTR_NAME} attribute.
+     * @return a <tt>String</tt> which contains the value of the room attribute
      *         or <tt>null</tt> if empty.
-     * @see #url
+     * @see #room
      */
-    public String getUrl()
+    public String getRoom()
     {
-        return url;
+        return room;
     }
 
     /**
-     * Sets the value for {@link #URL_ATTR_NAME} attribute.
-     * @param url a <tt>String</tt> for the URL attribute or
-     *        <tt>null</tt> to remove it from XML element.
-     * @see #url
+     * Sets the value for {@link #ROOM_ATTR_NAME} attribute.
+     * @param room a <tt>String</tt> for the room attribute or <tt>null</tt> to
+     *             remove it from XML element.
+     * @see #room
      */
-    public void setUrl(String url)
+    public void setRoom(String room)
     {
-        this.url = url;
+        this.room = room;
     }
 
     /**
@@ -161,9 +161,9 @@ public class JibriIq
             printStringAttribute(xml, STATUS_ATTR_NAME, status.toString());
         }
 
-        if (url != null)
+        if (room != null)
         {
-            printStringAttribute(xml, URL_ATTR_NAME, url);
+            printStringAttribute(xml, ROOM_ATTR_NAME, room);
         }
 
         if (streamId != null)
