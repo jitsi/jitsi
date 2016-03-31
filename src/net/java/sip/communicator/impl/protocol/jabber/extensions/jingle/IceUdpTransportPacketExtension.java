@@ -191,6 +191,27 @@ public class IceUdpTransportPacketExtension
     }
 
     /**
+     * Removes given <tt>PacketExtension</tt> from the list of child packet
+     * extensions. <tt>CandidatePacketExtension</tt> are not taken into account
+     * in this method and {@link #removeCandidate(CandidatePacketExtension)}
+     * should be used instead.
+     *
+     * @param childExtension <tt>PacketExtension</tt> instance to be removed
+     *        from child packet extensions list.
+     *
+     * @return <tt>true</tt> if given <tt>childExtension</tt> has been in the
+     *         list and was removed or <tt>false</tt> otherwise.
+     */
+    public boolean removeChildExtension(PacketExtension childExtension)
+    {
+        List<? extends PacketExtension> childExtensions
+            = super.getChildExtensions();
+
+        return childExtensions != null
+            && childExtensions.remove(childExtension);
+    }
+
+    /**
      * Returns the list of {@link CandidatePacketExtension}s currently
      * registered with this transport.
      *

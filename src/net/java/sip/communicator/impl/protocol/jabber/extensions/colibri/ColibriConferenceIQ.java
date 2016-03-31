@@ -1925,6 +1925,25 @@ public class ColibriConferenceIQ
         }
 
         /**
+         * Adds <tt>ChannelCommon</tt> to this <tt>Content</tt>.
+         * @param channelCommon {@link ChannelCommon} instance to be added to
+         *        this content.
+         * @return <tt>true</tt> if given <tt>channelCommon</tt> has been
+         *         actually added to this <tt>Content</tt> instance.
+         */
+        public boolean addChannelCommon(ChannelCommon channelCommon)
+        {
+            if (channelCommon instanceof Channel)
+            {
+                return addChannel((Channel) channelCommon);
+            }
+            else
+            {
+                return addSctpConnection((SctpConnection) channelCommon);
+            }
+        }
+
+        /**
          * Adds a specific <tt>SctpConnection</tt> to the list of
          * <tt>SctpConnection</tt>s included into this <tt>Content</tt>.
          *
