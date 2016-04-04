@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import gov.nist.javax.sip.header.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 
 import javax.sip.address.*;
 import javax.sip.header.*;
@@ -137,6 +138,9 @@ public class ConfigHeaders
             headerValues.put(name, prefStr);
         }
 
+        CSeqHeader cSeqHeader = (CSeqHeader) request.getHeader(SIPHeaderNames.CSEQ);
+        Long seqNumber = cSeqHeader.getSeqNumber();
+
         // process the found custom headers
         for(Map<String, String> headerValues : headers.values())
         {
@@ -156,9 +160,18 @@ public class ConfigHeaders
                 String name = headerValues.get(ACC_PROPERTY_CONFIG_HEADER_NAME);
                 String value = processParams(
                     headerValues.get(ACC_PROPERTY_CONFIG_HEADER_VALUE),
-                    request);
+                    request, props);
 
                 Header h = request.getHeader(name);
+
+                if (name.equals(SIPHeaderNames.ROUTE) 
+                    || name.equals("P-Asserted-Identity"))
+                {
+                    if (seqNumber != 1)
+                    {
+                        continue;
+                    }
+                }
 
                 // makes possible overriding already created headers which
                 // are not custom one
@@ -187,7 +200,8 @@ public class ConfigHeaders
      * @param request the request we are processing
      * @return the value with replaced params
      */
-    private static String processParams(String value, Request request)
+    private static String processParams(String value, Request request, 
+        Map<String, String> props)
     {
         if(value.indexOf("${from.address}") != -1)
         {
@@ -264,6 +278,13 @@ public class ConfigHeaders
 
                 value = value.replace("${to.userID}", toAddr);
             }
+        }
+
+        if (value.indexOf("${tag}") != -1)
+        {
+            FromHeader fromHeader
+                = (FromHeader)request.getHeader(FromHeader.NAME);
+            value = value.replace("${tag}",fromHeader.getTag());
         }
 
         return value;

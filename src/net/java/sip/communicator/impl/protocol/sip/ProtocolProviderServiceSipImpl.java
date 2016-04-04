@@ -2417,6 +2417,8 @@ public class ProtocolProviderServiceSipImpl
             uriStr = "sip:" + uriStr;
         }
 
+        uriStr += ";user=phone";
+
         Address toAddress = getAddressFactory().createAddress(uriStr);
 
         return toAddress;
