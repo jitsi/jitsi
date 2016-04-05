@@ -44,6 +44,16 @@
     <module>jitsi-version</module>
   </modules>
 
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>libjitsi</artifactId>
+        <version>1.0-20160202.214638-87</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <build>
     <sourceDirectory>../../src</sourceDirectory>
     <pluginManagement>
