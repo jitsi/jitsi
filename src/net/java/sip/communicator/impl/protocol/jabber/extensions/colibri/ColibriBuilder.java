@@ -549,8 +549,9 @@ public class ColibriBuilder
                 anyUpdates = true;
 
                 ColibriConferenceIQ.Channel channelRequest
-                    = request.getOrCreateContent(contentName)
-                        .getChannel(channel.getID());
+                    = (ColibriConferenceIQ.Channel) getRequestChannel(
+                            request.getOrCreateContent(contentName),
+                            channel);
                 if (channelRequest == null)
                 {
                     channelRequest = new ColibriConferenceIQ.Channel();
