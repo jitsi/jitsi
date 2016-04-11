@@ -1054,13 +1054,13 @@
         bundle-icq-slick,bundle-mock,bundle-smacklib,bundle-jmdnslib,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
         bundle-jnalib,bundle-phonenumbers,
-        bundle-irc-api,bundle-irc,bundle-irc-commands,bundle-plugin-ircaccregwizz,
+        bundle-irc,bundle-irc-commands,bundle-plugin-ircaccregwizz,
         bundle-yahoo,bundle-yahoo-slick,
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
         bundle-plugin-sipaccregwizz,
         bundle-plugin-yahooaccregwizz,bundle-plugin-aimaccregwizz,
-        bundle-commons-codec,bundle-commons-lang,bundle-httputil,bundle-plugin-spellcheck,
+        bundle-httputil,bundle-plugin-spellcheck,
         bundle-version-impl,bundle-shutdown-timeout,bundle-windows-clean-shutdown,
         bundle-growlnotification,bundle-swingnotification,bundle-galagonotification,
         bundle-sparkle, bundle-plugin-branding,
@@ -1076,10 +1076,10 @@
         bundle-jfontchooserlib,bundle-update,bundle-plugin-update,
         bundle-plugin-simpleaccreg,bundle-plugin-generalconfig,
         bundle-plugin-googletalkaccregwizz,bundle-argdelegation-service,
-        bundle-argdelegation,bundle-zrtp4j,bundle-sdes4j,bundle-json,
+        bundle-argdelegation,bundle-zrtp4j,bundle-json,
         bundle-filehistory,bundle-metahistory,bundle-metahistory-slick,
         bundle-plugin-ippiaccregwizz,
-        bundle-bouncycastle,bundle-plugin-otr,bundle-plugin-iptelaccregwizz,
+        bundle-plugin-otr,bundle-plugin-iptelaccregwizz,
         bundle-contactsource,bundle-plugin-reconnect,bundle-plugin-securityconfig,
         bundle-plugin-advancedconfig,
         bundle-credentialsstorage,bundle-credentialsstorage-slick,
@@ -1093,14 +1093,34 @@
         bundle-provisioning,bundle-addrbook,bundle-plugin-ldap,
         bundle-thunderbird,
         bundle-plugin-contactsourceconfig,bundle-plugin-certconfig,
-        bundle-globalshortcut,bundle-plugin-msofficecomm,bundle-libjitsi,
+        bundle-globalshortcut,bundle-plugin-msofficecomm,
         bundle-customcontactactions, bundle-phonenumbercontactsource,
         bundle-demuxcontactsource, bundle-muc,
         bundle-desktoputil,bundle-globaldisplaydetails, 
-    	bundle-usersearch,
+        bundle-usersearch,
         bundle-plugin-propertieseditor,bundle-plugin-accountinfo,
         bundle-plugin-connectioninfo,
-        bundle-guava,bundle-hsql,bundle-slf4j"/>
+        bundle-bundles"/>
+
+    <!-- Copying of all unmodified libraries that are already bundles -->
+    <target name="bundle-bundles">
+        <copy file="${lib.noinst}/libjitsi-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/libjitsi.jar"/>
+        <copy file="${lib.noinst}/fmj-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/fmj.jar"/>
+        <copy file="${lib.noinst}/jitsi-lgpl-dependencies-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/jitsi-lgpl-dependencies.jar"/>
+        <copy file="${lib.noinst}/bcpkix-jdk15on-151.jar" tofile="${bundles.dest}/bcpkix.jar"/>
+        <copy file="${lib.noinst}/guava-15.0.jar" tofile="${bundles.dest}/guava.jar"/>
+        <copy file="${lib.noinst}/hsqldb.jar" tofile="${bundles.dest}/hsqldb.jar"/>
+        <copy file="${lib.noinst}/irc-api-1.0.jar" tofile="${bundles.dest}/irc-api-1.0.jar"/>
+        <copy file="${lib.noinst}/slf4j-api-1.7.5.jar" tofile="${bundles.dest}/slf4j-api.jar"/>
+        <copy file="${lib.noinst}/slf4j-jdk14-1.7.5.jar" tofile="${bundles.dest}/slf4j-jdk14.jar"/>
+        <copy file="${lib.noinst}/commons-codec-1.6.jar" tofile="${bundles.dest}/commons-codec.jar"/>
+        <copy file="${lib.noinst}/commons-lang3-3.1.jar" tofile="${bundles.dest}/commons-lang.jar"/>
+        <copy file="${lib.noinst}/httpclient-osgi-4.2.3.jar" tofile="${bundles.dest}/httpclient.jar"/>
+        <copy file="${lib.noinst}/httpcore-osgi-4.2.3.jar" tofile="${bundles.dest}/httpcore.jar"/>
+        <copy file="${lib.noinst}/sdes4j-1.1.3.jar" tofile="${bundles.dest}/sdes4j.jar"/>
+        <copy file="${lib.noinst}/bcprov-jdk15on-151.jar" tofile="${bundles.dest}/bouncycastle.jar"/>
+        <copy file="${lib.noinst}/bccontrib-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/bccontrib.jar"/>
+    </target>
 
     <!--BUNDLE-SC-LAUNCHER-->
     <target name="bundle-sc-launcher">
@@ -1308,18 +1328,9 @@
         </jar>
     </target>
 
-    <!--BUNDLE-LIBJITSI -->
-    <target name="bundle-libjitsi">
-        <copy file="${lib.noinst}/libjitsi-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/libjitsi.jar"/>
-        <copy file="${lib.noinst}/fmj-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/fmj.jar"/>
-        <copy file="${lib.noinst}/jitsi-lgpl-dependencies-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/jitsi-lgpl-dependencies.jar"/>
-        <copy file="${lib.noinst}/bcpkix-jdk15on-151.jar" tofile="${bundles.dest}/bcpkix.jar"/>
-    </target>
-
     <!--BUNDLE-NEOMEDIA-->
     <target name="bundle-neomedia">
-        <!-- Creates a bundle containing the impl of the neomedia package and
-            FMJ. -->
+        <!-- Creates a bundle containing the impl of the neomedia package -->
         <jar
             compress="false"
             destfile="${bundles.dest}/neomedia.jar"
@@ -1423,14 +1434,6 @@
         </jar>
     </target>
 
-    <target name="bundle-guava">
-        <copy file="${lib.noinst}/guava-15.0.jar" tofile="${bundles.dest}/guava.jar"/>
-    </target>
-
-    <target name="bundle-hsql">
-        <copy file="${lib.noinst}/hsqldb.jar" tofile="${bundles.dest}/hsqldb.jar"/>
-    </target>
-
     <!--BUNDLE-SERVICEBINDER -->
     <target name="bundle-servicebinder">
         <jar compress="true" destfile="lib/bundle/servicebinder.jar"
@@ -1460,18 +1463,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-NETADDR -->
-    <target name="bundle-netaddr"
-            depends="bundle-netaddr-dynamically,bundle-netaddr-statically" />
-    <target name="bundle-netaddr-dynamically" if="dynamic.linking">
-        <jar compress="false" destfile="${bundles.dest}/netaddr.jar"
-                manifest="${src}/net/java/sip/communicator/impl/netaddr/netaddr.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/service/netaddr"
-                    prefix="net/java/sip/communicator/service/netaddr" />
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/netaddr"
-                    prefix="net/java/sip/communicator/impl/netaddr" />
-        </jar>
-    </target>
-    <target name="bundle-netaddr-statically" unless="dynamic.linking">
+    <target name="bundle-netaddr">
         <jar compress="false" destfile="${bundles.dest}/netaddr.jar"
                 manifest="${src}/net/java/sip/communicator/impl/netaddr/netaddr.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/netaddr"
@@ -1752,7 +1744,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-SWING-UI -->
-    <target name="bundle-swing-ui" depends="bundle-commons-lang">
+    <target name="bundle-swing-ui">
         <!-- Bundle Jitsi's UI.-->
         <jar compress="false" destfile="${bundles.dest}/swing-ui.jar"
             manifest="${src}/net/java/sip/communicator/impl/gui/swing.ui.manifest.mf">
@@ -2083,7 +2075,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-IRC -->
-    <target name="bundle-irc" depends="bundle-irc-api">
+    <target name="bundle-irc">
         <!-- Creates a bundle containing the IRC impl of the protocol provider.-->
         <jar compress="false" destfile="${bundles.dest}/protocol-irc.jar"
             manifest="${src}/net/java/sip/communicator/impl/protocol/irc/irc.provider.manifest.mf">
@@ -2102,17 +2094,6 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!-- BUNDLE IRC-API -->
-    <target name="bundle-irc-api" depends="bundle-slf4j">
-        <copy file="${lib.noinst}/irc-api-1.0.jar" tofile="${bundles.dest}/irc-api-1.0.jar"/>
-    </target>
-
-    <!-- BUNDLE SLF4J -->
-    <target name="bundle-slf4j">
-        <copy file="${lib.noinst}/slf4j-api-1.7.5.jar" tofile="${bundles.dest}/slf4j-api.jar"/>
-        <copy file="${lib.noinst}/slf4j-jdk14-1.7.5.jar" tofile="${bundles.dest}/slf4j-jdk14.jar"/>
-    </target>
-
     <!-- BUNDLE-PLUGIN-IRCACCREGWIZZ -->
     <target name="bundle-plugin-ircaccregwizz">
             <!-- Creates a bundle for the plugin IRC Account Registration
@@ -2124,18 +2105,6 @@ javax.swing.event, javax.swing.border"/>
             </jar>
     </target>
 
-    <!--BUNDLE-COMMONS-CODEC -->
-    <target name="bundle-commons-codec">
-        <copy file="${lib.noinst}/commons-codec-1.6.jar"
-            tofile="${bundles.dest}/commons-codec.jar"/>
-    </target>
-
-    <!--BUNDLE-COMMONS-LANG -->
-    <target name="bundle-commons-lang">
-        <copy file="${lib.noinst}/commons-lang3-3.1.jar"
-            tofile="${bundles.dest}/commons-lang.jar"/>
-    </target>
-
     <!--BUNDLE-HTTPUTIL -->
     <target name="bundle-httputil">
         <!-- Create the httputil.jar-->
@@ -2144,11 +2113,6 @@ javax.swing.event, javax.swing.border"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/service/httputil"
                 prefix="net/java/sip/communicator/service/httputil"/>
         </jar>
-
-        <copy file="${lib.noinst}/httpclient-osgi-4.2.3.jar"
-            tofile="${bundles.dest}/httpclient.jar"/>
-        <copy file="${lib.noinst}/httpcore-osgi-4.2.3.jar"
-            tofile="${bundles.dest}/httpcore.jar"/>
     </target>
 
     <!-- BUNDLE-NOTIFICATION -->
@@ -2172,7 +2136,7 @@ javax.swing.event, javax.swing.border"/>
     </target>
 
     <!-- BUNDLE-NOTIFICATION-WIRING -->
-    <target name="bundle-notification-wiring" depends="bundle-commons-lang">
+    <target name="bundle-notification-wiring">
         <!-- Creates a bundle for the notifications.-->
         <jar compress="false" destfile="${bundles.dest}/notification-wiring.jar"
             manifest="${src}/net/java/sip/communicator/plugin/notificationwiring/notificationwiring.manifest.mf">
@@ -2482,11 +2446,6 @@ org.bouncycastle.util"/>
         </jar>
     </target>
 
-    <!--BUNDLE-SDES4J -->
-    <target name="bundle-sdes4j">
-    	<copy file="${lib.noinst}/sdes4j-1.1.3.jar" tofile="${bundles.dest}/sdes4j.jar"/>
-    </target>
-
     <!--BUNDLE-JSON -->
     <target name="bundle-json">
         <jar compress="true" destfile="${bundles.dest}/json.jar"
@@ -2522,12 +2481,6 @@ org.bouncycastle.util"/>
         </jar>
     </target>
 
-    <!--BUNDLE-BOUNCYCASTLE -->
-    <target name="bundle-bouncycastle">
-        <copy file="${lib.noinst}/bcprov-jdk15on-151.jar" tofile="${bundles.dest}/bouncycastle.jar"/>
-        <copy file="${lib.noinst}/bccontrib-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/bccontrib.jar"/>
-    </target>
-
     <!--BUNDLE-PLUGIN-OTR -->
     <target name="bundle-plugin-otr">
         <jar compress="false" destfile="${bundles.dest}/otr.jar" manifest="${src}/net/java/sip/communicator/plugin/otr/otr.manifest.mf">
@@ -2536,6 +2489,7 @@ org.bouncycastle.util"/>
             <zipfileset src="${lib.noinst}/otr4j.jar"/>
         </jar>
     </target>
+
     <!--BUNDLE-METAHISTORY-SLICK-->
     <target name="bundle-metahistory-slick">
         <jar compress="false" destfile="${bundles.dest}/metahistory-slick.jar"
