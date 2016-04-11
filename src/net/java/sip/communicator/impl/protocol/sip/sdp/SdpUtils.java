@@ -36,6 +36,7 @@ import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.MediaType;
 import org.jitsi.service.neomedia.format.*;
 import org.jitsi.util.*;
+import org.opentelecoms.javax.sdp.*;
 
 /**
  * The class contains a number of utility methods that are meant to facilitate
@@ -64,7 +65,7 @@ public class SdpUtils
     /**
      * A reference to the currently valid SDP factory instance.
      */
-    private static final SdpFactory sdpFactory = SdpFactory.getInstance();
+    private static final SdpFactory sdpFactory = new NistSdpFactory();
 
     /**
      * The name of the SDP attribute that defines zrtp hello hash.

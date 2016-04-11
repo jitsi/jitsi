@@ -1122,6 +1122,11 @@
         <copy file="${lib.noinst}/bccontrib-1.0.jar" tofile="${bundles.dest}/bccontrib.jar"/>
         <copy file="${lib.noinst}/jmork-1.0.5.jar" tofile="${bundles.dest}/jmork.jar"/>
         <copy file="${lib.noinst}/weupnp-0.1.4.jar" tofile="${bundles.dest}/weupnp.jar"/>
+        <copy file="${lib.noinst}/ice4j-1.0.jar" tofile="${bundles.dest}/ice4j.jar"/>
+        <copy file="${lib.noinst}/sdp-api-1.0.jar" tofile="${bundles.dest}/sdp-api.jar"/>
+        <copy file="${lib.noinst}/sip-api-1.2-1.2.jar" tofile="${bundles.dest}/sip-api.jar"/>
+        <copy file="${lib.noinst}/java-sdp-nist-bridge-1.1.jar" tofile="${bundles.dest}/java-sdp-nist-bridge.jar"/>
+        <copy file="${lib.noinst}/jain-sip-ri-ossonly-1.2.279-jitsi-oss1.jar" tofile="${bundles.dest}/jain-sip-ri.jar"/>
     </target>
 
     <!--BUNDLE-SC-LAUNCHER-->
@@ -1472,7 +1477,6 @@ javax.swing.event, javax.swing.border"/>
                     prefix="net/java/sip/communicator/service/netaddr" />
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/netaddr"
                     prefix="net/java/sip/communicator/impl/netaddr" />
-            <zipfileset src="${lib.noinst}/ice4j.jar" prefix="" />
         </jar>
     </target>
 
@@ -1512,9 +1516,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/protocol/sip/sip.provider.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/sip"
                 prefix="net/java/sip/communicator/impl/protocol/sip"/>
-            <zipfileset src="${lib.noinst}/jain-sip-ri.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jain-sip-api.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jain-sdp.jar" prefix=""/>
         </jar>
     </target>
 
