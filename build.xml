@@ -1125,7 +1125,7 @@
         <copy file="${lib.noinst}/ice4j-1.0.jar" tofile="${bundles.dest}/ice4j.jar"/>
         <copy file="${lib.noinst}/sdp-api-1.0.jar" tofile="${bundles.dest}/sdp-api.jar"/>
         <copy file="${lib.noinst}/sip-api-1.2-1.2.jar" tofile="${bundles.dest}/sip-api.jar"/>
-        <copy file="${lib.noinst}/java-sdp-nist-bridge-1.1.jar" tofile="${bundles.dest}/java-sdp-nist-bridge.jar"/>
+        <copy file="${lib.noinst}/java-sdp-nist-bridge-1.2.jar" tofile="${bundles.dest}/java-sdp-nist-bridge.jar"/>
         <copy file="${lib.noinst}/jain-sip-ri-ossonly-1.2.279-jitsi-oss1.jar" tofile="${bundles.dest}/jain-sip-ri.jar"/>
     </target>
 
