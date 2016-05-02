@@ -1006,6 +1006,25 @@
             <arg value="${sign.cert.password}" />
             <arg value="${file.to.sign}" />
         </exec>
+
+        <exec executable="${inst.resrc}/windows/signtool.exe"
+              failonerror="false">
+            <arg value="sign" />
+            <arg value="/d" />
+            <arg value="${application.name}" />
+            <arg value="/fd" />
+            <arg value="sha256" />
+            <arg value="/tr" />
+            <arg value="http://tsa.starfieldtech.com" />
+            <arg value="/td" />
+            <arg value="sha256" />
+            <arg value="/as" />
+            <arg value="/f" />
+            <arg value="${sign.cert.file}" />
+            <arg value="/p" />
+            <arg value="${sign.cert.password}" />
+            <arg value="${file.to.sign}" />
+        </exec>
     </target>
 
     <!-- signs all dll files in folder - $folder.to.sign
