@@ -428,6 +428,15 @@ public class ColibriIQProvider
                         if ((expire != null) && (expire.length() != 0))
                             channel.setExpire(Integer.parseInt(expire));
 
+                        String packetDelay
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.Channel
+                                            .PACKET_DELAY_ATTR_NAME);
+                        if (!StringUtils.isNullOrEmpty(packetDelay))
+                            channel.setPacketDelay(
+                                    Integer.parseInt(packetDelay));
+
                         // host
                         String host
                             = parser.getAttributeValue(
