@@ -1,0 +1,21 @@
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+    <assemblyIdentity
+        name=" "
+        version="0.0.0.0"
+    />
+    <dependency>
+        <dependentAssembly>
+            <assemblyIdentity
+                name="Microsoft.Windows.Build.Signing.wintrust.dll"
+                version="0.0.0.0"
+            />
+        </dependentAssembly>
+    </dependency>
+  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
+    <security>
+      <requestedPrivileges>
+        <requestedExecutionLevel level="asInvoker" />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+</assembly>
