@@ -1,4 +1,4 @@
-<project name="jitsi-native" default="help-native">
+<project name="jitsi-native" default="help-native" xmlns:if="ant:if">
   <import file="../../build.xml"/>
 
   <!-- additionnal property -->
@@ -652,6 +652,15 @@
       if="is.running.windows"
       depends="init-native">
     <fail message="OCS 2007 SDK not set!" unless="OCS2007SDK" />
+    <exec executable="windres">
+        <arg value="-i"/>
+        <arg value="${src}\native\windows\msofficecomm\Resources.rc"/>
+        <arg value="-o"/>
+        <arg value="${obj}\jmsofficecommtlb.o"/>
+        <arg value="-F"/>
+        <arg value="pe-i386" if:set="cross_32"/>
+        <arg value="pe-x86-64" if:set="cross_64"/>
+    </exec>
     <cc
         name="gcc"
         objdir="${obj}"
@@ -679,6 +688,7 @@
       <libset libs="advapi32, uuid, ole32, oleaut32, msi, stdc++" />
 
       <fileset dir="${src}\native\windows\msofficecomm" includes="*.cxx" />
+      <fileset dir="${obj}" includes="jmsofficecommtlb.o"/>
     </cc>
     <exec executable="strip">
       <arg value="-x"/>
