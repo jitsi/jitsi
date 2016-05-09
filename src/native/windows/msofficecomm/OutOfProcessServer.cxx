@@ -261,50 +261,25 @@ HRESULT OutOfProcessServer::loadRegTypeLib()
             WCHAR path[MAX_PATH + 1];
             DWORD pathCapacity = sizeof(path) / sizeof(WCHAR);
             DWORD pathLength = ::GetModuleFileNameW(module, path, pathCapacity);
-
             if (pathLength && (pathLength < pathCapacity))
             {
                 hr = ::LoadTypeLibEx(path, REGKIND_NONE, &iTypeLib);
                 if (SUCCEEDED(hr))
                 {
-                    HMODULE oleaut32 = ::GetModuleHandle(_T("oleaut32.dll"));
-
-                    if (oleaut32)
+                    hr = ::RegisterTypeLibForUser(iTypeLib, path, NULL);
+                    if (SUCCEEDED(hr))
                     {
-                        typedef HRESULT (WINAPI *RTLFU)(LPTYPELIB,LPOLESTR,LPOLESTR);
-                        RTLFU registerTypeLibForUser
-                            = (RTLFU)
-                                ::GetProcAddress(
-                                        oleaut32,
-                                        "RegisterTypeLibForUser");
-
-                        if (registerTypeLibForUser)
-                        {
-                            hr = registerTypeLibForUser(iTypeLib, path, NULL);
-                            if (SUCCEEDED(hr))
-                            {
-                                /*
-                                 * The whole point of what has been done till
-                                 * now is securing the success of future calls
-                                 * to LoadRegTypeLib. Make sure that is indeed
-                                 * the case.
-                                 */
-
-                                iTypeLib->Release();
-
-                                hr
-                                    = ::LoadRegTypeLib(
-                                            LIBID_CommunicatorUA,
-                                            1,
-                                            0,
-                                            0,
-                                            &iTypeLib);
-                                if (SUCCEEDED(hr))
-                                    _iTypeLib = iTypeLib;
-                            }
-                        }
-                        else
-                            hr = E_UNEXPECTED;
+                        /*
+                        * The whole point of what has been done till
+                        * now is securing the success of future calls
+                        * to LoadRegTypeLib. Make sure that is indeed
+                        * the case.
+                        */
+                        iTypeLib->Release();
+                        hr = ::LoadRegTypeLib(
+                                    LIBID_CommunicatorUA, 1, 0, 0, &iTypeLib);
+                        if (SUCCEEDED(hr))
+                            _iTypeLib = iTypeLib;
                     }
                     else
                         hr = E_UNEXPECTED;
