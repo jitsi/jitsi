@@ -641,7 +641,7 @@
          http://www.microsoft.com/en-us/download/details.aspx?id=10176
        - compile the tlb:
          cd src/native/windows/msofficecomm
-         midl "C:\Program Files (x86)\Microsoft Office Communicator\SDK\"
+         midl "C:\Program Files (x86)\Microsoft Office Communicator\SDK\msgrua.idl"
        - run ant:
          ant msofficecomm -DOCS2007SDK=<path here, escape \ with \\> -Darch=32
          ant msofficecomm -DOCS2007SDK=<path here, escape \ with \\> -Darch=64
