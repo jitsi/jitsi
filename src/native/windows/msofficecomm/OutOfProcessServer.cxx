@@ -244,6 +244,11 @@ HRESULT OutOfProcessServer::loadRegTypeLib()
     LPTYPELIB iTypeLib;
     HRESULT hr = ::LoadRegTypeLib(LIBID_CommunicatorUA, 1, 0, 0, &iTypeLib);
 
+    Log::d(
+        _T("OutOfProcessServer::loadRegTypeLib:")
+        _T(" LoadRegTypeLib=%08X;")
+        _T("\n"),
+        hr);
     if (SUCCEEDED(hr))
         _iTypeLib = iTypeLib;
     else
@@ -264,9 +269,20 @@ HRESULT OutOfProcessServer::loadRegTypeLib()
             if (pathLength && (pathLength < pathCapacity))
             {
                 hr = ::LoadTypeLibEx(path, REGKIND_NONE, &iTypeLib);
+                Log::d(
+                    _T("OutOfProcessServer::loadRegTypeLib:")
+                    _T(" LoadTypeLibEx(%s)=%08X;")
+                    _T("\n"),
+                    path,
+                    hr);
                 if (SUCCEEDED(hr))
                 {
                     hr = ::RegisterTypeLibForUser(iTypeLib, path, NULL);
+                    Log::d(
+                        _T("OutOfProcessServer::loadRegTypeLib:")
+                        _T(" RegisterTypeLibForUser=%08X;")
+                        _T("\n"),
+                        hr);
                     if (SUCCEEDED(hr))
                     {
                         /*
@@ -278,6 +294,11 @@ HRESULT OutOfProcessServer::loadRegTypeLib()
                         iTypeLib->Release();
                         hr = ::LoadRegTypeLib(
                                     LIBID_CommunicatorUA, 1, 0, 0, &iTypeLib);
+                        Log::d(
+                            _T("OutOfProcessServer::loadRegTypeLib:")
+                            _T(" LoadRegTypeLib=%08X;")
+                            _T("\n"),
+                            hr);
                         if (SUCCEEDED(hr))
                             _iTypeLib = iTypeLib;
                     }
@@ -404,12 +425,28 @@ unsigned __stdcall OutOfProcessServer::run(void *)
     HRESULT hr = ::CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
     unsigned ret = 0;
 
+    Log::d(
+        _T("OutOfProcessServer::run:")
+        _T(" CoInitializeEx=%08X;")
+        _T("\n"), 
+        hr);
     if (SUCCEEDED(hr))
     {
         hr = loadRegTypeLib();
+        Log::d(
+            _T("OutOfProcessServer::run:")
+            _T(" loadRegTypeLib=%08X;")
+            _T("\n"),
+            hr);
         if (SUCCEEDED(hr))
         {
-            if (ERROR_SUCCESS == setIMProvidersCommunicatorUpAndRunning(1))
+            hr = setIMProvidersCommunicatorUpAndRunning(1);
+            Log::d(
+                _T("OutOfProcessServer::run:")
+                _T(" setIMProvidersCommunicatorUpAndRunning(1)=%08X;")
+                _T("\n"),
+                hr);
+            if (ERROR_SUCCESS == hr)
             {
                 MSG msg;
 
@@ -421,10 +458,20 @@ unsigned __stdcall OutOfProcessServer::run(void *)
                 ::PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE);
 
                 hr = registerClassObjects();
+                Log::d(
+                    _T("OutOfProcessServer::run:")
+                    _T(" registerClassObjects=%08X;")
+                    _T("\n"),
+                    hr);
                 if (SUCCEEDED(hr))
                 {
-                    if (ERROR_SUCCESS
-                            == setIMProvidersCommunicatorUpAndRunning(2))
+                    hr = setIMProvidersCommunicatorUpAndRunning(2);
+                    Log::d(
+                        _T("OutOfProcessServer::run:")
+                        _T(" setIMProvidersCommunicatorUpAndRunning(2)=%08X;")
+                        _T("\n"),
+                        hr);
+                    if (ERROR_SUCCESS == hr)
                     {
                         HANDLE threadHandle = _threadHandle;
                         BOOL logMsgWaitForMultipleObjectsExFailed = TRUE;
