@@ -501,12 +501,12 @@ unsigned __stdcall OutOfProcessServer::run(void *)
 
 DWORD OutOfProcessServer::setIMProvidersCommunicatorUpAndRunning(DWORD dw)
 {
-    DWORD lastError;
-        lastError
+    DWORD lastError
             = regCreateKeyAndSetValue(
-                    _T("Software\\IM Providers\\Communicator"),
+                    _T("Software\\IM Providers\\Jitsi"),
                     _T("UpAndRunning"),
                     dw);
+
     return lastError;
 }
 
