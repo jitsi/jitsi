@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jitsi</groupId>
     <artifactId>jitsi-universe</artifactId>
-    <version>1.0-20160405.235512-16</version>
+    <version>1.0-20160511.125516-17</version>
   </parent>
 
   <artifactId>jitsi</artifactId>
@@ -34,6 +34,7 @@
     <module>jitsi-packetlogging</module>
     <module>jitsi-protocol</module>
     <module>jitsi-protocol-jabber</module>
+    <module>jitsi-protocol-sip</module>
     <module>jitsi-protocol-media</module>
     <module>jitsi-reconnect</module>
     <module>jitsi-resourcemanager</module>
