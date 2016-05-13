@@ -18,6 +18,7 @@
   <url>https://jitsi.org</url>
 
   <modules>
+    <module>jitsi-argdelegation</module>
     <module>jitsi-certificate</module>
     <module>jitsi-configuration</module>
     <module>jitsi-contactlist</module>
