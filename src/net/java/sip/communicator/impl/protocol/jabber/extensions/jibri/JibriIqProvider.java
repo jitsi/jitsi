@@ -21,6 +21,7 @@ import org.jitsi.util.*;
 
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
+import org.jivesoftware.smack.util.PacketParserUtils;
 
 import org.xmlpull.v1.*;
 
@@ -82,6 +83,17 @@ public class JibriIqProvider
         {
             switch (parser.next())
             {
+                case XmlPullParser.START_TAG:
+                {
+                    String name = parser.getName();
+
+                    if ("error".equals(name))
+                    {
+                        XMPPError error = PacketParserUtils.parseError(parser);
+                        iq.setXMPPError(error);
+                    }
+                    break;
+                }
                 case XmlPullParser.END_TAG:
                 {
                     String name = parser.getName();
