@@ -28,6 +28,7 @@
     <module>jitsi-dnsservice</module>
     <module>jitsi-fileaccess</module>
     <module>jitsi-globaldisplaydetails</module>
+    <module>jitsi-hid</module>
     <module>jitsi-muc</module>
     <module>jitsi-neomedia</module>
     <module>jitsi-netaddr</module>
