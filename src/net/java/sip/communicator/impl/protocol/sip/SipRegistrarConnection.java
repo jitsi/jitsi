@@ -1288,8 +1288,11 @@ public class SipRegistrarConnection
             if(registrarPort != ListeningPoint.PORT_5060)
                 registrarURI.setPort(registrarPort);
 
-            if(!registrationTransport.equals(ListeningPoint.UDP))
+            if(!registrationTransport.equals(ListeningPoint.UDP)
+                && !registrationTransport.equals(ListeningPoint.TLS))
+            {
                 registrarURI.setTransportParam(registrationTransport);
+            }
         }
         return registrarURI;
     }
