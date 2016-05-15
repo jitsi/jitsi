@@ -246,6 +246,72 @@ public class ProtocolProviderServiceSipImpl
     }
 
     /**
+     * Validates the contact identifier and returns an error message if
+     * applicable and a suggested correction
+     * 
+     * @param contactId the contact identifier to validate
+     * @param result Must be supplied as an empty a list. Implementors add
+     *            items:
+     *            <ol>
+     *            <li>is the error message if applicable
+     *            <li>a suggested correction. Index 1 is optional and can only
+     *            be present if there was a validation failure.
+     *            </ol>
+     * @return true if the contact id is valid, false otherwise
+     */
+    @Override
+    public boolean validateContactAddress(String contactId, List<String> result)
+    {
+        if (result == null)
+        {
+            throw new IllegalArgumentException("result must be an empty list");
+        }
+
+        result.clear();
+        try
+        {
+            Address address = parseAddressString(contactId);
+            if (address.toString().equals(contactId))
+            {
+                return true;
+            }
+            else if (((SipUri) address.getURI()).getUser().equals(contactId))
+            {
+                return true;
+            }
+            else
+            {
+                result.add(SipActivator.getResources().getI18NString(
+                    "impl.protocol.sip.INVALID_ADDRESS", new String[]
+                { contactId }));
+                result.add(((SipUri) address.getURI()).getUser());
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.error("Validating SIP address failed for " + contactId, ex);
+            result.add(SipActivator.getResources()
+                .getI18NString("impl.protocol.sip.INVALID_ADDRESS", new String[]
+            { contactId }));
+
+            String user = contactId;
+            String remainder = "";
+            int at = contactId.indexOf('@');
+            if (at > -1)
+            {
+                user = contactId.substring(0, at);
+                remainder = contactId.substring(at);
+            }
+
+            // replace invalid characters in user part with hex encoding
+            String banned = "([^a-z0-9-_.!~*'()&=+$,;?/])+";
+            result.add(user.replaceAll(banned, "") + remainder);
+        }
+
+        return false;
+    }
+
+    /**
      * Indicates whether or not this provider must registered
      * when placing outgoing calls.
      *
@@ -2390,21 +2456,36 @@ public class ProtocolProviderServiceSipImpl
         //we don't know how to handle the "tel:" and "callto:" schemes ... or
         // rather we handle them same as sip so replace:
         if(uriStr.toLowerCase().startsWith("tel:"))
-            uriStr = "sip:" + uriStr.substring("tel:".length());
+            uriStr = uriStr.substring("tel:".length());
         else if(uriStr.toLowerCase().startsWith("callto:"))
-            uriStr = "sip:" + uriStr.substring("callto:".length());
+            uriStr = uriStr.substring("callto:".length());
+        else if(uriStr.toLowerCase().startsWith("sips:"))
+            uriStr = uriStr.substring("sips:".length());
+
+        String user = uriStr;
+        String remainder = "";
+        int at = uriStr.indexOf('@');
+        if (at > -1)
+        {
+            user = uriStr.substring(0, at);
+            remainder = uriStr.substring(at);
+        }
+
+        //replace invalid characters in user part with hex encoding
+        String banned = "([^a-z0-9-_.!~*'()&=+$,;?/])+";
+        user = user.replaceAll(banned, "") + remainder;
 
         //Handle default domain name (i.e. transform 1234 -> 1234@sip.com)
         //assuming that if no domain name is specified then it should be the
         //same as ours.
-        if (uriStr.indexOf('@') == -1)
+        if (at == -1)
         {
             //if we have a registrar, then we could append its domain name as
             //default
             SipRegistrarConnection src = sipRegistrarConnection;
             if(src != null && !src.isRegistrarless() )
             {
-                uriStr = uriStr + "@"
+                uriStr = user + "@"
                     + ((SipURI)src.getAddressOfRecord().getURI()).getHost();
             }
 

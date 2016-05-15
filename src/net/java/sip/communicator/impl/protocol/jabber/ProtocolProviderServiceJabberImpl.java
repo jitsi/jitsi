@@ -2040,6 +2040,93 @@ public class ProtocolProviderServiceJabberImpl
     }
 
     /**
+     * Validates the node part of a JID and returns an error message if
+     * applicable and a suggested correction.
+     * 
+     * @param contactId the contact identifier to validate
+     * @param result Must be supplied as an empty a list. Implementors add
+     *            items:
+     *            <ol>
+     *            <li>is the error message if applicable
+     *            <li>a suggested correction. Index 1 is optional and can only
+     *            be present if there was a validation failure.
+     *            </ol>
+     * @return true if the contact id is valid, false otherwise
+     */
+    @Override
+    public boolean validateContactAddress(String contactId, List<String> result)
+    {
+        if (result == null)
+        {
+            throw new IllegalArgumentException("result must be an empty list");
+        }
+
+        result.clear();
+        try
+        {
+            contactId = contactId.trim();
+            if (contactId.length() == 0)
+            {
+                result.add(JabberActivator.getResources().getI18NString(
+                    "impl.protocol.jabber.INVALID_ADDRESS", new String[]
+                { contactId }));
+                // no suggestion for an empty id
+                return false;
+            }
+
+            String user = contactId;
+            String remainder = "";
+            int at = contactId.indexOf('@');
+            if (at > -1)
+            {
+                user = contactId.substring(0, at);
+                remainder = contactId.substring(at);
+            }
+
+            // <conforming-char> ::= #x21 | [#x23-#x25] | [#x28-#x2E] |
+            // [#x30-#x39] | #x3B | #x3D | #x3F |
+            // [#x41-#x7E] | [#x80-#xD7FF] |
+            // [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+            boolean valid = true;
+            String suggestion = "";
+            for (char c : user.toCharArray())
+            {
+                if (!(c == 0x21 || (c >= 0x23 && c <= 0x25)
+                    || (c >= 0x28 && c <= 0x2e) || (c >= 0x30 && c <= 0x39)
+                    || c == 0x3b || c == 0x3d || c == 0x3f
+                    || (c >= 0x41 && c <= 0x7e) || (c >= 0x80 && c <= 0xd7ff)
+                    || (c >= 0xe000 && c <= 0xfffd)))
+                {
+                    valid = false;
+                }
+                else
+                {
+                    suggestion += c;
+                }
+            }
+
+            if (!valid)
+            {
+                result.add(JabberActivator.getResources().getI18NString(
+                    "impl.protocol.jabber.INVALID_ADDRESS", new String[]
+                { contactId }));
+                result.add(suggestion + remainder);
+                return false;
+            }
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            result.add(JabberActivator.getResources().getI18NString(
+                "impl.protocol.jabber.INVALID_ADDRESS", new String[]
+            { contactId }));
+        }
+
+        return false;
+    }
+
+    /**
      * Returns the <tt>XMPPConnection</tt>opened by this provider
      * @return a reference to the <tt>XMPPConnection</tt> last opened by this
      * provider.

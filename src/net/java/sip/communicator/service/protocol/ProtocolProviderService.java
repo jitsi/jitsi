@@ -218,6 +218,23 @@ public interface ProtocolProviderService
     public AccountID getAccountID();
 
     /**
+     * Validates the given protocol specific contact identifier and returns an
+     * error message if applicable and a suggested correction.
+     * 
+     * @param contactId the contact identifier to validate
+     * @param result Must be supplied as an empty a list. Implementors add
+     *            items:
+     *            <ol>
+     *            <li>is the error message if applicable
+     *            <li>a suggested correction. Index 1 is optional and can only
+     *            be present if there was a validation failure.
+     *            </ol>
+     * @return true if the contact id is valid, false otherwise
+     */
+    public boolean validateContactAddress(String contactId,
+        List<String> result);
+
+    /**
      * Indicate if the signaling transport of this protocol instance uses a
      * secure (e.g. via TLS) connection.
      *

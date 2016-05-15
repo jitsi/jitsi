@@ -245,6 +245,19 @@ public abstract class AbstractProtocolProviderService
     }
 
     /**
+     * Default implementation that always returns true.
+     * 
+     * @param contactId ignored.
+     * @param result ignored
+     * @return true
+     */
+    @Override
+    public boolean validateContactAddress(String contactId, List<String> result)
+    {
+        return true;
+    }
+
+    /**
      * Returns an array containing all operation sets supported by the current
      * implementation. When querying this method users must be prepared to
      * receive any subset of the OperationSet-s defined by this service. They

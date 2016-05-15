@@ -21,9 +21,12 @@ import java.awt.*;
 import java.awt.Container;
 import java.awt.event.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.event.*;
+
+import org.jitsi.util.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.contactlist.addgroup.*;
@@ -498,6 +501,26 @@ public class AddContactDialog
                 = (ProtocolProviderService) accountCombo.getSelectedItem();
             final String contactAddress = contactAddressField.getText().trim();
             final String displayName = displayNameField.getText();
+
+            List<String> validationResult = new ArrayList<>(2);
+            if (!protocolProvider.validateContactAddress(contactAddress,
+                validationResult))
+            {
+                new ErrorDialog(GuiActivator.getUIService().getMainFrame(),
+                    GuiActivator.getResources()
+                        .getI18NString("service.gui.ADD_CONTACT_ERROR_TITLE"),
+                    validationResult.get(0), ErrorDialog.WARNING).showDialog();
+                if (validationResult.size() >= 2)
+                {
+                    contactAddressField.setText(validationResult.get(1));
+                    if (StringUtils.isNullOrEmpty(displayName, true))
+                    {
+                        displayNameField.setText(contactAddress);
+                    }
+                }
+
+                return;
+            }
 
             if (!protocolProvider.isRegistered())
             {

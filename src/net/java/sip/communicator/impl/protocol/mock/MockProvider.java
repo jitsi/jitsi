@@ -294,6 +294,15 @@ public class MockProvider
     }
 
     /**
+     * Always true.
+     */
+    @Override
+    public boolean validateContactAddress(String contactId, List<String> result)
+    {
+        return true;
+    }
+
+    /**
      * Mock implementation of the corresponding ProtocolProviderService method.
      * We have no icon corresponding to this protocol provider.
      */
