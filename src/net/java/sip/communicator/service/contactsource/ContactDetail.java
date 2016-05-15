@@ -438,9 +438,19 @@ public class ContactDetail
         this.contactDetailValue = contactDetailValue;
 
         if (!StringUtils.isNullOrEmpty(detailDisplayName))
+        {
             this.detailDisplayName = detailDisplayName;
+        }
+        else if (category == Category.Phone)
+        {
+            this.detailDisplayName =
+                ContactSourceActivator.getPhoneNumberI18nService()
+                    .formatForDisplay(contactDetailValue);
+        }
         else
+        {
             this.detailDisplayName = contactDetailValue;
+        }
 
         // category & labels
         this.category = category;

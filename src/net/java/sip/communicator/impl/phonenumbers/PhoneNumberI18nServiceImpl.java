@@ -18,6 +18,9 @@
 package net.java.sip.communicator.impl.phonenumbers;
 
 import com.google.i18n.phonenumbers.*;
+import com.google.i18n.phonenumbers.PhoneNumberUtil.*;
+import com.google.i18n.phonenumbers.Phonenumber.*;
+
 import net.java.sip.communicator.service.protocol.*;
 import org.jitsi.service.configuration.*;
 
@@ -180,6 +183,33 @@ public class PhoneNumberI18nServiceImpl
 
         return match != PhoneNumberUtil.MatchType.NOT_A_NUMBER
             && match != PhoneNumberUtil.MatchType.NO_MATCH;
+    }
+
+    /**
+     * Tries to format the passed phone number into the international format. If
+     * parsing fails or the string is not recognized as a valid phone number,
+     * the input is returned as is.
+     * 
+     * @param phoneNumber The phone number to format.
+     * @return the formatted phone number in the international format.
+     */
+    public String formatForDisplay(String phoneNumber)
+    {
+        try
+        {
+            PhoneNumber pn = PhoneNumberUtil.getInstance().parse(phoneNumber,
+                System.getProperty("user.country"));
+            if (PhoneNumberUtil.getInstance().isPossibleNumber(pn))
+            {
+                return PhoneNumberUtil.getInstance().format(pn,
+                    PhoneNumberFormat.INTERNATIONAL);
+            }
+        }
+        catch (NumberParseException e)
+        {
+        }
+
+        return phoneNumber;
     }
 
     /**

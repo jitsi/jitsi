@@ -41,6 +41,16 @@ public interface PhoneNumberI18nService
     public String normalize(String possibleNumber);
 
     /**
+     * Tries to format the passed phone number into the international format. If
+     * parsing fails or the string is not recognized as a valid phone number,
+     * the input is returned as is.
+     * 
+     * @param phoneNumber The phone number to format.
+     * @return the formatted phone number in the international format.
+     */
+    public String formatForDisplay(String phoneNumber);
+
+    /**
      * Determines whether two <tt>String</tt> phone numbers match.
      *
      * @param aPhoneNumber a <tt>String</tt> which represents a phone number to

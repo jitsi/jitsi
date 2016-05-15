@@ -573,7 +573,7 @@ public class SourceUIContact
             }
             else
             {
-                labelText = contactDetail.getDetail();
+                labelText = contactDetail.getDisplayName();
             }
 
             jLabels[i] = new JLabel(filterAddressDisplay(labelText));
