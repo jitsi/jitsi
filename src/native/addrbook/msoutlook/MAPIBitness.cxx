@@ -32,13 +32,14 @@
 /**
  * The number of registries known for the different Outlook version.
  */
-int nbOutlookRegister = 4;
+int nbOutlookRegister = 5;
 
 
 /**
  * The registries known for the different Outlook version.
  */
 TCHAR outlookRegister[][MAX_PATH] = {
+    TEXT("{5812C571-53F0-4467-BEFA-0A4F47A9437C}"), // Outlook 2016
     TEXT("{E83B4360-C208-4325-9504-0D23003A74A5}"), // Outlook 2013
     TEXT("{1E77DE88-BCAB-4C37-B9E5-073AF52DFD7A}"), // Outlook 2010
     TEXT("{24AAE126-0911-478F-A019-07B875EB9996}"), // Outlook 2007
@@ -91,6 +92,7 @@ int MAPIBitness_getOutlookBitnessVersion(void)
 int MAPIBitness_getOutlookVersion(void)
 {
     int outlookVersions[] = {
+        2016, // Outlook 2016
         2013, // Outlook 2013
         2010, // Outlook 2010
         2007, // Outlook 2007

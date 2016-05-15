@@ -592,6 +592,9 @@
        can directly use command prompt
        When changing idl file in visual studio console execute
        midl <idl file>.
+       
+       Microsoft MAPI headers won't compile with gcc. See:
+       http://lists.jitsi.org/pipermail/dev/2013-April/001313.html
   -->
   <target
       name="msoutlookaddrbook"
