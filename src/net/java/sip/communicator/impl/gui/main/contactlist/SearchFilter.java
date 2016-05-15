@@ -270,14 +270,13 @@ public class SearchFilter
      */
     private boolean isMatching(String text)
     {
-        if (filterPattern != null)
-            return filterPattern.matcher(text).find();
+        if (filterPattern != null && filterPattern.matcher(text).find())
+            return true;
 
         if(isSearchingPhoneNumber && this.filterString != null)
             return GuiActivator.getPhoneNumberI18nService()
                 .phoneNumbersMatch(this.filterString, text);
 
         return true;
-
     }
 }
