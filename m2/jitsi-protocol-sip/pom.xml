@@ -56,6 +56,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>jitsi-version</artifactId>
+      <version>2.9-20160511.122033-1</version>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
