@@ -19,6 +19,10 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jibri;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
+import org.jivesoftware.smack.packet.*;
+
+import java.util.*;
+
 /**
  * The packet extension added to Jicofo MUC presence to broadcast current
  * recording status to all conference participants.
@@ -70,5 +74,53 @@ public class RecordingStatus
     public void setStatus(JibriIq.Status status)
     {
         setAttribute(STATUS_ATTRIBUTE, String.valueOf(status));
+    }
+
+    /**
+     * Returns <tt>XMPPError</tt> associated with current
+     * {@link RecordingStatus}.
+     */
+    public XMPPError getError()
+    {
+        XMPPErrorPE errorPe = getErrorPE();
+        return errorPe != null ? errorPe.getError() : null;
+    }
+
+    /**
+     * Gets <tt>{@link XMPPErrorPE}</tt> from the list of child packet
+     * extensions.
+     * @return {@link XMPPErrorPE} or <tt>null</tt> if not found.
+     */
+    private XMPPErrorPE getErrorPE()
+    {
+        List<? extends PacketExtension> errorPe
+            = getChildExtensionsOfType(XMPPErrorPE.class);
+
+        return (XMPPErrorPE) (!errorPe.isEmpty() ? errorPe.get(0) : null);
+    }
+
+    /**
+     * Sets <tt>XMPPError</tt> on this <tt>RecordingStatus</tt>.
+     * @param error <tt>XMPPError</tt> to add error details to this
+     * <tt>RecordingStatus</tt> instance or <tt>null</tt> to have it removed.
+     */
+    public void setError(XMPPError error)
+    {
+        if (error != null)
+        {
+            // Wrap and add XMPPError as packet extension
+            XMPPErrorPE errorPe = getErrorPE();
+            if (errorPe == null)
+            {
+                errorPe = new XMPPErrorPE(error);
+                addChildExtension(errorPe);
+            }
+            errorPe.setError(error);
+        }
+        else
+        {
+            // Remove error PE
+            getChildExtensions().remove(getErrorPE());
+        }
     }
 }

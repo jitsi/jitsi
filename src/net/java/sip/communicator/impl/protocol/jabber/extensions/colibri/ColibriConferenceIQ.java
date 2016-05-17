@@ -543,6 +543,14 @@ public class ColibriConferenceIQ
                 = "receive-simulcast-layer";
 
         /**
+         * The XML name of the <tt>packet-delay</tt> attribute of
+         * a <tt>channel</tt> of a <tt>content</tt> of a <tt>conference</tt> IQ
+         * which represents the value of the {@link #packetDelay} property of
+         * <tt>ColibriConferenceIQ.Channel</tt>.
+         */
+        public static final String PACKET_DELAY_ATTR_NAME = "packet-delay";
+
+        /**
          * The XML name of the <tt>rtcpport</tt> attribute of a <tt>channel</tt>
          * of a <tt>content</tt> of a <tt>conference</tt> IQ which represents
          * the value of the <tt>rtcpPort</tt> property of
@@ -611,6 +619,11 @@ public class ColibriConferenceIQ
          * The 'simulcast-mode' flag.
          */
         private SimulcastMode simulcastMode;
+
+        /**
+         * The amount of delay added to the RTP stream in a number of packets.
+         */
+        private Integer packetDelay;
 
         /**
          * The <tt>payload-type</tt> elements defined by XEP-0167: Jingle RTP
@@ -893,6 +906,18 @@ public class ColibriConferenceIQ
         }
 
         /**
+         * Returns an <tt>Integer</tt> which stands for the amount of delay
+         * added to the RTP stream in a number of packets.
+         *
+         * @return <tt>Integer</tt> with the value or <tt>null</tt> if
+         * unspecified.
+         */
+        public Integer getPacketDelay()
+        {
+            return packetDelay;
+        }
+
+        /**
          * Gets a list of <tt>payload-type</tt> elements defined by XEP-0167:
          * Jingle RTP Sessions added to this <tt>channel</tt>.
          *
@@ -1079,6 +1104,14 @@ public class ColibriConferenceIQ
             {
                 xml.append(' ').append(ADAPTIVE_SIMULCAST_ATTR_NAME)
                         .append("='").append(adaptiveSimulcast).append('\'');
+            }
+
+            // packet-delay
+            Integer packetDelay = getPacketDelay();
+            if (packetDelay != null)
+            {
+                xml.append(' ').append(PACKET_DELAY_ATTR_NAME).append("='")
+                    .append(packetDelay).append('\'');
             }
 
             // simulcastMode
@@ -1311,6 +1344,17 @@ public class ColibriConferenceIQ
         public void setAdaptiveSimulcast(Boolean adaptiveSimulcast)
         {
             this.adaptiveSimulcast = adaptiveSimulcast;
+        }
+
+        /**
+         * Configures channel's packet delay which tells by how many packets
+         * the RTP streams will be delayed.
+         * @param packetDelay an <tt>Integer</tt> value which stands for
+         * the packet delay that will be set or <tt>null</tt> to leave undefined
+         */
+        public void setPacketDelay(Integer packetDelay)
+        {
+            this.packetDelay = packetDelay;
         }
 
         /**
