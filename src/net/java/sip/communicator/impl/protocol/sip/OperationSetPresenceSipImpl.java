@@ -2240,6 +2240,40 @@ public class OperationSetPresenceSipImpl
               updateContactIcon((ContactSipImpl) contact, personStatusIcon);
          }
 
+        // search for a <note> that can define a more precise
+        // status this is not recommended by RFC3863 but some im
+        // clients use this.
+        NodeList presNoteList = getPidfChilds(presence, NOTE_ELEMENT);
+        if (presNoteList.getLength() >= 1)
+        {
+            Node noteNode = presNoteList.item(presNoteList.getLength() - 1);
+            if (noteNode.getNodeType() == Node.ELEMENT_NODE)
+            {
+                String state = getTextContent((Element)noteNode);
+                if (state != null)
+                {
+                    switch (state.toLowerCase())
+                    {
+                        case "ready":
+                        case "available":
+                            personStatus = sipStatusEnum
+                                .getStatus(SipStatusEnum.ONLINE);
+                            break;
+                        case "ringing":
+                        case "on the phone":
+                        case "on hold":
+                            personStatus = sipStatusEnum
+                                .getStatus(SipStatusEnum.ON_THE_PHONE);
+                            break;
+                        case "unavailable":
+                            personStatus = sipStatusEnum
+                                .getStatus(SipStatusEnum.OFFLINE);
+                            break;
+                    }
+                }
+            }
+        }
+
          // Vector containing the list of status to set for each contact in
          // the presence document ordered by priority (highest first).
          // <SipContact, Float (priority), SipStatusEnum>
