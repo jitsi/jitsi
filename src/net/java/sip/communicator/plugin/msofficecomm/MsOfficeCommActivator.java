@@ -88,7 +88,6 @@ public class MsOfficeCommActivator
         }
         finally
         {
-            RegistryHandler.checkRegistryKeys();
             if (stopMessenger)
                 Messenger.stop(bundleContext);
         }

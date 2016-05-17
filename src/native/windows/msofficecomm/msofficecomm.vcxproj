@@ -74,11 +74,13 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\Program Files (x86)\Microsoft Office Communicator\SDK;C:\Java\jdk8\include;C:\Java\jdk8\include\win32;$(IncludePath)</IncludePath>
     <TargetName>j$(ProjectName)</TargetName>
+    <OutDir>..\..\..\..\lib\native\windows\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <TargetName>j$(ProjectName)</TargetName>
     <IncludePath>C:\Program Files %28x86%29\Microsoft Office Communicator\SDK;C:\Java\JDK8x64\include;C:\Java\JDK8x64\include\win32;$(IncludePath)</IncludePath>
+    <OutDir>..\..\..\..\lib\native\windows-64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

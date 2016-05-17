@@ -179,12 +179,17 @@ public class JingleUtils
             else
                 paramsMap.put(paramName, param.getValue());
         }
-
-        // video-related attributes in payload-type element
+        
         for(String attr : payloadType.getAttributeNames())
         {
+            //video-related attributes in payload-type element
             if(attr.equals("width") || attr.equals("height"))
                 paramsMap.put(attr, payloadType.getAttributeAsString(attr));
+
+            //update ptime with the actual value from the payload
+            if (attr.equals(PayloadTypePacketExtension.PTIME_ATTR_NAME))
+                advancedMap.put(PayloadTypePacketExtension.PTIME_ATTR_NAME,
+                        Integer.toString(payloadType.getPtime()));
         }
 
         //now create the format.

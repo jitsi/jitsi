@@ -18,6 +18,7 @@
 package net.java.sip.communicator.impl.protocol.sip.net;
 
 import gov.nist.core.net.*;
+import gov.nist.javax.sip.*;
 
 import java.io.*;
 import java.net.*;
@@ -420,5 +421,10 @@ public class SslNetworkLayer
         }
 
         return 0;
+    }
+
+    @Override
+    public void setSipStack(SipStackImpl sipStack)
+    {
     }
 }

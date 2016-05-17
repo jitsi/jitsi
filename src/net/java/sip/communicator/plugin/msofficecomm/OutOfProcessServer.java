@@ -25,11 +25,6 @@ package net.java.sip.communicator.plugin.msofficecomm;
  */
 class OutOfProcessServer
 {
-    static
-    {
-        System.loadLibrary("jmsofficecomm");
-    }
-
     static native int start();
 
     static native int stop();
