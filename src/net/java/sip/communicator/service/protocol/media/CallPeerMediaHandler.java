@@ -1046,7 +1046,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
         case VIDEO:
             return videoStream;
         default:
-            throw new IllegalArgumentException("mediaType");
+            return null;
         }
     }
 
