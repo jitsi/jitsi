@@ -160,7 +160,7 @@ public class ConfigHeaders
                 String name = headerValues.get(ACC_PROPERTY_CONFIG_HEADER_NAME);
                 String value = processParams(
                     headerValues.get(ACC_PROPERTY_CONFIG_HEADER_VALUE),
-                    request, props);
+                    request);
 
                 Header h = request.getHeader(name);
 
@@ -200,8 +200,7 @@ public class ConfigHeaders
      * @param request the request we are processing
      * @return the value with replaced params
      */
-    private static String processParams(String value, Request request, 
-        Map<String, String> props)
+    private static String processParams(String value, Request request)
     {
         if(value.indexOf("${from.address}") != -1)
         {
@@ -278,13 +277,6 @@ public class ConfigHeaders
 
                 value = value.replace("${to.userID}", toAddr);
             }
-        }
-
-        if (value.indexOf("${tag}") != -1)
-        {
-            FromHeader fromHeader
-                = (FromHeader)request.getHeader(FromHeader.NAME);
-            value = value.replace("${tag}",fromHeader.getTag());
         }
 
         return value;
