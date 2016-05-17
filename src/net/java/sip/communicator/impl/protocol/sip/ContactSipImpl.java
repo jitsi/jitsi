@@ -578,10 +578,15 @@ public class ContactSipImpl
      */
     public static String stripScheme(String from)
     {
-        int i = from.substring(0, 5).indexOf(':');
+        if (from.startsWith("sip:"))
+        {
+            return from.substring(4);
+        }
+        else if (from.startsWith("sips:"))
+        {
+            return from.substring(5);
+        }
 
-        if(from.startsWith("sip") && i > 0)
-            return from.substring(i + 1);
         return from;
     }
 
