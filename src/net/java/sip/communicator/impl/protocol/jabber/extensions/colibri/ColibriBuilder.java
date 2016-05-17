@@ -126,6 +126,13 @@ public class ColibriBuilder
     private Integer audioPacketDelay;
 
     /**
+     * Channel 'rtp-level-relay-type' option that will be used with all created
+     * audio channel. Possible values: mixer or translator (default).
+     *
+     */
+    private RTPLevelRelayType rtpLevelRelayType;
+
+    /**
      * Creates new instance of {@link ColibriBuilder} for given
      * <tt>conferenceState</tt>.
      *
@@ -232,6 +239,8 @@ public class ColibriBuilder
                 {
                     // When audioPacketDelay is null it will clear the attribute
                     remoteRtpChannelRequest.setPacketDelay(audioPacketDelay);
+                    // Set rtp packet relay type for this channel
+                    remoteRtpChannelRequest.setRTPLevelRelayType(rtpLevelRelayType);
                 }
             }
 
@@ -1093,4 +1102,28 @@ public class ColibriBuilder
          */
         UNDEFINED;
     }
+
+    /**
+     * Configures RTP-level relay (RFC 3550, section 2.3).
+     * @param rtpLevelRelayType an <tt>RTPLevelRelayType</tt> value which
+     * stands for the rtp level relay type that will be set on all created
+     * audio channels.
+     */
+    public void setRTPLevelRelayType(RTPLevelRelayType rtpLevelRelayType)
+    {
+        this.rtpLevelRelayType = rtpLevelRelayType;
+    }
+
+    /**
+     * Configures RTP-level relay (RFC 3550, section 2.3).
+     * @param rtpLevelRelayType a <tt>String</tt> value which
+     * stands for the rtp level relay type that will be set on all created
+     * audio channels.
+     */
+    public void setRTPLevelRelayType(String rtpLevelRelayType)
+    {
+        setRTPLevelRelayType
+                (RTPLevelRelayType.parseRTPLevelRelayType(rtpLevelRelayType));
+    }
+
 }
