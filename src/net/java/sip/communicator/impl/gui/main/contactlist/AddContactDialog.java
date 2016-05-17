@@ -214,16 +214,16 @@ public class AddContactDialog
     private void init()
     {
         // Get tool tip text for primary controls
-        final String display_name_info =
+        final String displayNameInfo =
             GuiActivator.getResources().getI18NString(
                 "service.gui.DISPLAY_NAME_INFO");
-        final String contact_info =
+        final String contactInfo =
             GuiActivator.getResources().getI18NString(
                 "service.gui.CONTACT_NAME_INFO");
-        final String account_info =
+        final String accountInfo =
             GuiActivator.getResources().getI18NString(
                 "service.gui.SELECT_ACCOUNT_INFO");
-        final String group_info =
+        final String groupInfo =
             GuiActivator.getResources().getI18NString(
                 "service.gui.SELECT_GROUP_INFO");
 
@@ -231,29 +231,29 @@ public class AddContactDialog
         this.accountLabel = new JLabel(
             GuiActivator.getResources().getI18NString(
                 "service.gui.SELECT_ACCOUNT") + ": ");
-        this.accountLabel.setToolTipText(account_info);
+        this.accountLabel.setToolTipText(accountInfo);
 
         this.accountCombo = new JComboBox();
-        this.accountCombo.setToolTipText(account_info);
+        this.accountCombo.setToolTipText(accountInfo);
 
         this.contactAddressLabel = new JLabel(
             GuiActivator.getResources().getI18NString(
                 "service.gui.CONTACT_NAME") + ": ");
-        this.contactAddressLabel.setToolTipText(contact_info);
+        this.contactAddressLabel.setToolTipText(contactInfo);
 
         this.displayNameLabel = new JLabel(
             GuiActivator.getResources().getI18NString(
                 "service.gui.DISPLAY_NAME") + ": ");
-        this.displayNameLabel.setToolTipText(display_name_info);
+        this.displayNameLabel.setToolTipText(displayNameInfo);
 
         this.contactAddressField = new JTextField();
-        this.contactAddressField.setToolTipText(contact_info);
+        this.contactAddressField.setToolTipText(contactInfo);
         addPrompt(this.contactAddressField,
             GuiActivator.getResources().getI18NString(
                 "service.gui.CONTACT_NAME_PROMPT"));
 
         this.displayNameField = new JTextField();
-        this.displayNameField.setToolTipText(display_name_info);
+        this.displayNameField.setToolTipText(displayNameInfo);
         addPrompt(this.displayNameField,
             GuiActivator.getResources().getI18NString(
                 "service.gui.DISPLAY_NAME_PROMPT"));
@@ -261,7 +261,7 @@ public class AddContactDialog
         this.groupLabel = new JLabel(
             GuiActivator.getResources().getI18NString(
                 "service.gui.SELECT_GROUP") + ": ");
-        this.groupLabel.setToolTipText(group_info);
+        this.groupLabel.setToolTipText(groupInfo);
 
         this.addButton = new JButton(
             GuiActivator.getResources().getI18NString("service.gui.ADD"));
@@ -272,7 +272,7 @@ public class AddContactDialog
         this.imageLabel = new JLabel();
 
         this.groupCombo = createGroupCombo(this);
-        this.groupCombo.setToolTipText(group_info);
+        this.groupCombo.setToolTipText(groupInfo);
 
         if(metaContact != null)
         {
