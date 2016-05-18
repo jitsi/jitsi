@@ -2417,18 +2417,16 @@ public class ProtocolProviderServiceJabberImpl
      */
     public boolean isFeatureListSupported(String jid, String... features)
     {
-        boolean isFeatureListSupported = true;
-
         try
         {
             if(discoveryManager == null)
-                return isFeatureListSupported;
+                return false;
 
             DiscoverInfo featureInfo =
                 discoveryManager.discoverInfoNonBlocking(jid);
 
             if(featureInfo == null)
-                return isFeatureListSupported;
+                return false;
 
             for (String feature : features)
             {
@@ -2436,17 +2434,19 @@ public class ProtocolProviderServiceJabberImpl
                 {
                     // If one is not supported we return false and don't check
                     // the others.
-                    isFeatureListSupported = false;
-                    break;
+                    return false;
                 }
             }
+
+            return true;
         }
         catch (XMPPException e)
         {
             if (logger.isDebugEnabled())
                 logger.debug("Failed to retrive discovery info.", e);
         }
-        return isFeatureListSupported;
+
+        return false;
     }
 
     /**
