@@ -1078,7 +1078,7 @@ public class ContactListTreeCellRenderer
 
         UIContactDetail desktopContact
             = uiContact.getDefaultContactDetail(
-                OperationSetDesktopStreaming.class);
+                OperationSetDesktopSharingServer.class);
 
         if (desktopContact != null
             || (contactPhoneUtil != null
