@@ -83,7 +83,7 @@ public class JibriIq
     private Action action = Action.UNDEFINED;
 
     /**
-     * XMPPError stores error details for {@link Status#ERROR}.
+     * XMPPError stores error details for {@link Status#FAILED}.
      */
     private XMPPError error;
 
@@ -239,7 +239,7 @@ public class JibriIq
     /**
      * Sets the <tt>XMPPError</tt> which will provide details about Jibri
      * failure. It is expected to be set when this IQ's status value is
-     * {@link Status#ERROR}.
+     * {@link Status#FAILED}.
      *
      * @param error <tt>XMPPError</tt> to be set on this <tt>JibriIq</tt>
      * instance.
@@ -251,7 +251,7 @@ public class JibriIq
 
     /**
      * Returns {@link XMPPError} with Jibri error details when the status is
-     * {@link Status#ERROR}.
+     * {@link Status#FAILED}.
      */
     public XMPPError getError()
     {
@@ -341,7 +341,7 @@ public class JibriIq
         /**
          * An error occurred any point during startup, recording or shutdown.
          */
-        ERROR("error"),
+        FAILED("failed"),
 
         /**
          * There are Jibri instances connected to the system, but all of them
