@@ -1128,6 +1128,7 @@
         <copy file="${lib.noinst}/java-sdp-nist-bridge-1.2.jar" tofile="${bundles.dest}/java-sdp-nist-bridge.jar"/>
         <copy file="${lib.noinst}/jain-sip-ri-ossonly-1.2.279-jitsi-oss1.jar" tofile="${bundles.dest}/jain-sip-ri.jar"/>
         <copy file="${lib.noinst}/dnsjava-2.1.7.jar" tofile="${bundles.dest}/dnsjava.jar"/>
+        <copy file="${lib.noinst}/dnssecjava-1.1.jar" tofile="${bundles.dest}/dnssecjava.jar"/>
     </target>
 
     <!--BUNDLE-SC-LAUNCHER-->
