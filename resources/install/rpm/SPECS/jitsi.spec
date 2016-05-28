@@ -113,6 +113,7 @@ sed -i -e "s/\/usr\/lib\/jni/\$LIBPATH\/native/" $RPM_BUILD_ROOT/usr/bin/jitsi
 sed -i -e "s/\/usr\/share\/java\/jdic\.jar/\$LIBPATH\/jdic_stub\.jar:\$LIBPATH\/jdic-all\.jar/" $RPM_BUILD_ROOT/usr/bin/jitsi
 sed -i -e "s/\/usr\/share\/java\/org\.apache\.felix\.framework\.jar/\$LIBPATH\/felix\.jar/" $RPM_BUILD_ROOT/usr/bin/jitsi
 sed -i -e "s/\/usr\/share\/java\/org\.apache\.felix\.main\.jar://" $RPM_BUILD_ROOT/usr/bin/jitsi
+sed -i -e "s/\/usr\/share\/java\/dnsjava\.jar://" $RPM_BUILD_ROOT/usr/bin/jitsi
 sed -i -e "s/\/launchutils.jar//" $RPM_BUILD_ROOT/usr/bin/jitsi
 
 %clean

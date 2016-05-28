@@ -525,6 +525,7 @@ Run_getJavaVMOptionStrings
             = {
                 _T("lib\\felix.jar"),
                 _T("sc-bundles\\sc-launcher.jar"),
+                _T("sc-bundles\\dnsjava.jar"),
                 _T("sc-bundles\\util.jar"),
                 _T("lib"),
                 NULL
