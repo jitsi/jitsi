@@ -44,7 +44,6 @@ import org.xbill.DNS.*;
  * @author Ingo Bauersachs
  */
 public class ConfigurableDnssecResolver
-    //extends UnboundResolver
     extends ValidatingResolver
     implements CustomResolver
 {

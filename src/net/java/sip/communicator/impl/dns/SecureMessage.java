@@ -35,10 +35,10 @@ public class SecureMessage
     private String bogusReason;
 
     /**
-     * Creates a new instance of this class based on data received from an
-     * Unbound resolve.
+     * Creates a new instance of this class based on data received from a
+     * dnssecjava resolve.
      *
-     * @param msg The answer of the Unbound resolver.
+     * @param msg The answer of the dnssecjava resolver.
      * @throws IOException
      */
     public SecureMessage(Message msg) throws IOException

@@ -533,34 +533,6 @@
       </cc>
   </target>
 
-    <target name="unbound"
-            description="Build libjunbound"
-            depends="init-native">
-
-        <cc outtype="shared"
-            name="g++"
-            outfile="${native_install_dir}/junbound"
-            objdir="${obj}">
-                <!-- common compiler flags -->
-                <compilerarg value="-Wall" />
-                <compilerarg value="-Wreturn-type" />
-                <compilerarg value="-fPIC"/>
-                <compilerarg value="-D_JNI_IMPLEMENTATION_" />
-
-                <compilerarg value="-I${system.JAVA_HOME}/include"
-                             if="is.running.linux" />
-                <compilerarg value="-I${system.JAVA_HOME}/include/linux"
-                             if="is.running.linux" />
-
-                <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
-                <linkerarg value="-shared"/>
-                <linkerarg value="-lunbound" if="is.running.linux"/>
-
-                <fileset dir="${src}/native/libjunbound/src"
-                        includes="*.cpp"/>
-        </cc>
-    </target>
-
   <!-- Cleanup object files and shared libraries -->
   <target name="clean-native" description="Clean all object files and libraries.">
     <delete failonerror="false" includeemptydirs="true">
