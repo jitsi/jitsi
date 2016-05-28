@@ -1286,6 +1286,8 @@
             <key>CFBundleURLSchemes</key>
             <array>
                 <string>sip</string>
+                <string>tel</string>
+                <string>callto</string>
             </array>
         </dict>
         <dict>
