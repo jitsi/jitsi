@@ -150,7 +150,7 @@ public class DnsUtilActivator
         {
             bundleContext.registerService(
                 CustomResolver.class.getName(),
-                new ConfigurableDnssecResolver(),
+                new ConfigurableDnssecResolver(new ExtendedResolver()),
                 null);
             logger.info("DnssecResolver ... [REGISTERED]");
         }

@@ -24,6 +24,11 @@
     <!-- org.jitsi -->
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>dnssecjava</artifactId>
+      <version>1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>jitsi-protocol</artifactId>
     </dependency>
   </dependencies>

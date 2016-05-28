@@ -267,7 +267,7 @@ public class DnssecPanel
                 if(chkEnabled.isSelected())
                 {
                     if(!f.createNewFile() && !f.exists())
-                        chkEnabled.setSelected(UnboundApi.isAvailable());
+                        chkEnabled.setSelected(false);
                 }
                 else
                 {

@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.dns;
 
 import java.io.*;
 
+import org.jitsi.dnssec.validator.*;
 import org.xbill.DNS.*;
 
 /**
@@ -34,18 +35,24 @@ public class SecureMessage
     private String bogusReason;
 
     /**
-     * Creates a new instance of this class based on data received from an
-     * Unbound resolve.
+     * Creates a new instance of this class based on data received from a
+     * dnssecjava resolve.
      *
-     * @param msg The answer of the Unbound resolver.
+     * @param msg The answer of the dnssecjava resolver.
      * @throws IOException
      */
-    public SecureMessage(UnboundResult msg) throws IOException
+    public SecureMessage(Message msg) throws IOException
     {
-        super(msg.answerPacket);
-        secure = msg.secure;
-        bogus = msg.bogus;
-        bogusReason = msg.whyBogus;
+        super(msg.toWire());
+        secure = msg.getHeader().getFlag(Flags.AD);
+        bogus = !secure && msg.getRcode() == Rcode.SERVFAIL;
+        for (RRset set : msg.getSectionRRsets(Section.ADDITIONAL)) {
+            if (set.getName().equals(Name.root) && set.getType() == Type.TXT
+                    && set.getDClass() == ValidatingResolver.VALIDATION_REASON_QCLASS)
+            {
+                bogusReason = ((TXTRecord)set.first()).getStrings().get(0).toString();
+            }
+        }
     }
 
     /**

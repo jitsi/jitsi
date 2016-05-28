@@ -19,7 +19,10 @@ package net.java.sip.communicator.impl.dns;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+import java.net.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 
@@ -28,6 +31,7 @@ import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
+import org.jitsi.dnssec.validator.ValidatingResolver;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
@@ -40,7 +44,8 @@ import org.xbill.DNS.*;
  * @author Ingo Bauersachs
  */
 public class ConfigurableDnssecResolver
-    extends UnboundResolver
+    extends ValidatingResolver
+    implements CustomResolver
 {
     private final static Logger logger
         = Logger.getLogger(ConfigurableDnssecResolver.class);
@@ -67,13 +72,38 @@ public class ConfigurableDnssecResolver
     private Map<String, Date> lastNotifications
         = new HashMap<String, Date>();
 
+    private ExtendedResolver headResolver;
+
     /**
      * Creates a new instance of this class. Tries to use the system's
      * default forwarders.
      */
-    public ConfigurableDnssecResolver()
+    public ConfigurableDnssecResolver(ExtendedResolver headResolver)
     {
-        super();
+        super(headResolver);
+
+        List<String> propNames
+            = config.getPropertyNamesByPrefix("org.jitsi.dnssec", false);
+        Properties config = new Properties();
+        for (String propName : propNames)
+        {
+            String value = config.getProperty(propName);
+            if (!StringUtils.isNullOrEmpty(value))
+            {
+                config.put(propName, value);
+            }
+        }
+
+        try
+        {
+            super.init(config);
+        }
+        catch (IOException e)
+        {
+            logger.error("Extended dnssec properties contained an error", e);
+        }
+
+        this.headResolver = headResolver;
         reset();
         Lookup.setDefaultResolver(this);
 
@@ -92,8 +122,8 @@ public class ConfigurableDnssecResolver
      *             did not choose to ignore it.
      */
     @Override
-    protected void validateMessage(SecureMessage msg)
-        throws DnssecRuntimeException
+    public Message send(Message query)
+        throws DnssecRuntimeException, IOException
     {
         //---------------------------------------------------------------------
         //               ||  1   |    2     |      3       |    4     |    5
@@ -105,6 +135,7 @@ public class ConfigurableDnssecResolver
         //c)  0   |  0   ||  ok  |   nok    |      ok      |    ok    |   ask
         //---------------------------------------------------------------------
 
+        SecureMessage msg = new SecureMessage(super.send(query));
         String fqdn = msg.getQuestion().getName().toString();
         String type = Type.string(msg.getQuestion().getType());
         String propName = createPropNameUnsigned(fqdn, type);
@@ -129,7 +160,7 @@ public class ConfigurableDnssecResolver
 
         //[abc]1, a[2-5]
         if(pinned == SecureResolveMode.IgnoreDnssec || msg.isSecure())
-            return;
+            return msg;
 
         if(
             //b2, c2
@@ -152,16 +183,17 @@ public class ConfigurableDnssecResolver
                         null);
                 lastNotifications.put(text, new Date());
             }
+
             throw new DnssecRuntimeException(text);
         }
 
         //c3
         if(pinned == SecureResolveMode.SecureOrUnsigned && !msg.isBogus())
-            return;
+            return msg;
 
         //c4
         if(pinned == SecureResolveMode.WarnIfBogus && !msg.isBogus())
-            return;
+            return msg;
 
         //b4, b5, c5
         String reason = msg.isBogus()
@@ -190,6 +222,8 @@ public class ConfigurableDnssecResolver
                 config.setProperty(propName, SecureResolveMode.SecureOnly);
                 throw new DnssecRuntimeException(getExceptionMessage(msg));
         }
+
+        return msg;
     }
 
     /**
@@ -372,22 +406,66 @@ public class ConfigurableDnssecResolver
         {
             if(logger.isTraceEnabled())
             {
-                logger.trace("Setting DNSSEC forwarders to: "
-                    + Arrays.toString(forwarders.split(",")));
+                logger.trace("Setting DNSSEC forwarders to: " + forwarders);
             }
-            super.setForwarders(forwarders.split(","));
+
+            synchronized (Lookup.class)
+            {
+                Lookup.refreshDefault();
+                String[] fwds = forwarders.split(",");
+                Resolver[] rs = headResolver.getResolvers();
+                for (Resolver r : rs)
+                {
+                    headResolver.deleteResolver(r);
+                }
+    
+                for (String fwd : fwds)
+                {
+                    try
+                    {
+                        SimpleResolver sr = new SimpleResolver(fwd);
+    
+                        // these properties are normally set by the
+                        // ValidatingResolver in the constructor
+                        sr.setEDNS(0, 0, ExtendedFlags.DO, null);
+                        sr.setIgnoreTruncation(false);
+                        headResolver.addResolver(sr);
+                    }
+                    catch (UnknownHostException e)
+                    {
+                        logger.error("Invalid forwarder, ignoring", e);
+                    }
+                }
+    
+                Lookup.setDefaultResolver(this);
+            }
         }
 
+        StringBuilder sb = new StringBuilder();
         for(int i = 1;;i++)
         {
             String anchor = DnsUtilActivator.getResources().getSettingsString(
                 "net.java.sip.communicator.util.dns.DS_ROOT." + i);
             if(anchor == null)
+            {
                 break;
-            clearTrustAnchors();
-            addTrustAnchor(anchor);
-            if(logger.isTraceEnabled())
-                logger.trace("Loaded trust anchor " + anchor);
+            }
+
+            sb.append(anchor);
+            sb.append('\n');
         }
+
+        try
+        {
+            super.loadTrustAnchors(new ByteArrayInputStream(
+                sb.toString().getBytes("ASCII")));
+        }
+        catch (IOException e)
+        {
+            logger.error("Could not load the trust anchors", e);
+        }
+
+        if(logger.isTraceEnabled())
+            logger.trace("Loaded trust anchors " + sb.toString());
     }
 }

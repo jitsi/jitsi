@@ -60,8 +60,26 @@
           </archive>
           <includes>
             <include>net/java/sip/communicator/util/**</include>
+            <include>META-INF/services/**</include>
           </includes>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>eu.somatik.serviceloader-maven-plugin</groupId>
+        <artifactId>serviceloader-maven-plugin</artifactId>
+        <version>1.0.7</version>
+        <configuration>
+          <services>
+            <param>sun.net.spi.nameservice.NameServiceDescriptor</param>
+          </services>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

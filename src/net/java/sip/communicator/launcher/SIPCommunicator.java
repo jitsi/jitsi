@@ -118,7 +118,7 @@ public class SIPCommunicator
         {
             System.setProperty(
                     "sun.net.spi.nameservice.provider.1",
-                    "dns,dnsjava");
+                    "dns,jitsi");
         }
 
         if (version.startsWith("1.5") || vmVendor.startsWith("Gnu") ||

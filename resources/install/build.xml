@@ -2407,7 +2407,7 @@
             and libjdic.so to deb and i386 package fail to build -->
         <replace file="${debianize.dir}/rules"
                  token="get-orig-source:"
-                 value="override_dh_shlibdeps:&#010;&#009;dh_shlibdeps -Xlibjunbound.so -Xlibsysactivitynotifications.so&#010;&#010;get-orig-source:"/>
+                 value="override_dh_shlibdeps:&#010;&#009;dh_shlibdeps -Xlibsysactivitynotifications.so&#010;&#010;get-orig-source:"/>
 
         <!-- removes the rule override_dh_auto_clean -->
         <replace file="${debianize.dir}/rules"
@@ -3300,7 +3300,6 @@
         <antcall target="globalshortcut"/>
         <antcall target="hid"/>
         <antcall target="sysactivity"/>
-        <antcall target="unbound"/>
         <antcall target="hwaddressretriever"/>
 
     </target>
