@@ -21,7 +21,7 @@ Requires: java >= 0:1.6
 
 %description
 Jitsi (formerly SIP Communicator) is an audio/video and chat communicator
-that supports protocols such as SIP, XMPP/Jabber, AIM/ICQ, Windows Live,
+that supports protocols such as SIP, XMPP/Jabber, AIM/ICQ, IRC,
 Yahoo! and many other useful features.
 
 %define debug_package %{nil}
