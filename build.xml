@@ -1252,10 +1252,9 @@
             <zipfileset dir="${dest}/net/java/sip/communicator/util"
                 prefix="net/java/sip/communicator/util">
             </zipfileset>
-            <zipfileset
-                file="${src}/net/java/sip/communicator/util/services/sun.net.spi.nameservice.NameServiceDescriptor"
-            	prefix="META-INF/services"
-            />
+            <service
+                type="sun.net.spi.nameservice.NameServiceDescriptor"
+                provider="net.java.sip.communicator.util.JitsiDnsNameServiceDescriptor"/>
         </jar>
     </target>
 
