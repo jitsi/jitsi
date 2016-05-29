@@ -469,7 +469,8 @@ public class SystrayServiceJdicImpl
         }
     }
 
-    private boolean checkInitialized()
+    @Override
+    public boolean checkInitialized()
     {
         if (!initialized)
             logger.error("Systray not init");

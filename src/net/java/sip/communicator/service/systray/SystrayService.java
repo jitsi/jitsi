@@ -129,4 +129,10 @@ public interface SystrayService
      * Selects the best available popup message handler
      */
     public void selectBestPopupMessageHandler();
+
+    /**
+     * Checks if the systray icon has been initialized.
+     * @return True if the systray is initialized, false otherwise.
+     */
+    public boolean checkInitialized();
 }
