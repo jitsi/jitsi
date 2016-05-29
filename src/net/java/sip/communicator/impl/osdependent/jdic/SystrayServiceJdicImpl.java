@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.osdependent.jdic;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.*;
 import java.net.*;
 
 import javax.swing.*;
@@ -27,6 +28,7 @@ import javax.swing.event.*;
 import net.java.sip.communicator.impl.osdependent.*;
 import net.java.sip.communicator.impl.osdependent.systemtray.SystemTray;
 import net.java.sip.communicator.impl.osdependent.systemtray.TrayIcon;
+import net.java.sip.communicator.impl.osdependent.windows.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.systray.*;
@@ -450,6 +452,83 @@ public class SystrayServiceJdicImpl
         if (!initialized)
             logger.error("Systray not init");
         return initialized;
+    }
+
+    /**
+     * Set the number of pending notifications to the the application icon
+     * (Dock on OSX, TaskBar on Windows, nothing on Linux currently).
+     */
+    @Override
+    public void setNotificationCount(int count)
+    {
+        if (OSUtils.IS_MAC)
+        {
+            Application application = Application.getApplication();
+            application.setDockIconBadge(new Integer(count).toString());
+        }
+        else if (OSUtils.IS_WINDOWS)
+        {
+            UIService uiService = OsDependentActivator.getUIService();
+            if (uiService == null)
+            {
+                return;
+            }
+
+            ExportedWindow mainWindow =
+                uiService.getExportedWindow(ExportedWindow.MAIN_WINDOW);
+            if (mainWindow == null
+                || !(mainWindow.getSource() instanceof Component))
+            {
+                return;
+            }
+
+            BufferedImage img = null;
+            if (count > 0)
+            {
+                img = createOverlayImage(new Integer(count).toString());
+            }
+
+            try
+            {
+                TaskBarList3.getInstance().SetOverlayIcon(
+                    (Component) mainWindow.getSource(), img, null);
+            }
+            catch (Exception ex)
+            {
+                logger.error("Could not set the notification count.", ex);
+            }
+        }
+    }
+
+    private BufferedImage createOverlayImage(String text)
+    {
+        int size = 16;
+        BufferedImage image =
+            new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = image.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+            RenderingHints.VALUE_ANTIALIAS_ON);
+
+        //background
+        g.setPaint(new Color(0, 0, 0, 102));
+        g.fillRoundRect(0, 0, size, size, size, size);
+
+        //filling
+        int mainRadius = 14;
+        g.setPaint(new Color(255, 98, 89));
+        g.fillRoundRect(size / 2 - mainRadius / 2, size / 2 - mainRadius / 2,
+            mainRadius, mainRadius, size, size);
+
+        //text
+        Font font = g.getFont();
+        g.setFont(new Font(font.getName(), Font.BOLD, 9));
+        FontMetrics fontMetrics = g.getFontMetrics();
+        int textWidth = fontMetrics.stringWidth(text);
+        g.setColor(Color.white);
+        g.drawString(text, size / 2 - textWidth / 2,
+            size / 2 - fontMetrics.getHeight() / 2 + fontMetrics.getAscent());
+
+        return image;
     }
 
     /**
