@@ -22,6 +22,7 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.net.*;
 
+import net.java.sip.communicator.impl.osdependent.systemtray.SystemTray;
 import net.java.sip.communicator.util.Logger;
 
 /**

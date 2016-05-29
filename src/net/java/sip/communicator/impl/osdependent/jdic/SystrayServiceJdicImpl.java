@@ -25,8 +25,8 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import net.java.sip.communicator.impl.osdependent.*;
-import net.java.sip.communicator.impl.osdependent.SystemTray;
-import net.java.sip.communicator.impl.osdependent.TrayIcon;
+import net.java.sip.communicator.impl.osdependent.systemtray.SystemTray;
+import net.java.sip.communicator.impl.osdependent.systemtray.TrayIcon;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.systray.*;
@@ -134,7 +134,7 @@ public class SystrayServiceJdicImpl
 
         try
         {
-            systray = SystemTray.getDefaultSystemTray();
+            systray = SystemTray.getSystemTray();
         }
         catch (Throwable t)
         {
@@ -187,7 +187,7 @@ public class SystrayServiceJdicImpl
             return;
         }
 
-        menu = TrayMenuFactory.createTrayMenu(this, systray.isSwing());
+        menu = TrayMenuFactory.createTrayMenu(this, systray.useSwingPopupMenu());
 
         boolean isMac = OSUtils.IS_MAC;
 
@@ -243,7 +243,7 @@ public class SystrayServiceJdicImpl
         currentIcon = isMac ? logoIcon : logoIconOffline;
 
         trayIcon
-            = new TrayIcon(
+            = systray.createTrayIcon(
                     currentIcon,
                     Resources.getApplicationString(
                             "service.gui.APPLICATION_NAME"),
@@ -552,7 +552,7 @@ public class SystrayServiceJdicImpl
                     OsDependentActivator.bundleContext.removeServiceListener(
                             this);
 
-                    if (!initialized)
+                    if (!initialized && systray != null)
                         initSystray();
                 }
             }
