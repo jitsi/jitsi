@@ -93,10 +93,6 @@ public class SystrayServiceJdicImpl
 
     private ImageIcon logoIconWhite;
 
-    private ImageIcon envelopeIcon;
-
-    private ImageIcon envelopeIconWhite;
-
     /**
      * The dock Icons used only in Mac version
      */
@@ -206,8 +202,6 @@ public class SystrayServiceJdicImpl
                 "service.systray.TRAY_ICON_WINDOWS_FFC");
             logoIconDND = Resources.getImage(
                 "service.systray.TRAY_ICON_WINDOWS_DND");
-            envelopeIcon = Resources.getImage(
-                "service.systray.MESSAGE_ICON_WINDOWS");
         }
         /*
          * If we're running under Mac OS X, we use special black and white icons
@@ -218,10 +212,6 @@ public class SystrayServiceJdicImpl
             logoIcon = Resources.getImage("service.systray.TRAY_ICON_MACOSX");
             logoIconWhite = Resources.getImage(
                 "service.systray.TRAY_ICON_MACOSX_WHITE");
-            envelopeIcon = Resources.getImage(
-                "service.systray.MESSAGE_ICON_MACOSX");
-            envelopeIconWhite = Resources.getImage(
-                "service.systray.MESSAGE_ICON_MACOSX_WHITE");
         }
         else
         {
@@ -233,7 +223,6 @@ public class SystrayServiceJdicImpl
                 "service.systray.TRAY_ICON_EXTENDED_AWAY");
             logoIconFFC = Resources.getImage("service.systray.TRAY_ICON_FFC");
             logoIconDND = Resources.getImage("service.systray.TRAY_ICON_DND");
-            envelopeIcon = Resources.getImage("service.systray.MESSAGE_ICON");
         }
 
         /*
@@ -296,11 +285,7 @@ public class SystrayServiceJdicImpl
                     {
                         public void popupMenuWillBecomeVisible(PopupMenuEvent e)
                         {
-                            ImageIcon newIcon
-                                = (currentIcon == envelopeIcon)
-                                    ? envelopeIconWhite
-                                    : logoIconWhite;
-
+                            ImageIcon newIcon = logoIconWhite;
                             trayIcon.setIcon(newIcon);
                             currentIcon = newIcon;
                         }
@@ -308,11 +293,7 @@ public class SystrayServiceJdicImpl
                         public void popupMenuWillBecomeInvisible(
                                 PopupMenuEvent e)
                         {
-                            ImageIcon newIcon
-                                = (currentIcon == envelopeIconWhite)
-                                    ? envelopeIcon
-                                    : logoIcon;
-
+                            ImageIcon newIcon = logoIcon;
                             getTrayIcon().setIcon(newIcon);
                             currentIcon = newIcon;
                         }
@@ -401,12 +382,6 @@ public class SystrayServiceJdicImpl
         case SystrayService.SC_IMG_DND_TYPE:
             if (!isMac)
                 systrayIconToSet = logoIconDND;
-            break;
-        case SystrayService.ENVELOPE_IMG_TYPE:
-            systrayIconToSet
-                = (isMac && TrayMenuFactory.isVisible(menu))
-                    ? envelopeIconWhite
-                    : envelopeIcon;
             break;
         }
 

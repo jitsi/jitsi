@@ -78,11 +78,6 @@ public interface SystrayService
     public static final int SC_IMG_EXTENDED_AWAY_TYPE = 6;
 
     /**
-     * Image type corresponding to the envelope icon
-     */
-    public static final int ENVELOPE_IMG_TYPE = 1;
-
-    /**
      * Shows the given <tt>PopupMessage</tt>
      *
      * @param popupMessage the message to show
