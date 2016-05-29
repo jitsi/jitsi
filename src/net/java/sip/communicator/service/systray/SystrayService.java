@@ -130,4 +130,10 @@ public interface SystrayService
      * @return True if the systray is initialized, false otherwise.
      */
     public boolean checkInitialized();
+
+    /**
+     * Set the number that should be shown as an overlay on the try icon.
+     * @param count The number of pending notifications.
+     */
+    public void setNotificationCount(int count);
 }

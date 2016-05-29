@@ -128,6 +128,15 @@ public abstract class AbstractSystrayService
     }
 
     /**
+     * Stub method that does nothing.
+     * @param count ignored 
+     */
+    @Override
+    public void setNotificationCount(int count)
+    {
+    }
+
+    /**
      * Implements the <tt>SystrayService.addPopupMessageListener</tt> method.
      * If <tt>activePopupHandler</tt> is still not available record the listener
      * so we can add him later.

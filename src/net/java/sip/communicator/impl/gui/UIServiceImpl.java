@@ -74,7 +74,8 @@ public class UIServiceImpl
     implements UIService,
                ShutdownService,
                ServiceListener,
-               PropertyChangeListener
+               PropertyChangeListener,
+               UINotificationListener
 {
     /**
      * The <tt>Logger</tt> used by the <tt>UIServiceImpl</tt> class and its
@@ -140,6 +141,7 @@ public class UIServiceImpl
      */
     public UIServiceImpl()
     {
+        UINotificationManager.addNotificationListener(this);
     }
 
     /**
@@ -1641,5 +1643,42 @@ public class UIServiceImpl
     {
         ChatRoomAutoOpenConfigDialog.showChatRoomAutoOpenConfigDialog(
             pps, chatRoomId);
+    }
+
+    /**
+     * Counts the number of unread notifications and forwards the sum to the
+     * systray service.
+     */
+    @Override
+    public void notificationReceived(UINotification notification)
+    {
+        forwardNotificationCount();
+    }
+
+    /**
+     * Counts the number of unread notifications and forwards the sum to the
+     * systray service.
+     */
+    @Override
+    public void notificationCleared(UINotification notification)
+    {
+        forwardNotificationCount();
+    }
+
+    private void forwardNotificationCount()
+    {
+        int count = 0;
+        for (UINotificationGroup g : UINotificationManager
+            .getNotificationGroups())
+        {
+            Iterator<UINotification> it =
+                UINotificationManager.getUnreadNotifications(g);
+            while (it.hasNext())
+            {
+                count += it.next().getUnreadObjects();
+            }
+        }
+
+        GuiActivator.getSystrayService().setNotificationCount(count);
     }
 }
