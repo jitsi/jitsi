@@ -584,7 +584,7 @@
             <param name="platform" value="windows-${windows.arch}" />
         </antcall>
         <antcall target="strip-multi-platform-jar">
-            <param name="jar" value="${light.dir}/sc-bundles/jnalib.jar"/>
+            <param name="jar" value="${light.dir}/sc-bundles/jna.jar"/>
             <param name="platform" value="windows-${windows.arch}" />
         </antcall>
 
@@ -1204,7 +1204,7 @@
           <param name="platform" value="osx" />
       </antcall>
       <antcall target="strip-multi-platform-jar">
-          <param name="jar" value="${bundles.dest}/jnalib.jar"/>
+          <param name="jar" value="${bundles.dest}/jna.jar"/>
           <param name="platform" value="osx" />
       </antcall>
 

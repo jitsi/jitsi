@@ -1053,7 +1053,7 @@
         bundle-protocol,bundle-protocol-media,bundle-icq,
         bundle-icq-slick,bundle-mock,bundle-smacklib,bundle-jmdnslib,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
-        bundle-jnalib,bundle-phonenumbers,
+        bundle-phonenumbers,
         bundle-irc,bundle-irc-commands,bundle-plugin-ircaccregwizz,
         bundle-yahoo,bundle-yahoo-slick,
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
@@ -1129,6 +1129,8 @@
         <copy file="${lib.noinst}/jain-sip-ri-ossonly-1.2.279-jitsi-oss1.jar" tofile="${bundles.dest}/jain-sip-ri.jar"/>
         <copy file="${lib.noinst}/dnsjava-2.1.7.jar" tofile="${bundles.dest}/dnsjava.jar"/>
         <copy file="${lib.noinst}/dnssecjava-1.1.jar" tofile="${bundles.dest}/dnssecjava.jar"/>
+        <copy file="${lib.noinst}/jna.jar" tofile="${bundles.dest}/jna.jar"/>
+        <copy file="${lib.noinst}/jna-platform.jar" tofile="${bundles.dest}/jna-platform.jar"/>
     </target>
 
     <!--BUNDLE-SC-LAUNCHER-->
@@ -1593,17 +1595,6 @@ javax.swing.event, javax.swing.border"/>
         <jar compress="false" destfile="${bundles.dest}/jmdnslib.jar"
             manifest="${lib.noinst}/jmdns.manifest.mf">
             <zipfileset src="${lib.noinst}/jmdns.jar" prefix=""/>
-        </jar>
-    </target>
-
-    <target name="bundle-jnalib">
-        <!-- Creates a bundle containing the win jna implementation.-->
-        <jar
-            compress="false" destfile="${bundles.dest}/jnalib.jar"
-            manifest="${lib.noinst}/jna.manifest.mf">
-
-            <zipfileset src="${lib.noinst}/jna.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jna-platform.jar" prefix=""/>
         </jar>
     </target>
 
