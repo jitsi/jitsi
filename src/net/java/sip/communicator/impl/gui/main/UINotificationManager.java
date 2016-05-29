@@ -150,4 +150,23 @@ public class UINotificationManager
                 listeners.next().notificationReceived(notification);
         }
     }
+    
+
+    /**
+     * Notifies interested <tt>UINotificationListener</tt> that a
+     * notification has been cleared.
+     *
+     * @param notification the cleared notification
+     */
+    static void fireClearedEvent(UINotification notification)
+    {
+        synchronized (notificationListeners)
+        {
+            Iterator<UINotificationListener> listeners
+                = notificationListeners.iterator();
+
+            while (listeners.hasNext())
+                listeners.next().notificationCleared(notification);
+        }
+    }
 }

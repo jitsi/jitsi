@@ -130,6 +130,14 @@ public class CallHistoryButton
     }
 
     /**
+     * Does nothing because this class causes the clearing.
+     */
+    @Override
+    public void notificationCleared(UINotification notification)
+    {
+    }
+
+    /**
      * Sets the history view.
      */
     private void setHistoryView()

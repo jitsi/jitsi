@@ -99,7 +99,12 @@ public class UINotificationGroup
     {
         synchronized (unreadNotifications)
         {
+            List<UINotification> copy = new ArrayList<>(unreadNotifications);
             unreadNotifications.clear();
+            for (UINotification n : copy)
+            {
+                UINotificationManager.fireClearedEvent(n);
+            }
         }
     }
 

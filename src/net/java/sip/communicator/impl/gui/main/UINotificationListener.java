@@ -32,4 +32,11 @@ public interface UINotificationListener
      * @param notification the notification that was received
      */
     public void notificationReceived(UINotification notification);
+
+    /**
+     * Indicates that a notification has been cleared.
+     * 
+     * @param notification the notification that was cleared.
+     */
+    public void notificationCleared(UINotification notification);
 }
