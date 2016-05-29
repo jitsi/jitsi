@@ -131,6 +131,42 @@
         <mkdir dir="${generic.app.dir}"/>
     </target>
 
+    <target name="strip-multi-platform-jar">
+        <condition property="win64">
+            <equals arg1="${platform}" arg2="windows-64" />
+        </condition>
+        <condition property="win32">
+            <equals arg1="${platform}" arg2="windows-32" />
+        </condition>
+        <condition property="linux64">
+            <equals arg1="${platform}" arg2="linux-64" />
+        </condition>
+        <condition property="linux32">
+            <equals arg1="${platform}" arg2="linux-32" />
+        </condition>
+        <condition property="macos">
+            <equals arg1="${platform}" arg2="osx" />
+        </condition>
+        <jar destfile="${jar}.tmp">
+            <zipfileset src="${jar}">
+                <exclude name="**/darwin/*.jnilib" unless="${macos}"/>
+                <exclude name="**/linux-x86/*.so" unless="${linux32}"/>
+                <exclude name="**/linux-x86-64/*.so" unless="${linux64}"/>
+                <exclude name="**/win32-x86/*.dll" unless="${win32}"/>
+                <exclude name="**/win32-x86-64/*.dll" unless="${win64}"/>
+
+                <exclude name="**/freebsd-x86/*.so"/>
+                <exclude name="**/freebsd-x86-64/*.so"/>
+                <exclude name="**/linux-arm/*.so"/>
+                <exclude name="**/openbsd-x86/*.so"/>
+                <exclude name="**/openbsd-x86-64/*.so"/>
+                <exclude name="**/sunos-*/*.so"/>
+                <exclude name="**/w32ce-arm/*.dll"/>
+            </zipfileset>
+        </jar>
+        <move file="${jar}.tmp" tofile="${jar}"/>
+    </target>
+
     <target name="build-installation-generic"
             depends="clean-install-generic,define-izpack-task,version,load-properties">
 
@@ -539,6 +575,18 @@
                 <exclude name="*slick.jar" />
             </fileset>
         </copy>
+        <antcall target="strip-multi-platform-jar">
+            <param name="jar" value="${light.dir}/sc-bundles/libjitsi.jar"/>
+            <param name="platform" value="windows-${windows.arch}" />
+        </antcall>
+        <antcall target="strip-multi-platform-jar">
+            <param name="jar" value="${light.dir}/sc-bundles/jitsi-lgpl-dependencies.jar"/>
+            <param name="platform" value="windows-${windows.arch}" />
+        </antcall>
+        <antcall target="strip-multi-platform-jar">
+            <param name="jar" value="${light.dir}/sc-bundles/jnalib.jar"/>
+            <param name="platform" value="windows-${windows.arch}" />
+        </antcall>
 
         <!--
             Include a private Java Runtime Environment if it has been specified.
@@ -1147,6 +1195,18 @@
                 <include name="**/*.jar"/>
             </fileset>
       </copy>
+      <antcall target="strip-multi-platform-jar">
+          <param name="jar" value="${bundles.dest}/libjitsi.jar"/>
+          <param name="platform" value="osx" />
+      </antcall>
+      <antcall target="strip-multi-platform-jar">
+          <param name="jar" value="${bundles.dest}/jitsi-lgpl-dependencies.jar"/>
+          <param name="platform" value="osx" />
+      </antcall>
+      <antcall target="strip-multi-platform-jar">
+          <param name="jar" value="${bundles.dest}/jnalib.jar"/>
+          <param name="platform" value="osx" />
+      </antcall>
 
       <!-- Delete the old .app if it exists -->
       <delete dir="${macosx.app.dir}/${application.name}.app"
