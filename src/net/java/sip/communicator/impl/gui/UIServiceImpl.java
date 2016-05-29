@@ -199,8 +199,11 @@ public class UIServiceImpl
             }
         }
 
-        if(ConfigurationUtils.isApplicationVisible())
+        if(ConfigurationUtils.isApplicationVisible()
+            || ConfigurationUtils.isMinimizeInsteadOfHide())
+        {
             mainFrame.setFrameVisible(true);
+        }
 
         SwingUtilities.invokeLater(new RunLoginGui());
 
@@ -440,9 +443,11 @@ public class UIServiceImpl
      */
     public void setExitOnMainWindowClose(boolean exitOnMainWindowClose)
     {
-            mainFrame.setDefaultCloseOperation(
-                    exitOnMainWindowClose
-                        ? JFrame.DISPOSE_ON_CLOSE
+        mainFrame.setDefaultCloseOperation(
+                exitOnMainWindowClose
+                    ? JFrame.DISPOSE_ON_CLOSE
+                    : ConfigurationUtils.isMinimizeInsteadOfHide()
+                        ? JFrame.DO_NOTHING_ON_CLOSE
                         : JFrame.HIDE_ON_CLOSE);
     }
 

@@ -1943,6 +1943,10 @@ public class MainFrame
             });
 
             ConfigurationUtils.setApplicationVisible(false);
+            if (ConfigurationUtils.isMinimizeInsteadOfHide())
+            {
+                this.minimize();
+            }
         }
     }
 

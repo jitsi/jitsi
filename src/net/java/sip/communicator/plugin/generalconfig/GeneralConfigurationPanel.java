@@ -237,6 +237,30 @@ public class GeneralConfigurationPanel
     }
 
     /**
+     * Initializes the minimize instead of hide checkbox.
+     */
+    public Component createMinimzeInsteadOfHideCheckBox()
+    {
+        JCheckBox chk = new SIPCommCheckBox();
+
+        chk.setText(
+            Resources.getString("plugin.generalconfig.MINIMIZE_NOT_HIDE"));
+        chk.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent e)
+            {
+                boolean value = ((JCheckBox) e.getSource()).isSelected();
+                ConfigurationUtils.setIsMinimizeInsteadOfHide(value);
+                UtilActivator.getUIService().setExitOnMainWindowClose(
+                    !UtilActivator.getSystrayService().checkInitialized());
+            }
+        });
+
+        chk.setSelected(ConfigurationUtils.isMinimizeInsteadOfHide());
+        return chk;
+    }
+
+    /**
      * Creates the message configuration panel.
      * @return the created panel
      */
@@ -959,15 +983,17 @@ public class GeneralConfigurationPanel
      */
     public Component createStartupConfigPanel()
     {
-        if (!OSUtils.IS_WINDOWS)
-            return null;
-
         JPanel updateConfigPanel = GeneralConfigPluginActivator.
             createConfigSectionComponent(
                 Resources.getString("plugin.generalconfig.STARTUP_CONFIG"));
 
-        updateConfigPanel.add(createAutoStartCheckBox());
-        updateConfigPanel.add(createUpdateCheckBox());
+        updateConfigPanel.add(createMinimzeInsteadOfHideCheckBox());
+        if (OSUtils.IS_WINDOWS)
+        {
+            updateConfigPanel.add(createAutoStartCheckBox());
+            updateConfigPanel.add(createUpdateCheckBox());
+        }
+
         return updateConfigPanel;
     }
 
