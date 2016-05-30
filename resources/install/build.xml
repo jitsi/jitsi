@@ -147,7 +147,7 @@
         <condition property="macos">
             <equals arg1="${platform}" arg2="osx" />
         </condition>
-        <jar destfile="${jar}.tmp">
+        <zip destfile="${jar}.tmp">
             <zipfileset src="${jar}">
                 <exclude name="**/darwin/*.jnilib" unless="${macos}"/>
                 <exclude name="**/linux-x86/*.so" unless="${linux32}"/>
@@ -163,7 +163,7 @@
                 <exclude name="**/sunos-*/*.so"/>
                 <exclude name="**/w32ce-arm/*.dll"/>
             </zipfileset>
-        </jar>
+        </zip>
         <move file="${jar}.tmp" tofile="${jar}"/>
     </target>
 
