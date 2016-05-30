@@ -1920,7 +1920,8 @@ public class MainFrame
         // On Mac systems the application is not quited on window close, so we
         // don't need to warn the user.
         if (!GuiActivator.getUIService().getExitOnMainWindowClose()
-            && !OSUtils.IS_MAC)
+            && !OSUtils.IS_MAC
+            && GuiActivator.getSystrayService().checkInitialized())
         {
             SwingUtilities.invokeLater(new Runnable()
             {
@@ -1942,6 +1943,10 @@ public class MainFrame
             });
 
             ConfigurationUtils.setApplicationVisible(false);
+            if (ConfigurationUtils.isMinimizeInsteadOfHide())
+            {
+                this.minimize();
+            }
         }
     }
 

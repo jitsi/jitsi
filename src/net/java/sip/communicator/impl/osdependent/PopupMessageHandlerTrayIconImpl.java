@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.osdependent;
 
 import java.awt.event.*;
 
+import net.java.sip.communicator.impl.osdependent.systemtray.TrayIcon;
 import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 

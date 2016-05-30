@@ -144,10 +144,6 @@ public final class TrayMenuFactory
     public static Object createTrayMenu(SystrayServiceJdicImpl tray,
                                         boolean swing)
     {
-        // Enable swing for java 1.6 except for the mac version
-        if (!swing && !OSUtils.IS_MAC)
-            swing = true;
-
         Object trayMenu = swing ? new JPopupMenu() : new PopupMenu();
         ActionListener listener = new ActionListener()
         {

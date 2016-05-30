@@ -22,6 +22,7 @@ import java.util.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.resources.*;
+import net.java.sip.communicator.service.systray.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;
@@ -64,6 +65,8 @@ public class UtilActivator
     private static AccountManager accountManager;
 
     private static AlertUIService alertUIService;
+
+    private static SystrayService systrayService;
 
     /**
      * Calls <tt>Thread.setUncaughtExceptionHandler()</tt>
@@ -181,6 +184,21 @@ public class UtilActivator
         if (uiService == null)
             uiService = ServiceUtils.getService(bundleContext, UIService.class);
         return uiService;
+    }
+
+    /**
+     * Gets the <tt>SystrayService</tt> instance registered in the
+     * <tt>BundleContext</tt> of the <tt>UtilActivator</tt>.
+     *
+     * @return the <tt>SystrayService</tt> instance registered in the
+     * <tt>BundleContext</tt> of the <tt>UtilActivator</tt>
+     */
+    public static SystrayService getSystrayService()
+    {
+        if (systrayService == null)
+            systrayService =
+                ServiceUtils.getService(bundleContext, SystrayService.class);
+        return systrayService;
     }
 
     /**

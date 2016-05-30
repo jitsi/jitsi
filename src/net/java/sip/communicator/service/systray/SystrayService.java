@@ -78,11 +78,6 @@ public interface SystrayService
     public static final int SC_IMG_EXTENDED_AWAY_TYPE = 6;
 
     /**
-     * Image type corresponding to the envelope icon
-     */
-    public static final int ENVELOPE_IMG_TYPE = 1;
-
-    /**
      * Shows the given <tt>PopupMessage</tt>
      *
      * @param popupMessage the message to show
@@ -129,4 +124,16 @@ public interface SystrayService
      * Selects the best available popup message handler
      */
     public void selectBestPopupMessageHandler();
+
+    /**
+     * Checks if the systray icon has been initialized.
+     * @return True if the systray is initialized, false otherwise.
+     */
+    public boolean checkInitialized();
+
+    /**
+     * Set the number that should be shown as an overlay on the try icon.
+     * @param count The number of pending notifications.
+     */
+    public void setNotificationCount(int count);
 }

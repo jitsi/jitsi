@@ -565,10 +565,6 @@ public class TreeContactList
         if (isActive)
         {
             activeContacts.add(contactNode);
-//              SystrayService stray = GuiActivator.getSystrayService();
-//
-//              if (stray != null)
-//                  stray.setSystrayIcon(SystrayService.ENVELOPE_IMG_TYPE);
         }
         else
             activeContacts.remove(contactNode);
