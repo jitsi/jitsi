@@ -2611,7 +2611,6 @@
                 <exclude name="**/ssh/**"/>
                 <exclude name="**/sshaccregwizz/**"/>
                 <exclude name="**/profiler4j/**"/>
-                <exclude name="**/windows/**"/>
                 <exclude name="**/windows32/**"/>
                 <exclude name="**/windows64/**"/>
                 <exclude name="**/native/addrbook/macosx/**"/>
