@@ -23,13 +23,12 @@ import java.util.*;
 import javax.sdp.*;
 import javax.sip.*;
 import javax.sip.address.*;
-import javax.sip.header.ContactHeader;
+import javax.sip.header.*;
 import javax.sip.message.*;
 import javax.sip.message.Message;
 
 import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.stack.*;
-
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -38,6 +37,7 @@ import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.MediaType;
 
 /**
  * A SIP implementation of the abstract <tt>Call</tt> class encapsulating SIP

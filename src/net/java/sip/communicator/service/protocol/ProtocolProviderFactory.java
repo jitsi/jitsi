@@ -78,12 +78,14 @@ public abstract class ProtocolProviderFactory
     public static final String USER_ID = "USER_ID";
 
     /**
-     * The name to present to others when calling or writing them.
+     * The name that should be displayed to others when we are calling or
+     * writing them.
      */
     public static final String DISPLAY_NAME = "DISPLAY_NAME";
 
     /**
-     * The Jitsi account name to use in UI.
+     * The name that should be displayed to the user on call via and chat via
+     * lists.
      */
     public static final String ACCOUNT_DISPLAY_NAME = "ACCOUNT_DISPLAY_NAME";
 

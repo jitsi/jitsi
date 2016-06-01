@@ -132,7 +132,7 @@ public class SdpUtils
      * @return an SDP <tt>Attribute</tt> field translating the value of the
      * <tt>direction</tt> parameter.
      */
-    private static Attribute createDirectionAttribute(MediaDirection direction)
+    public static Attribute createDirectionAttribute(MediaDirection direction)
     {
         String dirStr;
 
@@ -1601,11 +1601,50 @@ public class SdpUtils
      * description in <tt>attrValue</tt>  or <tt>null</tt> if we couldn't parse
      * the attribute.
      */
-    @SuppressWarnings("unchecked") // legacy jain-sdp code
-    public static MediaDescription createDisablingAnswer(
-                                                  MediaDescription offer)
-        throws IllegalArgumentException
+    private static RTPExtension parseRTPExtensionAttribute(
+                                    String                       extmapAttr,
+                                    DynamicRTPExtensionsRegistry extMap)
     {
+        //heres' what we are parsing:
+        //<value>["/"<direction>] <URI> <extensionattributes>
+
+        StringTokenizer tokenizer = new StringTokenizer(extmapAttr, " ");
+
+        //Ext ID and direction
+        if( !tokenizer.hasMoreElements())
+            return null;
+
+        String idAndDirection = tokenizer.nextToken();
+        String extIDStr;
+        MediaDirection direction = MediaDirection.SENDRECV;
+
+        if( idAndDirection.contains("/"))
+        {
+            StringTokenizer idAndDirTokenizer
+                = new StringTokenizer(idAndDirection, "/");
+
+            if(!idAndDirTokenizer.hasMoreElements())
+                return null;
+
+            extIDStr = idAndDirTokenizer.nextToken();
+
+            if( !idAndDirTokenizer.hasMoreTokens())
+                return null;
+
+            direction = MediaDirection.parseString(
+                            idAndDirTokenizer.nextToken());
+        }
+        else
+        {
+            extIDStr = idAndDirection;
+        }
+
+        if( !tokenizer.hasMoreElements())
+            return null;
+
+        String uriStr = tokenizer.nextToken();
+
+        URI uri;
         try
         {
             uri = new URI(uriStr);
