@@ -202,6 +202,82 @@ public class OperationSetBasicTelephonySipImpl
     }
 
     /**
+     * Like {@link #createCall(Contact)} but for chat sessions.
+     */
+    protected Call createSession(Contact callee)
+            throws OperationFailedException
+    {
+        try
+        {
+            Address toAddress =
+                protocolProvider.parseAddressString(callee.getAddress());
+            return createOutgoingSession(toAddress, null, null);
+        }
+        catch (ParseException e)
+        {
+            throw new OperationFailedException(
+                e.getMessage(),
+                OperationFailedException.ILLEGAL_ARGUMENT,
+                e);
+        }
+    }
+
+    /**
+     * Like {@link #createOutgoingCall(Address,
+     *      javax.sip.message.Message, CallConference)} but for chat.
+     */
+    private synchronized CallSipImpl createOutgoingSession(
+        Address calleeAddress,
+        javax.sip.message.Message cause,
+        CallConference conference)
+            throws OperationFailedException
+    {
+        CallSipImpl session = createOutgoingCall();
+
+        session.messageInvite(calleeAddress, cause);
+
+        return session;
+    }
+
+    /**
+     * Like {@link #createCall(Contact)} but for file transfer sessions.
+     */
+    protected Call createFileTransfer(Contact callee, FileTransferImpl activity)
+            throws OperationFailedException
+    {
+        try
+        {
+            Address toAddress =
+                protocolProvider.parseAddressString(callee.getAddress());
+            return createOutgoingFileTransfer(toAddress, null, activity);
+        }
+        catch (ParseException e)
+        {
+            throw new OperationFailedException(
+                e.getMessage(),
+                OperationFailedException.ILLEGAL_ARGUMENT,
+                e);
+        }
+    }
+
+    /**
+     * Like {@link #createOutgoingCall(Address,
+     *      javax.sip.message.Message, CallConference)} but for file transfer.
+     */
+    private synchronized CallSipImpl createOutgoingFileTransfer(
+        Address calleeAddress,
+        javax.sip.message.Message cause,
+        FileTransferImpl activity)
+            throws OperationFailedException
+    {
+        CallSipImpl session = createOutgoingCall();
+
+        session.fileTransferInvite(calleeAddress, cause, activity);
+
+        return session;
+    }
+
+    /**
      * Returns an iterator over all currently active calls.
      *
      * @return an iterator over all currently active calls.

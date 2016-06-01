@@ -218,6 +218,15 @@ public class SipAccountID
     }
 
     /**
+     * @return whether SIMPLE session mode (= MSRP) is enabled
+     */
+    public boolean isMsrpEnabled()
+    {
+        return getAccountPropertyBoolean(
+            ProtocolProviderFactory.IS_MSRP_ENABLED, false);
+    }
+
+    /**
      * If the presence is enabled
      *
      * @return If the presence is enabled
@@ -269,6 +278,16 @@ public class SipAccountID
     {
         putAccountProperty(ProtocolProviderFactory.IS_PRESENCE_ENABLED,
                 enablePresence);
+    }
+
+    /**
+     * Set SIMPLE session mode.
+     * @param msrpEnabled if we enable session mode or not
+     */
+    public void setMsrpEnabled(boolean msrpEnabled)
+    {
+        putAccountProperty(ProtocolProviderFactory.IS_MSRP_ENABLED,
+            msrpEnabled);
     }
 
     /**

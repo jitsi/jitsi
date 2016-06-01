@@ -21,6 +21,7 @@ import java.io.*;
 import java.net.*;
 import java.net.URI;
 import java.util.*;
+import java.util.regex.*;
 
 import javax.sdp.*;
 import javax.sip.header.*;
@@ -131,7 +132,7 @@ public class SdpUtils
      * @return an SDP <tt>Attribute</tt> field translating the value of the
      * <tt>direction</tt> parameter.
      */
-    private static Attribute createDirectionAttribute(MediaDirection direction)
+    public static Attribute createDirectionAttribute(MediaDirection direction)
     {
         String dirStr;
 
@@ -1825,5 +1826,152 @@ public class SdpUtils
         {
             logger.warn("Failed to set session direction attribute.");
         }
+    }
+
+    /**
+     * MSRP support
+     */
+    public static final String PATH_ATTRIBUTE = "path";
+    public static final String ACCEPTT_ATTRIBUTE = "accept-types";
+    public static final String MSIZE_ATTRIBUTE = "max-size";
+    public static final int MAX_SIZE = 10240;
+    public static final String[] messageFormats = { "*" };
+    /**
+     * RFC 5547
+     */
+    public static final String FILE_SELECTOR = "file-selector";
+    public static final String TRANSFER_ID = "file-transfer-id";
+
+    /**
+     * Create a <tt>SessionDescription</tt> for an MSRP connection.
+     * @param uri   the MSRP path to use
+     * @return the description
+     * @throws OperationFailedException usually caused by null-parameters.
+     */
+    public static SessionDescription createMessageSessionDescription(URI uri)
+        throws OperationFailedException
+    {
+        SessionDescription sdp = null;
+        try
+        {
+            Vector<MediaDescription> media = new Vector<MediaDescription>(1);
+            media.add(createMessageMediaDescription(uri));
+            sdp = createSessionDescription(
+                            InetAddress.getByName(uri.getHost()), null, media);
+        }
+        catch (Exception cause)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create a session description",
+                OperationFailedException.INTERNAL_ERROR, cause, logger);
+        }
+        return sdp;
+    }
+
+    /**
+     * Create a <tt>MediaDescription</tt> for MSRP.
+     * @param uri   the MSRP path to use in the description
+     * @return  the description
+     * @throws SdpException
+     */
+    protected static MediaDescription createMessageMediaDescription(URI uri)
+        throws SdpException
+    {
+        MediaDescription mediaDesc = sdpFactory.createMediaDescription(
+                        "message", uri.getPort(), 0, "TCP/MSRP", messageFormats);
+        mediaDesc.setAttribute(PATH_ATTRIBUTE, uri.toString());
+        // TODO subject to negotiation...
+        mediaDesc.setAttribute(ACCEPTT_ATTRIBUTE,
+                    "message/cpim text/plain application/im-iscomposing+xml");
+        mediaDesc.setAttribute(MSIZE_ATTRIBUTE, Integer.toString(MAX_SIZE));
+
+        return mediaDesc;
+    }
+
+    /** search for a line starting with "message" media description */
+    private static Pattern messageMedia =
+                    Pattern.compile("^m=message", Pattern.MULTILINE);
+
+    /**
+     * Does request contain a session description asking for "message"-media?
+     * @param message   the request/response to inspect
+     * @return          whether it has such a media description.
+     */
+    public static boolean hasMessageOffer(javax.sip.message.Message message)
+    {
+        ContentLengthHeader clh = message.getContentLength();
+        if ((clh == null) || (clh.getContentLength() == 0))
+            return false;
+        String sdp = getContentAsString(message);
+        return messageMedia.matcher(sdp).find();
+    }
+
+    /**
+     * Get the from MSRP URI from the <tt>path</tt> attribute in the media
+     * description.
+     * @param mediaDesc the media description to parse 
+     * @return      the MSRP URI specified in the path attribute
+     * @throws IllegalArgumentException
+     */
+    public static URI getFromPath(MediaDescription mediaDesc)
+        throws IllegalArgumentException
+    {
+        URI fromUri = null;
+        try
+        {
+            fromUri = new URI(mediaDesc.getAttribute(PATH_ATTRIBUTE));
+        } catch (Exception e)
+        {
+            throw new IllegalArgumentException(
+                "Error detecting from path in session description", e);
+        }
+        return fromUri;
+    }
+
+    /**
+     * Return whether the media description refers to a file transfer.
+     * @param mediaDesc the media description to inspect
+     * @return      whether the descriptot contains a file selector
+     * @throws SdpParseException
+     */
+    public static boolean hasFileSelector(MediaDescription mediaDesc)
+        throws SdpParseException
+    {
+        return mediaDesc.getAttribute(FILE_SELECTOR) != null;
+    }
+
+    /**
+     * @param mediaDesc the media description to inspect
+     * @return  whether the description contains the send only attribute
+     * @throws SdpParseException
+     */
+    public static boolean isSendOnly(MediaDescription mediaDesc)
+        throws SdpParseException
+    {
+        return mediaDesc
+                    .getAttribute(MediaDirection.SENDONLY.toString()) != null;
+    }
+
+    /**
+     * Copy file descriptor attributes (selector & id) from offer to answer
+     * @param answer        the answer to copy to
+     * @param mediaOffer    the offer to copy from
+     * @throws SdpException
+     * @throws SdpParseException
+     */
+    public static void copyFile2Receive(SessionDescription answer,
+        MediaDescription mediaOffer)
+        throws SdpException,
+        SdpParseException
+    {
+        Vector<Attribute> attribs = new Vector<Attribute>();
+        attribs.add(createDirectionAttribute(MediaDirection.RECVONLY));
+        answer.setAttributes(attribs);
+        MediaDescription media = (MediaDescription)
+                    answer.getMediaDescriptions(false).firstElement();
+        media.setAttribute(FILE_SELECTOR,
+                    mediaOffer.getAttribute(FILE_SELECTOR));
+        media.setAttribute(TRANSFER_ID,
+                    mediaOffer.getAttribute(TRANSFER_ID));
     }
 }

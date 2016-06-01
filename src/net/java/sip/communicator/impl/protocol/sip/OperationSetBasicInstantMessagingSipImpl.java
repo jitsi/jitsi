@@ -1054,4 +1054,12 @@ public class OperationSetBasicInstantMessagingSipImpl
             }
         }
     }
+
+    /**
+     * @return the opSetPersPresence
+     */
+    protected OperationSetPresenceSipImpl getOpSetPersPresence()
+    {
+        return opSetPersPresence;
+    }
 }

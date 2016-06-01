@@ -267,6 +267,11 @@ public abstract class ProtocolProviderFactory
     public static final String IS_PRESENCE_ENABLED = "IS_PRESENCE_ENABLED";
 
     /**
+     * Stores the SIMPLE IM mode: Paged or Session (== MSRP)
+     */
+    public static final String IS_MSRP_ENABLED = "MSRP_ENABLED";
+
+    /**
      * The name of the property under which we store if the p2p mode for SIMPLE
      * should be forced.
      */

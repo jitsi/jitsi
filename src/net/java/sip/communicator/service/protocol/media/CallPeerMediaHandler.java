@@ -1045,6 +1045,8 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
             return null;
         case VIDEO:
             return videoStream;
+        case MESSAGE:
+            return null;
         default:
             return null;
         }

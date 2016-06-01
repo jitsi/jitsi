@@ -229,6 +229,19 @@ public class SIPAccountRegistrationWizard
                 Resources.getString("service.gui.NO"));
         }
 
+        if (registration.isMsrpEnabled())
+        {
+            summaryTable.put(
+                Resources.getString("plugin.sipaccregwizz.SESSION_MODE"),
+                Resources.getString("service.gui.YES"));
+        }
+        else
+        {
+            summaryTable.put(
+                Resources.getString("plugin.sipaccregwizz.SESSION_MODE"),
+                Resources.getString("service.gui.NO"));
+        }
+
         if (registration.isForceP2PMode())
         {
             summaryTable.put(

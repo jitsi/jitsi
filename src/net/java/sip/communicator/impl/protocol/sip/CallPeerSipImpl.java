@@ -1699,6 +1699,14 @@ public class CallPeerSipImpl
     }
 
     /**
+     * @return the messageFactory
+     */
+    protected SipMessageFactory getMessageFactory()
+    {
+        return messageFactory;
+    }
+    
+    /**
      * {@inheritDoc}
      */
     public String getEntity()

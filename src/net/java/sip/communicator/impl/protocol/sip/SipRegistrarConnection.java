@@ -268,6 +268,16 @@ public class SipRegistrarConnection
             request = sipProvider.getMessageFactory().createRegisterRequest(
                 getAddressOfRecord(), registrationsExpiration, callIdHeader,
                 getNextCSeqValue());
+            /*
+             * Indicate session mode messaging capability when set.
+             */
+            if (sipProvider.getAccountID().getAccountPropertyBoolean(
+                ProtocolProviderFactory.IS_MSRP_ENABLED, false))
+            {
+                ContactHeader contact =
+                    (ContactHeader) request.getHeader(ContactHeader.NAME);
+                contact.setParameter("message", null);
+            }
         }
         catch (Exception exc)
         {

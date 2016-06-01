@@ -302,6 +302,8 @@ public class SIPAccountRegistrationForm
         
         registration.setEnablePresence(
             presencePanel.isPresenceEnabled());
+        registration.setMsrpEnabled(
+            presencePanel.isSessionMode());
         registration.setForceP2PMode(
             presencePanel.isForcePeerToPeerMode());
         registration.setTlsClientCertificate(
@@ -380,12 +382,13 @@ public class SIPAccountRegistrationForm
 
         boolean enablePresence = sipAccReg.isEnablePresence();
 
+        boolean sessionMode = sipAccReg.isMsrpEnabled();
+
         boolean forceP2P = sipAccReg.isForceP2PMode();
 
         String clientTlsCertificateId = sipAccReg.getTlsClientCertificate();
 
-        boolean proxyAutoConfigureEnabled = 
-            sipAccReg.isProxyAutoConfigure();
+        boolean proxyAutoConfigureEnabled = sipAccReg.isProxyAutoConfigure();
         
         boolean proxyForceBypassConfigureEnabled = 
             sipAccReg.isProxyForceBypassConfigure();
@@ -450,6 +453,7 @@ public class SIPAccountRegistrationForm
 
         presencePanel.reinit();
         presencePanel.setPresenceEnabled(enablePresence);
+        presencePanel.setSessionMode(sessionMode);
         presencePanel.setForcePeerToPeerMode(forceP2P);
         presencePanel.setPollPeriod(pollingPeriod);
         presencePanel.setSubscriptionExpiration(subscriptionPeriod);

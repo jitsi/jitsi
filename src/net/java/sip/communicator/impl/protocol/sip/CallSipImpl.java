@@ -25,10 +25,10 @@ import javax.sip.*;
 import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
+import javax.sip.message.Message;
 
 import gov.nist.javax.sip.header.*;
 import gov.nist.javax.sip.stack.*;
-
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -56,6 +56,11 @@ public class CallSipImpl
      * Our class logger.
      */
     private static final Logger logger = Logger.getLogger(CallSipImpl.class);
+
+    /**
+     * Is there message media related to this call?
+     */
+    private boolean isMessageSession = false;
 
     /**
      * Name of extra INVITE header which specifies name of MUC room that is
@@ -134,11 +139,11 @@ public class CallSipImpl
     private final int retransmitsRingingInterval;
 
     /**
-     * Crates a CallSipImpl instance belonging to <tt>sourceProvider</tt> and
+     * Creates a CallSipImpl instance belonging to <tt>sourceProvider</tt> and
      * initiated by <tt>CallCreator</tt>.
      *
      * @param parentOpSet a reference to the operation set that's creating us
-     * and that we would be able to use for even dispatching.
+     * and that we would be able to use for event dispatching.
      */
     protected CallSipImpl(OperationSetBasicTelephonySipImpl parentOpSet)
     {
@@ -252,100 +257,116 @@ public class CallSipImpl
         // new and we also need to notify everyone of its creation.
         if(getCallPeerCount() == 1)
         {
-            Map<MediaType, MediaDirection> mediaDirections
-                = new HashMap<MediaType, MediaDirection>();
+            Map<MediaType, MediaDirection> mediaDirections = null;
+            if (!isMessageSession())
+                mediaDirections =
+                        getContainingMediaDirections(containingTransaction, callPeer);
 
-            mediaDirections.put(MediaType.AUDIO, MediaDirection.INACTIVE);
-            mediaDirections.put(MediaType.VIDEO, MediaDirection.INACTIVE);
-
-            boolean hasZrtp = false;
-            boolean hasSdes = false;
-
-            //this check is not mandatory catch all to skip if a problem exists
-            try
-            {
-                // lets check the supported media types.
-                // for this call
-                Request inviteReq = containingTransaction.getRequest();
-
-                if(inviteReq != null && inviteReq.getRawContent() != null)
-                {
-                    String sdpStr = SdpUtils.getContentAsString(inviteReq);
-                    SessionDescription sesDescr
-                        = SdpUtils.parseSdpString(sdpStr);
-                    List<MediaDescription> remoteDescriptions
-                        = SdpUtils.extractMediaDescriptions(sesDescr);
-
-                    for (MediaDescription mediaDescription : remoteDescriptions)
-                    {
-                        MediaType mediaType
-                            = SdpUtils.getMediaType(mediaDescription);
-
-                        mediaDirections.put(
-                                mediaType,
-                                SdpUtils.getDirection(mediaDescription));
-
-                        // hasZrtp?
-                        if (!hasZrtp)
-                        {
-                            hasZrtp
-                                = (mediaDescription.getAttribute(
-                                        SdpUtils.ZRTP_HASH_ATTR)
-                                    != null);
-                        }
-                        // hasSdes?
-                        if (!hasSdes)
-                        {
-                            @SuppressWarnings("unchecked")
-                            Vector<Attribute> attrs
-                                = mediaDescription.getAttributes(true);
-
-                            for (Attribute attr : attrs)
-                            {
-                                try
-                                {
-                                    if ("crypto".equals(attr.getName()))
-                                    {
-                                        hasSdes = true;
-                                        break;
-                                    }
-                                }
-                                catch (SdpParseException spe)
-                                {
-                                    logger.error(
-                                            "Failed to parse SDP attribute",
-                                            spe);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch(Throwable t)
-            {
-                logger.warn("Error getting media types", t);
-            }
-
-            fireCallEvent(
+            getParentOperationSet().fireCallEvent(
                 incomingCall
                     ? CallEvent.CALL_RECEIVED
                     : CallEvent.CALL_INITIATED,
                 this,
                 mediaDirections);
-
-            if(hasZrtp)
-            {
-                callPeer.getMediaHandler().addAdvertisedEncryptionMethod(
-                        SrtpControlType.ZRTP);
-            }
-            if(hasSdes)
-            {
-                callPeer.getMediaHandler().addAdvertisedEncryptionMethod(
-                        SrtpControlType.SDES);
-            }
         }
 
         return callPeer;
+    }
+
+    /** Check the session description in this transaction/request and possibly
+     * notify the media handler of some settings.
+     * @param transaction   The transaction to extract info from
+     * @param peer          The peer to inform of any relevant settings
+     * @return              The map of any relevant media settings.
+     */
+    private Map<MediaType, MediaDirection> getContainingMediaDirections(
+        Transaction transaction, CallPeerSipImpl peer)
+    {
+        Map<MediaType, MediaDirection> mediaDirections
+            = new HashMap<MediaType, MediaDirection>();
+
+        mediaDirections.put(MediaType.AUDIO, MediaDirection.INACTIVE);
+        mediaDirections.put(MediaType.VIDEO, MediaDirection.INACTIVE);
+        mediaDirections.put(MediaType.MESSAGE, MediaDirection.INACTIVE);
+
+        boolean hasZrtp = false;
+        boolean hasSdes = false;
+
+        //this check is not mandatory catch all to skip if a problem exists
+        try
+        {
+            // lets check the supported media types.
+            // for this call
+            Request request = transaction.getRequest();
+
+            if(request != null && request.getRawContent() != null)
+            {
+                String sdpStr = SdpUtils.getContentAsString(request);
+                SessionDescription sesDescr
+                    = SdpUtils.parseSdpString(sdpStr);
+                List<MediaDescription> remoteDescriptions
+                    = SdpUtils.extractMediaDescriptions(sesDescr);
+
+                for (MediaDescription mediaDescription : remoteDescriptions)
+                {
+                    MediaType mediaType
+                        = SdpUtils.getMediaType(mediaDescription);
+
+                    mediaDirections.put(
+                            mediaType,
+                            SdpUtils.getDirection(mediaDescription));
+
+                    // hasZrtp?
+                    if (!hasZrtp)
+                    {
+                        hasZrtp
+                            = (mediaDescription.getAttribute(
+                                    SdpUtils.ZRTP_HASH_ATTR)
+                                != null);
+                    }
+                    // hasSdes?
+                    if (!hasSdes)
+                    {
+                        @SuppressWarnings("unchecked")
+                        Vector<Attribute> attrs
+                            = mediaDescription.getAttributes(true);
+
+                        for (Attribute attr : attrs)
+                        {
+                            try
+                            {
+                                if ("crypto".equals(attr.getName()))
+                                {
+                                    hasSdes = true;
+                                    break;
+                                }
+                            }
+                            catch (SdpParseException spe)
+                            {
+                                logger.error(
+                                        "Failed to parse SDP attribute",
+                                        spe);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch(Throwable t)
+        {
+            logger.warn("Error getting media types", t);
+        }
+        if(hasZrtp)
+        {
+            peer.getMediaHandler().addAdvertisedEncryptionMethod(
+                    SrtpControlType.ZRTP);
+        }
+        if(hasSdes)
+        {
+            peer.getMediaHandler().addAdvertisedEncryptionMethod(
+                    SrtpControlType.SDES);
+        }
+        return mediaDirections;
     }
 
     /**
@@ -560,45 +581,82 @@ public class CallSipImpl
     {
         Request invite = serverTran.getRequest();
 
-        final CallPeerSipImpl peer
-            = createCallPeerFor(serverTran, jainSipProvider);
+        setIsMessageSession(isMessageInvite(invite));
 
-        CallInfoHeader infoHeader
-            = (CallInfoHeader) invite.getHeader(CallInfoHeader.NAME);
-
-        // Sets an alternative impp address if such is available in the
-        // call-info header.
-        String alternativeIMPPAddress = null;
-        if (infoHeader != null
-            && infoHeader.getParameter("purpose") != null
-            && infoHeader.getParameter("purpose").equals("impp"))
+        final CallPeerSipImpl peer;
+        if (isMessageSession())
         {
-            alternativeIMPPAddress = infoHeader.getInfo().toString();
+            CallPeerMsrpImpl mpeer = 
+                createMessagePeerFor(serverTran, jainSipProvider);
+
+            if (mpeer.isFileTransferTriggered())
+            {
+                /* fall-through, ring in meantime, wait for xfer accept */
+            }
+            else if (isFocus(invite))
+            {
+                /* chatroom invite, handle here */
+//                OperationSetAdHocMultiUserChatSipImpl opsetMUC =
+//                (OperationSetAdHocMultiUserChatSipImpl) getProtocolProvider()
+//                    .getOperationSet(OperationSetAdHocMultiUserChat.class);
+//                opsetMUC.handleInvitation(invite, (CallPeerMsrpImpl) mpeer);
+            }
+            else
+            {
+                /* Basic IM (chat), just accept and start chatting */
+                // TODO: possibly ask for chat accept when unknown contact?...
+//                getParentOperationSet().fireCallEvent(
+//                                        CallEvent.CHAT_RECEIVED, this, null);
+                try
+                {
+                    mpeer.answer();
+                }
+                catch (OperationFailedException e)
+                {
+                    ;   // everything's been said already.
+                }
+                return mpeer;
+            }
+            peer = mpeer;
         }
-
-        if (alternativeIMPPAddress != null)
-            peer.setAlternativeIMPPAddress(alternativeIMPPAddress);
-
-        // Parses Jitsi Meet room name header
-        SIPHeader joinRoomHeader
-            = (SIPHeader) invite.getHeader(JITSI_MEET_ROOM_HEADER);
-        // Optional password header
-        SIPHeader passwordHeader
-            = (SIPHeader) invite.getHeader(JITSI_MEET_ROOM_PASS_HEADER);
-
-        if (joinRoomHeader != null)
+        else
         {
-            OperationSetJitsiMeetToolsSipImpl jitsiMeetTools
-                = (OperationSetJitsiMeetToolsSipImpl) getProtocolProvider()
-                        .getOperationSet(OperationSetJitsiMeetTools.class);
+            peer = createCallPeerFor(serverTran, jainSipProvider);
+        	CallInfoHeader infoHeader
+            	= (CallInfoHeader) invite.getHeader(CallInfoHeader.NAME);
 
-            jitsiMeetTools.notifyJoinJitsiMeetRoom(
-                this, joinRoomHeader.getValue(),
-                passwordHeader != null ? passwordHeader.getValue() : null);
+        	// Sets an alternative impp address if such is available in the
+        	// call-info header.
+        	String alternativeIMPPAddress = null;
+        	if (infoHeader != null
+            	&& infoHeader.getParameter("purpose") != null
+            	&& infoHeader.getParameter("purpose").equals("impp"))
+        	{
+            	alternativeIMPPAddress = infoHeader.getInfo().toString();
+        	}
+
+        	if (alternativeIMPPAddress != null)
+            	peer.setAlternativeIMPPAddress(alternativeIMPPAddress);
+
+        	// Parses Jitsi Meet room name header
+        	SIPHeader joinRoomHeader
+            	= (SIPHeader) invite.getHeader(JITSI_MEET_ROOM_HEADER);
+        	// Optional password header
+        	SIPHeader passwordHeader
+            	= (SIPHeader) invite.getHeader(JITSI_MEET_ROOM_PASS_HEADER);
+
+        	if (joinRoomHeader != null)
+        	{
+            	OperationSetJitsiMeetToolsSipImpl jitsiMeetTools
+                	= (OperationSetJitsiMeetToolsSipImpl) getProtocolProvider()
+                        	.getOperationSet(OperationSetJitsiMeetTools.class);
+
+            	jitsiMeetTools.notifyJoinJitsiMeetRoom(
+                	this, joinRoomHeader.getValue(),
+                	passwordHeader != null ? passwordHeader.getValue() : null);
+        	}
         }
-
-        //send a ringing response
-        Response response = null;
+        Response response = null;       //send a ringing response
         try
         {
             if (logger.isTraceEnabled())
@@ -634,10 +692,47 @@ public class CallSipImpl
                 "Internal Error: " + ex.getMessage());
             return peer;
         }
-
         return peer;
     }
 
+    /**
+     * Check whether received invite is for messaging.
+     * But only if MSRP is enabled.
+     * @param invite    the request to check
+     * @return          Is it an IM invite?
+     */
+    private boolean isMessageInvite(Request invite)
+    {
+        if (getProtocolProvider().getAccountID().getAccountPropertyBoolean(
+            ProtocolProviderFactory.IS_MSRP_ENABLED, false))
+            return SdpUtils.hasMessageOffer(invite);
+        return false;
+    }
+
+    /**
+     * See if this request advertises that it is a conference focus.
+     * @param invite    the request to investigate
+     * @return          whether it advertises itself as a focus
+     */
+    private static boolean isFocus(Request invite)
+    {
+        ContactHeader contactHeader =
+                        (ContactHeader) invite.getHeader(ContactHeader.NAME);
+        boolean conferenceFocus = false;
+
+        if (contactHeader != null)
+        {
+            Iterator<?> iterator = contactHeader.getParameterNames();
+
+            while (iterator.hasNext())
+                if ("isfocus".equalsIgnoreCase(iterator.next().toString()))
+                {
+                    conferenceFocus = true;
+                    break;
+                }
+        }
+        return conferenceFocus;
+    }
 
     /**
      * Processes an incoming INVITE that is meant to replace an existing
@@ -806,6 +901,119 @@ public class CallSipImpl
             {
                 timer.cancel();
             }
+        }
+    }
+
+    /**
+     * @return whether this is a message session
+     */
+    protected boolean isMessageSession()
+    {
+        return isMessageSession;
+    }
+
+    /**
+     * mark this a message session (or not)
+     * @param isMessageSession mark
+     */
+    protected void setIsMessageSession(boolean isMessageSession)
+    {
+        this.isMessageSession = isMessageSession;
+    }
+
+    /**
+     * messaging version of {@link #createCallPeerFor(Transaction, SipProvider)}
+     */
+    private CallPeerMsrpImpl createMessagePeerFor(
+        Transaction transaction, SipProvider provider)
+    {
+        setIsMessageSession(true);
+        CallPeerMsrpImpl callPeer =
+                    new CallPeerMsrpImpl(
+                        transaction.getDialog().getRemoteParty(),
+                        this,
+                        transaction,
+                        provider);
+        addCallPeer(callPeer);
+        callPeer.setState(transaction instanceof ServerTransaction
+            ? CallPeerState.INCOMING_CALL
+            : CallPeerState.INITIATING_CALL);
+        return callPeer;
+    }
+
+    /**
+     * Messaging version of {@link #invite(Address, Message)}
+     */
+    public void messageInvite(Address calleeAddress, Message cause)
+        throws OperationFailedException
+    {
+        Request invite = messageFactory
+            .createInviteRequest(calleeAddress, cause);
+
+        ClientTransaction inviteTransaction = null;
+        SipProvider jainSipProvider
+            = getProtocolProvider().getDefaultJainSipProvider();
+        try
+        {
+            inviteTransaction = jainSipProvider.getNewClientTransaction(invite);
+        }
+        catch (TransactionUnavailableException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create inviteTransaction.\n"
+                    + "This is most probably a network connection error.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+        CallPeerMsrpImpl peer =
+            createMessagePeerFor(inviteTransaction, jainSipProvider);
+        try
+        {
+            peer.invite();
+        }
+        catch (OperationFailedException ex)
+        {
+            // if inviting call peer failed for some reason, change its state
+            peer.setState(CallPeerState.FAILED);
+            throw ex;
+        }
+    }
+
+    /**
+     * File transfer version of {@link #invite(Address, Message)}
+     */
+    public void fileTransferInvite(Address calleeAddress,
+        Message cause, FileTransferImpl activity)
+        throws OperationFailedException
+    {
+        Request invite = messageFactory
+            .createInviteRequest(calleeAddress, cause);
+
+        ClientTransaction inviteTransaction = null;
+        SipProvider jainSipProvider
+            = getProtocolProvider().getDefaultJainSipProvider();
+        try
+        {
+            inviteTransaction = jainSipProvider.getNewClientTransaction(invite);
+        }
+        catch (TransactionUnavailableException ex)
+        {
+            ProtocolProviderServiceSipImpl.throwOperationFailedException(
+                "Failed to create inviteTransaction.\n"
+                    + "This is most probably a network connection error.",
+                OperationFailedException.INTERNAL_ERROR, ex, logger);
+        }
+        CallPeerMsrpImpl peer =
+            createMessagePeerFor(inviteTransaction, jainSipProvider);
+        peer.setTransferActivity(activity);
+        try
+        {
+            peer.invite();
+        }
+        catch (OperationFailedException ex)
+        {
+            // if inviting call peer failed for some reason, change its state
+            peer.setState(CallPeerState.FAILED);
+            throw ex;
         }
     }
 }
