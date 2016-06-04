@@ -11,7 +11,6 @@
     <property name="bundles.dest.mac" value="${bundles.dest}/os-specific/macosx"/>
     <property name="bundles.dest.win" value="${bundles.dest}/os-specific/windows"/>
     <property name="bundles.dest.lin" value="${bundles.dest}/os-specific/linux"/>
-    <property name="bundles.dest.sol" value="${bundles.dest}/os-specific/solaris"/>
     <property name="bundles.dest.freebsd" value="${bundles.dest}/os-specific/freebsd"/>
     <property name="bundles.dest.android" value="${bundles.dest}/os-specific/android"/>
     <property name="doc" value="doc"/>
@@ -23,8 +22,6 @@
     <property name="lib.lin.noinst" value="${lib}/os-specific/linux/installer-exclude"/>
     <property name="lib.mac" value="${lib}/os-specific/mac"/>
     <property name="lib.mac.noinst" value="${lib}/os-specific/mac/installer-exclude"/>
-    <property name="lib.sol" value="${lib}/os-specific/solaris"/>
-    <property name="lib.sol.noinst" value="${lib}/os-specific/solaris/installer-exclude"/>
     <property name="lib.freebsd" value="${lib}/os-specific/freebsd"/>
     <property name="lib.freebsd.noinst" value="${lib}/os-specific/freebsd/installer-exclude"/>
     <property name="lib.noinst" value="${lib}/installer-exclude"/>
@@ -120,31 +117,6 @@
 
     <condition property="bundles.dest.os" value="${bundles.dest.lin}">
         <isset property="is.running.linux"/>
-    </condition>
-
-    <!-- solaris specific properties -->
-    <condition property="is.running.solaris" value="${os.name}">
-        <equals arg1="${os.name}" arg2="solaris" casesensitive="false" trim="true"/>
-    </condition>
-
-    <condition property="is.running.solaris" value="${os.name}">
-        <equals arg1="${os.name}" arg2="SunOS" casesensitive="false" trim="true"/>
-    </condition>
-
-    <condition property="os.lib.home" value="${lib}/os-specific/solaris">
-        <and>
-            <isset property="is.running.solaris"/>
-            <available file="${lib}/os-specific/solaris" type="dir"/>
-        </and>
-    </condition>
-
-    <condition property="ld.library.path"
-              value="${lib}/native/solaris:${system.LD_LIBRARY_PATH}">
-        <isset property="is.running.solaris"/>
-    </condition>
-
-    <condition property="bundles.dest.os" value="${bundles.dest.sol}">
-        <isset property="is.running.solaris"/>
     </condition>
 
     <!-- mac specific properties -->
@@ -515,7 +487,6 @@
         <mkdir dir="${bundles.dest.lin}"/>
         <mkdir dir="${bundles.dest.win}"/>
         <mkdir dir="${bundles.dest.freebsd}"/>
-        <mkdir dir="${bundles.dest.sol}"/>
         <mkdir dir="${bundles.dest.android}"/>
 
         <mkdir dir="${test.reports.dir}"/>
