@@ -977,7 +977,7 @@
         bundle-plugin-blf,
         bundle-plugin-contactinfo,bundle-plugin-chatalerter, bundle-keybindings,
         bundle-plugin-keybindingChooser,bundle-plugin-globalproxyconfig,
-        bundle-jfontchooserlib,bundle-update,bundle-plugin-update,
+        bundle-update,bundle-plugin-update,
         bundle-plugin-simpleaccreg,bundle-plugin-generalconfig,
         bundle-plugin-googletalkaccregwizz,bundle-argdelegation-service,
         bundle-argdelegation,bundle-zrtp4j,bundle-json,
@@ -2218,15 +2218,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/notificationconfiguration/notificationconfiguration.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/notificationconfiguration"
                 prefix="net/java/sip/communicator/plugin/notificationconfiguration"/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-JFontChooser -->
-    <target name="bundle-jfontchooserlib">
-        <!-- Creates a bundle containing the jfontchooser lib.-->
-        <jar compress="false" destfile="${bundles.dest}/jfontchooserlib.jar"
-            manifest="${lib.noinst}/jfontchooser.manifest.mf">
-            <zipfileset src="${lib.noinst}/jfontchooser-1.0.5.jar" prefix=""/>
         </jar>
     </target>
 

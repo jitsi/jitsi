@@ -39,7 +39,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/installer-exclude/java-sdp-nist-bridge-1.2.jar" sourcepath="/java-sdp-nist-bridge/src/main/java"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jdic_misc.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/jfontchooser-1.0.5.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jmdns.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jmyspell-core.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jna.jar"/>

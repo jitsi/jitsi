@@ -7,10 +7,6 @@ Note 2: We have indicated when Jitsi community members are also somehow affiliat
 Java DHCP API.
 Reason: No Debian package.
 
-- jfontchooser http://sourceforge.net/projects/jfontchooser/
-This projects tries to provide an easy JFontChooser in the form of the JColorChooser.
-Reason: No Debian package.
-
 - jnsapi http://code.google.com/p/jinglenodes/
 Jingle Nodes is an XMPP Extension that enable users to share and discover
 P2P Media Relays that can be used to enable Voice and Video Chat via Jingle.
