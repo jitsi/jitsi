@@ -1934,26 +1934,6 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!-- BUNDLE-ZEROCONF -->
-    <target name="bundle-zeroconf">
-        <!-- Creates a bundle containing the Zeroconf impl of the protocol provider.-->
-        <jar compress="false" destfile="${bundles.dest}/protocol-zeroconf.jar"
-            manifest="${src}/net/java/sip/communicator/impl/protocol/zeroconf/zeroconf.provider.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/zeroconf"
-                prefix="net/java/sip/communicator/impl/protocol/zeroconf"/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-PLUGIN-ZEROCONFACCREGWIZZ -->
-    <target name="bundle-plugin-zeroconfaccregwizz">
-        <!-- Creates a bundle for the plugin Zeroconf Account Registration Wizard.-->
-        <jar compress="false" destfile="${bundles.dest}/zeroconfaccregwizz.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/zeroconfaccregwizz/zeroconfaccregwizz.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/zeroconfaccregwizz"
-                prefix="net/java/sip/communicator/plugin/zeroconfaccregwizz"/>
-        </jar>
-    </target>
-
     <!-- BUNDLE-IRC -->
     <target name="bundle-irc">
         <!-- Creates a bundle containing the IRC impl of the protocol provider.-->
