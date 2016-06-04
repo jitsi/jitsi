@@ -27,7 +27,6 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/gdata-contacts-meta-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/gdata-core-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/guava-15.0.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/hexdump-0.2.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/httpclient-osgi-4.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/httpcore-osgi-4.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/ice4j-1.0.jar" sourcepath="/ice4j/src/main/java"/>
