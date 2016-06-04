@@ -63,7 +63,6 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/sdes4j-1.1.3.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/smack.jar" sourcepath="lib/installer-exclude/smack-src.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/smackx.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/swing-worker-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jna-platform.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/unix-0.5.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/ymsg_network_v0_67.jar"/>
