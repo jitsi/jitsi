@@ -11,7 +11,6 @@
     <property name="bundles.dest.mac" value="${bundles.dest}/os-specific/macosx"/>
     <property name="bundles.dest.win" value="${bundles.dest}/os-specific/windows"/>
     <property name="bundles.dest.lin" value="${bundles.dest}/os-specific/linux"/>
-    <property name="bundles.dest.sol" value="${bundles.dest}/os-specific/solaris"/>
     <property name="bundles.dest.freebsd" value="${bundles.dest}/os-specific/freebsd"/>
     <property name="bundles.dest.android" value="${bundles.dest}/os-specific/android"/>
     <property name="doc" value="doc"/>
@@ -23,8 +22,6 @@
     <property name="lib.lin.noinst" value="${lib}/os-specific/linux/installer-exclude"/>
     <property name="lib.mac" value="${lib}/os-specific/mac"/>
     <property name="lib.mac.noinst" value="${lib}/os-specific/mac/installer-exclude"/>
-    <property name="lib.sol" value="${lib}/os-specific/solaris"/>
-    <property name="lib.sol.noinst" value="${lib}/os-specific/solaris/installer-exclude"/>
     <property name="lib.freebsd" value="${lib}/os-specific/freebsd"/>
     <property name="lib.freebsd.noinst" value="${lib}/os-specific/freebsd/installer-exclude"/>
     <property name="lib.noinst" value="${lib}/installer-exclude"/>
@@ -122,31 +119,6 @@
         <isset property="is.running.linux"/>
     </condition>
 
-    <!-- solaris specific properties -->
-    <condition property="is.running.solaris" value="${os.name}">
-        <equals arg1="${os.name}" arg2="solaris" casesensitive="false" trim="true"/>
-    </condition>
-
-    <condition property="is.running.solaris" value="${os.name}">
-        <equals arg1="${os.name}" arg2="SunOS" casesensitive="false" trim="true"/>
-    </condition>
-
-    <condition property="os.lib.home" value="${lib}/os-specific/solaris">
-        <and>
-            <isset property="is.running.solaris"/>
-            <available file="${lib}/os-specific/solaris" type="dir"/>
-        </and>
-    </condition>
-
-    <condition property="ld.library.path"
-              value="${lib}/native/solaris:${system.LD_LIBRARY_PATH}">
-        <isset property="is.running.solaris"/>
-    </condition>
-
-    <condition property="bundles.dest.os" value="${bundles.dest.sol}">
-        <isset property="is.running.solaris"/>
-    </condition>
-
     <!-- mac specific properties -->
     <condition property="is.running.macos" value="${os.name}">
         <os family="mac"/>
@@ -205,10 +177,6 @@
 
     <!-- set the os.lib.home here in case it was not set before -->
     <property name="os.lib.home" value="${lib}"/>
-
-    <property name="profiler.args" value="" />
-    <property name="profiler.bootdelegation" value="" />
-    <property name="profiler.autostart" value="" />
 
     <tstamp>
         <format property="build.date" pattern="dd-MM-yyyy"/>
@@ -519,7 +487,6 @@
         <mkdir dir="${bundles.dest.lin}"/>
         <mkdir dir="${bundles.dest.win}"/>
         <mkdir dir="${bundles.dest.freebsd}"/>
-        <mkdir dir="${bundles.dest.sol}"/>
         <mkdir dir="${bundles.dest.android}"/>
 
         <mkdir dir="${test.reports.dir}"/>
@@ -673,13 +640,12 @@
              see its "Build Successful" output line as users might confuse it
              for a general build success while this might not be the case.-->
         <echo message="Generating HTML test reports ..."/>
-        <java fork="true"
-              classname="org.apache.tools.ant.launch.Launcher"
-              classpath="${java.class.path}:${lib.noinst}/xalan-2.6.0.jar.ant"
-              failonerror="true"
-              output="${test.html.reports.dir}/output.txt">
-            <arg value="htmlreport"/>
-        </java>
+        <junitreport todir="${test.reports.dir}">
+          <fileset dir="${test.reports.dir}">
+            <include name="SC-TEST-*.xml"/>
+          </fileset>
+          <report format="frames" todir="${test.html.reports.dir}"/>
+        </junitreport>
         <echo message="Done."/>
         <echo/><echo/>
         <echo message="Test results available in ./test-reports/html/index.html "/>
@@ -695,20 +661,6 @@
         </condition>
         <fail if="testing.failed"/>
     </target>
-
-    <!-- We use this target from within the test target in order to generate
-         a human readable test report. We do not directly use the htmlreport
-         target because we  need to include xalan in the classpath before we
-         do.-->
-    <target name="htmlreport">
-      <junitreport todir="${test.reports.dir}">
-        <fileset dir="${test.reports.dir}">
-          <include name="SC-TEST-*.xml"/>
-        </fileset>
-        <report format="frames" todir="${test.html.reports.dir}"/>
-      </junitreport>
-    </target>
-
 
     <target name="run-simple-tests"
             depends="prepare-all-tests,prepare-local-accounts,deploy-os-specific-bundles"
@@ -826,20 +778,14 @@
             <!-- pass to SC args that have been specified by the user -->
             <arg line="${args}"/>
 
-            <sysproperty key="org.osgi.framework.bootdelegation"
-                         value="${profiler.bootdelegation}" />
-            <sysproperty key="felix.auto.start.68"
-                         value="${profiler.autostart}" />
-
             <jvmarg value="-Xdebug" />
             <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5432" />
 
 
-            <!-- add some eventual profiler args, prevent server-class
+            <!-- prevent server-class
                  detection because -server uses much more memory for 32-bit OS
                  (64-bit always used -server) -->
-            <jvmarg line="${profiler.args} ${jvmarg.line}
-              -client ${jvm.maxheapsize}"/>
+            <jvmarg line="${jvmarg.line} -client ${jvm.maxheapsize}"/>
 
             <sysproperty key="apple.laf.useScreenMenuBar" value="true" />
         </java>
@@ -933,91 +879,20 @@
             <!-- pass to SC args that have been specified by the user -->
             <arg line="${args}"/>
 
-            <sysproperty key="org.osgi.framework.bootdelegation"
-                value="${profiler.bootdelegation}" />
-            <sysproperty key="felix.auto.start.68"
-                value="${profiler.autostart}" />
-
-            <!-- add some eventual profiler args, prevent server-class
+            <!-- prevent server-class
                  detection because -server uses much more memory for 32-bit OS
                  (64-bit always used -server) -->
-            <jvmarg line="${profiler.args} ${jvmarg.line}
+            <jvmarg line="${jvmarg.line}
               -client ${jvm.maxheapsize} ${jvmarg.splash} ${jvmarg.aegeturl}"/>
 
             <sysproperty key="apple.laf.useScreenMenuBar" value="true" />
         </java>
     </target>
 
-    <!--RUN-JITSI-WITH-INTEGRATED-PROFILER -->
-    <target name="run-with-profiler"
-        description="Starts felix and runs sip-comunicator gui (use latest build) with the hooked classloader."
-        depends="bundle-plugin-profiler4j">
-
-        <antcall target="run">
-            <param name="profiler.args"
-                value="-Xmx128m -javaagent:${lib.noinst}/profiler4j-1.0-beta3-SC.jar" />
-            <param name="profiler.bootdelegation"
-                value="net.sf.profiler4j.agent.*" />
-            <param name="profiler.autostart"
-                value="reference:file:sc-bundles/profiler4j.jar" />
-        </antcall>
-    </target>
-
     <target name="run-v4" description="Starts SC with a preference for IPv4.">
         <ant target="run">
           <property name="java.net.preferIPv6Addresses" value="false"/>
         </ant>
-    </target>
-
-    <!--PROFILE-JITSI-IN-NETBEANS-IDE -->
-    <target name="profile" depends="bundle-plugin-profiler4j,deploy-os-specific-bundles"
-        description="Profile Project">
-        <fail unless="netbeans.home">
-            This target can only run inside the NetBeans IDE.
-        </fail>
-
-        <nbprofiledirect>
-            <classpath> <pathelement location="${dest}"/> </classpath>
-        </nbprofiledirect>
-
-        <java classname="net.java.sip.communicator.launcher.SIPCommunicator"
-            fork="true"
-            failonerror="true"
-            classpathref="project.class.path">
-
-            <jvmarg value="${profiler.info.jvmargs.agent}"/>
-
-            <!-- Tell felix to run Jitsi -->
-            <sysproperty key="felix.config.properties"
-                value="file:${lib}/felix.client.run.properties"/>
-
-            <!-- Tell java.util.logging about our logging preferences -->
-            <sysproperty key="java.util.logging.config.file"
-                value="${lib}/logging.properties"/>
-
-            <sysproperty key="java.net.preferIPv6Addresses"
-                value="false"/>
-
-            <sysproperty key="net.java.sip.communicator.SC_HOME_DIR_LOCATION"
-                    value="${user.home}/schome"/>
-
-            <!-- Setting properties necessary for dependencies on native libs-->
-            <sysproperty key="java.library.path"
-                path="${ld.library.path}:${path}:${dyld.library.path}"/>
-
-            <!-- pass l10n properties from ant call for
-                     easy translation debugging -->
-            <sysproperty key="user.language" value="${user.language}" />
-            <sysproperty key="user.country" value="${user.country}" />
-            <sysproperty key="user.variant" value="${user.variant}" />
-
-            <env key="LD_LIBRARY_PATH" path="${ld.library.path}"/>
-            <env key="PATH" path="${path}"/>
-            <env key="DYLD_LIBRARY_PATH" path="${dyld.library.path}"/>
-
-        </java>
-
-        <delete file="${bundles.dest}/profiler4j.jar"/>
     </target>
 
     <!-- we run this target before we run SC in order to copy os-specific
@@ -1073,7 +948,7 @@
         bundle-plugin-blf,
         bundle-plugin-contactinfo,bundle-plugin-chatalerter, bundle-keybindings,
         bundle-plugin-keybindingChooser,bundle-plugin-globalproxyconfig,
-        bundle-jfontchooserlib,bundle-update,bundle-plugin-update,
+        bundle-update,bundle-plugin-update,
         bundle-plugin-simpleaccreg,bundle-plugin-generalconfig,
         bundle-plugin-googletalkaccregwizz,bundle-argdelegation-service,
         bundle-argdelegation,bundle-zrtp4j,bundle-json,
@@ -1661,27 +1536,6 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!-- BUNDLE-SSH -->
-    <target name="bundle-ssh">
-        <!-- Creates a bundle containing the SSH impl of the protocol provider.-->
-        <jar compress="false" destfile="${bundles.dest}/protocol-ssh.jar"
-            manifest="${src}/net/java/sip/communicator/impl/protocol/ssh/ssh.provider.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/ssh"
-                prefix="net/java/sip/communicator/impl/protocol/ssh"/>
-            <zipfileset src="${lib.noinst}/jsch-0.1.36.jar" prefix=""/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-PLUGIN-SSHACCREGWIZZ -->
-    <target name="bundle-plugin-sshaccregwizz">
-        <!-- Creates a bundle for the plugin SSH Account Registration Wizard.-->
-        <jar compress="false" destfile="${bundles.dest}/sshaccregwizz.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/sshaccregwizz/sshaccregwizz.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/sshaccregwizz"
-                prefix="net/java/sip/communicator/plugin/sshaccregwizz"/>
-        </jar>
-    </target>
-
     <!-- BUNDLE-YAHOO -->
     <target name="bundle-yahoo">
         <!-- Creates a bundle containing the yahoo impl of the protocol provider.-->
@@ -1747,7 +1601,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/gui/swing.ui.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/gui"
                 prefix="net/java/sip/communicator/impl/gui"/>
-            <zipfileset src="${lib.noinst}/swing-worker-1.2.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/mac_widgets-0.9.5.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/forms-1.2.1.jar" prefix=""/>
         </jar>
@@ -2051,26 +1904,6 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!-- BUNDLE-ZEROCONF -->
-    <target name="bundle-zeroconf">
-        <!-- Creates a bundle containing the Zeroconf impl of the protocol provider.-->
-        <jar compress="false" destfile="${bundles.dest}/protocol-zeroconf.jar"
-            manifest="${src}/net/java/sip/communicator/impl/protocol/zeroconf/zeroconf.provider.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/zeroconf"
-                prefix="net/java/sip/communicator/impl/protocol/zeroconf"/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-PLUGIN-ZEROCONFACCREGWIZZ -->
-    <target name="bundle-plugin-zeroconfaccregwizz">
-        <!-- Creates a bundle for the plugin Zeroconf Account Registration Wizard.-->
-        <jar compress="false" destfile="${bundles.dest}/zeroconfaccregwizz.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/zeroconfaccregwizz/zeroconfaccregwizz.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/zeroconfaccregwizz"
-                prefix="net/java/sip/communicator/plugin/zeroconfaccregwizz"/>
-        </jar>
-    </target>
-
     <!-- BUNDLE-IRC -->
     <target name="bundle-irc">
         <!-- Creates a bundle containing the IRC impl of the protocol provider.-->
@@ -2202,27 +2035,6 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!-- BUNDLE-DICT -->
-    <target name="bundle-dict">
-        <jar compress="false" destfile="${bundles.dest}/protocol-dict.jar"
-             manifest="${src}/net/java/sip/communicator/impl/protocol/dict/dict.provider.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/dict"
-                    prefix="net/java/sip/communicator/impl/protocol/dict"/>
-            <zipfileset src="${lib.noinst}/dict4j.jar" prefix=""/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-PLUGIN-DICTACCREGWIZZ -->
-    <target name="bundle-plugin-dictaccregwizz">
-        <!-- Creates a bundle for the plugin Dict Account Registration
-             Wizard.-->
-       <jar compress="false" destfile="${bundles.dest}/dictaccregwizz.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/dictaccregwizz/dictaccregwizz.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/dictaccregwizz"
-                prefix="net/java/sip/communicator/plugin/dictaccregwizz"/>
-        </jar>
-    </target>
-
     <!-- BUNDLE-UPDATE-->
     <target name="bundle-update">
         <!-- Creates a bundle containing the provisioning discovery service.-->
@@ -2239,21 +2051,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/update/update.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/update"
                 prefix="net/java/sip/communicator/plugin/update" />
-        </jar>
-    </target>
-
-   <!--BUNDLE-PLUGIN-PROFILER-->
-   <target name="bundle-plugin-profiler4j">
-        <jar compress="false" destfile="${bundles.dest}/profiler4j.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/profiler4j/profiler4j.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/profiler4j"
-                prefix="net/java/sip/communicator/plugin/profiler4j" />
-            <zipfileset src="${lib.noinst}/profiler4j-1.0-beta3-SC.jar"
-                prefix=""/>
-            <zipfileset src="${lib.noinst}/jdom.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jcommon-1.0.0.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jfreechart-1.0.1.jar" prefix=""/>
-            <fileset file="${lib.noinst}/p4j-exclusions.txt"/>
         </jar>
     </target>
 
@@ -2371,15 +2168,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/notificationconfiguration/notificationconfiguration.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/notificationconfiguration"
                 prefix="net/java/sip/communicator/plugin/notificationconfiguration"/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-JFontChooser -->
-    <target name="bundle-jfontchooserlib">
-        <!-- Creates a bundle containing the jfontchooser lib.-->
-        <jar compress="false" destfile="${bundles.dest}/jfontchooserlib.jar"
-            manifest="${lib.noinst}/jfontchooser.manifest.mf">
-            <zipfileset src="${lib.noinst}/jfontchooser-1.0.5.jar" prefix=""/>
         </jar>
     </target>
 
@@ -2828,8 +2616,6 @@ org.bouncycastle.util"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/service/sysactivity"
                     prefix="net/java/sip/communicator/service/sysactivity" />
             <zipfileset src="${lib.noinst}/libdbus-java-2.7.jar" prefix="" />
-            <zipfileset src="${lib.noinst}/unix-0.5.jar" prefix="" />
-            <zipfileset src="${lib.noinst}/hexdump-0.2.jar" prefix="" />
         </jar>
     </target>
 

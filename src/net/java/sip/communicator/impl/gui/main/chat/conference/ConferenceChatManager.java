@@ -21,6 +21,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import javax.swing.*;
+import javax.swing.SwingWorker;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
@@ -35,7 +36,6 @@ import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 
-import org.jdesktop.swingworker.SwingWorker;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
 

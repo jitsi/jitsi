@@ -2763,10 +2763,6 @@
         <unzip src="${sc.basedir}/../libsrc/jmyspell-core-src.zip"
                dest="${debian.src.dir}/lib/src/jmyspell"/>
 
-        <!-- jfontchooser -->
-        <unzip src="${sc.basedir}/../libsrc/jfontchooser-src.zip"
-                       dest="${debian.src.dir}/lib/src/jfontchooser"/>
-
         <!-- gdata
         <unzip src="${sc.basedir}/../libsrc/gdata-src.java-1.43.0.zip"
                dest="${debian.src.dir}/lib/src">
@@ -2827,8 +2823,6 @@
         <delete dir="${debian.src.dir}/lib/src/otr4j/bin"
                 failonerror="false"/>
         <delete dir="${debian.src.dir}/lib/src/jmyspell/classes"
-                failonerror="false"/>
-        <delete dir="${debian.src.dir}/lib/src/jfontchooser/classes"
                 failonerror="false"/>
         <delete dir="${debian.src.dir}/lib/src/OrangeExtensions/classes"
                 failonerror="false"/>
@@ -3133,23 +3127,6 @@
         <symlink resource="../src/jmyspell/jmyspell-core.jar" overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude"/>
 
-        <!-- jfontchooser -->
-        <mkdir dir="${debian.src.dir}/lib/src/jfontchooser/classes"/>
-        <javac debug="true"
-            deprecation="true" destdir="${debian.src.dir}/lib/src/jfontchooser/classes"
-            nowarn="false"
-            source="1.5" target="1.5" fork="true">
-                <src path="${debian.src.dir}/lib/src/jfontchooser/src"/>
-                <include name="**/*.java" />
-        </javac>
-        <jar compress="true"
-             destfile="${debian.src.dir}/lib/src/jfontchooser/jfontchooser-1.0.5.jar">
-            <zipfileset dir="${debian.src.dir}/lib/src/jfontchooser/classes"/>
-        </jar>
-        <symlink resource="../src/jfontchooser/jfontchooser-1.0.5.jar"
-                 overwrite="true"
-                 link="${debian.src.dir}/lib/installer-exclude"/>
-
         <!-- libcommons-codec-java -->
         <symlink resource="/usr/share/java/commons-codec.jar"
                  overwrite="true"
@@ -3332,9 +3309,6 @@
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude/libdbus-java-2.7.jar"/>
         <symlink resource="/usr/share/java/hexdump-0.2.jar"
-             overwrite="true"
-             link="${debian.src.dir}/lib/installer-exclude"/>
-        <symlink resource="/usr/share/java/unix-0.5.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude"/>
 

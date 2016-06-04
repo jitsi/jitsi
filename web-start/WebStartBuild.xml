@@ -31,7 +31,6 @@
 	<!-- Exclusion of unsupported os's -->
 	<patternset id="unsupported.os.exclude">
 		<exclude name="**/freebsd*/**" />
-		<exclude name="**/solaris*/**" />
 	</patternset>
 
 	<!-- Excluded Bundles or Libs -->
