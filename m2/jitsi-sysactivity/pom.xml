@@ -22,22 +22,6 @@
       <artifactId>dbus-java</artifactId>
       <version>2.7</version>
     </dependency>
-    <dependency>
-      <groupId>org.abstractj.libmatthew</groupId>
-      <artifactId>hexdump</artifactId>
-      <version>0.2.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.abstractj.libmatthew</groupId>
-      <artifactId>unix</artifactId>
-      <version>0.5.1</version>
-    </dependency>
-    <dependency>
-      <groupId>org.abstractj.libmatthew</groupId>
-      <artifactId>libunix</artifactId>
-      <version>0.5.1</version>
-      <type>so</type>
-    </dependency>
     <!-- org.jitsi -->
     <dependency>
       <groupId>${project.groupId}</groupId>

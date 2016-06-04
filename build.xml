@@ -2616,7 +2616,6 @@ org.bouncycastle.util"/>
             <zipfileset dir="${dest}/net/java/sip/communicator/service/sysactivity"
                     prefix="net/java/sip/communicator/service/sysactivity" />
             <zipfileset src="${lib.noinst}/libdbus-java-2.7.jar" prefix="" />
-            <zipfileset src="${lib.noinst}/unix-0.5.jar" prefix="" />
         </jar>
     </target>
 
