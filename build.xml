@@ -2202,27 +2202,6 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!-- BUNDLE-DICT -->
-    <target name="bundle-dict">
-        <jar compress="false" destfile="${bundles.dest}/protocol-dict.jar"
-             manifest="${src}/net/java/sip/communicator/impl/protocol/dict/dict.provider.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/dict"
-                    prefix="net/java/sip/communicator/impl/protocol/dict"/>
-            <zipfileset src="${lib.noinst}/dict4j.jar" prefix=""/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-PLUGIN-DICTACCREGWIZZ -->
-    <target name="bundle-plugin-dictaccregwizz">
-        <!-- Creates a bundle for the plugin Dict Account Registration
-             Wizard.-->
-       <jar compress="false" destfile="${bundles.dest}/dictaccregwizz.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/dictaccregwizz/dictaccregwizz.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/dictaccregwizz"
-                prefix="net/java/sip/communicator/plugin/dictaccregwizz"/>
-        </jar>
-    </target>
-
     <!-- BUNDLE-UPDATE-->
     <target name="bundle-update">
         <!-- Creates a bundle containing the provisioning discovery service.-->
