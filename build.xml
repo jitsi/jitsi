@@ -673,13 +673,12 @@
              see its "Build Successful" output line as users might confuse it
              for a general build success while this might not be the case.-->
         <echo message="Generating HTML test reports ..."/>
-        <java fork="true"
-              classname="org.apache.tools.ant.launch.Launcher"
-              classpath="${java.class.path}:${lib.noinst}/xalan-2.6.0.jar.ant"
-              failonerror="true"
-              output="${test.html.reports.dir}/output.txt">
-            <arg value="htmlreport"/>
-        </java>
+        <junitreport todir="${test.reports.dir}">
+          <fileset dir="${test.reports.dir}">
+            <include name="SC-TEST-*.xml"/>
+          </fileset>
+          <report format="frames" todir="${test.html.reports.dir}"/>
+        </junitreport>
         <echo message="Done."/>
         <echo/><echo/>
         <echo message="Test results available in ./test-reports/html/index.html "/>
@@ -695,20 +694,6 @@
         </condition>
         <fail if="testing.failed"/>
     </target>
-
-    <!-- We use this target from within the test target in order to generate
-         a human readable test report. We do not directly use the htmlreport
-         target because we  need to include xalan in the classpath before we
-         do.-->
-    <target name="htmlreport">
-      <junitreport todir="${test.reports.dir}">
-        <fileset dir="${test.reports.dir}">
-          <include name="SC-TEST-*.xml"/>
-        </fileset>
-        <report format="frames" todir="${test.html.reports.dir}"/>
-      </junitreport>
-    </target>
-
 
     <target name="run-simple-tests"
             depends="prepare-all-tests,prepare-local-accounts,deploy-os-specific-bundles"
