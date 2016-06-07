@@ -3311,6 +3311,9 @@
         <symlink resource="/usr/share/java/hexdump-0.2.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude"/>
+        <symlink resource="/usr/share/java/unix-0.5.jar"
+             overwrite="true"
+             link="${debian.src.dir}/lib/installer-exclude"/>
 
         <!-- easymock libeasymock-java-->
         <symlink resource="/usr/share/java/easymock.jar"
