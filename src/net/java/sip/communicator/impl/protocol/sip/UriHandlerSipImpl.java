@@ -351,7 +351,11 @@ public class UriHandlerSipImpl
                     // Even if not registered after the timeout, try the call
                     // anyway and the error popup will appear to ask the
                     // user if they want to register
-                    handleUri(uri, provider);
+                    if(provider.getRegistrationState()
+                        != RegistrationState.REGISTERED)
+                    {
+                        handleUri(uri, provider);
+                    }
                 }
             }, initialRegistrationTimeout);
         }
