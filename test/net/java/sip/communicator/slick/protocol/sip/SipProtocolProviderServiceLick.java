@@ -120,7 +120,7 @@ public class SipProtocolProviderServiceLick
             addTest(TestOperationSetPersistentPresence.suite());
 
             //IM test
-            addTest(TestOperationSetBasicInstantMessaging.suite());
+            //addTest(TestOperationSetBasicInstantMessaging.suite());
 
             // telephony
             addTestSuite(TestOperationSetBasicTelephonySipImpl.class);
