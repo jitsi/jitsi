@@ -58,11 +58,21 @@ public class IceUdpTransportManager
         = Logger.getLogger(IceUdpTransportManager.class);
 
     /**
+     * Default STUN server address.
+     */
+    protected static final String DEFAULT_STUN_SERVER_ADDRESS = "stun.jitsi.net";
+
+    /**
+     * Default STUN server port.
+     */
+    protected static final int DEFAULT_STUN_SERVER_PORT = 3478;
+
+    /**
      * The ICE <tt>Component</tt> IDs in their common order used, for example,
      * by <tt>DefaultStreamConnector</tt>, <tt>MediaStreamTarget</tt>.
      */
     private static final int[] COMPONENT_IDS
-        = new int[] { Component.RTP, Component.RTCP };
+            = new int[] { Component.RTP, Component.RTCP };
 
     /**
      * This is where we keep our answer between the time we get the offer and
@@ -76,15 +86,6 @@ public class IceUdpTransportManager
      */
     protected final Agent iceAgent;
 
-    /**
-     * Default STUN server address.
-     */
-    protected static final String DEFAULT_STUN_SERVER_ADDRESS = "stun.jitsi.net";
-
-    /**
-     * Default STUN server port.
-     */
-    protected static final int DEFAULT_STUN_SERVER_PORT = 3478;
 
     /**
      * Creates a new instance of this transport manager, binding it to the
@@ -156,7 +157,10 @@ public class IceUdpTransportManager
 
                 // in case user has canceled the login window
                 if(credentials == null)
+                {
+                    logger.info("Credentials were null. User has most likely canceled the login operation");
                     return null;
+                }
 
                 //extract the password the user passed us.
                 char[] pass = credentials.getPassword();
@@ -164,7 +168,10 @@ public class IceUdpTransportManager
                 // the user didn't provide us a password (i.e. canceled the
                 // operation)
                 if(pass == null)
+                {
+                    logger.info("Password was null. User has most likely canceled the login operation");
                     return null;
+                }
                 password = new String(pass);
 
                 if (credentials.isPasswordPersistent())
@@ -398,11 +405,13 @@ public class IceUdpTransportManager
                     if (selectedPair != null)
                     {
                         DatagramSocket streamConnectorSocket
-                            = selectedPair.getLocalCandidate().
-                                getDatagramSocket();
+                            = selectedPair.getDatagramSocket();
 
                         if (streamConnectorSocket != null)
                         {
+                            logger.debug("Added a streamConnectorSocket to the array " +
+                                    "StreamConnectorSocket and increased " +
+                                    "the count of streamConnectorSocketCount by one");
                             streamConnectorSockets[i] = streamConnectorSocket;
                             streamConnectorSocketCount++;
                         }
@@ -748,6 +757,10 @@ public class IceUdpTransportManager
         //would simply include one more bind retry.
         try
         {
+            // This is naive. It should not check only the first candidate with
+            // get(0), but check all of them and find the biggest port.
+            // See the fix from videobridge: https://github.com/jitsi/jitsi-videobridge/blob/master/src/main/java/org/jitsi/videobridge/IceUdpTransportManager.java#L857
+
             portTracker.setNextPort(
                     1
                         + stream
@@ -898,8 +911,12 @@ public class IceUdpTransportManager
                 = transport.getChildExtensionsOfType(
                         CandidatePacketExtension.class);
 
-            if (iceAgentStateIsRunning && (candidates.size() == 0))
+            if (iceAgentStateIsRunning && candidates.isEmpty())
+            {
+                logger.info("connectivity establishment has not been started" +
+                        "because candidate list is empty");
                 return false;
+            }
 
             String media = e.getKey();
             IceMediaStream stream = iceAgent.getStream(media);

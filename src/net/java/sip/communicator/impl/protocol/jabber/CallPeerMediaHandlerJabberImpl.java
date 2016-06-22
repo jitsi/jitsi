@@ -937,19 +937,18 @@ public class CallPeerMediaHandlerJabberImpl
                     if (supportedTransports != null
                             && supportedTransports.length > 0)
                     {
-                        for (int i = 0; i < supportedTransports.length; i++)
+                        for(String supportedTransport : supportedTransports)
                         {
                             if (ProtocolProviderServiceJabberImpl.
                                     URN_XMPP_JINGLE_ICE_UDP_1.
-                                            equals(supportedTransports[i]))
+                                    equals(supportedTransport))
                             {
-                                transportManager
-                                        = new IceUdpTransportManager(peer);
+                                transportManager = new IceUdpTransportManager(peer);
                                 break;
                             }
                             else if (ProtocolProviderServiceJabberImpl.
-                                        URN_XMPP_JINGLE_RAW_UDP_0.
-                                            equals(supportedTransports[i]))
+                                    URN_XMPP_JINGLE_RAW_UDP_0.
+                                    equals(supportedTransport))
                             {
                                 transportManager
                                         = new RawUdpTransportManager(peer);
@@ -1117,12 +1116,11 @@ public class CallPeerMediaHandlerJabberImpl
                     List<Component> visualComponents
                         = new LinkedList<Component>();
 
-                    for (int i = 0; i < remoteSSRCs.length; i++)
+                    for(int remoteSSRC : remoteSSRCs)
                     {
-                        int remoteSSRC = remoteSSRCs[i];
                         Component visualComponent
-                            = videoStream.getVisualComponent(
-                                    0xFFFFFFFFL & remoteSSRC);
+                                = videoStream.getVisualComponent(
+                                0xFFFFFFFFL & remoteSSRC);
 
                         if (visualComponent != null)
                             visualComponents.add(visualComponent);
@@ -1605,7 +1603,7 @@ public class CallPeerMediaHandlerJabberImpl
             {
                 List<MediaFormat> fmts = supportedFormats;
 
-                if(fmts.size() > 0)
+                if(!fmts.isEmpty())
                 {
                     MediaFormat fmt = fmts.get(0);
 
@@ -2108,21 +2106,17 @@ public class CallPeerMediaHandlerJabberImpl
          * TODO The transportManager is going to be changed so it may need to be
          * disposed of prior to the change.
          */
-
-        if (xmlns.equals(
-                ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_ICE_UDP_1))
+        switch (xmlns)
         {
-            transportManager = new IceUdpTransportManager(peer);
-        }
-        else if (xmlns.equals(
-                ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RAW_UDP_0))
-        {
-            transportManager = new RawUdpTransportManager(peer);
-        }
-        else
-        {
-            throw new IllegalArgumentException(
-                    "Unsupported Jingle transport " + xmlns);
+            case ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_ICE_UDP_1:
+                transportManager = new IceUdpTransportManager(peer);
+                break;
+            case ProtocolProviderServiceJabberImpl.URN_XMPP_JINGLE_RAW_UDP_0:
+                transportManager = new RawUdpTransportManager(peer);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported Jingle " +
+                        "transport " + xmlns);
         }
 
         synchronized(transportManagerSyncRoot)
