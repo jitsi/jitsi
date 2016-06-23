@@ -409,9 +409,6 @@ public class IceUdpTransportManager
 
                         if (streamConnectorSocket != null)
                         {
-                            logger.debug("Added a streamConnectorSocket to the array " +
-                                    "StreamConnectorSocket and increased " +
-                                    "the count of streamConnectorSocketCount by one");
                             streamConnectorSockets[i] = streamConnectorSocket;
                             streamConnectorSocketCount++;
                             logger.trace("Added a streamConnectorSocket to the array " +
@@ -961,7 +958,7 @@ public class IceUdpTransportManager
 
             if (iceAgentStateIsRunning && candidates.isEmpty())
             {
-                logger.info("connectivity establishment has not been started" +
+                logger.info("connectivity establishment has not been started " +
                         "because candidate list is empty");
                 return false;
             }
