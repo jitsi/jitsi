@@ -568,7 +568,7 @@ public class SdpUtils
     public static SessionDescription createSessionDescription(
                                    InetAddress              localAddress,
                                    String                   userName,
-                                   Vector<MediaDescription> mediaDescriptions)
+                                   List<MediaDescription> mediaDescriptions)
             throws OperationFailedException
     {
         SessionDescription sessDescr = null;
@@ -614,8 +614,9 @@ public class SdpUtils
             sessDescr.setConnection(c);
 
             if ( mediaDescriptions != null)
-                sessDescr.setMediaDescriptions(mediaDescriptions);
-
+            {
+                sessDescr.setMediaDescriptions( new Vector<>(mediaDescriptions));
+            }
             return sessDescr;
         }
         catch (SdpException exc)
@@ -656,7 +657,7 @@ public class SdpUtils
     public static SessionDescription createSessionUpdateDescription(
                           SessionDescription       descToUpdate,
                           InetAddress              newConnectionAddress,
-                          Vector<MediaDescription> newMediaDescriptions)
+                          List<MediaDescription> newMediaDescriptions)
             throws OperationFailedException
     {
         SessionDescription update = createSessionDescription(
@@ -1712,7 +1713,7 @@ public class SdpUtils
      * <tt>descs</tt> <tt>Vector</tt>.
      */
     private static MediaDescription removeMediaDesc(
-                                            Vector<MediaDescription> descs,
+                                            List<MediaDescription> descs,
                                             MediaType                type)
     {
         for (Iterator<MediaDescription> i = descs.iterator(); i.hasNext();)

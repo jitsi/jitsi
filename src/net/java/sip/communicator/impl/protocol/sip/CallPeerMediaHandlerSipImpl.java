@@ -164,7 +164,7 @@ public class CallPeerMediaHandlerSipImpl
         throws OperationFailedException
     {
         //Audio Media Description
-        Vector<MediaDescription> mediaDescs = createMediaDescriptions();
+        List<MediaDescription> mediaDescs = createMediaDescriptions();
 
         //wrap everything up in a session description
         String userName
@@ -197,7 +197,7 @@ public class CallPeerMediaHandlerSipImpl
      * for reasons like - problems with device interaction, allocating ports,
      * etc.
      */
-    private Vector<MediaDescription> createMediaDescriptions()
+    private List<MediaDescription> createMediaDescriptions()
         throws OperationFailedException
     {
         //Audio Media Description
@@ -404,7 +404,7 @@ public class CallPeerMediaHandlerSipImpl
 
     {
         //create the media descriptions reflecting our current state.
-        Vector<MediaDescription> newMediaDescs = createMediaDescriptions();
+        List<MediaDescription> newMediaDescs = createMediaDescriptions();
 
         SessionDescription newOffer = SdpUtils.createSessionUpdateDescription(
             sdescToUpdate, getTransportManager().getLastUsedLocalHost(),
@@ -514,7 +514,7 @@ public class CallPeerMediaHandlerSipImpl
         throws OperationFailedException,
                IllegalArgumentException
     {
-        Vector<MediaDescription> answerDescriptions
+        List<MediaDescription> answerDescriptions
             = createMediaDescriptionsForAnswer(newOffer);
         // wrap everything up in a session description
         SessionDescription newAnswer

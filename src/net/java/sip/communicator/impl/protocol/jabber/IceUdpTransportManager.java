@@ -409,11 +409,13 @@ public class IceUdpTransportManager
 
                         if (streamConnectorSocket != null)
                         {
-                            logger.debug("Added a streamConnectorSocket to the array " +
-                                    "StreamConnectorSocket and increased " +
-                                    "the count of streamConnectorSocketCount by one");
                             streamConnectorSockets[i] = streamConnectorSocket;
                             streamConnectorSocketCount++;
+                            logger.trace("Added a streamConnectorSocket to the array " +
+                                "StreamConnectorSocket and increased " +
+                                "the count of streamConnectorSocketCount by one to " +
+                                streamConnectorSocketCount);
+
                         }
                     }
                 }
@@ -751,24 +753,25 @@ public class IceUdpTransportManager
                     ex);
         }
 
-        //let's now update the next port var as best we can: we would assume
-        //that all local candidates are bound on the same port and set it
-        //to the one just above. if the assumption is wrong the next bind
-        //would simply include one more bind retry.
+        // Attempt to minimize subsequent bind retries: see if we have allocated
+        // any ports from the dynamic range, and if so update the port tracker.
+        // Do NOT update the port tracker with non-dynamic ports (e.g. 4443
+        // coming from TCP) because this will force it to revert back it its
+        // configured min port. When maxPort is reached, allocation will begin
+        // from minPort again, so we don't have to worry about wraps.
         try
         {
-            // This is naive. It should not check only the first candidate with
-            // get(0), but check all of them and find the biggest port.
-            // See the fix from videobridge: https://github.com/jitsi/jitsi-videobridge/blob/master/src/main/java/org/jitsi/videobridge/IceUdpTransportManager.java#L857
+           int maxAllocatedPort = getMaxAllocatedPort(
+                    stream,
+                    portTracker.getMinPort(),
+                    portTracker.getMaxPort());
 
-            portTracker.setNextPort(
-                    1
-                        + stream
-                            .getComponent(Component.RTCP)
-                                .getLocalCandidates()
-                                    .get(0)
-                                        .getTransportAddress()
-                                            .getPort());
+            if(maxAllocatedPort > 0)
+            {
+                int nextPort = 1 + maxAllocatedPort;
+                portTracker.setNextPort(nextPort);
+                logger.debug("Updating the port tracker min port: " + nextPort);
+            }
         }
         catch(Throwable t)
         {
@@ -778,6 +781,48 @@ public class IceUdpTransportManager
         }
 
         return stream;
+    }
+
+    /**
+     * @return the highest local port used by any of the local candidates of
+     * {@code iceStream}, which falls in the range [{@code min}, {@code max}].
+     */
+    private int getMaxAllocatedPort(IceMediaStream iceStream, int min, int max)
+    {
+        return
+                Math.max(
+                        getMaxAllocatedPort(
+                                iceStream.getComponent(Component.RTP),
+                                min, max),
+                        getMaxAllocatedPort(
+                                iceStream.getComponent(Component.RTCP),
+                                min, max));
+    }
+
+    /**
+     * @return the highest local port used by any of the local candidates of
+     * {@code component}, which falls in the range [{@code min}, {@code max}].
+     */
+    private int getMaxAllocatedPort(Component component, int min, int max)
+    {
+        int maxAllocatedPort = -1;
+
+        if (component != null)
+        {
+            for (LocalCandidate candidate : component.getLocalCandidates())
+            {
+                int candidatePort = candidate.getTransportAddress().getPort();
+
+                if (min <= candidatePort
+                        && candidatePort <= max
+                        && maxAllocatedPort < candidatePort)
+                {
+                    maxAllocatedPort = candidatePort;
+                }
+            }
+        }
+
+        return maxAllocatedPort;
     }
 
     /**
@@ -913,7 +958,7 @@ public class IceUdpTransportManager
 
             if (iceAgentStateIsRunning && candidates.isEmpty())
             {
-                logger.info("connectivity establishment has not been started" +
+                logger.info("connectivity establishment has not been started " +
                         "because candidate list is empty");
                 return false;
             }

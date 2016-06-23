@@ -434,7 +434,10 @@ public class OperationSetBasicTelephonySipImpl
         CSeqHeader cseq = ((CSeqHeader) response.getHeader(CSeqHeader.NAME));
 
         if (cseq == null)
+        {
             logger.error("An incoming response did not contain a CSeq header");
+            return false;
+        }
 
         String method = cseq.getMethod();
 
@@ -1163,11 +1166,7 @@ public class OperationSetBasicTelephonySipImpl
                         protocolProvider.getAccountID().getService()
                         , 399, reasonText);
             }
-            catch(InvalidArgumentException e)
-            {
-                logger.error("Cannot create warning header", e);
-            }
-            catch(ParseException e)
+            catch(InvalidArgumentException | ParseException e)
             {
                 logger.error("Cannot create warning header", e);
             }
@@ -1458,11 +1457,7 @@ public class OperationSetBasicTelephonySipImpl
             {
                 serverTransaction.sendResponse(accepted);
             }
-            catch (InvalidArgumentException ex)
-            {
-                failure = ex;
-            }
-            catch (SipException ex)
+            catch (InvalidArgumentException | SipException ex)
             {
                 failure = ex;
             }
