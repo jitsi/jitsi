@@ -752,30 +752,38 @@ public class NetworkUtils
             return null;
         }
 
-        String[][] recVals = new String[records.length][4];
+        List<String[]> recVals = new ArrayList<>(records.length);
         for (int i = 0; i < records.length; i++)
         {
+            String[] recVal = new String[4];
             NAPTRRecord r = (NAPTRRecord)records[i];
 
             // todo - check here for broken records as missing transport
-            recVals[i][0] = "" + r.getOrder();
-            recVals[i][1] = getProtocolFromNAPTRRecords(r.getService());
+            recVal[0] = "" + r.getOrder();
+            recVal[1] = getProtocolFromNAPTRRecords(r.getService());
+            if (recVal[1] == null)
+            {
+                // we don't understand this NAPTR, maybe it's not for SIP?
+                continue;
+            }
+
             String replacement = r.getReplacement().toString();
 
             if (replacement.endsWith("."))
             {
-                recVals[i][2] =
+                recVal[2] =
                         replacement.substring(0, replacement.length() - 1);
             }
             else
             {
-                recVals[i][2] = replacement;
+                recVal[2] = replacement;
             }
-            recVals[i][3] = "" + r.getPreference();
+            recVal[3] = "" + r.getPreference();
+            recVals.add(recVal);
         }
 
         // sort the SRV RRs by RR value (lower is preferred)
-        Arrays.sort(recVals, new Comparator<String[]>()
+        Collections.sort(recVals, new Comparator<String[]>()
         {
             // Sorts NAPTR records by ORDER (low number first), PREFERENCE (low
             // number first) and PROTOCOL (0-TLS, 1-TCP, 2-UDP).
@@ -806,10 +814,12 @@ public class NetworkUtils
             }
         });
 
+        String[][] arrayResult = new String[recVals.size()][4];
+        arrayResult = recVals.toArray(arrayResult);
         if(logger.isTraceEnabled())
             logger.trace("NAPTRs for " + domain + "="
-                + Arrays.toString(recVals));
-        return recVals;
+                + Arrays.toString(arrayResult));
+        return arrayResult;
     }
 
     /**
