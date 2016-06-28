@@ -172,7 +172,7 @@ public class ContactSipImpl
     public String getAddress()
     {
         SipURI sipURI = (SipURI) sipAddress.getURI();
-        return sipURI.getUser() + "@" + sipURI.getHost();
+        return sipURI.toString().substring(sipURI.getScheme().length() + 1);
     }
 
     /**

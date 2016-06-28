@@ -279,6 +279,10 @@ public class ProtocolProviderServiceSipImpl
             {
                 return true;
             }
+            else if (address.toString().equals(address.getURI().getScheme() + ":" + contactId))
+            {
+                return true;
+            }
             else
             {
                 result.add(SipActivator.getResources().getI18NString(
@@ -2765,6 +2769,11 @@ public class ProtocolProviderServiceSipImpl
      */
     protected void notifyConnectionFailed()
     {
+        if (sipRegistrarConnection.isRegistrarless())
+        {
+            return;
+        }
+
         if(getRegistrationState().equals(RegistrationState.REGISTERED)
             && sipRegistrarConnection != null)
             sipRegistrarConnection.setRegistrationState(

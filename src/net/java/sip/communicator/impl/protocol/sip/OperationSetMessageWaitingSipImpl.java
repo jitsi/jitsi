@@ -209,6 +209,10 @@ public class OperationSetMessageWaitingSipImpl
             try
             {
                 subscribeAddress = getSubscribeAddress();
+                if (subscribeAddress == null)
+                {
+                    return;
+                }
             }
             catch (ParseException e)
             {
