@@ -2331,9 +2331,6 @@
               todir="${debianize.dir}"
               overwrite="true"/>
 
-        <!-- use postinst and postrm files only if used from deb target -->
-        <antcall target="-deb-post-files-update"/>
-
         <copy todir="${debianize.dir}/source">
             <fileset dir="${inst.resrc}/debian/source"/>
         </copy>
@@ -2535,16 +2532,6 @@
         <replace file="${debianize.dir}/sh/${package.name}"
                  token="/usr/lib/jni"
                  value="$SCDIR/lib/native"/>
-    </target>
-    <!-- use postinst and postrm files only if used from deb target -->
-    <target name="-deb-post-files-update"
-                unless="debianize.src.pkg">
-        <copy file="${inst.resrc}/debian/postinst"
-              tofile="${debianize.dir}/postinst"
-              overwrite="true"/>
-        <copy file="${inst.resrc}/debian/postrm"
-              tofile="${debianize.dir}/postrm"
-              overwrite="true"/>
     </target>
 
     <!-- Prepare to deploy the Debian package - This needs dpkg utilities -->
