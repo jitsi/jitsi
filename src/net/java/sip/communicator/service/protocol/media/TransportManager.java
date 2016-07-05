@@ -107,6 +107,76 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     private static final int DEFAULT_HOLE_PUNCH_PKT_COUNT = 3;
 
     /**
+     * Returns the port tracker that we are supposed to use when binding ports
+     * for the specified {@link MediaType}.
+     *
+     * @param mediaType the media type that we want to obtain the port tracker
+     * for. Use <tt>null</tt> to obtain the default port tracker.
+     *
+     * @return the port tracker that we are supposed to use when binding ports
+     * for the specified {@link MediaType}.
+     */
+    protected static PortTracker getPortTracker(MediaType mediaType)
+    {
+        //make sure our port numbers reflect the configuration service settings
+        initializePortNumbers();
+
+        if (mediaType != null)
+        {
+            switch (mediaType)
+            {
+                case AUDIO:
+                    if (audioPortTracker != null)
+                        return audioPortTracker;
+                    else
+                        break;
+                case VIDEO:
+                    if (videoPortTracker != null)
+                        return videoPortTracker;
+                    else
+                        break;
+                case DATA:
+                    if (dataPortTracker != null)
+                        return dataPortTracker;
+                    else
+                        break;
+            }
+        }
+
+        return defaultPortTracker;
+    }
+
+    /**
+     * Returns the port tracker that we are supposed to use when binding ports
+     * for the {@link MediaType} indicated by the string param. If we do not
+     * recognize the string as a valid media type, we simply return the default
+     * port tracker.
+     *
+     * @param mediaTypeStr the name of the media type that we want to obtain a
+     * port tracker for.
+     *
+     * @return the port tracker that we are supposed to use when binding ports
+     * for the {@link MediaType} with the specified name or the default tracker
+     * in case the name doesn't ring a bell.
+     */
+    protected static PortTracker getPortTracker(String mediaTypeStr)
+    {
+        try
+        {
+            return getPortTracker(MediaType.parseString(mediaTypeStr));
+        }
+        catch (Exception e)
+        {
+            logger.info(
+                    "Returning default port tracker for unrecognized media type: "
+                            + mediaTypeStr);
+
+            return defaultPortTracker;
+        }
+    }
+
+
+    /**
      * The {@link MediaAwareCallPeer} whose traffic we will be taking care of.
      */
     private U callPeer;
@@ -461,7 +531,7 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
 
         try
         {
-            StreamConnector connector = getStreamConnector(type);
+            final StreamConnector connector = getStreamConnector(type);
 
             if(connector.getProtocol() == StreamConnector.Protocol.TCP)
                 return;
@@ -530,7 +600,7 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
                 "Set traffic class for " + type + " to " + trafficClass);
         try
         {
-            StreamConnector connector = getStreamConnector(type);
+            final StreamConnector connector = getStreamConnector(type);
 
             synchronized(connector)
             {
@@ -627,75 +697,6 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     public U getCallPeer()
     {
         return callPeer;
-    }
-
-    /**
-     * Returns the port tracker that we are supposed to use when binding ports
-     * for the specified {@link MediaType}.
-     *
-     * @param mediaType the media type that we want to obtain the port tracker
-     * for. Use <tt>null</tt> to obtain the default port tracker.
-     *
-     * @return the port tracker that we are supposed to use when binding ports
-     * for the specified {@link MediaType}.
-     */
-    protected static PortTracker getPortTracker(MediaType mediaType)
-    {
-        //make sure our port numbers reflect the configuration service settings
-        initializePortNumbers();
-
-        if (mediaType != null)
-        {
-            switch (mediaType)
-            {
-                case AUDIO:
-                    if (audioPortTracker != null)
-                        return audioPortTracker;
-                    else
-                        break;
-                case VIDEO:
-                    if (videoPortTracker != null)
-                        return videoPortTracker;
-                    else
-                        break;
-                case DATA:
-                    if (dataPortTracker != null)
-                        return dataPortTracker;
-                    else
-                        break;
-            }
-        }
-
-        return defaultPortTracker;
-    }
-
-    /**
-     * Returns the port tracker that we are supposed to use when binding ports
-     * for the {@link MediaType} indicated by the string param. If we do not
-     * recognize the string as a valid media type, we simply return the default
-     * port tracker.
-     *
-     * @param mediaTypeStr the name of the media type that we want to obtain a
-     * port tracker for.
-     *
-     * @return the port tracker that we are supposed to use when binding ports
-     * for the {@link MediaType} with the specified name or the default tracker
-     * in case the name doesn't ring a bell.
-     */
-    protected static PortTracker getPortTracker(String mediaTypeStr)
-    {
-        try
-        {
-            return getPortTracker(MediaType.parseString(mediaTypeStr));
-        }
-        catch (Exception e)
-        {
-            logger.info(
-                "Returning default port tracker for unrecognized media type: "
-                    + mediaTypeStr);
-
-            return defaultPortTracker;
-        }
     }
 
     /**

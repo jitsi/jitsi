@@ -87,7 +87,7 @@ public class CallPeerMediaHandlerSipImpl
      * Whether other party is able to change video quality settings.
      * Normally its whether we have detected existence of imageattr in sdp.
      */
-    boolean supportQualityControls;
+    private boolean supportQualityControls;
 
     /**
      * The current quality controls for this peer media handler if any.
@@ -98,7 +98,7 @@ public class CallPeerMediaHandlerSipImpl
      * The lock we use to make sure that we won't be processing a second
      * offer/answer exchange while a .
      */
-    private Object offerAnswerLock = new Object();
+    private final Object offerAnswerLock = new Object();
 
     /**
      * Creates a new handler that will be managing media streams for
@@ -164,7 +164,7 @@ public class CallPeerMediaHandlerSipImpl
         throws OperationFailedException
     {
         //Audio Media Description
-        Vector<MediaDescription> mediaDescs = createMediaDescriptions();
+        List<MediaDescription> mediaDescs = createMediaDescriptions();
 
         //wrap everything up in a session description
         String userName
@@ -197,7 +197,7 @@ public class CallPeerMediaHandlerSipImpl
      * for reasons like - problems with device interaction, allocating ports,
      * etc.
      */
-    private Vector<MediaDescription> createMediaDescriptions()
+    private List<MediaDescription> createMediaDescriptions()
         throws OperationFailedException
     {
         //Audio Media Description
@@ -215,12 +215,16 @@ public class CallPeerMediaHandlerSipImpl
             receiveQualityPreset = qualityControls.getRemoteSendMaxPreset();
         }
 
-        for (MediaType mediaType : MediaType.values())
+        for (MediaType mediaType : new MediaType[] { MediaType.AUDIO , MediaType.VIDEO})
         {
             MediaDevice dev = getDefaultDevice(mediaType);
 
             if (!isDeviceActive(dev, sendQualityPreset, receiveQualityPreset))
+            {
+                logger.warn("No active device for "  + mediaType.toString()
+                + " was found!");
                 continue;
+            }
 
             MediaDirection direction
                 = dev.getDirection().and(getDirectionUserPreference(mediaType));
@@ -339,7 +343,7 @@ public class CallPeerMediaHandlerSipImpl
                          * it is known that the other endpoint supports this
                          * profile" and "[o]ther profiles MAY also be used."
                          */
-                        updateMediaDescriptionForZrtp(mediaType, md, null);
+                        updateMediaDescriptionForZrtp(mediaType, md);
                         if (SrtpControl.RTP_SAVP.equals(proto)
                                 || SrtpControl.RTP_SAVPF.equals(proto))
                         {
@@ -400,7 +404,7 @@ public class CallPeerMediaHandlerSipImpl
 
     {
         //create the media descriptions reflecting our current state.
-        Vector<MediaDescription> newMediaDescs = createMediaDescriptions();
+        List<MediaDescription> newMediaDescs = createMediaDescriptions();
 
         SessionDescription newOffer = SdpUtils.createSessionUpdateDescription(
             sdescToUpdate, getTransportManager().getLastUsedLocalHost(),
@@ -510,7 +514,7 @@ public class CallPeerMediaHandlerSipImpl
         throws OperationFailedException,
                IllegalArgumentException
     {
-        Vector<MediaDescription> answerDescriptions
+        List<MediaDescription> answerDescriptions
             = createMediaDescriptionsForAnswer(newOffer);
         // wrap everything up in a session description
         SessionDescription newAnswer
@@ -555,10 +559,11 @@ public class CallPeerMediaHandlerSipImpl
         boolean rejectedAvpOfferDueToSavpMandatory = false;
 
         AccountID accountID = getPeer().getProtocolProvider().getAccountID();
-        int savpOption
-            = accountID.getAccountPropertyBoolean(
-                    ProtocolProviderFactory.DEFAULT_ENCRYPTION,
-                    true)
+        boolean useDefaultEncryption =
+                accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.DEFAULT_ENCRYPTION , true);
+
+        int savpOption = useDefaultEncryption
                 ? accountID.getAccountPropertyInt(
                         ProtocolProviderFactory.SAVP_OPTION,
                         ProtocolProviderFactory.SAVP_OFF)
@@ -638,7 +643,7 @@ public class CallPeerMediaHandlerSipImpl
             {
                 mutuallySupportedFormats = null;
             }
-            else if(mediaType.equals(MediaType.VIDEO)
+            else if(MediaType.VIDEO.equals(mediaType)
                     && (qualityControls != null))
             {
                 /*
@@ -705,18 +710,18 @@ public class CallPeerMediaHandlerSipImpl
                 = getTransportManager().getStreamConnector(mediaType);
 
             // check for options from remote party and set them locally
-            if(mediaType.equals(MediaType.VIDEO))
+            if(MediaType.VIDEO.equals(mediaType))
             {
                 // update stream
                 MediaStream stream = getStream(MediaType.VIDEO);
 
-                if(stream != null && dev != null)
+                if(stream != null)
                 {
                     List<MediaFormat> fmts = intersectFormats(
                         getLocallySupportedFormats(dev),
                         remoteFormats);
 
-                    if(fmts.size() > 0)
+                    if(!fmts.isEmpty())
                     {
                         MediaFormat fmt = fmts.get(0);
 
@@ -809,7 +814,7 @@ public class CallPeerMediaHandlerSipImpl
             {
                 if(remoteDescriptions.size() > 1)
                 {
-                    if(mediaType.equals(MediaType.AUDIO))
+                    if(MediaType.AUDIO.equals(mediaType))
                     {
                         masterStream = true;
                         masterStreamSet = true;
@@ -1192,8 +1197,7 @@ public class CallPeerMediaHandlerSipImpl
      */
     private boolean updateMediaDescriptionForZrtp(
             MediaType mediaType,
-            MediaDescription localMd,
-            MediaDescription remoteMd)
+            MediaDescription localMd)
     {
         MediaAwareCallPeer<?, ?, ?> peer = getPeer();
         AccountID accountID = peer.getProtocolProvider().getAccountID();
@@ -1499,7 +1503,7 @@ public class CallPeerMediaHandlerSipImpl
 
             // check for options from remote party and set
             // is quality controls supported
-            if(mediaType.equals(MediaType.VIDEO))
+            if(MediaType.VIDEO.equals(mediaType))
             {
                 supportQualityControls
                     = SdpUtils.containsAttribute(mediaDescription, "imageattr");
@@ -1544,7 +1548,7 @@ public class CallPeerMediaHandlerSipImpl
             {
                 if(remoteDescriptions.size() > 1)
                 {
-                    if(mediaType.equals(MediaType.AUDIO))
+                    if(MediaType.AUDIO.equals(mediaType))
                     {
                         masterStream = true;
                         masterStreamSet = true;
@@ -1882,7 +1886,7 @@ public class CallPeerMediaHandlerSipImpl
             // ZRTP
             else if(srtpControlType == SrtpControlType.ZRTP)
             {
-                if(updateMediaDescriptionForZrtp(mediaType, localMd, remoteMd))
+                if(updateMediaDescriptionForZrtp(mediaType, localMd));
                 {
                     // Stop once an encryption advertisement has been chosen.
                     return;

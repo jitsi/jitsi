@@ -374,7 +374,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
             if (call == null)
                 return;
 
-            for (MediaType mediaType : MediaType.values())
+            for (MediaType mediaType : new MediaType[] {MediaType.AUDIO, MediaType.VIDEO} )
             {
                 MediaStream stream = getStream(mediaType);
 
@@ -689,7 +689,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
 
         return
             (transportManager == null)
-                ? null
+                ? 0
                 : transportManager.getHarvestingTime(harvesterName);
     }
 
@@ -942,7 +942,9 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
     /**
      * Returns the number of harvesting for this agent.
      *
-     * @return The number of harvesting for this agent.
+     * @return The number of harvesting for this agent. 0 if this harvester
+     * does not exists, if the ICE agent is null, or
+     * if the agent has never harvested with this harvester.
      */
     public int getNbHarvesting()
     {
@@ -950,7 +952,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
 
         return
             (transportManager == null)
-                ? null
+                ? 0
                 : transportManager.getNbHarvesting();
     }
 
@@ -961,7 +963,8 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      * @param harvesterName The class name if the harvester.
      *
      * @return The number of harvesting time for the harvester given in
-     * parameter.
+     * parameter. 0 if this harvester does not exists, if the ICE agent is null, or if the
+     * agent has never harvested with this harvester.
      */
     public int getNbHarvesting(String harvesterName)
     {
@@ -969,7 +972,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
 
         return
             (transportManager == null)
-                ? null
+                ? 0
                 : transportManager.getNbHarvesting(harvesterName);
     }
 
@@ -1054,7 +1057,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      * Returns the total harvesting time (in ms) for all harvesters.
      *
      * @return The total harvesting time (in ms) for all the harvesters. 0 if
-     * the ICE agent is null, or if the agent has nevers harvested.
+     * the ICE agent is null, or if the agent has never harvested.
      */
     public long getTotalHarvestingTime()
     {
@@ -1062,7 +1065,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
 
         return
             (transportManager == null)
-                ? null
+                ? 0
                 : transportManager.getTotalHarvestingTime();
     }
 

@@ -58,11 +58,21 @@ public class IceUdpTransportManager
         = Logger.getLogger(IceUdpTransportManager.class);
 
     /**
+     * Default STUN server address.
+     */
+    protected static final String DEFAULT_STUN_SERVER_ADDRESS = "stun.jitsi.net";
+
+    /**
+     * Default STUN server port.
+     */
+    protected static final int DEFAULT_STUN_SERVER_PORT = 3478;
+
+    /**
      * The ICE <tt>Component</tt> IDs in their common order used, for example,
      * by <tt>DefaultStreamConnector</tt>, <tt>MediaStreamTarget</tt>.
      */
     private static final int[] COMPONENT_IDS
-        = new int[] { Component.RTP, Component.RTCP };
+            = new int[] { Component.RTP, Component.RTCP };
 
     /**
      * This is where we keep our answer between the time we get the offer and
@@ -76,15 +86,6 @@ public class IceUdpTransportManager
      */
     protected final Agent iceAgent;
 
-    /**
-     * Default STUN server address.
-     */
-    protected static final String DEFAULT_STUN_SERVER_ADDRESS = "stun.jitsi.net";
-
-    /**
-     * Default STUN server port.
-     */
-    protected static final int DEFAULT_STUN_SERVER_PORT = 3478;
 
     /**
      * Creates a new instance of this transport manager, binding it to the
@@ -156,7 +157,10 @@ public class IceUdpTransportManager
 
                 // in case user has canceled the login window
                 if(credentials == null)
+                {
+                    logger.info("Credentials were null. User has most likely canceled the login operation");
                     return null;
+                }
 
                 //extract the password the user passed us.
                 char[] pass = credentials.getPassword();
@@ -164,7 +168,10 @@ public class IceUdpTransportManager
                 // the user didn't provide us a password (i.e. canceled the
                 // operation)
                 if(pass == null)
+                {
+                    logger.info("Password was null. User has most likely canceled the login operation");
                     return null;
+                }
                 password = new String(pass);
 
                 if (credentials.isPasswordPersistent())
@@ -398,13 +405,17 @@ public class IceUdpTransportManager
                     if (selectedPair != null)
                     {
                         DatagramSocket streamConnectorSocket
-                            = selectedPair.getLocalCandidate().
-                                getDatagramSocket();
+                            = selectedPair.getDatagramSocket();
 
                         if (streamConnectorSocket != null)
                         {
                             streamConnectorSockets[i] = streamConnectorSocket;
                             streamConnectorSocketCount++;
+                            logger.trace("Added a streamConnectorSocket to the array " +
+                                "StreamConnectorSocket and increased " +
+                                "the count of streamConnectorSocketCount by one to " +
+                                streamConnectorSocketCount);
+
                         }
                     }
                 }
@@ -742,20 +753,25 @@ public class IceUdpTransportManager
                     ex);
         }
 
-        //let's now update the next port var as best we can: we would assume
-        //that all local candidates are bound on the same port and set it
-        //to the one just above. if the assumption is wrong the next bind
-        //would simply include one more bind retry.
+        // Attempt to minimize subsequent bind retries: see if we have allocated
+        // any ports from the dynamic range, and if so update the port tracker.
+        // Do NOT update the port tracker with non-dynamic ports (e.g. 4443
+        // coming from TCP) because this will force it to revert back it its
+        // configured min port. When maxPort is reached, allocation will begin
+        // from minPort again, so we don't have to worry about wraps.
         try
         {
-            portTracker.setNextPort(
-                    1
-                        + stream
-                            .getComponent(Component.RTCP)
-                                .getLocalCandidates()
-                                    .get(0)
-                                        .getTransportAddress()
-                                            .getPort());
+           int maxAllocatedPort = getMaxAllocatedPort(
+                    stream,
+                    portTracker.getMinPort(),
+                    portTracker.getMaxPort());
+
+            if(maxAllocatedPort > 0)
+            {
+                int nextPort = 1 + maxAllocatedPort;
+                portTracker.setNextPort(nextPort);
+                logger.debug("Updating the port tracker min port: " + nextPort);
+            }
         }
         catch(Throwable t)
         {
@@ -765,6 +781,48 @@ public class IceUdpTransportManager
         }
 
         return stream;
+    }
+
+    /**
+     * @return the highest local port used by any of the local candidates of
+     * {@code iceStream}, which falls in the range [{@code min}, {@code max}].
+     */
+    private int getMaxAllocatedPort(IceMediaStream iceStream, int min, int max)
+    {
+        return
+                Math.max(
+                        getMaxAllocatedPort(
+                                iceStream.getComponent(Component.RTP),
+                                min, max),
+                        getMaxAllocatedPort(
+                                iceStream.getComponent(Component.RTCP),
+                                min, max));
+    }
+
+    /**
+     * @return the highest local port used by any of the local candidates of
+     * {@code component}, which falls in the range [{@code min}, {@code max}].
+     */
+    private int getMaxAllocatedPort(Component component, int min, int max)
+    {
+        int maxAllocatedPort = -1;
+
+        if (component != null)
+        {
+            for (LocalCandidate candidate : component.getLocalCandidates())
+            {
+                int candidatePort = candidate.getTransportAddress().getPort();
+
+                if (min <= candidatePort
+                        && candidatePort <= max
+                        && maxAllocatedPort < candidatePort)
+                {
+                    maxAllocatedPort = candidatePort;
+                }
+            }
+        }
+
+        return maxAllocatedPort;
     }
 
     /**
@@ -898,8 +956,12 @@ public class IceUdpTransportManager
                 = transport.getChildExtensionsOfType(
                         CandidatePacketExtension.class);
 
-            if (iceAgentStateIsRunning && (candidates.size() == 0))
+            if (iceAgentStateIsRunning && candidates.isEmpty())
+            {
+                logger.info("connectivity establishment has not been started " +
+                        "because candidate list is empty");
                 return false;
+            }
 
             String media = e.getKey();
             IceMediaStream stream = iceAgent.getStream(media);
