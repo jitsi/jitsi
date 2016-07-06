@@ -997,7 +997,7 @@
         <copy file="${lib.noinst}/bccontrib-1.0.jar" tofile="${bundles.dest}/bccontrib.jar"/>
         <copy file="${lib.noinst}/jmork-1.0.5.jar" tofile="${bundles.dest}/jmork.jar"/>
         <copy file="${lib.noinst}/weupnp-0.1.4.jar" tofile="${bundles.dest}/weupnp.jar"/>
-        <copy file="${lib.noinst}/ice4j-1.0.jar" tofile="${bundles.dest}/ice4j.jar"/>
+        <copy file="${lib.noinst}/ice4j-1.1-SNAPSHOT.jar" tofile="${bundles.dest}/ice4j.jar"/>
         <copy file="${lib.noinst}/sdp-api-1.0.jar" tofile="${bundles.dest}/sdp-api.jar"/>
         <copy file="${lib.noinst}/sip-api-1.2-1.2.jar" tofile="${bundles.dest}/sip-api.jar"/>
         <copy file="${lib.noinst}/java-sdp-nist-bridge-1.2.jar" tofile="${bundles.dest}/java-sdp-nist-bridge.jar"/>
