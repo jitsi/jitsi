@@ -42,10 +42,10 @@ Found a bug and know how to fix it? Great! Please read on.
 
 ## Contributor License Agreement
 While Jitsi is released under the
-[Apache](https://github.com/jitsi/jitsi/blob/master/LICENSE), the copyright
-holder and principal creator is [Blue Jimp](http://www.bluejimp.com/). To
-ensure that we can continue making Jitsi available under an open source license
-and still pay our bills, we need you to sign our Apache-based contributor 
+[Apache License](https://github.com/jitsi/jitsi/blob/master/LICENSE), the copyright
+holder and principal creator is [Atlassian](https://www.atlassian.com/). To
+ensure that we can continue making Jitsi available under an open source license,
+we need you to sign our Apache-based contributor 
 license agreement as either a [corporation](https://jitsi.org/ccla) or an 
 [individual](https://jitsi.org/icla). If you cannot accept the terms laid out 
 in the agreement, unfortunately, we cannot accept your contribution.
@@ -54,7 +54,9 @@ in the agreement, unfortunately, we cannot accept your contribution.
 - Please read and follow the [code conventions](https://jitsi.org/Documentation/CodeConvention),
   especially the limit on 80 characters per line.
 - Do not reformat existing code.
-- Build instructions can be found here: https://jitsi.org/Documentation/RetrievingAndBuildingTheSources
+- Command-Line [build instructions](https://jitsi.org/Documentation/RetrievingAndBuildingTheSources)
+- How to set up [Eclipse](https://jitsi.org/Documentation/ConfigureEclipseNew)
+- Read the [tutorials](https://jitsi.org/Documentation/DeveloperDocumentation) (some of this information might be a bit dated, but it is still a very useful resource)
 
 ## Creating Pull Requests
 - Perform **one** logical change per pull request.
