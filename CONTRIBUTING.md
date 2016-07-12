@@ -54,6 +54,7 @@ in the agreement, unfortunately, we cannot accept your contribution.
 - Please read and follow the [code conventions](https://jitsi.org/Documentation/CodeConvention),
   especially the limit on 80 characters per line.
 - Do not reformat existing code.
+- Build instructions can be found here: https://jitsi.org/Documentation/RetrievingAndBuildingTheSources
 
 ## Creating Pull Requests
 - Perform **one** logical change per pull request.
