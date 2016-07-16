@@ -456,8 +456,21 @@ public class SdpUtils
             while (iter.hasNext())
             {
                 Map.Entry<String, String> ntry = iter.next();
-                Attribute adv = sdpFactory.createAttribute(ntry.getKey(),
-                        payloadType + " " + ntry.getValue());
+                Attribute adv;
+                switch (ntry.getKey())
+                {
+                    // RFC7587, Sect. 7 says there's no payload number for ptime
+                    case "ptime":
+                    case "maxptime":
+                        adv = sdpFactory.createAttribute(ntry.getKey(),
+                            ntry.getValue());
+                        break;
+                    default:
+                        adv = sdpFactory.createAttribute(ntry.getKey(),
+                                payloadType + " " + ntry.getValue());
+                        break;
+                }
+
                 mediaAttributes.add(adv);
             }
 
