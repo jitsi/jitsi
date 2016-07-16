@@ -164,6 +164,10 @@ public class ReceiveFileConversationComponent
         File downloadDir = null;
 
         String incomingFileName = fileTransferRequest.getFileName();
+        // strip characters that are invalid on Windows and maybe other
+        // platforms too
+        incomingFileName = incomingFileName
+            .replaceAll("[\\\\/:*?\"<>|]", "_");
         try
         {
             downloadDir = GuiActivator.getFileAccessService()
