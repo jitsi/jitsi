@@ -30,7 +30,7 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/hexdump-0.2.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/httpclient-osgi-4.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/httpcore-osgi-4.2.3.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/ice4j-1.0.jar" sourcepath="/ice4j/src/main/java"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/ice4j-1.1-20160706.192041-13.jar" sourcepath="/ice4j/src/main/java"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/sdp-api-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/sip-api-1.2-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jain-sip-ri-ossonly-1.2.279-jitsi-oss1.jar" sourcepath="/jain-sip/src">
@@ -55,7 +55,7 @@
 			<attribute name="javadoc_location" value="http://dbus.freedesktop.org/doc/dbus-java/api/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi-1.0-SNAPSHOT.jar" sourcepath="/libjitsi/src"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi-1.0-20160707.163121-175.jar" sourcepath="/libjitsi/src"/>
 	<classpathentry kind="lib" path="lib/bundle/log4j.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/mac_widgets-0.9.5.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/objenesis-1.2.jar"/>
