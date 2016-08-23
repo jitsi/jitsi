@@ -1896,6 +1896,23 @@ public class ChatRoomJabberImpl
     }
 
     /**
+     * Removes given <tt>PacketExtension</tt> from the MUC presence and
+     * publishes it immediately.
+     * @param extension the <tt>PacketExtension</tt> to be removed from the MUC
+     *                  presence.
+     */
+    public void removePresenceExtension(PacketExtension extension)
+    {
+        if (lastPresenceSent != null)
+        {
+            setPacketExtension(
+                lastPresenceSent, null, extension.getNamespace());
+
+            provider.getConnection().sendPacket(lastPresenceSent);
+        }
+    }
+
+    /**
      * Returns the ids of the users that has the member role in the room.
      * When the room is member only, this are the users allowed to join.
      * @return the ids of the users that has the member role in the room.

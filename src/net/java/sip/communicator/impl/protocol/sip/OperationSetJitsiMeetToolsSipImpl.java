@@ -142,6 +142,16 @@ public class OperationSetJitsiMeetToolsSipImpl
      * {@inheritDoc}
      */
     @Override
+    public void removePresenceExtension(ChatRoom chatRoom,
+                                        PacketExtension extension)
+    {
+        throw new RuntimeException("Not implemented for SIP");
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void setPresenceStatus(ChatRoom chatRoom, String statusMessage)
     {
         throw new RuntimeException("Not implemented for SIP");

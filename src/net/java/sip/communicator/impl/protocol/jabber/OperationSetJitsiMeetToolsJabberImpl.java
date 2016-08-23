@@ -72,6 +72,16 @@ public class OperationSetJitsiMeetToolsJabberImpl
      * {@inheritDoc}
      */
     @Override
+    public void removePresenceExtension(ChatRoom chatRoom,
+                                        PacketExtension extension)
+    {
+        ((ChatRoomJabberImpl)chatRoom).removePresenceExtension(extension);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void setPresenceStatus(ChatRoom chatRoom, String statusMessage)
     {
         ((ChatRoomJabberImpl)chatRoom).publishPresenceStatus(statusMessage);

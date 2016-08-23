@@ -56,6 +56,17 @@ public interface OperationSetJitsiMeetTools
                                       PacketExtension extension);
 
     /**
+     * Removes given <tt>PacketExtension</tt> from the multi user chat presence
+     * and sends presence update packet to the chat room.
+     * @param chatRoom the <tt>ChatRoom</tt> for which the presence will be
+     *                 updated.
+     * @param extension the <tt>PacketExtension</tt> to be removed from the MUC
+     *                  presence.
+     */
+    public void removePresenceExtension(ChatRoom chatRoom,
+                                        PacketExtension extension);
+
+    /**
      * Sets the status message of our MUC presence and sends presence status
      * update packet to the server.
      * @param chatRoom the <tt>ChatRoom</tt> for which the presence status
