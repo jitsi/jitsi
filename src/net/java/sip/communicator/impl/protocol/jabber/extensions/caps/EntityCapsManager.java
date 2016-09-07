@@ -635,12 +635,7 @@ public class EntityCapsManager
      */
     public void addPacketListener(XMPPConnection connection)
     {
-        PacketFilter filter
-            = new AndFilter(
-                    new PacketTypeFilter(Presence.class),
-                    new PacketExtensionFilter(
-                            CapsPacketExtension.ELEMENT_NAME,
-                            CapsPacketExtension.NAMESPACE));
+        PacketFilter filter = new PacketTypeFilter(Presence.class);
 
         connection.addPacketListener(new CapsPacketListener(), filter);
     }
@@ -941,48 +936,48 @@ public class EntityCapsManager
          */
         public void processPacket(Packet packet)
         {
+            // Check it the packet indicates  that the user is online. We
+            // will use this information to decide if we're going to send
+            // the discover info request.
+            boolean online
+                = (packet instanceof Presence)
+                        && ((Presence) packet).isAvailable();
+
             CapsPacketExtension ext
                 = (CapsPacketExtension)
                     packet.getExtension(
                             CapsPacketExtension.ELEMENT_NAME,
                             CapsPacketExtension.NAMESPACE);
 
-            /*
-             * Before Version 1.4 of XEP-0115: Entity Capabilities, the 'ver'
-             * attribute was generated differently and the 'hash' attribute was
-             * absent. The 'ver' attribute in Version 1.3 represents the
-             * specific version of the client and thus does not provide a way to
-             * validate the DiscoverInfo sent by the client. If
-             * EntityCapsManager receives no 'hash' attribute, it will assume
-             * the legacy format and will not cache it because the DiscoverInfo
-             * to be received from the client later on will not be trustworthy.
-             */
-            String hash = ext.getHash();
-
-            /* Google Talk web does not set hash but we need it to be cached */
-            if(hash == null)
-                hash = "";
-
-            if (hash != null)
+            if(ext != null && online)
             {
-                // Check it the packet indicates  that the user is online. We
-                // will use this information to decide if we're going to send
-                // the discover info request.
-                boolean online
-                    = (packet instanceof Presence)
-                        && ((Presence) packet).isAvailable();
+                /*
+                 * Before Version 1.4 of XEP-0115: Entity Capabilities,
+                 * the 'ver' attribute was generated differently and the 'hash'
+                 * attribute was absent. The 'ver' attribute in Version 1.3
+                 * represents the specific version of the client and thus does
+                 * not provide a way to validate the DiscoverInfo sent by
+                 * the client. If EntityCapsManager receives no 'hash'
+                 * attribute, it will assume the legacy format and will not
+                 * cache it because the DiscoverInfo to be received from
+                 * the client later on will not be trustworthy.
+                 */
+                String hash = ext.getHash();
 
-                if(online)
-                {
-                    addUserCapsNode(
-                            packet.getFrom(),
-                            ext.getNode(), hash, ext.getVersion(),
-                            ext.getExtensions(), online);
-                }
-                else
-                {
-                    removeUserCapsNode(packet.getFrom());
-                }
+                /* Google Talk web does not set hash, but we need it to
+                 * be cached
+                 */
+                if (hash == null)
+                    hash = "";
+
+                addUserCapsNode(
+                        packet.getFrom(),
+                        ext.getNode(), hash, ext.getVersion(),
+                        ext.getExtensions(), online);
+            }
+            else if (!online)
+            {
+                removeUserCapsNode(packet.getFrom());
             }
         }
     }
