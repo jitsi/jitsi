@@ -198,8 +198,11 @@ public class JibriIq
             StringBuilder xml, String attrName, String attr)
     {
         if (!StringUtils.isNullOrEmpty(attr))
+        {
+            attr = org.jivesoftware.smack.util.StringUtils.escapeForXML(attr);
             xml.append(attrName).append("='")
                 .append(attr).append("' ");
+        }
     }
 
     /**
