@@ -43,20 +43,14 @@ public class GoogleContactsEntryImpl
     /**
      * Google Talk protocol type.
      */
-    private static final String YAHOO_PROTOCOL =
-        "http://schemas.google.com/g/2005#YAHOO";
-
-    /**
-     * Google Talk protocol type.
-     */
     private static final String AIM_PROTOCOL =
         "http://schemas.google.com/g/2005#AIM";
 
     /**
      * Google Talk protocol type.
      */
-    private static final String MSN_PROTOCOL =
-        "http://schemas.google.com/g/2005#MSN";
+    private static final String SKYPE_PROTOCOL =
+        "http://schemas.google.com/g/2005#SKYPE";
 
     /**
      * Google Talk protocol type.
@@ -432,17 +426,13 @@ public class GoogleContactsEntryImpl
             {
                 proto = GoogleContactsEntry.IMProtocol.GOOGLETALK;
             }
-            else if(protocol.equals(YAHOO_PROTOCOL))
-            {
-                proto = GoogleContactsEntry.IMProtocol.YAHOO;
-            }
             else if(protocol.equals(AIM_PROTOCOL))
             {
                 proto = GoogleContactsEntry.IMProtocol.AIM;
             }
-            else if(protocol.equals(MSN_PROTOCOL))
+            else if(protocol.equals(SKYPE_PROTOCOL))
             {
-                proto = GoogleContactsEntry.IMProtocol.MSN;
+                proto = GoogleContactsEntry.IMProtocol.SKYPE;
             }
             else if(protocol.equals(ICQ_PROTOCOL))
             {

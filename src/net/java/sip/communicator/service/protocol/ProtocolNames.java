@@ -44,16 +44,6 @@ public interface ProtocolNames
     public static final String IRC = "IRC";
 
     /**
-     * The Gadu-Gadu protocol.
-     */
-    public static final String GADU_GADU = "Gadu-Gadu";
-
-    /**
-     * The GroupWise protocol.
-     */
-    public static final String GROUP_WISE = "GroupWise";
-
-    /**
      * The ICQ service protocol.
      */
     public static final String ICQ = "ICQ";
@@ -64,24 +54,9 @@ public interface ProtocolNames
     public static final String AIM = "AIM";
 
     /**
-     * The Yahoo! messenger protocol.
-     */
-    public static final String YAHOO  = "Yahoo!";
-
-    /**
-     * The Skype protocol.
-     */
-    public static final String SKYPE  = "Skype";
-
-    /**
      * The SIP Communicator MOCK protocol.
      */
     public static final String SIP_COMMUNICATOR_MOCK  = "sip-communicator-mock";
-
-    /**
-     * The Zeroconf protocol.
-     */
-    public static final String ZEROCONF  = "Zeroconf";
 
     /**
      * The SSH protocol.
@@ -92,9 +67,4 @@ public interface ProtocolNames
      * The Gibberish protocol.
      */
     public static final String GIBBERISH = "Gibberish";
-
-    /**
-     * The Dict protocol.
-     */
-    public static final String DICT = "Dict";
 }

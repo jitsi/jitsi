@@ -279,14 +279,11 @@ public class GoogleContactsQuery
                 case ICQ:
                     imSubCat = ContactDetail.SubCategory.ICQ;
                     break;
-                case YAHOO:
-                    imSubCat = ContactDetail.SubCategory.Yahoo;
-                    break;
                 case JABBER:
                     imSubCat = ContactDetail.SubCategory.Jabber;
                     break;
-                case MSN:
-                    imSubCat = ContactDetail.SubCategory.MSN;
+                case SKYPE:
+                    imSubCat = ContactDetail.SubCategory.Skype;
                     break;
                 case GOOGLETALK:
                     imSubCat = ContactDetail.SubCategory.GoogleTalk;
@@ -356,12 +353,6 @@ public class GoogleContactsQuery
             preferredProtocols.put(
                     OperationSetBasicTelephony.class,
                     ProtocolNames.JABBER);
-            break;
-        case YAHOO:
-            supportedOpSets.add(OperationSetBasicInstantMessaging.class);
-            preferredProtocols.put(
-                    OperationSetBasicInstantMessaging.class,
-                    ProtocolNames.YAHOO);
             break;
         default:
             break;

@@ -709,11 +709,9 @@ public class SourceUIContact
         case AIM:
         case ICQ:
         case Jabber:
-        case MSN:
         case Yahoo:
         case Skype:
         case GoogleTalk:
-        case Facebook:
             label = subCategory.value();
             break;
         default:

@@ -930,11 +930,10 @@
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
         bundle-phonenumbers,
         bundle-irc,bundle-irc-commands,bundle-plugin-ircaccregwizz,
-        bundle-yahoo,bundle-yahoo-slick,
         bundle-contactlist,meta-contactlist,meta-contactlist-slick,
         bundle-plugin-icqaccregwizz,bundle-plugin-jabberaccregwizz,
         bundle-plugin-sipaccregwizz,
-        bundle-plugin-yahooaccregwizz,bundle-plugin-aimaccregwizz,
+        bundle-plugin-aimaccregwizz,
         bundle-httputil,bundle-plugin-spellcheck,
         bundle-version-impl,bundle-shutdown-timeout,bundle-windows-clean-shutdown,
         bundle-growlnotification,bundle-swingnotification,bundle-galagonotification,
@@ -1425,7 +1424,6 @@ javax.swing.event, javax.swing.border"/>
                 <include name="protocol/icq/**/*"/>
                 <include name="protocol/googletalk/**/*"/>
                 <include name="protocol/jabber/**/*"/>
-                <include name="protocol/yahoo/**/*"/>
                 <!-- the media package lives in the protocol-media bundle -->
                 <exclude name="protocol/media/**/*"/>
             </zipfileset>
@@ -1531,30 +1529,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${testsrc}/net/java/sip/communicator/slick/protocol/jabber/jabber.provider.slick.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/jabber"
                 prefix="net/java/sip/communicator/slick/protocol/jabber"/>
-            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/generic"
-                prefix="net/java/sip/communicator/slick/protocol/generic"/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-YAHOO -->
-    <target name="bundle-yahoo">
-        <!-- Creates a bundle containing the yahoo impl of the protocol provider.-->
-        <jar compress="false" destfile="${bundles.dest}/protocol-yahoo.jar"
-            manifest="${src}/net/java/sip/communicator/impl/protocol/yahoo/yahoo.provider.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/impl/protocol/yahoo"
-                prefix="net/java/sip/communicator/impl/protocol/yahoo"/>
-            <zipfileset src="${lib.noinst}/ymsg_network_v0_67.jar" prefix=""/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-YAHOO-SLICK -->
-    <!-- Creates a bundle containing the slick for the Yahoo protocol provider.-->
-    <target name="bundle-yahoo-slick">
-        <jar compress="false" destfile="${bundles.dest}/protocol-yahoo-slick.jar"
-            manifest="${testsrc}/net/java/sip/communicator/slick/protocol/yahoo/yahoo.provider.slick.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/yahoo"
-                prefix="net/java/sip/communicator/slick/protocol/yahoo"/>
-            <zipfileset src="${lib.noinst}/ymsg_network_v0_67.jar" prefix=""/>
             <zipfileset dir="${dest}/net/java/sip/communicator/slick/protocol/generic"
                 prefix="net/java/sip/communicator/slick/protocol/generic"/>
         </jar>
@@ -1673,16 +1647,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/plugin/googletalkaccregwizz/googletalkaccregwizz.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/plugin/googletalkaccregwizz"
                 prefix="net/java/sip/communicator/plugin/googletalkaccregwizz"/>
-        </jar>
-    </target>
-
-    <!-- BUNDLE-PLUGIN-YAHOOACCREGWIZZ -->
-    <target name="bundle-plugin-yahooaccregwizz">
-        <!-- Creates a bundle for the plugin Yahoo Account Registration Wizard.-->
-        <jar compress="false" destfile="${bundles.dest}/yahooaccregwizz.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/yahooaccregwizz/yahooaccregwizz.manifest.mf">
-            <zipfileset dir="${dest}/net/java/sip/communicator/plugin/yahooaccregwizz"
-                prefix="net/java/sip/communicator/plugin/yahooaccregwizz"/>
         </jar>
     </target>
 

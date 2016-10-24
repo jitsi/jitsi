@@ -28,7 +28,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
-import net.java.sip.communicator.service.protocol.yahooconstants.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
@@ -1120,11 +1119,6 @@ public class Messenger
                         && ProtocolNames.JABBER.equalsIgnoreCase(protocolName)
                         && JabberStatusEnum.ON_THE_PHONE.equalsIgnoreCase(
                                 presenceStatus.getStatusName()))
-                {
-                    mistatus = MISTATUS_ON_THE_PHONE;
-                }
-                else if (ProtocolNames.YAHOO.equalsIgnoreCase(protocolName)
-                        && YahooStatusEnum.ON_THE_PHONE.equals(presenceStatus))
                 {
                     mistatus = MISTATUS_ON_THE_PHONE;
                 }

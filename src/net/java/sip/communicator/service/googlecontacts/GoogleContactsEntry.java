@@ -37,19 +37,9 @@ public interface GoogleContactsEntry
         GOOGLETALK,
 
         /**
-         * Yahoo protocol.
-         */
-        YAHOO,
-
-        /**
          * AIM protocol.
          */
         AIM,
-
-        /**
-         * MSN protocol.
-         */
-        MSN,
 
         /**
          * ICQ protocol.
@@ -60,6 +50,11 @@ public interface GoogleContactsEntry
          * Jabber protocol.
          */
         JABBER,
+
+        /**
+         * Skype protocol.
+         */
+        SKYPE,
 
         /**
          * Other protocol (i.e. not supported).

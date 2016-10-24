@@ -1,7 +1,7 @@
 Jitsi
 =====
 
-Jitsi is a free open-source audio/video and chat communicator that supports protocols such as SIP, XMPP/Jabber, AIM/ICQ, IRC, Yahoo! and many other useful features.
+Jitsi is a free open-source audio/video and chat communicator that supports protocols such as SIP, XMPP/Jabber, AIM/ICQ, IRC and many other useful features.
 
 Helpful Resources
 -----------------

@@ -210,11 +210,9 @@ public class ContactDetail
          */
         AIM("AIM"),
         ICQ("ICQ"),
-        MSN("MSN"),
-        Jabber("Jabber"),
+        Jabber("XMPP"),
         Skype("Skype"),
         Yahoo("Yahoo"),
-        Facebook("Facebook"),
         GoogleTalk("GoogleTalk"),
 
         /**

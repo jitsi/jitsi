@@ -138,10 +138,6 @@ public abstract class TestOperationSetAdHocMultiUserChat extends TestCase
      * -Then they will leave the room. They will be invited again in another
      * test.
      *
-     * NOTE that this test will be especially used by Yahoo! protocol because of
-     * the fact that creating a conference chat with this protocol fails if any
-     * participants are given to the dedicated constructor of the library.
-     *
      * @throws OperationNotSupportedException
      * @throws OperationFailedException
      */
@@ -160,7 +156,6 @@ public abstract class TestOperationSetAdHocMultiUserChat extends TestCase
             opSetAHMUC3, AHMUCEventCollector.INVITATION_EVENT);
 
         // We create the room with the given contacts:
-        // (NOTE that in Yahoo! adHocChatRoomName won't be considered!)
         AdHocChatRoom room = opSetAHMUC1.createAdHocChatRoom(
             adHocChatRoomName, contacts, invitationReason);
 
@@ -440,7 +435,7 @@ public abstract class TestOperationSetAdHocMultiUserChat extends TestCase
     /**
      * Make sure that invitations have been received on both side (user2 and
      * user3). Note that it only make sense to use this method with protocol
-     * who support invitations (Yahoo! and ICQ).
+     * who support invitations (ICQ).
      *
      * We will first test that after having accept an invitation the concerned
      * user joins the room and be a part of participants.

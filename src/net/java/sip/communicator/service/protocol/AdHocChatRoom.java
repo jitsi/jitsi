@@ -25,8 +25,7 @@ import net.java.sip.communicator.service.protocol.event.*;
  * Represents an ad-hoc rendez-vous point where multiple chat users could
  * communicate together. This interface describes the main methods used by some
  * protocols for multi user chat, without useless methods (such as kicking a
- * participant) which aren't supported by these protocols (MSN, ICQ, Yahoo!,
- * etc.).
+ * participant) which aren't supported by these protocols (MSN, ICQ, etc.).
  *
  * <tt>AdHocChatRoom</tt> acts like a simplified <tt>ChatRoom</tt>.
  *

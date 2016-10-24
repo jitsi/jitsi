@@ -189,47 +189,6 @@ accounts.jabber.CONTACT_LIST=
 # list of icq accounts to notify during testing (optional)
 accounts.reporting.JABBER_REPORT_LIST=
 
-# YAHOO PROPERTIES
-
-# YAHOO ACCOUNT 1
-# The username needed to log onto the server
-accounts.yahoo.account1.USER_ID=
-
-# The password (in plain text) needed to log the user specified in USER_ID
-# on the server
-accounts.yahoo.account1.PASSWORD=
-
-# YAHOO ACCOUNT 2
-
-# The username needed to log onto the server
-accounts.yahoo.account2.USER_ID=
-
-# The password (in plain text) needed to log the user specified in USER_ID
-# on the server
-accounts.yahoo.account2.PASSWORD=
-
-# YAHOO ACCOUNT 3
-
-# The username needed to log onto the server
-accounts.yahoo.account3.USER_ID=
-
-# The password (in plain text) needed to log the user specified in USER_ID
-# on the server
-accounts.yahoo.account3.PASSWORD=
-
-# The following describes the contact list that we will store on the yahoo
-# server for the tested account implementation. The value of the CONTACT_LIST
-# property must be a space separated string containing elements each of which
-# is in the format: GroupName.UIN
-
-
-# VERY IMPORTANT!!! All other users in this contact list will be removed and
-# the contacts and contact groups enumerated beneath will be added instead
-accounts.yahoo.CONTACT_LIST=
-
-# list of yahoo accounts to notify during testing (optional)
-accounts.reporting.YAHOO_REPORT_LIST=
-
 # GIBBERISH Account 1
 # The username to create the first Gibberish account with.
 accounts.gibberish.account1.USER_ID=gibacc1

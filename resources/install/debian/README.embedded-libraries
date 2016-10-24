@@ -12,12 +12,6 @@ Jingle Nodes is an XMPP Extension that enable users to share and discover
 P2P Media Relays that can be used to enable Voice and Video Chat via Jingle.
 Reason: No Debian package.
 
-- jymsg http://jymsg9.sourceforge.net/
-This API provides a way for Java applications to connect and
-use the Yahoo Instant Messenger protocol.
-Damian Minkov from Jitsi team is contributor and has commit right in the project.
-Reason: No Debian package.
-
 - OrangeExtensions http://ymasory.github.com/OrangeExtensions/
 A pluggable jar containing stubs for the Apple Java Extensions.
 Reason: No Debian package.

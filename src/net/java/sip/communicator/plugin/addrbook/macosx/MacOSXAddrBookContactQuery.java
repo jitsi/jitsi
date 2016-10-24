@@ -419,7 +419,7 @@ public class MacOSXAddrBookContactQuery
             c = Category.InstantMessaging;
             break;
         case kABMSNInstantProperty:
-            sc = SubCategory.MSN;
+            sc = SubCategory.Skype;
             c = Category.InstantMessaging;
             break;
         case kABYahooInstantProperty:
@@ -1240,12 +1240,6 @@ public class MacOSXAddrBookContactQuery
         case kABPhoneProperty:
             supportedOpSets.add(OperationSetBasicTelephony.class);
             break;
-        case kABYahooInstantProperty:
-            supportedOpSets.add(OperationSetBasicInstantMessaging.class);
-            preferredProtocols.put(
-                    OperationSetBasicInstantMessaging.class,
-                    ProtocolNames.YAHOO);
-            break;
         default:
             break;
         }
@@ -1339,7 +1333,7 @@ public class MacOSXAddrBookContactQuery
                     return kABAIMInstantProperty;
                 else if(subCategories.contains(SubCategory.ICQ))
                     return kABICQInstantProperty;
-                else if(subCategories.contains(SubCategory.MSN))
+                else if(subCategories.contains(SubCategory.Skype))
                     return kABMSNInstantProperty;
                 else if(subCategories.contains(SubCategory.Jabber))
                     return kABJabberInstantProperty;

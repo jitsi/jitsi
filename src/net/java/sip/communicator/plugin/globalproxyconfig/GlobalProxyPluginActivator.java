@@ -175,9 +175,8 @@ public class GlobalProxyPluginActivator implements BundleActivator
                             "http.proxyPort", globalProxyPortStr);
                     }
 
-                    // used by some protocols like yahoo
-                    System.setProperty(
-                        "proxySet", "true");
+                    // used by some protocols
+                    System.setProperty("proxySet", "true");
                 }
                 else if(globalProxyType.equals(
                     ProxyInfo.ProxyType.SOCKS4.name()) ||
@@ -196,9 +195,8 @@ public class GlobalProxyPluginActivator implements BundleActivator
                             "socksProxyPort", globalProxyPortStr);
                     }
 
-                    // used by some protocols like yahoo
-                    System.setProperty(
-                        "socksProxySet", "true");
+                    // used by some protocols
+                    System.setProperty("socksProxySet", "true");
                 }
 
                 Authenticator.setDefault(new AuthenticatorImpl(

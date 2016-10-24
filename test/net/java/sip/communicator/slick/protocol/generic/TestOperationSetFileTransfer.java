@@ -605,9 +605,8 @@ public abstract class TestOperationSetFileTransfer
                          ,FileTransferStatusChangeEvent.PREPARING
                          ,stat1.getNewStatus());
 
-            // now wait if some protocol filres inProgress
+            // now wait if some protocol fires inProgress
             // jabber doesn't fire inProgress here
-            // yahoo fires it
             receiverStatusListener.waitForEvent(14000);
 
             // wait in_progress

@@ -5,9 +5,9 @@ Summary:  Jitsi - Open Source Video Calls and Chat
 Packager: Damian Minkov <damencho@jitsi.org>
 
 Group:     Applications/Internet
-License:   GNU Lesser General Public License
+License:   Apache License 2.0
 URL:       https://www.jitsi.org
-Source0:   http://download.jitsi.org/jitsi/nightly/src/%{name}-src-%{version}-%{release}.zip
+Source0:   https://download.jitsi.org/jitsi/nightly/src/%{name}-src-%{version}-%{release}.zip
 BuildRoot: %{_topdir}/buildroot
 
 AutoReqProv:   no
@@ -21,8 +21,8 @@ Requires: java >= 0:1.6
 
 %description
 Jitsi (formerly SIP Communicator) is an audio/video and chat communicator
-that supports protocols such as SIP, XMPP/Jabber, AIM/ICQ, IRC,
-Yahoo! and many other useful features.
+that supports protocols such as SIP, XMPP/Jabber, AIM/ICQ, IRC
+and many other useful features.
 
 %define debug_package %{nil}
 
