@@ -3026,15 +3026,6 @@
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude/json-simple-1.1.1.jar"/>
 
-        <!-- jymsg -->
-        <ant dir="${debian.src.dir}/lib/src/jymsg"
-             inheritAll="false"
-             target="jars">
-        </ant>
-        <symlink resource="../src/jymsg/classes/ymsg_network_v0_67.jar"
-                 overwrite="true"
-                 link="${debian.src.dir}/lib/installer-exclude"/>
-
         <!-- dhcp4j -->
         <mkdir dir="${debian.src.dir}/lib/src/dhcp4java/classes"/>
         <javac debug="true"
