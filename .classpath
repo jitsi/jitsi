@@ -66,7 +66,6 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/smackx.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jna-platform.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/unix-0.5.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/ymsg_network_v0_67.jar"/>
 	<classpathentry kind="lib" path="lib/os-specific/mac/growl4j.jar"/>
 	<classpathentry kind="lib" path="lib/os-specific/mac/OrangeExtensions.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jmork-1.0.5.jar" sourcepath="/jmork"/>
