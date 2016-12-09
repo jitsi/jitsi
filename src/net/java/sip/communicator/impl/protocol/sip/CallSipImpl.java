@@ -61,15 +61,27 @@ public class CallSipImpl
      * Name of extra INVITE header which specifies name of MUC room that is
      * hosting the Jitsi Meet conference.
      */
-    public static final String JITSI_MEET_ROOM_HEADER
-            = "Jitsi-Conference-Room";
+    public String JITSI_MEET_ROOM_HEADER = "Jitsi-Conference-Room";
+
+    /**
+     * Property name of extra INVITE header which specifies name of MUC room
+     * that is hosting the Jitsi Meet conference.
+     */
+    private static final String JITSI_MEET_ROOM_HEADER_PROPERTY
+        = "JITSI_MEET_ROOM_HEADER_NAME";
+
+    /**
+     * Property name of extra INVITE header which specifies password required
+     * to enter MUC room that is hosting the Jitsi Meet conference.
+     */
+    public String JITSI_MEET_ROOM_PASS_HEADER = "Jitsi-Conference-Room-Pass";
 
     /**
      * Name of extra INVITE header which specifies password required to enter
      * MUC room that is hosting the Jitsi Meet conference.
      */
-    public static final String JITSI_MEET_ROOM_PASS_HEADER
-            = "Jitsi-Conference-Room-Pass";
+    private static final String JITSI_MEET_ROOM_PASS_HEADER_PROPERTY
+        = "JITSI_MEET_ROOM_PASS_HEADER_NAME";
 
     /**
      * Custom header included in initial desktop sharing call creation.
@@ -158,6 +170,13 @@ public class CallSipImpl
                         retransmitsRingingInterval);
         }
         this.retransmitsRingingInterval = retransmitsRingingInterval;
+
+        AccountID account = parentOpSet.getProtocolProvider().getAccountID();
+        // Specify custom header names
+        JITSI_MEET_ROOM_HEADER = account.getAccountPropertyString(
+            JITSI_MEET_ROOM_HEADER_PROPERTY, JITSI_MEET_ROOM_HEADER);
+        JITSI_MEET_ROOM_PASS_HEADER = account.getAccountPropertyString(
+            JITSI_MEET_ROOM_PASS_HEADER_PROPERTY, JITSI_MEET_ROOM_PASS_HEADER);
 
         //let's add ourselves to the calls repo. we are doing it ourselves just
         //to make sure that no one ever forgets.
