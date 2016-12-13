@@ -164,15 +164,6 @@ public class ConfigHeaders
 
                 Header h = request.getHeader(name);
 
-                if (name.equals(SIPHeaderNames.ROUTE) 
-                    || name.equals("P-Asserted-Identity"))
-                {
-                    if (seqNumber != 1)
-                    {
-                        continue;
-                    }
-                }
-
                 // makes possible overriding already created headers which
                 // are not custom one
                 // RouteHeader is used by ProxyRouter/DefaultRouter and we
