@@ -691,7 +691,7 @@ public class OperationSetPersistentPresenceJabberImpl
          */
         assertConnected();
 
-        XMPPConnection xmppConnection = parentProvider.getConnection();
+        Connection xmppConnection = parentProvider.getConnection();
 
         if (xmppConnection == null)
         {
@@ -1124,7 +1124,7 @@ public class OperationSetPersistentPresenceJabberImpl
 
                 ssContactList.cleanup();
 
-                XMPPConnection connection = parentProvider.getConnection();
+                Connection connection = parentProvider.getConnection();
                 if(connection != null)
                 {
                     connection.removePacketListener(subscribtionPacketListener);

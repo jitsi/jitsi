@@ -93,7 +93,7 @@ public class JabberAccountCreationForm
     private JButton chooseButton = new JButton();
 
     // Smack objects
-    private XMPPConnection xmppConnection = null;
+    private Connection xmppConnection = null;
 
     private AccountManager accountManager = null;
 

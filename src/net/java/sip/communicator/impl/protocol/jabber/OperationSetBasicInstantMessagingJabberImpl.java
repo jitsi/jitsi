@@ -1109,7 +1109,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 NewMailNotificationIQ.NAMESPACE,
                 new NewMailNotificationProvider());
 
-        XMPPConnection connection = jabberProvider.getConnection();
+        Connection connection = jabberProvider.getConnection();
 
         connection.addPacketListener(
                 new MailboxIQListener(), new PacketTypeFilter(MailboxIQ.class));

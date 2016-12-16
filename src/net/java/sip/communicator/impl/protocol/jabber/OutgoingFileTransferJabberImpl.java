@@ -248,7 +248,7 @@ public class OutgoingFileTransferJabberImpl
 
             ThumbnailIQ thumbnailIQ = (ThumbnailIQ) packet;
             String thumbnailIQCid = thumbnailIQ.getCid();
-            XMPPConnection connection = protocolProvider.getConnection();
+            Connection connection = protocolProvider.getConnection();
 
             if ((thumbnailIQCid != null)
                     && thumbnailIQCid.equals(thumbnailElement.getCid()))

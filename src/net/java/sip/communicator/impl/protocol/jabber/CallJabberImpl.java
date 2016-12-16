@@ -311,7 +311,7 @@ public class CallJabberImpl
             contentRequest.addChannel(remoteChannelRequest);
         }
 
-        XMPPConnection connection = protocolProvider.getConnection();
+        Connection connection = protocolProvider.getConnection();
         PacketCollector packetCollector
             = connection.createPacketCollector(
                     new PacketIDFilter(conferenceRequest.getPacketID()));

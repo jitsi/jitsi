@@ -868,7 +868,7 @@ public class ChatRoomJabberImpl
 
         clearCachedConferenceDescriptionList();
 
-        XMPPConnection connection = this.provider.getConnection();
+        Connection connection = this.provider.getConnection();
         try
         {
             // if we are already disconnected

@@ -633,7 +633,7 @@ public class EntityCapsManager
      * @param connection the connection that we'd like this manager to register
      * with.
      */
-    public void addPacketListener(XMPPConnection connection)
+    public void addPacketListener(Connection connection)
     {
         PacketFilter filter = new PacketTypeFilter(Presence.class);
 

@@ -379,7 +379,7 @@ public class OperationSetTelephonyConferencingJabberImpl
      */
     private void unsubscribeForCoinPackets()
     {
-        XMPPConnection connection = parentProvider.getConnection();
+        Connection connection = parentProvider.getConnection();
 
         if (connection != null)
             connection.removePacketListener(this);

@@ -774,7 +774,7 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     private void unsubscribeForJinglePackets()
     {
-        XMPPConnection connection = protocolProvider.getConnection();
+        Connection connection = protocolProvider.getConnection();
 
         if(connection != null)
             connection.removePacketListener(this);

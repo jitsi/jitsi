@@ -151,7 +151,7 @@ public class InfoRetreiver
         List<GenericDetail> result = new LinkedList<GenericDetail>();
         try
         {
-            XMPPConnection connection = jabberProvider.getConnection();
+            Connection connection = jabberProvider.getConnection();
 
             if(connection == null || !connection.isAuthenticated())
                 return null;

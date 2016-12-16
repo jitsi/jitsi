@@ -80,9 +80,9 @@ public class ScServiceDiscoveryManager
     private final ProtocolProviderService parentProvider;
 
     /**
-     * The {@link XMPPConnection} that this manager is responsible for.
+     * The {@link Connection} that this manager is responsible for.
      */
-    private final XMPPConnection connection;
+    private final Connection connection;
 
     /**
      * A local copy that we keep in sync with {@link ServiceDiscoveryManager}'s
@@ -130,7 +130,7 @@ public class ScServiceDiscoveryManager
      */
     public ScServiceDiscoveryManager(
             ProtocolProviderService parentProvider,
-            XMPPConnection connection,
+            Connection connection,
             String[] featuresToRemove,
             String[] featuresToAdd,
             boolean cacheNonCaps)

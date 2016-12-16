@@ -287,7 +287,7 @@ public class OperationSetVideoBridgeImpl
         }
         else if (RegistrationState.UNREGISTERED.equals(registrationState))
         {
-            XMPPConnection connection = protocolProvider.getConnection();
+            Connection connection = protocolProvider.getConnection();
 
             if (connection != null)
                 connection.removePacketListener(this);

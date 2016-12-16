@@ -116,7 +116,7 @@ class LoginByClientCertificateStrategy
      * accepted.
      * @throws XMPPException
      */
-    public boolean login(XMPPConnection connection, String userName,
+    public boolean login(Connection connection, String userName,
             String resource)
         throws XMPPException
     {

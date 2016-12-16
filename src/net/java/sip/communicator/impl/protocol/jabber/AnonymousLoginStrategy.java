@@ -70,7 +70,7 @@ public class AnonymousLoginStrategy
     }
 
     @Override
-    public boolean login(XMPPConnection connection, String userName,
+    public boolean login(Connection connection, String userName,
                          String resource)
         throws XMPPException
     {

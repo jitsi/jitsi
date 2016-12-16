@@ -471,10 +471,10 @@ public class OperationSetMultiUserChatJabberImpl
      * Almost all <tt>MultiUserChat</tt> methods require an xmpp connection
      * param so I added this method only for the sake of utility.
      *
-     * @return the XMPPConnection currently in use by the jabber provider or
+     * @return the XMPP connection currently in use by the jabber provider or
      * null if jabber provider has yet to be initialized.
      */
-    private XMPPConnection getXmppConnection()
+    private Connection getXmppConnection()
     {
         return (jabberProvider == null)
             ? null
