@@ -125,7 +125,7 @@ public class JingleNodesHarvester
             }
         }
 
-        if (ciq != null && ciq.getRemoteport() > 0)
+        if (ciq != null)
         {
             ip = ciq.getHost();
             port = ciq.getRemoteport();
@@ -134,6 +134,12 @@ public class JingleNodesHarvester
             {
                 logger.info("JN relay: " + ip + " remote port:" + port +
                         " local port: " + ciq.getLocalport());
+            }
+
+            if (ip == null || ciq.getRemoteport() == 0)
+            {
+                logger.warn("JN relay ignored because ip was null or port 0");
+                return candidates;
             }
 
             /* RTP */
@@ -160,6 +166,7 @@ public class JingleNodesHarvester
                 candidates.add(local);
             }
         }
+
         return candidates;
     }
 
