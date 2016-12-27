@@ -444,7 +444,7 @@
     </target>
 
     <!-- Jitsi Version -->
-    <target name="version" depends="-pre-version">
+    <target name="version" depends="bundle-bundles,-pre-version">
         <!-- Recompile ant task classes-->
         <delete failonerror="false">
             <fileset dir="${dest}" includes="net/java/sip/communicator/impl/version/*.class"/>
@@ -465,7 +465,7 @@
 
             <classpath>
                 <pathelement path="${dest}"/>
-                <pathelement location="${lib.noinst}/libjitsi-1.0-20160707.163121-175.jar"/>
+                <pathelement location="${bundles.dest}/libjitsi.jar"/>
             </classpath>
         </taskdef>
 
@@ -978,7 +978,7 @@
 
     <!-- Copying of all unmodified libraries that are already bundles -->
     <target name="bundle-bundles">
-        <copy file="${lib.noinst}/libjitsi-1.0-20160707.163121-175.jar" tofile="${bundles.dest}/libjitsi.jar"/>
+        <copy file="${lib.noinst}/libjitsi-1.0-20161226.161151-208.jar" tofile="${bundles.dest}/libjitsi.jar"/>
         <copy file="${lib.noinst}/fmj-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/fmj.jar"/>
         <copy file="${lib.noinst}/jitsi-lgpl-dependencies-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/jitsi-lgpl-dependencies.jar"/>
         <copy file="${lib.noinst}/guava-15.0.jar" tofile="${bundles.dest}/guava.jar"/>
