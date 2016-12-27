@@ -1000,6 +1000,12 @@ public class IceUdpTransportManager
                 if (candidate.getGeneration() != generation)
                     continue;
 
+                if (candidate.getIP() == null || "".equals(candidate.getIP()))
+                {
+                    logger.warn("Skipped ICE candidate with empty IP");
+                    continue;
+                }
+
                 Component component
                     = stream.getComponent(candidate.getComponent());
                 String relAddr;
