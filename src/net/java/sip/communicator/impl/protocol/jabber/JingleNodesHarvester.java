@@ -142,6 +142,16 @@ public class JingleNodesHarvester
                 return candidates;
             }
 
+            // Drop the scope or interface name if the relay sends it
+            // along in its IPv6 address. The scope/ifname is only valid on the
+            // host that owns the IP and we don't need it here.
+            int scopeIndex = ip.indexOf('%');
+            if (scopeIndex > 0)
+            {
+                logger.warn("Dropping scope from assumed IPv6 address " + ip);
+                ip = ip.substring(0, scopeIndex);
+            }
+
             /* RTP */
             TransportAddress relayedAddress = new TransportAddress(ip, port,
                     Transport.UDP);
