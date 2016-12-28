@@ -44,6 +44,12 @@ public class JabberAccountID
     public static final String ANONYMOUS_AUTH = "ANONYMOUS_AUTH";
 
     /**
+     * Configures the URL which is to be used with BOSH transport. If the value
+     * is <tt>null</tt> or empty then the TCP transport will be used instead.
+     */
+    public static final String BOSH_URL = "BOSH_URL";
+
+    /**
      * Account suffix for Google service.
      */
     public static final String GOOGLE_USER_SUFFIX = "gmail.com";
@@ -116,6 +122,29 @@ public class JabberAccountID
     public JabberAccountID()
     {
         this(null, new HashMap<String, String>());
+    }
+
+    /**
+     * Returns the BOSH URL which should be used to connect to the XMPP server.
+     * If the value is set then BOSH transport instead of TCP will be used.
+     *
+     * @return a <tt>String</tt> with the URL which should be used for BOSH
+     * transport or <tt>null</tt> if disabled.
+     */
+    public String getBoshUrl()
+    {
+        return getAccountPropertyString(BOSH_URL);
+    }
+
+    /**
+     * Sets new URL which should be used for the BOSH transport.
+     *
+     * @param boshPath a <tt>String</tt> with the new BOSH URL or <tt>null</tt>
+     * to disable BOSH.
+     */
+    public void setBoshUrl(String boshPath)
+    {
+        putAccountProperty(BOSH_URL, boshPath);
     }
 
     /**
