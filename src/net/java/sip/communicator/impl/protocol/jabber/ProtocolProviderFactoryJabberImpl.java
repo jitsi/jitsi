@@ -187,7 +187,7 @@ public class ProtocolProviderFactoryJabberImpl
         ProtocolProviderServiceJabberImpl service =
             new ProtocolProviderServiceJabberImpl();
 
-        service.initialize(userID, accountID);
+        service.initialize(userID, (JabberAccountID) accountID);
         return service;
     }
 

@@ -42,6 +42,7 @@ import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.jabber.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
@@ -240,7 +241,7 @@ public class ProtocolProviderServiceJabberImpl
     /**
      * The identifier of the account that this provider represents.
      */
-    private AccountID accountID = null;
+    private JabberAccountID accountID = null;
 
     /**
      * Used when we need to re-register
@@ -1121,11 +1122,24 @@ public class ProtocolProviderServiceJabberImpl
             JabberLoginStrategy loginStrategy)
         throws XMPPException
     {
-        ConnectionConfiguration confConn = new ConnectionConfiguration(
-                address.getAddress().getHostAddress(),
-                address.getPort(),
-                serviceName, proxy
-        );
+        // BOSH or TCP ?
+        ConnectionConfiguration confConn;
+        String boshURL = accountID.getBoshUrl();
+        boolean isBosh = !org.jitsi.util.StringUtils.isNullOrEmpty(boshURL);
+
+        if (isBosh)
+        {
+            confConn = new BOSHConfiguration(serviceName);
+            ((BOSHConfiguration)confConn).setBoshUrl(boshURL);
+        }
+        else
+        {
+            confConn
+                = new ConnectionConfiguration(
+                        address.getAddress().getHostAddress(),
+                        address.getPort(),
+                        serviceName, proxy);
+        }
 
         // if we have OperationSetPersistentPresence skip sending initial
         // presence while login is executed, the OperationSet will take care
@@ -1153,7 +1167,11 @@ public class ProtocolProviderServiceJabberImpl
             disconnectAndCleanConnection();
         }
 
-        connection = new XMPPConnection(confConn);
+        connection
+            = isBosh
+                ? new XMPPBOSHConnection((BOSHConfiguration)confConn)
+                : new XMPPConnection(confConn);
+
         this.address = address;
 
         try
@@ -1551,7 +1569,7 @@ public class ProtocolProviderServiceJabberImpl
      * @see net.java.sip.communicator.service.protocol.AccountID
      */
     protected void initialize(String screenname,
-                              AccountID accountID)
+                              JabberAccountID accountID)
     {
         synchronized(initializationLock)
         {
