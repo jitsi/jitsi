@@ -55,7 +55,7 @@
 			<attribute name="javadoc_location" value="http://dbus.freedesktop.org/doc/dbus-java/api/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi-1.0-20161226.161151-208.jar" sourcepath="/libjitsi/src"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi-1.0-20161228.210146-211.jar" sourcepath="/libjitsi/src"/>
 	<classpathentry kind="lib" path="lib/bundle/log4j.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/mac_widgets-0.9.5.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/objenesis-1.2.jar"/>
