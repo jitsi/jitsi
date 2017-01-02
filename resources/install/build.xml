@@ -2882,7 +2882,7 @@
 
         <symlink resource="/usr/share/java/weupnp.jar"
              overwrite="true"
-             link="${debian.src.dir}/lib/installer-exclude/weupnp-0.1.2-SNAPSHOT.jar"/>
+             link="${debian.src.dir}/lib/installer-exclude/weupnp-0.1.4.jar"/>
 
         <!-- swingworker -->
         <ant dir="${debian.src.dir}/lib/src/swingworker"
