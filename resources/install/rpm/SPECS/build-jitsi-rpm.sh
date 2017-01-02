@@ -5,11 +5,13 @@ cd $SCRIPT_DIR
 #exec > "${0%.*}.log" 2>&1
 
 if [[ "$1" == "--help" || "$1" == "-h" || "$1" == "-?" || $# -lt 1 ]]; then
-    echo "Usage $0 BUILD_NUMBER"
+    echo "Usage: $0 BUILD_NUMBER GOOGLE_API_ID GOOGLE_API_SECRET"
     exit 1
 fi
 
 buildNumber=$1
+googleApiId=$2
+googleApiSecret=$3
 
 # Deletes everything but the newest files matching the specified pattern
 clean_oldies() {
@@ -24,6 +26,7 @@ clean_oldies() {
     ls -t $pattern | tail -$tailCount | xargs rm -f
 }
 
+[[ ! -d SOURCES ]] && mkdir SOURCES
 cd SOURCES
 
 [[ ! -d jitsi ]] && git clone https://github.com/jitsi/jitsi.git
@@ -43,11 +46,13 @@ rm -f jitsi-src*.zip
 zipFileName=jitsi-src-${version}-${buildNumber/./-}.zip
 zip -rq $zipFileName jitsi -x 'jitsi/.git/* jitsi/.gitignore'
 
+[[ ! -d $SCRIPT_DIR/SPECS/ ]] && mkdir $SCRIPT_DIR/SPECS/
+cp jitsi/resources/install/rpm/SPECS/jitsi.spec $SCRIPT_DIR/SPECS/
 sed -i \
 -e "s@Version:\( *\).*@Version:\1$version@" \
 -e "s@Release:\( *\).*@Release:\1$buildNumber@" \
--e "s@Source0:\( *\).*@Source0:\1http://download.jitsi.org/jitsi/nightly/src/$zipFileName@" \
--e "s@ant -Dlabel=.* rebuild@ant -Dlabel=$buildNumber rebuild@" \
+-e "s@Source0:\( *\).*@Source0:\1https://download.jitsi.org/jitsi/nightly/src/$zipFileName@" \
+-e "s@ant -Dlabel=.* rebuild@ant rebuild -Dlabel=$buildNumber -Dgoogle.api.client.id=$googleApiId -Dgoogle.api.client.secret=$googleApiSecret@" \
 $SCRIPT_DIR/SPECS/jitsi.spec
 
 rm -f $SCRIPT_DIR/RPMS/i686/jitsi*.rpm
