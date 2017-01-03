@@ -11,15 +11,15 @@ Source0:   https://download.jitsi.org/jitsi/nightly/src/%{name}-src-%{version}-%
 BuildRoot: %{_topdir}/buildroot
 
 AutoReqProv:   no
-BuildRequires: java-devel >= 0:1.7,
- ant,
- ant-nodeps,
- gzip,
- git
+BuildRequires: java-devel >= 1:1.7
+Buildrequires: ant
+Buildrequires: ant-nodeps
+Buildrequires: gzip
+Buildrequires: git
 
-Requires: java >= 0:1.7,
- speex,
- speexdsp
+Requires: java >= 1:1.7
+Requires: speex
+Requires: speexdsp
 
 %description
 Jitsi is an audio/video and chat communicator that supports protocols
