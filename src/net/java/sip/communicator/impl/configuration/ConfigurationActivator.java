@@ -64,39 +64,38 @@ public class ConfigurationActivator
 
         if (fas != null)
         {
-            File useDatabaseConfig;
-
+            File usePropFileConfig;
             try
             {
-                useDatabaseConfig
+                usePropFileConfig
                     = fas.getPrivatePersistentFile(
-                            ".usedatabaseconfig",
+                            ".usepropfileconfig",
                             FileCategory.PROFILE);
             }
             catch (Exception ise)
             {
-
                 // There is somewhat of a chicken-and-egg dependency between
                 // FileConfigurationServiceImpl and ConfigurationServiceImpl:
                 // FileConfigurationServiceImpl throws IllegalStateException if
                 // certain System properties are not set,
                 // ConfigurationServiceImpl will make sure that these properties
-                //are set but it will do that later.
+                // are set but it will do that later.
                 // A SecurityException is thrown when the destination
                 // is not writable or we do not have access to that folder
-                useDatabaseConfig = null;
+                usePropFileConfig = null;
             }
 
-            // BETA: if the marker file exists, use the database configuration
-            if ((useDatabaseConfig != null) && useDatabaseConfig.exists())
+            if (usePropFileConfig != null && usePropFileConfig.exists())
             {
-                logger.info("Using database configuration store.");
-                this.cs = new JdbcConfigService(fas);
+                logger.info("Using properties file configuration store.");
+                this.cs = LibJitsi.getConfigurationService();
             }
         }
 
         if (this.cs == null)
-            this.cs = LibJitsi.getConfigurationService();
+        {
+            this.cs = new JdbcConfigService(fas);
+        }
 
         bundleContext.registerService(
                 ConfigurationService.class.getName(),
