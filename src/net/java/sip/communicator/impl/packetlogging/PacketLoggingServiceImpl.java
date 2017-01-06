@@ -71,9 +71,16 @@ public class PacketLoggingServiceImpl
         new byte[]{
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
                 (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
-                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00,
-                (byte)0x08, (byte)0x00
+                (byte)0x00, (byte)0x00, (byte)0x00, (byte)0x00
         };
+
+    /** IEEE 802.3 EtherType for IPv4 */
+    private final static byte[] ipv4EtherType =
+        new byte[] { 0x08, 0x00 };
+
+    /** IEEE 802.3 EtherType for IPv6 */
+    private final static byte[] ipv6EtherType =
+        new byte[] { (byte)0x86, (byte)0xdd };
 
     /**
      * The fake ipv4 header we use as template.
@@ -562,6 +569,7 @@ public class PacketLoggingServiceImpl
         int tsSec = (int)(current/1000);
         int tsUsec = (int)((current%1000) * 1000);
         int feakHeaderLen = fakeEthernetHeader.length +
+                (isIPv4 ? ipv4EtherType : ipv6EtherType).length +
                 ipHeader.length + transportHeader.length;
         int inclLen = packet.packetLength + feakHeaderLen;
         int origLen = inclLen;
@@ -586,6 +594,7 @@ public class PacketLoggingServiceImpl
             addInt(origLen);
 
             outputStream.write(fakeEthernetHeader);
+            outputStream.write(isIPv4 ? ipv4EtherType : ipv6EtherType);
             outputStream.write(ipHeader);
             outputStream.write(transportHeader);
             outputStream.write(
