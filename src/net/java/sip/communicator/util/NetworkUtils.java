@@ -420,6 +420,15 @@ public class NetworkUtils
 
         colonIndex = -1;
         int i = 0, j = 0;
+
+        // Can be wrapped in []
+        if (addrBuff[i] == '[')
+        {
+            ++i;
+            if (scopeID == -1)
+                --srcb_length;
+        }
+
         // Starting : mean we need to have at least one more.
         if (addrBuff[i] == ':')
             if (addrBuff[++i] != ':')
