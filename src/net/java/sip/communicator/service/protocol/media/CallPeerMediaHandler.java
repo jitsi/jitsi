@@ -622,10 +622,8 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
             return audioDirectionUserPreference;
         case VIDEO:
             return videoDirectionUserPreference;
-        case DATA:
-            return MediaDirection.INACTIVE;
         default:
-            throw new IllegalArgumentException("mediaType");
+            return MediaDirection.INACTIVE;
         }
     }
 
@@ -1039,13 +1037,6 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
         {
         case AUDIO:
             return audioStream;
-        case DATA:
-            /*
-             * DATA is a valid MediaType value and CallPeerMediaHandler does not
-             * utilize it at this time so no IllegalArgumentException is thrown
-             * and null is returned (as documented).
-             */
-            return null;
         case VIDEO:
             return videoStream;
         default:
