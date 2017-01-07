@@ -80,22 +80,6 @@ public interface OperationSetBasicInstantMessaging
         String messageText, String contentType, String messageUID);
 
     /**
-     * Create a Message instance with the specified UID and a default
-     * (text/plain) content type and encoding.
-     * This method can be useful when message correction is required. One can
-     * construct the corrected message to have the same UID as the message
-     * before correction.
-     *
-     * @param messageText the string content of the message.
-     * @param messageUID the unique identifier of this message.
-     * @return Message the newly created message
-     *
-     * @deprecated Method will be removed once OTR bundle is updated on Android.
-     */
-    @Deprecated
-    public Message createMessageWithUID(String messageText, String messageUID);
-
-    /**
      * Sends the <tt>message</tt> to the destination indicated by the
      * <tt>to</tt> contact.
      *
