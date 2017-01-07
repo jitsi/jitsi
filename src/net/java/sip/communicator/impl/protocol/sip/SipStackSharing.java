@@ -1172,6 +1172,9 @@ public class SipStackSharing
                     String transport)
         throws IOException
     {
+        logger.info("Gettting source address for " +
+            localAddress + " -> " + dst + ":" + dstPort +
+            "(" + transport + ")");
         if(ListeningPoint.TLS.equalsIgnoreCase(transport))
             return (java.net.InetSocketAddress)(((SipStackImpl)this.stack)
                 .getLocalAddressForTlsDst(dst, dstPort, localAddress));
