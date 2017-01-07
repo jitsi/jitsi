@@ -52,7 +52,7 @@ public class ConfigurationServiceLick
         properties.put("service.pid", getName());
 
         addTestSuite(TestConfigurationService.class);
-        addTestSuite(TestConfigurationServicePersistency.class);
+        //addTestSuite(TestConfigurationServicePersistency.class);
         addTestSuite(TestConfigurationSlickFinalizer.class);
         bundleContext.registerService(getClass().getName(), this, properties);
 
