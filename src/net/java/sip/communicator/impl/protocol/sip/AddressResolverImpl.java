@@ -70,18 +70,8 @@ public class AddressResolverImpl
             // if it is a textual IP address, do no try to resolve it
             if(NetworkUtils.isValidIPAddress(hostAddress))
             {
-                byte[] addr = null;
-
-                addr = NetworkUtils.strToIPv4(hostAddress);
-
-                // not an IPv4, try IPv6
-                if (addr == null)
-                {
-                    addr = NetworkUtils.strToIPv6(hostAddress);
-                }
-
                 InetSocketAddress hostSocketAddress = new InetSocketAddress(
-                        InetAddress.getByAddress(hostAddress, addr),
+                        NetworkUtils.getInetAddress(hostAddress),
                         inputAddress.getPort());
                 return new HopImpl(hostSocketAddress.getHostName(),
                         inputAddress.getPort(),
