@@ -609,7 +609,7 @@ public class ChatRoomJabberImpl
                 this.provider.getConnection().addPacketListener(
                     presenceListener,
                     new AndFilter(
-                        new FromMatchesFilter(multiUserChat.getRoom()),
+                        FromMatchesFilter.create(multiUserChat.getRoom()),
                         new PacketTypeFilter(
                             org.jivesoftware.smack.packet.Presence.class)));
                 if(password == null)
