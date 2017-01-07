@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import gov.nist.javax.sip.stack.*;
 
+import java.net.*;
 import java.util.*;
 
 import javax.sip.*;
@@ -26,6 +27,7 @@ import javax.sip.address.*;
 import javax.sip.header.*;
 import javax.sip.message.*;
 
+import net.java.sip.communicator.impl.protocol.sip.net.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
@@ -137,7 +139,9 @@ public class ProxyRouter
             ProtocolProviderServiceSipImpl sipProvider
                 = ((ProtocolProviderServiceSipImpl) service);
 
-            String proxy = sipProvider.getConnection().getOutboundProxyString();
+            final ProxyConnection connection = sipProvider.getConnection();
+            final String proxy = connection.getOutboundProxyString();
+            logger.trace("Router for proxy: " + proxy);
 
             boolean forceLooseRouting
                 = sipProvider.getAccountID()
@@ -146,13 +150,30 @@ public class ProxyRouter
 
             // P2P case
             if (proxy == null || forceLooseRouting )
+            {
+                logger.info("Returning default SIP router, P2P/loose routing");
                 return this.getDefaultRouter();
+            }
 
             // outbound proxy case
             Router router = routerCache.get(proxy);
             if (router == null)
             {
-                router = new DefaultRouter(stack, proxy);
+                router = new DefaultRouter(stack, proxy)
+                {
+                    @Override
+                    public Hop getNextHop(Request request) throws SipException
+                    {
+                        logger.info("Outbound proxy mode, using proxy " +
+                            proxy + " as hop instead of an address resolved" +
+                            " by the SIP router");
+                        InetSocketAddress sa = connection.getAddress();
+                        return new HopImpl(
+                            sa.getAddress().getHostAddress(),
+                            sa.getPort(),
+                            connection.getTransport());
+                    }
+                };
                 routerCache.put(proxy, router);
             }
             return router;
@@ -164,6 +185,7 @@ public class ProxyRouter
             logger.error("unable to identify the service which created this "
                     + "out-of-dialog request");
 
+        logger.info("Returning default router");
         return this.getDefaultRouter();
     }
 
