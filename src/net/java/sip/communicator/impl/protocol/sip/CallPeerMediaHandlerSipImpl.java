@@ -1886,7 +1886,7 @@ public class CallPeerMediaHandlerSipImpl
             // ZRTP
             else if(srtpControlType == SrtpControlType.ZRTP)
             {
-                if(updateMediaDescriptionForZrtp(mediaType, localMd));
+                if(updateMediaDescriptionForZrtp(mediaType, localMd))
                 {
                     // Stop once an encryption advertisement has been chosen.
                     return;
