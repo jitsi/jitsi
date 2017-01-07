@@ -275,7 +275,7 @@ public class OperationSetMultiUserChatIrcImpl
      */
     protected ChatRoomIrcImpl getChatRoom(final String chatRoomName)
     {
-        return (ChatRoomIrcImpl) this.chatRoomCache.get(chatRoomName);
+        return this.chatRoomCache.get(chatRoomName);
     }
 
     /**

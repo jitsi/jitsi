@@ -37,8 +37,8 @@ public class BundleComparator implements Comparator<Bundle>
      */
     public int compare(Bundle arg0, Bundle arg1)
     {
-        String n1 = (String) arg0.getHeaders().get(Constants.BUNDLE_NAME);
-        String n2 = (String) arg1.getHeaders().get(Constants.BUNDLE_NAME);
+        String n1 = arg0.getHeaders().get(Constants.BUNDLE_NAME);
+        String n2 = arg1.getHeaders().get(Constants.BUNDLE_NAME);
 
         if (n1 == null)
         {

@@ -358,8 +358,7 @@ public class IrcAccountRegistrationWizard
             ServiceReference<ProtocolProviderService> serRef = providerFactory
                 .getProviderForAccount(accountID);
 
-            protocolProvider = (ProtocolProviderService)
-                IrcAccRegWizzActivator.bundleContext
+            protocolProvider = IrcAccRegWizzActivator.bundleContext
                 .getService(serRef);
         }
         catch (IllegalStateException exc)
