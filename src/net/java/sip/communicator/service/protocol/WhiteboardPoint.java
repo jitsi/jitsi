@@ -17,6 +17,8 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import java.util.Objects;
+
 /**
  * A point representing a location in {@code (x,y)} coordinate space,
  * specified in integer precision.
@@ -124,6 +126,12 @@ public class WhiteboardPoint implements Cloneable
         }
 
         return false;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(x, y);
     }
 
     /**

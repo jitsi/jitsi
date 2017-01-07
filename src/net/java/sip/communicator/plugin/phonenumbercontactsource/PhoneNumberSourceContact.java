@@ -107,6 +107,18 @@ public class PhoneNumberSourceContact
         return true;
     }
 
+    @Override
+    public int hashCode()
+    {
+        String dn = getDisplayName();
+        if (dn != null)
+        {
+            return getDisplayName().hashCode();
+        }
+
+        return 37;
+    }
+
     /**
      * Returns the protocol contact used.
      * @return the protocol contact used.

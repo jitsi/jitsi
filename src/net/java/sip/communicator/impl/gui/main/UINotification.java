@@ -17,6 +17,8 @@
  */
 package net.java.sip.communicator.impl.gui.main;
 
+import java.util.Objects;
+
 /**
  * The <tt>UINotification</tt> class represents a notification received in the
  * user interface. This could be a missed call, voicemail, email notification or
@@ -171,5 +173,11 @@ public class UINotification
             return false;
 
         return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(notificationName, parentGroup);
     }
 }

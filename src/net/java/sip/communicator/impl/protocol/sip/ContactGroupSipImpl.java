@@ -641,5 +641,31 @@ public class ContactGroupSipImpl
 
         return true;
     }
+
+    @Override
+    public int hashCode()
+    {
+        List<Object> objects = new ArrayList<Object>();
+        objects.add(getGroupName());
+        objects.add(getUID());
+        objects.add(countContacts());
+        objects.add(countSubgroups());
+        objects.add(getProtocolProvider());
+
+        //traverse child contacts
+        for (Contact c : contacts)
+        {
+            objects.add(c.getAddress());
+        }
+        
+
+        //traverse subgroups
+        for (ContactGroup g : subGroups)
+        {
+            objects.add(g.getGroupName());
+        }
+
+        return Objects.hash(objects.toArray());
+    }
 }
 

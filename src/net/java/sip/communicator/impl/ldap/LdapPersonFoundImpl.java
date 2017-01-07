@@ -433,4 +433,10 @@ public class LdapPersonFoundImpl
             return this.toString().equals(o.toString()) &&
                 this.getDN().equals(((LdapPersonFound) o).getDN());
     }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(toString(), getDN());
+    }
 }

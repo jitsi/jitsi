@@ -177,4 +177,10 @@ public class RegistrationState
                && obj != null
                && statusString.equals(((RegistrationState)obj).statusString);
     }
+
+    @Override
+    public int hashCode()
+    {
+        return statusString.hashCode();
+    }
 }

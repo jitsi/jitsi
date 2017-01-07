@@ -17,6 +17,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
+import java.util.Objects;
+
 import ch.imvs.sdes4j.srtp.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
@@ -331,5 +333,15 @@ public class CryptoPacketExtension
                    );
         }
         return false;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(
+            getCryptoSuite(),
+            getKeyParams(),
+            getSessionParams(),
+            getTag());
     }
 }
