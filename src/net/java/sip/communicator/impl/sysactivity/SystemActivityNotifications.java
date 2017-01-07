@@ -115,7 +115,7 @@ public class SystemActivityNotifications
             if(!org.jitsi.util.OSUtils.IS_ANDROID)
             {
                 JNIUtils.loadLibrary("sysactivitynotifications",
-                    SystemActivityNotifications.class.getClassLoader());
+                    SystemActivityNotifications.class);
 
                 ptr = allocAndInit();
                 if (ptr == -1)
