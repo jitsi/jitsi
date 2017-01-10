@@ -17,6 +17,8 @@
  */
 package net.java.sip.communicator.impl.osdependent.systemtray;
 
+import java.awt.*;
+
 import javax.swing.*;
 
 import org.jitsi.util.*;
@@ -45,7 +47,7 @@ public abstract class SystemTray
     {
         boolean disable = OsDependentActivator.getConfigurationService()
             .getBoolean(PNMAE_DISABLE_TRY, false);
-        if (disable)
+        if (disable || GraphicsEnvironment.isHeadless())
         {
             return null;
         }
