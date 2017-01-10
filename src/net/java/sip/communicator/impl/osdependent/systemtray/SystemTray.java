@@ -19,13 +19,22 @@ package net.java.sip.communicator.impl.osdependent.systemtray;
 
 import javax.swing.*;
 
+import org.jitsi.util.*;
+
+import net.java.sip.communicator.impl.osdependent.*;
+import net.java.sip.communicator.impl.osdependent.systemtray.appindicator.*;
 import net.java.sip.communicator.impl.osdependent.systemtray.awt.*;
+import net.java.sip.communicator.util.Logger;
 
 /**
  * Base class for all wrappers of <tt>SystemTray</tt> implementations.
  */
 public abstract class SystemTray
 {
+    private static final String PNMAE_DISABLE_TRY =
+        "net.java.sip.communicator.osdependent.systemtray.DISABLE";
+
+    private static final Logger logger = Logger.getLogger(SystemTray.class);
     private static SystemTray systemTray;
 
     /**
@@ -34,8 +43,28 @@ public abstract class SystemTray
      */
     public final static SystemTray getSystemTray()
     {
+        boolean disable = OsDependentActivator.getConfigurationService()
+            .getBoolean(PNMAE_DISABLE_TRY, false);
+        if (disable)
+        {
+            return null;
+        }
+
         if (systemTray == null)
         {
+            if (OSUtils.IS_LINUX)
+            {
+                try
+                {
+                    systemTray = new AppIndicatorTray();
+                    return systemTray;
+                }
+                catch(Exception ex)
+                {
+                    logger.info(ex.getMessage());
+                }
+            }
+
             if (java.awt.SystemTray.isSupported())
             {
                 systemTray = new AWTSystemTray();
@@ -75,4 +104,11 @@ public abstract class SystemTray
      *         <tt>PopupMenu</tt>
      */
     public abstract boolean useSwingPopupMenu();
+
+    /**
+     * Determines if the tray icon supports dynamic menus.
+     * 
+     * @return True if the menu can be changed while running, false otherwise.
+     */
+    public abstract boolean supportsDynamicMenu();
 }

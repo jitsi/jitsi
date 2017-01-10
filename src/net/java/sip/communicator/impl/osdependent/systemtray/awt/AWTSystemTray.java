@@ -69,4 +69,10 @@ public class AWTSystemTray
         // enable swing for Java 1.6 except for the mac version
         return !OSUtils.IS_MAC;
     }
+
+    @Override
+    public boolean supportsDynamicMenu()
+    {
+        return true;
+    }
 }

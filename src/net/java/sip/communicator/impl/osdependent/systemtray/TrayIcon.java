@@ -29,7 +29,7 @@ import javax.swing.*;
  */
 public interface TrayIcon
 {
-    public void addActionListener(ActionListener listener);
+    public void setDefaultAction(Object menuItem);
 
     public void addBalloonActionListener(ActionListener listener);
 

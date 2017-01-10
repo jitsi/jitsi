@@ -66,7 +66,7 @@ public class StatusSubMenu
      * @param swing <tt>true</tt> to represent this instance with a Swing
      * <tt>JMenu</tt>; <tt>false</tt> to use an AWT <tt>Menu</tt>
      */
-    public StatusSubMenu(boolean swing)
+    public StatusSubMenu(boolean swing, boolean accountMenuSupported)
     {
         String text = Resources.getString("impl.systray.SET_STATUS");
 
@@ -86,6 +86,7 @@ public class StatusSubMenu
             this.menu = new Menu(text);
         }
 
+        if (accountMenuSupported)
         {
             String hideAccountStatusSelectorsProperty
                 = "impl.gui.HIDE_ACCOUNT_STATUS_SELECTORS";
@@ -103,6 +104,10 @@ public class StatusSubMenu
                         hideAccountStatusSelectorsProperty,
                         hideAccountStatusSelectors);
         }
+        else
+        {
+            hideAccountStatusSelectors = true;
+        }
 
         PresenceStatus offlineStatus = null;
         // creates menu item entry for every global status
@@ -116,9 +121,11 @@ public class StatusSubMenu
         // initially it is offline
         selectItemFromStatus(offlineStatus.getStatus());
 
-        this.addSeparator();
-
-        addMenuItem(menu, new GlobalStatusMessageMenu(swing).getMenu());
+        if (accountMenuSupported)
+        {
+            this.addSeparator();
+            addMenuItem(menu, new GlobalStatusMessageMenu(swing).getMenu());
+        }
 
         if(!hideAccountStatusSelectors)
             this.addSeparator();

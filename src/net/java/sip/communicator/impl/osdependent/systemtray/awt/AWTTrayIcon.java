@@ -63,9 +63,26 @@ public class AWTTrayIcon
         }
     }
 
-    public void addActionListener(ActionListener listener)
+    public void setDefaultAction(Object menuItem)
     {
-        impl.addActionListener(listener);
+        ActionListener[] listeners;
+        if (menuItem instanceof JMenuItem)
+        {
+            listeners = ((JMenuItem) menuItem).getActionListeners();
+        }
+        else if (menuItem instanceof MenuItem)
+        {
+            listeners = ((MenuItem) menuItem).getActionListeners();
+        }
+        else
+        {
+            return;
+        }
+
+        for (ActionListener l : listeners)
+        {
+            impl.addActionListener(l);
+        }
     }
 
     public void addBalloonActionListener(ActionListener listener)

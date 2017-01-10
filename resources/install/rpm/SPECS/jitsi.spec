@@ -12,12 +12,13 @@ BuildRoot: %{_topdir}/buildroot
 
 AutoReqProv:   no
 BuildRequires: java-devel >= 1:1.7
-Buildrequires: ant
-Buildrequires: ant-nodeps
-Buildrequires: gzip
-Buildrequires: git
+BuildRequires: ant
+BuildRequires: ant-nodeps
+BuildRequires: gzip
+BuildRequires: git
 
 Requires: java >= 1:1.7
+Requires: libappindicator
 Requires: speex
 Requires: speexdsp
 

@@ -35,6 +35,7 @@ import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 import net.java.sip.communicator.util.Logger;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
 
@@ -185,46 +186,33 @@ public class SystrayServiceJdicImpl
             return;
         }
 
-        menu = TrayMenuFactory.createTrayMenu(this, systray.useSwingPopupMenu());
+        Pair<Object, Object> createdMenu = TrayMenuFactory.createTrayMenu(
+            this,
+            systray.useSwingPopupMenu(),
+            systray.supportsDynamicMenu());
+        menu = createdMenu.getLeft();
 
         boolean isMac = OSUtils.IS_MAC;
 
-        // If we're running under Windows, we use a special icon without
-        // background.
-        if (OSUtils.IS_WINDOWS)
-        {
-            logoIcon = Resources.getImage("service.systray.TRAY_ICON_WINDOWS");
-            logoIconOffline = Resources.getImage(
-                "service.systray.TRAY_ICON_WINDOWS_OFFLINE");
-            logoIconAway = Resources.getImage(
-                "service.systray.TRAY_ICON_WINDOWS_AWAY");
-            logoIconExtendedAway = Resources.getImage(
-                "service.systray.TRAY_ICON_WINDOWS_EXTENDED_AWAY");
-            logoIconFFC = Resources.getImage(
-                "service.systray.TRAY_ICON_WINDOWS_FFC");
-            logoIconDND = Resources.getImage(
-                "service.systray.TRAY_ICON_WINDOWS_DND");
-        }
-        /*
-         * If we're running under Mac OS X, we use special black and white icons
-         * without background.
-         */
-        else if (isMac)
+        logoIcon = Resources.getImage("service.systray.TRAY_ICON_WINDOWS");
+        logoIconOffline = Resources.getImage(
+            "service.systray.TRAY_ICON_WINDOWS_OFFLINE");
+        logoIconAway = Resources.getImage(
+            "service.systray.TRAY_ICON_WINDOWS_AWAY");
+        logoIconExtendedAway = Resources.getImage(
+            "service.systray.TRAY_ICON_WINDOWS_EXTENDED_AWAY");
+        logoIconFFC = Resources.getImage(
+            "service.systray.TRAY_ICON_WINDOWS_FFC");
+        logoIconDND = Resources.getImage(
+            "service.systray.TRAY_ICON_WINDOWS_DND");
+
+        // If we're running under Mac OS X, we use special black and white
+        // icons without background.
+        if (isMac)
         {
             logoIcon = Resources.getImage("service.systray.TRAY_ICON_MACOSX");
             logoIconWhite = Resources.getImage(
                 "service.systray.TRAY_ICON_MACOSX_WHITE");
-        }
-        else
-        {
-            logoIcon = Resources.getImage("service.systray.TRAY_ICON");
-            logoIconOffline = Resources.getImage(
-                "service.systray.TRAY_ICON_OFFLINE");
-            logoIconAway = Resources.getImage("service.systray.TRAY_ICON_AWAY");
-            logoIconExtendedAway = Resources.getImage(
-                "service.systray.TRAY_ICON_EXTENDED_AWAY");
-            logoIconFFC = Resources.getImage("service.systray.TRAY_ICON_FFC");
-            logoIconDND = Resources.getImage("service.systray.TRAY_ICON_DND");
         }
 
         /*
@@ -259,21 +247,15 @@ public class SystrayServiceJdicImpl
         }
 
         //Show/hide the contact list when user clicks on the systray.
-        trayIcon.addActionListener(
-                new ActionListener()
-                {
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        UIService uiService
-                            = OsDependentActivator.getUIService();
-                        ExportedWindow mainWindow
-                            = uiService.getExportedWindow(
-                                    ExportedWindow.MAIN_WINDOW);
-                        boolean setIsVisible = !mainWindow.isVisible();
-
-                        uiService.setVisible(setIsVisible);
-                    }
-                });
+        final Object defaultActionItem;
+        if (systray.useSwingPopupMenu())
+        {
+            defaultActionItem = ((JMenuItem) createdMenu.getRight());
+        }
+        else
+        {
+            defaultActionItem = ((MenuItem) createdMenu.getRight());
+        }
 
         /*
          * Change the Mac OS X icon with the white one when the pop-up menu
@@ -336,6 +318,7 @@ public class SystrayServiceJdicImpl
             public void run()
             {
                 systray.addTrayIcon(trayIcon);
+                trayIcon.setDefaultAction(defaultActionItem);
             }
         });
 
