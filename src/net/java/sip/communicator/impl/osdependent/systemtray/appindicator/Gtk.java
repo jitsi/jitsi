@@ -20,7 +20,7 @@ package net.java.sip.communicator.impl.osdependent.systemtray.appindicator;
 import com.sun.jna.*;
 
 /**
- * JNA mappings for the gtk2 library. Only functions required for the try menu
+ * JNA mappings for the gtk2 library. Only functions required for the tray menu
  * are defined.
  * 
  * @author Ingo Bauersachs
@@ -44,14 +44,7 @@ interface Gtk extends Library
     void gtk_init(int argc, String[] argv);
     void gtk_main();
     Pointer gtk_menu_new();
-    Pointer gtk_menu_item_new();
-    Pointer gtk_menu_item_new_with_label(String label);
-    Pointer gtk_image_menu_item_new_with_mnemonic(String label);
     Pointer gtk_image_menu_item_new_with_label(String label);
-    Pointer gtk_image_new_from_gicon(Pointer icon, int size);
-    Pointer gtk_image_new_from_stock(String stock_id, int size);
-    Pointer gtk_image_new_from_icon_name(String icon_name, int size);
-    Pointer gtk_image_new_from_file(String filename);
     Pointer gtk_separator_menu_item_new();
     void gtk_menu_item_set_submenu(Pointer menu_item, Pointer submenu);
     void gtk_image_menu_item_set_image(Pointer image_menu_item, Pointer image);
@@ -60,15 +53,11 @@ interface Gtk extends Library
     void gtk_menu_shell_append(Pointer menu_shell, Pointer child);
     void gtk_widget_set_sensitive(Pointer widget, int sesitive);
     void gtk_widget_show_all(Pointer widget);
-    //void gtk_container_remove(Pointer container, Pointer widget);
     void gtk_widget_destroy(Pointer widget);
-    void gtk_widget_show(Pointer widget);
     Pointer gtk_check_menu_item_new_with_label(String label);
     int gtk_check_menu_item_get_active(Pointer check_menu_item);
     void gtk_check_menu_item_set_active(Pointer check_menu_item, int is_active);
 
-    Pointer g_file_new_for_uri(String uri);
-    Pointer g_file_icon_new(Pointer file);
     void gdk_threads_enter();
     void gdk_threads_leave();
 

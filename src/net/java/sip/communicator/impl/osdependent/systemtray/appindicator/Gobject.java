@@ -49,10 +49,24 @@ interface Gobject extends Library
      * @param data data to pass to c_handler calls.
      * @param destroy_data a GClosureNotify for data.
      * @param connect_flags a combination of GConnectFlags.
+     * 
+     * @return the handler id (always greater than 0 for successful connections)
      */
-    void g_signal_connect_data(Pointer instance, String detailed_signal,
+    long g_signal_connect_data(Pointer instance, String detailed_signal,
         SignalHandler c_handler, Pointer data, Pointer destroy_data,
         int connect_flags);
+    
+    /**
+     * Disconnects a handler from an instance so it will not be called during
+     * any future or currently ongoing emissions of the signal it has been
+     * connected to. The handler_id becomes invalid and may be reused. The
+     * handler_id has to be a valid signal handler id, connected to a signal of
+     * instance .
+     * 
+     * @param instance The instance to remove the signal handler from.
+     * @param handler_id Handler id of the handler to be disconnected.
+     */
+    void g_signal_handler_disconnect(Pointer instance, long handler_id); 
 
     /**
      * Decreases the reference count of object. When its reference count drops
