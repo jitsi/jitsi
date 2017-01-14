@@ -34,6 +34,7 @@ import net.java.sip.communicator.util.*;
 
 import org.ice4j.ice.*;
 import org.jitsi.service.neomedia.*;
+import org.jitsi.service.neomedia.stats.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
 
@@ -469,7 +470,7 @@ public class CallInfoFrame
             StringBuffer stringBuffer,
             MediaType mediaType)
     {
-        MediaStreamStats mediaStreamStats
+        MediaStreamStats2 mediaStreamStats
             = mediaStream.getMediaStreamStats();
 
         if(mediaStreamStats == null)
@@ -624,18 +625,19 @@ public class CallInfoFrame
                 resources.getI18NString(
                     "service.gui.callinfo.BANDWITH"),
                     "&darr; "
-                    + (int) mediaStreamStats.getDownloadRateKiloBitPerSec()
+                    + (int) mediaStreamStats.getReceiveStats().getBitrate()/1024
                         + " Kbps "
                     + " &uarr; "
-                    + (int) mediaStreamStats.getUploadRateKiloBitPerSec()
+                    + (int) mediaStreamStats.getSendStats().getBitrate()/1024
                         + " Kbps"));
 
         stringBuffer.append(
             getLineString(
                 resources.getI18NString("service.gui.callinfo.LOSS_RATE"),
-                    "&darr; " + (int) mediaStreamStats.getDownloadPercentLoss()
+                    "&darr;"
+                    + (int) (mediaStreamStats.getReceiveStats().getLossRate() * 100)
                     + "% &uarr; "
-                    + (int) mediaStreamStats.getUploadPercentLoss()
+                    + (int) (mediaStreamStats.getSendStats().getLossRate() * 100)
                     + "%"));
         stringBuffer.append(
             getLineString(
@@ -668,21 +670,23 @@ public class CallInfoFrame
                 + mediaStreamStats.getPacketQueueCountPackets() + "/"
                 + mediaStreamStats.getPacketQueueSize() + " packets"));
 
-        long rttMs = mediaStreamStats.getRttMs();
-        if(rttMs != -1)
+        long sendRttMs = mediaStreamStats.getSendStats().getRtt();
+        long recvRttMs = mediaStreamStats.getReceiveStats().getRtt();
+        if(recvRttMs != -1 || sendRttMs != -1)
         {
             stringBuffer.append(
                 getLineString(resources.getI18NString(
                         "service.gui.callinfo.RTT"),
-                    rttMs + " ms"));
+                    (recvRttMs != -1 ? "&darr; " + recvRttMs + " ms" : "") +
+                    (sendRttMs != -1 ? "&uarr; " + sendRttMs + " ms" : "")));
         }
 
         stringBuffer.append(
             getLineString(resources.getI18NString(
                     "service.gui.callinfo.JITTER"),
-                "&darr; " + (int) mediaStreamStats.getDownloadJitterMs()
+                "&darr; " + (int) mediaStreamStats.getReceiveStats().getJitter()
                 + " ms &uarr; "
-                + (int) mediaStreamStats.getUploadJitterMs() + " ms"));
+                + (int) mediaStreamStats.getSendStats().getJitter() + " ms"));
     }
 
     /**

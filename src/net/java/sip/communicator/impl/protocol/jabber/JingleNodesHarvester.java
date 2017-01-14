@@ -36,7 +36,7 @@ import org.xmpp.jnodes.smack.*;
  * @author Sebastien Vincent
  */
 public class JingleNodesHarvester
-    extends CandidateHarvester
+    extends AbstractCandidateHarvester
 {
     /**
      * The <tt>Logger</tt> used by the <tt>JingleNodesHarvester</tt> class and

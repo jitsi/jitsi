@@ -87,7 +87,7 @@ public class JingleNodesCandidate
      * @return the <tt>RelayedCandidateDatagramSocket</tt> of this
      * <tt>RelayedCandidate</tt>
      */
-    public synchronized JingleNodesCandidateDatagramSocket
+    private synchronized JingleNodesCandidateDatagramSocket
         getRelayedCandidateDatagramSocket()
     {
         if (jingleNodesCandidateDatagramSocket == null)
@@ -113,7 +113,7 @@ public class JingleNodesCandidate
      * <tt>Candidate</tt>
      */
     @Override
-    public IceSocketWrapper getIceSocketWrapper()
+    protected IceSocketWrapper getCandidateIceSocketWrapper()
     {
         if (socket == null)
         {

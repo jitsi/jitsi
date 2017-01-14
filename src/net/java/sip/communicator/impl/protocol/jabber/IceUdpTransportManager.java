@@ -397,32 +397,29 @@ public class IceUdpTransportManager
             for (int i = 0; i < COMPONENT_IDS.length; i++)
             {
                 Component component = stream.getComponent(COMPONENT_IDS[i]);
-
-                if (component != null)
+                if (component == null)
                 {
-                    CandidatePair selectedPair = component.getSelectedPair();
+                    continue;
+                }
 
-                    if (selectedPair != null)
-                    {
-                        DatagramSocket streamConnectorSocket
-                            = selectedPair.getDatagramSocket();
-
-                        if (streamConnectorSocket != null)
-                        {
-                            streamConnectorSockets[i] = streamConnectorSocket;
-                            streamConnectorSocketCount++;
-                            logger.trace("Added a streamConnectorSocket to the array " +
-                                "StreamConnectorSocket and increased " +
-                                "the count of streamConnectorSocketCount by one to " +
-                                streamConnectorSocketCount);
-
-                        }
-                    }
+                DatagramSocket streamConnectorSocket = component.getSocket();
+                if (streamConnectorSocket != null)
+                {
+                    streamConnectorSockets[i] = streamConnectorSocket;
+                    streamConnectorSocketCount++;
+                    logger.trace("Added a streamConnectorSocket to the array " +
+                        "StreamConnectorSocket and increased " +
+                        "the count of streamConnectorSocketCount by one to " +
+                        streamConnectorSocketCount);
                 }
             }
+
             if (streamConnectorSocketCount > 0)
+            {
                 return streamConnectorSockets;
+            }
         }
+
         return null;
     }
 
