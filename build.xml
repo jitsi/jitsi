@@ -950,7 +950,7 @@
         bundle-update,bundle-plugin-update,
         bundle-plugin-simpleaccreg,bundle-plugin-generalconfig,
         bundle-plugin-googletalkaccregwizz,bundle-argdelegation-service,
-        bundle-argdelegation,bundle-zrtp4j,bundle-json,
+        bundle-argdelegation,bundle-json,
         bundle-filehistory,bundle-metahistory,bundle-metahistory-slick,
         bundle-plugin-ippiaccregwizz,
         bundle-plugin-otr,bundle-plugin-iptelaccregwizz,
@@ -1005,6 +1005,7 @@
         <copy file="${lib.noinst}/dnssecjava-1.1.jar" tofile="${bundles.dest}/dnssecjava.jar"/>
         <copy file="${lib.noinst}/jna.jar" tofile="${bundles.dest}/jna.jar"/>
         <copy file="${lib.noinst}/jna-platform.jar" tofile="${bundles.dest}/jna-platform.jar"/>
+        <copy file="${lib.noinst}/zrtp4j-light-4.1.0-jitsi-1-SNAPSHOT.jar" tofile="${bundles.dest}/zrtp4j.jar"/>
     </target>
 
     <!--BUNDLE-SC-LAUNCHER-->
@@ -2142,46 +2143,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/impl/argdelegation/argdelegation.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/impl/argdelegation/"
                 prefix="net/java/sip/communicator/impl/argdelegation/"/>
-        </jar>
-    </target>
-
-    <!--BUNDLE-ZRTP4J -->
-    <target name="bundle-zrtp4j">
-        <jar compress="true" destfile="${bundles.dest}/zrtp4j.jar"
-            filesetmanifest="merge">
-
-            <zipfileset src="${lib.noinst}/zrtp4j-light.jar" prefix=""/>
-            <manifest>
-                <attribute name="Export-Package" value="gnu.java.zrtp,
-gnu.java.zrtp.packets,
-gnu.java.zrtp.utils,
-gnu.java.zrtp.zidfile"/>
-                <attribute name="Import-Package" value="org.bouncycastle.asn1,
-org.bouncycastle.asn1.nist,
-org.bouncycastle.asn1.sec,
-org.bouncycastle.asn1.x9,
-org.bouncycastle.crypto,
-org.bouncycastle.crypto.agreement,
-org.bouncycastle.crypto.digests,
-org.bouncycastle.crypto.engines,
-org.bouncycastle.crypto.generators,
-org.bouncycastle.crypto.macs,
-org.bouncycastle.crypto.modes,
-org.bouncycastle.crypto.params,
-org.bouncycastle.crypto.prng,
-org.jitsi.bccontrib.digests,
-org.jitsi.bccontrib.engines,
-org.jitsi.bccontrib.macs,
-org.jitsi.bccontrib.params,
-org.jitsi.bccontrib.prng,
-org.bouncycastle.math.ec,
-org.bouncycastle.util.encoders,
-org.bouncycastle.util"/>
-                <attribute name="Bundle-Name" value="ZRTP4J"/>
-                <attribute name="Bundle-Description" value="ZRTP for Java library."/>
-                <attribute name="Bundle-Version" value="1.4.5"/>
-                <attribute name="Bundle-SymbolicName" value="gnu.java.zrtp4j"/>
-            </manifest>
         </jar>
     </target>
 
