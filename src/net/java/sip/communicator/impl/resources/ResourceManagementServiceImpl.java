@@ -344,4 +344,24 @@ public class ResourceManagementServiceImpl
     {
         return SkinJarBuilder.createBundleFromZip(zipFile, getImagePack());
     }
+
+    /**
+     * Gets the specified setting from the config service if present, otherwise
+     * from the embedded resources (resources/config/defaults.properties).
+     * 
+     * @param key The setting to lookup.
+     * @return The setting for the key or {@code null} if not found.
+     */
+    @Override
+    public String getSettingsString(String key)
+    {
+        Object configValue = ResourceManagementActivator
+            .getConfigService().getProperty(key);
+        if (configValue == null)
+        {
+            configValue = super.getSettingsString(key);
+        }
+
+        return configValue == null ? null : configValue.toString();
+    }
 }

@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.resources;
 
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.osgi.framework.*;
 
@@ -31,6 +32,7 @@ public class ResourceManagementActivator
     extends SimpleServiceActivator<ResourceManagementServiceImpl>
 {
     static BundleContext bundleContext;
+    private static ConfigurationService configService;
 
     /**
      * Creates new instance of <tt>ResourceManagementActivator</tt>
@@ -67,5 +69,23 @@ public class ResourceManagementActivator
     protected ResourceManagementServiceImpl createServiceImpl()
     {
         return new ResourceManagementServiceImpl();
+    }
+
+    /**
+     * Returns the <tt>ConfigurationService</tt> obtained from the bundle
+     * context.
+     * @return the <tt>ConfigurationService</tt> obtained from the bundle
+     * context
+     */
+    public static ConfigurationService getConfigService()
+    {
+        if(configService == null)
+        {
+            configService
+                = ServiceUtils.getService(
+                        bundleContext,
+                        ConfigurationService.class);
+        }
+        return configService;
     }
 }
