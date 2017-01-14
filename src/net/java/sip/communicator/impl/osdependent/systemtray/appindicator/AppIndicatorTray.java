@@ -32,25 +32,11 @@ import net.java.sip.communicator.util.*;
  */
 public class AppIndicatorTray extends SystemTray
 {
-    private static final String PNMAE_APPINDICATOR_DISABLED =
-        "net.java.sip.communicator.osdependent.systemtray.appindicator.DISABLED";
-    private static final String PNMAE_APPINDICATOR_DYNAMIC_MENU =
-        "net.java.sip.communicator.osdependent.systemtray.appindicator.DYNAMIC_MENU";
+    private boolean dynamicMenu;
 
-    public AppIndicatorTray() throws Exception
+    public AppIndicatorTray(boolean dynamicMenu) throws Exception
     {
-        boolean disable = OsDependentActivator.getConfigurationService()
-            .getBoolean(PNMAE_APPINDICATOR_DISABLED, false);
-        if (disable)
-        {
-            throw new Exception("AppIndicator is disabled");
-        }
-
-        if (!OSUtils.IS_LINUX)
-        {
-            throw new Exception("Not running Linux, AppIndicator1 is not available");
-        }
-
+        this.dynamicMenu = dynamicMenu;
         try
         {
             // pre-initialize the JNA libraries before attempting to use them
@@ -74,7 +60,6 @@ public class AppIndicatorTray extends SystemTray
     @Override
     public TrayIcon createTrayIcon(ImageIcon icon, String tooltip, Object popup)
     {
-
         return new AppIndicatorTrayIcon(icon, tooltip, (JPopupMenu) popup);
     }
 
@@ -88,7 +73,6 @@ public class AppIndicatorTray extends SystemTray
     @Override
     public boolean supportsDynamicMenu()
     {
-        return OsDependentActivator.getConfigurationService()
-            .getBoolean(PNMAE_APPINDICATOR_DYNAMIC_MENU, true);
+        return dynamicMenu;
     }
 }

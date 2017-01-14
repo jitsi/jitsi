@@ -21,6 +21,8 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.*;
 import java.net.*;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -54,7 +56,6 @@ import com.apple.eawt.*;
 public class SystrayServiceJdicImpl
     extends AbstractSystrayService
 {
-
     /**
      * The systray.
      */
@@ -130,7 +131,6 @@ public class SystrayServiceJdicImpl
         super(OsDependentActivator.bundleContext);
 
         SystemTray systray;
-
         try
         {
             systray = SystemTray.getSystemTray();
@@ -146,10 +146,39 @@ public class SystrayServiceJdicImpl
                     logger.error("Failed to create a systray!", t);
             }
         }
-        this.systray = systray;
 
+        this.systray = systray;
         if (this.systray != null)
+        {
             initSystray();
+        }
+    }
+
+    @Override
+    public Map<String, String> getSystrayModes()
+    {
+        return new HashMap<String, String>()
+        {{
+            put("disabled", "service.systray.mode.DISABLED");
+            if (java.awt.SystemTray.isSupported())
+            {
+                put("native", "service.systray.mode.NATIVE");
+            }
+
+            if (!OSUtils.IS_MAC && !OSUtils.IS_WINDOWS)
+            {
+                put("appindicator",
+                    "service.systray.mode.APPINDICATOR");
+                put("appindicator_static",
+                    "service.systray.mode.APPINDICATOR_STATIC");
+            }
+        }};
+    }
+
+    @Override
+    public String getActiveSystrayMode()
+    {
+        return SystemTray.getSystemTrayMode();
     }
 
     /**
@@ -323,8 +352,7 @@ public class SystrayServiceJdicImpl
         });
 
         initialized = true;
-
-        uiService.setExitOnMainWindowClose(false);
+        uiService.setMainWindowCanHide(true);
     }
 
     /**
@@ -432,8 +460,6 @@ public class SystrayServiceJdicImpl
     @Override
     public boolean checkInitialized()
     {
-        if (!initialized)
-            logger.error("Systray not init");
         return initialized;
     }
 

@@ -299,6 +299,11 @@ public class LaunchArgHandler
                 // do nothing already handled by startup script/binary
                 continue;
             }
+            else if (args[i].startsWith("--notray"))
+            {
+                System.setProperty("disable-tray", "true");
+                continue;
+            }
             //if this is the last arg and it's not an option then it's probably
             //an URI
             else if ( i == args.length - 1
@@ -521,6 +526,7 @@ public class LaunchArgHandler
         System.out.println("  -6, --ipv6        prefer IPv6 addresses where possible only");
         System.out.println("  -4, --ipv4        forces use of IPv4 only");
         System.out.println("  -v, --version     display the current version and exit");
+        System.out.println("  -n, --notray      disable the tray icon and show the GUI");
     }
 
     /**

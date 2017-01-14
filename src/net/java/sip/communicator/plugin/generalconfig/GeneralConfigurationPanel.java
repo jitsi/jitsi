@@ -98,6 +98,13 @@ public class GeneralConfigurationPanel
         =
         "net.java.sip.communicator.plugin.generalconfig.localeconfig.DISABLED";
 
+    /**
+     * Indicates if the systray config panel should be disabled, i.e. not
+     * visible to the user.
+     */
+    private static final String SYSTRAY_CONFIG_DISABLED_PROP = 
+        "net.java.sip.communicator.plugin.generalconfig.systrayconfig.DISABLED";
+
      /**
       * Indicates if the Call configuration panel should be disabled, i.e.
       * not visible to the user.
@@ -165,6 +172,13 @@ public class GeneralConfigurationPanel
                 .getBoolean(LOCALE_CONFIG_DISABLED_PROP, false))
         {
             mainPanel.add(createLocaleConfigPanel());
+            mainPanel.add(Box.createVerticalStrut(10));
+        }
+
+        if(!GeneralConfigPluginActivator.getConfigurationService()
+                .getBoolean(SYSTRAY_CONFIG_DISABLED_PROP, false))
+        {
+            mainPanel.add(createSystrayeConfigPanel());
             mainPanel.add(Box.createVerticalStrut(10));
         }
 
@@ -251,7 +265,7 @@ public class GeneralConfigurationPanel
             {
                 boolean value = ((JCheckBox) e.getSource()).isSelected();
                 ConfigurationUtils.setIsMinimizeInsteadOfHide(value);
-                UtilActivator.getUIService().setExitOnMainWindowClose(
+                UtilActivator.getUIService().setMainWindowCanHide(
                     !UtilActivator.getSystrayService().checkInitialized());
             }
         });
@@ -854,6 +868,72 @@ public class GeneralConfigurationPanel
         localeConfigPanel.add(warnLabel);
 
         return localeConfigPanel;
+    }
+
+    private static class Item
+    {
+        public String key;
+        public String value;
+
+        public Item(String key, String value)
+        {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String toString()
+        {
+            return GeneralConfigPluginActivator.getResources()
+                .getI18NString(value);
+        }
+    }
+
+    /**
+     * Initializes the systray configuration panel.
+     * @return the created component
+     */
+    private Component createSystrayeConfigPanel()
+    {
+        JPanel panel = GeneralConfigPluginActivator.
+            createConfigSectionComponent(
+                Resources.getString("service.systray.MODE"));
+
+        final JComboBox<Item> systrayModes = new JComboBox<>();
+        SystrayService ss = GeneralConfigPluginActivator.getSystrayService();
+        for (Map.Entry<String, String> mode : ss.getSystrayModes().entrySet())
+        {
+            Item i = new Item(mode.getKey(), mode.getValue());
+            systrayModes.addItem(i);
+            if (mode.getKey().equals(ss.getActiveSystrayMode()))
+            {
+                systrayModes.setSelectedItem(i);
+            }
+        }
+
+        systrayModes.addActionListener(new ActionListener()
+        {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                GeneralConfigPluginActivator.getConfigurationService()
+                    .setProperty(SystrayService.PNMAE_TRAY_MODE,
+                        ((Item) systrayModes.getSelectedItem()).key);
+            }
+        });
+
+        panel.add(systrayModes);
+        String label = "<html><body style='width:350px'>* " +
+            Resources.getString("service.systray.CLI_NOTE", new String[]{
+                Resources.getSettingsString("service.gui.APPLICATION_NAME")
+            }) + "</body></html>";
+        JLabel warnLabel = new JLabel(label);
+        warnLabel.setToolTipText(label);
+        warnLabel.setForeground(Color.GRAY);
+        warnLabel.setFont(warnLabel.getFont().deriveFont(8));
+        warnLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+        panel.add(warnLabel);
+        return panel;
     }
 
     /**

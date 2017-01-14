@@ -17,6 +17,8 @@
  */
 package net.java.sip.communicator.service.systray;
 
+import java.util.*;
+
 import net.java.sip.communicator.service.systray.event.*;
 
 /**
@@ -27,6 +29,9 @@ import net.java.sip.communicator.service.systray.event.*;
  */
 public interface SystrayService
 {
+    public static final String PNMAE_TRAY_MODE =
+        "net.java.sip.communicator.osdependent.systemtray.MODE";
+
     /**
      * Message type corresponding to an error message.
      */
@@ -136,4 +141,19 @@ public interface SystrayService
      * @param count The number of pending notifications.
      */
     public void setNotificationCount(int count);
+
+    /**
+     * Gets a map of systray modes and resource-keys that describe them.
+     * @return key: mode for config property, value: resource key
+     */
+    public Map<String, String> getSystrayModes();
+
+    /**
+     * Gets the systray mode that was chosen at startup, either by default or as
+     * an override selected by the user.
+     * 
+     * @return The selected mode or {@code disabled} if the user selected mode
+     *         is not available.
+     */
+    public String getActiveSystrayMode();
 }

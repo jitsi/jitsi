@@ -157,26 +157,14 @@ public interface UIService
     public void bringToFront();
 
     /**
-     * Sets the exitOnClose property. When TRUE, the user could exit the
-     * application by simply closing the main application window (by clicking
-     * the X button or pressing Alt-F4). When set to FALSE the main application
-     * window will be only hidden.
-     *
-     * @param exitOnClose When TRUE, the user could exit the application by
-     *            simply closing the main application window (by clicking the X
-     *            button or pressing Alt-F4). When set to FALSE the main
-     *            application window will be only hidden.
+     * Called from the systray service when a tray has been initialized and
+     * hiding (instead of minimizing or exiting) is possible). If hiding is
+     * possible and the option to minimize is not selected, the application
+     * gets hidden on clicking 'X'.
+     * 
+     * @param true if a tray icon was loaded.
      */
-    public void setExitOnMainWindowClose(boolean exitOnClose);
-
-    /**
-     * Returns TRUE if the application could be exited by closing the main
-     * application window, otherwise returns FALSE.
-     *
-     * @return Returns TRUE if the application could be exited by closing the
-     *         main application window, otherwise returns FALSE
-     */
-    public boolean getExitOnMainWindowClose();
+    public void setMainWindowCanHide(boolean exitOnClose);
 
     /**
      * Returns an exported window given by the <tt>WindowID</tt>. This could be

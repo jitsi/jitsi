@@ -334,13 +334,9 @@ public class MainFrame
      */
     private void init()
     {
-        setDefaultCloseOperation(
-            GuiActivator.getUIService().getExitOnMainWindowClose()
-                ? JFrame.DISPOSE_ON_CLOSE
-                : JFrame.HIDE_ON_CLOSE);
-
+        // at startup, we cannot hide yet
+        updateCloseAction(false);
         registerKeyActions();
-
         JComponent northPanel = createTopComponent();
 
         this.setJMenuBar(menu);
@@ -391,6 +387,30 @@ public class MainFrame
             java.awt.Container contentPane = getContentPane();
             contentPane.add(mainPanel, BorderLayout.CENTER);
             contentPane.add(statusBarPanel, BorderLayout.SOUTH);
+        }
+    }
+
+    /**
+     * If hiding is possible and the option to minimize is not selected, the
+     * application gets hidden on clicking 'X'.
+     * 
+     * @param true if hiding is possible, i.e. a tray icon is loaded
+     */
+    public void updateCloseAction(boolean canHide)
+    {
+        if (ConfigurationUtils.isMinimizeInsteadOfHide())
+        {
+            logger.info("Updating close action: DO_NOTHING_ON_CLOSE");
+            setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        }
+        else
+        {
+            logger.info("Updating close action: " + (canHide
+                ? "HIDE_ON_CLOSE"
+                : "DISPOSE_ON_CLOSE"));
+            setDefaultCloseOperation(canHide
+                ? JFrame.HIDE_ON_CLOSE
+                : JFrame.DISPOSE_ON_CLOSE);
         }
     }
 
@@ -1885,7 +1905,8 @@ public class MainFrame
      */
     protected void windowClosed(WindowEvent event)
     {
-        if(GuiActivator.getUIService().getExitOnMainWindowClose())
+        if(getDefaultCloseOperation() == JFrame.EXIT_ON_CLOSE ||
+            getDefaultCloseOperation() == JFrame.DISPOSE_ON_CLOSE)
         {
             try
             {
@@ -1919,10 +1940,17 @@ public class MainFrame
 
         // On Mac systems the application is not quited on window close, so we
         // don't need to warn the user.
-        if (!GuiActivator.getUIService().getExitOnMainWindowClose()
-            && !OSUtils.IS_MAC
-            && GuiActivator.getSystrayService().checkInitialized())
+        if (OSUtils.IS_MAC)
         {
+            return;
+        }
+
+        switch (getDefaultCloseOperation())
+        {
+        case JFrame.EXIT_ON_CLOSE:
+        case JFrame.DISPOSE_ON_CLOSE:
+            return;
+        case JFrame.HIDE_ON_CLOSE:
             SwingUtilities.invokeLater(new Runnable()
             {
                 public void run()
@@ -1941,12 +1969,11 @@ public class MainFrame
                     }
                 }
             });
-
             ConfigurationUtils.setApplicationVisible(false);
-            if (ConfigurationUtils.isMinimizeInsteadOfHide())
-            {
-                this.minimize();
-            }
+            break;
+        case JFrame.DO_NOTHING_ON_CLOSE:
+            this.minimize();
+            break;
         }
     }
 

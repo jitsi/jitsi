@@ -26,6 +26,7 @@ import org.jitsi.util.*;
 import net.java.sip.communicator.impl.osdependent.*;
 import net.java.sip.communicator.impl.osdependent.systemtray.appindicator.*;
 import net.java.sip.communicator.impl.osdependent.systemtray.awt.*;
+import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.util.Logger;
 
 /**
@@ -33,11 +34,9 @@ import net.java.sip.communicator.util.Logger;
  */
 public abstract class SystemTray
 {
-    private static final String PNMAE_DISABLE_TRY =
-        "net.java.sip.communicator.osdependent.systemtray.DISABLE";
-
     private static final Logger logger = Logger.getLogger(SystemTray.class);
     private static SystemTray systemTray;
+    private static final String DISABLED_TRAY_MODE = "disabled";
 
     /**
      * Gets or creates the supported <tt>SystemTray</tt> implementations.
@@ -45,35 +44,76 @@ public abstract class SystemTray
      */
     public final static SystemTray getSystemTray()
     {
-        boolean disable = OsDependentActivator.getConfigurationService()
-            .getBoolean(PNMAE_DISABLE_TRY, false);
-        if (disable || GraphicsEnvironment.isHeadless())
-        {
-            return null;
-        }
-
         if (systemTray == null)
         {
-            if (OSUtils.IS_LINUX)
+            String mode = getSystemTrayMode();
+            logger.info("Tray for " + mode + " requested");
+            switch (mode)
             {
+            case DISABLED_TRAY_MODE:
+                return null;
+            case "native":
+                if (java.awt.SystemTray.isSupported())
+                {
+                    systemTray = new AWTSystemTray();
+                }
+
+                break;
+            case "appindicator":
                 try
                 {
-                    systemTray = new AppIndicatorTray();
-                    return systemTray;
+                    systemTray = new AppIndicatorTray(true);
                 }
                 catch(Exception ex)
                 {
-                    logger.info(ex.getMessage());
+                    logger.error("AppIndicator tray not available", ex);
                 }
+                break;
+            case "appindicator_static":
+                try
+                {
+                    systemTray = new AppIndicatorTray(false);
+                }
+                catch(Exception ex)
+                {
+                    logger.error("AppIndicator tray not available", ex);
+                }
+
+                break;
             }
 
-            if (java.awt.SystemTray.isSupported())
+            if (systemTray == null)
             {
-                systemTray = new AWTSystemTray();
+                OsDependentActivator.getConfigurationService()
+                    .setProperty(SystrayService.PNMAE_TRAY_MODE, "disabled");
             }
         }
 
         return systemTray;
+    }
+
+    public static String getSystemTrayMode()
+    {
+        String defaultTrayMode = DISABLED_TRAY_MODE;
+        if (GraphicsEnvironment.isHeadless())
+        {
+            return DISABLED_TRAY_MODE;
+        }
+
+        // setting from cmd-line: request to disable tray in case it failed
+        if (Boolean.getBoolean("disable-tray"))
+        {
+            OsDependentActivator.getConfigurationService().setProperty(
+                SystrayService.PNMAE_TRAY_MODE, DISABLED_TRAY_MODE);
+        }
+
+        if (OSUtils.IS_WINDOWS || OSUtils.IS_MAC)
+        {
+            defaultTrayMode = "native";
+        }
+
+        return OsDependentActivator.getConfigurationService()
+            .getString(SystrayService.PNMAE_TRAY_MODE, defaultTrayMode);
     }
 
     /**

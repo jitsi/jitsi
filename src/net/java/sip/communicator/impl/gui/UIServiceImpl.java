@@ -200,6 +200,7 @@ public class UIServiceImpl
         }
 
         if(ConfigurationUtils.isApplicationVisible()
+            || Boolean.getBoolean("disable-tray")
             || ConfigurationUtils.isMinimizeInsteadOfHide())
         {
             mainFrame.setFrameVisible(true);
@@ -433,38 +434,16 @@ public class UIServiceImpl
     }
 
     /**
-     * Implements {@link UIService#setExitOnMainWindowClose}. Sets the boolean
-     * property which indicates whether the application should be exited when
-     * the main application window is closed.
-     *
-     * @param exitOnMainWindowClose <tt>true</tt> if closing the main
-     * application window should also be exiting the application; otherwise,
-     * <tt>false</tt>
+     * Called from the systray service when a tray has been initialized and
+     * hiding (instead of minimizing or exiting) is possible). If hiding is
+     * possible and the option to minimize is not selected, the application
+     * gets hidden on clicking 'X'.
+     * 
+     * @param true if a tray icon was loaded.
      */
-    public void setExitOnMainWindowClose(boolean exitOnMainWindowClose)
+    public void setMainWindowCanHide(boolean canHide)
     {
-        mainFrame.setDefaultCloseOperation(
-                exitOnMainWindowClose
-                    ? JFrame.DISPOSE_ON_CLOSE
-                    : ConfigurationUtils.isMinimizeInsteadOfHide()
-                        ? JFrame.DO_NOTHING_ON_CLOSE
-                        : JFrame.HIDE_ON_CLOSE);
-    }
-
-    /**
-     * Implements {@link UIService#getExitOnMainWindowClose()}. Gets the boolean
-     * property which indicates whether the application should be exited when
-     * the main application window is closed.
-     *
-     * @return determines whether the UI impl would exit the application when
-     * the main application window is closed.
-     */
-    public boolean getExitOnMainWindowClose()
-    {
-        return
-            (mainFrame != null)
-                && (mainFrame.getDefaultCloseOperation()
-                        == JFrame.DISPOSE_ON_CLOSE);
+        mainFrame.updateCloseAction(canHide);
     }
 
     /**
