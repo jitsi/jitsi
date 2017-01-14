@@ -71,6 +71,8 @@ class AppIndicatorTrayIcon implements TrayIcon
     private PopupMenuPeer popupPeer;
     private AppIndicator1.AppIndicator appIndicator;
 
+    private PopupMenuPeer defaultMenuPeer;
+
     public AppIndicatorTrayIcon(ImageIcon mainIcon, String title,
         JPopupMenu popup)
     {
@@ -98,6 +100,16 @@ class AppIndicatorTrayIcon implements TrayIcon
             }
         }
 
+        @Override
+        protected void finalize() throws Throwable
+        {
+            super.finalize();
+            if (isDefaultMenuItem)
+            {
+                gobject.g_object_unref(gtkMenuItem);
+            }
+        }
+
         public List<PopupMenuPeer> children = new ArrayList<>();
         public Pointer gtkMenuItem;
         public Pointer gtkMenu;
@@ -107,6 +119,7 @@ class AppIndicatorTrayIcon implements TrayIcon
         public Component menuItem;
         public MenuItemSignalHandler signalHandler;
         public long gtkSignalHandler;
+        public boolean isDefaultMenuItem;
 
         @Override
         public void componentAdded(ContainerEvent e)
@@ -151,19 +164,15 @@ class AppIndicatorTrayIcon implements TrayIcon
 
     public void createTray()
     {
-        File iconFile = new File(imageIconToPath(mainIcon));
-        appIndicator = ai.app_indicator_new_with_path(
-            "jitsi",
-            iconFile.getName().replaceFirst("[.][^.]+$", ""),
-            AppIndicator1.APP_INDICATOR_CATEGORY.COMMUNICATIONS.ordinal(),
-            iconFile.getParent());
-
-        ai.app_indicator_set_title(appIndicator, title);
-        setupGtkMenu();
-
-        ai.app_indicator_set_status(
-            appIndicator,
-            AppIndicator1.APP_INDICATOR_STATUS.ACTIVE.ordinal());
+        gtk.gdk_threads_enter();
+        try
+        {
+            setupGtkMenu();
+        }
+        finally
+        {
+            gtk.gdk_threads_leave();
+        }
 
         new Thread()
         {
@@ -176,6 +185,19 @@ class AppIndicatorTrayIcon implements TrayIcon
 
     private void setupGtkMenu()
     {
+        File iconFile = new File(imageIconToPath(mainIcon));
+        appIndicator = ai.app_indicator_new_with_path(
+            "jitsi",
+            iconFile.getName().replaceFirst("[.][^.]+$", ""),
+            AppIndicator1.APP_INDICATOR_CATEGORY.COMMUNICATIONS.ordinal(),
+            iconFile.getParent());
+
+        ai.app_indicator_set_title(appIndicator, title);
+        ai.app_indicator_set_icon_full(
+            appIndicator,
+            iconFile.getAbsolutePath(),
+            "Jitsi");
+
         // create root menu
         popupPeer = new PopupMenuPeer(null, popup);
         popupPeer.gtkMenu = gtk.gtk_menu_new();
@@ -186,11 +208,14 @@ class AppIndicatorTrayIcon implements TrayIcon
 
         // attach the menu to the indicator
         ai.app_indicator_set_menu(appIndicator, popupPeer.gtkMenu);
+        ai.app_indicator_set_status(
+            appIndicator,
+            AppIndicator1.APP_INDICATOR_STATUS.ACTIVE.ordinal());
     }
 
     private void cleanMenu(PopupMenuPeer peer)
     {
-        logger.debug("Clean requested for: " + peer.menuItem);
+        assert !peer.isDefaultMenuItem;
         for (PopupMenuPeer p : peer.children)
         {
             cleanMenu(p);
@@ -308,7 +333,6 @@ class AppIndicatorTrayIcon implements TrayIcon
                 null,
                 null,
                 0);
-            logger.debug("Signal for " + ((JMenuItem)m).getText() + " is " + peer.gtkSignalHandler);
         }
     }
 
@@ -459,9 +483,18 @@ class AppIndicatorTrayIcon implements TrayIcon
 //                gtk.gtk_image_menu_item_set_image(gtkMenuItem, image);
 //                break;
             case AccessibleContext.ACCESSIBLE_STATE_PROPERTY:
-                gtk.gtk_widget_set_sensitive(
-                    peer.gtkMenuItem,
-                    AccessibleState.ENABLED.equals(evt.getNewValue()) ? 1 : 0);
+                gtk.gdk_threads_enter();
+                try
+                {
+                    gtk.gtk_widget_set_sensitive(
+                        peer.gtkMenuItem,
+                        AccessibleState.ENABLED.equals(
+                            evt.getNewValue()) ? 1 : 0);
+                }
+                finally
+                {
+                    gtk.gdk_threads_leave();
+                }
                 break;
             }
         }
@@ -510,6 +543,7 @@ class AppIndicatorTrayIcon implements TrayIcon
                 // already the same. Setting the selected state on the
                 // GTK sends the "activate" event, and would cause
                 // a loop
+                logger.debug("Checking selected state on: " + menu.getText());
                 if (menu.isSelected() == isGtkSelected())
                 {
                     return;
@@ -525,35 +559,63 @@ class AppIndicatorTrayIcon implements TrayIcon
 
         private boolean isGtkSelected()
         {
-            return (gtk.gtk_check_menu_item_get_active(peer.gtkMenuItem) == 1);
+            gtk.gdk_threads_enter();
+            try
+            {
+                return gtk.gtk_check_menu_item_get_active(peer.gtkMenuItem) == 1;
+            }
+            finally
+            {
+                gtk.gdk_threads_leave();
+            }
         }
     }
 
     @Override
     public void setDefaultAction(Object menuItem)
     {
-        Pointer gtkMenuItem = findMenuItem(popupPeer, menuItem);
-        if (gtkMenuItem != null)
+        // It shouldn't be necessary that we hold a reference to the
+        // default item, it is contained in the menu. It might even create
+        // a memory leak. But if not set, the indicator loses track of it
+        // (at least on Debian). Unref an existing item, then ref the newly
+        // set
+        if (defaultMenuPeer != null)
         {
-            ai.app_indicator_set_secondary_activate_target(
-                appIndicator,
-                gtkMenuItem);
+            gobject.g_object_unref(defaultMenuPeer.gtkMenuItem);
+        }
+
+        PopupMenuPeer peer = findMenuItem(popupPeer, menuItem);
+        if (peer != null && peer.gtkMenuItem != null)
+        {
+            gtk.gdk_threads_enter();
+            try
+            {
+                defaultMenuPeer = peer;
+                gobject.g_object_ref(peer.gtkMenuItem);
+                ai.app_indicator_set_secondary_activate_target(
+                    appIndicator,
+                    peer.gtkMenuItem);
+            }
+            finally
+            {
+                gtk.gdk_threads_leave();
+            }
         }
     }
 
-    private Pointer findMenuItem(PopupMenuPeer peer, Object menuItem)
+    private PopupMenuPeer findMenuItem(PopupMenuPeer peer, Object menuItem)
     {
         if (peer.menuItem == menuItem)
         {
             logger.debug("Setting default action to: "
                 + ((JMenuItem)menuItem).getText()
                 + " @" + peer.gtkMenuItem);
-            return peer.gtkMenuItem;
+            return peer;
         }
 
         for (PopupMenuPeer p : peer.children)
         {
-            Pointer found = findMenuItem(p, menuItem);
+            PopupMenuPeer found = findMenuItem(p, menuItem);
             if (found != null)
             {
                 return found;
@@ -582,10 +644,17 @@ class AppIndicatorTrayIcon implements TrayIcon
         mainIcon = icon;
         if (appIndicator != null)
         {
-            ai.app_indicator_set_icon_full(
-                appIndicator,
-                imageIconToPath(icon),
-                "Jitsi");
+            gtk.gdk_threads_enter();
+            try
+            {
+                ai.app_indicator_set_icon(
+                    appIndicator,
+                    imageIconToPath(icon));
+            }
+            finally
+            {
+                gtk.gdk_threads_leave();
+            }
         }
     }
 

@@ -185,7 +185,7 @@ public final class TrayMenuFactory
                 + "CHAT_PRESENCE_DISABLED",
                 false);
 
-        if (!chatPresenceDisabled.booleanValue())
+        if (!chatPresenceDisabled.booleanValue() && accountMenuSupported)
         {
             add(
                 trayMenu,

@@ -79,4 +79,12 @@ interface Gobject extends Library
      * @param object a GObject.
      */
     void g_object_unref(Pointer object);
+
+    /**
+     * Increases the reference count of object.
+     * 
+     * @param object a GObject.
+     * @return the same object.
+     */
+    Pointer g_object_ref(Pointer object);
 }
