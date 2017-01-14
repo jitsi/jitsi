@@ -21,6 +21,7 @@ Requires: java >= 1:1.7
 Requires: libappindicator
 Requires: speex
 Requires: speexdsp
+Requires: libXScrnSaver
 
 %description
 Jitsi is an audio/video and chat communicator that supports protocols
