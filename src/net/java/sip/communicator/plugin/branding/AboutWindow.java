@@ -20,6 +20,8 @@ package net.java.sip.communicator.plugin.branding;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.net.*;
+import java.util.*;
 
 import javax.imageio.*;
 import javax.swing.*;
@@ -56,9 +58,6 @@ public class AboutWindow
      */
     private static final long serialVersionUID = 0L;
 
-    /**
-     * The global/shared <code>AboutWindow</code> currently showing.
-     */
     private static AboutWindow aboutWindow;
 
     /**
@@ -120,8 +119,10 @@ public class AboutWindow
 
         ResourceManagementService resources = BrandingActivator.getResources();
 
-        String applicationName
-            = resources.getSettingsString("service.gui.APPLICATION_NAME");
+        String applicationName =
+            resources.getSettingsString("service.gui.APPLICATION_NAME");
+        String website =
+            resources.getSettingsString("service.gui.APPLICATION_WEB_SITE");
 
         this.setTitle(
             resources.getI18NString("plugin.branding.ABOUT_WINDOW_TITLE",
@@ -141,14 +142,10 @@ public class AboutWindow
                 .createEmptyBorder(15, 15, 15, 15));
         textPanel.setOpaque(false);
 
-        JLabel titleLabel = null;
-        if (isApplicationNameShown())
-        {
-            titleLabel = new JLabel(applicationName);
-            titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 28));
-            titleLabel.setForeground(Constants.TITLE_COLOR);
-            titleLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        }
+        JLabel titleLabel = new JLabel(applicationName);
+        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 28));
+        titleLabel.setForeground(Constants.TITLE_COLOR);
+        titleLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
 
         // Force the use of the custom text field UI in order to fix an
         // incorrect rendering on Ubuntu.
@@ -181,7 +178,6 @@ public class AboutWindow
         int logoAreaFontSize
             = resources.getSettingsInt("plugin.branding.ABOUT_LOGO_FONT_SIZE");
 
-        // FIXME: the message exceeds the window length
         JTextArea logoArea =
             new JTextArea(resources.getI18NString(
                 "plugin.branding.LOGO_MESSAGE"));
@@ -192,7 +188,6 @@ public class AboutWindow
         logoArea.setLineWrap(true);
         logoArea.setWrapStyleWord(true);
         logoArea.setEditable(false);
-        logoArea.setPreferredSize(new Dimension(100, 20));
         logoArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
         logoArea.setBorder(BorderFactory
             .createEmptyBorder(30, DEFAULT_TEXT_INDENT, 0, 0));
@@ -200,44 +195,38 @@ public class AboutWindow
         StyledHTMLEditorPane rightsArea = new StyledHTMLEditorPane();
         rightsArea.setContentType("text/html");
 
-        rightsArea.appendToEnd(resources.getI18NString(
-            "plugin.branding.COPYRIGHT",
-            new String[]
-            { Constants.TEXT_COLOR }));
+        String host = website;
+        try
+        {
+            host = new URL(website).getHost();
+        }
+        catch (Exception ex)
+        {}
 
-        rightsArea.setPreferredSize(new Dimension(50, 20));
-        rightsArea
-                .setBorder(BorderFactory
+        rightsArea.appendToEnd(resources.getI18NString(
+            "plugin.branding.COPYRIGHT_LICENSE",
+            new String[]
+            {
+                Constants.TEXT_COLOR,
+                Integer.toString(Calendar.getInstance().get(Calendar.YEAR)),
+                website,
+                host,
+                applicationName,
+                "http://www.apache.org/licenses/LICENSE-2.0",
+                "Apache License 2.0"
+            }));
+
+        rightsArea.setBorder(BorderFactory
                     .createEmptyBorder(0, DEFAULT_TEXT_INDENT, 0, 0));
         rightsArea.setOpaque(false);
         rightsArea.setEditable(false);
         rightsArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
         rightsArea.addHyperlinkListener(this);
 
-        StyledHTMLEditorPane licenseArea = new StyledHTMLEditorPane();
-        licenseArea.setContentType("text/html");
-        licenseArea.appendToEnd(resources.
-            getI18NString("plugin.branding.LICENSE",
-            new String[]{Constants.TEXT_COLOR}));
-
-        licenseArea.setPreferredSize(new Dimension(50, 20));
-        licenseArea.setBorder(
-            BorderFactory.createEmptyBorder(
-                resources.getSettingsInt("plugin.branding.ABOUT_PARAGRAPH_GAP"),
-                DEFAULT_TEXT_INDENT,
-                0, 0));
-        licenseArea.setOpaque(false);
-        licenseArea.setEditable(false);
-        licenseArea.setAlignmentX(Component.RIGHT_ALIGNMENT);
-        licenseArea.addHyperlinkListener(this);
-
-        if (titleLabel != null)
-            textPanel.add(titleLabel);
-
+        textPanel.add(titleLabel);
         textPanel.add(versionLabel);
         textPanel.add(logoArea);
         textPanel.add(rightsArea);
-        textPanel.add(licenseArea);
 
         JButton okButton
             = new JButton(resources.getI18NString("service.gui.OK"));
@@ -375,18 +364,17 @@ public class AboutWindow
     {
         if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
         {
-            String href = e.getDescription();
-            ServiceReference serviceReference = BrandingActivator
-                    .getBundleContext().getServiceReference(
-                            BrowserLauncherService.class.getName());
+            ServiceReference<BrowserLauncherService> serviceReference =
+                BrandingActivator.getBundleContext().getServiceReference(
+                            BrowserLauncherService.class);
 
             if (serviceReference != null)
             {
                 BrowserLauncherService browserLauncherService
-                    = (BrowserLauncherService) BrandingActivator
+                    = BrandingActivator
                         .getBundleContext().getService(serviceReference);
 
-                browserLauncherService.openURL(href);
+                browserLauncherService.openURL(e.getDescription());
             }
         }
     }
@@ -462,26 +450,5 @@ public class AboutWindow
             setVisible(false);
             dispose();
         }
-    }
-
-    /**
-     * Indicates if the application name should be shown.
-     *
-     * @return <tt>true</tt> if the application name should be shown,
-     * <tt>false</tt> - otherwise
-     */
-    private boolean isApplicationNameShown()
-    {
-        String showApplicationNameProp
-            = BrandingActivator.getResources().getSettingsString(
-                "plugin.branding.IS_APPLICATION_NAME_SHOWN");
-
-        if (showApplicationNameProp != null
-            && showApplicationNameProp.length() > 0)
-        {
-            return Boolean.parseBoolean(showApplicationNameProp);
-        }
-
-        return true;
     }
 }

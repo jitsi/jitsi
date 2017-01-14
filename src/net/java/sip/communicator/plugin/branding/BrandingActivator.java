@@ -33,85 +33,10 @@ import org.osgi.framework.*;
  */
 public class BrandingActivator
     extends AbstractServiceDependentActivator
-    implements BundleListener
 {
     private final Logger logger = Logger.getLogger(BrandingActivator.class);
-
-    /**
-     * The name of the boolean property which indicates whether the splash
-     * screen (i.e. <code>WelcomeWindow</code>) is to be shown or to not be
-     * utilized for the sake of better memory consumption and faster startup.
-     */
-    private static final String PNAME_SHOW_SPLASH_SCREEN
-        = "net.java.sip.communicator.plugin.branding.SHOW_SPLASH_SCREEN";
-
     private static BundleContext bundleContext;
-
     private static ResourceManagementService resourcesService;
-
-    /**
-     * The welcome window.
-     */
-    private WelcomeWindow welcomeWindow;
-
-    @Override
-    public void start(BundleContext bc) throws Exception
-    {
-        super.start(bc);
-
-        ConfigurationService config = getConfigurationService();
-        boolean showSplashScreen
-            = (config == null)
-                ? true /*
-                        * Having no ConfigurationService reference is not good
-                        * for the application so we are better off with the
-                        * splash screen to actually see which bundles get loaded
-                        * and maybe be able to debug the problem.
-                        */
-                : config.getBoolean(PNAME_SHOW_SPLASH_SCREEN, false);
-
-        /*
-         * WelcomeWindow is huge because it has a large image spread all over it
-         * so, given it's only necessary before the UIService gets activated, we
-         * certainly don't want to keep it around (e.g. as an instance field or
-         * as a final variable used inside a BundleListener which never gets
-         * removed).
-         */
-        if (showSplashScreen)
-        {
-            welcomeWindow = new WelcomeWindow();
-            welcomeWindow.pack();
-            welcomeWindow.setVisible(true);
-        }
-        else
-            welcomeWindow = null;
-
-        bundleContext.addBundleListener(this);
-    }
-
-    /**
-     * Bundle has been started if welcome window is available and visible
-     * update it to show the bundle activity.
-     * @param evt
-     */
-    public synchronized void bundleChanged(BundleEvent evt)
-    {
-        if (welcomeWindow != null
-            && welcomeWindow.isShowing()
-            && (evt.getType() == BundleEvent.STARTED))
-        {
-            /*
-             * The IBM JRE on GNU/Linux reports the Bundle-Name as null while
-             * the SUN JRE reports it as non-null. Just prevent the throwing of
-             * a NullPointerException because displaying the Bundle-Name isn't
-             * vital anyway.
-             */
-            Object bundleName = evt.getBundle().getHeaders().get("Bundle-Name");
-
-            welcomeWindow.setBundle(
-                (bundleName == null) ? null : bundleName.toString());
-        }
-    }
 
     /**
      * Setting context to the activator, as soon as we have one.
@@ -141,31 +66,12 @@ public class BrandingActivator
     @Override
     public void start(Object dependentService)
     {
-        // UI-Service started.
-
-        /*
-         * Don't let bundleContext retain a reference to this
-         * listener because it'll retain a reference to
-         * welcomeWindow. Besides, we're no longer interested in
-         * handling events so it doesn't make sense to even retain
-         * this listener.
-         */
-        bundleContext.removeBundleListener(this);
-
         // register the about dialog menu entry
         registerMenuEntry((UIService)dependentService);
-
-        if (welcomeWindow != null)
-        {
-            synchronized(this)
-            {
-                welcomeWindow.close();
-                welcomeWindow = null;
-            }
-        }
     }
 
-    public void stop(BundleContext arg0) throws Exception
+    @Override
+    public void stop(BundleContext context) throws Exception
     {
     }
 
@@ -185,7 +91,6 @@ public class BrandingActivator
 
     private boolean registerMenuEntryMacOSX(UIService uiService)
     {
-        Exception exception = null;
         try
         {
             Class<?> clazz =
@@ -195,28 +100,16 @@ public class BrandingActivator
             Object result = method.invoke(null, (Object[]) null);
 
             if (result instanceof Boolean)
+            {
                 return ((Boolean) result).booleanValue();
+            }
         }
-        catch (ClassNotFoundException ex)
+        catch (Exception ex)
         {
-            exception = ex;
+            logger.error("Failed to register Mac OS X-specific About handling.",
+                ex);
         }
-        catch (IllegalAccessException ex)
-        {
-            exception = ex;
-        }
-        catch (InvocationTargetException ex)
-        {
-            exception = ex;
-        }
-        catch (NoSuchMethodException ex)
-        {
-            exception = ex;
-        }
-        if (exception != null)
-            logger.error(
-                "Failed to register Mac OS X-specific About handling.",
-                exception);
+
         return false;
     }
 
@@ -270,17 +163,6 @@ public class BrandingActivator
     static BundleContext getBundleContext()
     {
         return bundleContext;
-    }
-
-    private static ConfigurationService getConfigurationService()
-    {
-        ServiceReference serRef
-            = bundleContext
-                .getServiceReference(ConfigurationService.class.getName());
-        return
-            (serRef == null)
-                ? null
-                : (ConfigurationService) bundleContext.getService(serRef);
     }
 
     /**
