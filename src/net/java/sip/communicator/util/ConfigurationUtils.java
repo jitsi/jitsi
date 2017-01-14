@@ -438,17 +438,9 @@ public class ConfigurationUtils
             autoPopupNewMessage = true;
 
         // Load the "sendMessageCommand" property.
-        String messageCommandProperty
-            = "service.gui.SEND_MESSAGE_COMMAND";
-        String messageCommand = configService.getString(messageCommandProperty);
-
-        if(messageCommand == null)
-            messageCommand
-                = UtilActivator.getResources()
-                    .getSettingsString(messageCommandProperty);
-
-        if(messageCommand == null || messageCommand.length() == 0)
-            sendMessageCommand = messageCommand;
+        String messageCommandProperty = "service.gui.SEND_MESSAGE_COMMAND";
+        sendMessageCommand = UtilActivator.getResources()
+            .getSettingsString(messageCommandProperty);
 
         // Load the showCallPanel property.
         String callPanelShown = configService.getString(
