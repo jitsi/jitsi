@@ -790,8 +790,6 @@ public class ChatConversationPanel
      */
     public void correctMessage(final ChatMessage chatMessage)
     {
-        lastMessageUID = chatMessage.getMessageUID();
-
         if (!SwingUtilities.isEventDispatchThread())
         {
             SwingUtilities.invokeLater(new Runnable()
@@ -805,6 +803,11 @@ public class ChatConversationPanel
         }
 
         String correctedUID = chatMessage.getCorrectedMessageUID();
+        if (correctedUID != null && correctedUID.equals(lastMessageUID))
+        {
+            lastMessageUID = chatMessage.getMessageUID();
+        }
+
         Element root = document.getDefaultRootElement();
         Element correctedMsgElement
             = document.getElement(root,
