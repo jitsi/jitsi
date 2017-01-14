@@ -28,6 +28,9 @@ import org.jitsi.util.*;
 import org.osgi.framework.*;
 
 import java.io.*;
+import java.nio.file.*;
+import java.nio.file.attribute.*;
+import java.util.*;
 
 /**
  *
@@ -138,17 +141,30 @@ public class ConfigurationActivator
             // let's check config file and config folder
             File homeFolder
                 = new File(cs.getScHomeDirLocation(), cs.getScHomeDirName());
-            CLibrary  libc = (CLibrary) Native.loadLibrary("c", CLibrary.class);
-
-            libc.chmod(homeFolder.getAbsolutePath(), 0700);
+            Set<PosixFilePermission> perms =
+                new HashSet<PosixFilePermission>()
+                {{
+                    add(PosixFilePermission.OWNER_READ);
+                    add(PosixFilePermission.OWNER_WRITE);
+                    add(PosixFilePermission.OWNER_EXECUTE);
+                }};
+                Files.setPosixFilePermissions(
+                    Paths.get(homeFolder.getAbsolutePath()), perms);
 
             String fileName = cs.getConfigurationFilename();
-
             if(fileName != null)
             {
                 File cf = new File(homeFolder, fileName);
                 if(cf.exists())
-                    libc.chmod(cf.getAbsolutePath(), 0600);
+                {
+                    perms = new HashSet<PosixFilePermission>()
+                        {{
+                            add(PosixFilePermission.OWNER_READ);
+                            add(PosixFilePermission.OWNER_WRITE);
+                        }};
+                    Files.setPosixFilePermissions(
+                        Paths.get(cf.getAbsolutePath()), perms);
+                }
             }
         }
         catch(Throwable t)
@@ -162,25 +178,5 @@ public class ConfigurationActivator
             else if (t instanceof ThreadDeath)
                 throw (ThreadDeath) t;
         }
-    }
-
-    /**
-     * The JNA interface to the <tt>c</tt> library and the <tt>chmod</tt>
-     * function we use to fix permissions of user files and folders.
-     */
-    public interface CLibrary
-        extends Library
-    {
-        /**
-         * Changes file permissions.
-         *
-         * @param path the path to the file or folder the permissions of which
-         * are to be changed.
-         * @param mode the mode operand
-         * @return <tt>0</tt> upon successful completion; otherwise,
-         * <tt>-1</tt>. If <tt>-1</tt> is returned, no change to the file mode
-         * occurs.
-         */
-        public int chmod(String path, int mode);
     }
 }
