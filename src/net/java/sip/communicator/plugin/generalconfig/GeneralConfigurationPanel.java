@@ -960,12 +960,10 @@ public class GeneralConfigurationPanel
      */
     private Component createNormalizeNumberCheckBox()
     {
-        JPanel checkBoxPanel = new TransparentPanel(new BorderLayout());
-
-        SIPCommCheckBox formatPhoneNumber = new SIPCommCheckBox("",
+        SIPCommCheckBox formatPhoneNumber = new SIPCommCheckBox(
+            GeneralConfigPluginActivator.getResources().getI18NString(
+                "plugin.generalconfig.REMOVE_SPECIAL_PHONE_SYMBOLS"),
             ConfigurationUtils.isNormalizePhoneNumber());
-
-        formatPhoneNumber.setAlignmentY(Component.TOP_ALIGNMENT);
 
         formatPhoneNumber.addActionListener(new ActionListener()
         {
@@ -976,22 +974,7 @@ public class GeneralConfigurationPanel
             }
         });
 
-        StyledHTMLEditorPane checkBoxTextLabel = new StyledHTMLEditorPane();
-
-        checkBoxTextLabel.setContentType("text/html");
-        checkBoxTextLabel.appendToEnd(
-            "<html>" + GeneralConfigPluginActivator.getResources().getI18NString(
-                "plugin.generalconfig.REMOVE_SPECIAL_PHONE_SYMBOLS") + "</html>");
-
-        checkBoxTextLabel.setBorder(
-            BorderFactory.createEmptyBorder(3, 0, 0, 0));
-        checkBoxTextLabel.setOpaque(false);
-        checkBoxTextLabel.setEditable(false);
-
-        checkBoxPanel.add(formatPhoneNumber, BorderLayout.WEST);
-        checkBoxPanel.add(checkBoxTextLabel, BorderLayout.CENTER);
-
-        return checkBoxPanel;
+        return formatPhoneNumber;
     }
 
     /**
@@ -1001,17 +984,17 @@ public class GeneralConfigurationPanel
      */
     private Component createAcceptPhoneNumberWithAlphaCharCheckBox()
     {
-        JPanel checkBoxPanel = new TransparentPanel(new BorderLayout());
+        JPanel checkBoxPanel = new TransparentPanel();
+        checkBoxPanel.setLayout(new BoxLayout(checkBoxPanel, BoxLayout.Y_AXIS));
 
         // Checkbox to accept string with alphabetical characters as potential
         // phone numbers.
-        SIPCommCheckBox acceptPhoneNumberWithAlphaChars
-            = new SIPCommCheckBox("",
+        SIPCommCheckBox alphaCharNumbers = new SIPCommCheckBox(
+                GeneralConfigPluginActivator.getResources().getI18NString(
+                "plugin.generalconfig.ACCEPT_PHONE_NUMBER_WITH_ALPHA_CHARS"),
                 ConfigurationUtils.acceptPhoneNumberWithAlphaChars());
 
-        acceptPhoneNumberWithAlphaChars.setAlignmentY(Component.TOP_ALIGNMENT);
-
-        acceptPhoneNumberWithAlphaChars.addActionListener(new ActionListener()
+        alphaCharNumbers.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
@@ -1019,21 +1002,6 @@ public class GeneralConfigurationPanel
                         ((JCheckBox)e.getSource()).isSelected());
             }
         });
-
-        StyledHTMLEditorPane acceptPhoneNumberWithAlphaCharsTextLabel
-                = new StyledHTMLEditorPane();
-
-        acceptPhoneNumberWithAlphaCharsTextLabel.setContentType("text/html");
-        acceptPhoneNumberWithAlphaCharsTextLabel.appendToEnd(
-                "<html>"
-                + GeneralConfigPluginActivator.getResources().getI18NString(
-                    "plugin.generalconfig.ACCEPT_PHONE_NUMBER_WITH_ALPHA_CHARS")
-                + "</html>");
-
-        acceptPhoneNumberWithAlphaCharsTextLabel.setBorder(
-                BorderFactory.createEmptyBorder(3, 0, 0, 0));
-        acceptPhoneNumberWithAlphaCharsTextLabel.setOpaque(false);
-        acceptPhoneNumberWithAlphaCharsTextLabel.setEditable(false);
 
         // The example of changing letters to numbers in a phone number.
         String label = "* " + Resources.getString(
@@ -1046,14 +1014,8 @@ public class GeneralConfigurationPanel
         exampleLabel.setHorizontalAlignment(JLabel.LEFT);
 
         // Adds the components to the current panel.
-        checkBoxPanel.add(acceptPhoneNumberWithAlphaChars, BorderLayout.WEST);
-        checkBoxPanel.add(
-                acceptPhoneNumberWithAlphaCharsTextLabel,
-                BorderLayout.CENTER);
-        checkBoxPanel.add(
-                exampleLabel,
-                BorderLayout.SOUTH);
-
+        checkBoxPanel.add(alphaCharNumbers);
+        checkBoxPanel.add(exampleLabel);
         return checkBoxPanel;
     }
 
