@@ -80,6 +80,11 @@ public interface OperationSetTelephonyBLF
         private String group;
 
         /**
+         * Asterisk pickup prefix.
+         */
+        private String pickupTemplate;
+
+        /**
          * The parent provider.
          */
         private ProtocolProviderService provider;
@@ -90,14 +95,16 @@ public interface OperationSetTelephonyBLF
          * @param address the address of the line.
          * @param name the display name if any
          * @param group the group name if any
+         * @param pickup the pickup dial template
          * @param provider the parent provider.
          */
-        public Line(String address, String name, String group,
+        public Line(String address, String name, String group, String pickup,
                     ProtocolProviderService provider)
         {
             this.address = address;
             this.name = name;
             this.group = group;
+            this.pickupTemplate = pickup;
             this.provider = provider;
         }
 
@@ -126,6 +133,15 @@ public interface OperationSetTelephonyBLF
         public String getGroup()
         {
             return group;
+        }
+
+        /**
+         * The pickup template.
+         * @return the pickup template.
+         */
+        public String getPickupTemplate()
+        {
+            return pickupTemplate;
         }
 
         /**

@@ -72,6 +72,10 @@ public class OperationSetTelephonyBLFSipImpl
      * Account property suffix to set/provision monitored line group.
      */
     public static final String BLF_LINE_GROUP_ACC_PROP_PREFIX = "Group";
+    /**
+     * Account property suffix to set/provision monitored line pickup template.
+     */
+    public static final String BLF_LINE_PICKUP_ACC_PROP_PREFIX = "Pickup";
 
     /**
      * The name of the event package supported by
@@ -195,7 +199,7 @@ public class OperationSetTelephonyBLFSipImpl
             String[] lineValues = lines.get(ix);
             if(lineValues == null)
             {
-                lineValues = new String[3];
+                lineValues = new String[4];
                 lines.put(ix, lineValues);
             }
 
@@ -211,13 +215,17 @@ public class OperationSetTelephonyBLFSipImpl
             {
                 lineValues[2] = entryValue;
             }
+            else if(pName.contains(BLF_LINE_PICKUP_ACC_PROP_PREFIX))
+            {
+                lineValues[3] = entryValue;
+            }
         }
 
         for(Map.Entry<String, String[]> en : lines.entrySet())
         {
             String[] vals = en.getValue();
 
-            this.lines.add(new Line(vals[0], vals[1], vals[2], this.provider));
+            this.lines.add(new Line(vals[0], vals[1], vals[2], vals[3], this.provider));
         }
     }
 
@@ -263,22 +271,41 @@ public class OperationSetTelephonyBLFSipImpl
         if(details == null)
             return;
 
-        if(StringUtils.isNullOrEmpty(details.callID)
-            || StringUtils.isNullOrEmpty(details.localTag)
-            || StringUtils.isNullOrEmpty(details.remoteTag))
-            return;
-
         // replaces
         Address targetAddress = null;
         try
         {
-            targetAddress = provider.parseAddressString(line.getAddress());
+            String address = line.getAddress();
+            if(asteriskMode(details))
+            {
+                // broken mode for Asterisk, doesn't provide us with
+                // the proper call-id, etc. attributes.
+                // send an unspecified pickup-call if a template is set
+                if (StringUtils.isNullOrEmpty(line.getPickupTemplate(), true))
+                {
+                    return;
+                }
+
+                address = line.getPickupTemplate().replace("\\1", address);
+            }
+
+            targetAddress = provider.parseAddressString(address);
         }
         catch (ParseException ex)
         {
             ProtocolProviderServiceSipImpl.throwOperationFailedException(
                 "Failed to parse address string " + line.getAddress(),
                 OperationFailedException.ILLEGAL_ARGUMENT, ex, logger);
+        }
+
+        OperationSetBasicTelephonySipImpl telOpSet
+            = (OperationSetBasicTelephonySipImpl)provider
+                .getOperationSet(OperationSetBasicTelephony.class);
+
+        if (asteriskMode(details))
+        {
+            telOpSet.createOutgoingCall(targetAddress, null, null);
+            return;
         }
 
         Replaces replacesHeader = null;
@@ -315,12 +342,14 @@ public class OperationSetTelephonyBLFSipImpl
                 OperationFailedException.INTERNAL_ERROR, ex, logger);
         }
 
-        OperationSetBasicTelephonySipImpl telOpSet
-            = (OperationSetBasicTelephonySipImpl)provider
-                .getOperationSet(OperationSetBasicTelephony.class);
-
-        CallSipImpl call
-            = telOpSet.createOutgoingCall(targetAddress, null, null);
+        telOpSet.createOutgoingCall(targetAddress, null, null);
+    }
+    
+    private boolean asteriskMode(LineDetails details)
+    {
+        return StringUtils.isNullOrEmpty(details.callID)
+            || StringUtils.isNullOrEmpty(details.localTag)
+            || StringUtils.isNullOrEmpty(details.remoteTag);
     }
 
     /**
@@ -549,6 +578,8 @@ public class OperationSetTelephonyBLFSipImpl
                 Node dialogNode = dialogList.item(i);
                 Element dialogElem = (Element)dialogNode;
 
+                details.id = dialogElem.getAttribute("id");
+                details.direction = dialogElem.getAttribute("direction");
                 details.callID = dialogElem.getAttribute("call-id");
                 details.localTag = dialogElem.getAttribute("local-tag");
                 details.remoteTag = dialogElem.getAttribute("remote-tag");
@@ -698,10 +729,23 @@ public class OperationSetTelephonyBLFSipImpl
      */
     private class LineDetails
     {
+
         /**
          * The current status of the line, the last event fired for it.
          */
         int lastStatusEvent = BLFStatusEvent.STATUS_OFFLINE;
+
+        /**
+         * id of the dialog. Mandatory.
+         */
+        String id = null;
+
+        /**
+         * either initiator or recipient, and indicates whether the observed
+         * user was the initiator of the dialog, or the recipient of the INVITE
+         * that created it.
+         */
+        String direction;
 
         /**
          * call-id of the dialog if any, used for remote pickup.

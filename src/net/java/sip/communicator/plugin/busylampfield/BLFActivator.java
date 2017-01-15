@@ -181,15 +181,11 @@ public class BLFActivator
             }
             else
             {
-                BLFContactSourceService css
-                    = new BLFContactSourceService(
+                BLFContactSourceService css = new BLFContactSourceService(
                     groupName, currentBLFGroups.size() + 1);
 
-                serviceReg = (ServiceRegistration<ContactSourceService>)
-                    bundleContext.registerService(
-                        ContactSourceService.class.getName(),
-                        css,
-                        null);
+                serviceReg = bundleContext.registerService(
+                        ContactSourceService.class, css, null);
                 currentBLFGroups.put(groupName, serviceReg);
 
                 css.addLine(line);

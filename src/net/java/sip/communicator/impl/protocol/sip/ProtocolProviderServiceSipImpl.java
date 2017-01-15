@@ -1589,16 +1589,16 @@ public class ProtocolProviderServiceSipImpl
             Set<ProtocolProviderServiceSipImpl> instances
                 = new HashSet<ProtocolProviderServiceSipImpl>();
             BundleContext context = SipActivator.getBundleContext();
-            ServiceReference[] references = context.getServiceReferences(
-                    ProtocolProviderService.class.getName(),
-                    null
-                    );
-            for(ServiceReference reference : references)
+            Collection<ServiceReference<ProtocolProviderService>> references =
+                context.getServiceReferences(ProtocolProviderService.class,
+                    null);
+            for(ServiceReference<ProtocolProviderService> ref : references)
             {
-                Object service = context.getService(reference);
+                ProtocolProviderService service = context.getService(ref);
                 if(service instanceof ProtocolProviderServiceSipImpl)
                     instances.add((ProtocolProviderServiceSipImpl) service);
             }
+
             return instances;
         }
         catch(InvalidSyntaxException ex)
