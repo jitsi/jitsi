@@ -545,24 +545,22 @@ public class UpdateServiceImpl
             if(notifyAboutNewestVersion)
             {
                 SwingUtilities.invokeLater(
-                        new Runnable()
+                    new Runnable()
+                    {
+                        public void run()
                         {
-                            public void run()
-                            {
-                                UIService ui = UpdateActivator.getUIService();
-                                ResourceManagementService r
-                                    = Resources.getResources();
+                            UIService ui = UpdateActivator.getUIService();
+                            ResourceManagementService r
+                                = Resources.getResources();
 
-                                ui.getPopupDialog().showMessagePopupDialog(
-                                        r.getI18NString(
-                                                "plugin.updatechecker."
-                                                    + "DIALOG_NOUPDATE"),
-                                        r.getI18NString(
-                                                "plugin.updatechecker."
-                                                    + "DIALOG_NOUPDATE_TITLE"),
-                                        PopupDialog.INFORMATION_MESSAGE);
-                            }
-                        });
+                            ui.getPopupDialog().showMessagePopupDialog(
+                                    r.getI18NString(
+                                        "plugin.updatechecker.DIALOG_NOUPDATE"),
+                                    r.getI18NString(
+                                        "plugin.updatechecker.DIALOG_NOUPDATE_TITLE"),
+                                    PopupDialog.INFORMATION_MESSAGE);
+                        }
+                    });
             }
         }
         else

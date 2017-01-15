@@ -159,10 +159,8 @@ public class AudioDeviceConfigurationListener
                                     capturePropertyChangeEvent.getOldValue()))
                     {
                         body.append("\r\n")
-                            .append(
-                                    r.getI18NString(
-                                            "impl.media.configform"
-                                                + ".AUDIO_DEVICE_SELECTED_AUDIO_IN"))
+                            .append(r.getI18NString(
+                                "impl.media.configform.AUDIO_DEVICE_SELECTED_AUDIO_IN"))
                             .append("\r\n\t")
                             .append(cdi.getName());
                         selectedHasChanged = true;
@@ -179,10 +177,8 @@ public class AudioDeviceConfigurationListener
                                     playbackPropertyChangeEvent.getOldValue()))
                     {
                         body.append("\r\n")
-                            .append(
-                                    r.getI18NString(
-                                            "impl.media.configform"
-                                                + ".AUDIO_DEVICE_SELECTED_AUDIO_OUT"))
+                            .append(r.getI18NString(
+                                "impl.media.configform.AUDIO_DEVICE_SELECTED_AUDIO_OUT"))
                             .append("\r\n\t")
                             .append(cdi.getName());
                         selectedHasChanged = true;
@@ -199,10 +195,8 @@ public class AudioDeviceConfigurationListener
                                     notifyPropertyChangeEvent.getOldValue()))
                     {
                         body.append("\r\n")
-                            .append(
-                                    r.getI18NString(
-                                            "impl.media.configform"
-                                                + ".AUDIO_DEVICE_SELECTED_AUDIO_NOTIFICATIONS"))
+                            .append(r.getI18NString(
+                                "impl.media.configform.AUDIO_DEVICE_SELECTED_AUDIO_NOTIFICATIONS"))
                             .append("\r\n\t")
                             .append(cdi.getName());
                         selectedHasChanged = true;

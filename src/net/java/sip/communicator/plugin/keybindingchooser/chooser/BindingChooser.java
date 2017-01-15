@@ -24,6 +24,7 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.keybindingchooser.KeybindingChooserActivator;
 import net.java.sip.communicator.service.keybindings.*;
 
 /**
@@ -51,34 +52,10 @@ public class BindingChooser
     // can be selected
     private BindingEntry selectedEntry = null; // None selected when null
 
-    private String selectedText = "Press shortcut...";
-
     /**
      * Keybinding set.
      */
     private KeybindingSet set = null;
-
-    /**
-     * Displays a dialog allowing the user to redefine the keystroke component
-     * of key bindings. The top has light blue labels describing the fields and
-     * the bottom provides an 'OK' and 'Cancel' option. This uses the default
-     * color scheme and indent style. If no entries are selected then the enter
-     * key is equivalent to pressing 'OK' and escape is the same as 'Cancel'.
-     *
-     * @param parent frame to which to apply modal property and center within
-     *            (centers within screen if null)
-     * @param bindings initial mapping of keystrokes to their actions
-     * @return redefined mapping of keystrokes to their actions, null if cancel
-     *         is pressed
-     */
-    public static LinkedHashMap<KeyStroke, String> showDialog(Component parent,
-        Map<KeyStroke, String> bindings)
-    {
-        BindingChooser display = new BindingChooser();
-        display.putAllBindings(bindings);
-        return showDialog(parent, display, "Key Bindings", true, display
-            .makeAdaptor());
-    }
 
     /**
      * Adds a collection of new key binding mappings to the end of the listing.
@@ -269,22 +246,6 @@ public class BindingChooser
     }
 
     /**
-     * Sets the message of the selected shortcut field when awaiting user input.
-     * By default this is "Press shortcut...".
-     *
-     * @param message prompt for user input
-     */
-    public void setSelectedText(String message)
-    {
-        if (this.selectedEntry != null)
-        {
-            this.selectedEntry.getField(BindingEntry.Field.SHORTCUT).setText(
-                message);
-        }
-        this.selectedText = message;
-    }
-
-    /**
      * Returns if a binding is currently awaiting input or not.
      *
      * @return true if a binding is awaiting input, false otherwise
@@ -344,7 +305,8 @@ public class BindingChooser
             onUpdate(getBindingIndex(this.selectedEntry), this.selectedEntry,
                 false);
             this.selectedEntry.getField(BindingEntry.Field.SHORTCUT).setText(
-                " " + this.selectedText);
+                    KeybindingChooserActivator.getResources().getI18NString(
+                            "plugin.keybindings.WAITING"));
         }
     }
 

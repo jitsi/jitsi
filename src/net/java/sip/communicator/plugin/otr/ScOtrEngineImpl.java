@@ -654,15 +654,14 @@ public class ScOtrEngineImpl
 
                         String unverifiedSessionWarning
                             = OtrActivator.resourceService.getI18NString(
-                                    "plugin.otr.activator"
-                                        + ".unverifiedsessionwarning",
-                                    new String[]
-                                    {
-                                        contact.getDisplayName() + resourceName,
-                                        this.getClass().getName(),
-                                        "AUTHENTIFICATION",
-                                        sessionGuid.toString()
-                                    });
+                                "plugin.otr.activator.unverifiedsessionwarning",
+                                new String[]
+                                {
+                                    contact.getDisplayName() + resourceName,
+                                    this.getClass().getName(),
+                                    "AUTHENTIFICATION",
+                                    sessionGuid.toString()
+                                });
                         OtrActivator.uiService.getChat(contact).addMessage(
                             contact.getDisplayName(),
                             new Date(), Chat.SYSTEM_MESSAGE,
@@ -727,8 +726,7 @@ public class ScOtrEngineImpl
                                 OtrActivator.scOtrKeyManager.isVerified(
                                     contact, remoteFingerprint)
                                     ? "plugin.otr.activator.sessionstared"
-                                    : "plugin.otr.activator"
-                                        + ".unverifiedsessionstared",
+                                    : "plugin.otr.activator.unverifiedsessionstared",
                                 new String[]
                                     {contact.getDisplayName() + resourceName});
 

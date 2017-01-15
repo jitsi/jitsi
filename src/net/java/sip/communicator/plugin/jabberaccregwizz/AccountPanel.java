@@ -140,7 +140,7 @@ public class AccountPanel
         userIDPassPanel.setBorder(
                 BorderFactory.createTitledBorder(
                         Resources.getString(
-                                "plugin.sipaccregwizz.USERNAME_AND_PASSWORD")));
+                            "plugin.jabberaccregwizz.USERNAME_AND_PASSWORD")));
 
         JPanel southPanel = new TransparentPanel(new BorderLayout());
         southPanel.add(rememberPassBox, BorderLayout.WEST);
@@ -564,8 +564,7 @@ public class AccountPanel
                 OperationSetChangePassword.class).supportsPasswordChange())
             {
                 changePasswordMessagePane.setText(Resources.getString(
-                                "plugin.jabberaccregwizz."
-                                + "SERVER_NOT_SUPPORT_PASSWORD_CHANGE"));
+                    "plugin.jabberaccregwizz.SERVER_NOT_SUPPORT_PASSWORD_CHANGE"));
             }
             else
             {
@@ -683,8 +682,7 @@ public class AccountPanel
                                             getAccountID().getAccountAddress(),
                                         ex);
                                 displayPopupError(Resources.getString(
-                                    "plugin.jabberaccregwizz."
-                                        + "PASSWORD_NOT_STORED"));
+                                    "plugin.jabberaccregwizz.PASSWORD_NOT_STORED"));
                             }
                         }
                         //now update the password field in AccountPanel,
@@ -705,8 +703,7 @@ public class AccountPanel
                     }
                     catch (OperationFailedException ex) {
                         displayPopupError(Resources.getString(
-                                "plugin.jabberaccregwizz."
-                                + "SERVER_NOT_SUPPORT_PASSWORD_CHANGE"));
+                            "plugin.jabberaccregwizz.SERVER_NOT_SUPPORT_PASSWORD_CHANGE"));
                     }
                 }
             }

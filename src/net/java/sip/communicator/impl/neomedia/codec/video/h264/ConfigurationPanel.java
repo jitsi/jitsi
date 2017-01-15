@@ -150,8 +150,7 @@ public class ConfigurationPanel
         JCheckBox defaultIntraRefreshCheckBox
             = new SIPCommCheckBox(
                     r.getI18NString(
-                            "impl.neomedia.configform.H264"
-                                + ".defaultIntraRefresh"));
+                        "impl.neomedia.configform.H264.defaultIntraRefresh"));
         cnstrnts.gridwidth = GridBagConstraints.REMAINDER;
         cnstrnts.gridx = 0;
         cnstrnts.gridy = 3;

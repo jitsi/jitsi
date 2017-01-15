@@ -1773,8 +1773,7 @@ public class MediaConfigurationImpl
                     {
                         String noAvailableAudioDevice
                             = NeomediaActivator.getResources().getI18NString(
-                                    "impl.media.configform"
-                                        + ".NO_AVAILABLE_AUDIO_DEVICE");
+                                "impl.media.configform.NO_AVAILABLE_AUDIO_DEVICE");
 
                         preview = new TransparentPanel(new GridBagLayout());
                         preview.add(new JLabel(noAvailableAudioDevice));

@@ -187,8 +187,7 @@ public abstract class AbstractDeviceConfigurationListener
                         body
                         + "\r\n\r\n"
                         + NeomediaActivator.getResources().getI18NString(
-                                "impl.media.configform"
-                                    + ".AUDIO_DEVICE_CONFIG_MANAGMENT_CLICK"),
+                            "impl.media.configform.AUDIO_DEVICE_CONFIG_MANAGMENT_CLICK"),
                         null,
                         extras);
             }

@@ -737,8 +737,7 @@ public class CertificateServiceImpl
                         propNames.add(propName);
 
                         message =
-                            R.getI18NString("service.gui."
-                                + "CERT_DIALOG_DESCRIPTION_TXT_NOHOST",
+                            R.getI18NString("service.gui.CERT_DIALOG_DESCRIPTION_TXT_NOHOST",
                                 new String[] {
                                     appName
                                 }
@@ -762,8 +761,7 @@ public class CertificateServiceImpl
                         {
                             message =
                                 R.getI18NString(
-                                    "service.gui."
-                                    + "CERT_DIALOG_DESCRIPTION_TXT",
+                                    "service.gui.CERT_DIALOG_DESCRIPTION_TXT",
                                     new String[] {
                                         appName,
                                         identitiesToTest.toString()
@@ -774,8 +772,7 @@ public class CertificateServiceImpl
                         {
                             message =
                                 R.getI18NString(
-                                    "service.gui."
-                                    + "CERT_DIALOG_PEER_DESCRIPTION_TXT",
+                                    "service.gui.CERT_DIALOG_PEER_DESCRIPTION_TXT",
                                     new String[] {
                                         appName,
                                         identitiesToTest.toString()
