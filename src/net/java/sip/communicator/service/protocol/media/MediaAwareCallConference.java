@@ -93,6 +93,14 @@ public class MediaAwareCallConference
     private RTPTranslator videoRTPTranslator;
 
     /**
+     * The <tt>RTPTranslator</tt> which forwards autio RTP and RTCP traffic
+     * between the <tt>CallPeer</tt>s of the <tt>Call</tt>s participating in
+     * this telephony conference when the local peer is acting as a conference
+     * focus.
+     */
+    private RTPTranslator audioRTPTranslator;
+
+    /**
      * Initializes a new <tt>MediaAwareCallConference</tt> instance.
      */
     public MediaAwareCallConference()
@@ -268,7 +276,8 @@ public class MediaAwareCallConference
                      * Android so do not use it unless it is really really
                      * necessary.
                      */
-                    if ((!OSUtils.IS_ANDROID || isConferenceFocus())
+                    if ((!OSUtils.IS_ANDROID || isConferenceFocus()
+                        && !isTranslator())
                             /*
                              * We can use the AudioMixer only if the device is
                              * able to capture (because the AudioMixer will push
@@ -325,8 +334,6 @@ public class MediaAwareCallConference
      */
     public RTPTranslator getRTPTranslator(MediaType mediaType)
     {
-        RTPTranslator rtpTranslator = null;
-
         /*
          * XXX A mixer is created for audio even when the local peer is not a
          * conference focus in order to enable additional functionality.
@@ -348,9 +355,23 @@ public class MediaAwareCallConference
                         .getMediaService()
                             .createRTPTranslator();
             }
-            rtpTranslator = videoRTPTranslator;
+            return videoRTPTranslator;
         }
-        return rtpTranslator;
+
+        if (isTranslator())
+        {
+            if(audioRTPTranslator == null)
+            {
+                audioRTPTranslator
+                    = ProtocolMediaActivator
+                    .getMediaService()
+                    .createRTPTranslator();
+            }
+
+            return audioRTPTranslator;
+        }
+
+        return null;
     }
 
     /**
