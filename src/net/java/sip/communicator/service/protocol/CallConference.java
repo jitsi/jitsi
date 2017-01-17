@@ -263,6 +263,13 @@ public class CallConference
     private final boolean jitsiVideobridge;
 
     /**
+     * The indicator which determines whether the telephony conference
+     * represented by this instance is mixing or relaying.
+     * By default what can be mixed is mixed (audio) and rest is relayed.
+     */
+    private boolean translator = false;
+
+    /**
      * The list of <tt>Call</tt>s participating in this telephony conference as
      * a mutable <tt>List</tt> which should not be exposed out of this instance.
      */
@@ -694,6 +701,26 @@ public class CallConference
     public boolean isJitsiVideobridge()
     {
         return jitsiVideobridge;
+    }
+
+    /**
+     * Determines whether current conference defaults to tranlating streams,
+     * rather than mixing them.
+     * @return is translation default.
+     */
+    public boolean isTranslator()
+    {
+        return translator;
+    }
+
+    /**
+     * Changes default behaviour to relaying media or mixing.
+     * This should happen before configuring the streams.
+     * @param translator new value
+     */
+    public void setTranslator(boolean translator)
+    {
+        this.translator = translator;
     }
 
     /**
