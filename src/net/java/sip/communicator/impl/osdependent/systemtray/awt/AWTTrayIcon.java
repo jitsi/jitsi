@@ -63,9 +63,17 @@ public class AWTTrayIcon
         }
     }
 
-    public void setDefaultAction(Object menuItem)
+    public void setDefaultAction(final Object menuItem)
     {
-        ActionListener[] listeners;
+        // clear all previous listeners
+        ActionListener[] previous = impl.getActionListeners();
+        for (ActionListener l : previous)
+        {
+            impl.removeActionListener(l);
+        }
+
+        // get the new handlers
+        final ActionListener[] listeners;
         if (menuItem instanceof JMenuItem)
         {
             listeners = ((JMenuItem) menuItem).getActionListeners();
@@ -79,10 +87,19 @@ public class AWTTrayIcon
             return;
         }
 
-        for (ActionListener l : listeners)
+        // create a custom handler to fake that the source is the menu item
+        impl.addActionListener(new ActionListener()
         {
-            impl.addActionListener(l);
-        }
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                for (ActionListener l : listeners)
+                {
+                    l.actionPerformed(new ActionEvent(menuItem,
+                        e.getID(), e.getActionCommand()));
+                }
+            }
+        });
     }
 
     public void addBalloonActionListener(ActionListener listener)
