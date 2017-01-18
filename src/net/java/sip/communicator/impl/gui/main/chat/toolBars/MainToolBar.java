@@ -715,14 +715,19 @@ public class MainToolBar
             m.put(opSetClass, ct.getProtocolProvider());
 
             UIContactDetailImpl d = new UIContactDetailImpl(
-                                                ct.getName(),
+                                                ct.getName() + (ct.getResourceName() == null
+                                                    ? ""
+                                                    : "/" + ct.getResourceName()),
                                                 ct.getDisplayName(),
                                                 null,
-                                                null,
+                                                (ct.getResourceName() == null
+                                                    ? Arrays.asList(GuiActivator.getResources().getI18NString("service.gui.VIA") + ": "
+                                                        + ct.getProtocolProvider().getAccountID().getAccountAddress())
+                                                    : null),
                                                 null,
                                                 m,
                                                 null,
-                                                ct.getName());
+                                                ct);
             PresenceStatus status = ct.getStatus();
             byte[] statusIconBytes = status.getStatusIcon();
 
@@ -736,7 +741,7 @@ public class MainToolBar
 
             res.add(d);
         }
-
+        
         Point location = new Point(callButton.getX(),
             callButton.getY() + callButton.getHeight());
 

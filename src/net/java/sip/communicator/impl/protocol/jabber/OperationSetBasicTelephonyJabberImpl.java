@@ -280,7 +280,10 @@ public class OperationSetBasicTelephonyJabberImpl
             Iterable<PacketExtension> sessionInitiateExtensions)
         throws OperationFailedException
     {
-        return createOutgoingCall(call, calleeAddress, null, null);
+        if (calleeAddress.contains("/"))
+            return createOutgoingCall(call, calleeAddress, calleeAddress, null);
+        else
+            return createOutgoingCall(call, calleeAddress, null, null);
     }
 
     /**
