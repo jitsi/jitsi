@@ -376,6 +376,15 @@ public abstract class ProtocolProviderFactory
         = "USE_JITSI_VIDEO_BRIDGE";
 
     /**
+     * The name of the boolean account property which indicates whether Jitsi
+     * will use translator for media, instead of mixing, for conference
+     * calls.
+     * By default if supported mixing is used (audio mixed, video relayed).
+     */
+    public static final String USE_TRANSLATOR_IN_CONFERENCE
+        = "USE_TRANSLATOR_IN_CONFERENCE";
+
+    /**
      * The property name prefix for all stun server properties. We generally use
      * this prefix in conjunction with an index which is how we store multiple
      * servers.

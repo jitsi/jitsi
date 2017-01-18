@@ -111,6 +111,13 @@ public abstract class Call
     private boolean isAutoAnswer = false;
 
     /**
+     * The indicator which determines whether any telephony conference
+     * represented by this instance is mixing or relaying.
+     * By default what can be mixed is mixed (audio) and rest is relayed.
+     */
+    protected final boolean useTranslator;
+
+    /**
      * Creates a new Call instance.
      *
      * @param sourceProvider the proto provider that created us.
@@ -133,6 +140,11 @@ public abstract class Call
             = accountID.getAccountPropertyBoolean(
                     ProtocolProviderFactory.DEFAULT_SIPZRTP_ATTRIBUTE,
                     true);
+
+        useTranslator
+            = accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.USE_TRANSLATOR_IN_CONFERENCE,
+                    false);
     }
 
     /**
