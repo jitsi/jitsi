@@ -981,6 +981,7 @@
         <copy file="${lib.noinst}/libjitsi-1.0-20170110.164740-224.jar" tofile="${bundles.dest}/libjitsi.jar"/>
         <copy file="${lib.noinst}/fmj-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/fmj.jar"/>
         <copy file="${lib.noinst}/jitsi-lgpl-dependencies-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/jitsi-lgpl-dependencies.jar"/>
+        <copy file="${lib.noinst}/jitsi-gpl-dependencies-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/jitsi-gpl-dependencies.jar"/>
         <copy file="${lib.noinst}/guava-15.0.jar" tofile="${bundles.dest}/guava.jar"/>
         <copy file="${lib.noinst}/hsqldb.jar" tofile="${bundles.dest}/hsqldb.jar"/>
         <copy file="${lib.noinst}/irc-api-1.0.jar" tofile="${bundles.dest}/irc-api-1.0.jar"/>
