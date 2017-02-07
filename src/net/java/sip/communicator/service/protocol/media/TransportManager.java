@@ -516,6 +516,21 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      */
     public void sendHolePunchPacket(MediaStreamTarget target, MediaType type)
     {
+        this.sendHolePunchPacket(target, type, null);
+    }
+
+    /**
+     * Sends empty UDP packets to target destination data/control ports in order
+     * to open ports on NATs or and help RTP proxies latch onto our RTP ports.
+     *
+     * @param target <tt>MediaStreamTarget</tt>
+     * @param type the {@link MediaType} of the connector we'd like to send the
+     * hole punching packet through.
+     * @param packet (optional) use a pre-generated packet that will be sent
+     */
+    public void sendHolePunchPacket(
+        MediaStreamTarget target, MediaType type, RawPacket packet)
+    {
         logger.info("Send NAT hole punch packets");
 
         //check how many hole punch packets we would be supposed to send:
@@ -536,7 +551,11 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
             if(connector.getProtocol() == StreamConnector.Protocol.TCP)
                 return;
 
-            byte[] buf = new byte[0];
+            byte[] buf;
+            if (packet != null)
+                buf = packet.getBuffer();
+            else
+                buf = new byte[0];
 
             synchronized(connector)
             {

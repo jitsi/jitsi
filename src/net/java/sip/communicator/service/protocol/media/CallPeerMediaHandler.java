@@ -87,6 +87,16 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
     public static final String VIDEO_REMOTE_SSRC = "VIDEO_REMOTE_SSRC";
 
     /**
+     * The initial content of a hole punch packet. It has some fields pre-set.
+     * Like rtp verion, sequence number and timestamp.
+     */
+    private static final byte[] HOLE_PUNCH_PACKET =
+    {
+        (byte)0x80, 0x00, 0x02, (byte)0x9E, 0x00, 0x09,
+        (byte)0xD0, (byte)0x80, 0x00, 0x00, 0x00, (byte)0x00,
+    };
+
+    /**
      * List of advertised encryption methods. Indicated before establishing the
      * call.
      */
@@ -1575,11 +1585,21 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      * to open port on NAT or RTP proxy if any. In order to be really efficient,
      * this method should be called after we send our offer or answer.
      *
-     * @param target <tt>MediaStreamTarget</tt>
+     * @param stream <tt>MediaStream</tt> non-null stream
+     * @param mediaType <tt>MediaType</tt>
      */
-    protected void sendHolePunchPacket(MediaStreamTarget target)
+    protected void sendHolePunchPacket(MediaStream stream, MediaType mediaType)
     {
-        getTransportManager().sendHolePunchPacket(target, MediaType.VIDEO);
+        // send as a hole punch packet a constructed rtp packet
+        // has the correct payload type and ssrc
+        RawPacket packet = new RawPacket(
+            HOLE_PUNCH_PACKET, 0, RawPacket.FIXED_HEADER_SIZE);
+        packet.setPayloadType(
+            dynamicPayloadTypes.getPayloadType(stream.getFormat()));
+        packet.setSSRC((int)stream.getLocalSourceID());
+
+        getTransportManager().sendHolePunchPacket(
+            stream.getTarget(), mediaType, packet);
     }
 
     /**
@@ -1936,6 +1956,8 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
                     stream.getTarget(),
                     MediaType.AUDIO);
             stream.start();
+
+            sendHolePunchPacket(stream, MediaType.AUDIO);
         }
 
         stream = getStream(MediaType.VIDEO);
@@ -1964,7 +1986,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
                  * send the hole-punch packet anyway to let the remote video
                  * reach this local peer.
                  */
-                sendHolePunchPacket(stream.getTarget());
+                sendHolePunchPacket(stream, MediaType.VIDEO);
             }
         }
     }
