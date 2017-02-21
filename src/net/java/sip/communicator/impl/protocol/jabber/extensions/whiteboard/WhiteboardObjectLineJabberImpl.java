@@ -154,10 +154,10 @@ public class WhiteboardObjectLineJabberImpl
         this.whiteboardPointEnd = whiteboardPointEnd;
     }
     /**
-     * Returns the XML reppresentation of the PacketExtension.
+     * Returns the XML reppresentation of the ExtensionElement.
      *
      * @return the packet extension as XML.
-     * @todo Implement this org.jivesoftware.smack.packet.PacketExtension
+     * @todo Implement this org.jivesoftware.smack.packet.ExtensionElement
      *   method
      */
     @Override

@@ -63,7 +63,7 @@ public class ColibriStatsExtension
     }
 
     @Override
-    public List<? extends PacketExtension> getChildExtensions()
+    public List<? extends ExtensionElement> getChildExtensions()
     {
         return Collections.unmodifiableList(super.getChildExtensions());
     }

@@ -20,7 +20,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import org.jivesoftware.smack.util.*;
+import org.jxmpp.jid.*;
 
 import java.util.*;
 
@@ -123,14 +123,14 @@ public class MobileIndicator
             // we update it also here, cause sometimes caps update comes
             // before presence changed and contacts are still offline
             // and we dispatch wrong initial mobile indicator
-            updateMobileIndicatorUsingCaps(contact.getAddress());
+            updateMobileIndicatorUsingCaps(contact.getAddressAsJid());
             return;
         }
 
         // checks resource starts with String and is current highest priority
         int highestPriority = Integer.MIN_VALUE;
         List<ContactResource> highestPriorityResources =
-            new ArrayList<ContactResource>();
+            new ArrayList<>();
 
         Collection<ContactResource> resources = contact.getResources();
 
@@ -178,11 +178,10 @@ public class MobileIndicator
     /**
      * Checks a resource whether it is mobile or not, by checking the
      * cache.
-     * @param resourceName the resource name to check.
      * @param fullJid the jid to check.
      * @return whether resource with that name is mobile or not.
      */
-    boolean isMobileResource(String resourceName, String fullJid)
+    boolean isMobileResource(Jid fullJid)
     {
         if(isCapsMobileIndicator)
         {
@@ -191,16 +190,12 @@ public class MobileIndicator
 
             EntityCapsManager.Caps caps = capsManager.getCapsByUser(fullJid);
 
-            if(caps != null && containsStrings(caps.node, checkStrings))
-                return true;
-            else
-                return false;
+            return caps != null && containsStrings(caps.node, checkStrings);
         }
 
-        if(startsWithStrings(resourceName, checkStrings))
-            return true;
-        else
-            return false;
+        return startsWithStrings(
+            fullJid.getResourceOrEmpty().toString(),
+            checkStrings);
     }
 
     /**
@@ -210,6 +205,7 @@ public class MobileIndicator
      * @param evt ProviderStatusChangeEvent the event describing the status
      * change.
      */
+    @Override
     public void registrationStateChanged(RegistrationStateChangeEvent evt)
     {
         if(evt.getNewState() == RegistrationState.REGISTERED)
@@ -227,7 +223,7 @@ public class MobileIndicator
      * @param online indicates if the user for which we're notified is online
      */
     @Override
-    public void userCapsNodeAdded(String user, ArrayList<String> fullJids,
+    public void userCapsNodeAdded(Jid user, List<Jid> fullJids,
         String node, boolean online)
     {
         updateMobileIndicatorUsingCaps(user);
@@ -241,7 +237,7 @@ public class MobileIndicator
      * @param online indicates if the user for which we're notified is online
      */
     @Override
-    public void userCapsNodeRemoved(String user, ArrayList<String> fullJids,
+    public void userCapsNodeRemoved(Jid user, List<Jid> fullJids,
         String node, boolean online)
     {
         updateMobileIndicatorUsingCaps(user);
@@ -251,10 +247,10 @@ public class MobileIndicator
      * Update mobile indicator for contact, searching in contact caps.
      * @param user the contact address with or without resource.
      */
-    private void updateMobileIndicatorUsingCaps(String user)
+    private void updateMobileIndicatorUsingCaps(Jid user)
     {
         ContactJabberImpl contact =
-            ssclCallback.findContactById(StringUtils.parseBareAddress(user));
+            ssclCallback.findContactById(user.asBareJid());
 
         if(contact == null)
             return;
@@ -262,9 +258,9 @@ public class MobileIndicator
         // 1. Find most connected resources and if all are mobile
         int currentMostConnectedStatus = 0;
         List<ContactResource> mostAvailableResources =
-            new ArrayList<ContactResource>();
+            new ArrayList<>();
 
-        for(Map.Entry<String, ContactResourceJabberImpl> resEntry
+        for(Map.Entry<FullJid, ContactResourceJabberImpl> resEntry
                 : contact.getResourcesMap().entrySet())
         {
             ContactResourceJabberImpl res = resEntry.getValue();
@@ -274,8 +270,7 @@ public class MobileIndicator
             // update the mobile indicator of connected resource,
             // as caps have been updated
             boolean oldIndicator = res.isMobile();
-            res.setMobile(isMobileResource(
-                res.getResourceName(), res.getFullJid()));
+            res.setMobile(isMobileResource(res.getFullJid()));
 
             if(oldIndicator != res.isMobile())
             {

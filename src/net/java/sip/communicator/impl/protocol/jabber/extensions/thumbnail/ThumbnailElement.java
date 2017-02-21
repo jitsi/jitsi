@@ -147,7 +147,7 @@ public class ThumbnailElement
     }
 
     /**
-     * Returns the XML representation of this PacketExtension.
+     * Returns the XML representation of this ExtensionElement.
      *
      * @return the packet extension as XML.
      */

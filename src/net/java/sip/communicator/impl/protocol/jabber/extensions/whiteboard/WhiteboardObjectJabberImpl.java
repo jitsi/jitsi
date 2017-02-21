@@ -200,10 +200,10 @@ public abstract class WhiteboardObjectJabberImpl
         this.thickness = thickness;
     }
     /**
-     * Returns the XML reppresentation of the PacketExtension.
+     * Returns the XML reppresentation of the ExtensionElement.
      *
      * @return the packet extension as XML.
-     * @todo Implement this org.jivesoftware.smack.packet.PacketExtension
+     * @todo Implement this org.jivesoftware.smack.packet.ExtensionElement
      *   method
      */
     public abstract String toXML ();

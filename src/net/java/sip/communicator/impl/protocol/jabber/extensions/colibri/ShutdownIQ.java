@@ -111,6 +111,7 @@ public class ShutdownIQ
 
     private ShutdownIQ(String elementName)
     {
+        super(elementName, NAMESPACE);
         this.elementName = elementName;
     }
 
@@ -127,8 +128,14 @@ public class ShutdownIQ
      * {@inheritDoc}
      */
     @Override
-    public String getChildElementXML()
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
     {
-        return "<" + elementName + " xmlns='" + NAMESPACE + "' />";
+        buf
+            .append("<")
+            .append(elementName)
+            .append(" xmlns='")
+            .append(NAMESPACE)
+            .append("' />");
+        return buf;
     }
 }

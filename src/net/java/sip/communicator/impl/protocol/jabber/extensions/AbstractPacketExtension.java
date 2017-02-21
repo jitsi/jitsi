@@ -23,8 +23,8 @@ import java.util.*;
 import org.jivesoftware.smack.packet.*;
 
 /**
- * A generic implementation of <tt>PacketExtension</tt>. The purpose of this
- * class is quite similar to that of smack's {@link DefaultPacketExtension}
+ * A generic implementation of <tt>ExtensionElement</tt>. The purpose of this
+ * class is quite similar to that of smack's ??
  * with the main difference being that this one is meant primarily for
  * extension rather than using as a fallback for unknown elements. We let for
  * example our descendants handle child elements and we automate attribute
@@ -34,7 +34,7 @@ import org.jivesoftware.smack.packet.*;
  * @author Lyubomir Marinov
  */
 public abstract class AbstractPacketExtension
-    implements PacketExtension
+    implements ExtensionElement
 {
     /**
      * The name space of this packet extension. Should remain <tt>null</tt> if
@@ -57,7 +57,7 @@ public abstract class AbstractPacketExtension
     /**
      * A list of all packets that are wrapped by this extension.
      */
-    private final List<Packet> packets = new LinkedList<Packet>();
+    private final List<Stanza> packets = new LinkedList<>();
 
     /**
      * The text content of this packet extension, if any.
@@ -67,8 +67,8 @@ public abstract class AbstractPacketExtension
     /**
      * A list of extensions registered with this element.
      */
-    private final List<PacketExtension> childExtensions
-                                = new ArrayList<PacketExtension>();
+    private final List<ExtensionElement> childExtensions
+                                = new ArrayList<ExtensionElement>();
 
     /**
      * Creates an {@link AbstractPacketExtension} instance for the specified
@@ -139,9 +139,9 @@ public abstract class AbstractPacketExtension
         }
 
         //add child elements if any
-        List<? extends PacketExtension> childElements = getChildExtensions();
+        List<? extends ExtensionElement> childElements = getChildExtensions();
         String text = getText();
-        List<Packet> packets = getPackets();
+        List<Stanza> packets = getPackets();
 
         if (childElements == null && packets == null)
         {
@@ -166,9 +166,9 @@ public abstract class AbstractPacketExtension
                 else
                 {
                     bldr.append(">");
-                    for(PacketExtension packExt : childElements)
+                    for(ExtensionElement packExt : childElements)
                         bldr.append(packExt.toXML());
-                    for(Packet packet : packets)
+                    for(Stanza packet : packets)
                         bldr.append(packet.toXML());
                 }
             }
@@ -193,7 +193,7 @@ public abstract class AbstractPacketExtension
      *
      * @return the {@link List} of elements that this packet extension contains.
      */
-    public List<? extends PacketExtension> getChildExtensions()
+    public List<? extends ExtensionElement> getChildExtensions()
     {
         return childExtensions;
     }
@@ -208,7 +208,7 @@ public abstract class AbstractPacketExtension
      *
      * @param childExtension the extension we'd like to add here.
      */
-    public void addChildExtension(PacketExtension childExtension)
+    public void addChildExtension(ExtensionElement childExtension)
     {
         childExtensions.add(childExtension);
     }
@@ -218,7 +218,7 @@ public abstract class AbstractPacketExtension
      * 
      * @return the list of packets.
      */
-    public List<Packet> getPackets()
+    public List<Stanza> getPackets()
     {
         return packets;
     }
@@ -228,7 +228,7 @@ public abstract class AbstractPacketExtension
      * 
      * @param packet the packet to add.
      */
-    public void addPacket(Packet packet)
+    public void addPacket(Stanza packet)
     {
         packets.add(packet);
     }
@@ -416,20 +416,20 @@ public abstract class AbstractPacketExtension
      * Returns this packet's first direct child extension that matches the
      * specified <tt>type</tt>.
      *
-     * @param <T> the specific type of <tt>PacketExtension</tt> to be returned
+     * @param <T> the specific type of <tt>ExtensionElement</tt> to be returned
      *
      * @param type the <tt>Class</tt> of the extension we are looking for.
      *
      * @return this packet's first direct child extension that matches specified
      * <tt>type</tt> or <tt>null</tt> if no such child extension was found.
      */
-    public <T extends PacketExtension> T getFirstChildOfType(Class<T> type)
+    public <T extends ExtensionElement> T getFirstChildOfType(Class<T> type)
     {
-        List<? extends PacketExtension> childExtensions = getChildExtensions();
+        List<? extends ExtensionElement> childExtensions = getChildExtensions();
 
         synchronized (childExtensions)
         {
-            for(PacketExtension extension : childExtensions)
+            for(ExtensionElement extension : childExtensions)
             {
                 if(type.isInstance(extension))
                 {
@@ -447,7 +447,7 @@ public abstract class AbstractPacketExtension
      * Returns this packet's direct child extensions that match the
      * specified <tt>type</tt>.
      *
-     * @param <T> the specific <tt>PacketExtension</tt> type of child extensions
+     * @param <T> the specific <tt>ExtensionElement</tt> type of child extensions
      * to be returned
      *
      * @param type the <tt>Class</tt> of the extension we are looking for.
@@ -455,10 +455,10 @@ public abstract class AbstractPacketExtension
      * @return a (possibly empty) list containing all of this packet's direct
      * child extensions that match the specified <tt>type</tt>
      */
-    public <T extends PacketExtension> List<T> getChildExtensionsOfType(
+    public <T extends ExtensionElement> List<T> getChildExtensionsOfType(
             Class<T> type)
     {
-        List<? extends PacketExtension> childExtensions = getChildExtensions();
+        List<? extends ExtensionElement> childExtensions = getChildExtensions();
         List<T> result = new ArrayList<T>();
 
         if (childExtensions == null)
@@ -466,7 +466,7 @@ public abstract class AbstractPacketExtension
 
         synchronized (childExtensions)
         {
-            for(PacketExtension extension : childExtensions)
+            for(ExtensionElement extension : childExtensions)
             {
                 if(type.isInstance(extension))
                 {

@@ -22,6 +22,10 @@ import net.java.sip.communicator.impl.protocol.jabber.*;
 import org.jitsi.service.packetlogging.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.tcp.*;
+
+import java.lang.reflect.*;
+import java.net.*;
 
 /**
  * The jabber packet listener that logs the packets to the packet logging
@@ -29,13 +33,11 @@ import org.jivesoftware.smack.packet.*;
  * @author Damian Minkov
  */
 public class SmackPacketDebugger
-    implements PacketListener,
-               PacketInterceptor
 {
     /**
      * The current jabber connection.
      */
-    private XMPPConnection connection = null;
+    private XMPPTCPConnection connection = null;
 
     /**
      * Local address for the connection.
@@ -52,6 +54,9 @@ public class SmackPacketDebugger
      */
     private PacketLoggingService packetLogging = null;
 
+    public final Inbound inbound = new Inbound();
+    public final Outbound outbound = new Outbound();
+
     /**
      * Creates the SmackPacketDebugger instance.
      */
@@ -64,64 +69,65 @@ public class SmackPacketDebugger
      * Sets current connection.
      * @param connection the connection.
      */
-    public void setConnection(XMPPConnection connection)
+    public void setConnection(XMPPTCPConnection connection)
     {
         this.connection = connection;
     }
 
-    /**
-     * Process the packet that is about to be sent to the server. The intercepted
-     * packet can be modified by the interceptor.<p>
-     * <p/>
-     * Interceptors are invoked using the same thread that requested the packet
-     * to be sent, so it's very important that implementations of this method
-     * not block for any extended period of time.
-     *
-     * @param packet the packet to is going to be sent to the server.
-     */
-    public void interceptPacket(Packet packet)
+    public class Outbound implements StanzaListener
     {
-        try
+        /**
+         * Process the packet that is about to be sent to the server. The intercepted
+         * packet can be modified by the interceptor.<p>
+         * <p/>
+         * Interceptors are invoked using the same thread that requested the packet
+         * to be sent, so it's very important that implementations of this method
+         * not block for any extended period of time.
+         *
+         * @param packet the packet to is going to be sent to the server.
+         */
+        public void processStanza(Stanza packet)
         {
-            if(packetLogging.isLoggingEnabled(
-                    PacketLoggingService.ProtocolName.JABBER)
-                && packet != null && connection.getSocket() != null)
+            try
             {
-                if(remoteAddress == null)
+                if(packetLogging.isLoggingEnabled(
+                        PacketLoggingService.ProtocolName.JABBER)
+                    && packet != null && getSocket() != null)
                 {
-                    remoteAddress = connection.getSocket()
-                        .getInetAddress().getAddress();
-                    localAddress = connection.getSocket()
-                        .getLocalAddress().getAddress();
-                }
+                    if(remoteAddress == null)
+                    {
+                        remoteAddress = getSocket().getInetAddress().getAddress();
+                        localAddress = getSocket().getLocalAddress().getAddress();
+                    }
 
-                byte[] packetBytes;
+                    byte[] packetBytes;
 
-                if(packet instanceof Message)
-                {
-                    packetBytes = cloneAnonyMessage(packet)
-                        .toXML().getBytes("UTF-8");
-                }
-                else
-                {
-                    packetBytes = packet.toXML().getBytes("UTF-8");
-                }
+                    if(packet instanceof Message)
+                    {
+                        packetBytes = cloneAnonyMessage(packet)
+                            .toXML().toString().getBytes("UTF-8");
+                    }
+                    else
+                    {
+                        packetBytes = packet.toXML().toString().getBytes("UTF-8");
+                    }
 
-                packetLogging.logPacket(
-                        PacketLoggingService.ProtocolName.JABBER,
-                        localAddress,
-                        connection.getSocket().getLocalPort(),
-                        remoteAddress,
-                        connection.getPort(),
-                        PacketLoggingService.TransportName.TCP,
-                        true,
-                        packetBytes
-                    );
+                    packetLogging.logPacket(
+                            PacketLoggingService.ProtocolName.JABBER,
+                            localAddress,
+                        getSocket().getLocalPort(),
+                            remoteAddress,
+                            connection.getPort(),
+                            PacketLoggingService.TransportName.TCP,
+                            true,
+                            packetBytes
+                        );
+                }
             }
-        }
-        catch(Throwable t)
-        {
-            t.printStackTrace();
+            catch(Throwable t)
+            {
+                t.printStackTrace();
+            }
         }
     }
 
@@ -130,29 +136,25 @@ public class SmackPacketDebugger
      * @param packet
      * @return
      */
-    private Message cloneAnonyMessage(Packet packet)
+    private Message cloneAnonyMessage(Stanza packet)
     {
         Message oldMsg = (Message)packet;
 
         // if the message has no body, or the bodies list is empty
-        if(oldMsg.getBody() == null
-            && (oldMsg.getBodies() == null || oldMsg.getBodies().size() == 0))
+        if(oldMsg.getBody() == null && oldMsg.getBodies().size() == 0)
         {
             return oldMsg;
         }
 
         Message newMsg = new Message();
 
-        newMsg.setPacketID(packet.getPacketID());
+        newMsg.setStanzaId(packet.getStanzaId());
         newMsg.setTo(packet.getTo());
         newMsg.setFrom(packet.getFrom());
 
         // we don't modify them, just use existing
-        for(PacketExtension pex : packet.getExtensions())
+        for(ExtensionElement pex : packet.getExtensions())
             newMsg.addExtension(pex);
-
-        for(String propName : packet.getPropertyNames())
-            newMsg.setProperty(propName, packet.getProperty(propName));
 
         newMsg.setError(packet.getError());
 
@@ -183,50 +185,67 @@ public class SmackPacketDebugger
         return newMsg;
     }
 
-    /**
-     * Process the next packet sent to this packet listener.<p>
-     * <p/>
-     * A single thread is responsible for invoking all listeners, so
-     * it's very important that implementations of this method not block
-     * for any extended period of time.
-     *
-     * @param packet the packet to process.
-     */
-    public void processPacket(Packet packet)
+    public class Inbound implements StanzaListener
+    {
+        /**
+         * Process the next packet sent to this packet listener.<p>
+         * <p/>
+         * A single thread is responsible for invoking all listeners, so
+         * it's very important that implementations of this method not block
+         * for any extended period of time.
+         *
+         * @param packet the packet to process.
+         */
+        public void processStanza(Stanza packet)
+        {
+            try
+            {
+                if(packetLogging.isLoggingEnabled(
+                        PacketLoggingService.ProtocolName.JABBER)
+                    && packet != null && getSocket() != null)
+                {
+                    byte[] packetBytes;
+
+                    if(packet instanceof Message)
+                    {
+                        packetBytes = cloneAnonyMessage(packet)
+                            .toXML().toString().getBytes("UTF-8");
+                    }
+                    else
+                    {
+                        packetBytes = packet.toXML().toString().getBytes("UTF-8");
+                    }
+
+                    packetLogging.logPacket(
+                        PacketLoggingService.ProtocolName.JABBER,
+                        remoteAddress,
+                        connection.getPort(),
+                        localAddress,
+                        getSocket().getLocalPort(),
+                        PacketLoggingService.TransportName.TCP,
+                        false,
+                        packetBytes
+                    );
+                }
+            }
+            catch(Throwable t)
+            {
+                t.printStackTrace();
+            }
+        }
+    }
+
+    private Socket getSocket()
     {
         try
         {
-            if(packetLogging.isLoggingEnabled(
-                    PacketLoggingService.ProtocolName.JABBER)
-                && packet != null && connection.getSocket() != null)
-            {
-                byte[] packetBytes;
-
-                if(packet instanceof Message)
-                {
-                    packetBytes = cloneAnonyMessage(packet)
-                        .toXML().getBytes("UTF-8");
-                }
-                else
-                {
-                    packetBytes = packet.toXML().getBytes("UTF-8");
-                }
-
-                packetLogging.logPacket(
-                    PacketLoggingService.ProtocolName.JABBER,
-                    remoteAddress,
-                    connection.getPort(),
-                    localAddress,
-                    connection.getSocket().getLocalPort(),
-                    PacketLoggingService.TransportName.TCP,
-                    false,
-                    packetBytes
-                );
-            }
+            Field socket = connection.getClass().getField("socket");
+            socket.setAccessible(true);
+            return (Socket)socket.get(connection);
         }
-        catch(Throwable t)
+        catch (NoSuchFieldException | IllegalAccessException e)
         {
-            t.printStackTrace();
+            return null;
         }
     }
 }

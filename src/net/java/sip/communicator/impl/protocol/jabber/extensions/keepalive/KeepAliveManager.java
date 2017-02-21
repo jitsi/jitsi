@@ -27,7 +27,7 @@ import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
-import org.jivesoftware.smack.util.*;
+import org.jxmpp.jid.impl.JidCreate;
 
 /**
  * XEP-0199: XMPP Ping. Tracks received packets and if for some interval
@@ -37,7 +37,7 @@ import org.jivesoftware.smack.util.*;
  */
 public class KeepAliveManager
     implements RegistrationStateChangeListener,
-               PacketListener
+               StanzaListener
 {
     /**
      * Our class logger
@@ -88,7 +88,7 @@ public class KeepAliveManager
 
         // register the KeepAlive Extension in the smack library
         // used only if somebody ping us
-        ProviderManager.getInstance()
+        ProviderManager
             .addIQProvider(KeepAliveEvent.ELEMENT_NAME,
                            KeepAliveEvent.NAMESPACE,
                            new KeepAliveEventProvider());
@@ -133,11 +133,7 @@ public class KeepAliveManager
             keepAliveSendTask = new KeepAliveSendTask();
             waitingForPacketWithID = null;
 
-            keepAliveCheckInterval =
-                SmackConfiguration.getKeepAliveInterval();
-            if(keepAliveCheckInterval == 0)
-                keepAliveCheckInterval = 30000;
-
+            keepAliveCheckInterval = 30000;
             keepAliveTimer = new Timer("Jabber keepalive timer for <"
                 + parentProvider.getAccountID() + ">", true);
             keepAliveTimer.scheduleAtFixedRate(
@@ -171,13 +167,14 @@ public class KeepAliveManager
      * A packet Listener for all incoming packets.
      * @param packet an incoming packet
      */
-    public void processPacket(Packet packet)
+    @Override
+    public void processStanza(Stanza packet) throws SmackException.NotConnectedException, InterruptedException
     {
         // store that we have received
         lastReceiveActivity = System.currentTimeMillis();
 
         if(waitingForPacketWithID != null &&
-            waitingForPacketWithID.equals(packet.getPacketID()))
+            waitingForPacketWithID.equals(packet.getStanzaId()))
         {
             // we are no more waiting for this packet
             waitingForPacketWithID = null;
@@ -195,7 +192,7 @@ public class KeepAliveManager
                     .equals(parentProvider.getAccountID().getService())
                 && evt.getError() == null)
             {
-                parentProvider.getConnection().sendPacket(
+                parentProvider.getConnection().sendStanza(
                     IQ.createResultIQ(evt));
             }
         }
@@ -224,7 +221,7 @@ public class KeepAliveManager
         @Override
         public void run()
         {
-            /**
+            /*
              * Timers on Android when CPU is sleeping can often sleep for too
              * long and then they try to catch up doing rapid callbacks.
              * The intention here is to filter out such calls.
@@ -282,15 +279,15 @@ public class KeepAliveManager
                     // the @service-name part of the user id
                     KeepAliveEvent ping = new KeepAliveEvent(
                         parentProvider.getOurJID(),
-                        StringUtils.parseServer(
-                            parentProvider.getAccountID().getAccountAddress()));
+                        JidCreate.bareFrom(parentProvider.getAccountID().getAccountAddress()).asDomainBareJid()
+                    );
 
                     if (logger.isTraceEnabled())
                         logger.trace("send keepalive for acc: "
                             + parentProvider.getAccountID().getDisplayName());
 
-                    waitingForPacketWithID = ping.getPacketID();
-                    parentProvider.getConnection().sendPacket(ping);
+                    waitingForPacketWithID = ping.getStanzaId();
+                    parentProvider.getConnection().sendStanza(ping);
                 }
                 catch(Throwable t)
                 {

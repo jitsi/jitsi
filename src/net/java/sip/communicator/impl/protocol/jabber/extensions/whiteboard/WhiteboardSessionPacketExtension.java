@@ -27,12 +27,13 @@ import net.java.sip.communicator.util.*;
 import org.jitsi.util.xml.*;
 import org.jivesoftware.smack.packet.*;
 import org.w3c.dom.*;
+import org.w3c.dom.Element;
 
 /**
  * Whiteboard session packet extension.
  */
 public class WhiteboardSessionPacketExtension
-    implements PacketExtension
+    implements ExtensionElement
 {
     private Logger logger
         = Logger.getLogger(WhiteboardSessionPacketExtension.class);
@@ -115,16 +116,6 @@ public class WhiteboardSessionPacketExtension
             else
                 if (logger.isDebugEnabled())
                     logger.debug ("Element name unknown!");
-        }
-        catch (ParserConfigurationException ex)
-        {
-            if (logger.isDebugEnabled())
-                logger.debug ("Problem WhiteboardSession : " + xml, ex);
-        }
-        catch (IOException ex)
-        {
-            if (logger.isDebugEnabled())
-                logger.debug ("Problem WhiteboardSession : " + xml, ex);
         }
         catch (Exception ex)
         {

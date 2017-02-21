@@ -27,7 +27,7 @@ import org.xmlpull.v1.*;
  * @author Damian Minkov
  */
 public class NotificationEventIQProvider
-    implements IQProvider
+    extends IQProvider
 {
     /**
      * Parse the IQ sub-document and create an IQ instance. Each IQ must have a
@@ -40,7 +40,8 @@ public class NotificationEventIQProvider
      * @return a new IQ instance.
      * @throws Exception if an error occurs parsing the XML.
      */
-    public IQ parseIQ(XmlPullParser parser)
+    @Override
+    public IQ parse(XmlPullParser parser, int depth)
         throws Exception
     {
         NotificationEventIQ result = new NotificationEventIQ();

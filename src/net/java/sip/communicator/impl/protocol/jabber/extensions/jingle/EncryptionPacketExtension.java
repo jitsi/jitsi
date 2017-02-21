@@ -123,9 +123,9 @@ public class EncryptionPacketExtension
      * @return a {@link List} containing all our <tt>crypto</tt> sub-elements.
      */
     @Override
-    public List<? extends PacketExtension> getChildExtensions()
+    public List<? extends ExtensionElement> getChildExtensions()
     {
-        List<PacketExtension> ret = new ArrayList<PacketExtension>();
+        List<ExtensionElement> ret = new ArrayList<ExtensionElement>();
 
         ret.addAll(super.getChildExtensions());
         return ret;
@@ -142,7 +142,7 @@ public class EncryptionPacketExtension
      * @param childExtension the extension we'd like to add here.
      */
     @Override
-    public void addChildExtension(PacketExtension childExtension)
+    public void addChildExtension(ExtensionElement childExtension)
     {
         super.addChildExtension(childExtension);
 

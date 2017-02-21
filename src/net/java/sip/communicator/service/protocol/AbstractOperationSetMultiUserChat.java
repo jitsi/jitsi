@@ -20,6 +20,7 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
+import org.jxmpp.jid.*;
 
 /**
  * Represents a default implementation of <code>OperationSetMultiUserChat</code>
@@ -143,7 +144,7 @@ public abstract class AbstractOperationSetMultiUserChat
                     sourceChatRoom,
                     invitee,
                     reason,
-                    new Date(System.currentTimeMillis()));
+                    new Date());
 
         ChatRoomInvitationRejectionListener[] listeners;
         synchronized (invitationRejectionListeners)

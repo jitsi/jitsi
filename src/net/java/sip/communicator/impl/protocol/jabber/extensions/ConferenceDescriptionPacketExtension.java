@@ -26,7 +26,7 @@ import org.xmlpull.v1.*;
 import java.util.*;
 
 /**
- * A <tt>PacketExtension</tt> that represents a <tt>ConferenceDescription</tt>
+ * A <tt>ExtensionElement</tt> that represents a <tt>ConferenceDescription</tt>
  * object in XML.
  *
  * @author Boris Grozev
@@ -213,7 +213,7 @@ public class ConferenceDescriptionPacketExtension
     
     /**
      * Sets the value of the "available" attribute.
-     * @param available the value to set
+     * @param name the value to set
      */
     public void setName(String name)
     {
@@ -269,7 +269,7 @@ public class ConferenceDescriptionPacketExtension
     }
 
     /**
-     * A <tt>PacketExtension</tt> that represents a "transport" child element.
+     * A <tt>ExtensionElement</tt> that represents a "transport" child element.
      */
     public static class TransportPacketExtension
         extends AbstractPacketExtension
@@ -290,7 +290,7 @@ public class ConferenceDescriptionPacketExtension
      * Parses elements with the <tt>NAMESPACE</tt> namespace.
      */
     public static class Provider
-        implements PacketExtensionProvider
+        extends ExtensionElementProvider
     {
         /**
          * Creates a <tt>ConferenceDescriptionPacketExtension</tt> by parsing
@@ -300,7 +300,7 @@ public class ConferenceDescriptionPacketExtension
          * @throws Exception
          */
         @Override
-        public PacketExtension parseExtension(XmlPullParser parser)
+        public ExtensionElement parse(XmlPullParser parser, int depth)
                 throws Exception
         {
             ConferenceDescriptionPacketExtension packetExtension

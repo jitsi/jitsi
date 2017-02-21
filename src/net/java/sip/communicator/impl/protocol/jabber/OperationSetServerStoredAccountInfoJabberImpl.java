@@ -17,7 +17,6 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import java.net.*;
 import java.text.*;
 import java.util.*;
 
@@ -28,6 +27,8 @@ import net.java.sip.communicator.util.*;
 
 import org.apache.commons.lang3.*;
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.SmackException.*;
+import org.jxmpp.jid.*;
 
 /**
  * The Account Info Operation set is a means of accessing and modifying detailed
@@ -62,7 +63,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
      * for this implementation.
      */
     public static final List<Class<? extends GenericDetail>> supportedTypes
-        = new ArrayList<Class<? extends GenericDetail>>();
+        = new ArrayList<>();
 
     static {
         supportedTypes.add(ImageDetail.class);
@@ -92,12 +93,12 @@ public class OperationSetServerStoredAccountInfoJabberImpl
     /**
      * Our account UIN.
      */
-    private String uin = null;
+    private EntityBareJid uin = null;
 
     protected OperationSetServerStoredAccountInfoJabberImpl(
         ProtocolProviderServiceJabberImpl jabberProvider,
         InfoRetreiver infoRetreiver,
-        String uin)
+        EntityBareJid uin)
     {
         this.infoRetreiver = infoRetreiver;
         this.jabberProvider = jabberProvider;
@@ -369,7 +370,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
             {
                 if (detail.getDetailValue() != null)
                     vCard.setField(
-                        "URL", ((URL)detail.getDetailValue()).toString());
+                        "URL", detail.getDetailValue().toString());
             }
             else if (detail.getClass().equals(BirthDateDetail.class))
             {
@@ -443,7 +444,10 @@ public class OperationSetServerStoredAccountInfoJabberImpl
         {
             vCard.save(jabberProvider.getConnection());
         }
-        catch (XMPPException xmppe)
+        catch (XMPPException
+            | InterruptedException
+            | NoResponseException
+            | NotConnectedException xmppe)
         {
             logger.error("Error loading/saving vcard: ", xmppe);
             throw new OperationFailedException(
@@ -463,10 +467,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
     public boolean isDetailClassEditable(
         Class<? extends GenericDetail> detailClass)
     {
-        if (isDetailClassSupported(detailClass)) {
-            return true;
-        }
-        return false;
+        return isDetailClassSupported(detailClass);
     }
 
     /**

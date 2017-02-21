@@ -79,7 +79,7 @@ public class RtpDescriptionPacketExtension
     /**
      * The combined list of all child elements that this extension contains.
      */
-    private List<PacketExtension> children;
+    private List<ExtensionElement> children;
 
     /**
      * Creates a new <tt>RtpDescriptionPacketExtension</tt>.
@@ -177,10 +177,10 @@ public class RtpDescriptionPacketExtension
      * this packet.
      */
     @Override
-    public List<? extends PacketExtension> getChildExtensions()
+    public List<? extends ExtensionElement> getChildExtensions()
     {
         if(children == null)
-            children = new ArrayList<PacketExtension>();
+            children = new ArrayList<ExtensionElement>();
         else
             children.clear();
 
@@ -211,7 +211,7 @@ public class RtpDescriptionPacketExtension
      * @param childExtension the extension we'd like to add here.
      */
     @Override
-    public void addChildExtension(PacketExtension childExtension)
+    public void addChildExtension(ExtensionElement childExtension)
     {
         if(childExtension instanceof PayloadTypePacketExtension)
             this.addPayloadType((PayloadTypePacketExtension)childExtension);
@@ -232,7 +232,7 @@ public class RtpDescriptionPacketExtension
      * Sets the optional encryption element that contains encryption parameters
      * for this session.
      *
-     * @param encryption the encryption {@link PacketExtension} we'd like to add
+     * @param encryption the encryption {@link ExtensionElement} we'd like to add
      * to this packet.
      */
     public void setEncryption(EncryptionPacketExtension encryption)
@@ -244,7 +244,7 @@ public class RtpDescriptionPacketExtension
      * Returns the optional encryption element that contains encryption
      * parameters for this session.
      *
-     * @return the encryption {@link PacketExtension} added to this packet or
+     * @return the encryption {@link ExtensionElement} added to this packet or
      * <tt>null</tt> if none has been set yet.
      */
     public EncryptionPacketExtension getEncryption()

@@ -27,6 +27,12 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.XMPPException.*;
+import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smackx.iqregister.AccountManager;
+import org.jxmpp.jid.Jid;
+
+import static org.jivesoftware.smack.packet.XMPPError.Condition.forbidden;
 
 /**
  * Dialog for adding a new Jabber account.
@@ -93,7 +99,7 @@ public class JabberAccountCreationForm
     private JButton chooseButton = new JButton();
 
     // Smack objects
-    private Connection xmppConnection = null;
+    private XMPPConnection xmppConnection = null;
 
     private AccountManager accountManager = null;
 
@@ -162,44 +168,41 @@ public class JabberAccountCreationForm
     private boolean createJabberAccount(String server, int port, String username,
         String password)
     {
-        try
-        {
-            ConnectionConfiguration config = new ConnectionConfiguration(
-                server, port);
-
-            xmppConnection = new XMPPConnection(config);
-
-            xmppConnection.connect();
-
-            accountManager = new AccountManager(xmppConnection);
-
-            accountManager.createAccount(username, password);
-
-            return true;
-        }
-        catch (XMPPException exc)
-        {
-            logger.error(exc);
-            if (exc.getXMPPError() != null
-                && exc.getXMPPError().getCode() == 409)
-            {
-                showErrorMessage(Resources.getString(
-                        "plugin.jabberaccregwizz.USER_EXISTS_ERROR"));
-
-                logger.error(
-                    "Error when created a new Jabber account :" +
-                    " user already exist");
-            }
-            else
-            {
-                showErrorMessage(Resources.getResources().getI18NString(
-                        "plugin.jabberaccregwizz.UNKNOWN_XMPP_ERROR",
-                        new String[]{exc.getMessage()}
-                    ));
-            }
-
-            return false;
-        }
+//        try
+//        {
+//            //ConnectionConfiguration config = new ConnectionConfiguration(
+//            //    server, port);
+//            //xmppConnection = new XMPPConnection(config);
+//            //xmppConnection.connect();
+//            //accountManager = new AccountManager(xmppConnection);
+//            //accountManager.createAccount(username, password);
+//
+//            return true;
+//        }
+//        catch (XMPPException exc)
+//        {
+//            logger.error(exc);
+//            if (exc instanceof XMPPErrorException
+//                && ((XMPPErrorException)exc).getXMPPError().getCondition() == forbidden)
+//            {
+//                showErrorMessage(Resources.getString(
+//                        "plugin.jabberaccregwizz.USER_EXISTS_ERROR"));
+//
+//                logger.error(
+//                    "Error when created a new Jabber account :" +
+//                    " user already exist");
+//            }
+//            else
+//            {
+//                showErrorMessage(Resources.getResources().getI18NString(
+//                        "plugin.jabberaccregwizz.UNKNOWN_XMPP_ERROR",
+//                        new String[]{exc.getMessage()}
+//                    ));
+//            }
+//
+//            return false;
+//        }
+        return true;
     }
 
     /**

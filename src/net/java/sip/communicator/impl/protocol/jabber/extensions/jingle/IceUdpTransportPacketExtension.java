@@ -138,11 +138,11 @@ public class IceUdpTransportPacketExtension
      * @return this element's child (local or remote) candidate elements.
      */
     @Override
-    public List<? extends PacketExtension> getChildExtensions()
+    public List<? extends ExtensionElement> getChildExtensions()
     {
-        List<PacketExtension> childExtensions
-            = new ArrayList<PacketExtension>();
-        List<? extends PacketExtension> superChildExtensions
+        List<ExtensionElement> childExtensions
+            = new ArrayList<ExtensionElement>();
+        List<? extends ExtensionElement> superChildExtensions
             = super.getChildExtensions();
 
         childExtensions.addAll(superChildExtensions);
@@ -191,20 +191,20 @@ public class IceUdpTransportPacketExtension
     }
 
     /**
-     * Removes given <tt>PacketExtension</tt> from the list of child packet
+     * Removes given <tt>ExtensionElement</tt> from the list of child packet
      * extensions. <tt>CandidatePacketExtension</tt> are not taken into account
      * in this method and {@link #removeCandidate(CandidatePacketExtension)}
      * should be used instead.
      *
-     * @param childExtension <tt>PacketExtension</tt> instance to be removed
+     * @param childExtension <tt>ExtensionElement</tt> instance to be removed
      *        from child packet extensions list.
      *
      * @return <tt>true</tt> if given <tt>childExtension</tt> has been in the
      *         list and was removed or <tt>false</tt> otherwise.
      */
-    public boolean removeChildExtension(PacketExtension childExtension)
+    public boolean removeChildExtension(ExtensionElement childExtension)
     {
-        List<? extends PacketExtension> childExtensions
+        List<? extends ExtensionElement> childExtensions
             = super.getChildExtensions();
 
         return childExtensions != null
@@ -255,7 +255,7 @@ public class IceUdpTransportPacketExtension
      * @param childExtension the extension we'd like to add here.
      */
     @Override
-    public void addChildExtension(PacketExtension childExtension)
+    public void addChildExtension(ExtensionElement childExtension)
     {
         //first check for RemoteCandidate because they extend Candidate.
         if(childExtension instanceof RemoteCandidatePacketExtension)
@@ -276,7 +276,7 @@ public class IceUdpTransportPacketExtension
      */
     public boolean isRtcpMux()
     {
-        for (PacketExtension packetExtension : getChildExtensions())
+        for (ExtensionElement packetExtension : getChildExtensions())
         {
             if (RtcpmuxPacketExtension.ELEMENT_NAME
                     .equals(packetExtension.getElementName()))

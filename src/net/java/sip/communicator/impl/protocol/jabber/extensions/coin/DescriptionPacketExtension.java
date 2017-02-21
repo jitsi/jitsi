@@ -196,7 +196,7 @@ public class DescriptionPacketExtension
                     maximumUserCount).append("</").append(
                             ELEMENT_MAX_USER_COUNT).append(">");
 
-        for(PacketExtension ext : getChildExtensions())
+        for(ExtensionElement ext : getChildExtensions())
         {
             bldr.append(ext.toXML());
         }

@@ -31,7 +31,7 @@ import org.xmlpull.v1.*;
  * @author Sebastien Vincent
  */
 public class RemoteControlExtensionProvider
-    implements PacketExtensionProvider
+    extends ExtensionElementProvider
 {
     /**
      * The name of the remote-info XML element <tt>remote-control</tt>.
@@ -93,14 +93,15 @@ public class RemoteControlExtensionProvider
     }
 
     /**
-     * Parses the extension and returns a <tt>PacketExtension</tt>.
+     * Parses the extension and returns a <tt>ExtensionElement</tt>.
      *
      * @param parser XML parser
-     * @return a <tt>PacketExtension</tt> that represents a remote-control
+     * @return a <tt>ExtensionElement</tt> that represents a remote-control
      * element.
      * @throws Exception if an error occurs during XML parsing
      */
-    public PacketExtension parseExtension(XmlPullParser parser)
+    @Override
+    public ExtensionElement parse(XmlPullParser parser, int depth)
         throws Exception
     {
         RemoteControlExtension result = null;

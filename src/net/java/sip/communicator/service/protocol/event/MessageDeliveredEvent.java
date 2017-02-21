@@ -134,8 +134,6 @@ public class MessageDeliveredEvent
       *
       * @param source the <tt>Message</tt> whose delivery this event represents.
       * @param to the <tt>Contact</tt> that this message was sent to.
-      * @param timestamp a date indicating the exact moment when the event
-      * ocurred
       */
      public MessageDeliveredEvent(
          Message source, Contact to, ContactResource toResource)

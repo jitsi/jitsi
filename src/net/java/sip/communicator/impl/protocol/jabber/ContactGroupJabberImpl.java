@@ -21,7 +21,10 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 
-import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.roster.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.impl.*;
+import org.jxmpp.stringprep.*;
 
 /**
  * The Jabber implementation of the ContactGroup interface. Instances of this class
@@ -49,7 +52,7 @@ public class ContactGroupJabberImpl
      * lower case  strings in the left column because JIDs in XMPP are not case
      * sensitive.
      */
-    private Map<String, Contact> buddies = new Hashtable<String, Contact>();
+    private Map<Jid, Contact> buddies = new Hashtable<>();
 
     /**
      * Whether or not this contact group has been resolved against
@@ -62,12 +65,6 @@ public class ContactGroupJabberImpl
      * Used to resolve the RosterGroup against the rouster.
      */
     private String id = null;
-
-    /**
-     * a list that would always remain empty. We only use it so that we're able
-     * to extract empty iterators
-     */
-    private List<ContactGroup> dummyGroupsList = new LinkedList<ContactGroup>();
 
     /**
      * A variable that we use as a means of detecting changes in the name
@@ -128,7 +125,7 @@ public class ContactGroupJabberImpl
             //only add the buddy if it doesn't already exist in some other group
             //this is necessary because XMPP would allow having one and the
             //same buddy in more than one group.
-            if(ssclCallback.findContactById(rEntry.getUser()) != null)
+            if(ssclCallback.findContactById(rEntry.getJid()) != null)
             {
                 continue;
             }
@@ -180,7 +177,7 @@ public class ContactGroupJabberImpl
      */
     public void addContact(ContactJabberImpl contact)
     {
-        buddies.put(contact.getAddress().toLowerCase(), contact);
+        buddies.put(contact.getAddressAsJid(), contact);
     }
 
 
@@ -190,7 +187,7 @@ public class ContactGroupJabberImpl
      */
     void removeContact(ContactJabberImpl contact)
     {
-        buddies.remove(contact.getAddress().toLowerCase());
+        buddies.remove(contact.getAddressAsJid());
     }
 
     /**
@@ -215,7 +212,14 @@ public class ContactGroupJabberImpl
      */
     public Contact getContact(String id)
     {
-        return this.findContact(id);
+        try
+        {
+            return this.findContact(JidCreate.from(id));
+        }
+        catch (XmppStringprepException e)
+        {
+            return null;
+        }
     }
 
     /**
@@ -273,7 +277,7 @@ public class ContactGroupJabberImpl
      */
     public Iterator<ContactGroup> subgroups()
     {
-        return dummyGroupsList.iterator();
+        return Collections.emptyListIterator();
     }
 
     /**
@@ -371,11 +375,11 @@ public class ContactGroupJabberImpl
      * @return the <tt>ContactJabberImpl</tt> corresponding to the specified
      * screnname or null if no such contact existed.
      */
-    ContactJabberImpl findContact(String id)
+    ContactJabberImpl findContact(Jid id)
     {
         if(id == null)
             return null;
-        return (ContactJabberImpl)buddies.get(id.toLowerCase());
+        return (ContactJabberImpl)buddies.get(id);
     }
 
     /**
@@ -451,7 +455,7 @@ public class ContactGroupJabberImpl
         for (RosterEntry item : source.getEntries())
         {
             ContactJabberImpl contact =
-                ssclCallback.findContactById(item.getUser());
+                ssclCallback.findContactById(item.getJid());
 
             // some services automatically adds contacts from an addressbook
             // to our roster and this contacts are with subscription none.

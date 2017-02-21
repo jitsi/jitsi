@@ -221,10 +221,10 @@ public class WhiteboardObjectPolygonJabberImpl
     }
 
     /**
-     * Returns the XML representation of the PacketExtension.
+     * Returns the XML representation of the ExtensionElement.
      *
      * @return the packet extension as XML.
-     * @todo Implement this org.jivesoftware.smack.packet.PacketExtension
+     * @todo Implement this org.jivesoftware.smack.packet.ExtensionElement
      *   method
      */
     @Override

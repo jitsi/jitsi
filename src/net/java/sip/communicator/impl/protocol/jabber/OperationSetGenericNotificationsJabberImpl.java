@@ -25,10 +25,14 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.IQ.Type;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.impl.*;
+import org.jxmpp.stringprep.*;
 
 /**
  * Provides notification for generic events with name and value, also
@@ -39,7 +43,7 @@ import org.jivesoftware.smack.provider.*;
  */
 public class OperationSetGenericNotificationsJabberImpl
     implements OperationSetGenericNotifications,
-               PacketListener
+               StanzaListener
 {
     /**
      * Our class logger
@@ -63,9 +67,7 @@ public class OperationSetGenericNotificationsJabberImpl
      * new event notifications
      */
     private final Map<String, List<GenericEventListener>>
-            genericEventListeners
-                = new HashMap<String,
-                              List<GenericEventListener>>();
+            genericEventListeners = new HashMap<>();
 
     /**
      * Creates an instance of this operation set.
@@ -83,7 +85,7 @@ public class OperationSetGenericNotificationsJabberImpl
                         new RegistrationStateListener());
 
         // register the notification event Extension in the smack library
-        ProviderManager.getInstance()
+        ProviderManager
             .addIQProvider(NotificationEventIQ.ELEMENT_NAME,
                            NotificationEventIQ.NAMESPACE,
                            new NotificationEventIQProvider());
@@ -116,9 +118,16 @@ public class OperationSetGenericNotificationsJabberImpl
         newEvent.setEventName(eventName);
         newEvent.setEventValue(eventValue);
         newEvent.setTo(contact.getAddress());
-        newEvent.setEventSource(jabberProvider.getOurJID());
+        newEvent.setEventSource(jabberProvider.getOurJID().toString());
 
-        jabberProvider.getConnection().sendPacket(newEvent);
+        try
+        {
+            jabberProvider.getConnection().sendStanza(newEvent);
+        }
+        catch (NotConnectedException | InterruptedException e)
+        {
+            logger.error("Could not send event", e);
+        }
     }
 
     /**
@@ -161,22 +170,39 @@ public class OperationSetGenericNotificationsJabberImpl
             return;
         }
 
+        Jid toJid;
+        try
+        {
+            toJid = JidCreate.bareFrom(jid);
+        }
+        catch (XmppStringprepException e)
+        {
+            throw new IllegalArgumentException("jid is invalid", e);
+        }
+
         //try to convert the jid to a full jid
-        String fullJid = jabberProvider.getFullJid(jid);
+        Jid fullJid = jabberProvider.getFullJid(toJid.asBareJid());
         if( fullJid != null )
-            jid = fullJid;
+            toJid = fullJid;
 
         NotificationEventIQ newEvent = new NotificationEventIQ();
         newEvent.setEventName(eventName);
         newEvent.setEventValue(eventValue);
-        newEvent.setTo(jid);
+        newEvent.setTo(toJid);
 
         if(source != null)
             newEvent.setEventSource(source);
         else
-            newEvent.setEventSource(jabberProvider.getOurJID());
+            newEvent.setEventSource(jabberProvider.getOurJID().toString());
 
-        jabberProvider.getConnection().sendPacket(newEvent);
+        try
+        {
+            jabberProvider.getConnection().sendStanza(newEvent);
+        }
+        catch (NotConnectedException | InterruptedException e)
+        {
+            logger.error("Could not send event notification", e);
+        }
     }
 
     /**
@@ -198,7 +224,7 @@ public class OperationSetGenericNotificationsJabberImpl
                     this.genericEventListeners.get(eventName);
             if(l == null)
             {
-                l = new ArrayList<GenericEventListener>();
+                l = new ArrayList<>();
                 this.genericEventListeners.put(eventName, l);
             }
 
@@ -234,9 +260,9 @@ public class OperationSetGenericNotificationsJabberImpl
      *
      * @param packet the packet to process.
      */
-    public void processPacket(Packet packet)
+    public void processStanza(Stanza packet)
     {
-        if(packet != null &&  !(packet instanceof NotificationEventIQ))
+        if(packet == null || !(packet instanceof NotificationEventIQ))
                 return;
 
         NotificationEventIQ notifyEvent = (NotificationEventIQ)packet;
@@ -252,9 +278,7 @@ public class OperationSetGenericNotificationsJabberImpl
 
         //do not notify
 
-        String fromUserID
-            = org.jivesoftware.smack.util.StringUtils.parseBareAddress(
-                notifyEvent.getFrom());
+        BareJid fromUserID = notifyEvent.getFrom().asBareJid();
 
         Contact sender = opSetPersPresence.findContactByID(fromUserID);
 
@@ -262,14 +286,14 @@ public class OperationSetGenericNotificationsJabberImpl
             sender = opSetPersPresence.createVolatileContact(
                 notifyEvent.getFrom());
 
-        if(notifyEvent.getType() == Type.GET)
+        if(notifyEvent.getType() == Type.get)
             fireNewEventNotification(
                             sender,
                             notifyEvent.getEventName(),
                             notifyEvent.getEventValue(),
                             notifyEvent.getEventSource(),
                             true);
-        else if(notifyEvent.getType() == Type.ERROR)
+        else if(notifyEvent.getType() == Type.error)
             fireNewEventNotification(
                             sender,
                             notifyEvent.getEventName(),
@@ -296,14 +320,24 @@ public class OperationSetGenericNotificationsJabberImpl
             String  source,
             boolean incoming)
     {
-        String sourceUserID
-            = org.jivesoftware.smack.util.StringUtils.parseBareAddress(
-                source);
+        String sourceUserID;
+        Jid sourceBareJid;
+        try
+        {
+            sourceBareJid = JidCreate.from(source);
+            sourceUserID = sourceBareJid.asBareJid().toString();
+        }
+        catch (XmppStringprepException e)
+        {
+            logger.error(source + " is not a valid JID", e);
+            return;
+        }
+
         Contact sourceContact =
                 opSetPersPresence.findContactByID(sourceUserID);
         if(sourceContact == null)
             sourceContact = opSetPersPresence
-                    .createVolatileContact(source);
+                    .createVolatileContact(sourceBareJid);
 
         GenericEvent
             event = new GenericEvent(
@@ -318,7 +352,7 @@ public class OperationSetGenericNotificationsJabberImpl
             if(ls == null)
                 return;
 
-            listeners = new ArrayList<GenericEventListener>(ls);
+            listeners = new ArrayList<>(ls);
         }
         for (GenericEventListener listener : listeners)
         {
@@ -355,7 +389,7 @@ public class OperationSetGenericNotificationsJabberImpl
                 {
                     jabberProvider.getConnection().addPacketListener(
                         OperationSetGenericNotificationsJabberImpl.this,
-                            new PacketTypeFilter(NotificationEventIQ.class));
+                            new StanzaTypeFilter(NotificationEventIQ.class));
                 }
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED

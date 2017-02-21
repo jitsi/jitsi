@@ -26,10 +26,17 @@ import net.java.sip.communicator.service.protocol.whiteboardobjects.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.SmackException.*;
+import org.jivesoftware.smack.chat.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.util.StringUtils;
-import org.jivesoftware.smackx.*;
+import org.jivesoftware.smack.packet.XMPPError.*;
+import org.jivesoftware.smackx.xevent.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.impl.*;
+import org.jxmpp.stringprep.*;
+
+import static org.jivesoftware.smack.packet.XMPPError.Condition.service_unavailable;
 
 /**
  * A representation of a <tt>WhiteboardSession</tt>.
@@ -224,7 +231,7 @@ public class WhiteboardSessionJabberImpl
 
             smackChat.sendMessage(msg);
         }
-        catch (XMPPException ex)
+        catch (NotConnectedException | InterruptedException ex)
         {
             ex.printStackTrace();
             logger.error("message not send", ex);
@@ -263,7 +270,18 @@ public class WhiteboardSessionJabberImpl
 
         if (sourceContact == null)
         {
-            sourceContact = presenceOpSet.createVolatileContact(contactAddress);
+            Jid jid = null;
+            try
+            {
+                jid = JidCreate.from(contactAddress);
+            }
+            catch (XmppStringprepException e)
+            {
+                logger.error("Contact address is not a valid JID", e);
+                return;
+            }
+
+            sourceContact = presenceOpSet.createVolatileContact(jid);
         }
 
         this.addWhiteboardParticipant(
@@ -372,8 +390,21 @@ public class WhiteboardSessionJabberImpl
         this.wbParticipants.put(
             wbParticipant.getContactAddress(), wbParticipant);
 
-        this.smackChat = jabberProvider.getConnection().getChatManager()
-            .createChat(wbParticipant.getContactAddress(), null);
+        EntityJid jid;
+        try
+        {
+            jid = JidCreate.from(wbParticipant.getContactAddress())
+                .asEntityJidOrThrow();
+        }
+        catch (XmppStringprepException e)
+        {
+            logger.error("Contact address is not a valid JID", e);
+            return;
+        }
+
+        ChatManager manager = ChatManager.getInstanceFor(
+            jabberProvider.getConnection());
+        this.smackChat = manager.createChat(jid, null);
 
         fireWhiteboardParticipantEvent(wbParticipant,
             WhiteboardParticipantEvent.WHITEBOARD_PARTICIPANT_ADDED);
@@ -626,12 +657,10 @@ public class WhiteboardSessionJabberImpl
                     i++;
             }
         }
-        catch (XMPPException ex)
+        catch (NotConnectedException | InterruptedException ex)
         {
-            ex.printStackTrace();
             logger.error("message not send", ex);
         }
-
     }
 
     /**
@@ -681,7 +710,7 @@ public class WhiteboardSessionJabberImpl
 
             fireMessageEvent(msgDeliveredEvt);
         }
-        catch (XMPPException ex)
+        catch (NotConnectedException | InterruptedException ex)
         {
             ex.printStackTrace();
             logger.error("message not send", ex);
@@ -1118,19 +1147,19 @@ public class WhiteboardSessionJabberImpl
      * notify all interested listeners.
      */
     private class WhiteboardSmackMessageListener
-        implements PacketListener
+        implements StanzaListener
     {
-        public void processPacket(Packet packet)
+        public void processStanza(Stanza packet)
         {
             if (!(packet instanceof org.jivesoftware.smack.packet.Message))
                 return;
 
-            PacketExtension objectExt =
+            ExtensionElement objectExt =
                 packet.getExtension(
                     WhiteboardObjectPacketExtension.ELEMENT_NAME,
                     WhiteboardObjectPacketExtension.NAMESPACE);
 
-            PacketExtension sessionExt =
+            ExtensionElement sessionExt =
                 packet.getExtension(
                     WhiteboardSessionPacketExtension.ELEMENT_NAME,
                     WhiteboardSessionPacketExtension.NAMESPACE);
@@ -1157,8 +1186,7 @@ public class WhiteboardSessionJabberImpl
             if (objectExt == null)
                 return;
 
-            String fromUserID = StringUtils.parseBareAddress(msg.getFrom());
-
+            BareJid fromUserID = msg.getFrom().asBareJid();
             if (logger.isDebugEnabled())
             {
                 logger.debug("Received from " + fromUserID + " the message "
@@ -1190,15 +1218,14 @@ public class WhiteboardSessionJabberImpl
                 if (logger.isInfoEnabled())
                     logger.info("WBObject error received from " + fromUserID);
 
-                int errorCode = packet.getError().getCode();
+                Condition errorCode = packet.getError().getCondition();
                 int errorResultCode =
                     WhiteboardObjectDeliveryFailedEvent.UNKNOWN_ERROR;
 
-                if (errorCode == 503)
+                if (errorCode == service_unavailable)
                 {
-                    org.jivesoftware.smackx.packet.MessageEvent msgEvent =
-                        (org.jivesoftware.smackx.packet.MessageEvent) packet
-                            .getExtension("x", "jabber:x:event");
+                    org.jivesoftware.smackx.xevent.packet.MessageEvent msgEvent =
+                        packet.getExtension("x", "jabber:x:event");
                     if (msgEvent != null && msgEvent.isOffline())
                     {
                         errorResultCode
@@ -1255,12 +1282,9 @@ public class WhiteboardSessionJabberImpl
      * @return <code>true</code> if a participant with the given name is
      * contained in this session, <code>false</code> - otherwise
      */
-    public boolean isParticipantContained(String participantName)
+    public boolean isParticipantContained(BareJid participantName)
     {
-        if (wbParticipants.containsKey(participantName))
-            return true;
-
-        return false;
+        return wbParticipants.containsKey(participantName.toString());
     }
 
     /**

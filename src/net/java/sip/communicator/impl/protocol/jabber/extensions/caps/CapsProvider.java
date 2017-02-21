@@ -28,7 +28,7 @@ import org.xmlpull.v1.*;
  *
  * @author Emil Ivov
  */
-public class CapsProvider implements PacketExtensionProvider
+public class CapsProvider extends ExtensionElementProvider
 {
 
     /**
@@ -40,7 +40,8 @@ public class CapsProvider implements PacketExtensionProvider
      *
      * @throws Exception in case there's anything wrong with the xml.
      */
-    public PacketExtension parseExtension(XmlPullParser parser)
+    @Override
+    public ExtensionElement parse(XmlPullParser parser, int depth)
         throws Exception
     {
         boolean done   = false;

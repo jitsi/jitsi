@@ -28,7 +28,9 @@ import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.filetransfer.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jivesoftware.smackx.disco.packet.*;
+import org.jivesoftware.smackx.si.packet.StreamInitiation;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 /**
  * The Jabber protocol extension of the <tt>AbstractFileTransfer</tt>.
@@ -37,7 +39,7 @@ import org.jivesoftware.smackx.packet.*;
  */
 public class OutgoingFileTransferJabberImpl
     extends AbstractFileTransfer
-    implements PacketInterceptor
+    implements StanzaListener
 {
     /**
      * The logger of this class.
@@ -97,14 +99,21 @@ public class OutgoingFileTransferJabberImpl
              && ((ThumbnailedFile) file).getThumbnailData() != null
              && ((ThumbnailedFile) file).getThumbnailData().length > 0)
         {
-            if (protocolProvider.isFeatureListSupported(
-                            protocolProvider.getFullJid(receiver),
-                            new String[]{"urn:xmpp:thumbs:0",
-                                "urn:xmpp:bob"}))
+            try
             {
-                protocolProvider.getConnection().addPacketInterceptor(
-                    this,
-                    new IQTypeFilter(IQ.Type.SET));
+                if (protocolProvider.isFeatureListSupported(
+                                protocolProvider.getFullJid(receiver),
+                                new String[]{"urn:xmpp:thumbs:0",
+                                    "urn:xmpp:bob"}))
+                {
+                    protocolProvider.getConnection().addPacketInterceptor(
+                        this,
+                        IQTypeFilter.SET);
+                }
+            }
+            catch (XmppStringprepException e)
+            {
+                e.printStackTrace();
             }
         }
     }
@@ -178,10 +187,9 @@ public class OutgoingFileTransferJabberImpl
     /**
      * Listens for all <tt>StreamInitiation</tt> packets and adds a thumbnail
      * to them if a thumbnailed file is supported.
-     *
-     * @see PacketInterceptor#interceptPacket(Packet)
      */
-    public void interceptPacket(Packet packet)
+    @Override
+    public void processStanza(Stanza packet)
     {
         if (!(packet instanceof StreamInitiation))
             return;
@@ -204,7 +212,7 @@ public class OutgoingFileTransferJabberImpl
             StreamInitiation.File file = fileTransferPacket.getFile();
 
             thumbnailElement = new ThumbnailElement(
-                StringUtils.parseServer(fileTransferPacket.getTo()),
+                fileTransferPacket.getTo().getDomain().toString(),
                 thumbnailedFile.getThumbnailData(),
                 thumbnailedFile.getThumbnailMimeType(),
                 thumbnailedFile.getThumbnailWidth(),
@@ -225,7 +233,7 @@ public class OutgoingFileTransferJabberImpl
                 protocolProvider.getConnection().addPacketListener(
                     thumbnailRequestListener,
                     new AndFilter(  new PacketTypeFilter(IQ.class),
-                                    new IQTypeFilter(IQ.Type.GET)));
+                                    IQTypeFilter.GET));
             }
         }
         // Remove this packet interceptor after we're done.
@@ -238,9 +246,10 @@ public class OutgoingFileTransferJabberImpl
      * and a <tt>ThumbnailIQ</tt> is created to respond to the thumbnail
      * request received.
      */
-    private class ThumbnailRequestListener implements PacketListener
+    private class ThumbnailRequestListener implements StanzaListener
     {
-        public void processPacket(Packet packet)
+        public void processStanza(Stanza packet)
+            throws SmackException.NotConnectedException, InterruptedException
         {
             // If this is not an IQ packet, we're not interested.
             if (!(packet instanceof ThumbnailIQ))
@@ -248,7 +257,7 @@ public class OutgoingFileTransferJabberImpl
 
             ThumbnailIQ thumbnailIQ = (ThumbnailIQ) packet;
             String thumbnailIQCid = thumbnailIQ.getCid();
-            Connection connection = protocolProvider.getConnection();
+            XMPPConnection connection = protocolProvider.getConnection();
 
             if ((thumbnailIQCid != null)
                     && thumbnailIQCid.equals(thumbnailElement.getCid()))
@@ -260,13 +269,13 @@ public class OutgoingFileTransferJabberImpl
                     thumbnailIQCid,
                     thumbnailedFile.getThumbnailMimeType(),
                     thumbnailedFile.getThumbnailData(),
-                    IQ.Type.RESULT);
+                    IQ.Type.result);
 
                 if (logger.isDebugEnabled())
                     logger.debug("Send thumbnail response to the receiver: "
                         + thumbnailResponse.toXML());
 
-                connection.sendPacket(thumbnailResponse);
+                connection.sendStanza(thumbnailResponse);
             }
             else
             {

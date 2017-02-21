@@ -70,6 +70,14 @@ public class NotificationEventIQ
     private String eventSource;
 
     /**
+     * Creates a new instance of this class.
+     */
+    public NotificationEventIQ()
+    {
+        super(ELEMENT_NAME, NAMESPACE);
+    }
+
+    /**
      * Returns the sub-element XML section of the IQ packet,
      * or <tt>null</tt> if there isn't one. Packet extensions <b>must</b>
      * be included, if any are defined.<p>
@@ -79,9 +87,8 @@ public class NotificationEventIQ
      * @return the child element section of the IQ XML.
      */
     @Override
-    public String getChildElementXML()
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
     {
-        StringBuilder buf = new StringBuilder();
         buf.append("<").append(ELEMENT_NAME).
             append(" xmlns=\"").append(NAMESPACE).
             append("\">");
@@ -101,7 +108,7 @@ public class NotificationEventIQ
             .append("</").append(EVENT_SOURCE).append(">");
 
         buf.append("</").append(ELEMENT_NAME).append(">");
-        return buf.toString();
+        return buf;
     }
 
     /**

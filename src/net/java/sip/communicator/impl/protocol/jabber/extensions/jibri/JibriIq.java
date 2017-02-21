@@ -103,6 +103,11 @@ public class JibriIq
      */
     private String room = null;
 
+    public JibriIq()
+    {
+        super(ELEMENT_NAME, NAMESPACE);
+    }
+
     /**
      * Returns the value of {@link #STREAM_ID_ATTR_NAME} attribute.
      * @return a <tt>String</tt> which contains the value of "stream id"
@@ -149,10 +154,8 @@ public class JibriIq
      * {@inheritDoc}
      */
     @Override
-    public String getChildElementXML()
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder xml)
     {
-        StringBuilder xml = new StringBuilder();
-
         xml.append('<').append(ELEMENT_NAME);
         xml.append(" xmlns='").append(NAMESPACE).append("' ");
 
@@ -176,11 +179,11 @@ public class JibriIq
             printStringAttribute(xml, STREAM_ID_ATTR_NAME, streamId);
         }
 
-        Collection<PacketExtension> extensions =  getExtensions();
+        Collection<ExtensionElement> extensions =  getExtensions();
         if (extensions.size() > 0)
         {
             xml.append(">");
-            for (PacketExtension extension : extensions)
+            for (ExtensionElement extension : extensions)
             {
                 xml.append(extension.toXML());
             }
@@ -191,17 +194,16 @@ public class JibriIq
             xml.append("/>");
         }
 
-        return xml.toString();
+        return xml;
     }
 
     private void printStringAttribute(
-            StringBuilder xml, String attrName, String attr)
+        IQChildElementXmlStringBuilder xml, String attrName, String attr)
     {
         if (!StringUtils.isNullOrEmpty(attr))
         {
-            attr = org.jivesoftware.smack.util.StringUtils.escapeForXML(attr);
             xml.append(attrName).append("='")
-                .append(attr).append("' ");
+                .append(org.jivesoftware.smack.util.StringUtils.escapeForXml(attr)).append("' ");
         }
     }
 

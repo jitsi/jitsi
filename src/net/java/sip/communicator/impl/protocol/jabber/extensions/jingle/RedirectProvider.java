@@ -27,7 +27,7 @@ import org.xmlpull.v1.*;
  * @author Sebastien Vincent
  */
 public class RedirectProvider
-    implements PacketExtensionProvider
+    extends ExtensionElementProvider
 {
     /**
      * Parses a reason extension sub-packet and creates a {@link
@@ -43,7 +43,8 @@ public class RedirectProvider
      * @return a new {@link RedirectPacketExtension} instance.
      * @throws java.lang.Exception if an error occurs parsing the XML.
      */
-    public RedirectPacketExtension parseExtension(XmlPullParser parser)
+    @Override
+    public RedirectPacketExtension parse(XmlPullParser parser, int depth)
         throws Exception
     {
         String text = null;

@@ -30,12 +30,19 @@ import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.XMPPException.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
+import org.jivesoftware.smack.roster.*;
 import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
 import org.jivesoftware.smackx.filetransfer.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jivesoftware.smackx.si.packet.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.impl.*;
+import org.jxmpp.stringprep.*;
+
+import static org.jivesoftware.smack.packet.XMPPError.Condition.*;
 
 /**
  * The Jabber implementation of the <tt>OperationSetFileTransfer</tt>
@@ -77,17 +84,19 @@ public class OperationSetFileTransferJabberImpl
     /**
      * A list of listeners registered for file transfer events.
      */
-    private Vector<FileTransferListener> fileTransferListeners
-        = new Vector<FileTransferListener>();
+    private final Vector<FileTransferListener> fileTransferListeners
+        = new Vector<>();
 
     // Register file transfer features on every established connection
     // to make sure we register them before creating our
     // ServiceDiscoveryManager
     static
     {
-        Connection.addConnectionCreationListener(new ConnectionCreationListener()
+        XMPPConnectionRegistry.addConnectionCreationListener(
+            new ConnectionCreationListener()
         {
-            public void connectionCreated(Connection connection)
+            @Override
+            public void connectionCreated(XMPPConnection connection)
             {
                 FileTransferNegotiator.getInstanceFor(connection);
             }
@@ -117,33 +126,12 @@ public class OperationSetFileTransferJabberImpl
      * @param toContact the contact that should receive the file
      * @param file file to send
      */
-    public FileTransfer sendFile(   Contact toContact,
-                                    File file)
+    public FileTransfer sendFile(Contact toContact, File file)
         throws  IllegalStateException,
                 IllegalArgumentException,
                 OperationNotSupportedException
     {
-        return sendFile(toContact, file, null);
-    }
-
-    /**
-     * Sends a file transfer request to the given <tt>toContact</tt>.
-     * @return the transfer object
-     *
-     * @param toContact the contact that should receive the file
-     * @param file file to send
-     * @param gw special gateway to be used for receiver if its jid
-     * misses the domain part
-     */
-    FileTransfer sendFile(Contact toContact,
-                          File file,
-                          String gw)
-        throws  IllegalStateException,
-                IllegalArgumentException,
-                OperationNotSupportedException
-    {
-        OutgoingFileTransferJabberImpl outgoingTransfer = null;
-
+        OutgoingFileTransferJabberImpl outgoingTransfer;
         try
         {
             assertConnected();
@@ -152,7 +140,7 @@ public class OperationSetFileTransferJabberImpl
                 throw new IllegalArgumentException(
                     "File length exceeds the allowed one for this protocol");
 
-            String fullJid = null;
+            EntityFullJid fullJid = null;
             // Find the jid of the contact which support file transfer
             // and is with highest priority if more than one found
             // if we have equals priorities
@@ -162,33 +150,32 @@ public class OperationSetFileTransferJabberImpl
             if(mucOpSet != null
                 && mucOpSet.isPrivateMessagingContact(toContact.getAddress()))
             {
-                fullJid = toContact.getAddress();
+                fullJid = JidCreate.entityFullFrom(toContact.getAddress());
             }
             else
             {
-                Iterator<Presence> iter = jabberProvider.getConnection().getRoster()
-                    .getPresences(toContact.getAddress());
+                Jid jid = JidCreate.from(toContact.getAddress());
+                Roster r = Roster.getInstanceFor(jabberProvider.getConnection());
                 int bestPriority = -1;
-                
                 PresenceStatus jabberStatus = null;
     
-                while(iter.hasNext())
+                for (Presence presence : r.getPresences(jid.asBareJid()))
                 {
-                    Presence presence = iter.next();
-    
-                    if(jabberProvider.isFeatureListSupported(presence.getFrom(),
-                        new String[]{"http://jabber.org/protocol/si",
-                            "http://jabber.org/protocol/si/profile/file-transfer"}))
+                    if(jabberProvider.isFeatureListSupported(
+                        presence.getFrom(),
+                        "http://jabber.org/protocol/si",
+                        "http://jabber.org/protocol/si/profile/file-transfer"))
                     {
     
                         int priority =
-                            (presence.getPriority() == Integer.MIN_VALUE) ?
-                                0 : presence.getPriority();
+                            (presence.getPriority() == Integer.MIN_VALUE)
+                                ? 0
+                                : presence.getPriority();
     
                         if(priority > bestPriority)
                         {
                             bestPriority = priority;
-                            fullJid = presence.getFrom();
+                            fullJid = presence.getFrom().asEntityFullJidIfPossible();
                             jabberStatus = OperationSetPersistentPresenceJabberImpl
                                 .jabberStatusToPresenceStatus(
                                     presence, jabberProvider);
@@ -201,7 +188,7 @@ public class OperationSetFileTransferJabberImpl
                                        presence, jabberProvider);
                             if(tempStatus.compareTo(jabberStatus) > 0)
                             {
-                                fullJid = presence.getFrom();
+                                fullJid = presence.getFrom().asEntityFullJidIfPossible();
                                 jabberStatus = tempStatus;
                             }
                         }
@@ -215,13 +202,6 @@ public class OperationSetFileTransferJabberImpl
             {
                 throw new OperationNotSupportedException(
                     "Contact client or server does not support file transfers.");
-            }
-
-            if(gw != null
-               && !fullJid.contains("@")
-               && !fullJid.endsWith(gw))
-            {
-                fullJid = fullJid + "@" + gw;
             }
 
             OutgoingFileTransfer transfer
@@ -245,9 +225,13 @@ public class OperationSetFileTransferJabberImpl
             new FileTransferProgressThread(
                 transfer, outgoingTransfer).start();
         }
-        catch(XMPPException e)
+        catch(XmppStringprepException | SmackException e)
         {
             logger.error("Failed to send file.", e);
+            throw new OperationNotSupportedException(
+                "Could not start file transfer",
+                e
+            );
         }
 
         return outgoingTransfer;
@@ -348,7 +332,7 @@ public class OperationSetFileTransferJabberImpl
      */
     public long getMaximumFileLength()
     {
-        return 2147483648l;// = 2048*1024*1024;
+        return 2147483648L;// = 2048*1024*1024;
     }
 
     /**
@@ -378,25 +362,25 @@ public class OperationSetFileTransferJabberImpl
                         .getOperationSet(OperationSetPersistentPresence.class);
 
                 // Create the Jabber FileTransferManager.
-                manager = new FileTransferManager(
-                            jabberProvider.getConnection());
+                manager = FileTransferManager
+                    .getInstanceFor(jabberProvider.getConnection());
 
                 fileTransferRequestListener = new FileTransferRequestListener();
 
-                ProviderManager.getInstance().addIQProvider(
+                ProviderManager.addIQProvider(
                     FileElement.ELEMENT_NAME,
                     FileElement.NAMESPACE,
                     new FileElement());
 
-                ProviderManager.getInstance().addIQProvider(
+                ProviderManager.addIQProvider(
                     ThumbnailIQ.ELEMENT_NAME,
                     ThumbnailIQ.NAMESPACE,
                     new ThumbnailIQ());
 
                 jabberProvider.getConnection().addPacketListener(
                     fileTransferRequestListener,
-                    new AndFilter(  new PacketTypeFilter(StreamInitiation.class),
-                                    new IQTypeFilter(IQ.Type.SET)));
+                    new AndFilter(  new StanzaTypeFilter(StreamInitiation.class),
+                                    IQTypeFilter.SET));
             }
             else if (evt.getNewState() == RegistrationState.UNREGISTERED)
             {
@@ -407,17 +391,13 @@ public class OperationSetFileTransferJabberImpl
                         fileTransferRequestListener);
                 }
 
-                ProviderManager providerManager = ProviderManager.getInstance();
-                if (providerManager != null)
-                {
-                    ProviderManager.getInstance().removeIQProvider(
-                        FileElement.ELEMENT_NAME,
-                        FileElement.NAMESPACE);
+                ProviderManager.removeIQProvider(
+                    FileElement.ELEMENT_NAME,
+                    FileElement.NAMESPACE);
 
-                    ProviderManager.getInstance().removeIQProvider(
-                        ThumbnailIQ.ELEMENT_NAME,
-                        ThumbnailIQ.NAMESPACE);
-                }
+                ProviderManager.removeIQProvider(
+                    ThumbnailIQ.ELEMENT_NAME,
+                    ThumbnailIQ.NAMESPACE);
 
                 fileTransferRequestListener = null;
                 manager = null;
@@ -428,13 +408,15 @@ public class OperationSetFileTransferJabberImpl
     /**
      * Listener for Jabber incoming file transfer requests.
      */
-    private class FileTransferRequestListener implements PacketListener
+    private class FileTransferRequestListener implements StanzaListener
     {
         /**
          * Listens for file transfer packets.
          * @param packet packet to be processed
          */
-        public void processPacket(Packet packet)
+        @Override
+        public void processStanza(Stanza packet)
+            throws SmackException.NotConnectedException, InterruptedException
         {
             if (!(packet instanceof StreamInitiation))
                 return;
@@ -456,7 +438,7 @@ public class OperationSetFileTransferJabberImpl
 
             // Send a thumbnail request if a thumbnail is advertised in the
             // streamInitiation packet.
-            org.jivesoftware.smackx.packet.StreamInitiation.File file
+            org.jivesoftware.smackx.si.packet.StreamInitiation.File file
                 = streamInitiation.getFile();
 
             boolean isThumbnailedFile = false;
@@ -475,13 +457,13 @@ public class OperationSetFileTransferJabberImpl
                         = new ThumbnailIQ(  streamInitiation.getTo(),
                                             streamInitiation.getFrom(),
                                             thumbnailElement.getCid(),
-                                            IQ.Type.GET);
+                                            IQ.Type.get);
 
                     if (logger.isDebugEnabled())
                         logger.debug("Sending thumbnail request:"
                         + thumbnailRequest.toXML());
 
-                    jabberProvider.getConnection().sendPacket(thumbnailRequest);
+                    jabberProvider.getConnection().sendStanza(thumbnailRequest);
                 }
             }
 
@@ -508,10 +490,10 @@ public class OperationSetFileTransferJabberImpl
      */
     void fireFileTransferRequest(FileTransferRequestEvent event)
     {
-        Iterator<FileTransferListener> listeners = null;
+        Iterator<FileTransferListener> listeners;
         synchronized (fileTransferListeners)
         {
-            listeners = new ArrayList<FileTransferListener>
+            listeners = new ArrayList<>
                             (fileTransferListeners).iterator();
         }
 
@@ -531,10 +513,10 @@ public class OperationSetFileTransferJabberImpl
      */
     void fireFileTransferRequestRejected(FileTransferRequestEvent event)
     {
-        Iterator<FileTransferListener> listeners = null;
+        Iterator<FileTransferListener> listeners;
         synchronized (fileTransferListeners)
         {
-            listeners = new ArrayList<FileTransferListener>
+            listeners = new ArrayList<>
                             (fileTransferListeners).iterator();
         }
 
@@ -554,10 +536,10 @@ public class OperationSetFileTransferJabberImpl
      */
     void fireFileTransferCreated(FileTransferCreatedEvent event)
     {
-        Iterator<FileTransferListener> listeners = null;
+        Iterator<FileTransferListener> listeners;
         synchronized (fileTransferListeners)
         {
-            listeners = new ArrayList<FileTransferListener>
+            listeners = new ArrayList<>
                             (fileTransferListeners).iterator();
         }
 
@@ -671,14 +653,13 @@ public class OperationSetFileTransferJabberImpl
                 logger.error("An exception occured while transfering file: ",
                     jabberTransfer.getException());
 
-                if(jabberTransfer.getException() instanceof XMPPException)
+                if(jabberTransfer.getException() instanceof XMPPErrorException)
                 {
-                    XMPPError error =
-                        ((XMPPException)jabberTransfer.getException())
-                            .getXMPPError();
+                    XMPPError error = ((XMPPErrorException)
+                        jabberTransfer.getException()).getXMPPError();
                     if (error != null)
-                        if(error.getCode() == 406
-                           || error.getCode() == 403)
+                        if(error.getCondition() == not_acceptable
+                           || error.getCondition() == forbidden)
                             status = FileTransferStatusChangeEvent.REFUSED;
                 }
 

@@ -18,6 +18,9 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
+import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 /**
  * Implements <tt>AbstractPacketExtension</tt> for the "transfer" element
@@ -66,9 +69,16 @@ public class TransferPacketExtension
      *
      * @return the value of the "from" attribute of this "transfer" element
      */
-    public String getFrom()
+    public Jid getFrom()
     {
-        return getAttributeAsString(FROM_ATTR_NAME);
+        try
+        {
+            return JidCreate.from(getAttributeAsString(FROM_ATTR_NAME));
+        }
+        catch (XmppStringprepException e)
+        {
+            return null;
+        }
     }
 
     /**
@@ -76,7 +86,7 @@ public class TransferPacketExtension
      *
      * @param from the value of the "from" attribute of this "transfer" element
      */
-    public void setFrom(String from)
+    public void setFrom(Jid from)
     {
         setAttribute(FROM_ATTR_NAME, from);
     }
@@ -106,9 +116,16 @@ public class TransferPacketExtension
      *
      * @return the value of the "to" attribute of this "transfer" element
      */
-    public String getTo()
+    public Jid getTo()
     {
-        return getAttributeAsString(TO_ATTR_NAME);
+        try
+        {
+            return JidCreate.from(getAttributeAsString(TO_ATTR_NAME));
+        }
+        catch (XmppStringprepException e)
+        {
+            return null;
+        }
     }
 
     /**
@@ -116,7 +133,7 @@ public class TransferPacketExtension
      *
      * @param to the value of the "to" attribute of this "transfer" element
      */
-    public void setTo(String to)
+    public void setTo(Jid to)
     {
         setAttribute(TO_ATTR_NAME, to);
     }

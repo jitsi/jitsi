@@ -68,7 +68,7 @@ public class RawUdpTransportManager
     /**
      * {@inheritDoc}
      */
-    protected PacketExtension createTransport(String media)
+    protected ExtensionElement createTransport(String media)
         throws OperationFailedException
     {
         MediaType mediaType = MediaType.parseString(media);
@@ -132,7 +132,7 @@ public class RawUdpTransportManager
     /**
      * {@inheritDoc}
      */
-    protected PacketExtension createTransportPacketExtension()
+    protected ExtensionElement createTransportPacketExtension()
     {
         return new RawUdpTransportPacketExtension();
     }
@@ -276,7 +276,7 @@ public class RawUdpTransportManager
     /**
      * {@inheritDoc}
      */
-    protected PacketExtension startCandidateHarvest(
+    protected ExtensionElement startCandidateHarvest(
             ContentPacketExtension theirContent,
             ContentPacketExtension ourContent,
             TransportInfoSender transportInfoSender,
@@ -339,6 +339,7 @@ public class RawUdpTransportManager
     @Override
     public boolean startConnectivityEstablishment(
             Iterable<ContentPacketExtension> remote)
+        throws OperationFailedException
     {
         if ((remote != null) && !remotes.contains(remote))
         {

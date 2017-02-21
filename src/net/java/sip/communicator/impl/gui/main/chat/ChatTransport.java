@@ -149,7 +149,8 @@ public interface ChatTransport
      * this message.
      */
     public void correctInstantMessage(String message, String mimeType,
-            String correctedMessageUID);
+            String correctedMessageUID)
+        throws OperationFailedException;
 
     /**
      * Determines whether this chat transport supports the supplied content type

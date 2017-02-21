@@ -20,13 +20,13 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.caps;
 import org.jivesoftware.smack.packet.*;
 
 /**
- * A {@link PacketExtension} implementation for Entity Capabilities packets.
+ * A {@link ExtensionElement} implementation for Entity Capabilities packets.
  *
  * This work is based on Jonas Adahl's smack fork.
  *
  * @author Emil Ivov
  */
-public class CapsPacketExtension implements PacketExtension
+public class CapsPacketExtension implements ExtensionElement
 {
     /**
      * The hash method we use for generating the ver string.

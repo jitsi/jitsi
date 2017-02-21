@@ -112,7 +112,7 @@ public class UserRolesPacketExtension
                     role).append("</").append(ELEMENT_ROLE).append(">");
         }
 
-        for(PacketExtension ext : getChildExtensions())
+        for(ExtensionElement ext : getChildExtensions())
         {
             bldr.append(ext.toXML());
         }

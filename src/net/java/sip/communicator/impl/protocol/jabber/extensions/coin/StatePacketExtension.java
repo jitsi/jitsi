@@ -181,7 +181,7 @@ public class StatePacketExtension
                    (active > 0)).append("</").append(ELEMENT_LOCKED).append(
                            ">");
 
-       for(PacketExtension ext : getChildExtensions())
+       for(ExtensionElement ext : getChildExtensions())
        {
            bldr.append(ext.toXML());
        }

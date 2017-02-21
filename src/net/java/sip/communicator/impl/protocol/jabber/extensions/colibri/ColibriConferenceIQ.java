@@ -27,6 +27,7 @@ import org.jitsi.service.neomedia.*;
 
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.packet.IQ;
+import org.jxmpp.jid.Jid;
 
 /**
  * Implements the Jitsi Videobridge <tt>conference</tt> IQ within the
@@ -129,18 +130,17 @@ public class ColibriConferenceIQ
      */
     public static IQ createGracefulShutdownErrorResponse(final IQ request)
     {
-        final XMPPError error
-            = new XMPPError(XMPPError.Condition.service_unavailable);
-
-        error.addExtension(new GracefulShutdown());
+        final XMPPError error = XMPPError.getBuilder()
+            .setCondition(XMPPError.Condition.service_unavailable)
+            .addExtension(new GracefulShutdown())
+            .build();
 
         final IQ result = IQ.createErrorResponse(request, error);
 
-        result.setType(Type.ERROR);
-        result.setPacketID(request.getPacketID());
+        result.setType(Type.error);
+        result.setStanzaId(request.getStanzaId());
         result.setFrom(request.getTo());
         result.setTo(request.getFrom());
-        result.setError(error);
 
         return result;
     }
@@ -148,6 +148,7 @@ public class ColibriConferenceIQ
     /** Initializes a new <tt>ColibriConferenceIQ</tt> instance. */
     public ColibriConferenceIQ()
     {
+        super(ELEMENT_NAME, NAMESPACE);
     }
 
     /**
@@ -251,7 +252,7 @@ public class ColibriConferenceIQ
      * @return an XML <tt>String</tt> representation of this <tt>IQ</tt>
      */
     @Override
-    public String getChildElementXML()
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
     {
         StringBuilder xml = new StringBuilder();
 
@@ -298,7 +299,9 @@ public class ColibriConferenceIQ
 
             xml.append("</").append(ELEMENT_NAME).append('>');
         }
-        return xml.toString();
+
+        buf.append(xml);
+        return buf;
     }
 
     /**
@@ -1476,7 +1479,7 @@ public class ColibriConferenceIQ
         /**
          * The ID of this <tt>ChannelBundle</tt>.
          */
-        private String id;
+        private Jid id;
 
         /**
          * The transport element of this <tt>ChannelBundle</tt>.
@@ -1487,7 +1490,7 @@ public class ColibriConferenceIQ
          * Initializes a new <tt>ChannelBundle</tt> with the given ID.
          * @param id the ID.
          */
-        public ChannelBundle(String id)
+        public ChannelBundle(Jid id)
         {
             this.id = id;
         }
@@ -1496,7 +1499,7 @@ public class ColibriConferenceIQ
          * Returns the ID of this <tt>ChannelBundle</tt>.
          * @return  the ID of this <tt>ChannelBundle</tt>.
          */
-        public String getId()
+        public Jid getId()
         {
             return id;
         }
@@ -1514,7 +1517,7 @@ public class ColibriConferenceIQ
          * Sets the ID of this <tt>ChannelBundle</tt>.
          * @param id the ID to set.
          */
-        public void setId(String id)
+        public void setId(Jid id)
         {
             this.id = id;
         }
@@ -1608,7 +1611,7 @@ public class ColibriConferenceIQ
         /**
          * The channel-bundle-id attribute of this <tt>CommonChannel</tt>.
          */
-        private String channelBundleId = null;
+        private Jid channelBundleId = null;
 
         /**
          * XML element name.
@@ -1619,7 +1622,7 @@ public class ColibriConferenceIQ
          * The identifier of the endpoint of the conference participant
          * associated with this <tt>Channel</tt>.
          */
-        private String endpoint;
+        private Jid endpoint;
 
         /**
          * The number of seconds of inactivity after which the <tt>channel</tt>
@@ -1656,7 +1659,7 @@ public class ColibriConferenceIQ
          * @return  the channel-bundle-id attribute of this
          * <tt>CommonChannel</tt>.
          */
-        public String getChannelBundleId()
+        public Jid getChannelBundleId()
         {
             return channelBundleId;
         }
@@ -1668,7 +1671,7 @@ public class ColibriConferenceIQ
          * @return the identifier of the endpoint of the conference participant
          * associated with this <tt>Channel</tt>
          */
-        public String getEndpoint()
+        public Jid getEndpoint()
         {
             return endpoint;
         }
@@ -1750,7 +1753,7 @@ public class ColibriConferenceIQ
          * Sets the channel-bundle-id attribute of this <tt>CommonChannel</tt>.
          * @param channelBundleId the value to set.
          */
-        public void setChannelBundleId(String channelBundleId)
+        public void setChannelBundleId(Jid channelBundleId)
         {
             this.channelBundleId = channelBundleId;
         }
@@ -1762,7 +1765,7 @@ public class ColibriConferenceIQ
          * @param endpoint the identifier of the endpoint of the conference
          * participant associated with this <tt>Channel</tt>
          */
-        public void setEndpoint(String endpoint)
+        public void setEndpoint(Jid endpoint)
         {
             this.endpoint = endpoint;
         }
@@ -1829,7 +1832,7 @@ public class ColibriConferenceIQ
             xml.append('<').append(elementName);
 
             // endpoint
-            String endpoint = getEndpoint();
+            Jid endpoint = getEndpoint();
 
             if (endpoint != null)
             {
@@ -1864,7 +1867,7 @@ public class ColibriConferenceIQ
                     .append(initiator).append('\'');
             }
 
-            String channelBundleId = getChannelBundleId();
+            Jid channelBundleId = getChannelBundleId();
             if (channelBundleId != null)
             {
                 xml.append(' ').append(CHANNEL_BUNDLE_ID_ATTR_NAME)

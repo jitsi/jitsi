@@ -21,7 +21,7 @@ import net.java.sip.communicator.impl.protocol.jabber.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
-import org.jitsi.service.version.*;
+import org.jitsi.service.version.Version;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
@@ -34,7 +34,7 @@ import org.jivesoftware.smack.packet.*;
  */
 public class VersionManager
     implements RegistrationStateChangeListener,
-               PacketListener
+               StanzaListener
 {
     /**
      * Our parent provider.
@@ -65,9 +65,8 @@ public class VersionManager
         {
             parentProvider.getConnection().removePacketListener(this);
             parentProvider.getConnection().addPacketListener(this,
-                new AndFilter(new IQTypeFilter(IQ.Type.GET),
-                    new PacketTypeFilter(
-                            org.jivesoftware.smackx.packet.Version.class)));
+                new AndFilter(IQTypeFilter.GET,
+                    new StanzaTypeFilter(org.jivesoftware.smackx.iqversion.packet.Version.class)));
         }
         else if(evt.getNewState() == RegistrationState.UNREGISTERED
             || evt.getNewState() == RegistrationState.CONNECTION_FAILED
@@ -82,25 +81,21 @@ public class VersionManager
      * A packet Listener for incoming Version packets.
      * @param packet an incoming packet
      */
-    public void processPacket(Packet packet)
+    public void processStanza(Stanza packet) throws SmackException.NotConnectedException, InterruptedException
     {
-        // send packet
-        org.jivesoftware.smackx.packet.Version versionIQ =
-            new org.jivesoftware.smackx.packet.Version();
-        versionIQ.setType(IQ.Type.RESULT);
-        versionIQ.setTo(packet.getFrom());
-        versionIQ.setFrom(packet.getTo());
-        versionIQ.setPacketID(packet.getPacketID());
-
         Version ver = JabberActivator.getVersionService().getCurrentVersion();
         String appName = ver.getApplicationName();
         if(!appName.toLowerCase().contains("jitsi"))
             appName += "-Jitsi";
 
-        versionIQ.setName(appName);
-        versionIQ.setVersion(ver.toString());
-        versionIQ.setOs(System.getProperty("os.name"));
+        // send packet
+        org.jivesoftware.smackx.iqversion.packet.Version versionIQ =
+            new org.jivesoftware.smackx.iqversion.packet.Version(appName, ver.toString(), System.getProperty("os.name"));
+        versionIQ.setType(IQ.Type.result);
+        versionIQ.setTo(packet.getFrom());
+        versionIQ.setFrom(packet.getTo());
+        versionIQ.setStanzaId(packet.getStanzaId());
 
-        parentProvider.getConnection().sendPacket(versionIQ);
+        parentProvider.getConnection().sendStanza(versionIQ);
     }
 }

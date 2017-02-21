@@ -35,7 +35,10 @@ import org.jitsi.service.libjitsi.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.SmackException.*;
+import org.jivesoftware.smackx.disco.packet.*;
+import org.jxmpp.jid.*;
 
 /**
  * An XMPP specific extension of the generic media handler.
@@ -991,7 +994,7 @@ public class CallPeerMediaHandlerJabberImpl
 
                         if (call != null)
                         {
-                            String jitsiVideobridge
+                            Jid jitsiVideobridge
                                 = peer.getCall().getJitsiVideobridge();
 
                             /*
@@ -1810,21 +1813,28 @@ public class CallPeerMediaHandlerJabberImpl
                     logger);
         }
 
+        TransportInfoSender infoSender = new TransportInfoSender()
+        {
+            @Override
+            public void sendTransportInfo(
+                Iterable<ContentPacketExtension> contents)
+            {
+                try
+                {
+                    getPeer().sendTransportInfo(contents);
+                }
+                catch (NotConnectedException | InterruptedException e)
+                {
+                    logger.error("Could not send transport info", e);
+                }
+            }
+        };
+
         /*
          * In order to minimize post-pickup delay, start establishing the
          * connectivity prior to ringing.
          */
-        harvestCandidates(
-                offer,
-                answer,
-                new TransportInfoSender()
-                        {
-                            public void sendTransportInfo(
-                                    Iterable<ContentPacketExtension> contents)
-                            {
-                                getPeer().sendTransportInfo(contents);
-                            }
-                        });
+        harvestCandidates(offer, answer, infoSender);
 
         /*
          * While it may sound like we can completely eliminate the post-pickup
@@ -2003,6 +2013,7 @@ public class CallPeerMediaHandlerJabberImpl
      * and <tt>false</tt> if they've just put us off hold.
      */
     public void setRemotelyOnHold(boolean onHold)
+        throws NotConnectedException, InterruptedException
     {
         this.remotelyOnHold = onHold;
 
@@ -2261,6 +2272,7 @@ public class CallPeerMediaHandlerJabberImpl
      */
     @Override
     public void setLocallyOnHold(boolean locallyOnHold)
+        throws OperationFailedException
     {
         CallPeerJabberImpl peer = getPeer();
 
@@ -2283,10 +2295,21 @@ public class CallPeerMediaHandlerJabberImpl
                                 ? MediaDirection.INACTIVE
                                 : MediaDirection.SENDRECV;
 
-                        peer.getCall().setChannelDirection(
-                                channel.getID(),
-                                mediaType,
-                                direction);
+                        try
+                        {
+                            peer.getCall().setChannelDirection(
+                                    channel.getID(),
+                                    mediaType,
+                                    direction);
+                        }
+                        catch (NotConnectedException | InterruptedException e)
+                        {
+                            throw new OperationFailedException(
+                                "Could not send the channel direction",
+                                OperationFailedException.GENERAL_ERROR,
+                                e
+                            );
+                        }
                     }
                 }
             }
@@ -2545,7 +2568,7 @@ public class CallPeerMediaHandlerJabberImpl
             {
                 addFingerprintToLocalTransport
                     = protocolProvider.isFeatureSupported(
-                            peer.getAddress(),
+                            peer.getAddressAsJID(),
                             ProtocolProviderServiceJabberImpl
                                 .URN_XMPP_JINGLE_DTLS_SRTP);
             }
@@ -2663,7 +2686,7 @@ public class CallPeerMediaHandlerJabberImpl
                     if (remoteContent == null) // initiator
                     {
                         if (!protocolProvider.isFeatureSupported(
-                                peer.getAddress(),
+                                peer.getAddressAsJID(),
                                 ProtocolProviderServiceJabberImpl
                                     .URN_XMPP_JINGLE_DTLS_SRTP))
                         {

@@ -259,7 +259,7 @@ public class MediaPacketExtension
                     label).append("</").append(
                             ELEMENT_LABEL).append(">");
 
-        for(PacketExtension ext : getChildExtensions())
+        for(ExtensionElement ext : getChildExtensions())
         {
             bldr.append(ext.toXML());
         }

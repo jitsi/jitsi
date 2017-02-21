@@ -135,7 +135,7 @@ public class SourcePacketExtension
             = AbstractPacketExtension.clone(this);
 
         // COPY SSRC PARAMS
-        for (PacketExtension ppe : getChildExtensions())
+        for (ExtensionElement ppe : getChildExtensions())
         {
             if (ppe instanceof AbstractPacketExtension)
             {

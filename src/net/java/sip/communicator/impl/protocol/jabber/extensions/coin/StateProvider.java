@@ -26,7 +26,7 @@ import org.xmlpull.v1.*;
  * @author Sebastien Vincent
  */
 public class StateProvider
-    implements PacketExtensionProvider
+    extends ExtensionElementProvider
 {
     /**
      * Parses a state extension sub-packet and creates a {@link
@@ -42,7 +42,8 @@ public class StateProvider
      * @return a new {@link StatePacketExtension} instance.
      * @throws java.lang.Exception if an error occurs parsing the XML.
      */
-    public StatePacketExtension parseExtension(XmlPullParser parser)
+    @Override
+    public StatePacketExtension parse(XmlPullParser parser, int depth)
         throws Exception
     {
         boolean done = false;

@@ -30,6 +30,7 @@ import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.StringUtils;
+import org.jxmpp.jid.*;
 
 /**
  * Provides basic functionality for white-board.
@@ -54,7 +55,8 @@ public class OperationSetWhiteboardingJabberImpl
     /**
      * A list of listeners subscribed for invitations multi user chat events.
      */
-    private Vector<WhiteboardInvitationListener> invitationListeners = new Vector<WhiteboardInvitationListener>();
+    private final Vector<WhiteboardInvitationListener> invitationListeners
+        = new Vector<>();
 
     /**
      * A list of listeners subscribed for events indicating rejection of a
@@ -87,14 +89,12 @@ public class OperationSetWhiteboardingJabberImpl
             new RegistrationStateListener());
 
         // Add the custom WhiteboardObjectJabberProvider to the Smack library
-        ProviderManager pManager = ProviderManager.getInstance();
-
-        pManager.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
             WhiteboardObjectPacketExtension.ELEMENT_NAME,
             WhiteboardObjectPacketExtension.NAMESPACE,
             new WhiteboardObjectJabberProvider());
 
-        pManager.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
             WhiteboardSessionPacketExtension.ELEMENT_NAME,
             WhiteboardSessionPacketExtension.NAMESPACE,
             new WhiteboardObjectJabberProvider());
@@ -356,14 +356,14 @@ public class OperationSetWhiteboardingJabberImpl
      * already exists and if not simulates an invitation to the user.
      */
     private class WhiteboardSmackMessageListener
-        implements PacketListener
+        implements StanzaListener
     {
-        public void processPacket(Packet packet)
+        public void processStanza(Stanza packet)
         {
             if (!(packet instanceof org.jivesoftware.smack.packet.Message))
                 return;
 
-            PacketExtension ext =
+            ExtensionElement ext =
                 packet.getExtension(
                     WhiteboardObjectPacketExtension.ELEMENT_NAME,
                     WhiteboardObjectPacketExtension.NAMESPACE);
@@ -374,20 +374,22 @@ public class OperationSetWhiteboardingJabberImpl
             if (ext == null)
                 return;
 
-            String fromUserID = StringUtils.parseBareAddress(msg.getFrom());
+            BareJid fromUserID = msg.getFrom().asBareJid();
 
             // We check if a white-board session with the given contact already
             // exists and if this is the case we don't continue.
-            for (int i = 0; i < whiteboardSessions.size(); i ++)
+            for (WhiteboardSession whiteboardSession : whiteboardSessions)
             {
                 WhiteboardSessionJabberImpl session
-                    = (WhiteboardSessionJabberImpl) whiteboardSessions.get(i);
+                    = (WhiteboardSessionJabberImpl) whiteboardSession;
 
                 // Should be replaced by getParticipants when implementing
                 // the multi user white-boarding
-                if(session.isJoined()
-                        && session.isParticipantContained(fromUserID))
+                if (session.isJoined()
+                    && session.isParticipantContained(fromUserID))
+                {
                     return;
+                }
             }
 
             // If we're here this means that no white board session has been
@@ -422,7 +424,7 @@ public class OperationSetWhiteboardingJabberImpl
 
             fireInvitationEvent(session,
                                 newMessage.getWhiteboardObject(),
-                                fromUserID,
+                                fromUserID.toString(),
                                 null,
                                 null);
         }

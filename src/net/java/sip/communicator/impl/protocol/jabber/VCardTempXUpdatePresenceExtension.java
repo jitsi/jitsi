@@ -32,8 +32,8 @@ import org.jivesoftware.smack.util.*;
  * @author Vincent Lucas
  */
 public class VCardTempXUpdatePresenceExtension
-    implements PacketExtension,
-               PacketInterceptor
+    implements ExtensionElement,
+               StanzaListener
 {
     /**
      * This presence extension element name.
@@ -154,6 +154,7 @@ public class VCardTempXUpdatePresenceExtension
      *
      * @return the element name.
      */
+    @Override
     public String getElementName()
     {
         return ELEMENT_NAME;
@@ -164,16 +165,18 @@ public class VCardTempXUpdatePresenceExtension
      *
      * @return the namespace.
      */
+    @Override
     public String getNamespace()
     {
         return NAMESPACE;
     }
 
     /**
-     * Returns the XML representation of the PacketExtension.
+     * Returns the XML representation of the ExtensionElement.
      *
      * @return the packet extension as XML.
      */
+    @Override
     public String toXML()
     {
         return this.xmlString;
@@ -184,7 +187,8 @@ public class VCardTempXUpdatePresenceExtension
      *
      * @param packet The sent presence packet.
      */
-    public void interceptPacket(Packet packet)
+    @Override
+    public void processStanza(Stanza packet)
     {
         packet.addExtension(this);
     }

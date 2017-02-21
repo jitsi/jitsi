@@ -25,6 +25,7 @@ import org.jitsi.service.neomedia.*;
 import org.jitsi.util.*;
 
 import org.jivesoftware.smack.packet.*;
+import org.jxmpp.jid.*;
 
 import java.util.*;
 
@@ -168,7 +169,7 @@ public class ColibriBuilder
      * {@link RequestType#ALLOCATE_CHANNELS} query currently being built.
      *
      * @param useBundle <tt>true</tt> if allocated channels wil use RTP bundle.
-     * @param endpointName name od the endpoint for which Colibri channels will
+     * @param endpointName name of the endpoint for which Colibri channels will
      *        be allocated.
      * @param peerIsInitiator the value that will be set in 'initiator'
      *        attribute({@link ColibriConferenceIQ.Channel#initiator}).
@@ -182,7 +183,7 @@ public class ColibriBuilder
      */
     public boolean addAllocateChannelsReq(
             boolean                      useBundle,
-            String                       endpointName,
+            Jid                          endpointName,
             boolean                      peerIsInitiator,
             List<ContentPacketExtension> contents)
     {
@@ -191,7 +192,7 @@ public class ColibriBuilder
 
         assertRequestType(RequestType.ALLOCATE_CHANNELS);
 
-        request.setType(IQ.Type.GET);
+        request.setType(IQ.Type.get);
 
         boolean hasAnyChanges = false;
 
@@ -322,7 +323,7 @@ public class ColibriBuilder
 
         assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
 
-        request.setType(IQ.Type.SET);
+        request.setType(IQ.Type.set);
 
         // We expect single bundle
         ColibriConferenceIQ.ChannelBundle localBundle;
@@ -380,7 +381,7 @@ public class ColibriBuilder
 
         assertRequestType(RequestType.EXPIRE_CHANNELS);
 
-        request.setType(IQ.Type.SET);
+        request.setType(IQ.Type.set);
 
         for (ColibriConferenceIQ.Content expiredContent
             : channelInfo.getContents())
@@ -541,7 +542,7 @@ public class ColibriBuilder
 
         assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
 
-        request.setType(IQ.Type.SET);
+        request.setType(IQ.Type.set);
 
         boolean anyUpdates = false;
 
@@ -619,7 +620,7 @@ public class ColibriBuilder
 
         assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
 
-        request.setType(IQ.Type.SET);
+        request.setType(IQ.Type.set);
 
         boolean anyUpdates = false;
 
@@ -690,7 +691,7 @@ public class ColibriBuilder
 
         assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
 
-        request.setType(IQ.Type.SET);
+        request.setType(IQ.Type.set);
 
         boolean anyUpdates = false;
 
@@ -766,7 +767,7 @@ public class ColibriBuilder
 
         assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
 
-        request.setType(IQ.Type.SET);
+        request.setType(IQ.Type.set);
 
         for (Map.Entry<String,IceUdpTransportPacketExtension> e
             : map.entrySet())

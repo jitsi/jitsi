@@ -26,6 +26,7 @@ import javax.swing.border.*;
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.skin.*;
 
@@ -291,8 +292,27 @@ public class InvitationReceivedDialog
         else if (button.equals(rejectButton))
         {
             if(multiUserChatAdHocOpSet == null && invitationAdHoc == null)
-                GuiActivator.getMUCService().rejectInvitation(
-                    multiUserChatOpSet, invitation, reasonField.getText());
+                try
+                {
+                    GuiActivator.getMUCService().rejectInvitation(
+                        multiUserChatOpSet, invitation, reasonField.getText());
+                }
+                catch (OperationFailedException e1)
+                {
+                    SwingUtilities.invokeLater(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            MessageDialog md = new MessageDialog(
+                                null,
+                                "Failed to reject invitation",
+                                "Failed to reject the invitation",
+                                false);
+                            md.setVisible(true);
+                        }
+                    });
+                }
             else
                 multiUserChatManager.rejectInvitation(multiUserChatAdHocOpSet,
                         invitationAdHoc, reasonField.getText());

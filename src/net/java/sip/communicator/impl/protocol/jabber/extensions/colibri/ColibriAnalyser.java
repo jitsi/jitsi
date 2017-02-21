@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
+import org.jxmpp.jid.*;
 
 import java.util.*;
 
@@ -128,7 +129,7 @@ public class ColibriAnalyser
         conferenceResult.setName(conferenceResponse.getName());
 
         // FIXME: we support single bundle for all channels
-        String bundleId = null;
+        Jid bundleId = null;
         for (ContentPacketExtension content : peerContents)
         {
             MediaType mediaType
@@ -187,10 +188,10 @@ public class ColibriAnalyser
      * null then they are compared and error is logged, but channel's bundle is
      * returned in the last place anyway.
      */
-    private static String readChannelBundle(
-            ColibriConferenceIQ.ChannelCommon channel, String currentBundle)
+    private static Jid readChannelBundle(
+            ColibriConferenceIQ.ChannelCommon channel, Jid currentBundle)
     {
-        String channelBundle = channel.getChannelBundleId();
+        Jid channelBundle = channel.getChannelBundleId();
 
         if (channelBundle == null)
         {

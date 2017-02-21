@@ -25,6 +25,8 @@ import org.jitsi.service.neomedia.*;
 import org.jitsi.util.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.impl.*;
 import org.xmlpull.v1.*;
 
 /**
@@ -35,7 +37,7 @@ import org.xmlpull.v1.*;
  * @author Boris Grozev
  */
 public class ColibriIQProvider
-    implements IQProvider
+    extends IQProvider
 {
 
     /**
@@ -73,7 +75,7 @@ public class ColibriIQProvider
                 new DefaultPacketExtensionProvider<SourceGroupPacketExtension>(
                         SourceGroupPacketExtension.class));
 
-        PacketExtensionProvider parameterProvider
+        ExtensionElementProvider parameterProvider
                 = new DefaultPacketExtensionProvider<ParameterPacketExtension>(
                 ParameterPacketExtension.class);
 
@@ -95,7 +97,7 @@ public class ColibriIQProvider
                 ShutdownIQ.NAMESPACE,
                 this);
         // Shutdown extension
-        PacketExtensionProvider shutdownProvider
+        ExtensionElementProvider shutdownProvider
                 = new DefaultPacketExtensionProvider
                 <ColibriConferenceIQ.GracefulShutdown>(
                 ColibriConferenceIQ.GracefulShutdown.class);
@@ -112,7 +114,7 @@ public class ColibriIQProvider
                 this);
 
         // ColibriStatsExtension
-        PacketExtensionProvider statsProvider
+        ExtensionElementProvider statsProvider
                 = new DefaultPacketExtensionProvider<ColibriStatsExtension>(
                 ColibriStatsExtension.class);
 
@@ -121,7 +123,7 @@ public class ColibriIQProvider
                 ColibriStatsExtension.NAMESPACE,
                 statsProvider);
         // ColibriStatsExtension.Stat
-        PacketExtensionProvider statProvider
+        ExtensionElementProvider statProvider
                 = new DefaultPacketExtensionProvider
                 <ColibriStatsExtension.Stat>(
                 ColibriStatsExtension.Stat.class);
@@ -136,7 +138,7 @@ public class ColibriIQProvider
 
     private void addChildExtension(
             ColibriConferenceIQ.Channel channel,
-            PacketExtension childExtension)
+            ExtensionElement childExtension)
     {
         if (childExtension instanceof PayloadTypePacketExtension)
         {
@@ -181,7 +183,7 @@ public class ColibriIQProvider
 
     private void addChildExtension(
             ColibriConferenceIQ.ChannelBundle bundle,
-            PacketExtension childExtension)
+            ExtensionElement childExtension)
     {
         if (childExtension instanceof IceUdpTransportPacketExtension)
         {
@@ -194,7 +196,7 @@ public class ColibriIQProvider
 
     private void addChildExtension(
             ColibriConferenceIQ.SctpConnection sctpConnection,
-            PacketExtension childExtension)
+            ExtensionElement childExtension)
     {
         if (childExtension instanceof IceUdpTransportPacketExtension)
         {
@@ -205,22 +207,22 @@ public class ColibriIQProvider
         }
     }
 
-    private PacketExtension parseExtension(
+    private ExtensionElement parseExtension(
             XmlPullParser parser,
             String name,
             String namespace)
         throws Exception
     {
-        PacketExtensionProvider extensionProvider
+        ExtensionElementProvider extensionProvider
             = smackInteroperabilityLayer.getExtensionProvider(
                         name,
                         namespace);
-        PacketExtension extension;
+        ExtensionElement extension;
 
         if (extensionProvider == null)
         {
             /*
-             * No PacketExtensionProvider for the specified name and namespace
+             * No ExtensionElementProvider for the specified name and namespace
              * has been registered. Throw away the element.
              */
             throwAway(parser, name);
@@ -228,7 +230,7 @@ public class ColibriIQProvider
         }
         else
         {
-            extension = extensionProvider.parseExtension(parser);
+            extension = (ExtensionElement)extensionProvider.parse(parser);
         }
         return extension;
     }
@@ -241,11 +243,10 @@ public class ColibriIQProvider
      * sub-document to be parsed into a new <tt>IQ</tt> instance
      * @return a new <tt>IQ</tt> instance parsed from the specified IQ
      * sub-document
-     * @see IQProvider#parseIQ(XmlPullParser)
      */
     @SuppressWarnings("deprecation") // Compatibility with legacy Jitsi and
                                      // Jitsi Videobridge
-    public IQ parseIQ(XmlPullParser parser)
+    public IQ parse(XmlPullParser parser, int depth)
         throws Exception
     {
         String namespace = parser.getNamespace();
@@ -407,8 +408,11 @@ public class ColibriIQProvider
                                     ColibriConferenceIQ.Channel
                                             .ENDPOINT_ATTR_NAME);
 
-                        if ((endpoint != null) && (endpoint.length() != 0))
-                            channel.setEndpoint(endpoint);
+                        if (!StringUtils.isNullOrEmpty(endpoint))
+                        {
+                            Jid endpointJid = JidCreate.from(endpoint);
+                            channel.setEndpoint(endpointJid);
+                        }
 
                         String channelBundleId
                             = parser.getAttributeValue(
@@ -416,7 +420,10 @@ public class ColibriIQProvider
                                 ColibriConferenceIQ.ChannelCommon
                                         .CHANNEL_BUNDLE_ID_ATTR_NAME);
                         if (!StringUtils.isNullOrEmpty(channelBundleId))
-                            channel.setChannelBundleId(channelBundleId);
+                        {
+                            Jid channelBundleIdJid = JidCreate.from(channelBundleId);
+                            channel.setChannelBundleId(channelBundleIdJid);
+                        }
 
                         // expire
                         String expire
@@ -564,8 +571,9 @@ public class ColibriIQProvider
 
                         if(!StringUtils.isNullOrEmpty(bundleId))
                         {
+                            Jid bundleIdJid = JidCreate.from(bundleId);
                             bundle = new ColibriConferenceIQ
-                                        .ChannelBundle(bundleId);
+                                        .ChannelBundle(bundleIdJid);
                         }
                     }
                     else if (ColibriConferenceIQ.RTCPTerminationStrategy
@@ -667,7 +675,10 @@ public class ColibriIQProvider
                             sctpConnection.setID(connID);
 
                         if (!StringUtils.isNullOrEmpty(endpoint))
-                            sctpConnection.setEndpoint(endpoint);
+                        {
+                            Jid endpointJid = JidCreate.from(endpoint);
+                            sctpConnection.setEndpoint(endpointJid);
+                        }
 
                         // port
                         String port
@@ -683,7 +694,10 @@ public class ColibriIQProvider
                                 ColibriConferenceIQ.ChannelCommon
                                         .CHANNEL_BUNDLE_ID_ATTR_NAME);
                         if (!StringUtils.isNullOrEmpty(channelBundleId))
-                            sctpConnection.setChannelBundleId(channelBundleId);
+                        {
+                            Jid channelBundleIdJid = JidCreate.from(channelBundleId);
+                            sctpConnection.setChannelBundleId(channelBundleIdJid);
+                        }
 
                         // initiator
                         String initiator
@@ -806,7 +820,7 @@ public class ColibriIQProvider
                         }
                         else
                         {
-                            PacketExtension extension
+                            ExtensionElement extension
                                 = parseExtension(parser, peName, peNamespace);
 
                             if (extension != null)

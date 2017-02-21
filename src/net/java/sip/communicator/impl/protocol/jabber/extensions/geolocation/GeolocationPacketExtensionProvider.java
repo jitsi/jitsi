@@ -30,7 +30,7 @@ import org.xmlpull.v1.*;
  * @author Guillaume Schreiner
  */
 public class GeolocationPacketExtensionProvider
-    implements PacketExtensionProvider
+    extends ExtensionElementProvider
 {
     /**
      * The logger of this class.
@@ -50,7 +50,7 @@ public class GeolocationPacketExtensionProvider
 
     /**
      * Creates a new GeolocationPacketExtensionProvider.
-     * ProviderManager requires that every PacketExtensionProvider has a public,
+     * ProviderManager requires that every ExtensionElementProvider has a public,
      * no-argument constructor
      */
     public GeolocationPacketExtensionProvider()
@@ -63,9 +63,10 @@ public class GeolocationPacketExtensionProvider
      * @return a new GeolocationPacketExtension instance.
      * @throws Exception if an error occurs parsing the XML.
      * @todo Implement this
-     *   org.jivesoftware.smack.provider.PacketExtensionProvider method
+     *   org.jivesoftware.smack.provider.ExtensionElementProvider method
      */
-    public PacketExtension parseExtension(XmlPullParser parser)
+    @Override
+    public ExtensionElement parse(XmlPullParser parser, int depth)
         throws Exception
     {
 

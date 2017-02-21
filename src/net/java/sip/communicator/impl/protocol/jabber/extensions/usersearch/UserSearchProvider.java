@@ -19,19 +19,19 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.usersearch;
 
 import java.util.*;
 
-import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.*;
-import org.jivesoftware.smackx.*;
-import org.jivesoftware.smackx.ReportedData.*;
+import org.jivesoftware.smackx.search.ReportedData;
+import org.jivesoftware.smackx.xdata.FormField;
 import org.xmlpull.v1.*;
 
 /**
  * Internal Search service Provider. It parses the <tt>UserSeachIQ</tt> packets.
  */
-public class UserSearchProvider implements IQProvider
+public class UserSearchProvider extends IQProvider<UserSearchIQ>
 {
-    public IQ parseIQ(XmlPullParser parser) throws Exception
+    @Override
+    public UserSearchIQ parse(XmlPullParser parser, int depth) throws Exception
     {
         UserSearchIQ search = new UserSearchIQ();
         boolean done = false;
@@ -84,19 +84,17 @@ public class UserSearchProvider implements IQProvider
     {
         ReportedData data = new ReportedData();
         data.addColumn(
-            new ReportedData.Column("JID", "jid", FormField.TYPE_JID_SINGLE));
+            new ReportedData.Column("JID", "jid", FormField.Type.jid_single));
 
         boolean done = false;
 
-        List<ReportedData.Field> fields
-            = new ArrayList<ReportedData.Field>();
-
+        List<ReportedData.Field> fields = new ArrayList<>();
         while (!done)
         {
             if (parser.getAttributeCount() > 0)
             {
                 String jid = parser.getAttributeValue("", "jid");
-                List<String> valueList = new ArrayList<String>();
+                List<String> valueList = new ArrayList<>();
                 valueList.add(jid);
                 ReportedData.Field field = new ReportedData.Field("jid", valueList);
                 fields.add(field);
@@ -107,7 +105,7 @@ public class UserSearchProvider implements IQProvider
             if (eventType == XmlPullParser.START_TAG
                 && parser.getName().equals("item"))
             {
-                fields = new ArrayList<ReportedData.Field>();
+                fields = new ArrayList<>();
             }
             else if (eventType == XmlPullParser.END_TAG
                 && parser.getName().equals("item"))
@@ -120,26 +118,27 @@ public class UserSearchProvider implements IQProvider
                 String name = parser.getName();
                 String value = parser.nextText();
 
-                List<String> valueList = new ArrayList<String>();
+                List<String> valueList = new ArrayList<>();
                 valueList.add(value);
                 ReportedData.Field field
                     = new ReportedData.Field(name, valueList);
                 fields.add(field);
 
                 boolean exists = false;
-                Iterator<Column> cols = data.getColumns();
-                while (cols.hasNext())
+                for (ReportedData.Column column : data.getColumns())
                 {
-                    ReportedData.Column column = cols.next();
                     if (column.getVariable().equals(name))
+                    {
                         exists = true;
+                        break;
+                    }
                 }
 
                 // Column name should be the same
                 if (!exists)
                 {
                     ReportedData.Column column = new ReportedData.Column(
-                        name, name, "text-single");
+                        name, name, FormField.Type.text_single);
                     data.addColumn(column);
                 }
             }

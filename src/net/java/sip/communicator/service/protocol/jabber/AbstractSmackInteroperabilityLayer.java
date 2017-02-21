@@ -102,12 +102,12 @@ abstract public class AbstractSmackInteroperabilityLayer {
     
     
     /**
-     * Add <tt>PacketExtensionProvider</tt> to the list of known
+     * Add <tt>ExtensionElementProvider</tt> to the list of known
      * providers
      * 
      * @param elementName The element name where the matching is happening
      * @param namespace The XML namespace used in that element
-     * @param provider <tt>PacketExtensionProvider</tt> implementation to be 
+     * @param provider <tt>ExtensionElementProvider</tt> implementation to be
      *                 used
      */
     abstract public void addExtensionProvider(
@@ -126,15 +126,15 @@ abstract public class AbstractSmackInteroperabilityLayer {
             String elementName, String namespace, Object provider);
 
     /**
-     * Get the <tt>PacketExtensionProvider</tt> for given element name and XML 
+     * Get the <tt>ExtensionElementProvider</tt> for given element name and XML
      * namespace
      * 
      * @param elementName The element name where the matching is happening
      * @param namespace The XML namespace used in that element
-     * @return <tt>PacketExtensionProvider</tt> implementation to be 
+     * @return <tt>ExtensionElementProvider</tt> implementation to be
      *                 used
      */
-    abstract public PacketExtensionProvider getExtensionProvider(
+    abstract public ExtensionElementProvider getExtensionProvider(
             String elementName, String namespace);
 
     

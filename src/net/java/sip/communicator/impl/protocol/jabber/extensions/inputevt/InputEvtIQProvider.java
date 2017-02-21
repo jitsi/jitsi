@@ -27,7 +27,7 @@ import org.xmlpull.v1.*;
  * @author Sebastien Vincent
  */
 public class InputEvtIQProvider
-    implements IQProvider
+    extends IQProvider<InputEvtIQ>
 {
     /**
      * Parse the Input IQ sub-document and returns the corresponding
@@ -37,7 +37,8 @@ public class InputEvtIQProvider
      * @return <tt>InputEvtIQ</tt>
      * @throws Exception if something goes wrong during parsing
      */
-    public IQ parseIQ(XmlPullParser parser) throws Exception
+    @Override
+    public InputEvtIQ parse(XmlPullParser parser, int depth) throws Exception
     {
         InputEvtIQ inputEvtIQ = new InputEvtIQ();
         InputEvtAction action
@@ -61,7 +62,7 @@ public class InputEvtIQProvider
                         = new RemoteControlExtensionProvider();
                     RemoteControlExtension item
                         = (RemoteControlExtension)
-                            provider.parseExtension(parser);
+                            provider.parse(parser);
 
                     inputEvtIQ.addRemoteControl(item);
                 }

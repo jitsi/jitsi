@@ -250,8 +250,13 @@ public class TestOperationSetBasicInstantMessaging
     /**
      * Send an instant message from the testing operation set and assert
      * reception by the tested one.
+     * @throws OperationFailedException 
+     * @throws IllegalArgumentException 
+     * @throws IllegalStateException 
      */
-    public void firstTestReceiveMessage()
+    public void firstTestReceiveMessage() throws IllegalStateException,
+        IllegalArgumentException,
+        OperationFailedException
     {
         String body = "This is an IM coming from the tester agent"
             + " on " + new Date().toString();
@@ -315,8 +320,13 @@ public class TestOperationSetBasicInstantMessaging
     /**
      * Send an instant message from the tester agent and assert reception by
      * the tested implementation
+     * @throws OperationFailedException 
+     * @throws IllegalArgumentException 
+     * @throws IllegalStateException 
      */
-    public void thenTestSendMessage()
+    public void thenTestSendMessage() throws IllegalStateException,
+        IllegalArgumentException,
+        OperationFailedException
     {
         String body = "This is an IM coming from the tested implementation"
             + " on " + new Date().toString();
@@ -543,8 +553,13 @@ public class TestOperationSetBasicInstantMessaging
     /**
      * A method that would simply send messages to a group of people so that
      * they would get notified that tests are being run.
+     * @throws OperationFailedException 
+     * @throws IllegalArgumentException 
+     * @throws IllegalStateException 
      */
-    public void reportingSendFunMessages()
+    public void reportingSendFunMessages() throws IllegalStateException,
+        IllegalArgumentException,
+        OperationFailedException
     {
         String hostname = "";
 

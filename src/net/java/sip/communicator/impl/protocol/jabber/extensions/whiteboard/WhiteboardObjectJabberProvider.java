@@ -29,11 +29,11 @@ import org.xmlpull.v1.*;
  * @author Julien Waechter
  */
 public class WhiteboardObjectJabberProvider
-    implements PacketExtensionProvider
+    extends ExtensionElementProvider
 {
     /**
      * Creates a new WhiteboardObjectJabberProvider.
-     * ProviderManager requires that every PacketExtensionProvider has a public,
+     * ProviderManager requires that every ExtensionElementProvider has a public,
      * no-argument constructor
      */
     public WhiteboardObjectJabberProvider ()
@@ -46,10 +46,11 @@ public class WhiteboardObjectJabberProvider
      * @return a new WhiteboardPacketExtension instance.
      * @throws Exception if an error occurs parsing the XML.
      */
-    public PacketExtension parseExtension (XmlPullParser parser)
+    @Override
+    public ExtensionElement parse(XmlPullParser parser, int depth)
         throws Exception
     {
-        PacketExtension extension = null;
+        ExtensionElement extension = null;
 
         StringBuilder sb = new StringBuilder ();
         boolean done = false;

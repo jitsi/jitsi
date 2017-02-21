@@ -21,7 +21,10 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet.*;
 import net.java.sip.communicator.service.protocol.jabber.*;
+import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.provider.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.impl.*;
 import org.xmlpull.v1.*;
 
 /**
@@ -29,7 +32,7 @@ import org.xmlpull.v1.*;
  *
  * @author Emil Ivov
  */
-public class JingleIQProvider implements IQProvider
+public class JingleIQProvider extends IQProvider<JingleIQ>
 {
     /**
      * Creates a new instance of the <tt>JingleIQProvider</tt> and register all
@@ -234,7 +237,8 @@ public class JingleIQProvider implements IQProvider
      *
      * @throws Exception if an error occurs parsing the XML.
      */
-    public JingleIQ parseIQ(XmlPullParser parser)
+    @Override
+    public JingleIQ parse(XmlPullParser parser, int depth)
         throws Exception
     {
         JingleIQ jingleIQ = new JingleIQ();
@@ -249,9 +253,11 @@ public class JingleIQProvider implements IQProvider
         String sid = parser
                         .getAttributeValue("", JingleIQ.SID_ATTR_NAME);
 
+        Jid initiatorJid = JidCreate.from(initiator);
+        Jid responderJid = JidCreate.from(responder);
         jingleIQ.setAction(action);
-        jingleIQ.setInitiator(initiator);
-        jingleIQ.setResponder(responder);
+        jingleIQ.setInitiator(initiatorJid);
+        jingleIQ.setResponder(responderJid);
         jingleIQ.setSID(sid);
 
         boolean done = false;
@@ -288,14 +294,14 @@ public class JingleIQProvider implements IQProvider
                 if (elementName.equals(ContentPacketExtension.ELEMENT_NAME))
                 {
                     ContentPacketExtension content
-                        = contentProvider.parseExtension(parser);
+                        = (ContentPacketExtension)contentProvider.parse(parser);
                     jingleIQ.addContent(content);
                 }
                 // <reason/>
                 else if(elementName.equals(ReasonPacketExtension.ELEMENT_NAME))
                 {
                     ReasonPacketExtension reason
-                        = reasonProvider.parseExtension(parser);
+                        = (ReasonPacketExtension)reasonProvider.parse(parser);
                     jingleIQ.setReason(reason);
                 }
                 // <transfer/>
@@ -304,16 +310,16 @@ public class JingleIQProvider implements IQProvider
                         && namespace.equals(TransferPacketExtension.NAMESPACE))
                 {
                     jingleIQ.addExtension(
-                            transferProvider.parseExtension(parser));
+                            (ExtensionElement) transferProvider.parse(parser));
                 }
                 else if(elementName.equals(CoinPacketExtension.ELEMENT_NAME))
                 {
-                    jingleIQ.addExtension(coinProvider.parseExtension(parser));
+                    jingleIQ.addExtension((CoinPacketExtension)coinProvider.parse(parser));
                 }
                 else if (elementName.equals(
                         ConferenceDescriptionPacketExtension.CALLID_ELEM_NAME))
                 {
-                    jingleIQ.addExtension(callidProvider.parseExtension(parser));
+                    jingleIQ.addExtension((ConferenceDescriptionPacketExtension)callidProvider.parse(parser));
                 }
 
                 //<mute/> <active/> and other session-info elements

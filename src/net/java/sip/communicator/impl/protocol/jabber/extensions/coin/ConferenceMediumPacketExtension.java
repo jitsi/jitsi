@@ -189,7 +189,7 @@ public class ConferenceMediumPacketExtension
                     status).append("</").append(
                             ELEMENT_STATUS).append(">");
 
-        for(PacketExtension ext : getChildExtensions())
+        for(ExtensionElement ext : getChildExtensions())
         {
             bldr.append(ext.toXML());
         }

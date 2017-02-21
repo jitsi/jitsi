@@ -19,7 +19,10 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import net.java.sip.communicator.service.protocol.media.*;
 
+import net.java.sip.communicator.util.*;
 import org.jitsi.service.neomedia.*;
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.SmackException.*;
 
 /**
  * A wrapper of media quality control.
@@ -30,6 +33,9 @@ import org.jitsi.service.neomedia.*;
 public class QualityControlWrapper
     extends AbstractQualityControlWrapper<CallPeerJabberImpl>
 {
+    private final static Logger logger
+        = Logger.getLogger(QualityControlWrapper.class);
+
     /**
      * Creates quality control for peer.
      * @param peer peer
@@ -55,7 +61,14 @@ public class QualityControlWrapper
         {
             qControls.setRemoteSendMaxPreset(preset);
             // re-invites the peer with the new settings
-            peer.sendModifyVideoResolutionContent();
+            try
+            {
+                peer.sendModifyVideoResolutionContent();
+            }
+            catch (NotConnectedException | InterruptedException e)
+            {
+                logger.error("Could not send modify video resolution of peer", e);
+            }
         }
     }
 }

@@ -22,14 +22,18 @@ import java.util.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jivesoftware.smackx.disco.packet.*;
+import org.jivesoftware.smackx.search.*;
+import org.jivesoftware.smackx.xdata.*;
+import org.jivesoftware.smackx.xdata.packet.*;
 
 /**
  * Implements the <tt>IQ</tt> packets for user search (XEP-0055)
  *
  * @author Hristo Terezov
  */
-public class UserSearchIQ extends IQ {
+public class UserSearchIQ extends IQ
+{
     /**
      * This field represents the result of the search.
      */
@@ -42,9 +46,14 @@ public class UserSearchIQ extends IQ {
     private Map<String, String> simpleFieldsNames
         = new HashMap<String, String>();
 
+    public UserSearchIQ()
+    {
+        super("query", "jabber:iq:search");
+    }
+
     @Override
-    public String getChildElementXML() {
-        StringBuilder buf = new StringBuilder();
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
+    {
         buf.append("<query xmlns=\"jabber:iq:search\">");
         if(getExtension("x", "jabber:x:data") != null)
         {
@@ -55,7 +64,7 @@ public class UserSearchIQ extends IQ {
             buf.append(getItemsToSearch());
         }
         buf.append("</query>");
-        return buf.toString();
+        return buf;
     }
 
     /**
@@ -105,7 +114,7 @@ public class UserSearchIQ extends IQ {
             String value = simpleFieldsNames.get(name);
             if (value != null && value.trim().length() > 0) {
                 buf.append("<").append(name).append(">")
-                    .append(StringUtils.escapeForXML(value)).append("</")
+                    .append(StringUtils.escapeForXml(value)).append("</")
                     .append(name).append(">");
             }
         }

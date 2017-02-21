@@ -90,7 +90,7 @@ public class CarbonPacketExtension
          * @throws Exception
          */
         @Override
-        public PacketExtension parseExtension(XmlPullParser parser)
+        public ExtensionElement parse(XmlPullParser parser, int depth)
             throws Exception
         {
             CarbonPacketExtension packetExtension
@@ -111,7 +111,7 @@ public class CarbonPacketExtension
                         elementName))
                     {
                         extension = (ForwardedPacketExtension) super
-                            .parseExtension(parser);
+                            .parse(parser);
                         if (extension != null)
                         {
                             packetExtension.addChildExtension(extension);

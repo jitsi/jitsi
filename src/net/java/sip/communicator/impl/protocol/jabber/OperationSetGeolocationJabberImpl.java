@@ -29,6 +29,7 @@ import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.StringUtils;
+import org.jxmpp.jid.*;
 
 /**
  * The Jabber implementation of an OperationSetGeolocation done with the
@@ -84,8 +85,7 @@ public class OperationSetGeolocationJabberImpl
             new RegistrationStateListener());
 
         // Add the custom GeolocationExtension to the Smack library
-        ProviderManager pManager = ProviderManager.getInstance();
-        pManager.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
             GeolocationPacketExtensionProvider.ELEMENT_NAME
             , GeolocationPacketExtensionProvider.NAMESPACE
             , new GeolocationPacketExtensionProvider());
@@ -106,8 +106,15 @@ public class OperationSetGeolocationJabberImpl
 
         myGeolocPrez.setGeolocationExtention(geolocExt);
 
-        this.jabberProvider.getConnection()
-            .sendPacket(myGeolocPrez.getGeolocPresence());
+        try
+        {
+            this.jabberProvider.getConnection()
+                .sendStanza(myGeolocPrez.getGeolocPresence());
+        }
+        catch (SmackException.NotConnectedException | InterruptedException e)
+        {
+            logger.error("Could not send geolocation info", e);
+        }
     }
 
     /**
@@ -219,7 +226,7 @@ public class OperationSetGeolocationJabberImpl
      * @author Guillaume Schreiner
      */
     private class GeolocationPresencePacketListener
-        implements PacketListener
+        implements StanzaListener
     {
         /**
          * Match incoming packets with geolocation Extension tags for
@@ -227,9 +234,9 @@ public class OperationSetGeolocationJabberImpl
          *
          * @param packet matching Geolocation Extension tags.
          */
-        public void processPacket(Packet packet)
+        public void processStanza(Stanza packet)
         {
-            String from = StringUtils.parseBareAddress(packet.getFrom());
+            BareJid from = packet.getFrom().asBareJid();
 
             GeolocationPacketExtension geolocExt =
                 (GeolocationPacketExtension) packet.getExtension(
@@ -258,14 +265,14 @@ public class OperationSetGeolocationJabberImpl
          * @param newGeolocation the new given Geolocation.
          */
         public void fireGeolocationContactChangeEvent(
-                String sourceContact,
+                Jid sourceContact,
                 Map<String, String> newGeolocation)
         {
             if (logger.isDebugEnabled())
                 logger.debug("Trying to dispatch geolocation contact update for "
                          + sourceContact);
 
-            Contact source = opsetprez.findContactByID(sourceContact);
+            Contact source = opsetprez.findContactByID(sourceContact.toString());
 
             GeolocationEvent evt =
                 new GeolocationEvent(

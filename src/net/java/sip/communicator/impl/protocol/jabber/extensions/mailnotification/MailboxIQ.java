@@ -86,6 +86,11 @@ public class MailboxIQ extends IQ
      */
     public static final String ELEMENT_NAME = "mailbox";
 
+    public MailboxIQ()
+    {
+        super(ELEMENT_NAME, NAMESPACE);
+    }
+
     /**
      * Sets the date of the most recent unread mail content on the mail server,
      * in milliseconds since the UNIX epoch.
@@ -183,13 +188,20 @@ public class MailboxIQ extends IQ
      * @return the child element section of the IQ XML.
      */
     @Override
-    public String getChildElementXML()
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
     {
         if (logger.isDebugEnabled())
             logger.debug("Mailbox.getChildElementXML usage");
         String totalString = totalEstimate ? " total-estimate='1' " : "";
-        return "<mailbox result-time='" + resultTime + "' total-matched='"
-                + totalMatched + "'" + totalString + "/>";
+        buf
+            .append("<mailbox result-time='")
+            .append(String.valueOf(resultTime))
+            .append("' total-matched='")
+            .append(String.valueOf(totalMatched))
+            .append("'")
+            .append(totalString)
+            .append("/>");
+        return buf;
     }
 
     /**

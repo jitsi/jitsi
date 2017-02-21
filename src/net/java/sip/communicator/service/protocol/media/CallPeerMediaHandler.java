@@ -1640,6 +1640,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      * again.
      */
     public void setLocallyOnHold(boolean locallyOnHold)
+        throws OperationFailedException
     {
         if (logger.isDebugEnabled())
             logger.debug("Setting locally on hold: " + locallyOnHold);

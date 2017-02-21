@@ -23,8 +23,10 @@ import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jivesoftware.smackx.disco.packet.*;
+import org.jxmpp.jid.Jid;
 
 /**
  * An implementation of the <tt>CallPeer</tt> abstract class for the common part
@@ -60,7 +62,7 @@ public abstract class AbstractCallPeerJabberGTalkImpl
     /**
      * The jabber address of this peer
      */
-    protected String peerJID;
+    protected Jid peerJID;
 
     /**
      * The {@link IQ} that created the session that this call represents.
@@ -74,7 +76,7 @@ public abstract class AbstractCallPeerJabberGTalkImpl
      * peer.
      * @param owningCall the call that contains this call peer.
      */
-    protected AbstractCallPeerJabberGTalkImpl(String peerAddress, T owningCall)
+    protected AbstractCallPeerJabberGTalkImpl(Jid peerAddress, T owningCall)
     {
         super(owningCall);
 
@@ -87,6 +89,11 @@ public abstract class AbstractCallPeerJabberGTalkImpl
      * @return the peer's address or phone number.
      */
     public String getAddress()
+    {
+        return peerJID.toString();
+    }
+
+    public Jid getAddressAsJID()
     {
         return peerJID;
     }
@@ -131,7 +138,8 @@ public abstract class AbstractCallPeerJabberGTalkImpl
             if (contact != null)
                 return contact.getDisplayName();
         }
-        return peerJID;
+
+        return peerJID.toString();
     }
 
     /**
@@ -163,7 +171,7 @@ public abstract class AbstractCallPeerJabberGTalkImpl
      *
      * @return The retrieved DiscoverInfo, or null if not available.
      */
-    protected void retrieveDiscoveryInfo(String calleeURI)
+    protected void retrieveDiscoveryInfo(Jid calleeURI)
     {
         try
         {
@@ -174,7 +182,10 @@ public abstract class AbstractCallPeerJabberGTalkImpl
             if(discoveryInfo != null)
                 setDiscoveryInfo(discoveryInfo);
         }
-        catch (XMPPException xmppex)
+        catch (XMPPException
+            | InterruptedException
+            | NoResponseException
+            | NotConnectedException xmppex)
         {
             logger.warn("Could not retrieve info for " + calleeURI, xmppex);
         }
@@ -187,7 +198,7 @@ public abstract class AbstractCallPeerJabberGTalkImpl
      *
      * @param address The address of this call peer.
      */
-    public void setAddress(String address)
+    public void setAddress(Jid address)
     {
         if (!peerJID.equals(address))
         {

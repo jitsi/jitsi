@@ -56,7 +56,7 @@ public class RawUdpTransportPacketExtension
      * @return this element's child (local or remote) candidate elements.
      */
     @Override
-    public List<? extends PacketExtension> getChildExtensions()
+    public List<? extends ExtensionElement> getChildExtensions()
     {
         // TODO Auto-generated method stub
         return super.getChildExtensions();

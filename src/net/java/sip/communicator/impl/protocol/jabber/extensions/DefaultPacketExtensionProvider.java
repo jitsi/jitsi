@@ -32,7 +32,7 @@ import org.xmlpull.v1.*;
  * @author Emil Ivov
  */
 public class DefaultPacketExtensionProvider<C extends AbstractPacketExtension>
-    implements PacketExtensionProvider
+    extends ExtensionElementProvider
 {
     /**
      * The <tt>Logger</tt> used by the <tt>DefaultPacketExtensionProvider</tt>
@@ -45,9 +45,9 @@ public class DefaultPacketExtensionProvider<C extends AbstractPacketExtension>
      * The <tt>AbstractSmackInteroperabilityLayer</tt> instance implementing
      * necessary methods
      */
-    private AbstractSmackInteroperabilityLayer smackInteroperabilityLayer = 
+    private AbstractSmackInteroperabilityLayer smackInteroperabilityLayer =
             AbstractSmackInteroperabilityLayer.getInstance();
-    
+
     /**
      * The {@link Class} that the packets we will be parsing here belong to.
      */
@@ -75,7 +75,8 @@ public class DefaultPacketExtensionProvider<C extends AbstractPacketExtension>
      *
      * @throws java.lang.Exception if an error occurs parsing the XML.
      */
-    public C parseExtension(XmlPullParser parser) throws Exception
+    @Override
+    public C parse(XmlPullParser parser, int depth) throws Exception
     {
         C packetExtension = packetClass.newInstance();
 
@@ -108,7 +109,7 @@ public class DefaultPacketExtensionProvider<C extends AbstractPacketExtension>
 
             if (eventType == XmlPullParser.START_TAG)
             {
-                PacketExtensionProvider provider = smackInteroperabilityLayer
+                ExtensionElementProvider provider = smackInteroperabilityLayer
                         .getExtensionProvider( elementName, namespace );
 
                 if(provider == null)
@@ -119,8 +120,8 @@ public class DefaultPacketExtensionProvider<C extends AbstractPacketExtension>
                 }
                 else
                 {
-                    PacketExtension childExtension
-                        = provider.parseExtension(parser);
+                    ExtensionElement childExtension
+                        = (ExtensionElement)provider.parse(parser);
 
                     if(namespace != null)
                     {

@@ -76,6 +76,7 @@ public class InputEvtIQ extends IQ
      */
     public InputEvtIQ()
     {
+        super(ELEMENT_NAME, NAMESPACE);
     }
 
     /**
@@ -84,9 +85,9 @@ public class InputEvtIQ extends IQ
      * @return XML representation of the IQ
      */
     @Override
-    public String getChildElementXML()
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder bldr)
     {
-        StringBuilder bldr = new StringBuilder("<" + ELEMENT_NAME);
+        bldr.append("<" + ELEMENT_NAME);
 
         bldr.append(" xmlns='" + NAMESPACE + "'");
 
@@ -106,7 +107,7 @@ public class InputEvtIQ extends IQ
             bldr.append("/>");
         }
 
-        return bldr.toString();
+        return bldr;
     }
 
     /**

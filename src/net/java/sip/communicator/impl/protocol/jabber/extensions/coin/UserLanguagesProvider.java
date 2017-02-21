@@ -27,7 +27,7 @@ import org.xmlpull.v1.*;
  * @author Sebastien Vincent
  */
 public class UserLanguagesProvider
-    implements PacketExtensionProvider
+    extends ExtensionElementProvider
 {
     /**
      * Parses a UserLanguages extension sub-packet and creates a {@link
@@ -43,7 +43,8 @@ public class UserLanguagesProvider
      * @return a new {@link UserLanguagesPacketExtension} instance.
      * @throws java.lang.Exception if an error occurs parsing the XML.
      */
-    public PacketExtension parseExtension(XmlPullParser parser)
+    @Override
+    public ExtensionElement parse(XmlPullParser parser, int depth)
         throws Exception
     {
         boolean done = false;

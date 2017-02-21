@@ -28,7 +28,7 @@ import org.xmlpull.v1.*;
  * @author Ivan Vergiliev
  */
 public class MessageCorrectionExtensionProvider
-    implements PacketExtensionProvider
+    extends ExtensionElementProvider
 {
 
     /**
@@ -38,7 +38,8 @@ public class MessageCorrectionExtensionProvider
      * @return A new MesssageCorrectionExtension parsed from the XML.
      * @throws Exception if an error occurs parsing the XML.
      */
-    public PacketExtension parseExtension(XmlPullParser parser) throws Exception
+    @Override
+    public ExtensionElement parse(XmlPullParser parser, int depth) throws Exception
     {
         MessageCorrectionExtension res = new MessageCorrectionExtension(null);
 

@@ -23,6 +23,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.jabber.*;
 import org.jivesoftware.smack.packet.*;
+import org.jxmpp.jid.Jid;
 
 /**
  * A straightforward extension of the IQ. A <tt>JingleIQ</tt> object is created
@@ -75,14 +76,14 @@ public class JingleIQ extends IQ
      * The full JID of the entity that has initiated the session flow. Only
      * present when the <tt>JingleAction</tt> is <tt>session-accept</tt>.
      */
-    private String initiator;
+    private Jid initiator;
 
     /**
      * The full JID of the entity that replies to a Jingle initiation. The
      * <tt>responder</tt> can be different from the 'to' address on the IQ-set.
      * Only present when the <tt>JingleAction</tt> is <tt>session-accept</tt>.
      */
-    private String responder;
+    private Jid responder;
 
     /**
      * The ID of the Jingle session that this IQ belongs to. XEP-0167: A sid is
@@ -107,6 +108,11 @@ public class JingleIQ extends IQ
      */
     private final List<ContentPacketExtension> contentList
             = new ArrayList<ContentPacketExtension>();
+
+    public JingleIQ()
+    {
+        super(ELEMENT_NAME, NAMESPACE);
+    }
     
     /**
      * Returns the XML string of this Jingle IQ's "section" sub-element.
@@ -116,12 +122,10 @@ public class JingleIQ extends IQ
      * @return the child element section of the IQ XML.
      */
     @Override
-    public String getChildElementXML()
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder bldr)
     {
-        StringBuilder bldr = new StringBuilder("<" + ELEMENT_NAME);
-
+        bldr.append("<" + ELEMENT_NAME);
         bldr.append(" xmlns='" + NAMESPACE + "'");
-
         bldr.append(" " + ACTION_ATTR_NAME + "='" + getAction() + "'");
 
         if( initiator != null)
@@ -172,7 +176,7 @@ public class JingleIQ extends IQ
             bldr.append("</" + ELEMENT_NAME + ">");
         }
 
-        return bldr.toString();
+        return bldr;
     }
 
     /**
@@ -217,7 +221,7 @@ public class JingleIQ extends IQ
      *
      * @param responder the full JID of the session <tt>responder</tt>.
      */
-    public void setResponder(String responder)
+    public void setResponder(Jid responder)
     {
         this.responder = responder;
     }
@@ -230,7 +234,7 @@ public class JingleIQ extends IQ
      *
      * @return the full JID of the session <tt>responder</tt>
      */
-    public String getResponder()
+    public Jid getResponder()
     {
         return responder;
     }
@@ -241,7 +245,7 @@ public class JingleIQ extends IQ
      *
      * @param initiator the full JID of the initiator.
      */
-    public void setInitiator(String initiator)
+    public void setInitiator(Jid initiator)
     {
         this.initiator = initiator;
     }
@@ -252,7 +256,7 @@ public class JingleIQ extends IQ
      *
      * @return the full JID of the initiator.
      */
-    public String getInitiator()
+    public Jid getInitiator()
     {
         return initiator;
     }
@@ -351,7 +355,7 @@ public class JingleIQ extends IQ
      * otherwise.
      */
     public boolean containsContentChildOfType(
-            Class<? extends PacketExtension> contentType)
+            Class<? extends ExtensionElement> contentType)
     {
         if(getContentForType(contentType) != null)
             return true;
@@ -372,13 +376,13 @@ public class JingleIQ extends IQ
      * found.
      */
     public ContentPacketExtension getContentForType(
-            Class<? extends PacketExtension> contentType)
+            Class<? extends ExtensionElement> contentType)
     {
         synchronized(contentList)
         {
             for(ContentPacketExtension content : contentList)
             {
-                PacketExtension child
+                ExtensionElement child
                         = content.getFirstChildOfType(contentType);
                 if(child != null)
                     return content;

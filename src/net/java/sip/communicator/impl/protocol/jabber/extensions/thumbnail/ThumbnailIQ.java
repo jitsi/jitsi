@@ -21,6 +21,7 @@ import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
+import org.jxmpp.jid.Jid;
 import org.xmlpull.v1.*;
 
 /**
@@ -31,7 +32,6 @@ import org.xmlpull.v1.*;
  */
 public class ThumbnailIQ
     extends IQ
-    implements IQProvider
 {
     /**
      * The names XMPP space that the thumbnail elements belong to.
@@ -63,7 +63,10 @@ public class ThumbnailIQ
      * An empty constructor used to initialize this class as an
      * <tt>IQProvier</tt>.
      */
-    public ThumbnailIQ() {}
+    public ThumbnailIQ()
+    {
+        super(ELEMENT_NAME, NAMESPACE);
+    }
 
     /**
      * Creates a <tt>ThumbnailIQ</tt> packet, by specifying the source, the
@@ -76,10 +79,10 @@ public class ThumbnailIQ
      * @param type the of the packet, which could be one of the types defined
      * in <tt>IQ.Type</tt>
      */
-    public ThumbnailIQ(String from, String to, String cid, Type type)
+    public ThumbnailIQ(Jid from, Jid to, String cid, IQ.Type type)
     {
+        this();
         this.cid = cid;
-
         this.setFrom(from);
         this.setTo(to);
         this.setType(type);
@@ -98,8 +101,8 @@ public class ThumbnailIQ
      * @param type the of the packet, which could be one of the types defined
      * in <tt>IQ.Type</tt>
      */
-    public ThumbnailIQ( String from, String to, String cid,
-                        String mimeType, byte[] data, Type type)
+    public ThumbnailIQ( Jid from, Jid to, String cid,
+                        String mimeType, byte[] data, IQ.Type type)
     {
         this(from, to, cid, type);
 
@@ -108,40 +111,27 @@ public class ThumbnailIQ
     }
 
     /**
-     * Parses the given <tt>XmlPullParser</tt> into a ThumbnailIQ packet and
-     * returns it.
-     * @see IQProvider#parseIQ(XmlPullParser)
+     * Creates a <tt>ThumbnailIQ</tt> packet, by specifying the content-ID,
+     * the type of data and the data of the thumbnail.
+     *
+     * @param cid the content-ID used to identify this packet in the destination
+     * @param mimeType the type of the data passed
+     * @param data the data of the thumbnail
      */
-    public IQ parseIQ(XmlPullParser parser) throws Exception
+    public ThumbnailIQ(String cid, String mimeType, byte[] data)
     {
-        String elementName = parser.getName();
-        String namespace = parser.getNamespace();
-
-        if (elementName.equals(ELEMENT_NAME)
-            && namespace.equals(NAMESPACE))
-        {
-            this.cid = parser.getAttributeValue("", CID);
-            this.mimeType = parser.getAttributeValue("", TYPE);
-        }
-
-        int eventType = parser.next();
-
-        if (eventType == XmlPullParser.TEXT)
-        {
-            this.data = Base64.decode(parser.getText());
-        }
-
-        return this;
+        this();
+        this.cid = cid;
+        this.mimeType = mimeType;
+        this.data = data;
     }
 
     /**
      * Returns the xml representing the data element in this <tt>IQ</tt> packet.
      */
     @Override
-    public String getChildElementXML()
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
     {
-        StringBuffer buf = new StringBuffer();
-
         // open extension
         buf.append("<").append(ELEMENT_NAME)
             .append(" xmlns=\"").append(NAMESPACE).append("\"")
@@ -159,8 +149,7 @@ public class ThumbnailIQ
         }
 
         buf.append("</data>");
-
-        return buf.toString();
+        return buf;
     }
 
     /**

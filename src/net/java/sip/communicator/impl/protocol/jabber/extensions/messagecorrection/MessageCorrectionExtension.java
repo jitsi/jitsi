@@ -25,7 +25,7 @@ import org.jivesoftware.smack.packet.*;
  * @author Ivan Vergiliev
  */
 public class MessageCorrectionExtension
-    implements PacketExtension
+    implements ExtensionElement
 {
     /**
      * The XMPP namespace that this extension belongs to.

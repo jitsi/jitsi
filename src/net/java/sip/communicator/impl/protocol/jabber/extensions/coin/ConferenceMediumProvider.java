@@ -27,7 +27,7 @@ import org.xmlpull.v1.*;
  * @author Sebastien Vincent
  */
 public class ConferenceMediumProvider
-    implements PacketExtensionProvider
+    extends ExtensionElementProvider
 {
     /**
      * Parses a ConferenceMedium extension sub-packet and creates a {@link
@@ -43,7 +43,8 @@ public class ConferenceMediumProvider
      * @return a new {@link ConferenceMediumPacketExtension} instance.
      * @throws java.lang.Exception if an error occurs parsing the XML.
      */
-    public PacketExtension parseExtension(XmlPullParser parser)
+    @Override
+    public ExtensionElement parse(XmlPullParser parser, int depth)
         throws Exception
     {
         boolean done = false;

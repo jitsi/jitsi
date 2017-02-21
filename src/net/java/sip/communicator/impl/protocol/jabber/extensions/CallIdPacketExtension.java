@@ -18,7 +18,7 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions;
 
 /**
- * A <tt>PacketExtension</tt> that represents a "callid" element within the
+ * A <tt>ExtensionElement</tt> that represents a "callid" element within the
  * <tt>ConferenceDescriptionPacketExtension.NAMESPACE</tt> namespace.
  *
  * @author Boris Grozev

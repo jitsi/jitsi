@@ -33,7 +33,7 @@ import org.xmlpull.v1.*;
  * @author Alain Knaebel
  */
 public class MailboxIQProvider
-        implements IQProvider
+        extends IQProvider<MailboxIQ>
 {
     /**
      * Logger for this class
@@ -51,7 +51,8 @@ public class MailboxIQProvider
      * @return a new IQ instance which is the result of the XmlPullParser.
      * @throws Exception if an error occurs parsing the XML.
      */
-    public IQ parseIQ(final XmlPullParser parser) throws Exception
+    @Override
+    public MailboxIQ parse(final XmlPullParser parser, int depth) throws Exception
     {
         MailboxIQ mailboxIQ = new MailboxIQ();
 

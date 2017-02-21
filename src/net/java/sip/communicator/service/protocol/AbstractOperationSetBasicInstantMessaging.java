@@ -453,8 +453,8 @@ public abstract class AbstractOperationSetBasicInstantMessaging
     public void sendInstantMessage( Contact to,
                                     ContactResource toResource,
                                     Message message)
-        throws  IllegalStateException,
-                IllegalArgumentException
+        throws IllegalStateException,
+               IllegalArgumentException, OperationFailedException
     {
         sendInstantMessage(to, message);
     }

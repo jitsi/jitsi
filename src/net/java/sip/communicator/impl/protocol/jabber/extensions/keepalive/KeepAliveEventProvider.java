@@ -28,11 +28,11 @@ import org.xmlpull.v1.*;
  * @author Damian Minkov
  */
 public class KeepAliveEventProvider
-    implements IQProvider
+    extends IQProvider<KeepAliveEvent>
 {
     /**
      * Creates a new KeepAliveEventProvider.
-     * ProviderManager requires that every PacketExtensionProvider has a public,
+     * ProviderManager requires that every ExtensionElementProvider has a public,
      * no-argument constructor
      */
     public KeepAliveEventProvider()
@@ -45,7 +45,8 @@ public class KeepAliveEventProvider
      * @return a new IQ instance.
      * @throws Exception if an error occurs parsing the XML.
      */
-    public IQ parseIQ(XmlPullParser parser)
+    @Override
+    public KeepAliveEvent parse(XmlPullParser parser, int depth)
         throws Exception
     {
         KeepAliveEvent result = new KeepAliveEvent();
@@ -56,7 +57,7 @@ public class KeepAliveEventProvider
         String to = parser.getAttributeValue(null, "to");
 
         result.setType(IQ.Type.fromString(type));
-        result.setPacketID(id);
+        result.setStanzaId(id);
         result.setFrom(from);
         result.setTo(to);
 

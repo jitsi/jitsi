@@ -27,7 +27,7 @@ import org.xmlpull.v1.*;
  *
  * @author Emil Ivov
  */
-public class ReasonProvider implements PacketExtensionProvider
+public class ReasonProvider extends ExtensionElementProvider
 {
 
     /**
@@ -44,7 +44,8 @@ public class ReasonProvider implements PacketExtensionProvider
      * @return a new {@link ReasonPacketExtension} instance.
      * @throws java.lang.Exception if an error occurs parsing the XML.
      */
-    public ReasonPacketExtension parseExtension(XmlPullParser parser)
+    @Override
+    public ReasonPacketExtension parse(XmlPullParser parser, int depth)
         throws Exception
     {
         String text = null;
@@ -88,7 +89,7 @@ public class ReasonProvider implements PacketExtensionProvider
             }
         }
         ReasonPacketExtension reasonExt
-            = new ReasonPacketExtension(reason, text, (PacketExtension)null);
+            = new ReasonPacketExtension(reason, text, (ExtensionElement)null);
 
         return reasonExt;
 

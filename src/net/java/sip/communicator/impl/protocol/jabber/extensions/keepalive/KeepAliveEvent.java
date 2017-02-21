@@ -18,6 +18,7 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive;
 
 import org.jivesoftware.smack.packet.*;
+import org.jxmpp.jid.*;
 
 /**
  * KeepAlive Event. Events are sent if there are no received packets
@@ -43,7 +44,9 @@ public class KeepAliveEvent
      * Constructs empty packet
      */
     public KeepAliveEvent()
-    {}
+    {
+        super(ELEMENT_NAME, NAMESPACE);
+    }
 
     /**
      * Construct packet for sending.
@@ -51,30 +54,32 @@ public class KeepAliveEvent
      * @param from the address of the contact that the packet coming from.
      * @param to the address of the contact that the packet is to be sent to.
      */
-    public KeepAliveEvent(String from, String to)
+    public KeepAliveEvent(Jid from, Jid to)
     {
+        this();
         if (to == null)
         {
-            throw new IllegalArgumentException("Parameter cannot be null");
+            throw new IllegalArgumentException("to cannot be null");
         }
-        setType(Type.GET);
+
+        setType(Type.get);
         setTo(to);
         setFrom(from);
     }
+
+    @Override
 
     /**
      * Returns the sub-element XML section of this packet
      *
      * @return the packet as XML.
      */
-    @Override
-    public String getChildElementXML()
+    protected IQChildElementXmlStringBuilder getIQChildElementBuilder(IQChildElementXmlStringBuilder buf)
     {
-        StringBuffer buf = new StringBuffer();
         buf.append("<").append(ELEMENT_NAME).
             append(" xmlns=\"").append(NAMESPACE).
             append("\"/>");
 
-        return buf.toString();
+        return buf;
     }
 }

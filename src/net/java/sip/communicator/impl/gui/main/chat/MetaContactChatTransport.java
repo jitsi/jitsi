@@ -403,6 +403,7 @@ public class MetaContactChatTransport
      */
     public void correctInstantMessage(String message, String mimeType,
             String correctedMessageUID)
+        throws OperationFailedException
     {
         if (!allowsMessageCorrections())
         {

@@ -38,6 +38,11 @@ public class JingleInfoQueryIQ
      */
     public static final String ELEMENT_NAME = "query";
 
+    public JingleInfoQueryIQ()
+    {
+        super(ELEMENT_NAME, NAMESPACE);
+    }
+
     /**
      * Returns the sub-element XML section of the IQ packet, or null if
      * there isn't one. Packet extensions must be included, if any are defined.
@@ -45,10 +50,8 @@ public class JingleInfoQueryIQ
      * @return the child element section of the IQ XML.
      */
     @Override
-    public String getChildElementXML()
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder bld)
     {
-        StringBuilder bld = new StringBuilder();
-
         bld.append("<").append(ELEMENT_NAME).append(" xmlns='").
              append(NAMESPACE).append("'");
 
@@ -60,13 +63,13 @@ public class JingleInfoQueryIQ
         {
             bld.append(">");
 
-            for(PacketExtension pe : getExtensions())
+            for(ExtensionElement pe : getExtensions())
             {
                 bld.append(pe.toXML());
             }
 
             bld.append("</").append(ELEMENT_NAME).append(">");
         }
-        return bld.toString();
+        return bld;
     }
 }

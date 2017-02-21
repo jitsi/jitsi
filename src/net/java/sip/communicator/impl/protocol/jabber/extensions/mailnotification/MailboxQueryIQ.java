@@ -38,6 +38,8 @@ public class MailboxQueryIQ extends IQ
     private static final Logger logger =
         Logger.getLogger(MailboxQueryIQ.class);
 
+    public static final String ELEMENT_NAME = "query";
+
     /**
      * The name space for new mail notification packets.
      */
@@ -53,31 +55,35 @@ public class MailboxQueryIQ extends IQ
      */
     private long newerThanTid = -1;
 
+    public MailboxQueryIQ()
+    {
+        super(ELEMENT_NAME, NAMESPACE);
+    }
+
     /**
      * Returns the sub-element XML section of the IQ packet.
      *
      * @return the child element section of the IQ XML. String
      */
     @Override
-    public String getChildElementXML()
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder xml)
     {
         if (logger.isDebugEnabled())
             logger.debug("QueryNotify.getChildElementXML usage");
 
-        StringBuffer xml = new StringBuffer(
-                        "<query xmlns='google:mail:notify'");
+        xml.append("<" + ELEMENT_NAME + " xmlns='" + NAMESPACE + "'");
 
         if(getNewerThanTime() != -1)
             xml.append("newer-than-time='")
-                .append(getNewerThanTime()).append("'");
+                .append(String.valueOf(getNewerThanTime())).append("'");
 
         if(getNewerThanTid() != -1)
             xml.append("newer-than-tid='")
-                .append(getNewerThanTid()).append("'");
+                .append(String.valueOf(getNewerThanTid())).append("'");
 
         xml.append("/>");
 
-        return xml.toString();
+        return xml;
     }
 
     /**

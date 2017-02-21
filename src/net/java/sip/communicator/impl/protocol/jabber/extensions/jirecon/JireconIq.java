@@ -92,11 +92,14 @@ public class JireconIq
      */
     private Status status = Status.UNDEFINED;
 
-    @Override
-    public String getChildElementXML()
+    public JireconIq()
     {
-        StringBuilder xml = new StringBuilder();
+        super(ELEMENT_NAME, NAMESPACE);
+    }
 
+    @Override
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder xml)
+    {
         xml.append('<').append(ELEMENT_NAME);
         xml.append(" xmlns='").append(NAMESPACE).append("' ");
 
@@ -115,11 +118,11 @@ public class JireconIq
         printStringAttribute(xml, MUCJID_ATTR_NAME, mucJid);
         printStringAttribute(xml, OUTPUT_ATTR_NAME, output);
 
-        Collection<PacketExtension> extensions =  getExtensions();
+        Collection<ExtensionElement> extensions =  getExtensions();
         if (extensions.size() > 0)
         {
             xml.append(">");
-            for (PacketExtension extension : extensions)
+            for (ExtensionElement extension : extensions)
             {
                 xml.append(extension.toXML());
             }
@@ -130,11 +133,11 @@ public class JireconIq
             xml.append("/>");
         }
 
-        return xml.toString();
+        return xml;
     }
 
     private void printStringAttribute(
-            StringBuilder xml, String attrName, String attr)
+        IQChildElementXmlStringBuilder xml, String attrName, String attr)
     {
         if (!StringUtils.isNullOrEmpty(attr))
             xml.append(attrName).append("='")

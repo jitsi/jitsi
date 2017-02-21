@@ -41,9 +41,8 @@ public class OperationSetServerStoredContactInfoJabberImpl
      * If we got several listeners for the same contact lets retrieve once
      * but deliver result to all.
      */
-    private Hashtable<String, List<DetailsResponseListener>>
-        listenersForDetails =
-            new Hashtable<String, List<DetailsResponseListener>>();
+    private final Hashtable<String, List<DetailsResponseListener>>
+        listenersForDetails = new Hashtable<>();
 
     protected OperationSetServerStoredContactInfoJabberImpl(
         InfoRetreiver infoRetreiver)
@@ -74,13 +73,16 @@ public class OperationSetServerStoredContactInfoJabberImpl
         Contact contact,
         Class<T> detailClass)
     {
-        if(isPrivateMessagingContact(contact))
+        if(isPrivateMessagingContact(contact) || !(contact instanceof ContactJabberImpl))
+        {
             return new LinkedList<T>().iterator();
+        }
 
         List<GenericDetail> details
-            = infoRetreiver.getContactDetails(contact.getAddress());
-        List<T> result = new LinkedList<T>();
-
+            = infoRetreiver.getContactDetails(((ContactJabberImpl) contact)
+                .getAddressAsJid()
+                .asEntityBareJidOrThrow());
+        List<T> result = new LinkedList<>();
         if(details == null)
             return result.iterator();
 
@@ -108,12 +110,14 @@ public class OperationSetServerStoredContactInfoJabberImpl
         Contact contact,
         Class<? extends GenericDetail> detailClass)
     {
-        if(isPrivateMessagingContact(contact))
+        if(isPrivateMessagingContact(contact) || !(contact instanceof ContactJabberImpl))
             return new LinkedList<GenericDetail>().iterator();
 
         List<GenericDetail> details
-            = infoRetreiver.getContactDetails(contact.getAddress());
-        List<GenericDetail> result = new LinkedList<GenericDetail>();
+            = infoRetreiver.getContactDetails(((ContactJabberImpl) contact)
+                .getAddressAsJid()
+                .asEntityBareJidOrThrow());
+        List<GenericDetail> result = new LinkedList<>();
 
         if(details == null)
             return result.iterator();
@@ -134,16 +138,18 @@ public class OperationSetServerStoredContactInfoJabberImpl
      */
     public Iterator<GenericDetail> getAllDetailsForContact(Contact contact)
     {
-        if(isPrivateMessagingContact(contact))
+        if(isPrivateMessagingContact(contact) ||!(contact instanceof ContactJabberImpl))
             return new LinkedList<GenericDetail>().iterator();
 
         List<GenericDetail> details
-            = infoRetreiver.getContactDetails(contact.getAddress());
+            = infoRetreiver.getContactDetails(((ContactJabberImpl) contact)
+                .getAddressAsJid()
+                .asEntityBareJidOrThrow());
 
         if(details == null)
             return new LinkedList<GenericDetail>().iterator();
         else
-            return new LinkedList<GenericDetail>(details).iterator();
+            return new LinkedList<>(details).iterator();
     }
 
     /**
@@ -155,8 +161,14 @@ public class OperationSetServerStoredContactInfoJabberImpl
     public Iterator<GenericDetail> requestAllDetailsForContact(
         final Contact contact, DetailsResponseListener listener)
     {
+        if (!(contact instanceof ContactJabberImpl))
+        {
+            return null;
+        }
+
         List<GenericDetail> res =
-            infoRetreiver.getCachedContactDetails(contact.getAddress());
+            infoRetreiver.getCachedContactDetails(((ContactJabberImpl) contact)
+                .getAddressAsJid().asEntityBareJidOrThrow());
 
         if(res != null)
         {
@@ -189,7 +201,9 @@ public class OperationSetServerStoredContactInfoJabberImpl
             public void run()
             {
                 List<GenericDetail> result =
-                    infoRetreiver.retrieveDetails(contact.getAddress());
+                    infoRetreiver.retrieveDetails(((ContactJabberImpl) contact)
+                        .getAddressAsJid()
+                        .asEntityBareJidOrThrow());
 
                 List<DetailsResponseListener> listeners;
 

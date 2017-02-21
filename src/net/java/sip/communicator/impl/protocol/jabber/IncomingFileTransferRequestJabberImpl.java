@@ -31,6 +31,7 @@ import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.filetransfer.*;
+import org.jxmpp.jid.*;
 
 /**
  * Jabber implementation of the incoming file transfer request
@@ -81,8 +82,7 @@ public class IncomingFileTransferRequestJabberImpl
         this.fileTransferOpSet = fileTransferOpSet;
         this.fileTransferRequest = fileTransferRequest;
 
-        String fromUserID
-            = fileTransferRequest.getRequestor();
+        Jid fromUserID = fileTransferRequest.getRequestor();
 
         OperationSetPersistentPresenceJabberImpl opSetPersPresence
             = (OperationSetPersistentPresenceJabberImpl)
@@ -99,7 +99,7 @@ public class IncomingFileTransferRequestJabberImpl
 
             if(mucOpSet != null)
                 privateContactRoom = mucOpSet
-                    .getChatRoom(StringUtils.parseBareAddress(fromUserID));
+                    .getChatRoom(fromUserID.asBareJid());
             if(privateContactRoom != null)
             {
                 sender = ((OperationSetPersistentPresenceJabberImpl)
@@ -183,7 +183,7 @@ public class IncomingFileTransferRequestJabberImpl
                 .FileTransferProgressThread(
                 jabberTransfer, incomingTransfer, getFileSize()).start();
         }
-        catch (XMPPException e)
+        catch (IOException | SmackException e)
         {
             if (logger.isDebugEnabled())
                 logger.debug("Receiving file failed.", e);
@@ -196,8 +196,20 @@ public class IncomingFileTransferRequestJabberImpl
      * Refuses the file transfer request.
      */
     public void rejectFile()
+        throws OperationFailedException
     {
-        fileTransferRequest.reject();
+        try
+        {
+            fileTransferRequest.reject();
+        }
+        catch (SmackException | InterruptedException e)
+        {
+            throw new OperationFailedException(
+                "Could not reject file transfer",
+                OperationFailedException.GENERAL_ERROR,
+                e
+            );
+        }
 
         fileTransferOpSet.fireFileTransferRequestRejected(
             new FileTransferRequestEvent(fileTransferOpSet, this, new Date()));
@@ -234,8 +246,8 @@ public class IncomingFileTransferRequestJabberImpl
         {
             jabberProvider.getConnection().addPacketListener(
                 new ThumbnailResponseListener(),
-                new AndFilter(  new PacketTypeFilter(IQ.class),
-                                new IQTypeFilter(IQ.Type.RESULT)));
+                new AndFilter(new StanzaTypeFilter(IQ.class),
+                    IQTypeFilter.RESULT));
         }
     }
 
@@ -245,9 +257,9 @@ public class IncomingFileTransferRequestJabberImpl
      * and a file transfer request event is fired when the thumbnail is
      * extracted.
      */
-    private class ThumbnailResponseListener implements PacketListener
+    private class ThumbnailResponseListener implements StanzaListener
     {
-        public void processPacket(Packet packet)
+        public void processStanza(Stanza packet)
         {
             // If this is not an IQ packet, we're not interested.
             if (!(packet instanceof ThumbnailIQ))

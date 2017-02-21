@@ -29,13 +29,13 @@ import org.xmlpull.v1.*;
  * Parses {@link JibriIq}.
  */
 public class JibriIqProvider
-    implements IQProvider
+    extends IQProvider<JibriIq>
 {
     /**
      * {@inheritDoc}
      */
     @Override
-    public IQ parseIQ(XmlPullParser parser)
+    public JibriIq parse(XmlPullParser parser, int depth)
         throws Exception
     {
         String namespace = parser.getNamespace();
@@ -89,7 +89,7 @@ public class JibriIqProvider
 
                     if ("error".equals(name))
                     {
-                        XMPPError error = PacketParserUtils.parseError(parser);
+                        XMPPError error = PacketParserUtils.parseError(parser).build();
                         iq.setXMPPError(error);
                     }
                     break;

@@ -25,7 +25,7 @@ import org.jivesoftware.smack.packet.*;
  * @author Guillaume Schreiner
  */
 public class GeolocationPacketExtension
-    implements PacketExtension
+    implements ExtensionElement
 {
     //Names of keys used for storing geolocation data in geolocation Maps.
 
@@ -252,7 +252,7 @@ public class GeolocationPacketExtension
     private String timestamp = null;
 
     /**
-     * Returns the XML representation of the PacketExtension.
+     * Returns the XML representation of the ExtensionElement.
      *
      * @return the packet extension as XML.
      */

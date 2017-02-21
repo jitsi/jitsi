@@ -20,7 +20,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 /**
- * The redirect <tt>PacketExtension</tt>.
+ * The redirect <tt>ExtensionElement</tt>.
  *
  * @author Sebastien Vincent
  */

@@ -17,7 +17,10 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.caps;
 
+import org.jxmpp.jid.Jid;
+
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a listener of events notifying about changes in the list of user
@@ -36,7 +39,7 @@ public interface UserCapsNodeListener
      * @param node the entity caps node#ver
      * @param online indicates if the user for which we're notified is online
      */
-    public void userCapsNodeAdded(String user, ArrayList<String> fullJids,
+    public void userCapsNodeAdded(Jid user, List<Jid> fullJids,
         String node, boolean online);
 
     /**
@@ -48,6 +51,6 @@ public interface UserCapsNodeListener
      * @param node the entity caps node#ver
      * @param online indicates if the user for which we're notified is online
      */
-    public void userCapsNodeRemoved(String user, ArrayList<String> fullJids,
-        String node, boolean online);
+    public void userCapsNodeRemoved(Jid user, List<Jid> fullJids,
+                                    String node, boolean online);
 }

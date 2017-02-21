@@ -26,7 +26,7 @@ import org.xmlpull.v1.*;
  * @author Sebastien Vincent
  */
 public class MediaProvider
-    implements PacketExtensionProvider
+    extends ExtensionElementProvider
 {
     /**
      * Parses a media extension sub-packet and creates a {@link
@@ -42,7 +42,8 @@ public class MediaProvider
      * @return a new {@link MediaPacketExtension} instance.
      * @throws java.lang.Exception if an error occurs parsing the XML.
      */
-    public MediaPacketExtension parseExtension(XmlPullParser parser)
+    @Override
+    public MediaPacketExtension parse(XmlPullParser parser, int depth)
         throws Exception
     {
         boolean done = false;

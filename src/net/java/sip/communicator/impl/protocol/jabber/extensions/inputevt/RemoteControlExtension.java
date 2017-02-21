@@ -28,7 +28,7 @@ import org.jivesoftware.smack.packet.*;
  * @author Sebastien Vincent
  */
 public class RemoteControlExtension
-    implements PacketExtension
+    implements ExtensionElement
 {
     /**
      * AWT event that represents our <tt>RemoteControlExtension</tt>.
@@ -97,7 +97,7 @@ public class RemoteControlExtension
     }
 
     /**
-     * Get the element name of the <tt>PacketExtension</tt>.
+     * Get the element name of the <tt>ExtensionElement</tt>.
      *
      * @return "remote-control"
      */

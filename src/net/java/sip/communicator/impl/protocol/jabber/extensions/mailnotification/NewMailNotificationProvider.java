@@ -33,7 +33,7 @@ import org.xmlpull.v1.*;
  * @author Alain Knaebel
  */
 public class NewMailNotificationProvider
-        implements IQProvider
+        extends IQProvider
 {
     /**
      * Logger for this class
@@ -51,7 +51,8 @@ public class NewMailNotificationProvider
      * the <tt>XmlPullParser</tt>.
      * @throws Exception if an error occurs parsing the XML.
      */
-    public IQ parseIQ(final XmlPullParser parser) throws Exception
+    @Override
+    public IQ parse(final XmlPullParser parser, int depth) throws Exception
     {
         if (logger.isDebugEnabled())
             logger.debug("NewMailNotificationProvider.getChildElementXML usage");

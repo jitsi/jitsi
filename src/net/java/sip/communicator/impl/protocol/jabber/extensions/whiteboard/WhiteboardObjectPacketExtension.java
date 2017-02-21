@@ -27,13 +27,14 @@ import net.java.sip.communicator.util.*;
 import org.jitsi.util.xml.*;
 import org.jivesoftware.smack.packet.*;
 import org.w3c.dom.*;
+import org.w3c.dom.Element;
 
 /**
  * WhiteboardObjectPacketExtension
  *
  * @author Julien Waechter
  */
-public class WhiteboardObjectPacketExtension implements PacketExtension
+public class WhiteboardObjectPacketExtension implements ExtensionElement
 {
     private static final Logger logger =
       Logger.getLogger (WhiteboardObjectPacketExtension.class);

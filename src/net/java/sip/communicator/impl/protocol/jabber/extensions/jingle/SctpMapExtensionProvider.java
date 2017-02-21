@@ -29,14 +29,14 @@ import org.xmlpull.v1.*;
  * @see SctpMapExtension
  */
 public class SctpMapExtensionProvider
-    implements PacketExtensionProvider
+    extends ExtensionElementProvider
 {
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public PacketExtension parseExtension(XmlPullParser parser)
+    public ExtensionElement parse(XmlPullParser parser, int depth)
         throws Exception
     {
         SctpMapExtension result = new SctpMapExtension();

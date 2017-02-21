@@ -26,8 +26,10 @@ import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
+import org.jxmpp.jid.*;
 
 /**
  * Implements <tt>OperationSetVideoBridge</tt> for Jabber.
@@ -38,7 +40,7 @@ import org.jivesoftware.smack.packet.*;
 public class OperationSetVideoBridgeImpl
     implements OperationSetVideoBridge,
                PacketFilter,
-               PacketListener,
+               StanzaListener,
                RegistrationStateChangeListener
 {
     /**
@@ -69,7 +71,7 @@ public class OperationSetVideoBridgeImpl
     }
 
     /**
-     * Implements {@link PacketFilter}. Determines whether this instance is
+     * Implements {@link StanzaFilter}. Determines whether this instance is
      * interested in a specific {@link Packet}.
      * <tt>OperationSetVideoBridgeImpl</tt> returns <tt>true</tt> if the
      * specified <tt>packet</tt> is a {@link ColibriConferenceIQ}; otherwise,
@@ -80,7 +82,8 @@ public class OperationSetVideoBridgeImpl
      * @return <tt>true</tt> if the specified <tt>packet</tt> is a
      * <tt>ColibriConferenceIQ</tt>; otherwise, <tt>false</tt>
      */
-    public boolean accept(Packet packet)
+    @Override
+    public boolean accept(Stanza packet)
     {
         return (packet instanceof ColibriConferenceIQ);
     }
@@ -144,7 +147,7 @@ public class OperationSetVideoBridgeImpl
      */
     public boolean isActive()
     {
-        String jitsiVideobridge = protocolProvider.getJitsiVideobridge();
+        Jid jitsiVideobridge = protocolProvider.getJitsiVideobridge();
 
         return ((jitsiVideobridge != null) && (jitsiVideobridge.length() > 0));
     }
@@ -170,7 +173,7 @@ public class OperationSetVideoBridgeImpl
          * updates in the states of (colibri) conferences organized by the
          * application.
          */
-        if (IQ.Type.SET.equals(conferenceIQ.getType())
+        if (IQ.Type.set.equals(conferenceIQ.getType())
                 && conferenceIQ.getID() != null)
         {
             OperationSetBasicTelephony<?> basicTelephony
@@ -211,15 +214,16 @@ public class OperationSetVideoBridgeImpl
     }
 
     /**
-     * Implements {@link PacketListener}. Notifies this instance that a specific
+     * Implements {@link StanzaListener}. Notifies this instance that a specific
      * {@link Packet} (which this instance has already expressed interest into
-     * by returning <tt>true</tt> from {@link #accept(Packet)}) has been
+     * by returning <tt>true</tt> from {@link #accept(Stanza)}) has been
      * received.
      *
      * @param packet the <tt>Packet</tt> which has been received and which this
      * instance is given a chance to process
      */
-    public void processPacket(Packet packet)
+    public void processStanza(Stanza packet)
+        throws NotConnectedException, InterruptedException
     {
         /*
          * As we do elsewhere, acknowledge the receipt of the Packet first and
@@ -227,8 +231,8 @@ public class OperationSetVideoBridgeImpl
          */
         IQ iq = (IQ) packet;
 
-        if (iq.getType() == IQ.Type.SET)
-            protocolProvider.getConnection().sendPacket(IQ.createResultIQ(iq));
+        if (iq.getType() == IQ.Type.set)
+            protocolProvider.getConnection().sendStanza(IQ.createResultIQ(iq));
 
         /*
          * Now that the acknowledging is out of the way, do go about our
@@ -287,7 +291,7 @@ public class OperationSetVideoBridgeImpl
         }
         else if (RegistrationState.UNREGISTERED.equals(registrationState))
         {
-            Connection connection = protocolProvider.getConnection();
+            XMPPConnection connection = protocolProvider.getConnection();
 
             if (connection != null)
                 connection.removePacketListener(this);

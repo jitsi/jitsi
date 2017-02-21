@@ -35,5 +35,6 @@ public interface OperationSetMessageCorrection
      * @param correctedMessageUID The ID of the message being replaced.
      */
     public void correctMessage(Contact to, ContactResource resource,
-        Message message, String correctedMessageUID);
+        Message message, String correctedMessageUID)
+        throws OperationFailedException;
 }

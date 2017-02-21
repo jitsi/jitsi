@@ -50,19 +50,25 @@ public class NewMailNotificationIQ extends IQ
      */
     public static final String ELEMENT_NAME = "new-mail";
 
+    public NewMailNotificationIQ()
+    {
+        super(ELEMENT_NAME, NAMESPACE);
+    }
+
     /**
      * Returns the sub-element XML section of the IQ packet.
      *
      * @return the child element section of the IQ XML
      */
     @Override
-    public String getChildElementXML()
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
     {
         if (logger.isTraceEnabled())
             logger.trace("NewMailNotification.getChildElementXML usage");
-        return "<iq type='"+"result"+"' "+
+        buf.append("<iq type='"+"result"+"' "+
                 "from='"+getFrom()+"' "+
                 "to='"+getTo()+"' "+
-                "id='"+getPacketID()+"' />";
+                "id='"+getStanzaId()+"' />");
+        return buf;
     }
 }

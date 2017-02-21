@@ -124,7 +124,8 @@ public interface OperationSetMultiUserChat
      * @param rejectReason the reason to reject the invitation (optional)
      */
     public void rejectInvitation(ChatRoomInvitation invitation,
-        String rejectReason);
+        String rejectReason)
+        throws OperationFailedException;
 
     /**
      * Adds a listener to invitation notifications. The listener will be fired

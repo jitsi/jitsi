@@ -136,7 +136,7 @@ public class SIPDialogIDPacketExtension
                     toTag).append("</").append(
                             ELEMENT_TOTAG).append(">");
 
-        for(PacketExtension ext : getChildExtensions())
+        for(ExtensionElement ext : getChildExtensions())
         {
             bldr.append(ext.toXML());
         }

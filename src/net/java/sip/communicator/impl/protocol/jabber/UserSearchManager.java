@@ -20,10 +20,14 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.usersearch.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jivesoftware.smackx.disco.packet.*;
+import org.jivesoftware.smackx.search.*;
+import org.jivesoftware.smackx.xdata.*;
+import org.jxmpp.jid.*;
 
 import java.util.*;
 
@@ -37,7 +41,7 @@ public class UserSearchManager {
     /**
      * The object that represents the connection to the server.
      */
-    private Connection con;
+    private XMPPConnection con;
 
     /**
      * Last received search form from the server.
@@ -47,7 +51,7 @@ public class UserSearchManager {
     /**
      * The user search service name.
      */
-    private String searchService;
+    private Jid searchService;
 
     /**
      * Creates a new UserSearchManager.
@@ -55,7 +59,7 @@ public class UserSearchManager {
      * @param con the Connection to use.
      * @param searchService the user search service name.
      */
-    public UserSearchManager(Connection con, String searchService) {
+    public UserSearchManager(XMPPConnection con, Jid searchService) {
         this.con = con;
         this.searchService = searchService;
     }
@@ -67,10 +71,11 @@ public class UserSearchManager {
      * @return a list with the available user search service names for a given
      * provider.
      */
-    public static List<String> getAvailableServiceNames(
+    public static List<Jid> getAvailableServiceNames(
         ProtocolProviderServiceJabberImpl provider)
+        throws NotConnectedException, InterruptedException, NoResponseException
     {
-        final List<String> searchServices = new ArrayList<String>();
+        final List<Jid> searchServices = new ArrayList<>();
         ScServiceDiscoveryManager discoManager = provider.getDiscoveryManager();
         DiscoverItems items;
         try
@@ -82,10 +87,8 @@ public class UserSearchManager {
         {
             return searchServices;
         }
-        Iterator<DiscoverItems.Item> iter = items.getItems();
-        while (iter.hasNext())
+        for (DiscoverItems.Item item : items.getItems())
         {
-            DiscoverItems.Item item = iter.next();
             try
             {
                 DiscoverInfo info;
@@ -97,8 +100,8 @@ public class UserSearchManager {
                     searchServices.add(item.getEntityID());
                 }
             }
-            catch (Exception e) {
-                continue;
+            catch (Exception e)
+            {
             }
         }
         return searchServices;
@@ -110,25 +113,27 @@ public class UserSearchManager {
      * @return the form to fill out to perform a search.
      * @throws XMPPException thrown if a server error has occurred.
      */
-    private void getSearchForm() throws XMPPException {
+    private void getSearchForm()
+        throws XMPPException, NotConnectedException, InterruptedException
+    {
         UserSearchIQ search = new UserSearchIQ();
-        search.setType(IQ.Type.GET);
+        search.setType(IQ.Type.get);
         search.setTo(searchService);
 
-        PacketCollector collector = con.createPacketCollector(
-            new PacketIDFilter(search.getPacketID()));
-        con.sendPacket(search);
+        StanzaCollector collector = con.createStanzaCollector(
+            new StanzaIdFilter(search.getStanzaId()));
+        con.sendStanza(search);
 
         IQ response = (IQ) collector.nextResult(
-            SmackConfiguration.getPacketReplyTimeout());
+            SmackConfiguration.getDefaultPacketReplyTimeout());
 
         // Cancel the collector.
         collector.cancel();
         if (response == null) {
-            throw new XMPPException("No response from server on status set.");
+            throw new JitsiXmppException("No response from server on status set.");
         }
         if (response.getError() != null) {
-            throw new XMPPException(response.getError());
+            throw new JitsiXmppException(response.getError().toString());
         }
         userSearchForm = (UserSearchIQ)response;
     }
@@ -141,26 +146,25 @@ public class UserSearchManager {
      * results.
      * @throws XMPPException thrown if a server error has occurred.
      */
-    public ReportedData searchForString(String searchedString) throws XMPPException
+    public ReportedData searchForString(String searchedString)
+        throws XMPPException, NotConnectedException, InterruptedException
     {
         if(userSearchForm == null)
             getSearchForm();
         UserSearchIQ search = new UserSearchIQ();
-        search.setType(IQ.Type.SET);
+        search.setType(IQ.Type.set);
         search.setTo(searchService);
 
         Form form = userSearchForm.getAnswerForm();
         if(form != null)
         {
-            Iterator<FormField> fields = form.getFields();
-            while (fields.hasNext())
+            for (FormField formField : form.getFields())
             {
-                FormField formField = fields.next();
-                if(formField.getType().equals(FormField.TYPE_BOOLEAN))
+                if(formField.getType().equals(FormField.Type.bool))
                 {
                     form.setAnswer(formField.getVariable(), true);
                 }
-                else if(formField.getType().equals(FormField.TYPE_TEXT_SINGLE))
+                else if(formField.getType().equals(FormField.Type.text_single))
                 {
                     form.setAnswer(formField.getVariable(), searchedString);
                 }
@@ -173,21 +177,21 @@ public class UserSearchManager {
                 search.addField(field, searchedString);
         }
 
-        PacketCollector collector = con.createPacketCollector(
-            new PacketIDFilter(search.getPacketID()));
+        StanzaCollector collector = con.createStanzaCollector(
+            new StanzaIdFilter(search.getStanzaId()));
 
-        con.sendPacket(search);
+        con.sendStanza(search);
 
         UserSearchIQ response = (UserSearchIQ) collector.nextResult(
-            SmackConfiguration.getPacketReplyTimeout());
+            SmackConfiguration.getDefaultPacketReplyTimeout());
 
         // Cancel the collector.
         collector.cancel();
         if (response == null) {
-            throw new XMPPException("No response from server on status set.");
+            throw new JitsiXmppException("No response from server on status set.");
         }
         if (response.getError() != null) {
-            throw new XMPPException(response.getError());
+            throw new JitsiXmppException(response.getError().toString());
         }
 
         return response.getData();

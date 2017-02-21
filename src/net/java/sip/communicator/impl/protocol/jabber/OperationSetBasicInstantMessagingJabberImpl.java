@@ -29,12 +29,24 @@ import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jivesoftware.smackx.delay.*;
+import org.jivesoftware.smackx.delay.packet.*;
+import org.jivesoftware.smackx.disco.packet.*;
+import org.jivesoftware.smackx.xevent.*;
+import org.jivesoftware.smackx.xhtmlim.*;
+import org.jivesoftware.smackx.xhtmlim.packet.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.impl.*;
+import org.jxmpp.jid.parts.*;
+import org.jxmpp.stringprep.*;
+
+import static org.jivesoftware.smack.packet.XMPPError.Condition.*;
 
 /**
  * A straightforward implementation of the basic instant messaging operation
@@ -68,14 +80,14 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * target a specific resource (rather than sending a message to all logged
      * instances of a user).
      */
-    private Map<String, StoredThreadID> jids
-        = new Hashtable<String, StoredThreadID>();
+    private final Map<BareJid, StoredThreadID> jids
+        = new Hashtable<>();
 
     /**
      * The most recent full JID used for the contact address.
      */
-    private Map<String, String> recentJIDForAddress
-        = new Hashtable<String, String>();
+    private Map<BareJid, FullJid> recentJIDForAddress
+        = new Hashtable<>();
     /**
      * The smackMessageListener instance listens for incoming messages.
      * Keep a reference of it so if anything goes wrong we don't add
@@ -153,7 +165,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * List of filters to be used to filter which messages to handle
      * current Operation Set.
      */
-    private List<PacketFilter> packetFilters = new ArrayList<PacketFilter>();
+    private List<StanzaFilter> packetFilters = new ArrayList<StanzaFilter>();
 
     /**
      * Whether carbon is enabled or not.
@@ -173,15 +185,15 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
         packetFilters.add(new GroupMessagePacketFilter());
         packetFilters.add(
-            new PacketTypeFilter(org.jivesoftware.smack.packet.Message.class));
+            new StanzaTypeFilter(org.jivesoftware.smack.packet.Message.class));
 
         provider.addRegistrationStateChangeListener(
                         new RegistrationStateListener());
 
-        ProviderManager man = ProviderManager.getInstance();
         MessageCorrectionExtensionProvider extProvider =
                 new MessageCorrectionExtensionProvider();
-        man.addExtensionProvider(MessageCorrectionExtension.ELEMENT_NAME,
+        ProviderManager.addExtensionProvider(
+                MessageCorrectionExtension.ELEMENT_NAME,
                 MessageCorrectionExtension.NAMESPACE,
                 extProvider);
     }
@@ -292,10 +304,19 @@ public class OperationSetBasicInstantMessagingJabberImpl
             return true;
         else if(contentType.equals(HTML_MIME_TYPE))
         {
-            String toJID = recentJIDForAddress.get(contact.getAddress());
+            Jid contactJid;
+            try
+            {
+                contactJid = JidCreate.from(contact.getAddress());
+            }
+            catch (XmppStringprepException e)
+            {
+                return false;
+            }
 
+            Jid toJID = recentJIDForAddress.get(contactJid);
             if (toJID == null)
-                toJID = contact.getAddress();
+                toJID = contactJid;
 
             return jabberProvider.isFeatureListSupported(
                         toJID,
@@ -309,20 +330,20 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * Remove from our <tt>jids</tt> map all entries that have not seen any
      * activity (i.e. neither outgoing nor incoming messags) for more than
      * JID_INACTIVITY_TIMEOUT. Note that this method is not synchronous and that
-     * it is only meant for use by the {@link #getThreadIDForAddress(String)} and
-     * {@link #putJidForAddress(String, String)}
+     * it is only meant for use by the {@link #getThreadIDForAddress(BareJid)} and
+     * {@link #putJidForAddress(FullJid, String)}
      */
     private void purgeOldJids()
     {
         long currentTime = System.currentTimeMillis();
 
-        Iterator<Map.Entry<String, StoredThreadID>> entries
+        Iterator<Map.Entry<BareJid, StoredThreadID>> entries
             = jids.entrySet().iterator();
 
 
         while( entries.hasNext() )
         {
-            Map.Entry<String, StoredThreadID> entry = entries.next();
+            Map.Entry<BareJid, StoredThreadID> entry = entries.next();
             StoredThreadID target = entry.getValue();
 
             if (currentTime - target.lastUpdatedTime
@@ -344,7 +365,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * contacted us from or <tt>null</tt> if we don't have a jid for the
      * specified <tt>address</tt> yet.
      */
-    String getThreadIDForAddress(String jid)
+    String getThreadIDForAddress(BareJid jid)
     {
         synchronized(jids)
         {
@@ -370,21 +391,21 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * @param jid the jid (i.e. address/resource) that the contact with the
      * specified <tt>address</tt> last contacted us from.
      */
-    private void putJidForAddress(String jid, String threadID)
+    private void putJidForAddress(FullJid jid, String threadID)
     {
         synchronized(jids)
         {
             purgeOldJids();
 
-            StoredThreadID ta = jids.get(jid);
+            StoredThreadID ta = jids.get(jid.asBareJid());
 
             if (ta == null)
             {
                 ta = new StoredThreadID();
-                jids.put(jid, ta);
+                jids.put(jid.asBareJid(), ta);
             }
 
-            recentJIDForAddress.put(StringUtils.parseBareAddress(jid), jid);
+            recentJIDForAddress.put(jid.asBareJid(), jid);
 
             ta.lastUpdatedTime = System.currentTimeMillis();
             ta.threadID = threadID;
@@ -407,7 +428,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private MessageDeliveredEvent sendMessage(  Contact to,
                                                 ContactResource toResource,
                                                 Message message,
-                                                PacketExtension[] extensions)
+                                                ExtensionElement[] extensions)
+        throws OperationFailedException
     {
         if( !(to instanceof ContactJabberImpl) )
            throw new IllegalArgumentException(
@@ -419,13 +441,12 @@ public class OperationSetBasicInstantMessagingJabberImpl
         org.jivesoftware.smack.packet.Message msg =
             new org.jivesoftware.smack.packet.Message();
 
-        String toJID = null;
-
+        Jid toJID = null;
         if (toResource != null)
         {
             if(toResource.equals(ContactResource.BASE_RESOURCE))
             {
-                toJID = to.getAddress();
+                toJID = ((ContactJabberImpl) to).getAddressAsJid();
             }
             else
                 toJID =
@@ -434,13 +455,13 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
         if (toJID == null)
         {
-            toJID = to.getAddress();
+            toJID = ((ContactJabberImpl) to).getAddressAsJid();
         }
 
-        msg.setPacketID(message.getMessageUID());
+        msg.setStanzaId(message.getMessageUID());
         msg.setTo(toJID);
 
-        for (PacketExtension ext : extensions)
+        for (ExtensionElement ext : extensions)
         {
             msg.addExtension(ext);
         }
@@ -452,7 +473,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
         MessageDeliveredEvent msgDeliveryPendingEvt
             = new MessageDeliveredEvent(message, to, toResource);
 
-        MessageDeliveredEvent[] transformedEvents = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
+        MessageDeliveredEvent[] transformedEvents
+            = messageDeliveryPendingTransform(msgDeliveryPendingEvt);
 
         if (transformedEvents == null || transformedEvents.length == 0)
             return null;
@@ -471,8 +493,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     .isFeatureListSupported(toJID, HTML_NAMESPACE))
                 {
                     // Add the XHTML text to the message
-                    XHTMLManager.addBody(msg, OPEN_BODY_TAG + content
-                        + CLOSE_BODY_TAG);
+                    XHTMLManager.addBody(msg, new XHTMLText(null, "en")
+                        .append(content).appendCloseBodyTag());
                 }
             }
             else
@@ -491,7 +513,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
             MessageEventManager.addNotificationsRequests(msg, true, false,
                 false, true);
 
-            String threadID = getThreadIDForAddress(toJID);
+            String threadID = getThreadIDForAddress(toJID.asBareJid());
             if (threadID == null)
                 threadID = nextThreadID();
 
@@ -499,9 +521,19 @@ public class OperationSetBasicInstantMessagingJabberImpl
             msg.setType(org.jivesoftware.smack.packet.Message.Type.chat);
             msg.setFrom(jabberProvider.getConnection().getUser());
 
-            jabberProvider.getConnection().sendPacket(msg);
+            try
+            {
+                jabberProvider.getConnection().sendStanza(msg);
+            }
+            catch (NotConnectedException | InterruptedException e)
+            {
+                throw new OperationFailedException(
+                    "Could not send message",
+                    OperationFailedException.GENERAL_ERROR,
+                    e);
+            }
 
-            putJidForAddress(toJID, threadID);
+            putJidForAddress(toJID.asFullJidIfPossible(), threadID);
         }
 
         return new MessageDeliveredEvent(message, to, toResource);
@@ -519,7 +551,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * instance of ContactImpl.
      */
     public void sendInstantMessage(Contact to, Message message)
-        throws IllegalStateException, IllegalArgumentException
+        throws IllegalStateException,
+               IllegalArgumentException,
+               OperationFailedException
     {
         sendInstantMessage(to, null, message);
     }
@@ -540,11 +574,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
     public void sendInstantMessage( Contact to,
                                     ContactResource toResource,
                                     Message message)
-        throws  IllegalStateException,
-                IllegalArgumentException
+        throws IllegalStateException,
+               IllegalArgumentException, OperationFailedException
     {
         MessageDeliveredEvent msgDelivered =
-            sendMessage(to, toResource, message, new PacketExtension[0]);
+            sendMessage(to, toResource, message, new ExtensionElement[0]);
 
         fireMessageEvent(msgDelivered);
     }
@@ -560,8 +594,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
     public void correctMessage(
         Contact to, ContactResource resource,
         Message message, String correctedMessageUID)
+        throws OperationFailedException
     {
-        PacketExtension[] exts = new PacketExtension[1];
+        ExtensionElement[] exts = new ExtensionElement[1];
         exts[0] = new MessageCorrectionExtension(correctedMessageUID);
         MessageDeliveredEvent msgDelivered
             = sendMessage(to, resource, message, exts);
@@ -633,7 +668,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                         smackMessageListener,
                         new AndFilter(
                             packetFilters.toArray(
-                                new PacketFilter[packetFilters.size()])));
+                                new StanzaFilter[packetFilters.size()])));
             }
             else if (evt.getNewState() == RegistrationState.REGISTERED)
             {
@@ -702,28 +737,27 @@ public class OperationSetBasicInstantMessagingJabberImpl
      */
     private void enableDisableCarbon(final boolean enable)
     {
-        IQ iq = new IQ(){
-
+        IQ iq = new IQ(enable? "enable" : "disable","urn:xmpp:carbons:2")
+        {
             @Override
-            public String getChildElementXML()
+            protected IQChildElementXmlStringBuilder getIQChildElementBuilder(IQChildElementXmlStringBuilder buf)
             {
-                return "<" + (enable? "enable" : "disable") + " xmlns='urn:xmpp:carbons:2' />";
+                return buf;
             }
-
         };
 
-        Packet response = null;
+        Stanza response = null;
         try
         {
-            PacketCollector packetCollector
-                = jabberProvider.getConnection().createPacketCollector(
-                        new PacketIDFilter(iq.getPacketID()));
+            StanzaCollector packetCollector
+                = jabberProvider.getConnection().createStanzaCollector(
+                        new StanzaIdFilter(iq.getStanzaId()));
             iq.setFrom(jabberProvider.getOurJID());
-            iq.setType(IQ.Type.SET);
-            jabberProvider.getConnection().sendPacket(iq);
+            iq.setType(IQ.Type.set);
+            jabberProvider.getConnection().sendStanza(iq);
             response
                 = packetCollector.nextResult(
-                        SmackConfiguration.getPacketReplyTimeout());
+                        SmackConfiguration.getDefaultPacketReplyTimeout());
 
             packetCollector.cancel();
         }
@@ -746,7 +780,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                         + response.getError());
         }
         else if (!(response instanceof IQ)
-            || !((IQ) response).getType().equals(IQ.Type.RESULT))
+            || !((IQ) response).getType().equals(IQ.Type.result))
         {
             logger.error(
                     "Failed to enable carbon. The response is not correct.");
@@ -766,11 +800,16 @@ public class OperationSetBasicInstantMessagingJabberImpl
     {
         try
         {
-            return jabberProvider.getDiscoveryManager().discoverInfo(
-                jabberProvider.getAccountID().getService())
+            Jid service = JidCreate.from(
+                jabberProvider.getAccountID().getService());
+            return jabberProvider.getDiscoveryManager().discoverInfo(service)
                 .containsFeature(CarbonPacketExtension.NAMESPACE);
         }
-        catch (XMPPException e)
+        catch (XMPPException
+            | InterruptedException
+            | NoResponseException
+            | XmppStringprepException
+            | NotConnectedException e)
         {
            logger.warn("Failed to retrieve carbon support." + e.getMessage());
         }
@@ -782,14 +821,14 @@ public class OperationSetBasicInstantMessagingJabberImpl
      */
     @SuppressWarnings("unchecked")
     private class SmackMessageListener
-        implements PacketListener
+        implements StanzaListener
     {
         /**
          * Handles incoming messages and dispatches whatever events are
          * necessary.
          * @param packet the packet that we need to handle (if it is a message).
          */
-        public void processPacket(Packet packet)
+        public void processStanza(Stanza packet)
         {
             if(!(packet instanceof org.jivesoftware.smack.packet.Message))
                 return;
@@ -818,9 +857,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
                 // according to xep-0280 all carbons should come from
                 // our bare jid
-                if (!msg.getFrom().equals(
-                        StringUtils.parseBareAddress(
-                            jabberProvider.getOurJID())))
+                if (!msg.getFrom().equals(jabberProvider.getOurJID().asBareJid()))
                 {
                     logger.info("Received a carbon copy with wrong from!");
                     return;
@@ -840,10 +877,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
             if(multiChatExtension != null)
                 return;
 
-            String userFullId
+            Jid userFullId
                 = isForwardedSentMessage? msg.getTo() : msg.getFrom();
 
-            String userBareID = StringUtils.parseBareAddress(userFullId);
+            BareJid userBareID = userFullId.asBareJid();
 
             boolean isPrivateMessaging = false;
             ChatRoom privateContactRoom = null;
@@ -868,10 +905,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
             }
 
             Message newMessage = createMessage(msg.getBody(),
-                    DEFAULT_MIME_TYPE, msg.getPacketID());
+                    DEFAULT_MIME_TYPE, msg.getStanzaId());
 
             //check if the message is available in xhtml
-            PacketExtension ext = msg.getExtension(
+            ExtensionElement ext = msg.getExtension(
                             "http://jabber.org/protocol/xhtml-im");
 
             if(ext != null)
@@ -880,11 +917,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     = (XHTMLExtension)ext;
 
                 //parse all bodies
-                Iterator<String> bodies = xhtmlExt.getBodies();
-                StringBuffer messageBuff = new StringBuffer();
-                while (bodies.hasNext())
+                StringBuilder messageBuff = new StringBuilder();
+                for (CharSequence body : xhtmlExt.getBodies())
                 {
-                    String body = bodies.next();
                     messageBuff.append(body);
                 }
 
@@ -907,11 +942,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
                             receivedMessage.replaceAll("&apos;", "&#39;");
 
                     newMessage = createMessage(receivedMessage,
-                            HTML_MIME_TYPE, msg.getPacketID());
+                            HTML_MIME_TYPE, msg.getStanzaId());
                 }
             }
 
-            PacketExtension correctionExtension =
+            ExtensionElement correctionExtension =
                     msg.getExtension(MessageCorrectionExtension.NAMESPACE);
             String correctedMessageUID = null;
             if (correctionExtension != null)
@@ -932,31 +967,27 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 // room which was deleted or offline on the server
                 if(isPrivateMessaging && sourceContact == null)
                 {
-                    if(privateContactRoom != null)
+                    XMPPError error = packet.getError();
+                    int errorResultCode
+                        = ChatRoomMessageDeliveryFailedEvent.UNKNOWN_ERROR;
+
+                    if(error != null && error.getCondition() == forbidden)
                     {
-                        XMPPError error = packet.getError();
-                        int errorResultCode
-                            = ChatRoomMessageDeliveryFailedEvent.UNKNOWN_ERROR;
-
-                        if(error != null && error.getCode() == 403)
-                        {
-                            errorResultCode
-                                = ChatRoomMessageDeliveryFailedEvent.FORBIDDEN;
-                        }
-
-                        String errorReason = error.getMessage();
-
-                        ChatRoomMessageDeliveryFailedEvent evt =
-                            new ChatRoomMessageDeliveryFailedEvent(
-                                privateContactRoom,
-                                null,
-                                errorResultCode,
-                                errorReason,
-                                new Date(),
-                                newMessage);
-                        ((ChatRoomJabberImpl)privateContactRoom)
-                            .fireMessageEvent(evt);
+                        errorResultCode
+                            = ChatRoomMessageDeliveryFailedEvent.FORBIDDEN;
                     }
+
+                    String errorReason = error.getConditionText();
+                    ChatRoomMessageDeliveryFailedEvent evt =
+                        new ChatRoomMessageDeliveryFailedEvent(
+                            privateContactRoom,
+                            null,
+                            errorResultCode,
+                            errorReason,
+                            new Date(),
+                            newMessage);
+                    ((ChatRoomJabberImpl)privateContactRoom)
+                        .fireMessageEvent(evt);
 
                     return;
                 }
@@ -967,12 +998,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 int errorResultCode = MessageDeliveryFailedEvent.UNKNOWN_ERROR;
                 if (packet.getError() != null)
                 {
-                    int errorCode = packet.getError().getCode();
-    
-                    if(errorCode == 503)
+                    if(packet.getError().getCondition() == service_unavailable)
                     {
-                        org.jivesoftware.smackx.packet.MessageEvent msgEvent =
-                            (org.jivesoftware.smackx.packet.MessageEvent)
+                        org.jivesoftware.smackx.xevent.packet.MessageEvent msgEvent =
                                 packet.getExtension("x", "jabber:x:event");
                         if(msgEvent != null && msgEvent.isOffline())
                         {
@@ -997,11 +1025,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
 
                 // ev = messageDeliveryFailedTransform(ev);
 
-                if (ev != null)
-                    fireMessageEvent(ev);
+                fireMessageEvent(ev);
                 return;
             }
-            putJidForAddress(userFullId, msg.getThread());
+            putJidForAddress(userFullId.asFullJidIfPossible(), msg.getThread());
 
             // In the second condition we filter all group chat messages,
             // because they are managed by the multi user chat operation set.
@@ -1017,18 +1044,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
                         isPrivateMessaging);
             }
 
-            Date timestamp = new Date();
-            //Check for XEP-0091 timestamp (deprecated)
-            PacketExtension delay = msg.getExtension("x", "jabber:x:delay");
-            if(delay != null && delay instanceof DelayInformation)
+            Date timestamp
+                = DelayInformationManager.getDelayTimestamp(msg);
+            if (timestamp == null)
             {
-                timestamp = ((DelayInformation)delay).getStamp();
-            }
-            //check for XEP-0203 timestamp
-            delay = msg.getExtension("delay", "urn:xmpp:delay");
-            if(delay != null && delay instanceof DelayInfo)
-            {
-                timestamp = ((DelayInfo)delay).getStamp();
+                timestamp = new Date();
             }
 
             ContactResource resource = ((ContactJabberImpl) sourceContact)
@@ -1047,8 +1067,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
             else
                 msgEvt = new MessageDeliveredEvent(newMessage, sourceContact, timestamp);
             // msgReceivedEvt = messageReceivedTransform(msgReceivedEvt);
-            if (msgEvt != null)
-                fireMessageEvent(msgEvt);
+            fireMessageEvent(msgEvt);
         }
     }
 
@@ -1057,7 +1076,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * A filter that prevents this operation set from handling multi user chat
      * messages.
      */
-    private static class GroupMessagePacketFilter implements PacketFilter
+    private static class GroupMessagePacketFilter implements StanzaFilter
     {
         /**
          * Returns <tt>true</tt> if <tt>packet</tt> is a <tt>Message</tt> and
@@ -1068,7 +1087,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
          * @return  <tt>true</tt> if <tt>packet</tt> is a <tt>Message</tt> and
          * false otherwise.
          */
-        public boolean accept(Packet packet)
+        @Override
+        public boolean accept(Stanza packet)
         {
             if(!(packet instanceof org.jivesoftware.smack.packet.Message))
                 return false;
@@ -1089,7 +1109,17 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private void subscribeForGmailNotifications()
     {
         // first check support for the notification service
-        String accountIDService = jabberProvider.getAccountID().getService();
+        Jid accountIDService = null;
+        try
+        {
+            accountIDService = JidCreate.from(
+                jabberProvider.getAccountID().getService());
+        }
+        catch (XmppStringprepException e)
+        {
+            throw new IllegalArgumentException("Invalid service, not a JID");
+        }
+
         boolean notificationsAreSupported
             = jabberProvider.isFeatureSupported(
                     accountIDService,
@@ -1109,24 +1139,22 @@ public class OperationSetBasicInstantMessagingJabberImpl
                         +" seems to provide a Gmail notification "
                         +" service so we will try to subscribe for it");
 
-        ProviderManager providerManager = ProviderManager.getInstance();
-
-        providerManager.addIQProvider(
+        ProviderManager.addIQProvider(
                 MailboxIQ.ELEMENT_NAME,
                 MailboxIQ.NAMESPACE,
                 new MailboxIQProvider());
-        providerManager.addIQProvider(
+        ProviderManager.addIQProvider(
                 NewMailNotificationIQ.ELEMENT_NAME,
                 NewMailNotificationIQ.NAMESPACE,
                 new NewMailNotificationProvider());
 
-        Connection connection = jabberProvider.getConnection();
+        XMPPConnection connection = jabberProvider.getConnection();
 
         connection.addPacketListener(
-                new MailboxIQListener(), new PacketTypeFilter(MailboxIQ.class));
+                new MailboxIQListener(), new StanzaTypeFilter(MailboxIQ.class));
         connection.addPacketListener(
                 new NewMailNotificationListener(),
-                new PacketTypeFilter(NewMailNotificationIQ.class));
+                new StanzaTypeFilter(NewMailNotificationIQ.class));
 
         if(opSetPersPresence.getCurrentStatusMessage().equals(
                 JabberStatusEnum.OFFLINE))
@@ -1139,7 +1167,14 @@ public class OperationSetBasicInstantMessagingJabberImpl
         if (logger.isTraceEnabled())
             logger.trace("sending mailNotification for acc: "
                     + jabberProvider.getAccountID().getAccountUniqueID());
-        jabberProvider.getConnection().sendPacket(mailboxQuery);
+        try
+        {
+            jabberProvider.getConnection().sendPacket(mailboxQuery);
+        }
+        catch (NotConnectedException | InterruptedException e)
+        {
+            logger.error("Could not send mailbox query", e);
+        }
     }
 
     /**
@@ -1220,7 +1255,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
         return message.toString();
     }
 
-    public String getRecentJIDForAddress(String address)
+    public FullJid getRecentJIDForAddress(BareJid address)
     {
         return recentJIDForAddress.get(address);
     }
@@ -1229,7 +1264,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * Receives incoming MailNotification Packets
      */
     private class MailboxIQListener
-        implements PacketListener
+        implements StanzaListener
     {
         /**
          * Handles incoming <tt>MailboxIQ</tt> packets.
@@ -1237,9 +1272,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
          * @param packet the IQ that we need to handle in case it is a
          * <tt>MailboxIQ</tt>.
          */
-        public void processPacket(Packet packet)
+        public void processStanza(Stanza packet)
         {
-            if(packet != null && !(packet instanceof MailboxIQ))
+            if(packet == null || !(packet instanceof MailboxIQ))
                 return;
 
             MailboxIQ mailboxIQ = (MailboxIQ) packet;
@@ -1252,8 +1287,19 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 .findContactByID(jabberProvider.getAccountID().getService());
 
             if(sourceContact == null)
-                sourceContact = opSetPersPresence.createVolatileContact(
-                                jabberProvider.getAccountID().getService());
+            {
+                try
+                {
+                    Jid jid = JidCreate.from(
+                        jabberProvider.getAccountID().getService());
+                    sourceContact = opSetPersPresence.createVolatileContact(jid);
+                }
+                catch (XmppStringprepException e)
+                {
+                    logger.error("Could not create volatile contact, invalid JID");
+                    return;
+                }
+            }
 
             lastReceivedMailboxResultTime = mailboxIQ.getResultTime();
 
@@ -1274,7 +1320,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * Receives incoming NewMailNotification Packets.
      */
     private class NewMailNotificationListener
-        implements PacketListener
+        implements StanzaListener
     {
         /**
          * Handles incoming <tt>NewMailNotificationIQ</tt> packets.
@@ -1282,7 +1328,9 @@ public class OperationSetBasicInstantMessagingJabberImpl
          * @param packet the IQ that we need to handle in case it is a
          * <tt>NewMailNotificationIQ</tt>.
          */
-        public void processPacket(Packet packet)
+        @Override
+        public void processStanza(Stanza packet)
+            throws NotConnectedException, InterruptedException
         {
             if(packet != null &&  !(packet instanceof NewMailNotificationIQ))
                 return;
@@ -1332,7 +1380,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * messages.
      * @param filter to add
      */
-    public void addMessageFilters(PacketFilter filter)
+    public void addMessageFilters(StanzaFilter filter)
     {
         this.packetFilters.add(filter);
     }
@@ -1343,9 +1391,8 @@ public class OperationSetBasicInstantMessagingJabberImpl
      *
      * @return the next thread id.
      */
-    public static synchronized String nextThreadID() {
+    public static synchronized String nextThreadID()
+    {
         return prefix + Long.toString(id++);
     }
-
-
 }

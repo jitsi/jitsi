@@ -36,6 +36,7 @@ import org.ice4j.security.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.util.*;
 import org.jivesoftware.smack.packet.*;
+import org.jxmpp.jid.parts.*;
 import org.xmpp.jnodes.smack.*;
 
 /**
@@ -131,9 +132,7 @@ public class IceUdpTransportManager
         {
             //the default server is supposed to use the same user name and
             //password as the account itself.
-            String username
-                = org.jivesoftware.smack.util.StringUtils.parseName(
-                        provider.getOurJID());
+            Localpart username = provider.getOurJID().getLocalpartOrThrow();
             String password
                 = JabberActivator.getProtocolProviderFactory().loadPassword(
                         accID);
@@ -184,7 +183,7 @@ public class IceUdpTransportManager
             StunCandidateHarvester autoHarvester
                 = namSer.discoverStunServer(
                         accID.getService(),
-                        StringUtils.getUTF8Bytes(username),
+                        StringUtils.getUTF8Bytes(username.toString()),
                         StringUtils.getUTF8Bytes(password));
 
             if (logger.isInfoEnabled())
@@ -514,7 +513,7 @@ public class IceUdpTransportManager
     /**
      * {@inheritDoc}
      */
-    protected PacketExtension createTransportPacketExtension()
+    protected ExtensionElement createTransportPacketExtension()
     {
         return new IceUdpTransportPacketExtension();
     }
@@ -522,14 +521,14 @@ public class IceUdpTransportManager
     /**
      * {@inheritDoc}
      */
-    protected PacketExtension startCandidateHarvest(
+    protected ExtensionElement startCandidateHarvest(
             ContentPacketExtension theirContent,
             ContentPacketExtension ourContent,
             TransportInfoSender transportInfoSender,
             String media)
         throws OperationFailedException
     {
-        PacketExtension pe;
+        ExtensionElement pe;
 
         // Report the gathered candidate addresses.
         if (transportInfoSender == null)
@@ -635,7 +634,7 @@ public class IceUdpTransportManager
      *
      * @return the {@link IceUdpTransportPacketExtension} that we
      */
-    protected PacketExtension createTransport(IceMediaStream stream)
+    protected ExtensionElement createTransport(IceMediaStream stream)
     {
         IceUdpTransportPacketExtension transport
             = new IceUdpTransportPacketExtension();
@@ -656,7 +655,7 @@ public class IceUdpTransportManager
     /**
      * {@inheritDoc}
      */
-    protected PacketExtension createTransport(String media)
+    protected ExtensionElement createTransport(String media)
         throws OperationFailedException
     {
         IceMediaStream iceStream = iceAgent.getStream(media);
@@ -862,6 +861,7 @@ public class IceUdpTransportManager
     @Override
     public synchronized boolean startConnectivityEstablishment(
             Iterable<ContentPacketExtension> remote)
+        throws OperationFailedException
     {
         Map<String,IceUdpTransportPacketExtension> map
             = new LinkedHashMap<String,IceUdpTransportPacketExtension>();

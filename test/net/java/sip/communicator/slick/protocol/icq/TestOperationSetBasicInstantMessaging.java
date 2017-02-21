@@ -179,6 +179,7 @@ public class TestOperationSetBasicInstantMessaging
      * the tested implementation
      */
     public void thenTestSendMessage()
+        throws OperationFailedException
     {
         String body = "This is an IM coming from the tested implementation"
             + " on " + new Date().toString();
