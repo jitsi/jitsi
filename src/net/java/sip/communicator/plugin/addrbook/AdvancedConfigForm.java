@@ -25,6 +25,7 @@ import javax.swing.*;
 import net.java.sip.communicator.plugin.addrbook.macosx.*;
 import net.java.sip.communicator.plugin.addrbook.msoutlook.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
+import net.java.sip.communicator.service.calendar.CalendarService;
 
 import org.jitsi.util.*;
 
@@ -67,13 +68,16 @@ public class AdvancedConfigForm
         if (OSUtils.IS_MAC)
             propertiesPanel.add(createEnableCheckBox(
                 AddrBookActivator.PNAME_ENABLE_MACOSX_ADDRESS_BOOK_SEARCH,
-                "plugin.addrbook.ENABLE_MACOSX_ADDRESSBOOK"));
+                "plugin.addrbook.ENABLE_MACOSX_ADDRESSBOOK", true));
 
         if (OSUtils.IS_WINDOWS)
         {
             propertiesPanel.add(createEnableCheckBox(
                 AddrBookActivator.PNAME_ENABLE_MICROSOFT_OUTLOOK_SEARCH,
-                "plugin.addrbook.ENABLE_MICROSOFT_OUTLOOK"));
+                "plugin.addrbook.ENABLE_MICROSOFT_OUTLOOK", true));
+            propertiesPanel.add(createEnableCheckBox(
+                CalendarService.PNAME_FREE_BUSY_STATUS_DISABLED,
+                "plugin.addrbook.ENABLE_OUTLOOK_CALENDAR", false));
             if(AddrBookActivator.getConfigService().getBoolean(
                 AddrBookActivator.PNAME_ENABLE_DEFAULT_IM_APPLICATION_CHANGE, 
                 true))
@@ -95,13 +99,14 @@ public class AdvancedConfigForm
      * @return the created enable check box
      */
     private Component createEnableCheckBox(final String configPropName,
-                                                 String labelNameKey)
+                                                 String labelNameKey,
+                                                 boolean defaultValue)
     {
         final JCheckBox checkBox = new SIPCommCheckBox(AddrBookActivator
             .getResources().getI18NString(
                 labelNameKey),
                 AddrBookActivator.getConfigService().getBoolean(configPropName,
-                                                                true));
+                    defaultValue));
         checkBox.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         checkBox.addActionListener(new ActionListener()
@@ -113,9 +118,15 @@ public class AdvancedConfigForm
                     new Boolean(checkBox.isSelected()).toString());
 
                 if (checkBox.isSelected())
+                {
                     AddrBookActivator.startService();
+                    AddrBookActivator.startCalendarService();
+                }
                 else
+                {
                     AddrBookActivator.stopService();
+                    AddrBookActivator.stopCalendarService();
+                }
             }
         });
         return checkBox;
