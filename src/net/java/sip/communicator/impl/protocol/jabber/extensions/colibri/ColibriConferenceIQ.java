@@ -511,20 +511,6 @@ public class ColibriConferenceIQ
         public static final String LAST_N_ATTR_NAME = "last-n";
 
         /**
-         * The XML name of the <tt>adaptive-last-n</tt> attribute of a video
-         * <tt>channel</tt>.
-         */
-        public static final String ADAPTIVE_LAST_N_ATTR_NAME
-            = "adaptive-last-n";
-
-        /**
-         * The XML name of the <tt>adaptive-simulcast</tt> attribute of a video
-         * <tt>channel</tt>.
-         */
-        public static final String ADAPTIVE_SIMULCAST_ATTR_NAME
-                = "adaptive-simulcast";
-
-        /**
          * The XML name of the <tt>simulcast-mode</tt> attribute of a video
          * <tt>channel</tt>.
          */
@@ -604,16 +590,6 @@ public class ColibriConferenceIQ
          * <tt>Channel</tt>.
          */
         private Integer lastN;
-
-        /**
-         * The 'adaptive-last-n' flag.
-         */
-        private Boolean adaptiveLastN;
-
-        /**
-         * The 'adaptive-simulcast' flag.
-         */
-        private Boolean adaptiveSimulcast;
 
         /**
          * The 'simulcast-mode' flag.
@@ -879,24 +855,6 @@ public class ColibriConferenceIQ
         }
 
         /**
-         * Gets the value of the 'adaptive-last-n' flag.
-         * @return the value of the 'adaptive-last-n' flag.
-         */
-        public Boolean getAdaptiveLastN()
-        {
-            return adaptiveLastN;
-        }
-
-        /**
-         * Gets the value of the 'adaptive-simulcast' flag.
-         * @return the value of the 'adaptive-simulcast' flag.
-         */
-        public Boolean getAdaptiveSimulcast()
-        {
-            return adaptiveSimulcast;
-        }
-
-        /**
          * Gets the value of the 'simulcast-mode' flag.
          * @return the value of the 'simulcast-mode' flag.
          */
@@ -1092,18 +1050,6 @@ public class ColibriConferenceIQ
             {
                 xml.append(' ').append(LAST_N_ATTR_NAME).append("='")
                         .append(lastN).append('\'');
-            }
-
-            if (adaptiveLastN != null)
-            {
-                xml.append(' ').append(ADAPTIVE_LAST_N_ATTR_NAME).append("='")
-                        .append(adaptiveLastN).append('\'');
-            }
-
-            if (adaptiveSimulcast != null)
-            {
-                xml.append(' ').append(ADAPTIVE_SIMULCAST_ATTR_NAME)
-                        .append("='").append(adaptiveSimulcast).append('\'');
             }
 
             // packet-delay
@@ -1326,24 +1272,6 @@ public class ColibriConferenceIQ
         public void setLastN(Integer lastN)
         {
             this.lastN = lastN;
-        }
-
-        /**
-         * Sets the value of the 'adaptive-last-n' flag.
-         * @param adaptiveLastN the value to set.
-         */
-        public void setAdaptiveLastN(Boolean adaptiveLastN)
-        {
-            this.adaptiveLastN = adaptiveLastN;
-        }
-
-        /**
-         * Sets the value of the 'adaptive-simulcast' flag.
-         * @param adaptiveSimulcast the value to set.
-         */
-        public void setAdaptiveSimulcast(Boolean adaptiveSimulcast)
-        {
-            this.adaptiveSimulcast = adaptiveSimulcast;
         }
 
         /**
