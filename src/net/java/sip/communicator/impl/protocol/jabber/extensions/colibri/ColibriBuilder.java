@@ -782,6 +782,61 @@ public class ColibriBuilder
         }
         return hasAnyChanges;
     }
+    /**
+     * Adds next request to {@link RequestType#CHANNEL_INFO_UPDATE} query.
+     *
+     * @param map the map of content name to media direction. Maps
+     *        media direction to media types.
+     * @param localChannelsInfo {@link ColibriConferenceIQ} holding info about
+     *        Colibri channels to be updated.
+     *
+     * @return <tt>true</tt> if the request yields any changes in Colibri
+     *         channels state on the bridge or <tt>false</tt> otherwise.
+     *         In general when <tt>false</tt> is returned for all
+     *         combined requests it makes no sense to send it.
+     */
+    public boolean addDirectionUpdateReq(
+            Map<String, MediaDirection> map,
+            ColibriConferenceIQ         localChannelsInfo)
+    {
+        Objects.requireNonNull(map, "map");
+        Objects.requireNonNull(localChannelsInfo, "localChannelsInfo");
+
+        if (conferenceState == null
+            || StringUtils.isNullOrEmpty(conferenceState.getID()))
+        {
+            // We are not initialized yet
+            return false;
+        }
+
+        boolean hasAnyChanges = false;
+
+        assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
+
+        request.setType(IQ.Type.SET);
+
+        for (Map.Entry<String,MediaDirection> e : map.entrySet())
+        {
+            String contentName = e.getKey();
+            ColibriConferenceIQ.ChannelCommon channel
+                = getColibriChannel(localChannelsInfo, contentName);
+
+            if (channel instanceof ColibriConferenceIQ.Channel)
+            {
+                ColibriConferenceIQ.Channel channelRequest
+                    =  new ColibriConferenceIQ.Channel();
+
+                channelRequest.setID(channel.getID());
+                channelRequest.setDirection(e.getValue());
+
+                request.getOrCreateContent(contentName)
+                       .addChannelCommon(channelRequest);
+
+                hasAnyChanges = true;
+            }
+        }
+        return hasAnyChanges;
+    }
 
     /**
      * Finds channel in <tt>localChannels</tt> info for given
