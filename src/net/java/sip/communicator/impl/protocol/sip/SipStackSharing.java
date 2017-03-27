@@ -23,6 +23,7 @@ import gov.nist.javax.sip.stack.*;
 
 import java.io.*;
 import java.util.*;
+import javax.net.ssl.*;
 
 import javax.sip.*;
 import javax.sip.address.*;
@@ -134,6 +135,34 @@ public class SipStackSharing
 
             // Create SipStack object
             this.stack = sipFactory.createSipStack(sipStackProperties);
+
+            String[] enabledSuites = {
+                "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
+                "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+                "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+                "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+                "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+                "TLS_RSA_WITH_AES_128_CBC_SHA",
+                "TLS_RSA_WITH_AES_256_CBC_SHA",
+                "SSL_RSA_WITH_3DES_EDE_CBC_SHA",
+                "TLS_EMPTY_RENEGOTIATION_INFO_SCSV",
+            };
+            SSLServerSocketFactory ssf = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+            String[] defaultSuites = ssf.getDefaultCipherSuites();
+            List<String> offeredSuites = new ArrayList(enabledSuites.length);
+            for (String enabledSuite : enabledSuites)
+            {
+                if (Arrays.asList(defaultSuites).contains(enabledSuite))
+                {
+                    offeredSuites.add(enabledSuite);
+                }
+            }
+            String[] newCipherSuites = new String[offeredSuites.size()];
+            newCipherSuites = offeredSuites.toArray(newCipherSuites);
+            ((SipStackImpl)this.stack).setEnabledCipherSuites(newCipherSuites);
+
             if (logger.isTraceEnabled())
                 logger.trace("Created stack: " + this.stack);
 
