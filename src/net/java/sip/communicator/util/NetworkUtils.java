@@ -154,34 +154,6 @@ public class NetworkUtils
     }
 
     /**
-     * Returns a random local port number in the interval [min, max].
-     * If the pair flag is set to true, then the returned port number is
-     * guaranteed to be pair. This is useful for protocols that require this
-     * such as RTP
-     *
-     * @param min the minimum allowed value for the returned port number.
-     * @param max the maximum allowed value for the returned port number.
-     * @param pair specifies whether the caller would like the returned port to
-     * be pair.
-     *
-     * @return a random int located between greater than min and lower than max.
-     */
-    public static int getRandomPortNumber(int min, int max, boolean pair)
-    {
-        if(pair)
-        {
-            int delta = max - min;
-            delta /= 2;
-            int port = getRandomPortNumber(min, min + delta);
-            return port * 2;
-        }
-        else
-        {
-            return getRandomPortNumber(min, max);
-        }
-    }
-
-    /**
      * Verifies whether <tt>address</tt> could be an IPv4 address string.
      *
      * @param address the String that we'd like to determine as an IPv4 address.
