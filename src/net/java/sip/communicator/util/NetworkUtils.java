@@ -30,6 +30,9 @@ import org.xbill.DNS.*;
 /**
  * Utility methods and fields to use when working with network addresses.
  *
+ * TODO: there is a lot of duplication between this class and
+ * org.ice4j.ice.NetworkUtils
+ *
  * @author Emil Ivov
  * @author Damian Minkov
  * @author Vincent Lucas
@@ -125,35 +128,6 @@ public class NetworkUtils
     {
         return (add.getAddress()[0] & 0xFF) == 169
             && (add.getAddress()[1] & 0xFF) == 254;
-    }
-
-    /**
-     * Determines whether the address is an IPv4 link local address. IPv4 link
-     * local addresses are those in the following networks:
-     *
-     * 10.0.0.0    to 10.255.255.255
-     * 172.16.0.0  to 172.31.255.255
-     * 192.168.0.0 to 192.168.255.255
-     *
-     * @param add the address to inspect
-     * @return true if add is a link local ipv4 address and false if not.
-     */
-    public static boolean isLinkLocalIPv4Address(InetAddress add)
-    {
-        if (add instanceof Inet4Address)
-        {
-            byte address[] = add.getAddress();
-            if ( (address[0] & 0xFF) == 10)
-                return true;
-            if ( (address[0] & 0xFF) == 172
-                && (address[1] & 0xFF) >= 16 && address[1] <= 31)
-                return true;
-            if ( (address[0] & 0xFF) == 192
-                && (address[1] & 0xFF) == 168)
-                return true;
-            return false;
-        }
-        return false;
     }
 
     /**
