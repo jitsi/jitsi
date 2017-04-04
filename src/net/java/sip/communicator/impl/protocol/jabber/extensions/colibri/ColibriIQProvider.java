@@ -475,28 +475,6 @@ public class ColibriIQProvider
                         if ((lastN != null) && (lastN.length() != 0))
                             channel.setLastN(Integer.parseInt(lastN));
 
-                        String adaptiveLastN
-                            = parser.getAttributeValue(
-                                    "",
-                                    ColibriConferenceIQ.Channel
-                                            .ADAPTIVE_LAST_N_ATTR_NAME);
-
-                        if (!StringUtils.isNullOrEmpty(adaptiveLastN))
-                            channel.setAdaptiveLastN(
-                                    Boolean.parseBoolean(adaptiveLastN));
-
-                        String adaptiveSimulcast
-                            = parser.getAttributeValue(
-                                    "",
-                                    ColibriConferenceIQ.Channel
-                                            .ADAPTIVE_SIMULCAST_ATTR_NAME);
-
-                        if (!StringUtils.isNullOrEmpty(adaptiveSimulcast))
-                        {
-                            channel.setAdaptiveSimulcast(
-                                    Boolean.parseBoolean(adaptiveSimulcast));
-                        }
-
                         // simulcastMode
                         String simulcastMode
                                 = parser.getAttributeValue(

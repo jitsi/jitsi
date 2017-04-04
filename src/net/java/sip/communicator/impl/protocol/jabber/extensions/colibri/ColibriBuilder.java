@@ -98,20 +98,6 @@ public class ColibriBuilder
     private Integer channelLastN;
 
     /**
-     * Channel 'adaptive-last-n' option that will be added when channels are
-     * created.
-     * Set to <tt>null</tt> in order to omit.
-     */
-    private Boolean adaptiveLastN;
-
-    /**
-     * Channel 'adaptive-simulcast' option that will be added when channels are
-     * created.
-     * Set to <tt>null</tt> in order to omit.
-     */
-    private Boolean adaptiveSimulcast;
-
-    /**
      * Channel 'simulcast-mode' option that will be added when channels are
      * created.
      * Set to <tt>null</tt> in order to omit.
@@ -232,8 +218,6 @@ public class ColibriBuilder
 
                 // Config options
                 remoteRtpChannelRequest.setLastN(channelLastN);
-                remoteRtpChannelRequest.setAdaptiveLastN(adaptiveLastN);
-                remoteRtpChannelRequest.setAdaptiveSimulcast(adaptiveSimulcast);
                 remoteRtpChannelRequest.setSimulcastMode(simulcastMode);
                 if (MediaType.AUDIO.equals(mediaType))
                 {
@@ -798,6 +782,61 @@ public class ColibriBuilder
         }
         return hasAnyChanges;
     }
+    /**
+     * Adds next request to {@link RequestType#CHANNEL_INFO_UPDATE} query.
+     *
+     * @param map the map of content name to media direction. Maps
+     *        media direction to media types.
+     * @param localChannelsInfo {@link ColibriConferenceIQ} holding info about
+     *        Colibri channels to be updated.
+     *
+     * @return <tt>true</tt> if the request yields any changes in Colibri
+     *         channels state on the bridge or <tt>false</tt> otherwise.
+     *         In general when <tt>false</tt> is returned for all
+     *         combined requests it makes no sense to send it.
+     */
+    public boolean addDirectionUpdateReq(
+            Map<String, MediaDirection> map,
+            ColibriConferenceIQ         localChannelsInfo)
+    {
+        Objects.requireNonNull(map, "map");
+        Objects.requireNonNull(localChannelsInfo, "localChannelsInfo");
+
+        if (conferenceState == null
+            || StringUtils.isNullOrEmpty(conferenceState.getID()))
+        {
+            // We are not initialized yet
+            return false;
+        }
+
+        boolean hasAnyChanges = false;
+
+        assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
+
+        request.setType(IQ.Type.SET);
+
+        for (Map.Entry<String,MediaDirection> e : map.entrySet())
+        {
+            String contentName = e.getKey();
+            ColibriConferenceIQ.ChannelCommon channel
+                = getColibriChannel(localChannelsInfo, contentName);
+
+            if (channel instanceof ColibriConferenceIQ.Channel)
+            {
+                ColibriConferenceIQ.Channel channelRequest
+                    =  new ColibriConferenceIQ.Channel();
+
+                channelRequest.setID(channel.getID());
+                channelRequest.setDirection(e.getValue());
+
+                request.getOrCreateContent(contentName)
+                       .addChannelCommon(channelRequest);
+
+                hasAnyChanges = true;
+            }
+        }
+        return hasAnyChanges;
+    }
 
     /**
      * Finds channel in <tt>localChannels</tt> info for given
@@ -931,53 +970,6 @@ public class ColibriBuilder
     public void setChannelLastN(Integer channelLastN)
     {
         this.channelLastN = channelLastN;
-    }
-
-    /**
-     * Channel 'adaptive-last-n' option that will be added when channels are
-     * created.
-     * Set to <tt>null</tt> in order to omit. Value is reset after
-     * {@link #reset} is called.
-     *
-     * @return a boolean value or <tt>null</tt> if option is unspecified.
-     */
-    public Boolean getAdaptiveLastN()
-    {
-        return adaptiveLastN;
-    }
-
-    /**
-     * Sets channel 'adaptive-last-n' option that will be added to the request
-     * when channels are created.
-     *
-     * @param adaptiveLastN a boolean value to specify 'adaptive-last-n' option
-     *                      or <tt>null</tt> in order  to omit in requests.
-     */
-    public void setAdaptiveLastN(Boolean adaptiveLastN)
-    {
-        this.adaptiveLastN = adaptiveLastN;
-    }
-
-    /**
-     * Channel 'adaptive-simulcast' option that will be added when channels are
-     * created. Set to <tt>null</tt> in order to omit.
-     *
-     * @return a boolean value or <tt>null</tt> if option is unspecified.
-     */
-    public Boolean getAdaptiveSimulcast()
-    {
-        return adaptiveSimulcast;
-    }
-
-    /**
-     * Sets channel 'adaptive-simulcast' option that will be added to the
-     * request when channels are created.
-     * @param adaptiveSimulcast a boolean value to specify 'adaptive-simulcast'
-     *        option or <tt>null</tt> in order to omit in requests.
-     */
-    public void setAdaptiveSimulcast(Boolean adaptiveSimulcast)
-    {
-        this.adaptiveSimulcast = adaptiveSimulcast;
     }
 
     /**
