@@ -1594,8 +1594,16 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
         // has the correct payload type and ssrc
         RawPacket packet = new RawPacket(
             HOLE_PUNCH_PACKET, 0, RawPacket.FIXED_HEADER_SIZE);
-        packet.setPayloadType(
-            dynamicPayloadTypes.getPayloadType(stream.getFormat()));
+
+        MediaFormat format = stream.getFormat();
+        byte payloadType = format.getRTPPayloadType();
+        // is this a dynamic payload type.
+        if (payloadType == MediaFormat.RTP_PAYLOAD_TYPE_UNKNOWN)
+        {
+            payloadType = dynamicPayloadTypes.getPayloadType(format);
+        }
+
+        packet.setPayloadType(payloadType);
         packet.setSSRC((int)stream.getLocalSourceID());
 
         getTransportManager().sendHolePunchPacket(
