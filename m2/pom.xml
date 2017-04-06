@@ -52,12 +52,12 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>libjitsi</artifactId>
-        <version>1.0-20170207.194207-242</version>
+        <version>1.0-20170331.031709-269</version>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>ice4j</artifactId>
-        <version>2.0-20170111.193659-7</version>
+        <version>2.0-20170330.222540-11</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
