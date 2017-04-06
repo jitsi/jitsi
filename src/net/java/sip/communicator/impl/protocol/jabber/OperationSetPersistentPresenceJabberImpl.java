@@ -1103,7 +1103,13 @@ public class OperationSetPersistentPresenceJabberImpl
             else if(evt.getNewState() == RegistrationState.REGISTERED)
             {
                 createContactPhotoPresenceListener();
-                createAccountPhotoPresenceInterceptor();
+
+                // we cannot manipulate our vcards when using anonymous
+                if (!((JabberAccountIDImpl)parentProvider.getAccountID())
+                        .isAnonymousAuthUsed())
+                {
+                    createAccountPhotoPresenceInterceptor();
+                }
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
                  || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
