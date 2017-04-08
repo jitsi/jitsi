@@ -35,6 +35,7 @@ import org.apache.http.client.entity.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.*;
 import org.apache.http.message.*;
+import org.apache.http.util.*;
 import org.jitsi.service.resources.*;
 
 import com.google.api.client.auth.oauth2.*;
@@ -42,7 +43,6 @@ import com.google.api.client.http.*;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.javanet.*;
 import com.google.api.client.json.jackson2.*;
-import com.google.api.client.util.*;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
 
@@ -74,20 +74,6 @@ public class OAuth2TokenStore
      * Symbol for expiration time in token server response.
      */
     private static final String EXPIRES_IN_SYMBOL = "expires_in";
-
-    /**
-     * Interesting token server response fields.
-     */
-    private static final Set<String> TOKEN_RESPONSE_FIELDS;
-
-    static
-    {
-        final HashSet<String> set = new HashSet<String>();
-        set.add(REFRESH_TOKEN_SYMBOL);
-        set.add(ACCESS_TOKEN_SYMBOL);
-        set.add(EXPIRES_IN_SYMBOL);
-        TOKEN_RESPONSE_FIELDS = Collections.unmodifiableSet(set);
-    }
 
     /**
      * Google OAuth 2 token server.
@@ -390,12 +376,8 @@ public class OAuth2TokenStore
                 new BasicNameValuePair("grant_type", GOOGLE_API_GRANT_TYPE)));
         post.setEntity(entity);
         final HttpResponse httpResponse = client.execute(post);
-
-        final ByteArrayOutputStream responseBody = new ByteArrayOutputStream();
-        try (final InputStream responseContent = httpResponse.getEntity().getContent()) {
-            IOUtils.copy(responseContent, responseBody);
-        }
-        final String responseJson = new String(responseBody.toByteArray(), StandardCharsets.UTF_8);
+        final String responseJson = EntityUtils.toString(
+                httpResponse.getEntity(), StandardCharsets.UTF_8);
         return GSON.fromJson(responseJson, TokenData.class);
     }
 
@@ -539,19 +521,19 @@ public class OAuth2TokenStore
         /**
          * OAuth 2 access token.
          */
-        @SerializedName(value = "access_token")
+        @SerializedName(value = ACCESS_TOKEN_SYMBOL)
         private String accessToken;
 
         /**
          * OAuth 2 refresh token.
          */
-        @SerializedName(value = "refresh_token")
+        @SerializedName(value = REFRESH_TOKEN_SYMBOL)
         private String refreshToken;
 
         /**
          * Available time before expiration of the current access token.
          */
-        @SerializedName(value = "expires_in")
+        @SerializedName(value = EXPIRES_IN_SYMBOL)
         private long expiration;
 
         TokenData() {

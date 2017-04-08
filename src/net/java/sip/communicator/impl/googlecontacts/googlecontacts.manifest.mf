@@ -32,4 +32,5 @@ Import-Package: org.osgi.framework,
  org.apache.http.client.entity,
  org.apache.http.client.methods,
  org.apache.http.impl.client,
- org.apache.http.message
+ org.apache.http.message,
+ org.apache.http.util
