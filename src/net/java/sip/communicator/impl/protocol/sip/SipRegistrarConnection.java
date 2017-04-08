@@ -400,7 +400,7 @@ public class SipRegistrarConnection
 
         //now check if the registrar has touched our expiration timeout in its
         //response. Again, check contact headers first.
-        int grantedExpiration = -1;
+        int grantedExpiration;
 
         ContactHeader responseContactHdr = (ContactHeader) response.getHeader(
             ContactHeader.NAME);
@@ -408,19 +408,21 @@ public class SipRegistrarConnection
         {
             grantedExpiration = responseContactHdr.getExpires();
         }
-
-        //no luck there, try the expires header.
-        ExpiresHeader expiresHeader = response.getExpires();
-
-        if (expiresHeader != null)
-        {
-            grantedExpiration = expiresHeader.getExpires();
-        }
-        //still no luck - let's be tolerant and reuse the expires timeout we
-        //stated in our last request
         else
         {
-            grantedExpiration = requestedExpiration;
+            //no luck there, try the expires header.
+            ExpiresHeader expiresHeader = response.getExpires();
+
+            if (expiresHeader != null)
+            {
+                grantedExpiration = expiresHeader.getExpires();
+            }
+            //still no luck - let's be tolerant and reuse the expires timeout we
+            //stated in our last request
+            else
+            {
+                grantedExpiration = requestedExpiration;
+            }
         }
 
         //If this is a response to a REGISTER request ending our registration
