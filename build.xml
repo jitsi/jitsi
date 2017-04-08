@@ -1311,6 +1311,7 @@
             <zipfileset src="${lib.noinst}/google-http-client-1.20.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/google-http-client-jackson2-1.20.0.jar" prefix=""/>
             <zipfileset src="${lib.noinst}/jackson-core-2.5.3.jar" prefix=""/>
+            <zipfileset src="${lib.noinst}/gson-2.8.0.jar" prefix="" />
         </jar>
     </target>
 

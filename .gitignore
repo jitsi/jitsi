@@ -14,3 +14,7 @@ sip-communicator.utest.bin
 target/
 test-reports/
 web-start/WebStartBuild.properties
+
+# Never actually store Google API client token. A template is already committed
+# and the token should always be generated on-the-fly.
+/src/net/java/sip/communicator/impl/googlecontacts/GoogleAPIClientToken.java

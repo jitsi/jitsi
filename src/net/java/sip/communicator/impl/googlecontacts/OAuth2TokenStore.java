@@ -19,6 +19,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
@@ -40,8 +41,10 @@ import com.google.api.client.auth.oauth2.*;
 import com.google.api.client.http.*;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.javanet.*;
-import com.google.api.client.json.*;
 import com.google.api.client.json.jackson2.*;
+import com.google.api.client.util.*;
+import com.google.gson.*;
+import com.google.gson.annotations.*;
 
 /**
  * OAuth 2 token store.
@@ -129,6 +132,8 @@ public class OAuth2TokenStore
             + "&response_type=code&client_id=%s", GOOGLE_API_OAUTH2_SCOPES,
         GOOGLE_API_OAUTH2_REDIRECT_URI, GOOGLE_API_CLIENT_ID);
 
+    private static final Gson GSON = new Gson();
+
     /**
      * The credential store.
      *
@@ -164,7 +169,7 @@ public class OAuth2TokenStore
             {
                 acquireCredential(this.store, identity);
             }
-            catch (Exception e)
+            catch (final URISyntaxException | IOException | RuntimeException e)
             {
                 throw new FailedAcquireCredentialException(e);
             }
@@ -385,40 +390,13 @@ public class OAuth2TokenStore
                 new BasicNameValuePair("grant_type", GOOGLE_API_GRANT_TYPE)));
         post.setEntity(entity);
         final HttpResponse httpResponse = client.execute(post);
-        final JsonParser parser =
-            JacksonFactory.getDefaultInstance().createJsonParser(
-                httpResponse.getEntity().getContent());
-        try
-        {
-            // Token response components initialized with defaults in case
-            // fields are missing in the token server response.
-            String accessToken = "";
-            String refreshToken = "";
-            long expiresIn = 3600;
-            // Parse token server response.
-            String found;
-            while (parser.nextToken() != JsonToken.END_OBJECT)
-            {
-                found = parser.skipToKey(TOKEN_RESPONSE_FIELDS);
-                if (REFRESH_TOKEN_SYMBOL.equals(found))
-                {
-                    refreshToken = parser.getText();
-                }
-                else if (ACCESS_TOKEN_SYMBOL.equals(found))
-                {
-                    accessToken = parser.getText();
-                }
-                else if (EXPIRES_IN_SYMBOL.equals(found))
-                {
-                    expiresIn = parser.getLongValue();
-                }
-            }
-            return new TokenData(accessToken, refreshToken, expiresIn);
+
+        final ByteArrayOutputStream responseBody = new ByteArrayOutputStream();
+        try (final InputStream responseContent = httpResponse.getEntity().getContent()) {
+            IOUtils.copy(responseContent, responseBody);
         }
-        finally
-        {
-            parser.close();
-        }
+        final String responseJson = new String(responseBody.toByteArray(), StandardCharsets.UTF_8);
+        return GSON.fromJson(responseJson, TokenData.class);
     }
 
     /**
@@ -561,17 +539,23 @@ public class OAuth2TokenStore
         /**
          * OAuth 2 access token.
          */
-        private final String accessToken;
+        @SerializedName(value = "access_token")
+        private String accessToken;
 
         /**
          * OAuth 2 refresh token.
          */
-        private final String refreshToken;
+        @SerializedName(value = "refresh_token")
+        private String refreshToken;
 
         /**
          * Available time before expiration of the current access token.
          */
-        private final long expiration;
+        @SerializedName(value = "expires_in")
+        private long expiration;
+
+        public TokenData() {
+        }
 
         /**
          * Constructor for TokenData container.
@@ -595,6 +579,18 @@ public class OAuth2TokenStore
                     "Expiration time cannot be null");
             }
             this.expiration = expirationTime;
+        }
+
+        public void setAccessToken(String accessToken) {
+            this.accessToken = accessToken;
+        }
+
+        public void setRefreshToken(String refreshToken) {
+            this.refreshToken = refreshToken;
+        }
+
+        public void setExpiration(long expiration) {
+            this.expiration = expiration;
         }
     }
 
