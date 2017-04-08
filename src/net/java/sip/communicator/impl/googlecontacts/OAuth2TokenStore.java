@@ -373,8 +373,8 @@ public class OAuth2TokenStore
      * 
      * @param approvalCode the approval code
      * @return Returns the acquired token data from OAuth 2 token server.
-     * @throws IOException 
-     * @throws ClientProtocolException 
+     * @throws IOException
+     * @throws ClientProtocolException
      */
     private static TokenData requestAuthenticationToken(
         final String approvalCode) throws ClientProtocolException, IOException
@@ -554,7 +554,7 @@ public class OAuth2TokenStore
         @SerializedName(value = "expires_in")
         private long expiration;
 
-        public TokenData() {
+        TokenData() {
         }
 
         /**
@@ -576,20 +576,20 @@ public class OAuth2TokenStore
             if (expirationTime < 0)
             {
                 throw new IllegalArgumentException(
-                    "Expiration time cannot be null");
+                    "Expiration time cannot be smaller than zero");
             }
             this.expiration = expirationTime;
         }
 
-        public void setAccessToken(String accessToken) {
+        void setAccessToken(String accessToken) {
             this.accessToken = accessToken;
         }
 
-        public void setRefreshToken(String refreshToken) {
+        void setRefreshToken(String refreshToken) {
             this.refreshToken = refreshToken;
         }
 
-        public void setExpiration(long expiration) {
+        void setExpiration(long expiration) {
             this.expiration = expiration;
         }
     }
