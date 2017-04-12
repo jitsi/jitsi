@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet.*;
 import net.java.sip.communicator.service.protocol.jabber.*;
 import org.jivesoftware.smack.provider.*;
@@ -216,6 +217,13 @@ public class JingleIQProvider implements IQProvider
                 IceUdpTransportPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<RtcpmuxPacketExtension>(
                         RtcpmuxPacketExtension.class));
+
+        //web-socket
+        smackInteroperabilityLayer.addExtensionProvider(
+            WebSocketPacketExtension.ELEMENT_NAME,
+            WebSocketPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider<>(
+                WebSocketPacketExtension.class));
 
         //ssrcInfo
         smackInteroperabilityLayer.addExtensionProvider(
