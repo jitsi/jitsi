@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jitsi</groupId>
     <artifactId>jitsi-universe</artifactId>
-    <version>1.0-20161228.135522-20</version>
+    <version>1.0-20170425.182805-23</version>
   </parent>
 
   <artifactId>jitsi</artifactId>

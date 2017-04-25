@@ -2857,7 +2857,8 @@ public class ChatRoomJabberImpl
                 // room is created and locked till we send
                 // the configuration
                 if (mucUser.getStatus() != null
-                    && "201".equals(mucUser.getStatus().getCode()))
+                    && mucUser.getStatus().contains(
+                        MUCUser.Status.ROOM_CREATED_201))
                 {
                     try
                     {
