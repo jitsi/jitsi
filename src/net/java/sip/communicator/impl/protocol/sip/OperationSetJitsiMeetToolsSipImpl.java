@@ -34,6 +34,19 @@ public class OperationSetJitsiMeetToolsSipImpl
     implements OperationSetJitsiMeetTools
 {
     /**
+     * Name of extra INVITE header which specifies name of MUC room that is
+     * hosting the Jitsi Meet conference.
+     */
+    public String JITSI_MEET_ROOM_HEADER = "Jitsi-Conference-Room";
+
+    /**
+     * Property name of extra INVITE header which specifies name of MUC room
+     * that is hosting the Jitsi Meet conference.
+     */
+    private static final String JITSI_MEET_ROOM_HEADER_PROPERTY
+        = "JITSI_MEET_ROOM_HEADER_NAME";
+
+    /**
      * The logger used by this class.
      */
     private final static Logger logger
@@ -45,28 +58,18 @@ public class OperationSetJitsiMeetToolsSipImpl
     private final List<JitsiMeetRequestListener> requestHandlers
         = new CopyOnWriteArrayList<JitsiMeetRequestListener>();
 
-    /*private ProtocolProviderServiceSipImpl parentProvider;
-
+    /**
+     * Constructs new OperationSetJitsiMeetToolsSipImpl.
+     * @param parentProvider the parent provider.
+     */
     public OperationSetJitsiMeetToolsSipImpl(
         ProtocolProviderServiceSipImpl parentProvider)
     {
-        this.parentProvider = parentProvider;
-    }*/
-
-    //@Override
-    //public Call createGatewayCall(String uri, String roomName)
-    //{
-        /*OperationSetBasicTelephonySipImpl sipTelephony
-            = (OperationSetBasicTelephonySipImpl)
-                    parentProvider.getOperationSet(
-                            OperationSetBasicTelephony.class);
-
-        Map<String, String> parameters = new HashMap<String, String>();
-
-        parameters.put(CallSipImpl.JITSI_MEET_ROOM_HEADER, roomName);
-
-        return sipTelephony.createCall(uri, parameters);*/
-    //}
+        AccountID account = parentProvider.getAccountID();
+        // Specify custom header names
+        JITSI_MEET_ROOM_HEADER = account.getAccountPropertyString(
+            JITSI_MEET_ROOM_HEADER_PROPERTY, JITSI_MEET_ROOM_HEADER);
+    }
 
     /**
      * {@inheritDoc}
@@ -91,18 +94,22 @@ public class OperationSetJitsiMeetToolsSipImpl
      * call that contains name of the MUC room which is hosting Jitsi Meet
      * conference.
      * @param call the incoming {@link Call} instance.
-     * @param jitsiMeetRoom the name of the chat room of Jitsi Meet conference
-     *                      to be joined.
-     * @param jitsiMeetRoomPass optional password required to join conference
-     *                          room(if room is protected)
+     * @param callHeaders map of all the sip headers (<name,value>)
      */
     public void notifyJoinJitsiMeetRoom(
-        Call call, String jitsiMeetRoom, String jitsiMeetRoomPass)
+        Call call, Map<String, String> callHeaders)
     {
+        // Parses Jitsi Meet room name header
+        String jitsiMeetRoom = callHeaders.get(JITSI_MEET_ROOM_HEADER);
+
+        // nothing to handle
+        if (jitsiMeetRoom == null)
+            return;
+
         boolean handled = false;
         for (JitsiMeetRequestListener l : requestHandlers)
         {
-            l.onJoinJitsiMeetRequest(call, jitsiMeetRoom, jitsiMeetRoomPass);
+            l.onJoinJitsiMeetRequest(call, jitsiMeetRoom, callHeaders);
             handled = true;
         }
         if (!handled)

@@ -652,7 +652,7 @@ public class ProtocolProviderServiceSipImpl
                 // Jitsi Meet Tools
                 addSupportedOperationSet(
                     OperationSetJitsiMeetTools.class,
-                    new OperationSetJitsiMeetToolsSipImpl());
+                    new OperationSetJitsiMeetToolsSipImpl(this));
 
                 boolean isParkingEnabled
                     = accountID.getAccountPropertyBoolean(
