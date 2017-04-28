@@ -147,6 +147,7 @@ public class ColibriBuilder
         request = new ColibriConferenceIQ();
         request.setID(conferenceState.getID());
         request.setName(conferenceState.getName());
+        request.setGID(conferenceState.getGID());
     }
 
     /**
