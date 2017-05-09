@@ -71,6 +71,16 @@ public class JibriIqProvider
                 = parser.getAttributeValue("", JibriIq.STREAM_ID_ATTR_NAME);
             if (!StringUtils.isNullOrEmpty(streamId))
                 iq.setStreamId(streamId);
+
+            String displayName
+                = parser.getAttributeValue("", JibriIq.DISPLAY_NAME_ATTR_NAME);
+            if (!StringUtils.isNullOrEmpty(displayName))
+                iq.setDisplayName(displayName);
+
+            String sipAddress
+                = parser.getAttributeValue("", JibriIq.SIP_ADDRESS_ATTR_NAME);
+            if (!StringUtils.isNullOrEmpty(sipAddress))
+                iq.setSipAddress(sipAddress);
         }
         else
         {
