@@ -138,7 +138,7 @@ public class SourceUIContact
     {
         int contactIndex = sourceContact.getIndex();
         int groupIndex = getParentGroup().getSourceIndex();
-        return ((contactIndex == -1) ? -1 : 
+        return ((contactIndex == -1) ? -1 :
             ((groupIndex == -1) ? contactIndex : groupIndex + contactIndex));
     }
 
@@ -459,10 +459,7 @@ public class SourceUIContact
     {
         ExtendedTooltip tip = new ExtendedTooltip(true);
 
-        byte[] avatarImage = sourceContact.getImage();
-
-        if (avatarImage != null && avatarImage.length > 0)
-            tip.setImage(new ImageIcon(avatarImage));
+        tip.setImage(getScaledAvatar(false, 30, 30));
 
         tip.setTitle(sourceContact.getDisplayName());
 
@@ -736,7 +733,7 @@ public class SourceUIContact
 
         return null;
     }
-    
+
     /**
      * Returns all custom action menu items for this contact.
      *
