@@ -323,6 +323,12 @@ public class JingleIQProvider implements IQProvider
                 {
                     jingleIQ.addExtension(callidProvider.parseExtension(parser));
                 }
+                else if (elementName.equals(
+                        GroupPacketExtension.ELEMENT_NAME))
+                {
+                    jingleIQ.addExtension(
+                        GroupPacketExtension.parseExtension(parser));
+                }
 
                 //<mute/> <active/> and other session-info elements
                 if (namespace.equals( SessionInfoPacketExtension.NAMESPACE))
