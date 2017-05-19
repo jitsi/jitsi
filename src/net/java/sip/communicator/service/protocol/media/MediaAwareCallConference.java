@@ -251,10 +251,19 @@ public class MediaAwareCallConference
     {
         super.callRemoved(call);
 
-        if (getCallCount() == 0 && (videoRTPTranslator != null))
+        if (getCallCount() == 0)
         {
-            videoRTPTranslator.dispose();
-            videoRTPTranslator = null;
+            if (videoRTPTranslator != null)
+            {
+                videoRTPTranslator.dispose();
+                videoRTPTranslator = null;
+            }
+
+            if (audioRTPTranslator != null)
+            {
+                audioRTPTranslator.dispose();
+                audioRTPTranslator = null;
+            }
         }
     }
 
@@ -388,8 +397,8 @@ public class MediaAwareCallConference
             {
                 audioRTPTranslator
                     = ProtocolMediaActivator
-                    .getMediaService()
-                    .createRTPTranslator();
+                        .getMediaService()
+                            .createRTPTranslator();
             }
             return audioRTPTranslator;
         }
