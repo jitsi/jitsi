@@ -168,11 +168,11 @@ public class MetaUIContact
         int groupSourceIndex = 0;
         if (parentMetaContactGroup == null)
             return -1;
-        MetaContactGroup parentGroup 
+        MetaContactGroup parentGroup
             = parentMetaContactGroup.getParentMetaContactGroup();
-       
+
         if(parentGroup != null)
-            groupSourceIndex = parentGroup.indexOf(parentMetaContactGroup) 
+            groupSourceIndex = parentGroup.indexOf(parentMetaContactGroup)
                 * UIGroup.MAX_CONTACTS;
         return GuiActivator.getContactList()
                 .getMetaContactListSource().getIndex()
@@ -452,10 +452,7 @@ public class MetaUIContact
     {
         ExtendedTooltip tip = new ExtendedTooltip(true);
 
-        byte[] avatarImage = metaContact.getAvatar();
-
-        if (avatarImage != null && avatarImage.length > 0)
-            tip.setImage(new ImageIcon(avatarImage));
+        tip.setImage(getScaledAvatar(false, 30, 30));
 
         tip.setTitle(metaContact.getDisplayName());
 
