@@ -35,7 +35,7 @@ public class SmackPacketDebugger
     /**
      * The current jabber connection.
      */
-    private XMPPConnection connection = null;
+    private Connection connection = null;
 
     /**
      * Local address for the connection.
@@ -64,7 +64,7 @@ public class SmackPacketDebugger
      * Sets current connection.
      * @param connection the connection.
      */
-    public void setConnection(XMPPConnection connection)
+    public void setConnection(Connection connection)
     {
         this.connection = connection;
     }
@@ -85,14 +85,30 @@ public class SmackPacketDebugger
         {
             if(packetLogging.isLoggingEnabled(
                     PacketLoggingService.ProtocolName.JABBER)
-                && packet != null && connection.getSocket() != null)
+                && packet != null)
             {
                 if(remoteAddress == null)
                 {
-                    remoteAddress = connection.getSocket()
-                        .getInetAddress().getAddress();
-                    localAddress = connection.getSocket()
-                        .getLocalAddress().getAddress();
+                    if (connection.getSocket() != null)
+                    {
+                        remoteAddress = connection.getSocket()
+                            .getInetAddress().getAddress();
+                        localAddress = connection.getSocket()
+                            .getLocalAddress().getAddress();
+                    }
+                    else
+                    {
+                        remoteAddress = new byte[] { 0, 0, 0, 0 };
+                        localAddress = new byte[] { 0, 0, 0, 0 };
+                    }
+                }
+
+                int localPort = 0;
+                int remotePort = 5222;
+                if (connection.getSocket() != null)
+                {
+                    localPort = connection.getSocket().getLocalPort();
+                    remotePort = connection.getPort();
                 }
 
                 byte[] packetBytes;
@@ -110,9 +126,9 @@ public class SmackPacketDebugger
                 packetLogging.logPacket(
                         PacketLoggingService.ProtocolName.JABBER,
                         localAddress,
-                        connection.getSocket().getLocalPort(),
+                        localPort,
                         remoteAddress,
-                        connection.getPort(),
+                        remotePort,
                         PacketLoggingService.TransportName.TCP,
                         true,
                         packetBytes
@@ -198,8 +214,16 @@ public class SmackPacketDebugger
         {
             if(packetLogging.isLoggingEnabled(
                     PacketLoggingService.ProtocolName.JABBER)
-                && packet != null && connection.getSocket() != null)
+                && packet != null)
             {
+                int localPort = 0;
+                int remotePort = 5222;
+                if (connection.getSocket() != null)
+                {
+                    localPort = connection.getSocket().getLocalPort();
+                    remotePort = connection.getPort();
+                }
+
                 byte[] packetBytes;
 
                 if(packet instanceof Message)
@@ -215,9 +239,9 @@ public class SmackPacketDebugger
                 packetLogging.logPacket(
                     PacketLoggingService.ProtocolName.JABBER,
                     remoteAddress,
-                    connection.getPort(),
+                    remotePort,
                     localAddress,
-                    connection.getSocket().getLocalPort(),
+                    localPort,
                     PacketLoggingService.TransportName.TCP,
                     false,
                     packetBytes

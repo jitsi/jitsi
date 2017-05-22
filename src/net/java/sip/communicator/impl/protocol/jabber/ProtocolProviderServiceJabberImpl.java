@@ -1221,13 +1221,12 @@ public class ProtocolProviderServiceJabberImpl
             throw new XMPPException("Error creating custom trust manager", e);
         }
 
-        // FIXME rework debugger to work with Connection if possible
-        if(debugger == null && connection instanceof XMPPConnection)
+        if(debugger == null)
         {
             debugger = new SmackPacketDebugger();
 
             // sets the debugger
-            debugger.setConnection((XMPPConnection) connection);
+            debugger.setConnection(connection);
             connection.addPacketListener(debugger, null);
             connection.addPacketInterceptor(debugger, null);
         }
