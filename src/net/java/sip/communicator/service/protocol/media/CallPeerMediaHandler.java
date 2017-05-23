@@ -97,6 +97,11 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
     };
 
     /**
+     * Whether hole punching is disabled, by default it is enabled.
+     */
+    private boolean disableHolePunching = false;
+
+    /**
      * List of advertised encryption methods. Indicated before establishing the
      * call.
      */
@@ -1590,6 +1595,9 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      */
     protected void sendHolePunchPacket(MediaStream stream, MediaType mediaType)
     {
+        if (disableHolePunching)
+            return;
+
         // send as a hole punch packet a constructed rtp packet
         // has the correct payload type and ssrc
         RawPacket packet = new RawPacket(
@@ -2080,6 +2088,15 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
     public String getMsLabel()
     {
         return msLabel;
+    }
+
+    /**
+     * Changes whether hole punching is enabled/disabled.
+     * @param disableHolePunching the new value
+     */
+    public void setDisableHolePunching(boolean disableHolePunching)
+    {
+        this.disableHolePunching = disableHolePunching;
     }
 
     /**
