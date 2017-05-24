@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.protocol.sip;
 
 import gov.nist.javax.sip.header.*;
 import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.service.protocol.ProtocolProviderFactory;
 
 import javax.sip.address.*;
 import javax.sip.header.*;
@@ -136,6 +137,9 @@ public class ConfigHeaders
 
             headerValues.put(name, prefStr);
         }
+
+        CSeqHeader cSeqHeader = (CSeqHeader) request.getHeader(SIPHeaderNames.CSEQ);
+        Long seqNumber = cSeqHeader.getSeqNumber();
 
         // process the found custom headers
         for(Map<String, String> headerValues : headers.values())
