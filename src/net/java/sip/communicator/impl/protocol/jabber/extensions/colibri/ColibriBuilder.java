@@ -832,16 +832,23 @@ public class ColibriBuilder
 
             if (channel instanceof ColibriConferenceIQ.Channel)
             {
-                ColibriConferenceIQ.Channel channelRequest
-                    =  new ColibriConferenceIQ.Channel();
+                ColibriConferenceIQ.ChannelCommon requestChannel
+                    = getRequestChannel(
+                            request.getOrCreateContent(contentName),
+                            channel);
 
-                channelRequest.setID(channel.getID());
-                channelRequest.setDirection(e.getValue());
+                if (requestChannel instanceof ColibriConferenceIQ.Channel)
+                {
+                    ((ColibriConferenceIQ.Channel) requestChannel)
+                            .setDirection(e.getValue());
 
-                request.getOrCreateContent(contentName)
-                       .addChannelCommon(channelRequest);
-
-                hasAnyChanges = true;
+                    hasAnyChanges = true;
+                }
+                else
+                {
+                    logger.error("The type of the channel in the request does "
+                                     + "not match the local channel");
+                }
             }
         }
         return hasAnyChanges;
