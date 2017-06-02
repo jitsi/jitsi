@@ -568,11 +568,6 @@ public class ColibriBuilder
                     = (ColibriConferenceIQ.Channel) getRequestChannel(
                             request.getOrCreateContent(contentName),
                             channel);
-                if (channelRequest == null)
-                {
-                    channelRequest = new ColibriConferenceIQ.Channel();
-                    channelRequest.setID(channel.getID());
-                }
 
                 for (PayloadTypePacketExtension ptPE : pts)
                 {
