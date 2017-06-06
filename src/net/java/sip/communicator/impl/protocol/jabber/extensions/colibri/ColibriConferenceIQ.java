@@ -652,14 +652,14 @@ public class ColibriConferenceIQ
          * Sessions associated with this <tt>channel</tt>.
          */
         private final List<PayloadTypePacketExtension> payloadTypes
-            = new ArrayList<PayloadTypePacketExtension>();
+            = new ArrayList<>();
 
         /**
          * The <tt>rtp-hdrext</tt> elements defined by XEP-0294: Jingle RTP
          * Header Extensions Negotiation associated with this channel.
          */
         private final Map<Integer, RTPHdrExtPacketExtension> rtpHeaderExtensions
-            = new HashMap<Integer, RTPHdrExtPacketExtension>();
+            = new HashMap<>();
 
         /**
          * The target quality of the simulcast substreams to be sent from Jitsi
@@ -703,7 +703,7 @@ public class ColibriConferenceIQ
          * The <tt>SourcePacketExtension</tt>s of this channel.
          */
         private final List<SourcePacketExtension> sources
-            = new LinkedList<SourcePacketExtension>();
+            = new LinkedList<>();
 
         /**
          * The list of (RTP) SSRCs which have been seen/received on this
