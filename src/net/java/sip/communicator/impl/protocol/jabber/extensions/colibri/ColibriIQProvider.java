@@ -385,7 +385,19 @@ public class ColibriIQProvider
 
                     if (ColibriConferenceIQ.Channel.ELEMENT_NAME.equals(name))
                     {
-                        channel = new ColibriConferenceIQ.Channel();
+                        String type
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.Channel.TYPE_ATTR_NAME);
+
+                        if (ColibriConferenceIQ.OctoChannel.TYPE.equals(type))
+                        {
+                            channel = new ColibriConferenceIQ.OctoChannel();
+                        }
+                        else
+                        {
+                            channel = new ColibriConferenceIQ.Channel();
+                        }
 
                         // direction
                         String direction
@@ -573,6 +585,21 @@ public class ColibriIQProvider
                                 && (strategyName.length() != 0))
                             rtcpTerminationStrategy.setName(strategyName);
 
+                    }
+                    else if (ColibriConferenceIQ.OctoChannel
+                                    .RELAY_ELEMENT_NAME.equals(name))
+                    {
+                        String id
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.OctoChannel.RELAY_ID_ATTR_NAME);
+
+                        if (id != null &&
+                            channel instanceof ColibriConferenceIQ.OctoChannel)
+                        {
+                            ((ColibriConferenceIQ.OctoChannel) channel)
+                                .addRelay(id);
+                        }
                     }
                     else if (ColibriConferenceIQ.Channel.SSRC_ELEMENT_NAME
                             .equals(name))
