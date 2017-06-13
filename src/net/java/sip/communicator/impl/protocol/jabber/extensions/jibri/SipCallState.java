@@ -120,7 +120,7 @@ public class SipCallState
      */
     private XMPPErrorPE getErrorPE()
     {
-        List<? extends PacketExtension> errorPe
+        List<? extends ExtensionElement> errorPe
             = getChildExtensionsOfType(XMPPErrorPE.class);
 
         return (XMPPErrorPE) (!errorPe.isEmpty() ? errorPe.get(0) : null);

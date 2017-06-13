@@ -156,7 +156,7 @@ public class GroupPacketExtension
             if (elementName.equals(ContentPacketExtension.ELEMENT_NAME))
             {
                 ContentPacketExtension content
-                    = contentProvider.parseExtension(parser);
+                    = contentProvider.parse(parser, 0);
                 group.addChildExtension(content);
             }
 

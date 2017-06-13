@@ -815,7 +815,7 @@ public class ColibriBuilder
 
         assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
 
-        request.setType(IQ.Type.SET);
+        request.setType(IQ.Type.set);
 
         for (Map.Entry<String,MediaDirection> e : map.entrySet())
         {
