@@ -302,14 +302,14 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                 if (elementName.equals(ContentPacketExtension.ELEMENT_NAME))
                 {
                     ContentPacketExtension content
-                        = (ContentPacketExtension)contentProvider.parse(parser);
+                        = contentProvider.parse(parser);
                     jingleIQ.addContent(content);
                 }
                 // <reason/>
                 else if(elementName.equals(ReasonPacketExtension.ELEMENT_NAME))
                 {
                     ReasonPacketExtension reason
-                        = (ReasonPacketExtension)reasonProvider.parse(parser);
+                        = reasonProvider.parse(parser);
                     jingleIQ.setReason(reason);
                 }
                 // <transfer/>
@@ -317,17 +317,16 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                                 TransferPacketExtension.ELEMENT_NAME)
                         && namespace.equals(TransferPacketExtension.NAMESPACE))
                 {
-                    jingleIQ.addExtension(
-                            (ExtensionElement) transferProvider.parse(parser));
+                    jingleIQ.addExtension(transferProvider.parse(parser));
                 }
                 else if(elementName.equals(CoinPacketExtension.ELEMENT_NAME))
                 {
-                    jingleIQ.addExtension((CoinPacketExtension)coinProvider.parse(parser));
+                    jingleIQ.addExtension(coinProvider.parse(parser));
                 }
                 else if (elementName.equals(
                         ConferenceDescriptionPacketExtension.CALLID_ELEM_NAME))
                 {
-                    jingleIQ.addExtension((ConferenceDescriptionPacketExtension)callidProvider.parse(parser));
+                    jingleIQ.addExtension(callidProvider.parse(parser));
                 }
                 else if (elementName.equals(
                         GroupPacketExtension.ELEMENT_NAME))

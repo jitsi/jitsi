@@ -32,7 +32,7 @@ import org.xmlpull.v1.*;
  * @author Emil Ivov
  */
 public class DefaultPacketExtensionProvider<C extends AbstractPacketExtension>
-    extends ExtensionElementProvider
+    extends ExtensionElementProvider<C>
 {
     /**
      * The <tt>Logger</tt> used by the <tt>DefaultPacketExtensionProvider</tt>
