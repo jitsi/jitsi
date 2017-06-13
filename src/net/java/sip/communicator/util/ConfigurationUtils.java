@@ -974,6 +974,11 @@ public class ConfigurationUtils
 
         File taskbar = new File(System.getenv("appdata"),
             "Microsoft\\Internet Explorer\\Quick Launch\\User Pinned\\TaskBar");
+        if (!taskbar.exists())
+        {
+            return false;
+        }
+
         File[] pins = taskbar.listFiles(new FileFilter()
         {
             @Override
