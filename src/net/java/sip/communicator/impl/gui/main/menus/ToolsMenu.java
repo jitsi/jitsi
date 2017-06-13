@@ -765,7 +765,7 @@ public class ToolsMenu
 
                 if (c instanceof JComponent)
                 {
-                    ((JComponent) c).revalidate();
+                    c.revalidate();
                 }
                 c.repaint();
             }

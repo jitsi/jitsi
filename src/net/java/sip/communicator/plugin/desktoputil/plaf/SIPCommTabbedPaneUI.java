@@ -955,7 +955,7 @@ public class SIPCommTabbedPaneUI
         }
         else if (visibleComponent instanceof JComponent)
         {
-            if (((JComponent) visibleComponent).requestFocusInWindow())
+            if (visibleComponent.requestFocusInWindow())
             {
                 return true;
             }

@@ -89,7 +89,7 @@ public class ReasonProvider extends ExtensionElementProvider<ReasonPacketExtensi
             }
         }
         ReasonPacketExtension reasonExt
-            = new ReasonPacketExtension(reason, text, (ExtensionElement)null);
+            = new ReasonPacketExtension(reason, text, null);
 
         return reasonExt;
 

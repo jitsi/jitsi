@@ -1467,7 +1467,7 @@ public class UIServiceImpl
             {
                 JPopupMenu jpm = ((JComponent) c).getComponentPopupMenu();
                 if(jpm != null && jpm.isVisible()
-                        && jpm.getInvoker() == (JComponent)c)
+                        && jpm.getInvoker() == c)
                 {
                     if (jpm instanceof Skinnable)
                         ((Skinnable) jpm).loadSkin();

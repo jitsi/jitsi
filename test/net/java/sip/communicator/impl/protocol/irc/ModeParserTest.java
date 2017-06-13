@@ -35,7 +35,7 @@ public class ModeParserTest
     {
         try
         {
-            new ModeParser((String) null);
+            new ModeParser(null);
             Assert.fail("Expected NPE");
         }
         catch (NullPointerException e)

@@ -109,7 +109,7 @@ public class AccountList
                     SwingUtilities.convertPointToScreen(
                         point, AccountList.this);
 
-                    ((JPopupMenu) rightButtonMenu).setInvoker(AccountList.this);
+                    rightButtonMenu.setInvoker(AccountList.this);
 
                     rightButtonMenu.setLocation(point.x, point.y);
                     rightButtonMenu.setVisible(true);

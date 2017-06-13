@@ -276,15 +276,7 @@ public class SystrayServiceJdicImpl
         }
 
         //Show/hide the contact list when user clicks on the systray.
-        final Object defaultActionItem;
-        if (systray.useSwingPopupMenu())
-        {
-            defaultActionItem = ((JMenuItem) createdMenu.getRight());
-        }
-        else
-        {
-            defaultActionItem = ((MenuItem) createdMenu.getRight());
-        }
+        final Object defaultActionItem = createdMenu.getRight();
 
         /*
          * Change the Mac OS X icon with the white one when the pop-up menu
