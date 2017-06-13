@@ -19,6 +19,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
@@ -34,14 +35,16 @@ import org.apache.http.client.entity.*;
 import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.*;
 import org.apache.http.message.*;
+import org.apache.http.util.*;
 import org.jitsi.service.resources.*;
 
 import com.google.api.client.auth.oauth2.*;
 import com.google.api.client.http.*;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.javanet.*;
-import com.google.api.client.json.*;
 import com.google.api.client.json.jackson2.*;
+import com.google.gson.*;
+import com.google.gson.annotations.*;
 
 /**
  * OAuth 2 token store.
@@ -71,20 +74,6 @@ public class OAuth2TokenStore
      * Symbol for expiration time in token server response.
      */
     private static final String EXPIRES_IN_SYMBOL = "expires_in";
-
-    /**
-     * Interesting token server response fields.
-     */
-    private static final Set<String> TOKEN_RESPONSE_FIELDS;
-
-    static
-    {
-        final HashSet<String> set = new HashSet<String>();
-        set.add(REFRESH_TOKEN_SYMBOL);
-        set.add(ACCESS_TOKEN_SYMBOL);
-        set.add(EXPIRES_IN_SYMBOL);
-        TOKEN_RESPONSE_FIELDS = Collections.unmodifiableSet(set);
-    }
 
     /**
      * Google OAuth 2 token server.
@@ -129,6 +118,8 @@ public class OAuth2TokenStore
             + "&response_type=code&client_id=%s", GOOGLE_API_OAUTH2_SCOPES,
         GOOGLE_API_OAUTH2_REDIRECT_URI, GOOGLE_API_CLIENT_ID);
 
+    private static final Gson GSON = new Gson();
+
     /**
      * The credential store.
      *
@@ -164,7 +155,7 @@ public class OAuth2TokenStore
             {
                 acquireCredential(this.store, identity);
             }
-            catch (Exception e)
+            catch (final URISyntaxException | IOException | RuntimeException e)
             {
                 throw new FailedAcquireCredentialException(e);
             }
@@ -368,8 +359,8 @@ public class OAuth2TokenStore
      * 
      * @param approvalCode the approval code
      * @return Returns the acquired token data from OAuth 2 token server.
-     * @throws IOException 
-     * @throws ClientProtocolException 
+     * @throws IOException
+     * @throws ClientProtocolException
      */
     private static TokenData requestAuthenticationToken(
         final String approvalCode) throws ClientProtocolException, IOException
@@ -385,40 +376,9 @@ public class OAuth2TokenStore
                 new BasicNameValuePair("grant_type", GOOGLE_API_GRANT_TYPE)));
         post.setEntity(entity);
         final HttpResponse httpResponse = client.execute(post);
-        final JsonParser parser =
-            JacksonFactory.getDefaultInstance().createJsonParser(
-                httpResponse.getEntity().getContent());
-        try
-        {
-            // Token response components initialized with defaults in case
-            // fields are missing in the token server response.
-            String accessToken = "";
-            String refreshToken = "";
-            long expiresIn = 3600;
-            // Parse token server response.
-            String found;
-            while (parser.nextToken() != JsonToken.END_OBJECT)
-            {
-                found = parser.skipToKey(TOKEN_RESPONSE_FIELDS);
-                if (REFRESH_TOKEN_SYMBOL.equals(found))
-                {
-                    refreshToken = parser.getText();
-                }
-                else if (ACCESS_TOKEN_SYMBOL.equals(found))
-                {
-                    accessToken = parser.getText();
-                }
-                else if (EXPIRES_IN_SYMBOL.equals(found))
-                {
-                    expiresIn = parser.getLongValue();
-                }
-            }
-            return new TokenData(accessToken, refreshToken, expiresIn);
-        }
-        finally
-        {
-            parser.close();
-        }
+        final String responseJson = EntityUtils.toString(
+                httpResponse.getEntity(), StandardCharsets.UTF_8);
+        return GSON.fromJson(responseJson, TokenData.class);
     }
 
     /**
@@ -561,17 +521,23 @@ public class OAuth2TokenStore
         /**
          * OAuth 2 access token.
          */
-        private final String accessToken;
+        @SerializedName(value = ACCESS_TOKEN_SYMBOL)
+        private String accessToken;
 
         /**
          * OAuth 2 refresh token.
          */
-        private final String refreshToken;
+        @SerializedName(value = REFRESH_TOKEN_SYMBOL)
+        private String refreshToken;
 
         /**
          * Available time before expiration of the current access token.
          */
-        private final long expiration;
+        @SerializedName(value = EXPIRES_IN_SYMBOL)
+        private long expiration;
+
+        TokenData() {
+        }
 
         /**
          * Constructor for TokenData container.
@@ -592,9 +558,21 @@ public class OAuth2TokenStore
             if (expirationTime < 0)
             {
                 throw new IllegalArgumentException(
-                    "Expiration time cannot be null");
+                    "Expiration time cannot be smaller than zero");
             }
             this.expiration = expirationTime;
+        }
+
+        void setAccessToken(String accessToken) {
+            this.accessToken = accessToken;
+        }
+
+        void setRefreshToken(String refreshToken) {
+            this.refreshToken = refreshToken;
+        }
+
+        void setExpiration(long expiration) {
+            this.expiration = expiration;
         }
     }
 

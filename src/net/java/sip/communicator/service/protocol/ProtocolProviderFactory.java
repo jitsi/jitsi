@@ -468,6 +468,12 @@ public abstract class ProtocolProviderFactory
         = "CALLING_DISABLED";
 
     /**
+     * Indicates if video calling is disabled for a certain account.
+     */
+    public static final String IS_VIDEO_CALLING_DISABLED_FOR_ACCOUNT
+        = "VIDEO_CALLING_DISABLED";
+
+    /**
      * Indicates if desktop streaming/sharing is disabled for a certain account.
      */
     public static final String IS_DESKTOP_STREAMING_DISABLED

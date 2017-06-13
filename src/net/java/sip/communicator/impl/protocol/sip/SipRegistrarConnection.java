@@ -400,7 +400,7 @@ public class SipRegistrarConnection
 
         //now check if the registrar has touched our expiration timeout in its
         //response. Again, check contact headers first.
-        int grantedExpiration = -1;
+        int grantedExpiration;
 
         ContactHeader responseContactHdr = (ContactHeader) response.getHeader(
             ContactHeader.NAME);
@@ -408,19 +408,21 @@ public class SipRegistrarConnection
         {
             grantedExpiration = responseContactHdr.getExpires();
         }
-
-        //no luck there, try the expires header.
-        ExpiresHeader expiresHeader = response.getExpires();
-
-        if (expiresHeader != null)
-        {
-            grantedExpiration = expiresHeader.getExpires();
-        }
-        //still no luck - let's be tolerant and reuse the expires timeout we
-        //stated in our last request
         else
         {
-            grantedExpiration = requestedExpiration;
+            //no luck there, try the expires header.
+            ExpiresHeader expiresHeader = response.getExpires();
+
+            if (expiresHeader != null)
+            {
+                grantedExpiration = expiresHeader.getExpires();
+            }
+            //still no luck - let's be tolerant and reuse the expires timeout we
+            //stated in our last request
+            else
+            {
+                grantedExpiration = requestedExpiration;
+            }
         }
 
         //If this is a response to a REGISTER request ending our registration
@@ -787,31 +789,23 @@ public class SipRegistrarConnection
 
     /**
     * Schedules a reregistration for after almost <tt>expires</tt>
-    * seconds. The method leaves a margin for all intervals larger than
-    * 60 seconds, scheduling the registration for slightly earlier by reducing
-    * with 10% the number of seconds specified in the expires param.
+    * seconds. The method leaves a margin for all intervals, scheduling
+    * the registration for slightly earlier by reducing with 10% the number
+    * of seconds specified in the expires param.
     * <p>
     * @param expires the number of seconds that we specified in the
     * expires header when registering.
     */
     private void scheduleReRegistration(int expires)
     {
-            ReRegisterTask reRegisterTask = new ReRegisterTask();
+        ReRegisterTask reRegisterTask = new ReRegisterTask();
 
-            //java.util.Timer thinks in miliseconds and expires header contains
-            //seconds
-            //bug report and fix by Willem Romijn (romijn at lucent.com)
-            //We keep a margin of 10% when sending re-registrations (1000
-            //becomes 900)
-            if (expires > 60)
-            {
-                expires = expires * 900;
-            }
-            else{
-                expires = expires * 1000;
-            }
-
-            reRegisterTimer.schedule(reRegisterTask, expires);
+        //java.util.Timer thinks in miliseconds and expires header contains
+        //seconds
+        //bug report and fix by Willem Romijn (romijn at lucent.com)
+        //We keep a margin of 10% when sending re-registrations (1000
+        //becomes 900)
+        reRegisterTimer.schedule(reRegisterTask, expires * 900);
     }
 
     /**

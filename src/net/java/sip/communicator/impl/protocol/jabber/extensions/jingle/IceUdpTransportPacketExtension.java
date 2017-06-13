@@ -21,6 +21,7 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import org.jivesoftware.smack.packet.*;
 
 /**
@@ -328,6 +329,12 @@ public class IceUdpTransportPacketExtension
             if (!(srcCand instanceof RemoteCandidatePacketExtension))
                 dst.addCandidate(
                     AbstractPacketExtension.clone(srcCand));
+        }
+        // Copy "web-socket" extensions.
+        for (WebSocketPacketExtension wspe : src.getChildExtensionsOfType(
+            WebSocketPacketExtension.class))
+        {
+            dst.addChildExtension(new WebSocketPacketExtension(wspe.getUrl()));
         }
         // Copy RTCP MUX
         if (src.isRtcpMux())

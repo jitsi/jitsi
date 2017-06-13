@@ -30,6 +30,9 @@ import org.xbill.DNS.*;
 /**
  * Utility methods and fields to use when working with network addresses.
  *
+ * TODO: there is a lot of duplication between this class and
+ * org.ice4j.ice.NetworkUtils
+ *
  * @author Emil Ivov
  * @author Damian Minkov
  * @author Vincent Lucas
@@ -128,35 +131,6 @@ public class NetworkUtils
     }
 
     /**
-     * Determines whether the address is an IPv4 link local address. IPv4 link
-     * local addresses are those in the following networks:
-     *
-     * 10.0.0.0    to 10.255.255.255
-     * 172.16.0.0  to 172.31.255.255
-     * 192.168.0.0 to 192.168.255.255
-     *
-     * @param add the address to inspect
-     * @return true if add is a link local ipv4 address and false if not.
-     */
-    public static boolean isLinkLocalIPv4Address(InetAddress add)
-    {
-        if (add instanceof Inet4Address)
-        {
-            byte address[] = add.getAddress();
-            if ( (address[0] & 0xFF) == 10)
-                return true;
-            if ( (address[0] & 0xFF) == 172
-                && (address[1] & 0xFF) >= 16 && address[1] <= 31)
-                return true;
-            if ( (address[0] & 0xFF) == 192
-                && (address[1] & 0xFF) == 168)
-                return true;
-            return false;
-        }
-        return false;
-    }
-
-    /**
      * Returns a random local port number that user applications could bind to.
      * (i.e. above 1024).
      * @return a random int located between 1024 and 65 535.
@@ -167,44 +141,16 @@ public class NetworkUtils
     }
 
     /**
-     * Returns a random local port number, greater than min and lower than max.
+     * Returns a random local port number in the interval [min, max].
      *
      * @param min the minimum allowed value for the returned port number.
      * @param max the maximum allowed value for the returned port number.
      *
-     * @return a random int located between greater than min and lower than max.
+     * @return a random int in the interval [min, max].
      */
     public static int getRandomPortNumber(int min, int max)
     {
-        return portNumberGenerator.nextInt(max - min) + min;
-    }
-
-    /**
-     * Returns a random local port number, greater than min and lower than max.
-     * If the pair flag is set to true, then the returned port number is
-     * guaranteed to be pair. This is useful for protocols that require this
-     * such as RTP
-     *
-     * @param min the minimum allowed value for the returned port number.
-     * @param max the maximum allowed value for the returned port number.
-     * @param pair specifies whether the caller would like the returned port to
-     * be pair.
-     *
-     * @return a random int located between greater than min and lower than max.
-     */
-    public static int getRandomPortNumber(int min, int max, boolean pair)
-    {
-        if(pair)
-        {
-            int delta = max - min;
-            delta /= 2;
-            int port = getRandomPortNumber(min, min + delta);
-            return port * 2;
-        }
-        else
-        {
-            return getRandomPortNumber(min, max);
-        }
+        return portNumberGenerator.nextInt(max - min + 1) + min;
     }
 
     /**
@@ -1230,11 +1176,11 @@ public class NetworkUtils
      * @param port the port number that we'd like verified.
      *
      * @return <tt>true</tt> if port is a valid and bindable port number and
-     * <tt>alse</tt> otherwise.
+     * <tt>false</tt> otherwise.
      */
     public static boolean isValidPortNumber(int port)
     {
-        return MIN_PORT_NUMBER < port && port < MAX_PORT_NUMBER;
+        return MIN_PORT_NUMBER <= port && port <= MAX_PORT_NUMBER;
     }
 
     /**

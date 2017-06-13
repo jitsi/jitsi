@@ -19,6 +19,8 @@ package net.java.sip.communicator.service.protocol;
 
 import org.jivesoftware.smack.packet.*;
 
+import java.util.*;
+
 /**
  * The operation set provides functionality specific to Jitsi Meet WebRTC
  * conference and is currently used in the SIP gateway.
@@ -103,10 +105,12 @@ public interface OperationSetJitsiMeetTools
          * @param call the incoming {@link Call} instance.
          * @param jitsiMeetRoom the name of multi user chat room that is hosting
          *                      Jitsi Meet conference.
-         * @param jitsiMeetRoomPass optional password required to join conference
-         *                          room(if it is protected)
+         * @param extraData extra data passes for this request in the form
+         *                  of Map<name, value>.
          */
         void onJoinJitsiMeetRequest(
-            Call call, String jitsiMeetRoom, String jitsiMeetRoomPass);
+            Call call,
+            String jitsiMeetRoom,
+            Map<String, String> extraData);
     }
 }

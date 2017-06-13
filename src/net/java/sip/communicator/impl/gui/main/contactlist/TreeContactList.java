@@ -1796,7 +1796,7 @@ public class TreeContactList
                 getCellRenderer().getTreeCellRendererComponent(
                         this,
                         mousePath.getLastPathComponent(),
-                        true,
+                        getLastSelectedPathComponent() == mousePath.getLastPathComponent(),
                         true,
                         true,
                         getRowForPath(mousePath),

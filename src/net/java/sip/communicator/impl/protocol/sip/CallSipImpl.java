@@ -58,32 +58,6 @@ public class CallSipImpl
     private static final Logger logger = Logger.getLogger(CallSipImpl.class);
 
     /**
-     * Name of extra INVITE header which specifies name of MUC room that is
-     * hosting the Jitsi Meet conference.
-     */
-    public String JITSI_MEET_ROOM_HEADER = "Jitsi-Conference-Room";
-
-    /**
-     * Property name of extra INVITE header which specifies name of MUC room
-     * that is hosting the Jitsi Meet conference.
-     */
-    private static final String JITSI_MEET_ROOM_HEADER_PROPERTY
-        = "JITSI_MEET_ROOM_HEADER_NAME";
-
-    /**
-     * Property name of extra INVITE header which specifies password required
-     * to enter MUC room that is hosting the Jitsi Meet conference.
-     */
-    public String JITSI_MEET_ROOM_PASS_HEADER = "Jitsi-Conference-Room-Pass";
-
-    /**
-     * Name of extra INVITE header which specifies password required to enter
-     * MUC room that is hosting the Jitsi Meet conference.
-     */
-    private static final String JITSI_MEET_ROOM_PASS_HEADER_PROPERTY
-        = "JITSI_MEET_ROOM_PASS_HEADER_NAME";
-
-    /**
      * Custom header included in initial desktop sharing call creation.
      * Not included when we are upgrading an ongoing audio/video call.
      */
@@ -170,13 +144,6 @@ public class CallSipImpl
                         retransmitsRingingInterval);
         }
         this.retransmitsRingingInterval = retransmitsRingingInterval;
-
-        AccountID account = parentOpSet.getProtocolProvider().getAccountID();
-        // Specify custom header names
-        JITSI_MEET_ROOM_HEADER = account.getAccountPropertyString(
-            JITSI_MEET_ROOM_HEADER_PROPERTY, JITSI_MEET_ROOM_HEADER);
-        JITSI_MEET_ROOM_PASS_HEADER = account.getAccountPropertyString(
-            JITSI_MEET_ROOM_PASS_HEADER_PROPERTY, JITSI_MEET_ROOM_PASS_HEADER);
 
         //let's add ourselves to the calls repo. we are doing it ourselves just
         //to make sure that no one ever forgets.
@@ -596,23 +563,11 @@ public class CallSipImpl
         if (alternativeIMPPAddress != null)
             peer.setAlternativeIMPPAddress(alternativeIMPPAddress);
 
-        // Parses Jitsi Meet room name header
-        SIPHeader joinRoomHeader
-            = (SIPHeader) invite.getHeader(JITSI_MEET_ROOM_HEADER);
-        // Optional password header
-        SIPHeader passwordHeader
-            = (SIPHeader) invite.getHeader(JITSI_MEET_ROOM_PASS_HEADER);
-
-        if (joinRoomHeader != null)
-        {
-            OperationSetJitsiMeetToolsSipImpl jitsiMeetTools
-                = (OperationSetJitsiMeetToolsSipImpl) getProtocolProvider()
-                        .getOperationSet(OperationSetJitsiMeetTools.class);
-
-            jitsiMeetTools.notifyJoinJitsiMeetRoom(
-                this, joinRoomHeader.getValue(),
-                passwordHeader != null ? passwordHeader.getValue() : null);
-        }
+        OperationSetJitsiMeetToolsSipImpl jitsiMeetTools
+            = (OperationSetJitsiMeetToolsSipImpl) getProtocolProvider()
+                    .getOperationSet(OperationSetJitsiMeetTools.class);
+        jitsiMeetTools.notifyJoinJitsiMeetRoom(
+            this, extractRequestHeaders(invite));
 
         //send a ringing response
         Response response = null;
@@ -757,6 +712,26 @@ public class CallSipImpl
             extraHeaderIx++;
             name = getData(EXTRA_HEADER_NAME + "." + extraHeaderIx);
         }
+    }
+
+    /**
+     * Extracts all headers from the request and return them in a map.
+     * @param req the request from which to extract headers
+     * @return a map containing all request header values, mapped to names.
+     */
+    private static Map<String, String> extractRequestHeaders(Request req)
+    {
+        Map<String, String> headers = new HashMap<>();
+        for (Iterator<String> headerNameIter = req.getHeaderNames();
+             headerNameIter.hasNext();)
+        {
+            String name = headerNameIter.next();
+            SIPHeader header = (SIPHeader)req.getHeader(name);
+            if (header != null)
+                headers.put(name, header.getValue());
+        }
+
+        return headers;
     }
 
     /**

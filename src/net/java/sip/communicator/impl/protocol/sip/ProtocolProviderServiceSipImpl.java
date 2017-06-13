@@ -652,7 +652,7 @@ public class ProtocolProviderServiceSipImpl
                 // Jitsi Meet Tools
                 addSupportedOperationSet(
                     OperationSetJitsiMeetTools.class,
-                    new OperationSetJitsiMeetToolsSipImpl());
+                    new OperationSetJitsiMeetToolsSipImpl(this));
 
                 boolean isParkingEnabled
                     = accountID.getAccountPropertyBoolean(
@@ -2465,6 +2465,8 @@ public class ProtocolProviderServiceSipImpl
             uriStr = uriStr.substring("callto:".length());
         else if(uriStr.toLowerCase().startsWith("sips:"))
             uriStr = uriStr.substring("sips:".length());
+        else if(uriStr.toLowerCase().startsWith("sip:"))
+            uriStr = uriStr.substring("sip:".length());
 
         String user = uriStr;
         String remainder = "";

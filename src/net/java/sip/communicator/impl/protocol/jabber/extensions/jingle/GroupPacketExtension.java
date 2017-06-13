@@ -18,6 +18,7 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
+import org.xmlpull.v1.*;
 
 import java.util.*;
 
@@ -123,5 +124,49 @@ public class GroupPacketExtension
 
             addChildExtension(copy);
         }
+    }
+
+    /**
+     * Parses group extension content.
+     * @param parser an XML parser positioned at the packet's starting element.
+     * @return new <tt>GroupPacketExtension</tt> initialized with parsed
+     * contents list.
+     * @throws java.lang.Exception if an error occurs parsing the XML.
+     */
+    public static GroupPacketExtension parseExtension(XmlPullParser parser)
+        throws Exception
+    {
+        GroupPacketExtension group = new GroupPacketExtension();
+
+        String semantics = parser.getAttributeValue("", SEMANTICS_ATTR_NAME);
+        if (semantics != null)
+            group.setSemantics(semantics);
+
+        boolean done = false;
+        int eventType;
+        String elementName;
+        DefaultPacketExtensionProvider<ContentPacketExtension> contentProvider
+            = new DefaultPacketExtensionProvider<ContentPacketExtension>(
+            ContentPacketExtension.class);
+        while (!done)
+        {
+            eventType = parser.next();
+            elementName = parser.getName();
+
+            if (elementName.equals(ContentPacketExtension.ELEMENT_NAME))
+            {
+                ContentPacketExtension content
+                    = contentProvider.parseExtension(parser);
+                group.addChildExtension(content);
+            }
+
+            if ((eventType == XmlPullParser.END_TAG)
+                && parser.getName().equals(ELEMENT_NAME))
+            {
+                done = true;
+            }
+        }
+
+        return group;
     }
 }

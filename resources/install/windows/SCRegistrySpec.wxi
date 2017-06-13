@@ -26,7 +26,10 @@
       Guid="5798BE9D-AEA5-4DA8-992E-EEAD03D7E4CB"
       Win64="no">
     <RegistryKey Key="Software\Jitsi\Capabilities" Root="HKLM">
-      <RegistryValue Name="ApplicationDescription" Type="string" Value="Jitsi, the OpenSource Java VoIP and Instant Messaging client." />
+      <RegistryValue Name="ApplicationDescription" Type="string" Value="Jitsi, the Open Source VoIP and Instant Messaging client." />
+    </RegistryKey>
+    <RegistryKey Key="Software\RegisteredApplications" Root="HKLM">
+      <RegistryValue Name="Jitsi" Type="string" Value="Software\Jitsi\Capabilities" />
     </RegistryKey>
     <RegistryKey Key="Software\Jitsi\Capabilities\UrlAssociations" Root="HKLM">
       <RegistryValue Name="callto" Type="string" Value="Jitsi.Url" />
@@ -170,7 +173,10 @@
       Guid="3de76b6b-90b9-403d-82ac-51d841ea95af"
       Win64="yes">
     <RegistryKey Key="Software\Jitsi\Capabilities" Root="HKLM">
-      <RegistryValue Name="ApplicationDescription" Type="string" Value="Jitsi, the OpenSource Java VoIP and Instant Messaging client." />
+      <RegistryValue Name="ApplicationDescription" Type="string" Value="Jitsi, the Open Source VoIP and Instant Messaging client." />
+    </RegistryKey>
+    <RegistryKey Key="Software\RegisteredApplications" Root="HKLM">
+      <RegistryValue Name="Jitsi" Type="string" Value="Software\Jitsi\Capabilities" />
     </RegistryKey>
     <RegistryKey Key="Software\Jitsi\Capabilities\UrlAssociations" Root="HKLM">
       <RegistryValue Name="callto" Type="string" Value="Jitsi.Url" />

@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet.*;
 import net.java.sip.communicator.service.protocol.jabber.*;
 import org.jivesoftware.smack.packet.ExtensionElement;
@@ -220,6 +221,13 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                 new DefaultPacketExtensionProvider<RtcpmuxPacketExtension>(
                         RtcpmuxPacketExtension.class));
 
+        //web-socket
+        smackInteroperabilityLayer.addExtensionProvider(
+            WebSocketPacketExtension.ELEMENT_NAME,
+            WebSocketPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider<>(
+                WebSocketPacketExtension.class));
+
         //ssrcInfo
         smackInteroperabilityLayer.addExtensionProvider(
                 SSRCInfoPacketExtension.ELEMENT_NAME,
@@ -320,6 +328,12 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                         ConferenceDescriptionPacketExtension.CALLID_ELEM_NAME))
                 {
                     jingleIQ.addExtension((ConferenceDescriptionPacketExtension)callidProvider.parse(parser));
+                }
+                else if (elementName.equals(
+                        GroupPacketExtension.ELEMENT_NAME))
+                {
+                    jingleIQ.addExtension(
+                        GroupPacketExtension.parseExtension(parser));
                 }
 
                 //<mute/> <active/> and other session-info elements
