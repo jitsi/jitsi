@@ -30,7 +30,7 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/hexdump-0.2.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/httpclient-osgi-4.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/httpcore-osgi-4.2.3.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/ice4j-2.0-20170111.193659-7.jar" sourcepath="/ice4j/src/main/java"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/ice4j-2.0-20170330.222540-11.jar" sourcepath="/ice4j/src/main/java"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/sdp-api-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/sip-api-1.2-1.2.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jain-sip-ri-ossonly-1.2.279-jitsi-oss1.jar" sourcepath="/jain-sip/src">
@@ -55,7 +55,7 @@
 			<attribute name="javadoc_location" value="http://dbus.freedesktop.org/doc/dbus-java/api/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi-1.0-20170207.194207-242.jar" sourcepath="/libjitsi/src"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi-1.0-20170331.031709-269.jar" sourcepath="/libjitsi/src"/>
 	<classpathentry kind="lib" path="lib/bundle/log4j.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/mac_widgets-0.9.5.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/objenesis-1.2.jar"/>
@@ -80,6 +80,7 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/google-oauth-client-1.20.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jackson-core-2.5.3.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/dnssecjava-1.1.jar" sourcepath="/dnssecjava"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/gson-2.8.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/smack-core-4.2.0-rc2.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/smack-debug-4.2.0-rc2.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/smack-extensions-4.2.0-rc2.jar"/>
