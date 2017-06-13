@@ -411,7 +411,7 @@ public class CalendarServiceImpl implements CalendarService
                     {
                         long time
                             = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z")
-                                .parse((String)props[i] + " UTC").getTime();
+                                .parse(props[i] + " UTC").getTime();
                         startTime = new Date(time);
                     }
                     catch (ParseException e)
@@ -425,7 +425,7 @@ public class CalendarServiceImpl implements CalendarService
                     {
                         long time
                             = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z")
-                                .parse((String)props[i] + " UTC").getTime();
+                                .parse(props[i] + " UTC").getTime();
                         endTime = new Date(time);
                     }
                     catch (ParseException e)

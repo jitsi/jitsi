@@ -253,7 +253,7 @@ public class MockOperationSetBasicTelephony
     public void callStateChanged(CallChangeEvent evt)
     {
         if(evt.getEventType().equals(CallChangeEvent.CALL_STATE_CHANGE)
-           && ((CallState)evt.getNewValue()).equals(CallState.CALL_ENDED))
+           && evt.getNewValue().equals(CallState.CALL_ENDED))
         {
             MockCall sourceCall = (MockCall)this.activeCalls
                 .remove(evt.getSourceCall().getCallID());

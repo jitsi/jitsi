@@ -369,7 +369,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
             {
                 if (detail.getDetailValue() != null)
                     vCard.setField(
-                        "URL", ((URL)detail.getDetailValue()).toString());
+                        "URL", detail.getDetailValue().toString());
             }
             else if (detail.getClass().equals(BirthDateDetail.class))
             {

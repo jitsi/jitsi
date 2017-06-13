@@ -427,13 +427,13 @@ public class MockPersistentPresenceOperationSet
     public void unsubscribe(Contact contact) throws IllegalArgumentException,
         IllegalStateException, OperationFailedException
     {
-        MockContactGroup parentGroup = (MockContactGroup)((MockContact)contact)
+        MockContactGroup parentGroup = (MockContactGroup) contact
             .getParentContactGroup();
 
         parentGroup.removeContact((MockContact)contact);
 
         fireSubscriptionEvent(contact,
-                                       ((MockContact)contact).getParentContactGroup(),
+                                       contact.getParentContactGroup(),
                                        SubscriptionEvent.SUBSCRIPTION_REMOVED);
     }
 

@@ -678,7 +678,7 @@ public class OperationSetPersistentPresenceGibberishImpl
         IllegalStateException, OperationFailedException
     {
         ContactGroupGibberishImpl parentGroup
-            = (ContactGroupGibberishImpl)((ContactGibberishImpl)contact)
+            = (ContactGroupGibberishImpl) contact
             .getParentContactGroup();
 
         parentGroup.removeContact((ContactGibberishImpl)contact);

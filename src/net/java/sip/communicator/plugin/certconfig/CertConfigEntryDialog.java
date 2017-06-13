@@ -296,7 +296,7 @@ public class CertConfigEntryDialog
                     setLayout(new BorderLayout());
                     final JScrollPane certScroll =
                         new JScrollPane(new X509CertificatePanel(
-                            (X509Certificate) keyStore.getCertificate(cboAlias
+                            keyStore.getCertificate(cboAlias
                                 .getSelectedItem().toString())));
                     certScroll.setPreferredSize(new Dimension(600, 300));
                     certScroll.getVerticalScrollBar().setValue(0);

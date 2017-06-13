@@ -622,7 +622,7 @@ public class MsOutlookAddrBookContactSourceService
         public boolean equals(Object obj)
         {
             return (this.id == null && obj == null
-                || obj instanceof String && this.id.equals((String) obj));
+                || obj instanceof String && this.id.equals(obj));
         }
 
         /**

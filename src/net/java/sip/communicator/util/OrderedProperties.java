@@ -92,7 +92,7 @@ public class OrderedProperties
     @Override
     public Enumeration<Object> keys()
     {
-        return Collections.<Object>enumeration(linkedMap.keySet());
+        return Collections.enumeration(linkedMap.keySet());
     }
 
     /**
@@ -103,7 +103,7 @@ public class OrderedProperties
     @Override
     public Enumeration<Object> elements()
     {
-        return Collections.<Object>enumeration(linkedMap.values());
+        return Collections.enumeration(linkedMap.values());
     }
 
     /**

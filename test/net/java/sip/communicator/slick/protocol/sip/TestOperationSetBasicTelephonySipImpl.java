@@ -907,7 +907,7 @@ public class TestOperationSetBasicTelephonySipImpl
                 logger.debug(
                     "Collected evt("+collectedEvents.size()+")= "+event);
 
-                if(((CallPeerState)event.getNewValue())
+                if(event.getNewValue()
                     .equals(awaitedState))
                 {
                     this.collectedEvents.add(event);
@@ -1031,7 +1031,7 @@ public class TestOperationSetBasicTelephonySipImpl
                 logger.debug(
                     "Collected evt("+collectedEvents.size()+")= "+event);
 
-                if(((CallState)event.getNewValue()).equals(awaitedState))
+                if(event.getNewValue().equals(awaitedState))
                 {
                     this.collectedEvents.add(event);
                     notifyAll();

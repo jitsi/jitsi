@@ -209,7 +209,7 @@ public class GoogleContactsServiceImpl
 
         configService.setProperty(
             path + ".prefix",
-            ((GoogleContactsConnectionImpl)cnx).getPrefix());
+            cnx.getPrefix());
     }
 
     /**

@@ -88,7 +88,7 @@ public class ReasonProvider implements PacketExtensionProvider
             }
         }
         ReasonPacketExtension reasonExt
-            = new ReasonPacketExtension(reason, text, (PacketExtension)null);
+            = new ReasonPacketExtension(reason, text, null);
 
         return reasonExt;
 
