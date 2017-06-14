@@ -38,11 +38,8 @@ public class HealthCheckIQProvider
      */
     public static void registerIQProvider()
     {
-        AbstractSmackInteroperabilityLayer smackInteropLayer =
-            AbstractSmackInteroperabilityLayer.getInstance();
-
         // ColibriStatsIQ
-        smackInteropLayer.addIQProvider(
+        ProviderManager.addIQProvider(
             HealthCheckIQ.ELEMENT_NAME,
             HealthCheckIQ.NAMESPACE,
             new HealthCheckIQProvider());

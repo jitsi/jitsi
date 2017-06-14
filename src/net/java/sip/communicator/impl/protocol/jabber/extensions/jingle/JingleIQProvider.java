@@ -42,12 +42,8 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
      */
     public JingleIQProvider()
     {
-
-        AbstractSmackInteroperabilityLayer smackInteroperabilityLayer = 
-                AbstractSmackInteroperabilityLayer.getInstance();
-
         //<description/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 RtpDescriptionPacketExtension.ELEMENT_NAME,
                 RtpDescriptionPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -55,7 +51,7 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                         RtpDescriptionPacketExtension.class));
 
         //<payload-type/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 PayloadTypePacketExtension.ELEMENT_NAME,
                 RtpDescriptionPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -63,7 +59,7 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                         PayloadTypePacketExtension.class));
 
         //<parameter/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ParameterPacketExtension.ELEMENT_NAME,
                 RtpDescriptionPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -71,7 +67,7 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                         (ParameterPacketExtension.class));
 
         //<rtp-hdrext/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 RTPHdrExtPacketExtension.ELEMENT_NAME,
                 RTPHdrExtPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -79,13 +75,13 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                         (RTPHdrExtPacketExtension.class));
 
         // <sctpmap/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 SctpMapExtension.ELEMENT_NAME,
                 SctpMapExtension.NAMESPACE,
                 new SctpMapExtensionProvider());
 
         //<encryption/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 EncryptionPacketExtension.ELEMENT_NAME,
                 RtpDescriptionPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -93,7 +89,7 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                         (EncryptionPacketExtension.class));
 
         //<zrtp-hash/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ZrtpHashPacketExtension.ELEMENT_NAME,
                 ZrtpHashPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -101,7 +97,7 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                         (ZrtpHashPacketExtension.class));
 
         //<crypto/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 CryptoPacketExtension.ELEMENT_NAME,
                 RtpDescriptionPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -109,7 +105,7 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                         (CryptoPacketExtension.class));
 
         // <bundle/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 BundlePacketExtension.ELEMENT_NAME,
                 BundlePacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -117,14 +113,14 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                         (BundlePacketExtension.class));
 
         // <group/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 GroupPacketExtension.ELEMENT_NAME,
                 GroupPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
                         <GroupPacketExtension>(GroupPacketExtension.class));
 
         //ice-udp transport
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 IceUdpTransportPacketExtension.ELEMENT_NAME,
                 IceUdpTransportPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -132,7 +128,7 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                         IceUdpTransportPacketExtension.class));
 
         //<raw-udp/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 RawUdpTransportPacketExtension.ELEMENT_NAME,
                 RawUdpTransportPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -140,7 +136,7 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                         RawUdpTransportPacketExtension.class));
 
         //ice-udp <candidate/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 CandidatePacketExtension.ELEMENT_NAME,
                 IceUdpTransportPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -148,7 +144,7 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                         CandidatePacketExtension.class));
 
         //raw-udp <candidate/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 CandidatePacketExtension.ELEMENT_NAME,
                 RawUdpTransportPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -156,7 +152,7 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                         CandidatePacketExtension.class));
 
         //ice-udp <remote-candidate/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 RemoteCandidatePacketExtension.ELEMENT_NAME,
                 IceUdpTransportPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -164,21 +160,21 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                         RemoteCandidatePacketExtension.class));
 
         //inputevt <inputevt/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 InputEvtPacketExtension.ELEMENT_NAME,
                 InputEvtPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<InputEvtPacketExtension>(
                         InputEvtPacketExtension.class));
 
         //coin <conference-info/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 CoinPacketExtension.ELEMENT_NAME,
                 CoinPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<CoinPacketExtension>(
                         CoinPacketExtension.class));
 
         // DTLS-SRTP
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 DtlsFingerprintPacketExtension.ELEMENT_NAME,
                 DtlsFingerprintPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -189,47 +185,47 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
          * XEP-0251: Jingle Session Transfer <transfer/> and <transferred>
          * providers
          */
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 TransferPacketExtension.ELEMENT_NAME,
                 TransferPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<TransferPacketExtension>(
                         TransferPacketExtension.class));
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 TransferredPacketExtension.ELEMENT_NAME,
                 TransferredPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<TransferredPacketExtension>(
                         TransferredPacketExtension.class));
 
         //conference description <callid/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ConferenceDescriptionPacketExtension.CALLID_ELEM_NAME,
                 ConferenceDescriptionPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<CallIdPacketExtension>(
                         CallIdPacketExtension.class));
 
         //rtcp-fb
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 RtcpFbPacketExtension.ELEMENT_NAME,
                 RtcpFbPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<RtcpFbPacketExtension>(
                         RtcpFbPacketExtension.class));
 
         //rtcp-mux
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 RtcpmuxPacketExtension.ELEMENT_NAME,
                 IceUdpTransportPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<RtcpmuxPacketExtension>(
                         RtcpmuxPacketExtension.class));
 
         //web-socket
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
             WebSocketPacketExtension.ELEMENT_NAME,
             WebSocketPacketExtension.NAMESPACE,
             new DefaultPacketExtensionProvider<>(
                 WebSocketPacketExtension.class));
 
         //ssrcInfo
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 SSRCInfoPacketExtension.ELEMENT_NAME,
                 SSRCInfoPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<SSRCInfoPacketExtension>(

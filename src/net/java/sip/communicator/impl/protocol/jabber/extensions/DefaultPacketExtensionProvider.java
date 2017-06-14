@@ -42,13 +42,6 @@ public class DefaultPacketExtensionProvider<C extends AbstractPacketExtension>
                     .getLogger(DefaultPacketExtensionProvider.class.getName());
 
     /**
-     * The <tt>AbstractSmackInteroperabilityLayer</tt> instance implementing
-     * necessary methods
-     */
-    private AbstractSmackInteroperabilityLayer smackInteroperabilityLayer =
-            AbstractSmackInteroperabilityLayer.getInstance();
-
-    /**
      * The {@link Class} that the packets we will be parsing here belong to.
      */
     private final Class<C> packetClass;
@@ -109,7 +102,7 @@ public class DefaultPacketExtensionProvider<C extends AbstractPacketExtension>
 
             if (eventType == XmlPullParser.START_TAG)
             {
-                ExtensionElementProvider provider = smackInteroperabilityLayer
+                ExtensionElementProvider provider = ProviderManager
                         .getExtensionProvider( elementName, namespace );
 
                 if(provider == null)

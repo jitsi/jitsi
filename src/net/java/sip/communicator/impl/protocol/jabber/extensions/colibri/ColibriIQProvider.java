@@ -40,36 +40,30 @@ public class ColibriIQProvider
     extends IQProvider
 {
 
-    /**
-     * Smack interoperation layer
-     */
-    private AbstractSmackInteroperabilityLayer smackInteroperabilityLayer =
-            AbstractSmackInteroperabilityLayer.getInstance();
-    
     /** Initializes a new <tt>ColibriIQProvider</tt> instance. */
     public ColibriIQProvider()
     {
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 PayloadTypePacketExtension.ELEMENT_NAME,
                 ColibriConferenceIQ.NAMESPACE,
                 new DefaultPacketExtensionProvider<PayloadTypePacketExtension>(
                         PayloadTypePacketExtension.class));
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 RtcpFbPacketExtension.ELEMENT_NAME,
                 RtcpFbPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<RtcpFbPacketExtension>(
                         RtcpFbPacketExtension.class));
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 RTPHdrExtPacketExtension.ELEMENT_NAME,
                 ColibriConferenceIQ.NAMESPACE,
                 new DefaultPacketExtensionProvider<RTPHdrExtPacketExtension>(
                         RTPHdrExtPacketExtension.class));
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 SourcePacketExtension.ELEMENT_NAME,
                 SourcePacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<SourcePacketExtension>(
                         SourcePacketExtension.class));
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 SourceGroupPacketExtension.ELEMENT_NAME,
                 SourceGroupPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<SourceGroupPacketExtension>(
@@ -79,20 +73,20 @@ public class ColibriIQProvider
                 = new DefaultPacketExtensionProvider<ParameterPacketExtension>(
                 ParameterPacketExtension.class);
 
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ParameterPacketExtension.ELEMENT_NAME,
                 ColibriConferenceIQ.NAMESPACE,
                 parameterProvider);
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ParameterPacketExtension.ELEMENT_NAME,
                 SourcePacketExtension.NAMESPACE,
                 parameterProvider);
         // Shutdown IQ
-        smackInteroperabilityLayer.addIQProvider(
+        ProviderManager.addIQProvider(
                 ShutdownIQ.GRACEFUL_ELEMENT_NAME,
                 ShutdownIQ.NAMESPACE,
                 this);
-        smackInteroperabilityLayer.addIQProvider(
+        ProviderManager.addIQProvider(
                 ShutdownIQ.FORCE_ELEMENT_NAME,
                 ShutdownIQ.NAMESPACE,
                 this);
@@ -102,13 +96,13 @@ public class ColibriIQProvider
                 <ColibriConferenceIQ.GracefulShutdown>(
                 ColibriConferenceIQ.GracefulShutdown.class);
 
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ColibriConferenceIQ.GracefulShutdown.ELEMENT_NAME,
                 ColibriConferenceIQ.GracefulShutdown.NAMESPACE,
                 shutdownProvider);
 
         // ColibriStatsIQ
-        smackInteroperabilityLayer.addIQProvider(
+        ProviderManager.addIQProvider(
                 ColibriStatsIQ.ELEMENT_NAME,
                 ColibriStatsIQ.NAMESPACE,
                 this);
@@ -118,7 +112,7 @@ public class ColibriIQProvider
                 = new DefaultPacketExtensionProvider<ColibriStatsExtension>(
                 ColibriStatsExtension.class);
 
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ColibriStatsExtension.ELEMENT_NAME,
                 ColibriStatsExtension.NAMESPACE,
                 statsProvider);
@@ -128,7 +122,7 @@ public class ColibriIQProvider
                 <ColibriStatsExtension.Stat>(
                 ColibriStatsExtension.Stat.class);
 
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ColibriStatsExtension.Stat.ELEMENT_NAME,
                 ColibriStatsExtension.NAMESPACE,
                 statProvider);    
@@ -214,7 +208,7 @@ public class ColibriIQProvider
         throws Exception
     {
         ExtensionElementProvider extensionProvider
-            = smackInteroperabilityLayer.getExtensionProvider(
+            = ProviderManager.getExtensionProvider(
                         name,
                         namespace);
         ExtensionElement extension;
