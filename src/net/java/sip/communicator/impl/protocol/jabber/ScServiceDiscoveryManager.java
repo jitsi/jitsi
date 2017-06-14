@@ -29,7 +29,6 @@ import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.*;
-import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.disco.*;
 import org.jivesoftware.smackx.disco.packet.*;
 import org.jxmpp.jid.Jid;

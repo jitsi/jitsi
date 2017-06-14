@@ -22,8 +22,24 @@
 //
 //import org.jivesoftware.smack.packet.*;
 //import org.jivesoftware.smack.provider.*;
-//import org.jivesoftware.smackx.*;
 //import org.jivesoftware.smackx.bytestreams.ibb.provider.*;
+//import org.jivesoftware.smackx.chatstates.packet.*;
+//import org.jivesoftware.smackx.delay.provider.DelayInformationProvider;
+//import org.jivesoftware.smackx.disco.provider.DiscoverInfoProvider;
+//import org.jivesoftware.smackx.disco.provider.DiscoverItemsProvider;
+//import org.jivesoftware.smackx.iqlast.packet.LastActivity;
+//import org.jivesoftware.smackx.muc.packet.GroupChatInvitation;
+//import org.jivesoftware.smackx.muc.provider.MUCAdminProvider;
+//import org.jivesoftware.smackx.muc.provider.MUCOwnerProvider;
+//import org.jivesoftware.smackx.muc.provider.MUCUserProvider;
+//import org.jivesoftware.smackx.offline.packet.OfflineMessageInfo;
+//import org.jivesoftware.smackx.offline.packet.OfflineMessageRequest;
+//import org.jivesoftware.smackx.si.provider.StreamInitiationProvider;
+//import org.jivesoftware.smackx.vcardtemp.provider.VCardProvider;
+//import org.jivesoftware.smackx.xdata.provider.DataFormProvider;
+//import org.jivesoftware.smackx.xevent.provider.*;
+//import org.jivesoftware.smackx.xhtmlim.provider.*;
+//import org.jivesoftware.smackx.xroster.provider.*;
 //import org.jivesoftware.smack.packet.*;
 //import org.jivesoftware.smack.provider.*;
 //
@@ -111,7 +127,7 @@
 //
 //        //<!-- Data Forms-->
 //        addExtProvider("x", "jabber:x:data",
-//            org.jivesoftware.smackx.provider.DataFormProvider.class);
+//            DataFormProvider.class);
 //
 //        //<!-- MUC User -->
 //        addExtProvider("x", "http://jabber.org/protocol/muc#user",

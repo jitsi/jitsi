@@ -33,7 +33,6 @@ import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.StringUtils;
-import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.disco.packet.DiscoverInfo;
 import org.jivesoftware.smackx.disco.packet.*;
 import org.jivesoftware.smackx.xdata.FormField;

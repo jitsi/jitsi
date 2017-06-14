@@ -926,7 +926,7 @@
         bundle-hid-service,bundle-hid,
         bundle-resource-manager,bundle-resources-defaultpack,
         bundle-protocol,bundle-protocol-media,bundle-icq,
-        bundle-icq-slick,bundle-mock,bundle-smacklib,bundle-jmdnslib,
+        bundle-icq-slick,bundle-mock,bundle-jmdnslib,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
         bundle-phonenumbers,
         bundle-irc,bundle-irc-commands,bundle-plugin-ircaccregwizz,
@@ -1441,17 +1441,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/service/protocol/media/protocol.media.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol/media"
                 prefix="net/java/sip/communicator/service/protocol/media"/>
-        </jar>
-    </target>
-
-    <target name="bundle-smacklib">
-        <!-- Creates a bundle containing the smack lib.-->
-        <jar compress="false" destfile="${bundles.dest}/smacklib.jar"
-            manifest="${lib.noinst}/smack.manifest.mf">
-            <zipfileset src="${lib.noinst}/smackx-debug.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/smack.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/smackx.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jnsapi.jar" prefix=""/>
         </jar>
     </target>
 

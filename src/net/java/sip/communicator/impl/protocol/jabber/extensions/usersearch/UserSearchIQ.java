@@ -21,7 +21,6 @@ import java.util.*;
 
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.*;
-import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.disco.packet.*;
 import org.jivesoftware.smackx.search.*;
 import org.jivesoftware.smackx.xdata.*;

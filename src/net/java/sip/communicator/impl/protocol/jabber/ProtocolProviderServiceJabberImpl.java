@@ -64,7 +64,6 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smack.util.StringUtils;
-import org.jivesoftware.smackx.*;
 import org.jivesoftware.smack.roster.*;
 import org.jivesoftware.smackx.bytestreams.ibb.*;
 import org.jivesoftware.smackx.bytestreams.socks5.*;
