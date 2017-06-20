@@ -30,7 +30,7 @@ public class ChatRoomInvitationJabberImpl
 {
     private ChatRoom chatRoom;
 
-    private EntityFullJid inviter;
+    private EntityJid inviter;
 
     private String reason;
 
@@ -46,7 +46,7 @@ public class ChatRoomInvitationJabberImpl
      * @param password the password
      */
     public ChatRoomInvitationJabberImpl(ChatRoom targetChatRoom,
-                                        EntityFullJid inviter,
+                                        EntityJid inviter,
                                         String reason,
                                         byte[] password)
     {

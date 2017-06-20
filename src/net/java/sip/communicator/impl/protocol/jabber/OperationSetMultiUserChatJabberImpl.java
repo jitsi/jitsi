@@ -733,7 +733,7 @@ public class OperationSetMultiUserChatJabberImpl
      */
     public void fireInvitationEvent(
         ChatRoom targetChatRoom,
-        EntityFullJid inviter,
+        EntityJid inviter,
         String reason,
         byte[] password)
     {
@@ -770,7 +770,7 @@ public class OperationSetMultiUserChatJabberImpl
          */
         @Override
         public void invitationReceived(XMPPConnection conn,
-            MultiUserChat room, EntityFullJid inviter, String reason,
+            MultiUserChat room, EntityJid inviter, String reason,
             String password, Message message, MUCUser.Invite invite)
         {
             ChatRoomJabberImpl chatRoom;

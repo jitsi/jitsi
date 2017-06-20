@@ -1290,6 +1290,8 @@ public class OperationSetPersistentPresenceJabberImpl
 
         if(fullJid == null)
             fullJid = presence.getFrom().asFullJidIfPossible();
+        if (fullJid == null)
+            return false;
 
         Resourcepart resource = fullJid.getResourceOrNull();
         if (resource != null && resource.length() > 0)
