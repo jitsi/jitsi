@@ -1716,10 +1716,11 @@ public class ProtocolProviderServiceJabberImpl
                                           new InputEvtIQProvider());
 
             // register our coin provider
-            ProviderManager.addIQProvider(CoinIQ.ELEMENT_NAME,
-                                          CoinIQ.NAMESPACE,
-                                          new CoinIQProvider());
-            supportedFeatures.add(URN_XMPP_JINGLE_COIN);
+            // FIXME
+//            ProviderManager.addIQProvider(CoinIQ.ELEMENT_NAME,
+//                                          CoinIQ.NAMESPACE,
+//                                          new CoinIQProvider());
+//            supportedFeatures.add(URN_XMPP_JINGLE_COIN);
 
             // register our JingleInfo provider
             ProviderManager.addIQProvider(JingleInfoQueryIQ.ELEMENT_NAME,

@@ -370,12 +370,12 @@ public class OperationSetFileTransferJabberImpl
                 ProviderManager.addIQProvider(
                     FileElement.ELEMENT_NAME,
                     FileElement.NAMESPACE,
-                    new FileElement());
+                    new FileElementIQProvider());
 
                 ProviderManager.addIQProvider(
                     ThumbnailIQ.ELEMENT_NAME,
                     ThumbnailIQ.NAMESPACE,
-                    new ThumbnailIQ());
+                    new ThumbnailIQProvider());
 
                 jabberProvider.getConnection().addPacketListener(
                     fileTransferRequestListener,

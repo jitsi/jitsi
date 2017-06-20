@@ -167,11 +167,12 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                         InputEvtPacketExtension.class));
 
         //coin <conference-info/> provider
-        ProviderManager.addExtensionProvider(
-                CoinPacketExtension.ELEMENT_NAME,
-                CoinPacketExtension.NAMESPACE,
-                new DefaultPacketExtensionProvider<CoinPacketExtension>(
-                        CoinPacketExtension.class));
+        // FIXME
+//        ProviderManager.addExtensionProvider(
+//                CoinPacketExtension.ELEMENT_NAME,
+//                CoinPacketExtension.NAMESPACE,
+//                new DefaultPacketExtensionProvider<CoinPacketExtension>(
+//                        CoinPacketExtension.class));
 
         // DTLS-SRTP
         ProviderManager.addExtensionProvider(

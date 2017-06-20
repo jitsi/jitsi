@@ -34,6 +34,7 @@ import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.disco.packet.DiscoverInfo;
+import org.jivesoftware.smackx.disco.packet.DiscoverInfo.Feature;
 import org.jivesoftware.smackx.disco.packet.*;
 import org.jivesoftware.smackx.xdata.FormField;
 import org.jivesoftware.smackx.xdata.packet.DataForm;
@@ -598,48 +599,6 @@ public class EntityCapsManager
     }
 
     /**
-     * Gets the features of a specific <tt>DiscoverInfo</tt> in the form of a
-     * read-only <tt>Feature</tt> <tt>Iterator<tt/> by calling the internal
-     * method {@link DiscoverInfo#getFeatures()}.
-     *
-     * @param discoverInfo the <tt>DiscoverInfo</tt> the features of which are
-     * to be retrieved
-     * @return a read-only <tt>Feature</tt> <tt>Iterator</tt> which lists the
-     * features of the specified <tt>discoverInfo</tt>
-     */
-    @SuppressWarnings("unchecked")
-    private static Iterator<DiscoverInfo.Feature> getDiscoverInfoFeatures(
-            DiscoverInfo discoverInfo)
-    {
-        Method getFeaturesMethod;
-
-        try
-        {
-            getFeaturesMethod
-                = DiscoverInfo.class.getDeclaredMethod("getFeatures");
-        }
-        catch (NoSuchMethodException nsmex)
-        {
-            throw new UndeclaredThrowableException(nsmex);
-        }
-        getFeaturesMethod.setAccessible(true);
-        try
-        {
-            return
-                (Iterator<DiscoverInfo.Feature>)
-                    getFeaturesMethod.invoke(discoverInfo);
-        }
-        catch (IllegalAccessException iaex)
-        {
-            throw new UndeclaredThrowableException(iaex);
-        }
-        catch (InvocationTargetException itex)
-        {
-            throw new UndeclaredThrowableException(itex);
-        }
-    }
-
-    /**
      * Registers this Manager's listener with <tt>connection</tt>.
      *
      * @param connection the connection that we'd like this manager to register
@@ -647,7 +606,7 @@ public class EntityCapsManager
      */
     public void addPacketListener(XMPPConnection connection)
     {
-        StanzaFilter filter = new PacketTypeFilter(Presence.class);
+        StanzaFilter filter = new StanzaTypeFilter(Presence.class);
 
         connection.addPacketListener(new CapsPacketListener(), filter);
     }
@@ -824,13 +783,16 @@ public class EntityCapsManager
 
         // Add features
         {
-            Iterator<DiscoverInfo.Feature> features
-                = getDiscoverInfoFeatures(discoverInfo);
+            List<Feature> features = discoverInfo.getFeatures();
             SortedSet<String> fs = new TreeSet<String>();
 
             if (features != null)
-                while (features.hasNext())
-                    fs.add(features.next().getVar());
+            {
+                for (Feature f : features)
+                {
+                    fs.add(f.getVar());
+                }
+            }
 
             for (String f : fs)
                 bldr.append(f).append('<');

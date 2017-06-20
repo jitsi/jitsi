@@ -459,6 +459,11 @@ public class ContactJabberImpl
      */
     RosterEntry getSourceEntry()
     {
+        if (jid == null)
+        {
+            return null;
+        }
+
         return ssclCallback.getRosterEntry(jid.asBareJid());
     }
 
