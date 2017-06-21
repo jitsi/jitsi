@@ -18,6 +18,7 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.*;
 
 import net.java.sip.communicator.util.Logger;
@@ -193,11 +194,11 @@ public class JingleNodesServiceDiscovery
 
             SmackServiceNode.MappedNodes mappedNodes =
                 new SmackServiceNode.MappedNodes();
-            ConcurrentHashMap<String, String> visited
-                = new ConcurrentHashMap<String, String>();
+            ConcurrentHashMap<Jid, Jid> visited
+                = new ConcurrentHashMap<>();
 
             // Request to our pre-configured trackerEntries
-            for(Map.Entry<String, TrackerEntry> entry
+            for(Entry<Jid, TrackerEntry> entry
                     : service.getTrackerEntries().entrySet())
             {
                 SmackServiceNode.deepSearch(
@@ -218,7 +219,7 @@ public class JingleNodesServiceDiscovery
                         service,
                         xmppConnection,
                         maxEntries,
-                        xmppConnection.getServiceName(),
+                        xmppConnection.getXMPPServiceDomain(),
                         mappedNodes,
                         maxDepth - 1,
                         maxSearchNodes,
@@ -234,7 +235,7 @@ public class JingleNodesServiceDiscovery
                 SmackServiceNode.deepSearch(
                     xmppConnection,
                     maxEntries,
-                    xmppConnection.getHost(),
+                    xmppConnection.getXMPPServiceDomain(),
                     mappedNodes,
                     maxDepth - 1,
                     maxSearchNodes,
@@ -254,7 +255,7 @@ public class JingleNodesServiceDiscovery
                                 SmackServiceNode.deepSearch(
                                     xmppConnection,
                                     maxEntries,
-                                    presence.getFrom().toString(),
+                                    presence.getFrom(),
                                     mappedNodes,
                                     maxDepth - 1,
                                     maxSearchNodes,
@@ -292,7 +293,7 @@ public class JingleNodesServiceDiscovery
             int maxDepth,
             int maxSearchNodes,
             String protocol,
-            ConcurrentHashMap<String, String> visited,
+            ConcurrentHashMap<Jid, Jid> visited,
             String prefix)
             throws InterruptedException, NotConnectedException
         {
@@ -334,7 +335,7 @@ public class JingleNodesServiceDiscovery
                             SmackServiceNode.deepSearch(
                                 xmppConnection,
                                 maxEntries,
-                                item.getEntityID().toString(),
+                                item.getEntityID(),
                                 mappedNodes,
                                 maxDepth,
                                 maxSearchNodes,
@@ -356,7 +357,7 @@ public class JingleNodesServiceDiscovery
                         SmackServiceNode.deepSearch(
                             xmppConnection,
                             maxEntries,
-                            item.getEntityID().toString(),
+                            item.getEntityID(),
                             mappedNodes,
                             maxDepth,
                             maxSearchNodes,

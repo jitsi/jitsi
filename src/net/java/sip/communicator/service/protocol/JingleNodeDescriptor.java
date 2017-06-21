@@ -20,6 +20,10 @@ package net.java.sip.communicator.service.protocol;
 import java.io.*;
 import java.util.*;
 
+import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
+
 /**
  * A <tt>JingleNodesDescriptor</tt> stores information necessary to create a
  * JingleNodes tracker or relay candidate harvester that we could use with
@@ -57,7 +61,7 @@ public class JingleNodeDescriptor
     /**
      * The address of the JingleNodes (JID).
      */
-    private String address;
+    private Jid address;
 
     /**
      * If the relay is supported by this JingleNodes.
@@ -71,7 +75,7 @@ public class JingleNodeDescriptor
      * @param address address of the JingleNodes
      * @param relaySupported if the JingleNodes supports relay
      */
-    public JingleNodeDescriptor(String  address,
+    public JingleNodeDescriptor(Jid  address,
                                  boolean relaySupported)
     {
         this.address = address;
@@ -83,7 +87,7 @@ public class JingleNodeDescriptor
      *
      * @return the address of the JingleNodes
      */
-    public String getJID()
+    public Jid getJID()
     {
         return address;
     }
@@ -93,7 +97,7 @@ public class JingleNodeDescriptor
      *
      * @param address the JID of the JingleNodes
      */
-    public void setAddress(String address)
+    public void setAddress(Jid address)
     {
         this.address = address;
     }
@@ -134,7 +138,7 @@ public class JingleNodeDescriptor
         if(namePrefix == null)
             namePrefix = "";
 
-        props.put(namePrefix + JN_ADDRESS, getJID());
+        props.put(namePrefix + JN_ADDRESS, getJID().toString());
 
 
         props.put(namePrefix + JN_IS_RELAY_SUPPORTED,
@@ -178,11 +182,15 @@ public class JingleNodeDescriptor
         {
         }
 
-        JingleNodeDescriptor relayServer =
-                  new JingleNodeDescriptor(relayAddress,
-                                            relay);
-
-        return relayServer;
+        try
+        {
+            return new JingleNodeDescriptor(JidCreate.from(relayAddress),
+                                        relay);
+        }
+        catch (XmppStringprepException e)
+        {
+            return null;
+        }
     }
 
     /**
