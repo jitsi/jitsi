@@ -150,6 +150,50 @@ public class ColibriBuilder
     }
 
     /**
+     * Adds a request for allocation of "octo" channel to the query currently
+     * being built.
+     *
+     * @param contents the contents to which to add a request for allocation
+     * of "octo" channels.
+     * @param relayIds the list of relay IDs to use in the request for
+     * allocation of "octo" channels.
+     *
+     * @return <tt>true</tt> if the request yields any changes in Colibri
+     * channels state on the bridge or <tt>false</tt> otherwise. In general when
+     * <tt>false</tt> is returned for all combined requests it makes no sense
+     * to send it.
+     */
+    public boolean addAllocateOctoChannelsReq(
+            List<ContentPacketExtension> contents,
+            List<String> relayIds)
+    {
+        Objects.requireNonNull(contents, "contents");
+
+        assertRequestType(RequestType.ALLOCATE_CHANNELS);
+
+        request.setType(IQ.Type.GET);
+
+        boolean hasAnyChanges = false;
+
+        for (ContentPacketExtension content : contents)
+        {
+            String contentName = content.getName();
+            ColibriConferenceIQ.Content contentRequest
+                = request.getOrCreateContent(contentName);
+
+            ColibriConferenceIQ.OctoChannel remoteChannelRequest
+                = new ColibriConferenceIQ.OctoChannel();
+
+            remoteChannelRequest.setRelays(relayIds);
+
+            contentRequest.addChannel(remoteChannelRequest);
+            hasAnyChanges = true;
+        }
+
+        return hasAnyChanges;
+    }
+
+    /**
      * Adds next channel allocation request to
      * {@link RequestType#ALLOCATE_CHANNELS} query currently being built.
      *
