@@ -29,6 +29,7 @@ import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.*;
+import org.jivesoftware.smackx.caps.packet.CapsExtension;
 import org.jivesoftware.smackx.disco.*;
 import org.jivesoftware.smackx.disco.packet.*;
 import org.jxmpp.jid.Jid;
@@ -157,7 +158,7 @@ public class ScServiceDiscoveryManager
         identities.add(identity);
 
         //add support for capabilities
-        discoveryManager.addFeature(CapsPacketExtension.NAMESPACE);
+        discoveryManager.addFeature(CapsExtension.NAMESPACE);
 
         /*
          * Reflect featuresToRemove and featuresToAdd before
@@ -298,8 +299,8 @@ public class ScServiceDiscoveryManager
          * XXX Only addFeature if !containsFeature. Otherwise, the DiscoverInfo
          * may end up with repeating features.
          */
-        if (!response.containsFeature(CapsPacketExtension.NAMESPACE))
-            response.addFeature(CapsPacketExtension.NAMESPACE);
+        if (!response.containsFeature(CapsExtension.NAMESPACE))
+            response.addFeature(CapsExtension.NAMESPACE);
 
         for (String feature : unmodifiableFeatures)
             if (!response.containsFeature(feature))
@@ -396,24 +397,23 @@ public class ScServiceDiscoveryManager
         if ((packet instanceof Presence) && (capsManager != null))
         {
             String ver = getEntityCapsVersion();
-            CapsPacketExtension caps
-                = new CapsPacketExtension(
-                        getExtFeatures(),
-                        capsManager.getNode(),
-                        CapsPacketExtension.HASH_METHOD,
-                        ver);
+            CapsExtension caps
+                = new CapsExtension(
+                    capsManager.getNode(),
+                    ver,
+                    "sha-1");
 
             //make sure we'll be able to handle requests for the newly generated
             //node once we've used it.
             discoveryManager.setNodeInformationProvider(
-                    caps.getNode() + "#" + caps.getVersion(),
+                    caps.getNode() + "#" + caps.getVer(),
                     this);
 
             // Remove old capabilities extension if present
             ExtensionElement oldCaps
                 = packet.getExtension(
-                        CapsPacketExtension.ELEMENT_NAME,
-                        CapsPacketExtension.NAMESPACE);
+                        CapsExtension.ELEMENT,
+                        CapsExtension.NAMESPACE);
             if (oldCaps != null)
             {
                 packet.removeExtension(oldCaps);

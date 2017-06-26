@@ -35,6 +35,7 @@ import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.disco.packet.DiscoverInfo;
 import org.jivesoftware.smackx.disco.packet.DiscoverInfo.Feature;
+import org.jivesoftware.smackx.caps.packet.CapsExtension;
 import org.jivesoftware.smackx.disco.packet.*;
 import org.jivesoftware.smackx.xdata.FormField;
 import org.jivesoftware.smackx.xdata.packet.DataForm;
@@ -133,14 +134,6 @@ public class EntityCapsManager
      */
     private final List<UserCapsNodeListener> userCapsNodeListeners
         = new LinkedList<UserCapsNodeListener>();
-
-    static
-    {
-        ProviderManager.addExtensionProvider(
-                CapsPacketExtension.ELEMENT_NAME,
-                CapsPacketExtension.NAMESPACE,
-                new CapsProvider());
-    }
 
     /**
      * Add {@link DiscoverInfo} to our caps database.
@@ -242,7 +235,6 @@ public class EntityCapsManager
                                  String node,
                                  String hash,
                                  String ver,
-                                 String ext,
                                  boolean online)
     {
         if ((user != null) && (node != null) && (hash != null) && (ver != null))
@@ -254,7 +246,7 @@ public class EntityCapsManager
                     || !caps.hash.equals(hash)
                     || !caps.ver.equals(ver))
             {
-                caps = new Caps(node, hash, ver, ext);
+                caps = new Caps(node, hash, ver);
 
                 userCaps.put(user, caps);
             }
@@ -858,7 +850,7 @@ public class EntityCapsManager
         setCurrentCapsVersion(
             discoverInfo,
             capsToHash(
-                CapsPacketExtension.HASH_METHOD,
+                "sha-1",
                 calculateEntityCapsString(discoverInfo)));
     }
 
@@ -872,9 +864,7 @@ public class EntityCapsManager
     public void setCurrentCapsVersion(DiscoverInfo discoverInfo,
                                       String capsVersion)
     {
-        Caps caps
-            = new Caps(getNode(), CapsPacketExtension.HASH_METHOD, capsVersion,
-                    null);
+        Caps caps = new Caps(getNode(), "sha-1", capsVersion);
 
         /*
          * DiscoverInfo carries the node and the ver and we're now setting a new
@@ -915,11 +905,11 @@ public class EntityCapsManager
                 = (packet instanceof Presence)
                         && ((Presence) packet).isAvailable();
 
-            CapsPacketExtension ext
-                = (CapsPacketExtension)
+            CapsExtension ext
+                = (CapsExtension)
                     packet.getExtension(
-                            CapsPacketExtension.ELEMENT_NAME,
-                            CapsPacketExtension.NAMESPACE);
+                            CapsExtension.ELEMENT,
+                            CapsExtension.NAMESPACE);
 
             if(ext != null && online)
             {
@@ -944,8 +934,7 @@ public class EntityCapsManager
 
                 addUserCapsNode(
                         packet.getFrom(),
-                        ext.getNode(), hash, ext.getVersion(),
-                        ext.getExtensions(), online);
+                        ext.getNode(), hash, ext.getVer(), online);
             }
             else if (!online)
             {
@@ -968,9 +957,6 @@ public class EntityCapsManager
         /** The node of this <tt>Caps</tt> value. */
         public final String node;
 
-        /** The ext info of this <tt>Caps</tt> value. */
-        public String ext;
-
         /**
          * The String which is the concatenation of {@link #node} and the
          * {@link #ver} separated by the character '#'. Cached for the sake of
@@ -989,9 +975,8 @@ public class EntityCapsManager
          * @param hash the hash (algorithm) to be represented by the new
          * instance
          * @param ver the ver to be represented by the new instance
-         * @param ext the ext to be represented by the new instance
          */
-        public Caps(String node, String hash, String ver, String ext)
+        public Caps(String node, String hash, String ver)
         {
             if (node == null)
                 throw new NullPointerException("node");
@@ -1003,7 +988,6 @@ public class EntityCapsManager
             this.node = node;
             this.hash = hash;
             this.ver = ver;
-            this.ext = ext;
 
             this.nodeVer = this.node + '#' + this.ver;
         }
