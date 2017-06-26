@@ -85,7 +85,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
     /**
      * The most recent full JID used for the contact address.
      */
-    private Map<BareJid, FullJid> recentJIDForAddress
+    private Map<BareJid, Jid> recentJIDForAddress
         = new Hashtable<>();
     /**
      * The smackMessageListener instance listens for incoming messages.
@@ -390,7 +390,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * @param jid the jid (i.e. address/resource) that the contact with the
      * specified <tt>address</tt> last contacted us from.
      */
-    private void putJidForAddress(FullJid jid, String threadID)
+    private void putJidForAddress(Jid jid, String threadID)
     {
         synchronized(jids)
         {
@@ -532,7 +532,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     e);
             }
 
-            putJidForAddress(toJID.asFullJidIfPossible(), threadID);
+            putJidForAddress(toJID, threadID);
         }
 
         return new MessageDeliveredEvent(message, to, toResource);
@@ -1027,7 +1027,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 fireMessageEvent(ev);
                 return;
             }
-            putJidForAddress(userFullId.asFullJidIfPossible(), msg.getThread());
+            putJidForAddress(userFullId, msg.getThread());
 
             // In the second condition we filter all group chat messages,
             // because they are managed by the multi user chat operation set.
@@ -1254,7 +1254,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
         return message.toString();
     }
 
-    public FullJid getRecentJIDForAddress(BareJid address)
+    public Jid getRecentJIDForAddress(BareJid address)
     {
         return recentJIDForAddress.get(address);
     }

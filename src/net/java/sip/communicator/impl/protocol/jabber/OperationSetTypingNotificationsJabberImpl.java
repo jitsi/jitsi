@@ -145,7 +145,7 @@ public class OperationSetTypingNotificationsJabberImpl
             || parentProvider.getConnection() == null)
             return;
 
-        FullJid toJID = opSetBasicIM.getRecentJIDForAddress(
+        Jid toJID = opSetBasicIM.getRecentJIDForAddress(
             contact.getAddressAsJid().asBareJid());
 
         // find the currently contacted jid to send typing info to him
@@ -189,7 +189,7 @@ public class OperationSetTypingNotificationsJabberImpl
      * @param chatState the new chat state.
      * @param jid the JID of the receiver.
      */
-    private void setCurrentState(ChatState chatState, FullJid jid)
+    private void setCurrentState(ChatState chatState, Jid jid)
         throws NotConnectedException, InterruptedException
     {
         String threadID = opSetBasicIM.getThreadIDForAddress(jid.asBareJid());
