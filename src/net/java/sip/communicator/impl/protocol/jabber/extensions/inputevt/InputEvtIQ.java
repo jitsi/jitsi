@@ -87,24 +87,19 @@ public class InputEvtIQ extends IQ
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder bldr)
     {
-        bldr.append("<" + ELEMENT_NAME);
-
-        bldr.append(" xmlns='" + NAMESPACE + "'");
-
-        bldr.append(" " + ACTION_ATTR_NAME + "='" + getAction() + "'");
-
+        bldr.attribute(ACTION_ATTR_NAME, getAction());
         if(remoteControls.size() > 0)
         {
-            bldr.append(">");
-
+            bldr.rightAngleBracket();
+            // FIXME use extensions list of IQ
             for(RemoteControlExtension p : remoteControls)
+            {
                 bldr.append(p.toXML());
-
-            bldr.append("</" + ELEMENT_NAME + ">");
+            }
         }
         else
         {
-            bldr.append("/>");
+            bldr.setEmptyElement();
         }
 
         return bldr;

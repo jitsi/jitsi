@@ -17,10 +17,9 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.thumbnail;
 
-import net.java.sip.communicator.util.*;
-
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
+import org.jivesoftware.smack.util.stringencoder.Base64;
 import org.jxmpp.jid.Jid;
 import org.xmlpull.v1.*;
 
@@ -132,23 +131,19 @@ public class ThumbnailIQ
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
     {
-        // open extension
-        buf.append("<").append(ELEMENT_NAME)
-            .append(" xmlns=\"").append(NAMESPACE).append("\"")
-            .append(" " + CID).append("=\"").append(cid).append("\"");
-
-        if (mimeType != null)
-            buf.append(" " + TYPE).append("=\"").append(mimeType).append("\">");
-        else
-            buf.append(">");
+        buf.attribute(CID, cid)
+            .optAttribute(TYPE, mimeType);
 
         if (data != null)
         {
-            byte[] encodedData = Base64.encode(data);
-            buf.append(new String(encodedData));
+            buf.rightAngleBracket();
+            buf.append(Base64.encodeToString(data));
+        }
+        else
+        {
+            buf.setEmptyElement();
         }
 
-        buf.append("</data>");
         return buf;
     }
 

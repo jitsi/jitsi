@@ -166,9 +166,9 @@ public class ColibriStatsExtension
             {
                 return
                     "<" + ELEMENT_NAME + " " + NAME_ATTR_NAME + "='"
-                        + StringUtils.escapeForXML(name) + "' "
+                        + StringUtils.escapeForXml(name) + "' "
                         + VALUE_ATTR_NAME + "='"
-                        + StringUtils.escapeForXML(value.toString()) + "' />";
+                        + StringUtils.escapeForXml(value.toString()) + "' />";
             }
         }
     }

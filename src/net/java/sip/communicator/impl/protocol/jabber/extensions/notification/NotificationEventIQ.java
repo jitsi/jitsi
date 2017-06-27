@@ -89,25 +89,10 @@ public class NotificationEventIQ
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
     {
-        buf.append("<").append(ELEMENT_NAME).
-            append(" xmlns=\"").append(NAMESPACE).
-            append("\">");
-
-        buf.append("<").append(EVENT_NAME).append(">").
-                append(StringUtils.escapeForXML(this.getEventName()))
-            .append("</").append(EVENT_NAME).append(">");
-
-        buf.append("<").
-            append(EVENT_VALUE).append(">").
-                append(StringUtils.escapeForXML(this.getEventValue()))
-            .append("</").append(EVENT_VALUE).append(">");
-
-        buf.append("<").
-            append(EVENT_SOURCE).append(">").
-                append(StringUtils.escapeForXML(this.getEventSource()))
-            .append("</").append(EVENT_SOURCE).append(">");
-
-        buf.append("</").append(ELEMENT_NAME).append(">");
+        buf.rightAngleBracket()
+            .element(EVENT_NAME, getEventName())
+            .element(EVENT_VALUE, getEventValue())
+            .element(EVENT_SOURCE, getEventSource());
         return buf;
     }
 

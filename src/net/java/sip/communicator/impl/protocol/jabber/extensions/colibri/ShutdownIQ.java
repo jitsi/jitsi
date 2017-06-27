@@ -130,12 +130,7 @@ public class ShutdownIQ
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
     {
-        buf
-            .append("<")
-            .append(elementName)
-            .append(" xmlns='")
-            .append(NAMESPACE)
-            .append("' />");
+        buf.setEmptyElement();
         return buf;
     }
 }

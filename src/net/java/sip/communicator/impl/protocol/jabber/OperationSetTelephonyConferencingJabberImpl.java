@@ -278,7 +278,7 @@ public class OperationSetTelephonyConferencingJabberImpl
             ConferenceInfoDocument.NAMESPACE){
             @Override
             protected IQChildElementXmlStringBuilder getIQChildElementBuilder(IQChildElementXmlStringBuilder buf) {
-                // FIXME: element name and namespace might be duplicated
+                buf.rightAngleBracket();
                 buf.append(confInfo.toXml());
                 return buf;
             }

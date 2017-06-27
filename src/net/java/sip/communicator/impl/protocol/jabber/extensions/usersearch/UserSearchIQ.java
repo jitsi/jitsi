@@ -53,16 +53,19 @@ public class UserSearchIQ extends IQ
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
     {
-        buf.append("<query xmlns=\"jabber:iq:search\">");
-        if(getExtension("x", "jabber:x:data") != null)
+        if(getExtension("x", "jabber:x:data") == null)
         {
-            buf.append(getExtensionsXML());
+            buf.rightAngleBracket();
+            for (Map.Entry<String, String> entry : simpleFieldsNames.entrySet())
+            {
+                buf.optElement(entry.getKey(), entry.getValue());
+            }
         }
         else
         {
-            buf.append(getItemsToSearch());
+            buf.setEmptyElement();
         }
-        buf.append("</query>");
+
         return buf;
     }
 
@@ -95,30 +98,6 @@ public class UserSearchIQ extends IQ
     public void addField(String field, String value)
     {
         simpleFieldsNames.put(field, value);
-    }
-
-    /**
-     * Returns XML string with the fields that are not included in the data form
-     * @return XML string with the fields that are not included in the data form
-     */
-    private String getItemsToSearch() {
-        StringBuilder buf = new StringBuilder();
-
-        if (simpleFieldsNames.isEmpty()) {
-            return "";
-        }
-
-        for (String name : simpleFieldsNames.keySet())
-        {
-            String value = simpleFieldsNames.get(name);
-            if (value != null && value.trim().length() > 0) {
-                buf.append("<").append(name).append(">")
-                    .append(StringUtils.escapeForXml(value)).append("</")
-                    .append(name).append(">");
-            }
-        }
-
-        return buf.toString();
     }
 
     /**

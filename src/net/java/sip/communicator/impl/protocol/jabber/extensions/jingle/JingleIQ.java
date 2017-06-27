@@ -124,35 +124,21 @@ public class JingleIQ extends IQ
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder bldr)
     {
-        bldr.append("<" + ELEMENT_NAME);
-        bldr.append(" xmlns='" + NAMESPACE + "'");
-        bldr.append(" " + ACTION_ATTR_NAME + "='" + getAction() + "'");
+        bldr.attribute(ACTION_ATTR_NAME, getAction())
+            .optAttribute(INITIATOR_ATTR_NAME, getInitiator())
+            .optAttribute(RESPONDER_ATTR_NAME, getResponder())
+            .attribute(SID_ATTR_NAME, getSID());
 
-        if( initiator != null)
-            bldr.append(" " + INITIATOR_ATTR_NAME
-                    + "='" + getInitiator() + "'");
-
-        if( responder != null)
-            bldr.append(" " + RESPONDER_ATTR_NAME
-                    + "='" + getResponder() + "'");
-
-        bldr.append(" " + SID_ATTR_NAME
-                + "='" + getSID() + "'");
-
-        CharSequence extensionsXMLSeq = getExtensionsXML();
-        String extensionsXML = extensionsXMLSeq.toString();
-        
-        if ((contentList.size() == 0)
-                && (reason == null)
-                && (sessionInfo == null)
-                && ((extensionsXML == null) || (extensionsXML.length() == 0)))
+        if (contentList.size() == 0 && reason == null && sessionInfo == null)
         {
-            bldr.append("/>");
+            //it is possible to have empty jingle elements
+            bldr.setEmptyElement();
         }
         else
         {
-            bldr.append(">");//it is possible to have empty jingle elements
+            bldr.rightAngleBracket();
 
+            //FIXME use extensions list of IQ
             //content
             for(ContentPacketExtension cpe : contentList)
             {
@@ -168,12 +154,6 @@ public class JingleIQ extends IQ
             //subclass
             if (sessionInfo != null)
                 bldr.append(sessionInfo.toXML());
-
-            // extensions
-            if ((extensionsXML != null) && (extensionsXML.length() != 0))
-                bldr.append(extensionsXML);
-
-            bldr.append("</" + ELEMENT_NAME + ">");
         }
 
         return bldr;

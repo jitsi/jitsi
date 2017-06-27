@@ -231,11 +231,6 @@ public class RayoIqProvider
         extends IQ
     {
         /**
-         * The XML element name that will be used.
-         */
-        private final String elementName;
-
-        /**
          * Creates new instance of <tt>RayoIq</tt>.
          *
          * @param elementName the name of XML element that will be used.
@@ -243,7 +238,6 @@ public class RayoIqProvider
         protected RayoIq(String elementName)
         {
             super(elementName, NAMESPACE);
-            this.elementName = elementName;
         }
 
         /**
@@ -260,26 +254,7 @@ public class RayoIqProvider
         @Override
         protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder xml)
         {
-            xml.append('<').append(elementName);
-            xml.append(" xmlns='").append(NAMESPACE).append("' ");
-
             printAttributes(xml);
-
-            Collection<ExtensionElement> extensions =  getExtensions();
-            if (extensions.size() > 0)
-            {
-                xml.append(">");
-                for (ExtensionElement extension : extensions)
-                {
-                    xml.append(extension.toXML());
-                }
-                xml.append("</").append(elementName).append(">");
-            }
-            else
-            {
-                xml.append("/>");
-            }
-
             return xml;
         }
 
@@ -443,13 +418,15 @@ public class RayoIqProvider
         {
             String src = getSource();
             if (!StringUtils.isNullOrEmpty(src))
-                out.append(SRC_ATTR_NAME).append("='")
-                    .append(src).append("' ");
+            {
+                out.attribute(SRC_ATTR_NAME, src);
+            }
 
             String dst = getDestination();
             if (!StringUtils.isNullOrEmpty(dst))
-                out.append(DST_ATTR_NAME).append("='")
-                    .append(dst).append("' ");
+            {
+                out.attribute(DST_ATTR_NAME, dst);
+            }
         }
     }
 
@@ -527,8 +504,9 @@ public class RayoIqProvider
         {
             String uri = getUri();
             if (!StringUtils.isNullOrEmpty(uri))
-                out.append(URI_ATTR_NAME).append("='")
-                    .append(uri).append("' ");
+            {
+                out.attribute(URI_ATTR_NAME, uri);
+            }
         }
 
         /**

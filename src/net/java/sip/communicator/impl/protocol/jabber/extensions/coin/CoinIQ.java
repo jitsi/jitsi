@@ -94,26 +94,11 @@ public class CoinIQ
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder bldr)
     {
-        bldr.append("<");
-
-        bldr.append(ELEMENT_NAME);
-        bldr.append(" xmlns='").append(NAMESPACE).append("'");
-        bldr.append(" state='").append(state.toString()).append("'");
-        bldr.append(" entity='").append(entity).append("'");
-        bldr.append(" version='").append(version.toString()).append("'");
-
-        if(sid != null)
-            bldr.append(" sid='").append(sid).append("'");
-
-        if(getExtensions().size() == 0)
-            bldr.append("/>");
-        else
-        {
-            bldr.append(">");
-            for(ExtensionElement pe : getExtensions())
-                bldr.append(pe.toXML());
-            bldr.append("</").append(ELEMENT_NAME).append(">");
-        }
+        bldr.attribute("state", state);
+        bldr.attribute("entity", entity);
+        bldr.attribute("version", version);
+        bldr.optAttribute("sid", sid);
+        bldr.setEmptyElement();
 
         return bldr;
     }

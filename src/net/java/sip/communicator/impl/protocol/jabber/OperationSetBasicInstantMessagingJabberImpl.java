@@ -741,6 +741,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
             @Override
             protected IQChildElementXmlStringBuilder getIQChildElementBuilder(IQChildElementXmlStringBuilder buf)
             {
+                buf.setEmptyElement();
                 return buf;
             }
         };

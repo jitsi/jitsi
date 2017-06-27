@@ -52,24 +52,7 @@ public class JingleInfoQueryIQ
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder bld)
     {
-        bld.append("<").append(ELEMENT_NAME).append(" xmlns='").
-             append(NAMESPACE).append("'");
-
-        if(getExtensions().size() == 0)
-        {
-            bld.append("/>");
-        }
-        else
-        {
-            bld.append(">");
-
-            for(ExtensionElement pe : getExtensions())
-            {
-                bld.append(pe.toXML());
-            }
-
-            bld.append("</").append(ELEMENT_NAME).append(">");
-        }
+        bld.setEmptyElement();
         return bld;
     }
 }

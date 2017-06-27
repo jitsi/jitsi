@@ -100,39 +100,20 @@ public class JireconIq
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder xml)
     {
-        xml.append('<').append(ELEMENT_NAME);
-        xml.append(" xmlns='").append(NAMESPACE).append("' ");
-
         printStringAttribute(xml, RID_ATTR_NAME, rid);
 
         if (action != Action.UNDEFINED)
         {
-            printStringAttribute(xml, ACTION_ATTR_NAME, action.toString());
+            xml.attribute(ACTION_ATTR_NAME, action);
         }
 
         if (status != Status.UNDEFINED)
         {
-            printStringAttribute(xml, STATUS_ATTR_NAME, status.toString());
+            xml.attribute(STATUS_ATTR_NAME, status);
         }
 
         printStringAttribute(xml, MUCJID_ATTR_NAME, mucJid);
         printStringAttribute(xml, OUTPUT_ATTR_NAME, output);
-
-        Collection<ExtensionElement> extensions =  getExtensions();
-        if (extensions.size() > 0)
-        {
-            xml.append(">");
-            for (ExtensionElement extension : extensions)
-            {
-                xml.append(extension.toXML());
-            }
-            xml.append("</").append(ELEMENT_NAME).append(">");
-        }
-        else
-        {
-            xml.append("/>");
-        }
-
         return xml;
     }
 
@@ -140,8 +121,9 @@ public class JireconIq
         IQChildElementXmlStringBuilder xml, String attrName, String attr)
     {
         if (!StringUtils.isNullOrEmpty(attr))
-            xml.append(attrName).append("='")
-                .append(attr).append("' ");
+        {
+            xml.attribute(attrName, attr);
+        }
     }
 
     /**

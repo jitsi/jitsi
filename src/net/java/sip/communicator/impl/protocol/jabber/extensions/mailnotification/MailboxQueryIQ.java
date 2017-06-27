@@ -68,21 +68,17 @@ public class MailboxQueryIQ extends IQ
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder xml)
     {
-        if (logger.isDebugEnabled())
-            logger.debug("QueryNotify.getChildElementXML usage");
-
-        xml.append("<" + ELEMENT_NAME + " xmlns='" + NAMESPACE + "'");
-
         if(getNewerThanTime() != -1)
-            xml.append("newer-than-time='")
-                .append(String.valueOf(getNewerThanTime())).append("'");
+        {
+            xml.attribute("newer-than-time", String.valueOf(getNewerThanTime()));
+        }
 
         if(getNewerThanTid() != -1)
-            xml.append("newer-than-tid='")
-                .append(String.valueOf(getNewerThanTid())).append("'");
+        {
+            xml.attribute("newer-than-tid", String.valueOf(getNewerThanTid()));
+        }
 
-        xml.append("/>");
-
+        xml.setEmptyElement();
         return xml;
     }
 

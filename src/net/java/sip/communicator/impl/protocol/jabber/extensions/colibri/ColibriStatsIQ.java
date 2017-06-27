@@ -52,6 +52,7 @@ public class ColibriStatsIQ
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
     {
+        buf.rightAngleBracket();
         buf.append(backEnd.toXML());
         return buf;
     }

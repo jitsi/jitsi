@@ -76,10 +76,7 @@ public class KeepAliveEvent
      */
     protected IQChildElementXmlStringBuilder getIQChildElementBuilder(IQChildElementXmlStringBuilder buf)
     {
-        buf.append("<").append(ELEMENT_NAME).
-            append(" xmlns=\"").append(NAMESPACE).
-            append("\"/>");
-
+        buf.setEmptyElement();
         return buf;
     }
 }

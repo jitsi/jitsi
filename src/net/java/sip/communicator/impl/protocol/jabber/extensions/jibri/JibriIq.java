@@ -213,65 +213,21 @@ public class JibriIq
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder xml)
     {
-        xml.append('<').append(ELEMENT_NAME);
-        xml.append(" xmlns='").append(NAMESPACE).append("' ");
-
         if (action != Action.UNDEFINED)
         {
-            printStringAttribute(xml, ACTION_ATTR_NAME, action.toString());
+            xml.attribute(ACTION_ATTR_NAME, action);
         }
 
         if (status != Status.UNDEFINED)
         {
-            printStringAttribute(xml, STATUS_ATTR_NAME, status.toString());
+            xml.attribute(STATUS_ATTR_NAME, status);
         }
 
-        if (room != null)
-        {
-            printStringAttribute(xml, ROOM_ATTR_NAME, room);
-        }
-
-        if (streamId != null)
-        {
-            printStringAttribute(xml, STREAM_ID_ATTR_NAME, streamId);
-        }
-
-        if (displayName != null)
-        {
-            printStringAttribute(xml, DISPLAY_NAME_ATTR_NAME, displayName);
-        }
-
-        if (sipAddress != null)
-        {
-            printStringAttribute(xml, SIP_ADDRESS_ATTR_NAME, sipAddress);
-        }
-
-        Collection<ExtensionElement> extensions =  getExtensions();
-        if (extensions.size() > 0)
-        {
-            xml.append(">");
-            for (ExtensionElement extension : extensions)
-            {
-                xml.append(extension.toXML());
-            }
-            xml.append("</").append(ELEMENT_NAME).append(">");
-        }
-        else
-        {
-            xml.append("/>");
-        }
-
+        xml.optAttribute(ROOM_ATTR_NAME, room);
+        xml.optAttribute(STREAM_ID_ATTR_NAME, streamId);
+        xml.optAttribute(DISPLAY_NAME_ATTR_NAME, displayName);
+        xml.optAttribute(SIP_ADDRESS_ATTR_NAME, sipAddress);
         return xml;
-    }
-
-    private void printStringAttribute(
-        IQChildElementXmlStringBuilder xml, String attrName, String attr)
-    {
-        if (!StringUtils.isNullOrEmpty(attr))
-        {
-            xml.append(attrName).append("='")
-                .append(org.jivesoftware.smack.util.StringUtils.escapeForXml(attr)).append("' ");
-        }
     }
 
     /**

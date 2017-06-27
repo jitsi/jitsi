@@ -34,12 +34,6 @@ import org.jivesoftware.smack.packet.*;
 public class NewMailNotificationIQ extends IQ
 {
     /**
-     * Logger for this class
-     */
-    private static final Logger logger =
-        Logger.getLogger(NewMailNotificationIQ.class);
-
-    /**
      * The name space for new mail notification packets.
      */
     public static final String NAMESPACE = "google:mail:notify";
@@ -63,12 +57,7 @@ public class NewMailNotificationIQ extends IQ
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
     {
-        if (logger.isTraceEnabled())
-            logger.trace("NewMailNotification.getChildElementXML usage");
-        buf.append("<iq type='"+"result"+"' "+
-                "from='"+getFrom()+"' "+
-                "to='"+getTo()+"' "+
-                "id='"+getStanzaId()+"' />");
+        buf.setEmptyElement();
         return buf;
     }
 }

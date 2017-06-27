@@ -190,17 +190,10 @@ public class MailboxIQ extends IQ
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
     {
-        if (logger.isDebugEnabled())
-            logger.debug("Mailbox.getChildElementXML usage");
-        String totalString = totalEstimate ? " total-estimate='1' " : "";
-        buf
-            .append("<mailbox result-time='")
-            .append(String.valueOf(resultTime))
-            .append("' total-matched='")
-            .append(String.valueOf(totalMatched))
-            .append("'")
-            .append(totalString)
-            .append("/>");
+        buf.attribute("result-time", ((Long)resultTime).toString());
+        buf.attribute("total-matched", totalMatched);
+        buf.optIntAttribute("total-estimate", totalEstimate ? 1 : 0);
+        buf.setEmptyElement();
         return buf;
     }
 

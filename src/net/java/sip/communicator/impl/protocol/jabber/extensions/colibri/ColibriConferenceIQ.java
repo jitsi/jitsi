@@ -269,33 +269,11 @@ public class ColibriConferenceIQ
      * @return an XML <tt>String</tt> representation of this <tt>IQ</tt>
      */
     @Override
-    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder xml)
     {
-        StringBuilder xml = new StringBuilder();
-
-        xml.append('<').append(ELEMENT_NAME);
-        xml.append(" xmlns='").append(NAMESPACE).append('\'');
-
-        String id = getID();
-        String gid = getGID();
-
-        if (id != null)
-        {
-            xml.append(' ').append(ID_ATTR_NAME).append("='").append(id)
-                .append('\'');
-        }
-
-        if (gid != null)
-        {
-            xml.append(' ').append(GID_ATTR_NAME).append("='").append(gid)
-                .append('\'');
-        }
-
-        if (name != null)
-        {
-            xml.append(' ').append(NAME_ATTR_NAME).append("='").append(name)
-                .append('\'');
-        }
+        xml.optAttribute(ID_ATTR_NAME, getID());
+        xml.optAttribute(GID_ATTR_NAME, getGID());
+        xml.optAttribute(NAME_ATTR_NAME, name);
 
         List<Content> contents = getContents();
         List<ChannelBundle> channelBundles = getChannelBundles();
@@ -309,11 +287,11 @@ public class ColibriConferenceIQ
 
         if (!hasChildren)
         {
-            xml.append(" />");
+            xml.setEmptyElement();
         }
         else
         {
-            xml.append('>');
+            xml.rightAngleBracket();
             for (Content content : contents)
                 content.toXML(xml);
             for (ChannelBundle channelBundle : channelBundles)
@@ -324,12 +302,9 @@ public class ColibriConferenceIQ
                 rtcpTerminationStrategy.toXML(xml);
             if (gracefulShutdown)
                 xml.append(new GracefulShutdown().toXML());
-
-            xml.append("</").append(ELEMENT_NAME).append('>');
         }
 
-        buf.append(xml);
-        return buf;
+        return xml;
     }
 
     /**
@@ -1072,82 +1047,64 @@ public class ColibriConferenceIQ
         }
 
         @Override
-        protected void printAttributes(StringBuilder xml)
+        protected IQChildElementXmlStringBuilder printAttributes(IQChildElementXmlStringBuilder xml)
         {
             // direction
             MediaDirection direction = getDirection();
-
             if ((direction != null) && (direction != MediaDirection.SENDRECV))
             {
-                xml.append(' ').append(DIRECTION_ATTR_NAME).append("='")
-                        .append(direction.toString()).append('\'');
+                xml.attribute(DIRECTION_ATTR_NAME, direction);
             }
 
-            // host
-            String host = getHost();
-
-            if (host != null)
-            {
-                xml.append(' ').append(HOST_ATTR_NAME).append("='").append(host)
-                        .append('\'');
-            }
+            xml.optAttribute(HOST_ATTR_NAME, getHost());
 
             // lastN
             Integer lastN = getLastN();
-
             if (lastN != null)
             {
-                xml.append(' ').append(LAST_N_ATTR_NAME).append("='")
-                        .append(lastN).append('\'');
+                xml.attribute(LAST_N_ATTR_NAME, getLastN());
             }
 
             // packet-delay
             Integer packetDelay = getPacketDelay();
             if (packetDelay != null)
             {
-                xml.append(' ').append(PACKET_DELAY_ATTR_NAME).append("='")
-                    .append(packetDelay).append('\'');
+                xml.attribute(PACKET_DELAY_ATTR_NAME, packetDelay);
             }
 
             // simulcastMode
             SimulcastMode simulcastMode = getSimulcastMode();
-
             if (simulcastMode != null)
             {
-                xml.append(' ').append(SIMULCAST_MODE_ATTR_NAME).append("='")
-                        .append(simulcastMode).append('\'');
+                xml.attribute(SIMULCAST_MODE_ATTR_NAME, simulcastMode);
             }
 
             // rtcpPort
             int rtcpPort = getRTCPPort();
-
             if (rtcpPort > 0)
             {
-                xml.append(' ').append(RTCP_PORT_ATTR_NAME).append("='")
-                        .append(rtcpPort).append('\'');
+                xml.attribute(RTCP_PORT_ATTR_NAME, rtcpPort);
             }
 
             // rtpLevelRelayType
             RTPLevelRelayType rtpLevelRelayType = getRTPLevelRelayType();
-
             if (rtpLevelRelayType != null)
             {
-                xml.append(' ').append(RTP_LEVEL_RELAY_TYPE_ATTR_NAME)
-                        .append("='").append(rtpLevelRelayType).append('\'');
+                xml.attribute(RTP_LEVEL_RELAY_TYPE_ATTR_NAME, rtpLevelRelayType);
             }
 
             // rtpPort
             int rtpPort = getRTPPort();
-
             if (rtpPort > 0)
             {
-                xml.append(' ').append(RTP_PORT_ATTR_NAME).append("='")
-                        .append(rtpPort).append('\'');
+                xml.attribute(RTP_PORT_ATTR_NAME, rtpPort);
             }
+
+            return xml;
         }
 
         @Override
-        protected void printContent(StringBuilder xml)
+        protected IQChildElementXmlStringBuilder printContent(IQChildElementXmlStringBuilder xml)
         {
             List<PayloadTypePacketExtension> payloadTypes = getPayloadTypes();
             Collection<RTPHdrExtPacketExtension> rtpHdrExtPacketExtensions
@@ -1171,11 +1128,11 @@ public class ColibriConferenceIQ
 
             for (int i = 0; i < ssrcs.length; i++)
             {
-                xml.append('<').append(SSRC_ELEMENT_NAME).append('>')
-                    .append(Long.toString(ssrcs[i] & 0xFFFFFFFFL))
-                    .append("</").append(SSRC_ELEMENT_NAME)
-                    .append('>');
+                xml.element(SSRC_ELEMENT_NAME,
+                    Long.toString(ssrcs[i] & 0xFFFFFFFFL));
             }
+
+            return xml;
         }
 
         /**
@@ -1510,21 +1467,23 @@ public class ColibriConferenceIQ
          * <tt>xml</tt>.
          * @param xml the <tt>StringBuilder</tt> to append to.
          */
-        public void toXML(StringBuilder xml)
+        public IQChildElementXmlStringBuilder toXML(IQChildElementXmlStringBuilder xml)
         {
-            xml.append('<').append(ELEMENT_NAME).append(' ')
-                    .append(ID_ATTR_NAME).append("='").append(id).append('\'');
+            xml.halfOpenElement(ELEMENT_NAME)
+                .attribute(ID_ATTR_NAME, id);
 
             if (transport != null)
             {
-                xml.append('>');
+                xml.rightAngleBracket();
                 xml.append(transport.toXML());
-                xml.append("</").append(ELEMENT_NAME).append('>');
+                xml.closeElement(ELEMENT_NAME);
             }
             else
             {
-                xml.append(" />");
+                xml.closeEmptyElement();
             }
+
+            return xml;
         }
     }
 
@@ -1710,7 +1669,7 @@ public class ColibriConferenceIQ
          *            <tt>String</tt> representation of this <tt>Channel</tt>
          *            is to be appended</tt>
          */
-        protected abstract void printAttributes(StringBuilder xml);
+        protected abstract IQChildElementXmlStringBuilder printAttributes(IQChildElementXmlStringBuilder xml);
 
         /**
          * Implement in order to print content child elements of this IQ using
@@ -1721,7 +1680,7 @@ public class ColibriConferenceIQ
          *        <tt>String</tt> representation of this <tt>Channel</tt>
          *        is to be appended</tt></tt>.
          */
-        protected abstract void printContent(StringBuilder xml);
+        protected abstract IQChildElementXmlStringBuilder printContent(IQChildElementXmlStringBuilder xml);
 
         /**
          * Sets the channel-bundle-id attribute of this <tt>CommonChannel</tt>.
@@ -1801,52 +1760,14 @@ public class ColibriConferenceIQ
          * <tt>String</tt> representation of this <tt>Channel</tt> is to be
          * appended
          */
-        public void toXML(StringBuilder xml)
+        public IQChildElementXmlStringBuilder toXML(IQChildElementXmlStringBuilder xml)
         {
-            xml.append('<').append(elementName);
-
-            // endpoint
-            Jid endpoint = getEndpoint();
-
-            if (endpoint != null)
-            {
-                xml.append(' ').append(ENDPOINT_ATTR_NAME).append("='")
-                    .append(endpoint).append('\'');
-            }
-
-            // expire
-            int expire = getExpire();
-
-            if (expire >= 0)
-            {
-                xml.append(' ').append(EXPIRE_ATTR_NAME).append("='")
-                    .append(expire).append('\'');
-            }
-
-            // id
-            String id = getID();
-
-            if (id != null)
-            {
-                xml.append(' ').append(ID_ATTR_NAME).append("='")
-                    .append(id).append('\'');
-            }
-
-            // initiator
-            Boolean initiator = isInitiator();
-
-            if (initiator != null)
-            {
-                xml.append(' ').append(INITIATOR_ATTR_NAME).append("='")
-                    .append(initiator).append('\'');
-            }
-
-            Jid channelBundleId = getChannelBundleId();
-            if (channelBundleId != null)
-            {
-                xml.append(' ').append(CHANNEL_BUNDLE_ID_ATTR_NAME)
-                    .append("='").append(channelBundleId).append('\'');
-            }
+            xml.halfOpenElement(elementName)
+                .optAttribute(ENDPOINT_ATTR_NAME, getEndpoint())
+                .optIntAttribute(EXPIRE_ATTR_NAME, getExpire())
+                .optAttribute(ID_ATTR_NAME, getID())
+                .optBooleanAttribute(INITIATOR_ATTR_NAME, isInitiator())
+                .optAttribute(CHANNEL_BUNDLE_ID_ATTR_NAME, getChannelBundleId());
 
             // Print derived class attributes
             printAttributes(xml);
@@ -1855,17 +1776,25 @@ public class ColibriConferenceIQ
             boolean hasTransport = (transport != null);
             if (hasTransport || hasContent())
             {
-                xml.append('>');
+                xml.rightAngleBracket();
                 if(hasContent())
+                {
                     printContent(xml);
+                }
+
                 if (hasTransport)
+                {
                     xml.append(transport.toXML());
-                xml.append("</").append(elementName).append('>');
+                }
+
+                xml.closeElement(elementName);
             }
             else
             {
-                xml.append(" />");
+                xml.closeEmptyElement();
             }
+
+            return xml;
         }
     }
 
@@ -2120,28 +2049,35 @@ public class ColibriConferenceIQ
          * <tt>String</tt> representation of this <tt>Content</tt> is to be
          * appended
          */
-        public void toXML(StringBuilder xml)
+        public IQChildElementXmlStringBuilder toXML(IQChildElementXmlStringBuilder xml)
         {
-            xml.append('<').append(ELEMENT_NAME);
-            xml.append(' ').append(NAME_ATTR_NAME).append("='")
-                    .append(getName()).append('\'');
+            xml.halfOpenElement(ELEMENT_NAME)
+                .attribute(NAME_ATTR_NAME, getName());
 
             List<Channel> channels = getChannels();
             List<SctpConnection> connections = getSctpConnections();
 
             if (channels.size() == 0 && connections.size() == 0)
             {
-                xml.append(" />");
+                xml.closeEmptyElement();
             }
             else
             {
-                xml.append('>');
+                xml.rightAngleBracket();
                 for (Channel channel : channels)
+                {
                     channel.toXML(xml);
+                }
+
                 for(SctpConnection conn : connections)
+                {
                     conn.toXML(xml);
-                xml.append("</").append(ELEMENT_NAME).append('>');
+                }
+
+                xml.closeElement(ELEMENT_NAME);
             }
+
+            return xml;
         }
 
         /**
@@ -2339,22 +2275,14 @@ public class ColibriConferenceIQ
             this.directory = directory;
         }
 
-        public void toXML(StringBuilder xml)
+        public IQChildElementXmlStringBuilder toXML(IQChildElementXmlStringBuilder xml)
         {
-            xml.append('<').append(ELEMENT_NAME);
-            xml.append(' ').append(STATE_ATTR_NAME).append("='")
-                    .append(state).append('\'');
-            if (token != null)
-            {
-                xml.append(' ').append(TOKEN_ATTR_NAME).append("='")
-                        .append(token).append('\'');
-            }
-            if (directory != null)
-            {
-                xml.append(' ').append(DIRECTORY_ATTR_NAME).append("='")
-                        .append(directory).append('\'');
-            }
-            xml.append("/>");
+            xml.halfOpenElement(ELEMENT_NAME)
+                .attribute(STATE_ATTR_NAME, state)
+                .optAttribute(TOKEN_ATTR_NAME, token)
+                .optAttribute(DIRECTORY_ATTR_NAME, directory)
+                .closeEmptyElement();
+            return xml;
         }
 
         /**
@@ -2449,12 +2377,12 @@ public class ColibriConferenceIQ
             this.name = name;
         }
 
-        public void toXML(StringBuilder xml)
+        public IQChildElementXmlStringBuilder toXML(IQChildElementXmlStringBuilder xml)
         {
-            xml.append('<').append(ELEMENT_NAME);
-            xml.append(' ').append(NAME_ATTR_NAME).append("='")
-                    .append(name).append('\'');
-            xml.append("/>");
+            xml.halfOpenElement(ELEMENT_NAME)
+                .attribute(NAME_ATTR_NAME, name)
+                .closeEmptyElement();
+            return xml;
         }
     }
 
@@ -2522,16 +2450,17 @@ public class ColibriConferenceIQ
          * {@inheritDoc}
          */
         @Override
-        protected void printAttributes(StringBuilder xml)
+        protected IQChildElementXmlStringBuilder printAttributes(IQChildElementXmlStringBuilder xml)
         {
-            xml.append(' ').append(PORT_ATTR_NAME).append("='")
-                .append(getPort()).append('\'');
+            xml.attribute(PORT_ATTR_NAME, getPort());
+            return xml;
         }
 
         @Override
-        protected void printContent(StringBuilder xml)
+        protected IQChildElementXmlStringBuilder printContent(IQChildElementXmlStringBuilder xml)
         {
             // No other content than the transport shared from ChannelCommon
+            return xml;
         }
 
         /**

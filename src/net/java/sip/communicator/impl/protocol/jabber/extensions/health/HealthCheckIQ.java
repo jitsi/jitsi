@@ -49,7 +49,7 @@ public class HealthCheckIQ
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
     {
-        buf.append("<" + ELEMENT_NAME + " xmlns='" + NAMESPACE + "' />");
+        buf.setEmptyElement();
         return buf;
     }
 }
