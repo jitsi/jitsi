@@ -258,11 +258,19 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
         String sid = parser
                         .getAttributeValue("", JingleIQ.SID_ATTR_NAME);
 
-        Jid initiatorJid = JidCreate.from(initiator);
-        Jid responderJid = JidCreate.from(responder);
         jingleIQ.setAction(action);
-        jingleIQ.setInitiator(initiatorJid);
-        jingleIQ.setResponder(responderJid);
+        if (initiator != null)
+        {
+            Jid initiatorJid = JidCreate.from(initiator);
+            jingleIQ.setInitiator(initiatorJid);
+        }
+
+        if (responder != null)
+        {
+            Jid responderJid = JidCreate.from(responder);
+            jingleIQ.setResponder(responderJid);
+        }
+
         jingleIQ.setSID(sid);
 
         boolean done = false;
