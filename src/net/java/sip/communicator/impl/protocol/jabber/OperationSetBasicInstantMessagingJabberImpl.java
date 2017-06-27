@@ -749,15 +749,13 @@ public class OperationSetBasicInstantMessagingJabberImpl
         Stanza response = null;
         try
         {
-            StanzaCollector packetCollector
-                = jabberProvider.getConnection().createStanzaCollector(
-                        new StanzaIdFilter(iq.getStanzaId()));
             iq.setFrom(jabberProvider.getOurJID());
             iq.setType(IQ.Type.set);
-            jabberProvider.getConnection().sendStanza(iq);
-            response
-                = packetCollector.nextResult(
-                        SmackConfiguration.getDefaultPacketReplyTimeout());
+            StanzaCollector packetCollector = jabberProvider
+                .getConnection()
+                .createStanzaCollectorAndSend(iq);
+            response = packetCollector
+                .nextResult(SmackConfiguration.getDefaultReplyTimeout());
 
             packetCollector.cancel();
         }
