@@ -49,18 +49,8 @@ public class KeepAliveEventProvider
     public KeepAliveEvent parse(XmlPullParser parser, int depth)
         throws Exception
     {
-        KeepAliveEvent result = new KeepAliveEvent();
-
-        String type = parser.getAttributeValue(null, "type");
-        String id = parser.getAttributeValue(null, "id");
-        String from = parser.getAttributeValue(null, "from");
-        String to = parser.getAttributeValue(null, "to");
-
-        result.setType(IQ.Type.fromString(type));
-        result.setStanzaId(id);
-        result.setFrom(from);
-        result.setTo(to);
-
-        return result;
+        // No need to use the constructor with arguments. IQ will already
+        // have filled out all relevant fields ('from', 'to', 'id').
+        return new KeepAliveEvent();
     }
 }
