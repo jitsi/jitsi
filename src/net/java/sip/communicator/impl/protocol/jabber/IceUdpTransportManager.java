@@ -1146,7 +1146,7 @@ public class IceUdpTransportManager
             {
                 try
                 {
-                    iceProcessingStateSyncRoot.wait();
+                    iceProcessingStateSyncRoot.wait(1000);
                 }
                 catch (InterruptedException ie)
                 {
