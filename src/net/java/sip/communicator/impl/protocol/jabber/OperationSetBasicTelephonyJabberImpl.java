@@ -30,6 +30,8 @@ import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.iqrequest.AbstractIqRequestHandler;
+import org.jivesoftware.smack.iqrequest.IQRequestHandler;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.packet.IQ.Type;
 import org.jivesoftware.smack.provider.*;
@@ -78,6 +80,10 @@ public class OperationSetBasicTelephonyJabberImpl
     private ActiveCallsRepositoryJabberGTalkImpl
         <CallJabberImpl, CallPeerJabberImpl> activeCallsRepository
             = new ActiveCallsRepositoryJabberGTalkImpl<>(this);
+
+    /** Jingle IQ set stanza processor */
+    private final JingleIqSetRequestHandler setRequestHandler
+        = new JingleIqSetRequestHandler();
 
     /**
      * Google Voice domain.
@@ -832,7 +838,9 @@ public class OperationSetBasicTelephonyJabberImpl
      */
     private void subscribeForJinglePackets()
     {
-        protocolProvider.getConnection().addPacketListener(this, this);
+        XMPPConnection conn = protocolProvider.getConnection();
+        conn.addAsyncStanzaListener(this, this);
+        conn.registerIQRequestHandler(setRequestHandler);
     }
 
     /**
@@ -842,7 +850,10 @@ public class OperationSetBasicTelephonyJabberImpl
     {
         XMPPConnection connection = protocolProvider.getConnection();
         if(connection != null)
-            connection.removePacketListener(this);
+        {
+            connection.removeAsyncStanzaListener(this);
+            connection.unregisterIQRequestHandler(setRequestHandler);
+        }
     }
 
     /**
@@ -888,6 +899,7 @@ public class OperationSetBasicTelephonyJabberImpl
                             getProtocolProvider().getConnection());
                         Jid packetFrom = packet.getFrom();
 
+                        // FIXME i18n
                         message = "Service unavailable";
                         if(!roster.contains(packetFrom.asBareJid()))
                         {
@@ -939,15 +951,10 @@ public class OperationSetBasicTelephonyJabberImpl
          */
         try
         {
-            //first ack all "set" requests.
-            if(iq.getType() == IQ.Type.set)
-            {
-                IQ ack = IQ.createResultIQ(iq);
-                protocolProvider.getConnection().sendStanza(ack);
-            }
-
             if (iq instanceof JingleIQ)
-                processJingleIQ((JingleIQ) iq);
+            {
+                processJingleIQError((JingleIQ) iq);
+            }
         }
         catch(Throwable t)
         {
@@ -976,6 +983,35 @@ public class OperationSetBasicTelephonyJabberImpl
         }
     }
 
+    private class JingleIqSetRequestHandler extends AbstractIqRequestHandler
+    {
+        protected JingleIqSetRequestHandler()
+        {
+            super(JingleIQ.ELEMENT_NAME,
+                JingleIQ.NAMESPACE,
+                Type.set,
+                Mode.sync);
+        }
+
+        @Override
+        public IQ handleIQRequest(IQ iq)
+        {
+            try
+            {
+                // send ack, then process request
+                protocolProvider.getConnection().sendStanza(IQ.createResultIQ(iq));
+                processJingleIQ((JingleIQ) iq);
+            }
+            catch (Exception e)
+            {
+                logger.error("Error while handling incoming " + iq.getClass()
+                        + " packet: ", e);
+            }
+
+            return null;
+        }
+    }
+
     /**
      * Analyzes the <tt>jingleIQ</tt>'s action and passes it to the
      * corresponding handler.
@@ -988,30 +1024,6 @@ public class OperationSetBasicTelephonyJabberImpl
         //let's first see whether we have a peer that's concerned by this IQ
         CallPeerJabberImpl callPeer
             = activeCallsRepository.findCallPeer(jingleIQ.getSID());
-        IQ.Type type = jingleIQ.getType();
-
-        if (type == Type.error)
-        {
-            logger.error("Received error");
-
-            XMPPError error = jingleIQ.getError();
-            String message = "Remote party returned an error!";
-
-            if(error != null)
-            {
-                String errorStr
-                    = "code=" + error.getCondition()
-                        + " message=" + error.getConditionText();
-
-                message += "\n" + errorStr;
-                logger.error(" " + errorStr);
-            }
-
-            if (callPeer != null)
-                callPeer.setState(CallPeerState.FAILED, message);
-
-            return;
-        }
 
         JingleAction action = jingleIQ.getAction();
 
@@ -1177,6 +1189,29 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             callPeer.processTransportInfo(jingleIQ);
         }
+    }
+
+    private void processJingleIQError(JingleIQ jingleIQ)
+    {
+        //let's first see whether we have a peer that's concerned by this IQ
+        CallPeerJabberImpl callPeer
+            = activeCallsRepository.findCallPeer(jingleIQ.getSID());
+
+        XMPPError error = jingleIQ.getError();
+        // FIXME get from i18n
+        String message = "Remote party returned an error!";
+        if(error != null)
+        {
+            String errorStr
+                = "code=" + error.getCondition()
+                    + " message=" + error.getConditionText();
+
+            message += "\n" + errorStr;
+        }
+
+        logger.error(message);
+        if (callPeer != null)
+            callPeer.setState(CallPeerState.FAILED, message);
     }
 
     /**
