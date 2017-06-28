@@ -124,7 +124,7 @@ public class JingleIQ extends IQ
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder bldr)
     {
-        bldr.attribute(ACTION_ATTR_NAME, getAction())
+        bldr.attribute(ACTION_ATTR_NAME, getAction().toString())
             .optAttribute(INITIATOR_ATTR_NAME, getInitiator())
             .optAttribute(RESPONDER_ATTR_NAME, getResponder())
             .attribute(SID_ATTR_NAME, getSID());

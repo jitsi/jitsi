@@ -87,7 +87,7 @@ public class InputEvtIQ extends IQ
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder bldr)
     {
-        bldr.attribute(ACTION_ATTR_NAME, getAction());
+        bldr.attribute(ACTION_ATTR_NAME, getAction().toString());
         if(remoteControls.size() > 0)
         {
             bldr.rightAngleBracket();

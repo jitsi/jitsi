@@ -215,12 +215,12 @@ public class JibriIq
     {
         if (action != Action.UNDEFINED)
         {
-            xml.attribute(ACTION_ATTR_NAME, action);
+            xml.attribute(ACTION_ATTR_NAME, action.toString());
         }
 
         if (status != Status.UNDEFINED)
         {
-            xml.attribute(STATUS_ATTR_NAME, status);
+            xml.attribute(STATUS_ATTR_NAME, status.toString());
         }
 
         xml.optAttribute(ROOM_ATTR_NAME, room);

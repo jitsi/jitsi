@@ -1053,7 +1053,7 @@ public class ColibriConferenceIQ
             MediaDirection direction = getDirection();
             if ((direction != null) && (direction != MediaDirection.SENDRECV))
             {
-                xml.attribute(DIRECTION_ATTR_NAME, direction);
+                xml.attribute(DIRECTION_ATTR_NAME, direction.toString());
             }
 
             xml.optAttribute(HOST_ATTR_NAME, getHost());
@@ -1076,7 +1076,7 @@ public class ColibriConferenceIQ
             SimulcastMode simulcastMode = getSimulcastMode();
             if (simulcastMode != null)
             {
-                xml.attribute(SIMULCAST_MODE_ATTR_NAME, simulcastMode);
+                xml.attribute(SIMULCAST_MODE_ATTR_NAME, simulcastMode.toString());
             }
 
             // rtcpPort
@@ -1090,7 +1090,7 @@ public class ColibriConferenceIQ
             RTPLevelRelayType rtpLevelRelayType = getRTPLevelRelayType();
             if (rtpLevelRelayType != null)
             {
-                xml.attribute(RTP_LEVEL_RELAY_TYPE_ATTR_NAME, rtpLevelRelayType);
+                xml.attribute(RTP_LEVEL_RELAY_TYPE_ATTR_NAME, rtpLevelRelayType.toString());
             }
 
             // rtpPort
@@ -2278,7 +2278,7 @@ public class ColibriConferenceIQ
         public IQChildElementXmlStringBuilder toXML(IQChildElementXmlStringBuilder xml)
         {
             xml.halfOpenElement(ELEMENT_NAME)
-                .attribute(STATE_ATTR_NAME, state)
+                .attribute(STATE_ATTR_NAME, state.toString())
                 .optAttribute(TOKEN_ATTR_NAME, token)
                 .optAttribute(DIRECTORY_ATTR_NAME, directory)
                 .closeEmptyElement();

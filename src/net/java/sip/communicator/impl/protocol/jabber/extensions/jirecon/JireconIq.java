@@ -104,12 +104,12 @@ public class JireconIq
 
         if (action != Action.UNDEFINED)
         {
-            xml.attribute(ACTION_ATTR_NAME, action);
+            xml.attribute(ACTION_ATTR_NAME, action.toString());
         }
 
         if (status != Status.UNDEFINED)
         {
-            xml.attribute(STATUS_ATTR_NAME, status);
+            xml.attribute(STATUS_ATTR_NAME, status.toString());
         }
 
         printStringAttribute(xml, MUCJID_ATTR_NAME, mucJid);

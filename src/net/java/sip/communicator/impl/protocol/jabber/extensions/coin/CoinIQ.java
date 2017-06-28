@@ -94,7 +94,7 @@ public class CoinIQ
     @Override
     protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder bldr)
     {
-        bldr.attribute("state", state);
+        bldr.attribute("state", state.toString());
         bldr.attribute("entity", entity);
         bldr.attribute("version", version);
         bldr.optAttribute("sid", sid);
