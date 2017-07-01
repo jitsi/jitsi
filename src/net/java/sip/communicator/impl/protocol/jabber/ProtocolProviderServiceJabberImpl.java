@@ -37,7 +37,6 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingleinfo.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.keepalive.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.messagecorrection.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
 import net.java.sip.communicator.service.certificate.*;
@@ -72,6 +71,7 @@ import org.jivesoftware.smackx.delay.provider.*;
 import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
 import org.jivesoftware.smackx.disco.packet.*;
 import org.jivesoftware.smackx.nick.packet.*;
+import org.jivesoftware.smackx.ping.PingManager;
 import org.jivesoftware.smackx.xhtmlim.*;
 import org.jxmpp.jid.*;
 import org.jxmpp.jid.impl.JidCreate;
@@ -397,11 +397,6 @@ public class ProtocolProviderServiceJabberImpl
      * its password.
      */
     private UserCredentials userCredentials = null;
-
-    /**
-     * The currently running keepAliveManager if enabled.
-     */
-    private KeepAliveManager keepAliveManager = null;
 
     /**
      * The version manager.
@@ -1611,8 +1606,8 @@ public class ProtocolProviderServiceJabberImpl
             if (keepAliveStrValue == null
                 || keepAliveStrValue.equalsIgnoreCase("XEP-0199"))
             {
-                if(keepAliveManager == null)
-                    keepAliveManager = new KeepAliveManager(this);
+                // force class init of the ping manager
+                PingManager.class.getName();
             }
 
             addSupportedOperationSet(
