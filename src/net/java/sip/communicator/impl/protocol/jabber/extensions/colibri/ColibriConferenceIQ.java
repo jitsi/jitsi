@@ -595,6 +595,11 @@ public class ColibriConferenceIQ
         public static final String SSRC_ELEMENT_NAME = "ssrc";
 
         /**
+         * The name of the "type" attribute.
+         */
+        public static final String TYPE_ATTR_NAME = "type";
+
+        /**
          * The direction of the <tt>channel</tt> represented by this instance.
          */
         private MediaDirection direction;
@@ -630,14 +635,14 @@ public class ColibriConferenceIQ
          * Sessions associated with this <tt>channel</tt>.
          */
         private final List<PayloadTypePacketExtension> payloadTypes
-            = new ArrayList<PayloadTypePacketExtension>();
+            = new ArrayList<>();
 
         /**
          * The <tt>rtp-hdrext</tt> elements defined by XEP-0294: Jingle RTP
          * Header Extensions Negotiation associated with this channel.
          */
         private final Map<Integer, RTPHdrExtPacketExtension> rtpHeaderExtensions
-            = new HashMap<Integer, RTPHdrExtPacketExtension>();
+            = new HashMap<>();
 
         /**
          * The target quality of the simulcast substreams to be sent from Jitsi
@@ -681,7 +686,7 @@ public class ColibriConferenceIQ
          * The <tt>SourcePacketExtension</tt>s of this channel.
          */
         private final List<SourcePacketExtension> sources
-            = new LinkedList<SourcePacketExtension>();
+            = new LinkedList<>();
 
         /**
          * The list of (RTP) SSRCs which have been seen/received on this
@@ -1389,6 +1394,108 @@ public class ColibriConferenceIQ
                 = ((ssrcs == null) || (ssrcs.length == 0))
                     ? NO_SSRCS
                     : ssrcs.clone();
+        }
+    }
+
+    /**
+     * Represents a {@link Channel} of type "octo".
+     */
+    public static class OctoChannel
+        extends Channel
+    {
+        /**
+         * The value of the "type" attribute which corresponds to Octo channels.
+         */
+        public static final String TYPE = "octo";
+
+        /**
+         * The name of the "relay" child element of an {@link OctoChannel}.
+         */
+        public static final String RELAY_ELEMENT_NAME = "relay";
+
+        /**
+         * The name of the "id" attribute of child elements with name "relay".
+         */
+        public static final String RELAY_ID_ATTR_NAME = "id";
+
+        /**
+         * The list of relays of this {@link OctoChannel}.
+         */
+        private List<String> relays = new LinkedList<>();
+
+        /**
+         * Sets the list of relays of this {@link OctoChannel}.
+         * @param relays the ids of the relays to set.
+         */
+        public void setRelays(List<String> relays)
+        {
+            this.relays = new LinkedList<>(relays);
+        }
+
+        /**
+         * @return the list of relays of this {@link OctoChannel}.
+         */
+        public List<String> getRelays()
+        {
+            return relays;
+        }
+
+        /**
+         * Adds a relay to this {@link OctoChannel}.
+         * @param relay the id of the relay to add.
+         */
+        public void addRelay(String relay)
+        {
+            if (!relays.contains(relay))
+            {
+                relays.add(relay);
+            }
+        }
+
+        /**
+         * Removes a relay from this {@link OctoChannel}.
+         * @param relay the id of the relay to remove.
+         */
+        public void removeRelay(String relay)
+        {
+            relays.remove(relay);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected boolean hasContent()
+        {
+            return !relays.isEmpty() || super.hasContent();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected IQChildElementXmlStringBuilder printAttributes(IQChildElementXmlStringBuilder xml)
+        {
+            super.printAttributes(xml)
+                .attribute(Channel.TYPE_ATTR_NAME, TYPE);
+            return xml;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        protected IQChildElementXmlStringBuilder printContent(IQChildElementXmlStringBuilder xml)
+        {
+            super.printContent(xml);
+            for (String relay : relays)
+            {
+                xml.halfOpenElement(RELAY_ELEMENT_NAME)
+                    .attribute(ID_ATTR_NAME, relay)
+                    .closeEmptyElement();
+            }
+
+            return xml;
         }
     }
 

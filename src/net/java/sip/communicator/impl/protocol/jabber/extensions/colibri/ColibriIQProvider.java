@@ -380,7 +380,19 @@ public class ColibriIQProvider
 
                     if (ColibriConferenceIQ.Channel.ELEMENT_NAME.equals(name))
                     {
-                        channel = new ColibriConferenceIQ.Channel();
+                        String type
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.Channel.TYPE_ATTR_NAME);
+
+                        if (ColibriConferenceIQ.OctoChannel.TYPE.equals(type))
+                        {
+                            channel = new ColibriConferenceIQ.OctoChannel();
+                        }
+                        else
+                        {
+                            channel = new ColibriConferenceIQ.Channel();
+                        }
 
                         // direction
                         String direction
@@ -464,7 +476,9 @@ public class ColibriIQProvider
                                             .INITIATOR_ATTR_NAME);
 
                         if ((initiator != null) && (initiator.length() != 0))
+                        {
                             channel.setInitiator(Boolean.valueOf(initiator));
+                        }
 
                         // lastN
                         String lastN
@@ -474,7 +488,9 @@ public class ColibriIQProvider
                                             .LAST_N_ATTR_NAME);
 
                         if ((lastN != null) && (lastN.length() != 0))
+                        {
                             channel.setLastN(Integer.parseInt(lastN));
+                        }
 
                         // simulcastMode
                         String simulcastMode
@@ -484,8 +500,10 @@ public class ColibriIQProvider
                                         .SIMULCAST_MODE_ATTR_NAME);
 
                         if (!StringUtils.isNullOrEmpty(simulcastMode))
+                        {
                             channel.setSimulcastMode(
                                     SimulcastMode.fromString(simulcastMode));
+                        }
 
                         // receiving simulcast layer
                         String receivingSimulcastLayer
@@ -507,7 +525,9 @@ public class ColibriIQProvider
                                             .RTCP_PORT_ATTR_NAME);
 
                         if ((rtcpPort != null) && (rtcpPort.length() != 0))
+                        {
                             channel.setRTCPPort(Integer.parseInt(rtcpPort));
+                        }
 
                         // rtpLevelRelayType
                         String rtpLevelRelayType
@@ -530,7 +550,9 @@ public class ColibriIQProvider
                                             .RTP_PORT_ATTR_NAME);
 
                         if ((rtpPort != null) && (rtpPort.length() != 0))
+                        {
                             channel.setRTPPort(Integer.parseInt(rtpPort));
+                        }
                     }
                     else if (ColibriConferenceIQ.ChannelBundle
                             .ELEMENT_NAME.equals(name))
@@ -565,6 +587,21 @@ public class ColibriIQProvider
                                 && (strategyName.length() != 0))
                             rtcpTerminationStrategy.setName(strategyName);
 
+                    }
+                    else if (ColibriConferenceIQ.OctoChannel
+                                    .RELAY_ELEMENT_NAME.equals(name))
+                    {
+                        String id
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ.OctoChannel.RELAY_ID_ATTR_NAME);
+
+                        if (id != null &&
+                            channel instanceof ColibriConferenceIQ.OctoChannel)
+                        {
+                            ((ColibriConferenceIQ.OctoChannel) channel)
+                                .addRelay(id);
+                        }
                     }
                     else if (ColibriConferenceIQ.Channel.SSRC_ELEMENT_NAME
                             .equals(name))
@@ -798,12 +835,18 @@ public class ColibriIQProvider
                             if (extension != null)
                             {
                                 if(channel != null)
+                                {
                                     addChildExtension(channel, extension);
+                                }
                                 else if (sctpConnection != null)
+                                {
                                     addChildExtension(sctpConnection,
                                                       extension);
+                                }
                                 else
+                                {
                                     addChildExtension(bundle, extension);
+                                }
                             }
                         }
                     }
