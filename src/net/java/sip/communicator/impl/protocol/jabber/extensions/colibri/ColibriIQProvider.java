@@ -72,6 +72,11 @@ public class ColibriIQProvider
                 SourceGroupPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<SourceGroupPacketExtension>(
                         SourceGroupPacketExtension.class));
+        smackInteroperabilityLayer.addExtensionProvider(
+                SourceRidGroupPacketExtension.ELEMENT_NAME,
+                SourceRidGroupPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<SourceRidGroupPacketExtension>(
+                        SourceRidGroupPacketExtension.class));
 
         PacketExtensionProvider parameterProvider
                 = new DefaultPacketExtensionProvider<ParameterPacketExtension>(
@@ -814,6 +819,14 @@ public class ColibriIQProvider
                         {
                             peName = name;
                             peNamespace = SourceGroupPacketExtension.NAMESPACE;
+                        }
+                        else if (SourceRidGroupPacketExtension.ELEMENT_NAME
+                                                .equals(name)
+                                && SourceRidGroupPacketExtension.NAMESPACE
+                                                .equals(parser.getNamespace()))
+                        {
+                            peName = name;
+                            peNamespace = SourceRidGroupPacketExtension.NAMESPACE;
                         }
                         if (peName == null)
                         {
