@@ -66,6 +66,7 @@ import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smack.roster.*;
 import org.jivesoftware.smackx.bytestreams.ibb.*;
 import org.jivesoftware.smackx.bytestreams.socks5.*;
+import org.jivesoftware.smackx.carbons.CarbonManager;
 import org.jivesoftware.smackx.delay.packet.*;
 import org.jivesoftware.smackx.delay.provider.*;
 import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
@@ -1738,18 +1739,6 @@ public class ProtocolProviderServiceJabberImpl
                     ConferenceDescriptionPacketExtension.ELEMENT_NAME,
                     ConferenceDescriptionPacketExtension.NAMESPACE,
                     new ConferenceDescriptionPacketExtension.Provider());
-
-            ProviderManager.addExtensionProvider(
-                CarbonPacketExtension.RECEIVED_ELEMENT_NAME,
-                CarbonPacketExtension.NAMESPACE,
-                new CarbonPacketExtension.Provider(
-                    CarbonPacketExtension.RECEIVED_ELEMENT_NAME));
-
-            ProviderManager.addExtensionProvider(
-                CarbonPacketExtension.SENT_ELEMENT_NAME,
-                CarbonPacketExtension.NAMESPACE,
-                new CarbonPacketExtension.Provider(
-                    CarbonPacketExtension.SENT_ELEMENT_NAME));
 
             ProviderManager.addExtensionProvider(
                 Nick.ELEMENT_NAME,

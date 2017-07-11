@@ -95,5 +95,6 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/jxmpp-util-cache-0.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/smack-bosh-4.2.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/xpp3-1.1.4c.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/smack-experimental-4.2.0.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
