@@ -26,7 +26,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 public class SourceRidGroupPacketExtension extends SourceGroupPacketExtension
 {
     /**
-     * The name of the "ssrc-group" element.
+     * The name of the "rid-group" element.
      */
     public static final String ELEMENT_NAME = "rid-group";
 
