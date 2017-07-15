@@ -437,7 +437,16 @@ public class OperationSetBasicTelephonyJabberImpl
         // If there's no fullCalleeURI specified we'll discover the most
         // connected one with highest priority.
         EntityFullJid fullCalleeJid = null;
-        if (fullCalleeURI == null)
+        try
+        {
+            fullCalleeJid = JidCreate.entityFullFrom(fullCalleeURI);
+        }
+        catch (XmppStringprepException e)
+        {
+            // ignore, try to obtain it via calleeJid
+        }
+
+        if (fullCalleeJid == null)
             fullCalleeJid = discoverFullJid(calleeJid);
 
         if (fullCalleeJid == null)
