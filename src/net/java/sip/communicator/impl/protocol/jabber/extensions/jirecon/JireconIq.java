@@ -29,13 +29,12 @@ import java.util.*;
  * @author lishunyang
  * @author Pawel Domas
  */
-public class JireconIq
-    extends IQ
+public class JireconIq extends IQ
 {
     /**
      * Name space of recording packet extension.
      */
-    public static final String NAMESPACE = JireconIqProvider.NAMESPACE;
+    public static final String NAMESPACE = "http://jitsi.org/protocol/jirecon";
 
     /**
      * XML element name of recording packet extension.

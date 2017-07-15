@@ -31,25 +31,6 @@ public class JireconIqProvider
     extends IQProvider
 {
     /**
-     * Name space of Jirecon packet extension.
-     */
-    public static final String NAMESPACE = "http://jitsi.org/protocol/jirecon";
-
-    /**
-     * Registers this IQ provider into given <tt>ProviderManager</tt>.
-     * @param providerManager the <tt>ProviderManager</tt> to which this
-     *                        instance wil be bound to.
-     */
-    public void registerJireconIQs(ProviderManager providerManager)
-    {
-        // <recording/>
-        providerManager.addIQProvider(
-                JireconIq.ELEMENT_NAME,
-                JireconIq.NAMESPACE,
-                this);
-    }
-
-    /**
      * {@inheritDoc}
      */
     @Override
@@ -59,7 +40,7 @@ public class JireconIqProvider
         String namespace = parser.getNamespace();
 
         // Check the namespace
-        if (!NAMESPACE.equals(namespace))
+        if (!JireconIq.NAMESPACE.equals(namespace))
         {
             return null;
         }
