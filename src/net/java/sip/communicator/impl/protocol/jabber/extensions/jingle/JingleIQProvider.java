@@ -167,12 +167,11 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                         InputEvtPacketExtension.class));
 
         //coin <conference-info/> provider
-        // FIXME
-//        ProviderManager.addExtensionProvider(
-//                CoinPacketExtension.ELEMENT_NAME,
-//                CoinPacketExtension.NAMESPACE,
-//                new DefaultPacketExtensionProvider<CoinPacketExtension>(
-//                        CoinPacketExtension.class));
+        ProviderManager.addExtensionProvider(
+                CoinPacketExtension.ELEMENT_NAME,
+                CoinPacketExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<CoinPacketExtension>(
+                        CoinPacketExtension.class));
 
         // DTLS-SRTP
         ProviderManager.addExtensionProvider(
@@ -324,6 +323,7 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                 {
                     jingleIQ.addExtension(transferProvider.parse(parser));
                 }
+                // <conference-info/>
                 else if(elementName.equals(CoinPacketExtension.ELEMENT_NAME))
                 {
                     jingleIQ.addExtension(coinProvider.parse(parser));

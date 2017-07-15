@@ -30,7 +30,7 @@ public class ConferenceMediaPacketExtension
     /**
      * The namespace that conference media belongs to.
      */
-    public static final String NAMESPACE = "";
+    public static final String NAMESPACE = CoinIQ.NAMESPACE;
 
     /**
      * The name of the element that contains the conference media.

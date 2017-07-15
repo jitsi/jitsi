@@ -24,7 +24,7 @@ import org.jivesoftware.smack.packet.*;
 
 /**
  * A generic implementation of <tt>ExtensionElement</tt>. The purpose of this
- * class is quite similar to that of smack's ??
+ * class is quite similar to that of smack's {@link StandardExtensionElement}
  * with the main difference being that this one is meant primarily for
  * extension rather than using as a fallback for unknown elements. We let for
  * example our descendants handle child elements and we automate attribute

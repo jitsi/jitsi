@@ -30,7 +30,7 @@ public class CallInfoPacketExtension
     /**
      * The namespace that call info belongs to.
      */
-    public static final String NAMESPACE = "";
+    public static final String NAMESPACE = CoinIQ.NAMESPACE;
 
     /**
      * The name of the element that contains the call info.

@@ -34,7 +34,7 @@ public class ConferenceMediumPacketExtension
     /**
      * The namespace that conference medium belongs to.
      */
-    public static final String NAMESPACE = "";
+    public static final String NAMESPACE = CoinIQ.NAMESPACE;
 
     /**
      * The name of the element that contains the conference medium.
