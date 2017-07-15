@@ -55,17 +55,17 @@ public class MediaPresenceExtension
      * @param providerManager the <tt>ProviderManager</tt> to which media
      *                        presence extensions will be registered to.
      */
-    public static void registerExtensions(ProviderManager providerManager)
+    public static void registerExtensions()
     {
         // <media>
-        providerManager.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
             MediaPresenceExtension.ELEMENT_NAME,
             MediaPresenceExtension.NAMESPACE,
             new DefaultPacketExtensionProvider<MediaPresenceExtension>(
                 MediaPresenceExtension.class));
 
         // <source>
-        providerManager.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
             MediaPresenceExtension.Source.ELEMENT_NAME,
             MediaPresenceExtension.Source.NAMESPACE,
             new DefaultPacketExtensionProvider<Source>(
