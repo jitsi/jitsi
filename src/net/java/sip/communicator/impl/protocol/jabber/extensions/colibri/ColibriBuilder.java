@@ -39,8 +39,8 @@ import java.util.*;
  * {@link #addAllocateChannelsReq(boolean, String, boolean, java.util.List)}}
  * or {@link #addExpireChannelsReq(ColibriConferenceIQ)}
  * or {@link #addRtpDescription(Map, ColibriConferenceIQ)}
- * and {@link #addSSSRCGroupsInfo(Map, ColibriConferenceIQ)}
- * and {@link #addSSSRCInfo(Map, ColibriConferenceIQ)}.
+ * and {@link #addSourceGroupsInfo(Map, ColibriConferenceIQ)}
+ * and {@link #addSourceInfo(Map, ColibriConferenceIQ)}.
  *     </li>
  *     <li>
  * Compile the request by calling {@link #getRequest(String)}. Then send it to
@@ -624,10 +624,10 @@ public class ColibriBuilder
     }
 
     /**
-     * Adds next SSRC information update request to
+     * Adds next source information update request to
      * {@link RequestType#CHANNEL_INFO_UPDATE} query currently being built.
      *
-     * @param ssrcMap the map of content name to the list of
+     * @param sourceMap the map of content name to the list of
      * <tt>SourcePacketExtension</tt>.
      * @param localChannelsInfo {@link ColibriConferenceIQ} holding info about
      * Colibri channels to be updated.
@@ -637,11 +637,11 @@ public class ColibriBuilder
      * <tt>false</tt> is returned for all combined requests it makes no sense
      * to send it.
      */
-    public boolean addSSSRCInfo(
-        Map<String, List<SourcePacketExtension>>    ssrcMap,
+    public boolean addSourceInfo(
+        Map<String, List<SourcePacketExtension>>    sourceMap,
         ColibriConferenceIQ                         localChannelsInfo)
     {
-        Objects.requireNonNull(ssrcMap, "ssrcMap");
+        Objects.requireNonNull(sourceMap, "sourceMap");
         Objects.requireNonNull(localChannelsInfo, "localChannelsInfo");
 
         if (conferenceState == null
@@ -657,8 +657,8 @@ public class ColibriBuilder
 
         boolean hasAnyChanges = false;
 
-        // Go over SSRCs
-        for (String contentName : ssrcMap.keySet())
+        // Go over sources
+        for (String contentName : sourceMap.keySet())
         {
             // Get channel from local channel info
             ColibriConferenceIQ.ChannelCommon rtpChanel
@@ -671,14 +671,14 @@ public class ColibriBuilder
 
             hasAnyChanges = true;
 
-            // Ok we have channel for this content, let's add SSRCs
+            // Ok we have channel for this content, let's add sources
             ColibriConferenceIQ.Channel reqChannel
                 = (ColibriConferenceIQ.Channel) getRequestChannel(
                         request.getOrCreateContent(contentName), rtpChanel);
 
-            for (SourcePacketExtension ssrc : ssrcMap.get(contentName))
+            for (SourcePacketExtension source : sourceMap.get(contentName))
             {
-                reqChannel.addSource(ssrc.copy());
+                reqChannel.addSource(source.copy());
             }
 
             if (reqChannel.getSources() == null
@@ -695,10 +695,10 @@ public class ColibriBuilder
     }
 
     /**
-     * Adds next SSRC group information update request to
+     * Adds next source group information update request to
      * {@link RequestType#CHANNEL_INFO_UPDATE} query currently being built.
      *
-     * @param ssrcGroupMap the map of content name to the list of
+     * @param sourceGroupMap the map of content name to the list of
      * <tt>SourceGroupPacketExtension</tt>.
      * @param localChannelsInfo {@link ColibriConferenceIQ} holding info about
      * Colibri channels to be updated.
@@ -708,11 +708,11 @@ public class ColibriBuilder
      * <tt>false</tt> is returned for all combined requests it makes no sense
      * to send it.
      */
-    public boolean addSSSRCGroupsInfo(
-        Map<String, List<SourceGroupPacketExtension>>    ssrcGroupMap,
+    public boolean addSourceGroupsInfo(
+        Map<String, List<SourceGroupPacketExtension>>    sourceGroupMap,
         ColibriConferenceIQ                              localChannelsInfo)
     {
-        Objects.requireNonNull(ssrcGroupMap, "ssrcGroupMap");
+        Objects.requireNonNull(sourceGroupMap, "sourceGroupMap");
         Objects.requireNonNull(localChannelsInfo, "localChannelsInfo");
 
         if (conferenceState == null
@@ -728,8 +728,8 @@ public class ColibriBuilder
 
         boolean hasAnyChanges = false;
 
-        // Go over SSRC groups
-        for (String contentName : ssrcGroupMap.keySet())
+        // Go over source groups
+        for (String contentName : sourceGroupMap.keySet())
         {
             // Get channel from local channel info
             ColibriConferenceIQ.Channel rtpChannel
@@ -741,9 +741,9 @@ public class ColibriBuilder
             }
 
             List<SourceGroupPacketExtension> groups
-                = ssrcGroupMap.get(contentName);
+                = sourceGroupMap.get(contentName);
 
-            // Ok we have channel for this content, let's add SSRCs
+            // Ok we have channel for this content, let's add sources
             ColibriConferenceIQ.Channel reqChannel
                 = (ColibriConferenceIQ.Channel) getRequestChannel(
                     request.getOrCreateContent(contentName), rtpChannel);

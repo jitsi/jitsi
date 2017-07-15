@@ -57,6 +57,12 @@ public class SourcePacketExtension
      */
     public static final String SSRC_ATTR_NAME = "ssrc";
 
+    /**
+     * The XML name of the attribute which corresponds to the <tt>rid</tt>
+     * attribute in SDP.
+     */
+    public static final String RID_ATTR_NAME = "rid";
+
     /** Initializes a new <tt>SourcePacketExtension</tt> instance. */
     public SourcePacketExtension()
     {
@@ -121,10 +127,85 @@ public class SourcePacketExtension
     public void setSSRC(long ssrc)
     {
         if (ssrc == -1)
+        {
             removeAttribute(SSRC_ATTR_NAME);
+        }
         else
+        {
             setAttribute(SSRC_ATTR_NAME, Long.toString(0xffffffffL & ssrc));
+        }
     }
+
+    /**
+     * Check if this source has an ssrc
+     *
+     * @return true if it has an ssrc, false otherwise
+     */
+    public boolean hasSSRC()
+    {
+        return getAttributeAsString(SSRC_ATTR_NAME) != null;
+    }
+
+    /**
+     * Gets the rid of this source, if it has one
+     *
+     * @return the rid of the source or null
+     */
+    public String getRid()
+    {
+        return getAttributeAsString(RID_ATTR_NAME);
+    }
+
+    /**
+     * Sets the rid of this source
+     *
+     * @param rid the rid to be set (or null to clear the existing rid)
+     */
+    public void setRid(String rid)
+    {
+        if (rid == null)
+        {
+            removeAttribute(RID_ATTR_NAME);
+        }
+        else
+        {
+            setAttribute(RID_ATTR_NAME, rid);
+        }
+    }
+
+    /**
+     * Check if this source has an rid
+     *
+     * @return true if it has an rid, false otherwise
+     */
+    public boolean hasRid()
+    {
+        return getAttribute(RID_ATTR_NAME) != null;
+    }
+
+    /**
+     * Check if this source matches the given one with regards to
+     * matching source identifiers (ssrc or rid)
+     *
+     * @param other the other SourcePacketExtension to compare to
+     * @return true if this SourcePacketExtension and the one
+     * given have matching source identifiers.  NOTE: will return
+     * false if neither SourcePacketExtension has any source
+     * identifier set
+     */
+    public boolean sourceEquals(SourcePacketExtension other)
+    {
+        if (hasSSRC() && other.hasSSRC())
+        {
+            return getSSRC() == other.getSSRC();
+        }
+        else if (hasRid() && other.hasRid())
+        {
+            return getRid().equals(other.getRid());
+        }
+        return false;
+    }
+
 
     /**
      * Returns deep copy of this <tt>SourcePacketExtension</tt>.
@@ -151,4 +232,21 @@ public class SourcePacketExtension
 
         return copy;
     }
+
+    public String toString()
+    {
+        if (hasRid())
+        {
+            return "rid=" + getRid();
+        }
+        else if (hasSSRC())
+        {
+            return "ssrc=" + getAttributeAsString(SSRC_ATTR_NAME);
+        }
+        else
+        {
+            return "[no identifier]";
+        }
+    }
+
 }
