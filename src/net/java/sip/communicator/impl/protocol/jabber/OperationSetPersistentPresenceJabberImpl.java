@@ -275,8 +275,12 @@ public class OperationSetPersistentPresenceJabberImpl
         // first check for already created one.
         ContactGroupJabberImpl notInContactListGroup =
             ssContactList.getNonPersistentGroup();
-        ContactJabberImpl sourceContact
-            = notInContactListGroup.findContact(id.asBareJid());
+        ContactJabberImpl sourceContact = null;
+        if (notInContactListGroup != null)
+        {
+            sourceContact = notInContactListGroup.findContact(id.asBareJid());
+        }
+
         if(sourceContact != null)
         {
             return sourceContact;
