@@ -29,7 +29,6 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ColibriIQProviderTest extends TestCase
 {
@@ -108,11 +107,9 @@ public class ColibriIQProviderTest extends TestCase
               "</conference>" +
             "</iq>";
 
-
     XmlPullParserFactory xmlPullParserFactory;
     XmlPullParser xmlPullParser;
     ColibriIQProvider colibriIQProvider;
-
 
     public void setUp()
     {
@@ -130,61 +127,46 @@ public class ColibriIQProviderTest extends TestCase
     }
 
     public void testParseSource()
+            throws Exception
     {
         // Make sure that both ssrc and rid sources are parsed correctly
-        try
-        {
-            xmlPullParser.setInput(new StringReader(testXml));
-            // Step forward to the the 'iq' element
-            int eventType = xmlPullParser.next();
-            String name = xmlPullParser.getName();
-            assertEquals(XmlPullParser.START_TAG, eventType);
-            assertEquals("iq", name);
+        xmlPullParser.setInput(new StringReader(testXml));
+        // Step forward to the the 'iq' element
+        int eventType = xmlPullParser.next();
+        String name = xmlPullParser.getName();
+        assertEquals(XmlPullParser.START_TAG, eventType);
+        assertEquals("iq", name);
 
-            // Move forward to the 'conference' element, which is what
-            // ColibriIQProvider::parseIQ expects
-            eventType = xmlPullParser.next();
-            name = xmlPullParser.getName();
-            assertEquals(XmlPullParser.START_TAG, eventType);
-            assertEquals(ColibriConferenceIQ.ELEMENT_NAME, name);
-        }
-        catch (XmlPullParserException e)
-        {
-            System.out.println("XmlPullParserException: " + e.toString());
-        }
-        catch (IOException e)
-        {
-            System.out.println("IOException: " + e.toString());
-        }
+        // Move forward to the 'conference' element, which is what
+        // ColibriIQProvider::parseIQ expects
+        eventType = xmlPullParser.next();
+        name = xmlPullParser.getName();
+        assertEquals(XmlPullParser.START_TAG, eventType);
+        assertEquals(ColibriConferenceIQ.ELEMENT_NAME, name);
 
-        try
+        IQ result = colibriIQProvider.parseIQ(xmlPullParser);
+        System.out.println(result.toXML());
+        List<SourcePacketExtension> sources =
+                ((ColibriConferenceIQ) result)
+                        .getContent("video")
+                        .getChannel(0)
+                        .getSources();
+        // There are 6 video sources in testXml, 3 ssrc and 3 rid
+        assertEquals(6, sources.size());
+        int numSsrcSources = 0;
+        int numRidSources = 0;
+        for (SourcePacketExtension s : sources)
         {
-            IQ result = colibriIQProvider.parseIQ(xmlPullParser);
-            System.out.println(result.toXML());
-            List<SourcePacketExtension> sources =
-                    ((ColibriConferenceIQ) result)
-                            .getContent("video")
-                            .getChannel(0)
-                            .getSources();
-            // There are 6 video sources in testXml, 3 ssrc and 3 rid
-            assertEquals(6, sources.size());
-            int numSsrcSources = 0;
-            int numRidSources = 0;
-            for (SourcePacketExtension s : sources)
+            if (s.hasRid())
             {
-                if (s.hasRid())
-                {
-                    ++numRidSources;
-                }
-                if (s.hasSSRC())
-                {
-                    ++numSsrcSources;
-                }
+                ++numRidSources;
             }
-            assertEquals(3, numSsrcSources);
-            assertEquals(3, numRidSources);
-        } catch (Exception e) {}
+            if (s.hasSSRC())
+            {
+                ++numSsrcSources;
+            }
+        }
+        assertEquals(3, numSsrcSources);
+        assertEquals(3, numRidSources);
     }
-
-
 }
