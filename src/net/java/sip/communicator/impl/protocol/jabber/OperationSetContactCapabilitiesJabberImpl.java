@@ -20,13 +20,13 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.messagecorrection.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.roster.*;
+import org.jivesoftware.smackx.message_correct.element.*;
 import org.jxmpp.jid.*;
 import org.jxmpp.jid.impl.*;
 import org.jxmpp.stringprep.*;
@@ -120,7 +120,7 @@ public class OperationSetContactCapabilitiesJabberImpl
                 OperationSetMessageCorrection.class,
                 new String[]
                 {
-                    MessageCorrectionExtension.NAMESPACE
+                    MessageCorrectExtension.NAMESPACE
                 });
     }
 

@@ -20,7 +20,6 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.mailnotification.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.messagecorrection.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -40,6 +39,8 @@ import org.jivesoftware.smackx.carbons.packet.CarbonExtension.Direction;
 import org.jivesoftware.smackx.delay.*;
 import org.jivesoftware.smackx.delay.packet.*;
 import org.jivesoftware.smackx.disco.packet.*;
+import org.jivesoftware.smackx.message_correct.element.*;
+import org.jivesoftware.smackx.message_correct.provider.*;
 import org.jivesoftware.smackx.xevent.*;
 import org.jivesoftware.smackx.xhtmlim.*;
 import org.jivesoftware.smackx.xhtmlim.packet.*;
@@ -192,11 +193,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
         provider.addRegistrationStateChangeListener(
                         new RegistrationStateListener());
 
-        MessageCorrectionExtensionProvider extProvider =
-                new MessageCorrectionExtensionProvider();
+        MessageCorrectProvider extProvider =
+                new MessageCorrectProvider();
         ProviderManager.addExtensionProvider(
-                MessageCorrectionExtension.ELEMENT_NAME,
-                MessageCorrectionExtension.NAMESPACE,
+            MessageCorrectExtension.ELEMENT,
+            MessageCorrectExtension.NAMESPACE,
                 extProvider);
     }
 
@@ -599,7 +600,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
         throws OperationFailedException
     {
         ExtensionElement[] exts = new ExtensionElement[1];
-        exts[0] = new MessageCorrectionExtension(correctedMessageUID);
+        exts[0] = new MessageCorrectExtension(correctedMessageUID);
         MessageDeliveredEvent msgDelivered
             = sendMessage(to, resource, message, exts);
         msgDelivered.setCorrectedMessageUID(correctedMessageUID);
@@ -883,12 +884,12 @@ public class OperationSetBasicInstantMessagingJabberImpl
         }
 
         ExtensionElement correctionExtension =
-                msg.getExtension(MessageCorrectionExtension.NAMESPACE);
+                msg.getExtension(MessageCorrectExtension.NAMESPACE);
         String correctedMessageUID = null;
         if (correctionExtension != null)
         {
-            correctedMessageUID = ((MessageCorrectionExtension)
-                    correctionExtension).getCorrectedMessageUID();
+            correctedMessageUID = ((MessageCorrectExtension)
+                    correctionExtension).getIdInitialMessage();
         }
 
         Contact sourceContact

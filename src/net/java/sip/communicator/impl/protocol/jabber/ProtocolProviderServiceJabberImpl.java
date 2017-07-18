@@ -36,7 +36,6 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingleinfo.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.messagecorrection.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.dns.*;
@@ -70,6 +69,7 @@ import org.jivesoftware.smackx.delay.packet.*;
 import org.jivesoftware.smackx.delay.provider.*;
 import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
 import org.jivesoftware.smackx.disco.packet.*;
+import org.jivesoftware.smackx.message_correct.element.*;
 import org.jivesoftware.smackx.nick.packet.*;
 import org.jivesoftware.smackx.ping.PingManager;
 import org.jivesoftware.smackx.xhtmlim.*;
@@ -1892,7 +1892,7 @@ public class ProtocolProviderServiceJabberImpl
             if(versionManager == null)
                 versionManager = new VersionManager(this);
 
-            supportedFeatures.add(MessageCorrectionExtension.NAMESPACE);
+            supportedFeatures.add(MessageCorrectExtension.NAMESPACE);
             addSupportedOperationSet(OperationSetMessageCorrection.class,
                     basicInstantMessaging);
 
