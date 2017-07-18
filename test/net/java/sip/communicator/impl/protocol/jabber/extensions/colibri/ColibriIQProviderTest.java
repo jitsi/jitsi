@@ -168,16 +168,21 @@ public class ColibriIQProviderTest extends TestCase
                             .getSources();
             // There are 6 video sources in testXml, 3 ssrc and 3 rid
             assertEquals(6, sources.size());
-            List<SourcePacketExtension> ssrcSources = sources
-                    .stream()
-                    .filter(s -> s.hasSSRC())
-                    .collect(Collectors.toList());
-            List<SourcePacketExtension> ridSources = sources
-                    .stream()
-                    .filter(s -> s.hasRid())
-                    .collect(Collectors.toList());
-            assertEquals(3, ssrcSources.size());
-            assertEquals(3, ridSources.size());
+            int numSsrcSources = 0;
+            int numRidSources = 0;
+            for (SourcePacketExtension s : sources)
+            {
+                if (s.hasRid())
+                {
+                    ++numRidSources;
+                }
+                if (s.hasSSRC())
+                {
+                    ++numSsrcSources;
+                }
+            }
+            assertEquals(3, numSsrcSources);
+            assertEquals(3, numRidSources);
         } catch (Exception e) {}
     }
 
