@@ -48,7 +48,7 @@ public class HeaderExtension
      */
     public HeaderExtension()
     {
-        super(null, ELEMENT_NAME);
+        super(RayoIqProvider.NAMESPACE, ELEMENT_NAME);
     }
 
     /**

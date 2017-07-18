@@ -69,15 +69,13 @@ public class RayoIqProvider
         ProviderManager.addExtensionProvider(
             EndExtension.ELEMENT_NAME,
             NAMESPACE,
-                new DefaultPacketExtensionProvider<>(
-                        EndExtension.class));
+            new DefaultPacketExtensionProvider<>(EndExtension.class));
 
         // <header> extension
         ProviderManager.addExtensionProvider(
             HeaderExtension.ELEMENT_NAME,
-            "",
-                new DefaultPacketExtensionProvider<>(
-                        HeaderExtension.class));
+            NAMESPACE,
+            new DefaultPacketExtensionProvider<>(HeaderExtension.class));
     }
 
     /**

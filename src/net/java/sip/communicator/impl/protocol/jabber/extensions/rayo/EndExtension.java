@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.rayo;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import org.jivesoftware.smack.packet.*;
+import org.jxmpp.jid.Jid;
 
 /**
  * 'End' Rayo packet extension used to notify the client about call ended event.
@@ -97,19 +98,16 @@ public class EndExtension
      *               static constants.
      * @return 'Presence' packet containing call ended Rayo notification.
      */
-    public static Presence createEnd(String from, String to, String reason)
+    public static Presence createEnd(Jid from, Jid to, String reason)
     {
         Presence presence = new Presence(Presence.Type.unavailable);
-
         presence.setFrom(from);
-
         presence.setTo(to);
 
         EndExtension end = new EndExtension();
         end.setReason(new ReasonExtension(reason));
 
         presence.addExtension(end);
-
         return presence;
     }
 }
