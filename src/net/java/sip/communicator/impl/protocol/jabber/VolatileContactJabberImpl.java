@@ -119,7 +119,8 @@ public class VolatileContactJabberImpl
         return contactId.toString();
     }
 
-    public Jid getAddressAsJID()
+    @Override
+    public Jid getAddressAsJid()
     {
         return contactId;
     }
