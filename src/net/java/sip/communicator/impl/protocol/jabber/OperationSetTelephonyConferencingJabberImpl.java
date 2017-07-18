@@ -287,7 +287,7 @@ public class OperationSetTelephonyConferencingJabberImpl
         CallJabberImpl call = callPeer.getCall();
 
         iq.setFrom(call.getProtocolProvider().getOurJID());
-        iq.setTo(callPeer.getAddressAsJID());
+        iq.setTo(callPeer.getAddressAsJid());
         iq.setType(IQ.Type.set);
 
         return iq;

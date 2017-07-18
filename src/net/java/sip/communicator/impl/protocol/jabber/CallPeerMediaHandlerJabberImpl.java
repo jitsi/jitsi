@@ -2568,7 +2568,7 @@ public class CallPeerMediaHandlerJabberImpl
             {
                 addFingerprintToLocalTransport
                     = protocolProvider.isFeatureSupported(
-                            peer.getAddressAsJID(),
+                            peer.getAddressAsJid(),
                             ProtocolProviderServiceJabberImpl
                                 .URN_XMPP_JINGLE_DTLS_SRTP);
             }
@@ -2686,7 +2686,7 @@ public class CallPeerMediaHandlerJabberImpl
                     if (remoteContent == null) // initiator
                     {
                         if (!protocolProvider.isFeatureSupported(
-                                peer.getAddressAsJID(),
+                                peer.getAddressAsJid(),
                                 ProtocolProviderServiceJabberImpl
                                     .URN_XMPP_JINGLE_DTLS_SRTP))
                         {

@@ -131,7 +131,7 @@ public class OperationSetDesktopSharingClientJabberImpl
             inputIQ.setAction(InputEvtAction.NOTIFY);
             inputIQ.setType(IQ.Type.set);
             inputIQ.setFrom(parentProvider.getOurJID());
-            inputIQ.setTo(((CallPeerJabberImpl) callPeer).getAddressAsJID());
+            inputIQ.setTo(((CallPeerJabberImpl) callPeer).getAddressAsJid());
             inputIQ.addRemoteControl(payload);
 
             try

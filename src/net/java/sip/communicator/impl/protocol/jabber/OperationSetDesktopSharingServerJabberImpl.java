@@ -579,7 +579,7 @@ public class OperationSetDesktopSharingServerJabberImpl
         CallPeerJabberImpl callPeer = (CallPeerJabberImpl) cp;
         synchronized(callPeers)
         {
-            if(callPeers.contains(callPeer.getAddressAsJID()) != enables)
+            if(callPeers.contains(callPeer.getAddressAsJid()) != enables)
             {
                 if(isRemoteControlAvailable(callPeer))
                 {
@@ -597,7 +597,7 @@ public class OperationSetDesktopSharingServerJabberImpl
                     }
                     inputIQ.setType(IQ.Type.set);
                     inputIQ.setFrom(parentProvider.getOurJID());
-                    inputIQ.setTo(callPeer.getAddressAsJID());
+                    inputIQ.setTo(callPeer.getAddressAsJid());
 
                     XMPPConnection connection = parentProvider.getConnection();
                     StanzaCollector collector
@@ -643,7 +643,7 @@ public class OperationSetDesktopSharingServerJabberImpl
         // has a peer with remote control granted.
         if(p != null && ((IQ) p).getType() == IQ.Type.result)
         {
-            callPeers.add(callPeer.getAddressAsJID());
+            callPeers.add(callPeer.getAddressAsJid());
         }
         else
         {
@@ -677,7 +677,7 @@ public class OperationSetDesktopSharingServerJabberImpl
         }
         // Even if the IQ has not been correctly acknowledged, save the
         // callPeer has a peer with remote control revoked.
-        callPeers.remove(callPeer.getAddressAsJID());
+        callPeers.remove(callPeer.getAddressAsJid());
     }
 
     /**

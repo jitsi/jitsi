@@ -290,7 +290,7 @@ public class CallJabberImpl
             ColibriConferenceIQ.Channel remoteChannelRequest
                 = new ColibriConferenceIQ.Channel();
 
-            remoteChannelRequest.setEndpoint(peer.getAddressAsJID());
+            remoteChannelRequest.setEndpoint(peer.getAddressAsJid());
             remoteChannelRequest.setInitiator(!peerIsInitiator);
 
             for (PayloadTypePacketExtension ptpe : rdpe.getPayloadTypes())

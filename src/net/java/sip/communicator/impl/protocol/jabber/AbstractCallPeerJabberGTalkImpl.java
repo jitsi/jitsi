@@ -93,7 +93,7 @@ public abstract class AbstractCallPeerJabberGTalkImpl
         return peerJID.toString();
     }
 
-    public Jid getAddressAsJID()
+    public Jid getAddressAsJid()
     {
         return peerJID;
     }
