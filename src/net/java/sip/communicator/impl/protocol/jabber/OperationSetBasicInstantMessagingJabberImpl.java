@@ -801,6 +801,11 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private void processMessage(org.jivesoftware.smack.packet.Message msg,
         boolean isForwardedSentMessage)
     {
+        if (msg.getBody() == null)
+        {
+            return;
+        }
+
         Object multiChatExtension =
             msg.getExtension("x", "http://jabber.org/protocol/muc#user");
 
