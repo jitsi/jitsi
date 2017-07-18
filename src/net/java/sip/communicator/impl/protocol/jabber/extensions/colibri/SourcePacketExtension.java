@@ -206,7 +206,6 @@ public class SourcePacketExtension
         return false;
     }
 
-
     /**
      * Returns deep copy of this <tt>SourcePacketExtension</tt>.
      */
@@ -215,7 +214,6 @@ public class SourcePacketExtension
         SourcePacketExtension copy
             = AbstractPacketExtension.clone(this);
 
-        // COPY SSRC PARAMS
         for (PacketExtension ppe : getChildExtensions())
         {
             if (ppe instanceof AbstractPacketExtension)
