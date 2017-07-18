@@ -1884,10 +1884,6 @@ public class ProtocolProviderServiceJabberImpl
                 OperationSetContactCapabilities.class,
                 opsetContactCapabilities);
 
-            addSupportedOperationSet(
-                OperationSetGenericNotifications.class,
-                new OperationSetGenericNotificationsJabberImpl(this));
-
             supportedFeatures.add("jabber:iq:version");
             if(versionManager == null)
                 versionManager = new VersionManager(this);
