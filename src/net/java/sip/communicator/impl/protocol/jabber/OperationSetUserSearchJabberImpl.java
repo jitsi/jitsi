@@ -21,11 +21,11 @@ import java.util.*;
 
 import org.jivesoftware.smack.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.usersearch.UserSearchManager;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.SmackException.*;
+import org.jivesoftware.smack.XMPPException.*;
 import org.jivesoftware.smackx.search.*;
 import org.jivesoftware.smackx.search.ReportedData.*;
 import org.jivesoftware.smackx.xdata.*;
@@ -61,7 +61,7 @@ public class OperationSetUserSearchJabberImpl
     /**
      * The user search service name.
      */
-    private Jid serviceName = null;
+    private DomainBareJid serviceName = null;
 
     /**
      * Whether the user search service is enabled or not.
@@ -99,7 +99,7 @@ public class OperationSetUserSearchJabberImpl
         {
             try
             {
-                serviceName = JidCreate.from(accountServiceName);
+                serviceName = JidCreate.domainBareFrom(accountServiceName);
                 setUserSearchEnabled(true);
             }
             catch (XmppStringprepException e)
@@ -169,16 +169,17 @@ public class OperationSetUserSearchJabberImpl
             {
                 synchronized (userSearchEnabled)
                 {
-                    List<Jid> serviceNames
-                        = null;
+                    List<DomainBareJid> serviceNames = null;
                     try
                     {
-                        serviceNames = UserSearchManager.getAvailableServiceNames(
-                            provider);
+                        UserSearchManager usm
+                            = new UserSearchManager(provider.getConnection());
+                        serviceNames = usm.getSearchServices();
                     }
                     catch (NotConnectedException
                         | InterruptedException
-                        | NoResponseException e)
+                        | NoResponseException
+                        | XMPPErrorException e)
                     {
                         logger.error("Failed to search for service names", e);
                     }
@@ -205,8 +206,7 @@ public class OperationSetUserSearchJabberImpl
     {
         if(searchManager == null)
         {
-            searchManager
-                = new UserSearchManager(provider.getConnection(), serviceName);
+            searchManager = new UserSearchManager(provider.getConnection());
         }
     }
 
@@ -230,11 +230,13 @@ public class OperationSetUserSearchJabberImpl
         ReportedData data = null;
         try
         {
-            data = searchManager.searchForString(searchedString);
+            Form form = searchManager.getSearchForm(serviceName);
+            data = searchManager.getSearchResults(form, serviceName);
         }
         catch (XMPPException
             | NotConnectedException
-            | InterruptedException e)
+            | InterruptedException
+            | NoResponseException e)
         {
            logger.error(e);
            return null;
@@ -245,6 +247,7 @@ public class OperationSetUserSearchJabberImpl
             logger.error("No data have been received from server.");
             return null;
         }
+
         List<Column> columns = data.getColumns();
         List<Row> rows = data.getRows();
         if(columns == null || rows == null)
