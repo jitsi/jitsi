@@ -88,9 +88,9 @@ public class OperationSetUserSearchJabberImpl
         ProtocolProviderServiceJabberImpl provider)
     {
         this.provider = provider;
-        String accountServiceName = provider.getAccountID().getAccountPropertyString(
-            USER_SEARCH_SERVICE_NAME, "");
-        if(accountServiceName.equals(""))
+        String accountServiceName = provider.getAccountID()
+            .getAccountPropertyString(USER_SEARCH_SERVICE_NAME);
+        if(accountServiceName == null)
         {
             provider.addRegistrationStateChangeListener(this);
         }
@@ -118,8 +118,9 @@ public class OperationSetUserSearchJabberImpl
     private void setUserSearchEnabled(boolean isEnabled)
     {
         userSearchEnabled = isEnabled;
-        int type = (isEnabled? UserSearchProviderEvent.PROVIDER_ADDED
-            : UserSearchProviderEvent.PROVIDER_REMOVED);
+        int type = isEnabled
+            ? UserSearchProviderEvent.PROVIDER_ADDED
+            : UserSearchProviderEvent.PROVIDER_REMOVED;
         fireUserSearchProviderEvent(new UserSearchProviderEvent(provider, type));
     }
 
