@@ -36,7 +36,6 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingleinfo.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.version.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -397,11 +396,6 @@ public class ProtocolProviderServiceJabberImpl
      * its password.
      */
     private UserCredentials userCredentials = null;
-
-    /**
-     * The version manager.
-     */
-    private VersionManager versionManager = null;
 
     /**
      * An <tt>OperationSet</tt> that allows access to connection information used
@@ -1883,10 +1877,6 @@ public class ProtocolProviderServiceJabberImpl
             addSupportedOperationSet(
                 OperationSetContactCapabilities.class,
                 opsetContactCapabilities);
-
-            supportedFeatures.add("jabber:iq:version");
-            if(versionManager == null)
-                versionManager = new VersionManager(this);
 
             supportedFeatures.add(MessageCorrectExtension.NAMESPACE);
             addSupportedOperationSet(OperationSetMessageCorrection.class,
