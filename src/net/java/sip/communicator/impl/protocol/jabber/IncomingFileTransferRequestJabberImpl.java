@@ -19,17 +19,17 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.thumbnail.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.FileTransfer;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.filter.*;
-import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.util.StringUtils;
+import org.jivesoftware.smack.SmackException.*;
+import org.jivesoftware.smack.XMPPException.*;
+import org.jivesoftware.smackx.bob.*;
 import org.jivesoftware.smackx.filetransfer.*;
 import org.jxmpp.jid.*;
 
@@ -47,6 +47,10 @@ public class IncomingFileTransferRequestJabberImpl
      */
     private static final Logger logger =
         Logger.getLogger(IncomingFileTransferRequestJabberImpl.class);
+    
+    /** Thread to fetch thumbnails in the background, one at a time */
+    private static ExecutorService thumbnailCollector
+        = Executors.newSingleThreadExecutor();
 
     private String id;
 
@@ -60,8 +64,6 @@ public class IncomingFileTransferRequestJabberImpl
     private final ProtocolProviderServiceJabberImpl jabberProvider;
 
     private Contact sender;
-
-    private String thumbnailCid;
 
     private byte[] thumbnail;
 
@@ -120,6 +122,7 @@ public class IncomingFileTransferRequestJabberImpl
      *
      * @return the <tt>Contact</tt> making this request
      */
+    @Override
     public Contact getSender()
     {
         return sender;
@@ -130,6 +133,7 @@ public class IncomingFileTransferRequestJabberImpl
      *
      * @return the description of the file corresponding to this request
      */
+    @Override
     public String getFileDescription()
     {
         return fileTransferRequest.getDescription();
@@ -140,6 +144,7 @@ public class IncomingFileTransferRequestJabberImpl
      *
      * @return the name of the file corresponding to this request
      */
+    @Override
     public String getFileName()
     {
         return fileTransferRequest.getFileName();
@@ -150,6 +155,7 @@ public class IncomingFileTransferRequestJabberImpl
      *
      * @return the size of the file corresponding to this request
      */
+    @Override
     public long getFileSize()
     {
         return fileTransferRequest.getFileSize();
@@ -161,6 +167,7 @@ public class IncomingFileTransferRequestJabberImpl
      * @return a boolean : <code>false</code> if the transfer fails,
      * <code>true</code> otherwise
      */
+    @Override
     public FileTransfer acceptFile(File file)
     {
         AbstractFileTransfer incomingTransfer = null;
@@ -195,6 +202,7 @@ public class IncomingFileTransferRequestJabberImpl
     /**
      * Refuses the file transfer request.
      */
+    @Override
     public void rejectFile()
         throws OperationFailedException
     {
@@ -219,6 +227,7 @@ public class IncomingFileTransferRequestJabberImpl
      * The unique id.
      * @return the id.
      */
+    @Override
     public String getID()
     {
         return id;
@@ -229,73 +238,48 @@ public class IncomingFileTransferRequestJabberImpl
      *
      * @return the thumbnail contained in this request
      */
+    @Override
     public byte[] getThumbnail()
     {
         return thumbnail;
     }
 
     /**
-     * Sets the thumbnail content-ID.
+     * Requests the thumbnail from the peer and fire the incoming transfer
+     * request event.
      * @param cid the thumbnail content-ID
      */
-    public void createThumbnailListeners(String cid)
+    public void fetchThumbnailAndNotify(final BoBHash cid)
     {
-        this.thumbnailCid = cid;
-
-        if (jabberProvider.getConnection() != null)
+        final BoBManager bobManager = BoBManager.getInstanceFor(
+            jabberProvider.getConnection());
+        thumbnailCollector.submit(new Runnable()
         {
-            jabberProvider.getConnection().addPacketListener(
-                new ThumbnailResponseListener(),
-                new AndFilter(new StanzaTypeFilter(IQ.class),
-                    IQTypeFilter.RESULT));
-        }
-    }
-
-    /**
-     * The <tt>ThumbnailResponseListener</tt> listens for events triggered by
-     * the reception of a <tt>ThumbnailIQ</tt> packet. The packet is examined
-     * and a file transfer request event is fired when the thumbnail is
-     * extracted.
-     */
-    private class ThumbnailResponseListener implements StanzaListener
-    {
-        public void processStanza(Stanza packet)
-        {
-            // If this is not an IQ packet, we're not interested.
-            if (!(packet instanceof ThumbnailIQ))
-                return;
-
-            if (logger.isDebugEnabled())
-                logger.debug("Thumbnail response received.");
-
-            ThumbnailIQ thumbnailResponse = (ThumbnailIQ) packet;
-
-            if (thumbnailResponse.getCid() != null
-                && thumbnailResponse.getCid().equals(thumbnailCid))
+            @Override
+            public void run()
             {
-                thumbnail = thumbnailResponse.getData();
-
-                // Create an event associated to this global request.
-                FileTransferRequestEvent fileTransferRequestEvent
-                    = new FileTransferRequestEvent(
-                        fileTransferOpSet,
-                        IncomingFileTransferRequestJabberImpl.this,
-                        new Date());
-
-                // Notify the global listener that a request has arrived.
-                fileTransferOpSet.fireFileTransferRequest(
-                    fileTransferRequestEvent);
+                logger.debug("Sending thumbnail request");
+                try
+                {
+                    thumbnail = bobManager.requestBoB(
+                        ((ContactJabberImpl)sender).getAddressAsJid(),
+                        cid).getContent();
+                }
+                catch (NotLoggedInException
+                    | NoResponseException
+                    | XMPPErrorException
+                    | NotConnectedException
+                    | InterruptedException e)
+                {
+                    logger.error("Could not get thumbnail", e);
+                }
+                finally
+                {
+                    // Notify the global listener that a request has arrived.
+                    fileTransferOpSet.fireFileTransferRequest(
+                        IncomingFileTransferRequestJabberImpl.this);
+                }
             }
-            else
-            {
-                //TODO: RETURN <item-not-found/>
-            }
-
-            if (jabberProvider.getConnection() != null)
-            {
-                jabberProvider.getConnection()
-                    .removePacketListener(this);
-            }
-        }
+        });
     }
 }

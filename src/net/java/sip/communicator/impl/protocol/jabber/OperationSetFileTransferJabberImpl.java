@@ -19,8 +19,8 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.io.*;
+import java.lang.reflect.*;
 import java.util.*;
-
 import net.java.sip.communicator.impl.protocol.jabber.extensions.thumbnail.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.FileTransfer;
@@ -31,9 +31,7 @@ import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.XMPPException.*;
-import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.roster.*;
 import org.jivesoftware.smackx.filetransfer.FileTransfer.Status;
 import org.jivesoftware.smackx.filetransfer.*;
@@ -72,16 +70,6 @@ public class OperationSetFileTransferJabberImpl
     private OperationSetPersistentPresenceJabberImpl opSetPersPresence = null;
 
     /**
-     * The Jabber file transfer manager.
-     */
-    private FileTransferManager manager = null;
-
-    /**
-     * The Jabber file transfer listener.
-     */
-    private FileTransferRequestListener fileTransferRequestListener;
-
-    /**
      * A list of listeners registered for file transfer events.
      */
     private final Vector<FileTransferListener> fileTransferListeners
@@ -114,9 +102,6 @@ public class OperationSetFileTransferJabberImpl
 
         provider.addRegistrationStateChangeListener(
             new RegistrationStateListener());
-
-        // use only ibb for file transfers
-        FileTransferNegotiator.IBB_ONLY = true;
     }
 
     /**
@@ -204,6 +189,8 @@ public class OperationSetFileTransferJabberImpl
                     "Contact client or server does not support file transfers.");
             }
 
+            FileTransferManager manager = FileTransferManager
+                .getInstanceFor(jabberProvider.getConnection());
             OutgoingFileTransfer transfer
                 = manager.createOutgoingFileTransfer(fullJid);
 
@@ -348,6 +335,7 @@ public class OperationSetFileTransferJabberImpl
          * @param evt ProviderStatusChangeEvent the event describing the status
          * change.
          */
+        @Override
         public void registrationStateChanged(RegistrationStateChangeEvent evt)
         {
             if (logger.isDebugEnabled())
@@ -355,129 +343,83 @@ public class OperationSetFileTransferJabberImpl
                          + evt.getOldState()
                          + " to: " + evt.getNewState());
 
-            if (evt.getNewState() == RegistrationState.REGISTERED)
+            if (evt.getNewState() != RegistrationState.REGISTERED)
             {
-                opSetPersPresence =
-                    (OperationSetPersistentPresenceJabberImpl) jabberProvider
-                        .getOperationSet(OperationSetPersistentPresence.class);
-
-                // Create the Jabber FileTransferManager.
-                manager = FileTransferManager
-                    .getInstanceFor(jabberProvider.getConnection());
-
-                fileTransferRequestListener = new FileTransferRequestListener();
-
-                ProviderManager.addIQProvider(
-                    FileElement.ELEMENT_NAME,
-                    FileElement.NAMESPACE,
-                    new FileElementIQProvider());
-
-                ProviderManager.addIQProvider(
-                    ThumbnailIQ.ELEMENT_NAME,
-                    ThumbnailIQ.NAMESPACE,
-                    new ThumbnailIQProvider());
-
-                jabberProvider.getConnection().addPacketListener(
-                    fileTransferRequestListener,
-                    new AndFilter(  new StanzaTypeFilter(StreamInitiation.class),
-                                    IQTypeFilter.SET));
+                return;
             }
-            else if (evt.getNewState() == RegistrationState.UNREGISTERED)
-            {
-                if(fileTransferRequestListener != null
-                    && jabberProvider.getConnection() != null)
-                {
-                    jabberProvider.getConnection().removePacketListener(
-                        fileTransferRequestListener);
-                }
 
-                ProviderManager.removeIQProvider(
-                    FileElement.ELEMENT_NAME,
-                    FileElement.NAMESPACE);
+            opSetPersPresence =
+                (OperationSetPersistentPresenceJabberImpl) jabberProvider
+                    .getOperationSet(OperationSetPersistentPresence.class);
 
-                ProviderManager.removeIQProvider(
-                    ThumbnailIQ.ELEMENT_NAME,
-                    ThumbnailIQ.NAMESPACE);
-
-                fileTransferRequestListener = null;
-                manager = null;
-            }
+            // Create the Jabber FileTransferManager
+            FileTransferManager.getInstanceFor(
+                jabberProvider.getConnection())
+                .addFileTransferListener(new FileTransferRequestListener());
         }
     }
 
     /**
      * Listener for Jabber incoming file transfer requests.
      */
-    private class FileTransferRequestListener implements StanzaListener
+    private class FileTransferRequestListener
+        implements org.jivesoftware.smackx.filetransfer.FileTransferListener
     {
+        private StreamInitiation getStreamInitiation(FileTransferRequest request)
+        {
+            Method gsi;
+            try
+            {
+                gsi = request.getClass().getDeclaredMethod("getStreamInitiation");
+                gsi.setAccessible(true);
+                return (StreamInitiation)gsi.invoke(request);
+            }
+            catch (Exception e)
+            {
+                logger.error("Cannot invoke getStreamInitiation", e);
+                return null;
+            }
+        }
+
         /**
          * Listens for file transfer packets.
          * @param packet packet to be processed
          */
         @Override
-        public void processStanza(Stanza packet)
-            throws SmackException.NotConnectedException, InterruptedException
+        public void fileTransferRequest(final FileTransferRequest request)
         {
-            if (!(packet instanceof StreamInitiation))
-                return;
-
-            if (logger.isDebugEnabled())
-                logger.debug("Incoming Jabber file transfer request.");
-
-            StreamInitiation streamInitiation = (StreamInitiation) packet;
-
-            FileTransferRequest jabberRequest
-                = new FileTransferRequest(manager, streamInitiation);
+            logger.info("Incoming XMPP file transfer request");
 
             // Create a global incoming file transfer request.
             IncomingFileTransferRequestJabberImpl incomingFileTransferRequest
                 = new IncomingFileTransferRequestJabberImpl(
                         jabberProvider,
                         OperationSetFileTransferJabberImpl.this,
-                        jabberRequest);
+                        request);
 
             // Send a thumbnail request if a thumbnail is advertised in the
             // streamInitiation packet.
-            org.jivesoftware.smackx.si.packet.StreamInitiation.File file
-                = streamInitiation.getFile();
-
             boolean isThumbnailedFile = false;
-            if (file instanceof FileElement)
+            StreamInitiation si = getStreamInitiation(request);
+            if (si != null)
             {
-                ThumbnailElement thumbnailElement
-                    = ((FileElement) file).getThumbnailElement();
-
-                if (thumbnailElement != null)
+                StreamInitiation.File file = si.getFile();
+                if (file instanceof ThumbnailFile)
                 {
-                    isThumbnailedFile = true;
-                    incomingFileTransferRequest
-                        .createThumbnailListeners(thumbnailElement.getCid());
-
-                    ThumbnailIQ thumbnailRequest
-                        = new ThumbnailIQ(  streamInitiation.getTo(),
-                                            streamInitiation.getFrom(),
-                                            thumbnailElement.getCid(),
-                                            IQ.Type.get);
-
-                    if (logger.isDebugEnabled())
-                        logger.debug("Sending thumbnail request:"
-                        + thumbnailRequest.toXML());
-
-                    jabberProvider.getConnection().sendStanza(thumbnailRequest);
+                    Thumbnail thumbnail = ((ThumbnailFile)file).getThumbnail();
+                    if (thumbnail != null)
+                    {
+                        isThumbnailedFile = true;
+                        incomingFileTransferRequest
+                            .fetchThumbnailAndNotify(thumbnail.getCid());
+                    }
                 }
             }
 
             if (!isThumbnailedFile)
             {
-                // Create an event associated to this global request.
-                FileTransferRequestEvent fileTransferRequestEvent
-                    = new FileTransferRequestEvent(
-                        OperationSetFileTransferJabberImpl.this,
-                        incomingFileTransferRequest,
-                        new Date());
-
                 // Notify the global listener that a request has arrived.
-                fireFileTransferRequest(fileTransferRequestEvent);
+                fireFileTransferRequest(incomingFileTransferRequest);
             }
         }
     }
@@ -485,11 +427,18 @@ public class OperationSetFileTransferJabberImpl
     /**
      * Delivers the specified event to all registered file transfer listeners.
      *
-     * @param event the <tt>EventObject</tt> that we'd like delivered to all
+     * @param request the <tt>EventObject</tt> that we'd like delivered to all
      * registered file transfer listeners.
      */
-    void fireFileTransferRequest(FileTransferRequestEvent event)
+    void fireFileTransferRequest(IncomingFileTransferRequestJabberImpl request)
     {
+        // Create an event associated to this global request.
+        FileTransferRequestEvent event
+            = new FileTransferRequestEvent(
+                OperationSetFileTransferJabberImpl.this,
+                request,
+                new Date());
+
         Iterator<FileTransferListener> listeners;
         synchronized (fileTransferListeners)
         {
@@ -609,7 +558,7 @@ public class OperationSetFileTransferJabberImpl
                                 OutgoingFileTransferJabberImpl)
                         {
                             ((OutgoingFileTransferJabberImpl) fileTransfer)
-                                .removeThumbnailRequestListener();
+                                .removeThumbnailHandler();
                         }
 
                         // sometimes a filetransfer can be preparing

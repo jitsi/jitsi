@@ -30,12 +30,12 @@ import javax.net.ssl.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.debugger.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.coin.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingleinfo.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.thumbnail.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.dns.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -48,32 +48,22 @@ import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
-import org.jitsi.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
-import org.jivesoftware.smack.bosh.BOSHConfiguration;
-import org.jivesoftware.smack.bosh.XMPPBOSHConnection;
+import org.jivesoftware.smack.bosh.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
-import org.jivesoftware.smack.proxy.*;
-import org.jivesoftware.smack.tcp.XMPPTCPConnection;
-import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smack.tcp.*;
 import org.jivesoftware.smack.util.*;
-import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smack.roster.*;
-import org.jivesoftware.smackx.bytestreams.ibb.*;
-import org.jivesoftware.smackx.bytestreams.socks5.*;
-import org.jivesoftware.smackx.carbons.CarbonManager;
-import org.jivesoftware.smackx.delay.packet.*;
-import org.jivesoftware.smackx.delay.provider.*;
-import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
+import org.jivesoftware.smackx.disco.*;
 import org.jivesoftware.smackx.disco.packet.*;
 import org.jivesoftware.smackx.message_correct.element.*;
 import org.jivesoftware.smackx.nick.packet.*;
-import org.jivesoftware.smackx.ping.PingManager;
-import org.jivesoftware.smackx.xhtmlim.*;
+import org.jivesoftware.smackx.ping.*;
+import org.jivesoftware.smackx.si.packet.*;
 import org.jxmpp.jid.*;
-import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.jid.impl.*;
 import org.jxmpp.jid.parts.*;
 import org.jxmpp.stringprep.XmppStringprepException;
 import org.xmlpull.v1.*;
@@ -1703,6 +1693,13 @@ public class ProtocolProviderServiceJabberImpl
             ProviderManager.addIQProvider(InputEvtIQ.ELEMENT_NAME,
                                           InputEvtIQ.NAMESPACE,
                                           new InputEvtIQProvider());
+
+            // replace the default StreamInitiationProvider with our
+            // custom provider that handles the XEP-0264 <File/> element
+            ProviderManager.addIQProvider(
+                StreamInitiation.ELEMENT,
+                StreamInitiation.NAMESPACE,
+                new ThumbnailStreamInitiationProvider());
 
             // register our coin provider
             // FIXME

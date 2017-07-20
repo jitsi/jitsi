@@ -23,42 +23,17 @@ import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smackx.si.packet.*;
 import org.jivesoftware.smackx.xdata.packet.*;
 import org.jivesoftware.smackx.xdata.provider.*;
+import org.jxmpp.util.XmppDateTime;
 import org.xmlpull.v1.*;
 
 import java.text.*;
 import java.util.*;
 
-public class FileElementIQProvider extends IQProvider
+public class ThumbnailStreamInitiationProvider
+    extends IQProvider<StreamInitiation>
 {
     private static final Logger logger
-        = Logger.getLogger(FileElementIQProvider.class);
-
-    private static final List<DateFormat> DATE_FORMATS
-        = new ArrayList<>();
-
-    static
-    {
-        // DATE_FORMATS
-        DateFormat fmt;
-
-        // XEP-0091
-        fmt = new SimpleDateFormat("yyyyMMdd'T'HH:mm:ss");
-        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
-        DATE_FORMATS.add(fmt);
-        fmt = new SimpleDateFormat("yyyyMd'T'HH:mm:ss'Z'");
-        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
-        DATE_FORMATS.add(fmt);
-
-        // XEP-0082
-        fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
-        DATE_FORMATS.add(fmt);
-        fmt = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
-        DATE_FORMATS.add(fmt);
-        DATE_FORMATS.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ"));
-        DATE_FORMATS.add(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ"));
-    }
+        = Logger.getLogger(ThumbnailStreamInitiationProvider.class);
 
     /**
      * Parses the given <tt>parser</tt> in order to create a
@@ -66,7 +41,7 @@ public class FileElementIQProvider extends IQProvider
      * @param parser the parser to parse
      */
     @Override
-    public IQ parse(final XmlPullParser parser, int depth)
+    public StreamInitiation parse(final XmlPullParser parser, int depth)
         throws Exception
     {
         boolean done = false;
@@ -82,7 +57,7 @@ public class FileElementIQProvider extends IQProvider
         String hash = null;
         String date = null;
         String desc = null;
-        ThumbnailElement thumbnail = null;
+        Thumbnail thumbnail = null;
         boolean isRanged = false;
 
         // feature
@@ -119,11 +94,11 @@ public class FileElementIQProvider extends IQProvider
                 else if (elementName.equals("x")
                     && namespace.equals("jabber:x:data"))
                 {
-                    form = (DataForm) dataFormProvider.parse(parser);
+                    form = dataFormProvider.parse(parser);
                 }
                 else if (elementName.equals("thumbnail"))
                 {
-                    thumbnail = new ThumbnailElement(parser.getText());
+                    thumbnail = new Thumbnail(parser);
                 }
             }
             else if (eventType == XmlPullParser.END_TAG)
@@ -153,44 +128,29 @@ public class FileElementIQProvider extends IQProvider
                         }
                     }
 
-                    FileElement file = new FileElement(name, fileSize);
+                    ThumbnailFile file = new ThumbnailFile(name, fileSize);
                     file.setHash(hash);
 
                     if (date != null)
                     {
-                        // try all known date formats
-                        boolean found = false;
-                        if (date.matches(
-                            ".*?T\\d+:\\d+:\\d+(\\.\\d+)?(\\+|-)\\d+:\\d+"))
+                        try
                         {
-                            int timeZoneColon = date.lastIndexOf(":");
-                            date = date.substring(0, timeZoneColon)
-                                + date.substring(
-                                timeZoneColon+1, date.length());
+                            file.setDate(XmppDateTime.parseDate(date));
                         }
-                        for (DateFormat fmt : DATE_FORMATS)
-                        {
-                            try
-                            {
-                                file.setDate(fmt.parse(date));
-                                found = true;
-                                break;
-                            }
-                            catch (ParseException ex)
-                            {
-                            }
-                        }
-
-                        if (!found)
+                        catch (ParseException ex)
                         {
                             logger.warn(
                                 "Unknown dateformat on incoming file transfer: "
                                     + date);
                         }
                     }
+                    else
+                    {
+                        file.setDate(new Date());
+                    }
 
                     if (thumbnail != null)
-                        file.setThumbnailElement(thumbnail);
+                        file.setThumbnail(thumbnail);
 
                     file.setDesc(desc);
                     file.setRanged(isRanged);

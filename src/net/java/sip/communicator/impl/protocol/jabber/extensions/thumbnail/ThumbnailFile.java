@@ -27,29 +27,10 @@ import org.jxmpp.util.*;
  *
  * @author Yana Stamcheva
  */
-public class FileElement
+public class ThumbnailFile
     extends StreamInitiation.File
 {
-    /**
-     * The element name of this <tt>IQProvider</tt>.
-     */
-    public static final String ELEMENT_NAME = "si";
-
-    /**
-     * The namespace of this <tt>IQProvider</tt>.
-     */
-    public static final String NAMESPACE = "http://jabber.org/protocol/si";
-
-    private ThumbnailElement thumbnail;
-
-    /**
-     * An empty constructor used to initialize this class as an
-     * <tt>IQProvider</tt>.
-     */
-    public FileElement()
-    {
-        this("", 0);
-    }
+    private Thumbnail thumbnail;
 
     /**
      * Creates a <tt>FileElement</tt> by specifying a base file and a thumbnail
@@ -58,7 +39,7 @@ public class FileElement
      * @param baseFile the file used as a base
      * @param thumbnail the thumbnail to add
      */
-    public FileElement(StreamInitiation.File baseFile, ThumbnailElement thumbnail)
+    public ThumbnailFile(StreamInitiation.File baseFile, Thumbnail thumbnail)
     {
         this(baseFile.getName(), baseFile.getSize());
 
@@ -72,7 +53,7 @@ public class FileElement
      * @param name the name of the file
      * @param size the size of the file
      */
-    public FileElement(String name, long size)
+    public ThumbnailFile(String name, long size)
     {
         super(name, size);
     }
@@ -91,7 +72,7 @@ public class FileElement
         if (getName() != null)
         {
             buffer.append("name=\"").append(
-                StringUtils.escapeForXml(getName())).append("\" ");
+                StringUtils.escapeForXmlAttribute(getName())).append("\" ");
         }
 
         if (getSize() > 0)
@@ -119,7 +100,7 @@ public class FileElement
             if (getDesc() != null && getDesc().length() > 0)
             {
                 buffer.append("<desc>").append(
-                    StringUtils.escapeForXml(getDesc())).append("</desc>");
+                    StringUtils.escapeForXmlText(getDesc())).append("</desc>");
             }
 
             if (isRanged())
@@ -143,21 +124,19 @@ public class FileElement
     }
 
     /**
-     * Returns the <tt>ThumbnailElement</tt> contained in this
-     * <tt>FileElement</tt>.
-     * @return the <tt>ThumbnailElement</tt> contained in this
-     * <tt>FileElement</tt>
+     * Returns the <tt>Thumbnail</tt> contained in this <tt>FileElement</tt>.
+     * @return the <tt>Thumbnail</tt> contained in this <tt>FileElement</tt>
      */
-    public ThumbnailElement getThumbnailElement()
+    public Thumbnail getThumbnail()
     {
         return thumbnail;
     }
 
     /**
-     * Sets the given <tt>thumbnail</tt> to this <tt>FileElement</tt>.
-     * @param thumbnail the <tt>ThumbnailElement</tt> to set
+     * Sets the given <tt>thumbnail</tt> to this <tt>File</tt>.
+     * @param thumbnail the <tt>Thumbnail</tt> to set
      */
-    void setThumbnailElement(ThumbnailElement thumbnail)
+    void setThumbnail(Thumbnail thumbnail)
     {
         this.thumbnail = thumbnail;
     }
