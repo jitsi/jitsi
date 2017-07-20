@@ -21,6 +21,7 @@ import java.util.*;
 
 import org.jivesoftware.smack.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.usersearch.UserSearchManager;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;

@@ -15,8 +15,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.java.sip.communicator.impl.protocol.jabber;
+package net.java.sip.communicator.impl.protocol.jabber.extensions.usersearch;
 
+import net.java.sip.communicator.impl.protocol.jabber.JitsiXmppException;
+import net.java.sip.communicator.impl.protocol.jabber.ProtocolProviderServiceJabberImpl;
+import net.java.sip.communicator.impl.protocol.jabber.ScServiceDiscoveryManager;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.usersearch.*;
 
 import org.jivesoftware.smack.*;
