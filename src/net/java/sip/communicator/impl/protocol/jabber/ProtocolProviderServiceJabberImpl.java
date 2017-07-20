@@ -1607,11 +1607,6 @@ public class ProtocolProviderServiceJabberImpl
                     this,
                     persistentPresence));
 
-            //initialize the Whiteboard operation set
-            addSupportedOperationSet(
-                OperationSetWhiteboarding.class,
-                new OperationSetWhiteboardingJabberImpl(this));
-
             //initialize the typing notifications operation set
             addSupportedOperationSet(
                 OperationSetTypingNotifications.class,
