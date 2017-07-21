@@ -2921,25 +2921,26 @@ public class ChatRoomJabberImpl
          */
         private void processOtherPresence(Presence presence)
         {
+            String from = presence.getFrom();
+            String participantName = null;
+            if (from != null)
+            {
+                participantName = StringUtils.parseResource(from);
+            }
+            ChatRoomMemberJabberImpl member
+                = participantName == null ? null : members.get(participantName);
+
             PacketExtension ext
                     = presence.getExtension(
                     ConferenceDescriptionPacketExtension.NAMESPACE);
-            if(presence.isAvailable() && ext != null)
+            if (presence.isAvailable() && ext != null)
             {
                 ConferenceDescriptionPacketExtension cdExt
                         = (ConferenceDescriptionPacketExtension) ext;
 
                 ConferenceDescription cd = cdExt.toConferenceDescription();
 
-                String from = presence.getFrom();
-                String participantName = null;
-                if (from != null)
-                {
-                    participantName = StringUtils.parseResource(from);
-                }
-                ChatRoomMember member = members.get(participantName);
-
-                if(!processConferenceDescription(cd, participantName))
+                if (!processConferenceDescription(cd, participantName))
                     return;
 
                 if (member != null)
@@ -2958,6 +2959,14 @@ public class ChatRoomJabberImpl
                             "unknown member ("+participantName+") in " +
                             multiUserChat.getRoom());
                 }
+            }
+
+            Nick nickExtension
+                = (Nick) presence.getExtension(
+                        Nick.ELEMENT_NAME, Nick.NAMESPACE);
+            if (member != null && nickExtension != null)
+            {
+                member.setDisplayName(nickExtension.getName());
             }
         }
     }

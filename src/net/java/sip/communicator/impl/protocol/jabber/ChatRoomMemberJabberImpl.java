@@ -65,6 +65,11 @@ public class ChatRoomMemberJabberImpl
     private byte[] avatar;
 
     /**
+     * The display name of this {@link ChatRoomMember}.
+     */
+    private String displayName;
+
+    /**
      * Creates a jabber chat room member with the specified containing chat
      * room parent.
      * @param containingChatRoom the room that this
@@ -269,4 +274,22 @@ public class ChatRoomMemberJabberImpl
          return ((ProtocolProviderServiceJabberImpl) getProtocolProvider())
              .getJabberStatusEnum().getStatus(JabberStatusEnum.AVAILABLE);
      }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDisplayName()
+    {
+        return displayName;
+    }
+
+    /**
+     * Sets the display name of this {@link ChatRoomMember}.
+     * @param displayName the display name to set.
+     */
+    void setDisplayName(String displayName)
+    {
+        this.displayName = displayName;
+    }
 }
