@@ -579,6 +579,11 @@
             resultproperty="test.result.code"
             classpathref="project.class.path">
 
+            <!--
+            <jvmarg value="-Xdebug" />
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5432" />
+            -->
+
             <!-- Tell felix to run as a test environment-->
             <sysproperty key="felix.config.properties"
                          value="file:${lib}/felix.unit.test.properties"/>
