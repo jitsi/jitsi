@@ -26,10 +26,10 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 import net.java.sip.communicator.util.*;
-import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
-import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.iqrequest.*;
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.packet.IQ.Type;
 import org.jivesoftware.smackx.disco.packet.*;
 import org.jxmpp.jid.*;
 // disambiguation
@@ -44,8 +44,7 @@ public class OperationSetDesktopSharingClientJabberImpl
     extends AbstractOperationSetDesktopSharingClient
                 <ProtocolProviderServiceJabberImpl>
     implements RegistrationStateChangeListener,
-                StanzaListener,
-                StanzaFilter
+               IQRequestHandler
 {
     private static final Logger logger =
         Logger.getLogger(OperationSetDesktopSharingClientJabberImpl.class);
@@ -157,61 +156,7 @@ public class OperationSetDesktopSharingClientJabberImpl
         OperationSetDesktopSharingServerJabberImpl.registrationStateChanged(
                     evt,
                     this,
-                    this,
                     this.parentProvider.getConnection());
-    }
-
-    /**
-     * Handles incoming inputevt packets and passes them to the corresponding
-     * method based on their action.
-     *
-     * @param packet the packet to process.
-     */
-    @Override
-    public void processStanza(Stanza packet)
-        throws NotConnectedException, InterruptedException
-    {
-        InputEvtIQ inputIQ = (InputEvtIQ)packet;
-
-        //first ack all "set" requests.
-        if(inputIQ.getType() == IQ.Type.set
-                && inputIQ.getAction() != InputEvtAction.NOTIFY)
-        {
-            IQ ack = IQ.createResultIQ(inputIQ);
-            parentProvider.getConnection().sendStanza(ack);
-
-            Jid callPeerID = inputIQ.getFrom();
-            if(callPeerID != null)
-            {
-                CallPeer callPeer = getListenerCallPeer(callPeerID);
-                if(callPeer != null)
-                {
-                    if(inputIQ.getAction() == InputEvtAction.START)
-                    {
-                        fireRemoteControlGranted(callPeer);
-                    }
-                    else if(inputIQ.getAction() == InputEvtAction.STOP)
-                    {
-                        fireRemoteControlRevoked(callPeer);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Tests whether or not the specified packet should be handled by this
-     * operation set. This method is called by smack prior to packet delivery
-     * and it would only accept <tt>InputEvtIQ</tt>s.
-     *
-     * @param packet the packet to test.
-     * @return true if and only if <tt>packet</tt> passes the filter.
-     */
-    @Override
-    public boolean accept(Stanza packet)
-    {
-        //we only handle InputEvtIQ-s
-        return (packet instanceof InputEvtIQ);
     }
 
     /**
@@ -237,5 +182,63 @@ public class OperationSetDesktopSharingClientJabberImpl
         }
         // If no peers corresponds, then return NULL.
         return null;
+    }
+
+    /**
+     * Handles incoming inputevt packets and passes them to the corresponding
+     * method based on their action.
+     * @param iqRequest the event to process.
+     * @return IQ response
+     */
+    @Override
+    public IQ handleIQRequest(IQ iqRequest)
+    {
+        InputEvtIQ inputIQ = (InputEvtIQ)iqRequest;
+
+        if(inputIQ.getAction() != InputEvtAction.NOTIFY)
+        {
+            Jid callPeerID = inputIQ.getFrom();
+            if(callPeerID != null)
+            {
+                CallPeer callPeer = getListenerCallPeer(callPeerID);
+                if(callPeer != null)
+                {
+                    if(inputIQ.getAction() == InputEvtAction.START)
+                    {
+                        fireRemoteControlGranted(callPeer);
+                    }
+                    else if(inputIQ.getAction() == InputEvtAction.STOP)
+                    {
+                        fireRemoteControlRevoked(callPeer);
+                    }
+                }
+            }
+        }
+
+        return IQ.createResultIQ(inputIQ);
+    }
+
+    @Override
+    public Mode getMode()
+    {
+        return Mode.sync;
+    }
+
+    @Override
+    public Type getType()
+    {
+        return Type.set;
+    }
+
+    @Override
+    public String getElement()
+    {
+        return InputEvtIQ.ELEMENT_NAME;
+    }
+
+    @Override
+    public String getNamespace()
+    {
+        return InputEvtIQ.NAMESPACE;
     }
 }

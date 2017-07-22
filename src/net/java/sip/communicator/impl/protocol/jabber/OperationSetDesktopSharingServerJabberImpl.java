@@ -33,8 +33,9 @@ import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
-import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.iqrequest.*;
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.packet.IQ.Type;
 import org.jivesoftware.smack.roster.*;
 import org.jivesoftware.smackx.disco.packet.*;
 import org.jxmpp.jid.*;
@@ -52,8 +53,7 @@ public class OperationSetDesktopSharingServerJabberImpl
     extends OperationSetDesktopStreamingJabberImpl
     implements OperationSetDesktopSharingServer,
                RegistrationStateChangeListener,
-               StanzaListener,
-               StanzaFilter
+               IQRequestHandler
 {
     /**
      * Our class logger.
@@ -373,7 +373,6 @@ public class OperationSetDesktopSharingServerJabberImpl
         OperationSetDesktopSharingServerJabberImpl.registrationStateChanged(
                     evt,
                     this,
-                    this,
                     this.parentProvider.getConnection());
     }
 
@@ -391,8 +390,7 @@ public class OperationSetDesktopSharingServerJabberImpl
      */
     public static void registrationStateChanged(
             RegistrationStateChangeEvent evt,
-            StanzaListener packetListener,
-            StanzaFilter packetFilter,
+            IQRequestHandler packetListener,
             XMPPConnection connection)
     {
         if(connection == null)
@@ -401,59 +399,13 @@ public class OperationSetDesktopSharingServerJabberImpl
         if ((evt.getNewState() == RegistrationState.REGISTERING))
         {
             /* listen to specific inputevt IQ */
-            connection.addPacketListener(packetListener, packetFilter);
+            connection.registerIQRequestHandler(packetListener);
         }
         else if ((evt.getNewState() == RegistrationState.UNREGISTERING))
         {
             /* listen to specific inputevt IQ */
-            connection.removePacketListener(packetListener);
+            connection.unregisterIQRequestHandler(packetListener);
         }
-    }
-
-    /**
-     * Handles incoming inputevt packets and passes them to the corresponding
-     * method based on their action.
-     *
-     * @param packet the packet to process.
-     */
-    public void processStanza(Stanza packet)
-        throws NotConnectedException, InterruptedException
-    {
-        InputEvtIQ inputIQ = (InputEvtIQ)packet;
-
-        if(inputIQ.getType() == IQ.Type.set
-                && inputIQ.getAction() == InputEvtAction.NOTIFY)
-        {
-            //first ack all "set" requests.
-            IQ ack = IQ.createResultIQ(inputIQ);
-            parentProvider.getConnection().sendStanza(ack);
-
-            // Apply NOTIFY action only to peers which have remote control
-            // granted.
-            if(callPeers.contains(inputIQ.getFrom()))
-            {
-                for(RemoteControlExtension p : inputIQ.getRemoteControls())
-                {
-                    ComponentEvent evt = p.getEvent();
-                    processComponentEvent(evt);
-                }
-            }
-        }
-    }
-
-    /**
-     * Tests whether or not the specified packet should be handled by this
-     * operation set. This method is called by smack prior to packet delivery
-     * and it would only accept <tt>InputEvtIQ</tt>s.
-     *
-     * @param packet the packet to test.
-     * @return true if and only if <tt>packet</tt> passes the filter.
-     */
-    @Override
-    public boolean accept(Stanza packet)
-    {
-        //we only handle InputEvtIQ-s
-        return (packet instanceof InputEvtIQ);
     }
 
     /**
@@ -704,5 +656,58 @@ public class OperationSetDesktopSharingServerJabberImpl
                     InputEvtIQ.NAMESPACE_SERVER)
                 && (discoverInfo != null)
                 && discoverInfo.containsFeature(InputEvtIQ.NAMESPACE_CLIENT);
+    }
+
+    /**
+     * Handles incoming inputevt packets and passes them to the corresponding
+     * method based on their action.
+     *
+     * @param iqRequest the packet to process.
+     * @return IQ response
+     */
+    @Override
+    public IQ handleIQRequest(IQ iqRequest)
+    {
+        InputEvtIQ inputIQ = (InputEvtIQ)iqRequest;
+
+        if(inputIQ.getAction() == InputEvtAction.NOTIFY)
+        {
+            // Apply NOTIFY action only to peers which have remote control
+            // granted.
+            if(callPeers.contains(inputIQ.getFrom()))
+            {
+                for(RemoteControlExtension p : inputIQ.getRemoteControls())
+                {
+                    ComponentEvent evt = p.getEvent();
+                    processComponentEvent(evt);
+                }
+            }
+        }
+
+        return IQ.createResultIQ(inputIQ);
+    }
+
+    @Override
+    public Mode getMode()
+    {
+        return Mode.sync;
+    }
+
+    @Override
+    public Type getType()
+    {
+        return Type.set;
+    }
+
+    @Override
+    public String getElement()
+    {
+        return InputEvtIQ.ELEMENT_NAME;
+    }
+
+    @Override
+    public String getNamespace()
+    {
+        return InputEvtIQ.NAMESPACE;
     }
 }
