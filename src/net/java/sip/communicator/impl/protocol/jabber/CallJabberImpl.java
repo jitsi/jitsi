@@ -30,7 +30,8 @@ import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.SmackException.*;
+import org.jivesoftware.smack.XMPPException.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.disco.packet.*;
 import org.jxmpp.jid.Jid;
@@ -325,54 +326,39 @@ public class CallJabberImpl
             contentRequest.addChannel(remoteChannelRequest);
         }
 
-        XMPPConnection connection = protocolProvider.getConnection();
-        StanzaCollector packetCollector
-            = connection.createStanzaCollector(
-                    new StanzaIdFilter(conferenceRequest.getStanzaId()));
-
         conferenceRequest.setTo(jitsiVideobridge);
         conferenceRequest.setType(IQ.Type.get);
+
+        XMPPConnection connection = protocolProvider.getConnection();
+        Stanza response = null;
         try
         {
-            connection.sendStanza(conferenceRequest);
+            StanzaCollector packetCollector
+                = connection.createStanzaCollectorAndSend(conferenceRequest);
+            try
+            {
+                response = packetCollector.nextResultOrThrow();
+            }
+            finally
+            {
+                packetCollector.cancel();
+            }
         }
         catch (SmackException.NotConnectedException | InterruptedException e)
         {
             throw new OperationFailedException("Could not send the conference request", 0, e);
         }
-
-        Stanza response
-            = null;
-        try
-        {
-            response = packetCollector.nextResult(
-                    SmackConfiguration.getDefaultPacketReplyTimeout());
-        }
-        catch (InterruptedException e)
-        {
-        }
-
-        packetCollector.cancel();
-
-        if (response == null)
+        catch (NoResponseException e)
         {
             logger.error(
-                    "Failed to allocate colibri channels: response is null."
-                        + " Maybe the response timed out.");
+                "Failed to allocate colibri channels: response is null."
+                    + " Maybe the response timed out.");
             return null;
         }
-        else if (response.getError() != null)
+        catch (XMPPErrorException e)
         {
             logger.error(
-                    "Failed to allocate colibri channels: "
-                        + response.getError());
-            return null;
-        }
-        else if (!(response instanceof ColibriConferenceIQ))
-        {
-            logger.error(
-                    "Failed to allocate colibri channels: response is not a"
-                        + " colibri conference");
+                "Failed to allocate colibri channels: " + e.getXMPPError());
             return null;
         }
 

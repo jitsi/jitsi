@@ -164,7 +164,7 @@ public class InfoRetreiver
             // if there is no value or is equals to the default one
             // load vcard using smack load method
             if(vcardTimeoutReply == -1
-               || vcardTimeoutReply == SmackConfiguration.getDefaultPacketReplyTimeout())
+               || vcardTimeoutReply == SmackConfiguration.getDefaultReplyTimeout())
             {
                 card = VCardManager.getInstanceFor(connection).loadVCard(contactAddress);
             }
@@ -359,12 +359,12 @@ public class InfoRetreiver
             }
             catch(MalformedURLException e){}
         }
-        catch (Throwable exc)
+        catch (Exception exc)
         {
             String msg = "Cannot load details for contact "
                 + contactAddress + " : " + exc.getMessage();
             if(logger.isTraceEnabled())
-                logger.error(msg, exc);
+                logger.trace(msg, exc);
             else
                 logger.error(msg);
         }
@@ -438,36 +438,34 @@ public class InfoRetreiver
                OperationFailedException
     {
         vcard.setTo(user);
-
         vcard.setType(IQ.Type.get);
-        StanzaCollector collector = connection.createStanzaCollector(
-                new StanzaIdFilter(vcard.getStanzaId()));
-        connection.sendStanza(vcard);
+
 
         VCard result = null;
         try
         {
-            result = collector.nextResult(timeout);
-            if (result == null)
+            StanzaCollector collector
+                = connection.createStanzaCollectorAndSend(vcard);
+            try
             {
-                throw new OperationFailedException(
-                    "Timeout getting VCard information",
-                    OperationFailedException.GENERAL_ERROR
-                );
+                result = collector.nextResultOrThrow(timeout);
             }
-
-            if (result.getError() != null)
+            finally
             {
-                throw new XMPPErrorException(result, result.getError());
+                collector.cancel();
             }
         }
         catch (ClassCastException e)
         {
             logger.error("No vcard for " + user);
         }
-
-        if (result == null)
-            result = new VCard();
+        catch (NoResponseException e)
+        {
+            throw new OperationFailedException(
+                "Timeout getting VCard information",
+                OperationFailedException.GENERAL_ERROR
+            );
+        }
 
         // copy loaded vcard fields in the supplied one.
         Field[] fields = VCard.class.getDeclaredFields();

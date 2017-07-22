@@ -25,17 +25,16 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.SendersEnum;
 import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.service.protocol.event.CallPeerChangeEvent;
-import net.java.sip.communicator.service.protocol.media.MediaAwareCallPeer;
+import net.java.sip.communicator.service.protocol.event.*;
+import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
-import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.XMPPException.XMPPErrorException;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.roster.Roster;
-import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.disco.packet.*;
 import org.jxmpp.jid.Jid;
 
@@ -380,7 +379,7 @@ public class CallPeerJabberImpl
                 }
             }
 
-            getProtocolProvider().getConnection().sendPacket(responseIQ);
+            getProtocolProvider().getConnection().sendStanza(responseIQ);
         }
     }
 
@@ -679,7 +678,7 @@ public class CallPeerJabberImpl
                         reason);
 
             setState(CallPeerState.FAILED, reason);
-            getProtocolProvider().getConnection().sendPacket(errResp);
+            getProtocolProvider().getConnection().sendStanza(errResp);
             return;
         }
     }
@@ -790,7 +789,7 @@ public class CallPeerJabberImpl
                 exc.getClass().getName() + ": " + exc.getMessage());
 
             setState(CallPeerState.FAILED, "Error: " + exc.getMessage());
-            getProtocolProvider().getConnection().sendPacket(errResp);
+            getProtocolProvider().getConnection().sendStanza(errResp);
             return;
         }
 
@@ -894,7 +893,7 @@ public class CallPeerJabberImpl
                         reasonText);
 
             setState(CallPeerState.FAILED, reasonText);
-            getProtocolProvider().getConnection().sendPacket(errResp);
+            getProtocolProvider().getConnection().sendStanza(errResp);
             return;
         }
 
@@ -1075,7 +1074,7 @@ public class CallPeerJabberImpl
                         reasonText);
 
             setState(CallPeerState.FAILED, reasonText);
-            getProtocolProvider().getConnection().sendPacket(errResp);
+            getProtocolProvider().getConnection().sendStanza(errResp);
 
             return;
         }
@@ -1124,7 +1123,7 @@ public class CallPeerJabberImpl
 
         try
         {
-            getProtocolProvider().getConnection().sendPacket(onHoldIQ);
+            getProtocolProvider().getConnection().sendStanza(onHoldIQ);
         }
         catch (NotConnectedException | InterruptedException e)
         {
@@ -1178,7 +1177,7 @@ public class CallPeerJabberImpl
             = new CoinPacketExtension(getCall().isConferenceFocus());
 
         sessionInfoIQ.addExtension(coinExt);
-        getProtocolProvider().getConnection().sendPacket(sessionInfoIQ);
+        getProtocolProvider().getConnection().sendStanza(sessionInfoIQ);
     }
 
     /**
@@ -1457,16 +1456,19 @@ public class CallPeerJabberImpl
         transportInfo.setAction(JingleAction.TRANSPORT_INFO);
         transportInfo.setFrom(protocolProvider.getOurJID());
         transportInfo.setSID(getSID());
-        transportInfo.setTo(getAddress());
+        transportInfo.setTo(peerJID);
         transportInfo.setType(IQ.Type.set);
 
-        StanzaCollector collector
-            = protocolProvider.getConnection().createStanzaCollector(
-                    new StanzaIdFilter(transportInfo.getStanzaId()));
-
-        protocolProvider.getConnection().sendStanza(transportInfo);
-        collector.nextResult(SmackConfiguration.getDefaultPacketReplyTimeout());
-        collector.cancel();
+        StanzaCollector collector = protocolProvider.getConnection()
+            .createStanzaCollectorAndSend(transportInfo);
+        try
+        {
+            collector.nextResult();
+        }
+        finally
+        {
+            collector.cancel();
+        }
     }
 
     @Override
@@ -1526,7 +1528,7 @@ public class CallPeerJabberImpl
         transferSessionInfo.setAction(JingleAction.SESSION_INFO);
         transferSessionInfo.setFrom(protocolProvider.getOurJID());
         transferSessionInfo.setSID(getSID());
-        transferSessionInfo.setTo(getAddress());
+        transferSessionInfo.setTo(getAddressAsJid());
         transferSessionInfo.setType(IQ.Type.set);
 
         TransferPacketExtension transfer = new TransferPacketExtension();
@@ -1565,63 +1567,56 @@ public class CallPeerJabberImpl
 
         transferSessionInfo.addExtension(transfer);
 
-        XMPPConnection connection = protocolProvider.getConnection();
-        StanzaCollector collector = connection.createStanzaCollector(
-                new StanzaIdFilter(transferSessionInfo.getStanzaId()));
         try
         {
-            protocolProvider.getConnection().sendStanza(transferSessionInfo);
+            StanzaCollector collector = protocolProvider.getConnection()
+                .createStanzaCollectorAndSend(transferSessionInfo);
+            try
+            {
+                collector.nextResultOrThrow();
+            }
+            finally
+            {
+                collector.cancel();
+            }
         }
         catch (NotConnectedException | InterruptedException e)
         {
             throw new OperationFailedException("Could not send transfer session info", 0, e);
         }
-
-        Stanza result = null;
-        try
-        {
-            result = collector.nextResult(SmackConfiguration.getDefaultPacketReplyTimeout());
-        }
-        catch (InterruptedException e)
-        {
-        }
-
-        if(result == null)
+        catch (NoResponseException e)
         {
             // Log the failed transfer call and notify the user.
             throw new OperationFailedException(
                     "No response to the \"transfer\" request.",
                     OperationFailedException.ILLEGAL_ARGUMENT);
         }
-        else if (((IQ) result).getType() != IQ.Type.result)
+        catch (XMPPErrorException e)
         {
             // Log the failed transfer call and notify the user.
             throw new OperationFailedException(
-                    "Remote peer does not manage call \"transfer\"."
-                    + "Response to the \"transfer\" request is: "
-                    + ((IQ) result).getType(),
+                    "Remote peer does not manage call \"transfer\". "
+                    + e.getXMPPError(),
                     OperationFailedException.ILLEGAL_ARGUMENT);
         }
-        else
+
+        String message = ((sid == null) ? "Unattended" : "Attended")
+            + " transfer to: "
+            + to;
+        // Implements the SIP behavior: once the transfer is accepted, the
+        // current call is closed.
+        try
         {
-            String message = ((sid == null) ? "Unattended" : "Attended")
-                + " transfer to: "
-                + to;
-            // Implements the SIP behavior: once the transfer is accepted, the
-            // current call is closed.
-            try
-            {
-                hangup(
-                    false,
+            hangup(
+                false,
+                message,
+                new ReasonPacketExtension(Reason.SUCCESS,
                     message,
-                    new ReasonPacketExtension(Reason.SUCCESS,
-                        message,
-                        new TransferredPacketExtension()));
-            }
-            catch (NotConnectedException | InterruptedException e)
-            {
-                throw new OperationFailedException("Could not send transfer", 0, e);
-            }
+                    new TransferredPacketExtension()));
+        }
+        catch (NotConnectedException | InterruptedException e)
+        {
+            throw new OperationFailedException("Could not send transfer", 0, e);
         }
     }
 
@@ -1903,6 +1898,6 @@ public class CallPeerJabberImpl
      */
     public String getSessInitID()
     {
-        return sessionInitIQ != null ? sessionInitIQ.getPacketID() : null;
+        return sessionInitIQ != null ? sessionInitIQ.getStanzaId() : null;
     }
 }

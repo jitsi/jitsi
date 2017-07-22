@@ -599,17 +599,20 @@ public class OperationSetDesktopSharingServerJabberImpl
                     inputIQ.setFrom(parentProvider.getOurJID());
                     inputIQ.setTo(callPeer.getAddressAsJid());
 
-                    XMPPConnection connection = parentProvider.getConnection();
-                    StanzaCollector collector
-                        = connection.createStanzaCollector(
-                            new StanzaIdFilter(inputIQ.getStanzaId()));
-
                     Stanza p = null;
                     try
                     {
-                        connection.sendStanza(inputIQ);
-                        p = collector.nextResult(
-                            SmackConfiguration.getDefaultPacketReplyTimeout());
+                        StanzaCollector collector = parentProvider
+                            .getConnection()
+                            .createStanzaCollectorAndSend(inputIQ);
+                        try
+                        {
+                            p = collector.nextResult();
+                        }
+                        finally
+                        {
+                            collector.cancel();
+                        }
                     }
                     catch (InterruptedException | NotConnectedException e)
                     {
@@ -624,8 +627,6 @@ public class OperationSetDesktopSharingServerJabberImpl
                     {
                         receivedResponseToIqStop(callPeer, p);
                     }
-
-                    collector.cancel();
                 }
             }
         }

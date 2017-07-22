@@ -316,11 +316,17 @@ public class JingleNodesServiceDiscovery
             final DiscoverItems items = new DiscoverItems();
             items.setTo(startPoint);
             StanzaCollector collector =
-                xmppConnection.createStanzaCollector(
-                    new StanzaIdFilter(items.getStanzaId()));
-            xmppConnection.sendStanza(items);
-            DiscoverItems result = (DiscoverItems) collector.nextResult(
-                Math.round(SmackConfiguration.getDefaultPacketReplyTimeout() * 1.5));
+                xmppConnection.createStanzaCollectorAndSend(items);
+            DiscoverItems result = null;
+            try
+            {
+                result = (DiscoverItems) collector.nextResult(
+                    Math.round(SmackConfiguration.getDefaultReplyTimeout() * 1.5));
+            }
+            finally
+            {
+                collector.cancel();
+            }
 
             if (result != null)
             {
@@ -368,7 +374,6 @@ public class JingleNodesServiceDiscovery
                         return false;// stop and don't continue
                 }
             }
-            collector.cancel();
 
             // true we should continue searching
             return true;
