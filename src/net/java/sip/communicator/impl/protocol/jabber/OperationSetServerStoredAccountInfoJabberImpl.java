@@ -28,6 +28,7 @@ import net.java.sip.communicator.util.*;
 import org.apache.commons.lang3.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
+import org.jivesoftware.smackx.vcardtemp.VCardManager;
 import org.jivesoftware.smackx.vcardtemp.packet.*;
 import org.jxmpp.jid.*;
 
@@ -443,7 +444,9 @@ public class OperationSetServerStoredAccountInfoJabberImpl
 
         try
         {
-            vCard.save(jabberProvider.getConnection());
+            VCardManager
+                .getInstanceFor(jabberProvider.getConnection())
+                .saveVCard(vCard);
         }
         catch (XMPPException
             | InterruptedException

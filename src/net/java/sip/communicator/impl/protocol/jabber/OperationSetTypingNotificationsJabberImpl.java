@@ -275,10 +275,9 @@ public class OperationSetTypingNotificationsJabberImpl
                 if(smackChatStateListener == null)
                     smackChatStateListener = new SmackChatStateListener();
 
-                parentProvider.getConnection().addPacketListener(
-                    smackChatStateListener, new StanzaTypeFilter(Message.class));
-
-
+                parentProvider.getConnection().addAsyncStanzaListener(
+                    smackChatStateListener,
+                    new StanzaTypeFilter(Message.class));
 
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
@@ -288,7 +287,7 @@ public class OperationSetTypingNotificationsJabberImpl
                 if(parentProvider.getConnection() != null)
                 {
                     parentProvider.getConnection()
-                        .removePacketListener(smackChatStateListener);
+                        .removeAsyncStanzaListener(smackChatStateListener);
                 }
 
                 smackChatStateListener = null;

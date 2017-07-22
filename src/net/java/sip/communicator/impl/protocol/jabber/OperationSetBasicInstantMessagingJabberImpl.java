@@ -654,10 +654,10 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     // make sure this listener is not already installed in this
                     // connection
                     jabberProvider.getConnection()
-                        .removePacketListener(smackMessageListener);
+                        .removeAsyncStanzaListener(smackMessageListener);
                 }
 
-                jabberProvider.getConnection().addPacketListener(
+                jabberProvider.getConnection().addAsyncStanzaListener(
                         smackMessageListener,
                         new AndFilter(
                             packetFilters.toArray(
@@ -681,7 +681,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 if(jabberProvider.getConnection() != null)
                 {
                     if(smackMessageListener != null)
-                        jabberProvider.getConnection().removePacketListener(
+                        jabberProvider.getConnection().removeAsyncStanzaListener(
                             smackMessageListener);
                 }
 

@@ -533,14 +533,16 @@ public class ServerStoredContactListJabberImpl
             };
             jabberProvider.getConnection().addPacketInterceptor(
                 presenceInterceptor, new StanzaTypeFilter(Presence.class));
+
             // modify our reply timeout because some XMPP may send "result" IQ
-            // late (> 5 secondes).
-            SmackConfiguration.setDefaultPacketReplyTimeout(
+            // late (> 5 seconds).
+            getParentProvider().getConnection().setReplyTimeout(
                 ProtocolProviderServiceJabberImpl.SMACK_PACKET_REPLY_TIMEOUT);
 
             this.roster.createEntry(completeID, completeID.toString(), parentNames);
 
-            SmackConfiguration.setDefaultPacketReplyTimeout(5000);
+            getParentProvider().getConnection().setReplyTimeout(
+                SmackConfiguration.getDefaultReplyTimeout());
 
             jabberProvider.getConnection().removePacketInterceptor(
                 presenceInterceptor);
@@ -922,12 +924,13 @@ public class ServerStoredContactListJabberImpl
             // from other groups if any
             // modify our reply timeout because some XMPP may send "result" IQ
             // late (> 5 secondes).
-            SmackConfiguration.setDefaultPacketReplyTimeout(
+            getParentProvider().getConnection().setReplyTimeout(
                 ProtocolProviderServiceJabberImpl.SMACK_PACKET_REPLY_TIMEOUT);
             roster.createEntry(contact.getSourceEntry().getJid(),
                                contact.getDisplayName(),
                                new String[]{newParent.getGroupName()});
-            SmackConfiguration.setDefaultPacketReplyTimeout(5000);
+            getParentProvider().getConnection().setReplyTimeout(
+                SmackConfiguration.getDefaultReplyTimeout());
 
             newParent.addContact(contact);
         }
@@ -1927,7 +1930,7 @@ public class ServerStoredContactListJabberImpl
             if(refs == null)
                 return null;
 
-            for(ServiceReference r : refs)
+            for(ServiceReference<?> r : refs)
             {
                 CustomAvatarService avatarService =
                     (CustomAvatarService)JabberActivator

@@ -1197,11 +1197,13 @@ public class ProtocolProviderServiceJabberImpl
 
         if(debugger == null)
         {
+            // FIXME Smack4.2: implement the smack debugger interface, 
+            // the StanzaListener won't catch IQs anymore
             debugger = new SmackPacketDebugger();
 
             // sets the debugger
             debugger.setConnection(connection);
-            connection.addPacketListener(debugger.inbound, null);
+            connection.addAsyncStanzaListener(debugger.inbound, null);
             connection.addPacketInterceptor(debugger.outbound, null);
         }
 

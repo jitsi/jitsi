@@ -39,7 +39,7 @@ import org.jxmpp.jid.*;
  */
 public class OperationSetVideoBridgeImpl
     implements OperationSetVideoBridge,
-               PacketFilter,
+               StanzaFilter,
                StanzaListener,
                RegistrationStateChangeListener
 {

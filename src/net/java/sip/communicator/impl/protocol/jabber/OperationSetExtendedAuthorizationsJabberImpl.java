@@ -77,7 +77,7 @@ public class OperationSetExtendedAuthorizationsJabberImpl
                     contact);
 
         Presence responsePacket = new Presence(Presence.Type.subscribed);
-        responsePacket.setTo(contact.getAddress());
+        responsePacket.setTo(((ContactJabberImpl) contact).getAddressAsJid());
         try
         {
             parentProvider.getConnection().sendStanza(responsePacket);

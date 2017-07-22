@@ -218,7 +218,7 @@ public class ChatRoomJabberImpl
         multiUserChat.addUserStatusListener(new UserListener());
         multiUserChat.addPresenceInterceptor(new PresenceInterceptor());
 
-        this.provider.getConnection().addPacketListener(
+        this.provider.getConnection().addAsyncStanzaListener(
             invitationRejectionListeners,
             new StanzaTypeFilter(org.jivesoftware.smack.packet.Message.class));
     }
@@ -644,12 +644,11 @@ public class ChatRoomJabberImpl
             else
             {
                 presenceListener = new ChatRoomPresenceListener(this);
-                this.provider.getConnection().addPacketListener(
+                this.provider.getConnection().addAsyncStanzaListener(
                     presenceListener,
                     new AndFilter(
                         FromMatchesFilter.create(multiUserChat.getRoom()),
-                        new StanzaTypeFilter(
-                            org.jivesoftware.smack.packet.Presence.class)));
+                        new StanzaTypeFilter(Presence.class)));
                 if(password == null)
                     multiUserChat.join(this.nickname);
                 else
@@ -960,10 +959,10 @@ public class ChatRoomJabberImpl
         // connection can be null if we are leaving cause connection failed
         if(connection != null)
         {
-            connection.removePacketListener(invitationRejectionListeners);
+            connection.removeAsyncStanzaListener(invitationRejectionListeners);
             if(presenceListener != null)
             {
-                connection.removePacketListener(presenceListener);
+                connection.removeAsyncStanzaListener(presenceListener);
                 presenceListener = null;
             }
         }
