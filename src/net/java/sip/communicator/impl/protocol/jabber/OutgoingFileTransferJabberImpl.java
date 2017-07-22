@@ -180,6 +180,11 @@ public class OutgoingFileTransferJabberImpl
      */
     public void removeThumbnailHandler()
     {
+        if (bobInfo == null)
+        {
+            return;
+        }
+
         BoBManager bobManager = BoBManager.getInstanceFor(
             protocolProvider.getConnection());
         for (BoBHash hash : bobInfo.getHashes())
