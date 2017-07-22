@@ -1880,7 +1880,7 @@ public class ProtocolProviderServiceJabberImpl
                     opsetChangePassword);
 
             OperationSetCusaxUtils opsetCusaxCusaxUtils
-                    = new OperationSetCusaxUtilsJabberImpl(this);
+                    = new OperationSetCusaxUtilsJabberImpl();
             addSupportedOperationSet(OperationSetCusaxUtils.class,
                     opsetCusaxCusaxUtils);
 
