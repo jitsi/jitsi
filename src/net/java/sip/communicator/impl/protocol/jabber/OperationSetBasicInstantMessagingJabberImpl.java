@@ -1104,7 +1104,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                     + jabberProvider.getAccountID().getAccountUniqueID());
         try
         {
-            jabberProvider.getConnection().sendPacket(mailboxQuery);
+            jabberProvider.getConnection().sendStanza(mailboxQuery);
         }
         catch (NotConnectedException | InterruptedException e)
         {
@@ -1296,7 +1296,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
                 "send mailNotification for acc: "
                 + jabberProvider.getAccountID().getAccountUniqueID());
 
-            jabberProvider.getConnection().sendPacket(mailboxQueryIQ);
+            jabberProvider.getConnection().sendStanza(mailboxQueryIQ);
         }
     }
 
