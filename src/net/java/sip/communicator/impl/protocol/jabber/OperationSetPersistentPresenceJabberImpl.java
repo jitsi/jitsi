@@ -926,13 +926,7 @@ public class OperationSetPersistentPresenceJabberImpl
         Presence presence, ProtocolProviderServiceJabberImpl jabberProvider)
     {
         JabberStatusEnum jabberStatusEnum = jabberProvider.getJabberStatusEnum();
-        // fixing issue: 336
-        // from the smack api :
-        // A null presence mode value is interpreted to be the same thing
-        // as Presence.Mode.available.
-        if(presence.getMode() == null && presence.isAvailable())
-            return jabberStatusEnum.getStatus(JabberStatusEnum.AVAILABLE);
-        else if(presence.getMode() == null && !presence.isAvailable())
+        if(!presence.isAvailable())
             return jabberStatusEnum.getStatus(JabberStatusEnum.OFFLINE);
 
         Presence.Mode mode = presence.getMode();
