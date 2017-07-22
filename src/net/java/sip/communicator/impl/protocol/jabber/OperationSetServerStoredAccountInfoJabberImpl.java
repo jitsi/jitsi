@@ -28,6 +28,7 @@ import net.java.sip.communicator.util.*;
 import org.apache.commons.lang3.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
+import org.jivesoftware.smackx.vcardtemp.packet.*;
 import org.jxmpp.jid.*;
 
 /**
@@ -338,7 +339,7 @@ public class OperationSetServerStoredAccountInfoJabberImpl
         assertConnected();
 
         List<GenericDetail> details = infoRetreiver.getContactDetails(uin);
-        VCardXEP0153 vCard = new VCardXEP0153();
+        VCard vCard = new VCard();
         for (GenericDetail detail : details)
         {
             if (detail instanceof ImageDetail)
