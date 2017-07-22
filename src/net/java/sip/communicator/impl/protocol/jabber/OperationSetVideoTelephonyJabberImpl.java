@@ -142,17 +142,12 @@ public class OperationSetVideoTelephonyJabberImpl
 
         CallJabberImpl call = new CallJabberImpl(basicTelephony);
 
-        /* enable video */
+        // enable video
         call.setLocalVideoAllowed(true, getMediaUseCase());
 
         CallPeer callPeer
             = basicTelephony.createOutgoingCall(call, calleeAddress);
 
-        /*
-         * XXX OperationSetBasicTelephonyJabberImpl#createOutgoingCall(
-         * CallJabberImpl, String) may have replaced the CallJabberImpl instance
-         * created above with a CallGTalkImpl instance.
-         */
         return callPeer.getCall();
     }
 

@@ -25,6 +25,8 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.SendersEnum;
 import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.protocol.*;
+import net.java.sip.communicator.service.protocol.event.CallPeerChangeEvent;
+import net.java.sip.communicator.service.protocol.media.MediaAwareCallPeer;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
@@ -45,8 +47,10 @@ import org.jxmpp.jid.Jid;
  * @author Boris Grozev
  */
 public class CallPeerJabberImpl
-    extends AbstractCallPeerJabberGTalkImpl
-        <CallJabberImpl, CallPeerMediaHandlerJabberImpl, JingleIQ>
+    extends MediaAwareCallPeer<
+        CallJabberImpl,
+        CallPeerMediaHandlerJabberImpl,
+        ProtocolProviderServiceJabberImpl>
 {
     /**
      * The <tt>Logger</tt> used by the <tt>CallPeerJabberImpl</tt> class and its
@@ -103,6 +107,27 @@ public class CallPeerJabberImpl
     private SendersEnum videoSenders = SendersEnum.none;
 
     /**
+     * Any discovery information that we have for this peer.
+     */
+    private DiscoverInfo discoverInfo;
+
+    /**
+     * The indicator which determines whether this peer has initiated the
+     * session.
+     */
+    private boolean initiator = false;
+
+    /**
+     * The jabber address of this peer
+     */
+    private Jid peerJID;
+
+    /**
+     * The {@link IQ} that created the session that this call represents.
+     */
+    private JingleIQ sessionInitIQ;
+
+    /**
      * Creates a new call peer with address <tt>peerAddress</tt>.
      *
      * @param peerAddress the Jabber address of the new call peer.
@@ -111,8 +136,8 @@ public class CallPeerJabberImpl
     public CallPeerJabberImpl(Jid            peerAddress,
                               CallJabberImpl owningCall)
     {
-        super(peerAddress, owningCall);
-
+        super(owningCall);
+        this.peerJID = peerAddress;
         setMediaHandler(new CallPeerMediaHandlerJabberImpl(this));
     }
 
@@ -220,7 +245,7 @@ public class CallPeerJabberImpl
             setState(CallPeerState.FAILED, reasonText);
             try
             {
-                getProtocolProvider().getConnection().sendPacket(errResp);
+                getProtocolProvider().getConnection().sendStanza(errResp);
             }
             catch (NotConnectedException | InterruptedException e1)
             {
@@ -239,7 +264,6 @@ public class CallPeerJabberImpl
      *
      * @return the session ID of the Jingle session associated with this call.
      */
-    @Override
     public String getSID()
     {
         return sessionInitIQ != null ? sessionInitIQ.getSID() : null;
@@ -1727,5 +1751,158 @@ public class CallPeerJabberImpl
         }
 
         return mediaType;
+    }
+
+    /**
+     * Returns a String locator for that peer.
+     *
+     * @return the peer's address or phone number.
+     */
+    public String getAddress()
+    {
+        return peerJID.toString();
+    }
+
+    public Jid getAddressAsJid()
+    {
+        return peerJID;
+    }
+
+    /**
+     * Returns the contact corresponding to this peer or null if no
+     * particular contact has been associated.
+     * <p>
+     * @return the <tt>Contact</tt> corresponding to this peer or null
+     * if no particular contact has been associated.
+     */
+    public Contact getContact()
+    {
+        OperationSetPresence presence
+            = getProtocolProvider().getOperationSet(OperationSetPresence.class);
+    
+        return
+            (presence == null) ? null : presence.findContactByID(getAddress());
+    }
+
+    /**
+     * Returns the service discovery information that we have for this peer.
+     *
+     * @return the service discovery information that we have for this peer.
+     */
+    public DiscoverInfo getDiscoveryInfo()
+    {
+        return discoverInfo;
+    }
+
+    /**
+     * Returns a human readable name representing this peer.
+     *
+     * @return a String containing a name for that peer.
+     */
+    public String getDisplayName()
+    {
+        if (getCall() != null)
+        {
+            Contact contact = getContact();
+    
+            if (contact != null)
+                return contact.getDisplayName();
+        }
+    
+        return peerJID.toString();
+    }
+
+    /**
+     * Returns full URI of the address.
+     *
+     * @return full URI of the address
+     */
+    public String getURI()
+    {
+        return "xmpp:" + peerJID;
+    }
+
+    /**
+     * Determines whether this peer initiated the session. Note that if this
+     * peer is the initiator of the session, then we are the responder!
+     *
+     * @return <tt>true</tt> if this peer initiated the session; <tt>false</tt>,
+     * otherwise (i.e. if _we_ initiated the session).
+     */
+    public boolean isInitiator()
+    {
+        return initiator;
+    }
+
+    /**
+     * Retrieves the DiscoverInfo for a given peer identified by its URI.
+     *
+     * @param calleeURI The URI of the call peer.
+     *
+     * @return The retrieved DiscoverInfo, or null if not available.
+     */
+    private void retrieveDiscoveryInfo(Jid calleeURI)
+    {
+        try
+        {
+            DiscoverInfo discoveryInfo
+                = getProtocolProvider().getDiscoveryManager().discoverInfo(
+                        calleeURI);
+    
+            if(discoveryInfo != null)
+                setDiscoveryInfo(discoveryInfo);
+        }
+        catch (XMPPException
+            | InterruptedException
+            | NoResponseException
+            | NotConnectedException xmppex)
+        {
+            logger.warn("Could not retrieve info for " + calleeURI, xmppex);
+        }
+    }
+
+    /**
+     * Specifies the address, phone number, or other protocol specific
+     * identifier that represents this call peer. This method is to be
+     * used by service users and MUST NOT be called by the implementation.
+     *
+     * @param address The address of this call peer.
+     */
+    public void setAddress(Jid address)
+    {
+        if (!peerJID.equals(address))
+        {
+            String oldAddress = getAddress();
+    
+            peerJID = address;
+    
+            fireCallPeerChangeEvent(
+                    CallPeerChangeEvent.CALL_PEER_ADDRESS_CHANGE,
+                    oldAddress,
+                    address);
+        }
+    }
+
+    /**
+     * Sets the service discovery information that we have for this peer.
+     *
+     * @param discoverInfo the discovery information that we have obtained for
+     * this peer.
+     */
+    public void setDiscoveryInfo(DiscoverInfo discoverInfo)
+    {
+        this.discoverInfo = discoverInfo;
+    }
+
+    /**
+     * Returns the IQ ID of the Jingle session-initiate packet associated with
+     * this call.
+     *
+     * @return the IQ ID of the Jingle session-initiate packet associated with
+     * this call.
+     */
+    public String getSessInitID()
+    {
+        return sessionInitIQ != null ? sessionInitIQ.getPacketID() : null;
     }
 }

@@ -76,9 +76,8 @@ public class OperationSetBasicTelephonyJabberImpl
     /**
      * Contains references for all currently active (non ended) calls.
      */
-    private ActiveCallsRepositoryJabberGTalkImpl
-        <CallJabberImpl, CallPeerJabberImpl> activeCallsRepository
-            = new ActiveCallsRepositoryJabberGTalkImpl<>(this);
+    private ActiveCallsRepositoryJabberImpl activeCallsRepository
+            = new ActiveCallsRepositoryJabberImpl(this);
 
     /** Jingle IQ set stanza processor */
     private final JingleIqSetRequestHandler setRequestHandler
@@ -534,7 +533,7 @@ public class OperationSetBasicTelephonyJabberImpl
 
     /**
      * Discovers the resource for <tt>calleeAddress</tt> with the highest
-     * priority which supports either Jingle or Gtalk. Returns the full JID.
+     * priority which supports Jingle. Returns the full JID.
      *
      * @param calleeAddress the address of the callee
      *
@@ -1054,7 +1053,7 @@ public class OperationSetBasicTelephonyJabberImpl
                 if (sid != null)
                 {
                     CallJabberImpl attendantCall
-                        =  getActiveCallsRepository().findSID(sid);
+                        = getActiveCallsRepository().findSID(sid);
 
                     if (attendantCall != null)
                     {
@@ -1223,15 +1222,13 @@ public class OperationSetBasicTelephonyJabberImpl
     }
 
     /**
-     * Returns a reference to the {@link ActiveCallsRepositoryJabberGTalkImpl}
+     * Returns a reference to the {@link ActiveCallsRepositoryJabberImpl}
      * that we are currently using.
      *
-     * @return a reference to the {@link ActiveCallsRepositoryJabberGTalkImpl}
+     * @return a reference to the {@link ActiveCallsRepositoryJabberImpl}
      * that we are currently using.
      */
-    protected ActiveCallsRepositoryJabberGTalkImpl
-        <CallJabberImpl, CallPeerJabberImpl>
-            getActiveCallsRepository()
+    protected ActiveCallsRepositoryJabberImpl getActiveCallsRepository()
     {
         return activeCallsRepository;
     }
@@ -1279,9 +1276,8 @@ public class OperationSetBasicTelephonyJabberImpl
     public void transfer(CallPeer peer, CallPeer target)
         throws OperationFailedException
     {
-        AbstractCallPeerJabberGTalkImpl<?,?,?> targetJabberGTalkImpl
-            = (AbstractCallPeerJabberGTalkImpl<?,?,?>) target;
-        EntityFullJid to = getFullCalleeURI(targetJabberGTalkImpl.getAddress());
+        CallPeerJabberImpl jabberTarget = (CallPeerJabberImpl) target;
+        EntityFullJid to = getFullCalleeURI(jabberTarget.getAddress());
 
         /*
          * XEP-0251: Jingle Session Transfer says: Before doing
@@ -1313,7 +1309,7 @@ public class OperationSetBasicTelephonyJabberImpl
             logger.warn("Failed to retrieve DiscoverInfo for " + to, xmppe);
         }
 
-        transfer(peer, to, targetJabberGTalkImpl.getSID());
+        transfer(peer, to, jabberTarget.getSID());
     }
 
     /**

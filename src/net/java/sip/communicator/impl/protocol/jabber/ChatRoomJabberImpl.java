@@ -880,8 +880,7 @@ public class ChatRoomJabberImpl
 
         if(basicTelephony != null && this.publishedConference != null)
         {
-            ActiveCallsRepositoryJabberGTalkImpl
-                <CallJabberImpl, CallPeerJabberImpl> activeRepository
+            ActiveCallsRepositoryJabberImpl activeRepository
                     = basicTelephony.getActiveCallsRepository();
 
             String callid = publishedConference.getCallId();

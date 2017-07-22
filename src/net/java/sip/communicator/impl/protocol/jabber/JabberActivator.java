@@ -152,6 +152,7 @@ public class JabberActivator
      */
     public void start(BundleContext context) throws Exception
     {
+        SmackConfiguration.DEBUG = true;
         JabberActivator.bundleContext = context;
 
         Hashtable<String, String> hashtable = new Hashtable<String, String>();

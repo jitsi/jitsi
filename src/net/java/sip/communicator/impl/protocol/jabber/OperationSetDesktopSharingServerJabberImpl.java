@@ -329,7 +329,7 @@ public class OperationSetDesktopSharingServerJabberImpl
                                      boolean allowed)
         throws OperationFailedException
     {
-        ((AbstractCallJabberGTalkImpl<?>) call).setLocalInputEvtAware(allowed);
+        ((CallJabberImpl) call).setLocalInputEvtAware(allowed);
         super.setLocalVideoAllowed(call, mediaDevice, allowed);
     }
 
@@ -695,7 +695,7 @@ public class OperationSetDesktopSharingServerJabberImpl
     public boolean isRemoteControlAvailable(CallPeer callPeer)
     {
         DiscoverInfo discoverInfo
-            = ((AbstractCallPeerJabberGTalkImpl<?,?,?>) callPeer)
+            = ((CallPeerJabberImpl) callPeer)
                 .getDiscoveryInfo();
 
         return

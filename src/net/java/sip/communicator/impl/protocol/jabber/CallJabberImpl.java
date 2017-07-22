@@ -44,7 +44,10 @@ import org.jxmpp.jid.Jid;
  * @author Boris Grozev
  */
 public class CallJabberImpl
-    extends AbstractCallJabberGTalkImpl<CallPeerJabberImpl>
+    extends MediaAwareCall<
+        CallPeerJabberImpl,
+        OperationSetBasicTelephonyJabberImpl,
+        ProtocolProviderServiceJabberImpl>
 {
     /**
      * The <tt>Logger</tt> used by the <tt>CallJabberImpl</tt> class and its
@@ -76,6 +79,12 @@ public class CallJabberImpl
      * telephony conference.
      */
     private Jid jitsiVideobridge;
+
+    /**
+     * Indicates if the <tt>CallPeer</tt> will support <tt>inputevt</tt>
+     * extension (i.e. will be able to be remote-controlled).
+     */
+    private boolean localInputEvtAware = false;
 
     /**
      * Initializes a new <tt>CallJabberImpl</tt> instance.
@@ -821,7 +830,6 @@ public class CallJabberImpl
      * @throws OperationFailedException if a problem occurred during message
      * generation or there was a network problem
      */
-    @Override
     public void modifyVideoContent()
         throws OperationFailedException
     {
@@ -1484,5 +1492,83 @@ public class CallJabberImpl
                             evt.getDuration(),
                             evt.getStart()));
         }
+    }
+
+    /**
+     * Enable or disable <tt>inputevt</tt> support (remote control).
+     *
+     * @param enable new state of inputevt support
+     */
+    public void setLocalInputEvtAware(boolean enable)
+    {
+        localInputEvtAware = enable;
+    }
+
+    /**
+     * Returns if the call support <tt>inputevt</tt> (remote control).
+     *
+     * @return true if the call support <tt>inputevt</tt>, false otherwise
+     */
+    public boolean getLocalInputEvtAware()
+    {
+        return localInputEvtAware;
+    }
+
+    /**
+     * Returns the peer whose corresponding session has the specified
+     * <tt>sid</tt>.
+     *
+     * @param sid the ID of the session whose peer we are looking for.
+     *
+     * @return the {@link CallPeerJabberImpl} with the specified jingle
+     * <tt>sid</tt> and <tt>null</tt> if no such peer exists in this call.
+     */
+    public CallPeerJabberImpl getPeer(String sid)
+    {
+        if (sid == null)
+            return null;
+    
+        for(CallPeerJabberImpl peer : getCallPeerList())
+        {
+            if (sid.equals(peer.getSID()))
+                return peer;
+        }
+        return null;
+    }
+
+    /**
+     * Determines if this call contains a peer whose corresponding session has
+     * the specified <tt>sid</tt>.
+     *
+     * @param sid the ID of the session whose peer we are looking for.
+     *
+     * @return <tt>true</tt> if this call contains a peer with the specified
+     * jingle <tt>sid</tt> and false otherwise.
+     */
+    public boolean containsSID(String sid)
+    {
+        return (getPeer(sid) != null);
+    }
+
+    /**
+     * Returns the peer whose corresponding session-init ID has the specified
+     * <tt>id</tt>.
+     *
+     * @param id the ID of the session-init IQ whose peer we are looking for.
+     *
+     * @return the {@link CallPeerJabberImpl} with the specified IQ
+     * <tt>id</tt> and <tt>null</tt> if no such peer exists in this call.
+     */
+    public CallPeerJabberImpl getPeerBySessInitPacketID(String id)
+    {
+        if (id == null)
+            return null;
+    
+        for(CallPeerJabberImpl peer : getCallPeerList())
+        {
+            if (id.equals(peer.getSessInitID()))
+                return peer;
+        }
+        return null;
     }
 }
