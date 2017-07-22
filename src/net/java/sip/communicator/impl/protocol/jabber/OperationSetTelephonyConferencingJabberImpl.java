@@ -30,6 +30,7 @@ import org.jitsi.util.xml.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.iqrequest.IQRequestHandler;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.packet.IQ.Type;
 import org.jivesoftware.smack.util.*;
@@ -53,8 +54,8 @@ public class OperationSetTelephonyConferencingJabberImpl
             String>
     implements RegistrationStateChangeListener,
                StanzaListener,
-               StanzaFilter
-
+               StanzaFilter,
+               IQRequestHandler
 {
     /**
      * The <tt>Logger</tt> used by the
@@ -389,7 +390,8 @@ public class OperationSetTelephonyConferencingJabberImpl
      */
     private void subscribeForCoinPackets()
     {
-        parentProvider.getConnection().addPacketListener(this, this);
+        parentProvider.getConnection().addAsyncStanzaListener(this, this);
+        parentProvider.getConnection().registerIQRequestHandler(this);
     }
 
     /**
@@ -400,7 +402,10 @@ public class OperationSetTelephonyConferencingJabberImpl
         XMPPConnection connection = parentProvider.getConnection();
 
         if (connection != null)
-            connection.removePacketListener(this);
+        {
+            connection.removeAsyncStanzaListener(this);
+            connection.unregisterIQRequestHandler(this);
+        }
     }
 
     /**
@@ -430,47 +435,33 @@ public class OperationSetTelephonyConferencingJabberImpl
         CoinIQ coinIQ = (CoinIQ) packet;
         String errorMessage = null;
 
-        //first ack all "set" requests.
-        IQ.Type type = coinIQ.getType();
-        if (type == IQ.Type.set)
+        if(coinIQ.getType() != IQ.Type.error)
         {
-            IQ ack = IQ.createResultIQ(coinIQ);
-
-            parentProvider.getConnection().sendStanza(ack);
+            return;
         }
-        else if(type == IQ.Type.error)
+
+        XMPPError error = coinIQ.getError();
+        if(error != null)
         {
-            XMPPError error = coinIQ.getError();
-            if(error != null)
-            {
-                errorMessage = error.getConditionText();
-            }
-
-            logger.error("Received error in COIN packet. "+errorMessage);
+            errorMessage = error.getConditionText();
         }
+        else
+        {
+            errorMessage = "Unknown error.";
+        }
+
+        logger.error("Received error in COIN packet. " + errorMessage);
 
         String sid = coinIQ.getSID();
-
         if (sid != null)
         {
-            CallPeerJabberImpl callPeer
-                = getBasicTelephony().getActiveCallsRepository().findCallPeer(
-                        sid);
-
+            CallPeerJabberImpl callPeer = getBasicTelephony()
+                .getActiveCallsRepository()
+                .findCallPeer(sid);
 
             if (callPeer != null)
             {
-                if(type == IQ.Type.error)
-                {
-                    callPeer.fireConferenceMemberErrorEvent(errorMessage);
-                    return;
-                }
-
-                if (logger.isDebugEnabled())
-                    logger.debug("Processing COIN from " + coinIQ.getFrom()
-                            + " (version=" + coinIQ.getVersion() + ")");
-
-                handleCoin(callPeer, coinIQ);
+                callPeer.fireConferenceMemberErrorEvent(errorMessage);
             }
         }
     }
@@ -614,5 +605,53 @@ public class OperationSetTelephonyConferencingJabberImpl
         }
 
         return cd;
+    }
+
+    @Override
+    public IQ handleIQRequest(IQ iqRequest)
+    {
+        CoinIQ coinIQ = (CoinIQ)iqRequest;
+        String sid = coinIQ.getSID();
+        if (sid != null)
+        {
+            CallPeerJabberImpl callPeer
+                = getBasicTelephony().getActiveCallsRepository().findCallPeer(
+                        sid);
+
+            if (callPeer != null)
+            {
+                if (logger.isDebugEnabled())
+                    logger.debug("Processing COIN from " + coinIQ.getFrom()
+                            + " (version=" + coinIQ.getVersion() + ")");
+
+                handleCoin(callPeer, coinIQ);
+            }
+        }
+
+        return IQ.createResultIQ(iqRequest);
+    }
+
+    @Override
+    public Mode getMode()
+    {
+        return Mode.async;
+    }
+
+    @Override
+    public Type getType()
+    {
+        return Type.set;
+    }
+
+    @Override
+    public String getElement()
+    {
+        return CoinIQ.ELEMENT_NAME;
+    }
+
+    @Override
+    public String getNamespace()
+    {
+        return CoinIQ.NAMESPACE;
     }
 }
