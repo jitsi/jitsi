@@ -1574,6 +1574,11 @@ public class ServerStoredContactListJabberImpl
                 RosterEntry entry = roster.getEntry(contactID.asBareJid());
 
                 ContactJabberImpl contact = addEntryToContactList(contactID);
+                if (contact == null)
+                {
+                    // non-displayable contact, ignore it
+                    continue;
+                }
 
                 if(entry.getGroups().size() == 0)
                 {
