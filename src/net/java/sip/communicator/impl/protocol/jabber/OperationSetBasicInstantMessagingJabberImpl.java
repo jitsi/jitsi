@@ -148,16 +148,6 @@ public class OperationSetBasicInstantMessagingJabberImpl
     private OperationSetPersistentPresenceJabberImpl opSetPersPresence = null;
 
     /**
-     * The opening BODY HTML TAG: &ltbody&gt
-     */
-    private static final String OPEN_BODY_TAG = "<body>";
-
-    /**
-     * The closing BODY HTML TAG: &ltbody&gt
-     */
-    private static final String CLOSE_BODY_TAG = "</body>";
-
-    /**
      * The html namespace used as feature
      * XHTMLManager.namespace
      */
