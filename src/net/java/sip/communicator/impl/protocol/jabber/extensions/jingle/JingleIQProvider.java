@@ -20,9 +20,8 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.condesc.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet.*;
-import net.java.sip.communicator.service.protocol.jabber.*;
-import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.provider.*;
 import org.jxmpp.jid.*;
 import org.jxmpp.jid.impl.*;
@@ -198,10 +197,10 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
 
         //conference description <callid/> provider
         ProviderManager.addExtensionProvider(
-                ConferenceDescriptionPacketExtension.CALLID_ELEM_NAME,
-                ConferenceDescriptionPacketExtension.NAMESPACE,
-                new DefaultPacketExtensionProvider<CallIdPacketExtension>(
-                        CallIdPacketExtension.class));
+                CallIdExtension.ELEMENT_NAME,
+                ConferenceDescriptionExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<CallIdExtension>(
+                        CallIdExtension.class));
 
         //rtcp-fb
         ProviderManager.addExtensionProvider(
@@ -285,9 +284,9 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
         DefaultPacketExtensionProvider<CoinPacketExtension> coinProvider
             = new DefaultPacketExtensionProvider<CoinPacketExtension>(
                     CoinPacketExtension.class);
-        DefaultPacketExtensionProvider<CallIdPacketExtension> callidProvider
-            = new DefaultPacketExtensionProvider<CallIdPacketExtension>(
-                    CallIdPacketExtension.class);
+        DefaultPacketExtensionProvider<CallIdExtension> callidProvider
+            = new DefaultPacketExtensionProvider<CallIdExtension>(
+                    CallIdExtension.class);
 
         // Now go on and parse the jingle element's content.
         int eventType;
@@ -329,7 +328,7 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                     jingleIQ.addExtension(coinProvider.parse(parser));
                 }
                 else if (elementName.equals(
-                        ConferenceDescriptionPacketExtension.CALLID_ELEM_NAME))
+                        CallIdExtension.ELEMENT_NAME))
                 {
                     jingleIQ.addExtension(callidProvider.parse(parser));
                 }

@@ -19,7 +19,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.condesc.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -31,7 +31,6 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.iqrequest.AbstractIqRequestHandler;
-import org.jivesoftware.smack.iqrequest.IQRequestHandler;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.packet.IQ.Type;
 import org.jivesoftware.smack.provider.*;
@@ -238,7 +237,7 @@ public class OperationSetBasicTelephonyJabberImpl
         String callid = cd.getCallId();
         if (callid != null)
         {
-            sessionInitiateExtensions.add(new CallIdPacketExtension(callid));
+            sessionInitiateExtensions.add(new CallIdExtension(callid));
         }
 
         //String password = cd.getPassword();
@@ -1042,10 +1041,10 @@ public class OperationSetBasicTelephonyJabberImpl
                 = jingleIQ.getExtension(
                         TransferPacketExtension.ELEMENT_NAME,
                         TransferPacketExtension.NAMESPACE);
-            CallIdPacketExtension callidExt
+            CallIdExtension callidExt
                 = jingleIQ.getExtension(
-                    ConferenceDescriptionPacketExtension.CALLID_ELEM_NAME,
-                    ConferenceDescriptionPacketExtension.NAMESPACE);
+                        CallIdExtension.ELEMENT_NAME,
+                        CallIdExtension.NAMESPACE);
             CallJabberImpl call = null;
 
             if (transfer != null)

@@ -15,7 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.java.sip.communicator.impl.protocol.jabber.extensions;
+package net.java.sip.communicator.impl.protocol.jabber.extensions.condesc;
+
+import net.java.sip.communicator.impl.protocol.jabber.extensions.AbstractPacketExtension;
 
 /**
  * A <tt>ExtensionElement</tt> that represents a "callid" element within the
@@ -23,15 +25,26 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions;
  *
  * @author Boris Grozev
  */
-public class CallIdPacketExtension
+public class CallIdExtension
     extends AbstractPacketExtension
 {
+    /**
+     * The namespace for the XML element.
+     */
+    public static final String NAMESPACE
+        = ConferenceDescriptionExtension.NAMESPACE;
+
+    /**
+     * The name of the "callid" element.
+     */
+    public static final String ELEMENT_NAME = "callid";
+
     /**
      * Creates a new instance setting the text to <tt>callid</tt>.
      *
      * @param callid
      */
-    public CallIdPacketExtension(String callid)
+    public CallIdExtension(String callid)
     {
         this();
 
@@ -41,9 +54,8 @@ public class CallIdPacketExtension
     /**
      * Creates a new instance.
      */
-    public CallIdPacketExtension()
+    public CallIdExtension()
     {
-        super(ConferenceDescriptionPacketExtension.NAMESPACE,
-                ConferenceDescriptionPacketExtension.CALLID_ELEM_NAME);
+        super(NAMESPACE, ELEMENT_NAME);
     }
 }

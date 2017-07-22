@@ -17,7 +17,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.condesc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -30,7 +30,6 @@ import org.jivesoftware.smack.XMPPException.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.packet.XMPPError.*;
-import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.delay.packet.*;
 import org.jivesoftware.smackx.disco.*;
 import org.jivesoftware.smackx.disco.packet.*;
@@ -179,7 +178,7 @@ public class ChatRoomJabberImpl
      * updates.
      * This MUST be kep in sync with <tt>this.publishedConference</tt>
      */
-    private ConferenceDescriptionPacketExtension publishedConferenceExt = null;
+    private ConferenceDescriptionExtension publishedConferenceExt = null;
 
     /**
      * The last <tt>Presence</tt> packet we sent to the MUC.
@@ -1899,13 +1898,13 @@ public class ChatRoomJabberImpl
             cd.setDisplayName(displayName);
         }
 
-        ConferenceDescriptionPacketExtension ext
-                = new ConferenceDescriptionPacketExtension(cd);
+        ConferenceDescriptionExtension ext
+                = new ConferenceDescriptionExtension(cd);
         if (lastPresenceSent != null)
         {
             setPacketExtension(
                 lastPresenceSent, ext,
-                ConferenceDescriptionPacketExtension.NAMESPACE);
+                ConferenceDescriptionExtension.NAMESPACE);
             try
             {
                 provider.getConnection().sendStanza(lastPresenceSent);
@@ -3105,12 +3104,13 @@ public class ChatRoomJabberImpl
         private void processOtherPresence(Presence presence)
         {
             ExtensionElement ext
-                    = presence.getExtension(
-                    ConferenceDescriptionPacketExtension.NAMESPACE);
+                = presence.getExtension(
+                    ConferenceDescriptionExtension.ELEMENT_NAME,
+                    ConferenceDescriptionExtension.NAMESPACE);
             if(presence.isAvailable() && ext != null)
             {
-                ConferenceDescriptionPacketExtension cdExt
-                        = (ConferenceDescriptionPacketExtension) ext;
+                ConferenceDescriptionExtension cdExt
+                        = (ConferenceDescriptionExtension) ext;
 
                 ConferenceDescription cd = cdExt.toConferenceDescription();
 
@@ -3240,7 +3240,7 @@ public class ChatRoomJabberImpl
             setPacketExtension(
                 packet,
                 publishedConferenceExt,
-                ConferenceDescriptionPacketExtension.NAMESPACE);
+                ConferenceDescriptionExtension.NAMESPACE);
 
             lastPresenceSent = packet;
         }
