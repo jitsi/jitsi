@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.java.sip.communicator.impl.protocol.jabber;
+package net.java.sip.communicator.impl.protocol.jabber.extensions.vcardavatar;
 
 import java.security.*;
 
@@ -32,8 +32,7 @@ import org.jivesoftware.smack.util.*;
  * @author Vincent Lucas
  */
 public class VCardTempXUpdatePresenceExtension
-    implements ExtensionElement,
-               StanzaListener
+    implements ExtensionElement
 {
     /**
      * This presence extension element name.
@@ -180,16 +179,5 @@ public class VCardTempXUpdatePresenceExtension
     public String toXML()
     {
         return this.xmlString;
-    }
-
-    /**
-     * Intercepts sent presence packets in order to add this extension.
-     *
-     * @param packet The sent presence packet.
-     */
-    @Override
-    public void processStanza(Stanza packet)
-    {
-        packet.addExtension(this);
     }
 }

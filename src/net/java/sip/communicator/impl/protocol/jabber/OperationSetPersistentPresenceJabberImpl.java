@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.vcardavatar.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
@@ -33,6 +34,7 @@ import org.jivesoftware.smack.roster.*;
 import org.jivesoftware.smack.roster.packet.*;
 import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smackx.nick.packet.*;
+import org.jivesoftware.smackx.vcardtemp.*;
 import org.jivesoftware.smackx.vcardtemp.packet.*;
 import org.jxmpp.jid.*;
 import org.jxmpp.jid.impl.*;
@@ -460,7 +462,7 @@ public class OperationSetPersistentPresenceJabberImpl
         // adds xmpp listener for changes in the local contact resources
         StanzaFilter presenceFilter = new StanzaTypeFilter(Presence.class);
         parentProvider.getConnection()
-            .addPacketListener(
+            .addAsyncStanzaListener(
                 new StanzaListener()
                 {
                     @Override
@@ -1145,7 +1147,7 @@ public class OperationSetPersistentPresenceJabberImpl
                 // one used in the Roster itself, but later we
                 // will wait for it to be ready
                 // (inside method XMPPConnection.getRoster())
-                parentProvider.getConnection().addPacketListener(
+                parentProvider.getConnection().addAsyncStanzaListener(
                     new ServerStoredListInit(),
                     new StanzaTypeFilter(RosterPacket.class)
                 );
@@ -1162,7 +1164,7 @@ public class OperationSetPersistentPresenceJabberImpl
                         new JabberSubscriptionListener();
                     parentProvider
                         .getConnection()
-                            .addPacketListener(
+                            .addAsyncStanzaListener(
                                 subscribtionPacketListener,
                                 new StanzaTypeFilter(Presence.class));
                 }
@@ -1198,7 +1200,8 @@ public class OperationSetPersistentPresenceJabberImpl
                 XMPPConnection connection = parentProvider.getConnection();
                 if(connection != null)
                 {
-                    connection.removePacketListener(subscribtionPacketListener);
+                    connection.removeAsyncStanzaListener(
+                        subscribtionPacketListener);
                     Roster.getInstanceFor(connection)
                         .removeRosterListener(contactChangesListener);
                 }
@@ -1911,7 +1914,7 @@ public class OperationSetPersistentPresenceJabberImpl
             // we are already notified lets remove us from the packet
             // listener
             parentProvider.getConnection()
-                .removePacketListener(this);
+                .removeAsyncStanzaListener(this);
 
             // init ssList
             ssContactList.init(contactChangesListener);
@@ -1947,37 +1950,40 @@ public class OperationSetPersistentPresenceJabberImpl
     public void createAccountPhotoPresenceInterceptor()
     {
         // Verifies that we creates only one interceptor of this type.
-        if(this.vCardTempXUpdatePresenceExtension == null)
+        if(this.vCardTempXUpdatePresenceExtension != null)
         {
-            byte[] avatar = null;
-            try
-            {
-                // Retrieves the current server avatar.
-                VCard vCard = new VCard();
-                vCard.load(parentProvider.getConnection());
-                avatar = vCard.getAvatar();
-            }
-            catch(XMPPException
-                | InterruptedException
-                | NotConnectedException
-                | NoResponseException ex)
-            {
-                logger.info("Can not retrieve account avatar for "
-                    + parentProvider.getOurJID() + ": " + ex.getMessage());
-            }
-
-            // Creates the presence extension to generates the  the element
-            // name "x" and the namespace "vcard-temp:x:update" containing
-            // the avatar SHA-1 hash.
-            this.vCardTempXUpdatePresenceExtension =
-                new VCardTempXUpdatePresenceExtension(avatar);
-
-            // Intercepts all sent presence packet in order to add the
-            // photo tag.
-            parentProvider.getConnection().addPacketInterceptor(
-                    this.vCardTempXUpdatePresenceExtension,
-                    new StanzaTypeFilter(Presence.class));
+            return;
         }
+
+        byte[] avatar = null;
+        try
+        {
+            // Retrieves the current server avatar.
+            VCardManager manager = VCardManager.getInstanceFor(
+                parentProvider.getConnection());
+            VCard vCard = manager.loadVCard();
+            avatar = vCard.getAvatar();
+        }
+        catch(XMPPException
+            | InterruptedException
+            | NotConnectedException
+            | NoResponseException ex)
+        {
+            logger.info("Can not retrieve account avatar for "
+                + parentProvider.getOurJID() + ": " + ex.getMessage());
+        }
+
+        // Creates the presence extension to generates the  the element
+        // name "x" and the namespace "vcard-temp:x:update" containing
+        // the avatar SHA-1 hash.
+        this.vCardTempXUpdatePresenceExtension =
+            new VCardTempXUpdatePresenceExtension(avatar);
+
+        // Intercepts all sent presence packet in order to add the
+        // photo tag.
+        parentProvider.getConnection().addPacketInterceptor(
+            new VCardTempXUpdateInterceptor(vCardTempXUpdatePresenceExtension),
+            new StanzaTypeFilter(Presence.class));
     }
 
     /**
@@ -2012,7 +2018,7 @@ public class OperationSetPersistentPresenceJabberImpl
     public void createContactPhotoPresenceListener()
     {
         // Registers the listener.
-        parentProvider.getConnection().addPacketListener(
+        parentProvider.getConnection().addAsyncStanzaListener(
             new StanzaListener()
             {
                 @Override
@@ -2091,8 +2097,9 @@ public class OperationSetPersistentPresenceJabberImpl
                 if(packetPhotoSHA1.length() != 0)
                 {
                     // Retrieves the new contact avatar image.
-                    VCard vCard = new VCard();
-                    vCard.load(parentProvider.getConnection(), userID);
+                    VCardManager manager = VCardManager.getInstanceFor(
+                        parentProvider.getConnection());
+                    VCard vCard = manager.loadVCard(userID);
                     newAvatar = vCard.getAvatar();
                 }
                 // Else removes the current avatar image, since the contact
