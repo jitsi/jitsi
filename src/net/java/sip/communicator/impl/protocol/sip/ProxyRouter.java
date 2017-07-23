@@ -164,7 +164,7 @@ public class ProxyRouter
                     @Override
                     public Hop getNextHop(Request request) throws SipException
                     {
-                        logger.info("Outbound proxy mode, using proxy " +
+                        logger.debug("Outbound proxy mode, using proxy " +
                             proxy + " as hop instead of an address resolved" +
                             " by the SIP router");
                         InetSocketAddress sa = connection.getAddress();
