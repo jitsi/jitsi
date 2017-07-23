@@ -561,33 +561,35 @@ public class OperationSetMultiUserChatJabberImpl
                 , OperationFailedException.NETWORK_FAILURE);
         }
 
-
-        MultiUserChatManager manager = MultiUserChatManager
-            .getInstanceFor(getXmppConnection());
-        try
-        {
-            Jid jid = JidCreate.domainBareFrom(jabberProvider.getAccountID().getService());
-            if (!manager.isServiceEnabled(jid))
-            {
-                throw new OperationNotSupportedException(
-                    "Chat rooms not supported on server "
-                    + jabberProvider.getAccountID().getService()
-                    + " for user "
-                    + jabberProvider.getAccountID().getUserID());
-            }
-        }
-        catch (XMPPErrorException
-            | NotConnectedException
-            | XmppStringprepException
-            | NoResponseException
-            | InterruptedException e)
-        {
-            throw new OperationFailedException(
-                "Could not determine MUC support feature",
-                OperationFailedException.GENERAL_ERROR,
-                e
-            );
-        }
+        // isServiceEnabled(...) requires the subdomain providing the
+        // muc service, it doesn't search recursively. We do that in ourselves
+        // in getCanonicalRoomName
+//        MultiUserChatManager manager = MultiUserChatManager
+//            .getInstanceFor(getXmppConnection());
+//        try
+//        {
+//            Jid jid = JidCreate.domainBareFrom(jabberProvider.getAccountID().getService());
+//            if (!manager.isServiceEnabled(jid))
+//            {
+//                throw new OperationNotSupportedException(
+//                    "Chat rooms not supported on server "
+//                    + jabberProvider.getAccountID().getService()
+//                    + " for user "
+//                    + jabberProvider.getAccountID().getUserID());
+//            }
+//        }
+//        catch (XMPPErrorException
+//            | NotConnectedException
+//            | XmppStringprepException
+//            | NoResponseException
+//            | InterruptedException e)
+//        {
+//            throw new OperationFailedException(
+//                "Could not determine MUC support feature",
+//                OperationFailedException.GENERAL_ERROR,
+//                e
+//            );
+//        }
     }
 
     /**

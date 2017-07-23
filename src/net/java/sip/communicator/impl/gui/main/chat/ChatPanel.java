@@ -3079,8 +3079,8 @@ public class ChatPanel
                 GuiActivator.getResources().getI18NString(
                     "service.gui.CHAT_NICKNAME_CHANGE",
                     new String[]
-                    { (String) event.getOldValue(),
-                        (String) event.getNewValue() });
+                    { event.getOldValue().toString(),
+                        event.getNewValue().toString() });
             this.conversationPanel.appendMessageToEnd(
                 "<DIV identifier=\"message\" style=\"color:#707070;\">"
                     + StringEscapeUtils.escapeHtml4(message) + "</DIV>",

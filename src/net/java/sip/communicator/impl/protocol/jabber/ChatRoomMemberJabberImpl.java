@@ -129,7 +129,7 @@ public class ChatRoomMemberJabberImpl
      */
     public String getContactAddress()
     {
-        return nickName.toString();
+        return jabberID.toString();
     }
 
     /**

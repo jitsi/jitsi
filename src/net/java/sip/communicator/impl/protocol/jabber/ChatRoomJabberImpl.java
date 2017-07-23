@@ -627,7 +627,7 @@ public class ChatRoomJabberImpl
         this.assertConnected();
         try
         {
-            this.nickname = JidCreate.from(nickname).getResourceOrThrow();
+            this.nickname = Resourcepart.from(nickname);
         }
         catch (XmppStringprepException e)
         {
@@ -816,6 +816,11 @@ public class ChatRoomJabberImpl
      */
     public ChatRoomMemberJabberImpl smackParticipantToScMember(Jid participant)
     {
+        if (participant == null)
+        {
+            return null;
+        }
+
         Resourcepart participantName = participant.getResourceOrThrow();
         synchronized (members)
         {
@@ -843,15 +848,24 @@ public class ChatRoomJabberImpl
      */
     public boolean destroy(String reason, String alternateAddress)
     {
+        EntityBareJid alternateJid = null;
         try
         {
-            multiUserChat.destroy(reason, JidCreate.entityBareFrom(alternateAddress));
+            alternateJid = JidCreate.entityBareFrom(alternateAddress);
+        }
+        catch (XmppStringprepException e)
+        {
+            logger.warn("Alternate address is not valid, ignoring", e);
+        }
+
+        try
+        {
+            multiUserChat.destroy(reason, alternateJid);
         }
         catch (XMPPException
                 | InterruptedException
                 | NoResponseException
-                | NotConnectedException
-                | XmppStringprepException e)
+                | NotConnectedException e)
         {
             logger.warn("Error occured while destroying chat room", e);
             return false;
@@ -971,7 +985,7 @@ public class ChatRoomJabberImpl
             this,
             LocalUserChatRoomPresenceChangeEvent.LOCAL_USER_LEFT,
             reason,
-            alternateAddress.toString());
+            alternateAddress != null ? alternateAddress.toString() : null);
     }
 
     /**
