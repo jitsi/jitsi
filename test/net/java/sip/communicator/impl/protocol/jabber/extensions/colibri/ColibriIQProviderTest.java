@@ -112,18 +112,16 @@ public class ColibriIQProviderTest extends TestCase
     ColibriIQProvider colibriIQProvider;
 
     public void setUp()
+            throws Exception
     {
-        try {
-            xmlPullParserFactory = XmlPullParserFactory.newInstance();
-            xmlPullParserFactory.setNamespaceAware(true);
+        xmlPullParserFactory = XmlPullParserFactory.newInstance();
+        xmlPullParserFactory.setNamespaceAware(true);
 
-            xmlPullParser = xmlPullParserFactory.newPullParser();
+        xmlPullParser = xmlPullParserFactory.newPullParser();
 
-        } catch (XmlPullParserException e) {}
         AbstractSmackInteroperabilityLayer.setImplementationClass(
                 SmackV3InteroperabilityLayer.class);
         colibriIQProvider = new ColibriIQProvider();
-
     }
 
     public void testParseSource()
