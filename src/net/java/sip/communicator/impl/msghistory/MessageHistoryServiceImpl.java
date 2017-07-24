@@ -2738,6 +2738,15 @@ public class MessageHistoryServiceImpl
             // FIXME is this correct response?
             return GlobalStatusEnum.ONLINE;
         }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String getDisplayName()
+        {
+            return null;
+        }
     }
 
     /**

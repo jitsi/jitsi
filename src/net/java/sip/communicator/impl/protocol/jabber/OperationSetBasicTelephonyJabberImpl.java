@@ -1124,6 +1124,14 @@ public class OperationSetBasicTelephonyJabberImpl
         {
             callPeer.processTransportInfo(jingleIQ);
         }
+        else if (action == JingleAction.SOURCEADD)
+        {
+            callPeer.processSourceAdd(jingleIQ);
+        }
+        else if (action == JingleAction.SOURCEREMOVE)
+        {
+            callPeer.processSourceRemove(jingleIQ);
+        }
     }
 
     /**

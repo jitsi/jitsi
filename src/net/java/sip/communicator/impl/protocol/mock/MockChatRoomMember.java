@@ -155,4 +155,13 @@ public class MockChatRoomMember
         // mock fully available
         return MockStatusEnum.MOCK_STATUS_100;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDisplayName()
+    {
+        return null;
+    }
 }

@@ -344,4 +344,13 @@ public class ChatRoomMemberIrcImpl
         this.status = status;
         return previous;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String getDisplayName()
+    {
+        return null;
+    }
 }
