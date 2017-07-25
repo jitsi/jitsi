@@ -30,7 +30,8 @@ public class SourceRidGroupPacketExtension extends SourceGroupPacketExtension
      */
     public static final String ELEMENT_NAME = "rid-group";
 
-    public SourceRidGroupPacketExtension() {
+    public SourceRidGroupPacketExtension()
+    {
         super(ELEMENT_NAME);
     }
 }

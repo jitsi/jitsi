@@ -1201,7 +1201,7 @@ public class SipStackSharing
                     String transport)
         throws IOException
     {
-        logger.info("Gettting source address for " +
+        logger.debug("Gettting source address for " +
             localAddress + " -> " + dst + ":" + dstPort +
             "(" + transport + ")");
         if(ListeningPoint.TLS.equalsIgnoreCase(transport))

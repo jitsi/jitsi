@@ -36,6 +36,7 @@ import org.jivesoftware.smackx.disco.packet.*;
 import org.jivesoftware.smackx.muc.*;
 import org.jivesoftware.smackx.muc.MultiUserChatException.*;
 import org.jivesoftware.smackx.muc.packet.*;
+import org.jivesoftware.smackx.nick.packet.*;
 import org.jivesoftware.smackx.xdata.*;
 import org.jivesoftware.smackx.xdata.packet.*;
 import org.jivesoftware.smackx.xevent.*;
@@ -3115,34 +3116,29 @@ public class ChatRoomJabberImpl
          */
         private void processOtherPresence(Presence presence)
         {
+            Jid from = presence.getFrom();
+            Resourcepart participantName = null;
+            if (from != null)
+            {
+                participantName = from.getResourceOrNull();
+            }
+
+            ChatRoomMemberJabberImpl member = participantName == null
+                ? null
+                : members.get(participantName);
+
             ExtensionElement ext
                 = presence.getExtension(
                     ConferenceDescriptionExtension.ELEMENT_NAME,
                     ConferenceDescriptionExtension.NAMESPACE);
-            if(presence.isAvailable() && ext != null)
+            if (presence.isAvailable() && ext != null)
             {
                 ConferenceDescriptionExtension cdExt
                         = (ConferenceDescriptionExtension) ext;
 
                 ConferenceDescription cd = cdExt.toConferenceDescription();
 
-                Jid from = presence.getFrom();
-                Resourcepart participantName = null;
-                if (from != null)
-                {
-                    participantName = from.getResourceOrNull();
-                    if (participantName == null)
-                    {
-                        return;
-                    }
-                }
-                else
-                {
-                    return;
-                }
-
-                ChatRoomMember member = members.get(participantName);
-                if(!processConferenceDescription(cd, participantName))
+                if (!processConferenceDescription(cd, participantName))
                     return;
 
                 if (member != null)
@@ -3161,6 +3157,14 @@ public class ChatRoomJabberImpl
                             "unknown member ("+participantName+") in " +
                             multiUserChat.getRoom());
                 }
+            }
+
+            Nick nickExtension
+                = (Nick) presence.getExtension(
+                        Nick.ELEMENT_NAME, Nick.NAMESPACE);
+            if (member != null && nickExtension != null)
+            {
+                member.setDisplayName(nickExtension.getName());
             }
         }
     }

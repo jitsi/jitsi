@@ -111,4 +111,9 @@ public interface ChatRoomMember
      *         pertaining to this contact.
      */
     public PresenceStatus getPresenceStatus();
+
+    /**
+     * @return the display name of the chat room member.
+     */
+    public String getDisplayName();
 }

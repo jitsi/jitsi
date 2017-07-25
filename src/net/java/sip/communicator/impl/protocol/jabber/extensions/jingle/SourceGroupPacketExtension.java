@@ -80,7 +80,10 @@ public class SourceGroupPacketExtension
         super(NAMESPACE, ELEMENT_NAME);
     }
 
-    public SourceGroupPacketExtension(String elementName) { super(NAMESPACE, elementName); }
+    public SourceGroupPacketExtension(String elementName)
+    {
+        super(NAMESPACE, elementName);
+    }
 
     /**
      * Gets the semantics of this source group.

@@ -23,6 +23,7 @@ import java.util.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.SendersEnum;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet.*;
 import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -933,6 +934,9 @@ public class CallPeerJabberImpl
                             sessionInitIQ.getSID(),
                             getMediaHandler().getLocalContentList()));
         }
+
+        // process members if any
+        processSourceAdd(sessionInitIQ);
     }
 
     /**
@@ -1746,6 +1750,118 @@ public class CallPeerJabberImpl
         }
 
         return mediaType;
+    }
+
+    /**
+     * Processes the source-add {@link JingleIQ} action used in Jitsi-Meet.
+     * For now processing only audio, as we use single ssrc for audio and
+     * using multiple ssrcs for video. ConferenceMember currently support single
+     * ssrc for audio and video and adding multiple ssrcs will need a large
+     * refactor.
+     *
+     * @param content The {@link JingleIQ} that contains content that remote
+     * peer wants to be added
+     */
+    public void processSourceAdd(final JingleIQ content)
+    {
+        for (ContentPacketExtension c : content.getContentList())
+        {
+            // we are parsing only audio
+            if(!MediaType.AUDIO.equals(JingleUtils.getMediaType(c)))
+            {
+                continue;
+            }
+
+            RtpDescriptionPacketExtension rtpDesc
+                = JingleUtils.getRtpDescription(c);
+
+            for (SourcePacketExtension src : rtpDesc
+                    .getChildExtensionsOfType(SourcePacketExtension.class))
+            {
+                SSRCInfoPacketExtension ssrcInfo
+                    = src.getFirstChildOfType(SSRCInfoPacketExtension.class);
+
+                if (ssrcInfo == null)
+                    continue;
+
+                String owner = ssrcInfo.getOwner();
+                if (owner == null)
+                    continue;
+
+                AbstractConferenceMember member
+                    = findConferenceMemberByAddress(owner);
+                if (member == null)
+                {
+                    member = new AbstractConferenceMember(this, owner);
+                    this.addConferenceMember(member);
+                }
+
+                member.setAudioSsrc(src.getSSRC());
+            }
+        }
+    }
+
+    /**
+     * Processes the source-remove {@link JingleIQ} action used in Jitsi-Meet.
+     * For now processing only audio, as we use single ssrc for audio and
+     * using multiple ssrcs for video. ConferenceMember currently support single
+     * ssrc for audio and video and adding multiple ssrcs will need a large
+     * refactor.
+     *
+     * @param content The {@link JingleIQ} that contains content that remote
+     * peer wants to be removed
+     */
+    public void processSourceRemove(final JingleIQ content)
+    {
+        for (ContentPacketExtension c : content.getContentList())
+        {
+            // we are parsing only audio
+            if (!MediaType.AUDIO.equals(JingleUtils.getMediaType(c)))
+            {
+                continue;
+            }
+
+            RtpDescriptionPacketExtension rtpDesc
+                = JingleUtils.getRtpDescription(c);
+            for (SourcePacketExtension src : rtpDesc
+                .getChildExtensionsOfType(SourcePacketExtension.class))
+            {
+                SSRCInfoPacketExtension ssrcInfo
+                    = src.getFirstChildOfType(SSRCInfoPacketExtension.class);
+
+                if (ssrcInfo == null)
+                    continue;
+
+                String owner = ssrcInfo.getOwner();
+                if (owner == null)
+                    continue;
+
+                ConferenceMember member = findConferenceMemberByAddress(owner);
+                if (member != null)
+                    this.removeConferenceMember(member);
+            }
+        }
+    }
+
+    /**
+     * Finds <tt>ConferenceMember</tt> by its address.
+     *
+     * @param address the address to look for
+     * @return <tt>ConferenceMember</tt> with <tt>address</tt> or null if not
+     * found.
+     */
+    private AbstractConferenceMember findConferenceMemberByAddress(
+        String address)
+    {
+        for (ConferenceMember member : getConferenceMembers())
+        {
+            if (member.getAddress().equals(address))
+            {
+                return (AbstractConferenceMember)member;
+            }
+        }
+
+        return null;
     }
 
     /**
