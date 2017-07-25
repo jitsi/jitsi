@@ -282,7 +282,7 @@ public class ColibriIQProvider
             ColibriConferenceIQ.Recording recording = null;
             ColibriConferenceIQ.Endpoint conferenceEndpoint = null;
             StringBuilder ssrc = null;
-            SourcePacketExtension ssrcPe = null;
+            SourcePacketExtension sourcePacketExtension = null;
 
             while (!done)
             {
@@ -350,12 +350,12 @@ public class ColibriIQProvider
                     }
                     else if (SourcePacketExtension.ELEMENT_NAME.equals(name))
                     {
-                        if (channel != null && ssrcPe != null)
+                        if (channel != null && sourcePacketExtension != null)
                         {
-                            channel.addSource(ssrcPe);
+                            channel.addSource(sourcePacketExtension);
                         }
 
-                        ssrcPe = null;
+                        sourcePacketExtension = null;
                     }
                     else if (ColibriConferenceIQ.Content.ELEMENT_NAME.equals(
                             name))
@@ -613,16 +613,12 @@ public class ColibriIQProvider
                     }
                     else if (SourcePacketExtension.ELEMENT_NAME.equals(name))
                     {
-                        ssrcPe = new SourcePacketExtension();
-
-                        String ssrcStr
-                            = parser.getAttributeValue(
-                                    "",
-                                    SourcePacketExtension.SSRC_ATTR_NAME);
-
-                        if (!StringUtils.isNullOrEmpty(ssrcStr))
+                        sourcePacketExtension = new SourcePacketExtension();
+                        for (int i = 0; i < parser.getAttributeCount(); ++i)
                         {
-                            ssrcPe.setSSRC(Long.parseLong(ssrcStr));
+                            String attrName = parser.getAttributeName(i);
+                            String attrValue = parser.getAttributeValue(i);
+                            sourcePacketExtension.setAttribute(attrName, attrValue);
                         }
                     }
                     else if (ColibriConferenceIQ.Content.ELEMENT_NAME.equals(
