@@ -23,9 +23,9 @@ Requires: speex
 Requires: speexdsp
 
 %if 0%{?suse_version}
-  Requires: libXss1
+Requires: libXss1
 %else
-  Requires: libXScrnSaver
+Requires: libXScrnSaver
 %endif
 
 %description
