@@ -266,6 +266,12 @@ public class ColibriIQProvider
             if ((conferenceID != null) && (conferenceID.length() != 0))
                 conference.setID(conferenceID);
 
+            String conferenceGID = parser
+                .getAttributeValue("", ColibriConferenceIQ.GID_ATTR_NAME);
+
+            if ((conferenceGID != null) && (conferenceGID.length() != 0))
+                conference.setGID(conferenceGID);
+
             String conferenceName = parser
                 .getAttributeValue("", ColibriConferenceIQ.NAME_ATTR_NAME);
 
