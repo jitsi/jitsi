@@ -19,7 +19,8 @@
   <dependencies>
     <dependency>
       <groupId>org.igniterealtime.smack</groupId>
-      <artifactId>smack</artifactId>
+      <artifactId>smack-core</artifactId>
+      <version>${smack.version}</version>
     </dependency>
     <!-- org.jitsi -->
     <dependency>
