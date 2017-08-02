@@ -40,6 +40,10 @@ import java.util.*;
 public class ConfigurationActivator
     implements BundleActivator
 {
+    /** Property name to force a properties file based configuration. */
+    public static final String PNAME_USE_PROPFILE_CONFIG = 
+        "net.java.sip.communicator.impl.configuration.USE_PROPFILE_CONFIG";
+
     /**
      * The <tt>Logger</tt> used by the <tt>ConfigurationActivator</tt> class
      * for logging output.
@@ -62,42 +66,17 @@ public class ConfigurationActivator
     public void start(BundleContext bundleContext)
         throws Exception
     {
-        FileAccessService fas
-            = ServiceUtils.getService(bundleContext, FileAccessService.class);
-
-        if (fas != null)
+        if (usePropFileConfigService(bundleContext))
         {
-            File usePropFileConfig;
-            try
-            {
-                usePropFileConfig
-                    = fas.getPrivatePersistentFile(
-                            ".usepropfileconfig",
-                            FileCategory.PROFILE);
-            }
-            catch (Exception ise)
-            {
-                // There is somewhat of a chicken-and-egg dependency between
-                // FileConfigurationServiceImpl and ConfigurationServiceImpl:
-                // FileConfigurationServiceImpl throws IllegalStateException if
-                // certain System properties are not set,
-                // ConfigurationServiceImpl will make sure that these properties
-                // are set but it will do that later.
-                // A SecurityException is thrown when the destination
-                // is not writable or we do not have access to that folder
-                usePropFileConfig = null;
-            }
-
-            if (usePropFileConfig != null && usePropFileConfig.exists())
-            {
-                logger.info("Using properties file configuration store.");
-                this.cs = LibJitsi.getConfigurationService();
-            }
+            logger.info("Using properties file configuration store.");
+            this.cs = LibJitsi.getConfigurationService();
         }
-
-        if (this.cs == null)
+        else
         {
-            this.cs = new JdbcConfigService(fas);
+            this.cs = new JdbcConfigService(
+                ServiceUtils.getService(
+                    bundleContext,
+                    FileAccessService.class));
         }
 
         bundleContext.registerService(
@@ -106,6 +85,42 @@ public class ConfigurationActivator
                 null);
 
         fixPermissions(this.cs);
+    }
+
+    private boolean usePropFileConfigService(BundleContext bundleContext)
+    {
+        if (Boolean.getBoolean(PNAME_USE_PROPFILE_CONFIG))
+        {
+            return true;
+        }
+
+        FileAccessService fas
+            = ServiceUtils.getService(bundleContext, FileAccessService.class);
+
+        if (fas == null)
+        {
+            return true;
+        }
+
+        try
+        {
+            return fas.getPrivatePersistentFile(
+                    ".usepropfileconfig",
+                    FileCategory.PROFILE
+                ).exists();
+        }
+        catch (Exception ise)
+        {
+            // There is somewhat of a chicken-and-egg dependency between
+            // FileConfigurationServiceImpl and ConfigurationServiceImpl:
+            // FileConfigurationServiceImpl throws IllegalStateException if
+            // certain System properties are not set,
+            // ConfigurationServiceImpl will make sure that these properties
+            // are set but it will do that later.
+            // A SecurityException is thrown when the destination
+            // is not writable or we do not have access to that folder
+            return true;
+        }
     }
 
     /**
