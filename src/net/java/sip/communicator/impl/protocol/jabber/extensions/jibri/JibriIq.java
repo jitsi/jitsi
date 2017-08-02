@@ -20,6 +20,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jibri;
 import org.jitsi.util.*;
 
 import org.jivesoftware.smack.packet.*;
+import org.jxmpp.jid.EntityBareJid;
 
 import java.util.*;
 
@@ -124,7 +125,7 @@ public class JibriIq
     /**
      * The name of the conference room to be recorded.
      */
-    private String room = null;
+    private EntityBareJid room = null;
 
     public JibriIq()
     {
@@ -191,7 +192,7 @@ public class JibriIq
      *         or <tt>null</tt> if empty.
      * @see #room
      */
-    public String getRoom()
+    public EntityBareJid getRoom()
     {
         return room;
     }
@@ -202,7 +203,7 @@ public class JibriIq
      *             remove it from XML element.
      * @see #room
      */
-    public void setRoom(String room)
+    public void setRoom(EntityBareJid room)
     {
         this.room = room;
     }

@@ -28,6 +28,7 @@ import org.jitsi.service.neomedia.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.packet.IQ;
 import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.parts.Localpart;
 
 /**
  * Implements the Jitsi Videobridge <tt>conference</tt> IQ within the
@@ -134,7 +135,7 @@ public class ColibriConferenceIQ
     /**
      * World readable name for the conference.
      */
-    private String name;
+    private Localpart name;
 
     /**
      * Returns an error response for given <tt>IQ</tt> that is returned by
@@ -247,7 +248,7 @@ public class ColibriConferenceIQ
      * @return {@link ChannelBundle} identified by given <tt>bundleId</tt> or
      *         <tt>null</tt> if not found.
      */
-    public ChannelBundle getChannelBundle(String bundleId)
+    public ChannelBundle getChannelBundle(Jid bundleId)
     {
         if (bundleId == null)
         {
@@ -480,7 +481,7 @@ public class ColibriConferenceIQ
      * The world readable name of the conference.
      * @return name of the conference.
      */
-    public String getName()
+    public Localpart getName()
     {
         return name;
     }
@@ -489,7 +490,7 @@ public class ColibriConferenceIQ
      * Sets name.
      * @param name the name to set.
      */
-    public void setName(String name)
+    public void setName(Localpart name)
     {
         this.name = name;
     }

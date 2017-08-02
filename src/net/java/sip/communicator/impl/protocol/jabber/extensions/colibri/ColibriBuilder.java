@@ -938,9 +938,9 @@ public class ColibriBuilder
      *         be expired then <tt>null</tt> is returned which signals that
      *         there's nothing to be done.
      */
-    public ColibriConferenceIQ getRequest(String videobridge)
+    public ColibriConferenceIQ getRequest(Jid videobridge)
     {
-        if (StringUtils.isNullOrEmpty(videobridge))
+        if (videobridge == null)
         {
             throw new NullPointerException("videobridge");
         }

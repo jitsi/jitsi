@@ -1782,7 +1782,7 @@ public class CallPeerJabberImpl
                 if (ssrcInfo == null)
                     continue;
 
-                String owner = ssrcInfo.getOwner();
+                Jid owner = ssrcInfo.getOwner();
                 if (owner == null)
                     continue;
 
@@ -1790,7 +1790,9 @@ public class CallPeerJabberImpl
                     = findConferenceMemberByAddress(owner);
                 if (member == null)
                 {
-                    member = new AbstractConferenceMember(this, owner);
+                    member = new AbstractConferenceMember(
+                        this,
+                        owner.toString());
                     this.addConferenceMember(member);
                 }
 
@@ -1830,7 +1832,7 @@ public class CallPeerJabberImpl
                 if (ssrcInfo == null)
                     continue;
 
-                String owner = ssrcInfo.getOwner();
+                Jid owner = ssrcInfo.getOwner();
                 if (owner == null)
                     continue;
 
@@ -1849,7 +1851,7 @@ public class CallPeerJabberImpl
      * found.
      */
     private AbstractConferenceMember findConferenceMemberByAddress(
-        String address)
+        Jid address)
     {
         for (ConferenceMember member : getConferenceMembers())
         {

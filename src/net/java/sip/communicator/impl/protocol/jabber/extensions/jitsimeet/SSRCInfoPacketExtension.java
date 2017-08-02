@@ -22,6 +22,10 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 
 import java.lang.*;
 
+import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
+
 /**
  * Packet extension is used to signal owner of media SSRC in jitsi-meet. Owner
  * attribute stores MUC JID of the user to whom it belongs. This extension is
@@ -80,9 +84,16 @@ public class SSRCInfoPacketExtension
      * @return MUC JID of SSRC owner stored by this instance or <tt>null</tt>
      *         if empty.
      */
-    public String getOwner()
+    public Jid getOwner()
     {
-        return getAttributeAsString(OWNER_ATTR_NAME);
+        try
+        {
+            return JidCreate.from(getAttributeAsString(OWNER_ATTR_NAME));
+        }
+        catch (XmppStringprepException e)
+        {
+            throw new IllegalArgumentException("Invalid owner", e);
+        }
     }
 
     /**
@@ -90,9 +101,9 @@ public class SSRCInfoPacketExtension
      *
      * @param owner MUC JID of SSRC owner to be stored in this packet extension.
      */
-    public void setOwner(String owner)
+    public void setOwner(Jid owner)
     {
-        setAttribute(OWNER_ATTR_NAME, owner);
+        setAttribute(OWNER_ATTR_NAME, owner.toString());
     }
 
     /**

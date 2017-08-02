@@ -27,6 +27,7 @@ import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jxmpp.jid.*;
 import org.jxmpp.jid.impl.*;
+import org.jxmpp.jid.parts.Localpart;
 import org.xmlpull.v1.*;
 
 /**
@@ -264,8 +265,8 @@ public class ColibriIQProvider
             String conferenceName = parser
                 .getAttributeValue("", ColibriConferenceIQ.NAME_ATTR_NAME);
 
-            if ((conferenceName != null) && (conferenceName.length() != 0))
-                conference.setName(conferenceName);
+            if (!StringUtils.isNullOrEmpty(conferenceName))
+                conference.setName(Localpart.from(conferenceName));
 
             boolean done = false;
             ColibriConferenceIQ.Channel channel = null;
