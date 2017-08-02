@@ -244,8 +244,6 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
     public JingleIQ parse(XmlPullParser parser, int depth)
         throws Exception
     {
-        JingleIQ jingleIQ = new JingleIQ();
-
         //let's first handle the "jingle" element params.
         JingleAction action = JingleAction.parseString(parser
                         .getAttributeValue("", JingleIQ.ACTION_ATTR_NAME));
@@ -256,7 +254,7 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
         String sid = parser
                         .getAttributeValue("", JingleIQ.SID_ATTR_NAME);
 
-        jingleIQ.setAction(action);
+        JingleIQ jingleIQ = new JingleIQ(action, sid);
         if (initiator != null)
         {
             Jid initiatorJid = JidCreate.from(initiator);
@@ -268,8 +266,6 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
             Jid responderJid = JidCreate.from(responder);
             jingleIQ.setResponder(responderJid);
         }
-
-        jingleIQ.setSID(sid);
 
         boolean done = false;
 

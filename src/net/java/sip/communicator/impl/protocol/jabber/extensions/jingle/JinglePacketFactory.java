@@ -20,7 +20,8 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 import java.util.*;
 
 import org.jivesoftware.smack.packet.*;
-import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.*;
+import static net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.JingleAction.*;
 
 /**
  * A utility class containing methods for creating {@link JingleIQ}
@@ -66,14 +67,11 @@ public class JinglePacketFactory
                                              Jid             to,
                                              String          sid)
     {
-        JingleIQ sessionInfo = new JingleIQ();
+        JingleIQ sessionInfo = new JingleIQ(JingleAction.SESSION_INFO, sid);
 
         sessionInfo.setFrom(from);
         sessionInfo.setTo(to);
         sessionInfo.setType(IQ.Type.set);
-
-        sessionInfo.setSID(sid);
-        sessionInfo.setAction(JingleAction.SESSION_INFO);
 
         return sessionInfo;
     }
@@ -179,14 +177,11 @@ public class JinglePacketFactory
                                                   Reason reason,
                                                   String reasonText)
     {
-        JingleIQ terminate = new JingleIQ();
+        JingleIQ terminate = new JingleIQ(SESSION_TERMINATE, sid);
 
         terminate.setTo(to);
         terminate.setFrom(from);
         terminate.setType(IQ.Type.set);
-
-        terminate.setSID(sid);
-        terminate.setAction(JingleAction.SESSION_TERMINATE);
 
         ReasonPacketExtension reasonPacketExt
             = new ReasonPacketExtension(reason, reasonText, null);
@@ -218,15 +213,12 @@ public class JinglePacketFactory
             String                           sid,
             Iterable<ContentPacketExtension> contentList)
     {
-        JingleIQ sessionAccept = new JingleIQ();
+        JingleIQ sessionAccept = new JingleIQ(SESSION_ACCEPT, sid);
 
         sessionAccept.setTo(to);
         sessionAccept.setFrom(from);
         sessionAccept.setResponder(from);
         sessionAccept.setType(IQ.Type.set);
-
-        sessionAccept.setSID(sid);
-        sessionAccept.setAction(JingleAction.SESSION_ACCEPT);
 
         for(ContentPacketExtension content : contentList)
             sessionAccept.addContent(content);
@@ -256,15 +248,12 @@ public class JinglePacketFactory
                                 String                           sid,
                                 Iterable<ContentPacketExtension> contentList)
     {
-        JingleIQ descriptionInfo = new JingleIQ();
+        JingleIQ descriptionInfo = new JingleIQ(DESCRIPTION_INFO, sid);
 
         descriptionInfo.setTo(to);
         descriptionInfo.setFrom(from);
         descriptionInfo.setResponder(from);
         descriptionInfo.setType(IQ.Type.set);
-
-        descriptionInfo.setSID(sid);
-        descriptionInfo.setAction(JingleAction.DESCRIPTION_INFO);
 
         for(ContentPacketExtension content : contentList)
             descriptionInfo.addContent(content);
@@ -295,20 +284,17 @@ public class JinglePacketFactory
             String                           sid,
             Iterable<ContentPacketExtension> contentList)
     {
-        JingleIQ descriptionInfo = new JingleIQ();
+        JingleIQ transportInfo = new JingleIQ(TRANSPORT_INFO, sid);
 
-        descriptionInfo.setTo(to);
-        descriptionInfo.setFrom(from);
-        descriptionInfo.setInitiator(from);
-        descriptionInfo.setType(IQ.Type.set);
-
-        descriptionInfo.setSID(sid);
-        descriptionInfo.setAction(JingleAction.TRANSPORT_INFO);
+        transportInfo.setTo(to);
+        transportInfo.setFrom(from);
+        transportInfo.setInitiator(from);
+        transportInfo.setType(IQ.Type.set);
 
         for(ContentPacketExtension content : contentList)
-            descriptionInfo.addContent(content);
+            transportInfo.addContent(content);
 
-        return descriptionInfo;
+        return transportInfo;
     }
 
     /**
@@ -330,15 +316,12 @@ public class JinglePacketFactory
                                     String                       sid,
                                     List<ContentPacketExtension> contentList)
     {
-        JingleIQ sessionInitiate = new JingleIQ();
+        JingleIQ sessionInitiate = new JingleIQ(SESSION_INITIATE, sid);
 
         sessionInitiate.setTo(to);
         sessionInitiate.setFrom(from);
         sessionInitiate.setInitiator(from);
         sessionInitiate.setType(IQ.Type.set);
-
-        sessionInitiate.setSID(sid);
-        sessionInitiate.setAction(JingleAction.SESSION_INITIATE);
 
         for(ContentPacketExtension content : contentList)
         {
@@ -367,14 +350,11 @@ public class JinglePacketFactory
                                     String                       sid,
                                     List<ContentPacketExtension> contentList)
     {
-        JingleIQ contentAdd = new JingleIQ();
+        JingleIQ contentAdd = new JingleIQ(CONTENT_ADD, sid);
 
         contentAdd.setTo(to);
         contentAdd.setFrom(from);
         contentAdd.setType(IQ.Type.set);
-
-        contentAdd.setSID(sid);
-        contentAdd.setAction(JingleAction.CONTENT_ADD);
 
         for(ContentPacketExtension content : contentList)
             contentAdd.addContent(content);
@@ -401,14 +381,11 @@ public class JinglePacketFactory
             String                           sid,
             Iterable<ContentPacketExtension> contentList)
     {
-        JingleIQ contentAccept = new JingleIQ();
+        JingleIQ contentAccept = new JingleIQ(CONTENT_ACCEPT, sid);
 
         contentAccept.setTo(to);
         contentAccept.setFrom(from);
         contentAccept.setType(IQ.Type.set);
-
-        contentAccept.setSID(sid);
-        contentAccept.setAction(JingleAction.CONTENT_ACCEPT);
 
         for(ContentPacketExtension content : contentList)
             contentAccept.addContent(content);
@@ -435,14 +412,11 @@ public class JinglePacketFactory
             String                           sid,
             Iterable<ContentPacketExtension> contentList)
     {
-        JingleIQ contentReject = new JingleIQ();
+        JingleIQ contentReject = new JingleIQ(CONTENT_REJECT, sid);
 
         contentReject.setTo(to);
         contentReject.setFrom(from);
         contentReject.setType(IQ.Type.set);
-
-        contentReject.setSID(sid);
-        contentReject.setAction(JingleAction.CONTENT_REJECT);
 
         if (contentList != null)
         {
@@ -472,14 +446,11 @@ public class JinglePacketFactory
                                     String                       sid,
                                     ContentPacketExtension       content)
     {
-        JingleIQ contentModify = new JingleIQ();
+        JingleIQ contentModify = new JingleIQ(CONTENT_MODIFY, sid);
 
         contentModify.setTo(to);
         contentModify.setFrom(from);
         contentModify.setType(IQ.Type.set);
-
-        contentModify.setSID(sid);
-        contentModify.setAction(JingleAction.CONTENT_MODIFY);
 
         contentModify.addContent(content);
 
@@ -505,14 +476,11 @@ public class JinglePacketFactory
             String                           sid,
             Iterable<ContentPacketExtension> contentList)
     {
-        JingleIQ contentRemove = new JingleIQ();
+        JingleIQ contentRemove = new JingleIQ(CONTENT_REMOVE, sid);
 
         contentRemove.setTo(to);
         contentRemove.setFrom(from);
         contentRemove.setType(IQ.Type.set);
-
-        contentRemove.setSID(sid);
-        contentRemove.setAction(JingleAction.CONTENT_REMOVE);
 
         for(ContentPacketExtension content : contentList)
             contentRemove.addContent(content);

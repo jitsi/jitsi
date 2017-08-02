@@ -1449,7 +1449,8 @@ public class CallPeerJabberImpl
         if(cancelled)
             return;
 
-        JingleIQ transportInfo = new JingleIQ();
+        JingleIQ transportInfo = new JingleIQ(
+            JingleAction.TRANSPORT_INFO, getSID());
 
         for (ContentPacketExtension content : contents)
             transportInfo.addContent(content);
@@ -1457,9 +1458,7 @@ public class CallPeerJabberImpl
         ProtocolProviderServiceJabberImpl protocolProvider
             = getProtocolProvider();
 
-        transportInfo.setAction(JingleAction.TRANSPORT_INFO);
         transportInfo.setFrom(protocolProvider.getOurJID());
-        transportInfo.setSID(getSID());
         transportInfo.setTo(peerJID);
         transportInfo.setType(IQ.Type.set);
 
@@ -1525,13 +1524,12 @@ public class CallPeerJabberImpl
     protected void transfer(Jid to, String sid)
         throws OperationFailedException
     {
-        JingleIQ transferSessionInfo = new JingleIQ();
+        JingleIQ transferSessionInfo = new JingleIQ(
+            JingleAction.SESSION_INFO, getSID());
         ProtocolProviderServiceJabberImpl protocolProvider
             = getProtocolProvider();
 
-        transferSessionInfo.setAction(JingleAction.SESSION_INFO);
         transferSessionInfo.setFrom(protocolProvider.getOurJID());
-        transferSessionInfo.setSID(getSID());
         transferSessionInfo.setTo(getAddressAsJid());
         transferSessionInfo.setType(IQ.Type.set);
 
