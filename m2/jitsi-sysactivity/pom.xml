@@ -42,6 +42,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>jitsi-util</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 
