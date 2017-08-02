@@ -33,7 +33,8 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
-import net.java.sip.communicator.util.*;
+import net.java.sip.communicator.util.Logger;
+import org.jitsi.util.*;
 
 /**
  * A TransferHandler that we use to handle copying, pasting and DnD operations
@@ -161,7 +162,7 @@ public class ChatTransferHandler
             }
         }
 
-        if (t.isDataFlavorSupported(uriListFlavor))
+        if (t.isDataFlavorSupported(uriListFlavor) && OSUtils.IS_LINUX)
         {
             try
             {

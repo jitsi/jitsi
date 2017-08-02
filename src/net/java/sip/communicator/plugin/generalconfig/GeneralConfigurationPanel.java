@@ -266,7 +266,7 @@ public class GeneralConfigurationPanel
                 boolean value = ((JCheckBox) e.getSource()).isSelected();
                 ConfigurationUtils.setIsMinimizeInsteadOfHide(value);
                 UtilActivator.getUIService().setMainWindowCanHide(
-                    !UtilActivator.getSystrayService().checkInitialized());
+                    UtilActivator.getSystrayService().checkInitialized());
             }
         });
 

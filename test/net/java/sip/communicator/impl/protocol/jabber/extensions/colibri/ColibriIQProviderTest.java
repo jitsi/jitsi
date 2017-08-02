@@ -22,9 +22,10 @@ import junit.framework.TestCase;
 import net.java.sip.communicator.impl.protocol.jabber.SmackV3InteroperabilityLayer;
 import net.java.sip.communicator.service.protocol.jabber.AbstractSmackInteroperabilityLayer;
 import org.jivesoftware.smack.packet.IQ;
+import org.xmlpull.mxp1.MXParser;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
-import org.xmlpull.v1.XmlPullParserFactory;
+//import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -107,17 +108,21 @@ public class ColibriIQProviderTest extends TestCase
               "</conference>" +
             "</iq>";
 
-    XmlPullParserFactory xmlPullParserFactory;
+//    XmlPullParserFactory xmlPullParserFactory;
     XmlPullParser xmlPullParser;
     ColibriIQProvider colibriIQProvider;
 
     public void setUp()
             throws Exception
     {
-        xmlPullParserFactory = XmlPullParserFactory.newInstance();
-        xmlPullParserFactory.setNamespaceAware(true);
-
-        xmlPullParser = xmlPullParserFactory.newPullParser();
+//        xmlPullParserFactory = XmlPullParserFactory.newInstance();
+//        xmlPullParserFactory.setNamespaceAware(true);
+//
+//        xmlPullParser = xmlPullParserFactory.newPullParser();
+        xmlPullParser = new MXParser();
+        xmlPullParser.setFeature(
+            "http://xmlpull.org/v1/doc/features.html#process-namespaces",
+            true);
 
         AbstractSmackInteroperabilityLayer.setImplementationClass(
                 SmackV3InteroperabilityLayer.class);

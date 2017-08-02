@@ -657,10 +657,8 @@ public class ChatHtmlUtils
                 contactName));
         messageTag.append(DATE_ATTRIBUTE).append("=\"")
             .append(sdf.format(date)).append("\" ");
-        final byte[] encodedMessageBytes = net.java.sip.communicator.util.Base64
-            .encode(getMessageBytes(message));
         messageTag.append(String.format("%s=\"%s\" ",
-            ORIGINAL_MESSAGE_ATTRIBUTE, new String(encodedMessageBytes)));
+            ORIGINAL_MESSAGE_ATTRIBUTE, StringEscapeUtils.escapeXml(message)));
         messageTag.append(IncomingMessageStyle
             .createSingleMessageStyle(isHistory, isEdited, true));
         messageTag.append(">");
@@ -709,10 +707,8 @@ public class ChatHtmlUtils
                 contactName));
         messageTag.append(DATE_ATTRIBUTE).append("=\"")
             .append(sdf.format(date)).append("\" ");
-        final byte[] encodedMessageBytes =net.java.sip.communicator.util.Base64
-            .encode(getMessageBytes(message));
         messageTag.append(String.format("%s=\"%s\" ",
-            ORIGINAL_MESSAGE_ATTRIBUTE, new String(encodedMessageBytes)));
+            ORIGINAL_MESSAGE_ATTRIBUTE, StringEscapeUtils.escapeXml(message)));
         messageTag.append(IncomingMessageStyle
             .createSingleMessageStyle(isHistory, isEdited, false));
         messageTag.append(">");
