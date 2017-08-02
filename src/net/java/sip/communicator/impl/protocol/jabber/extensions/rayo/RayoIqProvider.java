@@ -239,6 +239,16 @@ public class RayoIqProvider
         }
 
         /**
+         * Creates new instance of this class as a copy from <tt>original</tt>.
+         *
+         * @param original the class to copy the data from.
+         */
+        protected RayoIq(RayoIq original)
+        {
+            super(original);
+        }
+
+        /**
          * Implementing classes should print their attributes if any in XML
          * format to given <tt>out</tt> <tt>StringBuilder</tt>.
          * @param out the <tt>StringBuilder</tt> instance used to construct XML
@@ -353,12 +363,25 @@ public class RayoIqProvider
         }
 
         /**
+         * Creates a new instance of this class as a copy from
+         * <tt>original</tt>.
+         * @param original the class to copy the data from.
+         */
+        public DialIq(DialIq original)
+        {
+            // copies: id, to, from, extensions, error, type
+            super(original);
+            source = original.source;
+            destination = original.destination;
+        }
+
+        /**
          * Creates new <tt>DialIq</tt> for given source and destination
          * addresses.
          * @param to the destination address/call URI to be used.
          * @param from the source address that will be set on
          *             new <tt>DialIq</tt> instance.
-         * @return new <tt>DialIq</tt> parametrized with given source and
+         * @return new <tt>DialIq</tt> parameterized with given source and
          *         destination addresses.
          */
         public static DialIq create(String to, String from)
