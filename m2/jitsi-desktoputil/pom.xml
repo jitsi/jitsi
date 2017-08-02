@@ -26,6 +26,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>jitsi-configuration</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 

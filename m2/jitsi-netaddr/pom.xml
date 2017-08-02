@@ -29,6 +29,7 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>jitsi-dnsservice</artifactId>
+      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
