@@ -26,9 +26,7 @@ import org.jitsi.util.*;
 import org.jitsi.service.neomedia.*;
 
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.packet.IQ;
-import org.jxmpp.jid.Jid;
-import org.jxmpp.jid.parts.Localpart;
+import org.jxmpp.jid.parts.*;
 
 /**
  * Implements the Jitsi Videobridge <tt>conference</tt> IQ within the
@@ -150,6 +148,7 @@ public class ColibriConferenceIQ
     {
         final XMPPError error = XMPPError.getBuilder()
             .setCondition(XMPPError.Condition.service_unavailable)
+            .setType(XMPPError.Type.CANCEL)
             .addExtension(new GracefulShutdown())
             .build();
 
@@ -248,7 +247,7 @@ public class ColibriConferenceIQ
      * @return {@link ChannelBundle} identified by given <tt>bundleId</tt> or
      *         <tt>null</tt> if not found.
      */
-    public ChannelBundle getChannelBundle(Jid bundleId)
+    public ChannelBundle getChannelBundle(String bundleId)
     {
         if (bundleId == null)
         {
@@ -1518,7 +1517,7 @@ public class ColibriConferenceIQ
         /**
          * The ID of this <tt>ChannelBundle</tt>.
          */
-        private Jid id;
+        private String id;
 
         /**
          * The transport element of this <tt>ChannelBundle</tt>.
@@ -1529,7 +1528,7 @@ public class ColibriConferenceIQ
          * Initializes a new <tt>ChannelBundle</tt> with the given ID.
          * @param id the ID.
          */
-        public ChannelBundle(Jid id)
+        public ChannelBundle(String id)
         {
             this.id = id;
         }
@@ -1538,7 +1537,7 @@ public class ColibriConferenceIQ
          * Returns the ID of this <tt>ChannelBundle</tt>.
          * @return  the ID of this <tt>ChannelBundle</tt>.
          */
-        public Jid getId()
+        public String getId()
         {
             return id;
         }
@@ -1556,7 +1555,7 @@ public class ColibriConferenceIQ
          * Sets the ID of this <tt>ChannelBundle</tt>.
          * @param id the ID to set.
          */
-        public void setId(Jid id)
+        public void setId(String id)
         {
             this.id = id;
         }
@@ -1652,7 +1651,7 @@ public class ColibriConferenceIQ
         /**
          * The channel-bundle-id attribute of this <tt>CommonChannel</tt>.
          */
-        private Jid channelBundleId = null;
+        private String channelBundleId = null;
 
         /**
          * XML element name.
@@ -1663,7 +1662,7 @@ public class ColibriConferenceIQ
          * The identifier of the endpoint of the conference participant
          * associated with this <tt>Channel</tt>.
          */
-        private Jid endpoint;
+        private String endpoint;
 
         /**
          * The number of seconds of inactivity after which the <tt>channel</tt>
@@ -1700,7 +1699,7 @@ public class ColibriConferenceIQ
          * @return  the channel-bundle-id attribute of this
          * <tt>CommonChannel</tt>.
          */
-        public Jid getChannelBundleId()
+        public String getChannelBundleId()
         {
             return channelBundleId;
         }
@@ -1712,7 +1711,7 @@ public class ColibriConferenceIQ
          * @return the identifier of the endpoint of the conference participant
          * associated with this <tt>Channel</tt>
          */
-        public Jid getEndpoint()
+        public String getEndpoint()
         {
             return endpoint;
         }
@@ -1794,7 +1793,7 @@ public class ColibriConferenceIQ
          * Sets the channel-bundle-id attribute of this <tt>CommonChannel</tt>.
          * @param channelBundleId the value to set.
          */
-        public void setChannelBundleId(Jid channelBundleId)
+        public void setChannelBundleId(String channelBundleId)
         {
             this.channelBundleId = channelBundleId;
         }
@@ -1806,7 +1805,7 @@ public class ColibriConferenceIQ
          * @param endpoint the identifier of the endpoint of the conference
          * participant associated with this <tt>Channel</tt>
          */
-        public void setEndpoint(Jid endpoint)
+        public void setEndpoint(String endpoint)
         {
             this.endpoint = endpoint;
         }

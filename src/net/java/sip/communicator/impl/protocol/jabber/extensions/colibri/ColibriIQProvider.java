@@ -428,8 +428,7 @@ public class ColibriIQProvider
 
                         if (!StringUtils.isNullOrEmpty(endpoint))
                         {
-                            Jid endpointJid = JidCreate.from(endpoint);
-                            channel.setEndpoint(endpointJid);
+                            channel.setEndpoint(endpoint);
                         }
 
                         String channelBundleId
@@ -439,8 +438,7 @@ public class ColibriIQProvider
                                         .CHANNEL_BUNDLE_ID_ATTR_NAME);
                         if (!StringUtils.isNullOrEmpty(channelBundleId))
                         {
-                            Jid channelBundleIdJid = JidCreate.from(channelBundleId);
-                            channel.setChannelBundleId(channelBundleIdJid);
+                            channel.setChannelBundleId(channelBundleId);
                         }
 
                         // expire
@@ -577,9 +575,8 @@ public class ColibriIQProvider
 
                         if(!StringUtils.isNullOrEmpty(bundleId))
                         {
-                            Jid bundleIdJid = JidCreate.from(bundleId);
                             bundle = new ColibriConferenceIQ
-                                        .ChannelBundle(bundleIdJid);
+                                        .ChannelBundle(bundleId);
                         }
                     }
                     else if (ColibriConferenceIQ.RTCPTerminationStrategy
@@ -693,8 +690,7 @@ public class ColibriIQProvider
 
                         if (!StringUtils.isNullOrEmpty(endpoint))
                         {
-                            Jid endpointJid = JidCreate.from(endpoint);
-                            sctpConnection.setEndpoint(endpointJid);
+                            sctpConnection.setEndpoint(endpoint);
                         }
 
                         // port
@@ -712,8 +708,7 @@ public class ColibriIQProvider
                                         .CHANNEL_BUNDLE_ID_ATTR_NAME);
                         if (!StringUtils.isNullOrEmpty(channelBundleId))
                         {
-                            Jid channelBundleIdJid = JidCreate.from(channelBundleId);
-                            sctpConnection.setChannelBundleId(channelBundleIdJid);
+                            sctpConnection.setChannelBundleId(channelBundleId);
                         }
 
                         // initiator

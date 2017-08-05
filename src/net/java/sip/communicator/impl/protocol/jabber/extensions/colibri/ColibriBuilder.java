@@ -213,7 +213,7 @@ public class ColibriBuilder
      */
     public boolean addAllocateChannelsReq(
             boolean                      useBundle,
-            Jid                          endpointName,
+            String                       endpointName,
             boolean                      peerIsInitiator,
             List<ContentPacketExtension> contents)
     {

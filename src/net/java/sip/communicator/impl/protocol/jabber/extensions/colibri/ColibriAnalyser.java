@@ -130,7 +130,7 @@ public class ColibriAnalyser
         conferenceResult.setName(conferenceResponse.getName());
 
         // FIXME: we support single bundle for all channels
-        Jid bundleId = null;
+        String bundleId = null;
         for (ContentPacketExtension content : peerContents)
         {
             MediaType mediaType
@@ -189,10 +189,10 @@ public class ColibriAnalyser
      * null then they are compared and error is logged, but channel's bundle is
      * returned in the last place anyway.
      */
-    private static Jid readChannelBundle(
-            ColibriConferenceIQ.ChannelCommon channel, Jid currentBundle)
+    private static String readChannelBundle(
+            ColibriConferenceIQ.ChannelCommon channel, String currentBundle)
     {
-        Jid channelBundle = channel.getChannelBundleId();
+        String channelBundle = channel.getChannelBundleId();
 
         if (channelBundle == null)
         {

@@ -276,7 +276,8 @@ public class CallJabberImpl
                 ColibriConferenceIQ.Channel localChannelRequest
                     = new ColibriConferenceIQ.Channel();
 
-                localChannelRequest.setEndpoint(protocolProvider.getOurJID());
+                localChannelRequest.setEndpoint(
+                    protocolProvider.getOurJID().toString());
                 localChannelRequest.setInitiator(peerIsInitiator);
 
                 for (PayloadTypePacketExtension ptpe : rdpe.getPayloadTypes())
@@ -300,7 +301,7 @@ public class CallJabberImpl
             ColibriConferenceIQ.Channel remoteChannelRequest
                 = new ColibriConferenceIQ.Channel();
 
-            remoteChannelRequest.setEndpoint(peer.getAddressAsJid());
+            remoteChannelRequest.setEndpoint(peer.getAddress());
             remoteChannelRequest.setInitiator(!peerIsInitiator);
 
             for (PayloadTypePacketExtension ptpe : rdpe.getPayloadTypes())
