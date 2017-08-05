@@ -19,8 +19,6 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 
 import junit.framework.TestCase;
-import net.java.sip.communicator.impl.protocol.jabber.SmackV3InteroperabilityLayer;
-import net.java.sip.communicator.service.protocol.jabber.AbstractSmackInteroperabilityLayer;
 import org.jivesoftware.smack.packet.IQ;
 import org.xmlpull.mxp1.MXParser;
 import org.xmlpull.v1.XmlPullParser;
@@ -124,8 +122,6 @@ public class ColibriIQProviderTest extends TestCase
             "http://xmlpull.org/v1/doc/features.html#process-namespaces",
             true);
 
-        AbstractSmackInteroperabilityLayer.setImplementationClass(
-                SmackV3InteroperabilityLayer.class);
         colibriIQProvider = new ColibriIQProvider();
     }
 
@@ -141,13 +137,13 @@ public class ColibriIQProviderTest extends TestCase
         assertEquals("iq", name);
 
         // Move forward to the 'conference' element, which is what
-        // ColibriIQProvider::parseIQ expects
+        // ColibriIQProvider::parse expects
         eventType = xmlPullParser.next();
         name = xmlPullParser.getName();
         assertEquals(XmlPullParser.START_TAG, eventType);
         assertEquals(ColibriConferenceIQ.ELEMENT_NAME, name);
 
-        IQ result = colibriIQProvider.parseIQ(xmlPullParser);
+        IQ result = colibriIQProvider.parse(xmlPullParser, 0);
         System.out.println(result.toXML());
         List<SourcePacketExtension> sources =
                 ((ColibriConferenceIQ) result)

@@ -1874,7 +1874,9 @@ public class ColibriConferenceIQ
                 .optAttribute(ENDPOINT_ATTR_NAME, getEndpoint())
                 .optIntAttribute(EXPIRE_ATTR_NAME, getExpire())
                 .optAttribute(ID_ATTR_NAME, getID())
-                .optBooleanAttribute(INITIATOR_ATTR_NAME, isInitiator())
+                .optBooleanAttribute(INITIATOR_ATTR_NAME, isInitiator() == null
+                    ? false
+                    : isInitiator())
                 .optAttribute(CHANNEL_BUNDLE_ID_ATTR_NAME, getChannelBundleId());
 
             // Print derived class attributes
