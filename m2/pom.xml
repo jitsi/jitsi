@@ -6,8 +6,8 @@
 
   <parent>
     <groupId>org.jitsi</groupId>
-    <artifactId>jitsi-universe-public</artifactId>
-    <version>1.0.2</version>
+    <artifactId>jitsi-universe</artifactId>
+    <version>1.0-20170425.182805-23</version>
   </parent>
 
   <artifactId>jitsi</artifactId>
