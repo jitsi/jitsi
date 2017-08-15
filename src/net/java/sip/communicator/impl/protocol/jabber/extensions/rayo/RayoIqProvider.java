@@ -249,24 +249,6 @@ public class RayoIqProvider
         }
 
         /**
-         * Implementing classes should print their attributes if any in XML
-         * format to given <tt>out</tt> <tt>StringBuilder</tt>.
-         * @param out the <tt>StringBuilder</tt> instance used to construct XML
-         *            representation of this element.
-         */
-        protected abstract void printAttributes(IQ.IQChildElementXmlStringBuilder out);
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder xml)
-        {
-            printAttributes(xml);
-            return xml;
-        }
-
-        /**
          * Returns value of the header extension with given <tt>name</tt>
          * (if any).
          * @param name the name of header extension which value we want to
@@ -435,19 +417,13 @@ public class RayoIqProvider
          * {@inheritDoc}
          */
         @Override
-        protected void printAttributes(IQ.IQChildElementXmlStringBuilder out)
+        protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(
+            IQ.IQChildElementXmlStringBuilder xml)
         {
-            String src = getSource();
-            if (!StringUtils.isNullOrEmpty(src))
-            {
-                out.attribute(SRC_ATTR_NAME, src);
-            }
-
-            String dst = getDestination();
-            if (!StringUtils.isNullOrEmpty(dst))
-            {
-                out.attribute(DST_ATTR_NAME, dst);
-            }
+            xml.optAttribute(SRC_ATTR_NAME, source)
+                .optAttribute(DST_ATTR_NAME, destination);
+            xml.setEmptyElement();
+            return xml;
         }
     }
 
@@ -521,13 +497,12 @@ public class RayoIqProvider
          * {@inheritDoc}
          */
         @Override
-        protected void printAttributes(IQ.IQChildElementXmlStringBuilder out)
+        protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(
+            IQ.IQChildElementXmlStringBuilder xml)
         {
-            String uri = getUri();
-            if (!StringUtils.isNullOrEmpty(uri))
-            {
-                out.attribute(URI_ATTR_NAME, uri);
-            }
+            xml.optAttribute(URI_ATTR_NAME, uri);
+            xml.setEmptyElement();
+            return xml;
         }
 
         /**
@@ -588,8 +563,16 @@ public class RayoIqProvider
 
             return hangUp;
         }
-
+        
+        /**
+         * {@inheritDoc}
+         */
         @Override
-        protected void printAttributes(IQ.IQChildElementXmlStringBuilder out){ }
+        protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(
+            IQ.IQChildElementXmlStringBuilder xml)
+        {
+            xml.setEmptyElement();
+            return xml;
+        }
     }
 }
