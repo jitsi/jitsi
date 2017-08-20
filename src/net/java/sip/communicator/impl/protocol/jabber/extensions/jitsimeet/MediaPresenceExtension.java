@@ -86,7 +86,7 @@ public class MediaPresenceExtension
         /**
          * No namespace attached.
          */
-        public final static String NAMESPACE = "";
+        public final static String NAMESPACE = MediaPresenceExtension.NAMESPACE;
 
         /**
          * SSRC media type attribute name. Can be 'audio' or 'video'.
