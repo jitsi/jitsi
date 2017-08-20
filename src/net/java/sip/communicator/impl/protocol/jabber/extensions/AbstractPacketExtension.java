@@ -143,7 +143,7 @@ public abstract class AbstractPacketExtension
         String text = getText();
         List<Stanza> packets = getPackets();
 
-        if (childElements == null && packets == null)
+        if (childElements.size() == 0 && packets.size() == 0)
         {
             if ((text == null) || (text.length() == 0))
             {
