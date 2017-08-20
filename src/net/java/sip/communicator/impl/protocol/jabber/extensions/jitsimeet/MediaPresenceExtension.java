@@ -73,6 +73,23 @@ public class MediaPresenceExtension
     }
 
     /**
+     * Add a <tt>Source</tt> object to the <tt>sourceList</tt> representing a
+     * <source /> line.
+     *
+     * @arg type the type of the <tt>Source</tt>
+     * @arg ssrc the ssrc of the <tt>Source</tt>
+     * @arg direction the direction of the <tt>Source</tt>
+     */
+    public void addSource(String type, String ssrc, String direction)
+    {
+        Source s = new Source();
+        s.setMediaType(type);
+        s.setSSRC(ssrc);
+        s.setDirection(direction);
+        addChildExtension(s);
+    }
+
+    /**
      * Source extension element that specifies into about media SSRC.
      */
     public static class Source
