@@ -86,7 +86,7 @@ public class MediaPresenceExtension
         /**
          * No namespace attached.
          */
-        public final static String NAMESPACE = MediaPresenceExtension.NAMESPACE;
+        public final static String NAMESPACE = "urn:xmpp:jingle:apps:rtp:ssma:0";
 
         /**
          * SSRC media type attribute name. Can be 'audio' or 'video'.
