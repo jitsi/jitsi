@@ -781,11 +781,11 @@ public class ChatRoomJabberImpl
     {
         if(affiliation != null)
         {
-            if(affiliation.equals("admin"))
+            if(affiliation == MUCAffiliation.admin)
             {
                 return ChatRoomMemberRole.ADMINISTRATOR;
             }
-            else if(affiliation.equals("owner"))
+            else if(affiliation == MUCAffiliation.owner)
             {
                 return ChatRoomMemberRole.OWNER;
             }
