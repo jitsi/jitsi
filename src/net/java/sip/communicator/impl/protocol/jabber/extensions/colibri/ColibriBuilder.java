@@ -600,22 +600,31 @@ public class ColibriBuilder
                     continue;
                 }
 
-                List<PayloadTypePacketExtension> pts = rtpPE.getPayloadTypes();
-                if (pts == null || pts.isEmpty())
-                {
-                    continue;
-                }
-
-                hasAnyChanges = true;
-
                 ColibriConferenceIQ.Channel channelRequest
                     = (ColibriConferenceIQ.Channel) getRequestChannel(
                             request.getOrCreateContent(contentName),
                             channel);
 
-                for (PayloadTypePacketExtension ptPE : pts)
+                List<PayloadTypePacketExtension> pts = rtpPE.getPayloadTypes();
+                if (pts != null && !pts.isEmpty())
                 {
-                    channelRequest.addPayloadType(ptPE);
+                    hasAnyChanges = true;
+                    for (PayloadTypePacketExtension ptPE : pts)
+                    {
+                        channelRequest.addPayloadType(ptPE);
+                    }
+                }
+
+                List<RTPHdrExtPacketExtension> hdrs
+                    = rtpPE.getExtmapList();
+
+                if (hdrs != null && !hdrs.isEmpty())
+                {
+                    hasAnyChanges = true;
+                    for (RTPHdrExtPacketExtension hdrPE : hdrs)
+                    {
+                        channelRequest.addRtpHeaderExtension(hdrPE);
+                    }
                 }
             }
         }
