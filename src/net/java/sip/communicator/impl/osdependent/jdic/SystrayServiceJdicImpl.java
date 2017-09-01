@@ -465,7 +465,14 @@ public class SystrayServiceJdicImpl
         if (OSUtils.IS_MAC)
         {
             Application application = Application.getApplication();
-            application.setDockIconBadge(new Integer(count).toString());
+            if (count > 0)
+            {
+                application.setDockIconBadge(new Integer(count).toString());
+            }
+            else
+            {
+                application.setDockIconBadge(null);
+            }
         }
         else if (OSUtils.IS_WINDOWS)
         {
