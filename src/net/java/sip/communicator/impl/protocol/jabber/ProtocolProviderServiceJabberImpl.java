@@ -1790,6 +1790,10 @@ public class ProtocolProviderServiceJabberImpl
                 Nick.NAMESPACE,
                 new Nick.Provider());
 
+            providerManager.addExtensionProvider(
+                Email.ELEMENT_NAME,
+                Email.NAMESPACE,
+                new Email.Provider());
 
             //initialize the telephony operation set
             boolean isCallingDisabled

@@ -54,6 +54,11 @@ public class ChatRoomMemberJabberImpl
     private String nickName;
 
     /**
+     * The email that this member is using inside its containing chat room.
+     */
+    private String email;
+
+    /**
      * The contact from our server stored contact list corresponding to this
      * member.
      */
@@ -291,5 +296,23 @@ public class ChatRoomMemberJabberImpl
     void setDisplayName(String displayName)
     {
         this.displayName = displayName;
+    }
+
+    /**
+     * Return the email of this {@link ChatRoomMember}.
+     * @return the email of this {@link ChatRoomMember}.
+     */
+    public String getEmail()
+    {
+        return this.email;
+    }
+
+    /**
+     * Sets the email of this {@link ChatRoomMember}.
+     * @param email the display name to set.
+     */
+    void setEmail(String email)
+    {
+        this.email = email;
     }
 }

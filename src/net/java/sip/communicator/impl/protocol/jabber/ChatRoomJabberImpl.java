@@ -2968,6 +2968,14 @@ public class ChatRoomJabberImpl
             {
                 member.setDisplayName(nickExtension.getName());
             }
+
+            Email emailExtension
+                = (Email) presence.getExtension(
+                    Email.ELEMENT_NAME, Email.NAMESPACE);
+            if (member != null && emailExtension != null)
+            {
+                member.setEmail(emailExtension.getAddress());
+            }
         }
     }
 
