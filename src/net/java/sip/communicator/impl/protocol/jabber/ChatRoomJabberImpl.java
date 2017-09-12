@@ -2976,6 +2976,14 @@ public class ChatRoomJabberImpl
             {
                 member.setEmail(emailExtension.getAddress());
             }
+
+            AvatarUrl avatarUrl
+                = (AvatarUrl) presence.getExtension(
+                AvatarUrl.ELEMENT_NAME, AvatarUrl.NAMESPACE);
+            if (member != null && avatarUrl != null)
+            {
+                member.setAvatarUrl(avatarUrl.getAvatarUrl());
+            }
         }
     }
 

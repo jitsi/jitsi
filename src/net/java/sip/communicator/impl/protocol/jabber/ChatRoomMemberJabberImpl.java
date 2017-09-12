@@ -59,6 +59,11 @@ public class ChatRoomMemberJabberImpl
     private String email;
 
     /**
+     * The URL of the avatar of this member.
+     */
+    private String avatarUrl;
+
+    /**
      * The contact from our server stored contact list corresponding to this
      * member.
      */
@@ -314,5 +319,22 @@ public class ChatRoomMemberJabberImpl
     void setEmail(String email)
     {
         this.email = email;
+    }
+
+    /**
+     * @return the URL of the avatar of this {@link ChatRoomMember}.
+     */
+    public String getAvatarUrl()
+    {
+        return this.avatarUrl;
+    }
+
+    /**
+     * Sets the avatar URL of this {@link ChatRoomMember}.
+     * @param avatarUrl the value to set.
+     */
+    void setAvatarUrl(String avatarUrl)
+    {
+        this.avatarUrl = avatarUrl;
     }
 }
