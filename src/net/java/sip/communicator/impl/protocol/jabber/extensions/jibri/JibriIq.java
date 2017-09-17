@@ -86,6 +86,19 @@ public class JibriIq
     static final String STREAM_ID_ATTR_NAME = "streamid";
 
     /**
+     * The name of XML attribute which stores the recording mode which can be
+     * either 'stream' or 'file'. If the attribute is not present, but
+     * {@link #STREAM_ID_ATTR_NAME} is, then it defaults to 'stream'. But if
+     * the {@link #STREAM_ID_ATTR_NAME} is not present then it defaults to
+     * 'file'. Note that the defaults logic is handled on Jicofo level rather
+     * than this packet's extension implementation.
+     *
+     * In the 'stream' mode Jibri live streams the conference recording.
+     * The 'file' mode makes Jibri write the recording to a file.
+     */
+    static final String RECORDING_MODE_ATTR_NAME = "recording_mode";
+
+    /**
      * The name of XML attribute which stores the name of the conference room to
      * be recorded.
      */
@@ -105,6 +118,11 @@ public class JibriIq
      * XMPPError stores error details for {@link Status#FAILED}.
      */
     private XMPPError error;
+
+    /**
+     * The recording mode. See {@link #RECORDING_MODE_ATTR_NAME}.
+     */
+    private RecordingMode recordingMode = RecordingMode.UNDEFINED;
 
     /**
      * The SIP address of remote peer.
@@ -224,6 +242,11 @@ public class JibriIq
             xml.attribute(STATUS_ATTR_NAME, status.toString());
         }
 
+        if (recordingMode != RecordingMode.UNDEFINED)
+        {
+            xml.attribute(RECORDING_MODE_ATTR_NAME, recordingMode.toString());
+        }
+
         xml.optAttribute(ROOM_ATTR_NAME, room);
         xml.optAttribute(STREAM_ID_ATTR_NAME, streamId);
         xml.optAttribute(DISPLAY_NAME_ATTR_NAME, displayName);
@@ -247,6 +270,27 @@ public class JibriIq
     public Action getAction()
     {
         return action;
+    }
+
+    /**
+     * Returns the value of 'recording_mode' attribute.
+     * @see JibriIq#RECORDING_MODE_ATTR_NAME
+     */
+    public RecordingMode getRecordingMode()
+    {
+        return recordingMode;
+    }
+
+    /**
+     * Sets the value of 'recording_mode' attribute.
+     * @param mode the new value to set as the recording mode attribute of this
+     *             IQ instance.
+     *
+     * @see JibriIq#RECORDING_MODE_ATTR_NAME
+     */
+    public void setRecordingMode(RecordingMode mode)
+    {
+        this.recordingMode = mode;
     }
 
     /**
@@ -339,6 +383,76 @@ public class JibriIq
             try
             {
                 return Action.valueOf(action.toUpperCase());
+            }
+            catch(IllegalArgumentException e)
+            {
+                return UNDEFINED;
+            }
+        }
+    }
+
+    /**
+     * Enumerates available recording modes stored under
+     * {@link #RECORDING_MODE_ATTR_NAME}.
+     */
+    public enum RecordingMode
+    {
+        /**
+         * Jibri records to file.
+         */
+        FILE("file"),
+
+        /**
+         * Jibri live streaming mode.
+         */
+        STREAM("stream"),
+
+        /**
+         * No valid value specified.
+         */
+        UNDEFINED("undefined");
+
+        /**
+         * Recording mode name holder.
+         */
+        private String mode;
+
+        /**
+         * Creates new {@link RecordingMode} instance.
+         * @param mode a string corresponding to one of {@link RecordingMode}
+         *             values.
+         */
+        RecordingMode(String mode)
+        {
+            this.mode = mode;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String toString()
+        {
+            return mode;
+        }
+
+        /**
+         * Parses <tt>RecordingMode</tt> from given string.
+         *
+         * @param status the string representation of <tt>RecordingMode</tt>.
+         *
+         * @return <tt>RecordingMode</tt> value for given string or
+         *         {@link #UNDEFINED} if given string does not
+         *         reflect any of valid values.
+         */
+        public static RecordingMode parse(String status)
+        {
+            if (StringUtils.isNullOrEmpty(status))
+                return UNDEFINED;
+
+            try
+            {
+                return RecordingMode.valueOf(status.toUpperCase());
             }
             catch(IllegalArgumentException e)
             {
