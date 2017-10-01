@@ -57,23 +57,35 @@ JNIEXPORT void JNICALL Java_net_java_sip_communicator_impl_sysactivity_SystemAct
 JNIEXPORT jlong JNICALL Java_net_java_sip_communicator_impl_sysactivity_SystemActivityNotifications_getLastInput
   (JNIEnv* jniEnv, jclass clazz)
 {
-    static XScreenSaverInfo *mit_info = NULL;
-    static int has_extension = -1;
+    XScreenSaverInfo *mit_info = NULL;
     int event_base, error_base;
+    Display *display;
+    unsigned long idle = 0;
 
-    if(GDK_DISPLAY())
-        has_extension = XScreenSaverQueryExtension(GDK_DISPLAY(), &event_base, &error_base);
-
-    if (has_extension != -1)
+    display = gdk_x11_get_default_xdisplay();
+    if(!display)
     {
-        mit_info = XScreenSaverAllocInfo();
-
-        XScreenSaverQueryInfo(GDK_DISPLAY(), GDK_ROOT_WINDOW(), mit_info);
-
-        return (mit_info->idle);
-    }
-    else
         return 0;
+    }
+
+    if (!XScreenSaverQueryExtension(display, &event_base, &error_base))
+    {
+        return 0;
+    }
+
+    mit_info = XScreenSaverAllocInfo();
+    if (!mit_info)
+    {
+        return 0;
+    }
+
+    if (XScreenSaverQueryInfo(display, GDK_ROOT_WINDOW(), mit_info))
+    {
+        idle = mit_info->idle;
+    }
+
+    XFree(mit_info);
+    return idle;
 }
 
 /*

@@ -105,6 +105,13 @@ public class SystemActivityNotifications
     private static long ptr;
 
     /**
+     * The native counterpart for Linux doesn't need to be initialized. Success
+     * is indicated by returning -1 from {@link #allocAndInit()}.
+     * Remember this by setting this flag to true.
+     */
+    private static boolean linuxLoaded = false;
+
+    /**
      * Init native library.
      */
     static
@@ -119,7 +126,10 @@ public class SystemActivityNotifications
 
                 ptr = allocAndInit();
                 if (ptr == -1)
+                {
                     ptr = 0;
+                    linuxLoaded = true;
+                }
             }
         }
         catch (Throwable t)
@@ -153,7 +163,7 @@ public class SystemActivityNotifications
      */
     public static boolean isLoaded()
     {
-        return (ptr != 0);
+        return ptr != 0 || (OSUtils.IS_LINUX && linuxLoaded);
     }
 
     /**
