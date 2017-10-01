@@ -180,7 +180,7 @@ public class LoginByPasswordStrategy
      * @throws GeneralSecurityException
      */
     public SSLContext createSslContext(CertificateService cs,
-            X509TrustManager trustManager)
+            X509ExtendedTrustManager trustManager)
             throws GeneralSecurityException
     {
         return cs.getSSLContext(trustManager);

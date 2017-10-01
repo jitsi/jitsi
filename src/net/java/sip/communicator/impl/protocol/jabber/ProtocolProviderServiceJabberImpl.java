@@ -1372,7 +1372,7 @@ public class ProtocolProviderServiceJabberImpl
      *            trust manager
      * @return the trust manager
      */
-    private X509TrustManager getTrustManager(CertificateService cvs,
+    private X509ExtendedTrustManager getTrustManager(CertificateService cvs,
         String serviceName)
         throws GeneralSecurityException
     {
@@ -2548,7 +2548,7 @@ public class ProtocolProviderServiceJabberImpl
      * certificate which is not globally trusted.
      */
     private class HostTrustManager
-        implements X509TrustManager
+        extends X509ExtendedTrustManager
     {
         /**
          * The default trust manager.
@@ -2585,6 +2585,34 @@ public class ProtocolProviderServiceJabberImpl
             throws CertificateException, UnsupportedOperationException
         {
             throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain,
+            String authType, Socket socket) throws CertificateException
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain,
+            String authType, Socket socket) throws CertificateException
+        {
+            checkServerTrusted(chain, authType);
+        }
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain,
+            String authType, SSLEngine engine) throws CertificateException
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain,
+            String authType, SSLEngine engine) throws CertificateException
+        {
+            checkServerTrusted(chain, authType);
         }
 
         /**

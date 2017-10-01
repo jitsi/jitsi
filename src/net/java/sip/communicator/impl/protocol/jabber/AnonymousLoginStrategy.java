@@ -87,7 +87,7 @@ public class AnonymousLoginStrategy
 
     @Override
     public SSLContext createSslContext(CertificateService certificateService,
-                                       X509TrustManager trustManager)
+        X509ExtendedTrustManager trustManager)
         throws GeneralSecurityException
     {
         return null;

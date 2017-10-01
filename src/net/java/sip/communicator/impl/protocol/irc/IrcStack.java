@@ -326,7 +326,7 @@ public class IrcStack implements IrcConnectionListener
         try
         {
             CertificateService cs = IrcActivator.getCertificateService();
-            X509TrustManager tm = cs.getTrustManager(hostname);
+            X509ExtendedTrustManager tm = cs.getTrustManager(hostname);
             context = cs.getSSLContext(tm);
         }
         catch (GeneralSecurityException e)
