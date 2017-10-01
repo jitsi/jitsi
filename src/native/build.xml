@@ -362,6 +362,7 @@
         <compilerarg value="-O2" />
         <compilerarg value="-Wall" />
         <compilerarg value="-Wextra" />
+        <compilerarg value="-Wno-unused-parameter" />
 
         <!-- Common linker flags -->
         <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
