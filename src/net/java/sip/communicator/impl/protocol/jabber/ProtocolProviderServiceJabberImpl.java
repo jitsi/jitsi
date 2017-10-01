@@ -418,11 +418,22 @@ public class ProtocolProviderServiceJabberImpl
     public RegistrationState getRegistrationState()
     {
         if(connection == null)
+        {
+            if (inConnectAndLogin)
+            {
+                return RegistrationState.REGISTERING;
+            }
+
             return RegistrationState.UNREGISTERED;
+        }
         else if(connection.isConnected() && connection.isAuthenticated())
+        {
             return RegistrationState.REGISTERED;
+        }
         else
-            return RegistrationState.UNREGISTERED;
+        {
+            return RegistrationState.REGISTERING;
+        }
     }
 
     /**
