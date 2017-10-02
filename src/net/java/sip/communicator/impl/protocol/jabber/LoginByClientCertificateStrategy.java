@@ -108,7 +108,7 @@ class LoginByClientCertificateStrategy
      * @throws GeneralSecurityException
      */
     public SSLContext createSslContext(CertificateService cs,
-            X509TrustManager trustManager)
+        X509ExtendedTrustManager trustManager)
         throws GeneralSecurityException
     {
         String certConfigName = accountID.getAccountPropertyString(

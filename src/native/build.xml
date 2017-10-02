@@ -362,6 +362,7 @@
         <compilerarg value="-O2" />
         <compilerarg value="-Wall" />
         <compilerarg value="-Wextra" />
+        <compilerarg value="-Wno-unused-parameter" />
 
         <!-- Common linker flags -->
         <linkerarg value="-m32" if="cross_32" unless="is.running.macos" />
@@ -406,8 +407,8 @@
         <compilerarg value="-I${system.JAVA_HOME}/include" if="is.running.linux" />
         <compilerarg value="-I${system.JAVA_HOME}/include/linux" if="is.running.linux" />
 
-        <linkerarg value="-lgdk-x11-2.0" if="is.running.linux" />
-        <linkerarg value="-lXss" if="is.running.linux" />
+        <linkerarg value="-lgdk-x11-2.0" if="is.running.linux" location="end" />
+        <linkerarg value="-lXss" if="is.running.linux" location="end" />
         <linkerarg value="-Wl,-z,relro" if="is.running.debian"/>
 
         <fileset dir="${src}/native/sysactivity" includes="*.c" if="is.running.linux" />

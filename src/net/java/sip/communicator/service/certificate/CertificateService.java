@@ -169,7 +169,7 @@ public interface CertificateService
      * @return An SSL context based on the supplied trust manager.
      * @throws GeneralSecurityException
      */
-    public SSLContext getSSLContext(X509TrustManager trustManager)
+    public SSLContext getSSLContext(X509ExtendedTrustManager trustManager)
         throws GeneralSecurityException;
 
     /**
@@ -184,7 +184,7 @@ public interface CertificateService
      * @throws GeneralSecurityException
      */
     public SSLContext getSSLContext(String clientCertConfig,
-        X509TrustManager trustManager)
+        X509ExtendedTrustManager trustManager)
         throws GeneralSecurityException;
 
     /**
@@ -198,7 +198,7 @@ public interface CertificateService
      * @throws GeneralSecurityException
      */
     public SSLContext getSSLContext(KeyManager[] keyManagers,
-        X509TrustManager trustManager)
+        X509ExtendedTrustManager trustManager)
         throws GeneralSecurityException;
 
     /**
@@ -215,7 +215,7 @@ public interface CertificateService
      * @return TrustManager to use in an SSLContext
      * @throws GeneralSecurityException
      */
-    public X509TrustManager getTrustManager(Iterable<String> identitiesToTest)
+    public X509ExtendedTrustManager getTrustManager(Iterable<String> identitiesToTest)
         throws GeneralSecurityException;
 
     /**
@@ -227,7 +227,7 @@ public interface CertificateService
      * @return TrustManager to use in an SSLContext
      * @throws GeneralSecurityException
      */
-    public X509TrustManager getTrustManager(String identityToTest)
+    public X509ExtendedTrustManager getTrustManager(String identityToTest)
         throws GeneralSecurityException;
 
     /**
@@ -240,7 +240,7 @@ public interface CertificateService
      * @return TrustManager to use in an SSLContext
      * @throws GeneralSecurityException
      */
-    public X509TrustManager getTrustManager(
+    public X509ExtendedTrustManager getTrustManager(
         final String identityToTest,
         final CertificateMatcher clientVerifier,
         final CertificateMatcher serverVerifier)
@@ -260,7 +260,7 @@ public interface CertificateService
      * @return TrustManager to use in an SSLContext
      * @throws GeneralSecurityException
      */
-    public X509TrustManager getTrustManager(
+    public X509ExtendedTrustManager getTrustManager(
         final Iterable<String> identitiesToTest,
         final CertificateMatcher clientVerifier,
         final CertificateMatcher serverVerifier)

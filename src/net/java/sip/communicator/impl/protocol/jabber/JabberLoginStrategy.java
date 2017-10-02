@@ -80,7 +80,7 @@ public interface JabberLoginStrategy
      * @return the SSLContext
      */
     SSLContext createSslContext(CertificateService certificateService,
-            X509TrustManager trustManager)
+            X509ExtendedTrustManager trustManager)
             throws GeneralSecurityException;
 
     /**

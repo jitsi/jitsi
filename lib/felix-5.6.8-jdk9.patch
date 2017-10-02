@@ -1,0 +1,33 @@
+diff --git a/framework/src/main/java/org/apache/felix/framework/BundleWiringImpl.java b/framework/src/main/java/org/apache/felix/framework/BundleWiringImpl.java
+index db38fcee5..6824e661f 100644
+--- a/framework/src/main/java/org/apache/felix/framework/BundleWiringImpl.java
++++ b/framework/src/main/java/org/apache/felix/framework/BundleWiringImpl.java
+@@ -124,14 +124,24 @@ public class BundleWiringImpl implements BundleWiring
+     // Statically define the default class loader for boot delegation.
+     static
+     {
+-        ClassLoader cl = null;
++        ClassLoader cl;
+         try
+         {
+-            Constructor ctor = BundleRevisionImpl.getSecureAction().getDeclaredConstructor(
++            //JDK 9
++            try
++            {
++                Method getPlatformClassLoader = ClassLoader.class.getMethod("getPlatformClassLoader");
++                cl = (ClassLoader) getPlatformClassLoader.invoke(null);
++            }
++            catch (NoSuchMethodException t)
++            {
++                // pre-JDK9
++                Constructor ctor = BundleRevisionImpl.getSecureAction().getDeclaredConstructor(
+                     SecureClassLoader.class, new Class[] { ClassLoader.class });
+-            BundleRevisionImpl.getSecureAction().setAccesssible(ctor);
+-            cl = (ClassLoader) BundleRevisionImpl.getSecureAction().invoke(
++                BundleRevisionImpl.getSecureAction().setAccesssible(ctor);
++                cl = (ClassLoader) BundleRevisionImpl.getSecureAction().invoke(
+                     ctor, new Object[] { null });
++            }
+         }
+         catch (Throwable ex)
+         {
