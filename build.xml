@@ -1012,6 +1012,23 @@
         <copy file="${lib.noinst}/jna.jar" tofile="${bundles.dest}/jna.jar"/>
         <copy file="${lib.noinst}/jna-platform.jar" tofile="${bundles.dest}/jna-platform.jar"/>
         <copy file="${lib.noinst}/zrtp4j-light-4.1.0-jitsi-1-SNAPSHOT.jar" tofile="${bundles.dest}/zrtp4j.jar"/>
+        <copy file="${lib.noinst}/jnsapi-0.0.3-jitsi-smack4.2-1-SNAPSHOT.jar" tofile="${bundles.dest}/jnsapi.jar"/>
+        <copy file="${lib.noinst}/org.apache.servicemix.bundles.xpp3-1.1.4c_7.jar" tofile="${bundles.dest}/org.apache.servicemix.bundles.xpp3.jar"/>
+        <copy file="${lib.noinst}/jbosh-0.9.0.jar" tofile="${bundles.dest}/jbosh.jar"/>
+        <copy file="${lib.noinst}/smack-bosh-4.2.1.jar" tofile="${bundles.dest}/smack-bosh.jar"/>
+        <copy file="${lib.noinst}/smack-core-4.2.1.jar" tofile="${bundles.dest}/smack-core.jar"/>
+        <copy file="${lib.noinst}/smack-debug-4.2.1.jar" tofile="${bundles.dest}/smack-debug.jar"/>
+        <copy file="${lib.noinst}/smack-extensions-4.2.1.jar" tofile="${bundles.dest}/smack-extensions.jar"/>
+        <copy file="${lib.noinst}/smack-experimental-4.2.1.jar" tofile="${bundles.dest}/smack-experimental.jar"/>
+        <copy file="${lib.noinst}/smack-im-4.2.1.jar" tofile="${bundles.dest}/smack-im.jar"/>
+        <copy file="${lib.noinst}/smack-java7-4.2.1.jar" tofile="${bundles.dest}/smack-java7.jar"/>
+        <copy file="${lib.noinst}/smack-legacy-4.2.1.jar" tofile="${bundles.dest}/smack-legacy.jar"/>
+        <copy file="${lib.noinst}/smack-resolver-javax-4.2.1.jar" tofile="${bundles.dest}/smack-resolver-javax.jar"/>
+        <copy file="${lib.noinst}/smack-sasl-javax-4.2.1.jar" tofile="${bundles.dest}/smack-sasl-javax.jar"/>
+        <copy file="${lib.noinst}/smack-tcp-4.2.1.jar" tofile="${bundles.dest}/smack-tcp.jar"/>
+        <copy file="${lib.noinst}/jxmpp-core-0.5.0.jar" tofile="${bundles.dest}/jxmpp-core.jar"/>
+        <copy file="${lib.noinst}/jxmpp-jid-0.5.0.jar" tofile="${bundles.dest}/jxmpp-jid.jar"/>
+        <copy file="${lib.noinst}/jxmpp-util-cache-0.5.0.jar" tofile="${bundles.dest}/jxmpp-util-cache.jar"/>
     </target>
 
     <!--BUNDLE-SC-LAUNCHER-->

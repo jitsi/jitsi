@@ -15,7 +15,7 @@
   <packaging>pom</packaging>
 
   <properties>
-    <smack.version>4.2.1-beta1</smack.version>
+    <smack.version>4.2.1</smack.version>
   </properties>
 
   <name>jitsi</name>

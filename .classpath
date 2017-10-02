@@ -81,20 +81,20 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/jackson-core-2.5.3.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/dnssecjava-1.1.jar" sourcepath="/dnssecjava"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/gson-2.8.0.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/smack-core-4.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/smack-debug-4.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/smack-extensions-4.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/smack-im-4.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/smack-java7-4.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/smack-legacy-4.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/smack-resolver-javax-4.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/smack-sasl-javax-4.2.0.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/smack-tcp-4.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/smack-core-4.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/smack-debug-4.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/smack-extensions-4.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/smack-im-4.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/smack-java7-4.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/smack-legacy-4.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/smack-resolver-javax-4.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/smack-sasl-javax-4.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/smack-tcp-4.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jxmpp-core-0.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jxmpp-jid-0.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jxmpp-util-cache-0.5.0.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/smack-bosh-4.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/smack-bosh-4.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/xpp3-1.1.4c.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/smack-experimental-4.2.0.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/smack-experimental-4.2.1.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
