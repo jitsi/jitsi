@@ -251,6 +251,9 @@ public class JibriIq
         xml.optAttribute(STREAM_ID_ATTR_NAME, streamId);
         xml.optAttribute(DISPLAY_NAME_ATTR_NAME, displayName);
         xml.optAttribute(SIP_ADDRESS_ATTR_NAME, sipAddress);
+
+        xml.setEmptyElement();
+
         return xml;
     }
 
