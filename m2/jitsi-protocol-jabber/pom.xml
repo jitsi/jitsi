@@ -80,7 +80,7 @@
     <dependency>
       <groupId>org.jitsi</groupId>
       <artifactId>jnsapi</artifactId>
-      <version>0.0.3-jitsi-smack4.2-2-SNAPSHOT</version>
+      <version>0.0.3-jitsi-smack4.2-3</version>
     </dependency>
     <dependency>
       <groupId>org.osgi</groupId>
