@@ -194,6 +194,20 @@ public class ColibriIQProvider
         }
     }
 
+
+    private void addChildExtension(
+        ColibriConferenceIQ.Endpoint endpoint,
+        ExtensionElement childExtension)
+    {
+        if (childExtension instanceof IceUdpTransportPacketExtension)
+        {
+            IceUdpTransportPacketExtension transport
+                = (IceUdpTransportPacketExtension) childExtension;
+
+            endpoint.setTransport(transport);
+        }
+    }
+
     private void addChildExtension(
             ColibriConferenceIQ.SctpConnection sctpConnection,
             ExtensionElement childExtension)
@@ -579,6 +593,32 @@ public class ColibriIQProvider
                                         .ChannelBundle(bundleId);
                         }
                     }
+                    else if (ColibriConferenceIQ.Endpoint
+                            .ELEMENT_NAME.equals(name))
+                    {
+                        String endpointId
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ
+                                        .Endpoint.ID_ATTR_NAME);
+                        String statsId
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ
+                                        .Endpoint.STATS_ID_ATTR_NAME);
+                        String displayName
+                            = parser.getAttributeValue(
+                                    "",
+                                    ColibriConferenceIQ
+                                        .Endpoint.DISPLAYNAME_ATTR_NAME);
+
+                        if(!StringUtils.isNullOrEmpty(endpointId))
+                        {
+                            conferenceEndpoint
+                                = new ColibriConferenceIQ.Endpoint(
+                                    endpointId, statsId, displayName);
+                        }
+                    }
                     else if (ColibriConferenceIQ.RTCPTerminationStrategy
                             .ELEMENT_NAME.equals(name))
                     {
@@ -736,24 +776,25 @@ public class ColibriIQProvider
                             .equals(name))
                     {
                         String id
-                                = parser.getAttributeValue(
+                            = parser.getAttributeValue(
                                 "",
                                 ColibriConferenceIQ.Endpoint.ID_ATTR_NAME);
 
                         String endpointName
-                                = parser.getAttributeValue(
+                            = parser.getAttributeValue(
                                 "",
                                 ColibriConferenceIQ.Endpoint
-                                        .DISPLAYNAME_ATTR_NAME);
+                                    .DISPLAYNAME_ATTR_NAME);
 
                         conferenceEndpoint
-                                = new ColibriConferenceIQ.Endpoint(id,
-                                                                   endpointName);
+                                = new ColibriConferenceIQ.Endpoint(
+                                    id, null, endpointName);
 
                     }
                     else if ( channel != null
                               || sctpConnection != null
-                              || bundle != null )
+                              || bundle != null
+                              || conferenceEndpoint != null )
                     {
                         String peName = null;
                         String peNamespace = null;
@@ -852,6 +893,11 @@ public class ColibriIQProvider
                                 else if (sctpConnection != null)
                                 {
                                     addChildExtension(sctpConnection,
+                                                      extension);
+                                }
+                                else if(conferenceEndpoint != null)
+                                {
+                                    addChildExtension(conferenceEndpoint,
                                                       extension);
                                 }
                                 else
