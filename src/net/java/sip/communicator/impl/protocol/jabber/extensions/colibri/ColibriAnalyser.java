@@ -101,10 +101,10 @@ public class ColibriAnalyser
             }
         }
 
-        for (ColibriConferenceIQ.ChannelBundle bundle
-            : allocateResponse.getChannelBundles())
+        for (ColibriConferenceIQ.Endpoint endpoint
+            : allocateResponse.getEndpoints())
         {
-            conferenceState.addChannelBundle(bundle);
+            conferenceState.addEndpoint(endpoint);
         }
     }
 
@@ -130,7 +130,7 @@ public class ColibriAnalyser
         conferenceResult.setName(conferenceResponse.getName());
 
         // FIXME: we support single bundle for all channels
-        String bundleId = null;
+        String endpointId = null;
         for (ContentPacketExtension content : peerContents)
         {
             MediaType mediaType
@@ -152,7 +152,7 @@ public class ColibriAnalyser
                 {
                     contentResult.addChannel(channelResponse);
 
-                    bundleId = readChannelBundle(channelResponse, bundleId);
+                    endpointId = readEndpoint(channelResponse, endpointId);
                 }
 
                 for (ColibriConferenceIQ.SctpConnection sctpConnResponse
@@ -160,20 +160,20 @@ public class ColibriAnalyser
                 {
                     contentResult.addSctpConnection(sctpConnResponse);
 
-                    bundleId = readChannelBundle(sctpConnResponse, bundleId);
+                    endpointId = readEndpoint(sctpConnResponse, endpointId);
                 }
             }
         }
 
-        // Copy only peer's bundle(JVB returns all bundles)
-        if (bundleId != null)
+        // Copy only peer's endpoint(JVB returns all endpoints)
+        if (endpointId != null)
         {
-            for (ColibriConferenceIQ.ChannelBundle bundle
-                : conferenceResponse.getChannelBundles())
+            for (ColibriConferenceIQ.Endpoint en
+                : conferenceResponse.getEndpoints())
             {
-                if (bundleId.equals(bundle.getId()))
+                if (endpointId.equals(en.getId()))
                 {
-                    conferenceResult.addChannelBundle(bundle);
+                    conferenceResult.addEndpoint(en);
                     break;
                 }
             }
@@ -183,36 +183,36 @@ public class ColibriAnalyser
     }
 
     /**
-     * Utility method for getting actual channel bundle. If
-     * <tt>currentBundle</tt> is <tt>null</tt> then <tt>channels</tt> bundle is
-     * returned(and vice-versa). If both channel's and given bundle IDs are not
-     * null then they are compared and error is logged, but channel's bundle is
-     * returned in the last place anyway.
+     * Utility method for getting actual endpoint id. If
+     * <tt>currentEndpontID</tt> is <tt>null</tt> then <tt>channels</tt>
+     * endpoint is returned(and vice-versa). If both channel's and given
+     * endpoint IDs are not null then they are compared and error is logged,
+     * but channel's bundle is returned in the last place anyway.
      */
-    private static String readChannelBundle(
-            ColibriConferenceIQ.ChannelCommon channel, String currentBundle)
+    private static String readEndpoint(
+            ColibriConferenceIQ.ChannelCommon channel, String currentEndpointID)
     {
-        String channelBundle = channel.getChannelBundleId();
+        String endpointID = channel.getEndpoint();
 
-        if (channelBundle == null)
+        if (endpointID == null)
         {
-            return currentBundle;
+            return currentEndpointID;
         }
 
-        if (currentBundle == null)
+        if (currentEndpointID == null)
         {
-            return channel.getChannelBundleId();
+            return channel.getEndpoint();
         }
         else
         {
             // Compare to detect problems
-            if (!currentBundle.equals(channelBundle))
+            if (!currentEndpointID.equals(endpointID))
             {
                 logger.error(
-                    "Replaced bundle: " + currentBundle
-                        + " with " + channelBundle);
+                    "Replaced endpoint: " + currentEndpointID
+                        + " with " + endpointID);
             }
-            return channelBundle;
+            return endpointID;
         }
     }
 }
