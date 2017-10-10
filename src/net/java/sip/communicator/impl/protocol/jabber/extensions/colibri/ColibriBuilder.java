@@ -270,7 +270,8 @@ public class ColibriBuilder
                     // When audioPacketDelay is null it will clear the attribute
                     remoteRtpChannelRequest.setPacketDelay(audioPacketDelay);
                     // Set rtp packet relay type for this channel
-                    remoteRtpChannelRequest.setRTPLevelRelayType(rtpLevelRelayType);
+                    remoteRtpChannelRequest
+                        .setRTPLevelRelayType(rtpLevelRelayType);
                 }
             }
 
@@ -373,7 +374,9 @@ public class ColibriBuilder
 
         ColibriConferenceIQ.Endpoint endpointUpdate
             = new ColibriConferenceIQ.Endpoint(
-                localEndpoint.getId(), null, null);
+                localEndpoint.getId(),
+                localEndpoint.getStatsId(),
+                localEndpoint.getDisplayName());
 
         IceUdpTransportPacketExtension transportUpdate
             = IceUdpTransportPacketExtension

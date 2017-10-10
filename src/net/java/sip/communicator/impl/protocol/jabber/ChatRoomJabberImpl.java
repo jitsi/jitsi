@@ -3161,27 +3161,31 @@ public class ChatRoomJabberImpl
             }
 
             Nick nickExtension
-                = (Nick) presence.getExtension(
-                        Nick.ELEMENT_NAME, Nick.NAMESPACE);
+                = presence.getExtension(Nick.ELEMENT_NAME, Nick.NAMESPACE);
             if (member != null && nickExtension != null)
             {
                 member.setDisplayName(nickExtension.getName());
             }
 
             Email emailExtension
-                = (Email) presence.getExtension(
-                    Email.ELEMENT_NAME, Email.NAMESPACE);
+                = presence.getExtension(Email.ELEMENT_NAME, Email.NAMESPACE);
             if (member != null && emailExtension != null)
             {
                 member.setEmail(emailExtension.getAddress());
             }
 
-            AvatarUrl avatarUrl
-                = (AvatarUrl) presence.getExtension(
+            AvatarUrl avatarUrl = presence.getExtension(
                 AvatarUrl.ELEMENT_NAME, AvatarUrl.NAMESPACE);
             if (member != null && avatarUrl != null)
             {
                 member.setAvatarUrl(avatarUrl.getAvatarUrl());
+            }
+
+            StatsId statsId = presence.getExtension(
+                StatsId.ELEMENT_NAME, StatsId.NAMESPACE);
+            if (member != null && statsId != null)
+            {
+                member.setStatisticsID(statsId.getStatsId());
             }
         }
     }

@@ -786,9 +786,15 @@ public class ColibriIQProvider
                                 ColibriConferenceIQ.Endpoint
                                     .DISPLAYNAME_ATTR_NAME);
 
+                        String statsId
+                            = parser.getAttributeValue(
+                                "",
+                                ColibriConferenceIQ.Endpoint
+                                    .STATS_ID_ATTR_NAME);
+
                         conferenceEndpoint
                                 = new ColibriConferenceIQ.Endpoint(
-                                    id, null, endpointName);
+                                    id, statsId, endpointName);
 
                     }
                     else if ( channel != null

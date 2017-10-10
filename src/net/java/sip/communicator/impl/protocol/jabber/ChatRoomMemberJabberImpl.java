@@ -65,6 +65,12 @@ public class ChatRoomMemberJabberImpl
      */
     private String avatarUrl;
 
+
+    /**
+     * The statistics id of this member.
+     */
+    private String statisticsID;
+
     /**
      * The contact from our server stored contact list corresponding to this
      * member.
@@ -344,5 +350,22 @@ public class ChatRoomMemberJabberImpl
     void setAvatarUrl(String avatarUrl)
     {
         this.avatarUrl = avatarUrl;
+    }
+
+    /**
+     * @return the statistics ID of this {@link ChatRoomMember}.
+     */
+    public String getStatisticsID()
+    {
+        return this.statisticsID;
+    }
+
+    /**
+     * Sets the avatar URL of this {@link ChatRoomMember}.
+     * @param id the value to set.
+     */
+    void setStatisticsID(String id)
+    {
+        this.statisticsID = id;
     }
 }
