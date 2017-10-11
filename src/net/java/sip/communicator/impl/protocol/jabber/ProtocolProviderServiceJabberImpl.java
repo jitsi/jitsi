@@ -1746,11 +1746,6 @@ public class ProtocolProviderServiceJabberImpl
                 AvatarUrl.NAMESPACE,
                 new AvatarUrl.Provider());
 
-            ProviderManager.addExtensionProvider(
-                StatsId.ELEMENT_NAME,
-                AvatarUrl.NAMESPACE,
-                new AvatarUrl.Provider());
-
             //initialize the telephony operation set
             boolean isCallingDisabled
                 = JabberActivator.getConfigurationService()
