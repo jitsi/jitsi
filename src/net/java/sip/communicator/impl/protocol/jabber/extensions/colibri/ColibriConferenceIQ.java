@@ -2297,7 +2297,7 @@ public class ColibriConferenceIQ
         private String statsId;
 
         /**
-         * The transport element of this <tt>ChannelBundle</tt>.
+         * The transport element of this <tt>Endpoint</tt>.
          */
         private IceUdpTransportPacketExtension transport;
 
@@ -2403,7 +2403,6 @@ public class ColibriConferenceIQ
 
             xml.optAttribute(DISPLAYNAME_ATTR_NAME, displayName);
             xml.optAttribute(STATS_ID_ATTR_NAME, statsId);
-
 
             IceUdpTransportPacketExtension transport = getTransport();
             if (transport != null)

@@ -389,7 +389,7 @@ public class ColibriBuilder
         boolean hasAnyChanges = request.addEndpoint(endpointUpdate);
         if (!hasAnyChanges)
         {
-            logger.warn("A endpoint update has been lost (an instance "
+            logger.warn("An endpoint update has been lost (an instance "
                             + "with its ID already exists)");
         }
 
