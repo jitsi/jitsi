@@ -80,6 +80,7 @@ public class ColibriAnalyser
          */
         conferenceState.setFrom(allocateResponse.getFrom());
 
+        Set<String> endpoints = new HashSet<>();
         for (ColibriConferenceIQ.Content contentResponse
             : allocateResponse.getContents())
         {
@@ -93,18 +94,27 @@ public class ColibriAnalyser
                 : contentResponse.getChannels())
             {
                 content.addChannel(channelResponse);
+                endpoints.add(channelResponse.getEndpoint());
             }
             for (ColibriConferenceIQ.SctpConnection sctpConnResponse
                 : contentResponse.getSctpConnections())
             {
                 content.addSctpConnection(sctpConnResponse);
+                endpoints.add(sctpConnResponse.getEndpoint());
             }
+        }
+
+        for (ColibriConferenceIQ.ChannelBundle bundle
+             : allocateResponse.getChannelBundles())
+        {
+            conferenceState.addChannelBundle(bundle);
         }
 
         for (ColibriConferenceIQ.Endpoint endpoint
             : allocateResponse.getEndpoints())
         {
-            conferenceState.addEndpoint(endpoint);
+            if (endpoints.contains(endpoint.getId()))
+                conferenceState.addEndpoint(endpoint);
         }
     }
 
@@ -130,7 +140,8 @@ public class ColibriAnalyser
         conferenceResult.setName(conferenceResponse.getName());
 
         // FIXME: we support single bundle for all channels
-        String endpointId = null;
+        String bundleId = null;
+        Set<String> endpoints = new HashSet<>();
         for (ContentPacketExtension content : peerContents)
         {
             MediaType mediaType
@@ -152,7 +163,9 @@ public class ColibriAnalyser
                 {
                     contentResult.addChannel(channelResponse);
 
-                    endpointId = readEndpoint(channelResponse, endpointId);
+                    bundleId = readChannelBundle(channelResponse, bundleId);
+
+                    endpoints.add(channelResponse.getEndpoint());
                 }
 
                 for (ColibriConferenceIQ.SctpConnection sctpConnResponse
@@ -160,59 +173,69 @@ public class ColibriAnalyser
                 {
                     contentResult.addSctpConnection(sctpConnResponse);
 
-                    endpointId = readEndpoint(sctpConnResponse, endpointId);
+                    bundleId = readChannelBundle(sctpConnResponse, bundleId);
+
+                    endpoints.add(sctpConnResponse.getEndpoint());
                 }
             }
         }
 
-        // Copy only peer's endpoint(JVB returns all endpoints)
-        if (endpointId != null)
+        // Copy only peer's bundle(JVB returns all bundles)
+        if (bundleId != null)
         {
-            for (ColibriConferenceIQ.Endpoint en
-                : conferenceResponse.getEndpoints())
+            for (ColibriConferenceIQ.ChannelBundle bundle
+                : conferenceResponse.getChannelBundles())
             {
-                if (endpointId.equals(en.getId()))
+                if (bundleId.equals(bundle.getId()))
                 {
-                    conferenceResult.addEndpoint(en);
+                    conferenceResult.addChannelBundle(bundle);
                     break;
                 }
             }
+        }
+
+        // copy all endpoints we have seen
+        for (ColibriConferenceIQ.Endpoint en
+            : conferenceResponse.getEndpoints())
+        {
+            if (endpoints.contains(en.getId()))
+                conferenceResult.addEndpoint(en);
         }
 
         return conferenceResult;
     }
 
     /**
-     * Utility method for getting actual endpoint id. If
-     * <tt>currentEndpontID</tt> is <tt>null</tt> then <tt>channels</tt>
-     * endpoint is returned(and vice-versa). If both channel's and given
-     * endpoint IDs are not null then they are compared and error is logged,
-     * but channel's bundle is returned in the last place anyway.
+     * Utility method for getting actual channel bundle. If
+     * <tt>currentBundle</tt> is <tt>null</tt> then <tt>channels</tt> bundle is
+     * returned(and vice-versa). If both channel's and given bundle IDs are not
+     * null then they are compared and error is logged, but channel's bundle is
+     * returned in the last place anyway.
      */
-    private static String readEndpoint(
-            ColibriConferenceIQ.ChannelCommon channel, String currentEndpointID)
+    private static String readChannelBundle(
+            ColibriConferenceIQ.ChannelCommon channel, String currentBundle)
     {
-        String endpointID = channel.getEndpoint();
+        String channelBundle = channel.getChannelBundleId();
 
-        if (endpointID == null)
+        if (channelBundle == null)
         {
-            return currentEndpointID;
+            return currentBundle;
         }
 
-        if (currentEndpointID == null)
+        if (currentBundle == null)
         {
-            return channel.getEndpoint();
+            return channel.getChannelBundleId();
         }
         else
         {
             // Compare to detect problems
-            if (!currentEndpointID.equals(endpointID))
+            if (!currentBundle.equals(channelBundle))
             {
                 logger.error(
-                    "Replaced endpoint: " + currentEndpointID
-                        + " with " + endpointID);
+                    "Replaced bundle: " + currentBundle
+                        + " with " + channelBundle);
             }
-            return endpointID;
+            return channelBundle;
         }
     }
 }

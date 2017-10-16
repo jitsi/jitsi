@@ -92,7 +92,6 @@ public class ColibriConferenceIQ
     /**
      * The list of {@link ChannelBundle}s included into this <tt>conference</tt>
      * IQ.
-     * @deprecated
      */
     private final List<ChannelBundle> channelBundles
         = new LinkedList<ChannelBundle>();
@@ -173,7 +172,6 @@ public class ColibriConferenceIQ
      * Adds a specific {@link Content} instance to the list of <tt>Content</tt>
      * instances included into this <tt>conference</tt> IQ.
      * @param channelBundle the <tt>ChannelBundle</tt> to add.
-     * @deprecated
      */
     public boolean addChannelBundle(ChannelBundle channelBundle)
     {
@@ -244,7 +242,6 @@ public class ColibriConferenceIQ
      *
      * @return an unmodifiable <tt>List</tt> of the <tt>ChannelBundle</tt>s
      * included into this <tt>conference</tt> IQ.
-     * @deprecated
      */
     public List<ChannelBundle> getChannelBundles()
     {
@@ -256,7 +253,6 @@ public class ColibriConferenceIQ
      * @param bundleId <tt>ChannelBundle</tt> identifier.
      * @return {@link ChannelBundle} identified by given <tt>bundleId</tt> or
      *         <tt>null</tt> if not found.
-     * @deprecated
      */
     public ChannelBundle getChannelBundle(String bundleId)
     {
@@ -1539,7 +1535,6 @@ public class ColibriConferenceIQ
 
     /**
      * Represents a "channel-bundle" element.
-     * @deprecated
      */
     public static class ChannelBundle
     {
@@ -1552,11 +1547,6 @@ public class ColibriConferenceIQ
          * The name of the "id" attribute.
          */
         public static final String ID_ATTR_NAME = "id";
-
-        /**
-         * The name of the "deprecated" attribute.
-         */
-        public static final String DEPRECATED_ATTR_NAME = "deprecated";
 
         /**
          * The ID of this <tt>ChannelBundle</tt>.
@@ -1622,7 +1612,6 @@ public class ColibriConferenceIQ
             IQChildElementXmlStringBuilder xml)
         {
             xml.halfOpenElement(ELEMENT_NAME)
-                .attribute(DEPRECATED_ATTR_NAME, id)
                 .attribute(ID_ATTR_NAME, id);
 
             if (transport != null)
@@ -1650,7 +1639,6 @@ public class ColibriConferenceIQ
     {
         /**
          * The name of the "channel-bundle-id" attribute.
-         * @deprecated endpoint id is used
          */
         public static final String CHANNEL_BUNDLE_ID_ATTR_NAME
                 = "channel-bundle-id";
@@ -1697,7 +1685,6 @@ public class ColibriConferenceIQ
 
         /**
          * The channel-bundle-id attribute of this <tt>CommonChannel</tt>.
-         * @deprecated
          */
         private String channelBundleId = null;
 
@@ -1746,7 +1733,6 @@ public class ColibriConferenceIQ
          * Get the channel-bundle-id attribute of this <tt>CommonChannel</tt>.
          * @return  the channel-bundle-id attribute of this
          * <tt>CommonChannel</tt>.
-         * @deprecated
          */
         public String getChannelBundleId()
         {
@@ -1795,8 +1781,8 @@ public class ColibriConferenceIQ
         /**
          * Indicates whether there are some contents that should be printed as
          * child elements of this IQ. If <tt>true</tt> is returned
-         * {@link #printContent(StringBuilder)} method will be called when
-         * XML representation of this IQ is being constructed.
+         * {@link #printContent(IQChildElementXmlStringBuilder)} method will be
+         * called when XML representation of this IQ is being constructed.
          * @return <tt>true</tt> if there are content to be printed as child
          *         elements of this IQ or <tt>false</tt> otherwise.
          */
@@ -1843,7 +1829,6 @@ public class ColibriConferenceIQ
         /**
          * Sets the channel-bundle-id attribute of this <tt>CommonChannel</tt>.
          * @param channelBundleId the value to set.
-         * @deprecated
          */
         public void setChannelBundleId(String channelBundleId)
         {
@@ -1929,8 +1914,8 @@ public class ColibriConferenceIQ
                 .optBooleanAttribute(INITIATOR_ATTR_NAME, isInitiator() == null
                     ? false
                     : isInitiator())
-                // left for legacy reasons
-                .optAttribute(CHANNEL_BUNDLE_ID_ATTR_NAME, getChannelBundleId());
+                .optAttribute(
+                    CHANNEL_BUNDLE_ID_ATTR_NAME, getChannelBundleId());
 
             // Print derived class attributes
             printAttributes(xml);
@@ -2297,11 +2282,6 @@ public class ColibriConferenceIQ
         private String statsId;
 
         /**
-         * The transport element of this <tt>Endpoint</tt>.
-         */
-        private IceUdpTransportPacketExtension transport;
-
-        /**
          * Initializes a new <tt>Endpoint</tt> with the given ID and display
          * name.
          * @param id the ID.
@@ -2343,30 +2323,12 @@ public class ColibriConferenceIQ
         }
 
         /**
-         * Returns the transport element of this <tt>ChannelBundle</tt>.
-         * @return  the transport element of this <tt>ChannelBundle</tt>.
-         */
-        public IceUdpTransportPacketExtension getTransport()
-        {
-            return transport;
-        }
-
-        /**
          * Sets the display name of this <tt>Endpoint</tt>.
          * @param displayName the display name to set.
          */
         public void setDisplayName(String displayName)
         {
             this.displayName = displayName;
-        }
-
-        /**
-         * Sets the transport element of this <tt>ChannelBundle</tt>.
-         * @param transport the transport to set.
-         */
-        public void setTransport(IceUdpTransportPacketExtension transport)
-        {
-            this.transport = transport;
         }
 
         /**
@@ -2403,18 +2365,7 @@ public class ColibriConferenceIQ
 
             xml.optAttribute(DISPLAYNAME_ATTR_NAME, displayName);
             xml.optAttribute(STATS_ID_ATTR_NAME, statsId);
-
-            IceUdpTransportPacketExtension transport = getTransport();
-            if (transport != null)
-            {
-                xml.rightAngleBracket();
-                xml.append(transport.toXML());
-                xml.closeElement(ELEMENT_NAME);
-            }
-            else
-            {
-                xml.closeEmptyElement();
-            }
+            xml.closeEmptyElement();
 
             return xml;
         }
