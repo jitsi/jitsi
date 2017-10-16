@@ -243,6 +243,11 @@ public class ColibriBuilder
             remoteChannelRequest.setEndpoint(endpointName);
             remoteChannelRequest.setInitiator(peerIsInitiator);
 
+            if (useBundle)
+            {
+                remoteChannelRequest.setChannelBundleId(endpointName);
+            }
+
             if (remoteChannelRequest instanceof ColibriConferenceIQ.Channel)
             {
                 RtpDescriptionPacketExtension rdpe
@@ -299,9 +304,9 @@ public class ColibriBuilder
 
         if (useBundle && contents.size() >= 1)
         {
-            // Set the transport to the endpoint
-            ColibriConferenceIQ.Endpoint endpoint
-                = new ColibriConferenceIQ.Endpoint(endpointName, statsId, null);
+            // Copy first transport to bundle
+            ColibriConferenceIQ.ChannelBundle bundle
+                = new ColibriConferenceIQ.ChannelBundle(endpointName);
 
             ContentPacketExtension firstContent = contents.get(0);
 
@@ -312,13 +317,19 @@ public class ColibriBuilder
             {
                 hasAnyChanges = true;
 
-                endpoint.setTransport(
+                bundle.setTransport(
                     IceUdpTransportPacketExtension
                         .cloneTransportAndCandidates(transport, true));
             }
 
-            request.addEndpoint(endpoint);
+            request.addChannelBundle(bundle);
         }
+
+        // Set the endpoint
+        ColibriConferenceIQ.Endpoint endpoint
+            = new ColibriConferenceIQ.Endpoint(endpointName, statsId, null);
+
+        request.addEndpoint(endpoint);
 
         return hasAnyChanges;
     }
@@ -355,41 +366,38 @@ public class ColibriBuilder
 
         request.setType(IQ.Type.set);
 
-        // We expect single endpoint
-        ColibriConferenceIQ.Endpoint localEndpoint;
-        if (localChannelsInfo.getEndpoints().size() > 0)
+        // We expect single bundle
+        ColibriConferenceIQ.ChannelBundle localBundle;
+        if (localChannelsInfo.getChannelBundles().size() > 0)
         {
-            localEndpoint = localChannelsInfo.getEndpoints().get(0);
+            localBundle = localChannelsInfo.getChannelBundles().get(0);
 
-            if (localChannelsInfo.getEndpoints().size() > 1)
+            if (localChannelsInfo.getChannelBundles().size() > 1)
             {
-                logger.error("More than one endpoint in local channels info !");
+                logger.error("More than one bundle in local channels info !");
             }
         }
         else
         {
             throw new IllegalArgumentException(
-                "Expected Endpoint was not found");
+                "Expected ChannelBundle was not found");
         }
 
-        ColibriConferenceIQ.Endpoint endpointUpdate
-            = new ColibriConferenceIQ.Endpoint(
-                localEndpoint.getId(),
-                localEndpoint.getStatsId(),
-                localEndpoint.getDisplayName());
+        ColibriConferenceIQ.ChannelBundle bundleUpdate
+            = new ColibriConferenceIQ.ChannelBundle(localBundle.getId());
 
         IceUdpTransportPacketExtension transportUpdate
             = IceUdpTransportPacketExtension
                     .cloneTransportAndCandidates(transport, true);
 
-        endpointUpdate.setTransport(transportUpdate);
+        bundleUpdate.setTransport(transportUpdate);
 
-        // Note: if the request already contains a endpoint with the same ID,
-        // the OLD one is kept.
-        boolean hasAnyChanges = request.addEndpoint(endpointUpdate);
+        // Note: if the request already contains a bundle with the same ID, the
+        // OLD one is kept.
+        boolean hasAnyChanges = request.addChannelBundle(bundleUpdate);
         if (!hasAnyChanges)
         {
-            logger.warn("An endpoint update has been lost (an instance "
+            logger.warn("An channel-bundle update has been lost (an instance "
                             + "with its ID already exists)");
         }
 

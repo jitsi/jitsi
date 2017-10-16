@@ -15,49 +15,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.java.sip.communicator.impl.protocol.jabber.extensions;
+package net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet;
 
-import org.jivesoftware.smack.packet.ExtensionElement;
-import org.jivesoftware.smack.provider.ExtensionElementProvider;
-import org.xmlpull.v1.XmlPullParser;
+import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.provider.*;
+import org.xmlpull.v1.*;
 
 /**
- * A implementation of a {@link PacketExtension} for emails.
+ * A implementation of a {@link PacketExtension} for the jitsi-meet "avatar-url"
+ * element.
  *
- * @author Damian Minkov
+ * @author Boris Grozev
  */
-public class Email
+public class AvatarUrl
     implements ExtensionElement
 {
     public static final String NAMESPACE = "jabber:client";
 
-    public static final String ELEMENT_NAME = "email";
+    public static final String ELEMENT_NAME = "avatar-url";
 
-    private String address = null;
+    private String avatarUrl = null;
 
-    public Email(String address)
+    /**
+     * Initializes an {@link AvatarUrl} instance with a given string value.
+     * @param avatarUrl the string value.
+     */
+    public AvatarUrl(String avatarUrl)
     {
-        this.address = address;
+        this.avatarUrl = avatarUrl;
     }
 
     /**
-     * The value of this email
-     *
-     * @return the email address
+     * @return the value of the avatar-url element as a string.
      */
-    public String getAddress()
+    public String getAvatarUrl()
     {
-        return address;
+        return avatarUrl;
     }
 
     /**
-     * Sets the value of this email
+     * Sets the value of this avatar-url element.
      *
-     * @param address the address to set
+     * @param avatarUrl the value to set.
      */
-    public void setAddress(String address)
+    public void setAvatarUrl(String avatarUrl)
     {
-        this.address = address;
+        this.avatarUrl = avatarUrl;
     }
 
     /**
@@ -78,7 +81,7 @@ public class Email
         return NAMESPACE;
     }
 
-    /**
+    /*
      * Returns xml representation of this extension.
      * @return xml representation of this extension.
      */
@@ -87,7 +90,7 @@ public class Email
         final StringBuilder buf = new StringBuilder();
 
         buf.append("<").append(ELEMENT_NAME).append(">");
-        buf.append(getAddress());
+        buf.append(getAvatarUrl());
         buf.append("</").append(ELEMENT_NAME).append('>');
 
         return buf.toString();
@@ -97,10 +100,10 @@ public class Email
      * The provider.
      */
     public static class Provider
-        extends ExtensionElementProvider<Email>
+        extends ExtensionElementProvider<AvatarUrl>
     {
         @Override
-        public Email parse(XmlPullParser parser, int depth) throws Exception
+        public AvatarUrl parse(XmlPullParser parser, int depth) throws Exception
         {
             parser.next();
             final String address = parser.getText();
@@ -111,7 +114,7 @@ public class Email
                 parser.next();
             }
 
-            return new Email(address);
+            return new AvatarUrl(address);
         }
     }
 }
