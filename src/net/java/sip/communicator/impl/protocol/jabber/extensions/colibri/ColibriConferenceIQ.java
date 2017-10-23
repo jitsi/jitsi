@@ -629,11 +629,6 @@ public class ColibriConferenceIQ
         public static final String SSRC_ELEMENT_NAME = "ssrc";
 
         /**
-         * The name of the "type" attribute.
-         */
-        public static final String TYPE_ATTR_NAME = "type";
-
-        /**
          * The direction of the <tt>channel</tt> represented by this instance.
          */
         private MediaDirection direction;
@@ -1458,6 +1453,14 @@ public class ColibriConferenceIQ
         private List<String> relays = new LinkedList<>();
 
         /**
+         * Initializes a new {@link OctoChannel} instance.
+         */
+        public OctoChannel()
+        {
+            setType(TYPE);
+        }
+
+        /**
          * Sets the list of relays of this {@link OctoChannel}.
          * @param relays the ids of the relays to set.
          */
@@ -1502,17 +1505,6 @@ public class ColibriConferenceIQ
         protected boolean hasContent()
         {
             return !relays.isEmpty() || super.hasContent();
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        protected IQChildElementXmlStringBuilder printAttributes(IQChildElementXmlStringBuilder xml)
-        {
-            super.printAttributes(xml)
-                .attribute(Channel.TYPE_ATTR_NAME, TYPE);
-            return xml;
         }
 
         /**
@@ -1684,6 +1676,11 @@ public class ColibriConferenceIQ
         public static final String INITIATOR_ATTR_NAME = "initiator";
 
         /**
+         * The name of the "type" attribute.
+         */
+        public static final String TYPE_ATTR_NAME = "type";
+
+        /**
          * The channel-bundle-id attribute of this <tt>CommonChannel</tt>.
          */
         private String channelBundleId = null;
@@ -1698,6 +1695,11 @@ public class ColibriConferenceIQ
          * associated with this <tt>Channel</tt>.
          */
         private String endpoint;
+
+        /**
+         * The optional type of the channel.
+         */
+        private String type;
 
         /**
          * The number of seconds of inactivity after which the <tt>channel</tt>
@@ -1749,6 +1751,14 @@ public class ColibriConferenceIQ
         public String getEndpoint()
         {
             return endpoint;
+        }
+
+        /**
+         * @return optional type of this channel.
+         */
+        public String getType()
+        {
+            return type;
         }
 
         /**
@@ -1846,6 +1856,14 @@ public class ColibriConferenceIQ
         {
             this.endpoint = endpoint;
         }
+        /**
+         * Sets the optional type of this channel.
+         * @param type the value to set.
+         */
+        public void setType(String type)
+        {
+            this.type = type;
+        }
 
         /**
          * Sets the number of seconds of inactivity after which the
@@ -1911,6 +1929,7 @@ public class ColibriConferenceIQ
                 .optAttribute(ENDPOINT_ATTR_NAME, getEndpoint())
                 .optIntAttribute(EXPIRE_ATTR_NAME, getExpire())
                 .optAttribute(ID_ATTR_NAME, getID())
+                .optAttribute(TYPE_ATTR_NAME, getType())
                 .optBooleanAttribute(INITIATOR_ATTR_NAME, isInitiator() == null
                     ? false
                     : isInitiator())
