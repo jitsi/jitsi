@@ -324,25 +324,38 @@ public class ColibriBuilder
      * @param content the {@link ContentPacketExtension} from which to copy.
      * @param channel the {@link ColibriConferenceIQ.Channel} to which to copy.
      */
-    private void copyDescription(
+    private boolean copyDescription(
             ContentPacketExtension content,
             ColibriConferenceIQ.Channel channel)
     {
         RtpDescriptionPacketExtension rdpe
             = content.getFirstChildOfType(
-                RtpDescriptionPacketExtension.class);
+            RtpDescriptionPacketExtension.class);
         if (rdpe != null)
         {
-            for (PayloadTypePacketExtension ptpe : rdpe.getPayloadTypes())
-            {
-                channel.addPayloadType(ptpe);
-            }
-
-            for (RTPHdrExtPacketExtension ext : rdpe.getExtmapList())
-            {
-                channel.addRtpHeaderExtension(ext);
-            }
+            return copyDescription(rdpe, channel);
         }
+        return false;
+    }
+
+    private boolean copyDescription(
+        RtpDescriptionPacketExtension description,
+        ColibriConferenceIQ.Channel channel)
+    {
+        boolean added = false;
+        for (PayloadTypePacketExtension ptpe : description.getPayloadTypes())
+        {
+            channel.addPayloadType(ptpe);
+            added = true;
+        }
+
+        for (RTPHdrExtPacketExtension ext : description.getExtmapList())
+        {
+            channel.addRtpHeaderExtension(ext);
+            added = true;
+        }
+
+        return added;
     }
 
     /**
@@ -553,80 +566,45 @@ public class ColibriBuilder
     }
 
     /**
-     * Adds next payload type information update request to
-     * {@link RequestType#CHANNEL_INFO_UPDATE} query currently being built.
+     * Adds an {@link RtpDescriptionPacketExtension} to a specific channel in
+     * the request which is currently being built. The channel is identified
+     * by the content name and channel ID.
      *
-     * @param descriptionMap the descriptionMap of content name to RTP description packet extension.
-     * @param localChannelsInfo {@link ColibriConferenceIQ} holding info about
-     * Colibri channels to be updated.
+     * @param description the {@link RtpDescriptionPacketExtension} to add.
+     * @param contentName the name of the content to which the channel belongs.
+     * @param channelId the ID of the channel.
      *
-     * @return <tt>true</tt> if the request yields any changes in Colibri
-     * channels state on the bridge or <tt>false</tt> otherwise. In general when
-     * <tt>false</tt> is returned for all combined requests it makes no sense to
-     * send it.
+     * @return {@code true} if the request yields any changes in Colibri
+     * channels state on the bridge or {@code false} otherwise. In general when
+     * {@code false} is returned for all combined requests it makes no sense
+     * to send it.
      */
     public boolean addRtpDescription(
-        Map<String, RtpDescriptionPacketExtension>    descriptionMap,
-        ColibriConferenceIQ                           localChannelsInfo)
+        RtpDescriptionPacketExtension description,
+        String contentName, String channelId)
     {
-        Objects.requireNonNull(descriptionMap, "descriptionMap");
-        Objects.requireNonNull(localChannelsInfo, "localChannelsInfo");
+        Objects.requireNonNull(description, "description");
+        Objects.requireNonNull(contentName, "contentName");
+        Objects.requireNonNull(channelId, "channelId");
 
         if (conferenceState == null
             || StringUtils.isNullOrEmpty(conferenceState.getID()))
         {
             // We are not initialized yet
+
+            // XXX by returning false we silently indicate that there is no
+            // need to send a packet, while in fact the state of the conference
+            // does NOT reflect the information that this method call was
+            // supposed to add. At least log something.
+            logger.warn("Not adding description to a channel, not initialized");
             return false;
         }
 
         assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
 
-        boolean hasAnyChanges = false;
-
-        for (Map.Entry<String, RtpDescriptionPacketExtension> e
-            : descriptionMap.entrySet())
-        {
-            String contentName = e.getKey();
-            ColibriConferenceIQ.ChannelCommon channel
-                = getColibriChannel(localChannelsInfo, contentName);
-
-            if (channel != null
-                && channel instanceof ColibriConferenceIQ.Channel)
-            {
-                RtpDescriptionPacketExtension description = e.getValue();
-                if (description == null)
-                {
-                    continue;
-                }
-
-                ColibriConferenceIQ.Channel channelRequest
-                    = getRequestChannel(contentName, channel.getID());
-
-                List<PayloadTypePacketExtension> pts = description.getPayloadTypes();
-                if (pts != null && !pts.isEmpty())
-                {
-                    hasAnyChanges = true;
-                    for (PayloadTypePacketExtension ptPE : pts)
-                    {
-                        channelRequest.addPayloadType(ptPE);
-                    }
-                }
-
-                List<RTPHdrExtPacketExtension> hdrs
-                    = description.getExtmapList();
-
-                if (hdrs != null && !hdrs.isEmpty())
-                {
-                    hasAnyChanges = true;
-                    for (RTPHdrExtPacketExtension hdrPE : hdrs)
-                    {
-                        channelRequest.addRtpHeaderExtension(hdrPE);
-                    }
-                }
-            }
-        }
-
-        return hasAnyChanges;
+        ColibriConferenceIQ.Channel channelRequest
+            = getRequestChannel(contentName, channelId);
+        return copyDescription(description, channelRequest);
     }
 
     /**
