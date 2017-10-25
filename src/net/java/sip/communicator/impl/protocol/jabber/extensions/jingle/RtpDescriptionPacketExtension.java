@@ -55,7 +55,7 @@ public class RtpDescriptionPacketExtension
      * The list of payload types that this description element contains.
      */
     private final List<PayloadTypePacketExtension> payloadTypes
-                                = new ArrayList<PayloadTypePacketExtension>();
+                                = new ArrayList<>();
 
     /**
      * An optional encryption element that contains encryption parameters for
@@ -73,8 +73,7 @@ public class RtpDescriptionPacketExtension
      * A <tt>List</tt> of the optional <tt>extmap</tt> elements that allow
      * negotiating RTP extension headers as per RFC 5282.
      */
-    private List<RTPHdrExtPacketExtension> extmapList
-                                    = new ArrayList<RTPHdrExtPacketExtension>();
+    private List<RTPHdrExtPacketExtension> extmapList = new ArrayList<>();
 
     /**
      * The combined list of all child elements that this extension contains.

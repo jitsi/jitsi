@@ -198,8 +198,7 @@ public class ColibriConferenceIQ
      */
     public boolean addContent(Content content)
     {
-        if (content == null)
-            throw new NullPointerException("content");
+        Objects.requireNonNull(content, "content");
 
         return contents.contains(content) ? false : contents.add(content);
     }
@@ -356,7 +355,9 @@ public class ColibriConferenceIQ
         for (Content content : getContents())
         {
             if (contentName.equals(content.getName()))
+            {
                 return content;
+            }
         }
         return null;
     }
