@@ -328,12 +328,12 @@ public class ColibriBuilder
             ContentPacketExtension content,
             ColibriConferenceIQ.Channel channel)
     {
-        RtpDescriptionPacketExtension rdpe
+        RtpDescriptionPacketExtension description
             = content.getFirstChildOfType(
-            RtpDescriptionPacketExtension.class);
-        if (rdpe != null)
+                    RtpDescriptionPacketExtension.class);
+        if (description != null)
         {
-            return copyDescription(rdpe, channel);
+            return copyDescription(description, channel);
         }
         return false;
     }
