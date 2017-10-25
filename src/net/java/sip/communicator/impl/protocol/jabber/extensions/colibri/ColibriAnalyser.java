@@ -68,9 +68,13 @@ public class ColibriAnalyser
         String colibriID = conferenceState.getID();
 
         if (colibriID == null)
+        {
             conferenceState.setID(conferenceResponseID);
+        }
         else if (!colibriID.equals(conferenceResponseID))
+        {
             throw new IllegalStateException("conference.id");
+        }
 
         /*
          * XXX We must remember the JID of the Jitsi Videobridge because
