@@ -151,6 +151,8 @@ public class ColibriBuilder
         request.setID(conferenceState.getID());
         request.setName(conferenceState.getName());
         request.setGID(conferenceState.getGID());
+
+        request.setType(IQ.Type.set);
     }
 
     /**
@@ -174,8 +176,6 @@ public class ColibriBuilder
         Objects.requireNonNull(contents, "contents");
 
         assertRequestType(RequestType.ALLOCATE_CHANNELS);
-
-        request.setType(IQ.Type.get);
 
         boolean hasAnyChanges = false;
 
@@ -224,8 +224,6 @@ public class ColibriBuilder
         Objects.requireNonNull(endpointName, "endpointName");
         Objects.requireNonNull(contents, "contents");
         assertRequestType(RequestType.ALLOCATE_CHANNELS);
-
-        request.setType(IQ.Type.get);
 
         boolean hasAnyChanges = false;
 
@@ -376,8 +374,6 @@ public class ColibriBuilder
 
         assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
 
-        request.setType(IQ.Type.set);
-
         // We expect single bundle
         ColibriConferenceIQ.ChannelBundle localBundle;
         if (localChannelsInfo.getChannelBundles().size() > 0)
@@ -438,8 +434,6 @@ public class ColibriBuilder
         }
 
         assertRequestType(RequestType.EXPIRE_CHANNELS);
-
-        request.setType(IQ.Type.set);
 
         for (ColibriConferenceIQ.Content expiredContent
             : channelInfo.getContents())
@@ -600,8 +594,6 @@ public class ColibriBuilder
 
         assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
 
-        request.setType(IQ.Type.set);
-
         boolean hasAnyChanges = false;
 
         for (Map.Entry<String, RtpDescriptionPacketExtension> e
@@ -680,8 +672,6 @@ public class ColibriBuilder
 
         assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
 
-        request.setType(IQ.Type.set);
-
         boolean hasAnyChanges = false;
 
         // Go over sources
@@ -749,8 +739,6 @@ public class ColibriBuilder
         }
 
         assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
-
-        request.setType(IQ.Type.set);
 
         boolean hasAnyChanges = false;
 
@@ -828,8 +816,6 @@ public class ColibriBuilder
 
         assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
 
-        request.setType(IQ.Type.set);
-
         for (Map.Entry<String,IceUdpTransportPacketExtension> e
             : map.entrySet())
         {
@@ -890,8 +876,6 @@ public class ColibriBuilder
         boolean hasAnyChanges = false;
 
         assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
-
-        request.setType(IQ.Type.set);
 
         for (Map.Entry<String,MediaDirection> e : map.entrySet())
         {
