@@ -111,7 +111,7 @@ public class ColibriAnalyser
         for (ColibriConferenceIQ.ChannelBundle bundle
              : allocateResponse.getChannelBundles())
         {
-            // ChannelBundle's are mapped by their ID, so here we update the
+            // ChannelBundles are mapped by their ID, so here we update the
             // state of the conference with whatever the response contained.
             conferenceState.addChannelBundle(bundle);
         }
@@ -119,10 +119,9 @@ public class ColibriAnalyser
         for (ColibriConferenceIQ.Endpoint endpoint
             : allocateResponse.getEndpoints())
         {
-            if (endpoints.contains(endpoint.getId()))
-            {
-                conferenceState.addEndpoint(endpoint);
-            }
+            // Endpoints are mapped by their ID, so here we update the
+            // state of the conference with whatever the response contained.
+            conferenceState.addEndpoint(endpoint);
         }
     }
 
@@ -149,7 +148,7 @@ public class ColibriAnalyser
 
         // FIXME: we support single bundle for all channels
         String bundleId = null;
-        Set<String> endpoints = new HashSet<>();
+        Set<String> endpointIds = new HashSet<>();
         for (ContentPacketExtension content : peerContents)
         {
             MediaType mediaType
@@ -173,7 +172,7 @@ public class ColibriAnalyser
 
                     bundleId = readChannelBundle(channelResponse, bundleId);
 
-                    endpoints.add(channelResponse.getEndpoint());
+                    endpointIds.add(channelResponse.getEndpoint());
                 }
 
                 for (ColibriConferenceIQ.SctpConnection sctpConnResponse
@@ -183,7 +182,7 @@ public class ColibriAnalyser
 
                     bundleId = readChannelBundle(sctpConnResponse, bundleId);
 
-                    endpoints.add(sctpConnResponse.getEndpoint());
+                    endpointIds.add(sctpConnResponse.getEndpoint());
                 }
             }
         }
@@ -202,12 +201,14 @@ public class ColibriAnalyser
             }
         }
 
-        // copy all endpoints we have seen
+        // copy only the endpoints we have seen
         for (ColibriConferenceIQ.Endpoint en
             : conferenceResponse.getEndpoints())
         {
-            if (endpoints.contains(en.getId()))
+            if (endpointIds.contains(en.getId()))
+            {
                 conferenceResult.addEndpoint(en);
+            }
         }
 
         return conferenceResult;

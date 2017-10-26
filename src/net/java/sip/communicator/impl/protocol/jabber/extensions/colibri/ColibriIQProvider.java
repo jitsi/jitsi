@@ -332,7 +332,12 @@ public class ColibriIQProvider
                     else if (ColibriConferenceIQ.Endpoint.ELEMENT_NAME
                             .equals(name))
                     {
-                        conference.addEndpoint(conferenceEndpoint);
+                        if (conference.addEndpoint(conferenceEndpoint) != null)
+                        {
+                            logger.warn(
+                                "Replacing an endpoint element with the same"
+                                    + "ID (not a valid Colibri packet).");
+                        }
                         conferenceEndpoint = null;
                     }
                     else if (ColibriConferenceIQ.Channel.SSRC_ELEMENT_NAME

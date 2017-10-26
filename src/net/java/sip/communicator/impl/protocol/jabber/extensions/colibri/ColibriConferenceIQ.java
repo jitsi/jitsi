@@ -91,8 +91,8 @@ public class ColibriConferenceIQ
     public static final int[] NO_SSRCS = new int[0];
 
     /**
-     * The list of {@link ChannelBundle}s included into this <tt>conference</tt>
-     * IQ.
+     * The {@link ChannelBundle}s included in this {@link ColibriConferenceIQ},
+     * mapped by their ID.
      */
     private final Map<String, ChannelBundle> channelBundles
         = new ConcurrentHashMap<>();
@@ -103,9 +103,10 @@ public class ColibriConferenceIQ
     private final List<Content> contents = new LinkedList<>();
 
     /**
-     * The list of <tt>Endpoint</tt>s included into this <tt>conference</tt> IQ.
+     * The {@link Endpoint}s included in this {@link ColibriConferenceIQ},
+     * mapped by their ID.
      */
-    private final List<Endpoint> endpoints = new LinkedList<>();
+    private final Map<String, Endpoint> endpoints = new ConcurrentHashMap<>();
 
     /**
      * The ID of the conference represented by this IQ.
@@ -222,18 +223,19 @@ public class ColibriConferenceIQ
     }
 
     /**
-     * Add an <tt>Endpoint</tt> to this <tt>ColibriConferenceIQ</tt>.
-     * @param endpoint the <tt>Endpoint</tt> to add.
-     * @return whether endpoint was added.
+     * Adds an {@link Endpoint} to this {@link ColibriConferenceIQ}. The
+     * endpoint must be non-null and must have a non-null ID. If an
+     * {@link Endpoint} with the same ID as the given {@link Endpoint} already
+     * exists it is replaced and the previous one is returned.
+     * @param endpoint the {@link Endpoint} to add.
+     * @return The previous {@link Endpoint} with the same ID, or {@code null}.
      */
-    public boolean addEndpoint(Endpoint endpoint)
+    public Endpoint addEndpoint(Endpoint endpoint)
     {
         Objects.requireNonNull(endpoint, "endpoint");
+        String id = Objects.requireNonNull(endpoint.getId(), "endpoint ID");
 
-        return
-            endpoints.contains(endpoint)
-                ? false
-                : endpoints.add(endpoint);
+        return endpoints.put(id, endpoint);
     }
 
     /**
@@ -268,14 +270,7 @@ public class ColibriConferenceIQ
         {
             return null;
         }
-        for (Endpoint endpoint : endpoints)
-        {
-            if (endpointId.equals(endpoint.getId()))
-            {
-                return endpoint;
-            }
-        }
-        return null;
+        return endpoints.get(endpointId);
     }
 
     /**
@@ -362,14 +357,12 @@ public class ColibriConferenceIQ
     }
 
     /**
-     * Returns the list of <tt>Endpoint</tt>s included in this
-     * <tt>ColibriConferenceIQ</tt>.
-     * @return the list of <tt>Endpoint</tt>s included in this
-     * <tt>ColibriConferenceIQ</tt>.
+     * Returns a list of all {@link Endpoint}s in this
+     * {@link ColibriConferenceIQ}.
      */
     public List<Endpoint> getEndpoints()
     {
-        return Collections.unmodifiableList(endpoints);
+        return new LinkedList<>(endpoints.values());
     }
 
     /**
