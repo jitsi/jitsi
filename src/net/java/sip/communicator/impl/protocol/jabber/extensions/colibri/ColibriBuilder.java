@@ -39,7 +39,7 @@ import java.util.*;
  * {@link #addAllocateChannelsReq(
  *              boolean, String, String, boolean, java.util.List)}}
  * or {@link #addExpireChannelsReq(ColibriConferenceIQ)}
- * or {@link #addRtpDescription(Map, ColibriConferenceIQ)}
+ * or {@link #addRtpDescription(RtpDescriptionPacketExtension, String, String)}
  * and {@link #addSourceGroupsInfo(Map, ColibriConferenceIQ)}
  * and {@link #addSourceInfo(Map, ColibriConferenceIQ)}.
  *     </li>
@@ -71,6 +71,74 @@ public class ColibriBuilder
      * The logger used by this instance.
      */
     private final static Logger logger = Logger.getLogger(ColibriBuilder.class);
+
+    /**
+     * Copies the transport info from a {@link ContentPacketExtension} to a
+     * {@link ColibriConferenceIQ.ChannelCommon}.
+     * @param content the {@link ContentPacketExtension} from which to copy.
+     * @param channel the {@link ColibriConferenceIQ.ChannelCommon} to which to copy.
+     */
+    private static void copyTransport(
+        ContentPacketExtension content,
+        ColibriConferenceIQ.ChannelCommon channel)
+    {
+        IceUdpTransportPacketExtension transport
+            = content.getFirstChildOfType(
+            IceUdpTransportPacketExtension.class);
+
+        channel.setTransport(
+            IceUdpTransportPacketExtension
+                .cloneTransportAndCandidates(transport, true));
+
+    }
+
+    /**
+     * Copies the contents of the description element from a
+     * {@link ContentPacketExtension} to a {@link ColibriConferenceIQ.Channel}.
+     * @param content the {@link ContentPacketExtension} from which to copy.
+     * @param channel the {@link ColibriConferenceIQ.Channel} to which to copy.
+     */
+    private static boolean copyDescription(
+        ContentPacketExtension content,
+        ColibriConferenceIQ.Channel channel)
+    {
+        RtpDescriptionPacketExtension description
+            = content.getFirstChildOfType(
+            RtpDescriptionPacketExtension.class);
+        if (description != null)
+        {
+            return copyDescription(description, channel);
+        }
+        return false;
+    }
+
+    /**
+     * Copies the contents of a {@link RtpDescriptionPacketExtension} to a
+     * {@link ColibriConferenceIQ.Channel}.
+     * @param description the {@link RtpDescriptionPacketExtension} from which
+     * to copy.
+     * @param channel the {@link ColibriConferenceIQ.Channel} to which to copy.
+     */
+    private static boolean copyDescription(
+        RtpDescriptionPacketExtension description,
+        ColibriConferenceIQ.Channel channel)
+    {
+        boolean added = false;
+        for (PayloadTypePacketExtension payloadType : description.getPayloadTypes())
+        {
+            channel.addPayloadType(payloadType);
+            added = true;
+        }
+
+        for (RTPHdrExtPacketExtension rtpHdrExt : description.getExtmapList())
+        {
+            channel.addRtpHeaderExtension(rtpHdrExt);
+            added = true;
+        }
+
+        return added;
+    }
+
 
     /**
      * Colibri IQ that holds conference state.
@@ -319,53 +387,6 @@ public class ColibriBuilder
     }
 
     /**
-     * Copies the contents of the description element from a
-     * {@link ContentPacketExtension} to a {@link ColibriConferenceIQ.Channel}.
-     * @param content the {@link ContentPacketExtension} from which to copy.
-     * @param channel the {@link ColibriConferenceIQ.Channel} to which to copy.
-     */
-    private boolean copyDescription(
-            ContentPacketExtension content,
-            ColibriConferenceIQ.Channel channel)
-    {
-        RtpDescriptionPacketExtension description
-            = content.getFirstChildOfType(
-                    RtpDescriptionPacketExtension.class);
-        if (description != null)
-        {
-            return copyDescription(description, channel);
-        }
-        return false;
-    }
-
-    /**
-     * Copies the contents of a {@link RtpDescriptionPacketExtension} to a
-     * {@link ColibriConferenceIQ.Channel}.
-     * @param description the {@link RtpDescriptionPacketExtension} from which
-     * to copy.
-     * @param channel the {@link ColibriConferenceIQ.Channel} to which to copy.
-     */
-    private boolean copyDescription(
-        RtpDescriptionPacketExtension description,
-        ColibriConferenceIQ.Channel channel)
-    {
-        boolean added = false;
-        for (PayloadTypePacketExtension payloadType : description.getPayloadTypes())
-        {
-            channel.addPayloadType(payloadType);
-            added = true;
-        }
-
-        for (RTPHdrExtPacketExtension rtpHdrExt : description.getExtmapList())
-        {
-            channel.addRtpHeaderExtension(rtpHdrExt);
-            added = true;
-        }
-
-        return added;
-    }
-
-    /**
      * Adds a {@link ColibriConferenceIQ.ChannelBundle} with a specific
      * ID and a specific {@code transport} element to a
      * {@link RequestType#CHANNEL_INFO_UPDATE} query.
@@ -377,8 +398,8 @@ public class ColibriBuilder
      * to send it.
      */
     public boolean addBundleTransportUpdateReq(
-            IceUdpTransportPacketExtension transport,
-            String channelBundleId)
+        IceUdpTransportPacketExtension transport,
+        String channelBundleId)
         throws IllegalArgumentException
     {
         Objects.requireNonNull(transport, "transport");
@@ -907,7 +928,7 @@ public class ColibriBuilder
     /**
      * Finds the first {@link ColibriConferenceIQ.Channel} with a given content
      * name in a specific {@link ColibriConferenceIQ}.
-     * @param colibriConferenceIQ the {@link ColibriConferenceIQ} from which
+     * @param localChannelsInfo the {@link ColibriConferenceIQ} from which
      * to find a channel.
      * @param contentName the name of the content.
      * @return the first {@link ColibriConferenceIQ.Channel} in the
@@ -984,26 +1005,6 @@ public class ColibriBuilder
                 "Request type already set to " + requestType
                     + ", can not change to " + currentReqType);
         }
-    }
-
-    /**
-     * Copies the transport info from a {@link ContentPacketExtension} to a
-     * {@link ColibriConferenceIQ.ChannelCommon}.
-     * @param content the {@link ContentPacketExtension} from which to copy.
-     * @param channel the {@link ColibriConferenceIQ.ChannelCommon} to which to copy.
-     */
-    private void copyTransport(
-        ContentPacketExtension content,
-        ColibriConferenceIQ.ChannelCommon channel)
-    {
-        IceUdpTransportPacketExtension transport
-            = content.getFirstChildOfType(
-                    IceUdpTransportPacketExtension.class);
-
-        channel.setTransport(
-            IceUdpTransportPacketExtension
-                .cloneTransportAndCandidates(transport, true));
-
     }
 
     /**
