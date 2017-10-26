@@ -270,7 +270,7 @@ public class ColibriBuilder
      *
      * @param useBundle <tt>true</tt> if allocated channels should all use
      * the same bundle.
-     * @param endpointName name of the endpoint for which Colibri channels will
+     * @param endpointId name of the endpoint for which Colibri channels will
      * @param peerIsInitiator the value that will be set in 'initiator'
      * attribute ({@link ColibriConferenceIQ.Channel#initiator}).
      * @param contents the list of {@link ContentPacketExtension} describing
@@ -282,13 +282,13 @@ public class ColibriBuilder
      * to send it.
      */
     public boolean addAllocateChannelsReq(
-            boolean                      useBundle,
-            String                       endpointName,
-            String                       statsId,
-            boolean                      peerIsInitiator,
+            boolean useBundle,
+            String endpointId,
+            String statsId,
+            boolean peerIsInitiator,
             List<ContentPacketExtension> contents)
     {
-        Objects.requireNonNull(endpointName, "endpointName");
+        Objects.requireNonNull(endpointId, "endpointId");
         Objects.requireNonNull(contents, "contents");
         assertRequestType(RequestType.ALLOCATE_CHANNELS);
 
@@ -306,12 +306,12 @@ public class ColibriBuilder
                         ? new ColibriConferenceIQ.Channel()
                         : new ColibriConferenceIQ.SctpConnection();
 
-            requestChannel.setEndpoint(endpointName);
+            requestChannel.setEndpoint(endpointId);
             requestChannel.setInitiator(peerIsInitiator);
 
             if (useBundle)
             {
-                requestChannel.setChannelBundleId(endpointName);
+                requestChannel.setChannelBundleId(endpointId);
             }
 
             if (requestChannel instanceof ColibriConferenceIQ.Channel)
@@ -358,7 +358,7 @@ public class ColibriBuilder
         {
             // Copy first transport to bundle
             ColibriConferenceIQ.ChannelBundle bundle
-                = new ColibriConferenceIQ.ChannelBundle(endpointName);
+                = new ColibriConferenceIQ.ChannelBundle(endpointId);
 
             ContentPacketExtension firstContent = contents.get(0);
 
@@ -379,7 +379,7 @@ public class ColibriBuilder
 
         // Set the endpoint
         ColibriConferenceIQ.Endpoint endpoint
-            = new ColibriConferenceIQ.Endpoint(endpointName, statsId, null);
+            = new ColibriConferenceIQ.Endpoint(endpointId, statsId, null);
 
         request.addEndpoint(endpoint);
 
@@ -427,16 +427,14 @@ public class ColibriBuilder
                 IceUdpTransportPacketExtension
                     .cloneTransportAndCandidates(transport, true));
 
-        // Note: if the request already contains a bundle with the same ID, the
-        // OLD one is kept.
-        boolean hasAnyChanges = request.addChannelBundle(channelBundleRequest);
-        if (!hasAnyChanges)
-        {
-            logger.warn("An channel-bundle update has been lost (an instance "
-                            + "with its ID already exists)");
-        }
+        request.addChannelBundle(channelBundleRequest);
 
-        return hasAnyChanges;
+        // Note that we don't actually check whether the addition of the bundle
+        // made any changes. We return true, because it is safe. It might lead
+        // us to send an unnecessary request, but it will not fail to send a
+        // request when we need it. We may need to add a check for modification
+        // of the content of the channel bundle extension.
+        return true;
     }
 
     /**

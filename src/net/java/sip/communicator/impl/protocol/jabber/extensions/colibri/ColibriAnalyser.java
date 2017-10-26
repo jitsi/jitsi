@@ -111,6 +111,8 @@ public class ColibriAnalyser
         for (ColibriConferenceIQ.ChannelBundle bundle
              : allocateResponse.getChannelBundles())
         {
+            // ChannelBundle's are mapped by their ID, so here we update the
+            // state of the conference with whatever the response contained.
             conferenceState.addChannelBundle(bundle);
         }
 
@@ -118,7 +120,9 @@ public class ColibriAnalyser
             : allocateResponse.getEndpoints())
         {
             if (endpoints.contains(endpoint.getId()))
+            {
                 conferenceState.addEndpoint(endpoint);
+            }
         }
     }
 
