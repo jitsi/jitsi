@@ -266,25 +266,11 @@
         <javac classpathref="compile.class.path" debug="true"
             deprecation="true" destdir="${dest}" nowarn="false"
             includeantruntime="false"
-            source="1.7" target="1.7" memoryMaximumSize="400M" fork="true">
+            source="1.8" target="1.8" memoryMaximumSize="400M" fork="true">
                 <src path="${src}"/>
                 <src path="${src2}"/>
                 <include name="**/*.java" />
-                <exclude name="net/java/sip/communicator/launcher/*.java" />
                 <compilerarg line="-Xlint -Xlint:-serial -Xlint:-unchecked -Xlint:-rawtypes -Xmaxwarns ${maxwarns}"/>
-        </javac>
-        <!--
-            sc-launcher.jar needs to be compatible with 1.5 in order to enable
-            notifying the user that a higher version of the jre is necessary.
-        -->
-        <javac classpathref="compile.class.path" debug="true"
-            includeantruntime="false"
-            deprecation="true" destdir="${dest}" nowarn="false"
-            source="1.5" target="1.5" memoryMaximumSize="400M" fork="true">
-                <src path="${src}"/>
-                <src path="${src2}"/>
-                <include name="net/java/sip/communicator/launcher/*.java" />
-                <compilerarg line="-Xlint -Xlint:-unchecked -Xlint:-rawtypes -Xmaxwarns ${maxwarns}"/>
         </javac>
     </target>
 
@@ -451,7 +437,7 @@
         </delete>
         <javac
             classpathref="compile.class.path" includeantruntime="false"
-            destdir="${dest}" source="1.7" target="1.7">
+            destdir="${dest}" source="1.8" target="1.8">
             <src path="${src}"/>
             <include name="net/java/sip/communicator/impl/version/NightlyBuildID.java" />
             <include name="net/java/sip/communicator/impl/version/VersionImpl.java" />
