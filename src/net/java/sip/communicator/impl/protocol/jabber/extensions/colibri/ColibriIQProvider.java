@@ -752,7 +752,7 @@ public class ColibriIQProvider
                                 "",
                                 ColibriConferenceIQ.Endpoint.ID_ATTR_NAME);
 
-                        String endpointName
+                        String displayName
                             = parser.getAttributeValue(
                                 "",
                                 ColibriConferenceIQ.Endpoint
@@ -768,7 +768,7 @@ public class ColibriIQProvider
                         {
                             conferenceEndpoint
                                 = new ColibriConferenceIQ.Endpoint(
-                                    id, statsId, endpointName);
+                                    id, statsId, displayName);
                         }
                     }
                     else if ( channel != null
