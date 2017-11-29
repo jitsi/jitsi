@@ -58,6 +58,11 @@ public class SourceGroupPacketExtension
     public static final String SEMANTICS_FID = "FID";
 
     /**
+     * The constant used for fec (see RFC5956)
+     */
+    public static final String SEMANTICS_FEC = "FEC-FR";
+
+    /**
      * Return new instance of <tt>SourceGroupPacketExtension</tt> with simulcast
      * semantics pre-configured.
      */
