@@ -439,30 +439,29 @@ Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
 static LPTSTR
 Run_getJavaLibraryPath()
 {
-    LPCTSTR relativeJavaLibraryPath = _T("native");
-    TCHAR javaLibraryPath[MAX_PATH + 1];
-    DWORD javaLibraryPathCapacity
-        = sizeof(javaLibraryPath) / sizeof(TCHAR);
-    DWORD javaLibraryPathLength
-        = GetFullPathName(
-                relativeJavaLibraryPath,
-                javaLibraryPathCapacity, javaLibraryPath,
-                NULL);
-    LPCTSTR dup;
-
-    if (javaLibraryPathLength
-            && (javaLibraryPathLength < javaLibraryPathCapacity))
+    TCHAR installedNativePath[MAX_PATH];
+    size_t installedNativePathLength = GetFullPathName(_T("native"), MAX_PATH, installedNativePath, NULL);
+    if (!installedNativePathLength || installedNativePathLength >= MAX_PATH)
     {
-        LPTSTR str = javaLibraryPath;
-
-        str += javaLibraryPathLength;
-        *str = 0;
-
-        dup = javaLibraryPath;
+        return _tcsdup(_T(""));
     }
-    else
-        dup = relativeJavaLibraryPath;
-    return _tcsdup(dup);
+
+    TCHAR javaSharedLibraryPath[MAX_PATH];
+    HRESULT hr = SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, 0, SHGFP_TYPE_CURRENT, javaSharedLibraryPath);
+    if (FAILED(hr))
+    {
+        return _tcsdup(_T(""));
+    }
+
+    TCHAR javaLibraryPath[MAX_PATH];
+    memset(javaLibraryPath, 0, sizeof(javaLibraryPath));
+    size_t javaLibraryPathLength = _sntprintf(javaLibraryPath, MAX_PATH, _T("%s;%s\\%s\\native"), installedNativePath, javaSharedLibraryPath, _T(PRODUCTNAME));
+    if (javaLibraryPathLength < 0 || javaLibraryPathLength >= MAX_PATH)
+    {
+        return _tcsdup(_T(""));
+    }
+
+    return _tcsdup(javaLibraryPath);
 }
 
 static LONG
