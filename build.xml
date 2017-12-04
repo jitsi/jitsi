@@ -987,6 +987,7 @@
         <copy file="${lib.noinst}/slf4j-api-1.7.5.jar" tofile="${bundles.dest}/slf4j-api.jar"/>
         <copy file="${lib.noinst}/slf4j-jdk14-1.7.5.jar" tofile="${bundles.dest}/slf4j-jdk14.jar"/>
         <copy file="${lib.noinst}/commons-codec-1.6.jar" tofile="${bundles.dest}/commons-codec.jar"/>
+        <copy file="${lib.noinst}/commons-compress-1.15.jar" tofile="${bundles.dest}/commons-compress.jar"/>
         <copy file="${lib.noinst}/commons-lang3-3.1.jar" tofile="${bundles.dest}/commons-lang.jar"/>
         <copy file="${lib.noinst}/httpclient-osgi-4.2.3.jar" tofile="${bundles.dest}/httpclient.jar"/>
         <copy file="${lib.noinst}/httpcore-osgi-4.2.3.jar" tofile="${bundles.dest}/httpcore.jar"/>
