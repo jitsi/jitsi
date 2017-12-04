@@ -159,7 +159,7 @@ public class OpenH264Retriever
                 = NeomediaActivator.getResources();
             if (e.getActionCommand().equals(ACTION_DOWNLOAD))
             {
-                checkForUpdateAndDownload(false);
+                downloadInNewThread();
 
                 NeomediaActivator.getConfigurationService()
                     .addPropertyChangeListener(
@@ -208,20 +208,15 @@ public class OpenH264Retriever
     /**
      * Checks whether current version matches the one that is already installed,
      * and shows a dialog to inform user to download the new version.
-     * If version is not installed.
-     * @param skipUpdateIfNotInstalled skip updating if OpenH264 is not
-     * installed, this is the case of checking for updates on startup.
      */
-    public static void checkForUpdateAndDownload(
-        boolean skipUpdateIfNotInstalled)
+    public static void checkForUpdateAndDownload()
     {
         ConfigurationService cfg = NeomediaActivator.getConfigurationService();
 
         String installedVersion
             = cfg.getString(OPENH264_INSTALLED_VERSION_PROP);
-        if (installedVersion != null
-            && installedVersion.equals(OPENH264_CURRENT_VERSION)
-            || (installedVersion == null && skipUpdateIfNotInstalled))
+        if (installedVersion == null
+            || installedVersion.equals(OPENH264_CURRENT_VERSION))
         {
             // no need for update
             return;
@@ -288,40 +283,7 @@ public class OpenH264Retriever
                     }
                     finally
                     {
-                        new Thread()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                try
-                                {
-                                    String url = chooseOpenH264URL();
-
-                                    if (url == null)
-                                    {
-                                        logger.error("Unsupported OS!");
-                                        return;
-                                    }
-
-                                    File f = FileUtils.download(
-                                        url, "libopenh264", ".bz2");
-                                    if (f != null)
-                                    {
-                                        install(f);
-                                    }
-                                    else
-                                    {
-                                        logger.error("Error downloading "
-                                            + "openh264 binary!");
-                                    }
-                                }
-                                catch (IOException e1)
-                                {
-                                    logger.error("Error downloading "
-                                        + "openh264 binary!", e1);
-                                }
-                            }
-                        }.start();
+                        downloadInNewThread();
                     }
                 }
             });
@@ -342,6 +304,47 @@ public class OpenH264Retriever
             screenSize.height/2 - dialog.getHeight()/2);
 
         dialog.setVisible(true);
+    }
+
+    /**
+     * Starts a new thread and starts the download in it.
+     */
+    private static void downloadInNewThread()
+    {
+        new Thread()
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    String url = chooseOpenH264URL();
+
+                    if (url == null)
+                    {
+                        logger.error("Unsupported OS!");
+                        return;
+                    }
+
+                    File f = FileUtils.download(
+                        url, "libopenh264", ".bz2");
+                    if (f != null)
+                    {
+                        install(f);
+                    }
+                    else
+                    {
+                        logger.error("Error downloading "
+                            + "openh264 binary!");
+                    }
+                }
+                catch (IOException e1)
+                {
+                    logger.error("Error downloading "
+                        + "openh264 binary!", e1);
+                }
+            }
+        }.start();
     }
 
     /**

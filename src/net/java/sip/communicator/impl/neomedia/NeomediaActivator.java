@@ -568,7 +568,7 @@ public class NeomediaActivator
         }
 
         // Checks for update
-        OpenH264Retriever.checkForUpdateAndDownload(true);
+        OpenH264Retriever.checkForUpdateAndDownload();
     }
 
     /**
