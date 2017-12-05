@@ -20,6 +20,7 @@ package net.java.sip.communicator.impl.neomedia.codec.video.h264;
 import net.java.sip.communicator.impl.neomedia.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.FileUtils;
+import net.java.sip.communicator.service.browserlauncher.*;
 import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.service.configuration.*;
@@ -27,6 +28,7 @@ import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
@@ -34,6 +36,7 @@ import java.io.*;
 import java.nio.file.*;
 
 import org.apache.commons.compress.compressors.bzip2.*;
+import org.osgi.framework.*;
 
 /**
  * OpenH264 downloading and installing in correct folder, gives an option
@@ -135,10 +138,44 @@ public class OpenH264Retriever
         container.add(actionButton, BorderLayout.WEST);
 
         actionButton.addActionListener(new ButtonActionListener());
+
         // The text as required by the license:
         // http://www.openh264.org/BINARY_LICENSE.txt
+        StyledHTMLEditorPane licenseText = new StyledHTMLEditorPane();
+        licenseText.appendToEnd(
+            "<html><div>OpenH264 Video Codec provided by Cisco Systems, Inc. "
+            + "<a href=\"http://www.openh264.org/BINARY_LICENSE.txt\">"
+                    + "Show License</a></div></html>");
+        licenseText.setOpaque(false);
+        licenseText.setEditable(false);
+        licenseText.addHyperlinkListener(new HyperlinkListener()
+        {
+            @Override
+            /**
+             * Opens a browser when the link has been activated (clicked).
+             * @param e the <tt>HyperlinkEvent</tt> that notified us
+             */
+            public void hyperlinkUpdate(HyperlinkEvent e)
+            {
+                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
+                {
+                    ServiceReference<BrowserLauncherService> serviceReference =
+                        NeomediaActivator.getBundleContext().getServiceReference(
+                            BrowserLauncherService.class);
+
+                    if (serviceReference != null)
+                    {
+                        BrowserLauncherService browserLauncherService
+                            = NeomediaActivator.getBundleContext().getService(serviceReference);
+
+                        browserLauncherService.openURL(e.getDescription());
+                    }
+                }
+            }
+        });
+
         container.add(
-            new JLabel("OpenH264 Video Codec provided by Cisco Systems, Inc."),
+            licenseText,
             BorderLayout.NORTH);
         container.add(needRestart, BorderLayout.SOUTH);
 
