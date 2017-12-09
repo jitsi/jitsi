@@ -398,7 +398,7 @@ public class OpenH264Retriever
                 OPENH264_INSTALL_DIR_WINDOWS.replace(
                     "%ALLUSERSPROFILE%",
                     System.getenv("ALLUSERSPROFILE")),
-                "openh264.dll");
+                "libopenh264.dll");
         }
         else if (OSUtils.IS_MAC)
         {
