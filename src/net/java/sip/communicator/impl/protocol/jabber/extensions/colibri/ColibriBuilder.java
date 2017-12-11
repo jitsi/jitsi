@@ -125,13 +125,14 @@ public class ColibriBuilder
         boolean added = false;
         for (PayloadTypePacketExtension payloadType : description.getPayloadTypes())
         {
-            channel.addPayloadType(payloadType);
+            channel.addPayloadType(new PayloadTypePacketExtension(payloadType));
             added = true;
         }
 
         for (RTPHdrExtPacketExtension rtpHdrExt : description.getExtmapList())
         {
-            channel.addRtpHeaderExtension(rtpHdrExt);
+            channel
+                .addRtpHeaderExtension(new RTPHdrExtPacketExtension(rtpHdrExt));
             added = true;
         }
 

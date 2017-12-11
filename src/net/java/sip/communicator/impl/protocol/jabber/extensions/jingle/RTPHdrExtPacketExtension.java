@@ -77,7 +77,9 @@ public class RTPHdrExtPacketExtension
         this();
         String attributes = ext.getAttributes();
         if (attributes != null)
+        {
             setAttributes(attributes);
+        }
         setID(ext.getID());
         setSenders(ext.getSenders());
         setURI(ext.getURI());

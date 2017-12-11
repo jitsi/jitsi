@@ -52,6 +52,16 @@ public class ParameterPacketExtension extends AbstractPacketExtension
     }
 
     /**
+     * Initializes a {@link ParameterPacketExtension} instance inheriting all
+     * of its fields from another instance.
+     * @param other the instance to inherit from.
+     */
+    public ParameterPacketExtension(ParameterPacketExtension other)
+    {
+        this(other.getName(), other.getValue());
+    }
+
+    /**
      * Creates a new {@link ParameterPacketExtension} instance and sets the
      * given name and value.
      */

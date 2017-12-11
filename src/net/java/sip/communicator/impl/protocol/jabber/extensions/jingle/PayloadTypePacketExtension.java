@@ -77,6 +77,33 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
     }
 
     /**
+     * Initializes a {@link PayloadTypePacketExtension} instance inheriting all
+     * of its fields from another instance.
+     * @param other the instance to inherit from.
+     */
+    public PayloadTypePacketExtension(PayloadTypePacketExtension other)
+    {
+        this();
+
+        setChannels(other.getChannels());
+        setClockrate(other.getClockrate());
+        setId(other.getID());
+        setMaxptime(other.getMaxptime());
+        setName(other.getName());
+        setPtime(other.getPtime());
+
+        for (RtcpFbPacketExtension rtcpFb : getRtcpFeedbackTypeList())
+        {
+            addRtcpFeedbackType(new RtcpFbPacketExtension(rtcpFb));
+        }
+
+        for (ParameterPacketExtension parameter : getParameters())
+        {
+            addParameter(new ParameterPacketExtension(parameter));
+        }
+    }
+
+    /**
      * Sets the number of channels in this payload type. If omitted, it will be
      * assumed to contain one channel.
      *
