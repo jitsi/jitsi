@@ -472,7 +472,7 @@ public class ColibriBuilder
         }
         else if (useBundle && endpointId == null)
         {
-            logger.error("XXX");
+            logger.error("Bundle requested, but no endpointId provided.");
         }
 
         if (endpointId != null)
