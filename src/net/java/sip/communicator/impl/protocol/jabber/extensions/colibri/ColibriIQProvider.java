@@ -20,13 +20,10 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
-import net.java.sip.communicator.service.protocol.jabber.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.util.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
-import org.jxmpp.jid.*;
-import org.jxmpp.jid.impl.*;
 import org.jxmpp.jid.parts.Localpart;
 import org.xmlpull.v1.*;
 
@@ -40,6 +37,11 @@ import org.xmlpull.v1.*;
 public class ColibriIQProvider
     extends IQProvider
 {
+    /**
+     * The logger instance used by this class.
+     */
+    private final static Logger logger
+        = Logger.getLogger(ColibriIQProvider.class);
 
     /** Initializes a new <tt>ColibriIQProvider</tt> instance. */
     public ColibriIQProvider()
@@ -317,7 +319,12 @@ public class ColibriIQProvider
                     {
                         if (bundle != null)
                         {
-                            conference.addChannelBundle(bundle);
+                            if (conference.addChannelBundle(bundle) != null)
+                            {
+                                logger.warn(
+                                    "Replacing a channel-bundle with the same"
+                                        + "ID (not a valid Colibri packet).");
+                            }
 
                             bundle = null;
                         }
@@ -325,7 +332,12 @@ public class ColibriIQProvider
                     else if (ColibriConferenceIQ.Endpoint.ELEMENT_NAME
                             .equals(name))
                     {
-                        conference.addEndpoint(conferenceEndpoint);
+                        if (conference.addEndpoint(conferenceEndpoint) != null)
+                        {
+                            logger.warn(
+                                "Replacing an endpoint element with the same"
+                                    + "ID (not a valid Colibri packet).");
+                        }
                         conferenceEndpoint = null;
                     }
                     else if (ColibriConferenceIQ.Channel.SSRC_ELEMENT_NAME
@@ -740,7 +752,7 @@ public class ColibriIQProvider
                                 "",
                                 ColibriConferenceIQ.Endpoint.ID_ATTR_NAME);
 
-                        String endpointName
+                        String displayName
                             = parser.getAttributeValue(
                                 "",
                                 ColibriConferenceIQ.Endpoint
@@ -756,7 +768,7 @@ public class ColibriIQProvider
                         {
                             conferenceEndpoint
                                 = new ColibriConferenceIQ.Endpoint(
-                                    id, statsId, endpointName);
+                                    id, statsId, displayName);
                         }
                     }
                     else if ( channel != null

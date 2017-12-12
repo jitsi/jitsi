@@ -18,6 +18,7 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
@@ -90,21 +91,22 @@ public class ColibriConferenceIQ
     public static final int[] NO_SSRCS = new int[0];
 
     /**
-     * The list of {@link ChannelBundle}s included into this <tt>conference</tt>
-     * IQ.
+     * The {@link ChannelBundle}s included in this {@link ColibriConferenceIQ},
+     * mapped by their ID.
      */
-    private final List<ChannelBundle> channelBundles
-        = new LinkedList<ChannelBundle>();
+    private final Map<String, ChannelBundle> channelBundles
+        = new ConcurrentHashMap<>();
 
     /**
      * The list of {@link Content}s included into this <tt>conference</tt> IQ.
      */
-    private final List<Content> contents = new LinkedList<Content>();
+    private final List<Content> contents = new LinkedList<>();
 
     /**
-     * The list of <tt>Endpoint</tt>s included into this <tt>conference</tt> IQ.
+     * The {@link Endpoint}s included in this {@link ColibriConferenceIQ},
+     * mapped by their ID.
      */
-    private final List<Endpoint> endpoints = new LinkedList<Endpoint>();
+    private final Map<String, Endpoint> endpoints = new ConcurrentHashMap<>();
 
     /**
      * The ID of the conference represented by this IQ.
@@ -169,19 +171,22 @@ public class ColibriConferenceIQ
     }
 
     /**
-     * Adds a specific {@link Content} instance to the list of <tt>Content</tt>
-     * instances included into this <tt>conference</tt> IQ.
+     * Adds a specific {@link ChannelBundle} instance to this
+     * {@link ColibriConferenceIQ}. The bundle must have a non-null ID, and
+     * if another {@link ChannelBundle} with the same ID exists in this
+     * {@link ColibriConferenceIQ}, the old one will be replaced.
+     *
      * @param channelBundle the <tt>ChannelBundle</tt> to add.
+     * @return the previous {@link ChannelBundle} with the same ID as
+     * {@code channelBundle}, or {@code null} if one did not exist.
      */
-    public boolean addChannelBundle(ChannelBundle channelBundle)
+    public ChannelBundle addChannelBundle(ChannelBundle channelBundle)
     {
-        if (channelBundle == null)
-            throw new NullPointerException("channelBundle");
+        Objects.requireNonNull(channelBundle, "channelBundle");
+        String id =
+            Objects.requireNonNull(channelBundle.getId(), "channelBundle ID");
 
-        return
-            channelBundles.contains(channelBundle)
-               ? false
-               : channelBundles.add(channelBundle);
+        return channelBundles.put(id, channelBundle);
     }
 
     /**
@@ -193,8 +198,6 @@ public class ColibriConferenceIQ
      * @return <tt>true</tt> if the list of <tt>Content</tt> instances included
      * into this <tt>conference</tt> IQ has been modified as a result of the
      * method call; otherwise, <tt>false</tt>
-     * @throws NullPointerException if the specified <tt>content</tt> is
-     * <tt>null</tt>
      */
     public boolean addContent(Content content)
     {
@@ -220,53 +223,39 @@ public class ColibriConferenceIQ
     }
 
     /**
-     * Add an <tt>Endpoint</tt> to this <tt>ColibriConferenceIQ</tt>.
-     * @param endpoint the <tt>Endpoint</tt> to add.
-     * @return whether endpoint was added.
+     * Adds an {@link Endpoint} to this {@link ColibriConferenceIQ}. The
+     * endpoint must be non-null and must have a non-null ID. If an
+     * {@link Endpoint} with the same ID as the given {@link Endpoint} already
+     * exists it is replaced and the previous one is returned.
+     * @param endpoint the {@link Endpoint} to add.
+     * @return The previous {@link Endpoint} with the same ID, or {@code null}.
      */
-    public boolean addEndpoint(Endpoint endpoint)
+    public Endpoint addEndpoint(Endpoint endpoint)
     {
-        if (endpoint == null)
-            throw new NullPointerException("endpoint");
+        Objects.requireNonNull(endpoint, "endpoint");
+        String id = Objects.requireNonNull(endpoint.getId(), "endpoint ID");
 
-        return
-            endpoints.contains(endpoint)
-                ? false
-                : endpoints.add(endpoint);
+        return endpoints.put(id, endpoint);
     }
 
     /**
-     * Returns a list of the <tt>ChannelBundle</tt>s included into this
-     * <tt>conference</tt> IQ.
-     *
-     * @return an unmodifiable <tt>List</tt> of the <tt>ChannelBundle</tt>s
-     * included into this <tt>conference</tt> IQ.
+     * @return a list which contains the {@link ChannelBundle}s of this
+     * {@link ColibriConferenceIQ}.
      */
     public List<ChannelBundle> getChannelBundles()
     {
-        return Collections.unmodifiableList(channelBundles);
+        return new LinkedList<>(channelBundles.values());
     }
 
     /**
-     * Finds {@link ChannelBundle} identified by given <tt>bundleId</tt>.
-     * @param bundleId <tt>ChannelBundle</tt> identifier.
-     * @return {@link ChannelBundle} identified by given <tt>bundleId</tt> or
-     *         <tt>null</tt> if not found.
+     * @param channelBundleId The ID of the {@link ChannelBundle} to get.
+     * @return The {@link ChannelBundle} identified by {@code channelBundleId},
+     * or {@code null}.
      */
-    public ChannelBundle getChannelBundle(String bundleId)
+    public ChannelBundle getChannelBundle(String channelBundleId)
     {
-        if (bundleId == null)
-        {
-            return null;
-        }
-        for (ChannelBundle bundle : channelBundles)
-        {
-            if (bundleId.equals(bundle.getId()))
-            {
-                return bundle;
-            }
-        }
-        return null;
+        Objects.requireNonNull(channelBundleId, "channelBundleId");
+        return channelBundles.get(channelBundleId);
     }
 
     /**
@@ -281,14 +270,7 @@ public class ColibriConferenceIQ
         {
             return null;
         }
-        for (Endpoint endpoint : endpoints)
-        {
-            if (endpointId.equals(endpoint.getId()))
-            {
-                return endpoint;
-            }
-        }
-        return null;
+        return endpoints.get(endpointId);
     }
 
     /**
@@ -375,14 +357,12 @@ public class ColibriConferenceIQ
     }
 
     /**
-     * Returns the list of <tt>Endpoint</tt>s included in this
-     * <tt>ColibriConferenceIQ</tt>.
-     * @return the list of <tt>Endpoint</tt>s included in this
-     * <tt>ColibriConferenceIQ</tt>.
+     * Returns a list of all {@link Endpoint}s in this
+     * {@link ColibriConferenceIQ}.
      */
     public List<Endpoint> getEndpoints()
     {
-        return Collections.unmodifiableList(endpoints);
+        return new LinkedList<>(endpoints.values());
     }
 
     /**
@@ -740,13 +720,10 @@ public class ColibriConferenceIQ
          * @return <tt>true</tt> if the list of <tt>payload-type</tt> elements
          * associated with this <tt>channel</tt> has been modified as part of
          * the method call; otherwise, <tt>false</tt>
-         * @throws NullPointerException if the specified <tt>payloadType</tt> is
-         * <tt>null</tt>
          */
         public boolean addPayloadType(PayloadTypePacketExtension payloadType)
         {
-            if (payloadType == null)
-                throw new NullPointerException("payloadType");
+            Objects.requireNonNull(payloadType, "payloadType");
 
             // Make sure that the COLIBRI namespace is used.
             payloadType.setNamespace(null);
@@ -768,13 +745,10 @@ public class ColibriConferenceIQ
          * @return <tt>true</tt> if the list of <tt>rtp-hdrext</tt> elements
          * associated with this <tt>channel</tt> has been modified as part of
          * the method call; otherwise, <tt>false</tt>
-         * @throws NullPointerException if the specified <tt>ext</tt> is
-         * <tt>null</tt>
          */
         public void addRtpHeaderExtension(RTPHdrExtPacketExtension ext)
         {
-            if (ext == null)
-                throw new NullPointerException("payloadType");
+            Objects.requireNonNull(ext, "ext");
 
             // Create a new instance, because we are going to modify the NS
             RTPHdrExtPacketExtension newExt = new RTPHdrExtPacketExtension(ext);
@@ -812,8 +786,7 @@ public class ColibriConferenceIQ
          */
         public synchronized boolean addSource(SourcePacketExtension source)
         {
-            if (source == null)
-                throw new NullPointerException("source");
+            Objects.requireNonNull(source, "source");
 
             return sources.contains(source) ? false : sources.add(source);
         }
@@ -831,11 +804,12 @@ public class ColibriConferenceIQ
         public synchronized boolean addSourceGroup(
                 SourceGroupPacketExtension sourceGroup)
         {
-            if (sourceGroup == null)
-                throw new NullPointerException("sourceGroup");
+            Objects.requireNonNull(sourceGroup, "sourceGroup");
 
             if (sourceGroups == null)
-                sourceGroups = new LinkedList<SourceGroupPacketExtension>();
+            {
+                sourceGroups = new LinkedList<>();
+            }
 
             return
                 sourceGroups.contains(sourceGroup)
@@ -2031,13 +2005,10 @@ public class ColibriConferenceIQ
          * @return <tt>true</tt> if the list of <tt>Channel</tt>s included into
          * this <tt>Content</tt> was modified as a result of the execution of
          * the method; otherwise, <tt>false</tt>
-         * @throws NullPointerException if the specified <tt>channel</tt> is
-         * <tt>null</tt>
          */
         public boolean addChannel(Channel channel)
         {
-            if (channel == null)
-                throw new NullPointerException("channel");
+            Objects.requireNonNull(channel, "channel");
 
             return channels.contains(channel) ? false : channels.add(channel);
         }
@@ -2070,13 +2041,10 @@ public class ColibriConferenceIQ
          * @return <tt>true</tt> if the list of <tt>SctpConnection</tt>s
          * included into this <tt>Content</tt> was modified as a result of
          * the execution of the method; otherwise, <tt>false</tt>
-         * @throws NullPointerException if the specified <tt>conn</tt> is
-         * <tt>null</tt>
          */
         public boolean addSctpConnection(SctpConnection conn)
         {
-            if(conn == null)
-                throw new NullPointerException("Sctp connection");
+            Objects.requireNonNull(conn, "conn");
 
             return !sctpConnections.contains(conn) && sctpConnections.add(conn);
         }
@@ -2198,13 +2166,10 @@ public class ColibriConferenceIQ
          *
          * @param name the name of the <tt>content</tt> represented by this
          * instance
-         * @throws NullPointerException if the specified <tt>name</tt> is
-         * <tt>null</tt>
          */
         public void setName(String name)
         {
-            if (name == null)
-                throw new NullPointerException("name");
+            Objects.requireNonNull(name, "name");
 
             this.name = name;
         }
