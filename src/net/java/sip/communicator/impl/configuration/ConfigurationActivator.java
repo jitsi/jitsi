@@ -21,7 +21,6 @@ import com.sun.jna.*;
 
 import net.java.sip.communicator.util.ServiceUtils;
 
-import org.jitsi.impl.configuration.ConfigurationServiceImpl;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;
 import org.jitsi.service.libjitsi.*;
