@@ -263,7 +263,7 @@ public class FileElement
                 }
                 else if (elementName.equals("thumbnail"))
                 {
-                    thumbnail = new ThumbnailElement(parser.getText());
+                    thumbnail = ThumbnailElement.parseExtension(parser);
                 }
             }
             else if (eventType == XmlPullParser.END_TAG)

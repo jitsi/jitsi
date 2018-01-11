@@ -20,12 +20,9 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.thumbnail;
 import java.io.*;
 import java.security.*;
 
-import javax.xml.parsers.*;
+import org.xmlpull.v1.*;
 
 import net.java.sip.communicator.util.*;
-
-import org.jitsi.util.xml.*;
-import org.w3c.dom.*;
 
 /**
  * The <tt>ThumbnailElement</tt> represents a "thumbnail" XML element, that is
@@ -81,6 +78,26 @@ public class ThumbnailElement
      * Creates a <tt>ThumbnailPacketExtension</tt> by specifying all extension
      * attributes.
      *
+     * @param cid the content id attribute
+     * @param mimeType the mime type attribute
+     * @param width the width of the thumbnail
+     * @param height the height of the thumbnail
+     */
+    public ThumbnailElement(String cid,
+                            String mimeType,
+                            int width,
+                            int height)
+    {
+        this.cid = cid;
+        this.mimeType = mimeType;
+        this.width = width;
+        this.height = height;
+    }
+    
+    /**
+     * Creates a <tt>ThumbnailPacketExtension</tt> by specifying all extension
+     * attributes.
+     *
      * @param serverAddress the Jabber address of the destination contact
      * @param thumbnailData the byte array containing the thumbnail data
      * @param mimeType the mime type attribute
@@ -93,57 +110,37 @@ public class ThumbnailElement
                             int width,
                             int height)
     {
-        this.cid = createCid(serverAddress, thumbnailData);
-        this.mimeType = mimeType;
-        this.width = width;
-        this.height = height;
+        this(createCid(serverAddress, thumbnailData), mimeType, width, height);
     }
 
     /**
-     * Creates a <tt>ThumbnailElement</tt> by parsing the given <tt>xml</tt>.
+     * Creates a <tt>ThumbnailElement</tt> by using the given <tt>XML pull parser</tt>.
      *
-     * @param xml the XML from which we obtain the needed information to create
-     * this <tt>ThumbnailElement</tt>
+     * @param parser the XML pull parser from which we obtain the needed information to create
+     * <tt>ThumbnailElement</tt>
      */
-    public ThumbnailElement(String xml)
+    public static ThumbnailElement parseExtension(XmlPullParser parser)
     {
-          DocumentBuilder builder;
           try
           {
-              builder
-                  = XMLUtils.newDocumentBuilderFactory().newDocumentBuilder();
-              InputStream in = new ByteArrayInputStream (xml.getBytes());
-              Document doc = builder.parse(in);
-
-              Element e = doc.getDocumentElement();
-              String elementName = e.getNodeName();
-
-              if (elementName.equals (ELEMENT_NAME))
+              if (parser.getName().equals (ELEMENT_NAME))
               {
-                  this.setCid(e.getAttribute (CID));
-                  this.setMimeType(e.getAttribute(MIME_TYPE));
-                  this.setHeight(Integer.parseInt(e.getAttribute(HEIGHT)));
-                  this.setHeight(Integer.parseInt(e.getAttribute(WIDTH)));
+                  return new ThumbnailElement(
+                      parser.getAttributeValue("", CID), 
+                      parser.getAttributeValue("", MIME_TYPE), 
+                      Integer.parseInt(parser.getAttributeValue("", WIDTH)), 
+                      Integer.parseInt(parser.getAttributeValue("", HEIGHT)));
               }
               else
                   if (logger.isDebugEnabled())
                       logger.debug ("Element name unknown!");
           }
-          catch (ParserConfigurationException ex)
-          {
-              if (logger.isDebugEnabled())
-                  logger.debug ("Problem parsing Thumbnail Element : " + xml, ex);
-          }
-          catch (IOException ex)
-          {
-              if (logger.isDebugEnabled())
-                  logger.debug ("Problem parsing Thumbnail Element : " + xml, ex);
-          }
           catch (Exception ex)
           {
               if (logger.isDebugEnabled())
-                  logger.debug ("Problem parsing Thumbnail Element : " + xml, ex);
+                  logger.debug ("Problem parsing Thumbnail Element : " + parser.getText(), ex);
           }
+          return null;
     }
 
     /**
@@ -288,9 +285,9 @@ public class ThumbnailElement
      *
      * @param serverAddress the Jabber server address
      * @param thumbnailData the byte array containing the data
-     * @return the cid attrubte value for the thumbnail extension
+     * @return the cid attribute value for the thumbnail extension
      */
-    private String createCid(   String serverAddress,
+    private static String createCid(   String serverAddress,
                                 byte[] thumbnailData)
     {
         try
