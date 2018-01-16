@@ -31,6 +31,7 @@ import javax.sip.header.*;
 import javax.sip.message.*;
 
 import net.java.sip.communicator.impl.protocol.sip.sdp.*;
+import net.java.sip.communicator.plugin.notificationwiring.NotificationManager;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Contact;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -64,6 +65,10 @@ public class CallPeerSipImpl
      */
     static final String PICTURE_FAST_UPDATE_CONTENT_SUB_TYPE
         = "media_control+xml";
+
+    //time before beginning a long hold alert
+    static final String HOLD_ALERT_TIME =
+            SipActivator.getConfigurationService().getString("net.java.sip.communicator.impl.protocol.sip.HOLD_ALERT_TIME");
 
     /**
      * The sip address of this peer
@@ -108,6 +113,9 @@ public class CallPeerSipImpl
      */
     private final List<MethodProcessorListener> methodProcessorListeners
         = new LinkedList<MethodProcessorListener>();
+
+    //initialize a field to store a timer for tracking hold length
+    private TimerScheduler holdTimer;
 
     /**
      * The indicator which determines whether the local peer may send
@@ -999,6 +1007,10 @@ public class CallPeerSipImpl
 
         boolean failed = (reasonCode != HANGUP_REASON_NORMAL_CLEARING);
 
+        //cancels hold alert if it is playing when call ends
+        try {
+            holdTimer.cancel();
+        } catch (Exception ex){ holdTimer = null; }
         CallPeerState peerState = getState();
         if (peerState.equals(CallPeerState.CONNECTED)
             || CallPeerState.isOnHold(peerState))
@@ -1384,6 +1396,20 @@ public class CallPeerSipImpl
         CallPeerMediaHandlerSipImpl mediaHandler = getMediaHandler();
 
         mediaHandler.setLocallyOnHold(onHold);
+
+        //if the HOLD_ALERT_TIME property is set, this will enable a hold alert noise after the specified interval
+        if(HOLD_ALERT_TIME != null) {
+            if (onHold) {
+                holdTimer = new TimerScheduler();
+                holdTimer.schedule(
+                        new TimerTask() {
+                            @Override
+                            public void run() {
+                                NotificationManager.alertHold();
+                            }
+                        }, Integer.parseInt(HOLD_ALERT_TIME), 5000);
+            } else { holdTimer.cancel(); }
+        }
 
         try
         {
