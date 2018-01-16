@@ -91,7 +91,8 @@ Import-Package:  ch.imvs.sdes4j.srtp,
  org.osgi.framework,
  org.opentelecoms.javax.sdp,
  org.w3c.dom,
- org.xml.sax
+ org.xml.sax,
+ net.java.sip.communicator.plugin.notificationwiring
 Export-Package: net.java.sip.communicator.impl.protocol.sip,
  net.java.sip.communicator.impl.protocol.sip.net,
  net.java.sip.communicator.impl.protocol.sip.xcap,
