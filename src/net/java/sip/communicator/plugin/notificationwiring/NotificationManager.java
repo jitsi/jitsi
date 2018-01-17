@@ -96,6 +96,11 @@ public class NotificationManager
     public static final String HANG_UP = "HangUp";
 
     /**
+     * Default event type for long hold.
+     */
+    public static final String LONG_HOLD = "LongHold";
+
+    /**
      * Default event type for receiving calls (incoming calls).
      */
     public static final String INCOMING_CALL = "IncomingCall";
@@ -1094,6 +1099,10 @@ public class NotificationManager
         }
     }
 
+    //static method to fire long hold event so we can access private method fireNotification
+    public static void alertHold() {
+        fireNotification(LONG_HOLD);
+    }
     /**
      * {@inheritDoc}
      *
@@ -1634,6 +1643,13 @@ public class NotificationManager
             NotificationAction.ACTION_POPUP_MESSAGE,
             null,
             null);
+
+        //audio alert for long hold
+        notificationService.registerDefaultNotificationForEvent(
+                LONG_HOLD,
+                new SoundNotificationAction(
+                        SoundProperties.BUSY, -1,
+                        true, true, false));
     }
 
     /**
