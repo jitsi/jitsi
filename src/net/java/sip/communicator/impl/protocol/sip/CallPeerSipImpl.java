@@ -66,8 +66,11 @@ public class CallPeerSipImpl
     static final String PICTURE_FAST_UPDATE_CONTENT_SUB_TYPE
         = "media_control+xml";
 
+    //initialize a field to store a timer for tracking hold length
+    private TimerScheduler holdTimer = null;
+
     //time before beginning a long hold alert
-    static final String HOLD_ALERT_TIME =
+    private static final String HOLD_ALERT_TIME =
             SipActivator.getConfigurationService().getString("net.java.sip.communicator.impl.protocol.sip.HOLD_ALERT_TIME");
 
     /**
@@ -113,9 +116,6 @@ public class CallPeerSipImpl
      */
     private final List<MethodProcessorListener> methodProcessorListeners
         = new LinkedList<MethodProcessorListener>();
-
-    //initialize a field to store a timer for tracking hold length
-    private TimerScheduler holdTimer;
 
     /**
      * The indicator which determines whether the local peer may send
@@ -549,6 +549,7 @@ public class CallPeerSipImpl
      */
     public void processBye(ServerTransaction byeTran)
     {
+        if(holdTimer != null) { holdTimer.cancel(); }
         Request byeRequest = byeTran.getRequest();
         // Send OK
         Response ok = null;
@@ -995,6 +996,7 @@ public class CallPeerSipImpl
     public void hangup(int reasonCode, String reason)
         throws OperationFailedException
     {
+        if(holdTimer != null) { holdTimer.cancel(); }
         // do nothing if the call is already ended
         if (CallPeerState.DISCONNECTED.equals(getState())
             || CallPeerState.FAILED.equals(getState()))
@@ -1008,9 +1010,7 @@ public class CallPeerSipImpl
         boolean failed = (reasonCode != HANGUP_REASON_NORMAL_CLEARING);
 
         //cancels hold alert if it is playing when call ends
-        try {
-            holdTimer.cancel();
-        } catch (Exception ex){ holdTimer = null; }
+
         CallPeerState peerState = getState();
         if (peerState.equals(CallPeerState.CONNECTED)
             || CallPeerState.isOnHold(peerState))
