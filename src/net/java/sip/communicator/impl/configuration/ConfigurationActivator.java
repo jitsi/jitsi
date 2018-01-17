@@ -41,7 +41,7 @@ public class ConfigurationActivator
     implements BundleActivator
 {
     /** Property name to force a properties file based configuration. */
-    public static final String PNAME_USE_PROPFILE_CONFIG = 
+    public static final String PNAME_USE_PROPFILE_CONFIG =
         "net.java.sip.communicator.impl.configuration.USE_PROPFILE_CONFIG";
 
     /**
@@ -50,6 +50,36 @@ public class ConfigurationActivator
      */
     private static final Logger logger
         = Logger.getLogger(ConfigurationActivator.class);
+
+    private static final String DEFAULT_PROPS_FILE_NAME
+            = "jitsi-defaults.properties";
+
+    /**
+     * Name of the file containing overrides (possibly set by the distributor)
+     * for any of the default properties.
+     */
+    private static final String DEFAULT_OVERRIDES_PROPS_FILE_NAME
+        = "jitsi-default-overrides.properties";
+
+    /**
+     * A set of immutable properties deployed with the application during
+     * install time. The properties in this file will be impossible to override
+     * and attempts to do so will simply be ignored.
+     * @see #defaultProperties
+     */
+    private Map<String, String> immutableDefaultProperties
+        = new HashMap<String, String>();
+
+    /**
+     * A set of properties deployed with the application during install time.
+     * Contrary to the properties in {@link #immutableDefaultProperties} the
+     * ones in this map can be overridden with call to the
+     * <tt>setProperty()</tt> methods. Still, re-setting one of these properties
+     * to <tt>null</tt> would cause for its initial value to be restored.
+     */
+    private Map<String, String> defaultProperties
+        = new HashMap<String, String>();
+
 
     /**
      * The currently registered {@link ConfigurationService} instance.
@@ -63,9 +93,93 @@ public class ConfigurationActivator
      * framework.
      * @throws Exception if anything goes wrong
      */
+
+     private void loadDefaultProperties(String fileName)
+     {
+         try
+         {
+             Properties fileProps = new Properties();
+
+             InputStream fileStream;
+             if(OSUtils.IS_ANDROID)
+             {
+                 fileStream
+                         = getClass().getClassLoader()
+                                 .getResourceAsStream(fileName);
+             }
+             else
+             {
+                 logger.info("Normal classloader");
+                 fileStream = ClassLoader.getSystemResourceAsStream(fileName);
+             }
+
+             if(fileStream == null)
+             {
+                 logger.info("failed to find " + fileName + " with class "
+                     + "loader, will continue without it.");
+                 return;
+             }
+
+             fileProps.load(fileStream);
+             fileStream.close();
+
+             // now get those properties and place them into the mutable and
+             // immutable properties maps.
+             for (Map.Entry<Object, Object> entry : fileProps.entrySet())
+             {
+                 String name  = (String) entry.getKey();
+                 String value = (String) entry.getValue();
+
+                 if (   name == null
+                     || value == null
+                     || name.trim().length() == 0)
+                 {
+                     continue;
+                 }
+
+                 if (name.startsWith("*"))
+                 {
+                     name = name.substring(1);
+
+                     if(name.trim().length() == 0)
+                     {
+                         continue;
+                     }
+
+                     //it seems that we have a valid default immutable property
+                     immutableDefaultProperties.put(name, value);
+
+                     //in case this is an override, make sure we remove previous
+                     //definitions of this property
+                     defaultProperties.remove(name);
+                 }
+                 else
+                 {
+                     //this property is a regular, mutable default property.
+                     defaultProperties.put(name, value);
+
+                     //in case this is an override, make sure we remove previous
+                     //definitions of this property
+                     immutableDefaultProperties.remove(name);
+                 }
+             }
+         }
+         catch (Exception ex)
+         {
+             //we can function without defaults so we are just logging those.
+             logger.info("No defaults property file loaded: " + fileName
+                 + ". Not a problem.");
+
+             if(logger.isDebugEnabled())
+                 logger.debug("load exception", ex);
+         }
+    }
+
     public void start(BundleContext bundleContext)
         throws Exception
     {
+        loadDefaultProperties(DEFAULT_PROPS_FILE_NAME);
+        loadDefaultProperties(DEFAULT_OVERRIDES_PROPS_FILE_NAME);
         if (usePropFileConfigService(bundleContext))
         {
             logger.info("Using properties file configuration store.");
@@ -89,19 +203,16 @@ public class ConfigurationActivator
 
     private boolean usePropFileConfigService(BundleContext bundleContext)
     {
-        if (Boolean.getBoolean(PNAME_USE_PROPFILE_CONFIG))
+        if (Boolean.valueOf(defaultProperties.get(PNAME_USE_PROPFILE_CONFIG)))
         {
             return true;
         }
-
         FileAccessService fas
             = ServiceUtils.getService(bundleContext, FileAccessService.class);
-
         if (fas == null)
         {
             return true;
         }
-
         try
         {
             return fas.getPrivatePersistentFile(
