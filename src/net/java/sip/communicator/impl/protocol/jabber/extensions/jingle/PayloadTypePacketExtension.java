@@ -69,38 +69,35 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
     public static final String PTIME_ATTR_NAME = "ptime";
 
     /**
+     * Creates a deep copy of a {@link PayloadTypePacketExtension}.
+     * @param source the {@link PayloadTypePacketExtension} to copy.
+     * @return the copy.
+     */
+    public static PayloadTypePacketExtension clone(
+        PayloadTypePacketExtension source)
+    {
+        PayloadTypePacketExtension destination
+            = AbstractPacketExtension.clone(source);
+
+        for (RtcpFbPacketExtension rtcpFb : source.getRtcpFeedbackTypeList())
+        {
+            destination.addRtcpFeedbackType(RtcpFbPacketExtension.clone(rtcpFb));
+        }
+
+        for (ParameterPacketExtension parameter : source.getParameters())
+        {
+            destination.addParameter(ParameterPacketExtension.clone(parameter));
+        }
+
+        return destination;
+    }
+
+    /**
      * Creates a new {@link PayloadTypePacketExtension} instance.
      */
     public PayloadTypePacketExtension()
     {
         super(NAMESPACE, ELEMENT_NAME);
-    }
-
-    /**
-     * Initializes a {@link PayloadTypePacketExtension} instance inheriting all
-     * of its fields from another instance.
-     * @param other the instance to inherit from.
-     */
-    public PayloadTypePacketExtension(PayloadTypePacketExtension other)
-    {
-        this();
-
-        setChannels(other.getChannels());
-        setClockrate(other.getClockrate());
-        setId(other.getID());
-        setMaxptime(other.getMaxptime());
-        setName(other.getName());
-        setPtime(other.getPtime());
-
-        for (RtcpFbPacketExtension rtcpFb : getRtcpFeedbackTypeList())
-        {
-            addRtcpFeedbackType(new RtcpFbPacketExtension(rtcpFb));
-        }
-
-        for (ParameterPacketExtension parameter : getParameters())
-        {
-            addParameter(new ParameterPacketExtension(parameter));
-        }
     }
 
     /**

@@ -57,19 +57,6 @@ public class RtcpFbPacketExtension
     }
 
     /**
-     * Initializes a {@link RtcpFbPacketExtension} instance inheriting all of
-     * its fields from another instance.
-     * @param other the instance to inherit from.
-     */
-    public RtcpFbPacketExtension(RtcpFbPacketExtension other)
-    {
-        this();
-
-        setFeedbackType(other.getFeedbackType());
-        setFeedbackSubtype(other.getFeedbackSubtype());
-    }
-
-    /**
      * Sets RTCP feedback type attribute.
      * @param feedbackType the RTCP feedback type to set.
      */

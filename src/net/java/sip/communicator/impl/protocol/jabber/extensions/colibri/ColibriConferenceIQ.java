@@ -751,7 +751,8 @@ public class ColibriConferenceIQ
             Objects.requireNonNull(ext, "ext");
 
             // Create a new instance, because we are going to modify the NS
-            RTPHdrExtPacketExtension newExt = new RTPHdrExtPacketExtension(ext);
+            RTPHdrExtPacketExtension newExt
+                = RTPHdrExtPacketExtension.clone(ext);
 
             // Make sure that the parent namespace (COLIBRI) is used.
             newExt.setNamespace(null);
