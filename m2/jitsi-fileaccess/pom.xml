@@ -38,6 +38,20 @@
             <include>net/java/sip/communicator/impl/fileaccess/**</include>
           </includes>
         </configuration>
+        <executions>
+          <execution>
+            <id>default-testCompile</id>
+            <phase>test-compile</phase>
+            <configuration>
+              <testExcludes>
+                <exclude>net/**</exclude>
+              </testExcludes>
+            </configuration>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

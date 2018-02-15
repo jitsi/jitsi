@@ -27,6 +27,11 @@ import org.jivesoftware.smack.packet.*;
 /**
  * RTP header extension.
  *
+ * <rtp-hdrext xmlns="urn:xmpp:jingle:apps:rtp:rtp-hdrext:0"
+ *   id="id" senders="both" uri="abcd">
+ *       <parameter name="attributes" value="attributes-value"/>
+ * </rtp-hdrext>
+ *
  * @author Sebastien Vincent
  */
 public class RTPHdrExtPacketExtension
@@ -70,6 +75,28 @@ public class RTPHdrExtPacketExtension
     public RTPHdrExtPacketExtension()
     {
         super(NAMESPACE, ELEMENT_NAME);
+    }
+
+    /**
+     * Creates a deep copy of a {@link PayloadTypePacketExtension}.
+     * @param source the {@link PayloadTypePacketExtension} to copy.
+     * @return the copy.
+     */
+    public static RTPHdrExtPacketExtension clone(
+        RTPHdrExtPacketExtension source)
+    {
+        RTPHdrExtPacketExtension destination
+            = AbstractPacketExtension.clone(source);
+
+        // Note that this has no relation to the XML attributes of the extension.
+        // It is a value transported in a "parameter" child extension.
+        String attributes = source.getAttributes();
+        if (attributes != null)
+        {
+            destination.setAttributes(attributes);
+        }
+
+        return destination;
     }
 
     public RTPHdrExtPacketExtension(RTPHdrExtPacketExtension ext)
@@ -160,6 +187,9 @@ public class RTPHdrExtPacketExtension
 
         paramExt.setName(ATTRIBUTES_ATTR_NAME);
         paramExt.setValue(attributes);
+
+        // The rtp-hdrext extension can only contain a single "parameter" child
+        getChildExtensions().clear();
         addChildExtension(paramExt);
     }
 
@@ -170,13 +200,13 @@ public class RTPHdrExtPacketExtension
      */
     public String getAttributes()
     {
-        for(ExtensionElement ext : getChildExtensions())
+        for (ExtensionElement ext : getChildExtensions())
         {
-            if(ext instanceof ParameterPacketExtension)
+            if (ext instanceof ParameterPacketExtension)
             {
                 ParameterPacketExtension p = (ParameterPacketExtension)ext;
 
-                if(p.getName().equals(ATTRIBUTES_ATTR_NAME))
+                if (p.getName().equals(ATTRIBUTES_ATTR_NAME))
                 {
                     return p.getValue();
                 }

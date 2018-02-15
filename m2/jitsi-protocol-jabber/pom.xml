@@ -98,6 +98,20 @@
             <include>net/java/sip/communicator/impl/protocol/jabber/**</include>
           </includes>
         </configuration>
+        <executions>
+          <execution>
+            <id>default-testCompile</id>
+            <phase>test-compile</phase>
+            <configuration>
+              <testIncludes>
+                <include>net/java/sip/communicator/impl/protocol/jabber/**</include>
+              </testIncludes>
+            </configuration>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
