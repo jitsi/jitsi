@@ -30,6 +30,9 @@ import java.util.*;
 public class PayloadTypePacketExtensionTest
     extends TestCase
 {
+    private static final String TEST_ATTR_NAME = "my-test-attribute-name";
+    private static final String TEST_ATTR_VALUE = "my-test-attribute-value";
+
     /**
      * Tests the
      * {@link PayloadTypePacketExtension#clone(PayloadTypePacketExtension)}
@@ -43,14 +46,12 @@ public class PayloadTypePacketExtensionTest
         ParameterPacketExtension apt
             = new ParameterPacketExtension("apt", "100");
         p.addParameter(apt);
+        p.setAttribute(TEST_ATTR_NAME, TEST_ATTR_VALUE);
 
         RtcpFbPacketExtension fb = new RtcpFbPacketExtension();
         fb.setFeedbackType("nack");
         fb.setFeedbackSubtype("pli");
         p.addRtcpFeedbackType(fb);
-
-        assertEquals(1, p.getRtcpFeedbackTypeList().size());
-        assertEquals(1, p.getParameters().size());
 
         PayloadTypePacketExtension c = PayloadTypePacketExtension.clone(p);
         assertEquals(p.getChannels(), c.getChannels());
@@ -61,11 +62,9 @@ public class PayloadTypePacketExtensionTest
 
         c.setChannels(2);
         assertEquals(1, p.getChannels());
-        assertEquals(2, c.getChannels());
 
         c.setName("vp8");
         assertEquals("opus", p.getName());
-        assertEquals("vp8", c.getName());
 
         ParameterPacketExtension cApt = c.getParameters().get(0);
         assertTrue(apt != cApt);
@@ -95,5 +94,32 @@ public class PayloadTypePacketExtensionTest
         {
             assertEquals(c.getAttribute(s), p.getAttribute(s));
         }
+
+        c.setAttribute(TEST_ATTR_NAME, "WRONG");
+        assertEquals(p.getAttribute(TEST_ATTR_NAME), TEST_ATTR_VALUE);
+    }
+
+    public void testSettersAndGetters()
+    {
+        PayloadTypePacketExtension p = new PayloadTypePacketExtension();
+
+        p.setId(101);
+        assertEquals(101, p.getID());
+
+        p.setName("opus");
+        assertEquals("opus", p.getName());
+
+        ParameterPacketExtension apt
+            = new ParameterPacketExtension("apt", "100");
+        p.addParameter(apt);
+        assertEquals(1, p.getParameters().size());
+        assertEquals(apt, p.getParameters().get(0));
+
+        RtcpFbPacketExtension fb = new RtcpFbPacketExtension();
+        fb.setFeedbackType("nack");
+        fb.setFeedbackSubtype("pli");
+        p.addRtcpFeedbackType(fb);
+        assertEquals(1, p.getRtcpFeedbackTypeList().size());
+        assertEquals(fb, p.getRtcpFeedbackTypeList().get(0));
     }
 }

@@ -144,7 +144,6 @@ public class ColibriIQProviderTest extends TestCase
         assertEquals(ColibriConferenceIQ.ELEMENT_NAME, name);
 
         IQ result = colibriIQProvider.parse(xmlPullParser, 0);
-        System.out.println(result.toXML());
         List<SourcePacketExtension> sources =
                 ((ColibriConferenceIQ) result)
                         .getContent("video")
