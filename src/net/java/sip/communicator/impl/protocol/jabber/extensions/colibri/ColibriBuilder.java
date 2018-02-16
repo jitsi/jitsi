@@ -410,11 +410,13 @@ public class ColibriBuilder
                 }
 
                 // Copy the sources and source groups
-                if (sourceMap != null)
+                if (sourceMap != null
+                    && sourceMap.get(contentName) != null)
                 {
                     addSources(requestRtpChannel, sourceMap.get(contentName));
                 }
-                if (sourceGroupMap != null)
+                if (sourceGroupMap != null
+                    && sourceGroupMap.get(contentName) != null)
                 {
                     addSourceGroups(
                         requestRtpChannel,
