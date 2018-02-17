@@ -130,7 +130,7 @@ public class SourceContactRightButtonMenu
 
         if (addContactComponent != null)
             add(addContactComponent);
-        
+
 
         for(JMenuItem item :
             sourceUIContact.getContactCustomActionMenuItems(true))
@@ -270,45 +270,6 @@ public class SourceContactRightButtonMenu
 
         return callContactMenu;
     }
-
-//    private Component initIMMenu()
-//    {
-//        SIPCommMenu callContactMenu = new SIPCommMenu(
-//            GuiActivator.getResources().getI18NString(
-//                "service.gui.SEND_MESSAGE"));
-//        callContactMenu.setIcon(new ImageIcon(ImageLoader
-//            .getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));
-//
-//        Iterator<ContactDetail> details
-//            = sourceContact.getContactDetails(
-//                OperationSetBasicInstantMessaging.class).iterator();
-//
-//        while (details.hasNext())
-//        {
-//            final ContactDetail detail = details.next();
-//            // add all the contacts that support telephony to the call menu
-//            JMenuItem callContactItem = new JMenuItem();
-//            callContactItem.setName(detail.getContactAddress());
-//            callContactItem.addActionListener(new ActionListener()
-//            {
-//                public void actionPerformed(ActionEvent e)
-//                {
-//                    ProtocolProviderService protocolProvider
-//                        = detail.getPreferredProtocolProvider(
-//                            OperationSetBasicInstantMessaging.class);
-//
-//                    if (protocolProvider != null)
-//                        CallManager.createCall( protocolProvider,
-//                                                detail.getContactAddress());
-//                    else
-//                        GuiActivator.getUIService().getChatWindowManager()
-//                            .startChat(contactItem);
-//                }
-//            });
-//            callContactMenu.add(callContactItem);
-//        }
-//        return callContactMenu;
-//    }
 
     /**
      * Reloads icons for menu items.
