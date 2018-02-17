@@ -158,8 +158,17 @@ public class SourceContactRightButtonMenu
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                GuiActivator.getUIService().getChatWindowManager()
-                    .startChat(sourceContact.getContactAddress());
+                if (!GuiActivator.getUIService().getChatWindowManager()
+                    .startChat(sourceContact.getContactAddress()))
+                {
+                    new ErrorDialog(null,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.ERROR"),
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.NO_ONLINE_MESSAGING_ACCOUNT"))
+                        .showDialog();
+                    return;
+                }
             }
         });
         add(sendMessageItem);
