@@ -190,6 +190,21 @@ public class SourceContactRightButtonMenu
 
         for (final ContactDetail detail : details)
         {
+            List<ProtocolProviderService> providers
+                = AccountUtils.getOpSetRegisteredProviders(
+                    OperationSetBasicTelephony.class,
+                    detail.getPreferredProtocolProvider(
+                        OperationSetBasicTelephony.class),
+                    detail.getPreferredProtocol(
+                        OperationSetBasicTelephony.class));
+
+            int providersCount = providers.size();
+    
+            if (providers == null || providersCount <= 0)
+            {
+                continue;
+            }
+
             // add all the contacts that support telephony to the call menu
             JMenuItem callContactItem = new JMenuItem();
             callContactItem.setText(detail.getDetail());
