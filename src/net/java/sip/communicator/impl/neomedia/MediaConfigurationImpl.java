@@ -1518,8 +1518,12 @@ public class MediaConfigurationImpl
     private Component createEncodingControls(int type,
             EncodingConfiguration encodingConfiguration)
     {
+        // encodingConfiguration is null when it is loaded
+        // from the general config
+        boolean isEncodingConfigurationNull = false;
         if(encodingConfiguration == null)
         {
+            isEncodingConfigurationNull = true;
             encodingConfiguration
                     = mediaService.getCurrentEncodingConfiguration();
         }
@@ -1638,7 +1642,11 @@ public class MediaConfigurationImpl
 
         container.add(new JScrollPane(table), BorderLayout.CENTER);
         container.add(parentButtonBar, BorderLayout.EAST);
-        if (OSUtils.IS_MAC || OSUtils.IS_WINDOWS)
+        // show openh264 panel on mac & windows, only for video and only in
+        // general video encodings
+        if (type == DeviceConfigurationComboBoxModel.VIDEO
+            && isEncodingConfigurationNull
+            && (OSUtils.IS_MAC || OSUtils.IS_WINDOWS))
         {
             container.add(
                 OpenH264Retriever.getConfigPanel(), BorderLayout.SOUTH);
