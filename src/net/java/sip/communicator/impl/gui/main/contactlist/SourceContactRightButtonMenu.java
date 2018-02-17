@@ -176,13 +176,11 @@ public class SourceContactRightButtonMenu
         callContactMenu.setIcon(new ImageIcon(ImageLoader
             .getImage(ImageLoader.CALL_16x16_ICON)));
 
-        Iterator<ContactDetail> details
-            = sourceContact.getContactDetails(OperationSetBasicTelephony.class)
-                .iterator();
+        List<ContactDetail> details
+            = sourceContact.getContactDetails(OperationSetBasicTelephony.class);
 
-        while (details.hasNext())
+        for (final ContactDetail detail : details)
         {
-            final ContactDetail detail = details.next();
             // add all the contacts that support telephony to the call menu
             JMenuItem callContactItem = new JMenuItem();
             callContactItem.setText(detail.getDetail());
@@ -233,8 +231,18 @@ public class SourceContactRightButtonMenu
             callContactMenu.add(callContactItem);
         }
 
-        if(callContactMenu.getMenuComponentCount() == 0)
+        if (callContactMenu.getMenuComponentCount() == 0)
+        {
             return null;
+        }
+
+        if (callContactMenu.getMenuComponentCount() == 1)
+        {
+            JMenuItem menu = (JMenuItem)callContactMenu.getMenuComponent(0);
+            menu.setIcon(callContactMenu.getIcon());
+            menu.setText(callContactMenu.getText());
+            return menu;
+        }
 
         return callContactMenu;
     }
