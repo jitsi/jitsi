@@ -113,6 +113,18 @@ public class SourceContactRightButtonMenu
         {
             addContactComponent
                 = TreeContactList.createAddContactMenu(sourceContact);
+        }
+
+        List<ProtocolProviderService> imProviders
+        = AccountUtils.getRegisteredProviders(
+                OperationSetBasicInstantMessaging.class);
+        List<ProtocolProviderService> smsProviders
+            = AccountUtils.getRegisteredProviders(
+                    OperationSetSmsMessaging.class);
+
+        if ((imProviders.size()
+            + (smsProviders == null ? 0 : smsProviders.size())) >= 1)
+        {
             initSendMessageMenu();
         }
 
