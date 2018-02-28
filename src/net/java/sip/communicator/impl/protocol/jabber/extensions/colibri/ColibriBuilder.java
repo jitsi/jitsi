@@ -796,6 +796,64 @@ public class ColibriBuilder
     }
 
     /**
+     * Sets the Octo relays for specific channels in the request currently being
+     * built.
+     *
+     * @param octoRelays the map of content name to the list of
+     * <tt>SourcePacketExtension</tt>.
+     * @param localChannelsInfo {@link ColibriConferenceIQ} holding info about
+     * Colibri channels to be updated.
+     *
+     * @return <tt>true</tt> if the request yields any changes in Colibri
+     * channels state on the bridge or <tt>false</tt> otherwise. In general when
+     * <tt>false</tt> is returned for all combined requests it makes no sense
+     * to send it.
+     */
+    public boolean addOctoRelays(
+        List<String> octoRelays,
+        ColibriConferenceIQ localChannelsInfo)
+    {
+        Objects.requireNonNull(octoRelays, "octoRelays");
+        Objects.requireNonNull(localChannelsInfo, "localChannelsInfo");
+
+        if (conferenceState == null
+            || StringUtils.isNullOrEmpty(conferenceState.getID()))
+        {
+            // We are not initialized yet
+            return false;
+        }
+
+        assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
+
+        boolean hasAnyChanges = false;
+
+        for (ColibriConferenceIQ.Content content
+            : conferenceState.getContents())
+        {
+            String contentName = content.getName();
+            // Get channel from local channel info
+            ColibriConferenceIQ.Channel channel
+                = getChannel(localChannelsInfo, contentName);
+            if (channel == null ||
+                !(channel instanceof ColibriConferenceIQ.OctoChannel))
+            {
+                // There's no channel for this content name in localChannelsInfo
+                continue;
+            }
+
+            ColibriConferenceIQ.OctoChannel requestChannel
+                = getRequestChannel(
+                    contentName,
+                    (ColibriConferenceIQ.OctoChannel) channel);
+
+            requestChannel.setRelays(octoRelays);
+            hasAnyChanges = true;
+        }
+
+        return hasAnyChanges;
+    }
+
+    /**
      * Adds next source group information update request to
      * {@link RequestType#CHANNEL_INFO_UPDATE} query currently being built.
      *
