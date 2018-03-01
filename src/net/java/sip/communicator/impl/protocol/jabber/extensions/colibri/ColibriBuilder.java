@@ -39,7 +39,8 @@ import java.util.*;
  * {@link #addAllocateChannelsReq(
  *              boolean, String, String, boolean, java.util.List)}}
  * or {@link #addExpireChannelsReq(ColibriConferenceIQ)}
- * or {@link #addRtpDescription(RtpDescriptionPacketExtension, String, String)}
+ * or {@link #addRtpDescription(RtpDescriptionPacketExtension, String,
+ * ColibriConferenceIQ.Channel)}
  * and {@link #addSourceGroupsInfo(Map, ColibriConferenceIQ)}
  * and {@link #addSourceInfo(Map, ColibriConferenceIQ)}.
  *     </li>
@@ -410,11 +411,13 @@ public class ColibriBuilder
                 }
 
                 // Copy the sources and source groups
-                if (sourceMap != null)
+                if (sourceMap != null
+                    && sourceMap.get(contentName) != null)
                 {
                     addSources(requestRtpChannel, sourceMap.get(contentName));
                 }
-                if (sourceGroupMap != null)
+                if (sourceGroupMap != null
+                    && sourceGroupMap.get(contentName) != null)
                 {
                     addSourceGroups(
                         requestRtpChannel,
@@ -694,12 +697,13 @@ public class ColibriBuilder
 
     /**
      * Adds an {@link RtpDescriptionPacketExtension} to a specific channel in
-     * the request which is currently being built. The channel is identified
-     * by the content name and channel ID.
+     * the request which is currently being built. The channel in the request
+     * is identified by the content name and the ID of {@code channel}.
      *
      * @param description the {@link RtpDescriptionPacketExtension} to add.
      * @param contentName the name of the content to which the channel belongs.
-     * @param channelId the ID of the channel.
+     * @param channel the the channel used to match the channel in the request
+     * to which an {@link RtpDescriptionPacketExtension} will be added.
      *
      * @return {@code true} if the request yields any changes in Colibri
      * channels state on the bridge or {@code false} otherwise. In general when
@@ -708,11 +712,12 @@ public class ColibriBuilder
      */
     public boolean addRtpDescription(
         RtpDescriptionPacketExtension description,
-        String contentName, String channelId)
+        String contentName,
+        ColibriConferenceIQ.Channel channel)
     {
         Objects.requireNonNull(description, "description");
         Objects.requireNonNull(contentName, "contentName");
-        Objects.requireNonNull(channelId, "channelId");
+        Objects.requireNonNull(channel, "channel");
 
         if (conferenceState == null
             || StringUtils.isNullOrEmpty(conferenceState.getID()))
@@ -730,7 +735,7 @@ public class ColibriBuilder
         assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
 
         ColibriConferenceIQ.Channel requestChannel
-            = getRequestChannel(contentName, channelId);
+            = getRequestChannel(contentName, channel);
         return copyDescription(description, requestChannel);
     }
 
@@ -749,8 +754,8 @@ public class ColibriBuilder
      * to send it.
      */
     public boolean addSourceInfo(
-        Map<String, List<SourcePacketExtension>>    sourceMap,
-        ColibriConferenceIQ                         localChannelsInfo)
+        Map<String, List<SourcePacketExtension>> sourceMap,
+        ColibriConferenceIQ localChannelsInfo)
     {
         Objects.requireNonNull(sourceMap, "sourceMap");
         Objects.requireNonNull(localChannelsInfo, "localChannelsInfo");
@@ -770,7 +775,7 @@ public class ColibriBuilder
         for (String contentName : sourceMap.keySet())
         {
             // Get channel from local channel info
-            ColibriConferenceIQ.ChannelCommon channel
+            ColibriConferenceIQ.Channel channel
                 = getChannel(localChannelsInfo, contentName);
             if (channel == null)
             {
@@ -782,9 +787,67 @@ public class ColibriBuilder
 
             // Ok we have channel for this content, let's add sources
             ColibriConferenceIQ.Channel requestChannel
-                = getRequestChannel(contentName, channel.getID());
+                = getRequestChannel(contentName, channel);
 
             addSources(requestChannel, sourceMap.get(contentName));
+        }
+
+        return hasAnyChanges;
+    }
+
+    /**
+     * Sets the Octo relays for specific channels in the request currently being
+     * built.
+     *
+     * @param octoRelays the map of content name to the list of
+     * <tt>SourcePacketExtension</tt>.
+     * @param localChannelsInfo {@link ColibriConferenceIQ} holding info about
+     * Colibri channels to be updated.
+     *
+     * @return <tt>true</tt> if the request yields any changes in Colibri
+     * channels state on the bridge or <tt>false</tt> otherwise. In general when
+     * <tt>false</tt> is returned for all combined requests it makes no sense
+     * to send it.
+     */
+    public boolean addOctoRelays(
+        List<String> octoRelays,
+        ColibriConferenceIQ localChannelsInfo)
+    {
+        Objects.requireNonNull(octoRelays, "octoRelays");
+        Objects.requireNonNull(localChannelsInfo, "localChannelsInfo");
+
+        if (conferenceState == null
+            || StringUtils.isNullOrEmpty(conferenceState.getID()))
+        {
+            // We are not initialized yet
+            return false;
+        }
+
+        assertRequestType(RequestType.CHANNEL_INFO_UPDATE);
+
+        boolean hasAnyChanges = false;
+
+        for (ColibriConferenceIQ.Content content
+            : conferenceState.getContents())
+        {
+            String contentName = content.getName();
+            // Get channel from local channel info
+            ColibriConferenceIQ.Channel channel
+                = getChannel(localChannelsInfo, contentName);
+            if (channel == null ||
+                !(channel instanceof ColibriConferenceIQ.OctoChannel))
+            {
+                // There's no channel for this content name in localChannelsInfo
+                continue;
+            }
+
+            ColibriConferenceIQ.OctoChannel requestChannel
+                = getRequestChannel(
+                    contentName,
+                    (ColibriConferenceIQ.OctoChannel) channel);
+
+            requestChannel.setRelays(octoRelays);
+            hasAnyChanges = true;
         }
 
         return hasAnyChanges;
@@ -836,7 +899,7 @@ public class ColibriBuilder
 
             // Ok we have channel for this content, let's add sources
             ColibriConferenceIQ.Channel requestChannel
-                = getRequestChannel(contentName, channel.getID());
+                = getRequestChannel(contentName, channel);
 
             hasAnyChanges
                 |= addSourceGroups(
@@ -955,7 +1018,7 @@ public class ColibriBuilder
                 for (ColibriConferenceIQ.Channel channel : content.getChannels())
                 {
                     ColibriConferenceIQ.Channel requestChannel
-                        = getRequestChannel(contentName, channel.getID());
+                        = getRequestChannel(contentName, channel);
 
                     requestChannel
                         .setDirection(mediaDirectionMap.get(contentName));
@@ -1149,103 +1212,69 @@ public class ColibriBuilder
     }
 
     /**
-     * Returns the channel from {@link #request} from a particular content
-     * and with a particular ID. If the request does not contain such a channel,
-     * a new instance is created and added to {@link #request}, and it is
-     * initialized only with the fields required to identify the particular
-     * Colibri channel on the bridge (i.e. just the ID is specified).
+     * Returns the channel from {@link #request} which matches a particular
+     * content name and a particular {@link ColibriConferenceIQ.ChannelCommon}
+     * instance (i.e. their IDs match).
+     * If the request does not contain such a channel, a new instance is created
+     * and added to {@link #request}, and it is initialized only with the fields
+     * required to identify the particular Colibri channel on the bridge (i.e.
+     * just the ID is specified). The exact run-time type of the instance (
+     * {@link ColibriConferenceIQ.Channel},
+     * {@link ColibriConferenceIQ.SctpConnection}, or
+     * {@link ColibriConferenceIQ.OctoChannel}) depends on the type of
+     * {@code channel}.
      *
-     * The returned value is always a non-null instance of
-     * {@link ColibriConferenceIQ.Channel} if {@code sctpConnection} is
-     * {@code false} and a non-null instance of
-     * {@link ColibriConferenceIQ.SctpConnection} otherwise.
+     * The returned value is always non-null.
      *
      * @param contentName the name of the content.
-     * @param channelId the ID of the channel.
-     * @param sctpConnection whether to create a
-     * {@link ColibriConferenceIQ.SctpConnection} or a
-     * {@link ColibriConferenceIQ.Channel}, if a new channel is to be created.
+     * @param channel the channel to match.
      *
      * @return the channel from {@link #request} with the specified content
-     * name and ID.
+     * name and ID and run-time type matching this of {@code channel}.
      */
-    private ColibriConferenceIQ.ChannelCommon getRequestChannel(
-            String contentName, String channelId, boolean sctpConnection)
+    private <T extends ColibriConferenceIQ.ChannelCommon> T getRequestChannel(
+        String contentName, T channel)
     {
         ColibriConferenceIQ.Content requestContent
             = request.getOrCreateContent(contentName);
         ColibriConferenceIQ.ChannelCommon requestChannel
-            = requestContent.getChannel(channelId);
+            = requestContent.getChannel(channel.getID());
         if (requestChannel == null)
         {
-            if (sctpConnection)
+            requestChannel = requestContent.getSctpConnection(channel.getID());
+        }
+
+        if (requestChannel == null)
+        {
+            if (channel instanceof ColibriConferenceIQ.SctpConnection)
             {
                 requestChannel = new ColibriConferenceIQ.SctpConnection();
+            }
+            else if (channel instanceof ColibriConferenceIQ.OctoChannel)
+            {
+                requestChannel = new ColibriConferenceIQ.OctoChannel();
             }
             else
             {
                 requestChannel = new ColibriConferenceIQ.Channel();
             }
 
-            requestChannel.setID(channelId);
+            requestChannel.setID(channel.getID());
             requestContent.addChannelCommon(requestChannel);
         }
-        else if (
-            (sctpConnection && !(requestChannel
-                    instanceof ColibriConferenceIQ.SctpConnection))
-            || (!sctpConnection && !(requestChannel
-                    instanceof ColibriConferenceIQ.Channel)))
+
+        try
+        {
+            return (T) requestChannel;
+        }
+        catch (ClassCastException cce)
         {
             throw new IllegalStateException(
-                "Channel type mismatch: requested sctpConnection="
-                    + sctpConnection + ", found a channel of class "
+                "Channel type mismatch: requested "
+                    + channel.getClass().getSimpleName()
+                    + ", found a channel of class "
                     + requestChannel.getClass().getSimpleName());
         }
-
-        return requestChannel;
-    }
-
-    /**
-     * Returns the channel from {@link #request} from a particular content
-     * and with a particular ID. If the request does not contain such a channel,
-     * a new instance is created and added to {@link #request}, and it is
-     * initialized only with the fields required to identify the particular
-     * Colibri channel on the bridge (i.e. just the ID is specified).
-     *
-     * @param contentName the name of the content.
-     * @param channelId the ID of the channel.
-     *
-     * @return the channel from {@link #request} with the specified content
-     * name and ID.
-     */
-    private ColibriConferenceIQ.Channel getRequestChannel(
-        String contentName, String channelId)
-    {
-        return
-            (ColibriConferenceIQ.Channel)
-                getRequestChannel(contentName, channelId, false);
-    }
-
-    /**
-     * Returns the {@link ColibriConferenceIQ.SctpConnection} from
-     * {@link #request} from a particular content and with a particular ID. If
-     * the request does not contain such a channel, a new instance is created
-     * and added to {@link #request}, and it is initialized only with the
-     * fields required to identify the particular Colibri channel on the
-     * bridge (i.e. just the ID is specified).
-     *
-     * @param contentName the name of the content.
-     * @param channelId the ID of the {@link ColibriConferenceIQ.SctpConnection}.
-     *
-     * @return the channel from {@link #request} with the specified content
-     * name and ID.
-     */
-    private ColibriConferenceIQ.SctpConnection getRequestSctpConnection(
-        String contentName, String channelId)
-    {
-        return
-            (ColibriConferenceIQ.SctpConnection)
-                getRequestChannel(contentName, channelId, true);
     }
 
     /**
