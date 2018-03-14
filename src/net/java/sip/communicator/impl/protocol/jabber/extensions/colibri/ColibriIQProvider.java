@@ -49,36 +49,36 @@ public class ColibriIQProvider
         ProviderManager.addExtensionProvider(
                 PayloadTypePacketExtension.ELEMENT_NAME,
                 ColibriConferenceIQ.NAMESPACE,
-                new DefaultPacketExtensionProvider<PayloadTypePacketExtension>(
+                new DefaultPacketExtensionProvider<>(
                         PayloadTypePacketExtension.class));
         ProviderManager.addExtensionProvider(
                 RtcpFbPacketExtension.ELEMENT_NAME,
                 RtcpFbPacketExtension.NAMESPACE,
-                new DefaultPacketExtensionProvider<RtcpFbPacketExtension>(
+                new DefaultPacketExtensionProvider<>(
                         RtcpFbPacketExtension.class));
         ProviderManager.addExtensionProvider(
                 RTPHdrExtPacketExtension.ELEMENT_NAME,
                 ColibriConferenceIQ.NAMESPACE,
-                new DefaultPacketExtensionProvider<RTPHdrExtPacketExtension>(
+                new DefaultPacketExtensionProvider<>(
                         RTPHdrExtPacketExtension.class));
         ProviderManager.addExtensionProvider(
                 SourcePacketExtension.ELEMENT_NAME,
                 SourcePacketExtension.NAMESPACE,
-                new DefaultPacketExtensionProvider<SourcePacketExtension>(
+                new DefaultPacketExtensionProvider<>(
                         SourcePacketExtension.class));
         ProviderManager.addExtensionProvider(
                 SourceGroupPacketExtension.ELEMENT_NAME,
                 SourceGroupPacketExtension.NAMESPACE,
-                new DefaultPacketExtensionProvider<SourceGroupPacketExtension>(
+                new DefaultPacketExtensionProvider<>(
                         SourceGroupPacketExtension.class));
         ProviderManager.addExtensionProvider(
                 SourceRidGroupPacketExtension.ELEMENT_NAME,
                 SourceRidGroupPacketExtension.NAMESPACE,
-                new DefaultPacketExtensionProvider<SourceRidGroupPacketExtension>(
+                new DefaultPacketExtensionProvider<>(
                         SourceRidGroupPacketExtension.class));
 
         ExtensionElementProvider parameterProvider
-                = new DefaultPacketExtensionProvider<ParameterPacketExtension>(
+                = new DefaultPacketExtensionProvider<>(
                 ParameterPacketExtension.class);
 
         ProviderManager.addExtensionProvider(
@@ -100,9 +100,8 @@ public class ColibriIQProvider
                 this);
         // Shutdown extension
         ExtensionElementProvider shutdownProvider
-                = new DefaultPacketExtensionProvider
-                <ColibriConferenceIQ.GracefulShutdown>(
-                ColibriConferenceIQ.GracefulShutdown.class);
+                = new DefaultPacketExtensionProvider<>(
+                    ColibriConferenceIQ.GracefulShutdown.class);
 
         ProviderManager.addExtensionProvider(
                 ColibriConferenceIQ.GracefulShutdown.ELEMENT_NAME,
@@ -117,7 +116,7 @@ public class ColibriIQProvider
 
         // ColibriStatsExtension
         ExtensionElementProvider statsProvider
-                = new DefaultPacketExtensionProvider<ColibriStatsExtension>(
+                = new DefaultPacketExtensionProvider<>(
                 ColibriStatsExtension.class);
 
         ProviderManager.addExtensionProvider(
@@ -126,9 +125,8 @@ public class ColibriIQProvider
                 statsProvider);
         // ColibriStatsExtension.Stat
         ExtensionElementProvider statProvider
-                = new DefaultPacketExtensionProvider
-                <ColibriStatsExtension.Stat>(
-                ColibriStatsExtension.Stat.class);
+                = new DefaultPacketExtensionProvider<>(
+                    ColibriStatsExtension.Stat.class);
 
         ProviderManager.addExtensionProvider(
                 ColibriStatsExtension.Stat.ELEMENT_NAME,
