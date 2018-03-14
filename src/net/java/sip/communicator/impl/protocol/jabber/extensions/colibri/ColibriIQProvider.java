@@ -20,6 +20,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.util.*;
 import org.jivesoftware.smack.packet.*;
@@ -131,9 +132,14 @@ public class ColibriIQProvider
         ProviderManager.addExtensionProvider(
                 ColibriStatsExtension.Stat.ELEMENT_NAME,
                 ColibriStatsExtension.NAMESPACE,
-                statProvider);    
-        
-        
+                statProvider);
+
+        // ssrc-info
+        ProviderManager.addExtensionProvider(
+            SSRCInfoPacketExtension.ELEMENT_NAME,
+            SSRCInfoPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider<>(
+                SSRCInfoPacketExtension.class));
     }
 
     private void addChildExtension(
@@ -165,6 +171,10 @@ public class ColibriIQProvider
 
             channel.setTransport(transport);
         }
+        else if (childExtension instanceof SourcePacketExtension)
+        {
+            channel.addSource((SourcePacketExtension) childExtension);
+        }
         else if (childExtension instanceof SourceGroupPacketExtension)
         {
             SourceGroupPacketExtension sourceGroup
@@ -178,6 +188,12 @@ public class ColibriIQProvider
                     = (RTPHdrExtPacketExtension) childExtension;
 
             channel.addRtpHeaderExtension(rtpHdrExtPacketExtension);
+        }
+        else
+        {
+            logger.error(
+                "Ignoring a child of 'channel' of unknown type: "
+                    + childExtension);
         }
     }
 
@@ -284,7 +300,6 @@ public class ColibriIQProvider
             ColibriConferenceIQ.Recording recording = null;
             ColibriConferenceIQ.Endpoint conferenceEndpoint = null;
             StringBuilder ssrc = null;
-            SourcePacketExtension sourcePacketExtension = null;
 
             while (!done)
             {
@@ -359,15 +374,6 @@ public class ColibriIQProvider
                             channel.addSSRC(i);
                         }
                         ssrc = null;
-                    }
-                    else if (SourcePacketExtension.ELEMENT_NAME.equals(name))
-                    {
-                        if (channel != null && sourcePacketExtension != null)
-                        {
-                            channel.addSource(sourcePacketExtension);
-                        }
-
-                        sourcePacketExtension = null;
                     }
                     else if (ColibriConferenceIQ.Content.ELEMENT_NAME.equals(
                             name))
@@ -626,16 +632,6 @@ public class ColibriIQProvider
                             .equals(name))
                     {
                         ssrc = new StringBuilder();
-                    }
-                    else if (SourcePacketExtension.ELEMENT_NAME.equals(name))
-                    {
-                        sourcePacketExtension = new SourcePacketExtension();
-                        for (int i = 0; i < parser.getAttributeCount(); ++i)
-                        {
-                            String attrName = parser.getAttributeName(i);
-                            String attrValue = parser.getAttributeValue(i);
-                            sourcePacketExtension.setAttribute(attrName, attrValue);
-                        }
                     }
                     else if (ColibriConferenceIQ.Content.ELEMENT_NAME.equals(
                             name))
