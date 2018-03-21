@@ -1,7 +1,7 @@
 <project name="jitsi-native" default="help-native" xmlns:if="ant:if">
   <import file="../../build.xml"/>
 
-  <!-- additionnal property -->
+  <!-- additional property -->
   <property name="obj" value="${src}/native/native_obj" />
 
   <!-- load cpptasks jar to have <cc /> tag -->

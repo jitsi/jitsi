@@ -27,7 +27,7 @@
 #include "../MsOutlookUtils.h"
 
 /**
- * Instanciates a new MsOutlookAddrBookClient.
+ * Instantiates a new MsOutlookAddrBookClient.
  */
 MsOutlookAddrBookClient::MsOutlookAddrBookClient():
     _refCount(1)

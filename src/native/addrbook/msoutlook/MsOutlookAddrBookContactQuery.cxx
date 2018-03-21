@@ -189,7 +189,7 @@ HRESULT MsOutlookAddrBookContactQuery_buildOneOff
 /**
  * Creates a new contact from the outlook database.
  *
- * @return The identifer of the created outlook contact. NULL on failure.
+ * @return The identifier of the created outlook contact. NULL on failure.
  */
 char* MsOutlookAddrBookContactQuery_createContact(void)
 {
@@ -348,9 +348,9 @@ HRESULT MsOutlookAddrBookContactQuery_createEmailAddress
 /**
  * Delete the given contact from the outlook database.
  *
- * @param nativeEntryId The identifer of the outlook contact to remove.
+ * @param nativeEntryId The identifier of the outlook contact to remove.
  *
- * @return 1 if the deletion succeded. 0 otherwise.
+ * @return 1 if the deletion succeeded. 0 otherwise.
  */
 int MsOutlookAddrBookContactQuery_deleteContact(const char * nativeEntryId)
 {
@@ -1085,9 +1085,9 @@ MsOutlookAddrBookContactQuery_getPropTagFromLid(LPMAPIPROP mapiProp, LONG lid,
  * Deletes one property from a contact.
  *
  * @param propId The outlook property identifier.
- * @param nativeEntryId The identifer of the outlook entry to modify.
+ * @param nativeEntryId The identifier of the outlook entry to modify.
  *
- * @return 1 if the deletion succeded. 0 otherwise.
+ * @return 1 if the deletion succeeded. 0 otherwise.
  */
 int MsOutlookAddrBookContactQuery_IMAPIProp_1DeleteProp
     (long propId, const char * nativeEntryId)
@@ -1218,7 +1218,7 @@ HRESULT MsOutlookAddrBookContactQuery_IMAPIProp_1GetProps(
                     MsOutlookAddrBookContactQuery_rdOpenEntryUlFlags))
             == NULL)
     {
-    	MsOutlookUtils_log("Error openning ID string.");
+    	MsOutlookUtils_log("Error opening ID string.");
         return hr;
     }
 
@@ -1429,9 +1429,9 @@ HRESULT MsOutlookAddrBookContactQuery_IMAPIProp_1GetProps(
  *
  * @param propId The outlook property identifier.
  * @param nativeValue The value to set to the outlook property.
- * @param nativeEntryId The identifer of the outlook entry to modify.
+ * @param nativeEntryId The identifier of the outlook entry to modify.
  *
- * @return 1 if the modification succeded. 0 otherwise.
+ * @return 1 if the modification succeeded. 0 otherwise.
  */
 int MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
     (long propId, const wchar_t* nativeValue, const char* nativeEntryId)
