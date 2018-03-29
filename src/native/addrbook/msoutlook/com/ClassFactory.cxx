@@ -129,7 +129,7 @@ HRESULT ClassFactory::revokeClassObject()
 };
 
 /**
- * Instanciates this class factory for a given CLSID.
+ * Instantiates this class factory for a given CLSID.
  *
  * @param clsid The CLSID to manage.
  */

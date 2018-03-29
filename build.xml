@@ -266,25 +266,11 @@
         <javac classpathref="compile.class.path" debug="true"
             deprecation="true" destdir="${dest}" nowarn="false"
             includeantruntime="false"
-            source="1.7" target="1.7" memoryMaximumSize="400M" fork="true">
+            source="1.8" target="1.8" memoryMaximumSize="400M" fork="true">
                 <src path="${src}"/>
                 <src path="${src2}"/>
                 <include name="**/*.java" />
-                <exclude name="net/java/sip/communicator/launcher/*.java" />
                 <compilerarg line="-Xlint -Xlint:-serial -Xlint:-unchecked -Xlint:-rawtypes -Xmaxwarns ${maxwarns}"/>
-        </javac>
-        <!--
-            sc-launcher.jar needs to be compatible with 1.5 in order to enable
-            notifying the user that a higher version of the jre is necessary.
-        -->
-        <javac classpathref="compile.class.path" debug="true"
-            includeantruntime="false"
-            deprecation="true" destdir="${dest}" nowarn="false"
-            source="1.5" target="1.5" memoryMaximumSize="400M" fork="true">
-                <src path="${src}"/>
-                <src path="${src2}"/>
-                <include name="net/java/sip/communicator/launcher/*.java" />
-                <compilerarg line="-Xlint -Xlint:-unchecked -Xlint:-rawtypes -Xmaxwarns ${maxwarns}"/>
         </javac>
     </target>
 
@@ -451,7 +437,7 @@
         </delete>
         <javac
             classpathref="compile.class.path" includeantruntime="false"
-            destdir="${dest}" source="1.7" target="1.7">
+            destdir="${dest}" source="1.8" target="1.8">
             <src path="${src}"/>
             <include name="net/java/sip/communicator/impl/version/NightlyBuildID.java" />
             <include name="net/java/sip/communicator/impl/version/VersionImpl.java" />
@@ -578,6 +564,11 @@
             failonerror="false"
             resultproperty="test.result.code"
             classpathref="project.class.path">
+
+            <!--
+            <jvmarg value="-Xdebug" />
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5432" />
+            -->
 
             <!-- Tell felix to run as a test environment-->
             <sysproperty key="felix.config.properties"
@@ -926,7 +917,7 @@
         bundle-hid-service,bundle-hid,
         bundle-resource-manager,bundle-resources-defaultpack,
         bundle-protocol,bundle-protocol-media,bundle-icq,
-        bundle-icq-slick,bundle-mock,bundle-smacklib,bundle-jmdnslib,
+        bundle-icq-slick,bundle-mock,bundle-jmdnslib,
         bundle-jabber,bundle-jabber-slick,bundle-swing-ui,bundle-ui-service,
         bundle-phonenumbers,
         bundle-irc,bundle-irc-commands,bundle-plugin-ircaccregwizz,
@@ -1007,6 +998,23 @@
         <copy file="${lib.noinst}/jna.jar" tofile="${bundles.dest}/jna.jar"/>
         <copy file="${lib.noinst}/jna-platform.jar" tofile="${bundles.dest}/jna-platform.jar"/>
         <copy file="${lib.noinst}/zrtp4j-light-4.1.0-jitsi-1-SNAPSHOT.jar" tofile="${bundles.dest}/zrtp4j.jar"/>
+        <copy file="${lib.noinst}/jnsapi-0.0.3-jitsi-smack4.2-1-SNAPSHOT.jar" tofile="${bundles.dest}/jnsapi.jar"/>
+        <copy file="${lib.noinst}/org.apache.servicemix.bundles.xpp3-1.1.4c_7.jar" tofile="${bundles.dest}/org.apache.servicemix.bundles.xpp3.jar"/>
+        <copy file="${lib.noinst}/jbosh-0.9.0.jar" tofile="${bundles.dest}/jbosh.jar"/>
+        <copy file="${lib.noinst}/smack-bosh-4.2.1.jar" tofile="${bundles.dest}/smack-bosh.jar"/>
+        <copy file="${lib.noinst}/smack-core-4.2.1.jar" tofile="${bundles.dest}/smack-core.jar"/>
+        <copy file="${lib.noinst}/smack-debug-4.2.1.jar" tofile="${bundles.dest}/smack-debug.jar"/>
+        <copy file="${lib.noinst}/smack-extensions-4.2.1.jar" tofile="${bundles.dest}/smack-extensions.jar"/>
+        <copy file="${lib.noinst}/smack-experimental-4.2.1.jar" tofile="${bundles.dest}/smack-experimental.jar"/>
+        <copy file="${lib.noinst}/smack-im-4.2.1.jar" tofile="${bundles.dest}/smack-im.jar"/>
+        <copy file="${lib.noinst}/smack-java7-4.2.1.jar" tofile="${bundles.dest}/smack-java7.jar"/>
+        <copy file="${lib.noinst}/smack-legacy-4.2.1.jar" tofile="${bundles.dest}/smack-legacy.jar"/>
+        <copy file="${lib.noinst}/smack-resolver-javax-4.2.1.jar" tofile="${bundles.dest}/smack-resolver-javax.jar"/>
+        <copy file="${lib.noinst}/smack-sasl-javax-4.2.1.jar" tofile="${bundles.dest}/smack-sasl-javax.jar"/>
+        <copy file="${lib.noinst}/smack-tcp-4.2.1.jar" tofile="${bundles.dest}/smack-tcp.jar"/>
+        <copy file="${lib.noinst}/jxmpp-core-0.5.0.jar" tofile="${bundles.dest}/jxmpp-core.jar"/>
+        <copy file="${lib.noinst}/jxmpp-jid-0.5.0.jar" tofile="${bundles.dest}/jxmpp-jid.jar"/>
+        <copy file="${lib.noinst}/jxmpp-util-cache-0.5.0.jar" tofile="${bundles.dest}/jxmpp-util-cache.jar"/>
     </target>
 
     <!--BUNDLE-SC-LAUNCHER-->
@@ -1441,17 +1449,6 @@ javax.swing.event, javax.swing.border"/>
             manifest="${src}/net/java/sip/communicator/service/protocol/media/protocol.media.manifest.mf">
             <zipfileset dir="${dest}/net/java/sip/communicator/service/protocol/media"
                 prefix="net/java/sip/communicator/service/protocol/media"/>
-        </jar>
-    </target>
-
-    <target name="bundle-smacklib">
-        <!-- Creates a bundle containing the smack lib.-->
-        <jar compress="false" destfile="${bundles.dest}/smacklib.jar"
-            manifest="${lib.noinst}/smack.manifest.mf">
-            <zipfileset src="${lib.noinst}/smackx-debug.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/smack.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/smackx.jar" prefix=""/>
-            <zipfileset src="${lib.noinst}/jnsapi.jar" prefix=""/>
         </jar>
     </target>
 
@@ -1932,16 +1929,6 @@ javax.swing.event, javax.swing.border"/>
         </jar>
     </target>
 
-    <!-- BUNDLE-PLUGIN-WHITEBOARD -->
-    <target name="bundle-plugin-whiteboard">
-    <!-- Creates a bundle for the Whiteboard plugin.-->
-        <jar compress="false" destfile="${bundles.dest}/whiteboard.jar"
-            manifest="${src}/net/java/sip/communicator/plugin/whiteboard/whiteboard.manifest.mf">
-                   <zipfileset dir="${dest}/net/java/sip/communicator/plugin/whiteboard"
-                       prefix="net/java/sip/communicator/plugin/whiteboard"/>
-       </jar>
-   </target>
-
     <!-- BUNDLE-CONTACT-EVENT-HANDLER -->
     <target name="bundle-contacteventhandler">
     <!-- Creates a bundle for the ContactEventHandler service.-->
@@ -2068,8 +2055,8 @@ javax.swing.event, javax.swing.border"/>
 
     <!--BUNDLE-DEFAULT-RESOURCES-->
     <target name="bundle-resources-defaultpack" depends="bundle-resources-skinpack">
-        <!-- Copy the default resources to english one, as our defualt
-            language is English and without the resource we cannot excplictly set it.-->
+        <!-- Copy the default resources to english one, as our default
+            language is English and without the resource we cannot explicitly set it.-->
         <copy file="${sc.basedir}/resources/languages/resources.properties"
               tofile="${resources}/languages/resources_en.properties"/>
         <!-- Creates a bundle for the default resource pack."-->

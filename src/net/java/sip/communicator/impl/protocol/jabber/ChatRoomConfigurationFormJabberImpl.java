@@ -23,8 +23,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.muc.*;
+import org.jivesoftware.smackx.xdata.*;
 
 /**
  * The Jabber implementation of the <tt>ChatRoomConfigurationForm</tt>
@@ -84,15 +84,10 @@ public class ChatRoomConfigurationFormJabberImpl
     public Iterator<ChatRoomConfigurationFormField> getConfigurationSet()
     {
         Vector<ChatRoomConfigurationFormField> configFormFields = new Vector<ChatRoomConfigurationFormField>();
-
-        Iterator<FormField> smackFormFields =  smackConfigForm.getFields();
-
-        while(smackFormFields.hasNext())
+        for (FormField smackFormField : smackConfigForm.getFields())
         {
-            FormField smackFormField = smackFormFields.next();
-
             if(smackFormField == null
-                || smackFormField.getType().equals(FormField.TYPE_HIDDEN))
+                || smackFormField.getType().equals(FormField.Type.hidden))
                 continue;
 
             ChatRoomConfigurationFormFieldJabberImpl jabberConfigField
@@ -118,7 +113,10 @@ public class ChatRoomConfigurationFormJabberImpl
         {
             smackMultiUserChat.sendConfigurationForm(smackSubmitForm);
         }
-        catch (XMPPException e)
+        catch (XMPPException
+                | SmackException.NoResponseException
+                | SmackException.NotConnectedException
+                | InterruptedException e)
         {
             logger.error("Failed to submit the configuration form.", e);
 

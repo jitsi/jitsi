@@ -215,6 +215,7 @@ public class TestOperationSetBasicInstantMessaging
      * reception by the tester agent.
      */
     public void firstTestReceiveMessage()
+        throws OperationFailedException
     {
         String body = "This is an IM coming from the tester agent"
             + " on " + new Date().toString();
@@ -263,6 +264,7 @@ public class TestOperationSetBasicInstantMessaging
      * the tested implementation
      */
     public void thenTestSendMessage()
+        throws OperationFailedException
     {
         logger.debug("Printing Server Stored list to see if message fails are contacts in each other lists");
         ContactGroup rootGroup1
@@ -500,6 +502,7 @@ public class TestOperationSetBasicInstantMessaging
      * they would get notified that tests are being run.
      */
     public void reportingSendFunMessages()
+        throws OperationFailedException
     {
         String hostname = "";
 

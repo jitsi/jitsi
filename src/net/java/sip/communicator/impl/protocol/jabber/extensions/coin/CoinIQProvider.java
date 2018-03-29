@@ -29,18 +29,18 @@ import org.xmlpull.v1.*;
  * @author Sebastien Vincent
  */
 public class CoinIQProvider
-    implements IQProvider
+    extends IQProvider<CoinIQ>
 {
     /**
      * Provider for description packet extension.
      */
-    private final PacketExtensionProvider descriptionProvider = new
+    private final ExtensionElementProvider descriptionProvider = new
         DescriptionProvider();
 
     /**
      * Provider for users packet extension.
      */
-    private final PacketExtensionProvider usersProvider = new UsersProvider();
+    private final ExtensionElementProvider usersProvider = new UsersProvider();
 
     /**
      * Provider for state packet extension.
@@ -51,7 +51,7 @@ public class CoinIQProvider
      * Provider for URIs packet extension.
      */
     private final DefaultPacketExtensionProvider<URIsPacketExtension>
-       urisProvider = new DefaultPacketExtensionProvider<URIsPacketExtension>(
+       urisProvider = new DefaultPacketExtensionProvider<>(
                URIsPacketExtension.class);
 
     /**
@@ -59,55 +59,48 @@ public class CoinIQProvider
      */
     private final DefaultPacketExtensionProvider<SidebarsByValPacketExtension>
        sidebarsByValProvider =
-           new DefaultPacketExtensionProvider<SidebarsByValPacketExtension>(
-               SidebarsByValPacketExtension.class);
+           new DefaultPacketExtensionProvider<>(
+                   SidebarsByValPacketExtension.class);
 
     /**
      * Constructor.
      */
     public CoinIQProvider()
     {
-        ProviderManager providerManager = ProviderManager.getInstance();
-
-        providerManager.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 UserRolesPacketExtension.ELEMENT_NAME,
                 UserRolesPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
-                    <UserRolesPacketExtension>(
-                                    UserRolesPacketExtension.class));
+                    <>(UserRolesPacketExtension.class));
 
-        providerManager.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 URIPacketExtension.ELEMENT_NAME,
                 URIPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
-                    <URIPacketExtension>(
-                                    URIPacketExtension.class));
+                    <>(URIPacketExtension.class));
 
-        providerManager.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 SIPDialogIDPacketExtension.ELEMENT_NAME,
                 SIPDialogIDPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
-                    <SIPDialogIDPacketExtension>(
-                                    SIPDialogIDPacketExtension.class));
+                    <>(SIPDialogIDPacketExtension.class));
 
-        providerManager.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ConferenceMediumPacketExtension.ELEMENT_NAME,
                 ConferenceMediumPacketExtension.NAMESPACE,
                 new ConferenceMediumProvider());
 
-        providerManager.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ConferenceMediaPacketExtension.ELEMENT_NAME,
                 ConferenceMediaPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
-                    <ConferenceMediaPacketExtension>(
-                                    ConferenceMediaPacketExtension.class));
+                        <>(ConferenceMediaPacketExtension.class));
 
-        providerManager.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 CallInfoPacketExtension.ELEMENT_NAME,
                 CallInfoPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
-                    <CallInfoPacketExtension>(
-                                    CallInfoPacketExtension.class));
+                        <>(CallInfoPacketExtension.class));
     }
 
     /**
@@ -118,7 +111,8 @@ public class CoinIQProvider
      * @return <tt>CoinIQ</tt>
      * @throws Exception if something goes wrong during parsing
      */
-    public IQ parseIQ(XmlPullParser parser)
+    @Override
+    public CoinIQ parse(XmlPullParser parser, int depth)
         throws Exception
     {
         CoinIQ coinIQ = new CoinIQ();
@@ -143,7 +137,7 @@ public class CoinIQProvider
 
         // Now go on and parse the jingle element's content.
         int eventType;
-        String elementName = null;
+        String elementName;
         boolean done = false;
 
         while (!done)
@@ -155,33 +149,33 @@ public class CoinIQProvider
             {
                 if(elementName.equals(DescriptionPacketExtension.ELEMENT_NAME))
                 {
-                    PacketExtension childExtension =
-                        descriptionProvider.parseExtension(parser);
+                    ExtensionElement childExtension =
+                            (ExtensionElement)descriptionProvider.parse(parser);
                     coinIQ.addExtension(childExtension);
                 }
                 else if(elementName.equals(UsersPacketExtension.ELEMENT_NAME))
                 {
-                    PacketExtension childExtension =
-                        usersProvider.parseExtension(parser);
+                    ExtensionElement childExtension =
+                            (ExtensionElement)usersProvider.parse(parser);
                     coinIQ.addExtension(childExtension);
                 }
                 else if(elementName.equals(StatePacketExtension.ELEMENT_NAME))
                 {
-                    PacketExtension childExtension =
-                        stateProvider.parseExtension(parser);
+                    ExtensionElement childExtension =
+                            (ExtensionElement)stateProvider.parse(parser);
                     coinIQ.addExtension(childExtension);
                 }
                 else if(elementName.equals(URIsPacketExtension.ELEMENT_NAME))
                 {
-                    PacketExtension childExtension =
-                        urisProvider.parseExtension(parser);
+                    ExtensionElement childExtension =
+                            (ExtensionElement)urisProvider.parse(parser);
                     coinIQ.addExtension(childExtension);
                 }
                 else if(elementName.equals(
                         SidebarsByValPacketExtension.ELEMENT_NAME))
                 {
-                    PacketExtension childExtension =
-                        sidebarsByValProvider.parseExtension(parser);
+                    ExtensionElement childExtension =
+                            (ExtensionElement)sidebarsByValProvider.parse(parser);
                     coinIQ.addExtension(childExtension);
                 }
             }

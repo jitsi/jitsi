@@ -34,7 +34,7 @@ public class ConferenceMediumPacketExtension
     /**
      * The namespace that conference medium belongs to.
      */
-    public static final String NAMESPACE = "";
+    public static final String NAMESPACE = CoinIQ.NAMESPACE;
 
     /**
      * The name of the element that contains the conference medium.
@@ -189,7 +189,7 @@ public class ConferenceMediumPacketExtension
                     status).append("</").append(
                             ELEMENT_STATUS).append(">");
 
-        for(PacketExtension ext : getChildExtensions())
+        for(ExtensionElement ext : getChildExtensions())
         {
             bldr.append(ext.toXML());
         }

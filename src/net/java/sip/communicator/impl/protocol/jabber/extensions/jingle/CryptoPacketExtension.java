@@ -40,8 +40,6 @@ public class CryptoPacketExtension
 
     /**
      * The namespace for the "crypto" element.
-     * It it set to "not null" only for Gtalk SDES support (may be set to null
-     * once gtalk supports jingle).
      */
     public static final String NAMESPACE = "urn:xmpp:jingle:apps:rtp:1";
 

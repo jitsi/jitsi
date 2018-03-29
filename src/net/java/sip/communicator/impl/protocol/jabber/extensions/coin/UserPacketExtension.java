@@ -123,7 +123,7 @@ public class UserPacketExtension
                     displayText).append("</").append(
                             ELEMENT_DISPLAY_TEXT).append(">");
 
-        for(PacketExtension ext : getChildExtensions())
+        for(ExtensionElement ext : getChildExtensions())
         {
             bldr.append(ext.toXML());
         }

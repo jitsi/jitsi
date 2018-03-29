@@ -32,7 +32,7 @@ public class RelayPacketExtension
     /**
      * The namespace.
      */
-    public static final String NAMESPACE = null;
+    public static final String NAMESPACE = "google:jingleinfo";
 
     /**
      * The element name.
@@ -91,7 +91,7 @@ public class RelayPacketExtension
             bld.append("</").append("token").append(">");
         }
 
-        for(PacketExtension pe : getChildExtensions())
+        for(ExtensionElement pe : getChildExtensions())
         {
             bld.append(pe.toXML());
         }

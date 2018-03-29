@@ -200,7 +200,7 @@ public class ExecutionPacketExtension
                             ELEMENT_REASON).append(">");
 
 
-        for(PacketExtension ext : getChildExtensions())
+        for(ExtensionElement ext : getChildExtensions())
         {
             bldr.append(ext.toXML());
         }

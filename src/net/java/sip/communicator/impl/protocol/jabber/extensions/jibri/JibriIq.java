@@ -20,6 +20,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jibri;
 import org.jitsi.util.*;
 
 import org.jivesoftware.smack.packet.*;
+import org.jxmpp.jid.EntityBareJid;
 
 import java.util.*;
 
@@ -142,7 +143,12 @@ public class JibriIq
     /**
      * The name of the conference room to be recorded.
      */
-    private String room = null;
+    private EntityBareJid room = null;
+
+    public JibriIq()
+    {
+        super(ELEMENT_NAME, NAMESPACE);
+    }
 
     /**
      * @return the value for {@link #DISPLAY_NAME_ATTR_NAME}
@@ -204,7 +210,7 @@ public class JibriIq
      *         or <tt>null</tt> if empty.
      * @see #room
      */
-    public String getRoom()
+    public EntityBareJid getRoom()
     {
         return room;
     }
@@ -215,7 +221,7 @@ public class JibriIq
      *             remove it from XML element.
      * @see #room
      */
-    public void setRoom(String room)
+    public void setRoom(EntityBareJid room)
     {
         this.room = room;
     }
@@ -224,76 +230,31 @@ public class JibriIq
      * {@inheritDoc}
      */
     @Override
-    public String getChildElementXML()
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder xml)
     {
-        StringBuilder xml = new StringBuilder();
-
-        xml.append('<').append(ELEMENT_NAME);
-        xml.append(" xmlns='").append(NAMESPACE).append("' ");
-
         if (action != Action.UNDEFINED)
         {
-            printStringAttribute(xml, ACTION_ATTR_NAME, action.toString());
+            xml.attribute(ACTION_ATTR_NAME, action.toString());
         }
 
         if (status != Status.UNDEFINED)
         {
-            printStringAttribute(xml, STATUS_ATTR_NAME, status.toString());
+            xml.attribute(STATUS_ATTR_NAME, status.toString());
         }
 
         if (recordingMode != RecordingMode.UNDEFINED)
         {
-            printStringAttribute(
-                    xml, RECORDING_MODE_ATTR_NAME, recordingMode.toString());
+            xml.attribute(RECORDING_MODE_ATTR_NAME, recordingMode.toString());
         }
 
-        if (room != null)
-        {
-            printStringAttribute(xml, ROOM_ATTR_NAME, room);
-        }
+        xml.optAttribute(ROOM_ATTR_NAME, room);
+        xml.optAttribute(STREAM_ID_ATTR_NAME, streamId);
+        xml.optAttribute(DISPLAY_NAME_ATTR_NAME, displayName);
+        xml.optAttribute(SIP_ADDRESS_ATTR_NAME, sipAddress);
 
-        if (streamId != null)
-        {
-            printStringAttribute(xml, STREAM_ID_ATTR_NAME, streamId);
-        }
+        xml.setEmptyElement();
 
-        if (displayName != null)
-        {
-            printStringAttribute(xml, DISPLAY_NAME_ATTR_NAME, displayName);
-        }
-
-        if (sipAddress != null)
-        {
-            printStringAttribute(xml, SIP_ADDRESS_ATTR_NAME, sipAddress);
-        }
-
-        Collection<PacketExtension> extensions =  getExtensions();
-        if (extensions.size() > 0)
-        {
-            xml.append(">");
-            for (PacketExtension extension : extensions)
-            {
-                xml.append(extension.toXML());
-            }
-            xml.append("</").append(ELEMENT_NAME).append(">");
-        }
-        else
-        {
-            xml.append("/>");
-        }
-
-        return xml.toString();
-    }
-
-    private void printStringAttribute(
-            StringBuilder xml, String attrName, String attr)
-    {
-        if (!StringUtils.isNullOrEmpty(attr))
-        {
-            attr = org.jivesoftware.smack.util.StringUtils.escapeForXML(attr);
-            xml.append(attrName).append("='")
-                .append(attr).append("' ");
-        }
+        return xml;
     }
 
     /**

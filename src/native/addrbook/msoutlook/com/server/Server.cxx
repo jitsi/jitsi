@@ -192,7 +192,7 @@ void waitParentProcessStop()
  * Invoke the callback function of the COM client when a contact has been
  * deleted from MAPI.
  *
- * @param id The contact identifer.
+ * @param id The contact identifier.
  */
 static void Server_deleted(LPSTR id, ULONG type)
 {
@@ -219,7 +219,7 @@ static void Server_deleted(LPSTR id, ULONG type)
  * Invoke the callback function of the COM client when a contact has been
  * created from MAPI.
  *
- * @param id The contact identifer.
+ * @param id The contact identifier.
  */
 static void Server_inserted(LPSTR id, ULONG type)
 {
@@ -246,7 +246,7 @@ static void Server_inserted(LPSTR id, ULONG type)
  * Invoke the callback function of the COM client when a contact has been
  * modified from MAPI.
  *
- * @param id The contact identifer.
+ * @param id The contact identifier.
  */
 static void Server_updated(LPSTR id, ULONG type)
 {

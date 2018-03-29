@@ -113,7 +113,7 @@ public class UserLanguagesPacketExtension
                             ELEMENT_LANGUAGES).append(">");
         }
 
-        for(PacketExtension ext : getChildExtensions())
+        for(ExtensionElement ext : getChildExtensions())
         {
             bldr.append(ext.toXML());
         }

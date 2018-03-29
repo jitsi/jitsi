@@ -25,10 +25,13 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
-import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.filter.*;
+import net.java.sip.communicator.util.*;
+import org.jivesoftware.smack.SmackException.*;
+import org.jivesoftware.smack.iqrequest.*;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jivesoftware.smack.packet.IQ.Type;
+import org.jivesoftware.smackx.disco.packet.*;
+import org.jxmpp.jid.*;
 // disambiguation
 
 /**
@@ -41,9 +44,11 @@ public class OperationSetDesktopSharingClientJabberImpl
     extends AbstractOperationSetDesktopSharingClient
                 <ProtocolProviderServiceJabberImpl>
     implements RegistrationStateChangeListener,
-                PacketListener,
-                PacketFilter
+               IQRequestHandler
 {
+    private static final Logger logger =
+        Logger.getLogger(OperationSetDesktopSharingClientJabberImpl.class);
+
     /**
      * Initializes a new <tt>OperationSetDesktopSharingClientJabberImpl</tt>.
      *
@@ -123,12 +128,19 @@ public class OperationSetDesktopSharingClientJabberImpl
             InputEvtIQ inputIQ = new InputEvtIQ();
 
             inputIQ.setAction(InputEvtAction.NOTIFY);
-            inputIQ.setType(IQ.Type.SET);
+            inputIQ.setType(IQ.Type.set);
             inputIQ.setFrom(parentProvider.getOurJID());
-            inputIQ.setTo(callPeer.getAddress());
+            inputIQ.setTo(((CallPeerJabberImpl) callPeer).getAddressAsJid());
             inputIQ.addRemoteControl(payload);
 
-            parentProvider.getConnection().sendPacket(inputIQ);
+            try
+            {
+                parentProvider.getConnection().sendStanza(inputIQ);
+            }
+            catch (NotConnectedException | InterruptedException e)
+            {
+                logger.error("Could not send remote control event", e);
+            }
         }
     }
 
@@ -144,28 +156,48 @@ public class OperationSetDesktopSharingClientJabberImpl
         OperationSetDesktopSharingServerJabberImpl.registrationStateChanged(
                     evt,
                     this,
-                    this,
                     this.parentProvider.getConnection());
+    }
+
+    /**
+     * Returns the callPeer corresponding to the given callPeerAddress given in
+     * parameter, if this callPeer exists in the listener list.
+     *
+     * @param callPeerAddress The XMPP address of the call peer to seek.
+     *
+     * @return The callPeer corresponding to the given callPeerAddress given in
+     * parameter, if this callPeer exists in the listener list. null otherwise.
+     */
+    protected CallPeer getListenerCallPeer(Jid callPeerAddress)
+    {
+        CallPeerJabberImpl callPeer;
+        List<RemoteControlListener> listeners = getListeners();
+        for (RemoteControlListener listener : listeners)
+        {
+            callPeer = (CallPeerJabberImpl) listener.getCallPeer();
+            if (callPeer.getAddress().equals(callPeerAddress.toString()))
+            {
+                return callPeer;
+            }
+        }
+        // If no peers corresponds, then return NULL.
+        return null;
     }
 
     /**
      * Handles incoming inputevt packets and passes them to the corresponding
      * method based on their action.
-     *
-     * @param packet the packet to process.
+     * @param iqRequest the event to process.
+     * @return IQ response
      */
-    public void processPacket(Packet packet)
+    @Override
+    public IQ handleIQRequest(IQ iqRequest)
     {
-        InputEvtIQ inputIQ = (InputEvtIQ)packet;
+        InputEvtIQ inputIQ = (InputEvtIQ)iqRequest;
 
-        //first ack all "set" requests.
-        if(inputIQ.getType() == IQ.Type.SET
-                && inputIQ.getAction() != InputEvtAction.NOTIFY)
+        if(inputIQ.getAction() != InputEvtAction.NOTIFY)
         {
-            IQ ack = IQ.createResultIQ(inputIQ);
-            parentProvider.getConnection().sendPacket(ack);
-
-            String callPeerID = inputIQ.getFrom();
+            Jid callPeerID = inputIQ.getFrom();
             if(callPeerID != null)
             {
                 CallPeer callPeer = getListenerCallPeer(callPeerID);
@@ -182,44 +214,31 @@ public class OperationSetDesktopSharingClientJabberImpl
                 }
             }
         }
+
+        return IQ.createResultIQ(inputIQ);
     }
 
-    /**
-     * Tests whether or not the specified packet should be handled by this
-     * operation set. This method is called by smack prior to packet delivery
-     * and it would only accept <tt>InputEvtIQ</tt>s.
-     *
-     * @param packet the packet to test.
-     * @return true if and only if <tt>packet</tt> passes the filter.
-     */
-    public boolean accept(Packet packet)
+    @Override
+    public Mode getMode()
     {
-        //we only handle InputEvtIQ-s
-        return (packet instanceof InputEvtIQ);
+        return Mode.sync;
     }
 
-    /**
-     * Returns the callPeer corresponding to the given callPeerAddress given in
-     * parameter, if this callPeer exists in the listener list.
-     *
-     * @param callPeerAddress The XMPP address of the call peer to seek.
-     *
-     * @return The callPeer corresponding to the given callPeerAddress given in
-     * parameter, if this callPeer exists in the listener list. null otherwise.
-     */
-    protected CallPeer getListenerCallPeer(String callPeerAddress)
+    @Override
+    public Type getType()
     {
-        CallPeerJabberImpl callPeer;
-        List<RemoteControlListener> listeners = getListeners();
-        for(int i = 0; i < listeners.size(); ++i)
-        {
-            callPeer = (CallPeerJabberImpl) listeners.get(i).getCallPeer();
-            if(callPeer.getAddress().equals(callPeerAddress))
-            {
-                return callPeer;
-            }
-        }
-        // If no peers corresponds, then return NULL.
-        return null;
+        return Type.set;
+    }
+
+    @Override
+    public String getElement()
+    {
+        return InputEvtIQ.ELEMENT_NAME;
+    }
+
+    @Override
+    public String getNamespace()
+    {
+        return InputEvtIQ.NAMESPACE;
     }
 }

@@ -144,7 +144,7 @@ public class HostInfoPacketExtension
                     webPage).append("</").append(
                             ELEMENT_WEB_PAGE).append(">");
 
-        for(PacketExtension ext : getChildExtensions())
+        for(ExtensionElement ext : getChildExtensions())
         {
             bldr.append(ext.toXML());
         }

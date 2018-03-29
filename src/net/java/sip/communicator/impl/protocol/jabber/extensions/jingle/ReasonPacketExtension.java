@@ -28,7 +28,7 @@ import org.jivesoftware.smack.packet.*;
  * @author Lyubomir Marinov
  */
 public class ReasonPacketExtension
-    implements PacketExtension
+    implements ExtensionElement
 {
     /**
      * The name space (or rather lack thereof ) that the reason element
@@ -62,7 +62,7 @@ public class ReasonPacketExtension
      * qualified by some other namespace that provides more detailed machine-
      * readable information about the reason for the action.
      */
-    private PacketExtension otherExtension;
+    private ExtensionElement otherExtension;
 
     /**
      * Creates a new <tt>ReasonPacketExtension</tt> instance with the specified
@@ -79,7 +79,7 @@ public class ReasonPacketExtension
      */
     public ReasonPacketExtension(Reason          reason,
                                  String          text,
-                                 PacketExtension packetExtension)
+                                 ExtensionElement packetExtension)
     {
         this.reason = reason;
         this.text = text;
@@ -131,7 +131,7 @@ public class ReasonPacketExtension
      * @return an extra extension containing further info about this action or
      * <tt>null</tt> if no such extension has been specified.
      */
-    public PacketExtension getOtherExtension()
+    public ExtensionElement getOtherExtension()
     {
         return otherExtension;
     }
@@ -143,7 +143,7 @@ public class ReasonPacketExtension
      * @param otherExtension the extra extension containing further info about
      * this action or <tt>null</tt> if no such extension has been specified
      */
-    public void setOtherExtension(PacketExtension otherExtension)
+    public void setOtherExtension(ExtensionElement otherExtension)
     {
         this.otherExtension = otherExtension;
     }
@@ -169,7 +169,7 @@ public class ReasonPacketExtension
     }
 
     /**
-     * Returns the XML representation of the PacketExtension.
+     * Returns the XML representation of the ExtensionElement.
      *
      * @return the packet extension as XML.
      */

@@ -47,26 +47,26 @@ public interface OperationSetJitsiMeetTools
     public void removeSupportedFeature(String featureName);
 
     /**
-     * Includes given <tt>PacketExtension</tt> in multi user chat presence and
+     * Includes given <tt>ExtensionElement</tt> in multi user chat presence and
      * sends presence update packet to the chat room.
      * @param chatRoom the <tt>ChatRoom</tt> for which the presence will be
      *                 updated.
-     * @param extension the <tt>PacketExtension</tt> to be included in MUC
+     * @param extension the <tt>ExtensionElement</tt> to be included in MUC
      *                  presence.
      */
     public void sendPresenceExtension(ChatRoom chatRoom,
-                                      PacketExtension extension);
+                                      ExtensionElement extension);
 
     /**
-     * Removes given <tt>PacketExtension</tt> from the multi user chat presence
+     * Removes given <tt>ExtensionElement</tt> from the multi user chat presence
      * and sends presence update packet to the chat room.
      * @param chatRoom the <tt>ChatRoom</tt> for which the presence will be
      *                 updated.
-     * @param extension the <tt>PacketExtension</tt> to be removed from the MUC
+     * @param extension the <tt>ExtensionElement</tt> to be removed from the MUC
      *                  presence.
      */
     public void removePresenceExtension(ChatRoom chatRoom,
-                                        PacketExtension extension);
+                                        ExtensionElement extension);
 
     /**
      * Sets the status message of our MUC presence and sends presence status

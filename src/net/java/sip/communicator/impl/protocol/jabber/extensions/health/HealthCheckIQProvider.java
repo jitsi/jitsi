@@ -30,7 +30,7 @@ import org.xmlpull.v1.*;
  * @author Pawel Domas
  */
 public class HealthCheckIQProvider
-    implements IQProvider
+    extends IQProvider
 {
     /**
      * Registers <tt>HealthCheckIQProvider</tt> as an <tt>IQProvider</tt>
@@ -38,11 +38,8 @@ public class HealthCheckIQProvider
      */
     public static void registerIQProvider()
     {
-        AbstractSmackInteroperabilityLayer smackInteropLayer =
-            AbstractSmackInteroperabilityLayer.getInstance();
-
         // ColibriStatsIQ
-        smackInteropLayer.addIQProvider(
+        ProviderManager.addIQProvider(
             HealthCheckIQ.ELEMENT_NAME,
             HealthCheckIQ.NAMESPACE,
             new HealthCheckIQProvider());
@@ -54,7 +51,7 @@ public class HealthCheckIQProvider
      * {@inheritDoc}
      */
     @Override
-    public IQ parseIQ(XmlPullParser parser)
+    public IQ parse(XmlPullParser parser, int depth)
         throws Exception
     {
         String namespace = parser.getNamespace();

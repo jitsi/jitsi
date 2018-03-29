@@ -224,7 +224,8 @@ public abstract class MUCService
      */
     public abstract void rejectInvitation(  OperationSetMultiUserChat multiUserChatOpSet,
                                    ChatRoomInvitation invitation,
-                                   String reason);
+                                   String reason)
+        throws OperationFailedException;
 
     /**
      * Determines whether a specific <code>ChatRoom</code> is private i.e.

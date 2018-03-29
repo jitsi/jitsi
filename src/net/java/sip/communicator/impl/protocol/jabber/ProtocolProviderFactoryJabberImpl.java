@@ -22,8 +22,12 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import net.java.sip.communicator.service.protocol.jabber.*;
-import org.jivesoftware.smack.provider.*;
+import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.util.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.impl.*;
+import org.jxmpp.jid.parts.*;
+import org.jxmpp.stringprep.*;
 import org.osgi.framework.*;
 
 /**
@@ -33,50 +37,13 @@ import org.osgi.framework.*;
 public class ProtocolProviderFactoryJabberImpl
     extends ProtocolProviderFactory
 {
+    private static final Logger logger
+        = Logger.getLogger(ProtocolProviderFactoryJabberImpl.class);
+
     /**
      * Indicates if ICE should be used.
      */
     public static final String IS_USE_JINGLE_NODES = "JINGLE_NODES_ENABLED";
-
-    /**
-     * Our provider manager instances.
-     */
-    static ProviderManager providerManager = null;
-
-    static
-    {
-        try
-        {
-            
-            // Set the extension provider manager for classes that use 
-            // it directly
-            ProviderManager.setInstance(new ProviderManagerExt());
-            // Set the Smack interop implementation for the classes that need
-            // to support Smackv4 interoperation
-            AbstractSmackInteroperabilityLayer.setImplementationClass(
-                    SmackV3InteroperabilityLayer.class);
-        }
-        catch(Throwable t)
-        {
-            // once loaded if we try to set instance second time
-            // IllegalStateException is thrown
-        }
-        finally
-        {
-            providerManager = ProviderManager.getInstance();
-        }
-
-        // checks class names, not using instanceof
-        // tests do unloading and loading the protocol bundle and
-        // ProviderManagerExt class get loaded two times from different
-        // classloaders
-        if (!(providerManager.getClass().getName()
-                .equals(ProviderManagerExt.class.getName())))
-        {
-            throw new RuntimeException(
-                "ProviderManager set to the default one");
-        }
-    }
 
     /**
      * Creates an instance of the ProtocolProviderFactoryJabberImpl.
@@ -126,26 +93,31 @@ public class ProtocolProviderFactoryJabberImpl
             throw new NullPointerException(
                     "The specified property map was null");
 
+        Jid jid;
+        try
+        {
+            jid = JidCreate.from(userIDStr);
+        }
+        catch (XmppStringprepException e)
+        {
+            throw new IllegalArgumentException("User ID is not a valid JID");
+        }
+
         accountProperties.put(USER_ID, userIDStr);
 
         // if server address is null, we must extract it from userID
         if(accountProperties.get(SERVER_ADDRESS) == null)
         {
-            String serverAddress = StringUtils.parseServer(userIDStr);
-
+            Domainpart serverAddress = jid.getDomain();
             if (serverAddress != null)
-                accountProperties.put(SERVER_ADDRESS,
-                                      StringUtils.parseServer(userIDStr));
-            else throw new IllegalArgumentException(
+                accountProperties.put(SERVER_ADDRESS, serverAddress.toString());
+            else
+                throw new IllegalArgumentException(
                 "Should specify a server for user name " + userIDStr + ".");
         }
 
         // if server port is null, we will set default value
-        if(accountProperties.get(SERVER_PORT) == null)
-        {
-            accountProperties.put(SERVER_PORT,
-                                  "5222");
-        }
+        accountProperties.putIfAbsent(SERVER_PORT, "5222");
 
         AccountID accountID
                 = new JabberAccountIDImpl(userIDStr, accountProperties);
@@ -187,7 +159,18 @@ public class ProtocolProviderFactoryJabberImpl
         ProtocolProviderServiceJabberImpl service =
             new ProtocolProviderServiceJabberImpl();
 
-        service.initialize(userID, (JabberAccountID) accountID);
+        EntityBareJid jid;
+        try
+        {
+            jid = JidCreate.entityBareFrom(userID);
+        }
+        catch (XmppStringprepException e)
+        {
+            logger.error(userID + " is not a valid JID", e);
+            return null;
+        }
+
+        service.initialize(jid, (JabberAccountID) accountID);
         return service;
     }
 
@@ -222,7 +205,8 @@ public class ProtocolProviderFactoryJabberImpl
         if(!registeredAccounts.containsKey(accountID))
             return;
 
-        ServiceRegistration registration = registeredAccounts.get(accountID);
+        ServiceRegistration<ProtocolProviderService> registration
+            = registeredAccounts.get(accountID);
 
         // kill the service
         if (registration != null)
@@ -235,7 +219,8 @@ public class ProtocolProviderFactoryJabberImpl
                     protocolProvider.unregister();
                     protocolProvider.shutdown();
                 }
-            } catch (Throwable e)
+            }
+            catch (Throwable e)
             {
                 // we don't care for this, cause we are modifying and
                 // will unregister the service and will register again
@@ -256,11 +241,7 @@ public class ProtocolProviderFactoryJabberImpl
             throw new NullPointerException("null is not a valid ServerAddress");
 
         // if server port is null, we will set default value
-        if(accountProperties.get(SERVER_PORT) == null)
-        {
-            accountProperties.put(SERVER_PORT,
-                                  "5222");
-        }
+        accountProperties.putIfAbsent(SERVER_PORT, "5222");
 
         if (!accountProperties.containsKey(PROTOCOL))
             accountProperties.put(PROTOCOL, ProtocolNames.JABBER);
@@ -277,8 +258,20 @@ public class ProtocolProviderFactoryJabberImpl
         properties.put(PROTOCOL, ProtocolNames.JABBER);
         properties.put(USER_ID, accountID.getUserID());
 
+
+        EntityBareJid jid;
+        try
+        {
+            jid = JidCreate.entityBareFrom(accountID.getUserID());
+        }
+        catch (XmppStringprepException e)
+        {
+            logger.error(accountID.getUserID() + " is not a valid JID", e);
+            throw new NullPointerException("UserID is not a valid JID");
+        }
+
         ((ProtocolProviderServiceJabberImpl) protocolProvider)
-            .initialize(accountID.getUserID(), accountID);
+            .initialize(jid, accountID);
 
         // We store again the account in order to store all properties added
         // during the protocol provider initialization.
@@ -286,7 +279,7 @@ public class ProtocolProviderFactoryJabberImpl
 
         registration
             = context.registerService(
-                        ProtocolProviderService.class.getName(),
+                        ProtocolProviderService.class,
                         protocolProvider,
                         properties);
 

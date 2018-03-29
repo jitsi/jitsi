@@ -21,7 +21,7 @@ import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
 
-import org.jivesoftware.smackx.*;
+import org.jivesoftware.smackx.xdata.*;
 
 /**
  * The Jabber protocol implementation of the
@@ -58,7 +58,7 @@ public class ChatRoomConfigurationFormFieldJabberImpl
     {
         this.smackFormField = formField;
 
-        if(!formField.getType().equals(FormField.TYPE_FIXED))
+        if(!formField.getType().equals(FormField.Type.fixed))
             this.smackSubmitFormField
                 = submitForm.getField(formField.getVariable());
         else
@@ -103,12 +103,8 @@ public class ChatRoomConfigurationFormFieldJabberImpl
     public Iterator<String> getOptions()
     {
         List<String> options = new ArrayList<String>();
-        Iterator<FormField.Option> smackOptions = smackFormField.getOptions();
-
-        while(smackOptions.hasNext())
+        for (FormField.Option smackOption : smackFormField.getOptions())
         {
-            FormField.Option smackOption = smackOptions.next();
-
             options.add(smackOption.getValue());
         }
 
@@ -133,25 +129,25 @@ public class ChatRoomConfigurationFormFieldJabberImpl
      */
     public String getType()
     {
-        String smackType = smackFormField.getType();
+        FormField.Type smackType = smackFormField.getType();
 
-        if(smackType.equals(FormField.TYPE_BOOLEAN))
+        if(smackType.equals(FormField.Type.bool))
             return TYPE_BOOLEAN;
-        if(smackType.equals(FormField.TYPE_FIXED))
+        if(smackType.equals(FormField.Type.fixed))
             return TYPE_TEXT_FIXED;
-        else if(smackType.equals(FormField.TYPE_TEXT_PRIVATE))
+        else if(smackType.equals(FormField.Type.text_private))
             return TYPE_TEXT_PRIVATE;
-        else if(smackType.equals(FormField.TYPE_TEXT_SINGLE))
+        else if(smackType.equals(FormField.Type.text_single))
             return TYPE_TEXT_SINGLE;
-        else if(smackType.equals(FormField.TYPE_TEXT_MULTI))
+        else if(smackType.equals(FormField.Type.text_multi))
             return TYPE_TEXT_MULTI;
-        else if(smackType.equals(FormField.TYPE_LIST_SINGLE))
+        else if(smackType.equals(FormField.Type.list_single))
             return TYPE_LIST_SINGLE;
-        else if(smackType.equals(FormField.TYPE_LIST_MULTI))
+        else if(smackType.equals(FormField.Type.list_multi))
             return TYPE_LIST_MULTI;
-        else if(smackType.equals(FormField.TYPE_JID_SINGLE))
+        else if(smackType.equals(FormField.Type.jid_single))
             return TYPE_ID_SINGLE;
-        else if(smackType.equals(FormField.TYPE_JID_MULTI))
+        else if(smackType.equals(FormField.Type.jid_multi))
             return TYPE_ID_MULTI;
         else
             return TYPE_UNDEFINED;
@@ -164,17 +160,14 @@ public class ChatRoomConfigurationFormFieldJabberImpl
      */
     public Iterator<?> getValues()
     {
-        Iterator<String> smackValues = smackFormField.getValues();
         Iterator<?> valuesIter;
 
-        if(smackFormField.getType().equals(FormField.TYPE_BOOLEAN))
+        if(smackFormField.getType().equals(FormField.Type.bool))
         {
             List<Boolean> values = new ArrayList<Boolean>();
 
-            while(smackValues.hasNext())
+            for (String smackValue : smackFormField.getValues())
             {
-                String smackValue = smackValues.next();
-
                 values
                     .add(
                         (smackValue.equals("1") || smackValue.equals("true"))
@@ -185,7 +178,7 @@ public class ChatRoomConfigurationFormFieldJabberImpl
             valuesIter = values.iterator();
         }
         else
-            valuesIter = smackValues;
+            valuesIter = smackFormField.getValues().iterator();
 
         return valuesIter;
     }

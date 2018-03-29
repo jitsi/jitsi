@@ -121,9 +121,9 @@
             description="simply execute 'ant' to discover the most useful targets.">
         <echo message="Useful ant commands for the Jitsi Build Installer..." />
         <echo message="'ant build-installation-generic' for building generic installator jar" />
-        <echo message="'ant build-installation-linux' for building linux instalation file" />
-        <echo message="'ant build-installation-wix' for building Windows MSI instalation file using WiX" />
-        <echo message="'ant build-installation-wix-64' for building Windows x64 MSI instalation file using WiX" />
+        <echo message="'ant build-installation-linux' for building linux installation file" />
+        <echo message="'ant build-installation-wix' for building Windows MSI installation file using WiX" />
+        <echo message="'ant build-installation-wix-64' for building Windows x64 MSI installation file using WiX" />
     </target>
 
     <target name="clean-install-generic">
@@ -1883,7 +1883,7 @@
             if="sparkle.signiture.location">
         <!-- To be able to insert deltas in the updates xml
             we use the token @SPARKLE_DELTAS@. And when finished
-            puting deltas (no matter if there were any at all if option
+            putting deltas (no matter if there were any at all if option
             is not enabled) we must remove the SPARKLE_DELTAS token if left.
         -->
         <filter token="SPARKLE_DELTAS" value="" />

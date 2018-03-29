@@ -27,7 +27,7 @@ import org.xmlpull.v1.*;
  * @author Sebastien Vincent
  */
 public class UsersProvider
-    implements PacketExtensionProvider
+    extends ExtensionElementProvider
 {
     /**
      * Parses a users extension sub-packet and creates a {@link
@@ -43,7 +43,8 @@ public class UsersProvider
      * @return a new {@link UsersPacketExtension} instance.
      * @throws java.lang.Exception if an error occurs parsing the XML.
      */
-    public UsersPacketExtension parseExtension(XmlPullParser parser)
+    @Override
+    public UsersPacketExtension parse(XmlPullParser parser, int depth)
         throws Exception
     {
         boolean done = false;
@@ -72,9 +73,9 @@ public class UsersProvider
             {
                 if(elementName.equals(UserPacketExtension.ELEMENT_NAME))
                 {
-                    PacketExtensionProvider provider
+                    ExtensionElementProvider provider
                         = new UserProvider();
-                    PacketExtension childExtension = provider.parseExtension(
+                    ExtensionElement childExtension = (ExtensionElement)provider.parse(
                             parser);
                     ext.addChildExtension(childExtension);
                 }

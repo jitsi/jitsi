@@ -135,18 +135,24 @@ public class ReceiveFileConversationComponent
         {
             public void actionPerformed(ActionEvent e)
             {
-                fileTransferRequest.rejectFile();
-
-                acceptButton.setVisible(false);
-                rejectButton.setVisible(false);
-                setWarningStyle(true);
-                fileLabel.setText("");
-                titleLabel.setText(
-                    dateString
-                    + resources.getI18NString(
-                        "service.gui.FILE_TRANSFER_REFUSED"));
-                ReceiveFileConversationComponent.this.chatPanel
-                    .removeActiveFileTransfer(fileTransferRequest.getID());
+                try
+                {
+                    fileTransferRequest.rejectFile();
+                    acceptButton.setVisible(false);
+                    rejectButton.setVisible(false);
+                    setWarningStyle(true);
+                    fileLabel.setText("");
+                    titleLabel.setText(
+                        dateString
+                        + resources.getI18NString(
+                            "service.gui.FILE_TRANSFER_REFUSED"));
+                    ReceiveFileConversationComponent.this.chatPanel
+                        .removeActiveFileTransfer(fileTransferRequest.getID());
+                }
+                catch (OperationFailedException e1)
+                {
+                    logger.error("Failed to reject file", e1);
+                }
             }
         });
 

@@ -27,7 +27,7 @@ import org.xmlpull.v1.*;
  * @author Sebastien Vincent
  */
 public class StunProvider
-    implements PacketExtensionProvider
+    extends ExtensionElementProvider
 {
     /**
      * Parses a users extension sub-packet and creates a {@link
@@ -43,12 +43,13 @@ public class StunProvider
      * @return a new {@link StunPacketExtension} instance.
      * @throws java.lang.Exception if an error occurs parsing the XML.
      */
-    public PacketExtension parseExtension(XmlPullParser parser)
+    @Override
+    public ExtensionElement parse(XmlPullParser parser, int depth)
         throws Exception
     {
         boolean done = false;
         int eventType;
-        String elementName = null;
+        String elementName;
         StunPacketExtension ext
             = new StunPacketExtension();
 
@@ -61,12 +62,12 @@ public class StunProvider
             {
                 if(elementName.equals(ServerPacketExtension.ELEMENT_NAME))
                 {
-                    PacketExtensionProvider provider = (PacketExtensionProvider)
-                        ProviderManager.getInstance().getExtensionProvider(
+                    ExtensionElementProvider provider = (ExtensionElementProvider)
+                        ProviderManager.getExtensionProvider(
                                 ServerPacketExtension.ELEMENT_NAME,
                                 ServerPacketExtension.NAMESPACE);
-                    PacketExtension childExtension =
-                        provider.parseExtension(parser);
+                    ExtensionElement childExtension =
+                            (ExtensionElement) provider.parse(parser);
                     ext.addChildExtension(childExtension);
                 }
             }

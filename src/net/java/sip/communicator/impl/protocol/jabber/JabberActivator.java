@@ -35,6 +35,9 @@ import org.jitsi.service.neomedia.*;
 import org.jitsi.service.packetlogging.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.service.version.*;
+import org.jitsi.service.version.Version;
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smackx.iqversion.*;
 import org.osgi.framework.*;
 
 /**
@@ -149,6 +152,7 @@ public class JabberActivator
      */
     public void start(BundleContext context) throws Exception
     {
+        SmackConfiguration.DEBUG = true;
         JabberActivator.bundleContext = context;
 
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
@@ -170,6 +174,14 @@ public class JabberActivator
                     hashtable);
 
         EntityCapsManager.setBundleContext(context);
+
+        Version ver = JabberActivator.getVersionService().getCurrentVersion();
+        String appName = ver.getApplicationName();
+        VersionManager.setAutoAppendSmackVersion(false);
+        VersionManager.setDefaultVersion(
+            appName,
+            ver.toString(),
+            System.getProperty("os.name"));
     }
 
     /**

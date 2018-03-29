@@ -214,7 +214,7 @@ public class SourcePacketExtension
         SourcePacketExtension copy
             = AbstractPacketExtension.clone(this);
 
-        for (PacketExtension ppe : getChildExtensions())
+        for (ExtensionElement ppe : getChildExtensions())
         {
             if (ppe instanceof AbstractPacketExtension)
             {

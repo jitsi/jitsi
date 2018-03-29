@@ -33,16 +33,6 @@ public class OperationNotSupportedException
     private static final long serialVersionUID = 0L;
 
     /**
-     * Initializes a new <code>OperationNotSupportedException</code> instance
-     * which does not give a human-readable explanation why the operation is
-     * not supported.
-     */
-    public OperationNotSupportedException()
-    {
-        this(null);
-    }
-
-    /**
      * Creates an OperationNotSupportedException instance with the specified
      * reason phrase.
      *
@@ -54,5 +44,20 @@ public class OperationNotSupportedException
     public OperationNotSupportedException(String message)
     {
         super(message);
+    }
+
+    /**
+     * Creates an OperationNotSupportedException instance with the specified
+     * reason phrase.
+     *
+     * @param message
+     *            a detailed message explaining any particular details as to why
+     *            is not the specified operation supported or null if no
+     *            particular details exist.
+     * @param inner The exception that caused this exception
+     */
+    public OperationNotSupportedException(String message, Exception inner)
+    {
+        super(message, inner);
     }
 }

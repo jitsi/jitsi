@@ -18,6 +18,8 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import net.java.sip.communicator.service.protocol.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.parts.*;
 
 /**
  *
@@ -26,7 +28,7 @@ import net.java.sip.communicator.service.protocol.*;
 public class ContactResourceJabberImpl
     extends ContactResource
 {
-    private final String fullJid;
+    private final FullJid fullJid;
 
     /**
      * Creates a <tt>ContactResource</tt> by specifying the
@@ -35,19 +37,17 @@ public class ContactResourceJabberImpl
      *
      * @param fullJid the full jid corresponding to this contact resource
      * @param contact
-     * @param resourceName
      * @param presenceStatus
      * @param priority
      */
-    public ContactResourceJabberImpl(   String fullJid,
+    public ContactResourceJabberImpl(   FullJid fullJid,
                                         Contact contact,
-                                        String resourceName,
                                         PresenceStatus presenceStatus,
                                         int priority,
                                         boolean isMobile)
     {
         super(  contact,
-                resourceName,
+                fullJid.getResourceOrEmpty().toString(),
                 presenceStatus,
                 priority,
                 isMobile);
@@ -60,7 +60,7 @@ public class ContactResourceJabberImpl
      *
      * @return the full jid corresponding to this contact resource
      */
-    public String getFullJid()
+    public FullJid getFullJid()
     {
         return fullJid;
     }

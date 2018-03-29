@@ -55,21 +55,38 @@ public class MediaPresenceExtension
      * @param providerManager the <tt>ProviderManager</tt> to which media
      *                        presence extensions will be registered to.
      */
-    public static void registerExtensions(ProviderManager providerManager)
+    public static void registerExtensions()
     {
         // <media>
-        providerManager.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
             MediaPresenceExtension.ELEMENT_NAME,
             MediaPresenceExtension.NAMESPACE,
             new DefaultPacketExtensionProvider<MediaPresenceExtension>(
                 MediaPresenceExtension.class));
 
         // <source>
-        providerManager.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
             MediaPresenceExtension.Source.ELEMENT_NAME,
             MediaPresenceExtension.Source.NAMESPACE,
             new DefaultPacketExtensionProvider<Source>(
                 Source.class));
+    }
+
+    /**
+     * Add a <tt>Source</tt> object to the <tt>sourceList</tt> representing a
+     * <source /> line.
+     *
+     * @arg type the type of the <tt>Source</tt>
+     * @arg ssrc the ssrc of the <tt>Source</tt>
+     * @arg direction the direction of the <tt>Source</tt>
+     */
+    public void addSource(String type, String ssrc, String direction)
+    {
+        Source s = new Source();
+        s.setMediaType(type);
+        s.setSSRC(ssrc);
+        s.setDirection(direction);
+        addChildExtension(s);
     }
 
     /**
@@ -86,7 +103,7 @@ public class MediaPresenceExtension
         /**
          * No namespace attached.
          */
-        public final static String NAMESPACE = "";
+        public final static String NAMESPACE = "urn:xmpp:jingle:apps:rtp:ssma:0";
 
         /**
          * SSRC media type attribute name. Can be 'audio' or 'video'.

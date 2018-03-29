@@ -75,7 +75,7 @@ public class ReasonExtension
      */
     public ReasonExtension(String elementName)
     {
-        super(null, elementName);
+        super(RayoIqProvider.NAMESPACE, elementName);
     }
 
     /**

@@ -76,6 +76,7 @@ public class InputEvtIQ extends IQ
      */
     public InputEvtIQ()
     {
+        super(ELEMENT_NAME, NAMESPACE);
     }
 
     /**
@@ -84,29 +85,24 @@ public class InputEvtIQ extends IQ
      * @return XML representation of the IQ
      */
     @Override
-    public String getChildElementXML()
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder bldr)
     {
-        StringBuilder bldr = new StringBuilder("<" + ELEMENT_NAME);
-
-        bldr.append(" xmlns='" + NAMESPACE + "'");
-
-        bldr.append(" " + ACTION_ATTR_NAME + "='" + getAction() + "'");
-
+        bldr.attribute(ACTION_ATTR_NAME, getAction().toString());
         if(remoteControls.size() > 0)
         {
-            bldr.append(">");
-
+            bldr.rightAngleBracket();
+            // FIXME use extensions list of IQ
             for(RemoteControlExtension p : remoteControls)
+            {
                 bldr.append(p.toXML());
-
-            bldr.append("</" + ELEMENT_NAME + ">");
+            }
         }
         else
         {
-            bldr.append("/>");
+            bldr.setEmptyElement();
         }
 
-        return bldr.toString();
+        return bldr;
     }
 
     /**

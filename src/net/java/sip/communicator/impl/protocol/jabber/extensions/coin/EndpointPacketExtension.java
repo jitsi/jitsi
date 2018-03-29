@@ -228,7 +228,7 @@ public class EndpointPacketExtension
                     joiningType).append("</").append(
                             ELEMENT_JOINING).append(">");
 
-        for(PacketExtension ext : getChildExtensions())
+        for(ExtensionElement ext : getChildExtensions())
         {
             bldr.append(ext.toXML());
         }

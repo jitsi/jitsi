@@ -22,11 +22,11 @@ import org.jivesoftware.smack.packet.*;
 import java.util.*;
 
 /**
- * Wraps Smack's <tt>XMPPError</tt> into <tt>PacketExtension</tt>, so that it
+ * Wraps Smack's <tt>XMPPError</tt> into <tt>ExtensionElement</tt>, so that it
  * can be easily inserted into {@link RecordingStatus}.
  */
 public class XMPPErrorPE
-    implements PacketExtension
+    implements ExtensionElement
 {
     /**
      * <tt>XMPPError</tt> wrapped into this <tt>XMPPErrorPE</tt>.
@@ -88,6 +88,6 @@ public class XMPPErrorPE
     @Override
     public String toXML()
     {
-        return error.toXML();
+        return error.toXML().toString();
     }
 }

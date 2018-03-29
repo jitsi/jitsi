@@ -27,7 +27,7 @@ import org.jivesoftware.smack.packet.*;
  * 
  */
 public class SctpMapExtension
-    implements PacketExtension
+    implements ExtensionElement
 {
     /**
      * The name of the "sctpmap" element.

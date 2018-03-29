@@ -18,15 +18,19 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.*;
 
 import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.util.*;
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jivesoftware.smack.roster.*;
+import org.jivesoftware.smackx.disco.packet.*;
+import org.jxmpp.jid.*;
 import org.xmpp.jnodes.smack.*;
 
 /**
@@ -106,7 +110,7 @@ public class JingleNodesServiceDiscovery
                 logger.info("Start Jingle Nodes discovery!");
             }
 
-            SmackServiceNode.MappedNodes nodes;
+            SmackServiceNode.MappedNodes nodes = null;
 
             String searchNodesWithPrefix =
                 JabberActivator.getResources()
@@ -127,12 +131,19 @@ public class JingleNodesServiceDiscovery
                 searchNodesWithPrefix = "";
             }
 
-            nodes = searchServicesWithPrefix(
-                service,
-                connection, 6, 3, 20, JingleChannelIQ.UDP,
-                accountID.isJingleNodesSearchBuddiesEnabled(),
-                accountID.isJingleNodesAutoDiscoveryEnabled(),
-                searchNodesWithPrefix);
+            try
+            {
+                nodes = searchServicesWithPrefix(
+                    service,
+                    connection, 6, 3, 20, JingleChannelIQ.UDP,
+                    accountID.isJingleNodesSearchBuddiesEnabled(),
+                    accountID.isJingleNodesAutoDiscoveryEnabled(),
+                    searchNodesWithPrefix);
+            }
+            catch (NotConnectedException | InterruptedException e)
+            {
+                logger.error("Search failed", e);
+            }
 
             if(logger.isInfoEnabled())
             {
@@ -174,7 +185,8 @@ public class JingleNodesServiceDiscovery
             boolean searchBuddies,
             boolean autoDiscover,
             String prefix)
-        {
+        throws NotConnectedException, InterruptedException
+    {
             if (xmppConnection == null || !xmppConnection.isConnected())
             {
                 return null;
@@ -182,11 +194,11 @@ public class JingleNodesServiceDiscovery
 
             SmackServiceNode.MappedNodes mappedNodes =
                 new SmackServiceNode.MappedNodes();
-            ConcurrentHashMap<String, String> visited
-                = new ConcurrentHashMap<String, String>();
+            ConcurrentHashMap<Jid, Jid> visited
+                = new ConcurrentHashMap<>();
 
             // Request to our pre-configured trackerEntries
-            for(Map.Entry<String, TrackerEntry> entry
+            for(Entry<Jid, TrackerEntry> entry
                     : service.getTrackerEntries().entrySet())
             {
                 SmackServiceNode.deepSearch(
@@ -207,7 +219,7 @@ public class JingleNodesServiceDiscovery
                         service,
                         xmppConnection,
                         maxEntries,
-                        xmppConnection.getServiceName(),
+                        xmppConnection.getXMPPServiceDomain(),
                         mappedNodes,
                         maxDepth - 1,
                         maxSearchNodes,
@@ -223,7 +235,7 @@ public class JingleNodesServiceDiscovery
                 SmackServiceNode.deepSearch(
                     xmppConnection,
                     maxEntries,
-                    xmppConnection.getHost(),
+                    xmppConnection.getXMPPServiceDomain(),
                     mappedNodes,
                     maxDepth - 1,
                     maxSearchNodes,
@@ -231,16 +243,13 @@ public class JingleNodesServiceDiscovery
                     visited);
 
                 // Request to Buddies
-                if (xmppConnection.getRoster() != null && searchBuddies)
+                Roster r = Roster.getInstanceFor(xmppConnection);
+                if (r != null && searchBuddies)
                 {
-                    for (final RosterEntry re : xmppConnection.getRoster().getEntries())
+                    for (final RosterEntry re : r.getEntries())
                     {
-                        for (final Iterator<Presence> i
-                                 = xmppConnection.getRoster()
-                                    .getPresences(re.getUser());
-                             i.hasNext();)
+                        for (final Presence presence : r.getPresences(re.getJid()))
                         {
-                            final Presence presence = i.next();
                             if (presence.isAvailable())
                             {
                                 SmackServiceNode.deepSearch(
@@ -279,13 +288,14 @@ public class JingleNodesServiceDiscovery
             SmackServiceNode service,
             XMPPConnection xmppConnection,
             int maxEntries,
-            String startPoint,
+            DomainBareJid startPoint,
             SmackServiceNode.MappedNodes mappedNodes,
             int maxDepth,
             int maxSearchNodes,
             String protocol,
-            ConcurrentHashMap<String, String> visited,
+            ConcurrentHashMap<Jid, Jid> visited,
             String prefix)
+            throws InterruptedException, NotConnectedException
         {
             String[] prefixes = prefix.split(",");
 
@@ -305,25 +315,28 @@ public class JingleNodesServiceDiscovery
 
             final DiscoverItems items = new DiscoverItems();
             items.setTo(startPoint);
-            PacketCollector collector =
-                xmppConnection.createPacketCollector(
-                    new PacketIDFilter(items.getPacketID()));
-            xmppConnection.sendPacket(items);
-            DiscoverItems result = (DiscoverItems) collector.nextResult(
-                Math.round(SmackConfiguration.getPacketReplyTimeout() * 1.5));
+            StanzaCollector collector =
+                xmppConnection.createStanzaCollectorAndSend(items);
+            DiscoverItems result = null;
+            try
+            {
+                result = (DiscoverItems) collector.nextResult(
+                    Math.round(SmackConfiguration.getDefaultReplyTimeout() * 1.5));
+            }
+            finally
+            {
+                collector.cancel();
+            }
 
             if (result != null)
             {
                 // first search priority items
-                Iterator<DiscoverItems.Item> i = result.getItems();
-                for (DiscoverItems.Item item = i.hasNext() ? i.next() : null;
-                     item != null;
-                     item = i.hasNext() ? i.next() : null)
+                for (DiscoverItems.Item item : result.getItems())
                 {
                     for(String pref : prefixes)
                     {
                         if( !StringUtils.isNullOrEmpty(pref)
-                            && item.getEntityID().startsWith(pref.trim()))
+                            && item.getEntityID().toString().startsWith(pref.trim()))
                         {
                             SmackServiceNode.deepSearch(
                                 xmppConnection,
@@ -342,14 +355,11 @@ public class JingleNodesServiceDiscovery
                 }
 
                 // now search rest
-                i = result.getItems();
-                for (DiscoverItems.Item item = i.hasNext() ? i.next() : null;
-                     item != null;
-                     item = i.hasNext() ? i.next() : null)
+                for (DiscoverItems.Item item : result.getItems())
                 {
                     // we may searched already this node if it starts
                     // with some of the prefixes
-                    if(!visited.containsKey(item.getEntityID()))
+                    if(!visited.containsKey(item.getEntityID().toString()))
                         SmackServiceNode.deepSearch(
                             xmppConnection,
                             maxEntries,
@@ -364,7 +374,6 @@ public class JingleNodesServiceDiscovery
                         return false;// stop and don't continue
                 }
             }
-            collector.cancel();
 
             // true we should continue searching
             return true;

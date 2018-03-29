@@ -21,6 +21,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import org.jitsi.util.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
+import org.jxmpp.jid.Jid;
 import org.xmlpull.v1.*;
 
 import java.util.*;
@@ -34,7 +35,7 @@ import java.util.*;
  * @author Pawel Domas
  */
 public class RayoIqProvider
-    implements IQProvider
+    extends IQProvider<RayoIqProvider.RayoIq>
 {
     /**
      * Rayo namespace.
@@ -42,50 +43,46 @@ public class RayoIqProvider
     public final static String NAMESPACE = "urn:xmpp:rayo:1";
 
     /**
-     * Registers this IQ provider into given <tt>ProviderManager</tt>.
-     * @param providerManager the <tt>ProviderManager</tt> to which this
-     *                        instance wil be bound to.
+     * Registers this IQ provider into <tt>ProviderManager</tt>.
      */
-    public void registerRayoIQs(ProviderManager providerManager)
+    public void registerRayoIQs()
     {
         // <dial>
-        providerManager.addIQProvider(
+        ProviderManager.addIQProvider(
             DialIq.ELEMENT_NAME,
             NAMESPACE,
             this);
 
         // <ref>
-        providerManager.addIQProvider(
+        ProviderManager.addIQProvider(
             RefIq.ELEMENT_NAME,
             NAMESPACE,
             this);
 
         // <hangup>
-        providerManager.addIQProvider(
+        ProviderManager.addIQProvider(
             HangUp.ELEMENT_NAME,
             NAMESPACE,
             this);
 
         // <end> presence extension
-        providerManager.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
             EndExtension.ELEMENT_NAME,
             NAMESPACE,
-            new DefaultPacketExtensionProvider<EndExtension>(
-                EndExtension.class));
+            new DefaultPacketExtensionProvider<>(EndExtension.class));
 
         // <header> extension
-        providerManager.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
             HeaderExtension.ELEMENT_NAME,
-            "",
-            new DefaultPacketExtensionProvider<HeaderExtension>(
-                HeaderExtension.class));
+            NAMESPACE,
+            new DefaultPacketExtensionProvider<>(HeaderExtension.class));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public IQ parseIQ(XmlPullParser parser)
+    public RayoIq parse(XmlPullParser parser, int depth)
         throws Exception
     {
         String namespace = parser.getNamespace();
@@ -232,57 +229,23 @@ public class RayoIqProvider
         extends IQ
     {
         /**
-         * The XML element name that will be used.
-         */
-        private final String elementName;
-
-        /**
          * Creates new instance of <tt>RayoIq</tt>.
          *
          * @param elementName the name of XML element that will be used.
          */
         protected RayoIq(String elementName)
         {
-            this.elementName = elementName;
+            super(elementName, NAMESPACE);
         }
 
         /**
-         * Implementing classes should print their attributes if any in XML
-         * format to given <tt>out</tt> <tt>StringBuilder</tt>.
-         * @param out the <tt>StringBuilder</tt> instance used to construct XML
-         *            representation of this element.
+         * Creates new instance of this class as a copy from <tt>original</tt>.
+         *
+         * @param original the class to copy the data from.
          */
-        protected abstract void printAttributes(StringBuilder out);
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public String getChildElementXML()
+        protected RayoIq(RayoIq original)
         {
-            StringBuilder xml = new StringBuilder();
-
-            xml.append('<').append(elementName);
-            xml.append(" xmlns='").append(NAMESPACE).append("' ");
-
-            printAttributes(xml);
-
-            Collection<PacketExtension> extensions =  getExtensions();
-            if (extensions.size() > 0)
-            {
-                xml.append(">");
-                for (PacketExtension extension : extensions)
-                {
-                    xml.append(extension.toXML());
-                }
-                xml.append("</").append(elementName).append(">");
-            }
-            else
-            {
-                xml.append("/>");
-            }
-
-            return xml.toString();
+            super(original);
         }
 
         /**
@@ -302,7 +265,7 @@ public class RayoIqProvider
 
         private HeaderExtension findHeader(String name)
         {
-            for(PacketExtension ext: getExtensions())
+            for(ExtensionElement ext: getExtensions())
             {
                 if (ext instanceof HeaderExtension)
                 {
@@ -382,12 +345,25 @@ public class RayoIqProvider
         }
 
         /**
+         * Creates a new instance of this class as a copy from
+         * <tt>original</tt>.
+         * @param original the class to copy the data from.
+         */
+        public DialIq(DialIq original)
+        {
+            // copies: id, to, from, extensions, error, type
+            super(original);
+            source = original.source;
+            destination = original.destination;
+        }
+
+        /**
          * Creates new <tt>DialIq</tt> for given source and destination
          * addresses.
          * @param to the destination address/call URI to be used.
          * @param from the source address that will be set on
          *             new <tt>DialIq</tt> instance.
-         * @return new <tt>DialIq</tt> parametrized with given source and
+         * @return new <tt>DialIq</tt> parameterized with given source and
          *         destination addresses.
          */
         public static DialIq create(String to, String from)
@@ -441,17 +417,13 @@ public class RayoIqProvider
          * {@inheritDoc}
          */
         @Override
-        protected void printAttributes(StringBuilder out)
+        protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(
+            IQ.IQChildElementXmlStringBuilder xml)
         {
-            String src = getSource();
-            if (!StringUtils.isNullOrEmpty(src))
-                out.append(SRC_ATTR_NAME).append("='")
-                    .append(src).append("' ");
-
-            String dst = getDestination();
-            if (!StringUtils.isNullOrEmpty(dst))
-                out.append(DST_ATTR_NAME).append("='")
-                    .append(dst).append("' ");
+            xml.optAttribute(SRC_ATTR_NAME, source)
+                .optAttribute(DST_ATTR_NAME, destination);
+            xml.setEmptyElement();
+            return xml;
         }
     }
 
@@ -513,8 +485,8 @@ public class RayoIqProvider
         {
             RefIq refIq = create(uri);
 
-            refIq.setType(IQ.Type.RESULT);
-            refIq.setPacketID(requestIq.getPacketID());
+            refIq.setType(IQ.Type.result);
+            refIq.setStanzaId(requestIq.getStanzaId());
             refIq.setFrom(requestIq.getTo());
             refIq.setTo(requestIq.getFrom());
 
@@ -525,12 +497,12 @@ public class RayoIqProvider
          * {@inheritDoc}
          */
         @Override
-        protected void printAttributes(StringBuilder out)
+        protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(
+            IQ.IQChildElementXmlStringBuilder xml)
         {
-            String uri = getUri();
-            if (!StringUtils.isNullOrEmpty(uri))
-                out.append(URI_ATTR_NAME).append("='")
-                    .append(uri).append("' ");
+            xml.optAttribute(URI_ATTR_NAME, uri);
+            xml.setEmptyElement();
+            return xml;
         }
 
         /**
@@ -582,17 +554,25 @@ public class RayoIqProvider
          * @param to the destination address/call URI to be ended by this IQ.
          * @return new, parametrized instance of {@link HangUp} IQ.
          */
-        public static HangUp create(String from, String to)
+        public static HangUp create(Jid from, Jid to)
         {
             HangUp hangUp = new HangUp();
             hangUp.setFrom(from);
             hangUp.setTo(to);
-            hangUp.setType(Type.SET);
+            hangUp.setType(Type.set);
 
             return hangUp;
         }
-
+        
+        /**
+         * {@inheritDoc}
+         */
         @Override
-        protected void printAttributes(StringBuilder out){ }
+        protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(
+            IQ.IQChildElementXmlStringBuilder xml)
+        {
+            xml.setEmptyElement();
+            return xml;
+        }
     }
 }

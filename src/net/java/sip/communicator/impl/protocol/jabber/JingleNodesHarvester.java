@@ -26,6 +26,7 @@ import org.ice4j.ice.*;
 import org.ice4j.ice.harvest.*;
 import org.ice4j.socket.*;
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.SmackException.NotConnectedException;
 import org.xmpp.jnodes.smack.*;
 
 /**
@@ -121,7 +122,14 @@ public class JingleNodesHarvester
 
             if (preferred != null)
             {
-                ciq = SmackServiceNode.getChannel(conn, preferred.getJid());
+                try
+                {
+                    ciq = SmackServiceNode.getChannel(conn, preferred.getJid());
+                }
+                catch (NotConnectedException | InterruptedException e)
+                {
+                    logger.error("Could not get JingleNodes channel", e);
+                }
             }
         }
 

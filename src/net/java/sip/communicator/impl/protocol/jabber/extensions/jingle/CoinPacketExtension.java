@@ -35,7 +35,7 @@ public class CoinPacketExtension
     /**
      * Namespace.
      */
-    public final static String NAMESPACE = "";
+    public final static String NAMESPACE = "urn:xmpp:coin:1";
 
     /**
      * IsFocus attribute name.

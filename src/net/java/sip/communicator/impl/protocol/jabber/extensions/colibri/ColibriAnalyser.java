@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
+import org.jxmpp.jid.*;
 
 import java.util.*;
 
@@ -67,9 +68,13 @@ public class ColibriAnalyser
         String colibriID = conferenceState.getID();
 
         if (colibriID == null)
+        {
             conferenceState.setID(conferenceResponseID);
+        }
         else if (!colibriID.equals(conferenceResponseID))
+        {
             throw new IllegalStateException("conference.id");
+        }
 
         /*
          * XXX We must remember the JID of the Jitsi Videobridge because
@@ -79,6 +84,7 @@ public class ColibriAnalyser
          */
         conferenceState.setFrom(allocateResponse.getFrom());
 
+        Set<String> endpoints = new HashSet<>();
         for (ColibriConferenceIQ.Content contentResponse
             : allocateResponse.getContents())
         {
@@ -92,18 +98,30 @@ public class ColibriAnalyser
                 : contentResponse.getChannels())
             {
                 content.addChannel(channelResponse);
+                endpoints.add(channelResponse.getEndpoint());
             }
             for (ColibriConferenceIQ.SctpConnection sctpConnResponse
                 : contentResponse.getSctpConnections())
             {
                 content.addSctpConnection(sctpConnResponse);
+                endpoints.add(sctpConnResponse.getEndpoint());
             }
         }
 
         for (ColibriConferenceIQ.ChannelBundle bundle
-            : allocateResponse.getChannelBundles())
+             : allocateResponse.getChannelBundles())
         {
+            // ChannelBundles are mapped by their ID, so here we update the
+            // state of the conference with whatever the response contained.
             conferenceState.addChannelBundle(bundle);
+        }
+
+        for (ColibriConferenceIQ.Endpoint endpoint
+            : allocateResponse.getEndpoints())
+        {
+            // Endpoints are mapped by their ID, so here we update the
+            // state of the conference with whatever the response contained.
+            conferenceState.addEndpoint(endpoint);
         }
     }
 
@@ -130,6 +148,7 @@ public class ColibriAnalyser
 
         // FIXME: we support single bundle for all channels
         String bundleId = null;
+        Set<String> endpointIds = new HashSet<>();
         for (ContentPacketExtension content : peerContents)
         {
             MediaType mediaType
@@ -152,6 +171,8 @@ public class ColibriAnalyser
                     contentResult.addChannel(channelResponse);
 
                     bundleId = readChannelBundle(channelResponse, bundleId);
+
+                    endpointIds.add(channelResponse.getEndpoint());
                 }
 
                 for (ColibriConferenceIQ.SctpConnection sctpConnResponse
@@ -160,6 +181,8 @@ public class ColibriAnalyser
                     contentResult.addSctpConnection(sctpConnResponse);
 
                     bundleId = readChannelBundle(sctpConnResponse, bundleId);
+
+                    endpointIds.add(sctpConnResponse.getEndpoint());
                 }
             }
         }
@@ -175,6 +198,16 @@ public class ColibriAnalyser
                     conferenceResult.addChannelBundle(bundle);
                     break;
                 }
+            }
+        }
+
+        // copy only the endpoints we have seen
+        for (ColibriConferenceIQ.Endpoint en
+            : conferenceResponse.getEndpoints())
+        {
+            if (endpointIds.contains(en.getId()))
+            {
+                conferenceResult.addEndpoint(en);
             }
         }
 

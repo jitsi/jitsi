@@ -26,7 +26,7 @@ import org.xmlpull.v1.*;
  * @author Sebastien Vincent
  */
 public class DescriptionProvider
-    implements PacketExtensionProvider
+    extends ExtensionElementProvider
 {
     /**
      * Parses a description extension sub-packet and creates a {@link
@@ -42,7 +42,8 @@ public class DescriptionProvider
      * @return a new {@link DescriptionPacketExtension} instance.
      * @throws java.lang.Exception if an error occurs parsing the XML.
      */
-    public DescriptionPacketExtension parseExtension(XmlPullParser parser)
+    @Override
+    public DescriptionPacketExtension parse(XmlPullParser parser, int depth)
         throws Exception
     {
         boolean done = false;

@@ -25,11 +25,14 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.util.*;
-import org.jivesoftware.smackx.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jivesoftware.smackx.caps.packet.CapsExtension;
+import org.jivesoftware.smackx.disco.*;
+import org.jivesoftware.smackx.disco.packet.*;
+import org.jxmpp.jid.Jid;
 
 /**
  * An wrapper to smack's default {@link ServiceDiscoveryManager} that adds
@@ -41,7 +44,7 @@ import org.jivesoftware.smackx.packet.*;
  * @author Lubomir Marinov
  */
 public class ScServiceDiscoveryManager
-    implements PacketInterceptor,
+    implements StanzaListener,
                NodeInformationProvider
 {
     /**
@@ -60,8 +63,8 @@ public class ScServiceDiscoveryManager
      * The cache of non-caps. Used only if {@link #cacheNonCaps} is
      * <tt>true</tt>.
      */
-    private final Map<String, DiscoverInfo> nonCapsCache
-        = new ConcurrentHashMap<String, DiscoverInfo>();
+    private final Map<Jid, DiscoverInfo> nonCapsCache
+        = new ConcurrentHashMap<>();
 
     /**
      * The <tt>EntitiCapsManager</tt> used by this instance to handle entity
@@ -80,9 +83,9 @@ public class ScServiceDiscoveryManager
     private final ProtocolProviderService parentProvider;
 
     /**
-     * The {@link Connection} that this manager is responsible for.
+     * The {@link XMPPConnection} that this manager is responsible for.
      */
-    private final Connection connection;
+    private final XMPPConnection connection;
 
     /**
      * A local copy that we keep in sync with {@link ServiceDiscoveryManager}'s
@@ -130,7 +133,7 @@ public class ScServiceDiscoveryManager
      */
     public ScServiceDiscoveryManager(
             ProtocolProviderService parentProvider,
-            Connection connection,
+            XMPPConnection connection,
             String[] featuresToRemove,
             String[] featuresToAdd,
             boolean cacheNonCaps)
@@ -141,22 +144,21 @@ public class ScServiceDiscoveryManager
         this.discoveryManager
             = ServiceDiscoveryManager.getInstanceFor(connection);
 
-        this.features = new ArrayList<String>();
+        this.features = new ArrayList<>();
         this.unmodifiableFeatures = Collections.unmodifiableList(this.features);
-        this.identities = new ArrayList<DiscoverInfo.Identity>();
+        this.identities = new ArrayList<>();
 
         this.cacheNonCaps = cacheNonCaps;
 
         DiscoverInfo.Identity identity
             = new DiscoverInfo.Identity(
                     "client",
-                    ServiceDiscoveryManager.getIdentityName());
-
-        identity.setType(ServiceDiscoveryManager.getIdentityType());
+                    this.discoveryManager.getIdentityName(),
+                    this.discoveryManager.getIdentityType());
         identities.add(identity);
 
         //add support for capabilities
-        discoveryManager.addFeature(CapsPacketExtension.NAMESPACE);
+        discoveryManager.addFeature(CapsExtension.NAMESPACE);
 
         /*
          * Reflect featuresToRemove and featuresToAdd before
@@ -196,7 +198,7 @@ public class ScServiceDiscoveryManager
         // capabilities with every presence notification it sends.
         connection.addPacketInterceptor(
                 this,
-                new PacketTypeFilter(Presence.class));
+                new StanzaTypeFilter(Presence.class));
     }
 
     /**
@@ -254,7 +256,7 @@ public class ScServiceDiscoveryManager
     {
         DiscoverInfo di = new DiscoverInfo();
 
-        di.setType(IQ.Type.RESULT);
+        di.setType(IQ.Type.result);
         di.setNode(capsManager.getNode() + "#" + getEntityCapsVersion());
 
         // Add discover info
@@ -286,9 +288,8 @@ public class ScServiceDiscoveryManager
         DiscoverInfo.Identity identity
             = new DiscoverInfo.Identity(
                     "client",
-                    ServiceDiscoveryManager.getIdentityName());
-
-        identity.setType(ServiceDiscoveryManager.getIdentityType());
+                    discoveryManager.getIdentityName(),
+                    discoveryManager.getIdentityType());
         response.addIdentity(identity);
 
         // Add the registered features to the response
@@ -298,17 +299,12 @@ public class ScServiceDiscoveryManager
          * XXX Only addFeature if !containsFeature. Otherwise, the DiscoverInfo
          * may end up with repeating features.
          */
-        if (!response.containsFeature(CapsPacketExtension.NAMESPACE))
-            response.addFeature(CapsPacketExtension.NAMESPACE);
+        if (!response.containsFeature(CapsExtension.NAMESPACE))
+            response.addFeature(CapsExtension.NAMESPACE);
 
-        Iterable<String> features = getFeatures();
-
-        synchronized (features)
-        {
-            for (String feature : features)
-                if (!response.containsFeature(feature))
-                    response.addFeature(feature);
-        }
+        for (String feature : unmodifiableFeatures)
+            if (!response.containsFeature(feature))
+                response.addFeature(feature);
     }
 
     /**
@@ -395,29 +391,29 @@ public class ScServiceDiscoveryManager
      * @param packet the (hopefully presence) packet we need to add a "c"
      * element to.
      */
-    public void interceptPacket(Packet packet)
+    @Override
+    public void processStanza(Stanza packet)
     {
         if ((packet instanceof Presence) && (capsManager != null))
         {
             String ver = getEntityCapsVersion();
-            CapsPacketExtension caps
-                = new CapsPacketExtension(
-                        getExtFeatures(),
-                        capsManager.getNode(),
-                        CapsPacketExtension.HASH_METHOD,
-                        ver);
+            CapsExtension caps
+                = new CapsExtension(
+                    capsManager.getNode(),
+                    ver,
+                    "sha-1");
 
             //make sure we'll be able to handle requests for the newly generated
             //node once we've used it.
             discoveryManager.setNodeInformationProvider(
-                    caps.getNode() + "#" + caps.getVersion(),
+                    caps.getNode() + "#" + caps.getVer(),
                     this);
 
             // Remove old capabilities extension if present
-            PacketExtension oldCaps
+            ExtensionElement oldCaps
                 = packet.getExtension(
-                        CapsPacketExtension.ELEMENT_NAME,
-                        CapsPacketExtension.NAMESPACE);
+                        CapsExtension.ELEMENT,
+                        CapsExtension.NAMESPACE);
             if (oldCaps != null)
             {
                 packet.removeExtension(oldCaps);
@@ -429,11 +425,12 @@ public class ScServiceDiscoveryManager
 
     /**
      * Returns a list of the Items
-     * {@link org.jivesoftware.smackx.packet.DiscoverItems.Item} defined in the
+     * {@link DiscoverItems.Item} defined in the
      * node or in other words <tt>null</tt> since we don't support any.
      *
      * @return always <tt>null</tt> since we don't support items.
      */
+    @Override
     public List<DiscoverItems.Item> getNodeItems()
     {
         return null;
@@ -447,6 +444,7 @@ public class ScServiceDiscoveryManager
      *
      * @return a list of the feature strings defined in the node.
      */
+    @Override
     public List<String> getNodeFeatures()
     {
         return getFeatures();
@@ -459,9 +457,16 @@ public class ScServiceDiscoveryManager
      *
      * @return a list of the Identities defined in the node.
      */
+    @Override
     public List<DiscoverInfo.Identity> getNodeIdentities()
     {
         return identities;
+    }
+
+    @Override
+    public List<ExtensionElement> getNodePacketExtensions()
+    {
+        return null;
     }
 
     /**
@@ -469,15 +474,11 @@ public class ScServiceDiscoveryManager
      */
     private void initFeatures()
     {
-        Iterator<String> defaultFeatures = discoveryManager.getFeatures();
-
         synchronized (features)
         {
-            while (defaultFeatures.hasNext())
+            for (String feature : discoveryManager.getFeatures())
             {
-                String feature = defaultFeatures.next();
-
-                this.features.add( feature );
+                this.features.add(feature);
             }
         }
     }
@@ -490,15 +491,14 @@ public class ScServiceDiscoveryManager
      * @return the discovered information.
      * @throws XMPPException if the operation failed for some reason.
      */
-    public DiscoverInfo discoverInfo(String entityID)
-        throws XMPPException
+    public DiscoverInfo discoverInfo(Jid entityID)
+            throws XMPPException, NotConnectedException, InterruptedException, NoResponseException
     {
         DiscoverInfo discoverInfo = capsManager.getDiscoverInfoByUser(entityID);
-
-        if (discoverInfo != null)
-            return discoverInfo;
-
         EntityCapsManager.Caps caps = capsManager.getCapsByUser(entityID);
+
+        if (discoverInfo != null && caps.isValid(discoverInfo))
+            return discoverInfo;
 
         // if caps is not valid, has empty hash
         if (cacheNonCaps && (caps == null || !caps.isValid(discoverInfo)))
@@ -509,7 +509,7 @@ public class ScServiceDiscoveryManager
         }
 
         discoverInfo
-            = discoverInfo(
+            = discoveryManager.discoverInfo(
                     entityID,
                     (caps == null) ? null : caps.getNodeVer());
 
@@ -542,15 +542,14 @@ public class ScServiceDiscoveryManager
      * @return the discovered information.
      * @throws XMPPException if the operation failed for some reason.
      */
-    public DiscoverInfo discoverInfoNonBlocking(String entityID)
+    public DiscoverInfo discoverInfoNonBlocking(Jid entityID)
         throws XMPPException
     {
         DiscoverInfo discoverInfo = capsManager.getDiscoverInfoByUser(entityID);
-
-        if (discoverInfo != null)
-            return discoverInfo;
-
         EntityCapsManager.Caps caps = capsManager.getCapsByUser(entityID);
+
+        if (discoverInfo != null && caps.isValid(discoverInfo))
+            return discoverInfo;
 
         // if caps is not valid, has empty hash
         if (cacheNonCaps && (caps == null || !caps.isValid(discoverInfo)))
@@ -569,24 +568,6 @@ public class ScServiceDiscoveryManager
     }
 
     /**
-     * Returns the discovered information of a given XMPP entity addressed by
-     * its JID and note attribute. Use this message only when trying to query
-     * information which is not directly addressable.
-     *
-     * @param entityID the address of the XMPP entity.
-     * @param node the attribute that supplements the 'jid' attribute.
-     *
-     * @return the discovered information.
-     *
-     * @throws XMPPException if the operation failed for some reason.
-     */
-    public DiscoverInfo discoverInfo(String entityID, String node)
-        throws XMPPException
-    {
-        return discoveryManager.discoverInfo(entityID, node);
-    }
-
-    /**
      * Returns the discovered items of a given XMPP entity addressed by its JID.
      *
      * @param entityID the address of the XMPP entity.
@@ -595,7 +576,11 @@ public class ScServiceDiscoveryManager
      *
      * @throws XMPPException if the operation failed for some reason.
      */
-    public DiscoverItems discoverItems(String entityID) throws XMPPException
+    public DiscoverItems discoverItems(Jid entityID)
+            throws XMPPException,
+                NotConnectedException,
+                InterruptedException,
+                SmackException.NoResponseException
     {
         return discoveryManager.discoverItems(entityID);
     }
@@ -612,8 +597,8 @@ public class ScServiceDiscoveryManager
      *
      * @throws XMPPException if the operation failed for some reason.
      */
-    public DiscoverItems discoverItems(String entityID, String node)
-        throws XMPPException
+    public DiscoverItems discoverItems(Jid entityID, String node)
+            throws XMPPException, NotConnectedException, InterruptedException, NoResponseException
     {
         return discoveryManager.discoverItems(entityID, node);
     }
@@ -630,7 +615,7 @@ public class ScServiceDiscoveryManager
      * @return true if <tt>jid</tt> is discovered to support <tt>feature</tt>
      * and <tt>false</tt> otherwise.
      */
-    public boolean supportsFeature(String jid, String feature)
+    public boolean supportsFeature(Jid jid, String feature)
     {
         DiscoverInfo info;
 
@@ -638,14 +623,17 @@ public class ScServiceDiscoveryManager
         {
             info = this.discoverInfo(jid);
         }
-        catch(XMPPException ex)
+        catch(XMPPException
+                | InterruptedException
+                | NoResponseException
+                | NotConnectedException ex)
         {
             logger.info("failed to retrieve disco info for " + jid
                                 + " feature " + feature, ex);
             return false;
         }
 
-        return ((info != null) && info.containsFeature(feature));
+        return info != null && info.containsFeature(feature);
     }
 
     /**
@@ -689,8 +677,8 @@ public class ScServiceDiscoveryManager
          * Entities to be processed and their caps.
          * HashMap so we can store null caps.
          */
-        private Map<String, EntityCapsManager.Caps> entities
-            = new HashMap<String, EntityCapsManager.Caps>();
+        private final Map<Jid, EntityCapsManager.Caps> entities
+            = new HashMap<>();
 
         /**
          * Our capability operation set.
@@ -708,7 +696,7 @@ public class ScServiceDiscoveryManager
 
                 while(!stopped)
                 {
-                    Map.Entry<String, EntityCapsManager.Caps>
+                    Map.Entry<Jid, EntityCapsManager.Caps>
                         entityToProcess = null;
 
                     synchronized(entities)
@@ -722,7 +710,7 @@ public class ScServiceDiscoveryManager
                             catch (InterruptedException iex){}
                         }
 
-                        Iterator<Map.Entry<String, EntityCapsManager.Caps>>
+                        Iterator<Map.Entry<Jid, EntityCapsManager.Caps>>
                             iter = entities.entrySet().iterator();
                         if(iter.hasNext())
                         {
@@ -754,12 +742,12 @@ public class ScServiceDiscoveryManager
          * @param entityID the entity to request
          * @param caps and its capability.
          */
-        private void requestDiscoveryInfo(final String entityID,
+        private void requestDiscoveryInfo(final Jid entityID,
                                           EntityCapsManager.Caps caps)
         {
             try
             {
-                DiscoverInfo discoverInfo = discoverInfo(
+                DiscoverInfo discoverInfo = discoveryManager.discoverInfo(
                             entityID,
                             (caps == null ) ? null : caps.getNodeVer());
 
@@ -793,13 +781,15 @@ public class ScServiceDiscoveryManager
                 if(fireEvent && capabilitiesOpSet != null)
                 {
                     capabilitiesOpSet.fireContactCapabilitiesChanged(
-                        entityID,
-                        capsManager.getFullJidsByBareJid(
-                            StringUtils.parseBareAddress(entityID))
+                        entityID.asBareJid(),
+                        capsManager.getFullJidsByBareJid(entityID.asBareJid())
                         );
                 }
             }
-            catch(XMPPException ex)
+            catch(XMPPException
+                    | InterruptedException
+                    | NoResponseException
+                    | NotConnectedException ex)
             {
                 // print discovery info errors only when trace is enabled
                 if(logger.isTraceEnabled())
@@ -813,7 +803,7 @@ public class ScServiceDiscoveryManager
          * @param entityID the entity.
          * @param caps and its capability.
          */
-        public void addEntityForRetrieve(String entityID,
+        public void addEntityForRetrieve(Jid entityID,
                                          EntityCapsManager.Caps caps)
         {
             synchronized(entities)

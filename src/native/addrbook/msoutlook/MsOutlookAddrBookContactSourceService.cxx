@@ -106,7 +106,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
             i++;
             if (ERROR_SUCCESS != regEnumKeyEx)
 			{
-            	MsOutlookUtils_logInfo("Error quering the next Software\\Microsoft\\Office item.");
+            	MsOutlookUtils_logInfo("Error querying the next Software\\Microsoft\\Office item.");
                 continue;
 			}
 
@@ -178,7 +178,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
                                 str++;
                             memcpy(str, _T("\\Outlook.exe"), 12 * sizeof(TCHAR));
                             *(str + 12) = 0;
-                            MsOutlookUtils_logInfo("Trying to retrieve atributes for:");
+                            MsOutlookUtils_logInfo("Trying to retrieve attributes for:");
                             MsOutlookUtils_logInfo(pathValue);
                             fileAttributes = GetFileAttributes(pathValue);
                             if (INVALID_FILE_ATTRIBUTES != fileAttributes)
@@ -212,7 +212,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
             }
 			else
 			{
-				MsOutlookUtils_logInfo("Error openning the key.");
+				MsOutlookUtils_logInfo("Error opening the key.");
 			}
         }
         RegCloseKey(regKey);
@@ -544,7 +544,7 @@ void MsOutlookAddrBookContactSourceService_MAPIUninitializeCOMServer(void)
  * java available here.
  *
  * @param version The version of MAPI to load.
- * @param flags The option choosen to load the MAPI to lib.
+ * @param flags The option chosen to load the MAPI to lib.
  * @param deletedMethod A function pointer used as a callback on notification
  * from outlook when a contact has been removed.
  * @param insertedMethod A function pointer used as a callback on notification

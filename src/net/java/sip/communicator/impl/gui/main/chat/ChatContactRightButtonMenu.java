@@ -319,7 +319,7 @@ public class ChatContactRightButtonMenu
             ChatOperationReasonDialog reasonDialog
                 = new ChatOperationReasonDialog();
 
-            int result = new ChatOperationReasonDialog().showDialog();
+            int result = reasonDialog.showDialog();
 
             if (result == MessageDialog.OK_RETURN_CODE)
                 new KickParticipantThread(  room,

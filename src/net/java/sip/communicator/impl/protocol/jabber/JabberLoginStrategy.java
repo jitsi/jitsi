@@ -20,8 +20,11 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 import org.jivesoftware.smack.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.parts.Resourcepart;
 
 import javax.net.ssl.*;
+import java.io.*;
 import java.security.*;
 
 /**
@@ -42,8 +45,7 @@ public interface JabberLoginStrategy
      *
      * @see SecurityAuthority
      */
-    public UserCredentials prepareLogin(SecurityAuthority authority,
-        int reasonCode);
+    UserCredentials prepareLogin(SecurityAuthority authority, int reasonCode);
 
     /**
      * Determines whether the login preparation was successful and the strategy
@@ -51,25 +53,23 @@ public interface JabberLoginStrategy
      *
      * @return true if prepareLogin was successful.
      */
-    public boolean loginPreparationSuccessful();
+    boolean loginPreparationSuccessful();
 
     /**
      * Performs the login for the specified connection.
      *
      * @param connection Connection  to login
-     * @param userName userName to be used for the login.
-     * @param resource the XMPP resource
+     * @param jid the full JID to use
      * @return true to continue connecting, false to abort
      */
-    public boolean login(Connection connection, String userName,
-            String resource)
-            throws XMPPException;
+    boolean login(AbstractXMPPConnection connection, EntityFullJid jid)
+        throws XMPPException, InterruptedException, IOException, SmackException;
 
     /**
      * Is TLS required for this login strategy / account?
      * @return true if TLS is required
      */
-    public boolean isTlsRequired();
+    boolean isTlsRequired();
 
     /**
      * Creates an SSLContext to use for the login strategy.
@@ -79,7 +79,14 @@ public interface JabberLoginStrategy
      *
      * @return the SSLContext
      */
-    public SSLContext createSslContext(CertificateService certificateService,
-        X509ExtendedTrustManager trustManager)
+    SSLContext createSslContext(CertificateService certificateService,
+            X509ExtendedTrustManager trustManager)
             throws GeneralSecurityException;
+
+    /**
+     * Gets the connection configuration builder.
+     * @return The connection configuration builder configured for this login
+     *  strategy.
+     */
+    ConnectionConfiguration.Builder getConnectionConfigurationBuilder();
 }

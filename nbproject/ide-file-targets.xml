@@ -14,7 +14,7 @@
              e.g. GibberishProtocolProviderServiceLick -->
 
         <!-- if 'test.name' property is not defined, we will be
-             runing all tests defined in testing.properties. -->
+             running all tests defined in testing.properties. -->
 
         <!-- we allow users to pass command line args using the "args" system
              property. However we need to manually set tha prop to an empty

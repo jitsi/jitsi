@@ -22,6 +22,7 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.roster.*;
 
 /**
  * The Jabber implementation of the Volatile ContactGroup interface.

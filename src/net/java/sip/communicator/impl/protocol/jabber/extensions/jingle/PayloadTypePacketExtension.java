@@ -34,6 +34,11 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
     public static final String ELEMENT_NAME = "payload-type";
 
     /**
+     * The namespace of the "payload-type" element
+     */
+    public static final String NAMESPACE = "urn:xmpp:jingle:apps:rtp:1";
+
+    /**
      * The name of the <tt>channels</tt> <tt>payload-type</tt> argument.
      */
     public static final String CHANNELS_ATTR_NAME = "channels";
@@ -64,11 +69,35 @@ public class PayloadTypePacketExtension extends AbstractPacketExtension
     public static final String PTIME_ATTR_NAME = "ptime";
 
     /**
+     * Creates a deep copy of a {@link PayloadTypePacketExtension}.
+     * @param source the {@link PayloadTypePacketExtension} to copy.
+     * @return the copy.
+     */
+    public static PayloadTypePacketExtension clone(
+        PayloadTypePacketExtension source)
+    {
+        PayloadTypePacketExtension destination
+            = AbstractPacketExtension.clone(source);
+
+        for (RtcpFbPacketExtension rtcpFb : source.getRtcpFeedbackTypeList())
+        {
+            destination.addRtcpFeedbackType(RtcpFbPacketExtension.clone(rtcpFb));
+        }
+
+        for (ParameterPacketExtension parameter : source.getParameters())
+        {
+            destination.addParameter(ParameterPacketExtension.clone(parameter));
+        }
+
+        return destination;
+    }
+
+    /**
      * Creates a new {@link PayloadTypePacketExtension} instance.
      */
     public PayloadTypePacketExtension()
     {
-        super(null, ELEMENT_NAME);
+        super(NAMESPACE, ELEMENT_NAME);
     }
 
     /**

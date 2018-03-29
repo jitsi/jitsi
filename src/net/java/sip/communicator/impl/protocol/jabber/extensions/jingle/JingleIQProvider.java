@@ -20,9 +20,11 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jingle;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.condesc.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet.*;
-import net.java.sip.communicator.service.protocol.jabber.*;
 import org.jivesoftware.smack.provider.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.impl.*;
 import org.xmlpull.v1.*;
 
 /**
@@ -30,7 +32,7 @@ import org.xmlpull.v1.*;
  *
  * @author Emil Ivov
  */
-public class JingleIQProvider implements IQProvider
+public class JingleIQProvider extends IQProvider<JingleIQ>
 {
     /**
      * Creates a new instance of the <tt>JingleIQProvider</tt> and register all
@@ -39,12 +41,8 @@ public class JingleIQProvider implements IQProvider
      */
     public JingleIQProvider()
     {
-
-        AbstractSmackInteroperabilityLayer smackInteroperabilityLayer = 
-                AbstractSmackInteroperabilityLayer.getInstance();
-
         //<description/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 RtpDescriptionPacketExtension.ELEMENT_NAME,
                 RtpDescriptionPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -52,7 +50,7 @@ public class JingleIQProvider implements IQProvider
                         RtpDescriptionPacketExtension.class));
 
         //<payload-type/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 PayloadTypePacketExtension.ELEMENT_NAME,
                 RtpDescriptionPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -60,7 +58,7 @@ public class JingleIQProvider implements IQProvider
                         PayloadTypePacketExtension.class));
 
         //<parameter/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ParameterPacketExtension.ELEMENT_NAME,
                 RtpDescriptionPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -68,7 +66,7 @@ public class JingleIQProvider implements IQProvider
                         (ParameterPacketExtension.class));
 
         //<rtp-hdrext/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 RTPHdrExtPacketExtension.ELEMENT_NAME,
                 RTPHdrExtPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -76,13 +74,13 @@ public class JingleIQProvider implements IQProvider
                         (RTPHdrExtPacketExtension.class));
 
         // <sctpmap/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 SctpMapExtension.ELEMENT_NAME,
                 SctpMapExtension.NAMESPACE,
                 new SctpMapExtensionProvider());
 
         //<encryption/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 EncryptionPacketExtension.ELEMENT_NAME,
                 RtpDescriptionPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -90,7 +88,7 @@ public class JingleIQProvider implements IQProvider
                         (EncryptionPacketExtension.class));
 
         //<zrtp-hash/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ZrtpHashPacketExtension.ELEMENT_NAME,
                 ZrtpHashPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -98,7 +96,7 @@ public class JingleIQProvider implements IQProvider
                         (ZrtpHashPacketExtension.class));
 
         //<crypto/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 CryptoPacketExtension.ELEMENT_NAME,
                 RtpDescriptionPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -106,7 +104,7 @@ public class JingleIQProvider implements IQProvider
                         (CryptoPacketExtension.class));
 
         // <bundle/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 BundlePacketExtension.ELEMENT_NAME,
                 BundlePacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -114,14 +112,14 @@ public class JingleIQProvider implements IQProvider
                         (BundlePacketExtension.class));
 
         // <group/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 GroupPacketExtension.ELEMENT_NAME,
                 GroupPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
                         <GroupPacketExtension>(GroupPacketExtension.class));
 
         //ice-udp transport
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 IceUdpTransportPacketExtension.ELEMENT_NAME,
                 IceUdpTransportPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -129,7 +127,7 @@ public class JingleIQProvider implements IQProvider
                         IceUdpTransportPacketExtension.class));
 
         //<raw-udp/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 RawUdpTransportPacketExtension.ELEMENT_NAME,
                 RawUdpTransportPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -137,7 +135,7 @@ public class JingleIQProvider implements IQProvider
                         RawUdpTransportPacketExtension.class));
 
         //ice-udp <candidate/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 CandidatePacketExtension.ELEMENT_NAME,
                 IceUdpTransportPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -145,7 +143,7 @@ public class JingleIQProvider implements IQProvider
                         CandidatePacketExtension.class));
 
         //raw-udp <candidate/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 CandidatePacketExtension.ELEMENT_NAME,
                 RawUdpTransportPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -153,7 +151,7 @@ public class JingleIQProvider implements IQProvider
                         CandidatePacketExtension.class));
 
         //ice-udp <remote-candidate/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 RemoteCandidatePacketExtension.ELEMENT_NAME,
                 IceUdpTransportPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -161,21 +159,21 @@ public class JingleIQProvider implements IQProvider
                         RemoteCandidatePacketExtension.class));
 
         //inputevt <inputevt/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 InputEvtPacketExtension.ELEMENT_NAME,
                 InputEvtPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<InputEvtPacketExtension>(
                         InputEvtPacketExtension.class));
 
         //coin <conference-info/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 CoinPacketExtension.ELEMENT_NAME,
                 CoinPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<CoinPacketExtension>(
                         CoinPacketExtension.class));
 
         // DTLS-SRTP
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 DtlsFingerprintPacketExtension.ELEMENT_NAME,
                 DtlsFingerprintPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -186,47 +184,47 @@ public class JingleIQProvider implements IQProvider
          * XEP-0251: Jingle Session Transfer <transfer/> and <transferred>
          * providers
          */
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 TransferPacketExtension.ELEMENT_NAME,
                 TransferPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<TransferPacketExtension>(
                         TransferPacketExtension.class));
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 TransferredPacketExtension.ELEMENT_NAME,
                 TransferredPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<TransferredPacketExtension>(
                         TransferredPacketExtension.class));
 
         //conference description <callid/> provider
-        smackInteroperabilityLayer.addExtensionProvider(
-                ConferenceDescriptionPacketExtension.CALLID_ELEM_NAME,
-                ConferenceDescriptionPacketExtension.NAMESPACE,
-                new DefaultPacketExtensionProvider<CallIdPacketExtension>(
-                        CallIdPacketExtension.class));
+        ProviderManager.addExtensionProvider(
+                CallIdExtension.ELEMENT_NAME,
+                ConferenceDescriptionExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<CallIdExtension>(
+                        CallIdExtension.class));
 
         //rtcp-fb
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 RtcpFbPacketExtension.ELEMENT_NAME,
                 RtcpFbPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<RtcpFbPacketExtension>(
                         RtcpFbPacketExtension.class));
 
         //rtcp-mux
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 RtcpmuxPacketExtension.ELEMENT_NAME,
                 IceUdpTransportPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<RtcpmuxPacketExtension>(
                         RtcpmuxPacketExtension.class));
 
         //web-socket
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
             WebSocketPacketExtension.ELEMENT_NAME,
             WebSocketPacketExtension.NAMESPACE,
             new DefaultPacketExtensionProvider<>(
                 WebSocketPacketExtension.class));
 
         //ssrcInfo
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 SSRCInfoPacketExtension.ELEMENT_NAME,
                 SSRCInfoPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider<SSRCInfoPacketExtension>(
@@ -242,11 +240,10 @@ public class JingleIQProvider implements IQProvider
      *
      * @throws Exception if an error occurs parsing the XML.
      */
-    public JingleIQ parseIQ(XmlPullParser parser)
+    @Override
+    public JingleIQ parse(XmlPullParser parser, int depth)
         throws Exception
     {
-        JingleIQ jingleIQ = new JingleIQ();
-
         //let's first handle the "jingle" element params.
         JingleAction action = JingleAction.parseString(parser
                         .getAttributeValue("", JingleIQ.ACTION_ATTR_NAME));
@@ -257,10 +254,18 @@ public class JingleIQProvider implements IQProvider
         String sid = parser
                         .getAttributeValue("", JingleIQ.SID_ATTR_NAME);
 
-        jingleIQ.setAction(action);
-        jingleIQ.setInitiator(initiator);
-        jingleIQ.setResponder(responder);
-        jingleIQ.setSID(sid);
+        JingleIQ jingleIQ = new JingleIQ(action, sid);
+        if (initiator != null)
+        {
+            Jid initiatorJid = JidCreate.from(initiator);
+            jingleIQ.setInitiator(initiatorJid);
+        }
+
+        if (responder != null)
+        {
+            Jid responderJid = JidCreate.from(responder);
+            jingleIQ.setResponder(responderJid);
+        }
 
         boolean done = false;
 
@@ -275,9 +280,9 @@ public class JingleIQProvider implements IQProvider
         DefaultPacketExtensionProvider<CoinPacketExtension> coinProvider
             = new DefaultPacketExtensionProvider<CoinPacketExtension>(
                     CoinPacketExtension.class);
-        DefaultPacketExtensionProvider<CallIdPacketExtension> callidProvider
-            = new DefaultPacketExtensionProvider<CallIdPacketExtension>(
-                    CallIdPacketExtension.class);
+        DefaultPacketExtensionProvider<CallIdExtension> callidProvider
+            = new DefaultPacketExtensionProvider<CallIdExtension>(
+                    CallIdExtension.class);
 
         // Now go on and parse the jingle element's content.
         int eventType;
@@ -296,14 +301,14 @@ public class JingleIQProvider implements IQProvider
                 if (elementName.equals(ContentPacketExtension.ELEMENT_NAME))
                 {
                     ContentPacketExtension content
-                        = contentProvider.parseExtension(parser);
+                        = contentProvider.parse(parser);
                     jingleIQ.addContent(content);
                 }
                 // <reason/>
                 else if(elementName.equals(ReasonPacketExtension.ELEMENT_NAME))
                 {
                     ReasonPacketExtension reason
-                        = reasonProvider.parseExtension(parser);
+                        = reasonProvider.parse(parser);
                     jingleIQ.setReason(reason);
                 }
                 // <transfer/>
@@ -311,17 +316,17 @@ public class JingleIQProvider implements IQProvider
                                 TransferPacketExtension.ELEMENT_NAME)
                         && namespace.equals(TransferPacketExtension.NAMESPACE))
                 {
-                    jingleIQ.addExtension(
-                            transferProvider.parseExtension(parser));
+                    jingleIQ.addExtension(transferProvider.parse(parser));
                 }
+                // <conference-info/>
                 else if(elementName.equals(CoinPacketExtension.ELEMENT_NAME))
                 {
-                    jingleIQ.addExtension(coinProvider.parseExtension(parser));
+                    jingleIQ.addExtension(coinProvider.parse(parser));
                 }
                 else if (elementName.equals(
-                        ConferenceDescriptionPacketExtension.CALLID_ELEM_NAME))
+                        CallIdExtension.ELEMENT_NAME))
                 {
-                    jingleIQ.addExtension(callidProvider.parseExtension(parser));
+                    jingleIQ.addExtension(callidProvider.parse(parser));
                 }
                 else if (elementName.equals(
                         GroupPacketExtension.ELEMENT_NAME))

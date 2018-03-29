@@ -6,13 +6,19 @@
 
   <parent>
     <groupId>org.jitsi</groupId>
-    <artifactId>jitsi-universe</artifactId>
-    <version>1.0-20170425.182805-23</version>
+    <artifactId>jitsi-universe-public</artifactId>
+    <version>1.0.2</version>
   </parent>
 
   <artifactId>jitsi</artifactId>
-  <version>2.11-SNAPSHOT</version>
+  <version>2.13-SNAPSHOT</version>
   <packaging>pom</packaging>
+
+  <properties>
+    <smack.version>4.2.1</smack.version>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+  </properties>
 
   <name>jitsi</name>
   <url>https://jitsi.org</url>
@@ -64,6 +70,7 @@
 
   <build>
     <sourceDirectory>../../src</sourceDirectory>
+    <testSourceDirectory>../../test</testSourceDirectory>
     <pluginManagement>
       <plugins>
         <plugin>

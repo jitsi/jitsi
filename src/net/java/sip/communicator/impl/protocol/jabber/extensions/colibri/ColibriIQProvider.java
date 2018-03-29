@@ -20,11 +20,12 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
-import net.java.sip.communicator.service.protocol.jabber.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.util.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
+import org.jxmpp.jid.parts.Localpart;
 import org.xmlpull.v1.*;
 
 /**
@@ -35,113 +36,115 @@ import org.xmlpull.v1.*;
  * @author Boris Grozev
  */
 public class ColibriIQProvider
-    implements IQProvider
+    extends IQProvider
 {
-
     /**
-     * Smack interoperation layer
+     * The logger instance used by this class.
      */
-    private AbstractSmackInteroperabilityLayer smackInteroperabilityLayer =
-            AbstractSmackInteroperabilityLayer.getInstance();
-    
+    private final static Logger logger
+        = Logger.getLogger(ColibriIQProvider.class);
+
     /** Initializes a new <tt>ColibriIQProvider</tt> instance. */
     public ColibriIQProvider()
     {
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 PayloadTypePacketExtension.ELEMENT_NAME,
                 ColibriConferenceIQ.NAMESPACE,
-                new DefaultPacketExtensionProvider<PayloadTypePacketExtension>(
+                new DefaultPacketExtensionProvider<>(
                         PayloadTypePacketExtension.class));
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 RtcpFbPacketExtension.ELEMENT_NAME,
                 RtcpFbPacketExtension.NAMESPACE,
-                new DefaultPacketExtensionProvider<RtcpFbPacketExtension>(
+                new DefaultPacketExtensionProvider<>(
                         RtcpFbPacketExtension.class));
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 RTPHdrExtPacketExtension.ELEMENT_NAME,
                 ColibriConferenceIQ.NAMESPACE,
-                new DefaultPacketExtensionProvider<RTPHdrExtPacketExtension>(
+                new DefaultPacketExtensionProvider<>(
                         RTPHdrExtPacketExtension.class));
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 SourcePacketExtension.ELEMENT_NAME,
                 SourcePacketExtension.NAMESPACE,
-                new DefaultPacketExtensionProvider<SourcePacketExtension>(
+                new DefaultPacketExtensionProvider<>(
                         SourcePacketExtension.class));
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 SourceGroupPacketExtension.ELEMENT_NAME,
                 SourceGroupPacketExtension.NAMESPACE,
-                new DefaultPacketExtensionProvider<SourceGroupPacketExtension>(
+                new DefaultPacketExtensionProvider<>(
                         SourceGroupPacketExtension.class));
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 SourceRidGroupPacketExtension.ELEMENT_NAME,
                 SourceRidGroupPacketExtension.NAMESPACE,
-                new DefaultPacketExtensionProvider<SourceRidGroupPacketExtension>(
+                new DefaultPacketExtensionProvider<>(
                         SourceRidGroupPacketExtension.class));
 
-        PacketExtensionProvider parameterProvider
-                = new DefaultPacketExtensionProvider<ParameterPacketExtension>(
+        ExtensionElementProvider parameterProvider
+                = new DefaultPacketExtensionProvider<>(
                 ParameterPacketExtension.class);
 
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ParameterPacketExtension.ELEMENT_NAME,
                 ColibriConferenceIQ.NAMESPACE,
                 parameterProvider);
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ParameterPacketExtension.ELEMENT_NAME,
                 SourcePacketExtension.NAMESPACE,
                 parameterProvider);
         // Shutdown IQ
-        smackInteroperabilityLayer.addIQProvider(
+        ProviderManager.addIQProvider(
                 ShutdownIQ.GRACEFUL_ELEMENT_NAME,
                 ShutdownIQ.NAMESPACE,
                 this);
-        smackInteroperabilityLayer.addIQProvider(
+        ProviderManager.addIQProvider(
                 ShutdownIQ.FORCE_ELEMENT_NAME,
                 ShutdownIQ.NAMESPACE,
                 this);
         // Shutdown extension
-        PacketExtensionProvider shutdownProvider
-                = new DefaultPacketExtensionProvider
-                <ColibriConferenceIQ.GracefulShutdown>(
-                ColibriConferenceIQ.GracefulShutdown.class);
+        ExtensionElementProvider shutdownProvider
+                = new DefaultPacketExtensionProvider<>(
+                    ColibriConferenceIQ.GracefulShutdown.class);
 
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ColibriConferenceIQ.GracefulShutdown.ELEMENT_NAME,
                 ColibriConferenceIQ.GracefulShutdown.NAMESPACE,
                 shutdownProvider);
 
         // ColibriStatsIQ
-        smackInteroperabilityLayer.addIQProvider(
+        ProviderManager.addIQProvider(
                 ColibriStatsIQ.ELEMENT_NAME,
                 ColibriStatsIQ.NAMESPACE,
                 this);
 
         // ColibriStatsExtension
-        PacketExtensionProvider statsProvider
-                = new DefaultPacketExtensionProvider<ColibriStatsExtension>(
+        ExtensionElementProvider statsProvider
+                = new DefaultPacketExtensionProvider<>(
                 ColibriStatsExtension.class);
 
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ColibriStatsExtension.ELEMENT_NAME,
                 ColibriStatsExtension.NAMESPACE,
                 statsProvider);
         // ColibriStatsExtension.Stat
-        PacketExtensionProvider statProvider
-                = new DefaultPacketExtensionProvider
-                <ColibriStatsExtension.Stat>(
-                ColibriStatsExtension.Stat.class);
+        ExtensionElementProvider statProvider
+                = new DefaultPacketExtensionProvider<>(
+                    ColibriStatsExtension.Stat.class);
 
-        smackInteroperabilityLayer.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ColibriStatsExtension.Stat.ELEMENT_NAME,
                 ColibriStatsExtension.NAMESPACE,
-                statProvider);    
-        
-        
+                statProvider);
+
+        // ssrc-info
+        ProviderManager.addExtensionProvider(
+            SSRCInfoPacketExtension.ELEMENT_NAME,
+            SSRCInfoPacketExtension.NAMESPACE,
+            new DefaultPacketExtensionProvider<>(
+                SSRCInfoPacketExtension.class));
     }
 
     private void addChildExtension(
             ColibriConferenceIQ.Channel channel,
-            PacketExtension childExtension)
+            ExtensionElement childExtension)
     {
         if (childExtension instanceof PayloadTypePacketExtension)
         {
@@ -168,6 +171,10 @@ public class ColibriIQProvider
 
             channel.setTransport(transport);
         }
+        else if (childExtension instanceof SourcePacketExtension)
+        {
+            channel.addSource((SourcePacketExtension) childExtension);
+        }
         else if (childExtension instanceof SourceGroupPacketExtension)
         {
             SourceGroupPacketExtension sourceGroup
@@ -182,11 +189,17 @@ public class ColibriIQProvider
 
             channel.addRtpHeaderExtension(rtpHdrExtPacketExtension);
         }
+        else
+        {
+            logger.error(
+                "Ignoring a child of 'channel' of unknown type: "
+                    + childExtension);
+        }
     }
 
     private void addChildExtension(
             ColibriConferenceIQ.ChannelBundle bundle,
-            PacketExtension childExtension)
+            ExtensionElement childExtension)
     {
         if (childExtension instanceof IceUdpTransportPacketExtension)
         {
@@ -199,7 +212,7 @@ public class ColibriIQProvider
 
     private void addChildExtension(
             ColibriConferenceIQ.SctpConnection sctpConnection,
-            PacketExtension childExtension)
+            ExtensionElement childExtension)
     {
         if (childExtension instanceof IceUdpTransportPacketExtension)
         {
@@ -210,22 +223,22 @@ public class ColibriIQProvider
         }
     }
 
-    private PacketExtension parseExtension(
+    private ExtensionElement parseExtension(
             XmlPullParser parser,
             String name,
             String namespace)
         throws Exception
     {
-        PacketExtensionProvider extensionProvider
-            = smackInteroperabilityLayer.getExtensionProvider(
+        ExtensionElementProvider extensionProvider
+            = ProviderManager.getExtensionProvider(
                         name,
                         namespace);
-        PacketExtension extension;
+        ExtensionElement extension;
 
         if (extensionProvider == null)
         {
             /*
-             * No PacketExtensionProvider for the specified name and namespace
+             * No ExtensionElementProvider for the specified name and namespace
              * has been registered. Throw away the element.
              */
             throwAway(parser, name);
@@ -233,7 +246,7 @@ public class ColibriIQProvider
         }
         else
         {
-            extension = extensionProvider.parseExtension(parser);
+            extension = (ExtensionElement)extensionProvider.parse(parser);
         }
         return extension;
     }
@@ -246,11 +259,10 @@ public class ColibriIQProvider
      * sub-document to be parsed into a new <tt>IQ</tt> instance
      * @return a new <tt>IQ</tt> instance parsed from the specified IQ
      * sub-document
-     * @see IQProvider#parseIQ(XmlPullParser)
      */
     @SuppressWarnings("deprecation") // Compatibility with legacy Jitsi and
                                      // Jitsi Videobridge
-    public IQ parseIQ(XmlPullParser parser)
+    public IQ parse(XmlPullParser parser, int depth)
         throws Exception
     {
         String namespace = parser.getNamespace();
@@ -275,8 +287,8 @@ public class ColibriIQProvider
             String conferenceName = parser
                 .getAttributeValue("", ColibriConferenceIQ.NAME_ATTR_NAME);
 
-            if ((conferenceName != null) && (conferenceName.length() != 0))
-                conference.setName(conferenceName);
+            if (!StringUtils.isNullOrEmpty(conferenceName))
+                conference.setName(Localpart.from(conferenceName));
 
             boolean done = false;
             ColibriConferenceIQ.Channel channel = null;
@@ -288,7 +300,6 @@ public class ColibriIQProvider
             ColibriConferenceIQ.Recording recording = null;
             ColibriConferenceIQ.Endpoint conferenceEndpoint = null;
             StringBuilder ssrc = null;
-            SourcePacketExtension sourcePacketExtension = null;
 
             while (!done)
             {
@@ -321,7 +332,12 @@ public class ColibriIQProvider
                     {
                         if (bundle != null)
                         {
-                            conference.addChannelBundle(bundle);
+                            if (conference.addChannelBundle(bundle) != null)
+                            {
+                                logger.warn(
+                                    "Replacing a channel-bundle with the same"
+                                        + "ID (not a valid Colibri packet).");
+                            }
 
                             bundle = null;
                         }
@@ -329,7 +345,12 @@ public class ColibriIQProvider
                     else if (ColibriConferenceIQ.Endpoint.ELEMENT_NAME
                             .equals(name))
                     {
-                        conference.addEndpoint(conferenceEndpoint);
+                        if (conference.addEndpoint(conferenceEndpoint) != null)
+                        {
+                            logger.warn(
+                                "Replacing an endpoint element with the same"
+                                    + "ID (not a valid Colibri packet).");
+                        }
                         conferenceEndpoint = null;
                     }
                     else if (ColibriConferenceIQ.Channel.SSRC_ELEMENT_NAME
@@ -353,15 +374,6 @@ public class ColibriIQProvider
                             channel.addSSRC(i);
                         }
                         ssrc = null;
-                    }
-                    else if (SourcePacketExtension.ELEMENT_NAME.equals(name))
-                    {
-                        if (channel != null && sourcePacketExtension != null)
-                        {
-                            channel.addSource(sourcePacketExtension);
-                        }
-
-                        sourcePacketExtension = null;
                     }
                     else if (ColibriConferenceIQ.Content.ELEMENT_NAME.equals(
                             name))
@@ -430,8 +442,10 @@ public class ColibriIQProvider
                                     ColibriConferenceIQ.Channel
                                             .ENDPOINT_ATTR_NAME);
 
-                        if ((endpoint != null) && (endpoint.length() != 0))
+                        if (!StringUtils.isNullOrEmpty(endpoint))
+                        {
                             channel.setEndpoint(endpoint);
+                        }
 
                         String channelBundleId
                             = parser.getAttributeValue(
@@ -439,7 +453,9 @@ public class ColibriIQProvider
                                 ColibriConferenceIQ.ChannelCommon
                                         .CHANNEL_BUNDLE_ID_ATTR_NAME);
                         if (!StringUtils.isNullOrEmpty(channelBundleId))
+                        {
                             channel.setChannelBundleId(channelBundleId);
+                        }
 
                         // expire
                         String expire
@@ -617,16 +633,6 @@ public class ColibriIQProvider
                     {
                         ssrc = new StringBuilder();
                     }
-                    else if (SourcePacketExtension.ELEMENT_NAME.equals(name))
-                    {
-                        sourcePacketExtension = new SourcePacketExtension();
-                        for (int i = 0; i < parser.getAttributeCount(); ++i)
-                        {
-                            String attrName = parser.getAttributeName(i);
-                            String attrValue = parser.getAttributeValue(i);
-                            sourcePacketExtension.setAttribute(attrName, attrValue);
-                        }
-                    }
                     else if (ColibriConferenceIQ.Content.ELEMENT_NAME.equals(
                             name))
                     {
@@ -689,7 +695,9 @@ public class ColibriIQProvider
                             sctpConnection.setID(connID);
 
                         if (!StringUtils.isNullOrEmpty(endpoint))
+                        {
                             sctpConnection.setEndpoint(endpoint);
+                        }
 
                         // port
                         String port
@@ -705,7 +713,9 @@ public class ColibriIQProvider
                                 ColibriConferenceIQ.ChannelCommon
                                         .CHANNEL_BUNDLE_ID_ATTR_NAME);
                         if (!StringUtils.isNullOrEmpty(channelBundleId))
+                        {
                             sctpConnection.setChannelBundleId(channelBundleId);
+                        }
 
                         // initiator
                         String initiator
@@ -732,20 +742,28 @@ public class ColibriIQProvider
                             .equals(name))
                     {
                         String id
-                                = parser.getAttributeValue(
+                            = parser.getAttributeValue(
                                 "",
                                 ColibriConferenceIQ.Endpoint.ID_ATTR_NAME);
 
-                        String endpointName
-                                = parser.getAttributeValue(
+                        String displayName
+                            = parser.getAttributeValue(
                                 "",
                                 ColibriConferenceIQ.Endpoint
-                                        .DISPLAYNAME_ATTR_NAME);
+                                    .DISPLAYNAME_ATTR_NAME);
 
-                        conferenceEndpoint
-                                = new ColibriConferenceIQ.Endpoint(id,
-                                                                   endpointName);
+                        String statsId
+                            = parser.getAttributeValue(
+                                "",
+                                ColibriConferenceIQ.Endpoint
+                                    .STATS_ID_ATTR_NAME);
 
+                        if(!StringUtils.isNullOrEmpty(id))
+                        {
+                            conferenceEndpoint
+                                = new ColibriConferenceIQ.Endpoint(
+                                    id, statsId, displayName);
+                        }
                     }
                     else if ( channel != null
                               || sctpConnection != null
@@ -836,7 +854,7 @@ public class ColibriIQProvider
                         }
                         else
                         {
-                            PacketExtension extension
+                            ExtensionElement extension
                                 = parseExtension(parser, peName, peNamespace);
 
                             if (extension != null)

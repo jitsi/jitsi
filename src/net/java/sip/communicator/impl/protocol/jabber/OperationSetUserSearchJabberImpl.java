@@ -20,12 +20,18 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smackx.*;
-import org.jivesoftware.smackx.ReportedData.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
+import org.jivesoftware.smack.SmackException.*;
+import org.jivesoftware.smack.XMPPException.*;
+import org.jivesoftware.smackx.search.*;
+import org.jivesoftware.smackx.search.ReportedData.*;
+import org.jivesoftware.smackx.xdata.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.impl.*;
+import org.jxmpp.stringprep.*;
 
 /**
  * This operation set provides utility methods for user search implementation.
@@ -55,7 +61,7 @@ public class OperationSetUserSearchJabberImpl
     /**
      * The user search service name.
      */
-    private String serviceName = null;
+    private DomainBareJid serviceName = null;
 
     /**
      * Whether the user search service is enabled or not.
@@ -66,8 +72,8 @@ public class OperationSetUserSearchJabberImpl
      * A list of <tt>UserSearchProviderListener</tt> listeners which will be
      * notified when the provider user search feature is enabled or disabled.
      */
-    private List<UserSearchProviderListener> listeners
-        = new ArrayList<UserSearchProviderListener>();
+    private final List<UserSearchProviderListener> listeners
+        = new ArrayList<>();
 
     /**
      * The property name of the user search service name.
@@ -83,15 +89,24 @@ public class OperationSetUserSearchJabberImpl
         ProtocolProviderServiceJabberImpl provider)
     {
         this.provider = provider;
-        serviceName = provider.getAccountID().getAccountPropertyString(
-            USER_SEARCH_SERVICE_NAME, "");
-        if(serviceName.equals(""))
+        String accountServiceName = provider.getAccountID()
+            .getAccountPropertyString(USER_SEARCH_SERVICE_NAME);
+        if(accountServiceName == null)
         {
             provider.addRegistrationStateChangeListener(this);
         }
         else
         {
-            setUserSearchEnabled(true);
+            try
+            {
+                serviceName = JidCreate.domainBareFrom(accountServiceName);
+                setUserSearchEnabled(true);
+            }
+            catch (XmppStringprepException e)
+            {
+                logger.error("USER_SEARCH_SERVICE_NAME is not a valid JID", e);
+                provider.addRegistrationStateChangeListener(this);
+            }
         }
     }
 
@@ -104,8 +119,9 @@ public class OperationSetUserSearchJabberImpl
     private void setUserSearchEnabled(boolean isEnabled)
     {
         userSearchEnabled = isEnabled;
-        int type = (isEnabled? UserSearchProviderEvent.PROVIDER_ADDED
-            : UserSearchProviderEvent.PROVIDER_REMOVED);
+        int type = isEnabled
+            ? UserSearchProviderEvent.PROVIDER_ADDED
+            : UserSearchProviderEvent.PROVIDER_REMOVED;
         fireUserSearchProviderEvent(new UserSearchProviderEvent(provider, type));
     }
 
@@ -153,10 +169,22 @@ public class OperationSetUserSearchJabberImpl
             {
                 synchronized (userSearchEnabled)
                 {
-                    List<String> serviceNames
-                        = UserSearchManager.getAvailableServiceNames(
-                            provider);
-                    if(!serviceNames.isEmpty())
+                    List<DomainBareJid> serviceNames = null;
+                    try
+                    {
+                        UserSearchManager usm
+                            = new UserSearchManager(provider.getConnection());
+                        serviceNames = usm.getSearchServices();
+                    }
+                    catch (NotConnectedException
+                        | InterruptedException
+                        | NoResponseException
+                        | XMPPErrorException e)
+                    {
+                        logger.error("Failed to search for service names", e);
+                    }
+
+                    if(serviceNames != null && !serviceNames.isEmpty())
                     {
                         serviceName = serviceNames.get(0);
                         setUserSearchEnabled(true);
@@ -178,8 +206,7 @@ public class OperationSetUserSearchJabberImpl
     {
         if(searchManager == null)
         {
-            searchManager
-                = new UserSearchManager(provider.getConnection(), serviceName);
+            searchManager = new UserSearchManager(provider.getConnection());
         }
     }
 
@@ -203,9 +230,13 @@ public class OperationSetUserSearchJabberImpl
         ReportedData data = null;
         try
         {
-            data = searchManager.searchForString(searchedString);
+            Form form = searchManager.getSearchForm(serviceName);
+            data = searchManager.getSearchResults(form, serviceName);
         }
-        catch (XMPPException e)
+        catch (XMPPException
+            | NotConnectedException
+            | InterruptedException
+            | NoResponseException e)
         {
            logger.error(e);
            return null;
@@ -216,8 +247,9 @@ public class OperationSetUserSearchJabberImpl
             logger.error("No data have been received from server.");
             return null;
         }
-        Iterator<Column> columns = data.getColumns();
-        Iterator<Row> rows = data.getRows();
+
+        List<Column> columns = data.getColumns();
+        List<Row> rows = data.getRows();
         if(columns == null || rows == null)
         {
             logger.error("The received data is corrupted.");
@@ -225,10 +257,9 @@ public class OperationSetUserSearchJabberImpl
         }
 
         Column jidColumn = null;
-        while(columns.hasNext())
+        for (Column tmpCollumn : columns)
         {
-            Column tmpCollumn = columns.next();
-            if(tmpCollumn.getType().equals(FormField.TYPE_JID_SINGLE))
+            if(tmpCollumn.getType().equals(FormField.Type.jid_single))
             {
                 jidColumn = tmpCollumn;
                 break;
@@ -240,11 +271,10 @@ public class OperationSetUserSearchJabberImpl
             logger.error("No jid collumn provided by the server.");
             return null;
         }
-        List<String> result = new ArrayList<String>();
-        while(rows.hasNext())
+        List<String> result = new ArrayList<>();
+        for (Row row : rows)
         {
-            Row row = rows.next();
-            result.add((String)row.getValues(jidColumn.getVariable()).next());
+            result.add(row.getValues(jidColumn.getVariable()).get(0));
         }
         return result;
     }

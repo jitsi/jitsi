@@ -871,7 +871,7 @@ void MAPINotification_registerNotifyAllMsgStores(LPMAPISESSION mapiSession)
  * @param adviseSink The advice sink that will be generated resulting o fthis
  * function call.
  *
- * @return A unsigned long which is a token wich must be used to call the
+ * @return A unsigned long which is a token which must be used to call the
  * unadvise function for the same message data base.
  */
 ULONG MAPINotification_registerNotifyMessageDataBase(
@@ -955,7 +955,7 @@ ULONG MAPINotification_registerNotifyMessageDataBase(
  * @param adviseSink The advice sink that will be generated resulting o fthis
  * function call.
  *
- * @return A unsigned long which is a token wich must be used to call the
+ * @return A unsigned long which is a token which must be used to call the
  * unadvise function for the same message store table.
  */
 ULONG MAPINotification_registerNotifyTable(

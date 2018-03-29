@@ -1182,7 +1182,7 @@ Run_runJava(LPCTSTR executableFilePath, LPSTR cmdLine)
     else
         error = GetLastError();
 
-    /* Try to locate Java through the well-known enviroment variables. */
+    /* Try to locate Java through the well-known environment variables. */
     if ((ERROR_SUCCESS != error) || searchForJava)
         error = Run_runJavaFromEnvVar(_T("JAVA_HOME"), &searchForJava);
     if ((ERROR_SUCCESS != error) || searchForJava)

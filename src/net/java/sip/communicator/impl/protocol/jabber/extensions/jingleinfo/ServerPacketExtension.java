@@ -30,7 +30,7 @@ public class ServerPacketExtension
     /**
      * The namespace.
      */
-    public static final String NAMESPACE = null;
+    public static final String NAMESPACE = "google:jingleinfo";
 
     /**
      * The element name.

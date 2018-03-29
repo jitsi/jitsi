@@ -18,6 +18,7 @@
 package net.java.sip.communicator.impl.protocol.jabber;
 
 import net.java.sip.communicator.service.protocol.*;
+import org.jxmpp.jid.*;
 
 /**
  * The Jabber implementation of the <tt>ChatRoomInvitation</tt> interface.
@@ -29,7 +30,7 @@ public class ChatRoomInvitationJabberImpl
 {
     private ChatRoom chatRoom;
 
-    private String inviter;
+    private EntityJid inviter;
 
     private String reason;
 
@@ -45,7 +46,7 @@ public class ChatRoomInvitationJabberImpl
      * @param password the password
      */
     public ChatRoomInvitationJabberImpl(ChatRoom targetChatRoom,
-                                        String inviter,
+                                        EntityJid inviter,
                                         String reason,
                                         byte[] password)
     {
@@ -62,7 +63,7 @@ public class ChatRoomInvitationJabberImpl
 
     public String getInviter()
     {
-        return inviter;
+        return inviter.toString();
     }
 
     public String getReason()

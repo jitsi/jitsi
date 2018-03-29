@@ -148,7 +148,7 @@ public class URIPacketExtension
                     purpose).append("</").append(
                             ELEMENT_PURPOSE).append(">");
 
-        for(PacketExtension ext : getChildExtensions())
+        for(ExtensionElement ext : getChildExtensions())
         {
             bldr.append(ext.toXML());
         }

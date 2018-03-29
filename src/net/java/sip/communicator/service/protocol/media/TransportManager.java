@@ -271,7 +271,15 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
 
         if (streamConnector != null)
         {
-            closeStreamConnector(mediaType, streamConnector);
+            try
+            {
+                closeStreamConnector(mediaType, streamConnector);
+            }
+            catch (OperationFailedException e)
+            {
+                logger.error("Failed to close stream connector for " + mediaType, e);
+            }
+
             streamConnectors[index] = null;
         }
     }
@@ -291,6 +299,7 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     protected void closeStreamConnector(
             MediaType mediaType,
             StreamConnector streamConnector)
+        throws OperationFailedException
     {
         /*
          * XXX The connected owns the sockets so it is important that it

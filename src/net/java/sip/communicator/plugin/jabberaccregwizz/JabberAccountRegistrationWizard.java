@@ -190,11 +190,6 @@ public class JabberAccountRegistrationWizard
             String.valueOf(registration.isSendKeepAlive()));
 
         summaryTable.put(
-            Resources.getString(
-                        "plugin.jabberaccregwizz.ENABLE_GMAIL_NOTIFICATIONS"),
-            String.valueOf(registration.isGmailNotificationEnabled()));
-
-        summaryTable.put(
             Resources.getString("plugin.jabberaccregwizz.RESOURCE"),
             registration.getResource());
 
@@ -519,7 +514,7 @@ public class JabberAccountRegistrationWizard
     }
 
     /**
-     * Opens the Gmail signup URI in the OS's default browser.
+     * Not implemented, does nothing.
      */
     @Override
     public void webSignup()

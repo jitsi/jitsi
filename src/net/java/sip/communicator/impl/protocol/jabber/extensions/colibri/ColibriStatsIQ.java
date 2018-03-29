@@ -44,10 +44,17 @@ public class ColibriStatsIQ
 
     private final ColibriStatsExtension backEnd = new ColibriStatsExtension();
 
-    @Override
-    public String getChildElementXML()
+    public ColibriStatsIQ()
     {
-        return backEnd.toXML();
+        super(ELEMENT_NAME, NAMESPACE);
+    }
+
+    @Override
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
+    {
+        buf.rightAngleBracket();
+        buf.append(backEnd.toXML());
+        return buf;
     }
 
     /**

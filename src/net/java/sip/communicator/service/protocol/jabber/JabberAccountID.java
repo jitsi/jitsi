@@ -70,12 +70,6 @@ public class JabberAccountID
     public static final String SEND_KEEP_ALIVE = "SEND_KEEP_ALIVE";
 
     /**
-     * Indicates if gmail notifications should be enabled.
-     */
-    public static final String GMAIL_NOTIFICATIONS_ENABLED
-            = "GMAIL_NOTIFICATIONS_ENABLED";
-
-    /**
      * Always call with gtalk property.
      *
      * It is used to bypass capabilities checks: some softwares do not advertise
@@ -219,18 +213,6 @@ public class JabberAccountID
     }
 
     /**
-     * Determines whether SIP Communicator should be querying Gmail servers
-     * for unread mail messages.
-     *
-     * @return <tt>true</tt> if we are to enable Gmail notifications and
-     * <tt>false</tt> otherwise.
-     */
-    public boolean isGmailNotificationEnabled()
-    {
-        return getAccountPropertyBoolean(GMAIL_NOTIFICATIONS_ENABLED, false);
-    }
-
-    /**
      * Determines whether SIP Communicator should use Google Contacts as
      * ContactSource
      *
@@ -305,18 +287,6 @@ public class JabberAccountID
     public void setSendKeepAlive(boolean sendKeepAlive)
     {
         putAccountProperty(SEND_KEEP_ALIVE, sendKeepAlive);
-    }
-
-    /**
-     * Specifies whether SIP Communicator should be querying Gmail servers
-     * for unread mail messages.
-     *
-     * @param enabled <tt>true</tt> if we are to enable Gmail notification and
-     * <tt>false</tt> otherwise.
-     */
-    public void setGmailNotificationEnabled(boolean enabled)
-    {
-        putAccountProperty(GMAIL_NOTIFICATIONS_ENABLED, enabled);
     }
 
     /**

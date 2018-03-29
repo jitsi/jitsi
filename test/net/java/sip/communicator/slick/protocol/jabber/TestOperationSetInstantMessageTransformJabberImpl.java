@@ -184,6 +184,7 @@ public class TestOperationSetInstantMessageTransformJabberImpl
     }
 
     public void testMessageReceivedTransform()
+        throws OperationFailedException
     {
         String body =
             "This is an IM coming from the tester agent" + " on "
@@ -238,6 +239,7 @@ public class TestOperationSetInstantMessageTransformJabberImpl
     private static final long timeout = 1000;
 
     public void testMessageDeliveredTransform()
+        throws OperationFailedException
     {
         String body =
             "This is an IM coming from the tester agent" + " on "

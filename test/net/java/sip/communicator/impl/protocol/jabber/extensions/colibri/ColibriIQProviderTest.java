@@ -19,21 +19,19 @@
 package net.java.sip.communicator.impl.protocol.jabber.extensions.colibri;
 
 import junit.framework.TestCase;
-import net.java.sip.communicator.impl.protocol.jabber.SmackV3InteroperabilityLayer;
-import net.java.sip.communicator.service.protocol.jabber.AbstractSmackInteroperabilityLayer;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet.*;
 import org.jivesoftware.smack.packet.IQ;
+import org.jxmpp.jid.impl.*;
 import org.xmlpull.mxp1.MXParser;
 import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-//import org.xmlpull.v1.XmlPullParserFactory;
 
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 
 public class ColibriIQProviderTest extends TestCase
 {
-    String testXml = "\n" +
+    private static final String testXml
+        = "\n" +
             "<iq type=\"set\" to=\"jvb-0.brian2.jitsi.net\" from=\"focus@auth.brian2.jitsi.net/focus358522582823562\" id=\"qV8NP-1407\">" +
               "<conference xmlns=\"http://jitsi.org/protocol/colibri\" id=\"cce6f2fe74002273\" name=\"test\" gid=\"ff62ef\">" +
                 "<content name=\"audio\">" +
@@ -124,8 +122,6 @@ public class ColibriIQProviderTest extends TestCase
             "http://xmlpull.org/v1/doc/features.html#process-namespaces",
             true);
 
-        AbstractSmackInteroperabilityLayer.setImplementationClass(
-                SmackV3InteroperabilityLayer.class);
         colibriIQProvider = new ColibriIQProvider();
     }
 
@@ -141,14 +137,13 @@ public class ColibriIQProviderTest extends TestCase
         assertEquals("iq", name);
 
         // Move forward to the 'conference' element, which is what
-        // ColibriIQProvider::parseIQ expects
+        // ColibriIQProvider::parse expects
         eventType = xmlPullParser.next();
         name = xmlPullParser.getName();
         assertEquals(XmlPullParser.START_TAG, eventType);
         assertEquals(ColibriConferenceIQ.ELEMENT_NAME, name);
 
-        IQ result = colibriIQProvider.parseIQ(xmlPullParser);
-        System.out.println(result.toXML());
+        IQ result = colibriIQProvider.parse(xmlPullParser, 0);
         List<SourcePacketExtension> sources =
                 ((ColibriConferenceIQ) result)
                         .getContent("video")
@@ -171,5 +166,32 @@ public class ColibriIQProviderTest extends TestCase
         }
         assertEquals(3, numSsrcSources);
         assertEquals(3, numRidSources);
+
+        // Make sure that the child extensions of "source" also parsed correctly
+
+        // The first "source" element (from the first video channel) from the
+        // XML that we parsed:
+        // <source xmlns="urn:xmpp:jingle:apps:rtp:ssma:0" ssrc="246878015">
+        //   <parameter value="5311ad66-bc71-7d4e-be71-66ac3a73182a" name="cname"/>
+        //   <parameter value="404a72b1-a51a-a545-a5e9-5a50cd94431c 135dd87a-1c7a-fb4d-9e42-d64cfbcfcc0d" name="msid"/>
+        //   <ssrc-info xmlns="http://jitsi.org/jitmeet" owner="test@conference.brian2.jitsi.net/66e3ea10"/>
+        // </source>
+
+        SourcePacketExtension source0 = sources.get(0);
+        assertEquals(246878015L, source0.getSSRC());
+        assertEquals(
+            "5311ad66-bc71-7d4e-be71-66ac3a73182a",
+            source0.getParameter("cname"));
+        assertEquals(
+            "404a72b1-a51a-a545-a5e9-5a50cd94431c 135dd87a-1c7a-fb4d-9e42-d64cfbcfcc0d",
+            source0.getParameter("msid"));
+
+        SSRCInfoPacketExtension ssrcInfo
+            = source0.getFirstChildOfType(SSRCInfoPacketExtension.class);
+        assertNotNull(ssrcInfo);
+        assertEquals(
+            JidCreate.fullFrom(
+                "test@conference.brian2.jitsi.net/66e3ea10"),
+            ssrcInfo.getOwner());
     }
 }

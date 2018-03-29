@@ -22,20 +22,21 @@ import org.jitsi.util.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.PacketParserUtils;
-
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.impl.*;
 import org.xmlpull.v1.*;
 
 /**
  * Parses {@link JibriIq}.
  */
 public class JibriIqProvider
-    implements IQProvider
+    extends IQProvider<JibriIq>
 {
     /**
      * {@inheritDoc}
      */
     @Override
-    public IQ parseIQ(XmlPullParser parser)
+    public JibriIq parse(XmlPullParser parser, int depth)
         throws Exception
     {
         String namespace = parser.getNamespace();
@@ -72,7 +73,10 @@ public class JibriIqProvider
             String room
                 = parser.getAttributeValue("", JibriIq.ROOM_ATTR_NAME);
             if (!StringUtils.isNullOrEmpty(room))
-                iq.setRoom(room);
+            {
+                EntityBareJid roomJid = JidCreate.entityBareFrom(room);
+                iq.setRoom(roomJid);
+            }
 
             String streamId
                 = parser.getAttributeValue("", JibriIq.STREAM_ID_ATTR_NAME);
@@ -106,7 +110,7 @@ public class JibriIqProvider
 
                     if ("error".equals(name))
                     {
-                        XMPPError error = PacketParserUtils.parseError(parser);
+                        XMPPError error = PacketParserUtils.parseError(parser).build();
                         iq.setXMPPError(error);
                     }
                     break;

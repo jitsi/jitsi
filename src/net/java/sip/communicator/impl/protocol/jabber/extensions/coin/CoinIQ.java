@@ -77,7 +77,12 @@ public class CoinIQ
     /**
      * Version.
      */
-    private int version = 0;
+    private Integer version = 0;
+
+    public CoinIQ()
+    {
+        super(ELEMENT_NAME, NAMESPACE);
+    }
 
     /**
      * Returns the XML string of this Jingle IQ's "section" sub-element.
@@ -87,30 +92,15 @@ public class CoinIQ
      * @return the child element section of the IQ XML.
      */
     @Override
-    public String getChildElementXML()
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder bldr)
     {
-        StringBuilder bldr = new StringBuilder("<");
+        bldr.attribute("state", state.toString());
+        bldr.attribute("entity", entity);
+        bldr.attribute("version", version);
+        bldr.optAttribute("sid", sid);
+        bldr.setEmptyElement();
 
-        bldr.append(ELEMENT_NAME);
-        bldr.append(" xmlns='").append(NAMESPACE).append("'");
-        bldr.append(" state='").append(state).append("'");
-        bldr.append(" entity='").append(entity).append("'");
-        bldr.append(" version='").append(version).append("'");
-
-        if(sid != null)
-            bldr.append(" sid='").append(sid).append("'");
-
-        if(getExtensions().size() == 0)
-            bldr.append("/>");
-        else
-        {
-            bldr.append(">");
-            for(PacketExtension pe : getExtensions())
-                bldr.append(pe.toXML());
-            bldr.append("</").append(ELEMENT_NAME).append(">");
-        }
-
-        return bldr.toString();
+        return bldr;
     }
 
     /**

@@ -38,12 +38,18 @@ public class HealthCheckIQ
     final static public String NAMESPACE
         = "http://jitsi.org/protocol/healthcheck";
 
+    public HealthCheckIQ()
+    {
+        super(ELEMENT_NAME, NAMESPACE);
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getChildElementXML()
+    protected IQ.IQChildElementXmlStringBuilder getIQChildElementBuilder(IQ.IQChildElementXmlStringBuilder buf)
     {
-        return "<" + ELEMENT_NAME + " xmlns='" + NAMESPACE + "' />";
+        buf.setEmptyElement();
+        return buf;
     }
 }

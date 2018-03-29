@@ -24,7 +24,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 
-import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.roster.*;
+import org.jxmpp.jid.*;
 
 /**
  * The Jabber implementation of the service.protocol.Contact interface.
@@ -38,7 +39,7 @@ public class ContactJabberImpl
     /**
      * The jid of the user entry in roster.
      */
-    private String jid = null;
+    private Jid jid = null;
 
     /**
      * The image of the contact.
@@ -71,7 +72,7 @@ public class ContactJabberImpl
     /**
      * Used to store contact id when creating unresolved contacts.
      */
-    private final String tempId;
+    private final Jid tempId;
 
     /**
      * The current status message of this contact.
@@ -86,7 +87,7 @@ public class ContactJabberImpl
     /**
      * The contact resources list.
      */
-    private Map<String, ContactResourceJabberImpl> resources = null;
+    private Map<FullJid, ContactResourceJabberImpl> resources = null;
 
     /**
      * Whether this contact is a mobile one.
@@ -116,7 +117,7 @@ public class ContactJabberImpl
         // rosterEntry can be null when creating volatile contact
         if(rosterEntry != null)
         {
-            this.jid = rosterEntry.getUser();
+            this.jid = rosterEntry.getJid();
             this.serverDisplayName = rosterEntry.getName();
         }
 
@@ -137,7 +138,7 @@ public class ContactJabberImpl
      * @param ssclCallback the contact list handler that creates us.
      * @param isPersistent is the contact persistent.
      */
-    ContactJabberImpl(String id,
+    ContactJabberImpl(Jid id,
                ServerStoredContactListJabberImpl ssclCallback,
                boolean isPersistent)
     {
@@ -156,6 +157,14 @@ public class ContactJabberImpl
      * @return the Jabber Userid of this contact
      */
     public String getAddress()
+    {
+        if(isResolved)
+            return this.jid.toString();
+        else
+            return tempId.toString();
+    }
+
+    Jid getAddressAsJid()
     {
         if(isResolved)
             return this.jid;
@@ -279,7 +288,7 @@ public class ContactJabberImpl
     @Override
     public String toString()
     {
-        StringBuffer buff =  new StringBuffer("JabberContact[ id=");
+        StringBuilder buff =  new StringBuilder("JabberContact[ id=");
         buff.append(getAddress()).
             append(", isPersistent=").append(isPersistent).
             append(", isResolved=").append(isResolved).append("]");
@@ -324,7 +333,7 @@ public class ContactJabberImpl
     {
         if(isResolved)
         {
-            RosterEntry entry = ssclCallback.getRosterEntry(jid);
+            RosterEntry entry = ssclCallback.getRosterEntry(jid.asBareJid());
             String name = null;
 
             if (entry != null)
@@ -417,7 +426,7 @@ public class ContactJabberImpl
 
         this.isResolved = true;
         this.isPersistent = true;
-        this.jid = entry.getUser();
+        this.jid = entry.getJid();
         this.serverDisplayName = entry.getName();
     }
 
@@ -445,20 +454,17 @@ public class ContactJabberImpl
     }
 
     /**
-     * Not used.
-     * @param persistentData the persistent data.
-     */
-    public void setPersistentData(String persistentData)
-    {
-    }
-
-    /**
      * Get source entry
      * @return RosterEntry
      */
     RosterEntry getSourceEntry()
     {
-        return ssclCallback.getRosterEntry(jid);
+        if (jid == null)
+        {
+            return null;
+        }
+
+        return ssclCallback.getRosterEntry(jid.asBareJid());
     }
 
     /**
@@ -512,16 +518,16 @@ public class ContactJabberImpl
      * @param jid the jid for which we're looking for a resource
      * @return the <tt>ContactResource</tt> corresponding to the given jid.
      */
-    ContactResource getResourceFromJid(String jid)
+    ContactResource getResourceFromJid(Jid jid)
     {
         return resources.get(jid);
     }
 
-    Map<String, ContactResourceJabberImpl> getResourcesMap()
+    Map<FullJid, ContactResourceJabberImpl> getResourcesMap()
     {
         if (resources == null)
             resources
-                = new ConcurrentHashMap<String, ContactResourceJabberImpl>();
+                = new ConcurrentHashMap<>();
 
         return this.resources;
     }
@@ -543,13 +549,12 @@ public class ContactJabberImpl
      * resources from the contact as it will be the only resource we will use.
      * @param fullJid the full jid of the contact.
      */
-    protected void setJid(String fullJid)
+    protected void setJid(Jid fullJid)
     {
         this.jid = fullJid;
 
         if (resources == null)
-            resources
-                = new ConcurrentHashMap<String, ContactResourceJabberImpl>();
+            resources = new ConcurrentHashMap<>();
     }
 
     /**
@@ -558,10 +563,7 @@ public class ContactJabberImpl
      */
     public boolean isMobile()
     {
-        if(!getPresenceStatus().isOnline())
-            return false;
-
-        return mobile;
+        return getPresenceStatus().isOnline() && mobile;
     }
 
     /**

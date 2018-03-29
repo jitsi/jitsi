@@ -34,7 +34,7 @@ public class UserRolesPacketExtension
     /**
      * The namespace that user roles belongs to.
      */
-    public static final String NAMESPACE = "";
+    public static final String NAMESPACE = CoinIQ.NAMESPACE;
 
     /**
      * The name of the element that contains the user roles data.
@@ -112,7 +112,7 @@ public class UserRolesPacketExtension
                     role).append("</").append(ELEMENT_ROLE).append(">");
         }
 
-        for(PacketExtension ext : getChildExtensions())
+        for(ExtensionElement ext : getChildExtensions())
         {
             bldr.append(ext.toXML());
         }

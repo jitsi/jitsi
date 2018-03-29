@@ -32,13 +32,20 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
-import org.jivesoftware.smack.util.Base64;
 import org.jivesoftware.smack.util.StringUtils;
-import org.jivesoftware.smackx.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jivesoftware.smackx.disco.packet.DiscoverInfo;
+import org.jivesoftware.smackx.disco.packet.DiscoverInfo.Feature;
+import org.jivesoftware.smackx.caps.packet.CapsExtension;
+import org.jivesoftware.smackx.disco.packet.*;
+import org.jivesoftware.smackx.xdata.FormField;
+import org.jivesoftware.smackx.xdata.packet.DataForm;
+import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
 import org.osgi.framework.*;
-import org.xmlpull.mxp1.*;
-import org.xmlpull.v1.*;
+import org.xmlpull.mxp1.MXParser;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
  * Keeps track of entity capabilities.
@@ -106,8 +113,8 @@ public class EntityCapsManager
      * key is formed as user@server/resource (resource is required) In case of
      * link-local connection the key is formed as user@host (no resource)
      */
-    private final Map<String, Caps> userCaps
-        = new ConcurrentHashMap<String, Caps>();
+    private final Map<Jid, Caps> userCaps
+        = new ConcurrentHashMap<>();
 
     /**
      * CapsVerListeners gets notified when the version string is changed.
@@ -127,14 +134,6 @@ public class EntityCapsManager
      */
     private final List<UserCapsNodeListener> userCapsNodeListeners
         = new LinkedList<UserCapsNodeListener>();
-
-    static
-    {
-        ProviderManager.getInstance().addExtensionProvider(
-                CapsPacketExtension.ELEMENT_NAME,
-                CapsPacketExtension.NAMESPACE,
-                new CapsProvider());
-    }
 
     /**
      * Add {@link DiscoverInfo} to our caps database.
@@ -169,7 +168,7 @@ public class EntityCapsManager
              */
             if ((oldInfo == null) || !oldInfo.equals(info))
             {
-                String xml = info.getChildElementXML();
+                String xml = info.getChildElementXML().toString();
 
                 if ((xml != null) && (xml.length() != 0))
                 {
@@ -225,7 +224,6 @@ public class EntityCapsManager
 
     /**
      * Add a record telling what entity caps node a user has.
-     *
      * @param user the user (Full JID)
      * @param node the node (of the caps packet extension)
      * @param hash the hashing algorithm used to calculate <tt>ver</tt>
@@ -233,24 +231,22 @@ public class EntityCapsManager
      * @param ext the ext (of the caps packet extension)
      * @param online indicates if the user is online
      */
-    private void addUserCapsNode(   String user,
-                                    String node,
-                                    String hash,
-                                    String ver,
-                                    String ext,
-                                    boolean online)
+    private void addUserCapsNode(Jid user,
+                                 String node,
+                                 String hash,
+                                 String ver,
+                                 boolean online)
     {
         if ((user != null) && (node != null) && (hash != null) && (ver != null))
         {
             Caps caps = userCaps.get(user);
-            String bareJid=StringUtils.parseBareAddress(user);
 
             if ((caps == null)
                     || !caps.node.equals(node)
                     || !caps.hash.equals(hash)
                     || !caps.ver.equals(ver))
             {
-                caps = new Caps(node, hash, ver, ext);
+                caps = new Caps(node, hash, ver);
 
                 userCaps.put(user, caps);
             }
@@ -272,7 +268,7 @@ public class EntityCapsManager
 
                 for (UserCapsNodeListener listener : listeners)
                     listener.userCapsNodeAdded(user,
-                        getFullJidsByBareJid(bareJid),
+                        getFullJidsByBareJid(user.asBareJid()),
                         nodeVer, online);
             }
         }
@@ -307,17 +303,24 @@ public class EntityCapsManager
     public void removeContactCapsNode(Contact contact)
     {
         Caps caps = null;
-        String lastRemovedJid = null;
-        String bareJid=StringUtils.parseBareAddress(
-            contact.getAddress());
+        Jid lastRemovedJid = null;
+        Jid bareJid = null;
+        try
+        {
+            bareJid = JidCreate.bareFrom(contact.getAddress());
+        }
+        catch (XmppStringprepException e)
+        {
+            logger.error("Contact address " + contact.getAddress()
+                    + " is not a valid JID", e);
+        }
 
-        Iterator<String> iter = userCaps.keySet().iterator();
+        Iterator<Jid> iter = userCaps.keySet().iterator();
         while(iter.hasNext())
         {
-            String jid = iter.next();
+            Jid jid = iter.next();
 
-            if(StringUtils.parseBareAddress(jid).equals(
-                contact.getAddress()))
+            if(jid.equals(contact.getAddress()))
             {
                 caps = userCaps.get(jid);
                 lastRemovedJid = jid;
@@ -354,10 +357,10 @@ public class EntityCapsManager
      *
      * @param user the user (Full JID)
      */
-    public void removeUserCapsNode(String user)
+    public void removeUserCapsNode(Jid user)
     {
         Caps caps = userCaps.remove(user);
-        String bareJid=StringUtils.parseBareAddress(user);
+        Jid bareJid = user.asBareJid();
 
         // Fire userCapsNodeRemoved.
         if (caps != null)
@@ -376,8 +379,8 @@ public class EntityCapsManager
 
                 for (UserCapsNodeListener listener : listeners)
                     listener.userCapsNodeRemoved(user,
-                    getFullJidsByBareJid(bareJid),
-                    nodeVer, false);
+                        getFullJidsByBareJid(bareJid),
+                        nodeVer, false);
             }
         }
     }
@@ -410,7 +413,7 @@ public class EntityCapsManager
      * @return the <tt>Caps</tt> i.e. the node, the hash and the ver of
      * <tt>user</tt>
      */
-    public Caps getCapsByUser(String user)
+    public Caps getCapsByUser(Jid user)
     {
         return userCaps.get(user);
     }
@@ -418,18 +421,20 @@ public class EntityCapsManager
     /**
      * Gets the full Jids (with resources) as Strings.
      *
-     * @param the bare Jid
+     * @param bareJid bare Jid
      * @return the full Jids as an ArrayList <tt>user</tt>
      */
-    public ArrayList<String> getFullJidsByBareJid(String bareJid)
+    public List<Jid> getFullJidsByBareJid(Jid bareJid)
     {
-        ArrayList<String> jids = new ArrayList<String>();
-        for(String jid: userCaps.keySet())
+        List<Jid> jids = new ArrayList<>();
+        for(Jid jid : userCaps.keySet())
         {
-            if(bareJid.equals(StringUtils.parseBareAddress(jid))){
+            if (bareJid.equals(jid.asBareJid()))
+            {
                 jids.add(jid);
             }
         }
+
         return jids;
     }
 
@@ -441,7 +446,7 @@ public class EntityCapsManager
      * @param user user name (Full JID)
      * @return the discovered info
      */
-    public DiscoverInfo getDiscoverInfoByUser(String user)
+    public DiscoverInfo getDiscoverInfoByUser(Jid user)
     {
         Caps caps = userCaps.get(user);
 
@@ -505,7 +510,7 @@ public class EntityCapsManager
                 {
                     IQProvider discoverInfoProvider
                         = (IQProvider)
-                            ProviderManager.getInstance().getIQProvider(
+                            ProviderManager.getIQProvider(
                                     "query",
                                     "http://jabber.org/protocol/disco#info");
 
@@ -537,7 +542,7 @@ public class EntityCapsManager
                             {
                                 discoverInfo
                                     = (DiscoverInfo)
-                                        discoverInfoProvider.parseIQ(parser);
+                                        discoverInfoProvider.parse(parser);
                             }
                             catch (Exception ex)
                             {
@@ -580,51 +585,9 @@ public class EntityCapsManager
      */
     private static void cleanupDiscoverInfo(DiscoverInfo info)
     {
-        info.setFrom(null);
-        info.setTo(null);
-        info.setPacketID(null);
-    }
-
-    /**
-     * Gets the features of a specific <tt>DiscoverInfo</tt> in the form of a
-     * read-only <tt>Feature</tt> <tt>Iterator<tt/> by calling the internal
-     * method {@link DiscoverInfo#getFeatures()}.
-     *
-     * @param discoverInfo the <tt>DiscoverInfo</tt> the features of which are
-     * to be retrieved
-     * @return a read-only <tt>Feature</tt> <tt>Iterator</tt> which lists the
-     * features of the specified <tt>discoverInfo</tt>
-     */
-    @SuppressWarnings("unchecked")
-    private static Iterator<DiscoverInfo.Feature> getDiscoverInfoFeatures(
-            DiscoverInfo discoverInfo)
-    {
-        Method getFeaturesMethod;
-
-        try
-        {
-            getFeaturesMethod
-                = DiscoverInfo.class.getDeclaredMethod("getFeatures");
-        }
-        catch (NoSuchMethodException nsmex)
-        {
-            throw new UndeclaredThrowableException(nsmex);
-        }
-        getFeaturesMethod.setAccessible(true);
-        try
-        {
-            return
-                (Iterator<DiscoverInfo.Feature>)
-                    getFeaturesMethod.invoke(discoverInfo);
-        }
-        catch (IllegalAccessException iaex)
-        {
-            throw new UndeclaredThrowableException(iaex);
-        }
-        catch (InvocationTargetException itex)
-        {
-            throw new UndeclaredThrowableException(itex);
-        }
+        info.setFrom((Jid) null);
+        info.setTo((Jid) null);
+        info.setStanzaId(null);
     }
 
     /**
@@ -633,9 +596,9 @@ public class EntityCapsManager
      * @param connection the connection that we'd like this manager to register
      * with.
      */
-    public void addPacketListener(Connection connection)
+    public void addPacketListener(XMPPConnection connection)
     {
-        PacketFilter filter = new PacketTypeFilter(Presence.class);
+        StanzaFilter filter = new StanzaTypeFilter(Presence.class);
 
         connection.addPacketListener(new CapsPacketListener(), filter);
     }
@@ -712,8 +675,7 @@ public class EntityCapsManager
         {
             MessageDigest md = MessageDigest.getInstance(hashAlgorithm);
             byte[] digest = md.digest(capsString.getBytes());
-
-            return Base64.encodeBytes(digest);
+            return java.util.Base64.getEncoder().encodeToString(digest);
         }
         catch (NoSuchAlgorithmException nsae)
         {
@@ -763,7 +725,7 @@ public class EntityCapsManager
 
         // Add identities
         {
-            Iterator<DiscoverInfo.Identity> identities = discoverInfo.getIdentities();
+            Iterator<DiscoverInfo.Identity> identities = discoverInfo.getIdentities().iterator();
             SortedSet<DiscoverInfo.Identity> is
                 = new TreeSet<DiscoverInfo.Identity>(
                         new Comparator<DiscoverInfo.Identity>()
@@ -813,13 +775,16 @@ public class EntityCapsManager
 
         // Add features
         {
-            Iterator<DiscoverInfo.Feature> features
-                = getDiscoverInfoFeatures(discoverInfo);
+            List<Feature> features = discoverInfo.getFeatures();
             SortedSet<String> fs = new TreeSet<String>();
 
             if (features != null)
-                while (features.hasNext())
-                    fs.add(features.next().getVar());
+            {
+                for (Feature f : features)
+                {
+                    fs.add(f.getVar());
+                }
+            }
 
             for (String f : fs)
                 bldr.append(f).append('<');
@@ -847,7 +812,7 @@ public class EntityCapsManager
 
                 FormField formType = null;
 
-                for (Iterator<FormField> fieldsIter = extendedInfo.getFields();
+                for (Iterator<FormField> fieldsIter = extendedInfo.getFields().iterator();
                      fieldsIter.hasNext();)
                 {
                     FormField f = fieldsIter.next();
@@ -859,13 +824,13 @@ public class EntityCapsManager
 
                 // Add FORM_TYPE values
                 if (formType != null)
-                    formFieldValuesToCaps(formType.getValues(), bldr);
+                    formFieldValuesToCaps(formType.getValues().iterator(), bldr);
 
                 // Add the other values
                 for (FormField f : fs)
                 {
                     bldr.append(f.getVariable()).append('<');
-                    formFieldValuesToCaps(f.getValues(), bldr);
+                    formFieldValuesToCaps(f.getValues().iterator(), bldr);
                 }
             }
         }
@@ -885,7 +850,7 @@ public class EntityCapsManager
         setCurrentCapsVersion(
             discoverInfo,
             capsToHash(
-                CapsPacketExtension.HASH_METHOD,
+                "sha-1",
                 calculateEntityCapsString(discoverInfo)));
     }
 
@@ -899,9 +864,7 @@ public class EntityCapsManager
     public void setCurrentCapsVersion(DiscoverInfo discoverInfo,
                                       String capsVersion)
     {
-        Caps caps
-            = new Caps(getNode(), CapsPacketExtension.HASH_METHOD, capsVersion,
-                    null);
+        Caps caps = new Caps(getNode(), "sha-1", capsVersion);
 
         /*
          * DiscoverInfo carries the node and the ver and we're now setting a new
@@ -923,18 +886,17 @@ public class EntityCapsManager
     }
 
     /**
-     * The {@link PacketListener} that will be registering incoming caps.
+     * The {@link StanzaListener} that will be registering incoming caps.
      */
     private class CapsPacketListener
-        implements PacketListener
+        implements StanzaListener
     {
         /**
          * Handles incoming presence packets and maps jids to node#ver strings.
          *
          * @param packet the incoming presence <tt>Packet</tt> to be handled
-         * @see PacketListener#processPacket(Packet)
          */
-        public void processPacket(Packet packet)
+        public void processStanza(Stanza packet)
         {
             // Check it the packet indicates  that the user is online. We
             // will use this information to decide if we're going to send
@@ -943,11 +905,11 @@ public class EntityCapsManager
                 = (packet instanceof Presence)
                         && ((Presence) packet).isAvailable();
 
-            CapsPacketExtension ext
-                = (CapsPacketExtension)
+            CapsExtension ext
+                = (CapsExtension)
                     packet.getExtension(
-                            CapsPacketExtension.ELEMENT_NAME,
-                            CapsPacketExtension.NAMESPACE);
+                            CapsExtension.ELEMENT,
+                            CapsExtension.NAMESPACE);
 
             if(ext != null && online)
             {
@@ -972,8 +934,7 @@ public class EntityCapsManager
 
                 addUserCapsNode(
                         packet.getFrom(),
-                        ext.getNode(), hash, ext.getVersion(),
-                        ext.getExtensions(), online);
+                        ext.getNode(), hash, ext.getVer(), online);
             }
             else if (!online)
             {
@@ -996,9 +957,6 @@ public class EntityCapsManager
         /** The node of this <tt>Caps</tt> value. */
         public final String node;
 
-        /** The ext info of this <tt>Caps</tt> value. */
-        public String ext;
-
         /**
          * The String which is the concatenation of {@link #node} and the
          * {@link #ver} separated by the character '#'. Cached for the sake of
@@ -1017,9 +975,8 @@ public class EntityCapsManager
          * @param hash the hash (algorithm) to be represented by the new
          * instance
          * @param ver the ver to be represented by the new instance
-         * @param ext the ext to be represented by the new instance
          */
-        public Caps(String node, String hash, String ver, String ext)
+        public Caps(String node, String hash, String ver)
         {
             if (node == null)
                 throw new NullPointerException("node");
@@ -1031,7 +988,6 @@ public class EntityCapsManager
             this.node = node;
             this.hash = hash;
             this.ver = ver;
-            this.ext = ext;
 
             this.nodeVer = this.node + '#' + this.ver;
         }

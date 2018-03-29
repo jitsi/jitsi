@@ -19,7 +19,8 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import net.java.sip.communicator.service.protocol.*;
 
-import org.jivesoftware.smack.util.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.parts.*;
 
 /**
  * The Jabber implementation for Volatile Contact
@@ -31,7 +32,7 @@ public class VolatileContactJabberImpl
     /**
      * This contact id
      */
-    private String contactId = null;
+    private Jid contactId = null;
 
     /**
      * Indicates whether the contact is private messaging contact or not.
@@ -50,7 +51,7 @@ public class VolatileContactJabberImpl
      * @param ssclCallback a reference to the ServerStoredContactListImpl
      * instance that created us.
      */
-    VolatileContactJabberImpl(String id,
+    VolatileContactJabberImpl(Jid id,
                               ServerStoredContactListJabberImpl ssclCallback)
     {
         this(id, ssclCallback, false, null);
@@ -64,7 +65,7 @@ public class VolatileContactJabberImpl
      * @param isPrivateMessagingContact if <tt>true</tt> this should be private
      * messaging contact.
      */
-    VolatileContactJabberImpl(String id,
+    VolatileContactJabberImpl(Jid id,
           ServerStoredContactListJabberImpl ssclCallback,
           boolean isPrivateMessagingContact)
     {
@@ -80,7 +81,7 @@ public class VolatileContactJabberImpl
      * messaging contact.
      * @param displayName the display name of the contact
      */
-    VolatileContactJabberImpl(String id,
+    VolatileContactJabberImpl(Jid id,
           ServerStoredContactListJabberImpl ssclCallback,
           boolean isPrivateMessagingContact, String displayName)
     {
@@ -90,16 +91,17 @@ public class VolatileContactJabberImpl
 
         if(this.isPrivateMessagingContact)
         {
-            this.displayName = StringUtils.parseResource(id) + " from " +
-                StringUtils.parseBareAddress(id);
+            this.displayName = id.getResourceOrEmpty() + " from " + id.asBareJid();
             this.contactId = id;
             setJid(id);
         }
         else
         {
-            this.contactId = StringUtils.parseBareAddress(id);
-            this.displayName = (displayName == null)? contactId : displayName;
-            String resource = StringUtils.parseResource(id);
+            this.contactId = id.asBareJid();
+            this.displayName = (displayName == null)
+                ? contactId.toString()
+                : displayName;
+            Resourcepart resource = id.getResourceOrNull();
             if(resource != null)
             {
                 setJid(id);
@@ -113,6 +115,12 @@ public class VolatileContactJabberImpl
      */
     @Override
     public String getAddress()
+    {
+        return contactId.toString();
+    }
+
+    @Override
+    public Jid getAddressAsJid()
     {
         return contactId;
     }
@@ -181,7 +189,6 @@ public class VolatileContactJabberImpl
         if(!isPrivateMessagingContact)
             return getAddress();
 
-
         ChatRoomMemberJabberImpl chatRoomMember = null;
         OperationSetMultiUserChatJabberImpl mucOpSet =
             (OperationSetMultiUserChatJabberImpl)getProtocolProvider()
@@ -189,12 +196,12 @@ public class VolatileContactJabberImpl
         if(mucOpSet != null)
         {
             chatRoomMember = mucOpSet
-                .getChatRoom(StringUtils.parseBareAddress(contactId))
-                .findMemberForNickName(
-                    StringUtils.parseResource(contactId));
+                .getChatRoom(contactId.asBareJid())
+                .findMemberForNickName(contactId.getResourceOrEmpty());
         }
-        return ((chatRoomMember == null)? null : StringUtils.parseBareAddress(
-            chatRoomMember.getJabberID()));
-    }
 
+        return chatRoomMember == null
+            ? null
+            : chatRoomMember.getJabberID().asBareJid().toString();
+    }
 }

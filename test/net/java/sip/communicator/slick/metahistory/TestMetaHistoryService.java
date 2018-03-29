@@ -1027,7 +1027,14 @@ public class TestMetaHistoryService
                 }
             }
             else
-                event.getRequest().rejectFile();
+                try
+                {
+                    event.getRequest().rejectFile();
+                }
+                catch (OperationFailedException e)
+                {
+                    e.printStackTrace();
+                }
         }
 
         public void fileTransferCreated(FileTransferCreatedEvent event)

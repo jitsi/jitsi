@@ -57,11 +57,10 @@ public class JibriStatusPacketExt
 
     static public void registerExtensionProvider()
     {
-        ProviderManager.getInstance().addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ELEMENT_NAME,
                 NAMESPACE,
-                new DefaultPacketExtensionProvider<JibriStatusPacketExt>(
-                        JibriStatusPacketExt.class)
+                new DefaultPacketExtensionProvider<>(JibriStatusPacketExt.class)
         );
     }
 

@@ -20,6 +20,9 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.impl.*;
+import org.jxmpp.stringprep.*;
 
 /**
  * A dummy ContactGroup implementation representing the ContactList root for
@@ -42,10 +45,7 @@ public class RootContactGroupJabberImpl
 
     private boolean isResolved = false;
 
-    /**
-     * An empty list that we use when returning an iterator.
-     */
-    private Map<String, Contact> contacts = new Hashtable<String, Contact>();
+    private Map<Jid, Contact> contacts = new Hashtable<>();
 
     /**
      * The provider.
@@ -98,7 +98,7 @@ public class RootContactGroupJabberImpl
      */
     public void addContact(ContactJabberImpl contact)
     {
-        contacts.put(contact.getAddress(), contact);
+        contacts.put(contact.getAddressAsJid(), contact);
     }
 
     /**
@@ -188,7 +188,14 @@ public class RootContactGroupJabberImpl
      */
     public Contact getContact(String id)
     {
-        return findContact(id);
+        try
+        {
+            return findContact(JidCreate.from(id));
+        }
+        catch (XmppStringprepException e)
+        {
+            return null;
+        }
     }
 
     /**
@@ -199,11 +206,11 @@ public class RootContactGroupJabberImpl
      * @return the <tt>ContactJabberImpl</tt> corresponding to the specified
      * jid or null if no such contact existed.
      */
-    ContactJabberImpl findContact(String id)
+    ContactJabberImpl findContact(Jid id)
     {
         if(id == null)
             return null;
-        return (ContactJabberImpl)contacts.get(id.toLowerCase());
+        return (ContactJabberImpl)contacts.get(id);
     }
 
     /**

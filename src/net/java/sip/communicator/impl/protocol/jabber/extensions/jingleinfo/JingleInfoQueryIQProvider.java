@@ -29,18 +29,18 @@ import org.xmlpull.v1.*;
  * @author Sebastien Vincent
  */
 public class JingleInfoQueryIQProvider
-    implements IQProvider
+    extends IQProvider<JingleInfoQueryIQ>
 {
     /**
      * STUN packet extension provider.
      */
-    private final PacketExtensionProvider stunProvider =
+    private final ExtensionElementProvider stunProvider =
         new StunProvider();
 
     /**
      * Relay packet extension provider.
      */
-    private final PacketExtensionProvider relayProvider =
+    private final ExtensionElementProvider relayProvider =
         new RelayProvider();
 
     /**
@@ -50,9 +50,7 @@ public class JingleInfoQueryIQProvider
      */
     public JingleInfoQueryIQProvider()
     {
-        ProviderManager providerManager = ProviderManager.getInstance();
-
-        providerManager.addExtensionProvider(
+        ProviderManager.addExtensionProvider(
                 ServerPacketExtension.ELEMENT_NAME,
                 ServerPacketExtension.NAMESPACE,
                 new DefaultPacketExtensionProvider
@@ -66,7 +64,8 @@ public class JingleInfoQueryIQProvider
      * @return a new {@link JingleInfoQueryIQ} instance.
      * @throws Exception if an error occurs parsing the XML.
      */
-    public IQ parseIQ(XmlPullParser parser)
+    @Override
+    public JingleInfoQueryIQ parse(XmlPullParser parser, int depth)
         throws Exception
     {
         boolean done = false;
@@ -82,11 +81,11 @@ public class JingleInfoQueryIQProvider
             {
                 if(elementName.equals(StunPacketExtension.ELEMENT_NAME))
                 {
-                    iq.addExtension(stunProvider.parseExtension(parser));
+                    iq.addExtension((StunPacketExtension)stunProvider.parse(parser));
                 }
                 else if(elementName.equals(RelayPacketExtension.ELEMENT_NAME))
                 {
-                    iq.addExtension(relayProvider.parseExtension(parser));
+                    iq.addExtension((RelayPacketExtension)relayProvider.parse(parser));
                 }
             }
             if (eventType == XmlPullParser.END_TAG)

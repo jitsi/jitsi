@@ -3,7 +3,7 @@ mkdir -p $HOME/.sip-communicator/log
 # Get architecture
 ARCH=`uname -m | sed -e s/x86_64/64/ -e s/i.86/32/`
 
-# Additionnal JVM arguments
+# Additional JVM arguments
 CLIENTARGS=""
 
 if [ $ARCH = 32 ]
