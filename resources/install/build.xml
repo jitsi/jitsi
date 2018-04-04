@@ -2460,7 +2460,7 @@
                  value="$(PACKAGE_NAME)"/>
         <replace file="${debianize.dir}/rules"
                  token=" usr/lib/jni/"
-                 value=" usr/share/$(PACKAGE_NAME)/lib/native -Xslickless.jar -Xslick-runner.jar -X-slick.jar -X.svn"/>
+                 value=" usr/share/$(PACKAGE_NAME)/lib/native/"/>
 
         <!-- some libs are not found when adding libmozembed-linux-gtk1.2.so
             and libjdic.so to deb and i386 package fail to build -->
