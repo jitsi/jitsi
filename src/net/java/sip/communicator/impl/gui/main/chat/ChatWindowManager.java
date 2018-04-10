@@ -931,9 +931,9 @@ public class ChatWindowManager
                 new RunChatWindow(metaContact, protocolContact, isSmsMessage));
     }
 
-    public void startChat(String contactString)
+    public boolean startChat(String contactString)
     {
-        startChat(contactString, false);
+        return startChat(contactString, false);
     }
 
     /**
@@ -942,7 +942,7 @@ public class ChatWindowManager
      * @param contactID the contact id to start chat with
      * @param pps the protocol provider
      */
-    public void startChat(String contactID, ProtocolProviderService pps)
+    public boolean startChat(String contactID, ProtocolProviderService pps)
     {
         OperationSetPersistentPresence opSet
             = pps.getOperationSet(OperationSetPersistentPresence.class);
@@ -962,19 +962,20 @@ public class ChatWindowManager
                         "Chat not started. Cannot find metacontact for "
                         + contactID + " and protocol:" + pps);
 
-                    return;
+                    return false;
                 }
 
                 startChat(metaContact, c, false);
-                return;
+                return true;
             }
         }
 
         logger.error("Cannot start chat for " + contactID + " for "
             + pps.getAccountID().getAccountAddress());
+        return false;
     }
 
-    public void startChat(String contactString, boolean isSmsEnabled)
+    public boolean startChat(String contactString, boolean isSmsEnabled)
     {
         List<ProtocolProviderService> imProviders
             = AccountUtils.getRegisteredProviders(
@@ -985,7 +986,9 @@ public class ChatWindowManager
 
         if ((imProviders.size()
             + (smsProviders == null ? 0 : smsProviders.size())) < 1)
-            throw new IllegalStateException("No im or sms providers!");
+        {
+            return false;
+        }
 
         Contact contact = null;
         MetaContactListService metaContactListService
@@ -1036,14 +1039,18 @@ public class ChatWindowManager
                     throw (ThreadDeath) t;
             }
         }
+
         if (startChat)
+        {
             startChat(metaContact, contact, isSmsEnabled);
+            return true;
+        }
         else if(isSmsEnabled)
         {
             // nothing found but we want to send sms, lets check and create
             // the contact as it may not exist
             if(smsProviders == null || smsProviders.size() == 0)
-                return;
+                return false;
 
             OperationSetSmsMessaging smsOpSet
                 = smsProviders.get(0)
@@ -1058,9 +1065,12 @@ public class ChatWindowManager
                 if (metaContact != null)
                 {
                     startChat(metaContact, contact, true);
+                    return true;
                 }
             }
         }
+
+        return false;
     }
 
     /**
