@@ -95,7 +95,7 @@ public class ConfigurationPanel
         cnstrnts.gridx = 1;
         cnstrnts.gridy = 0;
         cnstrnts.weightx = 0;
-        contentPanel.add(defaultProfileComboBox, cnstrnts);
+        //contentPanel.add(defaultProfileComboBox, cnstrnts);
 
         Component preferredKeyFrameRequesterLabel
             = createLineWrapLabel(
