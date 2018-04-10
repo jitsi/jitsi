@@ -206,6 +206,9 @@ public class JingleNodesHarvester
                         localEndPoint);
             IceSocketWrapper stunSocket = cand.getStunSocket(null);
             cand.getStunStack().addSocket(stunSocket);
+
+            component.getComponentSocket()
+                .add(cand.getCandidateIceSocketWrapper());
         }
         catch(Throwable e)
         {
