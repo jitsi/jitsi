@@ -447,7 +447,7 @@ Run_getJavaLibraryPath()
     }
 
     TCHAR javaSharedLibraryPath[MAX_PATH];
-    HRESULT hr = SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, 0, SHGFP_TYPE_CURRENT, javaSharedLibraryPath);
+    HRESULT hr = SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, 0, 0/*SHGFP_TYPE_CURRENT*/, javaSharedLibraryPath);
     if (FAILED(hr))
     {
         return _tcsdup(_T(""));
