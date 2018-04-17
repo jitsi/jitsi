@@ -86,6 +86,12 @@ public class JibriIq
     static final String STREAM_ID_ATTR_NAME = "streamid";
 
     /**
+     * The name of the XML attribute which stores the YouTube
+     * broadcast ID
+     */
+    static final String YOUTUBE_BROADCAST_ID_ATTR_NAME = "you_tube_broadcast_id";
+
+    /**
      * The name of XML attribute which stores the recording mode which can be
      * either 'stream' or 'file'. If the attribute is not present, but
      * {@link #STREAM_ID_ATTR_NAME} is, then it defaults to 'stream'. But if
@@ -139,6 +145,12 @@ public class JibriIq
      * value depends on recording service provider.
      */
     private String streamId = null;
+
+    /**
+     * The YouTube broadcast ID for the currently active stream.  This is combined
+     * with a known URL to generate the URL to view the stream.
+     */
+    private String youTubeBroadcastId = null;
 
     /**
      * The name of the conference room to be recorded.
@@ -195,6 +207,13 @@ public class JibriIq
     }
 
     /**
+     * Returns the value of {@link #YOUTUBE_BROADCAST_ID_ATTR_NAME} attribute.
+     * @return a <tt>String</tt> which contains the value of the
+     * {@link #YOUTUBE_BROADCAST_ID_ATTR_NAME} attribute, or null if empty.
+     */
+    public String getYoutubeBroadcastId() { return youTubeBroadcastId; }
+
+    /**
      * Sets the value for {@link #STREAM_ID_ATTR_NAME} attribute.
      * @param streamId a <tt>String</tt> for the stream id attribute or
      *        <tt>null</tt> to remove it from XML element.
@@ -202,6 +221,16 @@ public class JibriIq
     public void setStreamId(String streamId)
     {
         this.streamId = streamId;
+    }
+
+    /**
+     * Sets the value for {@link #YOUTUBE_BROADCAST_ID_ATTR_NAME} attribute.
+     * @param youTubeBroadcastId a <tt>String</tt> for the stream id attribute or
+     *        <tt>null</tt> to remove it from XML element.
+     */
+    public void setYouTubeBroadcastId(String youTubeBroadcastId)
+    {
+        this.youTubeBroadcastId = youTubeBroadcastId;
     }
 
     /**
@@ -249,6 +278,7 @@ public class JibriIq
 
         xml.optAttribute(ROOM_ATTR_NAME, room);
         xml.optAttribute(STREAM_ID_ATTR_NAME, streamId);
+        xml.optAttribute(YOUTUBE_BROADCAST_ID_ATTR_NAME, youTubeBroadcastId);
         xml.optAttribute(DISPLAY_NAME_ATTR_NAME, displayName);
         xml.optAttribute(SIP_ADDRESS_ATTR_NAME, sipAddress);
 
