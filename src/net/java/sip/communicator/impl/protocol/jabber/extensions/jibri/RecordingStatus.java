@@ -51,6 +51,12 @@ public class RecordingStatus
      */
     private static final String STATUS_ATTRIBUTE = "status";
 
+    /**
+     * The name of the XML attribute which holds the recording mode
+     * (e.g. file recording or live streaming)
+     */
+    private static final String MODE_ATTRIBUTE = "mode";
+
     public RecordingStatus()
     {
         super(NAMESPACE, ELEMENT_NAME);
@@ -74,6 +80,22 @@ public class RecordingStatus
     public void setStatus(JibriIq.Status status)
     {
         setAttribute(STATUS_ATTRIBUTE, String.valueOf(status));
+    }
+
+    public JibriIq.RecordingMode getMode()
+    {
+        String modeAttr = getAttributeAsString(MODE_ATTRIBUTE);
+
+        return JibriIq.RecordingMode.parse(modeAttr);
+    }
+
+    /**
+     * Sets new value for the recording mode
+     * @param mode one of {@link JibriIq.RecordingMode}
+     */
+    public void setMode(JibriIq.RecordingMode mode)
+    {
+        setAttribute(MODE_ATTRIBUTE, String.valueOf(mode));
     }
 
     /**

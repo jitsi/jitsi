@@ -91,6 +91,12 @@ public class JibriIq
      */
     static final String YOUTUBE_BROADCAST_ID_ATTR_NAME = "you_tube_broadcast_id";
 
+
+    /**
+     * The name of the XML attribute which stores the live stream view url
+     */
+    static final String LIVE_STREAM_VIEW_URL_ATTR_NAME = "live_stream_view_url";
+
     /**
      * The name of XML attribute which stores the recording mode which can be
      * either 'stream' or 'file'. If the attribute is not present, but
@@ -151,6 +157,12 @@ public class JibriIq
      * with a known URL to generate the URL to view the stream.
      */
     private String youTubeBroadcastId = null;
+
+    /**
+     * The url that can be used to view the currently active live stream,
+     * if there is one
+     */
+    private String liveStreamViewUrl = null;
 
     /**
      * The name of the conference room to be recorded.
@@ -214,6 +226,12 @@ public class JibriIq
     public String getYoutubeBroadcastId() { return youTubeBroadcastId; }
 
     /**
+     * The url that can be used to view the currently active live stream,
+     * if there is one
+     */
+    public String getLiveStreamViewUrl() { return liveStreamViewUrl; }
+
+    /**
      * Sets the value for {@link #STREAM_ID_ATTR_NAME} attribute.
      * @param streamId a <tt>String</tt> for the stream id attribute or
      *        <tt>null</tt> to remove it from XML element.
@@ -232,6 +250,13 @@ public class JibriIq
     {
         this.youTubeBroadcastId = youTubeBroadcastId;
     }
+
+    /**
+     * Sets the value for {@link #LIVE_STREAM_VIEW_URL_ATTR_NAME} attribute.
+     * @param liveStreamViewUrl a <tt>String</tt> for the live stream view url
+     *                          or <tt>null</tt> to remove it from the XML element
+     */
+    public void setLiveStreamViewUrl(String liveStreamViewUrl) { this.liveStreamViewUrl = liveStreamViewUrl; }
 
     /**
      * Returns the value of {@link #ROOM_ATTR_NAME} attribute.
@@ -279,6 +304,7 @@ public class JibriIq
         xml.optAttribute(ROOM_ATTR_NAME, room);
         xml.optAttribute(STREAM_ID_ATTR_NAME, streamId);
         xml.optAttribute(YOUTUBE_BROADCAST_ID_ATTR_NAME, youTubeBroadcastId);
+        xml.optAttribute(LIVE_STREAM_VIEW_URL_ATTR_NAME, liveStreamViewUrl);
         xml.optAttribute(DISPLAY_NAME_ATTR_NAME, displayName);
         xml.optAttribute(SIP_ADDRESS_ATTR_NAME, sipAddress);
 
