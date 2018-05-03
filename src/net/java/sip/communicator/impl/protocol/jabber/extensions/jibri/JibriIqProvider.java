@@ -88,6 +88,12 @@ public class JibriIqProvider
             if (!StringUtils.isNullOrEmpty(youTubeBroadcastId))
                 iq.setYouTubeBroadcastId(youTubeBroadcastId);
 
+            String sessionId = parser.getAttributeValue("", JibriIq.SESSION_ID_ATTR_NAME);
+            if (!StringUtils.isNullOrEmpty(sessionId))
+            {
+                iq.setSessionId(sessionId);
+            }
+
             String displayName
                 = parser.getAttributeValue("", JibriIq.DISPLAY_NAME_ATTR_NAME);
             if (!StringUtils.isNullOrEmpty(displayName))

@@ -92,6 +92,11 @@ public class JibriIq
     static final String YOUTUBE_BROADCAST_ID_ATTR_NAME = "you_tube_broadcast_id";
 
     /**
+     * The name of the XML attribute which stores the {@link #sessionId}
+     */
+    static final String SESSION_ID_ATTR_NAME = "session_id";
+
+    /**
      * The name of XML attribute which stores the recording mode which can be
      * either 'stream' or 'file'. If the attribute is not present, but
      * {@link #STREAM_ID_ATTR_NAME} is, then it defaults to 'stream'. But if
@@ -151,6 +156,15 @@ public class JibriIq
      * with a known URL to generate the URL to view the stream.
      */
     private String youTubeBroadcastId = null;
+
+    /**
+     * The ID for this Jibri session.  This ID is used to uniquely identify this
+     * session (i.e. this particular file recording or live stream).  It is returned
+     * in the ACK of the initial start request and should be used in all subsequent IQ
+     * messages regarding this session.  When Jibri joins the call, it will use
+     * this same session ID in its presence so that the association can be made
+     */
+    private String sessionId;
 
     /**
      * The name of the conference room to be recorded.
@@ -234,6 +248,18 @@ public class JibriIq
     }
 
     /**
+     * Gets the value of the {@link #SESSION_ID_ATTR_NAME} attribute
+     * @return the session ID
+     */
+    public String getSessionId() { return sessionId; }
+
+    /**
+     * Sets the value of the {@link #SESSION_ID_ATTR_NAME} attribute
+     * @param sessionId the session ID
+     */
+    public void setSessionId(String sessionId) { this.sessionId = sessionId; }
+
+    /**
      * Returns the value of {@link #ROOM_ATTR_NAME} attribute.
      * @return a <tt>String</tt> which contains the value of the room attribute
      *         or <tt>null</tt> if empty.
@@ -281,6 +307,7 @@ public class JibriIq
         xml.optAttribute(YOUTUBE_BROADCAST_ID_ATTR_NAME, youTubeBroadcastId);
         xml.optAttribute(DISPLAY_NAME_ATTR_NAME, displayName);
         xml.optAttribute(SIP_ADDRESS_ATTR_NAME, sipAddress);
+        xml.optAttribute(SESSION_ID_ATTR_NAME, sessionId);
 
         xml.setEmptyElement();
 
@@ -362,6 +389,27 @@ public class JibriIq
     public XMPPError getError()
     {
         return error;
+    }
+
+    public static JibriIq createResult(JibriIq request, String sessionId, JibriIq.Status status) {
+        JibriIq result = new JibriIq();
+        result.setType(IQ.Type.result);
+        result.setStanzaId(request.getStanzaId());
+        result.setTo(request.getFrom());
+        result.setSessionId(sessionId);
+        result.setStatus(status);
+
+        return result;
+    }
+
+    public static JibriIq createResult(JibriIq request, String sessionId) {
+        JibriIq result = new JibriIq();
+        result.setType(IQ.Type.result);
+        result.setStanzaId(request.getStanzaId());
+        result.setTo(request.getFrom());
+        result.setSessionId(sessionId);
+
+        return result;
     }
 
     /**
