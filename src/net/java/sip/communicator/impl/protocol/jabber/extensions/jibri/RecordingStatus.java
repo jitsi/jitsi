@@ -51,6 +51,12 @@ public class RecordingStatus
      */
     private static final String STATUS_ATTRIBUTE = "status";
 
+    /**
+     * The name of the XML attribute which holds the session id
+     * of this status element
+     */
+    private static final String SESSION_ID_ATTRIBUTE = "session-id";
+
     public RecordingStatus()
     {
         super(NAMESPACE, ELEMENT_NAME);
@@ -74,6 +80,20 @@ public class RecordingStatus
     public void setStatus(JibriIq.Status status)
     {
         setAttribute(STATUS_ATTRIBUTE, String.valueOf(status));
+    }
+
+    /**
+     * Returns the session ID stored in this element
+     * @return the session ID
+     */
+    public String getSessionId()
+    {
+        return getAttributeAsString(SESSION_ID_ATTRIBUTE);
+    }
+
+    public void setSessionId(String sessionId)
+    {
+        setAttribute(SESSION_ID_ATTRIBUTE, sessionId);
     }
 
     /**
