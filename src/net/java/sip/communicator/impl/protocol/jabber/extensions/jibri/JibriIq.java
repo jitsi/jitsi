@@ -582,7 +582,7 @@ public class JibriIq
         /**
          * Unknown/uninitialized.
          */
-        UNDEFINED("undefined"),
+        UNDEFINED("undefined");
 
         /**
          * Used by {@link SipGatewayStatus} to signal that there are Jibris
@@ -592,7 +592,7 @@ public class JibriIq
          * Check {@link SipGatewayStatus} and {@link SipCallState} for more
          * info.
          */
-        AVAILABLE("available");
+//        AVAILABLE("available");
 
         /**
          * Status name holder.
