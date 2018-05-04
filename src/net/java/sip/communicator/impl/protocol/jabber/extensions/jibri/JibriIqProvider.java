@@ -94,6 +94,13 @@ public class JibriIqProvider
                 iq.setSessionId(sessionId);
             }
 
+            String failureStr
+                    = parser.getAttributeValue("", JibriIq.FAILURE_REASON_ATTR_NAME);
+            if (!StringUtils.isNullOrEmpty(failureStr))
+            {
+                iq.setFailureReason(JibriIq.FailureReason.parse(failureStr));
+            }
+
             String displayName
                 = parser.getAttributeValue("", JibriIq.DISPLAY_NAME_ATTR_NAME);
             if (!StringUtils.isNullOrEmpty(displayName))
@@ -107,36 +114,6 @@ public class JibriIqProvider
         else
         {
             return null;
-        }
-
-        boolean done = false;
-
-        while (!done)
-        {
-            switch (parser.next())
-            {
-                case XmlPullParser.START_TAG:
-                {
-                    String name = parser.getName();
-
-                    if ("error".equals(name))
-                    {
-                        XMPPError error = PacketParserUtils.parseError(parser).build();
-                        iq.setXMPPError(error);
-                    }
-                    break;
-                }
-                case XmlPullParser.END_TAG:
-                {
-                    String name = parser.getName();
-
-                    if (rootElement.equals(name))
-                    {
-                        done = true;
-                    }
-                    break;
-                }
-            }
         }
 
         return iq;

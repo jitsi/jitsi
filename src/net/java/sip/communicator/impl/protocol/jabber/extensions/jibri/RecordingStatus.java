@@ -51,12 +51,6 @@ public class RecordingStatus
      */
     private static final String STATUS_ATTRIBUTE = "status";
 
-    /**
-     * The name of the XML attribute which holds the session id
-     * of this status element
-     */
-    private static final String SESSION_ID_ATTRIBUTE = "session-id";
-
     public RecordingStatus()
     {
         super(NAMESPACE, ELEMENT_NAME);
@@ -88,12 +82,26 @@ public class RecordingStatus
      */
     public String getSessionId()
     {
-        return getAttributeAsString(SESSION_ID_ATTRIBUTE);
+        return getAttributeAsString(JibriIq.SESSION_ID_ATTR_NAME);
     }
 
     public void setSessionId(String sessionId)
     {
-        setAttribute(SESSION_ID_ATTRIBUTE, sessionId);
+        setAttribute(JibriIq.SESSION_ID_ATTR_NAME, sessionId);
+    }
+
+    public JibriIq.FailureReason getFailureReason()
+    {
+        String failureReasonStr = getAttributeAsString(JibriIq.FAILURE_REASON_ATTR_NAME);
+        return JibriIq.FailureReason.parse(failureReasonStr);
+    }
+
+    public void setFailureReason(JibriIq.FailureReason failureReason)
+    {
+        if (failureReason != null)
+        {
+            setAttribute(JibriIq.FAILURE_REASON_ATTR_NAME, failureReason.toString());
+        }
     }
 
     /**

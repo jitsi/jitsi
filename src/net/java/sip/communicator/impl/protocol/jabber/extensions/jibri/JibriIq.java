@@ -81,6 +81,11 @@ public class JibriIq
     static final String STATUS_ATTR_NAME = "status";
 
     /**
+     * The name of XML attribute which stores the recording status.
+     */
+    static final String FAILURE_REASON_ATTR_NAME = "failure_reason";
+
+    /**
      * The name of XML attribute which stores the stream id.
      */
     static final String STREAM_ID_ATTR_NAME = "streamid";
@@ -126,11 +131,6 @@ public class JibriIq
     private String displayName;
 
     /**
-     * XMPPError stores error details for {@link Status#FAILED}.
-     */
-    private XMPPError error;
-
-    /**
      * The recording mode. See {@link #RECORDING_MODE_ATTR_NAME}.
      */
     private RecordingMode recordingMode = RecordingMode.UNDEFINED;
@@ -144,6 +144,8 @@ public class JibriIq
      * Holds recording status.
      */
     private Status status = Status.UNDEFINED;
+
+    private FailureReason failureReason = null;
 
     /**
      * The ID of the stream which will be used to record the conference. The
@@ -308,6 +310,7 @@ public class JibriIq
         xml.optAttribute(DISPLAY_NAME_ATTR_NAME, displayName);
         xml.optAttribute(SIP_ADDRESS_ATTR_NAME, sipAddress);
         xml.optAttribute(SESSION_ID_ATTR_NAME, sessionId);
+        xml.optAttribute(FAILURE_REASON_ATTR_NAME, failureReason);
 
         xml.setEmptyElement();
 
@@ -369,29 +372,18 @@ public class JibriIq
         return status;
     }
 
-    /**
-     * Sets the <tt>XMPPError</tt> which will provide details about Jibri
-     * failure. It is expected to be set when this IQ's status value is
-     * {@link Status#FAILED}.
-     *
-     * @param error <tt>XMPPError</tt> to be set on this <tt>JibriIq</tt>
-     * instance.
-     */
-    public void setXMPPError(XMPPError error)
+    public void setFailureReason(FailureReason failureReason)
     {
-        this.error = error;
+        this.failureReason = failureReason;
     }
 
-    /**
-     * Returns {@link XMPPError} with Jibri error details when the status is
-     * {@link Status#FAILED}.
-     */
-    public XMPPError getError()
+    public FailureReason getFailureReason()
     {
-        return error;
+        return this.failureReason;
     }
 
-    public static JibriIq createResult(JibriIq request, String sessionId, JibriIq.Status status) {
+    public static JibriIq createResult(JibriIq request, String sessionId, JibriIq.Status status)
+    {
         JibriIq result = new JibriIq();
         result.setType(IQ.Type.result);
         result.setStanzaId(request.getStanzaId());
@@ -402,7 +394,8 @@ public class JibriIq
         return result;
     }
 
-    public static JibriIq createResult(JibriIq request, String sessionId) {
+    public static JibriIq createResult(JibriIq request, String sessionId)
+    {
         JibriIq result = new JibriIq();
         result.setType(IQ.Type.result);
         result.setStanzaId(request.getStanzaId());
@@ -542,6 +535,50 @@ public class JibriIq
         }
     }
 
+    public enum FailureReason
+    {
+        BUSY("busy"),
+        ERROR("error"),
+        UNDEFINED("undefined");
+
+        private String name;
+
+        FailureReason(String name) { this.name = name; }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public String toString()
+        {
+            return name;
+        }
+
+        /**
+         * Parses <tt>Status</tt> from given string.
+         *
+         * @param status the string representation of <tt>Status</tt>.
+         *
+         * @return <tt>Status</tt> value for given string or
+         *         {@link #UNDEFINED} if given string does not
+         *         reflect any of valid values.
+         */
+        public static FailureReason parse(String status)
+        {
+            if (StringUtils.isNullOrEmpty(status))
+                return UNDEFINED;
+
+            try
+            {
+                return FailureReason.valueOf(status.toUpperCase());
+            }
+            catch(IllegalArgumentException e)
+            {
+                return UNDEFINED;
+            }
+        }
+    }
+
     /**
      * The enumeration of recording status values.
      */
@@ -563,36 +600,9 @@ public class JibriIq
         PENDING("pending"),
 
         /**
-         * The recorder has failed and the service is retrying on another
-         * instance.
-         */
-        RETRYING("retrying"),
-
-        /**
-         * An error occurred any point during startup, recording or shutdown.
-         */
-        FAILED("failed"),
-
-        /**
-         * There are Jibri instances connected to the system, but all of them
-         * are currently busy.
-         */
-        BUSY("busy"),
-
-        /**
          * Unknown/uninitialized.
          */
         UNDEFINED("undefined");
-
-        /**
-         * Used by {@link SipGatewayStatus} to signal that there are Jibris
-         * available. SIP gateway does not use ON, OFF, PENDING nor RETRYING
-         * states, because gateway availability and each SIP call's states are
-         * signalled separately.
-         * Check {@link SipGatewayStatus} and {@link SipCallState} for more
-         * info.
-         */
-//        AVAILABLE("available");
 
         /**
          * Status name holder.
