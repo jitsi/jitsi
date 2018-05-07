@@ -81,7 +81,7 @@ public class JibriIq
     static final String STATUS_ATTR_NAME = "status";
 
     /**
-     * The name of XML attribute which stores the recording status.
+     * The name of XML attribute which stores the optional failure reason
      */
     static final String FAILURE_REASON_ATTR_NAME = "failure_reason";
 
@@ -145,6 +145,10 @@ public class JibriIq
      */
     private Status status = Status.UNDEFINED;
 
+    /**
+     * An optional description for the 'OFF' state which can be used
+     * to describe an 'unclean' to transition to off (e.g. 'error')
+     */
     private FailureReason failureReason = null;
 
     /**
@@ -160,13 +164,14 @@ public class JibriIq
     private String youTubeBroadcastId = null;
 
     /**
-     * The ID for this Jibri session.  This ID is used to uniquely identify this
-     * session (i.e. this particular file recording or live stream).  It is returned
-     * in the ACK of the initial start request and should be used in all subsequent IQ
-     * messages regarding this session.  When Jibri joins the call, it will use
-     * this same session ID in its presence so that the association can be made
+     * The ID for this Jibri session.  This ID is used to uniquely identify
+     * this session (i.e. this particular file recording, live stream or
+     * SIP call).  It is returned in the ACK of the initial start request
+     * and should be used in all subsequent IQ messages regarding this
+     * session.  When Jibri joins the call, it will use this same
+     * session ID in its presence so that the association can be made
      */
-    private String sessionId;
+    private String sessionId = null;
 
     /**
      * The name of the conference room to be recorded.
@@ -382,6 +387,7 @@ public class JibriIq
         return this.failureReason;
     }
 
+    //TODO: think this can go away.  verify.
     public static JibriIq createResult(JibriIq request, String sessionId, JibriIq.Status status)
     {
         JibriIq result = new JibriIq();
