@@ -94,6 +94,17 @@ public class RecordingStatus
         setAttribute(JibriIq.SESSION_ID_ATTR_NAME, sessionId);
     }
 
+    public JibriIq.RecordingMode getRecordingMode()
+    {
+        String recordingMode = getAttributeAsString(JibriIq.RECORDING_MODE_ATTR_NAME);
+        return JibriIq.RecordingMode.parse(recordingMode);
+    }
+
+    public void setRecordingMode(JibriIq.RecordingMode recordingMode)
+    {
+        setAttribute(JibriIq.RECORDING_MODE_ATTR_NAME, recordingMode.toString());
+    }
+
     /**
      * Get the failure reason in this status, or UNDEFINED if there isn't one
      * @return the failure reason
