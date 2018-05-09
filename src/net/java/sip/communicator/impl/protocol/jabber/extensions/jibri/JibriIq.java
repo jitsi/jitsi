@@ -169,7 +169,8 @@ public class JibriIq
      * SIP call).  It is returned in the ACK of the initial start request
      * and should be used in all subsequent IQ messages regarding this
      * session.  When Jibri joins the call, it will use this same
-     * session ID in its presence so that the association can be made
+     * session ID in its presence so that an association can be made
+     * between this signaling flow and the Jibri client.
      */
     private String sessionId = null;
 
@@ -385,19 +386,6 @@ public class JibriIq
     public FailureReason getFailureReason()
     {
         return this.failureReason;
-    }
-
-    //TODO: think this can go away.  verify.
-    public static JibriIq createResult(JibriIq request, String sessionId, JibriIq.Status status)
-    {
-        JibriIq result = new JibriIq();
-        result.setType(IQ.Type.result);
-        result.setStanzaId(request.getStanzaId());
-        result.setTo(request.getFrom());
-        result.setSessionId(sessionId);
-        result.setStatus(status);
-
-        return result;
     }
 
     public static JibriIq createResult(JibriIq request, String sessionId)
