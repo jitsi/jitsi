@@ -974,6 +974,8 @@ public class ProtocolProviderServiceJabberImpl
             | InterruptedException
             | SmackException ex)
         {
+            logger.error("Failed to connect to XMPP service", ex);
+
             // server disconnect us after such an error, do cleanup
             disconnectAndCleanConnection();
 
@@ -1145,25 +1147,9 @@ public class ProtocolProviderServiceJabberImpl
             disconnectAndCleanConnection();
         }
 
-        if (isBosh)
-        {
-            connection =
-                new XMPPBOSHConnection((BOSHConfiguration) confConn.build());
-        }
-        else
-        {
-            connection =
-                new XMPPTCPConnection(
-                    (XMPPTCPConnectionConfiguration) confConn.build());
-        }
-
-        ReconnectionManager.getInstanceFor(connection).disableAutomaticReconnection();
-        this.address = address;
-
         try
         {
-            CertificateService cvs =
-                getCertificateVerificationService();
+            CertificateService cvs = getCertificateVerificationService();
             if(cvs != null)
             {
                 SSLContext sslContext = loginStrategy.createSslContext(cvs,
@@ -1195,6 +1181,16 @@ public class ProtocolProviderServiceJabberImpl
                 }
 
                 confConn.setCustomSSLContext(sslContext);
+                confConn.setHostnameVerifier(new HostnameVerifier()
+                {
+                    @Override
+                    public boolean verify(String hostname, SSLSession session)
+                    {
+                        // this is safe because our ssl context already
+                        // verified the hostname!
+                        return true;
+                    }
+                });
             }
             else if (loginStrategy.isTlsRequired())
                 throw new JitsiXmppException(
@@ -1206,6 +1202,21 @@ public class ProtocolProviderServiceJabberImpl
             logger.error("Error creating custom trust manager", e);
             throw new JitsiXmppException("Error creating custom trust manager", e);
         }
+
+        if (isBosh)
+        {
+            connection =
+                new XMPPBOSHConnection((BOSHConfiguration) confConn.build());
+        }
+        else
+        {
+            connection =
+                new XMPPTCPConnection(
+                    (XMPPTCPConnectionConfiguration) confConn.build());
+        }
+
+        ReconnectionManager.getInstanceFor(connection).disableAutomaticReconnection();
+        this.address = address;
 
         if(debugger == null)
         {
@@ -1219,6 +1230,7 @@ public class ProtocolProviderServiceJabberImpl
             connection.addPacketInterceptor(debugger.outbound, null);
         }
 
+        connection.setReplyTimeout(30000);
         connection.connect();
 
         setTrafficClass();
