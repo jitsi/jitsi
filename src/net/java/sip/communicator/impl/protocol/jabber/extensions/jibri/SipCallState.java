@@ -30,9 +30,8 @@ import java.util.*;
  * Status meaning:
  * <tt>{@link JibriIq.Status#PENDING}</tt> - (initial) SIP call is being started
  * <tt>{@link JibriIq.Status#ON}</tt> - SIP call in progress
- * <tt>{@link JibriIq.Status#OFF}</tt> - SIP call has been stopped
- * <tt>{@link JibriIq.Status#FAILED}</tt> - SIP call has failed, check
- * {@link #getError()} for more details about the error
+ * <tt>{@link JibriIq.Status#OFF}</tt> - SIP call has been stopped.  If it was
+ * not a graceful transition to OFF, a FailureReason will also be given
  *
  * @author Pawel Domas
  */
@@ -104,52 +103,42 @@ public class SipCallState
     }
 
     /**
-     * Returns <tt>XMPPError</tt> associated with current {@link SipCallState}.
-     * Makes sense only for FAILED.
+     * Returns the session ID stored in this element
+     * @return the session ID
      */
-    public XMPPError getError()
+    public String getSessionId()
     {
-        XMPPErrorPE errorPe = getErrorPE();
-        return errorPe != null ? errorPe.getError() : null;
+        return getAttributeAsString(JibriIq.SESSION_ID_ATTR_NAME);
     }
 
     /**
-     * Gets <tt>{@link XMPPErrorPE}</tt> from the list of child packet
-     * extensions.
-     * @return {@link XMPPErrorPE} or <tt>null</tt> if not found.
+     * Set the session ID for this recording status element
+     * @param sessionId the session ID
      */
-    private XMPPErrorPE getErrorPE()
+    public void setSessionId(String sessionId)
     {
-        List<? extends ExtensionElement> errorPe
-            = getChildExtensionsOfType(XMPPErrorPE.class);
-
-        return (XMPPErrorPE) (!errorPe.isEmpty() ? errorPe.get(0) : null);
+        setAttribute(JibriIq.SESSION_ID_ATTR_NAME, sessionId);
     }
 
     /**
-     * Sets <tt>XMPPError</tt> on this <tt>SipCallState</tt>. Doing this only
-     * makes sense for FAILED state. Otherwise the value will probably be
-     * ignored.
-     * @param error <tt>XMPPError</tt> to add error details to this
-     * <tt>SipCallState</tt> instance or <tt>null</tt> to have it removed.
+     * Get the failure reason in this status, or UNDEFINED if there isn't one
+     * @return the failure reason
      */
-    public void setError(XMPPError error)
+    public JibriIq.FailureReason getFailureReason()
     {
-        if (error != null)
+        String failureReasonStr = getAttributeAsString(JibriIq.FAILURE_REASON_ATTR_NAME);
+        return JibriIq.FailureReason.parse(failureReasonStr);
+    }
+
+    /**
+     * Set the failure reason in this status
+     * @param failureReason the failure reason
+     */
+    public void setFailureReason(JibriIq.FailureReason failureReason)
+    {
+        if (failureReason != null)
         {
-            // Wrap and add XMPPError as packet extension
-            XMPPErrorPE errorPe = getErrorPE();
-            if (errorPe == null)
-            {
-                errorPe = new XMPPErrorPE(error);
-                addChildExtension(errorPe);
-            }
-            errorPe.setError(error);
-        }
-        else
-        {
-            // Remove error PE
-            getChildExtensions().remove(getErrorPE());
+            setAttribute(JibriIq.FAILURE_REASON_ATTR_NAME, failureReason.toString());
         }
     }
 }

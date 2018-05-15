@@ -77,6 +77,57 @@ public class RecordingStatus
     }
 
     /**
+     * Returns the session ID stored in this element
+     * @return the session ID
+     */
+    public String getSessionId()
+    {
+        return getAttributeAsString(JibriIq.SESSION_ID_ATTR_NAME);
+    }
+
+    /**
+     * Set the session ID for this recording status element
+     * @param sessionId the session ID
+     */
+    public void setSessionId(String sessionId)
+    {
+        setAttribute(JibriIq.SESSION_ID_ATTR_NAME, sessionId);
+    }
+
+    public JibriIq.RecordingMode getRecordingMode()
+    {
+        String recordingMode = getAttributeAsString(JibriIq.RECORDING_MODE_ATTR_NAME);
+        return JibriIq.RecordingMode.parse(recordingMode);
+    }
+
+    public void setRecordingMode(JibriIq.RecordingMode recordingMode)
+    {
+        setAttribute(JibriIq.RECORDING_MODE_ATTR_NAME, recordingMode.toString());
+    }
+
+    /**
+     * Get the failure reason in this status, or UNDEFINED if there isn't one
+     * @return the failure reason
+     */
+    public JibriIq.FailureReason getFailureReason()
+    {
+        String failureReasonStr = getAttributeAsString(JibriIq.FAILURE_REASON_ATTR_NAME);
+        return JibriIq.FailureReason.parse(failureReasonStr);
+    }
+
+    /**
+     * Set the failure reason in this status
+     * @param failureReason the failure reason
+     */
+    public void setFailureReason(JibriIq.FailureReason failureReason)
+    {
+        if (failureReason != null)
+        {
+            setAttribute(JibriIq.FAILURE_REASON_ATTR_NAME, failureReason.toString());
+        }
+    }
+
+    /**
      * Returns <tt>XMPPError</tt> associated with current
      * {@link RecordingStatus}.
      */
