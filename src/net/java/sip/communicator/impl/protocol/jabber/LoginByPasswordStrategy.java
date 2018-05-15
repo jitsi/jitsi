@@ -96,7 +96,8 @@ public class LoginByPasswordStrategy
     public boolean login(AbstractXMPPConnection connection, EntityFullJid jid)
         throws XMPPException, InterruptedException, IOException, SmackException
     {
-        connection.login(jid.asEntityBareJidString(), password, jid.getResourceOrEmpty());
+        connection.login(
+            jid.getLocalpart(), password, jid.getResourceOrEmpty());
         return true;
     }
 
