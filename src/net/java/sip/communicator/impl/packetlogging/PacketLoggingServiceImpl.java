@@ -758,9 +758,11 @@ public class PacketLoggingServiceImpl
                        int packetLength)
         {
             this.protocol = protocol;
-            this.sourceAddress = sourceAddress;
+            this.sourceAddress
+                = sourceAddress != null ? sourceAddress : new byte[4];
             this.sourcePort = sourcePort;
-            this.destinationAddress = destinationAddress;
+            this.destinationAddress
+                = destinationAddress != null ? destinationAddress : new byte[4];
             this.destinationPort = destinationPort;
             this.transport = transport;
             this.sender = sender;
