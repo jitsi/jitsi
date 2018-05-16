@@ -153,6 +153,10 @@ public class JabberActivator
     public void start(BundleContext context) throws Exception
     {
         SmackConfiguration.DEBUG = true;
+        // Disables unused class, throwing some errors on login (disco-info)
+        SmackConfiguration.addDisabledSmackClass(
+            "org.jivesoftware.smackx.httpfileupload.HttpFileUploadManager");
+
         JabberActivator.bundleContext = context;
 
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
