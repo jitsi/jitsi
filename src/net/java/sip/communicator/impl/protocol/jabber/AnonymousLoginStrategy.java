@@ -96,7 +96,7 @@ public class AnonymousLoginStrategy
         X509ExtendedTrustManager trustManager)
         throws GeneralSecurityException
     {
-        return null;
+        return certificateService.getSSLContext(trustManager);
     }
 
     @Override

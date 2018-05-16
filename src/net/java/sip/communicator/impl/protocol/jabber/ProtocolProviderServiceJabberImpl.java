@@ -1114,8 +1114,40 @@ public class ProtocolProviderServiceJabberImpl
         confConn.setXmppDomain(serviceName);
         if (isBosh)
         {
-            confConn.setHost(boshURL);
-            // FIXME use setHostAddress, use proxy
+            BOSHConfiguration.Builder boshConfConnBuilder =
+                (BOSHConfiguration.Builder)confConn;
+
+            try
+            {
+                URI boshURI = new URI(boshURL);
+                boolean useHttps = boshURI.getScheme().equals("https");
+
+                int port = boshURI.getPort();
+                if (port == -1)
+                {
+                    port = useHttps ? 443 : 80;
+                }
+
+                String file = boshURI.getPath();
+                String query = boshURI.getQuery();
+                if (!StringUtils.isNullOrEmpty(query))
+                {
+                    file += "?" + query;
+                }
+
+                boshConfConnBuilder
+                    .setUseHttps(useHttps)
+                    .setFile(file)
+                    .setPort(port)
+                    .setHost(boshURI.getHost())
+                    .setProxyInfo(proxy);
+            }
+            catch (URISyntaxException e)
+            {
+                throw new JitsiXmppException(
+                    "Fail setting bosh URL to XMPPBOSHConnection configuration",
+                    e);
+            }
         }
         else
         {
@@ -1757,6 +1789,11 @@ public class ProtocolProviderServiceJabberImpl
                 AvatarUrl.ELEMENT_NAME,
                 AvatarUrl.NAMESPACE,
                 new AvatarUrl.Provider());
+
+            ProviderManager.addExtensionProvider(
+                StatsId.ELEMENT_NAME,
+                StatsId.NAMESPACE,
+                new StatsId.Provider());
 
             //initialize the telephony operation set
             boolean isCallingDisabled
