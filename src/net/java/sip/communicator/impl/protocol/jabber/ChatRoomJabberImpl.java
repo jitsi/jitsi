@@ -196,6 +196,13 @@ public class ChatRoomJabberImpl
     private ChatRoomPresenceListener presenceListener = null;
 
     /**
+     * The list of {@link ChatRoomPresenceListenerExtender} to call whenever
+     * a new presence is retrieved in the {@link ChatRoomPresenceListener}
+     */
+    private final List<ChatRoomPresenceListenerExtender>
+        chatRoomPresenceListenerExtenders = new ArrayList<>();
+
+    /**
      * Creates an instance of a chat room that has been.
      *
      * @param multiUserChat MultiUserChat
@@ -3187,6 +3194,72 @@ public class ChatRoomJabberImpl
             {
                 member.setStatisticsID(statsId.getStatsId());
             }
+
+            synchronized (chatRoomPresenceListenerExtenders)
+            {
+                chatRoomPresenceListenerExtenders.forEach(extender ->
+                    extender.readPresenceAndModifyMember(presence, member)
+                );
+            }
+        }
+    }
+
+    /**
+     * Enables adding extensions to the presence of the {@link ChatRoom} without
+     * explicitly adding getters and setters for the values stored in these
+     * extensions but instead giving a {@link ChatRoomPresenceListenerExtender}
+     * which handles the logic of reading the values and storing them in the
+     * {@link ChatRoomMemberJabberImpl} by using for example
+     * {@link ChatRoomMemberJabberImpl#setValue(String, Object)}
+     */
+    public interface ChatRoomPresenceListenerExtender
+    {
+
+        /**
+         * Read a {@link Presence} and retrieve the associated
+         * {@link ChatRoomMemberJabberImpl} to potentially modify
+         *
+         * @param presence the presence
+         * @param member the member associated with the presence
+         */
+        void readPresenceAndModifyMember(Presence presence,
+                                         ChatRoomMemberJabberImpl member);
+
+    }
+
+    /**
+     * Add a {@link ChatRoomPresenceListenerExtender} which will be called
+     * whenever the {@link ChatRoomPresenceListener} has a {@link Presence} to
+     * process with
+     * {@link ChatRoomPresenceListener#processOtherPresence(Presence)}
+     *
+     * @param extender the {@link ChatRoomPresenceListenerExtender} to add
+     */
+    public void addChatRoomPresenceListenerExtender(
+        ChatRoomPresenceListenerExtender extender)
+    {
+        synchronized (this.chatRoomPresenceListenerExtenders)
+        {
+            if(!this.chatRoomPresenceListenerExtenders.contains(extender))
+            {
+                this.chatRoomPresenceListenerExtenders.add(extender);
+            }
+        }
+    }
+
+    /**
+     * Remove a {@link ChatRoomPresenceListenerExtender} previously added by
+     * using {@link this#addChatRoomPresenceListenerExtender(
+     * ChatRoomPresenceListenerExtender)}
+     *
+     * @param extender the {@link ChatRoomPresenceListenerExtender} to remove
+     */
+    public void removeChatRoomPresenceListenerExtender(
+        ChatRoomPresenceListenerExtender extender)
+    {
+        synchronized (this.chatRoomPresenceListenerExtenders)
+        {
+            this.chatRoomPresenceListenerExtenders.remove(extender);
         }
     }
 
