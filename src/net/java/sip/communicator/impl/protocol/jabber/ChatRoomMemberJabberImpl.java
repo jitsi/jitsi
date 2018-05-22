@@ -26,8 +26,6 @@ import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.*;
 import org.jxmpp.jid.parts.Resourcepart;
 
-import java.util.*;
-
 /**
  * A Jabber implementation of the chat room member.
  *
@@ -90,14 +88,6 @@ public class ChatRoomMemberJabberImpl
     private String displayName;
 
     /**
-     * A map to store {@link Object}s. Along with the provided methods
-     * {@link this#setValue(String, Object)} and {@link this#getValue(String)},
-     * this map prevents adding a getter/setter for each value which we want to
-     * associate with this {@link ChatRoomMember}.
-     */
-    private final Map<String, Object> valueMap = new HashMap<>();
-
-    /**
      * Creates a jabber chat room member with the specified containing chat
      * room parent.
      * @param containingChatRoom the room that this
@@ -132,7 +122,6 @@ public class ChatRoomMemberJabberImpl
         // just query the stack for role, if its present will be set
         getRole();
     }
-
     /**
      * Returns the chat room that this member is participating in.
      *
@@ -378,27 +367,5 @@ public class ChatRoomMemberJabberImpl
     void setStatisticsID(String id)
     {
         this.statisticsID = id;
-    }
-
-    /**
-     * Store a value associated with this {@link ChatRoomMember}.
-     *
-     * @param key the key to retrieve the stored value in the future
-     * @param value the value to store
-     */
-    public void setValue(String key, Object value)
-    {
-        this.valueMap.put(key, value);
-    }
-
-    /**
-     * Get a value previously stored by using
-     * {@link this#setValue(String, Object)}
-     *
-     * @param key the key which was used to store the value
-     */
-    public Object getValue(String key)
-    {
-        return this.valueMap.get(key);
     }
 }
