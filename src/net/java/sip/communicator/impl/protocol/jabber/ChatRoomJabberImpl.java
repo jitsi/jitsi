@@ -3198,10 +3198,33 @@ public class ChatRoomJabberImpl
             synchronized (chatRoomPresenceListenerExtenders)
             {
                 chatRoomPresenceListenerExtenders.forEach(extender ->
-                    extender.memberPresenceUpdated(presence, member)
+                    extender.readPresenceAndModifyMember(presence, member)
                 );
             }
         }
+    }
+
+    /**
+     * Enables adding extensions to the presence of the {@link ChatRoom} without
+     * explicitly adding getters and setters for the values stored in these
+     * extensions but instead giving a {@link ChatRoomPresenceListenerExtender}
+     * which handles the logic of reading the values and storing them in the
+     * {@link ChatRoomMemberJabberImpl} by using for example
+     * {@link ChatRoomMemberJabberImpl#setValue(String, Object)}
+     */
+    public interface ChatRoomPresenceListenerExtender
+    {
+
+        /**
+         * Read a {@link Presence} and retrieve the associated
+         * {@link ChatRoomMemberJabberImpl} to potentially modify
+         *
+         * @param presence the presence
+         * @param member the member associated with the presence
+         */
+        void readPresenceAndModifyMember(Presence presence,
+                                         ChatRoomMemberJabberImpl member);
+
     }
 
     /**
