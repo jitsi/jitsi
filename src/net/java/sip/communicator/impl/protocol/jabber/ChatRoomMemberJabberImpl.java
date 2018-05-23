@@ -20,7 +20,10 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.jabber.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
+import net.java.sip.communicator.service.protocol.event.*;
 
+import net.java.sip.communicator.util.*;
+import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.muc.*;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.*;
@@ -32,6 +35,7 @@ import org.jxmpp.jid.parts.Resourcepart;
  * @author Emil Ivov
  */
 public class ChatRoomMemberJabberImpl
+    extends DataObject
     implements JabberChatRoomMember
 {
     /**
@@ -86,6 +90,12 @@ public class ChatRoomMemberJabberImpl
      * The display name of this {@link ChatRoomMember}.
      */
     private String displayName;
+
+    /**
+     * Store the last {@link Presence} which was used to cause a
+     * {@link ChatRoomMemberPresenceChangeEvent#MEMBER_UPDATED}
+     */
+    private Presence lastPresence = null;
 
     /**
      * Creates a jabber chat room member with the specified containing chat
@@ -367,5 +377,27 @@ public class ChatRoomMemberJabberImpl
     void setStatisticsID(String id)
     {
         this.statisticsID = id;
+    }
+
+    /**
+     * Set the {@link Presence} which is going to cause a
+     * {@link ChatRoomMemberPresenceChangeEvent#MEMBER_UPDATED}
+     *
+     * @param presence the presence
+     */
+    public void setLastPresence(Presence presence)
+    {
+        lastPresence = presence;
+    }
+
+    /**
+     * Get the {@link Presence} which has caused a
+     * {@link ChatRoomMemberPresenceChangeEvent#MEMBER_UPDATED} event
+     *
+     * @return the presence
+     */
+    public Presence getLastPresence()
+    {
+        return lastPresence;
     }
 }
