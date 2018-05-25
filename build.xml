@@ -872,6 +872,7 @@
             <sysproperty key="user.language" value="${user.language}" />
             <sysproperty key="user.country" value="${user.country}" />
             <sysproperty key="user.variant" value="${user.variant}" />
+            <sysproperty key="sun.java2d.uiScale" value="2" />
 
             <!-- make sure that we automatically enable system.out when running
                  Jitsi from Ant-->

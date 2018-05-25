@@ -866,7 +866,8 @@ public class UIServiceImpl
          * Attempt to use the OS-native LookAndFeel instead of
          * SIPCommLookAndFeel.
          */
-        String laf = UIManager.getSystemLookAndFeelClassName();
+        // https://bugs.openjdk.java.net/browse/JDK-8058742
+        String laf = UIManager.getCrossPlatformLookAndFeelClassName();
         boolean lafIsSet = false;
 
         /*
