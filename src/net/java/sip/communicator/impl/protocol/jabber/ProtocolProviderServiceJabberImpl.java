@@ -1795,6 +1795,18 @@ public class ProtocolProviderServiceJabberImpl
                 StatsId.NAMESPACE,
                 new StatsId.Provider());
 
+            ProviderManager.addExtensionProvider(
+                StrideIdentityPresenceExtension.ELEMENT_NAME,
+                StrideIdentityPresenceExtension.NAME_SPACE,
+                new StrideIdentityPresenceExtension.Provider()
+            );
+
+            ProviderManager.addExtensionProvider(
+                AvatarIdPresenceExtension.ELEMENT_NAME,
+                AvatarIdPresenceExtension.NAME_SPACE,
+                new AvatarIdPresenceExtension.Provider()
+            );
+
             //initialize the telephony operation set
             boolean isCallingDisabled
                 = JabberActivator.getConfigurationService()
