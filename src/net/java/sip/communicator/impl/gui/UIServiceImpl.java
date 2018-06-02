@@ -23,6 +23,7 @@ import java.beans.*;
 import java.lang.ref.*;
 import java.util.*;
 import java.util.List;
+import java.util.Timer;
 
 import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -214,6 +215,8 @@ public class UIServiceImpl
             = KeyboardFocusManager.getCurrentKeyboardFocusManager();
         focusManager.addKeyEventDispatcher(
                 new KeyBindingsDispatching(focusManager));
+
+        maybeShowMasterPasswordMissingWarningDialog();
     }
 
     /**
@@ -439,7 +442,7 @@ public class UIServiceImpl
      * possible and the option to minimize is not selected, the application
      * gets hidden on clicking 'X'.
      * 
-     * @param true if a tray icon was loaded.
+     * @param canHide true if a tray icon was loaded.
      */
     public void setMainWindowCanHide(boolean canHide)
     {
@@ -1664,5 +1667,68 @@ public class UIServiceImpl
         }
 
         GuiActivator.getSystrayService().setNotificationCount(count);
+    }
+
+    /**
+     * Schedules a dialog to be shown to user after some time to warn him that
+     * master password is not enabled.
+     */
+    private void maybeShowMasterPasswordMissingWarningDialog()
+    {
+        // is user do not want to be bodered with this dialog skip
+        // or if user is already using master password
+        if (GuiActivator.getCredentialsStorageService().isUsingMasterPassword()
+            || !ConfigurationUtils.showMasterPasswordWarning())
+        {
+            return;
+        }
+
+        // give some time UI to load before showing another dialog
+        new Timer().schedule(new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                if(!SwingUtilities.isEventDispatchThread())
+                {
+                    SwingUtilities.invokeLater(this);
+                    return;
+                }
+
+                ResourceManagementService i18n = GuiActivator.getResources();
+                MessageDialog dialog = new MessageDialog(
+                    mainFrame,
+                    i18n.getI18NString("plugin.securityconfig.masterpassword"
+                        + ".USE_MASTER_PASSWORD"),
+                    i18n.getI18NString("plugin.securityconfig.masterpassword"
+                        + ".NO_MP_WARNING"),
+                    null,
+                    true);
+
+                switch (dialog.showDialog())
+                {
+                case MessageDialog.OK_DONT_ASK_CODE:
+                    ConfigurationUtils.setShowMasterPasswordWarning(false);
+                    // do fall through
+
+                case MessageDialog.OK_RETURN_CODE:
+                    // open configuration of master password
+                    ConfigurationContainer configContainer
+                        = getConfigurationContainer();
+                    ConfigurationForm configForm
+                        = ConfigFormUtils.getConfigForm(
+                        ConfigurationForm.GENERAL_TYPE,
+                        "net.java.sip.communicator.plugin.securityconfig"
+                            + ".SecurityConfigurationPanel");
+
+                    if (configForm != null)
+                    {
+                        configContainer.setSelected(configForm);
+                        configContainer.setVisible(true);
+                    }
+                    break;
+                }
+            }
+        }, 10000);
     }
 }

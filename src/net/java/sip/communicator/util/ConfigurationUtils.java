@@ -412,6 +412,20 @@ public class ConfigurationUtils
         = "plugin.chatalerter.ENABLED";
 
     /**
+     * The name of the property which indicates whether the user should be
+     * warned that master password is not set.
+     */
+    private static final String MASTER_PASS_WARNING_PROP
+        = "net.java.sip.communicator.impl.gui.main"
+            + ".SHOW_MASTER_PASSWORD_WARNING";
+
+    /**
+     * Indicates whether the user should be warned
+     * that master password is not set.
+     */
+    private static boolean showMasterPasswordWarning;
+
+    /**
      * Indicates if window (task bar or dock icon) alerter is enabled.
      */
     private static boolean alerterEnabled;
@@ -963,6 +977,9 @@ public class ConfigurationUtils
             SMS_MSG_NOTIFY_TEXT_DISABLED_PROP,
             isSmsNotifyTextDisabled
         );
+
+        showMasterPasswordWarning
+            = configService.getBoolean(MASTER_PASS_WARNING_PROP, true);
     }
 
     private static boolean isPinnedToTaskBar()
@@ -1929,6 +1946,25 @@ public class ConfigurationUtils
     public static boolean isHideDomainInReceivedCallDialogEnabled()
     {
         return isHideDomainInReceivedCallDialogEnabled;
+    }
+
+    /**
+     * Whether to show or not the master password warning.
+     * @return <code>true</code> to show it, and <code>false</code> otherwise.
+     */
+    public static boolean showMasterPasswordWarning()
+    {
+        return showMasterPasswordWarning;
+    }
+
+    /**
+     * Updates the value of whether to show master password warning.
+     * @param value the new value to set.
+     */
+    public static void setShowMasterPasswordWarning(boolean value)
+    {
+        showMasterPasswordWarning = value;
+        configService.setProperty(MASTER_PASS_WARNING_PROP, value);
     }
 
     /**
