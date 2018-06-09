@@ -235,36 +235,57 @@ public class StrideIdentityPresenceExtension
                                                      int depth)
             throws Exception
         {
+            String currentTag = parser.getName();
+
+            if (!NAME_SPACE.equals(parser.getNamespace()))
+            {
+                return null;
+            }
+            else if (!ELEMENT_NAME.equals(currentTag))
+            {
+                return null;
+            }
+
             String userId = null;
             String userName = null;
             String userAvatarUrl = null;
             String groupId = null;
 
-            // Advance to end of extension, while storing information along the
-            // way
-            while (parser.getEventType() != XmlPullParser.END_DOCUMENT)
+            do
             {
                 parser.next();
 
-                if (parser.getEventType() == XmlPullParser.TEXT)
+                if (parser.getEventType() == XmlPullParser.START_TAG)
                 {
-                    switch (parser.getName())
+                    currentTag = parser.getName();
+                }
+                else if(parser.getEventType() == XmlPullParser.TEXT)
+                {
+                    switch (currentTag)
                     {
-                    case USER_AVATAR_URL_ELEMENT_NAME:
-                        userAvatarUrl = parser.getText();
-                        break;
-                    case USER_ID_ELEMENT_NAME:
-                        userId = parser.getText();
-                        break;
-                    case USER_NAME_ELEMENT_NAME:
-                        userName = parser.getText();
-                        break;
-                    case GROUP_ELEMENT_NAME:
-                        groupId = parser.getText();
-                        break;
+                        case USER_AVATAR_URL_ELEMENT_NAME:
+                            userAvatarUrl = parser.getText();
+                            break;
+                        case USER_ID_ELEMENT_NAME:
+                            userId = parser.getText();
+                            break;
+                        case USER_NAME_ELEMENT_NAME:
+                            userName = parser.getText();
+                            break;
+                        case GROUP_ELEMENT_NAME:
+                            groupId = parser.getText();
+                            break;
+                        default:
+                            break;
                     }
                 }
+                else if(parser.getEventType() == XmlPullParser.END_TAG)
+                {
+                    currentTag = parser.getName();
+                }
             }
+            while (!ELEMENT_NAME.equals(currentTag));
+
 
             if (userAvatarUrl != null && userId != null && userName != null &&
                 groupId != null)
@@ -274,9 +295,9 @@ public class StrideIdentityPresenceExtension
             }
             else
             {
-                throw new Exception("Could not correctly parse identity " +
-                    "presence");
+                return null;
             }
         }
     }
 }
+
