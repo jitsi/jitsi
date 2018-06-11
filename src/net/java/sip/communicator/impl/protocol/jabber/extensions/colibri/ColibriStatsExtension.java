@@ -29,6 +29,7 @@ import org.jivesoftware.smack.util.*;
  * with LIghtweight BRIdging that will provide various statistics.
  *
  * @author Hristo Terezov
+ * @author Boris Grozev
  */
 public class ColibriStatsExtension
     extends AbstractPacketExtension
@@ -46,6 +47,25 @@ public class ColibriStatsExtension
         = "http://jitsi.org/protocol/colibri";
 
     /**
+     * Creates a deep copy of a {@link ColibriStatsExtension}.
+     * @param source the {@link ColibriStatsExtension} to copy.
+     * @return the copy.
+     */
+    public static ColibriStatsExtension clone(
+        ColibriStatsExtension source)
+    {
+        ColibriStatsExtension destination
+            = AbstractPacketExtension.clone(source);
+
+        for (Stat stat : source.getChildExtensionsOfType(Stat.class))
+        {
+            destination.addStat(Stat.clone(stat));
+        }
+
+        return destination;
+    }
+
+    /**
      * Constructs new <tt>ColibriStatsExtension</tt>
      */
     public ColibriStatsExtension()
@@ -54,12 +74,23 @@ public class ColibriStatsExtension
     }
 
     /**
-     * Adds stat extension.
-     * @param stat the stat to be added
+     * Adds a specific {@link Stat} instance to the list of stats.
+     * @param stat the {@link Stat} instance to add.
      */
     public void addStat(Stat stat)
     {
         addChildExtension(stat);
+    }
+
+    /**
+     * Adds a new {@link Stat} instance with a specific name and a specific
+     * value to the list of stats.
+     * @param name the name.
+     * @param value the value.
+     */
+    public void addStat(String name, Object value)
+    {
+        addStat(new Stat(name, value));
     }
 
     /**
