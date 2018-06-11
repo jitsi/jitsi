@@ -62,6 +62,34 @@ public class ColibriStatsExtension
         addChildExtension(stat);
     }
 
+    /**
+     * @return the first {@link Stat}, if any, with a specific name.
+     * @param name the name of the stat to match.
+     */
+    public Stat getStat(String name)
+    {
+        for (Stat stat : getChildExtensionsOfType(Stat.class))
+        {
+            if (stat.getName().equals(name))
+            {
+                return stat;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return the value of the first {@link Stat}, if any, with a specific
+     * name.
+     * @param name the name of the stat to match.
+     */
+    public Object getStatValue(String name)
+    {
+        Stat stat = getStat(name);
+        return stat == null ? null : stat.getValue();
+    }
+
     @Override
     public List<? extends ExtensionElement> getChildExtensions()
     {
