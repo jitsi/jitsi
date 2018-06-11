@@ -1796,9 +1796,9 @@ public class ProtocolProviderServiceJabberImpl
                 new StatsId.Provider());
 
             ProviderManager.addExtensionProvider(
-                StrideIdentityPresenceExtension.ELEMENT_NAME,
-                StrideIdentityPresenceExtension.NAME_SPACE,
-                new StrideIdentityPresenceExtension.Provider()
+                IdentityPresenceExtension.ELEMENT_NAME,
+                IdentityPresenceExtension.NAME_SPACE,
+                new IdentityPresenceExtension.Provider()
             );
 
             ProviderManager.addExtensionProvider(

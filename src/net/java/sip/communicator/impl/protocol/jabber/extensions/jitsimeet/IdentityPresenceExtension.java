@@ -22,8 +22,9 @@ import org.jivesoftware.smack.provider.*;
 import org.xmlpull.v1.*;
 
 /**
- * An extension to the Presence used in jitsi-meet when deployed in the Stride
- * environment, which stores information about an user and the group of an user
+ * An extension to the Presence used in jitsi-meet when deployed in an
+ * authenticated environment (such as Stride),
+ * which stores information about an user and the group of an user
  *
  * The extension looks like the following:
  * <pre>
@@ -41,7 +42,7 @@ import org.xmlpull.v1.*;
  *
  * @author Nik Vaessen
  */
-public class StrideIdentityPresenceExtension
+public class IdentityPresenceExtension
     implements ExtensionElement
 {
 
@@ -110,10 +111,10 @@ public class StrideIdentityPresenceExtension
      * @param userAvatarUrl the avatar-url of the user
      * @param groupId the group id of group the user belongs to
      */
-    public StrideIdentityPresenceExtension(String userId,
-                                           String userName,
-                                           String userAvatarUrl,
-                                           String groupId)
+    public IdentityPresenceExtension(String userId,
+                                     String userName,
+                                     String userAvatarUrl,
+                                     String groupId)
     {
         this.userId = userId;
         this.userName = userName;
@@ -221,18 +222,18 @@ public class StrideIdentityPresenceExtension
 
     /**
      * The {@link ExtensionElementProvider} which can create an instance of a
-     * {@link StrideIdentityPresenceExtension} when given the
+     * {@link IdentityPresenceExtension} when given the
      * {@link XmlPullParser} of an identity element
      */
     public static class Provider
-        extends ExtensionElementProvider<StrideIdentityPresenceExtension>
+        extends ExtensionElementProvider<IdentityPresenceExtension>
     {
         /**
          * {@inheritDoc}
          */
         @Override
-        public StrideIdentityPresenceExtension parse(XmlPullParser parser,
-                                                     int depth)
+        public IdentityPresenceExtension parse(XmlPullParser parser,
+                                               int depth)
             throws Exception
         {
             String currentTag = parser.getName();
@@ -290,7 +291,7 @@ public class StrideIdentityPresenceExtension
             if (userAvatarUrl != null && userId != null && userName != null &&
                 groupId != null)
             {
-                return new StrideIdentityPresenceExtension(userId, userName,
+                return new IdentityPresenceExtension(userId, userName,
                     userAvatarUrl, groupId);
             }
             else
