@@ -3160,33 +3160,48 @@ public class ChatRoomJabberImpl
                 }
             }
 
+            // if member wasn't just created, we should potentially modify some
+            // elements
+            if(member == null)
+            {
+                return;
+            }
+
             Nick nickExtension
                 = presence.getExtension(Nick.ELEMENT_NAME, Nick.NAMESPACE);
-            if (member != null && nickExtension != null)
+            if (nickExtension != null)
             {
                 member.setDisplayName(nickExtension.getName());
             }
 
             Email emailExtension
                 = presence.getExtension(Email.ELEMENT_NAME, Email.NAMESPACE);
-            if (member != null && emailExtension != null)
+            if (emailExtension != null)
             {
                 member.setEmail(emailExtension.getAddress());
             }
 
             AvatarUrl avatarUrl = presence.getExtension(
                 AvatarUrl.ELEMENT_NAME, AvatarUrl.NAMESPACE);
-            if (member != null && avatarUrl != null)
+            if (avatarUrl != null)
             {
                 member.setAvatarUrl(avatarUrl.getAvatarUrl());
             }
 
             StatsId statsId = presence.getExtension(
                 StatsId.ELEMENT_NAME, StatsId.NAMESPACE);
-            if (member != null && statsId != null)
+            if (statsId != null)
             {
                 member.setStatisticsID(statsId.getStatsId());
             }
+
+            // tell listeners the member was updated (and new information
+            // about it is available)
+            member.setLastPresence(presence);
+            fireMemberPresenceEvent(member,
+                ChatRoomMemberPresenceChangeEvent.MEMBER_UPDATED,
+                null);
+
         }
     }
 
