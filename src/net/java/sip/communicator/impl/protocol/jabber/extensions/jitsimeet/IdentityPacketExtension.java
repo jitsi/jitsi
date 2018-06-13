@@ -17,9 +17,12 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet;
 
+import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.xmlpull.v1.*;
+
+import java.io.*;
 
 /**
  * An extension to the Presence used in jitsi-meet when deployed in an
@@ -45,6 +48,12 @@ import org.xmlpull.v1.*;
 public class IdentityPacketExtension
     implements ExtensionElement
 {
+
+    /**
+     * The Logger of this class
+     */
+    public static final Logger logger
+        = Logger.getLogger(IdentityPacketExtension.class);
 
     /**
      * The namespace (xmlns attribute) of this identity presence element
@@ -234,7 +243,6 @@ public class IdentityPacketExtension
         @Override
         public IdentityPacketExtension parse(XmlPullParser parser,
                                              int depth)
-            throws Exception
         {
             String currentTag = parser.getName();
 
@@ -252,40 +260,50 @@ public class IdentityPacketExtension
             String userAvatarUrl = null;
             String groupId = null;
 
-            do
+            try
             {
-                parser.next();
+                do
+                {
+                    parser.next();
 
-                if (parser.getEventType() == XmlPullParser.START_TAG)
-                {
-                    currentTag = parser.getName();
-                }
-                else if(parser.getEventType() == XmlPullParser.TEXT)
-                {
-                    switch (currentTag)
+                    if (parser.getEventType() == XmlPullParser.START_TAG)
                     {
-                        case USER_AVATAR_URL_ELEMENT_NAME:
-                            userAvatarUrl = parser.getText();
-                            break;
-                        case USER_ID_ELEMENT_NAME:
-                            userId = parser.getText();
-                            break;
-                        case USER_NAME_ELEMENT_NAME:
-                            userName = parser.getText();
-                            break;
-                        case GROUP_ELEMENT_NAME:
-                            groupId = parser.getText();
-                            break;
-                        default:
-                            break;
+                        currentTag = parser.getName();
+                    }
+                    else if (parser.getEventType() == XmlPullParser.TEXT)
+                    {
+                        switch (currentTag)
+                        {
+                            case USER_AVATAR_URL_ELEMENT_NAME:
+                                userAvatarUrl = parser.getText();
+                                break;
+                            case USER_ID_ELEMENT_NAME:
+                                userId = parser.getText();
+                                break;
+                            case USER_NAME_ELEMENT_NAME:
+                                userName = parser.getText();
+                                break;
+                            case GROUP_ELEMENT_NAME:
+                                groupId = parser.getText();
+                                break;
+                            default:
+                                break;
+                            }
+                    }
+                    else if (parser.getEventType() == XmlPullParser.END_TAG)
+                    {
+                        currentTag = parser.getName();
                     }
                 }
-                else if(parser.getEventType() == XmlPullParser.END_TAG)
+                while (!ELEMENT_NAME.equals(currentTag));
+            }
+            catch (XmlPullParserException | IOException e)
+            {
+                if(logger.isDebugEnabled())
                 {
-                    currentTag = parser.getName();
+                    logger.debug("failed to parse IdentityExtension", e);
                 }
             }
-            while (!ELEMENT_NAME.equals(currentTag));
 
 
             if (userAvatarUrl != null && userId != null && userName != null &&
