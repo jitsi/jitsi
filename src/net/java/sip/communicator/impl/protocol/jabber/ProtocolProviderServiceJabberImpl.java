@@ -29,6 +29,7 @@ import java.util.*;
 import javax.net.ssl.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.debugger.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.condesc.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
@@ -1804,8 +1805,8 @@ public class ProtocolProviderServiceJabberImpl
             ProviderManager.addExtensionProvider(
                 AvatarIdPacketExtension.ELEMENT_NAME,
                 AvatarIdPacketExtension.NAME_SPACE,
-                new AvatarIdPacketExtension.Provider()
-            );
+                new DefaultPacketExtensionProvider<>(
+                    AvatarIdPacketExtension.class));
 
             //initialize the telephony operation set
             boolean isCallingDisabled

@@ -17,9 +17,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet;
 
-import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.provider.*;
-import org.xmlpull.v1.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 /**
  * An extension of the presence which stores an ID of the avatar. The extension
@@ -30,7 +28,7 @@ import org.xmlpull.v1.*;
  * @author Nik Vaessen
  */
 public class AvatarIdPacketExtension
-    implements ExtensionElement
+    extends AbstractPacketExtension
 {
 
     /**
@@ -44,11 +42,6 @@ public class AvatarIdPacketExtension
     public static final String ELEMENT_NAME = "avatar-id";
 
     /**
-     * The avatar ID stored in this presence element
-     */
-    private String avatarId;
-
-    /**
      * Initializes an {@link AvatarIdPacketExtension} instance with a given
      * string value
      *
@@ -56,7 +49,9 @@ public class AvatarIdPacketExtension
      */
     public AvatarIdPacketExtension(String avatarId)
     {
-        this.avatarId = avatarId;
+        super(NAME_SPACE, ELEMENT_NAME);
+
+        setText(avatarId);
     }
 
     /**
@@ -66,65 +61,6 @@ public class AvatarIdPacketExtension
      */
     public String getAvatarId()
     {
-        return avatarId;
-    }
-
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getElementName()
-    {
-        return ELEMENT_NAME;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String getNamespace()
-    {
-        return NAME_SPACE;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public String toXML()
-    {
-        final StringBuilder buf = new StringBuilder();
-
-        buf.append("<").append(ELEMENT_NAME).append(">");
-        buf.append(getAvatarId());
-        buf.append("</").append(ELEMENT_NAME).append('>');
-
-        return buf.toString();
-    }
-
-    /**
-     * The {@link ExtensionElementProvider} which can create an instance of a
-     * {@link AvatarIdPacketExtension} when given the
-     * {@link XmlPullParser} of an avatar-id element
-     */
-    public static class Provider
-        extends ExtensionElementProvider<AvatarIdPacketExtension>
-    {
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public AvatarIdPacketExtension parse(XmlPullParser parser, int depth)
-            throws Exception
-        {
-            parser.next();
-            final String id = parser.getText();
-
-            // Advance to end of extension.
-            while(parser.getEventType() != XmlPullParser.END_TAG)
-            {
-                parser.next();
-            }
-
-            return new AvatarIdPacketExtension(id);
-        }
+        return getText();
     }
 }
