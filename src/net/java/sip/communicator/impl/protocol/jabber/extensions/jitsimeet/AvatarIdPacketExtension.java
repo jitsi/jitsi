@@ -29,7 +29,7 @@ import org.xmlpull.v1.*;
  *
  * @author Nik Vaessen
  */
-public class AvatarIdPresenceExtension
+public class AvatarIdPacketExtension
     implements ExtensionElement
 {
 
@@ -49,12 +49,12 @@ public class AvatarIdPresenceExtension
     private String avatarId;
 
     /**
-     * Initializes an {@link AvatarIdPresenceExtension} instance with a given
+     * Initializes an {@link AvatarIdPacketExtension} instance with a given
      * string value
      *
      * @param avatarId the string value representing the avatar id
      */
-    public AvatarIdPresenceExtension(String avatarId)
+    public AvatarIdPacketExtension(String avatarId)
     {
         this.avatarId = avatarId;
     }
@@ -102,17 +102,17 @@ public class AvatarIdPresenceExtension
 
     /**
      * The {@link ExtensionElementProvider} which can create an instance of a
-     * {@link AvatarIdPresenceExtension} when given the
+     * {@link AvatarIdPacketExtension} when given the
      * {@link XmlPullParser} of an avatar-id element
      */
     public static class Provider
-        extends ExtensionElementProvider<AvatarIdPresenceExtension>
+        extends ExtensionElementProvider<AvatarIdPacketExtension>
     {
         /**
          * {@inheritDoc}
          */
         @Override
-        public AvatarIdPresenceExtension parse(XmlPullParser parser, int depth)
+        public AvatarIdPacketExtension parse(XmlPullParser parser, int depth)
             throws Exception
         {
             parser.next();
@@ -124,7 +124,7 @@ public class AvatarIdPresenceExtension
                 parser.next();
             }
 
-            return new AvatarIdPresenceExtension(id);
+            return new AvatarIdPacketExtension(id);
         }
     }
 }

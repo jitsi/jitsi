@@ -1796,15 +1796,15 @@ public class ProtocolProviderServiceJabberImpl
                 new StatsId.Provider());
 
             ProviderManager.addExtensionProvider(
-                IdentityPresenceExtension.ELEMENT_NAME,
-                IdentityPresenceExtension.NAME_SPACE,
-                new IdentityPresenceExtension.Provider()
+                IdentityPacketExtension.ELEMENT_NAME,
+                IdentityPacketExtension.NAME_SPACE,
+                new IdentityPacketExtension.Provider()
             );
 
             ProviderManager.addExtensionProvider(
-                AvatarIdPresenceExtension.ELEMENT_NAME,
-                AvatarIdPresenceExtension.NAME_SPACE,
-                new AvatarIdPresenceExtension.Provider()
+                AvatarIdPacketExtension.ELEMENT_NAME,
+                AvatarIdPacketExtension.NAME_SPACE,
+                new AvatarIdPacketExtension.Provider()
             );
 
             //initialize the telephony operation set

@@ -42,7 +42,7 @@ import org.xmlpull.v1.*;
  *
  * @author Nik Vaessen
  */
-public class IdentityPresenceExtension
+public class IdentityPacketExtension
     implements ExtensionElement
 {
 
@@ -111,10 +111,10 @@ public class IdentityPresenceExtension
      * @param userAvatarUrl the avatar-url of the user
      * @param groupId the group id of group the user belongs to
      */
-    public IdentityPresenceExtension(String userId,
-                                     String userName,
-                                     String userAvatarUrl,
-                                     String groupId)
+    public IdentityPacketExtension(String userId,
+                                   String userName,
+                                   String userAvatarUrl,
+                                   String groupId)
     {
         this.userId = userId;
         this.userName = userName;
@@ -222,18 +222,18 @@ public class IdentityPresenceExtension
 
     /**
      * The {@link ExtensionElementProvider} which can create an instance of a
-     * {@link IdentityPresenceExtension} when given the
+     * {@link IdentityPacketExtension} when given the
      * {@link XmlPullParser} of an identity element
      */
     public static class Provider
-        extends ExtensionElementProvider<IdentityPresenceExtension>
+        extends ExtensionElementProvider<IdentityPacketExtension>
     {
         /**
          * {@inheritDoc}
          */
         @Override
-        public IdentityPresenceExtension parse(XmlPullParser parser,
-                                               int depth)
+        public IdentityPacketExtension parse(XmlPullParser parser,
+                                             int depth)
             throws Exception
         {
             String currentTag = parser.getName();
@@ -291,8 +291,8 @@ public class IdentityPresenceExtension
             if (userAvatarUrl != null && userId != null && userName != null &&
                 groupId != null)
             {
-                return new IdentityPresenceExtension(userId, userName,
-                    userAvatarUrl, groupId);
+                return new IdentityPacketExtension(userId, userName,
+                                                   userAvatarUrl, groupId);
             }
             else
             {
