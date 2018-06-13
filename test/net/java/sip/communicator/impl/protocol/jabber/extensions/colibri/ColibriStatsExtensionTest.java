@@ -37,9 +37,16 @@ public class ColibriStatsExtensionTest
         assertNotNull(stats.getStat("name"));
         assertEquals(stats.getStat("name").getName(), "name");
         assertEquals(stats.getStat("name").getValue(), "value");
+        assertEquals(stats.getValueAsString("name"), "value");
+        assertNull(stats.getValueAsInt("name"));
+
+        stats.addStat("int", 13);
+        assertEquals(stats.getValueAsInt("int"), new Integer(13));
+        assertEquals(stats.getValueAsString("int"), "13");
 
         assertNull(stats.getStat("somethingelse"));
-        assertNull(stats.getStatValue("somethingelse"));
+        assertNull(stats.getValue("somethingelse"));
+
     }
 
     /**
@@ -59,7 +66,7 @@ public class ColibriStatsExtensionTest
         ColibriStatsExtension.Stat cloneNameStat = clone.getStat("name");
         cloneNameStat.setValue("virtue");
 
-        assertEquals(clone.getStatValue("name"), "virtue");
-        assertEquals(stats.getStatValue("name"), "value");
+        assertEquals(clone.getValue("name"), "virtue");
+        assertEquals(stats.getValue("name"), "value");
     }
 }
