@@ -1029,6 +1029,40 @@ public class ChatRoomJabberImpl
     }
 
     /**
+     * Sends the <tt>message</tt> with the json-message extension to the
+     * destination indicated by the <tt>to</tt> contact.
+     *
+     * @param message the <tt>Message</tt> to send.
+     * @param json the json message to be sent.
+     * @throws OperationFailedException if sending the message fails for some
+     * reason.
+     */
+    public void sendJsonMessage(Message message, String json)
+            throws OperationFailedException
+    {
+        try
+        {
+            assertConnected();
+            org.jivesoftware.smack.packet.Message msg =
+                    new org.jivesoftware.smack.packet.Message();
+            msg.setType(org.jivesoftware.smack.packet.Message.Type.groupchat);
+            msg.setBody(message.getContent());
+            msg.addExtension(new JsonMessageExtension(json));
+            MessageEventManager.
+                    addNotificationsRequests(msg, true, false, false, true);
+
+            multiUserChat.sendMessage(msg);
+        }
+        catch (NotConnectedException | InterruptedException ex){
+            logger.error("Failed to send JSON message " + message, ex);
+            throw new OperationFailedException(
+                "Failed to send JSON message " + message
+                , OperationFailedException.GENERAL_ERROR
+                , ex);
+            }
+    }
+
+    /**
      * Sets the subject of this chat room.
      *
      * @param subject the new subject that we'd like this room to have
