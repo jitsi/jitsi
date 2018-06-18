@@ -37,7 +37,7 @@ public class ContentPacketExtension extends AbstractPacketExtension
     /**
      * The namespace of the "content" element
      */
-    public static final String NAMESPACE = "urn:xmpp:jingle:1";
+    public static final String NAMESPACE = null;
 
     /**
      * The name of the "creator" argument.
