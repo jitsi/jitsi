@@ -42,6 +42,16 @@ public class AvatarIdPacketExtension
     public static final String ELEMENT_NAME = "avatar-id";
 
     /**
+     * Default constructor.
+     *
+     * {@inheritDoc}
+     */
+    public AvatarIdPacketExtension()
+    {
+        super(NAME_SPACE, ELEMENT_NAME);
+    }
+
+    /**
      * Initializes an {@link AvatarIdPacketExtension} instance with a given
      * string value
      *
