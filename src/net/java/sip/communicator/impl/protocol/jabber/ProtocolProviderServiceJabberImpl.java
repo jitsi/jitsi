@@ -1811,8 +1811,8 @@ public class ProtocolProviderServiceJabberImpl
             ProviderManager.addExtensionProvider(
                 JsonMessageExtension.ELEMENT_NAME,
                 JsonMessageExtension.NAMESPACE,
-                new JsonMessageExtension.Provider()
-            );
+            new DefaultPacketExtensionProvider<>(
+                    JsonMessageExtension.class));
 
             //initialize the telephony operation set
             boolean isCallingDisabled

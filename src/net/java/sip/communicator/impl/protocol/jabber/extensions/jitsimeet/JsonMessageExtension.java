@@ -1,7 +1,7 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
- * Copyright @ 2015 Atlassian Pty Ltd
+ * Copyright @ 2018 Atlassian Pty Ltd
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,85 +17,51 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet;
 
-import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.provider.*;
-import org.xmlpull.v1.*;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
 /**
- * An implementation of a {@link PacketExtension} for json messages.
+ * An extension of the message stanza for sending json messages.
+ * The extension looks like follows:
+ *
+ *  <pre>{@code <json-message>json_content_here</json-message>}</pre>
  *
  * @author Praveen Kumar Gupta
  */
 public class JsonMessageExtension
-        implements ExtensionElement
+        extends AbstractPacketExtension
 {
-    public static final String NAMESPACE = "jabber:client";
+    /**
+     * The namespace (xmlns attribute) of this json-message packet.
+     */
+    public static final String NAMESPACE = "http://jitsi.org/jitmeet";
 
+    /**
+     * The element name of this json-message packet.
+     */
     public static final String ELEMENT_NAME = "json-message";
 
-    private String json = null;
+    /**
+     * Initializes an {@link JsonMessageExtension} instance.
+     *
+     */
+    public JsonMessageExtension(){ super(NAMESPACE, ELEMENT_NAME); }
 
-    public JsonMessageExtension(String json){ this.json = json; }
+    /**
+     * Initializes an {@link JsonMessageExtension} instance with a given
+     * string value for its json content.
+     *
+     * @param json the string value of the json content.
+     */
+    public JsonMessageExtension(String json)
+    {
+        super(NAMESPACE, ELEMENT_NAME);
+
+        setText(json);
+    }
 
     /**
      * Returns the content of the json-message packet.
      * @return the json string.
      */
-    public String getJson(){ return json; }
-
-    /**
-     * Sets the content of the json-message packet.
-     * @param json the json to set.
-     */
-    public void setJson(String json){ this.json = json; }
-
-    /**
-     * Returns the Element name for this extension.
-     * @return element name.
-     */
-    public String getElementName(){ return ELEMENT_NAME; }
-
-    /**
-     * Returns the namespace for this extension.
-     * @return the namespace
-     */
-    public String getNamespace(){ return NAMESPACE; }
-
-    /**
-     * Returns xml representation of this extension.
-     * @return xml representation of this extension.
-     */
-    public String toXML()
-    {
-        final StringBuilder buf = new StringBuilder();
-
-        buf.append("<").append(ELEMENT_NAME).append(">");
-        buf.append(getJson());
-        buf.append("</").append(ELEMENT_NAME).append('>');
-
-        return buf.toString();
-    }
-
-    /**
-     * The provider for this extension.
-     */
-    public static class Provider
-            extends ExtensionElementProvider<JsonMessageExtension>
-    {
-        @Override
-        public JsonMessageExtension parse(XmlPullParser parser, int depth)
-                throws Exception
-        {
-            parser.next();
-            final String json = parser.getText();
-
-            // Advance to end of extension.
-            while(parser.getEventType() != XmlPullParser.END_TAG)
-            {
-                parser.next();
-            }
-
-            return new JsonMessageExtension(json);
-        }
-    }
+    public String getJson(){ return getText(); }
 }
