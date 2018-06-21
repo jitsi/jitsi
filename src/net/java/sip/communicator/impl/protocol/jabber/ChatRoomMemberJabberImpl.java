@@ -35,7 +35,6 @@ import org.jxmpp.jid.parts.Resourcepart;
  * @author Emil Ivov
  */
 public class ChatRoomMemberJabberImpl
-    extends DataObject
     implements JabberChatRoomMember
 {
     /**
