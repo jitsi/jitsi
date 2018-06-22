@@ -1032,12 +1032,11 @@ public class ChatRoomJabberImpl
      * Sends the <tt>message</tt> with the json-message extension to the
      * destination indicated by the <tt>to</tt> contact.
      *
-     * @param message the <tt>Message</tt> to send.
      * @param json the json message to be sent.
      * @throws OperationFailedException if sending the message fails for some
      * reason.
      */
-    public void sendJsonMessage(Message message, String json)
+    public void sendJsonMessage(String json)
             throws OperationFailedException
     {
         try
@@ -1046,17 +1045,15 @@ public class ChatRoomJabberImpl
             org.jivesoftware.smack.packet.Message msg =
                     new org.jivesoftware.smack.packet.Message();
             msg.setType(org.jivesoftware.smack.packet.Message.Type.groupchat);
-            msg.setBody(message.getContent());
             msg.addExtension(new JsonMessageExtension(json));
             MessageEventManager.
-                    addNotificationsRequests(msg, true, false, false, true);
+                addNotificationsRequests(msg, true, false, false, true);
 
             multiUserChat.sendMessage(msg);
         }
         catch (NotConnectedException | InterruptedException ex){
-            logger.error("Failed to send JSON message " + message, ex);
             throw new OperationFailedException(
-                "Failed to send JSON message " + message
+                "Failed to send JSON message " + json
                 , OperationFailedException.GENERAL_ERROR
                 , ex);
             }

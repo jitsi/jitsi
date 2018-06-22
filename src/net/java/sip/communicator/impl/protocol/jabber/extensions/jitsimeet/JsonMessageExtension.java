@@ -41,13 +41,12 @@ public class JsonMessageExtension
     public static final String ELEMENT_NAME = "json-message";
 
     /**
-     * Initializes an {@link JsonMessageExtension} instance.
-     *
+     * Creates a {@link JsonMessageExtension} instance.
      */
     public JsonMessageExtension(){ super(NAMESPACE, ELEMENT_NAME); }
 
     /**
-     * Initializes an {@link JsonMessageExtension} instance with a given
+     * Initializes a {@link JsonMessageExtension} instance with a given
      * string value for its json content.
      *
      * @param json the string value of the json content.

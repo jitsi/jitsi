@@ -1811,7 +1811,7 @@ public class ProtocolProviderServiceJabberImpl
             ProviderManager.addExtensionProvider(
                 JsonMessageExtension.ELEMENT_NAME,
                 JsonMessageExtension.NAMESPACE,
-            new DefaultPacketExtensionProvider<>(
+                new DefaultPacketExtensionProvider<>(
                     JsonMessageExtension.class));
 
             //initialize the telephony operation set
