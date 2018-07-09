@@ -43,7 +43,10 @@ public class JsonMessageExtension
     /**
      * Creates a {@link JsonMessageExtension} instance.
      */
-    public JsonMessageExtension(){ super(NAMESPACE, ELEMENT_NAME); }
+    public JsonMessageExtension()
+    {
+        super(NAMESPACE, ELEMENT_NAME);
+    }
 
     /**
      * Initializes a {@link JsonMessageExtension} instance with a given
@@ -62,5 +65,8 @@ public class JsonMessageExtension
      * Returns the content of the json-message packet.
      * @return the json string.
      */
-    public String getJson(){ return getText(); }
+    public String getJson()
+    {
+        return getText();
+    }
 }

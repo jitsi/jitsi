@@ -991,6 +991,34 @@ public class ChatRoomJabberImpl
     }
 
     /**
+     * Utility method to send a smack message packet received, to the
+     * <tt>multiUserChat</tt>.
+     *
+     * @param msg the {@link org.jivesoftware.smack.packet.Message} to be sent.
+     * @throws OperationFailedException if sending the message fails for some
+     * reason.
+     */
+    private void sendMessage(org.jivesoftware.smack.packet.Message msg)
+        throws OperationFailedException
+    {
+        try
+        {
+            assertConnected();
+            msg.setType(org.jivesoftware.smack.packet.Message.Type.groupchat);
+            MessageEventManager.
+                addNotificationsRequests(msg, true, false, false, true);
+
+            multiUserChat.sendMessage(msg);
+        }
+        catch (NotConnectedException | InterruptedException ex)
+        {
+            throw new OperationFailedException(
+                "Failed to send message " + msg.toString()
+                , OperationFailedException.GENERAL_ERROR
+                , ex);
+        }
+    }
+    /**
      * Sends the <tt>message</tt> to the destination indicated by the
      * <tt>to</tt> contact.
      *
@@ -1001,31 +1029,11 @@ public class ChatRoomJabberImpl
     public void sendMessage(Message message)
         throws OperationFailedException
     {
-         try
-         {
-             assertConnected();
+        org.jivesoftware.smack.packet.Message msg =
+            new org.jivesoftware.smack.packet.Message();
 
-             org.jivesoftware.smack.packet.Message msg =
-                new org.jivesoftware.smack.packet.Message();
-
-             msg.setBody(message.getContent());
-             //msg.addExtension(new Version());
-
-             MessageEventManager.
-                 addNotificationsRequests(msg, true, false, false, true);
-
-             // We send only the content because it doesn't work if we send the
-             // Message object.
-             multiUserChat.sendMessage(message.getContent());
-         }
-         catch (NotConnectedException | InterruptedException ex)
-         {
-             logger.error("Failed to send message " + message, ex);
-             throw new OperationFailedException(
-                 "Failed to send message " + message
-                 , OperationFailedException.GENERAL_ERROR
-                 , ex);
-         }
+        msg.setBody(message.getContent());
+        sendMessage(msg);
     }
 
     /**
@@ -1039,24 +1047,11 @@ public class ChatRoomJabberImpl
     public void sendJsonMessage(String json)
             throws OperationFailedException
     {
-        try
-        {
-            assertConnected();
-            org.jivesoftware.smack.packet.Message msg =
-                    new org.jivesoftware.smack.packet.Message();
-            msg.setType(org.jivesoftware.smack.packet.Message.Type.groupchat);
-            msg.addExtension(new JsonMessageExtension(json));
-            MessageEventManager.
-                addNotificationsRequests(msg, true, false, false, true);
+        org.jivesoftware.smack.packet.Message msg =
+            new org.jivesoftware.smack.packet.Message();
 
-            multiUserChat.sendMessage(msg);
-        }
-        catch (NotConnectedException | InterruptedException ex){
-            throw new OperationFailedException(
-                "Failed to send JSON message " + json
-                , OperationFailedException.GENERAL_ERROR
-                , ex);
-            }
+        msg.addExtension(new JsonMessageExtension(json));
+        sendMessage(msg);
     }
 
     /**
