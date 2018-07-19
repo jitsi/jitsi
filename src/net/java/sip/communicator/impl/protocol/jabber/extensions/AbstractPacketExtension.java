@@ -21,6 +21,7 @@ import java.net.*;
 import java.util.*;
 
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.util.*;
 
 /**
  * A generic implementation of <tt>ExtensionElement</tt>. The purpose of this
@@ -214,7 +215,7 @@ public abstract class AbstractPacketExtension
 
         //text content if any
         if((text != null) && (text.trim().length() > 0))
-            bldr.append(text);
+            bldr.append(StringUtils.escapeForXml(text));
 
         
         bldr.append("</").append(getElementName()).append(">");
