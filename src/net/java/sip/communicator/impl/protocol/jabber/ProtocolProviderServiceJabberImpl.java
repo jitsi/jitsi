@@ -1814,6 +1814,12 @@ public class ProtocolProviderServiceJabberImpl
                 new DefaultPacketExtensionProvider<>(
                     JsonMessageExtension.class));
 
+            ProviderManager.addExtensionProvider(
+                TranslationLanguageExtension.ELEMENT_NAME,
+                TranslationLanguageExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<>(
+                    TranslationLanguageExtension.class));
+
             //initialize the telephony operation set
             boolean isCallingDisabled
                 = JabberActivator.getConfigurationService()
