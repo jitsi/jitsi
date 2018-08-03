@@ -1989,11 +1989,15 @@ public class ChatRoomJabberImpl
      * @param extension the <tt>ConferenceDescriptionPacketExtension<tt> to set,
      * or <tt>null</tt> to not set one.
      * @param namespace the namespace of <tt>ExtensionElement</tt>.
+     * @param matchElementName if {@code true} only extensions matching both
+     * the element name and namespace will be matched and removed. Otherwise,
+     * only the namespace will be matched.
      */
     private static void setPacketExtension(
             Stanza packet,
             ExtensionElement extension,
-            String namespace)
+            String namespace,
+            boolean matchElementName)
     {
         if (org.jitsi.util.StringUtils.isNullOrEmpty(namespace))
         {
@@ -2002,15 +2006,46 @@ public class ChatRoomJabberImpl
 
         //clear previous announcements
         ExtensionElement pe;
-        while (null != (pe = packet.getExtension(namespace)))
+        if (matchElementName && extension != null)
         {
-            packet.removeExtension(pe);
+            String element = extension.getElementName();
+            while (null != (pe = packet.getExtension(element, namespace)))
+            {
+                packet.removeExtension(pe);
+            }
+        }
+        else
+        {
+            while (null != (pe = packet.getExtension(namespace)))
+            {
+                packet.removeExtension(pe);
+            }
         }
 
         if (extension != null)
         {
             packet.addExtension(extension);
         }
+    }
+
+    /**
+     * Sets <tt>ext</tt> as the only <tt>ExtensionElement</tt> that belongs to
+     * given <tt>namespace</tt> of the <tt>packet</tt>.
+     *
+     * @param packet the <tt>Packet<tt> to be modified.
+     * @param extension the <tt>ConferenceDescriptionPacketExtension<tt> to set,
+     * or <tt>null</tt> to not set one.
+     * @param namespace the namespace of <tt>ExtensionElement</tt>.
+     * @param matchElementName if {@code true} only extensions matching both
+     * the element name and namespace will be matched and removed. Otherwise,
+     * only the namespace will be matched.
+     */
+    private static void setPacketExtension(
+        Stanza packet,
+        ExtensionElement extension,
+        String namespace)
+    {
+        setPacketExtension(packet, extension, namespace, false);
     }
 
     /**
@@ -2049,7 +2084,7 @@ public class ChatRoomJabberImpl
         }
 
         setPacketExtension(
-            lastPresenceSent, extension, extension.getNamespace());
+            lastPresenceSent, extension, extension.getNamespace(), true);
         try
         {
             provider.getConnection().sendStanza(lastPresenceSent);
