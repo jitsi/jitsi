@@ -251,6 +251,27 @@ public abstract class AbstractPacketExtension
     {
         childExtensions.add(childExtension);
     }
+
+    /**
+     * Removes all occurrences of an extension element from the list of child
+     * extensions.
+     * @param childExtension the child extension to remove.
+     * @return {@code true} if any extensions were removed, and {@code false}
+     * otherwise.
+     */
+    public boolean removeChildExtension(ExtensionElement childExtension)
+    {
+        boolean removed = false;
+        if (childExtension != null)
+        {
+            while (childExtensions.remove(childExtension))
+            {
+                removed = true;
+            }
+        }
+
+        return removed;
+    }
     
     /**
      * Returns the list of packets.
