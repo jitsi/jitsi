@@ -570,6 +570,7 @@ public class DTMFHandler
     private void startSendingDtmfTone(Call call, DTMFToneInfo info)
     {
         Iterator<? extends CallPeer> callPeers = call.getCallPeers();
+        boolean notificationAdded = false;
 
         try
         {
@@ -589,8 +590,24 @@ public class DTMFHandler
                             .getCurrentCallRenderer()
                                 .getCallPeerRenderer(peer);
 
-                    if (peerRenderer != null)
+                    if (peerRenderer != null && peerRenderer.isDtmfToneEnabled())
+                    {
+                        if (!notificationAdded)
+                        {
+                            if(info.sound != null)
+                            {
+                                synchronized(dtmfToneNotifications)
+                                {
+                                    dtmfToneNotifications.add(info);
+                                    startDTMFToneNotificationThreadIfNecessary();
+                                }
+                            }
+
+                            notificationAdded = true;
+                        }
+
                         peerRenderer.printDTMFTone(info.keyChar);
+                    }
                 }
             }
         }
@@ -612,15 +629,6 @@ public class DTMFHandler
      */
     private synchronized void startSendingDtmfTone(DTMFToneInfo info)
     {
-        if(info.sound != null)
-        {
-            synchronized(dtmfToneNotifications)
-            {
-                dtmfToneNotifications.add(info);
-                startDTMFToneNotificationThreadIfNecessary();
-            }
-        }
-
         Collection<Call> calls
             = (callContainer == null)
                 ? CallManager.getInProgressCalls()

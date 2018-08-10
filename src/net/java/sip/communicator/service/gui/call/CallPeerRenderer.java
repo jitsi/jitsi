@@ -160,4 +160,15 @@ public interface CallPeerRenderer
      * to hide it
      */
     public void setSecurityPanelVisible(boolean visible);
+
+    /**
+     * Enable or disable DTMF tone handle
+     * @param enabled - if true DTMF tone is enabled and disabled if false
+     */
+    public void setDtmfToneEnabled(boolean enabled);
+
+    /**
+     * @return true if DTMF handling enabled
+     */
+    public boolean isDtmfToneEnabled();
 }

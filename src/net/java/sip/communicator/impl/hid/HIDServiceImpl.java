@@ -77,20 +77,6 @@ public class HIDServiceImpl implements HIDService
      */
     public void keyPress(int keycode)
     {
-        if(OSUtils.IS_WINDOWS || OSUtils.IS_MAC)
-        {
-            /* do not allow modifiers for Windows (as
-             * they are handled in native code with
-             * VkScanCode) and Mac OS X
-             */
-            if(keycode == KeyEvent.VK_ALT ||
-                    keycode == KeyEvent.VK_SHIFT ||
-                    keycode == KeyEvent.VK_ALT_GRAPH)
-            {
-                return;
-            }
-        }
-
         /* AltGr does not seems to work with robot, handle it via our
          * JNI code
          */
