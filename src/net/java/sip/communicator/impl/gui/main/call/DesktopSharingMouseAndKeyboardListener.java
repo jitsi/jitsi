@@ -22,19 +22,23 @@ import net.java.sip.communicator.service.protocol.event.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 
 /**
  * This class listens to mouse and keyboard event for desktop sharing at the
  * client side, in order to send moves, clicks and key strokes to the server.
  *
  * @author Vincent Lucas
+ * @author Dmitry Adzhiev aka GNUDimarik
  */
 public class DesktopSharingMouseAndKeyboardListener
-    implements RemoteControlListener,
-               KeyListener,
-               MouseListener,
-               MouseMotionListener
+        implements RemoteControlListener,
+        KeyListener,
+        MouseListener,
+        MouseMotionListener
 {
+    int lastReleasedKey = 0;
+    ArrayList<Integer> navigationKeyCodes = new ArrayList<Integer>();
     /**
      * The remote controlled call peer to which the events must be sent.
      */
@@ -89,6 +93,12 @@ public class DesktopSharingMouseAndKeyboardListener
     {
         this.callPeer = callPeer;
         this.desktopSharingClient = desktopSharingClient;
+        this.navigationKeyCodes.add(KeyEvent.VK_BACK_SPACE);
+        this.navigationKeyCodes.add(KeyEvent.VK_ENTER);
+        this.navigationKeyCodes.add(KeyEvent.VK_KP_DOWN);
+        this.navigationKeyCodes.add(KeyEvent.VK_KP_LEFT);
+        this.navigationKeyCodes.add(KeyEvent.VK_KP_RIGHT);
+        this.navigationKeyCodes.add(KeyEvent.VK_KP_UP);
     }
 
     /**
@@ -108,6 +118,14 @@ public class DesktopSharingMouseAndKeyboardListener
      */
     public void keyPressed(KeyEvent e)
     {
+        /**
+         * Handle backspace, enter and arrows for text navigation
+         */
+        if(navigationKeyCodes.contains(e.getKeyCode()))
+        {
+            if (desktopSharingClient != null)
+                desktopSharingClient.sendKeyboardEvent(callPeer, e);
+        }
     }
 
     /**
@@ -117,6 +135,46 @@ public class DesktopSharingMouseAndKeyboardListener
      */
     public void keyReleased(KeyEvent e)
     {
+        lastReleasedKey = e.getKeyCode();
+        /**
+         * Handle here only letters and digits. We should send
+         * English keys independent from keyboard layout and locale.
+         * It should guarantee the same behavior under different systems.
+         *
+         * This work does here because in this event we always have correct
+         * key code.
+         *
+         * If we want to type in Russian for example we should enable Russian
+         * language on target system (remote system where we type via remote control)
+         * and type there via our keyboard.
+         *
+         * I'm not sure about other languages (china or arabic). Sorry if it doesn't work.
+         */
+        if (Character.isLetterOrDigit(lastReleasedKey)) {
+            char keyChar = KeyEvent.getKeyText(lastReleasedKey).charAt(0);
+
+            if (!Character.isUpperCase(e.getKeyChar())) {
+                keyChar = Character.toLowerCase(keyChar);
+            }
+
+            KeyEvent event = new KeyEvent(e.getComponent(), KeyEvent.KEY_TYPED,
+                    e.getWhen(), e.getModifiers(),
+                    KeyEvent.VK_UNDEFINED, keyChar);
+            event.setKeyCode(e.getKeyCode());
+
+            if (desktopSharingClient != null)
+                desktopSharingClient.sendKeyboardEvent(callPeer, event);
+        }
+        else {
+            /**
+             * Handle backspace, enter and arrows for text navigation
+             */
+            if(navigationKeyCodes.contains(lastReleasedKey))
+            {
+                if (desktopSharingClient != null)
+                    desktopSharingClient.sendKeyboardEvent(callPeer, e);
+            }
+        }
     }
 
     /**
@@ -126,8 +184,14 @@ public class DesktopSharingMouseAndKeyboardListener
      */
     public void keyTyped(KeyEvent e)
     {
-        if (desktopSharingClient != null)
-            desktopSharingClient.sendKeyboardEvent(callPeer, e);
+        /**
+         * Send punctuation stuff here such as exclamation mark and quotes
+         */
+        if (!Character.isLetterOrDigit(lastReleasedKey)
+                && !navigationKeyCodes.contains(lastReleasedKey)) {
+            if (desktopSharingClient != null)
+                desktopSharingClient.sendKeyboardEvent(callPeer, e);
+        }
     }
 
     /**
