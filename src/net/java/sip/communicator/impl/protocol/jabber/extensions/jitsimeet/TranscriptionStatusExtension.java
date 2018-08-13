@@ -69,7 +69,8 @@ public class TranscriptionStatusExtension
      */
     public Status getStatus()
     {
-        return Status.valueOf((String) getAttribute(STATUS_ATTRIBUTE));
+        return Status.valueOf(
+            ((String) getAttribute(STATUS_ATTRIBUTE)).toUpperCase());
     }
 
     /**
@@ -80,12 +81,12 @@ public class TranscriptionStatusExtension
         /**
          * Transcription is in progress.
          */
-        ON("on"),
+        ON("ON"),
 
         /**
          * Transcription stopped.
          */
-        OFF("off");
+        OFF("OFF");
 
         /**
          * Status name holder.
