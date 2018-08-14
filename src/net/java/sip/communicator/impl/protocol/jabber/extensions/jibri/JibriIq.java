@@ -102,6 +102,12 @@ public class JibriIq
     static final String SESSION_ID_ATTR_NAME = "session_id";
 
     /**
+     * The name of the XML attribute which stores the {@link #appData}
+     * field.
+     */
+    static final String APP_DATA_ATTR_NAME = "app_data";
+
+    /**
      * The name of XML attribute which stores the recording mode which can be
      * either 'stream' or 'file'. If the attribute is not present, but
      * {@link #STREAM_ID_ATTR_NAME} is, then it defaults to 'stream'. But if
@@ -173,6 +179,14 @@ public class JibriIq
      * between this signaling flow and the Jibri client.
      */
     private String sessionId = null;
+
+    /**
+     * A JSON-encoded string containing arbitrary Jibri application
+     * data.  This allows new fields we want to pass to Jibri to
+     * be added here so that we don't need to add new explicit
+     * fields every time.
+     */
+    private String appData = null;
 
     /**
      * The name of the conference room to be recorded.
@@ -262,10 +276,25 @@ public class JibriIq
     public String getSessionId() { return sessionId; }
 
     /**
+     * Gets the value of the {@link #APP_DATA_ATTR_NAME} attribute
+     *
+     * @return the JSON-encoded application data
+     */
+    public String getAppData() { return appData; }
+
+    /**
      * Sets the value of the {@link #SESSION_ID_ATTR_NAME} attribute
      * @param sessionId the session ID
      */
     public void setSessionId(String sessionId) { this.sessionId = sessionId; }
+
+    /**
+     * Sets the value of the {@link #APP_DATA_ATTR_NAME} attribute
+     *
+     * @param appData a JSON-encoded string containing arbitrary application
+     * data
+     */
+    public void setAppData(String appData) { this.appData = appData; }
 
     /**
      * Returns the value of {@link #ROOM_ATTR_NAME} attribute.
@@ -317,6 +346,7 @@ public class JibriIq
         xml.optAttribute(SIP_ADDRESS_ATTR_NAME, sipAddress);
         xml.optAttribute(SESSION_ID_ATTR_NAME, sessionId);
         xml.optAttribute(FAILURE_REASON_ATTR_NAME, failureReason);
+        xml.optAttribute(APP_DATA_ATTR_NAME, appData);
 
         xml.setEmptyElement();
 
