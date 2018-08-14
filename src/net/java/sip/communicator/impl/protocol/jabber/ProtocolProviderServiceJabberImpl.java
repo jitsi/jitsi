@@ -1826,6 +1826,14 @@ public class ProtocolProviderServiceJabberImpl
                 new DefaultPacketExtensionProvider<>(
                     TranscriptionLanguageExtension.class));
 
+            ProviderManager.addExtensionProvider(
+                TranscriptionStatusExtension.ELEMENT_NAME,
+                TranscriptionStatusExtension.NAMESPACE,
+                new DefaultPacketExtensionProvider<>(
+                    TranscriptionStatusExtension.class
+                )
+            );
+
             //initialize the telephony operation set
             boolean isCallingDisabled
                 = JabberActivator.getConfigurationService()
