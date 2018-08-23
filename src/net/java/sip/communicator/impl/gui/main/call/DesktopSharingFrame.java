@@ -529,12 +529,16 @@ public class DesktopSharingFrame
                     frame.dispose();
 
                     if (call != null)
+                    {
                         CallManager.enableRegionDesktopSharing(
                                 call,
                                 location.x,
                                 location.y,
                                 sharingRegionWidth,
                                 sharingRegionHeight);
+
+                        setStreamingLocation(call, frame, location);
+                    }
                     else
                         CallManager.createRegionDesktopSharing(
                                 protocolProvider,
@@ -665,26 +669,33 @@ public class DesktopSharingFrame
 
             public void componentMoved(ComponentEvent e)
             {
-                OperationSetDesktopStreaming desktopOpSet
-                    = call.getProtocolProvider().getOperationSet(
-                        OperationSetDesktopStreaming.class);
-
-                if (desktopOpSet == null)
-                    return;
-
                 Point location = new Point( sharingRegion.getX(),
                                             sharingRegion.getY());
 
-                SwingUtilities.convertPointToScreen(location,
-                                                    frame.getContentPane());
-
-                desktopOpSet.movePartialDesktopStreaming(
-                    call, location.x, location.y);
+                setStreamingLocation(call, frame, location);
             }
 
             public void componentShown(ComponentEvent e) {}
 
             public void componentHidden(ComponentEvent arg0) {}
         });
+    }
+
+    private static void setStreamingLocation(  final Call call,
+                                               final JFrame frame,
+                                               final Point location)
+    {
+        OperationSetDesktopSharingServer desktopOpSet
+                = call.getProtocolProvider().getOperationSet(
+                OperationSetDesktopSharingServer.class);
+
+        if (desktopOpSet == null)
+            return;
+
+        SwingUtilities.convertPointToScreen(location,
+                frame.getContentPane());
+
+        desktopOpSet.movePartialDesktopStreaming(
+                call, location.x, location.y);
     }
 }
