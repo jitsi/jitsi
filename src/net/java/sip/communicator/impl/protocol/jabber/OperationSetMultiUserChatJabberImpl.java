@@ -74,6 +74,12 @@ public class OperationSetMultiUserChatJabberImpl
     private OperationSetPersistentPresenceJabberImpl opSetPersPresence = null;
 
     /**
+     * A listener that is fired anytime an invitation to join a MUC room is
+     * received.
+     */
+    private SmackInvitationListener smackInvitationListener = null;
+
+    /**
      * Instantiates the user operation set with a currently valid instance of
      * the Jabber protocol provider.
      * @param jabberProvider a currently valid instance of
@@ -861,7 +867,8 @@ public class OperationSetMultiUserChatJabberImpl
 
                 MultiUserChatManager manager = MultiUserChatManager
                     .getInstanceFor(getXmppConnection());
-                manager.addInvitationListener(new SmackInvitationListener());
+                smackInvitationListener = new SmackInvitationListener();
+                manager.addInvitationListener(smackInvitationListener);
             }
             else if (evt.getNewState() == RegistrationState.UNREGISTERED
                 || evt.getNewState() == RegistrationState.CONNECTION_FAILED)
@@ -871,6 +878,13 @@ public class OperationSetMultiUserChatJabberImpl
             }
             else if (evt.getNewState() == RegistrationState.UNREGISTERING)
             {
+                XMPPConnection connection = getXmppConnection();
+                if (smackInvitationListener != null && connection != null)
+                {
+                    MultiUserChatManager.getInstanceFor(connection)
+                        .removeInvitationListener(smackInvitationListener);
+                }
+
                 // lets check for joined rooms and leave them
                 List<ChatRoom> joinedRooms = getCurrentlyJoinedChatRooms();
                 for(ChatRoom room : joinedRooms)
