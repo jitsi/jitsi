@@ -213,6 +213,15 @@ public class MobileIndicator
             this.parentProvider.getDiscoveryManager()
                     .getCapsManager().addUserCapsNodeListener(this);
         }
+        else if((evt.getNewState() == RegistrationState.CONNECTION_FAILED
+                    || evt.getNewState()
+                            == RegistrationState.AUTHENTICATION_FAILED
+                    || evt.getNewState() == RegistrationState.UNREGISTERED)
+                && this.parentProvider.getDiscoveryManager() != null)
+        {
+            this.parentProvider.getDiscoveryManager()
+                .getCapsManager().removeUserCapsNodeListener(this);
+        }
     }
 
     /**

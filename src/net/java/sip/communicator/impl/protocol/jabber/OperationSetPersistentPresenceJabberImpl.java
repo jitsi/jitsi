@@ -1174,6 +1174,10 @@ public class OperationSetPersistentPresenceJabberImpl
                     createAccountPhotoPresenceInterceptor();
                 }
             }
+            else if(evt.getNewState() == RegistrationState.UNREGISTERING)
+            {
+                clearConnectionListeners();
+            }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
                  || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
                  || evt.getNewState() == RegistrationState.CONNECTION_FAILED)
@@ -1191,18 +1195,28 @@ public class OperationSetPersistentPresenceJabberImpl
 
                 ssContactList.cleanup();
 
-                XMPPConnection connection = parentProvider.getConnection();
-                if(connection != null)
-                {
-                    connection.removeAsyncStanzaListener(
-                        subscribtionPacketListener);
-                    Roster.getInstanceFor(connection)
-                        .removeRosterListener(contactChangesListener);
-                }
-
-                subscribtionPacketListener = null;
-                contactChangesListener = null;
+                clearConnectionListeners();
             }
+        }
+    }
+
+    /**
+     * Clear all listeners that depends on XMPPConnection.
+     */
+    private void clearConnectionListeners()
+    {
+        XMPPConnection connection = parentProvider.getConnection();
+        if(connection != null
+            && subscribtionPacketListener != null
+            && contactChangesListener != null)
+        {
+            connection.removeAsyncStanzaListener(
+                subscribtionPacketListener);
+            Roster.getInstanceFor(connection)
+                .removeRosterListener(contactChangesListener);
+
+            subscribtionPacketListener = null;
+            contactChangesListener = null;
         }
     }
 
