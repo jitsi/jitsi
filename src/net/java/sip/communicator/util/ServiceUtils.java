@@ -48,7 +48,8 @@ public class ServiceUtils
             Class<T> serviceClass)
     {
         ServiceReference<T> serviceReference
-            = bundleContext.getServiceReference(serviceClass);
+            = bundleContext == null
+                ? null : bundleContext.getServiceReference(serviceClass);
 
         return
             (serviceReference == null)
