@@ -36,6 +36,7 @@ import org.jivesoftware.smackx.disco.*;
 import org.jivesoftware.smackx.disco.packet.*;
 import org.jivesoftware.smackx.muc.*;
 import org.jivesoftware.smackx.muc.MultiUserChatException.*;
+import org.jivesoftware.smackx.muc.filter.*;
 import org.jivesoftware.smackx.muc.packet.*;
 import org.jivesoftware.smackx.nick.packet.*;
 import org.jivesoftware.smackx.xdata.*;
@@ -2036,9 +2037,6 @@ public class ChatRoomJabberImpl
      * @param extension the <tt>ConferenceDescriptionPacketExtension<tt> to set,
      * or <tt>null</tt> to not set one.
      * @param namespace the namespace of <tt>ExtensionElement</tt>.
-     * @param matchElementName if {@code true} only extensions matching both
-     * the element name and namespace will be matched and removed. Otherwise,
-     * only the namespace will be matched.
      */
     private static void setPacketExtension(
         Stanza packet,
@@ -2382,12 +2380,12 @@ public class ChatRoomJabberImpl
         @Override
         public void subjectUpdated(String subject, EntityFullJid from)
         {
-            if (logger.isInfoEnabled())
-                logger.info("Subject updated to " + subject);
-
             // only fire event if subject has really changed, not for new one
             if(subject != null && !subject.equals(oldSubject))
             {
+                if (logger.isDebugEnabled())
+                    logger.debug("Subject updated to " + subject);
+
                 ChatRoomPropertyChangeEvent evt
                     = new ChatRoomPropertyChangeEvent(
                         ChatRoomJabberImpl.this,
@@ -3084,10 +3082,8 @@ public class ChatRoomJabberImpl
             }
 
             Presence presence = (Presence) packet;
-            Jid ourOccupantJid = JidCreate.entityFullFrom(
-                    multiUserChat.getRoom(),
-                    multiUserChat.getNickname());
-            if (ourOccupantJid.equals(presence.getFrom()))
+            if (MUCUserStatusCodeFilter.STATUS_110_PRESENCE_TO_SELF
+                    .accept(presence))
                 processOwnPresence(presence);
             else
                 processOtherPresence(presence);
