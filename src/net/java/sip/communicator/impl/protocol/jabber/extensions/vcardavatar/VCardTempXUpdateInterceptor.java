@@ -45,6 +45,12 @@ public class VCardTempXUpdateInterceptor implements StanzaListener
         throws NotConnectedException,
         InterruptedException
     {
+        // remove the current if any, to no accumulate extensions
+        // when updating presence
+        packet.removeExtension(
+            presenceExtension.getElementName(),
+            presenceExtension.getNamespace());
+
         packet.addExtension(presenceExtension);
     }
 }
