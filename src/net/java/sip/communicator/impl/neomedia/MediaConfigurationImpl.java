@@ -569,11 +569,18 @@ public class MediaConfigurationImpl
             {
                 deviceList.addListSelectionListener(new ListSelectionListener()
                 {
-
                     @Override
                     public void valueChanged(ListSelectionEvent e)
                     {
                         model.setSelectedItem(deviceList.getSelectedValue());
+
+                        // the list is still changing, but we're only
+                        // interested in the final state
+                        if (e.getValueIsAdjusting())
+                        {
+                            return;
+                        }
+
                         listener.onAction();
                     }
                 });
