@@ -20,6 +20,7 @@ package net.java.sip.communicator.plugin.simpleaccreg;
 import java.awt.*;
 import java.util.*;
 
+import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -358,48 +359,9 @@ public class SimpleAccountRegistrationActivator
      */
     public static ConfigurationForm getAdvancedConfigForm()
     {
-        // General configuration forms only.
-        String osgiFilter = "("
-            + ConfigurationForm.FORM_TYPE
-            + "="+ConfigurationForm.GENERAL_TYPE+")";
-
-        ServiceReference[] confFormsRefs = null;
-        try
-        {
-            confFormsRefs = bundleContext
-                .getServiceReferences(
-                    ConfigurationForm.class.getName(),
-                    osgiFilter);
-        }
-        catch (InvalidSyntaxException ex)
-        {}
-
-        if(confFormsRefs != null)
-        {
-            for (int i = 0; i < confFormsRefs.length; i++)
-            {
-                ConfigurationForm form
-                    = (ConfigurationForm) bundleContext
-                        .getService(confFormsRefs[i]);
-
-                if (form instanceof LazyConfigurationForm)
-                {
-                    LazyConfigurationForm lazyConfigForm
-                        = (LazyConfigurationForm) form;
-
-                    if (lazyConfigForm.getFormClassName().equals(
-                            advancedConfigFormClassName))
-                        return form;
-                }
-                else if (form.getClass().getName().equals(
-                            advancedConfigFormClassName))
-                {
-                    return form;
-                }
-            }
-        }
-
-        return null;
+        return ConfigFormUtils.getConfigForm(
+            ConfigurationForm.GENERAL_TYPE,
+            advancedConfigFormClassName);
     }
 
     /**
@@ -409,45 +371,9 @@ public class SimpleAccountRegistrationActivator
      */
     public static ConfigurationForm getProvisioningConfigForm()
     {
-     // General configuration forms only.
-        String osgiFilter = "("
-            + ConfigurationForm.FORM_TYPE
-            + "="+ConfigurationForm.ADVANCED_TYPE+")";
-
-        ServiceReference[] confFormsRefs = null;
-        try
-        {
-            confFormsRefs = bundleContext
-                .getServiceReferences(
-                    ConfigurationForm.class.getName(),
-                    osgiFilter);
-        }
-        catch (InvalidSyntaxException ex)
-        {}
-
-        if(confFormsRefs != null)
-        {
-            for (int i = 0; i < confFormsRefs.length; i++)
-            {
-                ConfigurationForm form
-                    = (ConfigurationForm) bundleContext
-                        .getService(confFormsRefs[i]);
-
-                if (form instanceof LazyConfigurationForm)
-                {
-                    LazyConfigurationForm lazyConfigForm
-                        = (LazyConfigurationForm) form;
-
-                    if (lazyConfigForm.getFormClassName().equals(
-                            provisioningFormClassName))
-                    {
-                        return form;
-                    }
-                }
-            }
-        }
-
-        return null;
+        return ConfigFormUtils.getConfigForm(
+            ConfigurationForm.ADVANCED_TYPE,
+            provisioningFormClassName);
     }
 
     /**
