@@ -17,6 +17,7 @@
  */
 package net.java.sip.communicator.impl.gui.main.call;
 
+import net.java.sip.communicator.service.gui.call.CallPeerRenderer;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
@@ -41,6 +42,11 @@ public class DesktopSharingMouseAndKeyboardListener
     private final CallPeer callPeer;
 
     /**
+     * Current call peer renderer for control DTMF handling state
+     */
+    CallPeerRenderer callPeerRenderer;
+
+    /**
      * The operation set which received the granted/revoked desktop sharing
      * rights and to which, we are sending the mouse and key events.
      */
@@ -63,13 +69,17 @@ public class DesktopSharingMouseAndKeyboardListener
      *
      * @param callPeer the <tt>CallPeer</tt> which is controlled remotely and to
      * which the mouse and keyboard events are to be sent
+     *
+     * @param callPeerRenderer the renderer of the current peer (at our end)
      */
-    public DesktopSharingMouseAndKeyboardListener(CallPeer callPeer)
+    public DesktopSharingMouseAndKeyboardListener(CallPeer callPeer,
+                                                  CallPeerRenderer callPeerRenderer)
     {
         this(
                 callPeer,
                 callPeer.getProtocolProvider().getOperationSet(
-                        OperationSetDesktopSharingClient.class));
+                        OperationSetDesktopSharingClient.class),
+                callPeerRenderer);
     }
 
     /**
@@ -82,13 +92,17 @@ public class DesktopSharingMouseAndKeyboardListener
      * @param desktopSharingClient the <tt>OperationSetDesktopSharingClient</tt>
      * instance which is to send the mouse and keyboard events to the specified
      * <tt>callPeer</tt>
+     *
+     * @param callPeerRenderer the renderer of the current peer (at our end)
      */
     public DesktopSharingMouseAndKeyboardListener(
             CallPeer callPeer,
-            OperationSetDesktopSharingClient desktopSharingClient)
+            OperationSetDesktopSharingClient desktopSharingClient,
+            CallPeerRenderer callPeerRenderer)
     {
         this.callPeer = callPeer;
         this.desktopSharingClient = desktopSharingClient;
+        this.callPeerRenderer = callPeerRenderer;
     }
 
     /**
@@ -108,6 +122,10 @@ public class DesktopSharingMouseAndKeyboardListener
      */
     public void keyPressed(KeyEvent e)
     {
+        e.setKeyChar(KeyEvent.CHAR_UNDEFINED);
+
+        if (desktopSharingClient != null)
+            desktopSharingClient.sendKeyboardEvent(callPeer, e);
     }
 
     /**
@@ -117,6 +135,10 @@ public class DesktopSharingMouseAndKeyboardListener
      */
     public void keyReleased(KeyEvent e)
     {
+        e.setKeyChar(KeyEvent.CHAR_UNDEFINED);
+
+        if (desktopSharingClient != null)
+            desktopSharingClient.sendKeyboardEvent(callPeer, e);
     }
 
     /**
@@ -126,8 +148,6 @@ public class DesktopSharingMouseAndKeyboardListener
      */
     public void keyTyped(KeyEvent e)
     {
-        if (desktopSharingClient != null)
-            desktopSharingClient.sendKeyboardEvent(callPeer, e);
     }
 
     /**
@@ -248,6 +268,11 @@ public class DesktopSharingMouseAndKeyboardListener
                 videoComponent.addMouseListener(this);
                 videoComponent.addMouseMotionListener(this);
             }
+
+            if (callPeerRenderer != null)
+            {
+                callPeerRenderer.setDtmfToneEnabled(false);
+            }
         }
     }
 
@@ -266,6 +291,11 @@ public class DesktopSharingMouseAndKeyboardListener
                 videoComponent.removeKeyListener(this);
                 videoComponent.removeMouseListener(this);
                 videoComponent.removeMouseMotionListener(this);
+            }
+
+            if (callPeerRenderer != null)
+            {
+                callPeerRenderer.setDtmfToneEnabled(true);
             }
         }
     }

@@ -981,6 +981,11 @@ public class VideoConferenceCallPanel
         private boolean isLocalUser;
 
         /**
+         * Flag for enable/disable DTMF handling
+         */
+        private boolean dtmfEnabled = true;
+
+        /**
          * Initializes a new <tt>ConferenceParticipantContainer</tt> instance
          * which is to depict the local peer/user.
          *
@@ -1404,6 +1409,18 @@ public class VideoConferenceCallPanel
                             .updateThumbnail((video != null));
                 }
             }
+        }
+
+        @Override
+        public void setDtmfToneEnabled(boolean enabled)
+        {
+            dtmfEnabled = enabled;
+        }
+
+        @Override
+        public boolean isDtmfToneEnabled()
+        {
+            return dtmfEnabled;
         }
     }
 }
