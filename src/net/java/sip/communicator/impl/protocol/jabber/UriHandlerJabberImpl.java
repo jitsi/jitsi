@@ -329,7 +329,7 @@ public class UriHandlerJabberImpl
 
             //todo check url!!
             //Set the email pattern string
-            Pattern p = Pattern.compile(".+@.+\\.[a-z]+");
+            Pattern p = Pattern.compile(".+@.+");
             if(!p.matcher(contactId).matches())
             {
                 showErrorMessage(
