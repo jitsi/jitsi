@@ -18,6 +18,7 @@
 package net.java.sip.communicator.impl.protocol.irc;
 
 import net.java.sip.communicator.impl.protocol.irc.exception.*;
+import net.java.sip.communicator.impl.protocol.irc.properties.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
@@ -90,6 +91,12 @@ public class MessageManager
      * Identity manager.
      */
     private final IdentityManager identity;
+
+    /**
+     * The <tt>ConfigurationService</tt> to be used to access configuration
+     */
+    private final org.jitsi.service.configuration.ConfigurationService configurationService
+            = IrcActivator.getConfigurationService();
 
     /**
      * Constructor.
@@ -472,6 +479,18 @@ public class MessageManager
         public void onUserPrivMessage(final UserPrivMsg msg)
         {
             final String user = msg.getSource().getNick();
+
+            String[] ignoredUsers = configurationService.getString(
+                    IrcProperties.PROP_IRC_IGNORE,"")
+                    .split(",");
+
+            for (String ignoredUser : ignoredUsers) {
+                if (user.equalsIgnoreCase(ignoredUser.trim())) {
+                    LOGGER.info("Ignored incoming private message from " + user);
+                    return;
+                }
+            }
+
             final MessageIrcImpl message =
                 MessageIrcImpl.newMessageFromIRC(msg.getText());
             final Contact from =
@@ -500,6 +519,19 @@ public class MessageManager
         public void onUserNotice(final UserNotice msg)
         {
             final String user = msg.getSource().getNick();
+            String[] ignoredUsers = configurationService.getString(
+                    IrcProperties.PROP_IRC_IGNORE,"")
+                    .split(",");
+
+            for (String ignoredUser : ignoredUsers)
+            {
+                if (user.equalsIgnoreCase(ignoredUser.trim()))
+                {
+                    LOGGER.info("Ignored incoming user notice from " + user);
+                    return;
+                }
+            }
+
             final Contact from =
                 MessageManager.this.provider.getPersistentPresence()
                     .findOrCreateContactByID(user);

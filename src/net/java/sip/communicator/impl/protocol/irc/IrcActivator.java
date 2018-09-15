@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.protocol.irc;
 
 import java.util.*;
 
+import net.java.sip.communicator.impl.protocol.irc.properties.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.gui.*;
 import net.java.sip.communicator.service.muc.*;
@@ -109,6 +110,18 @@ public class IrcActivator
                     ProtocolProviderFactory.class.getName(),
                     ircProviderFactory,
                     hashtable);
+
+        hashtable.put( ConfigurationForm.FORM_TYPE,
+                ConfigurationForm.ADVANCED_TYPE);
+        bundleContext.registerService(
+                ConfigurationForm.class.getName(),
+                new LazyConfigurationForm(
+                        IrcIgnoreConfigForm.class.getName(),
+                        getClass().getClassLoader(),
+                        null,
+                        "plugin.irc.IRC_IGNORE_CONFIG",
+                        0, true),
+                hashtable);
 
         if (LOGGER.isInfoEnabled())
         {
