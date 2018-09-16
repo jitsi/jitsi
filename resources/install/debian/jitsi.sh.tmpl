@@ -25,7 +25,11 @@ if $show_splash ; then
     SPLASH_ARG="-splash:splash.gif"
 fi
 
-javabin=`which java`
+if [ -z "$JITSI_JRE_HOME" ] ; then
+    javabin=`which java`
+else
+    javabin="$JITSI_JRE_HOME"/bin/java
+fi
 
 SCDIR=/usr/share/_PACKAGE_NAME_
 JITSI_COMMON_DIR=/usr/share/_PACKAGE_NAME_-common
