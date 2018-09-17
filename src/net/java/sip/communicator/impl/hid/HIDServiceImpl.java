@@ -84,6 +84,14 @@ public class HIDServiceImpl implements HIDService
         {
             symbolPress("altgr");
         }
+        else if(OSUtils.IS_MAC && keycode == KeyEvent.VK_WINDOWS)
+        {   // handle Windows key on MAC 
+            robot.keyPress(KeyEvent.VK_META);
+        }
+        else if (!OSUtils.IS_MAC && keycode == KeyEvent.VK_META) 
+        {   // handle Command key on non MAC
+            robot.keyPress(KeyEvent.VK_WINDOWS);
+        }
         else
         {
             robot.keyPress(keycode);
@@ -105,6 +113,14 @@ public class HIDServiceImpl implements HIDService
         if(keycode == KeyEvent.VK_ALT_GRAPH)
         {
             symbolRelease("altgr");
+        }
+        else if(OSUtils.IS_MAC && keycode == KeyEvent.VK_WINDOWS)
+        {   // handle Windows key on MAC
+            robot.keyRelease(KeyEvent.VK_META);
+        }
+        else if (!OSUtils.IS_MAC && keycode == KeyEvent.VK_META) 
+        {   // handle Command key on non MAC
+            robot.keyRelease(KeyEvent.VK_WINDOWS);
         }
         else
         {
