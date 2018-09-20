@@ -102,6 +102,13 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         "net.java.sip.communicator.impl.protocol.HOLE_PUNCH_PKT_COUNT";
 
     /**
+     * A public IP that should be distributed to peers as a contact address
+     * instead of the locally determined one; required in case of a 1:1 NAT
+     */
+    private static final String PUBLIC_NAT_IP_PROPERTY_NAME =
+        "net.java.sip.communicator.impl.protocol.PUBLIC_NAT_IP";
+
+    /**
      * Number of empty UDP packets to send for NAT hole punching.
      */
     private static final int DEFAULT_HOLE_PUNCH_PKT_COUNT = 3;
@@ -490,6 +497,21 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
      */
     public InetAddress getLastUsedLocalHost()
     {
+        String publicNATIPStr
+            = ProtocolMediaActivator.getConfigurationService().getString(
+                PUBLIC_NAT_IP_PROPERTY_NAME);
+
+        if (publicNATIPStr != null)
+        {
+            try {
+                return InetAddress.getByName(publicNATIPStr);
+            }
+            catch(UnknownHostException e)
+            {
+                logger.warn("Failed to create InetAddress");
+            }
+        }
+
         for (MediaType mediaType : MediaType.values())
         {
             StreamConnector streamConnector

@@ -148,6 +148,13 @@ public class ProtocolProviderServiceSipImpl
                     + "USE_SESSION_LEVEL_DIRECTION_IN_SDP";
 
     /**
+     * A public IP that should be distributed to peers as a contact address
+     * instead of the locally determined one; required in case of a 1:1 NAT
+     */
+    private static final String PUBLIC_NAT_IP_PROPERTY_NAME
+        = "net.java.sip.communicator.impl.protocol.PUBLIC_NAT_IP";
+
+    /**
      * Default number of times that our requests can be forwarded.
      */
     private static final int  MAX_FORWARDS = 70;
@@ -248,7 +255,7 @@ public class ProtocolProviderServiceSipImpl
     /**
      * Validates the contact identifier and returns an error message if
      * applicable and a suggested correction
-     * 
+     *
      * @param contactId the contact identifier to validate
      * @param result Must be supplied as an empty a list. Implementors add
      *            items:
@@ -1446,9 +1453,29 @@ public class ProtocolProviderServiceSipImpl
         try
         {
             //find the address to use with the target
-            InetAddress localAddress = SipActivator
-                .getNetworkAddressManagerService()
-                .getLocalHost(targetAddress.getAddress());
+            InetAddress localAddress = null;
+
+            // handle public IP
+            String publicNATIPStr
+                = SipActivator.getConfigurationService().getString(
+                    PUBLIC_NAT_IP_PROPERTY_NAME);
+
+            if (publicNATIPStr != null)
+            {
+                try {
+                    localAddress = InetAddress.getByName(publicNATIPStr);
+                }
+                catch(UnknownHostException e)
+                {
+                    logger.warn("Failed to create InetAddress");
+                }
+            }
+
+            if (localAddress == null) {
+                localAddress = SipActivator
+                    .getNetworkAddressManagerService()
+                    .getLocalHost(targetAddress.getAddress());
+            }
 
             SipURI contactURI = addressFactory.createSipURI(
                 getAccountID().getUserID()
