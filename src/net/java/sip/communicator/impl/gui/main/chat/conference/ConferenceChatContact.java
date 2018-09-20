@@ -84,4 +84,15 @@ public class ConferenceChatContact
     {
         return descriptor.getContactAddress();
     }
+
+    @Override
+    public String toString()
+    {
+        if (descriptor != null)
+        {
+            return descriptor.getContactAddress();
+        }
+
+        return super.toString();
+    }
 }
