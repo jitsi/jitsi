@@ -23,6 +23,7 @@ import java.util.*;
 import javax.swing.*;
 
 import net.java.sip.communicator.impl.gui.*;
+import net.java.sip.communicator.impl.gui.main.chat.*;
 import net.java.sip.communicator.impl.gui.utils.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
@@ -41,7 +42,7 @@ import net.java.sip.communicator.util.skin.*;
  */
 public class ContactListCellRenderer
     extends JPanel
-    implements  ListCellRenderer,
+    implements  ListCellRenderer<ChatContact<?>>,
                 Icon,
                 Skinnable
 {
@@ -196,7 +197,9 @@ public class ContactListCellRenderer
      *
      * @return this panel
      */
-    public Component getListCellRendererComponent(JList list, Object value,
+    @Override
+    public Component getListCellRendererComponent(
+            JList<? extends ChatContact<?>> list, ChatContact<?> value,
             int index, boolean isSelected, boolean cellHasFocus)
     {
         this.index = index;
@@ -296,12 +299,6 @@ public class ContactListCellRenderer
                     + "/" + groupItem.countChildContacts());
 
             this.isLeaf = false;
-        }
-        else if (value instanceof String)
-        {
-            this.setPreferredSize(new Dimension(20, 30));
-            this.nameLabel.setText((String) value);
-            this.nameLabel.setFont(this.getFont().deriveFont(Font.PLAIN));
         }
         else
         {

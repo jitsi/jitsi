@@ -40,7 +40,7 @@ import net.java.sip.communicator.util.skin.*;
  * @author Adam Netocny
  */
 public class DefaultContactList
-    extends JList
+    extends JList<ChatContact<?>>
     implements Skinnable
 {
     private static final long serialVersionUID = 0L;
