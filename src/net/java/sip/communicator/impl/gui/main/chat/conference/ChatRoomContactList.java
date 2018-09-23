@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.java.sip.communicator.impl.gui.main.contactlist;
+package net.java.sip.communicator.impl.gui.main.chat.conference;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -26,7 +26,6 @@ import javax.swing.text.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.main.chat.*;
-import net.java.sip.communicator.impl.gui.main.chat.conference.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.contactlist.*;
 import net.java.sip.communicator.service.protocol.*;
@@ -39,7 +38,7 @@ import net.java.sip.communicator.util.skin.*;
  * @author Yana Stamcheva
  * @author Adam Netocny
  */
-public class DefaultContactList
+public class ChatRoomContactList
     extends JList<ChatContact<?>>
     implements Skinnable
 {
@@ -48,12 +47,12 @@ public class DefaultContactList
     /**
      * List cell renderer.
      */
-    ContactListCellRenderer renderer = new ContactListCellRenderer();
+    ChatContactCellRenderer renderer = new ChatContactCellRenderer();
 
     /**
      * Creates an instance of <tt>DefaultContactList</tt>.
      */
-    public DefaultContactList()
+    public ChatRoomContactList()
     {
         this.setOpaque(false);
 

@@ -52,7 +52,7 @@ public class ChatRoomMemberListPanel
     /**
      * The list of members.
      */
-    private final DefaultContactList memberList = new DefaultContactList();
+    private final ChatRoomContactList memberList = new ChatRoomContactList();
 
     /**
      * The model of the members list.
