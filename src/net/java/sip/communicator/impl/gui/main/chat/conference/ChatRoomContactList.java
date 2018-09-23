@@ -60,7 +60,7 @@ public class ChatRoomContactList
                 ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
         this.setDragEnabled(true);
-//        this.setTransferHandler(new ContactListTransferHandler(this));
+        this.setTransferHandler(new ChatRoomContactListTransferHandler(this));
         this.setCellRenderer(renderer);
     }
 
