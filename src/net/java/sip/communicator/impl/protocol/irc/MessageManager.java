@@ -96,7 +96,7 @@ public class MessageManager
      * The <tt>ConfigurationService</tt> to be used to access configuration
      */
     private final org.jitsi.service.configuration.ConfigurationService configurationService
-            = IrcActivator.getConfigurationService();
+        = IrcActivator.getConfigurationService();
 
     /**
      * Constructor.
@@ -481,8 +481,8 @@ public class MessageManager
             final String user = msg.getSource().getNick();
 
             String[] ignoredUsers = configurationService.getString(
-                    IrcProperties.PROP_IRC_IGNORE,"")
-                    .split(",");
+                IrcProperties.PROP_IRC_IGNORE,"")
+                .split(",");
 
             for (String ignoredUser : ignoredUsers) {
                 if (user.equalsIgnoreCase(ignoredUser.trim())) {
@@ -520,8 +520,8 @@ public class MessageManager
         {
             final String user = msg.getSource().getNick();
             String[] ignoredUsers = configurationService.getString(
-                    IrcProperties.PROP_IRC_IGNORE,"")
-                    .split(",");
+                IrcProperties.PROP_IRC_IGNORE,"")
+                .split(",");
 
             for (String ignoredUser : ignoredUsers)
             {

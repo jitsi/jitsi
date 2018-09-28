@@ -16,7 +16,7 @@ import java.awt.event.*;
  */
 public class IrcIgnoreConfigForm
     extends TransparentPanel
-        implements ConfigurationForm
+    implements ConfigurationForm
 {
     /**
      * The "ignore" field
@@ -27,13 +27,13 @@ public class IrcIgnoreConfigForm
      * The <tt>ConfigurationService</tt> to be used to access configuration
      */
     private final org.jitsi.service.configuration.ConfigurationService configurationService
-            = IrcActivator.getConfigurationService();
+        = IrcActivator.getConfigurationService();
 
     /**
      * Resource management service instance.
      */
     private static ResourceManagementService Resources
-            = IrcActivator.getResources();
+        = IrcActivator.getResources();
 
     /**
      * Initialize a new <tt>IrcIgnoreConfigForm</tt> instance.
@@ -50,53 +50,62 @@ public class IrcIgnoreConfigForm
         box.add(contentPanel);
 
         TransparentPanel labelPanel
-                = new TransparentPanel(new GridLayout(0, 1, 2, 2));
+            = new TransparentPanel(new GridLayout(0, 1, 2, 2));
         TransparentPanel mainPanel
-                = new TransparentPanel(new GridLayout(0, 1, 2, 2));
+            = new TransparentPanel(new GridLayout(0, 1, 2, 2));
 
         contentPanel.add(labelPanel, BorderLayout.NORTH);
         contentPanel.add(mainPanel, BorderLayout.SOUTH);
 
         labelPanel.add(new JLabel(Resources.getI18NString(
-                "plugin.irc.IRC_IGNORE_DESCRIPTION")));
+            "plugin.irc.IRC_IGNORE_DESCRIPTION")));
 
         ignoreField.setText(
-                (configurationService.getString(
-                        IrcProperties.PROP_IRC_IGNORE,
-                        "")));
-        ignoreField.addFocusListener(new FocusListener() {
-            public void focusGained(FocusEvent focusEvent) {}
+            (configurationService.getString(
+                IrcProperties.PROP_IRC_IGNORE,
+                "")));
+        ignoreField.addFocusListener(new FocusListener()
+        {
+            public void focusGained(FocusEvent focusEvent)
+            {
+            }
 
-            public void focusLost(FocusEvent focusEvent) {
+            public void focusLost(FocusEvent focusEvent)
+            {
                 configurationService.setProperty(
-                        IrcProperties.PROP_IRC_IGNORE, ignoreField.getText());
+                    IrcProperties.PROP_IRC_IGNORE, ignoreField.getText());
             }
         });
         mainPanel.add(ignoreField);
     }
 
     @Override
-    public String getTitle() {
+    public String getTitle()
+    {
         return Resources.getI18NString("plugin.irc.IRC_IGNORE_CONFIG");
     }
 
     @Override
-    public byte[] getIcon() {
+    public byte[] getIcon()
+    {
         return new byte[0];
     }
 
     @Override
-    public Object getForm() {
+    public Object getForm()
+    {
         return this;
     }
 
     @Override
-    public int getIndex() {
+    public int getIndex()
+    {
         return -1;
     }
 
     @Override
-    public boolean isAdvanced() {
+    public boolean isAdvanced()
+    {
         return true;
     }
 }
