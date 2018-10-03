@@ -479,16 +479,9 @@ public class MessageManager
         public void onUserPrivMessage(final UserPrivMsg msg)
         {
             final String user = msg.getSource().getNick();
-
-            String[] ignoredUsers = configurationService.getString(
-                IrcProperties.PROP_IRC_IGNORE,"")
-                .split(",");
-
-            for (String ignoredUser : ignoredUsers) {
-                if (user.equalsIgnoreCase(ignoredUser.trim())) {
-                    LOGGER.info("Ignored incoming private message from " + user);
-                    return;
-                }
+            if(isUserIgnored(user))
+            {
+                return;
             }
 
             final MessageIrcImpl message =
@@ -519,17 +512,9 @@ public class MessageManager
         public void onUserNotice(final UserNotice msg)
         {
             final String user = msg.getSource().getNick();
-            String[] ignoredUsers = configurationService.getString(
-                IrcProperties.PROP_IRC_IGNORE,"")
-                .split(",");
-
-            for (String ignoredUser : ignoredUsers)
+            if(isUserIgnored(msg.getSource().getNick()))
             {
-                if (user.equalsIgnoreCase(ignoredUser.trim()))
-                {
-                    LOGGER.info("Ignored incoming user notice from " + user);
-                    return;
-                }
+                return;
             }
 
             final Contact from =
@@ -558,6 +543,17 @@ public class MessageManager
                 MessageIrcImpl.newActionFromIRC(msg.getText());
             MessageManager.this.provider.getBasicInstantMessaging()
                 .fireMessageReceived(message, from);
+        }
+
+        /**
+         *
+         * @param user the name of the user to be checked
+         * @return
+         */
+        private boolean isUserIgnored(String user)
+        {
+            return configurationService.getString(
+                IrcProperties.PROP_IRC_IGNORE,"").contains(user.toLowerCase());
         }
     }
 }
