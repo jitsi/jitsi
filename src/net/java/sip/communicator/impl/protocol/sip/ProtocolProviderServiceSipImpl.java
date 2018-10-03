@@ -2493,6 +2493,14 @@ public class ProtocolProviderServiceSipImpl
             {
                 uriStr = user + "@"
                     + ((SipURI)src.getAddressOfRecord().getURI()).getHost();
+
+                int uriPort = 
+                    ((SipURI)src.getAddressOfRecord().getURI()).getPort();
+
+                if(uriPort != 5060) {
+                    uriStr = uriStr + ":" + String.valueOf(uriPort);
+                }
+                
             }
 
             //else this could only be a host ... but this should work as is.
