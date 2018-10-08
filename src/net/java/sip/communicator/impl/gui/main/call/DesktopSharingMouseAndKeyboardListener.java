@@ -312,7 +312,10 @@ public class DesktopSharingMouseAndKeyboardListener
 
         synchronized(videoComponentMutex)
         {
-            if(this.videoComponent == null)
+            boolean oldVideoComponentIsNull = this.videoComponent == null;
+            this.videoComponent = videoComponent;
+
+            if(oldVideoComponentIsNull)
             {
                 // If there was no old video component and a new one is set,
                 // registers to the operation set.
@@ -330,8 +333,6 @@ public class DesktopSharingMouseAndKeyboardListener
                     desktopSharingClient.removeRemoteControlListener(this);
                 }
             }
-
-            this.videoComponent = videoComponent;
         }
     }
 }
