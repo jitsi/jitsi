@@ -19,18 +19,19 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jibri;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 
+import net.java.sip.communicator.impl.protocol.jabber.extensions.health.HealthStatusPacketExt;
 import org.jitsi.util.*;
 
+import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.provider.*;
 
+import java.util.List;
+
 /**
- * Status extension included in MUC presence by Jibri to indicate it's status.
- * One of:
- * <li>idle</li> - the instance is idle and can be used for recording
- * <li>busy</li> - the instance is currently recording or doing something very
- *                 important and should not be disturbed
- *
- *
+ * Status extension included in MUC presence by Jibri to indicate its overall status.
+ * Overall status is defined by two sub-extensions:
+ * {@link HealthStatusPacketExt} - whether or not this Jibri is healthy
+ * {@link JibriBusyStatusPacketExt} - whether or not this Jibri is busy
  */
 public class JibriStatusPacketExt
     extends AbstractPacketExtension
@@ -44,8 +45,6 @@ public class JibriStatusPacketExt
      * XML element name of this packet extension.
      */
     public static final String ELEMENT_NAME = "jibri-status";
-
-    private static final String STATUS_ATTRIBUTE = "status";
 
     /**
      * Creates new instance of <tt>VideoMutedExtension</tt>.
@@ -64,57 +63,48 @@ public class JibriStatusPacketExt
         );
     }
 
-    public Status getStatus()
+    private <T extends ExtensionElement> T getFirstChildExtensionOrNull(Class<T> type)
     {
-        return Status.parse(getAttributeAsString(STATUS_ATTRIBUTE));
+        List<T> childExts = getChildExtensionsOfType(type);
+        if (!childExts.isEmpty())
+        {
+            return childExts.get(0);
+        }
+        else
+        {
+            return null;
+        }
     }
 
-    public void setStatus(Status status)
+    public JibriBusyStatusPacketExt getBusyStatus()
     {
-        setAttribute(STATUS_ATTRIBUTE, String.valueOf(status));
+        return getFirstChildExtensionOrNull(JibriBusyStatusPacketExt.class);
     }
 
-    public enum Status
+    public void setBusyStatus(JibriBusyStatusPacketExt busyStatus)
     {
-        IDLE("idle"),
-        BUSY("busy"),
-        UNDEFINED("undefined");
+        setChildExtension(busyStatus);
+    }
 
-        private String name;
+    public HealthStatusPacketExt getHealthStatus()
+    {
+        return getFirstChildExtensionOrNull(HealthStatusPacketExt.class);
+    }
 
-        Status(String name)
-        {
-            this.name = name;
-        }
+    public void setHealthStatus(HealthStatusPacketExt healthStatus)
+    {
+        setChildExtension(healthStatus);
+    }
 
-        @Override
-        public String toString()
-        {
-            return name;
-        }
-
-        /**
-         * Parses <tt>Status</tt> from given string.
-         *
-         * @param status the string representation of <tt>Status</tt>.
-         *
-         * @return <tt>Status</tt> value for given string or
-         *         {@link #UNDEFINED} if given string does not
-         *         reflect any of valid values.
-         */
-        public static Status parse(String status)
-        {
-            if (StringUtils.isNullOrEmpty(status))
-                return UNDEFINED;
-
-            try
-            {
-                return Status.valueOf(status.toUpperCase());
-            }
-            catch(IllegalArgumentException e)
-            {
-                return UNDEFINED;
-            }
-        }
+    /**
+     * Provides a convenient helper to determine if this Jibri is available or not by looking at
+     * both the busy status and the health status.
+     * @return true if this Jibri should be considered available for use according to this presence, false
+     * otherwise
+     */
+    public boolean isAvailable()
+    {
+        return getHealthStatus().getStatus().equals(HealthStatusPacketExt.Health.HEALTHY) &&
+                getBusyStatus().getStatus().equals(JibriBusyStatusPacketExt.BusyStatus.IDLE);
     }
 }

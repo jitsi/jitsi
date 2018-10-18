@@ -253,6 +253,18 @@ public abstract class AbstractPacketExtension
     }
 
     /**
+     * Add the given extension to the list of child extensions, but, if there already exists
+     * any child extensions of this type, remove them first.
+     * @param childExtension the extension to add
+     */
+    public void setChildExtension(ExtensionElement childExtension)
+    {
+        getChildExtensionsOfType(childExtension.getClass())
+            .forEach(this::removeChildExtension);
+        addChildExtension(childExtension);
+    }
+
+    /**
      * Removes all occurrences of an extension element from the list of child
      * extensions.
      * @param childExtension the child extension to remove.
