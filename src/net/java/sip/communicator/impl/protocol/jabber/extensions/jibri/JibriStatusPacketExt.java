@@ -63,22 +63,10 @@ public class JibriStatusPacketExt
         );
     }
 
-    private <T extends ExtensionElement> T getFirstChildExtensionOrNull(Class<T> type)
-    {
-        List<T> childExts = getChildExtensionsOfType(type);
-        if (!childExts.isEmpty())
-        {
-            return childExts.get(0);
-        }
-        else
-        {
-            return null;
-        }
-    }
 
     public JibriBusyStatusPacketExt getBusyStatus()
     {
-        return getFirstChildExtensionOrNull(JibriBusyStatusPacketExt.class);
+        return getChildExtension(JibriBusyStatusPacketExt.class);
     }
 
     public void setBusyStatus(JibriBusyStatusPacketExt busyStatus)
@@ -88,7 +76,7 @@ public class JibriStatusPacketExt
 
     public HealthStatusPacketExt getHealthStatus()
     {
-        return getFirstChildExtensionOrNull(HealthStatusPacketExt.class);
+        return getChildExtension(HealthStatusPacketExt.class);
     }
 
     public void setHealthStatus(HealthStatusPacketExt healthStatus)

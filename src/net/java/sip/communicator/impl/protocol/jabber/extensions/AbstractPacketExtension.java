@@ -265,6 +265,24 @@ public abstract class AbstractPacketExtension
     }
 
     /**
+     * Gets the first extension present of the given type
+     * @param type the type of extension to get
+     * @return the first instance of an extension of type T we find, or null if there is none
+     */
+    public <T extends ExtensionElement> T getChildExtension(Class<T> type)
+    {
+        List<T> childExts = getChildExtensionsOfType(type);
+        if (!childExts.isEmpty())
+        {
+            return childExts.get(0);
+        }
+        else
+        {
+            return null;
+        }
+    }
+
+    /**
      * Removes all occurrences of an extension element from the list of child
      * extensions.
      * @param childExtension the child extension to remove.
