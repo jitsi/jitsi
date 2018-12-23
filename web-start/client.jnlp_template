@@ -102,7 +102,6 @@
 		<jar href="lib/configs@RELEASE@.jar" />
 		<!--<jar href="lib/jdic-all.jar" />-->
 		<jar href="lib/felix.jar" />
-		<jar href="lib/bundle/org.apache.felix.bundlerepository-1.6.4.jar" />
 		<jar href="lib/bundle/log4j.jar" />
 		<jar href="lib/bundle/commons-logging.jar" />
 		@COMMON@

@@ -580,10 +580,6 @@
             <param name="platform" value="windows-${windows.arch}" />
         </antcall>
         <antcall target="strip-multi-platform-jar">
-            <param name="jar" value="${light.dir}/sc-bundles/jitsi-gpl-dependencies.jar"/>
-            <param name="platform" value="windows-${windows.arch}" />
-        </antcall>
-        <antcall target="strip-multi-platform-jar">
             <param name="jar" value="${light.dir}/sc-bundles/jitsi-lgpl-dependencies.jar"/>
             <param name="platform" value="windows-${windows.arch}" />
         </antcall>
@@ -1201,10 +1197,6 @@
       </copy>
       <antcall target="strip-multi-platform-jar">
           <param name="jar" value="${bundles.dest}/libjitsi.jar"/>
-          <param name="platform" value="osx" />
-      </antcall>
-      <antcall target="strip-multi-platform-jar">
-          <param name="jar" value="${bundles.dest}/jitsi-gpl-dependencies.jar"/>
           <param name="platform" value="osx" />
       </antcall>
       <antcall target="strip-multi-platform-jar">
@@ -2179,10 +2171,6 @@
  reference:file:sc-bundles/swingnotification.jar \]]></replacevalue>
         </replace>
         <replace file="${debianize.dir}/../lib/felix.client.run.properties"
-                 token=" reference:file:lib/bundle/org.apache.felix.bundlerepository-1.6.4.jar">
-            <replacevalue></replacevalue>
-        </replace>
-        <replace file="${debianize.dir}/../lib/felix.client.run.properties"
                  token=" reference:file:sc-bundles/os-specific/macosx/growlnotification.jar \${line.separator}">
             <replacevalue></replacevalue>
         </replace>
@@ -2468,7 +2456,7 @@
                  value="$(PACKAGE_NAME)"/>
         <replace file="${debianize.dir}/rules"
                  token=" usr/lib/jni/"
-                 value=" usr/share/$(PACKAGE_NAME)/lib/native -Xslickless.jar -Xslick-runner.jar -X-slick.jar -X.svn"/>
+                 value=" usr/share/$(PACKAGE_NAME)/lib/native/"/>
 
         <!-- some libs are not found when adding libmozembed-linux-gtk1.2.so
             and libjdic.so to deb and i386 package fail to build -->
@@ -3251,10 +3239,6 @@
         <symlink resource="/usr/share/libjitsi/lib/ice4j.jar"
              overwrite="true"
              link="${debian.src.dir}/lib/installer-exclude"/>
-        <!-- jitsi-gpl-dependencies -->
-        <symlink resource="/usr/share/libjitsi/lib/jitsi-gpl-dependencies.jar"
-             overwrite="true"
-             link="${debian.src.dir}/lib/installer-exclude/"/>
         <!-- jitsi-lgpl-dependencies -->
         <symlink resource="/usr/share/libjitsi/lib/jitsi-lgpl-dependencies.jar"
              overwrite="true"
@@ -3775,8 +3759,6 @@
                  link="${debian.bundles.common.dest}/libjitsi.jar/"/>
         <symlink resource="/usr/share/libjitsi/libjitsi.jar"
                  link="${debian.bundles.common.dest}/libjitsi.jar/"/>
-        <symlink resource="/usr/share/libjitsi/lib/jitsi-gpl-dependencies.jar"
-                 link="${debian.bundles.common.dest}/libjitsi.jar/"/>
         <symlink resource="/usr/share/libjitsi/lib/jitsi-lgpl-dependencies.jar"
                  link="${debian.bundles.common.dest}/libjitsi.jar/"/>
         <symlink resource="/usr/share/libjitsi/lib/fmj.jar"
@@ -3803,7 +3785,7 @@
             destfile="${debian.bundles.common.dest}/libjitsi.jar/META-INF/MANIFEST.MF"
             append="true"
             eol="crlf"
-            fixlastline="true">Bundle-ClassPath: .,libjitsi-impl.jar,fmj.jar,jitsi-gpl-dependencies.jar,jitsi-lgpl-dependencies.jar,libjitsi.jar,bcpkix.jar&#013;&#010;&#013;&#010;</concat>
+            fixlastline="true">Bundle-ClassPath: .,libjitsi-impl.jar,fmj.jar,jitsi-lgpl-dependencies.jar,libjitsi.jar,bcpkix.jar&#013;&#010;&#013;&#010;</concat>
         <replace file="${debian.bundles.dest}/../lib/felix.client.run.properties"
                  token="reference:file:sc-bundles/libjitsi.jar">
             <replacevalue>reference:file:/usr/share/jitsi-common/libjitsi.jar</replacevalue>

@@ -83,6 +83,11 @@ public class ConferenceFocusPanel
     private ConferencePeerPanel focusPeerPanel;
 
     /**
+     * Flag for enable/disable DTMF handling
+     */
+    private boolean dtmfEnabled = true;
+
+    /**
      * Initializes a new <tt>ConferenceFocusPanel</tt> which is to depict a
      * specific <tt>CallPeer</tt> on behalf of a specific
      * <tt>BasicConferenceCallPanel</tt> i.e. <tt>CallRenderer</tt>.
@@ -656,5 +661,17 @@ public class ConferenceFocusPanel
                             : memberSoundLevel.intValue());
             }
         }
+    }
+
+    @Override
+    public void setDtmfToneEnabled(boolean enabled)
+    {
+        dtmfEnabled = enabled;
+    }
+
+    @Override
+    public boolean isDtmfToneEnabled()
+    {
+        return dtmfEnabled;
     }
 }

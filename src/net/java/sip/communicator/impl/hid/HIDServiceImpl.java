@@ -77,26 +77,20 @@ public class HIDServiceImpl implements HIDService
      */
     public void keyPress(int keycode)
     {
-        if(OSUtils.IS_WINDOWS || OSUtils.IS_MAC)
-        {
-            /* do not allow modifiers for Windows (as
-             * they are handled in native code with
-             * VkScanCode) and Mac OS X
-             */
-            if(keycode == KeyEvent.VK_ALT ||
-                    keycode == KeyEvent.VK_SHIFT ||
-                    keycode == KeyEvent.VK_ALT_GRAPH)
-            {
-                return;
-            }
-        }
-
         /* AltGr does not seems to work with robot, handle it via our
          * JNI code
          */
         if(keycode == KeyEvent.VK_ALT_GRAPH)
         {
             symbolPress("altgr");
+        }
+        else if(OSUtils.IS_MAC && keycode == KeyEvent.VK_WINDOWS)
+        {   // handle Windows key on MAC 
+            robot.keyPress(KeyEvent.VK_META);
+        }
+        else if (!OSUtils.IS_MAC && keycode == KeyEvent.VK_META) 
+        {   // handle Command key on non MAC
+            robot.keyPress(KeyEvent.VK_WINDOWS);
         }
         else
         {
@@ -119,6 +113,14 @@ public class HIDServiceImpl implements HIDService
         if(keycode == KeyEvent.VK_ALT_GRAPH)
         {
             symbolRelease("altgr");
+        }
+        else if(OSUtils.IS_MAC && keycode == KeyEvent.VK_WINDOWS)
+        {   // handle Windows key on MAC
+            robot.keyRelease(KeyEvent.VK_META);
+        }
+        else if (!OSUtils.IS_MAC && keycode == KeyEvent.VK_META) 
+        {   // handle Command key on non MAC
+            robot.keyRelease(KeyEvent.VK_WINDOWS);
         }
         else
         {

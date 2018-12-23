@@ -232,6 +232,11 @@ public class OneToOneCallPeerPanel
     private final UIVideoHandler2 uiVideoHandler;
 
     /**
+     * Flag for enable/disable DTMF handling
+     */
+    private boolean dtmfEnabled = true;
+
+    /**
      * The <tt>Observer</tt> which listens to changes in the video-related
      * information detected and reported by {@link #uiVideoHandler}.
      */
@@ -362,7 +367,8 @@ public class OneToOneCallPeerPanel
             desktopSharingMouseAndKeyboardListener
                 = new DesktopSharingMouseAndKeyboardListener(
                         callPeer,
-                        desktopSharingClient);
+                        desktopSharingClient,
+                        this);
         }
         else
             desktopSharingMouseAndKeyboardListener = null;
@@ -1647,5 +1653,17 @@ public class OneToOneCallPeerPanel
         {
             this.interested = value;
         }
+    }
+
+    @Override
+    public void setDtmfToneEnabled(boolean enabled)
+    {
+        dtmfEnabled = enabled;
+    }
+
+    @Override
+    public boolean isDtmfToneEnabled()
+    {
+        return dtmfEnabled;
     }
 }

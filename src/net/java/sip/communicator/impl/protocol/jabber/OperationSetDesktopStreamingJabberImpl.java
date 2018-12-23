@@ -312,19 +312,19 @@ public class OperationSetDesktopStreamingJabberImpl
             = (VideoMediaStream)
                 callPeerImpl.getMediaHandler().getStream(MediaType.VIDEO);
 
+        if(origin != null)
+        {
+            origin.x = x;
+            origin.y = y;
+        }
+        else
+        {
+            origin = new Point(x, y);
+        }
+
         if(videoStream != null)
         {
             videoStream.movePartialDesktopStreaming(x, y);
-
-            if(origin != null)
-            {
-                origin.x = x;
-                origin.y = y;
-            }
-            else
-            {
-                origin = new Point(x, y);
-            }
         }
     }
 

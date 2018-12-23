@@ -139,7 +139,44 @@ public class ErrorDialog
                         String message)
     {
         super(owner, false);
+        initTitleAndMessage(title, message);
+        initPanels();
+    }
 
+    /**
+     * Initializes a new <tt>ErrorDialog</tt> with a specific owner
+     * <tt>Frame</tt>, title and message to be displayed.
+     *
+     * @param owner the dialog owner
+     * @param title the title of the dialog
+     * @param message the message to be displayed
+     */
+    private ErrorDialog( Dialog owner,
+                        String title,
+                        String message)
+    {
+        super(owner, false);
+        initTitleAndMessage(title, message);
+        initPanels();
+    }
+
+    /**
+     * Initializes a new <tt>ErrorDialog</tt> with a specific owner
+     * <tt>Frame</tt>, title and message to be displayed.
+     *
+     * @param owner the dialog owner
+     * @param title the title of the dialog
+     * @param message the message to be displayed
+     */
+    public static ErrorDialog create( Dialog owner,
+                        String title,
+                        String message)
+    {
+        return new ErrorDialog(owner, title, message);
+    }
+
+    private void initTitleAndMessage(String title, String message)
+    {
         this.mainPanel.setBorder(
             BorderFactory.createEmptyBorder(20, 20, 10, 20));
 
@@ -181,8 +218,6 @@ public class ErrorDialog
                         messageArea.getPreferredSize().height));
 
         this.infoMessagePanel.add(messageArea, BorderLayout.CENTER);
-
-        this.init();
     }
 
     /**
@@ -263,7 +298,7 @@ public class ErrorDialog
     /**
      * Initializes this dialog.
      */
-    private void init()
+    private void initPanels()
     {
         this.getRootPane().setDefaultButton(okButton);
 

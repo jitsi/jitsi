@@ -42,6 +42,8 @@ import com.google.api.client.auth.oauth2.*;
 import com.google.api.client.http.*;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.javanet.*;
+import com.google.api.client.json.Json;
+import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.*;
 import com.google.gson.*;
 import com.google.gson.annotations.*;
@@ -180,42 +182,46 @@ public class OAuth2TokenStore
         throws URISyntaxException, ClientProtocolException, IOException
     {
         final TokenData token;
-        String refreshToken = restoreRefreshToken(identity);
-        if (refreshToken == null)
+        LOGGER.info("No credentials available yet. Requesting user to "
+            + "approve access to Contacts API for identity " + identity
+            + " using URL: " + APPROVAL_URL);
+        // Synchronize on OAuth approval dialog CLASS, to ensure that only
+        // one dialog shows at a time.
+        synchronized (OAuthApprovalDialog.class)
         {
-            LOGGER.info("No credentials available yet. Requesting user to "
-                + "approve access to Contacts API for identity " + identity
-                + " using URL: " + APPROVAL_URL);
-            final OAuthApprovalDialog dialog =
-                new OAuthApprovalDialog(identity);
-            // Synchronize on OAuth approval dialog CLASS, to ensure that only
-            // one dialog shows at a time.
-            synchronized (OAuthApprovalDialog.class)
+            String refreshToken = restoreRefreshToken(identity);
+            if (refreshToken == null)
             {
+                final OAuthApprovalDialog dialog =
+                    new OAuthApprovalDialog(identity);
                 dialog.setVisible(true);
+                switch (dialog.getResponse())
+                {
+                case CONFIRMED:
+                    // dialog is confirmed, so process entered approval code
+                    token = dialog.getToken();
+                    if (token == null || token.refreshToken == null)
+                    {
+                        return;
+                    }
+
+                    saveRefreshToken(token, identity);
+                    break;
+                case CANCELLED:
+                default:
+                    // user one time cancellation
+                    // let token remain null, as we do not have new information
+                    // yet
+                    token = null;
+                    break;
+                }
             }
-            switch (dialog.getResponse())
+            else
             {
-            case CONFIRMED:
-                // dialog is confirmed, so process entered approval code
-                final String approvalCode = dialog.getApprovalCode();
-                LOGGER.debug("Approval code from user: " + approvalCode);
-                token = requestAuthenticationToken(approvalCode);
-                saveRefreshToken(token, identity);
-                break;
-            case CANCELLED:
-            default:
-                // user one time cancellation
-                // let token remain null, as we do not have new information
-                // yet
-                token = null;
-                break;
+                token = new TokenData(null, refreshToken, 0);
             }
         }
-        else
-        {
-            token = new TokenData(null, refreshToken, 0);
-        }
+
         store.set(createCredential(store, token));
     }
 
@@ -378,6 +384,23 @@ public class OAuth2TokenStore
         final HttpResponse httpResponse = client.execute(post);
         final String responseJson = EntityUtils.toString(
                 httpResponse.getEntity(), StandardCharsets.UTF_8);
+
+        if (httpResponse.getStatusLine().getStatusCode() != 200)
+        {
+            JsonElement element = new JsonParser().parse(responseJson);
+            if (element.isJsonObject())
+            {
+                JsonElement description = element.getAsJsonObject()
+                    .get("error_description");
+                if (description != null)
+                {
+                    throw new IOException(description.getAsString());
+                }
+            }
+
+            throw new IOException(httpResponse.getStatusLine().getReasonPhrase());
+        }
+
         return GSON.fromJson(responseJson, TokenData.class);
     }
 
@@ -390,12 +413,17 @@ public class OAuth2TokenStore
      */
     private static class OAuthApprovalDialog
         extends SIPCommDialog
+        implements ActionListener
     {
         private static final long serialVersionUID = 6792589736608633346L;
 
         private final SIPCommLinkButton link;
 
         private final SIPCommTextField code = new SIPCommTextField("");
+
+        private final ResourceManagementService resources;
+
+        private TokenData token;
 
         // Initialize behavior of code input field.
         {
@@ -414,7 +442,7 @@ public class OAuth2TokenStore
         {
             super(false);
 
-            final ResourceManagementService resources =
+            resources =
                 GoogleContactsActivator.getResourceManagementService();
             final String instructionsText =
                 resources.getI18NString("impl.googlecontacts.INSTRUCTIONS");
@@ -472,17 +500,7 @@ public class OAuth2TokenStore
             final JButton doneButton =
                 new JButton(resources.getI18NString("service.gui.SAVE"));
             doneButton.setMnemonic('s');
-            doneButton.addActionListener(new ActionListener()
-            {
-
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    OAuthApprovalDialog.this.response =
-                        UserResponseType.CONFIRMED;
-                    OAuthApprovalDialog.this.dispose();
-                }
-            });
+            doneButton.addActionListener(this);
             buttonPanel.add(doneButton, BorderLayout.EAST);
 
             this.add(mainPanel);
@@ -490,14 +508,33 @@ public class OAuth2TokenStore
             this.pack();
         }
 
-        /**
-         * Get approval code entered by the user in the dialog input field.
-         *
-         * @return Returns the approval code.
-         */
-        public String getApprovalCode()
+        @Override
+        public void actionPerformed(ActionEvent e)
         {
-            return this.code.getText();
+            try
+            {
+                token = requestAuthenticationToken(
+                    OAuthApprovalDialog.this.code.getText());
+            }
+            catch (IOException e1)
+            {
+                ErrorDialog dialog = ErrorDialog.create(OAuthApprovalDialog.this,
+                    resources.getI18NString("service.gui.ERROR"),
+                    resources.getI18NString("impl.googlecontacts.INVALID_CODE", new String[]{
+                        e1.getMessage()
+                    }));
+                dialog.setVisible(true);
+                return;
+            }
+
+            OAuthApprovalDialog.this.response =
+                UserResponseType.CONFIRMED;
+            OAuthApprovalDialog.this.dispose();
+        }
+
+        public TokenData getToken()
+        {
+            return this.token;
         }
 
         /**

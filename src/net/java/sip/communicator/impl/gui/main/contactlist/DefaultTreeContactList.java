@@ -60,10 +60,6 @@ public class DefaultTreeContactList
             ExtendedTreeUI.class.getName());
     }
 
-    /**
-     * The cached selection event.
-     */
-    private TreeSelectionEvent myCachedSelectionEvent;
 
     /**
      * The tree cell renderer.
@@ -85,26 +81,6 @@ public class DefaultTreeContactList
         this.setCellRenderer(renderer);
 
         ToolTipManager.sharedInstance().registerComponent(this);
-
-        // By default 2 successive clicks are need to begin dragging.
-        // Workaround provided by simon@tardell.se on 29-DEC-2002 for bug 4521075
-        // http://bugs.sun.com/bugdatabase/view_bug.do;jsessionid=a13e98ab2364524506eb91505565?bug_id=4521075
-        // "Drag gesture in JAVA different from Windows". The bug is also noticed
-        // on Mac Leopard.
-        addMouseListener(new MouseAdapter()
-        {
-            @Override
-            public void mouseReleased(MouseEvent e)
-            {
-                if(myCachedSelectionEvent == null)
-                    return;
-
-                DefaultTreeContactList.super
-                    .fireValueChanged(myCachedSelectionEvent);
-
-                myCachedSelectionEvent = null;
-            }
-        });
     }
 
     /**

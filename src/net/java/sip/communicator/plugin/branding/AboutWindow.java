@@ -215,6 +215,11 @@ public class AboutWindow
                 "http://www.apache.org/licenses/LICENSE-2.0",
                 "Apache License 2.0"
             }));
+        if (OSUtils.IS_MAC || OSUtils.IS_WINDOWS)
+        {
+            rightsArea.appendToEnd(resources.getI18NString(
+                "plugin.branding.COPYRIGHT_OPENH264_LICENSE"));
+        }
 
         rightsArea.setBorder(BorderFactory
                     .createEmptyBorder(0, DEFAULT_TEXT_INDENT, 0, 0));

@@ -359,6 +359,7 @@ public class OperationSetDesktopSharingServerJabberImpl
     {
         this.modifyRemoteControl(callPeer, false);
         callPeer.removeCallPeerListener(callPeerListener);
+        origin = null;
     }
 
     /**

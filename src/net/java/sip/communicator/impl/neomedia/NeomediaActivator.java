@@ -566,6 +566,9 @@ public class NeomediaActivator
                             true),
                     callRecordingProps);
         }
+
+        // Checks for update
+        OpenH264Retriever.checkForUpdateAndDownload();
     }
 
     /**

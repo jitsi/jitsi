@@ -2268,6 +2268,10 @@ public class TreeContactList
                 OperationSetPersistentPresence.class);
         final String displayName = sourceContact.getDisplayName();
 
+        if (details.size() == 0)
+        {
+            return null;
+        }
         if (details.size() == 1)
         {
             addContactComponentTmp

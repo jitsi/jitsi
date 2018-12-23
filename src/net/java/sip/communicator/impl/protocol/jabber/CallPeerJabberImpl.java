@@ -1488,7 +1488,18 @@ public class CallPeerJabberImpl
              */
             if (CallPeerState.DISCONNECTED.equals(newState)
                     || CallPeerState.FAILED.equals(newState))
-                getMediaHandler().getTransportManager().close();
+            {
+                CallPeerMediaHandlerJabberImpl mediaHandler = getMediaHandler();
+                if (mediaHandler != null)
+                {
+                    TransportManagerJabberImpl transportManager
+                        = mediaHandler.getTransportManager();
+                    if (transportManager != null)
+                    {
+                        transportManager.close();
+                    }
+                }
+            }
         }
         finally
         {
