@@ -55,7 +55,7 @@
 			<attribute name="javadoc_location" value="http://dbus.freedesktop.org/doc/dbus-java/api/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi-1.0-20170723.182204-295.jar" sourcepath="/libjitsi/src"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi-1.0-09fc4d0.jar" sourcepath="/libjitsi/src"/>
 	<classpathentry kind="lib" path="lib/bundle/log4j.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/mac_widgets-0.9.5.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/objenesis-1.2.jar"/>
@@ -81,6 +81,7 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/jackson-core-2.5.3.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/dnssecjava-1.1.jar" sourcepath="/dnssecjava"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/gson-2.8.0.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/commons-compress-1.15.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/smack-core-4.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/smack-debug-4.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/smack-extensions-4.2.1.jar"/>

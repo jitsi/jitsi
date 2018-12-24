@@ -113,12 +113,24 @@ public class SourceContactRightButtonMenu
         {
             addContactComponent
                 = TreeContactList.createAddContactMenu(sourceContact);
+        }
+
+        List<ProtocolProviderService> imProviders
+        = AccountUtils.getRegisteredProviders(
+                OperationSetBasicInstantMessaging.class);
+        List<ProtocolProviderService> smsProviders
+            = AccountUtils.getRegisteredProviders(
+                    OperationSetSmsMessaging.class);
+
+        if ((imProviders.size()
+            + (smsProviders == null ? 0 : smsProviders.size())) >= 1)
+        {
             initSendMessageMenu();
         }
 
         if (addContactComponent != null)
             add(addContactComponent);
-        
+
 
         for(JMenuItem item :
             sourceUIContact.getContactCustomActionMenuItems(true))
@@ -146,8 +158,17 @@ public class SourceContactRightButtonMenu
             @Override
             public void actionPerformed(ActionEvent e)
             {
-                GuiActivator.getUIService().getChatWindowManager()
-                    .startChat(sourceContact.getContactAddress());
+                if (!GuiActivator.getUIService().getChatWindowManager()
+                    .startChat(sourceContact.getContactAddress()))
+                {
+                    new ErrorDialog(null,
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.ERROR"),
+                        GuiActivator.getResources().getI18NString(
+                            "service.gui.NO_ONLINE_MESSAGING_ACCOUNT"))
+                        .showDialog();
+                    return;
+                }
             }
         });
         add(sendMessageItem);
@@ -164,13 +185,26 @@ public class SourceContactRightButtonMenu
         callContactMenu.setIcon(new ImageIcon(ImageLoader
             .getImage(ImageLoader.CALL_16x16_ICON)));
 
-        Iterator<ContactDetail> details
-            = sourceContact.getContactDetails(OperationSetBasicTelephony.class)
-                .iterator();
+        List<ContactDetail> details
+            = sourceContact.getContactDetails(OperationSetBasicTelephony.class);
 
-        while (details.hasNext())
+        for (final ContactDetail detail : details)
         {
-            final ContactDetail detail = details.next();
+            List<ProtocolProviderService> providers
+                = AccountUtils.getOpSetRegisteredProviders(
+                    OperationSetBasicTelephony.class,
+                    detail.getPreferredProtocolProvider(
+                        OperationSetBasicTelephony.class),
+                    detail.getPreferredProtocol(
+                        OperationSetBasicTelephony.class));
+
+            int providersCount = providers.size();
+    
+            if (providers == null || providersCount <= 0)
+            {
+                continue;
+            }
+
             // add all the contacts that support telephony to the call menu
             JMenuItem callContactItem = new JMenuItem();
             callContactItem.setText(detail.getDetail());
@@ -221,50 +255,21 @@ public class SourceContactRightButtonMenu
             callContactMenu.add(callContactItem);
         }
 
-        if(callContactMenu.getMenuComponentCount() == 0)
+        if (callContactMenu.getMenuComponentCount() == 0)
+        {
             return null;
+        }
+
+        if (callContactMenu.getMenuComponentCount() == 1)
+        {
+            JMenuItem menu = (JMenuItem)callContactMenu.getMenuComponent(0);
+            menu.setIcon(callContactMenu.getIcon());
+            menu.setText(callContactMenu.getText());
+            return menu;
+        }
 
         return callContactMenu;
     }
-
-//    private Component initIMMenu()
-//    {
-//        SIPCommMenu callContactMenu = new SIPCommMenu(
-//            GuiActivator.getResources().getI18NString(
-//                "service.gui.SEND_MESSAGE"));
-//        callContactMenu.setIcon(new ImageIcon(ImageLoader
-//            .getImage(ImageLoader.SEND_MESSAGE_16x16_ICON)));
-//
-//        Iterator<ContactDetail> details
-//            = sourceContact.getContactDetails(
-//                OperationSetBasicInstantMessaging.class).iterator();
-//
-//        while (details.hasNext())
-//        {
-//            final ContactDetail detail = details.next();
-//            // add all the contacts that support telephony to the call menu
-//            JMenuItem callContactItem = new JMenuItem();
-//            callContactItem.setName(detail.getContactAddress());
-//            callContactItem.addActionListener(new ActionListener()
-//            {
-//                public void actionPerformed(ActionEvent e)
-//                {
-//                    ProtocolProviderService protocolProvider
-//                        = detail.getPreferredProtocolProvider(
-//                            OperationSetBasicInstantMessaging.class);
-//
-//                    if (protocolProvider != null)
-//                        CallManager.createCall( protocolProvider,
-//                                                detail.getContactAddress());
-//                    else
-//                        GuiActivator.getUIService().getChatWindowManager()
-//                            .startChat(contactItem);
-//                }
-//            });
-//            callContactMenu.add(callContactItem);
-//        }
-//        return callContactMenu;
-//    }
 
     /**
      * Reloads icons for menu items.

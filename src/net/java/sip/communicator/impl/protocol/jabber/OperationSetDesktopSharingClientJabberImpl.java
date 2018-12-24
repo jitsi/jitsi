@@ -212,6 +212,10 @@ public class OperationSetDesktopSharingClientJabberImpl
                         fireRemoteControlRevoked(callPeer);
                     }
                 }
+                else
+                {
+                    addAddDeferredRemoteControlPeer(callPeerID);
+                }
             }
         }
 

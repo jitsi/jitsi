@@ -112,12 +112,29 @@ public class DataObject
              * If value is null, remove the association with key (or just don't
              * add it).
              */
-            if (data == null)
+            if (value != null)
             {
-                if (value != null)
-                    data = new Object[] { key, value };
+                if (data == null)
+                {
+                    if (value != null)
+                        data = new Object[]
+                        { key, value };
+                }
+                else
+                {
+                    int length = data.length;
+                    Object[] newData = new Object[length + 2];
+
+                    System.arraycopy(data, 0, newData, 0, length);
+                    data = newData;
+                    data[length++] = key;
+                    data[length++] = value;
+                }
             }
-            else if (value == null)
+        }
+        else
+        {
+            if (value == null)
             {
                 int length = data.length - 2;
 
@@ -126,25 +143,15 @@ public class DataObject
                     Object[] newData = new Object[length];
 
                     System.arraycopy(data, 0, newData, 0, index);
-                    System.arraycopy(
-                        data, index + 2, newData, index, length - index);
+                    System.arraycopy(data, index + 2, newData, index,
+                        length - index);
                     data = newData;
                 }
                 else
                     data = null;
             }
             else
-            {
-                int length = data.length;
-                Object[] newData = new Object[length + 2];
-
-                System.arraycopy(data, 0, newData, 0, length);
-                data = newData;
-                data[length++] = key;
-                data[length++] = value;
-            }
+                data[index + 1] = value;
         }
-        else
-            data[index + 1] = value;
     }
 }

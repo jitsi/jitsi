@@ -116,6 +116,11 @@ public class ConferencePeerPanel
         = new SoundLevelListenerImpl();
 
     /**
+     * Flag for enable/disable DTMF handling
+     */
+    private boolean dtmfEnabled = true;
+
+    /**
      * Initializes a new <tt>ConferencePeerPanel</tt> which is to depict the
      * local peer represented by a specific <tt>Call</tt> on behalf of a
      * specific <tt>BasicConferenceCallPanel</tt> i.e. <tt>CallRenderer</tt>.
@@ -848,5 +853,17 @@ public class ConferencePeerPanel
                 updateSoundBar(level);
             }
         }
+    }
+
+    @Override
+    public void setDtmfToneEnabled(boolean enabled)
+    {
+        dtmfEnabled = enabled;
+    }
+
+    @Override
+    public boolean isDtmfToneEnabled()
+    {
+        return dtmfEnabled;
     }
 }

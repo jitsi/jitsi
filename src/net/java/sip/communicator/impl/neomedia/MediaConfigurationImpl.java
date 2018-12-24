@@ -29,6 +29,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
+import net.java.sip.communicator.impl.neomedia.codec.video.h264.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.TransparentPanel;
 import net.java.sip.communicator.util.*;
@@ -568,11 +569,18 @@ public class MediaConfigurationImpl
             {
                 deviceList.addListSelectionListener(new ListSelectionListener()
                 {
-
                     @Override
                     public void valueChanged(ListSelectionEvent e)
                     {
                         model.setSelectedItem(deviceList.getSelectedValue());
+
+                        // the list is still changing, but we're only
+                        // interested in the final state
+                        if (e.getValueIsAdjusting())
+                        {
+                            return;
+                        }
+
                         listener.onAction();
                     }
                 });
@@ -1517,8 +1525,12 @@ public class MediaConfigurationImpl
     private Component createEncodingControls(int type,
             EncodingConfiguration encodingConfiguration)
     {
+        // encodingConfiguration is null when it is loaded
+        // from the general config
+        boolean isEncodingConfigurationNull = false;
         if(encodingConfiguration == null)
         {
+            isEncodingConfigurationNull = true;
             encodingConfiguration
                     = mediaService.getCurrentEncodingConfiguration();
         }
@@ -1637,6 +1649,15 @@ public class MediaConfigurationImpl
 
         container.add(new JScrollPane(table), BorderLayout.CENTER);
         container.add(parentButtonBar, BorderLayout.EAST);
+        // show openh264 panel on mac & windows, only for video and only in
+        // general video encodings
+        if (type == DeviceConfigurationComboBoxModel.VIDEO
+            && isEncodingConfigurationNull
+            && (OSUtils.IS_MAC || OSUtils.IS_WINDOWS))
+        {
+            container.add(
+                OpenH264Retriever.getConfigPanel(), BorderLayout.SOUTH);
+        }
         return container;
     }
 

@@ -262,6 +262,22 @@ public class SIPCommTextField
     }
 
     /**
+     * Remove the default text when inserting a new section, e.g. via Drag and
+     * Drop.
+     * @param content the text section to insert.
+     */
+    @Override
+    public void replaceSelection(String content)
+    {
+        if(super.getText().equals(defaultText))
+        {
+            clearDefaultText();
+        }
+
+        super.replaceSelection(content);
+    }
+
+    /**
      * Sets the foreground color.
      *
      * @param c the color to set for the text field foreground

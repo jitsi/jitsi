@@ -81,6 +81,11 @@ public abstract class AbstractOperationSetDesktopSharingClient
         = new ArrayList<WeakReference<RemoteControlListener>>();
 
     /**
+     * Peers who granted/revoked remote control before it's listeners was
+     * added
+     */
+    private List<String> deferredRemoteControlPeers = new ArrayList<>();
+    /**
      * The <tt>ProtocolProviderService</tt> implementation which created this
      * instance and for which telephony conferencing services are being provided
      * by this instance.
@@ -148,6 +153,12 @@ public abstract class AbstractOperationSetDesktopSharingClient
         // function for this listener.
         if(this.removesNullAndRevokedControlPeer(peer.getPeerID()) != -1)
             listener.remoteControlGranted(new RemoteControlGrantedEvent(peer));
+
+        if (deferredRemoteControlPeers.contains(peer.getAddress()))
+        {
+            fireRemoteControlGranted(peer);
+            deferredRemoteControlPeers.remove(peer.getAddress());
+        }
     }
 
     /**
@@ -195,6 +206,13 @@ public abstract class AbstractOperationSetDesktopSharingClient
         this.removesNullAndRevokedControlPeer(peer.getPeerID());
     }
 
+    public void addAddDeferredRemoteControlPeer(String address)
+    {
+        if (!deferredRemoteControlPeers.contains(address))
+        {
+            deferredRemoteControlPeers.add(address);
+        }
+    }
     /**
      * Gets a list of <tt>RemoteControlListener</tt>s to be notified of remote
      * control access changes.

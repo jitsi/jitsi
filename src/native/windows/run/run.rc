@@ -23,7 +23,7 @@
 #endif /* #ifndef RT_MANIFEST */
 1 RT_MANIFEST "asInvoker.exe.manifest"
 
-SCLogoIcon ICON sc-logo.ico
+SCLogoIcon ICON "sc-logo.ico"
 
 STRINGTABLE
 BEGIN

@@ -15,6 +15,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+#undef _UNICODE
+#undef UNICODE
 
 #include "run.h"
 
@@ -27,11 +29,12 @@
 #include <string.h>
 #include <tchar.h>
 #include <tlhelp32.h> /* CreateToolhelp32Snapshot */
+#include <Shlobj.h> /* SHGetFolderPath */
 
 #include "registry.h"
 #include "../setup/nls.h"
 
-#define JAVA_MAIN_CLASS _T("net.java.sip.communicator.launcher.SIPCommunicator")
+#define JAVA_MAIN_CLASS "net.java.sip.communicator.launcher.SIPCommunicator"
 
 /**
  * The pipe through which the launcher is to communicate with the crash handler.
@@ -43,7 +46,7 @@ static HANDLE Run_channel = INVALID_HANDLE_VALUE;
  * function argument of its <tt>WinMain</tt> entry point and that is currently
  * unparsed i.e. the parts which have already been parsed are no longer present.
  */
-static LPSTR Run_cmdLine = NULL;
+static LPTSTR Run_cmdLine = NULL;
 
 /**
  * The indicator which determines whether the crash handler is to launch the
@@ -66,16 +69,16 @@ static DWORD Run_handleLauncherExitCode(DWORD exitCode, LPCTSTR lockFilePath, LP
 static BOOL Run_isDirectory(LPCTSTR fileName);
 static BOOL Run_isFile(LPCTSTR fileName);
 static DWORD Run_openProcessAndResumeThread(DWORD processId, DWORD threadId, HANDLE *process);
-static DWORD Run_runAsCrashHandler(LPCTSTR executableFilePath, LPSTR cmdLine);
-static DWORD Run_runAsCrashHandlerWithPipe(LPCTSTR executableFilePath, LPSTR cmdLine, HANDLE *readPipe, HANDLE *writePipe);
-static DWORD Run_runAsLauncher(LPCTSTR executableFilePath, LPSTR cmdLine);
-static DWORD Run_runJava(LPCTSTR executableFilePath, LPSTR cmdLine);
+static DWORD Run_runAsCrashHandler(LPCTSTR executableFilePath, LPTSTR cmdLine);
+static DWORD Run_runAsCrashHandlerWithPipe(LPCTSTR executableFilePath, LPTSTR cmdLine, HANDLE *readPipe, HANDLE *writePipe);
+static DWORD Run_runAsLauncher(LPCTSTR executableFilePath, LPTSTR cmdLine);
+static DWORD Run_runJava(LPCTSTR executableFilePath, LPTSTR cmdLine);
 static DWORD Run_runJavaExe(LPCTSTR javaExe, BOOL searchPath, BOOL *searchForJava);
 static DWORD Run_runJavaFromEnvVar(LPCTSTR envVar, BOOL *searchForJava);
 static DWORD Run_runJavaFromJavaHome(LPCTSTR javaHome, BOOL searchForRuntimeLib, BOOL *searchForJava);
 static DWORD Run_runJavaFromRegKey(HKEY key, BOOL *searchForJava);
 static DWORD Run_runJavaFromRuntimeLib(LPCTSTR runtimeLib, LPCTSTR javaHome, BOOL *searchForJava);
-static LPSTR Run_skipWhitespace(LPSTR str);
+static LPTSTR Run_skipWhitespace(LPTSTR str);
 
 typedef void (CALLBACK *SplashInit)();
 typedef int (CALLBACK *SplashLoadFile)(const char* file);
@@ -125,18 +128,18 @@ Run_addPath(LPCTSTR path)
 static DWORD
 Run_callStaticVoidMain(JNIEnv *jniEnv, BOOL *searchForJava)
 {
-    LPTSTR mainClassName;
+    LPSTR mainClassName;
     jclass mainClass;
     DWORD error;
 
-    mainClassName = _tcsdup(JAVA_MAIN_CLASS);
+    mainClassName = strdup(JAVA_MAIN_CLASS);
     if (mainClassName)
     {
-        LPTSTR ch;
+        LPSTR ch;
 
         for (ch = mainClassName; *ch; ch++)
             if (_T('.') == *ch)
-                *ch = _T('/');
+                *ch = '/';
         mainClass = (*jniEnv)->FindClass(jniEnv, mainClassName);
         free(mainClassName);
     }
@@ -161,10 +164,13 @@ Run_callStaticVoidMain(JNIEnv *jniEnv, BOOL *searchForJava)
                 int argc = 0;
                 LPWSTR *argv = NULL;
 
-                if (Run_cmdLine && strlen(Run_cmdLine))
+                if (Run_cmdLine && _tcslen(Run_cmdLine))
                 {
+#if defined(UNICODE) || defined(_UNICODE)
+                    argv = CommandLineToArgvW(Run_cmdLine, &argc);
+                    error = argv ? ERROR_SUCCESS : GetLastError();
+#else
                     LPWSTR cmdLineW = NLS_str2wstr(Run_cmdLine);
-
                     if (cmdLineW)
                     {
                         argv = CommandLineToArgvW(cmdLineW, &argc);
@@ -173,6 +179,7 @@ Run_callStaticVoidMain(JNIEnv *jniEnv, BOOL *searchForJava)
                     }
                     else
                         error = ERROR_NOT_ENOUGH_MEMORY;
+#endif
                 }
                 else
                     error = ERROR_SUCCESS;
@@ -320,7 +327,7 @@ Run_equalsParentProcessExecutableFilePath(
                         parentProcess,
                         NULL,
                         parentProcessExecutableFilePath,
-                        sizeof(parentProcessExecutableFilePath));
+                        sizeof(parentProcessExecutableFilePath) / sizeof(TCHAR));
 
             if (parentProcessExecutableFilePathLength)
             {
@@ -346,7 +353,7 @@ static DWORD
 Run_getExecutableFilePath(LPTSTR *executableFilePath)
 {
     TCHAR str[MAX_PATH + 1];
-    DWORD capacity = sizeof(str);
+    DWORD capacity = sizeof(str) / sizeof(TCHAR);
     DWORD length = GetModuleFileName(NULL, str, capacity);
     DWORD error;
 
@@ -377,7 +384,7 @@ Run_getExecutableFilePath(LPTSTR *executableFilePath)
 static DWORD
 Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
 {
-    LPCTSTR mainClass = JAVA_MAIN_CLASS;
+    LPCTSTR mainClass = _T(JAVA_MAIN_CLASS);
 
     size_t javaExeLength;
     size_t mainClassLength;
@@ -432,30 +439,29 @@ Run_getJavaExeCommandLine(LPCTSTR javaExe, LPTSTR *commandLine)
 static LPTSTR
 Run_getJavaLibraryPath()
 {
-    LPCTSTR relativeJavaLibraryPath = _T("native");
-    TCHAR javaLibraryPath[MAX_PATH + 1];
-    DWORD javaLibraryPathCapacity
-        = sizeof(javaLibraryPath) / sizeof(TCHAR);
-    DWORD javaLibraryPathLength
-        = GetFullPathName(
-                relativeJavaLibraryPath,
-                javaLibraryPathCapacity, javaLibraryPath,
-                NULL);
-    LPCTSTR dup;
-
-    if (javaLibraryPathLength
-            && (javaLibraryPathLength < javaLibraryPathCapacity))
+    TCHAR installedNativePath[MAX_PATH];
+    size_t installedNativePathLength = GetFullPathName(_T("native"), MAX_PATH, installedNativePath, NULL);
+    if (!installedNativePathLength || installedNativePathLength >= MAX_PATH)
     {
-        LPTSTR str = javaLibraryPath;
-
-        str += javaLibraryPathLength;
-        *str = 0;
-
-        dup = javaLibraryPath;
+        return _tcsdup(_T(""));
     }
-    else
-        dup = relativeJavaLibraryPath;
-    return _tcsdup(dup);
+
+    TCHAR javaSharedLibraryPath[MAX_PATH];
+    HRESULT hr = SHGetFolderPath(NULL, CSIDL_COMMON_APPDATA, 0, 0/*SHGFP_TYPE_CURRENT*/, javaSharedLibraryPath);
+    if (FAILED(hr))
+    {
+        return _tcsdup(_T(""));
+    }
+
+    TCHAR javaLibraryPath[MAX_PATH];
+    memset(javaLibraryPath, 0, sizeof(javaLibraryPath));
+    size_t javaLibraryPathLength = _sntprintf(javaLibraryPath, MAX_PATH, _T("%s;%s\\%s\\native"), installedNativePath, javaSharedLibraryPath, _T(PRODUCTNAME));
+    if (javaLibraryPathLength < 0 || javaLibraryPathLength >= MAX_PATH)
+    {
+        return _tcsdup(_T(""));
+    }
+
+    return _tcsdup(javaLibraryPath);
 }
 
 static LONG
@@ -541,7 +547,7 @@ Run_getJavaVMOptionStrings
                 _T("jna.library.path"),
                 javaLibraryPath,
                 _T("net.java.sip.communicator.SC_HOME_DIR_NAME"),
-                PRODUCTNAME,
+                _T(PRODUCTNAME),
                 NULL
             };
 
@@ -672,7 +678,7 @@ Run_getLockFilePath()
 
     if (appDataLength && (appDataLength < appDataCapacity))
     {
-        LPCTSTR productName = PRODUCTNAME;
+        LPCTSTR productName = _T(PRODUCTNAME);
         size_t productNameLength = _tcslen(productName);
         LPCTSTR lockFileName = _T(".lock");
         size_t lockFileNameLength = _tcslen(lockFileName);
@@ -759,7 +765,7 @@ Run_handleLauncherExitCode(
 
     if (Run_isFile(lockFilePath))
     {
-        DWORD_PTR arguments[] = { (DWORD_PTR) PRODUCTNAME };
+        DWORD_PTR arguments[] = { (DWORD_PTR) _T(PRODUCTNAME) };
         int answer
             = Run_displayMessageBoxFromString(
                     IDS_CRASHANDRELAUNCH, arguments,
@@ -842,7 +848,7 @@ Run_openProcessAndResumeThread(DWORD processId, DWORD threadId, HANDLE *process)
 }
 
 static DWORD
-Run_runAsCrashHandler(LPCTSTR executableFilePath, LPSTR cmdLine)
+Run_runAsCrashHandler(LPCTSTR executableFilePath, LPTSTR cmdLine)
 {
     SECURITY_ATTRIBUTES pipeAttributes;
     HANDLE readPipe = INVALID_HANDLE_VALUE;
@@ -891,7 +897,7 @@ Run_runAsCrashHandler(LPCTSTR executableFilePath, LPSTR cmdLine)
 
 static DWORD
 Run_runAsCrashHandlerWithPipe(
-    LPCTSTR executableFilePath, LPSTR cmdLine,
+    LPCTSTR executableFilePath, LPTSTR cmdLine,
     HANDLE *readPipe, HANDLE *writePipe)
 {
     LPCTSTR commandLineFormat = _T("run.exe --channel=%d %s");
@@ -1061,29 +1067,29 @@ Run_runAsCrashHandlerWithPipe(
 }
 
 static DWORD
-Run_runAsLauncher(LPCTSTR executableFilePath, LPSTR cmdLine)
+Run_runAsLauncher(LPCTSTR executableFilePath, LPTSTR cmdLine)
 {
-    LPSTR commandLine;
+    LPTSTR commandLine;
     DWORD error = ERROR_SUCCESS;
 
     /* Parse the command line. */
     if (cmdLine)
     {
         size_t commandLineLength;
-        LPCSTR channelArg = "--channel=";
-        size_t channelArgLength = strlen(channelArg);
+        LPCTSTR channelArg = _T("--channel=");
+        size_t channelArgLength = _tcslen(channelArg);
 
         commandLine = Run_skipWhitespace(cmdLine);
-        commandLineLength = strlen(commandLine);
+        commandLineLength = _tcslen(commandLine);
 
         /* Get the value of the "--channel=" command-line argument. */
         if ((commandLineLength > channelArgLength)
-                && (strnicmp(commandLine, channelArg, channelArgLength) == 0))
+                && (_tcsnicmp(commandLine, channelArg, channelArgLength) == 0))
         {
             commandLine += channelArgLength;
             if (!isspace(*commandLine))
             {
-                HANDLE channel = (HANDLE) (intptr_t) atoi(commandLine);
+                HANDLE channel = (HANDLE) (intptr_t) _ttoi(commandLine);
                 DWORD flags;
                 char ch;
 
@@ -1151,7 +1157,7 @@ Run_runAsLauncher(LPCTSTR executableFilePath, LPSTR cmdLine)
 }
 
 static DWORD
-Run_runJava(LPCTSTR executableFilePath, LPSTR cmdLine)
+Run_runJava(LPCTSTR executableFilePath, LPTSTR cmdLine)
 {
     DWORD cdLength;
     DWORD error = ERROR_CALL_NOT_IMPLEMENTED;
@@ -1205,7 +1211,7 @@ Run_runJava(LPCTSTR executableFilePath, LPSTR cmdLine)
     /* Notify the user that Java could not be found. */
     if ((ERROR_SUCCESS != error) || searchForJava)
     {
-        DWORD_PTR arguments[] = { (DWORD_PTR) PRODUCTNAME };
+        DWORD_PTR arguments[] = { (DWORD_PTR) _T(PRODUCTNAME) };
 
         if (Run_displayMessageBoxFromString(
                 IDS_JAVANOTFOUND, arguments,
@@ -1634,10 +1640,10 @@ Run_runJavaFromRuntimeLib
     return error;
 }
 
-static LPSTR
-Run_skipWhitespace(LPSTR str)
+static LPTSTR
+Run_skipWhitespace(LPTSTR str)
 {
-    char ch;
+    TCHAR ch;
 
     while ((ch = *str) && isspace(ch))
         str++;
@@ -1645,7 +1651,7 @@ Run_skipWhitespace(LPSTR str)
 }
 
 int CALLBACK
-WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdLine, int cmdShow)
+WinMain(HINSTANCE instance, HINSTANCE prevInstance, LPTSTR cmdLine, int cmdShow)
 {
     LPTSTR executableFilePath = NULL;
     DWORD error;

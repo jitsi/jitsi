@@ -1899,53 +1899,9 @@ public class ChatConversationPanel
      */
     public static ConfigurationForm getChatConfigForm()
     {
-        // General configuration forms only.
-        Collection<ServiceReference<ConfigurationForm>> cfgFormRefs;
-        String osgiFilter
-            = "(" + ConfigurationForm.FORM_TYPE + "="
-                + ConfigurationForm.GENERAL_TYPE + ")";
-
-        try
-        {
-            cfgFormRefs
-                = GuiActivator.bundleContext.getServiceReferences(
-                        ConfigurationForm.class,
-                        osgiFilter);
-        }
-        catch (InvalidSyntaxException ex)
-        {
-            cfgFormRefs = null;
-        }
-
-        if ((cfgFormRefs != null) && !cfgFormRefs.isEmpty())
-        {
-            String chatCfgFormClassName
-                = "net.java.sip.communicator.plugin.chatconfig.ChatConfigPanel";
-
-            for (ServiceReference<ConfigurationForm> cfgFormRef : cfgFormRefs)
-            {
-                ConfigurationForm form
-                    = GuiActivator.bundleContext.getService(cfgFormRef);
-
-                if (form instanceof LazyConfigurationForm)
-                {
-                    LazyConfigurationForm lazyConfigForm
-                        = (LazyConfigurationForm) form;
-
-                    if (chatCfgFormClassName.equals(
-                            lazyConfigForm.getFormClassName()))
-                    {
-                        return form;
-                    }
-                }
-                else if (form.getClass().getName().equals(chatCfgFormClassName))
-                {
-                    return form;
-                }
-            }
-        }
-
-        return null;
+        return ConfigFormUtils.getConfigForm(
+            ConfigurationForm.GENERAL_TYPE,
+            "net.java.sip.communicator.plugin.chatconfig.ChatConfigPanel");
     }
 
     /**
