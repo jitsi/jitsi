@@ -137,30 +137,6 @@ public class PortTracker
     }
 
     /**
-     * Sets the next port to specified value unless allowing the caller to
-     * request validation and force the port into the range that this tracker
-     * operates in.
-     *
-     * @param nextPort the next port we'd like this tracker to return.
-     * @param validate determines whether this tracker should bring the new
-     * value into its current range.
-     */
-    public void setNextPort(int nextPort, boolean  validate)
-    {
-        /*
-         * Make sure that nextPort is within the specified range unless
-         */
-        if ((nextPort < minPort || nextPort > maxPort ) && validate)
-        {
-            port = minPort;
-        }
-        else
-        {
-            this.port = nextPort;
-        }
-    }
-
-    /**
      * Sets the next port to specified value unless it is outside the range that
      * this tracker operates in, in which case it sets it to the minimal
      * possible.
@@ -169,7 +145,17 @@ public class PortTracker
      */
     public void setNextPort(int nextPort)
     {
-        setNextPort(nextPort, true);
+        /*
+         * Make sure that nextPort is within the specified range unless
+         */
+        if ((nextPort < minPort || nextPort > maxPort ))
+        {
+            port = minPort;
+        }
+        else
+        {
+            this.port = nextPort;
+        }
     }
 
     /**
