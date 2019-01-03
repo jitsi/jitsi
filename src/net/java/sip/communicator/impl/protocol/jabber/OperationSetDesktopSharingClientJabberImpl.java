@@ -214,7 +214,7 @@ public class OperationSetDesktopSharingClientJabberImpl
                 }
                 else
                 {
-                    addAddDeferredRemoteControlPeer(callPeerID);
+                    addAddDeferredRemoteControlPeer(callPeerID.toString());
                 }
             }
         }
