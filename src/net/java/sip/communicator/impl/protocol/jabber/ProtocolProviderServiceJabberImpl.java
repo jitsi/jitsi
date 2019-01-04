@@ -382,6 +382,11 @@ public class ProtocolProviderServiceJabberImpl
     private UserCredentials userCredentials = null;
 
     /**
+     * Whether keep-alive is enabled for current account.
+     */
+    private boolean isKeepAliveEnabled = false;
+
+    /**
      * An <tt>OperationSet</tt> that allows access to connection information used
      * by the protocol provider.
      */
@@ -1253,7 +1258,7 @@ public class ProtocolProviderServiceJabberImpl
 
         if(debugger == null)
         {
-            // FIXME Smack4.2: implement the smack debugger interface, 
+            // FIXME Smack4.2: implement the smack debugger interface,
             // the StanzaListener won't catch IQs anymore
             debugger = new SmackPacketDebugger();
 
@@ -1261,6 +1266,14 @@ public class ProtocolProviderServiceJabberImpl
             debugger.setConnection(connection);
             connection.addAsyncStanzaListener(debugger.inbound, null);
             connection.addPacketInterceptor(debugger.outbound, null);
+        }
+
+        int keepAliveInterval =
+                this.getAccountID().getAccountPropertyInt(
+                        ProtocolProviderFactory.KEEP_ALIVE_INTERVAL, -1);
+        if (this.isKeepAliveEnabled && keepAliveInterval > 0)
+        {
+            PingManager.getInstanceFor(connection).setPingInterval(keepAliveInterval);
         }
 
         connection.setReplyTimeout(30000);
@@ -1643,6 +1656,8 @@ public class ProtocolProviderServiceJabberImpl
             {
                 // force class init of the ping manager
                 PingManager.class.getName();
+
+                isKeepAliveEnabled = true;
             }
 
             addSupportedOperationSet(
@@ -2118,7 +2133,7 @@ public class ProtocolProviderServiceJabberImpl
     /**
      * Validates the node part of a JID and returns an error message if
      * applicable and a suggested correction.
-     * 
+     *
      * @param contactId the contact identifier to validate
      * @param result Must be supplied as an empty a list. Implementors add
      *            items:
