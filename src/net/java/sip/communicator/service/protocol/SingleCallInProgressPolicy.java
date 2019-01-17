@@ -124,7 +124,14 @@ public class SingleCallInProgressPolicy
     {
         this.bundleContext = bundleContext;
 
-        this.bundleContext.addServiceListener(listener);
+        if(ProtocolProviderActivator
+            .getConfigurationService()
+            .getBoolean(
+                PNAME_SINGLE_CALL_IN_PROGRESS_POLICY_ENABLED,
+                true))
+        {
+            this.bundleContext.addServiceListener(listener);
+        }
     }
 
     /**
@@ -196,12 +203,7 @@ public class SingleCallInProgressPolicy
 
 
         if (CallState.CALL_INITIALIZATION.equals(ev.getOldValue())
-                && CallState.CALL_IN_PROGRESS.equals(call.getCallState())
-                && ProtocolProviderActivator
-                    .getConfigurationService()
-                        .getBoolean(
-                                PNAME_SINGLE_CALL_IN_PROGRESS_POLICY_ENABLED,
-                                true))
+                && CallState.CALL_IN_PROGRESS.equals(call.getCallState()))
         {
             CallConference conference = call.getConference();
 
