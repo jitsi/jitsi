@@ -219,6 +219,25 @@ public class ProtocolProviderServiceJabberImpl
         = "USER_SEARCH_ENABLED";
 
     /**
+     * Property to disable instant messaging (not muc and muc messaging).
+     */
+    private static final String IS_IM_DISABLED_PROPERTY
+        = "IM_DISABLED";
+
+    /**
+     * Property to disable server stored info retrieval and manipulation, as
+     * contact and account info and also avatar retrieval.
+     */
+    private static final String IS_SERVER_STORED_INFO_DISABLED_PROPERTY
+        = "SERVER_STORED_INFO_DISABLED";
+
+    /**
+     * Property to disable file transfer.
+     */
+    private static final String IS_FILE_TRANSFER_DISABLED_PROPERTY
+        = "IS_FILE_TRANSFER_DISABLED";
+
+    /**
      * Google voice domain name.
      */
     public static final String GOOGLE_VOICE_DOMAIN = "voice.google.com";
@@ -1620,7 +1639,15 @@ public class ProtocolProviderServiceJabberImpl
                 = accountID.getAccountPropertyString(
                     ProtocolProviderFactory.KEEP_ALIVE_METHOD);
 
-            InfoRetreiver infoRetreiver = new InfoRetreiver(this);
+            boolean isServerStoredInfoEnabled
+                = !accountID.getAccountPropertyBoolean(
+                    IS_SERVER_STORED_INFO_DISABLED_PROPERTY, false);
+
+            InfoRetreiver infoRetreiver = null;
+            if (isServerStoredInfoEnabled)
+            {
+                infoRetreiver = new InfoRetreiver(this);
+            }
 
             //initialize the presence OperationSet
             OperationSetPersistentPresenceJabberImpl persistentPresence =
@@ -1647,10 +1674,6 @@ public class ProtocolProviderServiceJabberImpl
                             this));
             }
 
-            //initialize the IM operation set
-            OperationSetBasicInstantMessagingJabberImpl basicInstantMessaging =
-                new OperationSetBasicInstantMessagingJabberImpl(this);
-
             if (keepAliveStrValue == null
                 || keepAliveStrValue.equalsIgnoreCase("XEP-0199"))
             {
@@ -1660,9 +1683,35 @@ public class ProtocolProviderServiceJabberImpl
                 isKeepAliveEnabled = true;
             }
 
-            addSupportedOperationSet(
-                OperationSetBasicInstantMessaging.class,
-                basicInstantMessaging);
+            if(!accountID.getAccountPropertyBoolean(
+                IS_IM_DISABLED_PROPERTY, false))
+            {
+                //initialize the IM operation set
+                OperationSetBasicInstantMessagingJabberImpl
+                    basicInstantMessaging
+                    = new OperationSetBasicInstantMessagingJabberImpl(this);
+
+                addSupportedOperationSet(
+                    OperationSetBasicInstantMessaging.class,
+                    basicInstantMessaging);
+
+                //initialize the typing notifications operation set
+                addSupportedOperationSet(
+                    OperationSetTypingNotifications.class,
+                    new OperationSetTypingNotificationsJabberImpl(this));
+
+                // The http://jabber.org/protocol/chatstates feature implemented
+                // in OperationSetTypingNotifications is included already
+                // in smack.
+
+                addSupportedOperationSet(
+                    OperationSetInstantMessageTransform.class,
+                    new OperationSetInstantMessageTransformImpl());
+
+                supportedFeatures.add(MessageCorrectExtension.NAMESPACE);
+                addSupportedOperationSet(OperationSetMessageCorrection.class,
+                    basicInstantMessaging);
+            }
 
             // The http://jabber.org/protocol/xhtml-im feature is included
             // already in smack.
@@ -1673,14 +1722,6 @@ public class ProtocolProviderServiceJabberImpl
                     this,
                     persistentPresence));
 
-            //initialize the typing notifications operation set
-            addSupportedOperationSet(
-                OperationSetTypingNotifications.class,
-                new OperationSetTypingNotificationsJabberImpl(this));
-
-            // The http://jabber.org/protocol/chatstates feature implemented in
-            // OperationSetTypingNotifications is included already in smack.
-
             //initialize the multi user chat operation set
             addSupportedOperationSet(
                 OperationSetMultiUserChat.class,
@@ -1690,40 +1731,44 @@ public class ProtocolProviderServiceJabberImpl
                 OperationSetJitsiMeetTools.class,
                 new OperationSetJitsiMeetToolsJabberImpl(this));
 
-            addSupportedOperationSet(
-                OperationSetServerStoredContactInfo.class,
-                new OperationSetServerStoredContactInfoJabberImpl(
+            if(isServerStoredInfoEnabled)
+            {
+                addSupportedOperationSet(
+                    OperationSetServerStoredContactInfo.class,
+                    new OperationSetServerStoredContactInfoJabberImpl(
                         infoRetreiver));
 
-            OperationSetServerStoredAccountInfo accountInfo =
-                new OperationSetServerStoredAccountInfoJabberImpl(this,
+                OperationSetServerStoredAccountInfo accountInfo =
+                    new OperationSetServerStoredAccountInfoJabberImpl(this,
                         infoRetreiver,
                         screenname);
 
-            addSupportedOperationSet(
-                OperationSetServerStoredAccountInfo.class,
-                accountInfo);
+                addSupportedOperationSet(
+                    OperationSetServerStoredAccountInfo.class,
+                    accountInfo);
 
-            // Initialize avatar operation set
-            addSupportedOperationSet(
-                OperationSetAvatar.class,
-                new OperationSetAvatarJabberImpl(this, accountInfo));
+                // Initialize avatar operation set
+                addSupportedOperationSet(
+                    OperationSetAvatar.class,
+                    new OperationSetAvatarJabberImpl(this, accountInfo));
+            }
 
-            // initialize the file transfer operation set
-            addSupportedOperationSet(
-                OperationSetFileTransfer.class,
-                new OperationSetFileTransferJabberImpl(this));
+            if(!accountID.getAccountPropertyBoolean(
+                IS_FILE_TRANSFER_DISABLED_PROPERTY, false))
+            {
+                // initialize the file transfer operation set
+                addSupportedOperationSet(
+                    OperationSetFileTransfer.class,
+                    new OperationSetFileTransferJabberImpl(this));
 
-            addSupportedOperationSet(
-                OperationSetInstantMessageTransform.class,
-                new OperationSetInstantMessageTransformImpl());
+                // Include features we're supporting in addition to the four
+                // included by smack itself:
+                // http://jabber.org/protocol/si/profile/file-transfer
+                // http://jabber.org/protocol/si
+                // http://jabber.org/protocol/bytestreams
+                // http://jabber.org/protocol/ibb
+            }
 
-            // Include features we're supporting in addition to the four
-            // included by smack itself:
-            // http://jabber.org/protocol/si/profile/file-transfer
-            // http://jabber.org/protocol/si
-            // http://jabber.org/protocol/bytestreams
-            // http://jabber.org/protocol/ibb
             supportedFeatures.add("urn:xmpp:thumbs:0");
             supportedFeatures.add("urn:xmpp:bob");
 
@@ -1995,10 +2040,6 @@ public class ProtocolProviderServiceJabberImpl
             addSupportedOperationSet(
                 OperationSetContactCapabilities.class,
                 opsetContactCapabilities);
-
-            supportedFeatures.add(MessageCorrectExtension.NAMESPACE);
-            addSupportedOperationSet(OperationSetMessageCorrection.class,
-                    basicInstantMessaging);
 
             OperationSetChangePassword opsetChangePassword
                     = new OperationSetChangePasswordJabberImpl(this);

@@ -1878,6 +1878,12 @@ public class ServerStoredContactListJabberImpl
          */
         private byte[] getAvatar(ContactJabberImpl contact)
         {
+            // not enabled
+            if (infoRetreiver == null)
+            {
+                return null;
+            }
+
             byte[] result = null;
             try
             {
