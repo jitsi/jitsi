@@ -973,7 +973,9 @@ public class ProtocolProviderServiceJabberImpl
                 JidCreate.entityFullFrom(userID, resource),
                 loginStrategy);
         }
-        catch (ConnectException | NoRouteToHostException ex)
+        catch (ConnectException
+            | NoRouteToHostException
+            | NoResponseException ex)
         {
             //as we got an exception not handled in connectAndLogin
             //no state was set, so fire it here so we can continue
