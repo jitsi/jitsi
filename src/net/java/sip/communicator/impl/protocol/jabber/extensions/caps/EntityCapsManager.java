@@ -359,6 +359,11 @@ public class EntityCapsManager
      */
     public void removeUserCapsNode(Jid user)
     {
+        if (user == null)
+        {
+            return;
+        }
+
         Caps caps = userCaps.remove(user);
         Jid bareJid = user.asBareJid();
 
@@ -417,7 +422,7 @@ public class EntityCapsManager
     {
         return userCaps.get(user);
     }
-    
+
     /**
      * Gets the full Jids (with resources) as Strings.
      *
