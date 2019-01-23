@@ -67,7 +67,7 @@
 	<classpathentry kind="lib" path="lib/os-specific/mac/growl4j.jar"/>
 	<classpathentry kind="lib" path="lib/os-specific/mac/OrangeExtensions.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/jmork-1.0.5.jar" sourcepath="/jmork"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/bcprov-jdk15on-1.54.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/bcprov-jdk15on-1.67.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/commons-lang3-3.9.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/bccontrib-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/zrtp4j-light-4.1.0-jitsi-1-SNAPSHOT.jar"/>
