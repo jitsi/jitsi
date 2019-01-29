@@ -23,6 +23,7 @@ import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.condesc.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet.*;
 import org.jivesoftware.smack.provider.*;
+import org.jivesoftware.smack.util.*;
 import org.jxmpp.jid.*;
 import org.jxmpp.jid.impl.*;
 import org.xmlpull.v1.*;
@@ -334,9 +335,8 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                     jingleIQ.addExtension(
                         GroupPacketExtension.parseExtension(parser));
                 }
-
                 //<mute/> <active/> and other session-info elements
-                if (namespace.equals( SessionInfoPacketExtension.NAMESPACE))
+                else if (namespace.equals(SessionInfoPacketExtension.NAMESPACE))
                 {
                     SessionInfoType type = SessionInfoType.valueOf(elementName);
 
@@ -357,6 +357,10 @@ public class JingleIQProvider extends IQProvider<JingleIQ>
                         jingleIQ.setSessionInfo(
                                         new SessionInfoPacketExtension(type));
                     }
+                }
+                else
+                {
+                    PacketParserUtils.addExtensionElement(jingleIQ, parser);
                 }
             }
 
