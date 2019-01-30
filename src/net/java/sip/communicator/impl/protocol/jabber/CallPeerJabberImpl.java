@@ -380,7 +380,10 @@ public class CallPeerJabberImpl
                 }
             }
 
-            getProtocolProvider().getConnection().sendStanza(responseIQ);
+            if (getProtocolProvider().getConnection() != null)
+            {
+                getProtocolProvider().getConnection().sendStanza(responseIQ);
+            }
         }
     }
 
@@ -1901,7 +1904,7 @@ public class CallPeerJabberImpl
     {
         OperationSetPresence presence
             = getProtocolProvider().getOperationSet(OperationSetPresence.class);
-    
+
         return
             (presence == null) ? null : presence.findContactByID(getAddress());
     }
@@ -1926,11 +1929,11 @@ public class CallPeerJabberImpl
         if (getCall() != null)
         {
             Contact contact = getContact();
-    
+
             if (contact != null)
                 return contact.getDisplayName();
         }
-    
+
         return peerJID.toString();
     }
 
@@ -1970,7 +1973,7 @@ public class CallPeerJabberImpl
             DiscoverInfo discoveryInfo
                 = getProtocolProvider().getDiscoveryManager().discoverInfo(
                         calleeURI);
-    
+
             if(discoveryInfo != null)
                 setDiscoveryInfo(discoveryInfo);
         }
@@ -1995,9 +1998,9 @@ public class CallPeerJabberImpl
         if (!peerJID.equals(address))
         {
             String oldAddress = getAddress();
-    
+
             peerJID = address;
-    
+
             fireCallPeerChangeEvent(
                     CallPeerChangeEvent.CALL_PEER_ADDRESS_CHANGE,
                     oldAddress,
