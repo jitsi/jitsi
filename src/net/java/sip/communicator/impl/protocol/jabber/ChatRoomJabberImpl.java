@@ -1102,6 +1102,16 @@ public class ChatRoomJabberImpl
     {
         if(this.role == null)
         {
+            // If there is no nickname, there is no way to match anything.
+            // Sometimes while joining we receive the presence and dispatch
+            // the user role before nickname is stored in multiUserChat
+            // returning guest here is just for the event reporting the new
+            // role and that old is guest
+            if (multiUserChat.getNickname() == null)
+            {
+                return ChatRoomMemberRole.GUEST;
+            }
+
             Occupant o = multiUserChat.getOccupant(JidCreate.entityFullFrom(
                 multiUserChat.getRoom(), multiUserChat.getNickname()));
 
