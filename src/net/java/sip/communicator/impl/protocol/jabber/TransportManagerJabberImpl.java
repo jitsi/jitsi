@@ -1002,4 +1002,9 @@ public abstract class TransportManagerJabberImpl
         }
         return channel;
     }
+
+    /**
+     * Sets the flag which indicates whether to use rtcpmux or not.
+     */
+    public abstract void setRtcpmux(boolean rtcpmux);
 }

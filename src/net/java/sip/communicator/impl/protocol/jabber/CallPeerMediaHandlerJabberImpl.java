@@ -1669,8 +1669,7 @@ public class CallPeerMediaHandlerJabberImpl
                IllegalArgumentException
     {
         // prepare to generate answers to all the incoming descriptions
-        List<ContentPacketExtension> answer
-            = new ArrayList<ContentPacketExtension>(offer.size());
+        List<ContentPacketExtension> answer = new ArrayList<>(offer.size());
         boolean atLeastOneValidDescription = false;
 
         for (ContentPacketExtension content : offer)
@@ -1755,6 +1754,12 @@ public class CallPeerMediaHandlerJabberImpl
              * back to a supported one using transport-replace.
              */
             setTransportManager(transport.getNamespace());
+
+            if (!transport.getChildExtensionsOfType(
+                    RtcpmuxPacketExtension.class).isEmpty())
+            {
+                getTransportManager().setRtcpmux(true);
+            }
 
             if (mutuallySupportedFormats.isEmpty()
                     || (devDirection == MediaDirection.INACTIVE)
@@ -2409,6 +2414,8 @@ public class CallPeerMediaHandlerJabberImpl
                     DtlsControl dtlsControl;
                     DtlsControl.Setup setup;
 
+                    // TODO Read the setup from the remote DTLS fingerprint
+                    // packet extension.
                     if (isInitiator)
                     {
                         dtlsControl
