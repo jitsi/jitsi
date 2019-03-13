@@ -23,6 +23,7 @@ import java.util.*;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.CandidateType;
+import net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet.*;
 import net.java.sip.communicator.service.netaddr.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
@@ -32,6 +33,7 @@ import net.java.sip.communicator.util.Logger;
 import org.ice4j.*;
 import org.ice4j.ice.*;
 import org.ice4j.ice.harvest.*;
+import org.ice4j.socket.*;
 import org.ice4j.security.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.util.*;
@@ -76,6 +78,53 @@ public class IceUdpTransportManager
             = new int[] { Component.RTP, Component.RTCP };
 
     /**
+     * A filter which accepts any non-RTCP packets (RTP, DTLS, etc).
+     */
+    private static DatagramPacketFilter RTP_FILTER
+            = new DatagramPacketFilter()
+    {
+        @Override
+        public boolean accept(DatagramPacket p)
+        {
+            return !RTCP_FILTER.accept(p);
+        }
+    };
+
+    /**
+     * A filter which accepts RTCP packets.
+     */
+    private final static DatagramPacketFilter RTCP_FILTER
+            = new DatagramPacketFilter()
+    {
+        @Override
+        public boolean accept(DatagramPacket p)
+        {
+            if (p == null)
+            {
+                return false;
+            }
+
+            byte[] buf = p.getData();
+            int off = p.getOffset();
+            int len = p.getLength();
+
+            if (buf == null || len < 8 || off + len > buf.length)
+            {
+                return false;
+            }
+
+            int version = (buf[off] & 0xC0) >>> 6;
+            if (version != 2)
+            {
+                return false;
+            }
+
+            int pt = buf[off + 1] & 0xff;
+            return 200 <= pt && pt <= 211;
+        }
+    };
+
+    /**
      * This is where we keep our answer between the time we get the offer and
      * are ready with the answer.
      */
@@ -87,6 +136,20 @@ public class IceUdpTransportManager
      */
     protected final Agent iceAgent;
 
+    /**
+     * Whether this transport manager should use rtcpmux. When using rtcpmux,
+     * the ICE Agent initializes a single Component per stream, and we use
+     * {@link org.ice4j.socket.MultiplexingDatagramSocket} to split it's
+     * socket into a socket accepting RTCP packets, and one for everything else
+     * (RTP, DTLS).
+     */
+    private boolean rtcpmux = false;
+
+    /**
+     * Caches the sockets for the stream connector so that they are not
+     * re-created.
+     */
+    private DatagramSocket[] streamConnectorSockets = null;
 
     /**
      * Creates a new instance of this transport manager, binding it to the
@@ -385,9 +448,43 @@ public class IceUdpTransportManager
      */
     private DatagramSocket[] getStreamConnectorSockets(MediaType mediaType)
     {
-        IceMediaStream stream = iceAgent.getStream(mediaType.toString());
+        if (streamConnectorSockets != null)
+        {
+            return streamConnectorSockets;
+        }
 
-        if (stream != null)
+        IceMediaStream stream = iceAgent.getStream(mediaType.toString());
+        if (stream == null)
+        {
+            return null;
+        }
+
+        if (rtcpmux)
+        {
+            Component component = stream.getComponent(Component.RTP);
+            MultiplexingDatagramSocket componentSocket = component.getSocket();
+            if (componentSocket == null)
+            {
+                // ICE is not ready yet
+                return null;
+            }
+
+            DatagramSocket[] streamConnectorSockets = new DatagramSocket[2];
+            try
+            {
+                streamConnectorSockets[0]
+                        = componentSocket.getSocket(RTP_FILTER);
+                streamConnectorSockets[1]
+                        = componentSocket.getSocket(RTCP_FILTER);
+            }
+            catch (Exception e)
+            {
+                logger.error("Failed to create filtered sockets.");
+                return null;
+            }
+            return this.streamConnectorSockets = streamConnectorSockets;
+        }
+        else
         {
             DatagramSocket[] streamConnectorSockets
                 = new DatagramSocket[COMPONENT_IDS.length];
@@ -415,7 +512,7 @@ public class IceUdpTransportManager
 
             if (streamConnectorSocketCount > 0)
             {
-                return streamConnectorSockets;
+                return this.streamConnectorSockets = streamConnectorSockets;
             }
         }
 
@@ -461,7 +558,8 @@ public class IceUdpTransportManager
                 = new InetSocketAddress[COMPONENT_IDS.length];
             int streamTargetAddressCount = 0;
 
-            for (int i = 0; i < COMPONENT_IDS.length; i++)
+            int numComponents = rtcpmux ? 1 : COMPONENT_IDS.length;
+            for (int i = 0; i < numComponents; i++)
             {
                 Component component = stream.getComponent(COMPONENT_IDS[i]);
 
@@ -483,6 +581,11 @@ public class IceUdpTransportManager
                         }
                     }
                 }
+            }
+            if (rtcpmux)
+            {
+                streamTargetAddresses[1] = streamTargetAddresses[0];
+                streamTargetAddressCount++;
             }
             if (streamTargetAddressCount > 0)
             {
@@ -737,6 +840,7 @@ public class IceUdpTransportManager
             //the following call involves STUN processing so it may take a while
             stream
                 = getNetAddrMgr().createIceStream(
+                        rtcpmux ? 1 : 2,
                         portTracker.getPort(),
                         media,
                         iceAgent);
@@ -1487,5 +1591,14 @@ public class IceUdpTransportManager
     {
         getCallPeer().getMediaHandler().firePropertyChange(
             evt.getPropertyName(), evt.getOldValue(), evt.getNewValue());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setRtcpmux(boolean rtcpmux)
+    {
+        this.rtcpmux = rtcpmux;
     }
 }

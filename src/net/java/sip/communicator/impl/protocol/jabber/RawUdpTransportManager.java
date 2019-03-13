@@ -541,4 +541,17 @@ public class RawUdpTransportManager
     {
         return 0;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setRtcpmux(boolean rtcpmux)
+    {
+        if (rtcpmux)
+        {
+            throw new IllegalArgumentException(
+                    "rtcp mux not supported by " + getClass().getSimpleName());
+        }
+    }
 }
