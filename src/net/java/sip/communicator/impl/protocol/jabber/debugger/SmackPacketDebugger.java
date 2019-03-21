@@ -92,7 +92,7 @@ public class SmackPacketDebugger
             {
                 if(packetLogging.isLoggingEnabled(
                         PacketLoggingService.ProtocolName.JABBER)
-                    && packet != null && getSocket() != null)
+                    && packet != null)
                 {
                     Socket socket = getSocket();
                     if(remoteAddress == null)
@@ -114,7 +114,14 @@ public class SmackPacketDebugger
                     if (socket != null)
                     {
                         localPort = socket.getLocalPort();
-                        remotePort = connection.getPort();
+                    }
+                    if (connection != null)
+                    {
+                        int port = connection.getPort();
+                        if (port > 0)
+                        {
+                            remotePort = port;
+                        }
                     }
 
                     byte[] packetBytes;
@@ -227,7 +234,15 @@ public class SmackPacketDebugger
                     if (socket != null)
                     {
                         localPort = socket.getLocalPort();
-                        remotePort = connection.getPort();
+                    }
+
+                    if (connection != null)
+                    {
+                        int port = connection.getPort();
+                        if (port > 0)
+                        {
+                            remotePort = port;
+                        }
                     }
 
                     byte[] packetBytes;
@@ -263,6 +278,11 @@ public class SmackPacketDebugger
 
     private Socket getSocket()
     {
+        if (this.connection == null)
+        {
+            return null;
+        }
+
         try
         {
             Field socket = connection.getClass().getField("socket");

@@ -1165,13 +1165,22 @@ public class OperationSetPersistentPresenceJabberImpl
             }
             else if(evt.getNewState() == RegistrationState.REGISTERED)
             {
-                createContactPhotoPresenceListener();
+                JabberAccountIDImpl accountID
+                    = (JabberAccountIDImpl)parentProvider.getAccountID();
+                boolean isServerStoredInfoEnabled
+                    = !accountID.getAccountPropertyBoolean(
+                        ProtocolProviderServiceJabberImpl
+                            .IS_SERVER_STORED_INFO_DISABLED_PROPERTY, false);
 
-                // we cannot manipulate our vcards when using anonymous
-                if (!((JabberAccountIDImpl)parentProvider.getAccountID())
-                        .isAnonymousAuthUsed())
+                if (isServerStoredInfoEnabled)
                 {
-                    createAccountPhotoPresenceInterceptor();
+                    createContactPhotoPresenceListener();
+
+                    // we cannot manipulate our vcards when using anonymous
+                    if(!accountID.isAnonymousAuthUsed())
+                    {
+                        createAccountPhotoPresenceInterceptor();
+                    }
                 }
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERING)
@@ -1603,7 +1612,7 @@ public class OperationSetPersistentPresenceJabberImpl
                                 // make sure we are consinstent with equals.
                                 // We do this by comparing the unique resource
                                 // names. If this evaluates to 0 again, then we
-                                // can safely assume this presence object 
+                                // can safely assume this presence object
                                 // represents the same resource and by that the
                                 // same client.
                                 if(res == 0)
