@@ -228,7 +228,7 @@ public class ProtocolProviderServiceJabberImpl
      * Property to disable server stored info retrieval and manipulation, as
      * contact and account info and also avatar retrieval.
      */
-    private static final String IS_SERVER_STORED_INFO_DISABLED_PROPERTY
+    public static final String IS_SERVER_STORED_INFO_DISABLED_PROPERTY
         = "SERVER_STORED_INFO_DISABLED";
 
     /**
@@ -1490,6 +1490,12 @@ public class ProtocolProviderServiceJabberImpl
                 connection.disconnect(unavailablePresence);
             } catch (Exception e)
             {}
+
+            if (debugger != null)
+            {
+                debugger.setConnection(null);
+                debugger = null;
+            }
 
             connectionListener = null;
             connection = null;

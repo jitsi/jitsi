@@ -1184,7 +1184,11 @@ public class CallPeerJabberImpl
             = new CoinPacketExtension(getCall().isConferenceFocus());
 
         sessionInfoIQ.addExtension(coinExt);
-        getProtocolProvider().getConnection().sendStanza(sessionInfoIQ);
+        XMPPConnection connection = getProtocolProvider().getConnection();
+        if (connection != null)
+        {
+            connection.sendStanza(sessionInfoIQ);
+        }
     }
 
     /**
