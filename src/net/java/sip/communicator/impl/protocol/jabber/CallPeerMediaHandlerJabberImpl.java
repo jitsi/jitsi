@@ -1542,7 +1542,7 @@ public class CallPeerMediaHandlerJabberImpl
             addZrtpAdvertisedEncryptions(true, description, mediaType);
             addSDesAdvertisedEncryptions(true, description, mediaType);
         }
-        addDtlsAdvertisedEncryptions(true, content, mediaType);
+        addDtlsAdvertisedEncryptions(true, content, mediaType, false);
 
         StreamConnector connector
             = transportManager.getStreamConnector(mediaType);
@@ -1755,9 +1755,11 @@ public class CallPeerMediaHandlerJabberImpl
              */
             setTransportManager(transport.getNamespace());
 
+            boolean rtcpmux = false;
             if (!transport.getChildExtensionsOfType(
                     RtcpmuxPacketExtension.class).isEmpty())
             {
+                rtcpmux = true;
                 getTransportManager().setRtcpmux(true);
             }
 
@@ -1795,7 +1797,8 @@ public class CallPeerMediaHandlerJabberImpl
             setAndAddPreferredEncryptionProtocol(
                     mediaType,
                     ourContent,
-                    content);
+                    content,
+                    rtcpmux);
 
             // Got a content which has inputevt. It means that the peer requests
             // a desktop sharing session so tell it we support inputevt.
@@ -2341,7 +2344,8 @@ public class CallPeerMediaHandlerJabberImpl
     private boolean addDtlsAdvertisedEncryptions(
             boolean isInitiator,
             ContentPacketExtension content,
-            MediaType mediaType)
+            MediaType mediaType,
+            boolean rtcpmux)
     {
         if (getPeer().isJitsiVideobridge())
         {
@@ -2358,7 +2362,8 @@ public class CallPeerMediaHandlerJabberImpl
                 addDtlsAdvertisedEncryptions(
                         isInitiator,
                         remoteTransport,
-                        mediaType);
+                        mediaType,
+                        rtcpmux);
         }
     }
 
@@ -2374,7 +2379,8 @@ public class CallPeerMediaHandlerJabberImpl
     boolean addDtlsAdvertisedEncryptions(
             boolean isInitiator,
             IceUdpTransportPacketExtension remoteTransport,
-            MediaType mediaType)
+            MediaType mediaType,
+            boolean rtcpmux)
     {
         SrtpControls srtpControls = getSrtpControls();
         boolean b = false;
@@ -2438,6 +2444,10 @@ public class CallPeerMediaHandlerJabberImpl
                     {
                         dtlsControl.setRemoteFingerprints(remoteFingerprints);
                         dtlsControl.setSetup(setup);
+                        if (rtcpmux)
+                        {
+                            dtlsControl.setRtcpmux(true);
+                        }
                         removeAndCleanupOtherSrtpControls(
                                 mediaType,
                                 SrtpControlType.DTLS_SRTP);
@@ -2479,7 +2489,8 @@ public class CallPeerMediaHandlerJabberImpl
     private void setAndAddPreferredEncryptionProtocol(
             MediaType mediaType,
             ContentPacketExtension localContent,
-            ContentPacketExtension remoteContent)
+            ContentPacketExtension remoteContent,
+            boolean rtcpmux)
     {
         List<SrtpControlType> preferredEncryptionProtocols
             = getPeer()
@@ -2495,7 +2506,9 @@ public class CallPeerMediaHandlerJabberImpl
                 addDtlsAdvertisedEncryptions(
                         false,
                         remoteContent,
-                        mediaType);
+                        mediaType,
+                        rtcpmux);
+
                 if (setDtlsEncryptionOnContent(
                         mediaType,
                         localContent,
@@ -2588,7 +2601,8 @@ public class CallPeerMediaHandlerJabberImpl
                     = addDtlsAdvertisedEncryptions(
                             false,
                             remoteContent,
-                            mediaType);
+                            mediaType,
+                            false);
             }
             if (addFingerprintToLocalTransport)
             {
