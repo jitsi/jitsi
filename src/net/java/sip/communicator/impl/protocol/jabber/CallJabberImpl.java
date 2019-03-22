@@ -1186,7 +1186,8 @@ public class CallJabberImpl
             peerMediaHandler.addDtlsAdvertisedEncryptions(
                     true,
                     remoteTransport,
-                    mediaType);
+                    mediaType,
+                    false);
     }
 
     /**
