@@ -183,7 +183,7 @@ public class ScServiceDiscoveryManager
 
         // For every XMPPConnection, add one EntityCapsManager.
         this.capsManager = new EntityCapsManager();
-        capsManager.addPacketListener(connection);
+        this.capsManager.addPacketListener(connection);
 
         /*
          * XXX initFeatures() has to happen before updateEntityCapsVersion().
@@ -231,7 +231,7 @@ public class ScServiceDiscoveryManager
     {
         // If a XMPPConnection is the managed one, see that the new version is
         // updated
-        if ((connection != null) && (capsManager != null))
+        if (connection != null)
             capsManager.calculateEntityCapsVersion(getOwnDiscoverInfo());
     }
 
@@ -265,15 +265,13 @@ public class ScServiceDiscoveryManager
     }
 
     /**
-     * Returns the caps version as returned by our caps manager or <tt>null</tt>
-     * if we don't have a caps manager yet.
+     * Returns the caps version as returned by our caps manager.
      *
-     * @return the caps version as returned by our caps manager or <tt>null</tt>
-     * if we don't have a caps manager yet.
+     * @return the caps version as returned by our caps manager.
      */
     private String getEntityCapsVersion()
     {
-        return (capsManager == null) ? null : capsManager.getCapsVersion();
+        return capsManager.getCapsVersion();
     }
 
     /**
@@ -394,7 +392,7 @@ public class ScServiceDiscoveryManager
     @Override
     public void processStanza(Stanza packet)
     {
-        if ((packet instanceof Presence) && (capsManager != null))
+        if ((packet instanceof Presence))
         {
             String ver = getEntityCapsVersion();
             CapsExtension caps
