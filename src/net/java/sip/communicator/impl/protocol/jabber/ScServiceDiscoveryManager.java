@@ -73,6 +73,11 @@ public class ScServiceDiscoveryManager
     private final EntityCapsManager capsManager;
 
     /**
+     * The attribute associated with our node.
+     */
+    private final String nodeAttribute;
+
+    /**
      * The {@link ServiceDiscoveryManager} that we are wrapping.
      */
     private final ServiceDiscoveryManager discoveryManager;
@@ -184,6 +189,9 @@ public class ScServiceDiscoveryManager
         // For every XMPPConnection, add one EntityCapsManager.
         this.capsManager = new EntityCapsManager();
         this.capsManager.addPacketListener(connection);
+        this.nodeAttribute
+            = this.capsManager.getNode()
+                + "#" + this.capsManager.getCapsVersion();
 
         /*
          * XXX initFeatures() has to happen before updateEntityCapsVersion().
@@ -257,21 +265,11 @@ public class ScServiceDiscoveryManager
         DiscoverInfo di = new DiscoverInfo();
 
         di.setType(IQ.Type.result);
-        di.setNode(capsManager.getNode() + "#" + getEntityCapsVersion());
+        di.setNode(this.nodeAttribute);
 
         // Add discover info
         addDiscoverInfoTo(di);
         return di;
-    }
-
-    /**
-     * Returns the caps version as returned by our caps manager.
-     *
-     * @return the caps version as returned by our caps manager.
-     */
-    private String getEntityCapsVersion()
-    {
-        return capsManager.getCapsVersion();
     }
 
     /**
@@ -394,18 +392,16 @@ public class ScServiceDiscoveryManager
     {
         if ((packet instanceof Presence))
         {
-            String ver = getEntityCapsVersion();
             CapsExtension caps
                 = new CapsExtension(
                     capsManager.getNode(),
-                    ver,
+                    capsManager.getCapsVersion(),
                     "sha-1");
 
             //make sure we'll be able to handle requests for the newly generated
             //node once we've used it.
             discoveryManager.setNodeInformationProvider(
-                    caps.getNode() + "#" + caps.getVer(),
-                    this);
+                this.nodeAttribute, this);
 
             // Remove old capabilities extension if present
             ExtensionElement oldCaps
@@ -653,6 +649,9 @@ public class ScServiceDiscoveryManager
     {
         if(retriever != null)
             retriever.stop();
+
+        // we need to clean up our reference
+        discoveryManager.removeNodeInformationProvider(this.nodeAttribute);
 
         this.connection = null;
     }
