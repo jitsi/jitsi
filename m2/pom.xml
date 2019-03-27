@@ -12,7 +12,7 @@
   <properties>
     <bouncycastle.version>1.54</bouncycastle.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <smack.version>4.2.1</smack.version>
+    <smack.version>4.2.4-47d17fc</smack.version>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
   </properties>
@@ -81,7 +81,7 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>libjitsi</artifactId>
-        <version>1.0-20170723.182204-295</version>
+        <version>1.0-20190327.162716-379</version>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
