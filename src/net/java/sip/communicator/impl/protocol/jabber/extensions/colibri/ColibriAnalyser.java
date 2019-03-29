@@ -22,6 +22,7 @@ import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
+import org.jitsi.utils.*;
 import org.jxmpp.jid.*;
 
 import java.util.*;

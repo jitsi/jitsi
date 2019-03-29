@@ -23,6 +23,7 @@ import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 import org.jivesoftware.smack.packet.*;
 import org.jxmpp.jid.*;

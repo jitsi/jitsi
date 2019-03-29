@@ -22,6 +22,7 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import org.jitsi.service.neomedia.*;
+import org.jitsi.utils.*;
 
 /**
  * An event class representing that an incoming or an outgoing call has been

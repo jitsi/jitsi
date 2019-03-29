@@ -25,6 +25,7 @@ import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.util.*;
 import org.jitsi.util.event.*;
+import org.jitsi.utils.*;
 
 import net.java.sip.communicator.service.protocol.*;
 

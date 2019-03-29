@@ -28,6 +28,7 @@ import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.audionotifier.*;
 import org.jitsi.service.neomedia.*;
+import org.jitsi.utils.*;
 
 /**
  * A dialog showing the webcam and allowing the user to grap a snapshot

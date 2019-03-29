@@ -23,6 +23,10 @@
       <artifactId>jitsi-configuration</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ice4j</artifactId>
+    </dependency>
   </dependencies>
 
   <build>
