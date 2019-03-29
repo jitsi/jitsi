@@ -38,8 +38,8 @@ import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
-import org.jitsi.service.neomedia.MediaType; // disambiguate
 import org.jitsi.service.neomedia.control.*;
+import org.jitsi.utils.MediaType; // disambiguate
 
 /**
  * Our SIP implementation of the default CallPeer;

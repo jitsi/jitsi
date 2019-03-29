@@ -26,6 +26,7 @@ import net.java.sip.communicator.util.*;
 import org.ice4j.ice.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
+import org.jitsi.utils.*;
 
 /**
  * <tt>TransportManager</tt>s are responsible for allocating ports, gathering

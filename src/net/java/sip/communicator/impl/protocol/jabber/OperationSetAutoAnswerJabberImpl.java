@@ -22,6 +22,7 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 
 import org.jitsi.service.neomedia.*;
+import org.jitsi.utils.*;
 
 /**
  * An Operation Set defining option to unconditionally auto answer incoming
