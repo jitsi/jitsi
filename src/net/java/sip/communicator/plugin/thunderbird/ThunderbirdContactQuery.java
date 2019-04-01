@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.*;
 
-import org.jitsi.util.StringUtils;
+import org.jitsi.utils.StringUtils;
 
 import mork.*;
 import net.java.sip.communicator.service.contactsource.*;

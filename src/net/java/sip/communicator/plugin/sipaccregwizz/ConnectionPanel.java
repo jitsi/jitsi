@@ -28,7 +28,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.sip.*;
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 /**
  * The panel containing information about the connection.

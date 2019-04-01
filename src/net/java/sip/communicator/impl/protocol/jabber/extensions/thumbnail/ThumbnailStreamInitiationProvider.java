@@ -17,7 +17,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber.extensions.thumbnail;
 
-import org.jitsi.util.*;
+import org.jitsi.utils.logging.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smackx.si.packet.*;

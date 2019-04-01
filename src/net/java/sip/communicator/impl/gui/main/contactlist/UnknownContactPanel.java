@@ -33,7 +33,7 @@ import net.java.sip.communicator.plugin.desktoputil.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 /**
  * The <tt>UnknownContactPanel</tt> replaces the contact list, when a

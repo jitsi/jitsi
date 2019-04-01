@@ -819,7 +819,7 @@ public class ProtocolProviderServiceJabberImpl
     private JabberLoginStrategy createLoginStrategy()
     {
         String boshURL = accountID.getBoshUrl();
-        boolean isBosh = !org.jitsi.util.StringUtils.isNullOrEmpty(boshURL);
+        boolean isBosh = !org.jitsi.utils.StringUtils.isNullOrEmpty(boshURL);
         ConnectionConfiguration.Builder ccBuilder;
         if (isBosh)
         {
@@ -1136,7 +1136,7 @@ public class ProtocolProviderServiceJabberImpl
         ConnectionConfiguration.Builder confConn =
             loginStrategy.getConnectionConfigurationBuilder();
         String boshURL = accountID.getBoshUrl();
-        boolean isBosh = !org.jitsi.util.StringUtils.isNullOrEmpty(boshURL);
+        boolean isBosh = !org.jitsi.utils.StringUtils.isNullOrEmpty(boshURL);
 
         confConn.setXmppDomain(serviceName);
         if (isBosh)
@@ -1480,7 +1480,7 @@ public class ProtocolProviderServiceJabberImpl
                     new Presence(Presence.Type.unavailable);
 
                 if(opSet != null
-                    && !org.jitsi.util.StringUtils
+                    && !org.jitsi.utils.StringUtils
                         .isNullOrEmpty(opSet.getCurrentStatusMessage()))
                 {
                     unavailablePresence.setStatus(

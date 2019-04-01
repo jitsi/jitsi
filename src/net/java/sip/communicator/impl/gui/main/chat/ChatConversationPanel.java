@@ -54,7 +54,7 @@ import net.java.sip.communicator.util.skin.*;
 import org.apache.commons.lang3.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;
-import org.jitsi.util.StringUtils;
+import org.jitsi.utils.StringUtils;
 import org.osgi.framework.*;
 
 /**

@@ -29,6 +29,8 @@ import org.jitsi.service.fileaccess.*;
 import org.jitsi.util.*;
 
 import com.google.common.collect.*;
+import org.jitsi.utils.*;
+import org.jitsi.utils.logging.*;
 
 /**
  * Implementation of the {@link ConfigurationService} based on JDBC.

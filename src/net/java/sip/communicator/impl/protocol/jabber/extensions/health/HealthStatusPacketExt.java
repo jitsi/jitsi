@@ -17,7 +17,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.health;
 
 import net.java.sip.communicator.impl.protocol.jabber.extensions.AbstractPacketExtension;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.DefaultPacketExtensionProvider;
-import org.jitsi.util.StringUtils;
+import org.jitsi.utils.StringUtils;
 import org.jivesoftware.smack.provider.ProviderManager;
 
 /**

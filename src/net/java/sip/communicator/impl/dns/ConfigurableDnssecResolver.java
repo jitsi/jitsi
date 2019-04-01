@@ -34,7 +34,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import org.jitsi.dnssec.validator.ValidatingResolver;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 import org.xbill.DNS.*;
 
 /**

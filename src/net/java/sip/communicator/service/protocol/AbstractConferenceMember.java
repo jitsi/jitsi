@@ -20,7 +20,7 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import org.jitsi.service.neomedia.*;
-import org.jitsi.util.event.*;
+import org.jitsi.utils.event.*;
 
 /**
  * Provides the default implementation of the <tt>ConferenceMember</tt>

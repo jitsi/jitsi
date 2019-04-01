@@ -23,7 +23,7 @@ import java.util.List;
 
 import javax.swing.*;
 
-import org.jitsi.util.StringUtils;
+import org.jitsi.utils.StringUtils;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.wizard.*;

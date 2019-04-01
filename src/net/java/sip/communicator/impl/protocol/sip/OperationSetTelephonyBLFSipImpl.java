@@ -23,6 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.Logger;
 import org.jitsi.util.*;
+import org.jitsi.utils.*;
 import org.jitsi.util.xml.*;
 import org.w3c.dom.*;
 

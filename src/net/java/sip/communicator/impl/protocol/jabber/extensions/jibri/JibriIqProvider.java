@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.protocol.jabber.extensions.jibri;
 
 import org.jitsi.util.*;
 
+import org.jitsi.utils.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.util.PacketParserUtils;

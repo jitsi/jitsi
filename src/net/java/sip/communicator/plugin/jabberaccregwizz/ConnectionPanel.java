@@ -27,7 +27,7 @@ import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.jabber.*;
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 /**
  *

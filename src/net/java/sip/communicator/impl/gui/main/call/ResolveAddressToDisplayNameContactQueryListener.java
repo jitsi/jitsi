@@ -18,7 +18,7 @@
 package net.java.sip.communicator.impl.gui.main.call;
 
 import net.java.sip.communicator.service.contactsource.*;
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 /**
  * Listener for a contact query, used in order to resolve a contact address

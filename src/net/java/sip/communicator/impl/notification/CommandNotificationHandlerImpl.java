@@ -23,7 +23,7 @@ import java.util.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.util.Logger;
 
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 /**
  * An implementation of the <tt>CommandNotificationHandler</tt> interface.

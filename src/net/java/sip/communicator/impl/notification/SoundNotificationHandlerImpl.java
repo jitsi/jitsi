@@ -27,6 +27,8 @@ import net.java.sip.communicator.service.notification.*;
 import org.jitsi.service.audionotifier.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.util.*;
+import org.jitsi.utils.*;
+import org.jitsi.utils.logging.Logger;
 
 /**
  * An implementation of the <tt>SoundNotificationHandler</tt> interface.
