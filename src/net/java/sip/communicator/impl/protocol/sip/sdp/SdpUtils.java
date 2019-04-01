@@ -34,7 +34,7 @@ import net.java.sip.communicator.util.Logger;
 import org.ice4j.ice.sdp.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.format.*;
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 import org.jitsi.utils.MediaType;
 import org.opentelecoms.javax.sdp.*;
 

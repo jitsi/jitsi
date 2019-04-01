@@ -33,7 +33,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
 import org.jitsi.service.configuration.*;
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
+import org.jitsi.utils.logging.*;
 
 /**
  * The source contact service. The will show most recent messages.

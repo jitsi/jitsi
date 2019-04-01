@@ -25,6 +25,7 @@ import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;
 import org.jitsi.service.libjitsi.*;
 import org.jitsi.util.*;
+import org.jitsi.utils.logging.*;
 import org.osgi.framework.*;
 
 import java.io.*;

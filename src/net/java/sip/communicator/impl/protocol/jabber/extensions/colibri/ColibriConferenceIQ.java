@@ -23,7 +23,7 @@ import java.util.concurrent.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
 import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
 
-import org.jitsi.util.*;
+import org.jitsi.utils.logging.*;
 import org.jitsi.service.neomedia.*;
 
 import org.jivesoftware.smack.packet.*;

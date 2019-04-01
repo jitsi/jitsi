@@ -31,7 +31,7 @@ import net.java.sip.communicator.impl.protocol.sip.xcap.model.xcapcaps.*;
 import net.java.sip.communicator.util.*;
 
 import org.apache.http.*;
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 /**
  * XCAP client implementation.

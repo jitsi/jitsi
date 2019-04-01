@@ -38,7 +38,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import org.jitsi.util.*;
-import org.jitsi.util.Logger;
+import org.jitsi.utils.logging.Logger;
 
 import com.sun.jna.*;
 

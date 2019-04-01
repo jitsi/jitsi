@@ -706,9 +706,7 @@ public class OperationSetPersistentPresenceJabberImpl
          * XXX Use StringUtils.isEquals instead of String.equals to avoid a
          * NullPointerException.
          */
-        if(!org.jitsi.util.StringUtils.isEquals(
-                oldStatusMessage,
-                statusMessage))
+        if(!java.util.Objects.equals(oldStatusMessage, statusMessage))
         {
             currentStatusMessage = statusMessage;
             fireProviderStatusMessageChangeEvent(
