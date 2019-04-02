@@ -1164,7 +1164,8 @@ public class ProtocolProviderServiceJabberImpl
                 }
 
                 String file = boshURI.getPath();
-                String query = boshURI.getQuery();
+                // use rawQuery as getQuery() decodes the string
+                String query = boshURI.getRawQuery();
                 if (!StringUtils.isNullOrEmpty(query))
                 {
                     file += "?" + query;
