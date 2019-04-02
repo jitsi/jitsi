@@ -1004,9 +1004,17 @@ public class ProtocolProviderServiceJabberImpl
             logger.error("Failed to connect to XMPP service", ex);
 
             // server disconnect us after such an error, do cleanup
+            // as we maybe will try again
             disconnectAndCleanConnection();
 
-            // FIXME
+            // in case this is the last try connecting store the error
+            eventDuringLogin = new RegistrationStateChangeEvent(
+                this,
+                getRegistrationState(),
+                RegistrationState.CONNECTION_FAILED,
+                RegistrationStateChangeEvent.REASON_INTERNAL_ERROR,
+                ex.getMessage());
+
             return ConnectState.CONTINUE_TRYING;
         }
     }
