@@ -21,7 +21,7 @@ import java.awt.event.*;
 import java.text.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.inputevt.*;
+import org.jitsi.xmpp.extensions.inputevt.*;
 import net.java.sip.communicator.service.hid.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;

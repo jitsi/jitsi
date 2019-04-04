@@ -23,10 +23,10 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.List;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.SendersEnum;
-import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
+import org.jitsi.xmpp.extensions.colibri.*;
+import org.jitsi.xmpp.extensions.jingle.*;
+import org.jitsi.xmpp.extensions.jingle.ContentPacketExtension.SendersEnum;
+import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.JingleUtils;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
@@ -36,7 +36,6 @@ import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;
 import org.jitsi.utils.*;
-import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smackx.disco.packet.*;
 import org.jxmpp.jid.*;
@@ -3051,10 +3050,15 @@ public class CallPeerMediaHandlerJabberImpl
         List<CryptoPacketExtension> cryptoPacketExtensions
             = encryptionPacketExtension.getCryptoList();
         List<SrtpCryptoAttribute> peerAttributes
-            = new ArrayList<SrtpCryptoAttribute>(cryptoPacketExtensions.size());
+            = new ArrayList<>(cryptoPacketExtensions.size());
 
         for (CryptoPacketExtension cpe : cryptoPacketExtensions)
-            peerAttributes.add(cpe.toSrtpCryptoAttribute());
+            peerAttributes.add(
+                SrtpCryptoAttribute.create(
+                    cpe.getTag(),
+                    cpe.getCryptoSuite(),
+                    cpe.getKeyParams(),
+                    cpe.getSessionParams()));
 
         return
             isInitiator
@@ -3247,8 +3251,11 @@ public class CallPeerMediaHandlerJabberImpl
                 for(SrtpCryptoAttribute ca:
                         sdesControl.getInitiatorCryptoAttributes())
                 {
-                    CryptoPacketExtension crypto
-                        = new CryptoPacketExtension(ca);
+                    CryptoPacketExtension crypto = new CryptoPacketExtension(
+                        ca.getTag(),
+                        ca.getCryptoSuite().encode(),
+                        ca.getKeyParamsString(),
+                        ca.getSessionParamsString());
                     localEncryption.addChildExtension(crypto);
                 }
 
@@ -3283,7 +3290,11 @@ public class CallPeerMediaHandlerJabberImpl
                         }
 
                         CryptoPacketExtension crypto
-                            = new CryptoPacketExtension(selectedSdes);
+                            = new CryptoPacketExtension(
+                                selectedSdes.getTag(),
+                                selectedSdes.getCryptoSuite().encode(),
+                                selectedSdes.getKeyParamsString(),
+                                selectedSdes.getSessionParamsString());
 
                         localEncryption.addChildExtension(crypto);
 

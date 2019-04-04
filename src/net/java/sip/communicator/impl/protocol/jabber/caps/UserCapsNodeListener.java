@@ -15,11 +15,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.java.sip.communicator.impl.protocol.jabber.extensions.caps;
+package net.java.sip.communicator.impl.protocol.jabber.caps;
 
 import org.jxmpp.jid.Jid;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

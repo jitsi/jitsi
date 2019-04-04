@@ -17,8 +17,8 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.condesc.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jitsimeet.*;
+import org.jitsi.xmpp.extensions.condesc.*;
+import org.jitsi.xmpp.extensions.jitsimeet.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -1950,7 +1950,10 @@ public class ChatRoomJabberImpl
         }
 
         ConferenceDescriptionExtension ext
-                = new ConferenceDescriptionExtension(cd);
+            = new ConferenceDescriptionExtension(
+                cd.getUri(),
+                cd.getUri(),
+                cd.getPassword());
         if (lastPresenceSent != null)
         {
             setPacketExtension(
@@ -3204,7 +3207,18 @@ public class ChatRoomJabberImpl
                 ConferenceDescriptionExtension cdExt
                         = (ConferenceDescriptionExtension) ext;
 
-                ConferenceDescription cd = cdExt.toConferenceDescription();
+                ConferenceDescription cd
+                    = new ConferenceDescription(
+                        cdExt.getUri(),
+                        cdExt.getCallId(),
+                        cdExt.getPassword());
+                cd.setAvailable(cdExt.isAvailable());
+                cd.setDisplayName(getName());
+                for (TransportExtension t
+                    : cdExt.getChildExtensionsOfType(TransportExtension.class))
+                {
+                    cd.addTransport(t.getNamespace());
+                }
 
                 if (!processConferenceDescription(cd, participantName))
                     return;

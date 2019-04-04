@@ -19,8 +19,8 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.condesc.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import org.jitsi.xmpp.extensions.condesc.*;
+import org.jitsi.xmpp.extensions.jingle.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabber.*;
@@ -190,9 +190,9 @@ public class OperationSetBasicTelephonyJabberImpl
         throws OperationFailedException
     {
         final CallJabberImpl call = new CallJabberImpl(this);
-        
+
         ((ChatRoomJabberImpl) chatRoom).addConferenceCall(call);
-        
+
         call.addCallChangeListener(
                 new CallChangeListener()
                 {

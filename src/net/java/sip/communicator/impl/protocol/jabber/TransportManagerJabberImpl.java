@@ -20,16 +20,15 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.net.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
+import org.jitsi.xmpp.extensions.colibri.*;
+import org.jitsi.xmpp.extensions.jingle.*;
+import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.JingleUtils;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.utils.*;
-import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.packet.*;
 import org.jxmpp.jid.*;
@@ -276,7 +275,7 @@ public abstract class TransportManagerJabberImpl
      *
      * @param theirContent the <tt>ContentPacketExtension</tt> offered by the
      * remote peer to which we are going to answer with <tt>ourContent</tt> or
-     * <tt>null</tt> if <tt>ourContent</tt> will be an offer to the remote peer 
+     * <tt>null</tt> if <tt>ourContent</tt> will be an offer to the remote peer
      * @param ourContent the <tt>ContentPacketExtension</tt> for which transport
      * candidate harvest is to be started
      * @param transportInfoSender a <tt>TransportInfoSender</tt> if the

@@ -15,33 +15,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.java.sip.communicator.impl.protocol.jabber.extensions.coin;
-
-import net.java.sip.communicator.impl.protocol.jabber.extensions.*;
+package net.java.sip.communicator.impl.protocol.jabber.caps;
 
 /**
- * Sidebars by val packet extension.
+ * A listener use to notify interested parties about a change in our version
+ * string.
  *
- * @author Sebastien Vincent
+ * This work is based on Jonas Adahl's smack fork.
  */
-public class SidebarsByValPacketExtension
-    extends AbstractPacketExtension
+public interface CapsVerListener
 {
     /**
-     * The namespace that sidebars by val belongs to.
+     * Called whenever our <tt>ver</tt> string changes and we need to regenerate
+     * our presence information.
+     *
+     * @param capsVer the new version value.
      */
-    public static final String NAMESPACE = "";
-
-    /**
-     * The name of the element that contains the sidebars by val.
-     */
-    public static final String ELEMENT_NAME = "sidebars-by-val";
-
-    /**
-     * Constructor.
-     */
-    public SidebarsByValPacketExtension()
-    {
-        super(NAMESPACE, ELEMENT_NAME);
-    }
+    public void capsVerUpdated(String capsVer);
 }

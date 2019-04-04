@@ -79,6 +79,11 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>jitsi-xmpp-extensions</artifactId>
+      <version>1.0-20190404.082724-1</version>
+    </dependency>
+    <dependency>
       <groupId>org.jitsi</groupId>
       <artifactId>jnsapi</artifactId>
       <version>0.0.3-jitsi-smack4.2-3</version>

@@ -15,10 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.java.sip.communicator.impl.protocol.jabber.extensions.caps;
+package net.java.sip.communicator.impl.protocol.jabber.caps;
 
 import java.io.*;
-import java.lang.reflect.*;
 import java.security.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -32,11 +31,9 @@ import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.provider.*;
-import org.jivesoftware.smack.util.StringUtils;
 import org.jivesoftware.smackx.disco.packet.DiscoverInfo;
 import org.jivesoftware.smackx.disco.packet.DiscoverInfo.Feature;
 import org.jivesoftware.smackx.caps.packet.CapsExtension;
-import org.jivesoftware.smackx.disco.packet.*;
 import org.jivesoftware.smackx.xdata.FormField;
 import org.jivesoftware.smackx.xdata.packet.DataForm;
 import org.jxmpp.jid.Jid;
@@ -119,8 +116,8 @@ public class EntityCapsManager
     /**
      * CapsVerListeners gets notified when the version string is changed.
      */
-    private final Set<CapsVerListener> capsVerListeners
-        = new CopyOnWriteArraySet<CapsVerListener>();
+    private final Set<net.java.sip.communicator.impl.protocol.jabber.caps.CapsVerListener> capsVerListeners
+        = new CopyOnWriteArraySet<>();
 
     /**
      * The current hash of our version and supported features.
@@ -655,7 +652,7 @@ public class EntityCapsManager
 
         synchronized(capsVerListeners)
         {
-            listenersCopy = new ArrayList<CapsVerListener>(capsVerListeners);
+            listenersCopy = new ArrayList<>(capsVerListeners);
         }
 
         for (CapsVerListener listener : listenersCopy)
