@@ -17,7 +17,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.xcapcaps;
 
-import static org.jitsi.util.StringUtils.isNullOrEmpty;
+import static org.jitsi.utils.StringUtils.isNullOrEmpty;
 import static org.jitsi.util.xml.XMLUtils.createDocument;
 import static org.jitsi.util.xml.XMLUtils.getNamespaceUri;
 import static org.jitsi.util.xml.XMLUtils.isStandartXmlNamespace;

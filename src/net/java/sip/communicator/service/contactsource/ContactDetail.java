@@ -19,9 +19,8 @@ package net.java.sip.communicator.service.contactsource;
 
 import java.util.*;
 
-import org.jitsi.util.*;
-
 import net.java.sip.communicator.service.protocol.*;
+import org.jitsi.utils.*;
 
 /**
  * The <tt>ContactDetail</tt> is a detail of a <tt>SourceContact</tt>

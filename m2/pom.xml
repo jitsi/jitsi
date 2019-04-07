@@ -81,7 +81,7 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>libjitsi</artifactId>
-        <version>1.0-20190329.124239-380</version>
+        <version>1.0-20190405.175243-382</version>
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
@@ -91,7 +91,7 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>jitsi-utils</artifactId>
-        <version>1.0-20190329.111334-6</version>
+        <version>1.0-20190401.122850-7</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

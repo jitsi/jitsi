@@ -23,7 +23,7 @@ import java.util.*;
 
 import javax.swing.*;
 
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 import net.java.sip.communicator.impl.gui.*;
 import net.java.sip.communicator.impl.gui.utils.*;

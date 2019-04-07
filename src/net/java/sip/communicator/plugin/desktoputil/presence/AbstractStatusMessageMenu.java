@@ -27,7 +27,7 @@ import javax.swing.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.*;
 import org.jitsi.service.resources.*;
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 /**
  * The <tt>AbstractStatusMessageMenu<tt> is added to every status selector box

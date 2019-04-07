@@ -27,7 +27,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.jabber.*;
 import net.java.sip.communicator.util.Logger;
 
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 import org.osgi.framework.*;
 
 /**
@@ -261,7 +261,7 @@ public class JabberAccountRegistrationWizard
         boolean equals = false;
         final boolean rememberPassword = (password != null);
 
-        if (StringUtils.isEquals(accPanelUsername, userName))
+        if (Objects.equals(accPanelUsername, userName))
         {
             char[] accPanelPasswordChars = accPanel.getPassword();
             char[] passwordChars

@@ -26,7 +26,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.account.*;
 
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 /**
  * The <tt>GlobalDisplayNameImpl</tt> offers generic access to a global

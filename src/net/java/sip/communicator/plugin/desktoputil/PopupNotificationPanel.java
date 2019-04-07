@@ -25,7 +25,7 @@ import javax.swing.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 /**
  * A custom panel to handle systray popup notification

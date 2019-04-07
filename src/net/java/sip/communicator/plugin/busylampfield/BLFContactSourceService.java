@@ -20,7 +20,7 @@ package net.java.sip.communicator.plugin.busylampfield;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.Logger;
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 import java.util.*;
 

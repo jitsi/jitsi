@@ -21,7 +21,7 @@ import static javax.xml.XMLConstants.XML_NS_PREFIX;
 import static javax.xml.XMLConstants.XML_NS_URI;
 import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.processAny;
 import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.processAnyAttributes;
-import static org.jitsi.util.StringUtils.isNullOrEmpty;
+import static org.jitsi.utils.StringUtils.isNullOrEmpty;
 import static org.jitsi.util.xml.XMLUtils.createDocument;
 import static org.jitsi.util.xml.XMLUtils.createXml;
 import static org.jitsi.util.xml.XMLUtils.getNamespaceUri;
