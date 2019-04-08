@@ -20,9 +20,9 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.lang.ref.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
+import org.jitsi.xmpp.extensions.colibri.*;
+import org.jitsi.xmpp.extensions.jingle.*;
+import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.JingleUtils;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
@@ -708,7 +708,8 @@ public class CallJabberImpl
                         = new ColibriConferenceIQ.Channel();
 
                     requestChannel.setID(channelID);
-                    requestChannel.setDirection(direction);
+                    requestChannel.setDirection(
+                        direction.toString());
 
                     ColibriConferenceIQ.Content requestContent
                         = new ColibriConferenceIQ.Content();
@@ -1516,7 +1517,7 @@ public class CallJabberImpl
     {
         if (sid == null)
             return null;
-    
+
         for(CallPeerJabberImpl peer : getCallPeerList())
         {
             if (sid.equals(peer.getSID()))
@@ -1552,7 +1553,7 @@ public class CallJabberImpl
     {
         if (id == null)
             return null;
-    
+
         for(CallPeerJabberImpl peer : getCallPeerList())
         {
             if (id.equals(peer.getSessInitID()))

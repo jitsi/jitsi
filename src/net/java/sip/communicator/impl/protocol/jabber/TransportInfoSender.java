@@ -17,7 +17,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import org.jitsi.xmpp.extensions.jingle.*;
 
 /**
  * Represents functionality which allows a <tt>TransportManagerJabberImpl</tt>

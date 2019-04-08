@@ -19,7 +19,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.io.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.thumbnail.*;
+import org.jitsi.xmpp.extensions.thumbnail.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 

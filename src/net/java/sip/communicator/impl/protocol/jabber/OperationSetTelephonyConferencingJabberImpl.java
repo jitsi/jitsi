@@ -19,8 +19,8 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.coin.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import org.jitsi.xmpp.extensions.coin.*;
+import org.jitsi.xmpp.extensions.jingle.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
@@ -526,10 +526,10 @@ public class OperationSetTelephonyConferencingJabberImpl
         ChatRoom room = null;
         if(opSetMUC != null)
             room = opSetMUC.getChatRoom(chatRoomName);
-        
+
         if(room != null)
             return "xmpp:" + chatRoomName + "/" + room.getUserNickname();
-        
+
         return "xmpp:" + parentProvider.getOurJID();
     }
 
@@ -577,12 +577,12 @@ public class OperationSetTelephonyConferencingJabberImpl
                 if(CallState.CALL_ENDED.equals(ev.getNewValue()))
                     chatRoom.publishConference(null, null);
             }
-            
+
             @Override
             public void callPeerRemoved(CallPeerEvent ev)
             {
             }
-            
+
             @Override
             public void callPeerAdded(CallPeerEvent ev)
             {
@@ -591,7 +591,7 @@ public class OperationSetTelephonyConferencingJabberImpl
         if (isVideobridge)
         {
             call.setConference(new MediaAwareCallConference(true));
-            
+
             //For Jitsi Videobridge we set the transports to RAW-UDP, otherwise
             //we leave them empty (meaning both RAW-UDP and ICE could be used)
             cd.addTransport(

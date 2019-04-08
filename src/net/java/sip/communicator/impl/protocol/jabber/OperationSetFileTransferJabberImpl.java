@@ -21,7 +21,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.thumbnail.*;
+import org.jitsi.xmpp.extensions.thumbnail.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.FileTransfer;
 import net.java.sip.communicator.service.protocol.event.*;
@@ -143,7 +143,7 @@ public class OperationSetFileTransferJabberImpl
                 Roster r = Roster.getInstanceFor(jabberProvider.getConnection());
                 int bestPriority = -1;
                 PresenceStatus jabberStatus = null;
-    
+
                 for (Presence presence : r.getPresences(jid.asBareJid()))
                 {
                     if(jabberProvider.isFeatureListSupported(
@@ -151,12 +151,12 @@ public class OperationSetFileTransferJabberImpl
                         "http://jabber.org/protocol/si",
                         "http://jabber.org/protocol/si/profile/file-transfer"))
                     {
-    
+
                         int priority =
                             (presence.getPriority() == Integer.MIN_VALUE)
                                 ? 0
                                 : presence.getPriority();
-    
+
                         if(priority > bestPriority)
                         {
                             bestPriority = priority;
