@@ -72,11 +72,6 @@ public class ScServiceDiscoveryManager
     private final EntityCapsManager capsManager;
 
     /**
-     * The attribute associated with our node.
-     */
-    private final String nodeAttribute;
-
-    /**
      * The {@link ServiceDiscoveryManager} that we are wrapping.
      */
     private final ServiceDiscoveryManager discoveryManager;
@@ -188,9 +183,6 @@ public class ScServiceDiscoveryManager
         // For every XMPPConnection, add one EntityCapsManager.
         this.capsManager = new EntityCapsManager();
         this.capsManager.addPacketListener(connection);
-        this.nodeAttribute
-            = this.capsManager.getNode()
-                + "#" + this.capsManager.getCapsVersion();
 
         /*
          * XXX initFeatures() has to happen before updateEntityCapsVersion().
@@ -264,7 +256,8 @@ public class ScServiceDiscoveryManager
         DiscoverInfo di = new DiscoverInfo();
 
         di.setType(IQ.Type.result);
-        di.setNode(this.nodeAttribute);
+        di.setNode(
+            capsManager.getNode() + "#" + capsManager.getCapsVersion());
 
         // Add discover info
         addDiscoverInfoTo(di);
@@ -400,7 +393,7 @@ public class ScServiceDiscoveryManager
             //make sure we'll be able to handle requests for the newly generated
             //node once we've used it.
             discoveryManager.setNodeInformationProvider(
-                this.nodeAttribute, this);
+                caps.getNode() + "#" + caps.getVer(), this);
 
             // Remove old capabilities extension if present
             ExtensionElement oldCaps
@@ -650,7 +643,9 @@ public class ScServiceDiscoveryManager
             retriever.stop();
 
         // we need to clean up our reference
-        discoveryManager.removeNodeInformationProvider(this.nodeAttribute);
+        discoveryManager.removeNodeInformationProvider(
+            this.capsManager.getNode()
+                + "#" + this.capsManager.getCapsVersion());
 
         this.connection = null;
     }
