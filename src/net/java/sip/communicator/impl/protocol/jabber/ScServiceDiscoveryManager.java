@@ -24,14 +24,17 @@ import net.java.sip.communicator.impl.protocol.jabber.caps.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+import org.jitsi.service.configuration.*;
+import org.jitsi.util.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smackx.caps.*;
 import org.jivesoftware.smackx.caps.packet.CapsExtension;
 import org.jivesoftware.smackx.disco.*;
 import org.jivesoftware.smackx.disco.packet.*;
-import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.*;
 
 /**
  * An wrapper to smack's default {@link ServiceDiscoveryManager} that adds
@@ -43,8 +46,7 @@ import org.jxmpp.jid.Jid;
  * @author Lubomir Marinov
  */
 public class ScServiceDiscoveryManager
-    implements StanzaListener,
-               NodeInformationProvider
+    implements StanzaListener
 {
     /**
      * The <tt>Logger</tt> used by the <tt>ScServiceDiscoveryManager</tt>
@@ -66,15 +68,15 @@ public class ScServiceDiscoveryManager
         = new ConcurrentHashMap<>();
 
     /**
-     * The <tt>EntitiCapsManager</tt> used by this instance to handle entity
+     * The <tt>EntityCapsManager</tt> used by this instance to handle entity
      * capabilities.
      */
-    private final EntityCapsManager capsManager;
+    private EntityCapsManager capsManager;
 
     /**
      * The {@link ServiceDiscoveryManager} that we are wrapping.
      */
-    private final ServiceDiscoveryManager discoveryManager;
+    private ServiceDiscoveryManager discoveryManager;
 
     /**
      * The parent provider
@@ -82,42 +84,73 @@ public class ScServiceDiscoveryManager
     private final ProtocolProviderService parentProvider;
 
     /**
-     * The {@link XMPPConnection} that this manager is responsible for.
-     */
-    private XMPPConnection connection;
-
-    /**
-     * A local copy that we keep in sync with {@link ServiceDiscoveryManager}'s
-     * feature list that as we add and remove features to it.
-     */
-    private final List<String> features;
-
-    /**
-     * The unmodifiable view of {@link #features} which can be exposed to the
-     * public through {@link #getFeatures()}, for example.
-     */
-    private final List<String> unmodifiableFeatures;
-
-    /**
-     * A {@link List} of the identities we use in our disco answers.
-     */
-    private final List<DiscoverInfo.Identity> identities;
-
-    /**
-     * Capabilities to put in ext attribute of capabilities stanza.
-     */
-    private final List<String> extCapabilities = new ArrayList<String>();
-
-    /**
      * The runnable responsible for retrieving discover info.
      */
     private DiscoveryInfoRetriever retriever = new DiscoveryInfoRetriever();
+
+    /**
+     * Map of Full JID -&gt; DiscoverInfo/null. In case of c2s connection the
+     * key is formed as user@server/resource (resource is required) In case of
+     * link-local connection the key is formed as user@host (no resource)
+     *
+     * We duplicate the logic about JID_TO_NODEVER_CACHE from
+     * EntityCapsManager, so we can handle events for UserCapsNodeListeners and
+     * to be able to extract all jids that match a given bare jid.
+     */
+    private final Map<Jid, String> userCaps = new ConcurrentHashMap<>();
+
+    /**
+     * The list of <tt>UserCapsNodeListener</tt>s interested in events notifying
+     * about changes in the list of user caps nodes of this
+     * <tt>EntityCapsManager</tt>.
+     */
+    private final List<UserCapsNodeListener> userCapsNodeListeners
+        = new LinkedList<>();
+
+    /**
+     * An empty array of <tt>UserCapsNodeListener</tt> elements explicitly
+     * defined in order to reduce unnecessary allocations.
+     */
+    private static final UserCapsNodeListener[] NO_USER_CAPS_NODE_LISTENERS
+        = new UserCapsNodeListener[0];
+
+    /**
+     * The node value to advertise.
+     */
+    private static String entityNode
+        = OSUtils.IS_ANDROID ? "http://android.jitsi.org" : "http://jitsi.org";
+
+
+    /**
+     * We need to call this before creating any xmpp connection to be sure
+     * all further communication will carry our identity.
+     */
+    public static void initIdentity()
+    {
+        // we setup supported features no packets are actually sent
+        //during feature registration so we'd better do it here so that
+        //our first presence update would contain a caps with the right
+        //features.
+        String name
+            = System.getProperty(
+            "sip-communicator.application.name",
+            "Jitsi ")
+            + System.getProperty("sip-communicator.version","SVN");
+
+        ServiceDiscoveryManager.setDefaultIdentity(
+            new DiscoverInfo.Identity("client", name, "pc"));
+
+        // Set the default entity node that
+        // will be used for new EntityCapsManagers.
+        EntityCapsManager.setDefaultEntityNode(entityNode);
+    }
 
     /**
      * Creates a new <tt>ScServiceDiscoveryManager</tt> wrapping the default
      * discovery manager of the specified <tt>connection</tt>.
      *
      * @param parentProvider the parent provider that creates discovery manager.
+     * @param configService the current configuration service.
      * @param connection Smack connection object that will be used by this
      * instance to handle XMPP connection.
      * @param featuresToRemove an array of <tt>String</tt>s representing the
@@ -132,32 +165,18 @@ public class ScServiceDiscoveryManager
      */
     public ScServiceDiscoveryManager(
             ProtocolProviderService parentProvider,
+            ConfigurationService configService,
             XMPPConnection connection,
             String[] featuresToRemove,
             String[] featuresToAdd,
             boolean cacheNonCaps)
     {
         this.parentProvider = parentProvider;
-        this.connection = connection;
 
         this.discoveryManager
             = ServiceDiscoveryManager.getInstanceFor(connection);
 
-        this.features = new ArrayList<>();
-        this.unmodifiableFeatures = Collections.unmodifiableList(this.features);
-        this.identities = new ArrayList<>();
-
         this.cacheNonCaps = cacheNonCaps;
-
-        DiscoverInfo.Identity identity
-            = new DiscoverInfo.Identity(
-                    "client",
-                    this.discoveryManager.getIdentityName(),
-                    this.discoveryManager.getIdentityType());
-        identities.add(identity);
-
-        //add support for capabilities
-        discoveryManager.addFeature(CapsExtension.NAMESPACE);
 
         /*
          * Reflect featuresToRemove and featuresToAdd before
@@ -181,23 +200,12 @@ public class ScServiceDiscoveryManager
         }
 
         // For every XMPPConnection, add one EntityCapsManager.
-        this.capsManager = new EntityCapsManager();
-        this.capsManager.addPacketListener(connection);
-
-        /*
-         * XXX initFeatures() has to happen before updateEntityCapsVersion().
-         * Otherwise, updateEntityCapsVersion() will not include the features of
-         * the wrapped discoveryManager.
-         */
-        initFeatures();
-        updateEntityCapsVersion();
-
-        // Now, make sure we intercept presence packages and add caps data when
-        // intended. XEP-0115 specifies that a client SHOULD include entity
-        // capabilities with every presence notification it sends.
-        connection.addPacketInterceptor(
-                this,
-                new StanzaTypeFilter(Presence.class));
+        this.capsManager = EntityCapsManager.getInstanceFor(connection);
+        this.capsManager.setEntityNode(entityNode);
+        EntityCapsManager.setPersistentCache(
+            new CapsConfigurationPersistence(configService));
+        connection.addAsyncStanzaListener(
+            this, new StanzaTypeFilter(Presence.class));
     }
 
     /**
@@ -214,24 +222,7 @@ public class ScServiceDiscoveryManager
      */
     public void addFeature(String feature)
     {
-        synchronized (features)
-        {
-            features.add(feature);
-            discoveryManager.addFeature(feature);
-        }
-        updateEntityCapsVersion();
-    }
-
-    /**
-     * Recalculates the entity capabilities caps ver string according to what's
-     * currently available in our own discovery info.
-     */
-    private void updateEntityCapsVersion()
-    {
-        // If a XMPPConnection is the managed one, see that the new version is
-        // updated
-        if (connection != null)
-            capsManager.calculateEntityCapsVersion(getOwnDiscoverInfo());
+        discoveryManager.addFeature(feature);
     }
 
     /**
@@ -243,56 +234,7 @@ public class ScServiceDiscoveryManager
      */
     public List<String> getFeatures()
     {
-        return unmodifiableFeatures;
-    }
-
-    /**
-     * Get a DiscoverInfo for the current entity caps node.
-     *
-     * @return a DiscoverInfo for the current entity caps node
-     */
-    public DiscoverInfo getOwnDiscoverInfo()
-    {
-        DiscoverInfo di = new DiscoverInfo();
-
-        di.setType(IQ.Type.result);
-        di.setNode(
-            capsManager.getNode() + "#" + capsManager.getCapsVersion());
-
-        // Add discover info
-        addDiscoverInfoTo(di);
-        return di;
-    }
-
-    /**
-     * Populates a specific <tt>DiscoverInfo</tt> with the identity and features
-     * of the current entity caps node.
-     *
-     * @param response the discover info response packet
-     */
-    private void addDiscoverInfoTo(DiscoverInfo response)
-    {
-        // Set this client identity
-        DiscoverInfo.Identity identity
-            = new DiscoverInfo.Identity(
-                    "client",
-                    discoveryManager.getIdentityName(),
-                    discoveryManager.getIdentityType());
-        response.addIdentity(identity);
-
-        // Add the registered features to the response
-
-        // Add Entity Capabilities (XEP-0115) feature node.
-        /*
-         * XXX Only addFeature if !containsFeature. Otherwise, the DiscoverInfo
-         * may end up with repeating features.
-         */
-        if (!response.containsFeature(CapsExtension.NAMESPACE))
-            response.addFeature(CapsExtension.NAMESPACE);
-
-        for (String feature : unmodifiableFeatures)
-            if (!response.containsFeature(feature))
-                response.addFeature(feature);
+        return discoveryManager.getFeatures();
     }
 
     /**
@@ -320,152 +262,34 @@ public class ScServiceDiscoveryManager
      */
     public void removeFeature(String feature)
     {
-        synchronized (features)
-        {
-            features.remove(feature);
-            discoveryManager.removeFeature(feature);
-        }
-        updateEntityCapsVersion();
+        discoveryManager.removeFeature(feature);
     }
 
     /**
-     * Add feature to put in "ext" attribute.
+     * Handles incoming presence packets and maps jids to node#ver strings.
      *
-     * @param ext ext feature to add
-     */
-    public void addExtFeature(String ext)
-    {
-        synchronized(extCapabilities)
-        {
-            extCapabilities.add(ext);
-        }
-    }
-
-    /**
-     * Remove "ext" feature.
-     *
-     * @param ext ext feature to remove
-     */
-    public void removeExtFeature(String ext)
-    {
-        synchronized(extCapabilities)
-        {
-            extCapabilities.remove(ext);
-        }
-    }
-
-    /**
-     * Get "ext" value.
-     *
-     * @return string that represents "ext" value
-     */
-    public synchronized String getExtFeatures()
-    {
-        StringBuilder bldr = new StringBuilder("");
-
-        for(String e : extCapabilities)
-        {
-            bldr.append(e);
-            bldr.append(" ");
-        }
-
-        return bldr.toString();
-    }
-
-    /**
-     * Intercepts outgoing presence packets and adds entity capabilities at
-     * their ends.
-     *
-     * @param packet the (hopefully presence) packet we need to add a "c"
-     * element to.
+     * @param packet the incoming presence <tt>Packet</tt> to be handled
      */
     @Override
     public void processStanza(Stanza packet)
     {
-        if ((packet instanceof Presence))
+        // Check it the packet indicates  that the user is online. We
+        // will use this information to decide if we're going to send
+        // the discover info request.
+        boolean online
+            = (packet instanceof Presence)
+                && ((Presence) packet).isAvailable();
+
+        CapsExtension ext =  packet.getExtension(
+            CapsExtension.ELEMENT, CapsExtension.NAMESPACE);
+
+        if(ext != null && online)
         {
-            CapsExtension caps
-                = new CapsExtension(
-                    capsManager.getNode(),
-                    capsManager.getCapsVersion(),
-                    "sha-1");
-
-            //make sure we'll be able to handle requests for the newly generated
-            //node once we've used it.
-            discoveryManager.setNodeInformationProvider(
-                caps.getNode() + "#" + caps.getVer(), this);
-
-            // Remove old capabilities extension if present
-            ExtensionElement oldCaps
-                = packet.getExtension(
-                        CapsExtension.ELEMENT,
-                        CapsExtension.NAMESPACE);
-            if (oldCaps != null)
-            {
-                packet.removeExtension(oldCaps);
-            }
-            // Put new capabilities extension
-            packet.addExtension(caps);
+            addUserCapsNode(packet.getFrom(), ext.getNode(), ext.getVer());
         }
-    }
-
-    /**
-     * Returns a list of the Items
-     * {@link DiscoverItems.Item} defined in the
-     * node or in other words <tt>null</tt> since we don't support any.
-     *
-     * @return always <tt>null</tt> since we don't support items.
-     */
-    @Override
-    public List<DiscoverItems.Item> getNodeItems()
-    {
-        return null;
-    }
-
-    /**
-     * Returns a list of the features defined in the node. For
-     * example, the entity caps protocol specifies that an XMPP client
-     * should answer with each feature supported by the client version
-     * or extension.
-     *
-     * @return a list of the feature strings defined in the node.
-     */
-    @Override
-    public List<String> getNodeFeatures()
-    {
-        return getFeatures();
-    }
-
-    /**
-     * Returns a list of the identities defined in the node. For example, the
-     * x-command protocol must provide an identity of category automation and
-     * type command-node for each command.
-     *
-     * @return a list of the Identities defined in the node.
-     */
-    @Override
-    public List<DiscoverInfo.Identity> getNodeIdentities()
-    {
-        return identities;
-    }
-
-    @Override
-    public List<ExtensionElement> getNodePacketExtensions()
-    {
-        return null;
-    }
-
-    /**
-     * Initialize our local features copy in a way that would
-     */
-    private void initFeatures()
-    {
-        synchronized (features)
+        else if (!online)
         {
-            for (String feature : discoveryManager.getFeatures())
-            {
-                this.features.add(feature);
-            }
+            removeUserCapsNode(packet.getFrom());
         }
     }
 
@@ -478,45 +302,73 @@ public class ScServiceDiscoveryManager
      * @throws XMPPException if the operation failed for some reason.
      */
     public DiscoverInfo discoverInfo(Jid entityID)
-            throws XMPPException, NotConnectedException, InterruptedException, NoResponseException
+        throws XMPPException,
+               NotConnectedException,
+               InterruptedException,
+               NoResponseException
     {
-        DiscoverInfo discoverInfo = capsManager.getDiscoverInfoByUser(entityID);
-        EntityCapsManager.Caps caps = capsManager.getCapsByUser(entityID);
+        return this.discoverInfo(entityID, null, null);
+    }
 
-        if (discoverInfo != null && caps.isValid(discoverInfo))
-            return discoverInfo;
+    /**
+     * Requests the discovery info and fires the event if
+     * retrieved.
+     * @param entityID the entity to request
+     * @param caps and its capability.
+     * @param capabilitiesOpSet operation set ot receive events
+     * or null for no events.
+     * @return the discovered information.
+     */
+    private DiscoverInfo discoverInfo(
+        final Jid entityID,
+        EntityCapsManager.NodeVerHash caps,
+        OperationSetContactCapabilitiesJabberImpl capabilitiesOpSet)
+            throws XMPPException,
+                    NotConnectedException,
+                    InterruptedException,
+                    NoResponseException
+    {
+        DiscoverInfo discoverInfo = discoveryManager.discoverInfo(
+            entityID,
+            (caps == null ) ? null : caps.getNodeVer());
 
-        // if caps is not valid, has empty hash
-        if (cacheNonCaps && (caps == null || !caps.isValid(discoverInfo)))
+        if (caps != null
+            && discoverInfo != null
+            && !EntityCapsManager.verifyDiscoverInfoVersion(
+                    caps.getVer(), caps.getHash(), discoverInfo))
         {
-            discoverInfo = nonCapsCache.get(entityID);
-            if (discoverInfo != null)
-                return discoverInfo;
-        }
-
-        discoverInfo
-            = discoveryManager.discoverInfo(
-                    entityID,
-                    (caps == null) ? null : caps.getNodeVer());
-
-        if ((caps != null) && !caps.isValid(discoverInfo))
-        {
-            if(!caps.hash.equals(""))
+            if(!caps.getHash().equals(""))
             {
-                logger.error(
-                        "Invalid DiscoverInfo for " + caps.getNodeVer() + ": "
-                            + discoverInfo);
+                logger.error("Invalid DiscoverInfo for "
+                    + caps.getNodeVer() + ": " + discoverInfo);
             }
             caps = null;
         }
 
+        boolean fireEvent = false;
+
         if (caps == null)
         {
             if (cacheNonCaps)
+            {
                 nonCapsCache.put(entityID, discoverInfo);
+                fireEvent = true;
+            }
         }
         else
-            EntityCapsManager.addDiscoverInfoByCaps(caps, discoverInfo);
+        {
+            fireEvent = true;
+        }
+
+        // fire event
+        if(fireEvent && capabilitiesOpSet != null)
+        {
+            capabilitiesOpSet.fireContactCapabilitiesChanged(
+                entityID.asBareJid(),
+                getFullJidsByBareJid(entityID.asBareJid())
+            );
+        }
+
         return discoverInfo;
     }
 
@@ -526,19 +378,25 @@ public class ScServiceDiscoveryManager
      *
      * @param entityID the address of the XMPP entity.
      * @return the discovered information.
-     * @throws XMPPException if the operation failed for some reason.
      */
     public DiscoverInfo discoverInfoNonBlocking(Jid entityID)
-        throws XMPPException
     {
         DiscoverInfo discoverInfo = capsManager.getDiscoverInfoByUser(entityID);
-        EntityCapsManager.Caps caps = capsManager.getCapsByUser(entityID);
+        EntityCapsManager.NodeVerHash caps
+            = EntityCapsManager.getNodeVerHashByJid(entityID);
 
-        if (discoverInfo != null && caps.isValid(discoverInfo))
+        boolean isInfoValid = false;
+        if (discoverInfo != null && caps != null)
+        {
+            isInfoValid = EntityCapsManager.verifyDiscoverInfoVersion(
+                caps.getVer(), caps.getHash(), discoverInfo);
+        }
+
+        if (discoverInfo != null && isInfoValid)
             return discoverInfo;
 
         // if caps is not valid, has empty hash
-        if (cacheNonCaps && (caps == null || !caps.isValid(discoverInfo)))
+        if (cacheNonCaps)
         {
             discoverInfo = nonCapsCache.get(entityID);
             if (discoverInfo != null)
@@ -569,24 +427,6 @@ public class ScServiceDiscoveryManager
                 SmackException.NoResponseException
     {
         return discoveryManager.discoverItems(entityID);
-    }
-
-    /**
-     * Returns the discovered items of a given XMPP entity addressed by its JID
-     * and note attribute. Use this message only when trying to query
-     * information which is not directly addressable.
-     *
-     * @param entityID the address of the XMPP entity.
-     * @param node the attribute that supplements the 'jid' attribute.
-     *
-     * @return the discovered items.
-     *
-     * @throws XMPPException if the operation failed for some reason.
-     */
-    public DiscoverItems discoverItems(Jid entityID, String node)
-            throws XMPPException, NotConnectedException, InterruptedException, NoResponseException
-    {
-        return discoveryManager.discoverItems(entityID, node);
     }
 
     /**
@@ -623,15 +463,198 @@ public class ScServiceDiscoveryManager
     }
 
     /**
-     * Gets the <tt>EntityCapsManager</tt> which handles the entity capabilities
-     * for this <tt>ScServiceDiscoveryManager</tt>.
+     * Adds a specific <tt>UserCapsNodeListener</tt> to the list of
+     * <tt>UserCapsNodeListener</tt>s interested in events notifying about
+     * changes in the list of user caps nodes of this
+     * <tt>EntityCapsManager</tt>.
      *
-     * @return the <tt>EntityCapsManager</tt> which handles the entity
-     * capabilities for this <tt>ScServiceDiscoveryManager</tt>
+     * @param listener the <tt>UserCapsNodeListener</tt> which is interested in
+     * events notifying about changes in the list of user caps nodes of this
+     * <tt>EntityCapsManager</tt>
      */
-    public EntityCapsManager getCapsManager()
+    public void addUserCapsNodeListener(UserCapsNodeListener listener)
     {
-        return capsManager;
+        if (listener == null)
+            throw new NullPointerException("listener");
+        synchronized (userCapsNodeListeners)
+        {
+            if (!userCapsNodeListeners.contains(listener))
+                userCapsNodeListeners.add(listener);
+        }
+    }
+
+    /**
+     * Removes a specific <tt>UserCapsNodeListener</tt> from the list of
+     * <tt>UserCapsNodeListener</tt>s interested in events notifying about
+     * changes in the list of user caps nodes of this
+     * <tt>EntityCapsManager</tt>.
+     *
+     * @param listener the <tt>UserCapsNodeListener</tt> which is no longer
+     * interested in events notifying about changes in the list of user caps
+     * nodes of this <tt>EntityCapsManager</tt>
+     */
+    public void removeUserCapsNodeListener(UserCapsNodeListener listener)
+    {
+        if (listener != null)
+        {
+            synchronized (userCapsNodeListeners)
+            {
+                userCapsNodeListeners.remove(listener);
+            }
+        }
+    }
+
+    /**
+     * Gets the full Jids (with resources) as Strings.
+     *
+     * @param bareJid bare Jid
+     * @return the full Jids as an ArrayList <tt>user</tt>
+     */
+    public List<Jid> getFullJidsByBareJid(Jid bareJid)
+    {
+        List<Jid> jids = new ArrayList<>();
+        for(Jid jid : userCaps.keySet())
+        {
+            if (bareJid.equals(jid.asBareJid()))
+            {
+                jids.add(jid);
+            }
+        }
+
+        return jids;
+    }
+
+    /**
+     * Add a record telling what entity caps node a user has.
+     * @param user the user (Full JID)
+     * @param node the node (of the caps packet extension)
+     * @param ver the version (of the caps packet extension)
+     */
+    private void addUserCapsNode(Jid user,
+                                 String node,
+                                 String ver)
+    {
+        if (user != null
+            && node != null
+            && ver != null)
+        {
+            String nodeVer= userCaps.get(user);
+
+            if (nodeVer == null
+                || !nodeVer.equals(node + "#" + ver))
+            {
+                nodeVer = node + "#" + ver;
+
+                userCaps.put(user, nodeVer);
+            }
+            else
+                return;
+
+            fireUserCapsNodeEvent(true, user, nodeVer);
+        }
+    }
+
+    /**
+     * Gets the <tt>Caps</tt> i.e. the node, the hash and the ver of a user.
+     *
+     * @param user the user (Full JID)
+     * @return the <tt>Caps</tt> i.e. the node, the hash and the ver of
+     * <tt>user</tt>
+     */
+    public EntityCapsManager.NodeVerHash getCapsByUser(Jid user)
+    {
+        return EntityCapsManager.getNodeVerHashByJid(user);
+    }
+
+    /**
+     * Remove a record telling what entity caps node a user has.
+     *
+     * @param user the user (Full JID)
+     */
+    public void removeUserCapsNode(Jid user)
+    {
+        if (user == null)
+        {
+            return;
+        }
+
+        String nodeVer = userCaps.remove(user);
+
+        // Fire userCapsNodeRemoved.
+        if (nodeVer != null)
+        {
+            fireUserCapsNodeEvent(false, user, nodeVer);
+        }
+    }
+
+    /**
+     * Remove records telling what entity caps node a contact has.
+     *
+     * @param contact the contact
+     */
+    public void removeContactCapsNode(Contact contact)
+    {
+        String nodeVer = null;
+        Jid lastRemovedJid = null;
+
+        Iterator<Jid> iter = userCaps.keySet().iterator();
+        while(iter.hasNext())
+        {
+            Jid jid = iter.next();
+
+            if(jid.equals(contact.getAddress()))
+            {
+                nodeVer = userCaps.get(jid);
+                lastRemovedJid = jid;
+                iter.remove();
+            }
+        }
+        EntityCapsManager.removeUserCapsNode(contact.getAddress());
+
+        // fire only for the last one, at the end the event out
+        // of the protocol will be one and for the contact
+        if(nodeVer != null)
+        {
+            fireUserCapsNodeEvent(false, lastRemovedJid, nodeVer);
+        }
+    }
+
+    /**
+     * Fires events to UserCapsNodeListener.
+     * @param add whether this is add or remove event.
+     * @param user the user full jid this is about.
+     * @param nodeVer
+     */
+    private void fireUserCapsNodeEvent(
+        boolean add, Jid user, String nodeVer)
+    {
+        UserCapsNodeListener[] listeners;
+        synchronized (userCapsNodeListeners)
+        {
+            listeners
+                = userCapsNodeListeners.toArray(
+                NO_USER_CAPS_NODE_LISTENERS);
+        }
+        if (listeners.length != 0)
+        {
+            for (UserCapsNodeListener listener : listeners)
+            {
+                if(add)
+                {
+                    listener.userCapsNodeAdded(
+                        user,
+                        getFullJidsByBareJid(user.asBareJid()),
+                        nodeVer, true);
+                }
+                else
+                {
+                    listener.userCapsNodeRemoved(
+                        user,
+                        getFullJidsByBareJid(user.asBareJid()),
+                        nodeVer, false);
+                }
+            }
+        }
     }
 
     /**
@@ -644,10 +667,9 @@ public class ScServiceDiscoveryManager
 
         // we need to clean up our reference
         discoveryManager.removeNodeInformationProvider(
-            this.capsManager.getNode()
-                + "#" + this.capsManager.getCapsVersion());
-
-        this.connection = null;
+            capsManager.getLocalNodeVer());
+        this.capsManager = null;
+        this.discoveryManager = null;
     }
 
     /**
@@ -670,7 +692,7 @@ public class ScServiceDiscoveryManager
          * Entities to be processed and their caps.
          * HashMap so we can store null caps.
          */
-        private final Map<Jid, EntityCapsManager.Caps> entities
+        private final Map<Jid, EntityCapsManager.NodeVerHash> entities
             = new HashMap<>();
 
         /**
@@ -689,7 +711,7 @@ public class ScServiceDiscoveryManager
 
                 while(!stopped)
                 {
-                    Map.Entry<Jid, EntityCapsManager.Caps>
+                    Map.Entry<Jid, EntityCapsManager.NodeVerHash>
                         entityToProcess = null;
 
                     synchronized(entities)
@@ -703,7 +725,7 @@ public class ScServiceDiscoveryManager
                             catch (InterruptedException iex){}
                         }
 
-                        Iterator<Map.Entry<Jid, EntityCapsManager.Caps>>
+                        Iterator<Map.Entry<Jid, EntityCapsManager.NodeVerHash>>
                             iter = entities.entrySet().iterator();
                         if(iter.hasNext())
                         {
@@ -714,13 +736,26 @@ public class ScServiceDiscoveryManager
 
                     if(entityToProcess != null)
                     {
-                        // process
-                        requestDiscoveryInfo(
-                            entityToProcess.getKey(),
-                            entityToProcess.getValue());
+                        try
+                        {
+                            // process
+                            discoverInfo(
+                                entityToProcess.getKey(),
+                                entityToProcess.getValue(),
+                                capabilitiesOpSet);
+                        }
+                        catch(XMPPException
+                            | InterruptedException
+                            | NoResponseException
+                            | NotConnectedException ex)
+                        {
+                            // print discovery info errors only when trace
+                            if(logger.isTraceEnabled())
+                                logger.error(
+                                    "Error requesting discover info for "
+                                        + entityToProcess.getKey(), ex);
+                        }
                     }
-
-                    entityToProcess = null;
                 }
             } catch(Throwable t)
             {
@@ -730,74 +765,12 @@ public class ScServiceDiscoveryManager
         }
 
         /**
-         * Requests the discovery info and fires the event if
-         * retrieved.
-         * @param entityID the entity to request
-         * @param caps and its capability.
-         */
-        private void requestDiscoveryInfo(final Jid entityID,
-                                          EntityCapsManager.Caps caps)
-        {
-            try
-            {
-                DiscoverInfo discoverInfo = discoveryManager.discoverInfo(
-                            entityID,
-                            (caps == null ) ? null : caps.getNodeVer());
-
-                if ((caps != null) && !caps.isValid(discoverInfo))
-                {
-                    if(!caps.hash.equals(""))
-                    {
-                        logger.error("Invalid DiscoverInfo for "
-                            + caps.getNodeVer() + ": " + discoverInfo);
-                    }
-                    caps = null;
-                }
-
-                boolean fireEvent = false;
-
-                if (caps == null)
-                {
-                    if (cacheNonCaps)
-                    {
-                        nonCapsCache.put(entityID, discoverInfo);
-                        fireEvent = true;
-                    }
-                }
-                else
-                {
-                    EntityCapsManager.addDiscoverInfoByCaps(caps, discoverInfo);
-                    fireEvent = true;
-                }
-
-                // fire event
-                if(fireEvent && capabilitiesOpSet != null)
-                {
-                    capabilitiesOpSet.fireContactCapabilitiesChanged(
-                        entityID.asBareJid(),
-                        capsManager.getFullJidsByBareJid(entityID.asBareJid())
-                        );
-                }
-            }
-            catch(XMPPException
-                    | InterruptedException
-                    | NoResponseException
-                    | NotConnectedException ex)
-            {
-                // print discovery info errors only when trace is enabled
-                if(logger.isTraceEnabled())
-                    logger.error("Error requesting discover info for "
-                        + entityID, ex);
-            }
-        }
-
-        /**
          * Queue entities for retrieval.
          * @param entityID the entity.
          * @param caps and its capability.
          */
         public void addEntityForRetrieve(Jid entityID,
-                                         EntityCapsManager.Caps caps)
+                                         EntityCapsManager.NodeVerHash caps)
         {
             synchronized(entities)
             {

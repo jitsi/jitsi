@@ -20,6 +20,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import net.java.sip.communicator.impl.protocol.jabber.caps.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
+import org.jivesoftware.smackx.caps.*;
 import org.jxmpp.jid.*;
 
 import java.util.*;
@@ -156,9 +157,21 @@ public class MobileIndicator
             }
         }
 
+        updateContactMobileStatus(contact, highestPriorityResources);
+    }
+
+    /**
+     * Updates contact mobile status.
+     * @param contact the contact.
+     * @param resources the list of contact resources.
+     */
+    private void updateContactMobileStatus(
+        ContactJabberImpl contact,
+        List<ContactResource> resources)
+    {
         // check whether all are mobile
         boolean allMobile = false;
-        for(ContactResource res : highestPriorityResources)
+        for(ContactResource res : resources)
         {
             if(res.isMobile())
                 allMobile = true;
@@ -169,7 +182,7 @@ public class MobileIndicator
             }
         }
 
-        if(highestPriorityResources.size() > 0)
+        if(resources.size() > 0)
             contact.setMobile(allMobile);
         else
             contact.setMobile(false);
@@ -185,12 +198,12 @@ public class MobileIndicator
     {
         if(isCapsMobileIndicator)
         {
-            EntityCapsManager capsManager  = ssclCallback.getParentProvider()
-                .getDiscoveryManager().getCapsManager();
+            EntityCapsManager.NodeVerHash caps
+                = ssclCallback.getParentProvider()
+                    .getDiscoveryManager().getCapsByUser(fullJid);
 
-            EntityCapsManager.Caps caps = capsManager.getCapsByUser(fullJid);
-
-            return caps != null && containsStrings(caps.node, checkStrings);
+            return caps != null
+                && containsStrings(caps.getNode(), checkStrings);
         }
 
         return startsWithStrings(
@@ -211,7 +224,7 @@ public class MobileIndicator
         if(evt.getNewState() == RegistrationState.REGISTERED)
         {
             this.parentProvider.getDiscoveryManager()
-                    .getCapsManager().addUserCapsNodeListener(this);
+                .addUserCapsNodeListener(this);
         }
         else if((evt.getNewState() == RegistrationState.CONNECTION_FAILED
                     || evt.getNewState()
@@ -220,7 +233,7 @@ public class MobileIndicator
                 && this.parentProvider.getDiscoveryManager() != null)
         {
             this.parentProvider.getDiscoveryManager()
-                .getCapsManager().removeUserCapsNodeListener(this);
+                .removeUserCapsNodeListener(this);
         }
     }
 
@@ -301,23 +314,7 @@ public class MobileIndicator
             }
         }
 
-        // check whether all are mobile
-        boolean allMobile = false;
-        for(ContactResource res : mostAvailableResources)
-        {
-            if(res.isMobile())
-                allMobile = true;
-            else
-            {
-                allMobile = false;
-                break;
-            }
-        }
-
-        if(mostAvailableResources.size() > 0)
-            contact.setMobile(allMobile);
-        else
-            contact.setMobile(false);
+        updateContactMobileStatus(contact, mostAvailableResources);
     }
 
     /**
