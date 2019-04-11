@@ -125,10 +125,9 @@ public class OperationSetContactCapabilitiesJabberImpl
     }
 
     /**
-     * The <tt>EntityCapsManager</tt> associated with the
-     * <tt>discoveryManager</tt> of {@link #parentProvider}.
+     * The <tt>discoveryManager</tt> of {@link #parentProvider}.
      */
-    private EntityCapsManager capsManager;
+    private ScServiceDiscoveryManager discoveryManager;
 
     /**
      * Initializes a new <tt>OperationSetContactCapabilitiesJabberImpl</tt>
@@ -419,27 +418,6 @@ public class OperationSetContactCapabilitiesJabberImpl
     }
 
     /**
-     * Sets the <tt>EntityCapsManager</tt> which is associated with the
-     * <tt>discoveryManager</tt> of {@link #parentProvider}.
-     *
-     * @param capsManager the <tt>EntityCapsManager</tt> which is associated
-     * with the <tt>discoveryManager</tt> of {@link #parentProvider}
-     */
-    private void setCapsManager(EntityCapsManager capsManager)
-    {
-        if (this.capsManager != capsManager)
-        {
-            if (this.capsManager != null)
-                this.capsManager.removeUserCapsNodeListener(this);
-
-            this.capsManager = capsManager;
-
-            if (this.capsManager != null)
-                this.capsManager.addUserCapsNodeListener(this);
-        }
-    }
-
-    /**
      * Sets the <tt>ScServiceDiscoveryManager</tt> which is the
      * <tt>discoveryManager</tt> of {@link #parentProvider}.
      *
@@ -448,10 +426,16 @@ public class OperationSetContactCapabilitiesJabberImpl
      */
     void setDiscoveryManager(ScServiceDiscoveryManager discoveryManager)
     {
-        setCapsManager(
-            (discoveryManager == null)
-                ? null
-                : discoveryManager.getCapsManager());
+        if (this.discoveryManager != discoveryManager)
+        {
+            if (this.discoveryManager != null)
+                this.discoveryManager.removeUserCapsNodeListener(this);
+
+            this.discoveryManager = discoveryManager;
+
+            if (this.discoveryManager != null)
+                this.discoveryManager.addUserCapsNodeListener(this);
+        }
     }
 
     /**
@@ -573,11 +557,11 @@ public class OperationSetContactCapabilitiesJabberImpl
         ContactPresenceStatusChangeEvent evt)
     {
         // If the user goes offline we ensure to remove the caps node.
-        if (capsManager != null
+        if (discoveryManager != null
             && evt.getNewStatus().getStatus() < PresenceStatus.ONLINE_THRESHOLD
             && !evt.isResourceChanged())
         {
-            capsManager.removeContactCapsNode(evt.getSourceContact());
+            discoveryManager.removeContactCapsNode(evt.getSourceContact());
         }
     }
 

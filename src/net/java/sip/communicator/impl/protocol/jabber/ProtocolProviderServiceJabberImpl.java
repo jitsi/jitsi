@@ -1437,22 +1437,10 @@ public class ProtocolProviderServiceJabberImpl
      */
     private void registerServiceDiscoveryManager()
     {
-        // we setup supported features no packets are actually sent
-        //during feature registration so we'd better do it here so that
-        //our first presence update would contain a caps with the right
-        //features.
-        String name
-            = System.getProperty(
-                    "sip-communicator.application.name",
-                    "Jitsi ")
-                + System.getProperty("sip-communicator.version","SVN");
-
-        ServiceDiscoveryManager.setDefaultIdentity(
-            new DiscoverInfo.Identity("client", name, "pc"));
-
         discoveryManager
             = new ScServiceDiscoveryManager(
                     this,
+                    JabberActivator.getConfigurationService(),
                     connection,
                     new String[] { "http://jabber.org/protocol/commands"},
                     // Add features Jitsi supports in addition to smack.
@@ -1649,6 +1637,8 @@ public class ProtocolProviderServiceJabberImpl
             jabberStatusEnum
                 = JabberStatusEnum.getJabberStatusEnum(protocolIconPath);
 
+            ScServiceDiscoveryManager.initIdentity();
+
             //this feature is mandatory to be compliant with Service Discovery
             supportedFeatures.add("http://jabber.org/protocol/disco#info");
 
@@ -1784,10 +1774,10 @@ public class ProtocolProviderServiceJabberImpl
                 // http://jabber.org/protocol/si
                 // http://jabber.org/protocol/bytestreams
                 // http://jabber.org/protocol/ibb
-            }
 
-            supportedFeatures.add("urn:xmpp:thumbs:0");
-            supportedFeatures.add("urn:xmpp:bob");
+                supportedFeatures.add("urn:xmpp:bob");
+                supportedFeatures.add("urn:xmpp:thumbs:0");
+            }
 
             // initialize the thumbnailed file factory operation set
             addSupportedOperationSet(
@@ -2578,36 +2568,26 @@ public class ProtocolProviderServiceJabberImpl
      */
     public boolean isFeatureListSupported(Jid jid, String... features)
     {
-        try
+        if(discoveryManager == null)
+            return false;
+
+        DiscoverInfo featureInfo =
+            discoveryManager.discoverInfoNonBlocking(jid);
+
+        if(featureInfo == null)
+            return false;
+
+        for (String feature : features)
         {
-            if(discoveryManager == null)
-                return false;
-
-            DiscoverInfo featureInfo =
-                discoveryManager.discoverInfoNonBlocking(jid);
-
-            if(featureInfo == null)
-                return false;
-
-            for (String feature : features)
+            if (!featureInfo.containsFeature(feature))
             {
-                if (!featureInfo.containsFeature(feature))
-                {
-                    // If one is not supported we return false and don't check
-                    // the others.
-                    return false;
-                }
+                // If one is not supported we return false and don't check
+                // the others.
+                return false;
             }
-
-            return true;
-        }
-        catch (XMPPException e)
-        {
-            if (logger.isDebugEnabled())
-                logger.debug("Failed to retrive discovery info.", e);
         }
 
-        return false;
+        return true;
     }
 
     /**

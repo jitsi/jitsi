@@ -176,8 +176,6 @@ public class JabberActivator
                     jabberProviderFactory,
                     hashtable);
 
-        EntityCapsManager.setBundleContext(context);
-
         Version ver = JabberActivator.getVersionService().getCurrentVersion();
         String appName = ver.getApplicationName();
         VersionManager.setAutoAppendSmackVersion(false);
@@ -276,7 +274,6 @@ public class JabberActivator
         mediaService = null;
         networkAddressManagerService = null;
         credentialsService = null;
-        EntityCapsManager.setBundleContext(null);
     }
 
     /**
