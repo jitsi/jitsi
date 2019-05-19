@@ -58,7 +58,6 @@ import org.jivesoftware.smack.provider.*;
 import org.jivesoftware.smack.tcp.*;
 import org.jivesoftware.smack.util.*;
 import org.jivesoftware.smack.roster.*;
-import org.jivesoftware.smackx.disco.*;
 import org.jivesoftware.smackx.disco.packet.*;
 import org.jivesoftware.smackx.message_correct.element.*;
 import org.jivesoftware.smackx.nick.packet.*;
