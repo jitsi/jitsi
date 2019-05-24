@@ -24,7 +24,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
-import org.jivesoftware.smack.util.StringUtils;
 import org.jxmpp.jid.impl.*;
 import org.jxmpp.stringprep.*;
 import org.jxmpp.util.*;
@@ -544,9 +543,9 @@ public class TestOperationSetMultiUserChat2
 
         ChatRoom foundRoom = null;
         /*
-         //findRoom always returns ChatRoom instance. If it doesn't exists in 
+         //findRoom always returns ChatRoom instance. If it doesn't exists in
          //the cache it creates an instance of ChatRoom.
-        
+
         try
         {
             foundRoom = opSetMUC1.findRoom("WhoCreatedThatRoom");
