@@ -215,6 +215,7 @@ public class TestOperationSetTypingNotifications
      * whether it is properly received by the tested implementation
      */
     public void testTypingNotificationsEventDelivery()
+        throws OperationFailedException
     {
         TypingEventCollector evtCollector = new TypingEventCollector();
 

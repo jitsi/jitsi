@@ -62,6 +62,12 @@ public class ChatRoomMemberPresenceChangeEvent
     public static final String MEMBER_QUIT = "MemberQuit";
 
     /**
+     * Indicated that this event was triggered as a result of new information
+     * about the participant becoming available due to a presence
+     */
+    public static final String MEMBER_UPDATED = "MemberUpdated";
+
+    /**
      * The well-known reason for a
      * <code>ChatRoomMemberPresenceChangeEvent</code> to occur as part of an
      * operation which lists all users in a <code>ChatRoom</code>.

@@ -23,6 +23,7 @@ import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
+import org.jitsi.utils.*;
 
 /**
  * Class responsible for sending a DTMF Tone using using rfc4733 or Inband.

@@ -26,6 +26,7 @@ import net.java.sip.communicator.util.*;
 import org.ice4j.ice.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
+import org.jitsi.utils.*;
 
 /**
  * <tt>TransportManager</tt>s are responsible for allocating ports, gathering
@@ -271,7 +272,15 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
 
         if (streamConnector != null)
         {
-            closeStreamConnector(mediaType, streamConnector);
+            try
+            {
+                closeStreamConnector(mediaType, streamConnector);
+            }
+            catch (OperationFailedException e)
+            {
+                logger.error("Failed to close stream connector for " + mediaType, e);
+            }
+
             streamConnectors[index] = null;
         }
     }
@@ -291,6 +300,7 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
     protected void closeStreamConnector(
             MediaType mediaType,
             StreamConnector streamConnector)
+        throws OperationFailedException
     {
         /*
          * XXX The connected owns the sockets so it is important that it
@@ -322,10 +332,38 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         PortTracker portTracker = getPortTracker(mediaType);
 
         //create the RTP socket.
-        DatagramSocket rtpSocket = null;
+        DatagramSocket rtpSocket
+            = createDatagramSocket(portTracker, localHostForPeer);
+
+        //create the RTCP socket, preferably on the port following our RTP one.
+        DatagramSocket rtcpSocket
+            = createDatagramSocket(portTracker, localHostForPeer);
+
+        return new DefaultStreamConnector(rtpSocket, rtcpSocket);
+    }
+
+    /**
+     * Creates <tt>DatagramSocket</tt> bind to <tt>localHostForPeer</tt>,
+     * used the port numbers provided by <tt>portTracker</tt> and update it with
+     * the result socket port so we do not try to bind to occupied ports.
+     *
+     * @param portTracker the port tracker.
+     * @param localHostForPeer the address to bind to.
+     * @return the newly created datagram socket.
+     * @throws OperationFailedException if we fail to create the socket.
+     */
+    private DatagramSocket createDatagramSocket(
+        PortTracker portTracker, InetAddress localHostForPeer)
+        throws OperationFailedException
+    {
+        NetworkAddressManagerService nam
+            = ProtocolMediaActivator.getNetworkAddressManagerService();
+
+        //create the socket.
+        DatagramSocket socket;
         try
         {
-            rtpSocket = nam.createDatagramSocket(
+            socket = nam.createDatagramSocket(
                 localHostForPeer, portTracker.getPort(),
                 portTracker.getMinPort(), portTracker.getMaxPort());
         }
@@ -337,29 +375,9 @@ public abstract class TransportManager<U extends MediaAwareCallPeer<?, ?, ?>>
         }
 
         //make sure that next time we don't try to bind on occupied ports
-        //also, refuse validation in case someone set the tracker range to 1
-        portTracker.setNextPort( rtpSocket.getLocalPort() + 1, false);
+        portTracker.setNextPort(socket.getLocalPort() + 1);
 
-        //create the RTCP socket, preferably on the port following our RTP one.
-        DatagramSocket rtcpSocket = null;
-        try
-        {
-            rtcpSocket = nam.createDatagramSocket(
-                localHostForPeer, portTracker.getPort(),
-                portTracker.getMinPort(), portTracker.getMaxPort());
-        }
-        catch (Exception exc)
-        {
-           throw new OperationFailedException(
-                "Failed to allocate the network ports necessary for the call.",
-                OperationFailedException.INTERNAL_ERROR,
-                exc);
-        }
-
-        //make sure that next time we don't try to bind on occupied ports
-        portTracker.setNextPort( rtcpSocket.getLocalPort() + 1);
-
-        return new DefaultStreamConnector(rtpSocket, rtcpSocket);
+        return socket;
     }
 
     /**

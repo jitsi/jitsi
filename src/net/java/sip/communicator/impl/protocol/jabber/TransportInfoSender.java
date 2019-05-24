@@ -17,7 +17,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
+import org.jitsi.xmpp.extensions.jingle.*;
 
 /**
  * Represents functionality which allows a <tt>TransportManagerJabberImpl</tt>
@@ -37,5 +37,5 @@ public interface TransportInfoSender
      * <tt>transport-info</tt> <tt>JingleIQ</tt> from the local peer to the
      * remote peer
      */
-    public void sendTransportInfo(Iterable<ContentPacketExtension> contents);
+    void sendTransportInfo(Iterable<ContentPacketExtension> contents);
 }

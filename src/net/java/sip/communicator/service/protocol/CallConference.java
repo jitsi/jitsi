@@ -20,8 +20,7 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
-
-import org.jitsi.util.event.*;
+import org.jitsi.utils.event.*;
 
 /**
  * Represents the telephony conference-related state of a <tt>Call</tt>.

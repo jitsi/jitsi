@@ -140,7 +140,7 @@ public class OperationSetJitsiMeetToolsSipImpl
      */
     @Override
     public void sendPresenceExtension(ChatRoom chatRoom,
-                                      PacketExtension extension)
+                                      ExtensionElement extension)
     {
         throw new RuntimeException("Not implemented for SIP");
     }
@@ -150,7 +150,7 @@ public class OperationSetJitsiMeetToolsSipImpl
      */
     @Override
     public void removePresenceExtension(ChatRoom chatRoom,
-                                        PacketExtension extension)
+                                        ExtensionElement extension)
     {
         throw new RuntimeException("Not implemented for SIP");
     }

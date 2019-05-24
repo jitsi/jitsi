@@ -19,16 +19,27 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
+import org.jitsi.xmpp.extensions.vcardavatar.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.SmackException.*;
+import org.jivesoftware.smack.XMPPException.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.roster.*;
+import org.jivesoftware.smack.roster.packet.*;
 import org.jivesoftware.smack.util.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jivesoftware.smackx.nick.packet.*;
+import org.jivesoftware.smackx.vcardtemp.*;
+import org.jivesoftware.smackx.vcardtemp.packet.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.impl.*;
+import org.jxmpp.jid.parts.*;
+import org.jxmpp.stringprep.*;
 
 /**
  * The Jabber implementation of a Persistent Presence Operation set. This class
@@ -68,7 +79,7 @@ public class OperationSetPersistentPresenceJabberImpl
      * status instances and Jabber status codes
      */
     private static Map<String, Presence.Mode> scToJabberModesMappings
-        = new Hashtable<String, Presence.Mode>();
+        = new Hashtable<>();
 
     static
     {
@@ -93,7 +104,7 @@ public class OperationSetPersistentPresenceJabberImpl
      * status instances and priorities to use for statuses.
      */
     private static Map<String, Integer> statusToPriorityMappings
-        = new Hashtable<String, Integer>();
+        = new Hashtable<>();
 
     /**
      * The server stored contact list that will be encapsulating smack's
@@ -210,7 +221,7 @@ public class OperationSetPersistentPresenceJabberImpl
      * @param id the address of the contact to create.
      * @return the newly created volatile <tt>ContactImpl</tt>
      */
-    public synchronized ContactJabberImpl createVolatileContact(String id)
+    public synchronized ContactJabberImpl createVolatileContact(Jid id)
     {
         return createVolatileContact(id, null);
     }
@@ -225,8 +236,8 @@ public class OperationSetPersistentPresenceJabberImpl
      * @param displayName the display name of the contact.
      * @return the newly created volatile <tt>ContactImpl</tt>
      */
-    public synchronized ContactJabberImpl createVolatileContact(String id,
-        String displayName)
+    public synchronized ContactJabberImpl createVolatileContact(Jid id,
+                                                                String displayName)
     {
         return createVolatileContact(id, false, displayName);
     }
@@ -242,8 +253,8 @@ public class OperationSetPersistentPresenceJabberImpl
      * messaging contact or not.
      * @return the newly created volatile <tt>ContactImpl</tt>
      */
-    public synchronized ContactJabberImpl createVolatileContact(String id,
-        boolean isPrivateMessagingContact)
+    public synchronized ContactJabberImpl createVolatileContact(Jid id,
+                                                                boolean isPrivateMessagingContact)
     {
         return createVolatileContact(id, isPrivateMessagingContact, null);
     }
@@ -260,27 +271,31 @@ public class OperationSetPersistentPresenceJabberImpl
      * @param displayName the display name of the contact.
      * @return the newly created volatile <tt>ContactImpl</tt>
      */
-    public synchronized ContactJabberImpl createVolatileContact(String id,
+    public synchronized ContactJabberImpl createVolatileContact(Jid id,
         boolean isPrivateMessagingContact, String displayName)
     {
         // first check for already created one.
         ContactGroupJabberImpl notInContactListGroup =
             ssContactList.getNonPersistentGroup();
-        ContactJabberImpl sourceContact;
-        if(notInContactListGroup != null
-            && (sourceContact = notInContactListGroup.findContact(
-                                    StringUtils.parseBareAddress(id)))
-                != null)
+        ContactJabberImpl sourceContact = null;
+        if (notInContactListGroup != null)
+        {
+            sourceContact = notInContactListGroup.findContact(id.asBareJid());
+        }
+
+        if(sourceContact != null)
+        {
             return sourceContact;
+        }
         else
         {
             sourceContact = ssContactList.createVolatileContact(
                 id, isPrivateMessagingContact, displayName);
-            if(isPrivateMessagingContact
-                && StringUtils.parseResource(id) != null)
+            if(isPrivateMessagingContact && id.hasResource())
             {
                 updateResources(sourceContact, false);
             }
+
             return sourceContact;
         }
     }
@@ -308,12 +323,16 @@ public class OperationSetPersistentPresenceJabberImpl
                 "Argument is not an jabber contact group (group="
                 + parentGroup + ")");
 
-        ContactJabberImpl contact =
-            ssContactList.createUnresolvedContact(parentGroup, address);
-
-        contact.setPersistentData(persistentData);
-
-        return contact;
+        try
+        {
+            return ssContactList.createUnresolvedContact(
+                    parentGroup,
+                    JidCreate.from(address));
+        }
+        catch (XmppStringprepException e)
+        {
+            throw new IllegalArgumentException("Invalid JID", e);
+        }
     }
 
     /**
@@ -368,7 +387,20 @@ public class OperationSetPersistentPresenceJabberImpl
      */
     public Contact findContactByID(String contactID)
     {
-        return ssContactList.findContactById(contactID);
+        try
+        {
+            return ssContactList.findContactById(JidCreate.from(contactID));
+        }
+        catch (XmppStringprepException e)
+        {
+            logger.error("Could not parse contact into Jid: " + contactID, e);
+            return null;
+        }
+    }
+
+    public Contact findContactByID(Jid contactId)
+    {
+        return ssContactList.findContactById(contactId);
     }
 
     /**
@@ -394,7 +426,15 @@ public class OperationSetPersistentPresenceJabberImpl
         if(localContact != null)
             return localContact;
 
-        final String id = parentProvider.getAccountID().getUserID();
+        final BareJid id;
+        try
+        {
+            id = JidCreate.from(parentProvider.getAccountID().getUserID()).asBareJid();
+        }
+        catch (XmppStringprepException e)
+        {
+            return null;
+        }
 
         localContact
             = new ContactJabberImpl(null, ssContactList, false, true);
@@ -402,38 +442,36 @@ public class OperationSetPersistentPresenceJabberImpl
         localContact.updatePresenceStatus(currentStatus);
         localContact.setJid(parentProvider.getOurJID());
 
-        Map<String, ContactResourceJabberImpl> rs
-            = localContact.getResourcesMap();
+        Map<FullJid, ContactResourceJabberImpl> rs = localContact.getResourcesMap();
 
         if(currentPresence != null)
-            rs.put(parentProvider.getOurJID(),
+            rs.put(parentProvider.getOurJID().asFullJidIfPossible(),
                 createResource( currentPresence,
-                                parentProvider.getOurJID(),
+                                parentProvider.getOurJID().asFullJidIfPossible(),
                                 localContact));
 
-        Iterator<Presence> presenceIterator = ssContactList.getPresences(id);
-        while(presenceIterator.hasNext())
+        for (Presence p : ssContactList.getPresences(id))
         {
-            Presence p = presenceIterator.next();
-
-            String fullJid = p.getFrom();
-            rs.put(fullJid, createResource(p, p.getFrom(), localContact));
+            FullJid fullJid = p.getFrom().asFullJidIfPossible();
+            rs.put(fullJid, createResource(
+                p,
+                p.getFrom().asFullJidIfPossible(),
+                localContact));
         }
 
         // adds xmpp listener for changes in the local contact resources
-        PacketFilter presenceFilter = new PacketTypeFilter(Presence.class);
+        StanzaFilter presenceFilter = new StanzaTypeFilter(Presence.class);
         parentProvider.getConnection()
-            .addPacketListener(
-                new PacketListener()
+            .addAsyncStanzaListener(
+                new StanzaListener()
                 {
                     @Override
-                    public void processPacket(Packet packet)
+                    public void processStanza(Stanza packet)
                     {
                         Presence presence = (Presence) packet;
-                        String from = presence.getFrom();
+                        Jid from = presence.getFrom();
 
-                        if(from == null
-                            || !StringUtils.parseBareAddress(from).equals(id))
+                        if(from == null || !from.asBareJid().equals(id))
                             return;
 
                         // own resource update, let's process it
@@ -453,18 +491,15 @@ public class OperationSetPersistentPresenceJabberImpl
      */
     private ContactResourceJabberImpl createResource(
         Presence presence,
-        String fullJid,
+        FullJid fullJid,
         Contact contact)
     {
-        String resource = StringUtils.parseResource(fullJid);
-
         return new ContactResourceJabberImpl(
             fullJid,
             contact,
-            resource,
             jabberStatusToPresenceStatus(presence, parentProvider),
             presence.getPriority(),
-            mobileIndicator.isMobileResource(resource, fullJid));
+            mobileIndicator.isMobileResource(fullJid));
     }
 
     /**
@@ -474,7 +509,13 @@ public class OperationSetPersistentPresenceJabberImpl
     private void clearLocalContactResources()
     {
         if(localContact != null)
-            removeResource(localContact, localContact.getAddress());
+        {
+            removeResource(
+                localContact,
+                localContact
+                    .getAddressAsJid()
+                    .asFullJidIfPossible());
+        }
 
         currentPresence = null;
         localContact = null;
@@ -521,7 +562,7 @@ public class OperationSetPersistentPresenceJabberImpl
      * @return <tt>true</tt> the contact address is associated with private
      * messaging contact and <tt>false</tt> if not.
      */
-    public boolean isPrivateMessagingContact(String contactAddress)
+    public boolean isPrivateMessagingContact(Jid contactAddress)
     {
         return ssContactList.isPrivateMessagingContact(contactAddress);
     }
@@ -635,14 +676,26 @@ public class OperationSetPersistentPresenceJabberImpl
                 presence.setStatus(JabberStatusEnum.IN_A_MEETING);
             }
             else
+            {
                 presence.setStatus(statusMessage);
-            //presence.addExtension(new Version());
+            }
 
-            parentProvider.getConnection().sendPacket(presence);
+            try
+            {
+                parentProvider.getConnection().sendStanza(presence);
+            }
+            catch (NotConnectedException | InterruptedException e)
+            {
+                throw new OperationFailedException(
+                    "Could not send new presense status",
+                    OperationFailedException.GENERAL_ERROR,
+                    e
+                );
+            }
 
             if(localContact != null)
                 updateResource(localContact,
-                    parentProvider.getOurJID(), presence);
+                    parentProvider.getOurJID().asFullJidIfPossible(), presence);
         }
 
         fireProviderStatusChangeEvent(currentStatus, status);
@@ -653,9 +706,7 @@ public class OperationSetPersistentPresenceJabberImpl
          * XXX Use StringUtils.isEquals instead of String.equals to avoid a
          * NullPointerException.
          */
-        if(!org.jitsi.util.StringUtils.isEquals(
-                oldStatusMessage,
-                statusMessage))
+        if(!java.util.Objects.equals(oldStatusMessage, statusMessage))
         {
             currentStatusMessage = statusMessage;
             fireProviderStatusMessageChangeEvent(
@@ -685,14 +736,26 @@ public class OperationSetPersistentPresenceJabberImpl
                IllegalStateException,
                OperationFailedException
     {
+        BareJid contactJid;
+        try
+        {
+            contactJid = JidCreate.bareFrom(contactIdentifier);
+        }
+        catch (XmppStringprepException e)
+        {
+            throw new OperationFailedException(
+                "Contact is not a valid JID",
+                OperationFailedException.GENERAL_ERROR,
+                e
+            );
+        }
+
         /*
          * As stated by the javadoc, IllegalStateException signals that the
          * ProtocolProviderService is not registered.
          */
         assertConnected();
-
-        Connection xmppConnection = parentProvider.getConnection();
-
+        XMPPConnection xmppConnection = parentProvider.getConnection();
         if (xmppConnection == null)
         {
             throw
@@ -701,17 +764,9 @@ public class OperationSetPersistentPresenceJabberImpl
                             + " query the status of a contact in its roster");
         }
 
-        Presence presence
-            = xmppConnection.getRoster().getPresence(contactIdentifier);
-
-        if(presence != null)
-            return jabberStatusToPresenceStatus(presence, parentProvider);
-        else
-        {
-            return
-                parentProvider.getJabberStatusEnum().getStatus(
-                        JabberStatusEnum.OFFLINE);
-        }
+        Roster r = Roster.getInstanceFor(xmppConnection);
+        Presence presence = r.getPresence(contactJid);
+        return jabberStatusToPresenceStatus(presence, parentProvider);
     }
 
     /**
@@ -868,15 +923,8 @@ public class OperationSetPersistentPresenceJabberImpl
     public static PresenceStatus jabberStatusToPresenceStatus(
         Presence presence, ProtocolProviderServiceJabberImpl jabberProvider)
     {
-        JabberStatusEnum jabberStatusEnum =
-            jabberProvider.getJabberStatusEnum();
-        // fixing issue: 336
-        // from the smack api :
-        // A null presence mode value is interpreted to be the same thing
-        // as Presence.Mode.available.
-        if(presence.getMode() == null && presence.isAvailable())
-            return jabberStatusEnum.getStatus(JabberStatusEnum.AVAILABLE);
-        else if(presence.getMode() == null && !presence.isAvailable())
+        JabberStatusEnum jabberStatusEnum = jabberProvider.getJabberStatusEnum();
+        if(!presence.isAvailable())
             return jabberStatusEnum.getStatus(JabberStatusEnum.OFFLINE);
 
         Presence.Mode mode = presence.getMode();
@@ -1044,8 +1092,21 @@ public class OperationSetPersistentPresenceJabberImpl
                 "Argument is not an jabber contact (contact=" + contact + ")");
 
         RosterEntry entry = ((ContactJabberImpl)contact).getSourceEntry();
-        if(entry != null)
+        if(entry == null)
+        {
+            return;
+        }
+        try
+        {
             entry.setName(newName);
+        }
+        catch (NotConnectedException
+            | InterruptedException
+            | XMPPErrorException
+            | NoResponseException e)
+        {
+            throw new IllegalArgumentException("Could not update name", e);
+        }
     }
 
     /**
@@ -1078,9 +1139,9 @@ public class OperationSetPersistentPresenceJabberImpl
                 // one used in the Roster itself, but later we
                 // will wait for it to be ready
                 // (inside method XMPPConnection.getRoster())
-                parentProvider.getConnection().addPacketListener(
+                parentProvider.getConnection().addAsyncStanzaListener(
                     new ServerStoredListInit(),
-                    new PacketTypeFilter(RosterPacket.class)
+                    new StanzaTypeFilter(RosterPacket.class)
                 );
 
                 // will be used to store presence events till roster is
@@ -1095,21 +1156,34 @@ public class OperationSetPersistentPresenceJabberImpl
                         new JabberSubscriptionListener();
                     parentProvider
                         .getConnection()
-                            .addPacketListener(
+                            .addAsyncStanzaListener(
                                 subscribtionPacketListener,
-                                new PacketTypeFilter(Presence.class));
+                                new StanzaTypeFilter(Presence.class));
                 }
             }
             else if(evt.getNewState() == RegistrationState.REGISTERED)
             {
-                createContactPhotoPresenceListener();
+                JabberAccountIDImpl accountID
+                    = (JabberAccountIDImpl)parentProvider.getAccountID();
+                boolean isServerStoredInfoEnabled
+                    = !accountID.getAccountPropertyBoolean(
+                        ProtocolProviderServiceJabberImpl
+                            .IS_SERVER_STORED_INFO_DISABLED_PROPERTY, false);
 
-                // we cannot manipulate our vcards when using anonymous
-                if (!((JabberAccountIDImpl)parentProvider.getAccountID())
-                        .isAnonymousAuthUsed())
+                if (isServerStoredInfoEnabled)
                 {
-                    createAccountPhotoPresenceInterceptor();
+                    createContactPhotoPresenceListener();
+
+                    // we cannot manipulate our vcards when using anonymous
+                    if(!accountID.isAnonymousAuthUsed())
+                    {
+                        createAccountPhotoPresenceInterceptor();
+                    }
                 }
+            }
+            else if(evt.getNewState() == RegistrationState.UNREGISTERING)
+            {
+                clearConnectionListeners();
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
                  || evt.getNewState() == RegistrationState.AUTHENTICATION_FAILED
@@ -1120,29 +1194,36 @@ public class OperationSetPersistentPresenceJabberImpl
                 //well as set to offline all contacts in our contact list that
                 //were online
                 PresenceStatus oldStatus = currentStatus;
-                PresenceStatus offlineStatus =
-                    parentProvider.getJabberStatusEnum().getStatus(
-                        JabberStatusEnum.OFFLINE);
-                currentStatus = offlineStatus;
+                currentStatus = parentProvider.getJabberStatusEnum().getStatus(
+                    JabberStatusEnum.OFFLINE);
                 clearLocalContactResources();
 
                 fireProviderStatusChangeEvent(oldStatus, currentStatus);
 
                 ssContactList.cleanup();
 
-                Connection connection = parentProvider.getConnection();
-                if(connection != null)
-                {
-                    connection.removePacketListener(subscribtionPacketListener);
-
-                    // the roster is guaranteed to be non-null
-                    connection.getRoster()
-                        .removeRosterListener(contactChangesListener);
-                }
-
-                subscribtionPacketListener = null;
-                contactChangesListener = null;
+                clearConnectionListeners();
             }
+        }
+    }
+
+    /**
+     * Clear all listeners that depends on XMPPConnection.
+     */
+    private void clearConnectionListeners()
+    {
+        XMPPConnection connection = parentProvider.getConnection();
+        if(connection != null
+            && subscribtionPacketListener != null
+            && contactChangesListener != null)
+        {
+            connection.removeAsyncStanzaListener(
+                subscribtionPacketListener);
+            Roster.getInstanceFor(connection)
+                .removeRosterListener(contactChangesListener);
+
+            subscribtionPacketListener = null;
+            contactChangesListener = null;
         }
     }
 
@@ -1162,7 +1243,7 @@ public class OperationSetPersistentPresenceJabberImpl
             return false;
 
         boolean eventFired = false;
-        Map<String, ContactResourceJabberImpl> resources =
+        Map<FullJid, ContactResourceJabberImpl> resources =
             contact.getResourcesMap();
 
         // Do not obtain getRoster if we are not connected, or new Roster
@@ -1173,11 +1254,11 @@ public class OperationSetPersistentPresenceJabberImpl
         {
             if(removeUnavailable)
             {
-                Iterator<Map.Entry<String, ContactResourceJabberImpl>>
+                Iterator<Map.Entry<FullJid, ContactResourceJabberImpl>>
                     iter = resources.entrySet().iterator();
                 while(iter.hasNext())
                 {
-                    Map.Entry<String, ContactResourceJabberImpl> entry
+                    Map.Entry<FullJid, ContactResourceJabberImpl> entry
                         = iter.next();
 
                     iter.remove();
@@ -1191,30 +1272,23 @@ public class OperationSetPersistentPresenceJabberImpl
             return eventFired;
         }
 
-        Iterator<Presence> it =
-            parentProvider.getConnection().getRoster()
-                .getPresences(contact.getAddress());
 
         // Choose the resource which has the highest priority AND supports
         // Jingle, if we have two resources with same priority take
         // the most available.
-        while(it.hasNext())
+        Roster r = Roster.getInstanceFor(parentProvider.getConnection());
+        BareJid bareJid = contact.getAddressAsJid().asBareJid();
+        for (Presence presence : r.getPresences(bareJid))
         {
-            Presence presence = it.next();
-
             eventFired = updateResource(contact, null, presence) || eventFired;
         }
 
         if(!removeUnavailable)
             return eventFired;
 
-        Iterator<String> resourceIter = resources.keySet().iterator();
-        while (resourceIter.hasNext())
+        for (FullJid fullJid : resources.keySet())
         {
-            String fullJid = resourceIter.next();
-
-            if(!parentProvider.getConnection().getRoster()
-                    .getPresenceResource(fullJid).isAvailable())
+            if(!r.getPresenceResource(fullJid).isAvailable())
             {
                 eventFired = removeResource(contact, fullJid) || eventFired;
             }
@@ -1232,18 +1306,19 @@ public class OperationSetPersistentPresenceJabberImpl
      * @return whether resource has been updated
      */
     private boolean updateResource(ContactJabberImpl contact,
-                                   String fullJid,
+                                   FullJid fullJid,
                                    Presence presence)
     {
 
         if(fullJid == null)
-            fullJid = presence.getFrom();
+            fullJid = presence.getFrom().asFullJidIfPossible();
+        if (fullJid == null)
+            return false;
 
-        String resource = StringUtils.parseResource(fullJid);
-
+        Resourcepart resource = fullJid.getResourceOrNull();
         if (resource != null && resource.length() > 0)
         {
-            Map<String, ContactResourceJabberImpl> resources =
+            Map<FullJid, ContactResourceJabberImpl> resources =
                 contact.getResourcesMap();
 
             ContactResourceJabberImpl contactResource
@@ -1268,7 +1343,7 @@ public class OperationSetPersistentPresenceJabberImpl
             {
                 boolean oldIndicator = contactResource.isMobile();
                 boolean newIndicator =
-                    mobileIndicator.isMobileResource(resource, fullJid);
+                    mobileIndicator.isMobileResource(fullJid);
                 int oldPriority = contactResource.getPriority();
 
                 // update mobile indicator, as cabs maybe added after
@@ -1308,9 +1383,9 @@ public class OperationSetPersistentPresenceJabberImpl
      * @param fullJid the full jid.
      * @return whether resource has been updated
      */
-    private boolean removeResource(ContactJabberImpl contact, String fullJid)
+    private boolean removeResource(ContactJabberImpl contact, FullJid fullJid)
     {
-        Map<String, ContactResourceJabberImpl> resources =
+        Map<FullJid, ContactResourceJabberImpl> resources =
             contact.getResourcesMap();
 
         if (resources.containsKey(fullJid))
@@ -1394,40 +1469,38 @@ public class OperationSetPersistentPresenceJabberImpl
         /**
          * Map containing all statuses for a userID.
          */
-        private final Map<String, TreeSet<Presence>> statuses =
-            new Hashtable<String, TreeSet<Presence>>();
+        private final Map<Jid, TreeSet<Presence>> statuses =
+            new Hashtable<>();
 
         /**
          * Not used here.
          * @param addresses list of addresses added
          */
-        public void entriesAdded(Collection<String> addresses)
+        @Override
+        public void entriesAdded(Collection<Jid> addresses)
         {}
 
         /**
          * Not used here.
          * @param addresses list of addresses updated
          */
-        public void entriesUpdated(Collection<String> addresses)
+        @Override
+        public void entriesUpdated(Collection<Jid> addresses)
         {}
 
         /**
          * Not used here.
          * @param addresses list of addresses deleted
          */
-        public void entriesDeleted(Collection<String> addresses)
-        {}
-
-        /**
-         * Not used here.
-         */
-        public void rosterError(XMPPError error, Packet packet)
+        @Override
+        public void entriesDeleted(Collection<Jid> addresses)
         {}
 
         /**
          * Received on resource status change.
          * @param presence presence that has changed
          */
+        @Override
         public void presenceChanged(Presence presence)
         {
             firePresenceStatusChanged(presence);
@@ -1435,7 +1508,7 @@ public class OperationSetPersistentPresenceJabberImpl
 
         /**
          * Whether listener is currently storing presence events.
-         * @return
+         * @return true or false
          */
         boolean isStoringPresenceEvents()
         {
@@ -1489,9 +1562,7 @@ public class OperationSetPersistentPresenceJabberImpl
 
             try
             {
-                String userID
-                    = StringUtils.parseBareAddress(presence.getFrom());
-
+                Jid userID = presence.getFrom().asBareJid();
                 OperationSetMultiUserChat mucOpSet =
                     parentProvider.getOperationSet(
                         OperationSetMultiUserChat.class);
@@ -1501,7 +1572,7 @@ public class OperationSetPersistentPresenceJabberImpl
                         = mucOpSet.getCurrentlyJoinedChatRooms();
                     for(ChatRoom chatRoom : chatRooms)
                     {
-                        if(chatRoom.getName().equals(userID))
+                        if(chatRoom.getName().equals(userID.toString()))
                         {
                             userID = presence.getFrom();
                             break;
@@ -1519,7 +1590,7 @@ public class OperationSetPersistentPresenceJabberImpl
                 TreeSet<Presence> userStats = statuses.get(userID);
                 if(userStats == null)
                 {
-                    userStats = new TreeSet<Presence>(new Comparator<Presence>()
+                    userStats = new TreeSet<>(new Comparator<Presence>()
                      {
                         public int compare(Presence o1, Presence o2)
                         {
@@ -1539,7 +1610,7 @@ public class OperationSetPersistentPresenceJabberImpl
                                 // make sure we are consinstent with equals.
                                 // We do this by comparing the unique resource
                                 // names. If this evaluates to 0 again, then we
-                                // can safely assume this presence object 
+                                // can safely assume this presence object
                                 // represents the same resource and by that the
                                 // same client.
                                 if(res == 0)
@@ -1556,8 +1627,7 @@ public class OperationSetPersistentPresenceJabberImpl
                 }
                 else
                 {
-                    String resource = StringUtils.parseResource(
-                            presence.getFrom());
+                    Resourcepart resource = presence.getFrom().getResourceOrEmpty();
 
                     // remove the status for this resource
                     // if we are online we will update its value with the new
@@ -1566,10 +1636,10 @@ public class OperationSetPersistentPresenceJabberImpl
                             iter.hasNext();)
                     {
                         Presence p = iter.next();
-
-                        if (StringUtils.parseResource(p.getFrom()).equals(
-                                resource))
+                        if (p.getFrom().getResourceOrEmpty().equals(resource))
+                        {
                             iter.remove();
+                        }
                     }
                 }
 
@@ -1614,11 +1684,7 @@ public class OperationSetPersistentPresenceJabberImpl
                     jabberStatusToPresenceStatus(
                         currentPresence, parentProvider));
             }
-            catch (IllegalStateException ex)
-            {
-                logger.error("Failed changing status", ex);
-            }
-            catch (IllegalArgumentException ex)
+            catch (IllegalStateException | IllegalArgumentException ex)
             {
                 logger.error("Failed changing status", ex);
             }
@@ -1629,7 +1695,7 @@ public class OperationSetPersistentPresenceJabberImpl
      * Listens for subscription events coming from stack.
      */
     private class JabberSubscriptionListener
-        implements PacketListener
+        implements StanzaListener
     {
         /**
          * The authorization handler.
@@ -1639,18 +1705,17 @@ public class OperationSetPersistentPresenceJabberImpl
         /**
          * List of early subscriptions.
          */
-        private Map<String, String> earlySubscriptions
-            = new HashMap<String, String>();
+        private Map<Jid, String> earlySubscriptions
+            = new HashMap<Jid, String>();
 
         /**
          * Adds auth handler.
          *
-         * @param handler
+         * @param handler the handler to add.
          */
         private synchronized void setHandler(AuthorizationHandler handler)
         {
             this.handler = handler;
-
             handleEarlySubscribeReceived();
         }
 
@@ -1658,7 +1723,8 @@ public class OperationSetPersistentPresenceJabberImpl
          * Process packets.
          * @param packet packet received to be processed
          */
-        public void processPacket(Packet packet)
+        @Override
+        public void processStanza(Stanza packet)
         {
             Presence presence = (Presence) packet;
 
@@ -1666,7 +1732,7 @@ public class OperationSetPersistentPresenceJabberImpl
                 return;
 
             Presence.Type presenceType = presence.getType();
-            final String fromID = presence.getFrom();
+            final Jid fromID = presence.getFrom();
 
             if (presenceType == Presence.Type.subscribe)
             {
@@ -1685,7 +1751,6 @@ public class OperationSetPersistentPresenceJabberImpl
                         return;
                     }
                 }
-
 
                 handleSubscribeReceived(fromID, displayName);
             }
@@ -1755,7 +1820,7 @@ public class OperationSetPersistentPresenceJabberImpl
          */
         private void handleEarlySubscribeReceived()
         {
-            for(String from : earlySubscriptions.keySet())
+            for(Jid from : earlySubscriptions.keySet())
             {
                 handleSubscribeReceived(from, earlySubscriptions.get(from));
             }
@@ -1767,7 +1832,7 @@ public class OperationSetPersistentPresenceJabberImpl
          * Handles receiving a presence subscribe
          * @param fromID sender
          */
-        private void handleSubscribeReceived(final String fromID,
+        private void handleSubscribeReceived(final Jid fromID,
             final String displayName)
         {
             // run waiting for user response in different thread
@@ -1837,8 +1902,14 @@ public class OperationSetPersistentPresenceJabberImpl
                         responsePresenceType);
 
                 responsePacket.setTo(fromID);
-                parentProvider.getConnection().sendPacket(responsePacket);
-
+                try
+                {
+                    parentProvider.getConnection().sendStanza(responsePacket);
+                }
+                catch (NotConnectedException | InterruptedException e)
+                {
+                    logger.error("Could not send presence repsonse", e);
+                }
             }}).start();
         }
     }
@@ -1851,14 +1922,14 @@ public class OperationSetPersistentPresenceJabberImpl
      */
     private class ServerStoredListInit
         implements Runnable,
-                   PacketListener
+                   StanzaListener
     {
         public void run()
         {
             // we are already notified lets remove us from the packet
             // listener
             parentProvider.getConnection()
-                .removePacketListener(this);
+                .removeAsyncStanzaListener(this);
 
             // init ssList
             ssContactList.init(contactChangesListener);
@@ -1874,7 +1945,7 @@ public class OperationSetPersistentPresenceJabberImpl
          * to avoid blocking xmpp packet receiving.
          * @param packet the roster packet
          */
-        public void processPacket(Packet packet)
+        public void processStanza(Stanza packet)
         {
             // don't process packets that are errors
             if(packet.getError() != null)
@@ -1894,34 +1965,40 @@ public class OperationSetPersistentPresenceJabberImpl
     public void createAccountPhotoPresenceInterceptor()
     {
         // Verifies that we creates only one interceptor of this type.
-        if(this.vCardTempXUpdatePresenceExtension == null)
+        if(this.vCardTempXUpdatePresenceExtension != null)
         {
-            byte[] avatar = null;
-            try
-            {
-                // Retrieves the current server avatar.
-                VCard vCard = new VCard();
-                vCard.load(parentProvider.getConnection());
-                avatar = vCard.getAvatar();
-            }
-            catch(XMPPException ex)
-            {
-                logger.info("Can not retrieve account avatar for "
-                    + parentProvider.getOurJID() + ": " + ex.getMessage());
-            }
-
-            // Creates the presence extension to generates the  the element
-            // name "x" and the namespace "vcard-temp:x:update" containing
-            // the avatar SHA-1 hash.
-            this.vCardTempXUpdatePresenceExtension =
-                new VCardTempXUpdatePresenceExtension(avatar);
-
-            // Intercepts all sent presence packet in order to add the
-            // photo tag.
-            parentProvider.getConnection().addPacketInterceptor(
-                    this.vCardTempXUpdatePresenceExtension,
-                    new PacketTypeFilter(Presence.class));
+            return;
         }
+
+        byte[] avatar = null;
+        try
+        {
+            // Retrieves the current server avatar.
+            VCardManager manager = VCardManager.getInstanceFor(
+                parentProvider.getConnection());
+            VCard vCard = manager.loadVCard();
+            avatar = vCard.getAvatar();
+        }
+        catch(XMPPException
+            | InterruptedException
+            | NotConnectedException
+            | NoResponseException ex)
+        {
+            logger.info("Can not retrieve account avatar for "
+                + parentProvider.getOurJID() + ": " + ex.getMessage());
+        }
+
+        // Creates the presence extension to generates the  the element
+        // name "x" and the namespace "vcard-temp:x:update" containing
+        // the avatar SHA-1 hash.
+        this.vCardTempXUpdatePresenceExtension =
+            new VCardTempXUpdatePresenceExtension(avatar);
+
+        // Intercepts all sent presence packet in order to add the
+        // photo tag.
+        parentProvider.getConnection().addPacketInterceptor(
+            new VCardTempXUpdateInterceptor(vCardTempXUpdatePresenceExtension),
+            new StanzaTypeFilter(Presence.class));
     }
 
     /**
@@ -1956,10 +2033,11 @@ public class OperationSetPersistentPresenceJabberImpl
     public void createContactPhotoPresenceListener()
     {
         // Registers the listener.
-        parentProvider.getConnection().addPacketListener(
-            new PacketListener()
+        parentProvider.getConnection().addAsyncStanzaListener(
+            new StanzaListener()
             {
-                public void processPacket(Packet packet)
+                @Override
+                public void processStanza(Stanza packet)
                 {
                     // Calls the parser to manages this presence packet.
                     parseContactPhotoPresence(packet);
@@ -1967,8 +2045,8 @@ public class OperationSetPersistentPresenceJabberImpl
             },
             // Creates a filter to only listen to presence packet with the
             // element name "x" and the namespace "vcard-temp:x:update".
-            new AndFilter(new PacketTypeFilter(Presence.class),
-                new PacketExtensionFilter(
+            new AndFilter(new StanzaTypeFilter(Presence.class),
+                new StanzaExtensionFilter(
                     VCardTempXUpdatePresenceExtension.ELEMENT_NAME,
                     VCardTempXUpdatePresenceExtension.NAMESPACE)
                 )
@@ -1982,19 +2060,16 @@ public class OperationSetPersistentPresenceJabberImpl
      *
      * @param packet The packet received to parse.
      */
-    public void parseContactPhotoPresence(Packet packet)
+    public void parseContactPhotoPresence(Stanza packet)
     {
         // Retrieves the contact ID and its avatar that Jitsi currently
         // managed concerning the peer that has send this presence packet.
-        String userID
-            = StringUtils.parseBareAddress(packet.getFrom());
+        EntityBareJid userID = packet.getFrom().asEntityBareJidOrThrow();
         ContactJabberImpl sourceContact
             = ssContactList.findContactById(userID);
 
-        /**
-         * If this contact is not yet in our contact list, then there is no need
-         * to manage this photo update.
-         */
+        // If this contact is not yet in our contact list, then there is no need
+        // to manage this photo update.
         if(sourceContact == null)
         {
             return;
@@ -2003,59 +2078,70 @@ public class OperationSetPersistentPresenceJabberImpl
         byte[] currentAvatar = sourceContact.getImage(false);
 
         // Get the packet extension which contains the photo tag.
-        DefaultPacketExtension defaultPacketExtension =
-            (DefaultPacketExtension) packet.getExtension(
+        StandardExtensionElement defaultPacketExtension =
+            packet.getExtension(
                     VCardTempXUpdatePresenceExtension.ELEMENT_NAME,
                     VCardTempXUpdatePresenceExtension.NAMESPACE);
-        if(defaultPacketExtension != null)
+        if(defaultPacketExtension == null)
         {
-            try
+            return;
+        }
+        try
+        {
+            StandardExtensionElement photoElement
+                = defaultPacketExtension.getFirstElement("photo");
+            if (photoElement == null)
             {
-                String packetPhotoSHA1 =
-                    defaultPacketExtension.getValue("photo");
-                // If this presence packet has a photo tag with a SHA-1 hash
-                // which differs from the current avatar SHA-1 hash, then Jitsi
-                // retrieves the new avatar image and updates this contact image
-                // in the contact list.
-                if(packetPhotoSHA1 != null
-                        && !packetPhotoSHA1.equals(
-                            VCardTempXUpdatePresenceExtension.getImageSha1(
-                                currentAvatar))
-                  )
+                return;
+            }
+
+            // If this presence packet has a photo tag with a SHA-1 hash
+            // which differs from the current avatar SHA-1 hash, then Jitsi
+            // retrieves the new avatar image and updates this contact image
+            // in the contact list.
+            String packetPhotoSHA1 = photoElement.getText();
+            if(packetPhotoSHA1 != null
+                    && !packetPhotoSHA1.equals(
+                        VCardTempXUpdatePresenceExtension.getImageSha1(
+                            currentAvatar))
+              )
+            {
+                byte[] newAvatar = null;
+
+                // If there is an avatar image, retrieves it.
+                if(packetPhotoSHA1.length() != 0)
                 {
-                    byte[] newAvatar = null;
-
-                    // If there is an avatar image, retrieves it.
-                    if(packetPhotoSHA1.length() != 0)
-                    {
-                        // Retrieves the new contact avatar image.
-                        VCard vCard = new VCard();
-                        vCard.load(parentProvider.getConnection(), userID);
-                        newAvatar = vCard.getAvatar();
-                    }
-                    // Else removes the current avatar image, since the contact
-                    // has removed it from the server.
-                    else
-                    {
-                        newAvatar = new byte[0];
-                    }
-
-                    // Sets the new avatar image to the Jitsi contact.
-                    sourceContact.setImage(newAvatar);
-                    // Fires a property change event to update the contact list.
-                    this.fireContactPropertyChangeEvent(
-                        ContactPropertyChangeEvent.PROPERTY_IMAGE,
-                        sourceContact,
-                        currentAvatar,
-                        newAvatar);
+                    // Retrieves the new contact avatar image.
+                    VCardManager manager = VCardManager.getInstanceFor(
+                        parentProvider.getConnection());
+                    VCard vCard = manager.loadVCard(userID);
+                    newAvatar = vCard.getAvatar();
                 }
+                // Else removes the current avatar image, since the contact
+                // has removed it from the server.
+                else
+                {
+                    newAvatar = new byte[0];
+                }
+
+                // Sets the new avatar image to the Jitsi contact.
+                sourceContact.setImage(newAvatar);
+                // Fires a property change event to update the contact list.
+                this.fireContactPropertyChangeEvent(
+                    ContactPropertyChangeEvent.PROPERTY_IMAGE,
+                    sourceContact,
+                    currentAvatar,
+                    newAvatar);
             }
-            catch(XMPPException ex)
-            {
-                logger.info("Cannot retrieve vCard from: " + packet.getFrom());
-                if(logger.isTraceEnabled())
-                    logger.trace("vCard retrieval exception was: ", ex);
-            }
+        }
+        catch(XMPPException
+            | InterruptedException
+            | NotConnectedException
+            | NoResponseException ex)
+        {
+            logger.info("Cannot retrieve vCard from: " + packet.getFrom());
+            if(logger.isTraceEnabled())
+                logger.trace("vCard retrieval exception was: ", ex);
         }
     }
 

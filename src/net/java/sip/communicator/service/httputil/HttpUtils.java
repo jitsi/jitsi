@@ -46,6 +46,7 @@ import org.apache.http.params.*;
 import org.apache.http.protocol.*;
 import org.apache.http.util.*;
 import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 /**
  * Common http utils querying http locations, handling redirects, self-signed

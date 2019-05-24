@@ -24,10 +24,19 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.SmackException.*;
+import org.jivesoftware.smack.XMPPException.*;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.util.StringUtils;
-import org.jivesoftware.smackx.*;
 import org.jivesoftware.smackx.muc.*;
+import org.jivesoftware.smackx.muc.MultiUserChatException.*;
+import org.jivesoftware.smackx.muc.packet.*;
+import org.jivesoftware.smackx.xdata.*;
+import org.jivesoftware.smackx.xdata.packet.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.impl.*;
+import org.jxmpp.jid.parts.*;
+import org.jxmpp.stringprep.*;
 
 /**
  * A jabber implementation of the multi user chat operation set.
@@ -55,21 +64,20 @@ public class OperationSetMultiUserChatJabberImpl
      * we have not necessarily joined these rooms, we might have simply been
      * searching through them.
      */
-    private final Hashtable<String, ChatRoom> chatRoomCache
-        = new Hashtable<String, ChatRoom>();
-
-    /**
-     * The registration listener that would get notified when the underlying
-     * Jabber provider gets registered.
-     */
-    private final RegistrationStateListener providerRegListener
-        = new RegistrationStateListener();
+    private final Hashtable<BareJid, ChatRoomJabberImpl> chatRoomCache
+        = new Hashtable<>();
 
     /**
      * A reference to the persistent presence operation set that we use
      * to match incoming messages to <tt>Contact</tt>s and vice versa.
      */
     private OperationSetPersistentPresenceJabberImpl opSetPersPresence = null;
+
+    /**
+     * A listener that is fired anytime an invitation to join a MUC room is
+     * received.
+     */
+    private SmackInvitationListener smackInvitationListener = null;
 
     /**
      * Instantiates the user operation set with a currently valid instance of
@@ -82,6 +90,10 @@ public class OperationSetMultiUserChatJabberImpl
     {
         this.jabberProvider = jabberProvider;
 
+        //The registration listener that would get notified when the underlying
+        //Jabber provider gets registered.
+        RegistrationStateListener providerRegListener
+            = new RegistrationStateListener();
         jabberProvider.addRegistrationStateChangeListener(providerRegListener);
 
         opSetPersPresence
@@ -145,27 +157,32 @@ public class OperationSetMultiUserChatJabberImpl
 
             // rooms using google servers needs a special name.
             // in the form private-chat-UUID@groupchat.google.com
-            if(getXmppConnection().getHost().toLowerCase().contains("google"))
+            if(getXmppConnection() != null &&
+                getXmppConnection().getHost().toLowerCase().contains("google"))
             {
                 roomName = "private-chat-" +
                         UUID.randomUUID().toString() + "@groupchat.google.com";
             }
 
-            MultiUserChat muc = null;
+            MultiUserChat muc;
             try
             {
-                muc = new MultiUserChat(
-                    getXmppConnection(), getCanonicalRoomName(roomName));
+                MultiUserChatManager manager = MultiUserChatManager
+                    .getInstanceFor(getXmppConnection());
+                muc = manager.getMultiUserChat(getCanonicalRoomName(roomName));
 
-                muc.create(JabberActivator.getGlobalDisplayDetailsService()
+                Resourcepart nick = Resourcepart.from(JabberActivator.getGlobalDisplayDetailsService()
                     .getDisplayName(jabberProvider));
+                muc.create(nick);
             }
-            catch (XMPPException ex)
+            catch (Exception ex)
             {
                 logger.error("Failed to create chat room.", ex);
-                throw new OperationFailedException("Failed to create chat room"
-                                                   , ex.getXMPPError().getCode()
-                                                   , ex.getCause());
+                throw new OperationFailedException(
+                    "Failed to create chat room",
+                    OperationFailedException.GENERAL_ERROR,
+                    ex
+                );
             }
 
             boolean isPrivate = false;
@@ -183,43 +200,63 @@ public class OperationSetMultiUserChatJabberImpl
                 Form form;
                 if(isPrivate)
                 {
-                    Form initForm = muc.getConfigurationForm();
-                    form = initForm.createAnswerForm();
-                    Iterator<FormField> fieldIterator = initForm.getFields();
-                    while(fieldIterator.hasNext())
+                    Form initForm;
+                    try
                     {
-                        FormField initField = fieldIterator.next();
+                        initForm = muc.getConfigurationForm();
+                    }
+                    catch (NoResponseException
+                        | NotConnectedException
+                        | InterruptedException e)
+                    {
+                        throw new OperationFailedException(
+                            "Could not get config form",
+                            OperationFailedException.GENERAL_ERROR,
+                            e
+                        );
+                    }
+                    form = initForm.createAnswerForm();
+                    for (FormField initField : initForm.getFields())
+                    {
                         if( initField == null ||
                             initField.getVariable() == null ||
-                            initField.getType() == FormField.TYPE_FIXED ||
-                            initField.getType() == FormField.TYPE_HIDDEN)
+                            initField.getType() == FormField.Type.fixed ||
+                            initField.getType() == FormField.Type.hidden)
                             continue;
                         FormField submitField
                             = form.getField(initField.getVariable());
                         if(submitField == null)
                             continue;
-                        Iterator<String> value = initField.getValues();
-                        while(value.hasNext())
-                            submitField.addValue(value.next());
+                        for (String value : initField.getValues())
+                        {
+                            submitField.addValue(value);
+                        }
                     }
-                    String[] fields = {"muc#roomconfig_membersonly",
+                    String[] fields =
+                    {
+                        "muc#roomconfig_membersonly",
                         "muc#roomconfig_allowinvites",
-                        "muc#roomconfig_publicroom"};
+                        "muc#roomconfig_publicroom"
+                    };
                     Boolean[] values = {true, true, false};
                     for(int i = 0; i < fields.length; i++)
                     {
                         FormField field = new FormField(fields[i]);
-                        field.setType("boolean");
+                        field.setType(FormField.Type.bool);
                         form.addField(field);
                         form.setAnswer(fields[i], values[i]);
                     }
                 }
                 else
                 {
-                    form = new Form(Form.TYPE_SUBMIT);
+                    form = new Form(DataForm.Type.submit);
                 }
                 muc.sendConfigurationForm(form);
-            } catch (XMPPException e)
+            }
+            catch (XMPPException
+                | InterruptedException
+                | NotConnectedException
+                | NoResponseException e)
             {
                 logger.error("Failed to send config form.", e);
             }
@@ -247,7 +284,7 @@ public class OperationSetMultiUserChatJabberImpl
         {
             ChatRoomJabberImpl chatRoom
                 = new ChatRoomJabberImpl(muc, jabberProvider);
-            cacheChatRoom(chatRoom);
+            this.chatRoomCache.put(muc.getRoom(), chatRoom);
 
             // Add the contained in this class SmackInvitationRejectionListener
             // which will dispatch all rejection events to the
@@ -276,15 +313,15 @@ public class OperationSetMultiUserChatJabberImpl
         //make sure we are connected and multichat is supported.
         assertSupportedAndConnected();
 
-        String canonicalRoomName = getCanonicalRoomName(roomName);
-        ChatRoom room = chatRoomCache.get(canonicalRoomName);
+        EntityBareJid canonicalRoomName = getCanonicalRoomName(roomName);
+        ChatRoomJabberImpl room = chatRoomCache.get(canonicalRoomName);
 
         if (room != null)
             return room;
 
-        MultiUserChat muc
-            = new MultiUserChat(getXmppConnection(), canonicalRoomName);
-
+        MultiUserChatManager manager = MultiUserChatManager
+            .getInstanceFor(getXmppConnection());
+        MultiUserChat muc = manager.getMultiUserChat(canonicalRoomName);
         room = new ChatRoomJabberImpl(muc, jabberProvider);
         chatRoomCache.put(canonicalRoomName, room);
         return room;
@@ -301,8 +338,12 @@ public class OperationSetMultiUserChatJabberImpl
     {
         synchronized(chatRoomCache)
         {
-            List<ChatRoom> joinedRooms
-                = new LinkedList<ChatRoom>(this.chatRoomCache.values());
+            List<ChatRoom> joinedRooms = new LinkedList<>();
+            for (ChatRoom cr : this.chatRoomCache.values())
+            {
+                joinedRooms.add(cr);
+            }
+
             Iterator<ChatRoom> joinedRoomsIter = joinedRooms.iterator();
 
             while (joinedRoomsIter.hasNext())
@@ -368,16 +409,20 @@ public class OperationSetMultiUserChatJabberImpl
     {
         assertSupportedAndConnected();
 
-        List<String> list = new LinkedList<String>();
+        List<String> list = new LinkedList<>();
 
         //first retrieve all conference service names available on this server
-        Iterator<String> serviceNames = null;
+        MultiUserChatManager manager = MultiUserChatManager
+            .getInstanceFor(getXmppConnection());
+        List<DomainBareJid> serviceNames;
         try
         {
-            serviceNames = MultiUserChat
-                .getServiceNames(getXmppConnection()).iterator();
+            serviceNames = manager.getXMPPServiceDomains();
         }
-        catch (XMPPException ex)
+        catch (XMPPException
+            | InterruptedException
+            | NotConnectedException
+            | NoResponseException ex)
         {
             throw new OperationFailedException(
                 "Failed to retrieve Jabber conference service names"
@@ -386,18 +431,19 @@ public class OperationSetMultiUserChatJabberImpl
         }
 
         //now retrieve all chat rooms currently available for every service name
-        while(serviceNames.hasNext())
+        for (DomainBareJid serviceName : serviceNames)
         {
-            String serviceName = serviceNames.next();
-            List<HostedRoom> roomsOnThisService = new LinkedList<HostedRoom>();
-
+            List<HostedRoom> roomsOnThisService = new LinkedList<>();
             try
             {
                 roomsOnThisService
-                    .addAll(MultiUserChat.getHostedRooms(getXmppConnection()
-                                                         , serviceName));
+                    .addAll(manager.getHostedRooms(serviceName));
             }
-            catch (XMPPException ex)
+            catch (XMPPException
+                | InterruptedException
+                | NotConnectedException
+                | NoResponseException
+                | NotAMucServiceException ex)
             {
                 logger.error("Failed to retrieve rooms for serviceName="
                              + serviceName, ex);
@@ -406,17 +452,14 @@ public class OperationSetMultiUserChatJabberImpl
             }
 
             //now go through all rooms available on this service
-            Iterator<HostedRoom> serviceRoomsIter = roomsOnThisService.iterator();
-
-            //add the room name to the list of names we are returning
-            while(serviceRoomsIter.hasNext())
-                list.add(
-                    serviceRoomsIter.next().getJid());
+            for (HostedRoom hr : roomsOnThisService)
+            {
+                list.add(hr.getJid().toString());
+            }
         }
 
-        /** @todo maybe we should add a check here and fail if retrieving chat
-         * rooms failed for all service names*/
-
+        // todo maybe we should add a check here and fail if retrieving chat
+        // rooms failed for all service names
         return list;
     }
 
@@ -427,17 +470,11 @@ public class OperationSetMultiUserChatJabberImpl
      *   we are currently querying.
      * @return a boolean indicating whether <tt>contact</tt> supports
      *   chatrooms.
-     * @todo Implement this
-     *   net.java.sip.communicator.service.protocol.OperationSetMultiUserChat
-     *   method
      */
     public boolean isMultiChatSupportedByContact(Contact contact)
     {
-        if(contact.getProtocolProvider()
-            .getOperationSet(OperationSetMultiUserChat.class) != null)
-            return true;
-
-        return false;
+        return contact.getProtocolProvider()
+            .getOperationSet(OperationSetMultiUserChat.class) != null;
     }
 
     /**
@@ -449,7 +486,16 @@ public class OperationSetMultiUserChatJabberImpl
      */
     public boolean isPrivateMessagingContact(String contactAddress)
     {
-        return opSetPersPresence.isPrivateMessagingContact(contactAddress);
+        try
+        {
+            Jid jid = JidCreate.from(contactAddress);
+            return opSetPersPresence.isPrivateMessagingContact(jid);
+        }
+        catch (XmppStringprepException e)
+        {
+            logger.error(contactAddress + " is not a valid JID", e);
+            return false;
+        }
     }
 
     /**
@@ -460,11 +506,28 @@ public class OperationSetMultiUserChatJabberImpl
      */
     public void rejectInvitation(ChatRoomInvitation invitation,
         String rejectReason)
+        throws OperationFailedException
     {
-        MultiUserChat.decline(jabberProvider.getConnection(),
-            invitation.getTargetChatRoom().getName(),
-            invitation.getInviter(),
-            rejectReason);
+        MultiUserChatManager manager = MultiUserChatManager
+            .getInstanceFor(getXmppConnection());
+        try
+        {
+            manager.decline(
+                JidCreate.entityBareFrom(invitation.getTargetChatRoom().getName()),
+                JidCreate.entityBareFrom(invitation.getInviter()),
+                rejectReason
+            );
+        }
+        catch (NotConnectedException
+            | XmppStringprepException
+            | InterruptedException e)
+        {
+            throw new OperationFailedException(
+                "Could not reject invitation",
+                OperationFailedException.GENERAL_ERROR,
+                e
+            );
+        }
     }
 
     /**
@@ -474,11 +537,11 @@ public class OperationSetMultiUserChatJabberImpl
      * @return the XMPP connection currently in use by the jabber provider or
      * null if jabber provider has yet to be initialized.
      */
-    private Connection getXmppConnection()
+    private XMPPConnection getXmppConnection()
     {
         return (jabberProvider == null)
             ? null
-            :jabberProvider.getConnection();
+            : jabberProvider.getConnection();
     }
 
     /**
@@ -495,7 +558,8 @@ public class OperationSetMultiUserChatJabberImpl
     {
         //throw an exception if the provider is not registered or the xmpp
         //connection not connected.
-        if( !jabberProvider.isRegistered()
+        if(!jabberProvider.isRegistered()
+            || getXmppConnection() == null
             || !getXmppConnection().isConnected())
         {
             throw new OperationFailedException(
@@ -503,22 +567,35 @@ public class OperationSetMultiUserChatJabberImpl
                 , OperationFailedException.NETWORK_FAILURE);
         }
 
-//MultiUserChat.isServiceEnabled() *always* returns false,
-//altough the functionalty is implemented and advertised. Because of
-//that, we cant rely on it.
-//The problem has been reported to igniterealtime.org since 2006.
-//
-//        if (!MultiUserChat.isServiceEnabled(
-//            getXmppConnection()
-//            , jabberProvider.getAccountID().getUserID()))
+        // isServiceEnabled(...) requires the subdomain providing the
+        // muc service, it doesn't search recursively. We do that in ourselves
+        // in getCanonicalRoomName
+//        MultiUserChatManager manager = MultiUserChatManager
+//            .getInstanceFor(getXmppConnection());
+//        try
 //        {
-//            throw new OperationNotSupportedException(
-//                "Chat rooms not supported on server "
-//                + jabberProvider.getAccountID().getService()
-//                + " for user "
-//                + jabberProvider.getAccountID().getUserID());
+//            Jid jid = JidCreate.domainBareFrom(jabberProvider.getAccountID().getService());
+//            if (!manager.isServiceEnabled(jid))
+//            {
+//                throw new OperationNotSupportedException(
+//                    "Chat rooms not supported on server "
+//                    + jabberProvider.getAccountID().getService()
+//                    + " for user "
+//                    + jabberProvider.getAccountID().getUserID());
+//            }
 //        }
-
+//        catch (XMPPErrorException
+//            | NotConnectedException
+//            | XmppStringprepException
+//            | NoResponseException
+//            | InterruptedException e)
+//        {
+//            throw new OperationFailedException(
+//                "Could not determine MUC support feature",
+//                OperationFailedException.GENERAL_ERROR,
+//                e
+//            );
+//        }
     }
 
     /**
@@ -536,20 +613,26 @@ public class OperationSetMultiUserChatJabberImpl
      * @throws OperationFailedException if we fail retrieving the conference
      * service name
      */
-    private String getCanonicalRoomName(String roomName)
+    private EntityBareJid getCanonicalRoomName(String roomName)
         throws OperationFailedException
     {
-
-        if (roomName.indexOf('@') > 0)
-            return roomName;
-
-        Iterator<String> serviceNamesIter = null;
         try
         {
-            serviceNamesIter
-                = MultiUserChat.getServiceNames(getXmppConnection()).iterator();
+            return JidCreate.entityBareFrom(roomName);
         }
-        catch (XMPPException ex)
+        catch (XmppStringprepException e)
+        {
+            // try to append to domain part of our own JID
+        }
+
+        List<DomainBareJid> serviceNames;
+        try
+        {
+            MultiUserChatManager manager = MultiUserChatManager
+                .getInstanceFor(getXmppConnection());
+            serviceNames = manager.getXMPPServiceDomains();
+        }
+        catch (Exception ex)
         {
             logger.error("Failed to retrieve conference service name for user: "
                 + jabberProvider.getAccountID().getUserID()
@@ -566,25 +649,29 @@ public class OperationSetMultiUserChatJabberImpl
 
         }
 
-        if (serviceNamesIter.hasNext())
-            return roomName + "@" + serviceNamesIter.next();
+        if (serviceNames != null)
+        {
+            try
+            {
+                return JidCreate.entityBareFrom(
+                    Localpart.from(roomName),
+                    serviceNames.get(0));
+            }
+            catch (XmppStringprepException e)
+            {
+                throw new OperationFailedException(
+                    roomName + " is not a valid JID local part",
+                    OperationFailedException.GENERAL_ERROR,
+                    e
+                );
+            }
+        }
 
         //hmmmm strange.. no service name returned. we should probably throw an
         //exception
         throw new OperationFailedException(
             "Failed to retrieve MultiUserChat service names."
             , OperationFailedException.GENERAL_ERROR);
-    }
-
-    /**
-     * Adds <tt>chatRoom</tt> to the cache of chat rooms that this operation
-     * set is handling.
-     *
-     * @param chatRoom the <tt>ChatRoom</tt> to cache.
-     */
-    private void cacheChatRoom(ChatRoom chatRoom)
-    {
-        this.chatRoomCache.put(chatRoom.getName(), chatRoom);
     }
 
     /**
@@ -596,9 +683,9 @@ public class OperationSetMultiUserChatJabberImpl
      * @return the <tt>ChatRoomJabberImpl</tt> instance that has been cached
      * for <tt>chatRoomName</tt> or null if no such room has been cached so far.
      */
-    public ChatRoomJabberImpl getChatRoom(String chatRoomName)
+    public ChatRoomJabberImpl getChatRoom(BareJid chatRoomName)
     {
-        return (ChatRoomJabberImpl)this.chatRoomCache.get(chatRoomName);
+        return this.chatRoomCache.get(chatRoomName);
     }
 
     /**
@@ -614,13 +701,33 @@ public class OperationSetMultiUserChatJabberImpl
     {
         assertSupportedAndConnected();
 
-        Iterator<String> joinedRoomsIter = MultiUserChat.getJoinedRooms(
-            getXmppConnection(), chatRoomMember.getContactAddress());
-        List<String> joinedRooms = new ArrayList<String>();
+        MultiUserChatManager manager = MultiUserChatManager
+            .getInstanceFor(getXmppConnection());
 
-        while (joinedRoomsIter.hasNext())
-            joinedRooms.add(joinedRoomsIter.next());
-        return joinedRooms;
+        try
+        {
+            EntityJid memberJid = JidCreate.from(
+                chatRoomMember.getContactAddress()).asEntityJidOrThrow();
+            List<String> joinedRooms = new ArrayList<>();
+            for (Jid jid : manager.getJoinedRooms(memberJid))
+            {
+                joinedRooms.add(jid.toString());
+            }
+
+            return joinedRooms;
+        }
+        catch (XmppStringprepException
+            | NoResponseException
+            | InterruptedException
+            | NotConnectedException
+            | XMPPErrorException e)
+        {
+            throw new OperationFailedException(
+                "Could not get list of joined rooms",
+                OperationFailedException.GENERAL_ERROR,
+                e
+            );
+        }
     }
 
     /**
@@ -634,7 +741,7 @@ public class OperationSetMultiUserChatJabberImpl
      */
     public void fireInvitationEvent(
         ChatRoom targetChatRoom,
-        String inviter,
+        EntityJid inviter,
         String reason,
         byte[] password)
     {
@@ -669,14 +776,15 @@ public class OperationSetMultiUserChatJabberImpl
          * @param password the password to use when joining the room.
          * @param message the message used by the inviter to send the invitation.
          */
-        public void invitationReceived(Connection conn,
-            String room, String inviter, String reason,
-            String password, Message message)
+        @Override
+        public void invitationReceived(XMPPConnection conn,
+            MultiUserChat room, EntityJid inviter, String reason,
+            String password, Message message, MUCUser.Invite invite)
         {
             ChatRoomJabberImpl chatRoom;
             try
             {
-                chatRoom = (ChatRoomJabberImpl) findRoom(room);
+                chatRoom = (ChatRoomJabberImpl) findRoom(room.getRoom().toString());
                 if (password != null)
                     fireInvitationEvent(
                         chatRoom, inviter, reason, password.getBytes());
@@ -684,11 +792,7 @@ public class OperationSetMultiUserChatJabberImpl
                     fireInvitationEvent(
                         chatRoom, inviter, reason, null);
             }
-            catch (OperationFailedException e)
-            {
-                logger.error("Failed to find room with name: " + room, e);
-            }
-            catch (OperationNotSupportedException e)
+            catch (OperationFailedException | OperationNotSupportedException e)
             {
                 logger.error("Failed to find room with name: " + room, e);
             }
@@ -724,12 +828,18 @@ public class OperationSetMultiUserChatJabberImpl
          * Called when the invitee declines the invitation.
          *
          * @param invitee the invitee that declined the invitation.
-         * (e.g. hecate@shakespeare.lit).
+         *                (e.g. hecate@shakespeare.lit).
          * @param reason the reason why the invitee declined the invitation.
+         * @param message the message used to decline the invitation.
+         * @param rejection the raw decline found in the message.
          */
-        public void invitationDeclined(String invitee, String reason)
+        @Override
+        public void invitationDeclined(EntityBareJid invitee,
+                                       String reason,
+                                       Message message,
+                                       MUCUser.Decline rejection)
         {
-            fireInvitationRejectedEvent(chatRoom, invitee, reason);
+            fireInvitationRejectedEvent(chatRoom, invitee.toString(), reason);
         }
     }
 
@@ -754,9 +864,11 @@ public class OperationSetMultiUserChatJabberImpl
                 if (logger.isDebugEnabled())
                     logger.debug("adding an Invitation listener to the smack muc");
 
-                MultiUserChat.addInvitationListener(
-                    jabberProvider.getConnection(),
-                    new SmackInvitationListener());
+
+                MultiUserChatManager manager = MultiUserChatManager
+                    .getInstanceFor(getXmppConnection());
+                smackInvitationListener = new SmackInvitationListener();
+                manager.addInvitationListener(smackInvitationListener);
             }
             else if (evt.getNewState() == RegistrationState.UNREGISTERED
                 || evt.getNewState() == RegistrationState.CONNECTION_FAILED)
@@ -766,6 +878,13 @@ public class OperationSetMultiUserChatJabberImpl
             }
             else if (evt.getNewState() == RegistrationState.UNREGISTERING)
             {
+                XMPPConnection connection = getXmppConnection();
+                if (smackInvitationListener != null && connection != null)
+                {
+                    MultiUserChatManager.getInstanceFor(connection)
+                        .removeInvitationListener(smackInvitationListener);
+                }
+
                 // lets check for joined rooms and leave them
                 List<ChatRoom> joinedRooms = getCurrentlyJoinedChatRooms();
                 for(ChatRoom room : joinedRooms)
@@ -835,15 +954,20 @@ public class OperationSetMultiUserChatJabberImpl
       */
      private void updateChatRoomMembers(Contact contact)
      {
-         Enumeration<ChatRoom> chatRooms = chatRoomCache.elements();
-
-         while (chatRooms.hasMoreElements())
+         for (ChatRoomJabberImpl chatRoom : chatRoomCache.values())
          {
-             ChatRoomJabberImpl chatRoom =
-                 (ChatRoomJabberImpl) chatRooms.nextElement();
+             Resourcepart nick;
+             try
+             {
+                 nick = Resourcepart.from(contact.getAddress());
+             }
+             catch (XmppStringprepException e)
+             {
+                 continue;
+             }
 
              ChatRoomMemberJabberImpl member
-                 = chatRoom.findMemberForNickName(contact.getAddress());
+                 = chatRoom.findMemberForNickName(nick);
 
              if (member != null)
              {

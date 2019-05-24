@@ -20,8 +20,11 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.tcp.*;
+import org.jxmpp.jid.*;
 
 import javax.net.ssl.*;
+import java.io.*;
 import java.security.*;
 
 /**
@@ -39,15 +42,19 @@ public class AnonymousLoginStrategy
      * <tt>UserCredentials</tt> used by accompanying services.
      */
     private final UserCredentials credentials;
+    private ConnectionConfiguration.Builder ccBuilder;
 
     /**
      * Creates new anonymous login strategy instance.
      * @param login user login only for the purpose of returning
      *              <tt>UserCredentials</tt> that are used by accompanying
      *              services.
+     * @param ccBuilder
      */
-    public AnonymousLoginStrategy(String login)
+    public AnonymousLoginStrategy(String login,
+                                  ConnectionConfiguration.Builder ccBuilder)
     {
+        this.ccBuilder = ccBuilder;
         this.credentials = new UserCredentials();
 
         credentials.setUserName(login);
@@ -66,16 +73,15 @@ public class AnonymousLoginStrategy
     @Override
     public boolean loginPreparationSuccessful()
     {
+        ccBuilder.performSaslAnonymousAuthentication();
         return true;
     }
 
     @Override
-    public boolean login(Connection connection, String userName,
-                         String resource)
-        throws XMPPException
+    public boolean login(AbstractXMPPConnection connection, EntityFullJid jid)
+        throws XMPPException, InterruptedException, IOException, SmackException
     {
-        connection.loginAnonymously();
-
+        connection.login();
         return true;
     }
 
@@ -90,6 +96,12 @@ public class AnonymousLoginStrategy
         X509ExtendedTrustManager trustManager)
         throws GeneralSecurityException
     {
-        return null;
+        return certificateService.getSSLContext(trustManager);
+    }
+
+    @Override
+    public ConnectionConfiguration.Builder getConnectionConfigurationBuilder()
+    {
+        return ccBuilder;
     }
 }

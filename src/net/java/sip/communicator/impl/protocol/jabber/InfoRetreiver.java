@@ -22,14 +22,19 @@ import java.net.*;
 import java.text.*;
 import java.util.*;
 
+import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.util.*;
 
 import org.apache.commons.lang3.*;
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.SmackException.*;
+import org.jivesoftware.smack.XMPPException.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jivesoftware.smackx.vcardtemp.*;
+import org.jivesoftware.smackx.vcardtemp.packet.*;
+import org.jxmpp.jid.*;
 
 /**
  * Handles and retrieves all info of our contacts or our account info
@@ -47,8 +52,8 @@ public class InfoRetreiver
     private ProtocolProviderServiceJabberImpl jabberProvider = null;
 
     // here is kept all the details retrieved so far
-    private final Map<String, List<GenericDetail>> retreivedDetails
-        = new Hashtable<String, List<GenericDetail>>();
+    private final Map<EntityBareJid, List<GenericDetail>> retreivedDetails
+        = new Hashtable<>();
 
     private static final String TAG_FN_OPEN = "<FN>";
     private static final String TAG_FN_CLOSE = "</FN>";
@@ -58,9 +63,7 @@ public class InfoRetreiver
      */
     private final long vcardTimeoutReply;
 
-    protected InfoRetreiver(
-            ProtocolProviderServiceJabberImpl jabberProvider,
-            String ownerUin)
+    protected InfoRetreiver(ProtocolProviderServiceJabberImpl jabberProvider)
     {
         this.jabberProvider = jabberProvider;
 
@@ -82,11 +85,11 @@ public class InfoRetreiver
      * @return Iterator
      */
     <T extends GenericDetail> Iterator<T> getDetailsAndDescendants(
-        String uin,
+        EntityBareJid uin,
         Class<T> detailClass)
     {
         List<GenericDetail> details = getContactDetails(uin);
-        List<T> result = new LinkedList<T>();
+        List<T> result = new LinkedList<>();
 
         for (GenericDetail item : details)
             if(detailClass.isInstance(item))
@@ -109,11 +112,11 @@ public class InfoRetreiver
      * @return Iterator
      */
     Iterator<GenericDetail> getDetails(
-        String uin,
+        EntityBareJid uin,
         Class<? extends GenericDetail> detailClass)
     {
         List<GenericDetail> details = getContactDetails(uin);
-        List<GenericDetail> result = new LinkedList<GenericDetail>();
+        List<GenericDetail> result = new LinkedList<>();
 
         for (GenericDetail item : details)
             if(detailClass.equals(item.getClass()))
@@ -129,7 +132,7 @@ public class InfoRetreiver
      * @param contactAddress String
      * @return Vector the details
      */
-    List<GenericDetail> getContactDetails(String contactAddress)
+    List<GenericDetail> getContactDetails(EntityBareJid contactAddress)
     {
         List<GenericDetail> result = getCachedContactDetails(contactAddress);
 
@@ -146,25 +149,30 @@ public class InfoRetreiver
      * @param contactAddress the address to search for.
      * @return the details or empty list.
      */
-    protected List<GenericDetail> retrieveDetails(String contactAddress)
+    protected List<GenericDetail> retrieveDetails(EntityBareJid contactAddress)
     {
-        List<GenericDetail> result = new LinkedList<GenericDetail>();
+        List<GenericDetail> result = new LinkedList<>();
         try
         {
-            Connection connection = jabberProvider.getConnection();
+            XMPPConnection connection = jabberProvider.getConnection();
 
             if(connection == null || !connection.isAuthenticated())
                 return null;
 
-            VCard card = new VCard();
+            VCard card;
 
             // if there is no value or is equals to the default one
             // load vcard using smack load method
             if(vcardTimeoutReply == -1
-               || vcardTimeoutReply == SmackConfiguration.getPacketReplyTimeout())
-                card.load(connection, contactAddress);
+               || vcardTimeoutReply == SmackConfiguration.getDefaultReplyTimeout())
+            {
+                card = VCardManager.getInstanceFor(connection).loadVCard(contactAddress);
+            }
             else
+            {
+                card = new VCard();
                 load(card, connection, contactAddress, vcardTimeoutReply);
+            }
 
             String tmp;
 
@@ -351,12 +359,12 @@ public class InfoRetreiver
             }
             catch(MalformedURLException e){}
         }
-        catch (Throwable exc)
+        catch (Exception exc)
         {
             String msg = "Cannot load details for contact "
                 + contactAddress + " : " + exc.getMessage();
             if(logger.isTraceEnabled())
-                logger.error(msg, exc);
+                logger.trace(msg, exc);
             else
                 logger.error(msg);
         }
@@ -373,7 +381,7 @@ public class InfoRetreiver
      * @param contactAddress to search for
      * @return list of the details if any.
      */
-    List<GenericDetail> getCachedContactDetails(String contactAddress)
+    List<GenericDetail> getCachedContactDetails(EntityBareJid contactAddress)
     {
         return retreivedDetails.get(contactAddress);
     }
@@ -384,7 +392,7 @@ public class InfoRetreiver
      * @param details the details to add
      */
     void addCachedContactDetails(
-        String contactAddress, List<GenericDetail> details)
+        EntityBareJid contactAddress, List<GenericDetail> details)
     {
         retreivedDetails.put(contactAddress, details);
     }
@@ -396,7 +404,7 @@ public class InfoRetreiver
      */
     String checkForFullName(VCard card)
     {
-        String vcardXml = card.toXML();
+        String vcardXml = card.toXML().toString();
 
         int indexOpen = vcardXml.indexOf(TAG_FN_OPEN);
 
@@ -423,42 +431,41 @@ public class InfoRetreiver
      * @throws XMPPException if something went wrong during VCard loading
      */
     public void load(VCard vcard,
-                     Connection connection,
-                     String user,
+                     XMPPConnection connection,
+                     EntityBareJid user,
                      long timeout)
-        throws XMPPException
+        throws XMPPException, NotConnectedException, InterruptedException,
+               OperationFailedException
     {
         vcard.setTo(user);
+        vcard.setType(IQ.Type.get);
 
-        vcard.setType(IQ.Type.GET);
-        PacketCollector collector = connection.createPacketCollector(
-                new PacketIDFilter(vcard.getPacketID()));
-        connection.sendPacket(vcard);
 
         VCard result = null;
         try
         {
-            result = (VCard) collector.nextResult(timeout);
-
-            if (result == null)
+            StanzaCollector collector
+                = connection.createStanzaCollectorAndSend(vcard);
+            try
             {
-                String errorMessage = "Timeout getting VCard information";
-                throw new XMPPException(errorMessage, new XMPPError(
-                        XMPPError.Condition.request_timeout, errorMessage));
+                result = collector.nextResultOrThrow(timeout);
             }
-
-            if (result.getError() != null)
+            finally
             {
-                throw new XMPPException(result.getError());
+                collector.cancel();
             }
         }
         catch (ClassCastException e)
         {
             logger.error("No vcard for " + user);
         }
-
-        if (result == null)
-            result = new VCard();
+        catch (NoResponseException e)
+        {
+            throw new OperationFailedException(
+                "Timeout getting VCard information",
+                OperationFailedException.GENERAL_ERROR
+            );
+        }
 
         // copy loaded vcard fields in the supplied one.
         Field[] fields = VCard.class.getDeclaredFields();

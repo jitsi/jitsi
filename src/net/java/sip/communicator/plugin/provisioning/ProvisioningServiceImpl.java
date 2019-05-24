@@ -36,8 +36,8 @@ import org.apache.http.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
+import org.jitsi.utils.*;
 import org.osgi.framework.*;
-// disambiguation
 
 /**
  * Provisioning service.

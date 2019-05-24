@@ -20,7 +20,10 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import net.java.sip.communicator.service.protocol.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.roster.*;
+import org.jivesoftware.smack.roster.packet.*;
 
 /**
  * Extended authorization implementation for jabber provider.
@@ -74,8 +77,19 @@ public class OperationSetExtendedAuthorizationsJabberImpl
                     contact);
 
         Presence responsePacket = new Presence(Presence.Type.subscribed);
-        responsePacket.setTo(contact.getAddress());
-        parentProvider.getConnection().sendPacket(responsePacket);
+        responsePacket.setTo(((ContactJabberImpl) contact).getAddressAsJid());
+        try
+        {
+            parentProvider.getConnection().sendStanza(responsePacket);
+        }
+        catch (NotConnectedException | InterruptedException e)
+        {
+            throw new OperationFailedException(
+                "Could not send authorize",
+                OperationFailedException.NETWORK_FAILURE,
+                e
+            );
+        }
     }
 
     /**
@@ -102,8 +116,19 @@ public class OperationSetExtendedAuthorizationsJabberImpl
                     contact);
 
         Presence responsePacket = new Presence(Presence.Type.subscribe);
-        responsePacket.setTo(contact.getAddress());
-        parentProvider.getConnection().sendPacket(responsePacket);
+        responsePacket.setTo(((ContactJabberImpl) contact).getAddressAsJid());
+        try
+        {
+            parentProvider.getConnection().sendStanza(responsePacket);
+        }
+        catch (NotConnectedException | InterruptedException e)
+        {
+            throw new OperationFailedException(
+                "Could not send subscribe packet",
+                OperationFailedException.NETWORK_FAILURE,
+                e
+            );
+        }
     }
 
     /**
@@ -126,8 +151,7 @@ public class OperationSetExtendedAuthorizationsJabberImpl
         {
             if((entry.getType() == RosterPacket.ItemType.none
                     || entry.getType() == RosterPacket.ItemType.from)
-               && RosterPacket.ItemStatus.SUBSCRIPTION_PENDING
-                    == entry.getStatus())
+               && entry.isSubscriptionPending())
             {
                 return SubscriptionStatus.SubscriptionPending;
             }

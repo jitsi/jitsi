@@ -32,24 +32,6 @@ public class OperationSetCusaxUtilsJabberImpl
     implements OperationSetCusaxUtils
 {
     /**
-     * The parent jabber protocol provider.
-     */
-    private final ProtocolProviderServiceJabberImpl jabberProvider;
-
-    /**
-     * Creates an instance of <tt>OperationSetCusaxUtilsJabberImpl</tt> by
-     * specifying the parent jabber <tt>ProtocolProviderServiceJabberImpl</tt>.
-     *
-     * @param jabberProvider the parent
-     * <tt>ProtocolProviderServiceJabberImpl</tt>
-     */
-    public OperationSetCusaxUtilsJabberImpl(
-        ProtocolProviderServiceJabberImpl jabberProvider)
-    {
-        this.jabberProvider = jabberProvider;
-    }
-
-    /**
      * Checks if the given <tt>detailAddress</tt> exists in the given
      * <tt>contact</tt> details.
      *

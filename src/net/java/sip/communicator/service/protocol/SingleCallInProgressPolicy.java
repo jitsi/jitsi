@@ -124,7 +124,14 @@ public class SingleCallInProgressPolicy
     {
         this.bundleContext = bundleContext;
 
-        this.bundleContext.addServiceListener(listener);
+        if(ProtocolProviderActivator
+            .getConfigurationService()
+            .getBoolean(
+                PNAME_SINGLE_CALL_IN_PROGRESS_POLICY_ENABLED,
+                true))
+        {
+            this.bundleContext.addServiceListener(listener);
+        }
     }
 
     /**
@@ -196,12 +203,7 @@ public class SingleCallInProgressPolicy
 
 
         if (CallState.CALL_INITIALIZATION.equals(ev.getOldValue())
-                && CallState.CALL_IN_PROGRESS.equals(call.getCallState())
-                && ProtocolProviderActivator
-                    .getConfigurationService()
-                        .getBoolean(
-                                PNAME_SINGLE_CALL_IN_PROGRESS_POLICY_ENABLED,
-                                true))
+                && CallState.CALL_IN_PROGRESS.equals(call.getCallState()))
         {
             CallConference conference = call.getConference();
 
@@ -233,6 +235,10 @@ public class SingleCallInProgressPolicy
                 }
             }
         }
+        else if (CallState.CALL_ENDED.equals(ev.getNewValue()))
+        {
+            this.handleCallEvent(CallEvent.CALL_ENDED, call);
+        }
 
         /*
          * Forward to onThePhoneStatusPolicy for which we are proxying the
@@ -262,13 +268,10 @@ public class SingleCallInProgressPolicy
      * @param type one of {@link CallEvent#CALL_ENDED},
      * {@link CallEvent#CALL_INITIATED} and {@link CallEvent#CALL_RECEIVED}
      * which describes the type of the event to be handled
-     * @param ev a <tt>CallEvent</tt> value which describes the change and the
-     * <tt>Call</tt> associated with it
+     * @param call the <tt>Call</tt> instance.
      */
-    private void handleCallEvent(int type, CallEvent ev)
+    private void handleCallEvent(int type, Call call)
     {
-        Call call = ev.getSourceCall();
-
         if(logger.isTraceEnabled())
         {
             logger.trace("Call event fired.");
@@ -289,7 +292,7 @@ public class SingleCallInProgressPolicy
          * Forward to onThePhoneStatusPolicy for which we are proxying the
          * Call-related events.
          */
-        onThePhoneStatusPolicy.handleCallEvent(type, ev);
+        onThePhoneStatusPolicy.handleCallEvent(type, call);
     }
 
     /**
@@ -390,7 +393,7 @@ public class SingleCallInProgressPolicy
             }
         }
 
-        handleCallEvent(CallEvent.CALL_RECEIVED, ev);
+        handleCallEvent(CallEvent.CALL_RECEIVED, call);
     }
 
     /**
@@ -666,10 +669,9 @@ public class SingleCallInProgressPolicy
          * @param type one of {@link CallEvent#CALL_ENDED},
          * {@link CallEvent#CALL_INITIATED} and {@link CallEvent#CALL_RECEIVED}
          * which describes the type of the event to be handled
-         * @param ev a <tt>CallEvent</tt> value which describes the change and
-         * the <tt>Call</tt> associated with it
+         * @param call the <tt>Call</tt> instance.
          */
-        public void handleCallEvent(int type, CallEvent ev)
+        public void handleCallEvent(int type, Call call)
         {
             run();
         }
@@ -1001,9 +1003,12 @@ public class SingleCallInProgressPolicy
          */
         public void callEnded(CallEvent ev)
         {
-            SingleCallInProgressPolicy.this.handleCallEvent(
-                    CallEvent.CALL_ENDED,
-                    ev);
+            /**
+             * Not using call ended, cause the CallListener is removed
+             * when protocol disconnects and it can happen that this is
+             * before the callEnded event in case of running call during
+             * removing an account and this can lead to leaking calls.
+             */
         }
 
         /**
@@ -1076,7 +1081,7 @@ public class SingleCallInProgressPolicy
         {
             SingleCallInProgressPolicy.this.handleCallEvent(
                     CallEvent.CALL_INITIATED,
-                    ev);
+                    ev.getSourceCall());
         }
 
         /**

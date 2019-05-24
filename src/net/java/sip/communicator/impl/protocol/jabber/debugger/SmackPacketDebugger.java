@@ -22,6 +22,10 @@ import net.java.sip.communicator.impl.protocol.jabber.*;
 import org.jitsi.service.packetlogging.*;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.packet.*;
+import org.jivesoftware.smack.tcp.*;
+
+import java.lang.reflect.*;
+import java.net.*;
 
 /**
  * The jabber packet listener that logs the packets to the packet logging
@@ -29,13 +33,11 @@ import org.jivesoftware.smack.packet.*;
  * @author Damian Minkov
  */
 public class SmackPacketDebugger
-    implements PacketListener,
-               PacketInterceptor
 {
     /**
      * The current jabber connection.
      */
-    private Connection connection = null;
+    private XMPPConnection connection = null;
 
     /**
      * Local address for the connection.
@@ -52,6 +54,9 @@ public class SmackPacketDebugger
      */
     private PacketLoggingService packetLogging = null;
 
+    public final Inbound inbound = new Inbound();
+    public final Outbound outbound = new Outbound();
+
     /**
      * Creates the SmackPacketDebugger instance.
      */
@@ -64,80 +69,89 @@ public class SmackPacketDebugger
      * Sets current connection.
      * @param connection the connection.
      */
-    public void setConnection(Connection connection)
+    public void setConnection(XMPPConnection connection)
     {
         this.connection = connection;
     }
 
-    /**
-     * Process the packet that is about to be sent to the server. The intercepted
-     * packet can be modified by the interceptor.<p>
-     * <p/>
-     * Interceptors are invoked using the same thread that requested the packet
-     * to be sent, so it's very important that implementations of this method
-     * not block for any extended period of time.
-     *
-     * @param packet the packet to is going to be sent to the server.
-     */
-    public void interceptPacket(Packet packet)
+    public class Outbound implements StanzaListener
     {
-        try
+        /**
+         * Process the packet that is about to be sent to the server. The intercepted
+         * packet can be modified by the interceptor.<p>
+         * <p/>
+         * Interceptors are invoked using the same thread that requested the packet
+         * to be sent, so it's very important that implementations of this method
+         * not block for any extended period of time.
+         *
+         * @param packet the packet to is going to be sent to the server.
+         */
+        public void processStanza(Stanza packet)
         {
-            if(packetLogging.isLoggingEnabled(
-                    PacketLoggingService.ProtocolName.JABBER)
-                && packet != null)
+            try
             {
-                if(remoteAddress == null)
+                if(packetLogging.isLoggingEnabled(
+                        PacketLoggingService.ProtocolName.JABBER)
+                    && packet != null)
                 {
-                    if (connection.getSocket() != null)
+                    Socket socket = getSocket();
+                    if(remoteAddress == null)
                     {
-                        remoteAddress = connection.getSocket()
-                            .getInetAddress().getAddress();
-                        localAddress = connection.getSocket()
-                            .getLocalAddress().getAddress();
+                        if (socket != null)
+                        {
+                            remoteAddress = socket.getInetAddress().getAddress();
+                            localAddress = socket.getLocalAddress().getAddress();
+                        }
+                        else
+                        {
+                            remoteAddress = new byte[4];
+                            localAddress = new byte[4];
+                        }
+                    }
+
+                    int localPort = 0;
+                    int remotePort = 5222;
+                    if (socket != null)
+                    {
+                        localPort = socket.getLocalPort();
+                    }
+                    if (connection != null)
+                    {
+                        int port = connection.getPort();
+                        if (port > 0)
+                        {
+                            remotePort = port;
+                        }
+                    }
+
+                    byte[] packetBytes;
+
+                    if(packet instanceof Message)
+                    {
+                        packetBytes = cloneAnonyMessage(packet)
+                            .toXML().toString().getBytes("UTF-8");
                     }
                     else
                     {
-                        remoteAddress = new byte[] { 0, 0, 0, 0 };
-                        localAddress = new byte[] { 0, 0, 0, 0 };
+                        packetBytes = packet.toXML().toString().getBytes("UTF-8");
                     }
-                }
 
-                int localPort = 0;
-                int remotePort = 5222;
-                if (connection.getSocket() != null)
-                {
-                    localPort = connection.getSocket().getLocalPort();
-                    remotePort = connection.getPort();
+                    packetLogging.logPacket(
+                            PacketLoggingService.ProtocolName.JABBER,
+                            localAddress,
+                            localPort,
+                            remoteAddress,
+                            remotePort,
+                            PacketLoggingService.TransportName.TCP,
+                            true,
+                            packetBytes
+                        );
                 }
-
-                byte[] packetBytes;
-
-                if(packet instanceof Message)
-                {
-                    packetBytes = cloneAnonyMessage(packet)
-                        .toXML().getBytes("UTF-8");
-                }
-                else
-                {
-                    packetBytes = packet.toXML().getBytes("UTF-8");
-                }
-
-                packetLogging.logPacket(
-                        PacketLoggingService.ProtocolName.JABBER,
-                        localAddress,
-                        localPort,
-                        remoteAddress,
-                        remotePort,
-                        PacketLoggingService.TransportName.TCP,
-                        true,
-                        packetBytes
-                    );
             }
-        }
-        catch(Throwable t)
-        {
-            t.printStackTrace();
+            catch(Throwable t)
+            {
+                t.printStackTrace();
+            }
         }
     }
 
@@ -146,29 +160,25 @@ public class SmackPacketDebugger
      * @param packet
      * @return
      */
-    private Message cloneAnonyMessage(Packet packet)
+    private Message cloneAnonyMessage(Stanza packet)
     {
         Message oldMsg = (Message)packet;
 
         // if the message has no body, or the bodies list is empty
-        if(oldMsg.getBody() == null
-            && (oldMsg.getBodies() == null || oldMsg.getBodies().size() == 0))
+        if(oldMsg.getBody() == null && oldMsg.getBodies().size() == 0)
         {
             return oldMsg;
         }
 
         Message newMsg = new Message();
 
-        newMsg.setPacketID(packet.getPacketID());
+        newMsg.setStanzaId(packet.getStanzaId());
         newMsg.setTo(packet.getTo());
         newMsg.setFrom(packet.getFrom());
 
         // we don't modify them, just use existing
-        for(PacketExtension pex : packet.getExtensions())
+        for(ExtensionElement pex : packet.getExtensions())
             newMsg.addExtension(pex);
-
-        for(String propName : packet.getPropertyNames())
-            newMsg.setProperty(propName, packet.getProperty(propName));
 
         newMsg.setError(packet.getError());
 
@@ -199,58 +209,89 @@ public class SmackPacketDebugger
         return newMsg;
     }
 
-    /**
-     * Process the next packet sent to this packet listener.<p>
-     * <p/>
-     * A single thread is responsible for invoking all listeners, so
-     * it's very important that implementations of this method not block
-     * for any extended period of time.
-     *
-     * @param packet the packet to process.
-     */
-    public void processPacket(Packet packet)
+    public class Inbound implements StanzaListener
     {
-        try
+        /**
+         * Process the next packet sent to this packet listener.<p>
+         * <p/>
+         * A single thread is responsible for invoking all listeners, so
+         * it's very important that implementations of this method not block
+         * for any extended period of time.
+         *
+         * @param packet the packet to process.
+         */
+        public void processStanza(Stanza packet)
         {
-            if(packetLogging.isLoggingEnabled(
-                    PacketLoggingService.ProtocolName.JABBER)
-                && packet != null)
+            try
             {
-                int localPort = 0;
-                int remotePort = 5222;
-                if (connection.getSocket() != null)
+                if(packetLogging.isLoggingEnabled(
+                        PacketLoggingService.ProtocolName.JABBER)
+                    && packet != null)
                 {
-                    localPort = connection.getSocket().getLocalPort();
-                    remotePort = connection.getPort();
-                }
+                    int localPort = 0;
+                    int remotePort = 5222;
+                    Socket socket = getSocket();
+                    if (socket != null)
+                    {
+                        localPort = socket.getLocalPort();
+                    }
 
-                byte[] packetBytes;
+                    if (connection != null)
+                    {
+                        int port = connection.getPort();
+                        if (port > 0)
+                        {
+                            remotePort = port;
+                        }
+                    }
 
-                if(packet instanceof Message)
-                {
-                    packetBytes = cloneAnonyMessage(packet)
-                        .toXML().getBytes("UTF-8");
-                }
-                else
-                {
-                    packetBytes = packet.toXML().getBytes("UTF-8");
-                }
+                    byte[] packetBytes;
 
-                packetLogging.logPacket(
-                    PacketLoggingService.ProtocolName.JABBER,
-                    remoteAddress,
-                    remotePort,
-                    localAddress,
-                    localPort,
-                    PacketLoggingService.TransportName.TCP,
-                    false,
-                    packetBytes
-                );
+                    if(packet instanceof Message)
+                    {
+                        packetBytes = cloneAnonyMessage(packet)
+                            .toXML().toString().getBytes("UTF-8");
+                    }
+                    else
+                    {
+                        packetBytes = packet.toXML().toString().getBytes("UTF-8");
+                    }
+
+                    packetLogging.logPacket(
+                        PacketLoggingService.ProtocolName.JABBER,
+                        remoteAddress,
+                        remotePort,
+                        localAddress,
+                        localPort,
+                        PacketLoggingService.TransportName.TCP,
+                        false,
+                        packetBytes
+                    );
+                }
+            }
+            catch(Throwable t)
+            {
+                t.printStackTrace();
             }
         }
-        catch(Throwable t)
+    }
+
+    private Socket getSocket()
+    {
+        if (this.connection == null)
         {
-            t.printStackTrace();
+            return null;
+        }
+
+        try
+        {
+            Field socket = connection.getClass().getField("socket");
+            socket.setAccessible(true);
+            return (Socket)socket.get(connection);
+        }
+        catch (NoSuchFieldException | IllegalAccessException e)
+        {
+            return null;
         }
     }
 }

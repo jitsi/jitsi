@@ -19,7 +19,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
+import net.java.sip.communicator.impl.protocol.jabber.caps.*;
 import net.java.sip.communicator.service.credentialsstorage.*;
 import net.java.sip.communicator.service.globaldisplaydetails.*;
 import net.java.sip.communicator.service.googlecontacts.*;
@@ -35,6 +35,9 @@ import org.jitsi.service.neomedia.*;
 import org.jitsi.service.packetlogging.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.service.version.*;
+import org.jitsi.service.version.Version;
+import org.jivesoftware.smack.*;
+import org.jivesoftware.smackx.iqversion.*;
 import org.osgi.framework.*;
 
 /**
@@ -149,6 +152,10 @@ public class JabberActivator
      */
     public void start(BundleContext context) throws Exception
     {
+        // Disables unused class, throwing some errors on login (disco-info)
+        SmackConfiguration.addDisabledSmackClass(
+            "org.jivesoftware.smackx.httpfileupload.HttpFileUploadManager");
+
         JabberActivator.bundleContext = context;
 
         Hashtable<String, String> hashtable = new Hashtable<String, String>();
@@ -169,7 +176,13 @@ public class JabberActivator
                     jabberProviderFactory,
                     hashtable);
 
-        EntityCapsManager.setBundleContext(context);
+        Version ver = JabberActivator.getVersionService().getCurrentVersion();
+        String appName = ver.getApplicationName();
+        VersionManager.setAutoAppendSmackVersion(false);
+        VersionManager.setDefaultVersion(
+            appName,
+            ver.toString(),
+            System.getProperty("os.name"));
     }
 
     /**
@@ -261,7 +274,6 @@ public class JabberActivator
         mediaService = null;
         networkAddressManagerService = null;
         credentialsService = null;
-        EntityCapsManager.setBundleContext(null);
     }
 
     /**

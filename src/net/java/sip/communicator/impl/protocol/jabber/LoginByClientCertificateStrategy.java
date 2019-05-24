@@ -21,10 +21,14 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.service.protocol.*;
 
-import org.jitsi.util.*;
+import org.jitsi.utils.logging.*;
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.sasl.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.parts.*;
 
 import javax.net.ssl.*;
+import java.io.*;
 import java.security.*;
 
 /**
@@ -39,15 +43,19 @@ class LoginByClientCertificateStrategy
     private final static Logger logger
         = Logger.getLogger(LoginByClientCertificateStrategy.class);
     private AccountID accountID;
+    private ConnectionConfiguration.Builder ccBuilder;
 
     /**
      * Creates a new instance of this class.
      *
      * @param accountID The account to use for the strategy.
+     * @param ccBuilder
      */
-    public LoginByClientCertificateStrategy(AccountID accountID)
+    public LoginByClientCertificateStrategy(AccountID accountID,
+        ConnectionConfiguration.Builder ccBuilder)
     {
         this.accountID = accountID;
+        this.ccBuilder = ccBuilder;
     }
 
     /**
@@ -71,6 +79,9 @@ class LoginByClientCertificateStrategy
      */
     public boolean loginPreparationSuccessful()
     {
+        ccBuilder.allowEmptyOrNullUsernames()
+            .setSecurityMode(ConnectionConfiguration.SecurityMode.required)
+            .addEnabledSaslMechanism(SASLMechanism.EXTERNAL);
         return true;
     }
 
@@ -90,7 +101,7 @@ class LoginByClientCertificateStrategy
      * customized TrustManager and a KeyManager based on the selected client
      * certificate.
      *
-     * @param certificateService  certificate service to retrieve the
+     * @param cs  certificate service to retrieve the
      *                            SSL context
      * @param trustManager Trust manager to use for the context
      * @return Configured and initialized SSL Context
@@ -110,24 +121,21 @@ class LoginByClientCertificateStrategy
      * mechanism.
      *
      * @param connection The connection on which the login is performed.
-     * @param userName The username for the login.
-     * @param resource The XMPP resource.
+     * @param jid the full JID to use
      * @return true when the login succeeded, false when the certificate wasn't
      * accepted.
      * @throws XMPPException
      */
-    public boolean login(Connection connection, String userName,
-            String resource)
-        throws XMPPException
+    @Override
+    public boolean login(AbstractXMPPConnection connection, EntityFullJid jid)
+        throws XMPPException, InterruptedException, IOException, SmackException
     {
-        SASLAuthentication.supportSASLMechanism("EXTERNAL", 0);
-
         // user/password MUST be empty. In fact they shouldn't be
         // necessary at all because the user name is derived from the
         // client certificate.
         try
         {
-            connection.login("", "", resource);
+            connection.login("", "", jid.getResourceOrEmpty());
             return true;
         }
         catch (XMPPException ex)
@@ -140,5 +148,11 @@ class LoginByClientCertificateStrategy
 
             throw ex;
         }
+    }
+
+    @Override
+    public ConnectionConfiguration.Builder getConnectionConfigurationBuilder()
+    {
+        return ccBuilder;
     }
 }

@@ -38,8 +38,8 @@ import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
-import org.jitsi.service.neomedia.MediaType; // disambiguate
 import org.jitsi.service.neomedia.control.*;
+import org.jitsi.utils.MediaType; // disambiguate
 
 /**
  * Our SIP implementation of the default CallPeer;
@@ -1540,7 +1540,7 @@ public class CallPeerSipImpl
             // we must set the value of the parameter as null
             // in order to avoid wrong generation of the tag - ';isfocus='
             // as it must be ';isfocus'
-            if (getCall().isConferenceFocus())
+            if (getCall() != null && getCall().isConferenceFocus())
                 contactHeader.setParameter("isfocus", null);
             else
                 contactHeader.removeParameter("isfocus");

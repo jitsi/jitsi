@@ -19,15 +19,14 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
+import org.jitsi.xmpp.extensions.colibri.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.media.*;
-import net.java.sip.communicator.util.*;
-
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smack.filter.*;
+import org.jivesoftware.smack.iqrequest.*;
 import org.jivesoftware.smack.packet.*;
+import org.jxmpp.jid.*;
 
 /**
  * Implements <tt>OperationSetVideoBridge</tt> for Jabber.
@@ -36,18 +35,10 @@ import org.jivesoftware.smack.packet.*;
  * @author Lyubomir Marinov
  */
 public class OperationSetVideoBridgeImpl
+    extends AbstractIqRequestHandler
     implements OperationSetVideoBridge,
-               PacketFilter,
-               PacketListener,
                RegistrationStateChangeListener
 {
-    /**
-     * The <tt>Logger</tt> used by the <tt>OperationSetVideoBridgeImpl</tt>
-     * class and its instances for logging output.
-     */
-    private static final Logger logger
-        = Logger.getLogger(OperationSetVideoBridgeImpl.class);
-
     /**
      * The <tt>ProtocolProviderService</tt> implementation which initialized
      * this instance, owns it and is often referred to as its parent.
@@ -64,25 +55,13 @@ public class OperationSetVideoBridgeImpl
     public OperationSetVideoBridgeImpl(
             ProtocolProviderServiceJabberImpl protocolProvider)
     {
+        super(
+            ColibriConferenceIQ.ELEMENT_NAME,
+            ColibriConferenceIQ.NAMESPACE,
+            IQ.Type.set,
+            Mode.async);
         this.protocolProvider = protocolProvider;
         this.protocolProvider.addRegistrationStateChangeListener(this);
-    }
-
-    /**
-     * Implements {@link PacketFilter}. Determines whether this instance is
-     * interested in a specific {@link Packet}.
-     * <tt>OperationSetVideoBridgeImpl</tt> returns <tt>true</tt> if the
-     * specified <tt>packet</tt> is a {@link ColibriConferenceIQ}; otherwise,
-     * <tt>false</tt>.
-     *
-     * @param packet the <tt>Packet</tt> to be determined whether this instance
-     * is interested in it
-     * @return <tt>true</tt> if the specified <tt>packet</tt> is a
-     * <tt>ColibriConferenceIQ</tt>; otherwise, <tt>false</tt>
-     */
-    public boolean accept(Packet packet)
-    {
-        return (packet instanceof ColibriConferenceIQ);
     }
 
     /**
@@ -144,7 +123,7 @@ public class OperationSetVideoBridgeImpl
      */
     public boolean isActive()
     {
-        String jitsiVideobridge = protocolProvider.getJitsiVideobridge();
+        Jid jitsiVideobridge = protocolProvider.getJitsiVideobridge();
 
         return ((jitsiVideobridge != null) && (jitsiVideobridge.length() > 0));
     }
@@ -170,7 +149,7 @@ public class OperationSetVideoBridgeImpl
          * updates in the states of (colibri) conferences organized by the
          * application.
          */
-        if (IQ.Type.SET.equals(conferenceIQ.getType())
+        if (IQ.Type.set.equals(conferenceIQ.getType())
                 && conferenceIQ.getID() != null)
         {
             OperationSetBasicTelephony<?> basicTelephony
@@ -210,61 +189,12 @@ public class OperationSetVideoBridgeImpl
         }
     }
 
-    /**
-     * Implements {@link PacketListener}. Notifies this instance that a specific
-     * {@link Packet} (which this instance has already expressed interest into
-     * by returning <tt>true</tt> from {@link #accept(Packet)}) has been
-     * received.
-     *
-     * @param packet the <tt>Packet</tt> which has been received and which this
-     * instance is given a chance to process
-     */
-    public void processPacket(Packet packet)
+    @Override
+    public IQ handleIQRequest(IQ iqRequest)
     {
-        /*
-         * As we do elsewhere, acknowledge the receipt of the Packet first and
-         * then go about our business with it.
-         */
-        IQ iq = (IQ) packet;
-
-        if (iq.getType() == IQ.Type.SET)
-            protocolProvider.getConnection().sendPacket(IQ.createResultIQ(iq));
-
-        /*
-         * Now that the acknowledging is out of the way, do go about our
-         * business with the Packet.
-         */
-        ColibriConferenceIQ conferenceIQ = (ColibriConferenceIQ) iq;
-        boolean interrupted = false;
-
-        try
-        {
-            processColibriConferenceIQ(conferenceIQ);
-        }
-        catch (Throwable t)
-        {
-            logger.error(
-                    "An error occurred during the processing of a "
-                        + packet.getClass().getName() + " packet",
-                    t);
-
-            if (t instanceof InterruptedException)
-            {
-                /*
-                 * We cleared the interrupted state of the current Thread by
-                 * catching the InterruptedException. However, we do not really
-                 * care whether the current Thread has been interrupted - we
-                 * caught the InterruptedException because we want to swallow
-                 * any Throwable. Consequently, we should better restore the
-                 * interrupted state.
-                 */
-                interrupted = true;
-            }
-            else if (t instanceof ThreadDeath)
-                throw (ThreadDeath) t;
-        }
-        if (interrupted)
-            Thread.currentThread().interrupt();
+        ColibriConferenceIQ conferenceIQ = (ColibriConferenceIQ) iqRequest;
+        processColibriConferenceIQ(conferenceIQ);
+        return IQ.createResultIQ(iqRequest);
     }
 
     /**
@@ -283,14 +213,14 @@ public class OperationSetVideoBridgeImpl
 
         if (RegistrationState.REGISTERED.equals(registrationState))
         {
-            protocolProvider.getConnection().addPacketListener(this, this);
+            protocolProvider.getConnection().registerIQRequestHandler(this);
         }
         else if (RegistrationState.UNREGISTERED.equals(registrationState))
         {
-            Connection connection = protocolProvider.getConnection();
+            XMPPConnection connection = protocolProvider.getConnection();
 
             if (connection != null)
-                connection.removePacketListener(this);
+                connection.unregisterIQRequestHandler(this);
         }
     }
 }

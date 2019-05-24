@@ -416,33 +416,6 @@ public class UriHandlerJabberImpl
     }
 
     /**
-     * Informs the user that they need to be registered before chatting and
-     * asks them whether they would like us to do it for them.
-     *
-     * @param uri the uri that the user would like us to chat with after
-     * registering.
-     * @param provider the provider that we may have to reregister.
-     */
-    private void promptForRegistration(
-            String uri,
-            ProtocolProviderService provider)
-    {
-        int answer
-            = JabberActivator
-                .getUIService()
-                    .getPopupDialog()
-                        .showConfirmPopupDialog(
-                                "You need to be online in order to chat and"
-                                    + " your account is currently offline. Do"
-                                    + " you want to connect now?",
-                                "Account is currently offline",
-                                PopupDialog.YES_NO_OPTION);
-
-        if (answer == PopupDialog.YES_OPTION)
-            new ProtocolRegistrationThread(uri, provider).start();
-    }
-
-    /**
      * The point of implementing a service listener here is so that we would
      * only register our own uri handling service and thus only handle URIs
      * while the factory is available as an OSGi service. We remove ourselves
@@ -493,100 +466,6 @@ public class UriHandlerJabberImpl
     }
 
     /**
-     * We use this class when launching a provider registration by ourselves in
-     * order to track for provider registration states and retry uri handling,
-     * once the provider is registered.
-     *
-     */
-    private class ProtocolRegistrationThread
-        extends Thread
-        implements RegistrationStateChangeListener
-    {
-
-        private ProtocolProviderService handlerProvider = null;
-
-        /**
-         * The URI that we'd need to chat.
-         */
-        private String uri = null;
-
-        /**
-         * Configures this thread register our parent provider and re-attempt
-         * connection to the specified <tt>uri</tt>.
-         *
-         * @param uri the uri that we need to handle.
-         * @param handlerProvider the provider that we are going to make
-         *            register and that we are going to use to handle the
-         *            <tt>uri</tt>.
-         */
-        public ProtocolRegistrationThread(String uri,
-            ProtocolProviderService handlerProvider)
-        {
-            super("UriHandlerProviderRegistrationThread:uri=" + uri);
-            this.uri = uri;
-            this.handlerProvider = handlerProvider;
-        }
-
-        /**
-         * Starts the registration process, ads this class as a registration
-         * listener and then tries to rehandle the uri this thread was initiated
-         * with.
-         */
-        @Override
-        public void run()
-        {
-            handlerProvider.addRegistrationStateChangeListener(this);
-
-            try
-            {
-                handlerProvider.register(JabberActivator.getUIService()
-                    .getDefaultSecurityAuthority(handlerProvider));
-            }
-            catch (OperationFailedException exc)
-            {
-                logger.error("Failed to manually register provider.");
-                logger.warn(exc.getMessage(), exc);
-            }
-        }
-
-        /**
-         * If the parent provider passes into the registration state, the method
-         * re-handles the URI that this thread was initiated with. The method
-         * would only rehandle the uri if the event shows successful
-         * registration. It would ignore intermediate states such as
-         * REGISTERING. Disconnection and failure events would simply cause this
-         * listener to remove itself from the list of registration listeners.
-         *
-         * @param evt the <tt>RegistrationStateChangeEvent</tt> that this thread
-         *            was initiated with.
-         */
-        public void registrationStateChanged(RegistrationStateChangeEvent evt)
-        {
-            if (evt.getNewState() == RegistrationState.REGISTERED)
-            {
-                Thread uriRehandleThread = new Thread()
-                {
-                    @Override
-                    public void run()
-                    {
-                        handleUri(uri);
-                    }
-                };
-
-                uriRehandleThread.setName("UriRehandleThread:uri=" + uri);
-                uriRehandleThread.start();
-            }
-
-            // we're only interested in a single event so we stop listening
-            // (unless this was a REGISTERING notification)
-            if (evt.getNewState() == RegistrationState.REGISTERING)
-                return;
-
-            handlerProvider.removeRegistrationStateChangeListener(this);
-        }
-    }
-
-    /**
      * Returns the default provider that we are supposed to handle URIs through
      * or null if there aren't any. Depending on the implementation this method
      * may require user intervention so make sure you don't rely on a quick
@@ -615,7 +494,7 @@ public class UriHandlerJabberImpl
         // if we only have one provider - select it
         if (registeredAccounts.size() == 1)
         {
-            ServiceReference providerReference =
+            ServiceReference<?> providerReference =
                 protoFactory.getProviderForAccount(registeredAccounts.get(0));
 
             ProtocolProviderService provider =
@@ -630,7 +509,7 @@ public class UriHandlerJabberImpl
             new ArrayList<ProviderComboBoxEntry>();
         for (AccountID accountID : registeredAccounts)
         {
-            ServiceReference providerReference =
+            ServiceReference<?> providerReference =
                 protoFactory.getProviderForAccount(accountID);
 
             ProtocolProviderService provider =

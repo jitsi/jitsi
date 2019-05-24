@@ -27,7 +27,7 @@ import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.jabber.*;
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 /**
  *
@@ -59,10 +59,6 @@ public class ConnectionPanel
 
     private final JCheckBox sendKeepAliveBox = new SIPCommCheckBox(
         Resources.getString("plugin.jabberaccregwizz.ENABLE_KEEP_ALIVE"));
-
-    private final JCheckBox gmailNotificationsBox = new SIPCommCheckBox(
-        Resources.getString(
-            "plugin.jabberaccregwizz.ENABLE_GMAIL_NOTIFICATIONS"));
 
     private final JCheckBox googleContactsBox = new SIPCommCheckBox(
             Resources.getString(
@@ -220,7 +216,6 @@ public class ConnectionPanel
         JPanel checkBoxesPanel
             = new TransparentPanel(new GridLayout(0, 1, 10, 10));
         //checkBoxesPanel.add(sendKeepAliveBox);
-        checkBoxesPanel.add(gmailNotificationsBox);
         checkBoxesPanel.add(googleContactsBox);
         checkBoxesPanel.add(allowNonSecureBox);
         checkBoxesPanel.add(disableCarbon);
@@ -426,28 +421,6 @@ public class ConnectionPanel
     void setSendKeepAlive(boolean isSendKeepAlive)
     {
         sendKeepAliveBox.setSelected(isSendKeepAlive);
-    }
-
-    /**
-     * Returns <tt>true</tt> if the "gmail notifications" check box is selected,
-     * otherwise returns <tt>false</tt>.
-     * @return <tt>true</tt> if the "gmail notifications" check box is selected,
-     * otherwise returns <tt>false</tt>
-     */
-    boolean isGmailNotificationsEnabled()
-    {
-        return gmailNotificationsBox.isSelected();
-    }
-
-    /**
-     * Selects/unselects the "gmail notifications" check box according to the
-     * given <tt>isEnabled</tt> property.
-     * @param isEnabled indicates if the "gmail notifications"
-     * check box should be selected or not
-     */
-    void setGmailNotificationsEnabled(boolean isEnabled)
-    {
-        gmailNotificationsBox.setSelected(isEnabled);
     }
 
     /**

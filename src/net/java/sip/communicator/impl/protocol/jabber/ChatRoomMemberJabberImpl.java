@@ -20,9 +20,14 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.jabber.*;
 import net.java.sip.communicator.service.protocol.jabberconstants.*;
+import net.java.sip.communicator.service.protocol.event.*;
 
-import org.jivesoftware.smack.util.*;
+import net.java.sip.communicator.util.*;
+import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smackx.muc.*;
+import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.impl.*;
+import org.jxmpp.jid.parts.Resourcepart;
 
 /**
  * A Jabber implementation of the chat room member.
@@ -46,12 +51,12 @@ public class ChatRoomMemberJabberImpl
      * The jabber id of the member (will only be visible to members with
      * necessary permissions)
      */
-    private final String jabberID;
+    private final Jid jabberID;
 
     /**
      * The nick name that this member is using inside its containing chat room.
      */
-    private String nickName;
+    private Resourcepart nickName;
 
     /**
      * The email that this member is using inside its containing chat room.
@@ -62,6 +67,12 @@ public class ChatRoomMemberJabberImpl
      * The URL of the avatar of this member.
      */
     private String avatarUrl;
+
+
+    /**
+     * The statistics id of this member.
+     */
+    private String statisticsID;
 
     /**
      * The contact from our server stored contact list corresponding to this
@@ -80,6 +91,12 @@ public class ChatRoomMemberJabberImpl
     private String displayName;
 
     /**
+     * Store the last {@link Presence} which was used to cause a
+     * {@link ChatRoomMemberPresenceChangeEvent#MEMBER_UPDATED}
+     */
+    private Presence lastPresence = null;
+
+    /**
      * Creates a jabber chat room member with the specified containing chat
      * room parent.
      * @param containingChatRoom the room that this
@@ -90,8 +107,8 @@ public class ChatRoomMemberJabberImpl
      * otherwise.
      */
     public ChatRoomMemberJabberImpl(ChatRoomJabberImpl containingChatRoom,
-                                    String             nickName,
-                                    String             jabberID)
+                                    Resourcepart nickName,
+                                    Jid jabberID)
     {
         this.jabberID = jabberID;
         this.nickName = nickName;
@@ -103,7 +120,7 @@ public class ChatRoomMemberJabberImpl
                     OperationSetPersistentPresence.class);
 
         this.contact = presenceOpSet.findContactByID(
-            StringUtils.parseBareAddress(jabberID));
+                jabberID.asBareJid().toString());
 
         // If we have found a contact we set also its avatar.
         if (contact != null)
@@ -128,7 +145,7 @@ public class ChatRoomMemberJabberImpl
      * Returns the jabber id of the member.
      * @return the jabber id.
      */
-    public String getJabberID()
+    public Jid getJabberID()
     {
         return jabberID;
     }
@@ -142,7 +159,7 @@ public class ChatRoomMemberJabberImpl
      */
     public String getContactAddress()
     {
-        return nickName;
+        return jabberID.toString();
     }
 
     /**
@@ -154,6 +171,11 @@ public class ChatRoomMemberJabberImpl
      */
     public String getName()
     {
+        return nickName.toString();
+    }
+
+    public Resourcepart getNameAsResourcepart()
+    {
         return nickName;
     }
 
@@ -161,7 +183,7 @@ public class ChatRoomMemberJabberImpl
      * Update the name of this parcipant
      * @param newNick the newNick of the participant
      */
-    protected void setName(String newNick)
+    protected void setName(Resourcepart newNick)
     {
         if ((newNick == null) || !(newNick.length() > 0))
             throw new IllegalArgumentException(
@@ -193,7 +215,8 @@ public class ChatRoomMemberJabberImpl
         {
             Occupant o =
                 containingRoom.getMultiUserChat().getOccupant(
-                    containingRoom.getIdentifier() + "/" + nickName);
+                    JidCreate.entityFullFrom(
+                        containingRoom.getIdentifierAsJid(), nickName));
 
             if(o == null)
             {
@@ -336,5 +359,44 @@ public class ChatRoomMemberJabberImpl
     void setAvatarUrl(String avatarUrl)
     {
         this.avatarUrl = avatarUrl;
+    }
+
+    /**
+     * @return the statistics ID of this {@link ChatRoomMember}.
+     */
+    public String getStatisticsID()
+    {
+        return this.statisticsID;
+    }
+
+    /**
+     * Sets the avatar URL of this {@link ChatRoomMember}.
+     * @param id the value to set.
+     */
+    void setStatisticsID(String id)
+    {
+        this.statisticsID = id;
+    }
+
+    /**
+     * Set the {@link Presence} which is going to cause a
+     * {@link ChatRoomMemberPresenceChangeEvent#MEMBER_UPDATED}
+     *
+     * @param presence the presence
+     */
+    public void setLastPresence(Presence presence)
+    {
+        lastPresence = presence;
+    }
+
+    /**
+     * Get the {@link Presence} which has caused a
+     * {@link ChatRoomMemberPresenceChangeEvent#MEMBER_UPDATED} event
+     *
+     * @return the presence
+     */
+    public Presence getLastPresence()
+    {
+        return lastPresence;
     }
 }

@@ -82,7 +82,8 @@ public interface IncomingFileTransferRequest
     /**
      * Function called to refuse the file.
      */
-    public void rejectFile();
+    public void rejectFile()
+        throws OperationFailedException;
 
     /**
      * Returns the thumbnail contained in this request.

@@ -29,7 +29,10 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
+import org.jxmpp.jid.Jid;
+import org.jxmpp.jid.impl.JidCreate;
+import org.jxmpp.stringprep.XmppStringprepException;
 
 /**
  * ICE configuration panel.
@@ -679,7 +682,7 @@ public class IceConfigPanel
             {
                 JingleNodeDescriptor jn = (JingleNodeDescriptor) value;
 
-                this.setText(jn.getJID());
+                this.setText(jn.getJID().toString());
 
                 if (isSelected)
                 {
@@ -1080,7 +1083,7 @@ public class IceConfigPanel
         /**
          * Previous JID (in case of edit).
          */
-        private String previousJID = null;
+        private Jid previousJID = null;
 
         /**
          * Creates a new JNConfigDialog with filled in values.
@@ -1089,12 +1092,12 @@ public class IceConfigPanel
          * @param isRelaySupport a <tt>boolean</tt> indicating whether the node
          * supports relay
          */
-        public JNConfigDialog(String  address, boolean isRelaySupport)
+        public JNConfigDialog(Jid address, boolean isRelaySupport)
         {
             this(true);
 
             previousJID = address;
-            addressField.setText(address);
+            addressField.setText(address.toString());
             supportRelayCheckBox.setSelected(isRelaySupport);
         }
 
@@ -1138,14 +1141,19 @@ public class IceConfigPanel
             {
                 public void actionPerformed(ActionEvent e)
                 {
-                    String address = addressField.getText();
+                    Jid address;
+                    try
+                    {
+                        address = JidCreate.from(addressField.getText());
+                    }
+                    catch (XmppStringprepException e1)
+                    {
+                        loadErrorMessage(Resources.getString(
+                            "plugin.jabberaccregwizz.NO_STUN_ADDRESS"));
+                        return;
+                    }
+
                     JingleNodeDescriptor jnServer = null;
-
-                    String errorMessage = null;
-                    if (address == null || address.length() <= 0)
-                        errorMessage = Resources.getString(
-                            "plugin.jabberaccregwizz.NO_STUN_ADDRESS");
-
                     if(isEditMode)
                     {
                         jnServer = getJingleNodes(previousJID);
@@ -1155,6 +1163,7 @@ public class IceConfigPanel
                         jnServer = getJingleNodes(address);
                     }
 
+                    String errorMessage = null;
                     if(jnServer != null && !isEditMode)
                     {
                         errorMessage = Resources.getString(
@@ -1319,20 +1328,20 @@ public class IceConfigPanel
      * Indicates if a JingleNodes with the given <tt>address</tt> already exists
      * in the additional stun servers table.
      *
-     * @param address the JingleNodes address to check
+     * @param previousJID the JingleNodes address to check
      *
      * @return <tt>JingleNodesDescriptor</tt> if a Jingle Node with the given
      * <tt>address</tt> already exists in the table, otherwise returns
      * <tt>null</tt>
      */
-    protected JingleNodeDescriptor getJingleNodes(String address)
+    protected JingleNodeDescriptor getJingleNodes(Jid previousJID)
     {
         for (int i = 0; i < jnTableModel.getRowCount(); i++)
         {
             JingleNodeDescriptor jn
                 = (JingleNodeDescriptor) jnTableModel.getValueAt(i, 0);
 
-            if (jn.getJID().equalsIgnoreCase(address))
+            if (jn.getJID().equals(previousJID))
                 return jn;
         }
         return null;

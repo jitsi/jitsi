@@ -26,6 +26,7 @@ import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.recording.*;
+import org.jitsi.utils.*;
 
 /**
  * Represents a default implementation of <tt>OperationSetBasicTelephony</tt> in

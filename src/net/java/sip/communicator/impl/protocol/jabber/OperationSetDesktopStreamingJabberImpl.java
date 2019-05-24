@@ -24,6 +24,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 
 import org.jitsi.service.neomedia.*;
+import org.jitsi.utils.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;
 
@@ -199,8 +200,7 @@ public class OperationSetDesktopStreamingJabberImpl
                                      boolean allowed)
         throws OperationFailedException
     {
-        AbstractCallJabberGTalkImpl<?> callImpl
-            = (AbstractCallJabberGTalkImpl<?>) call;
+        CallJabberImpl callImpl = (CallJabberImpl) call;
         MediaUseCase useCase = getMediaUseCase();
 
         if (mediaDevice == null)
@@ -307,10 +307,8 @@ public class OperationSetDesktopStreamingJabberImpl
      */
     public void movePartialDesktopStreaming(Call call, int x, int y)
     {
-        AbstractCallJabberGTalkImpl<?> callImpl
-            = (AbstractCallJabberGTalkImpl<?>) call;
-        AbstractCallPeerJabberGTalkImpl<?,?,?> callPeerImpl
-            = callImpl.getCallPeers().next();
+        CallJabberImpl callImpl = (CallJabberImpl) call;
+        CallPeerJabberImpl callPeerImpl = callImpl.getCallPeers().next();
         VideoMediaStream videoStream
             = (VideoMediaStream)
                 callPeerImpl.getMediaHandler().getStream(MediaType.VIDEO);

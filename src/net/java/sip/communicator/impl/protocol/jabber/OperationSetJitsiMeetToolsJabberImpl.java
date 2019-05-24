@@ -63,7 +63,7 @@ public class OperationSetJitsiMeetToolsJabberImpl
      */
     @Override
     public void sendPresenceExtension(ChatRoom chatRoom,
-                                      PacketExtension extension)
+                                      ExtensionElement extension)
     {
         ((ChatRoomJabberImpl)chatRoom).sendPresenceExtension(extension);
     }
@@ -73,7 +73,7 @@ public class OperationSetJitsiMeetToolsJabberImpl
      */
     @Override
     public void removePresenceExtension(ChatRoom chatRoom,
-                                        PacketExtension extension)
+                                        ExtensionElement extension)
     {
         ((ChatRoomJabberImpl)chatRoom).removePresenceExtension(extension);
     }

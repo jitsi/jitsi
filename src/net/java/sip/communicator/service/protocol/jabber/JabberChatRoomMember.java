@@ -18,6 +18,7 @@
 package net.java.sip.communicator.service.protocol.jabber;
 
 import net.java.sip.communicator.service.protocol.*;
+import org.jxmpp.jid.*;
 
 /**
  * {@link ChatRoomMember} interface extension that provides additional
@@ -33,5 +34,5 @@ public interface JabberChatRoomMember
      * @return the Jabber ID or <tt>null</tt> if we don't have enough
      *         permissions to look up user's JID.
      */
-    public String getJabberID();
+    Jid getJabberID();
 }

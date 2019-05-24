@@ -23,10 +23,10 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.List;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.ContentPacketExtension.SendersEnum;
-import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
+import org.jitsi.xmpp.extensions.colibri.*;
+import org.jitsi.xmpp.extensions.jingle.*;
+import org.jitsi.xmpp.extensions.jingle.ContentPacketExtension.SendersEnum;
+import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.JingleUtils;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
@@ -35,7 +35,12 @@ import org.jitsi.service.libjitsi.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jitsi.utils.*;
+import org.jivesoftware.smack.SmackException.*;
+import org.jivesoftware.smackx.disco.packet.*;
+import org.jxmpp.jid.*;
+
+import ch.imvs.sdes4j.srtp.*;
 
 /**
  * An XMPP specific extension of the generic media handler.
@@ -46,7 +51,7 @@ import org.jivesoftware.smackx.packet.*;
  * @author Boris Grozev
  */
 public class CallPeerMediaHandlerJabberImpl
-    extends AbstractCallPeerMediaHandlerJabberGTalkImpl<CallPeerJabberImpl>
+    extends CallPeerMediaHandler<CallPeerJabberImpl>
 {
     /**
      * The <tt>Logger</tt> used by the <tt>CallPeerMediaHandlerJabberImpl</tt>
@@ -142,6 +147,12 @@ public class CallPeerMediaHandlerJabberImpl
     private final Object supportedTransportsSyncRoot = new Object();
 
     /**
+     * Indicates if the <tt>CallPeer</tt> will support </tt>inputevt</tt>
+     * extension (i.e. will be able to be remote-controlled).
+     */
+    private boolean localInputEvtAware = false;
+
+    /**
      * Creates a new handler that will be managing media streams for
      * <tt>peer</tt>.
      *
@@ -150,8 +161,7 @@ public class CallPeerMediaHandlerJabberImpl
      */
     public CallPeerMediaHandlerJabberImpl(CallPeerJabberImpl peer)
     {
-        super(peer);
-
+        super(peer, peer);
         qualityControls = new QualityControlWrapper(peer);
     }
 
@@ -295,16 +305,14 @@ public class CallPeerMediaHandlerJabberImpl
 
             // DTLS-SRTP
             setDtlsEncryptionOnContent(mediaType, content, null);
-            /*
-             * Neither SDES nor ZRTP is supported in telephony conferences
-             * utilizing the server-side technology Jitsi Videobridge yet.
-             */
+
+            // Neither SDES nor ZRTP is supported in telephony conferences
+            // utilizing the server-side technology Jitsi Videobridge yet.
             if (!call.getConference().isJitsiVideobridge())
             {
                 // SDES
-                // It is important to set SDES before ZRTP in order to make
-                // GTALK application able to work with SDES.
                 setSDesEncryptionOnDescription(mediaType, description, null);
+
                 // ZRTP
                 setZrtpEncryptionOnDescription(mediaType, description, null);
             }
@@ -437,8 +445,6 @@ public class CallPeerMediaHandlerJabberImpl
                     if (!jitsiVideobridge)
                     {
                         // SDES
-                        // It is important to set SDES before ZRTP in order to
-                        // make GTALK application able to work with SDES.
                         setSDesEncryptionOnDescription(
                                 mediaType,
                                 description,
@@ -991,7 +997,7 @@ public class CallPeerMediaHandlerJabberImpl
 
                         if (call != null)
                         {
-                            String jitsiVideobridge
+                            Jid jitsiVideobridge
                                 = peer.getCall().getJitsiVideobridge();
 
                             /*
@@ -1536,7 +1542,7 @@ public class CallPeerMediaHandlerJabberImpl
             addZrtpAdvertisedEncryptions(true, description, mediaType);
             addSDesAdvertisedEncryptions(true, description, mediaType);
         }
-        addDtlsAdvertisedEncryptions(true, content, mediaType);
+        addDtlsAdvertisedEncryptions(true, content, mediaType, false);
 
         StreamConnector connector
             = transportManager.getStreamConnector(mediaType);
@@ -1663,8 +1669,7 @@ public class CallPeerMediaHandlerJabberImpl
                IllegalArgumentException
     {
         // prepare to generate answers to all the incoming descriptions
-        List<ContentPacketExtension> answer
-            = new ArrayList<ContentPacketExtension>(offer.size());
+        List<ContentPacketExtension> answer = new ArrayList<>(offer.size());
         boolean atLeastOneValidDescription = false;
 
         for (ContentPacketExtension content : offer)
@@ -1750,6 +1755,14 @@ public class CallPeerMediaHandlerJabberImpl
              */
             setTransportManager(transport.getNamespace());
 
+            boolean rtcpmux = false;
+            if (!transport.getChildExtensionsOfType(
+                    RtcpmuxPacketExtension.class).isEmpty())
+            {
+                rtcpmux = true;
+                getTransportManager().setRtcpmux(true);
+            }
+
             if (mutuallySupportedFormats.isEmpty()
                     || (devDirection == MediaDirection.INACTIVE)
                     || (targetDataPort == 0))
@@ -1784,7 +1797,8 @@ public class CallPeerMediaHandlerJabberImpl
             setAndAddPreferredEncryptionProtocol(
                     mediaType,
                     ourContent,
-                    content);
+                    content,
+                    rtcpmux);
 
             // Got a content which has inputevt. It means that the peer requests
             // a desktop sharing session so tell it we support inputevt.
@@ -1810,21 +1824,28 @@ public class CallPeerMediaHandlerJabberImpl
                     logger);
         }
 
+        TransportInfoSender infoSender = new TransportInfoSender()
+        {
+            @Override
+            public void sendTransportInfo(
+                Iterable<ContentPacketExtension> contents)
+            {
+                try
+                {
+                    getPeer().sendTransportInfo(contents);
+                }
+                catch (NotConnectedException | InterruptedException e)
+                {
+                    logger.error("Could not send transport info", e);
+                }
+            }
+        };
+
         /*
          * In order to minimize post-pickup delay, start establishing the
          * connectivity prior to ringing.
          */
-        harvestCandidates(
-                offer,
-                answer,
-                new TransportInfoSender()
-                        {
-                            public void sendTransportInfo(
-                                    Iterable<ContentPacketExtension> contents)
-                            {
-                                getPeer().sendTransportInfo(contents);
-                            }
-                        });
+        harvestCandidates(offer, answer, infoSender);
 
         /*
          * While it may sound like we can completely eliminate the post-pickup
@@ -2003,6 +2024,7 @@ public class CallPeerMediaHandlerJabberImpl
      * and <tt>false</tt> if they've just put us off hold.
      */
     public void setRemotelyOnHold(boolean onHold)
+        throws NotConnectedException, InterruptedException
     {
         this.remotelyOnHold = onHold;
 
@@ -2261,6 +2283,7 @@ public class CallPeerMediaHandlerJabberImpl
      */
     @Override
     public void setLocallyOnHold(boolean locallyOnHold)
+        throws OperationFailedException
     {
         CallPeerJabberImpl peer = getPeer();
 
@@ -2283,10 +2306,21 @@ public class CallPeerMediaHandlerJabberImpl
                                 ? MediaDirection.INACTIVE
                                 : MediaDirection.SENDRECV;
 
-                        peer.getCall().setChannelDirection(
-                                channel.getID(),
-                                mediaType,
-                                direction);
+                        try
+                        {
+                            peer.getCall().setChannelDirection(
+                                    channel.getID(),
+                                    mediaType,
+                                    direction);
+                        }
+                        catch (NotConnectedException | InterruptedException e)
+                        {
+                            throw new OperationFailedException(
+                                "Could not send the channel direction",
+                                OperationFailedException.GENERAL_ERROR,
+                                e
+                            );
+                        }
                     }
                 }
             }
@@ -2310,7 +2344,8 @@ public class CallPeerMediaHandlerJabberImpl
     private boolean addDtlsAdvertisedEncryptions(
             boolean isInitiator,
             ContentPacketExtension content,
-            MediaType mediaType)
+            MediaType mediaType,
+            boolean rtcpmux)
     {
         if (getPeer().isJitsiVideobridge())
         {
@@ -2327,7 +2362,8 @@ public class CallPeerMediaHandlerJabberImpl
                 addDtlsAdvertisedEncryptions(
                         isInitiator,
                         remoteTransport,
-                        mediaType);
+                        mediaType,
+                        rtcpmux);
         }
     }
 
@@ -2343,7 +2379,8 @@ public class CallPeerMediaHandlerJabberImpl
     boolean addDtlsAdvertisedEncryptions(
             boolean isInitiator,
             IceUdpTransportPacketExtension remoteTransport,
-            MediaType mediaType)
+            MediaType mediaType,
+            boolean rtcpmux)
     {
         SrtpControls srtpControls = getSrtpControls();
         boolean b = false;
@@ -2383,6 +2420,8 @@ public class CallPeerMediaHandlerJabberImpl
                     DtlsControl dtlsControl;
                     DtlsControl.Setup setup;
 
+                    // TODO Read the setup from the remote DTLS fingerprint
+                    // packet extension.
                     if (isInitiator)
                     {
                         dtlsControl
@@ -2405,6 +2444,10 @@ public class CallPeerMediaHandlerJabberImpl
                     {
                         dtlsControl.setRemoteFingerprints(remoteFingerprints);
                         dtlsControl.setSetup(setup);
+                        if (rtcpmux)
+                        {
+                            dtlsControl.setRtcpmux(true);
+                        }
                         removeAndCleanupOtherSrtpControls(
                                 mediaType,
                                 SrtpControlType.DTLS_SRTP);
@@ -2446,7 +2489,8 @@ public class CallPeerMediaHandlerJabberImpl
     private void setAndAddPreferredEncryptionProtocol(
             MediaType mediaType,
             ContentPacketExtension localContent,
-            ContentPacketExtension remoteContent)
+            ContentPacketExtension remoteContent,
+            boolean rtcpmux)
     {
         List<SrtpControlType> preferredEncryptionProtocols
             = getPeer()
@@ -2462,7 +2506,9 @@ public class CallPeerMediaHandlerJabberImpl
                 addDtlsAdvertisedEncryptions(
                         false,
                         remoteContent,
-                        mediaType);
+                        mediaType,
+                        rtcpmux);
+
                 if (setDtlsEncryptionOnContent(
                         mediaType,
                         localContent,
@@ -2545,7 +2591,7 @@ public class CallPeerMediaHandlerJabberImpl
             {
                 addFingerprintToLocalTransport
                     = protocolProvider.isFeatureSupported(
-                            peer.getAddress(),
+                            peer.getAddressAsJid(),
                             ProtocolProviderServiceJabberImpl
                                 .URN_XMPP_JINGLE_DTLS_SRTP);
             }
@@ -2555,7 +2601,8 @@ public class CallPeerMediaHandlerJabberImpl
                     = addDtlsAdvertisedEncryptions(
                             false,
                             remoteContent,
-                            mediaType);
+                            mediaType,
+                            false);
             }
             if (addFingerprintToLocalTransport)
             {
@@ -2663,7 +2710,7 @@ public class CallPeerMediaHandlerJabberImpl
                     if (remoteContent == null) // initiator
                     {
                         if (!protocolProvider.isFeatureSupported(
-                                peer.getAddress(),
+                                peer.getAddressAsJid(),
                                 ProtocolProviderServiceJabberImpl
                                     .URN_XMPP_JINGLE_DTLS_SRTP))
                         {
@@ -2774,7 +2821,7 @@ public class CallPeerMediaHandlerJabberImpl
             }
         }
     }
-     
+
     /**
      * Sets the jingle transports that this
      * <tt>CallPeerMediaHandlerJabberImpl</tt> supports. Unknown transports are
@@ -2824,5 +2871,516 @@ public class CallPeerMediaHandlerJabberImpl
                 }
             }
         }
+    }
+
+    /**
+     * Gets the <tt>inputevt</tt> support: true for enable, false for disable.
+     *
+     * @return The state of inputevt support: true for enable, false for
+     * disable.
+     */
+    public boolean getLocalInputEvtAware()
+    {
+        return this.localInputEvtAware;
+    }
+
+    /**
+     * Enable or disable <tt>inputevt</tt> support (remote-control).
+     *
+     * @param enable new state of inputevt support
+     */
+    public void setLocalInputEvtAware(boolean enable)
+    {
+        localInputEvtAware = enable;
+    }
+
+    /**
+     * Detects and adds ZRTP available encryption method present in the
+     * description given in parameter.
+     *
+     * @param isInitiator True if the local call instance is the initiator of
+     * the call. False otherwise.
+     * @param description The DESCRIPTION element of the JINGLE element which
+     * contains the PAYLOAD-TYPE and (more important here) the ENCRYPTION.
+     * @param mediaType The type of media (AUDIO or VIDEO).
+     */
+    private void addZrtpAdvertisedEncryptions(
+        boolean isInitiator,
+        RtpDescriptionPacketExtension description,
+        MediaType mediaType)
+    {
+        CallPeer peer = getPeer();
+        Call call = peer.getCall();
+
+        // ZRTP is not supported in telephony conferences utilizing the
+        // server-side technology Jitsi Videobridge yet.
+        if (call.getConference().isJitsiVideobridge())
+            return;
+
+        // Conforming to XEP-0167 schema there is 0 or 1 ENCRYPTION element for
+        // a given DESCRIPTION.
+        EncryptionPacketExtension encryptionPacketExtension
+            = description.getFirstChildOfType(
+                    EncryptionPacketExtension.class);
+
+        if(encryptionPacketExtension != null)
+        {
+            AccountID accountID = peer.getProtocolProvider().getAccountID();
+
+            if (accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                        true)
+                    && accountID.isEncryptionProtocolEnabled(
+                            SrtpControlType.ZRTP)
+                    && call.isSipZrtpAttribute())
+            {
+                // ZRTP
+                ZrtpHashPacketExtension zrtpHashPacketExtension
+                    = encryptionPacketExtension.getFirstChildOfType(
+                            ZrtpHashPacketExtension.class);
+
+                if ((zrtpHashPacketExtension != null)
+                        && (zrtpHashPacketExtension.getValue() != null))
+                {
+                    addAdvertisedEncryptionMethod(SrtpControlType.ZRTP);
+                }
+            }
+        }
+    }
+
+    /**
+     * Detects and adds SDES available encryption method present in the
+     * description given in parameter.
+     *
+     * @param isInitiator True if the local call instance is the initiator of
+     * the call. False otherwise.
+     * @param description The DESCRIPTION element of the JINGLE element which
+     * contains the PAYLOAD-TYPE and (more important here) the ENCRYPTION.
+     * @param mediaType The type of media (AUDIO or VIDEO).
+     */
+    private void addSDesAdvertisedEncryptions(
+        boolean isInitiator,
+        RtpDescriptionPacketExtension description,
+        MediaType mediaType)
+    {
+        CallPeer peer = getPeer();
+
+        // SDES is not supported in telephony conferences utilizing the
+        // server-side technology Jitsi Videobridge yet.
+        if (peer.getCall().getConference().isJitsiVideobridge())
+            return;
+
+        // Conforming to XEP-0167 schema there is 0 or 1 ENCRYPTION element for
+        // a given DESCRIPTION.
+        EncryptionPacketExtension encryptionPacketExtension
+            = description.getFirstChildOfType(
+                    EncryptionPacketExtension.class);
+
+        if(encryptionPacketExtension != null)
+        {
+            AccountID accountID = peer.getProtocolProvider().getAccountID();
+
+            // SDES
+            if(accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                        true)
+                    && accountID.isEncryptionProtocolEnabled(
+                            SrtpControlType.SDES))
+            {
+                SrtpControls srtpControls = getSrtpControls();
+                SDesControl sdesControl
+                    = (SDesControl)
+                        srtpControls.getOrCreate(
+                                mediaType,
+                                SrtpControlType.SDES);
+                SrtpCryptoAttribute selectedSdes
+                    = selectSdesCryptoSuite(
+                            isInitiator,
+                            sdesControl,
+                            encryptionPacketExtension);
+
+                if(selectedSdes != null)
+                {
+                    //found an SDES answer, remove all other controls
+                    removeAndCleanupOtherSrtpControls(
+                            mediaType,
+                            SrtpControlType.SDES);
+                    addAdvertisedEncryptionMethod(SrtpControlType.SDES);
+                }
+                else
+                {
+                    sdesControl.cleanup(null);
+                    srtpControls.remove(mediaType, SrtpControlType.SDES);
+                }
+            }
+        }
+        // If we were initiating the encryption, and the remote peer does not
+        // manage it, then we must remove the unusable SDES srtpControl.
+        else if(isInitiator)
+        {
+            // SDES
+            SrtpControl sdesControl
+                = getSrtpControls().remove(mediaType, SrtpControlType.SDES);
+
+            if (sdesControl != null)
+                sdesControl.cleanup(null);
+        }
+    }
+
+    /**
+     * Returns the selected SDES crypto suite selected.
+     *
+     * @param isInitiator True if the local call instance is the initiator of
+     * the call. False otherwise.
+     * @param sDesControl The SDES based SRTP MediaStream encryption
+     * control.
+     * @param encryptionPacketExtension The ENCRYPTION element received from the
+     * remote peer. This may contain the SDES crypto suites available for the
+     * remote peer.
+     *
+     * @return The selected SDES crypto suite supported by both the local and
+     * the remote peer. Or null, if there is no crypto suite supported by both
+     * of the peers.
+     */
+    private SrtpCryptoAttribute selectSdesCryptoSuite(
+        boolean isInitiator,
+        SDesControl sDesControl,
+        EncryptionPacketExtension encryptionPacketExtension)
+    {
+        List<CryptoPacketExtension> cryptoPacketExtensions
+            = encryptionPacketExtension.getCryptoList();
+        List<SrtpCryptoAttribute> peerAttributes
+            = new ArrayList<>(cryptoPacketExtensions.size());
+
+        for (CryptoPacketExtension cpe : cryptoPacketExtensions)
+            peerAttributes.add(
+                SrtpCryptoAttribute.create(
+                    cpe.getTag(),
+                    cpe.getCryptoSuite(),
+                    cpe.getKeyParams(),
+                    cpe.getSessionParams()));
+
+        return
+            isInitiator
+                ? sDesControl.initiatorSelectAttribute(peerAttributes)
+                : sDesControl.responderSelectAttribute(peerAttributes);
+    }
+
+    /**
+     * Returns if the remote peer supports ZRTP.
+     *
+     * @param encryptionPacketExtension The ENCRYPTION element received from
+     * the remote peer. This may contain the ZRTP packet element for the remote
+     * peer.
+     *
+     * @return True if the remote peer supports ZRTP. False, otherwise.
+     */
+    private boolean isRemoteZrtpCapable(
+        EncryptionPacketExtension encryptionPacketExtension)
+    {
+        return
+            (encryptionPacketExtension.getFirstChildOfType(
+                    ZrtpHashPacketExtension.class)
+                != null);
+    }
+
+    /**
+     * Sets ZRTP element to the ENCRYPTION element of the DESCRIPTION for a
+     * given media.
+     *
+     * @param mediaType The type of media we are modifying the DESCRIPTION to
+     * integrate the ENCRYPTION element.
+     * @param description The element containing the media DESCRIPTION and its
+     * encryption.
+     * @param remoteDescription The element containing the media DESCRIPTION and
+     * its encryption for the remote peer. Null, if the local peer is the
+     * initiator of the call.
+     *
+     * @return True if the ZRTP element has been added to encryption. False,
+     * otherwise.
+     */
+    private boolean setZrtpEncryptionOnDescription(
+        MediaType mediaType,
+        RtpDescriptionPacketExtension description,
+        RtpDescriptionPacketExtension remoteDescription)
+    {
+        CallPeer peer = getPeer();
+        Call call = peer.getCall();
+
+        // ZRTP is not supported in telephony conferences utilizing the
+        // server-side technology Jitsi Videobridge yet.
+        if (call.getConference().isJitsiVideobridge())
+            return false;
+
+        boolean isRemoteZrtpCapable;
+
+        if (remoteDescription == null)
+            isRemoteZrtpCapable = true;
+        else
+        {
+            // Conforming to XEP-0167 schema there is 0 or 1 ENCRYPTION element
+            // for a given DESCRIPTION.
+            EncryptionPacketExtension remoteEncryption
+                = remoteDescription.getFirstChildOfType(
+                        EncryptionPacketExtension.class);
+
+            isRemoteZrtpCapable
+                = (remoteEncryption != null)
+                    && isRemoteZrtpCapable(remoteEncryption);
+        }
+
+        boolean zrtpHashSet = false; // Will become true if at least one is set.
+        if (isRemoteZrtpCapable)
+        {
+            AccountID accountID = peer.getProtocolProvider().getAccountID();
+
+            if(accountID.getAccountPropertyBoolean(
+                        ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                        true)
+                    && accountID.isEncryptionProtocolEnabled(
+                            SrtpControlType.ZRTP)
+                    && call.isSipZrtpAttribute())
+            {
+                ZrtpControl zrtpControl
+                    = (ZrtpControl)
+                        getSrtpControls().getOrCreate(
+                                mediaType,
+                                SrtpControlType.ZRTP);
+                int numberSupportedVersions
+                    = zrtpControl.getNumberSupportedVersions();
+
+                for (int i = 0; i < numberSupportedVersions; i++)
+                {
+                    String helloHash[] = zrtpControl.getHelloHashSep(i);
+
+                    if ((helloHash != null) && (helloHash[1].length() > 0))
+                    {
+                        ZrtpHashPacketExtension hash
+                            = new ZrtpHashPacketExtension();
+
+                        hash.setVersion(helloHash[0]);
+                        hash.setValue(helloHash[1]);
+
+                        EncryptionPacketExtension encryption
+                            = description.getFirstChildOfType(
+                                    EncryptionPacketExtension.class);
+
+                        if (encryption == null)
+                        {
+                            encryption = new EncryptionPacketExtension();
+                            description.addChildExtension(encryption);
+                        }
+                        encryption.addChildExtension(hash);
+                        zrtpHashSet = true;
+                    }
+                }
+            }
+        }
+
+        return zrtpHashSet;
+    }
+
+    /**
+     * Sets SDES element(s) to the ENCRYPTION element of the DESCRIPTION for a
+     * given media.
+     *
+     * @param mediaType The type of media we are modifying the DESCRIPTION to
+     * integrate the ENCRYPTION element.
+     * @param localDescription The element containing the media DESCRIPTION and
+     * its encryption.
+     * @param remoteDescription The element containing the media DESCRIPTION and
+     * its encryption for the remote peer. Null, if the local peer is the
+     * initiator of the call.
+     *
+     * @return True if the crypto element has been added to encryption. False,
+     * otherwise.
+     */
+    private boolean setSDesEncryptionOnDescription(
+        MediaType mediaType,
+        RtpDescriptionPacketExtension localDescription,
+        RtpDescriptionPacketExtension remoteDescription)
+    {
+        CallPeer peer = getPeer();
+
+        /*
+         * SDES is not supported in telephony conferences utilizing the
+         * server-side technology Jitsi Videobridge yet.
+         */
+        if (peer.getCall().getConference().isJitsiVideobridge())
+            return false;
+
+        AccountID accountID = peer.getProtocolProvider().getAccountID();
+
+        // check if SDES and encryption is enabled at all
+        if (accountID.getAccountPropertyBoolean(
+                    ProtocolProviderFactory.DEFAULT_ENCRYPTION,
+                    true)
+                && accountID.isEncryptionProtocolEnabled(
+                        SrtpControlType.SDES))
+        {
+            // get or create the control
+            SrtpControls srtpControls = getSrtpControls();
+            SDesControl sdesControl
+                = (SDesControl)
+                    srtpControls.getOrCreate(mediaType, SrtpControlType.SDES);
+            // set the enabled ciphers suites
+            String ciphers
+                = accountID.getAccountPropertyString(
+                        ProtocolProviderFactory.SDES_CIPHER_SUITES);
+
+            if (ciphers == null)
+            {
+                ciphers =
+                    JabberActivator.getResources().getSettingsString(
+                        SDesControl.SDES_CIPHER_SUITES);
+            }
+            sdesControl.setEnabledCiphers(Arrays.asList(ciphers.split(",")));
+
+            // act as initiator
+            if (remoteDescription == null)
+            {
+                EncryptionPacketExtension localEncryption
+                    = localDescription.getFirstChildOfType(
+                            EncryptionPacketExtension.class);
+
+                if(localEncryption == null)
+                {
+                    localEncryption = new EncryptionPacketExtension();
+                    localDescription.addChildExtension(localEncryption);
+                }
+                for(SrtpCryptoAttribute ca:
+                        sdesControl.getInitiatorCryptoAttributes())
+                {
+                    CryptoPacketExtension crypto = new CryptoPacketExtension(
+                        ca.getTag(),
+                        ca.getCryptoSuite().encode(),
+                        ca.getKeyParamsString(),
+                        ca.getSessionParamsString());
+                    localEncryption.addChildExtension(crypto);
+                }
+
+                return true;
+            }
+            // act as responder
+            else
+            {
+                // Conforming to XEP-0167 schema there is 0 or 1 ENCRYPTION
+                // element for a given DESCRIPTION.
+                EncryptionPacketExtension remoteEncryption
+                    = remoteDescription.getFirstChildOfType(
+                            EncryptionPacketExtension.class);
+
+                if(remoteEncryption != null)
+                {
+                    SrtpCryptoAttribute selectedSdes = selectSdesCryptoSuite(
+                            false,
+                            sdesControl,
+                            remoteEncryption);
+
+                    if(selectedSdes != null)
+                    {
+                        EncryptionPacketExtension localEncryption
+                            = localDescription.getFirstChildOfType(
+                                    EncryptionPacketExtension.class);
+
+                        if(localEncryption == null)
+                        {
+                            localEncryption = new EncryptionPacketExtension();
+                            localDescription.addChildExtension(localEncryption);
+                        }
+
+                        CryptoPacketExtension crypto
+                            = new CryptoPacketExtension(
+                                selectedSdes.getTag(),
+                                selectedSdes.getCryptoSuite().encode(),
+                                selectedSdes.getKeyParamsString(),
+                                selectedSdes.getSessionParamsString());
+
+                        localEncryption.addChildExtension(crypto);
+
+                        return true;
+                    }
+                    else
+                    {
+                        // none of the offered suites match, destroy the sdes
+                        // control
+                        sdesControl.cleanup(null);
+                        srtpControls.remove(mediaType, SrtpControlType.SDES);
+                        logger.warn(
+                                "Received unsupported sdes crypto attribute");
+                    }
+                }
+                else
+                {
+                    // peer doesn't offer any SDES attribute, destroy the sdes
+                    // control
+                    sdesControl.cleanup(null);
+                    srtpControls.remove(mediaType, SrtpControlType.SDES);
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Selects a specific encryption protocol if it is the preferred (only used
+     * by the callee).
+     *
+     * @param mediaType The type of media (AUDIO or VIDEO).
+     * @param localDescription The element containing the media DESCRIPTION and
+     * its encryption.
+     * @param remoteDescription The element containing the media DESCRIPTION and
+     * its encryption for the remote peer; <tt>null</tt> if the local peer is
+     * the initiator of the call.
+     * @return <tt>true</tt> if the specified encryption protocol has been
+     * selected; <tt>false</tt>, otherwise
+     */
+    private boolean setAndAddPreferredEncryptionProtocol(
+        SrtpControlType srtpControlType,
+        MediaType mediaType,
+        RtpDescriptionPacketExtension localDescription,
+        RtpDescriptionPacketExtension remoteDescription)
+    {
+        /*
+         * Neither SDES nor ZRTP is supported in telephony conferences utilizing
+         * the server-side technology Jitsi Videobridge yet.
+         */
+        if (getPeer().isJitsiVideobridge())
+            return false;
+
+        // SDES
+        if(srtpControlType == SrtpControlType.SDES)
+        {
+            addSDesAdvertisedEncryptions(
+                    false,
+                    remoteDescription,
+                    mediaType);
+            if(setSDesEncryptionOnDescription(
+                    mediaType,
+                    localDescription,
+                    remoteDescription))
+            {
+                // Stop once an encryption advertisement has been chosen.
+                return true;
+            }
+        }
+        // ZRTP
+        else if(srtpControlType == SrtpControlType.ZRTP)
+        {
+            if(setZrtpEncryptionOnDescription(
+                    mediaType,
+                    localDescription,
+                    remoteDescription))
+            {
+                addZrtpAdvertisedEncryptions(
+                        false,
+                        remoteDescription,
+                        mediaType);
+                // Stop once an encryption advertisement has been chosen.
+                return true;
+            }
+        }
+        return false;
     }
 }

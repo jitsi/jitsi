@@ -585,6 +585,7 @@ public class MUCServiceImpl
     public void rejectInvitation(  OperationSetMultiUserChat multiUserChatOpSet,
                                    ChatRoomInvitation invitation,
                                    String reason)
+        throws OperationFailedException
     {
         multiUserChatOpSet.rejectInvitation(invitation, reason);
     }

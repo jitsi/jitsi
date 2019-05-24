@@ -32,7 +32,7 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.service.resources.*;
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 import org.osgi.framework.*;
 
 /**

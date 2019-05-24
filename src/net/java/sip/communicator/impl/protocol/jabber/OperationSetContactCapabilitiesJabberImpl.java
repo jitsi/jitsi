@@ -19,14 +19,17 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.caps.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.messagecorrection.*;
+import net.java.sip.communicator.impl.protocol.jabber.caps.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.packet.*;
-import org.jivesoftware.smack.util.*;
+import org.jivesoftware.smack.roster.*;
+import org.jivesoftware.smackx.message_correct.element.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.impl.*;
+import org.jxmpp.stringprep.*;
 
 /**
  * Represents an <tt>OperationSet</tt> to query the <tt>OperationSet</tt>s
@@ -69,8 +72,7 @@ public class OperationSetContactCapabilitiesJabberImpl
      * by a <tt>Contact</tt> when it is offline.
      */
     private static final Set<Class<? extends OperationSet>>
-        OFFLINE_OPERATION_SETS
-            = new HashSet<Class<? extends OperationSet>>();
+        OFFLINE_OPERATION_SETS = new HashSet<>();
 
     /**
      * The <tt>Map</tt> which associates specific <tt>OperationSet</tt> classes
@@ -79,8 +81,7 @@ public class OperationSetContactCapabilitiesJabberImpl
      * <tt>OperationSet</tt> capability.
      */
     private static final Map<Class<? extends OperationSet>, String[]>
-        OPERATION_SETS_TO_FEATURES
-            = new HashMap<Class<? extends OperationSet>, String[]>();
+        OPERATION_SETS_TO_FEATURES = new HashMap<>();
 
     static
     {
@@ -119,15 +120,14 @@ public class OperationSetContactCapabilitiesJabberImpl
                 OperationSetMessageCorrection.class,
                 new String[]
                 {
-                    MessageCorrectionExtension.NAMESPACE
+                    MessageCorrectExtension.NAMESPACE
                 });
     }
 
     /**
-     * The <tt>EntityCapsManager</tt> associated with the
-     * <tt>discoveryManager</tt> of {@link #parentProvider}.
+     * The <tt>discoveryManager</tt> of {@link #parentProvider}.
      */
-    private EntityCapsManager capsManager;
+    private ScServiceDiscoveryManager discoveryManager;
 
     /**
      * Initializes a new <tt>OperationSetContactCapabilitiesJabberImpl</tt>
@@ -181,9 +181,11 @@ public class OperationSetContactCapabilitiesJabberImpl
             Class<U> opsetClass,
             boolean online)
     {
-        String jid = parentProvider.getFullJid(contact);
+        Jid jid = jidFromContact(contact);
         if (jid == null)
-            jid = contact.getAddress();
+        {
+            return null;
+        }
 
         return getOperationSet(jid, opsetClass, online);
     }
@@ -212,11 +214,31 @@ public class OperationSetContactCapabilitiesJabberImpl
             Contact contact,
             boolean online)
     {
-        String jid = parentProvider.getFullJid(contact);
+        Jid jid = jidFromContact(contact);
         if (jid == null)
-            jid = contact.getAddress();
+        {
+            return null;
+        }
 
         return getSupportedOperationSets(jid, online);
+    }
+
+    private Jid jidFromContact(Contact contact)
+    {
+        try
+        {
+            Jid jid = parentProvider.getFullJid(contact);
+            if (jid != null)
+            {
+                return jid;
+            }
+
+            return JidCreate.from(contact.getAddress());
+        }
+        catch (XmppStringprepException e)
+        {
+            return null;
+        }
     }
 
     /**
@@ -239,7 +261,7 @@ public class OperationSetContactCapabilitiesJabberImpl
      * Contact)
      */
     @SuppressWarnings("unchecked")
-    private Map<String, OperationSet> getSupportedOperationSets(String jid,
+    private Map<String, OperationSet> getSupportedOperationSets(Jid jid,
                                                                 boolean online)
     {
         Map<String, OperationSet> supportedOperationSets
@@ -247,7 +269,7 @@ public class OperationSetContactCapabilitiesJabberImpl
 
         int supportedOperationSetCount = supportedOperationSets.size();
         Map<String, OperationSet> contactSupportedOperationSets
-            = new HashMap<String, OperationSet>(supportedOperationSetCount);
+            = new HashMap<>(supportedOperationSetCount);
 
         if (supportedOperationSetCount != 0)
         {
@@ -304,13 +326,13 @@ public class OperationSetContactCapabilitiesJabberImpl
      * name and value equal to the respective <tt>OperationSet</tt> instance
      */
     protected Map<String, OperationSet> getLargestSupportedOperationSet(
-            ArrayList<String> fullJids)
+            List<Jid> fullJids)
     {
         Map<String, OperationSet> supportedOperationSets =
-            new HashMap<String, OperationSet>();
-        if (fullJids!=null)
+            new HashMap<>();
+        if (fullJids != null)
         {
-            for (String fullJid : fullJids)
+            for (Jid fullJid : fullJids)
             {
                 Map<String, OperationSet> newSupportedOperationSets=
                 getSupportedOperationSets(fullJid, true);
@@ -350,7 +372,7 @@ public class OperationSetContactCapabilitiesJabberImpl
      * @see AbstractOperationSetContactCapabilities#getOperationSet(Contact,
      * Class)
      */
-    private <U extends OperationSet> U getOperationSet(String jid,
+    private <U extends OperationSet> U getOperationSet(Jid jid,
                                                        Class<U> opsetClass,
                                                        boolean online)
     {
@@ -396,27 +418,6 @@ public class OperationSetContactCapabilitiesJabberImpl
     }
 
     /**
-     * Sets the <tt>EntityCapsManager</tt> which is associated with the
-     * <tt>discoveryManager</tt> of {@link #parentProvider}.
-     *
-     * @param capsManager the <tt>EntityCapsManager</tt> which is associated
-     * with the <tt>discoveryManager</tt> of {@link #parentProvider}
-     */
-    private void setCapsManager(EntityCapsManager capsManager)
-    {
-        if (this.capsManager != capsManager)
-        {
-            if (this.capsManager != null)
-                this.capsManager.removeUserCapsNodeListener(this);
-
-            this.capsManager = capsManager;
-
-            if (this.capsManager != null)
-                this.capsManager.addUserCapsNodeListener(this);
-        }
-    }
-
-    /**
      * Sets the <tt>ScServiceDiscoveryManager</tt> which is the
      * <tt>discoveryManager</tt> of {@link #parentProvider}.
      *
@@ -425,10 +426,16 @@ public class OperationSetContactCapabilitiesJabberImpl
      */
     void setDiscoveryManager(ScServiceDiscoveryManager discoveryManager)
     {
-        setCapsManager(
-            (discoveryManager == null)
-                ? null
-                : discoveryManager.getCapsManager());
+        if (this.discoveryManager != discoveryManager)
+        {
+            if (this.discoveryManager != null)
+                this.discoveryManager.removeUserCapsNodeListener(this);
+
+            this.discoveryManager = discoveryManager;
+
+            if (this.discoveryManager != null)
+                this.discoveryManager.addUserCapsNodeListener(this);
+        }
     }
 
     /**
@@ -439,16 +446,16 @@ public class OperationSetContactCapabilitiesJabberImpl
      * @param fullJids a list of all resources of the user (full JIDs)
      * @param node the entity caps node#ver
      * @param online indicates if the user is currently online
-     * @see UserCapsNodeListener#userCapsNodeAdded(String, String, boolean)
      */
-    public void userCapsNodeAdded(String user, ArrayList<String> fullJids,
-        String node, boolean online)
+    @Override
+    public void userCapsNodeAdded(Jid user, List<Jid> fullJids,
+                                  String node, boolean online)
     {
         /*
          * It doesn't matter to us whether a caps node has been added or removed
          * for the specified user because we report all changes.
          */
-        userCapsNodeChanged(user, fullJids, node, online);
+        userCapsNodeChanged(user, fullJids, online);
     }
 
     /**
@@ -459,16 +466,16 @@ public class OperationSetContactCapabilitiesJabberImpl
      * @param fullJids a list of all resources of the user (full JIDs)
      * @param node the entity caps node#ver
      * @param online indicates if the user is currently online
-     * @see UserCapsNodeListener#userCapsNodeAdded(String, String, boolean)
      */
-    public void userCapsNodeRemoved(String user, ArrayList<String> fullJids,
+    @Override
+    public void userCapsNodeRemoved(Jid user, List<Jid> fullJids,
         String node, boolean online)
     {
         /*
          * It doesn't matter to us whether a caps node has been added or removed
          * for the specified user because we report all changes.
          */
-        userCapsNodeChanged(user, fullJids, node, online);
+        userCapsNodeChanged(user, fullJids, online);
     }
 
     /**
@@ -477,11 +484,10 @@ public class OperationSetContactCapabilitiesJabberImpl
      *
      * @param user the user (full JID)
      * @param fullJids a list of all resources of the user (full JIDs)
-     * @param node the entity caps node#ver
      * @param online indicates if the given user is online
      */
-    public void userCapsNodeChanged(String user, ArrayList<String> fullJids,
-        String node, boolean online)
+    private void userCapsNodeChanged(Jid user, List<Jid> fullJids,
+                                     boolean online)
     {
         OperationSetPresence opsetPresence
         = parentProvider.getOperationSet(OperationSetPresence.class);
@@ -492,8 +498,8 @@ public class OperationSetContactCapabilitiesJabberImpl
                     USE_ALL_RESOURCES_FOR_CAPABILITIES_DEFAULT)
                 && !fullJids.isEmpty())
             {
-                String bareJid = StringUtils.parseBareAddress(user);
-                Contact contact = opsetPresence.findContactByID(bareJid);
+                Contact contact = opsetPresence.findContactByID(
+                        user.asBareJid().toString());
                 if (contact != null)
                 {
                     fireContactCapabilitiesEvent(
@@ -505,8 +511,8 @@ public class OperationSetContactCapabilitiesJabberImpl
             }
             else
             {
-                String jid = StringUtils.parseBareAddress(user);
-                Contact contact = opsetPresence.findContactByID(jid);
+                Contact contact = opsetPresence.findContactByID(
+                        user.asBareJid().toString());
 
                 // If the contact isn't null and is online we try to discover
                 // the new set of operation sets and to notify interested
@@ -522,8 +528,7 @@ public class OperationSetContactCapabilitiesJabberImpl
                             contact,
                             ContactCapabilitiesEvent.
                             SUPPORTED_OPERATION_SETS_CHANGED,
-                            getSupportedOperationSets(user,
-                                online));
+                            getSupportedOperationSets(user, true));
                     }
                     else
                     {
@@ -547,15 +552,16 @@ public class OperationSetContactCapabilitiesJabberImpl
      * @param evt the <tt>ContactPresenceStatusChangeEvent</tt> that notified
      * us
      */
+    @Override
     public void contactPresenceStatusChanged(
         ContactPresenceStatusChangeEvent evt)
     {
         // If the user goes offline we ensure to remove the caps node.
-        if (capsManager != null
+        if (discoveryManager != null
             && evt.getNewStatus().getStatus() < PresenceStatus.ONLINE_THRESHOLD
             && !evt.isResourceChanged())
         {
-            capsManager.removeContactCapsNode(evt.getSourceContact());
+            discoveryManager.removeContactCapsNode(evt.getSourceContact());
         }
     }
 
@@ -564,8 +570,8 @@ public class OperationSetContactCapabilitiesJabberImpl
      * @param user the user to search for its contact.
      * @param fullJids a list of all resources of the user (full JIDs)
      */
-    public void fireContactCapabilitiesChanged(String user,
-        ArrayList<String> fullJids)
+    public void fireContactCapabilitiesChanged(BareJid user,
+        List<Jid> fullJids)
     {
         if(!JabberActivator.getConfigurationService()
             .getBoolean(
@@ -578,16 +584,13 @@ public class OperationSetContactCapabilitiesJabberImpl
 
             if (opsetPresence != null)
             {
-                String userID = StringUtils.parseBareAddress(user);
-                Contact contact = opsetPresence.findContactByID(userID);
+                Contact contact = opsetPresence.findContactByID(user.toString());
 
                 // this called by received discovery info for particular jid
                 // so we use its online and opsets for this particular jid
-                boolean online = false;
-                Presence presence = parentProvider.getConnection().getRoster()
-                    .getPresence(user);
-                if(presence != null)
-                    online = presence.isAvailable();
+                Presence presence =
+                        Roster.getInstanceFor(parentProvider.getConnection())
+                            .getPresence(user);
 
                 if(contact != null)
                 {
@@ -595,7 +598,7 @@ public class OperationSetContactCapabilitiesJabberImpl
                         contact,
                         ContactCapabilitiesEvent.
                         SUPPORTED_OPERATION_SETS_CHANGED,
-                        getSupportedOperationSets(user, online));
+                        getSupportedOperationSets(user, presence.isAvailable()));
                 }
             }
         }
@@ -605,8 +608,8 @@ public class OperationSetContactCapabilitiesJabberImpl
             = parentProvider.getOperationSet(OperationSetPresence.class);
             if (opsetPresence != null)
             {
-                String bareJid = StringUtils.parseBareAddress(user);
-                Contact contact = opsetPresence.findContactByID(bareJid);
+                Contact contact = opsetPresence.findContactByID(
+                        user.asBareJid().toString());
                 if(contact != null)
                 {
                     fireContactCapabilitiesEvent(

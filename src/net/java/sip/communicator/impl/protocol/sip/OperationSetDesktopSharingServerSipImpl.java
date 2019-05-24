@@ -35,10 +35,10 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
-import org.jitsi.service.neomedia.MediaType;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.format.*;
 import org.jitsi.util.xml.*;
+import org.jitsi.utils.MediaType;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 

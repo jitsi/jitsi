@@ -20,12 +20,13 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.net.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
+import org.jitsi.xmpp.extensions.colibri.*;
+import org.jitsi.xmpp.extensions.jingle.*;
+import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.JingleUtils;
 import net.java.sip.communicator.service.protocol.*;
 
 import org.jitsi.service.neomedia.*;
+import org.jitsi.utils.*;
 import org.jivesoftware.smack.packet.*;
 
 /**
@@ -68,7 +69,7 @@ public class RawUdpTransportManager
     /**
      * {@inheritDoc}
      */
-    protected PacketExtension createTransport(String media)
+    protected ExtensionElement createTransport(String media)
         throws OperationFailedException
     {
         MediaType mediaType = MediaType.parseString(media);
@@ -132,7 +133,7 @@ public class RawUdpTransportManager
     /**
      * {@inheritDoc}
      */
-    protected PacketExtension createTransportPacketExtension()
+    protected ExtensionElement createTransportPacketExtension()
     {
         return new RawUdpTransportPacketExtension();
     }
@@ -276,7 +277,7 @@ public class RawUdpTransportManager
     /**
      * {@inheritDoc}
      */
-    protected PacketExtension startCandidateHarvest(
+    protected ExtensionElement startCandidateHarvest(
             ContentPacketExtension theirContent,
             ContentPacketExtension ourContent,
             TransportInfoSender transportInfoSender,
@@ -339,6 +340,7 @@ public class RawUdpTransportManager
     @Override
     public boolean startConnectivityEstablishment(
             Iterable<ContentPacketExtension> remote)
+        throws OperationFailedException
     {
         if ((remote != null) && !remotes.contains(remote))
         {
@@ -539,5 +541,18 @@ public class RawUdpTransportManager
     public int getNbHarvesting(String harvesterName)
     {
         return 0;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setRtcpmux(boolean rtcpmux)
+    {
+        if (rtcpmux)
+        {
+            throw new IllegalArgumentException(
+                    "rtcp mux not supported by " + getClass().getSimpleName());
+        }
     }
 }

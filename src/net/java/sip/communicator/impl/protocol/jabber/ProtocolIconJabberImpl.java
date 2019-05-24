@@ -182,7 +182,7 @@ public class ProtocolIconJabberImpl
     {
         if (resourcesService == null)
         {
-            ServiceReference serviceReference = JabberActivator.bundleContext
+            ServiceReference<?> serviceReference = JabberActivator.bundleContext
                 .getServiceReference(ResourceManagementService.class.getName());
 
             if(serviceReference == null)

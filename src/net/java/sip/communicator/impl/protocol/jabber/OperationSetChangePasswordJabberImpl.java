@@ -20,7 +20,10 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import org.jivesoftware.smack.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jivesoftware.smack.SmackException.*;
+import org.jivesoftware.smackx.disco.packet.*;
+import org.jxmpp.jid.*;
+import org.jxmpp.jid.impl.*;
 
 /**
  * A jabber implementation of the password change operation set.
@@ -61,15 +64,18 @@ public class OperationSetChangePasswordJabberImpl
     public void changePassword(String newPass)
             throws IllegalStateException, OperationFailedException
     {
-        org.jivesoftware.smack.AccountManager accountManager
-                = new org.jivesoftware.smack.AccountManager(
+        org.jivesoftware.smackx.iqregister.AccountManager accountManager
+                = org.jivesoftware.smackx.iqregister.AccountManager.getInstance(
                                         protocolProvider.getConnection());
 
         try
         {
             accountManager.changePassword(newPass);
         }
-        catch (XMPPException e)
+        catch (XMPPException
+            | InterruptedException
+            | NoResponseException
+            | NotConnectedException e)
         {
             if(logger.isInfoEnabled())
             {
@@ -94,10 +100,11 @@ public class OperationSetChangePasswordJabberImpl
     {
         try
         {
+            Jid service = JidCreate.from(
+                protocolProvider.getAccountID().getService());
             DiscoverInfo discoverInfo
                     = protocolProvider.getDiscoveryManager()
-                        .discoverInfo(
-                                protocolProvider.getAccountID().getService());
+                        .discoverInfo(service);
             return discoverInfo.containsFeature(
                         ProtocolProviderServiceJabberImpl.URN_REGISTER);
         }

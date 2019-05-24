@@ -72,6 +72,7 @@ public class ScOtrEngineImpl
 
         @Override
         public void injectMessage(SessionID sessionID, String messageText)
+            throws OtrException
         {
             OtrContact otrContact = getOtrContact(sessionID);
             Contact contact = otrContact.contact;
@@ -121,7 +122,14 @@ public class ScOtrEngineImpl
                         null);
 
             injectedMessageUIDs.add(message.getMessageUID());
-            imOpSet.sendInstantMessage(contact, resource, message);
+            try
+            {
+                imOpSet.sendInstantMessage(contact, resource, message);
+            }
+            catch (OperationFailedException e)
+            {
+                throw new OtrException(e);
+            }
         }
 
         @Override

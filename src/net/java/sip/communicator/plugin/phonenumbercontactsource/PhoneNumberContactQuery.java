@@ -24,7 +24,7 @@ import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.service.protocol.event.*;
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 /**
  * The <tt>PhoneNumberContactQuery</tt> is a query over the

@@ -28,7 +28,7 @@ import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
-import org.jitsi.util.StringUtils;
+import org.jitsi.utils.StringUtils;
 import org.osgi.framework.*;
 
 /**

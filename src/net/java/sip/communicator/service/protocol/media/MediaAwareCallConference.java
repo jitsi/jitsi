@@ -24,9 +24,10 @@ import java.util.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.device.*;
 import org.jitsi.util.*;
-import org.jitsi.util.event.*;
+import org.jitsi.utils.*;
 
 import net.java.sip.communicator.service.protocol.*;
+import org.jitsi.utils.event.*;
 
 /**
  * Extends <tt>CallConference</tt> to represent the media-specific information

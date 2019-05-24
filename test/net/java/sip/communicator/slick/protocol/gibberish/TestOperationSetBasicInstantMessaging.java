@@ -209,8 +209,13 @@ public class TestOperationSetBasicInstantMessaging
     /**
      * Send an instant message from the tested operation set and assert
      * reception by the tester agent.
+     * @throws OperationFailedException 
+     * @throws IllegalArgumentException 
+     * @throws IllegalStateException 
      */
-    public void firstTestReceiveMessage()
+    public void firstTestReceiveMessage() throws IllegalStateException,
+        IllegalArgumentException,
+        OperationFailedException
     {
         String body = "This is an IM coming from the tester agent"
             + " on " + new Date().toString();
@@ -257,8 +262,13 @@ public class TestOperationSetBasicInstantMessaging
     /**
      * Send an instant message from the tester agent and assert reception by
      * the tested implementation
+     * @throws OperationFailedException 
+     * @throws IllegalArgumentException 
+     * @throws IllegalStateException 
      */
-    public void thenTestSendMessage()
+    public void thenTestSendMessage() throws IllegalStateException,
+        IllegalArgumentException,
+        OperationFailedException
     {
         logger.debug("Printing Server Stored list to see if message fails are contacts in each other lists");
         ContactGroup rootGroup1

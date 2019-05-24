@@ -20,15 +20,18 @@ package net.java.sip.communicator.impl.protocol.jabber;
 import java.net.*;
 import java.util.*;
 
-import net.java.sip.communicator.impl.protocol.jabber.extensions.colibri.*;
-import net.java.sip.communicator.impl.protocol.jabber.extensions.jingle.*;
-import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.*;
+import org.jitsi.xmpp.extensions.colibri.*;
+import org.jitsi.xmpp.extensions.jingle.*;
+import net.java.sip.communicator.impl.protocol.jabber.jinglesdp.JingleUtils;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.neomedia.*;
+import org.jitsi.utils.*;
+import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.packet.*;
+import org.jxmpp.jid.*;
 
 /**
  * <tt>TransportManager</tt>s gather local candidates for incoming and outgoing
@@ -188,6 +191,7 @@ public abstract class TransportManagerJabberImpl
      */
     protected void sendTransportInfoToJitsiVideobridge(
             Map<String,IceUdpTransportPacketExtension> map)
+        throws OperationFailedException
     {
         CallPeerJabberImpl peer = getCallPeer();
         boolean initiator = !peer.isInitiator();
@@ -238,7 +242,7 @@ public abstract class TransportManagerJabberImpl
                             conferenceRequest = new ColibriConferenceIQ();
                             conferenceRequest.setID(id);
                             conferenceRequest.setTo(colibri.getFrom());
-                            conferenceRequest.setType(IQ.Type.SET);
+                            conferenceRequest.setType(IQ.Type.set);
                         }
                     }
                 }
@@ -248,8 +252,19 @@ public abstract class TransportManagerJabberImpl
         }
         if (conferenceRequest != null)
         {
-            peer.getProtocolProvider().getConnection().sendPacket(
-                    conferenceRequest);
+            try
+            {
+                peer.getProtocolProvider().getConnection().sendStanza(
+                        conferenceRequest);
+            }
+            catch (NotConnectedException | InterruptedException e)
+            {
+                throw new OperationFailedException(
+                    "Could not send conference request",
+                    OperationFailedException.GENERAL_ERROR,
+                    e
+                );
+            }
         }
     }
 
@@ -260,7 +275,7 @@ public abstract class TransportManagerJabberImpl
      *
      * @param theirContent the <tt>ContentPacketExtension</tt> offered by the
      * remote peer to which we are going to answer with <tt>ourContent</tt> or
-     * <tt>null</tt> if <tt>ourContent</tt> will be an offer to the remote peer 
+     * <tt>null</tt> if <tt>ourContent</tt> will be an offer to the remote peer
      * @param ourContent the <tt>ContentPacketExtension</tt> for which transport
      * candidate harvest is to be started
      * @param transportInfoSender a <tt>TransportInfoSender</tt> if the
@@ -269,12 +284,12 @@ public abstract class TransportManagerJabberImpl
      * <tt>null</tt>
      * @param media the media of the <tt>RtpDescriptionPacketExtension</tt>
      * child of <tt>ourContent</tt>
-     * @return a <tt>PacketExtension</tt> to be added as a child to
+     * @return a <tt>ExtensionElement</tt> to be added as a child to
      * <tt>ourContent</tt>; otherwise, <tt>null</tt>
      * @throws OperationFailedException if anything goes wrong while starting
      * transport candidate harvest for the specified <tt>ourContent</tt>
      */
-    protected abstract PacketExtension startCandidateHarvest(
+    protected abstract ExtensionElement startCandidateHarvest(
             ContentPacketExtension theirContent,
             ContentPacketExtension ourContent,
             TransportInfoSender transportInfoSender,
@@ -391,7 +406,7 @@ public abstract class TransportManagerJabberImpl
                     else if (!videobridgeID.equals(conferenceResultID))
                         throw new IllegalStateException("conference.id");
 
-                    String videobridgeFrom = conferenceResult.getFrom();
+                    Jid videobridgeFrom = conferenceResult.getFrom();
 
                     if ((videobridgeFrom != null)
                             && (videobridgeFrom.length() != 0))
@@ -451,7 +466,7 @@ public abstract class TransportManagerJabberImpl
                     = ourContent.getFirstChildOfType(
                             RtpDescriptionPacketExtension.class);
                 String media = rtpDesc.getMedia();
-                PacketExtension pe
+                ExtensionElement pe
                     = startCandidateHarvest(
                             theirContent,
                             ourContent,
@@ -545,6 +560,7 @@ public abstract class TransportManagerJabberImpl
      */
     public boolean startConnectivityEstablishment(
             Iterable<ContentPacketExtension> remote)
+        throws OperationFailedException
     {
         return true;
     }
@@ -698,6 +714,7 @@ public abstract class TransportManagerJabberImpl
     protected void closeStreamConnector(
             MediaType mediaType,
             StreamConnector streamConnector)
+        throws OperationFailedException
     {
         try
         {
@@ -770,9 +787,20 @@ public abstract class TransportManagerJabberImpl
 
                             if (call != null)
                             {
-                                call.expireColibriChannels(
-                                        peer,
-                                        requestConferenceIQ);
+                                try
+                                {
+                                    call.expireColibriChannels(
+                                            peer,
+                                            requestConferenceIQ);
+                                }
+                                catch (NotConnectedException | InterruptedException e)
+                                {
+                                    throw new OperationFailedException(
+                                        "Could not expire colibri channels",
+                                        OperationFailedException.GENERAL_ERROR,
+                                        e
+                                    );
+                                }
                             }
                         }
                     }
@@ -827,14 +855,14 @@ public abstract class TransportManagerJabberImpl
         return doCreateStreamConnector(mediaType);
     }
 
-    protected abstract PacketExtension createTransport(String media)
+    protected abstract ExtensionElement createTransport(String media)
         throws OperationFailedException;
 
-    protected PacketExtension createTransportForStartCandidateHarvest(
+    protected ExtensionElement createTransportForStartCandidateHarvest(
             String media)
         throws OperationFailedException
     {
-        PacketExtension pe = null;
+        ExtensionElement pe = null;
 
         if (getCallPeer().isJitsiVideobridge())
         {
@@ -851,15 +879,15 @@ public abstract class TransportManagerJabberImpl
     }
 
     /**
-     * Initializes a new <tt>PacketExtension</tt> instance appropriate to the
+     * Initializes a new <tt>ExtensionElement</tt> instance appropriate to the
      * type of Jingle transport represented by this <tt>TransportManager</tt>.
      * The new instance is not initialized with any attributes or child
      * extensions.
      *
-     * @return a new <tt>PacketExtension</tt> instance appropriate to the type
+     * @return a new <tt>ExtensionElement</tt> instance appropriate to the type
      * of Jingle transport represented by this <tt>TransportManager</tt>
      */
-    protected abstract PacketExtension createTransportPacketExtension();
+    protected abstract ExtensionElement createTransportPacketExtension();
 
     /**
      * Creates a media <tt>StreamConnector</tt> for a stream of a specific
@@ -974,4 +1002,9 @@ public abstract class TransportManagerJabberImpl
         }
         return channel;
     }
+
+    /**
+     * Sets the flag which indicates whether to use rtcpmux or not.
+     */
+    public abstract void setRtcpmux(boolean rtcpmux);
 }

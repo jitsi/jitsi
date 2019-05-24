@@ -20,6 +20,7 @@ package net.java.sip.communicator.service.protocol;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.event.*;
+import org.jxmpp.jid.parts.*;
 
 /**
  * An abstract class with a default implementation of some of the methods of
@@ -42,8 +43,8 @@ public abstract class AbstractChatRoom
      * The list of all <tt>ConferenceDescription</tt> that were announced and 
      * are not yet processed.
      */
-    protected Map<String, ConferenceDescription> cachedConferenceDescriptions
-        = new HashMap<String, ConferenceDescription>();
+    protected final Map<Resourcepart, ConferenceDescription> cachedConferenceDescriptions
+        = new HashMap<>();
     
     /**
      * {@inheritDoc}
@@ -75,12 +76,17 @@ public abstract class AbstractChatRoom
      */
     public Map<String, ConferenceDescription> getCachedConferenceDescriptions()
     {
-        Map<String, ConferenceDescription> tmpCachedConferenceDescriptions;
+        Map<String, ConferenceDescription> tmpCachedConferenceDescriptions
+            = new HashMap<>();
         synchronized (cachedConferenceDescriptions)
         {
-            tmpCachedConferenceDescriptions 
-                = new HashMap<String, ConferenceDescription>(
-                    cachedConferenceDescriptions);
+            for (Map.Entry<Resourcepart, ConferenceDescription> entry
+                : cachedConferenceDescriptions.entrySet())
+            {
+                tmpCachedConferenceDescriptions.put(
+                    entry.getKey().toString(),
+                    entry.getValue());
+            }
         }
         return tmpCachedConferenceDescriptions;
     }
@@ -133,7 +139,7 @@ public abstract class AbstractChatRoom
      * @return <tt>true</tt> on success and <tt>false</tt> if fail.
      */
     protected boolean processConferenceDescription(ConferenceDescription cd, 
-        String participantName)
+        Resourcepart participantName)
     {
         if(cd.isAvailable())
         {

@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jitsi</groupId>
     <artifactId>jitsi</artifactId>
-    <version>2.11-SNAPSHOT</version>
+    <version>2.13-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -25,10 +25,12 @@
     <dependency>
       <groupId>org.opentelecoms.sdp</groupId>
       <artifactId>java-sdp-nist-bridge</artifactId>
+      <version>1.1</version>
     </dependency>
     <dependency>
       <groupId>org.jitsi</groupId>
       <artifactId>jain-sip-ri-ossonly</artifactId>
+      <version>1.2.98c7f8c-jitsi-oss1</version>
     </dependency>
     <dependency>
       <groupId>dnsjava</groupId>
@@ -51,7 +53,8 @@
     </dependency>
     <dependency>
       <groupId>org.igniterealtime.smack</groupId>
-      <artifactId>smack</artifactId>
+      <artifactId>smack-core</artifactId>
+      <version>${smack.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -61,6 +64,10 @@
     <dependency>
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>ice4j</artifactId>
     </dependency>
   </dependencies>
 
@@ -74,6 +81,20 @@
             <include>net/java/sip/communicator/impl/protocol/sip/**.java</include>
           </includes>
         </configuration>
+        <executions>
+          <execution>
+            <id>default-testCompile</id>
+            <phase>test-compile</phase>
+            <configuration>
+              <testExcludes>
+                <exclude>net/**</exclude>
+              </testExcludes>
+            </configuration>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

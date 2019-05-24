@@ -27,6 +27,7 @@ import net.java.sip.communicator.impl.protocol.sip.net.*;
 import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 /**
  * The properties used at the creation of the JAIN-SIP stack.

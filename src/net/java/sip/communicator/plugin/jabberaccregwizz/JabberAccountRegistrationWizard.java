@@ -27,7 +27,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.jabber.*;
 import net.java.sip.communicator.util.Logger;
 
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 import org.osgi.framework.*;
 
 /**
@@ -190,11 +190,6 @@ public class JabberAccountRegistrationWizard
             String.valueOf(registration.isSendKeepAlive()));
 
         summaryTable.put(
-            Resources.getString(
-                        "plugin.jabberaccregwizz.ENABLE_GMAIL_NOTIFICATIONS"),
-            String.valueOf(registration.isGmailNotificationEnabled()));
-
-        summaryTable.put(
             Resources.getString("plugin.jabberaccregwizz.RESOURCE"),
             registration.getResource());
 
@@ -266,7 +261,7 @@ public class JabberAccountRegistrationWizard
         boolean equals = false;
         final boolean rememberPassword = (password != null);
 
-        if (StringUtils.isEquals(accPanelUsername, userName))
+        if (Objects.equals(accPanelUsername, userName))
         {
             char[] accPanelPasswordChars = accPanel.getPassword();
             char[] passwordChars
@@ -519,7 +514,7 @@ public class JabberAccountRegistrationWizard
     }
 
     /**
-     * Opens the Gmail signup URI in the OS's default browser.
+     * Not implemented, does nothing.
      */
     @Override
     public void webSignup()

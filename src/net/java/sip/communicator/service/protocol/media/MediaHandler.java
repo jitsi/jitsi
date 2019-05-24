@@ -33,6 +33,8 @@ import org.jitsi.service.neomedia.device.*;
 import org.jitsi.service.neomedia.event.*;
 import org.jitsi.service.neomedia.format.*;
 import org.jitsi.util.event.*;
+import org.jitsi.utils.*;
+import org.jitsi.utils.event.*;
 
 /**
  * Implements media control code which allows state sharing among multiple

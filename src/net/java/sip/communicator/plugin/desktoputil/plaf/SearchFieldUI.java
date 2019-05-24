@@ -28,7 +28,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.skin.*;
 
 import org.jitsi.service.resources.*;
-import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 /**
  * The <tt>SearchTextFieldUI</tt> is the one responsible for the search field

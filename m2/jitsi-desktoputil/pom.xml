@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.jitsi</groupId>
     <artifactId>jitsi</artifactId>
-    <version>2.11-SNAPSHOT</version>
+    <version>2.13-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -21,6 +21,21 @@
       <groupId>net.java.dev.laf-widget</groupId>
       <artifactId>laf-widget</artifactId>
       <version>4.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+      <version>4.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+      <version>4.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpmime</artifactId>
+      <version>4.4</version>
     </dependency>
     <!-- org.jitsi -->
     <dependency>
@@ -40,6 +55,20 @@
             <include>net/java/sip/communicator/plugin/desktoputil/**</include>
           </includes>
         </configuration>
+        <executions>
+          <execution>
+            <id>default-testCompile</id>
+            <phase>test-compile</phase>
+            <configuration>
+              <testExcludes>
+                <exclude>net/**</exclude>
+              </testExcludes>
+            </configuration>
+            <goals>
+              <goal>testCompile</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

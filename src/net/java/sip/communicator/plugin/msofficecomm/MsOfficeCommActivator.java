@@ -20,6 +20,7 @@ package net.java.sip.communicator.plugin.msofficecomm;
 import net.java.sip.communicator.util.ServiceUtils;
 
 import org.jitsi.service.resources.*;
+import org.jitsi.utils.logging.*;
 import org.jitsi.util.*;
 import org.osgi.framework.*;
 

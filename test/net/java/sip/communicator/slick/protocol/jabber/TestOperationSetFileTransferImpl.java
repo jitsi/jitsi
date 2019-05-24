@@ -23,6 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.slick.protocol.generic.*;
 import net.java.sip.communicator.util.*;
 
+import org.jivesoftware.smackx.filetransfer.FileTransferNegotiator;
 import org.osgi.framework.*;
 
 /**
@@ -72,6 +73,7 @@ public class TestOperationSetFileTransferImpl
     public void start()
         throws Exception
     {
+        FileTransferNegotiator.IBB_ONLY = true;
         fixture.setUp();
 
         Map<String, OperationSet> supportedOperationSets1 =

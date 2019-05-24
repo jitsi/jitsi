@@ -91,7 +91,7 @@ public interface OperationSetBasicInstantMessaging
      * instance belonging to the underlying implementation.
      */
     public void sendInstantMessage(Contact to, Message message)
-        throws IllegalStateException, IllegalArgumentException;
+        throws IllegalStateException, IllegalArgumentException, OperationFailedException;
 
     /**
      * Sends the <tt>message</tt> to the destination indicated by the
@@ -108,7 +108,7 @@ public interface OperationSetBasicInstantMessaging
     public void sendInstantMessage( Contact to,
                                     ContactResource toResource,
                                     Message message)
-        throws IllegalStateException, IllegalArgumentException;
+        throws IllegalStateException, IllegalArgumentException, OperationFailedException;
 
     /**
      * Registers a <tt>MessageListener</tt> with this operation set so that it

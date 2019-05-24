@@ -25,12 +25,17 @@ import net.java.sip.communicator.service.protocol.jabberconstants.*;
 import net.java.sip.communicator.util.*;
 
 import org.jivesoftware.smack.*;
+import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.filter.*;
 import org.jivesoftware.smack.packet.*;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.util.*;
-import org.jivesoftware.smackx.*;
-import org.jivesoftware.smackx.packet.*;
+import org.jivesoftware.smackx.chatstates.ChatState;
+import org.jivesoftware.smackx.chatstates.packet.ChatStateExtension;
+import org.jivesoftware.smackx.xevent.MessageEventManager;
+import org.jivesoftware.smackx.xevent.MessageEventNotificationListener;
+import org.jivesoftware.smackx.xevent.MessageEventRequestListener;
+import org.jxmpp.jid.*;
 
 /**
  * Maps SIP Communicator typing notifications to those going and coming from
@@ -112,37 +117,18 @@ public class OperationSetTypingNotificationsJabberImpl
                "The specified contact is not a Jabber contact."
                + notifiedContact);
 
-        /**
-         * Emil Ivov: We used to use this in while we were still using XEP-0022
-         * to send typing notifications. I am commenting it out today on
-         * 2008-08-20 as we now also support XEP-0085 (see below) and using both
-         * mechanisms sends double notifications which, apart from simply being
-         * redundant, is also causing the jabber slick to fail.
-         *
-        String packetID =
-            (String)packetIDsTable.get(notifiedContact.getAddress());
-
-        //First do XEP-0022 notifications
-        if(packetID != null)
-        {
-            if(typingState == STATE_TYPING)
-            {
-                messageEventManager.
-                    sendComposingNotification(notifiedContact.getAddress(),
-                                              packetID);
-            }
-            else if(typingState == STATE_STOPPED)
-            {
-                messageEventManager.
-                    sendCancelledNotification(notifiedContact.getAddress(),
-                                              packetID);
-                packetIDsTable.remove(notifiedContact.getAddress());
-            }
-        }
-        */
-
         //now handle XEP-0085
-        sendXep85ChatState(notifiedContact, typingState);
+        try
+        {
+            sendXep85ChatState((ContactJabberImpl)notifiedContact, typingState);
+        }
+        catch (NotConnectedException | InterruptedException e)
+        {
+            throw new IllegalStateException(
+                "Failed to send typing notification",
+                e
+            );
+        }
     }
 
     /**
@@ -152,13 +138,15 @@ public class OperationSetTypingNotificationsJabberImpl
      * @param contact the contact that we'd like to send our state to.
      * @param state the state we'd like to sent.
      */
-    private void sendXep85ChatState(Contact contact, int state)
+    private void sendXep85ChatState(ContactJabberImpl contact, int state)
+        throws NotConnectedException, InterruptedException
     {
         if(opSetBasicIM == null
             || parentProvider.getConnection() == null)
             return;
 
-        String toJID = opSetBasicIM.getRecentJIDForAddress(contact.getAddress());
+        Jid toJID = opSetBasicIM.getRecentJIDForAddress(
+            contact.getAddressAsJid().asBareJid());
 
         // find the currently contacted jid to send typing info to him
         // or if we do not have a jid and we have already sent message to the
@@ -201,9 +189,10 @@ public class OperationSetTypingNotificationsJabberImpl
      * @param chatState the new chat state.
      * @param jid the JID of the receiver.
      */
-    private void setCurrentState(ChatState chatState, String jid)
+    private void setCurrentState(ChatState chatState, Jid jid)
+        throws NotConnectedException, InterruptedException
     {
-        String threadID = opSetBasicIM.getThreadIDForAddress(jid);
+        String threadID = opSetBasicIM.getThreadIDForAddress(jid.asBareJid());
         if(threadID == null)
             return;
 
@@ -215,7 +204,7 @@ public class OperationSetTypingNotificationsJabberImpl
         message.setType(Message.Type.chat);
         message.setThread(threadID);
         message.setFrom(parentProvider.getConnection().getUser());
-        parentProvider.getConnection().sendPacket(message);
+        parentProvider.getConnection().sendStanza(message);
     }
 
     /**
@@ -274,8 +263,8 @@ public class OperationSetTypingNotificationsJabberImpl
                         .getOperationSet(
                             OperationSetBasicInstantMessaging.class);
 
-                messageEventManager =
-                    new MessageEventManager(parentProvider.getConnection());
+                messageEventManager = MessageEventManager.getInstanceFor(
+                    parentProvider.getConnection());
 
                 messageEventManager.addMessageEventRequestListener(
                     new JabberMessageEventRequestListener());
@@ -286,10 +275,9 @@ public class OperationSetTypingNotificationsJabberImpl
                 if(smackChatStateListener == null)
                     smackChatStateListener = new SmackChatStateListener();
 
-                parentProvider.getConnection().addPacketListener(
-                    smackChatStateListener, new PacketTypeFilter(Message.class));
-
-
+                parentProvider.getConnection().addAsyncStanzaListener(
+                    smackChatStateListener,
+                    new StanzaTypeFilter(Message.class));
 
             }
             else if(evt.getNewState() == RegistrationState.UNREGISTERED
@@ -299,16 +287,11 @@ public class OperationSetTypingNotificationsJabberImpl
                 if(parentProvider.getConnection() != null)
                 {
                     parentProvider.getConnection()
-                        .removePacketListener(smackChatStateListener);
+                        .removeAsyncStanzaListener(smackChatStateListener);
                 }
 
                 smackChatStateListener = null;
-
-                if(messageEventManager != null)
-                {
-                    messageEventManager.destroy();
-                    messageEventManager = null;
-                }
+                messageEventManager = null;
             }
         }
     }
@@ -319,19 +302,30 @@ public class OperationSetTypingNotificationsJabberImpl
     private class JabberMessageEventRequestListener
         implements MessageEventRequestListener
     {
-        public void deliveredNotificationRequested(String from, String packetID,
+        @Override
+        public void deliveredNotificationRequested(Jid from, String packetID,
             MessageEventManager messageEventManager)
+            throws NotConnectedException, InterruptedException
         {
             messageEventManager.sendDeliveredNotification(from, packetID);
         }
 
-        public void displayedNotificationRequested(String from, String packetID,
-            MessageEventManager messageEventManager)
+        @Override
+        public void displayedNotificationRequested(Jid from, String packetID,
+                                                   MessageEventManager messageEventManager)
         {
-            messageEventManager.sendDisplayedNotification(from, packetID);
+            try
+            {
+                messageEventManager.sendDisplayedNotification(from, packetID);
+            }
+            catch (NotConnectedException | InterruptedException e)
+            {
+                logger.error("Could not send displayed notification", e);
+            }
         }
 
-        public void composingNotificationRequested(String from, String packetID,
+        @Override
+        public void composingNotificationRequested(Jid from, String packetID,
             MessageEventManager messageEventManager)
         {
 //            if(packetID != null)
@@ -341,7 +335,8 @@ public class OperationSetTypingNotificationsJabberImpl
 //            }
         }
 
-        public void offlineNotificationRequested(String from, String packetID,
+        @Override
+        public void offlineNotificationRequested(Jid from, String packetID,
                                                  MessageEventManager
                                                  messageEventManager)
         {}
@@ -353,19 +348,20 @@ public class OperationSetTypingNotificationsJabberImpl
     private class IncomingMessageEventsListener
         implements MessageEventNotificationListener
     {
-        public void deliveredNotification(String from, String packetID)
+        @Override
+        public void deliveredNotification(Jid from, String packetID)
         {
         }
 
-        public void displayedNotification(String from, String packetID)
+        @Override
+        public void displayedNotification(Jid from, String packetID)
         {
         }
 
-        public void composingNotification(String from, String packetID)
+        @Override
+        public void composingNotification(Jid from, String packetID)
         {
-            String fromID = StringUtils.parseBareAddress(from);
-
-            Contact sourceContact = opSetPersPresence.findContactByID(fromID);
+            Contact sourceContact = opSetPersPresence.findContactByID(from.asBareJid());
 
             if(sourceContact == null)
             {
@@ -376,14 +372,15 @@ public class OperationSetTypingNotificationsJabberImpl
             fireTypingNotificationsEvent(sourceContact, STATE_TYPING);
         }
 
-        public void offlineNotification(String from, String packetID)
+        @Override
+        public void offlineNotification(Jid from, String packetID)
         {
         }
 
-        public void cancelledNotification(String from, String packetID)
+        @Override
+        public void cancelledNotification(Jid from, String packetID)
         {
-            String fromID = StringUtils.parseBareAddress(from);
-            Contact sourceContact = opSetPersPresence.findContactByID(fromID);
+            Contact sourceContact = opSetPersPresence.findContactByID(from.asBareJid());
 
             if(sourceContact == null)
             {
@@ -401,7 +398,7 @@ public class OperationSetTypingNotificationsJabberImpl
      * to XEP-0085.
      */
     private class SmackChatStateListener
-        implements PacketListener
+        implements StanzaListener
     {
         /**
          * Called by smack when the state of a chat changes.
@@ -412,13 +409,13 @@ public class OperationSetTypingNotificationsJabberImpl
         public void stateChanged(ChatState state,
                                  org.jivesoftware.smack.packet.Message message)
         {
-            String fromJID = message.getFrom();
+            Jid fromJID = message.getFrom();
             if (logger.isTraceEnabled())
                 logger.trace(fromJID + " entered the "
                 + state.name()+ " state.");
 
 
-            String fromID = StringUtils.parseBareAddress(fromJID);
+            BareJid fromID = fromJID.asBareJid();
 
             boolean isPrivateMessagingAddress = false;
             OperationSetMultiUserChat mucOpSet = parentProvider
@@ -429,7 +426,7 @@ public class OperationSetTypingNotificationsJabberImpl
                     = mucOpSet.getCurrentlyJoinedChatRooms();
                 for(ChatRoom chatRoom : chatRooms)
                 {
-                    if(chatRoom.getName().equals(fromID))
+                    if(chatRoom.getName().equals(fromID.toString()))
                     {
                         isPrivateMessagingAddress = true;
                         break;
@@ -483,7 +480,7 @@ public class OperationSetTypingNotificationsJabberImpl
         }
 
         @Override
-        public void processPacket(Packet packet)
+        public void processStanza(Stanza packet)
         {
             Message msg = (Message) packet;
             ChatStateExtension ext = (ChatStateExtension) msg.getExtension(
