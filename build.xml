@@ -622,7 +622,9 @@
                 and the test machine has no audio device
             -->
             <sysproperty key="net.java.sip.communicator.service.media.DISABLE_AUDIO_SUPPORT"
-                         value="true"/>
+                         value="false"/>
+            <sysproperty key="net.java.sip.communicator.impl.neomedia.audioSystem"
+                         value="audiosilence"/>
 
         </java>
 

@@ -30,6 +30,7 @@ Import-Package: javax.xml.parsers,
  org.jitsi.util.event,
  org.jitsi.util.xml,
  org.jitsi.utils,
+ org.jitsi.utils.event,
  org.osgi.framework,
  org.w3c.dom,
  org.xml.sax
