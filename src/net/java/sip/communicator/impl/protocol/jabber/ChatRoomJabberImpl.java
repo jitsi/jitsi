@@ -189,7 +189,7 @@ public class ChatRoomJabberImpl
      * Currently used from external components reusing the protocol provider
      * to permanently add extension to the outgoing stanzas.
      */
-    private List<ExtensionElement> presencePacketExtensions
+    private final List<ExtensionElement> presencePacketExtensions
         = new ArrayList<>();
 
     /**
