@@ -184,6 +184,15 @@ public class ChatRoomJabberImpl
     private ConferenceDescriptionExtension publishedConferenceExt = null;
 
     /**
+     * List of packet extensions we need to add to every outgoing presence
+     * we send.
+     * Currently used from external components reusing the protocol provider
+     * to permanently add extension to the outgoing stanzas.
+     */
+    private final List<ExtensionElement> presencePacketExtensions
+        = new ArrayList<>();
+
+    /**
      * The last <tt>Presence</tt> packet we sent to the MUC.
      */
     private Presence lastPresenceSent = null;
@@ -1577,6 +1586,35 @@ public class ChatRoomJabberImpl
         synchronized(localUserRoleListeners)
         {
             localUserRoleListeners.remove(listener);
+        }
+    }
+
+    /**
+     * Adds a packet extension which will be added to every presence we sent.
+     *
+     * @param ext the extension we want to add.
+     */
+    public void addPresencePacketExtensions(ExtensionElement ext)
+    {
+        synchronized(presencePacketExtensions)
+        {
+            if (!presencePacketExtensions.contains(ext))
+                presencePacketExtensions.add(ext);
+        }
+    }
+
+    /**
+     * Removes a packet extension from the list of extensions we add to every
+     * presence we send.
+     *
+     * @param ext the extension we want to remove.
+     */
+    public void removePresencePacketExtensions(
+        ExtensionElement ext)
+    {
+        synchronized(presencePacketExtensions)
+        {
+            presencePacketExtensions.remove(ext);
         }
     }
 
@@ -3374,6 +3412,19 @@ public class ChatRoomJabberImpl
                 packet,
                 publishedConferenceExt,
                 ConferenceDescriptionExtension.NAMESPACE);
+
+            for(ExtensionElement ext : presencePacketExtensions)
+            {
+                try
+                {
+                    setPacketExtension(packet, ext, ext.getNamespace());
+                }
+                catch(Throwable t)
+                {
+                    logger.error(
+                        "Error setting extension to outgoing presence", t);
+                }
+            }
 
             lastPresenceSent = packet;
         }
