@@ -96,6 +96,14 @@ public class CallSipImpl
             + ".RETRANSMITS_RINGING_INTERVAL";
 
     /**
+     * The name of the property which indicates that we want to skip re-invites
+     * on focus change.
+     */
+    private static final String SKIP_REINVITE_ON_FOCUS_CHANGE_PROP
+        = "net.java.sip.communicator.impl.protocol.sip"
+            + ".SKIP_REINVITE_ON_FOCUS_CHANGE_PROP";
+
+    /**
      * The default amount of time (in milliseconds) for the initial interval for
      *  retransmissions of response 180.
      */
@@ -119,6 +127,11 @@ public class CallSipImpl
     * retransmissions of response 180.
     */
     private final int retransmitsRingingInterval;
+
+    /**
+     * Whether to skip re-inviting when conference focus changes.
+     */
+    private final boolean skipReInviteOnFocusChange;
 
     /**
      * Crates a CallSipImpl instance belonging to <tt>sourceProvider</tt> and
@@ -145,6 +158,9 @@ public class CallSipImpl
         }
         this.retransmitsRingingInterval = retransmitsRingingInterval;
 
+        this.skipReInviteOnFocusChange
+            = cfg.getBoolean(SKIP_REINVITE_ON_FOCUS_CHANGE_PROP, false);
+
         //let's add ourselves to the calls repo. we are doing it ourselves just
         //to make sure that no one ever forgets.
         parentOpSet.getActiveCallsRepository().addCall(this);
@@ -162,7 +178,10 @@ public class CallSipImpl
     {
         try
         {
-            reInvite();
+            if (!this.skipReInviteOnFocusChange)
+            {
+                reInvite();
+            }
         }
         catch (OperationFailedException ofe)
         {
