@@ -7,7 +7,7 @@ Bundle-SymbolicName: net.java.sip.communicator.plugin.update
 Import-Package: org.osgi.framework,
  org.jitsi.service.configuration,
  org.jitsi.service.resources,
- org.jitsi.service.version,
+ org.jitsi.utils.version,
  org.jitsi.util,
  net.java.sip.communicator.service.browserlauncher,
  net.java.sip.communicator.service.httputil,

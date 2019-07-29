@@ -20,8 +20,8 @@ package net.java.sip.communicator.impl.version;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
-import org.jitsi.service.version.*;
-import org.jitsi.service.version.Version;
+import org.jitsi.utils.version.*;
+import org.jitsi.utils.version.Version;
 import org.osgi.framework.*;
 
 /**

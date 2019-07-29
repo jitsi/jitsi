@@ -5,7 +5,7 @@ Bundle-Vendor: jitsi.org
 Bundle-Version: 1.0.0
 Bundle-SymbolicName: net.java.sip.communicator.replacement.directimage
 Import-Package: org.osgi.framework,
- org.jitsi.service.version,
+ org.jitsi.utils.version,
  net.java.sip.communicator.service.replacement,
  net.java.sip.communicator.service.replacement.directimage,
  org.jitsi.service.configuration,
