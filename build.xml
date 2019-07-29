@@ -452,6 +452,7 @@
             <classpath>
                 <pathelement path="${dest}"/>
                 <pathelement location="${bundles.dest}/libjitsi.jar"/>
+                <pathelement location="${bundles.dest}/jitsi-utils.jar"/>
             </classpath>
         </taskdef>
 
@@ -971,7 +972,7 @@
 
     <!-- Copying of all unmodified libraries that are already bundles -->
     <target name="bundle-bundles">
-        <copy file="${lib.noinst}/libjitsi-1.0-20190405.175243-382.jar" tofile="${bundles.dest}/libjitsi.jar"/>
+        <copy file="${lib.noinst}/libjitsi-1.0-0-gb3296cf.jar" tofile="${bundles.dest}/libjitsi.jar"/>
         <copy file="${lib.noinst}/fmj-1.0-SNAPSHOT.jar" tofile="${bundles.dest}/fmj.jar"/>
         <copy file="${lib.noinst}/jitsi-lgpl-dependencies-1.1-20180413.215034-4.jar" tofile="${bundles.dest}/jitsi-lgpl-dependencies.jar"/>
         <copy file="${lib.noinst}/guava-15.0.jar" tofile="${bundles.dest}/guava.jar"/>
@@ -991,7 +992,7 @@
         <copy file="${lib.noinst}/jmork-1.0.5.jar" tofile="${bundles.dest}/jmork.jar"/>
         <copy file="${lib.noinst}/weupnp-0.1.4.jar" tofile="${bundles.dest}/weupnp.jar"/>
         <copy file="${lib.noinst}/ice4j-2.0-20170330.222540-11.jar" tofile="${bundles.dest}/ice4j.jar"/>
-        <copy file="${lib.noinst}/jitsi-utils-1.0-20190418.111338-9.jar" tofile="${bundles.dest}/jitsi-utils.jar"/>
+        <copy file="${lib.noinst}/jitsi-utils-1.0-1-gaca0e20.jar" tofile="${bundles.dest}/jitsi-utils.jar"/>
         <copy file="${lib.noinst}/sdp-api-1.0.jar" tofile="${bundles.dest}/sdp-api.jar"/>
         <copy file="${lib.noinst}/sip-api-1.2-1.2.jar" tofile="${bundles.dest}/sip-api.jar"/>
         <copy file="${lib.noinst}/java-sdp-nist-bridge-1.2.jar" tofile="${bundles.dest}/java-sdp-nist-bridge.jar"/>

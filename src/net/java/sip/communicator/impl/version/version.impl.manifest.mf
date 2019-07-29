@@ -6,6 +6,6 @@ Bundle-Version: 0.0.1
 Bundle-SymbolicName: net.java.sip.communicator.version
 Import-Package: org.osgi.framework,
  org.jitsi.service.configuration,
- org.jitsi.service.version, org.jitsi.service.version.util,
+ org.jitsi.utils.version,
  org.jitsi.service.resources, net.java.sip.communicator.service.resources,
  net.java.sip.communicator.util

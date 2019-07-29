@@ -36,7 +36,7 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.service.resources.*;
-import org.jitsi.service.version.*;
+import org.jitsi.utils.version.*;
 import org.jitsi.util.*;
 
 /**

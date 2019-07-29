@@ -20,13 +20,13 @@ package net.java.sip.communicator.impl.version;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.resources.*;
-import org.jitsi.service.version.util.*;
+import org.jitsi.utils.version.*;
 
 /**
  * A static implementation of the Version interface.
  */
 public class VersionImpl
-    extends AbstractVersion
+    extends org.jitsi.utils.version.VersionImpl
 {
     /**
      * The version major of the current Jitsi version. In an
@@ -48,7 +48,7 @@ public class VersionImpl
      * Indicates whether this version represents a prerelease (i.e. a
      * non-complete release like an alpha, beta or release candidate version).
      */
-    public static final boolean IS_PRE_RELEASE_VERSION  = false;
+    public static final boolean IS_PRE_RELEASE_VERSION = false;
 
     /**
      * Returns the version prerelease ID of the current Jitsi version
@@ -79,64 +79,6 @@ public class VersionImpl
     public static final VersionImpl CURRENT_VERSION = new VersionImpl();
 
     /**
-     * Creates version object with default (current) values.
-     */
-    private VersionImpl()
-    {
-        super(VERSION_MAJOR, VERSION_MINOR, NightlyBuildID.BUILD_ID);
-    }
-
-    /**
-     * Creates version object with custom major, minor and nightly build id.
-     *
-     * @param majorVersion the major version to use.
-     * @param minorVersion the minor version to use.
-     * @param nightlyBuildID the nightly build id value for new version object.
-     */
-    private VersionImpl(int majorVersion,
-                        int minorVersion,
-                        String nightlyBuildID)
-    {
-        super(majorVersion, minorVersion, nightlyBuildID);
-    }
-
-    /**
-     * Indicates if this Jitsi version corresponds to a nightly build
-     * of a repository snapshot or to an official Jitsi release.
-     *
-     * @return true if this is a build of a nightly repository snapshot and
-     * false if this is an official Jitsi release.
-     */
-    public boolean isNightly()
-    {
-        return IS_NIGHTLY_BUILD;
-    }
-
-    /**
-     * Indicates whether this version represents a prerelease (i.e. a
-     * non-complete release like an alpha, beta or release candidate version).
-     * @return true if this version represents a prerelease and false otherwise.
-     */
-    public boolean isPreRelease()
-    {
-        return IS_PRE_RELEASE_VERSION;
-    }
-
-    /**
-     * Returns the version prerelease ID of the current Jitsi version
-     * and null if this version is not a prerelease.
-     *
-     * @return a String containing the version prerelease ID.
-     */
-    public String getPreReleaseID()
-    {
-        if(!isPreRelease())
-            return null;
-
-        return PRE_RELEASE_ID;
-    }
-
-    /**
      * Returns the VersionImpl instance describing the current version of
      * Jitsi.
      *
@@ -159,21 +101,20 @@ public class VersionImpl
      * supplied.
      */
     public static final VersionImpl customVersion(
-        int majorVersion,
-        int minorVersion,
-        String nightlyBuildID)
+            int majorVersion,
+            int minorVersion,
+            String nightlyBuildID)
     {
         return new VersionImpl(majorVersion, minorVersion, nightlyBuildID);
     }
 
     /**
-     * Returns the name of the application that we're currently running. Default
-     * MUST be Jitsi.
-     *
-     * @return the name of the application that we're currently running. Default
-     * MUST be Jitsi.
+     * Initializes {@link #applicationName} with a value from the
+     * {@link org.jitsi.service.resources.ResourceManagementService} if one is
+     * available or with a default.
+     * @return the initialized value.
      */
-    public String getApplicationName()
+    private static String loadApplicationName()
     {
         if (applicationName == null)
         {
@@ -185,15 +126,15 @@ public class VersionImpl
                  * it will be used once only anyway.
                  */
                 ResourceManagementService resources
-                    = ServiceUtils.getService(
-                            VersionActivator.getBundleContext(),
-                            ResourceManagementService.class);
+                        = ServiceUtils.getService(
+                        VersionActivator.getBundleContext(),
+                        ResourceManagementService.class);
 
                 if (resources != null)
                 {
                     applicationName
-                        = resources.getSettingsString(
-                                "service.gui.APPLICATION_NAME");
+                            = resources.getSettingsString(
+                            "service.gui.APPLICATION_NAME");
                 }
             }
             catch (Exception e)
@@ -208,5 +149,84 @@ public class VersionImpl
             }
         }
         return applicationName;
+    }
+
+    /**
+     * Creates version object with default (current) values.
+     */
+    private VersionImpl()
+    {
+        this(VERSION_MAJOR, VERSION_MINOR, NightlyBuildID.BUILD_ID);
+    }
+
+    /**
+     * Creates version object with custom major, minor and nightly build id.
+     *
+     * @param majorVersion the major version to use.
+     * @param minorVersion the minor version to use.
+     * @param nightlyBuildID the nightly build id value for new version object.
+     */
+    private VersionImpl(int majorVersion,
+                        int minorVersion,
+                        String nightlyBuildID)
+    {
+        super(
+                null,
+                majorVersion,
+                minorVersion,
+                nightlyBuildID,
+                PRE_RELEASE_ID);
+    }
+
+    /**
+     * Indicates if this Jitsi version corresponds to a nightly build
+     * of a repository snapshot or to an official Jitsi release.
+     *
+     * @return true if this is a build of a nightly repository snapshot and
+     * false if this is an official Jitsi release.
+     */
+    @Override
+    public boolean isNightly()
+    {
+        return IS_NIGHTLY_BUILD;
+    }
+
+    /**
+     * Indicates whether this version represents a prerelease (i.e. a
+     * non-complete release like an alpha, beta or release candidate version).
+     * @return true if this version represents a prerelease and false otherwise.
+     */
+    @Override
+    public boolean isPreRelease()
+    {
+        return IS_PRE_RELEASE_VERSION;
+    }
+
+    /**
+     * Returns the version prerelease ID of the current Jitsi version
+     * and null if this version is not a prerelease.
+     *
+     * @return a String containing the version prerelease ID.
+     */
+    @Override
+    public String getPreReleaseID()
+    {
+        if(!isPreRelease())
+            return null;
+
+        return super.getPreReleaseID();
+    }
+
+    /**
+     * Returns the name of the application that we're currently running. Default
+     * MUST be Jitsi.
+     *
+     * @return the name of the application that we're currently running. Default
+     * MUST be Jitsi.
+     */
+    @Override
+    public String getApplicationName()
+    {
+        return loadApplicationName();
     }
 }

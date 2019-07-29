@@ -20,8 +20,8 @@ package net.java.sip.communicator.impl.version;
 import net.java.sip.communicator.util.*;
 
 import org.jitsi.service.configuration.*;
-import org.jitsi.service.version.*;
-import org.jitsi.service.version.Version;
+import org.jitsi.utils.version.*;
+import org.jitsi.utils.version.Version;
 import org.osgi.framework.*;
 
 /**
@@ -82,8 +82,10 @@ public class VersionActivator
         //register properties for those that would like to use them
         ConfigurationService cfg = getConfigurationService();
 
-        cfg.setProperty(Version.PNAME_APPLICATION_NAME, applicationName, true);
-        cfg.setProperty(Version.PNAME_APPLICATION_VERSION, versionString, true);
+        // TODO: Damencho has volunteered to export these to a constant at a
+        // later stage.
+        cfg.setProperty("sip-communicator.version", applicationName, true);
+        cfg.setProperty("sip-communicator.application.name", versionString, true);
     }
 
     /**
