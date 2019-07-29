@@ -17,8 +17,7 @@
  */
 package net.java.sip.communicator.impl.version;
 
-import org.jitsi.service.version.*;
-import org.jitsi.service.version.util.*;
+import org.jitsi.utils.version.*;
 
 /**
  * The version service keeps track of the Jitsi version that we are

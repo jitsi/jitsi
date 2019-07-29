@@ -31,7 +31,7 @@ import org.jitsi.service.fileaccess.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.packetlogging.*;
 import org.jitsi.service.resources.*;
-import org.jitsi.service.version.*;
+import org.jitsi.utils.version.*;
 import org.osgi.framework.*;
 
 /**
