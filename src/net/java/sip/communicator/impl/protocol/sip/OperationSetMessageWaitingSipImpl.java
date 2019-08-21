@@ -31,6 +31,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.Logger;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
 /**
@@ -311,7 +312,7 @@ public class OperationSetMessageWaitingSipImpl
             .getAccountPropertyString(
                     ProtocolProviderFactory.VOICEMAIL_URI);
 
-        if(StringUtils.isNullOrEmpty(vmAddressURI))
+        if(StringUtils.isEmpty(vmAddressURI))
             return provider.getRegistrarConnection()
                     .getAddressOfRecord();
         else

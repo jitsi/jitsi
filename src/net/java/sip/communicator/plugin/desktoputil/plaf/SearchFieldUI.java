@@ -19,6 +19,8 @@ package net.java.sip.communicator.plugin.desktoputil.plaf;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.*;
 import javax.swing.plaf.*;
@@ -177,10 +179,12 @@ public class SearchFieldUI
                 - searchIcon.getIconHeight()/2;
 
             g2.drawImage(searchIcon.getImage(), 3, dy, null);
+            Pattern p = Pattern.compile(".*[a-zA-Z].*");
+            Matcher m = p.matcher(c.getText());
 
             if (c.getText() != null
                 && c.getText().length() > 0
-                && !StringUtils.containsLetters(c.getText())
+                && !m.find()
                 && isSMSButtonEnabled)
             {
                 // Paint sms button.

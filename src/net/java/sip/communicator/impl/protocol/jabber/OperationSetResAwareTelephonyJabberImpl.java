@@ -17,6 +17,7 @@
  */
 package net.java.sip.communicator.impl.protocol.jabber;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
@@ -139,7 +140,7 @@ public class OperationSetResAwareTelephonyJabberImpl
             call.setConference(conference);
 
         String fullCalleeUri
-            = StringUtils.isNullOrEmpty(calleeResource)
+            = StringUtils.isEmpty(calleeResource)
                 ? uri
                 : uri + "/" + calleeResource;
         CallPeer callPeer

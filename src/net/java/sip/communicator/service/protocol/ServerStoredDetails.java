@@ -17,6 +17,7 @@
  */
 package net.java.sip.communicator.service.protocol;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
 import java.net.*;
@@ -150,8 +151,8 @@ public class ServerStoredDetails
                && this.value.equals(other.getDetailValue()))
                ||
                // or both values are null / empty
-               (StringUtils.isNullOrEmpty((String)this.value)
-                && StringUtils.isNullOrEmpty((String)other.getDetailValue()))))
+               (StringUtils.isEmpty((String)this.value)
+                && StringUtils.isEmpty((String)other.getDetailValue()))))
                 return true;
             else
                 return false;

@@ -20,6 +20,8 @@ package net.java.sip.communicator.plugin.busylampfield;
 import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.Logger;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
 import java.util.*;
@@ -119,7 +121,7 @@ public class BLFContactSourceService
     @Override
     public ContactQuery createContactQuery(String queryString, int contactCount)
     {
-        if(!StringUtils.isNullOrEmpty(queryString))
+        if(StringUtils.isNotEmpty(queryString))
             return null;
 
         if(ourContactQuery == null)

@@ -2051,7 +2051,7 @@ public class ChatRoomJabberImpl
             String namespace,
             boolean matchElementName)
     {
-        if (org.jitsi.utils.StringUtils.isNullOrEmpty(namespace))
+        if (org.apache.commons.lang3.StringUtils.isEmpty(namespace))
         {
             return;
         }

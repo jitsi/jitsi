@@ -38,6 +38,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 import org.jitsi.utils.version.Version;
 import org.osgi.framework.*;
@@ -1795,7 +1796,7 @@ public class ProtocolProviderServiceSipImpl
         String registrarTransport = accountID.getAccountPropertyString(
             ProtocolProviderFactory.SERVER_TRANSPORT);
 
-        if(!StringUtils.isNullOrEmpty(registrarTransport))
+        if(StringUtils.isNotEmpty(registrarTransport))
         {
             if( ! registrarTransport.equals(ListeningPoint.UDP)
                 && !registrarTransport.equals(ListeningPoint.TCP)
@@ -2051,7 +2052,7 @@ public class ProtocolProviderServiceSipImpl
                 String defTransportDefaultValue = SipActivator.getResources()
                         .getSettingsString(DEFAULT_TRANSPORT);
 
-                if(!StringUtils.isNullOrEmpty(defTransportDefaultValue))
+                if(StringUtils.isNotEmpty(defTransportDefaultValue))
                     return defTransportDefaultValue;
                 else
                     return ListeningPoint.UDP;

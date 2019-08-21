@@ -54,7 +54,6 @@ import net.java.sip.communicator.util.skin.*;
 import org.apache.commons.lang3.*;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.fileaccess.*;
-import org.jitsi.utils.StringUtils;
 import org.osgi.framework.*;
 
 /**
@@ -2174,7 +2173,7 @@ public class ChatConversationPanel
 
                 // don't process nothing
                 // or don't process already processed links content
-                if (!StringUtils.isNullOrEmpty(plainTextAsHtml))
+                if (StringUtils.isNotEmpty(plainTextAsHtml))
                 {
                     // always add from the end of previous match, to current one
                     // or from the start to the first match

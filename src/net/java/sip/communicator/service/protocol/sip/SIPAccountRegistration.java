@@ -23,8 +23,8 @@ import java.util.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.neomedia.*;
-import org.jitsi.utils.StringUtils;
 import org.osgi.framework.*;
 
 /**
@@ -259,15 +259,15 @@ public class SIPAccountRegistration
 
         if(isMessageWaitingIndicationsEnabled())
         {
-            if(!StringUtils.isNullOrEmpty(getVoicemailURI(), true))
+            if(StringUtils.isNotBlank(getVoicemailURI()))
                 accountProperties.put(
                         ProtocolProviderFactory.VOICEMAIL_URI,
                         getVoicemailURI());
             else if(isModification)
                 accountProperties.put(ProtocolProviderFactory.VOICEMAIL_URI, "");
 
-            if(!StringUtils.isNullOrEmpty(
-                    getVoicemailCheckURI(), true))
+            if(StringUtils.isNotBlank(
+                    getVoicemailCheckURI()))
                 accountProperties.put(
                         ProtocolProviderFactory.VOICEMAIL_CHECK_URI,
                         getVoicemailCheckURI());

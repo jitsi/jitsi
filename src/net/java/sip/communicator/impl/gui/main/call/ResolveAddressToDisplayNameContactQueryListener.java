@@ -18,6 +18,8 @@
 package net.java.sip.communicator.impl.gui.main.call;
 
 import net.java.sip.communicator.service.contactsource.*;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
 /**
@@ -138,7 +140,7 @@ public class ResolveAddressToDisplayNameContactQueryListener
      */
     public boolean isFoundName()
     {
-        return !StringUtils.isNullOrEmpty(resolvedName);
+        return StringUtils.isNotEmpty(resolvedName);
     }
 
     /**

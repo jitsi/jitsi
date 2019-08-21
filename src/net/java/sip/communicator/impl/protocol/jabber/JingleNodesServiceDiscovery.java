@@ -336,7 +336,7 @@ public class JingleNodesServiceDiscovery
                 {
                     for(String pref : prefixes)
                     {
-                        if( !StringUtils.isNullOrEmpty(pref)
+                        if( org.apache.commons.lang3.StringUtils.isNotEmpty(pref)
                             && item.getEntityID().toString().startsWith(pref.trim()))
                         {
                             SmackServiceNode.deepSearch(

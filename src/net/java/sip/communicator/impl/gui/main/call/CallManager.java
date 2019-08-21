@@ -41,6 +41,7 @@ import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.account.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.codec.*;
 import org.jitsi.service.neomedia.device.*;
@@ -1453,24 +1454,24 @@ public class CallManager
                     displayName = contact.getDisplayName();
             }
 
-            if(StringUtils.isNullOrEmpty(displayName, true))
+            if(StringUtils.isBlank(displayName))
                 displayName = uiContact.getDisplayName();
         }
 
         // We search for a contact corresponding to this call peer and
         // try to get its display name.
-        if (StringUtils.isNullOrEmpty(displayName, true)
+        if (StringUtils.isBlank(displayName)
             && peer.getContact() != null)
         {
             displayName = peer.getContact().getDisplayName();
         }
 
         // We try to find the an alternative peer address.
-        if (StringUtils.isNullOrEmpty(displayName, true))
+        if (StringUtils.isBlank(displayName))
         {
             String imppAddress = peer.getAlternativeIMPPAddress();
 
-            if (!StringUtils.isNullOrEmpty(imppAddress))
+            if (StringUtils.isNotEmpty(imppAddress))
             {
                 int protocolPartIndex = imppAddress.indexOf(":");
 
@@ -1496,7 +1497,7 @@ public class CallManager
                         displayName = (contact != null)
                             ? contact.getDisplayName() : null;
 
-                        if(!StringUtils.isNullOrEmpty(displayName, true))
+                        if(StringUtils.isNotBlank(displayName))
                             break;
                     }
                 }
@@ -1511,10 +1512,10 @@ public class CallManager
             }
         }
 
-        if (StringUtils.isNullOrEmpty(displayName, true))
+        if (StringUtils.isBlank(displayName))
         {
-            displayName = (!StringUtils.isNullOrEmpty
-                            (peer.getDisplayName(), true))
+            displayName = (StringUtils.isNotBlank
+                            (peer.getDisplayName()))
                             ? peer.getDisplayName()
                             : peer.getAddress();
 
@@ -1576,7 +1577,7 @@ public class CallManager
         {
             String imppAddress = peer.getAlternativeIMPPAddress();
 
-            if (!StringUtils.isNullOrEmpty(imppAddress))
+            if (StringUtils.isNotEmpty(imppAddress))
             {
                 int protocolPartIndex = imppAddress.indexOf(":");
 
@@ -1672,7 +1673,7 @@ public class CallManager
         // We try to find the an alternative peer address.
         String imppAddress = peer.getAlternativeIMPPAddress();
 
-        if (!StringUtils.isNullOrEmpty(imppAddress))
+        if (StringUtils.isNotEmpty(imppAddress))
         {
             int protocolPartIndex = imppAddress.indexOf(":");
 
@@ -1931,7 +1932,7 @@ public class CallManager
 
         String imppAddress = peer.getAlternativeIMPPAddress();
 
-        if (!StringUtils.isNullOrEmpty(imppAddress))
+        if (StringUtils.isNotEmpty(imppAddress))
         {
             int protocolPartIndex = imppAddress.indexOf(":");
 
@@ -2702,7 +2703,7 @@ public class CallManager
             if (contact != null)
                 createdCall
                     = resourceTelephony.createCall(contact, contactResource);
-            else if (!StringUtils.isNullOrEmpty(stringContact))
+            else if (StringUtils.isNotEmpty(stringContact))
                 createdCall = resourceTelephony.createCall(
                     stringContact, contactResource.getResourceName());
         }
@@ -2712,7 +2713,7 @@ public class CallManager
             {
                 createdCall = telephony.createCall(contact);
             }
-            else if (!StringUtils.isNullOrEmpty(stringContact))
+            else if (StringUtils.isNotEmpty(stringContact))
                 createdCall = telephony.createCall(stringContact);
         }
 
@@ -4182,7 +4183,7 @@ public class CallManager
     {
         String displayName = null;
 
-        if(!StringUtils.isNullOrEmpty(peerAddress))
+        if(StringUtils.isNotEmpty(peerAddress))
         {
             ContactSourceSearcher searcher
                 = new ContactSourceSearcher(peerAddress, listener);

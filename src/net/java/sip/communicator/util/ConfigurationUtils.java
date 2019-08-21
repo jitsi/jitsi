@@ -33,9 +33,11 @@ import org.jitsi.service.configuration.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.codec.*;
 import org.jitsi.service.resources.*;
-import org.jitsi.util.*;
+import org.jitsi.util.OSUtils;
 import org.jitsi.utils.*;
 import org.osgi.framework.*;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Cares about all common configurations. Storing and retrieving configuration
@@ -2952,7 +2954,7 @@ public class ConfigurationUtils
     {
         String enabledSslProtocols = configService
             .getString("gov.nist.javax.sip.TLS_CLIENT_PROTOCOLS");
-        if(StringUtils.isNullOrEmpty(enabledSslProtocols, true))
+        if(StringUtils.isBlank(enabledSslProtocols))
         {
             SSLSocket temp;
             try

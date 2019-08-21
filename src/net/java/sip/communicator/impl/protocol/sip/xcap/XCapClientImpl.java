@@ -30,6 +30,7 @@ import net.java.sip.communicator.impl.protocol.sip.xcap.model.resourcelists.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.xcapcaps.*;
 import net.java.sip.communicator.util.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.*;
 import org.jitsi.utils.*;
 
@@ -639,7 +640,7 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
                     || httpCode == HttpStatus.SC_PROXY_AUTHENTICATION_REQUIRED)
                 {
                     String displayName = userAddress.getDisplayName();
-                    if(StringUtils.isNullOrEmpty(displayName))
+                    if(StringUtils.isEmpty(displayName))
                         displayName = userAddress.toString();
 
                     showError(null, null,
@@ -651,7 +652,7 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
             }
 
             // an empty list
-            if (StringUtils.isNullOrEmpty(response.getContentType())
+            if (StringUtils.isEmpty(response.getContentType())
                     || (content == null || content.length == 0))
             {
                 return null;

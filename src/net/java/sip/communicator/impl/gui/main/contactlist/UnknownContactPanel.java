@@ -20,6 +20,8 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.*;
 import javax.swing.text.*;
@@ -190,9 +192,11 @@ public class UnknownContactPanel
      */
     private void initSMSButton()
     {
+        Pattern p = Pattern.compile(".*[a-zA-Z].*");
+        Matcher m = p.matcher(parentWindow.getCurrentSearchText());
+
         if(parentWindow.hasOperationSet(OperationSetSmsMessaging.class)
-            && !StringUtils.containsLetters(
-                    parentWindow.getCurrentSearchText()))
+            && !m.find())
         {
             if (smsButton != null && smsButton.getParent() != null)
                 return;
