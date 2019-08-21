@@ -1531,7 +1531,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
     /**
      * Removes from this instance and cleans up the <tt>SrtpControl</tt> which
      * are not of a specific <tt>SrtpControlType</tt>.
-     * 
+     *
      * @param mediaType the <tt>MediaType</tt> of the <tt>SrtpControl</tt> to be
      * examined
      * @param srtpControlType the <tt>SrtpControlType</tt> of the
@@ -1595,7 +1595,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      * @param stream <tt>MediaStream</tt> non-null stream
      * @param mediaType <tt>MediaType</tt>
      */
-    protected void sendHolePunchPacket(MediaStream stream, MediaType mediaType)
+    public void sendHolePunchPacket(MediaStream stream, MediaType mediaType)
     {
         if (disableHolePunching)
             return;
