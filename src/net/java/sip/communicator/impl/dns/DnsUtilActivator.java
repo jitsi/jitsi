@@ -26,6 +26,8 @@ import net.java.sip.communicator.service.resources.*;
 import net.java.sip.communicator.util.*;
 
 import net.java.sip.communicator.util.Logger;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.utils.*;
@@ -176,7 +178,7 @@ public class DnsUtilActivator
                     (String)getConfigurationService().getProperty(
                         ProxyInfo
                            .CONNECTION_PROXY_FORWARD_DNS_ADDRESS_PROPERTY_NAME);
-                if(StringUtils.isNullOrEmpty(serverAddress, true))
+                if(StringUtils.isBlank(serverAddress))
                     return false;
 
                 int port = SimpleResolver.DEFAULT_PORT;

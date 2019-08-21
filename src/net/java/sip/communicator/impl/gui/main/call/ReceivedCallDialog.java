@@ -32,6 +32,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.util.*;
 import org.jitsi.utils.*;
 
@@ -137,7 +138,7 @@ public class ReceivedCallDialog
             if(displayName != null)
                 peerNamesTable.put(peer, displayName);
 
-            if(!StringUtils.isNullOrEmpty(peerAddress))
+            if(StringUtils.isNotEmpty(peerAddress))
                 textAddress = callLabel[2].getText()
                     + trimPeerAddressToUsername(peerAddress);
 
@@ -322,7 +323,7 @@ public class ReceivedCallDialog
     {
         String peerAddress = peer.getAddress();
 
-        if(StringUtils.isNullOrEmpty(peerAddress, true))
+        if(StringUtils.isBlank(peerAddress))
             return null;
         else
         {

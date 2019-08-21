@@ -26,6 +26,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.account.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
 /**
@@ -142,7 +143,7 @@ public class GlobalDisplayDetailsImpl
      */
     public String getGlobalDisplayName()
     {
-        if (!StringUtils.isNullOrEmpty(provisionedDisplayName))
+        if (StringUtils.isNotEmpty(provisionedDisplayName))
             return provisionedDisplayName;
 
         return globalDisplayName;
@@ -308,7 +309,7 @@ public class GlobalDisplayDetailsImpl
      */
     public void serverStoredDetailsChanged(ServerStoredDetailsChangeEvent evt)
     {
-        if(!StringUtils.isNullOrEmpty(provisionedDisplayName))
+        if(StringUtils.isNotEmpty(provisionedDisplayName))
             return;
 
         if(evt.getNewValue() instanceof
@@ -399,8 +400,8 @@ public class GlobalDisplayDetailsImpl
                 }
             }
 
-            if(!StringUtils.isNullOrEmpty(provisionedDisplayName)
-                || (!StringUtils.isNullOrEmpty(globalDisplayName) && !isUpdate))
+            if(StringUtils.isNotEmpty(provisionedDisplayName)
+                || (StringUtils.isNotEmpty(globalDisplayName) && !isUpdate))
                 return;
 
             if (currentFirstName == null)
@@ -408,7 +409,7 @@ public class GlobalDisplayDetailsImpl
                 String firstName = AccountInfoUtils
                     .getFirstName(accountInfoOpSet);
 
-                if (!StringUtils.isNullOrEmpty(firstName))
+                if (StringUtils.isNotEmpty(firstName))
                 {
                     currentFirstName = firstName;
                 }
@@ -419,7 +420,7 @@ public class GlobalDisplayDetailsImpl
                 String lastName = AccountInfoUtils
                     .getLastName(accountInfoOpSet);
 
-                if (!StringUtils.isNullOrEmpty(lastName))
+                if (StringUtils.isNotEmpty(lastName))
                 {
                     currentLastName = lastName;
                 }
@@ -444,19 +445,19 @@ public class GlobalDisplayDetailsImpl
         protected void setGlobalDisplayName()
         {
             String accountName = null;
-            if (!StringUtils.isNullOrEmpty(currentFirstName))
+            if (StringUtils.isNotEmpty(currentFirstName))
             {
                 accountName = currentFirstName;
             }
 
-            if (!StringUtils.isNullOrEmpty(currentLastName))
+            if (StringUtils.isNotEmpty(currentLastName))
             {
                 /*
                  * If accountName is null, don't use += because
                  * it will make the accountName start with the
                  * string "null".
                  */
-                if (StringUtils.isNullOrEmpty(accountName))
+                if (StringUtils.isEmpty(accountName))
                     accountName = currentLastName;
                 else
                     accountName += " " + currentLastName;
@@ -470,7 +471,7 @@ public class GlobalDisplayDetailsImpl
 
             globalDisplayName = accountName;
 
-            if (!StringUtils.isNullOrEmpty(globalDisplayName))
+            if (StringUtils.isNotEmpty(globalDisplayName))
             {
                 fireGlobalDisplayNameEvent(globalDisplayName);
             }

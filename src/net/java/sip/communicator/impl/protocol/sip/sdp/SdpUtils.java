@@ -31,6 +31,7 @@ import net.java.sip.communicator.service.protocol.media.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ice4j.ice.sdp.*;
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.format.*;
@@ -610,7 +611,7 @@ public class SdpUtils
                 : Connection.IP4;
 
             //o
-            if (StringUtils.isNullOrEmpty(userName) )
+            if (StringUtils.isEmpty(userName) )
                 userName = "jitsi.org";
             else
                 userName += "-jitsi.org";

@@ -21,7 +21,6 @@ import static javax.xml.XMLConstants.XML_NS_PREFIX;
 import static javax.xml.XMLConstants.XML_NS_URI;
 import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.processAny;
 import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.processAnyAttributes;
-import static org.jitsi.utils.StringUtils.isNullOrEmpty;
 import static org.jitsi.util.xml.XMLUtils.createDocument;
 import static org.jitsi.util.xml.XMLUtils.createXml;
 import static org.jitsi.util.xml.XMLUtils.getNamespaceUri;
@@ -31,6 +30,7 @@ import javax.xml.namespace.*;
 
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.*;
 
 /**
@@ -79,7 +79,7 @@ public final class ResourceListsParser
     public static ResourceListsType fromXml(String xml)
             throws ParsingException
     {
-        if (isNullOrEmpty(xml))
+        if (StringUtils.isEmpty(xml))
         {
             throw new IllegalArgumentException("XML cannot be null or empty");
         }
@@ -324,7 +324,7 @@ public final class ResourceListsParser
     {
         Element entryElement = document.createElementNS(NAMESPACE,
                 ENTRY_ELEMENT);
-        if (isNullOrEmpty(entry.getUri()))
+        if (StringUtils.isEmpty(entry.getUri()))
         {
             throw new Exception("entry uri attribute is missed");
         }
@@ -354,7 +354,7 @@ public final class ResourceListsParser
     {
         Element entryRefElement = document.createElementNS(NAMESPACE,
                 ENTRYREF_ELEMENT);
-        if (isNullOrEmpty(entryRef.getRef()))
+        if (StringUtils.isEmpty(entryRef.getRef()))
         {
             throw new Exception("entry-ref ref attribute is missed");
         }
@@ -384,7 +384,7 @@ public final class ResourceListsParser
     {
         Element externalElement = document.createElementNS(NAMESPACE,
                 EXTERNAL_ELEMENT);
-        if (!isNullOrEmpty(external.getAnchor()))
+        if (StringUtils.isNotEmpty(external.getAnchor()))
         {
             externalElement.setAttribute(EXTERNAL_ANCHOR_ATTR,
                     external.getAnchor());

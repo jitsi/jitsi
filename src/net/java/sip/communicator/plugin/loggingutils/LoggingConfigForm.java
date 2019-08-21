@@ -30,6 +30,7 @@ import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.plugin.desktoputil.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.packetlogging.*;
 import org.jitsi.service.resources.*;
 import org.jitsi.utils.*;
@@ -246,7 +247,7 @@ public class LoggingConfigForm
         c.gridy = 4;
         mainPanel.add(archiveButton, c);
 
-        if(!StringUtils.isNullOrEmpty(getUploadLocation()))
+        if(StringUtils.isEmpty(getUploadLocation()))
         {
             uploadLogsButton = new JButton(
                 resources.getI18NString("plugin.loggingutils.UPLOAD_LOGS_BUTTON"));

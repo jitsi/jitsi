@@ -26,9 +26,9 @@ import net.java.sip.communicator.service.provdisc.*;
 import net.java.sip.communicator.service.provisioning.*;
 import net.java.sip.communicator.util.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.configuration.*;
 import org.jitsi.service.resources.*;
-import org.jitsi.utils.StringUtils;
 import org.osgi.framework.*;
 
 /**
@@ -127,7 +127,7 @@ public class ProvisioningActivator
 
         String method = provisioningService.getProvisioningMethod();
 
-        if(StringUtils.isNullOrEmpty(method, true) || method.equals("NONE"))
+        if(StringUtils.isBlank(method) || method.equals("NONE"))
         {
             return;
         }

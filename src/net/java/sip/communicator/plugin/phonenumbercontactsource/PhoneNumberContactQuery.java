@@ -24,6 +24,8 @@ import net.java.sip.communicator.service.contactsource.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.ServerStoredDetails.*;
 import net.java.sip.communicator.service.protocol.event.*;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
 /**
@@ -221,7 +223,7 @@ public class PhoneNumberContactQuery
                         String contactAddress = contact.getAddress();
                         String numberString = pnd.getNumber();
 
-                        if(StringUtils.isNullOrEmpty(queryString)
+                        if(StringUtils.isEmpty(queryString)
                             || query.matcher(numberString).find()
                             || query.matcher(contactName).find()
                             || query.matcher(contactAddress).find()

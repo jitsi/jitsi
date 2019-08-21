@@ -36,6 +36,7 @@ import net.java.sip.communicator.service.protocol.globalstatus.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.Logger;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 import org.osgi.framework.*;
 
@@ -598,7 +599,7 @@ public class ConferenceChatManager
         {
             if(chatRoomWrapper != null)
             {
-                if(StringUtils.isNullOrEmpty(evt.getReason()))
+                if(StringUtils.isEmpty(evt.getReason()))
                 {
                     GuiActivator.getUIService()
                         .closeChatRoomWindow(chatRoomWrapper);
@@ -626,7 +627,7 @@ public class ConferenceChatManager
                             null);
 
                         // print and the alternate address
-                        if(!StringUtils.isNullOrEmpty(
+                        if(StringUtils.isNotEmpty(
                                 evt.getAlternateAddress()))
                         {
                             chatPanel.addMessage(

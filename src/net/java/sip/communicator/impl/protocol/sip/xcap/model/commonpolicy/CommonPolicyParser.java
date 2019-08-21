@@ -18,7 +18,6 @@
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy;
 
 import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.processAny;
-import static org.jitsi.utils.StringUtils.isNullOrEmpty;
 import static org.jitsi.util.xml.XMLUtils.createDocument;
 import static org.jitsi.util.xml.XMLUtils.createXml;
 import static org.jitsi.util.xml.XMLUtils.getNamespaceUri;
@@ -29,6 +28,7 @@ import java.util.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.presrules.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.*;
 
 /**
@@ -153,7 +153,7 @@ public final class CommonPolicyParser
     public static RulesetType fromXml(String xml)
             throws ParsingException
     {
-        if (isNullOrEmpty(xml))
+        if (StringUtils.isEmpty(xml))
         {
             throw new IllegalArgumentException("XML cannot be null or empty");
         }
@@ -336,7 +336,7 @@ public final class CommonPolicyParser
             throws Exception
     {
         Element element = document.createElementNS(NAMESPACE, RULE_ELEMENT);
-        if (isNullOrEmpty(rule.getId()))
+        if (StringUtils.isEmpty(rule.getId()))
         {
             throw new Exception("rule element is invalid");
         }
@@ -637,7 +637,7 @@ public final class CommonPolicyParser
             Document document, SphereType sphere) throws Exception
     {
         Element element = document.createElementNS(NAMESPACE, SPHERE_ELEMENT);
-        if (isNullOrEmpty(sphere.getValue()))
+        if (StringUtils.isEmpty(sphere.getValue()))
         {
             throw new Exception("sphere value attribute is missed");
         }
@@ -819,7 +819,7 @@ public final class CommonPolicyParser
             throws Exception
     {
         Element element = document.createElementNS(NAMESPACE, ONE_ELEMENT);
-        if (isNullOrEmpty(one.getId()))
+        if (StringUtils.isEmpty(one.getId()))
         {
             throw new Exception("one id attribute is missed");
         }

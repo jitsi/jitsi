@@ -23,6 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.XMPPException.*;
@@ -146,7 +147,7 @@ public class OperationSetMultiUserChatJabberImpl
 
         ChatRoom room = null;
         if (roomName == null)
-            roomName = "chatroom-" + StringUtils.randomString(4);
+            roomName = "chatroom-" + RandomStringUtils.random(4);
         else
             room = findRoom(roomName);
 

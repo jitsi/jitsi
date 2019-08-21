@@ -19,6 +19,8 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
 
@@ -29,6 +31,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 import org.jxmpp.jid.Jid;
 import org.jxmpp.jid.impl.JidCreate;
@@ -202,14 +205,25 @@ public class IceConfigPanel
 
                 if (stunServer != null)
                 {
+                    String userName;
+                    String password;
+
+                    try {
+                        userName = StringUtils.toString(
+                            stunServer.getUsername(), StandardCharsets.UTF_8.name());
+                        password = StringUtils.toString(
+                            stunServer.getPassword(), StandardCharsets.UTF_8.name());
+                    } catch (UnsupportedEncodingException ex) {
+                        userName = new String(stunServer.getUsername());
+                        password = new String(stunServer.getPassword());
+                    }
+
                     StunConfigDialog dialog = new StunConfigDialog(
                                     stunServer.getAddress(),
                                     stunServer.getPort(),
                                     stunServer.isTurnSupported(),
-                                    StringUtils.getUTF8String(
-                                                    stunServer.getUsername()),
-                                    StringUtils.getUTF8String(
-                                                    stunServer.getPassword()));
+                                    userName,
+                                    password);
                     dialog.setModal(true);
                     dialog.setVisible(true);
                 }

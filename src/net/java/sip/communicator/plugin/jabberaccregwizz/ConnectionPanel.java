@@ -27,6 +27,8 @@ import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.jabber.*;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
 /**
@@ -259,7 +261,7 @@ public class ConnectionPanel
         mainPanel.add(createDTMFPanel());
 
         String serverAddress = parentForm.getServerAddress();
-        if (!StringUtils.isNullOrEmpty(serverAddress))
+        if (StringUtils.isNotEmpty(serverAddress))
             serverField.setText(serverAddress);
 
         add(mainPanel, BorderLayout.NORTH);

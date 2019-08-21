@@ -26,6 +26,7 @@ import javax.net.ssl.*;
 import net.java.sip.communicator.impl.protocol.sip.net.*;
 import net.java.sip.communicator.util.Logger;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.util.*;
 import org.jitsi.utils.*;
 
@@ -334,7 +335,7 @@ public class SipStackProperties
         {
             String enabledSslProtocols = SipActivator.getConfigurationService()
                 .getString(NSPNAME_TLS_CLIENT_PROTOCOLS);
-            if(StringUtils.isNullOrEmpty(enabledSslProtocols, true))
+            if(StringUtils.isBlank(enabledSslProtocols))
             {
                 SSLSocket temp = (SSLSocket) SSLSocketFactory
                     .getDefault().createSocket();

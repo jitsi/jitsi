@@ -24,6 +24,7 @@ import net.java.sip.communicator.service.protocol.Message;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
+import org.apache.commons.lang3.RandomStringUtils;
 import org.jivesoftware.smack.*;
 import org.jivesoftware.smack.SmackException.*;
 import org.jivesoftware.smack.filter.*;
@@ -103,7 +104,7 @@ public class OperationSetBasicInstantMessagingJabberImpl
      * A prefix helps to make sure that thread ID's are unique across mutliple
      * instances.
      */
-    private static String prefix = StringUtils.randomString(5);
+    private static String prefix = RandomStringUtils.random(5);
 
     /**
      * Keeps track of the current increment, which is appended to the prefix to
