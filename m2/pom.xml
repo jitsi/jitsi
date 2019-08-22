@@ -91,7 +91,7 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>jitsi-utils</artifactId>
-        <version>1.0-1-gaca0e20</version>
+        <version>1.0-2-g27c4398</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
