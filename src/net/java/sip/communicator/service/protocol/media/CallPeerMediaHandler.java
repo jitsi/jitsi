@@ -1602,8 +1602,9 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
 
         // send as a hole punch packet a constructed rtp packet
         // has the correct payload type and ssrc
-        RawPacket packet = new RawPacket(
-            HOLE_PUNCH_PACKET, 0, RawPacket.FIXED_HEADER_SIZE);
+        RawPacket packet
+            = new RawPacket(
+                    HOLE_PUNCH_PACKET.clone(), 0, HOLE_PUNCH_PACKET.length);
 
         MediaFormat format = stream.getFormat();
         byte payloadType = format.getRTPPayloadType();
