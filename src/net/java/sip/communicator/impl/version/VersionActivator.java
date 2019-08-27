@@ -84,8 +84,9 @@ public class VersionActivator
 
         // TODO: Damencho has volunteered to export these to a constant at a
         // later stage.
-        cfg.setProperty("sip-communicator.version", applicationName, true);
-        cfg.setProperty("sip-communicator.application.name", versionString, true);
+        cfg.setProperty("sip-communicator.version", versionString, true);
+        cfg.setProperty(
+            "sip-communicator.application.name", applicationName, true);
     }
 
     /**
