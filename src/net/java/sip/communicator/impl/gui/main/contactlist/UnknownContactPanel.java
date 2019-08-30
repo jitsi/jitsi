@@ -35,6 +35,8 @@ import net.java.sip.communicator.plugin.desktoputil.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
 /**
@@ -192,11 +194,8 @@ public class UnknownContactPanel
      */
     private void initSMSButton()
     {
-        Pattern p = Pattern.compile(".*[a-zA-Z].*");
-        Matcher m = p.matcher(parentWindow.getCurrentSearchText());
-
         if(parentWindow.hasOperationSet(OperationSetSmsMessaging.class)
-            && !m.find())
+            && !StringUtils.isAlpha(parentWindow.getCurrentSearchText()))
         {
             if (smsButton != null && smsButton.getParent() != null)
                 return;
