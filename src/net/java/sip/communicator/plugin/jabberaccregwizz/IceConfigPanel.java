@@ -208,12 +208,14 @@ public class IceConfigPanel
                     String userName;
                     String password;
 
-                    try {
-                        userName = StringUtils.toString(
+                    try
+                    {
+                        userName = new String(
                             stunServer.getUsername(), StandardCharsets.UTF_8.name());
-                        password = StringUtils.toString(
+                        password = new String(
                             stunServer.getPassword(), StandardCharsets.UTF_8.name());
-                    } catch (UnsupportedEncodingException ex) {
+                    }
+                    catch (UnsupportedEncodingException ex) {
                         userName = new String(stunServer.getUsername());
                         password = new String(stunServer.getPassword());
                     }

@@ -247,7 +247,7 @@ public class LoggingConfigForm
         c.gridy = 4;
         mainPanel.add(archiveButton, c);
 
-        if(StringUtils.isEmpty(getUploadLocation()))
+        if(StringUtils.isNotEmpty(getUploadLocation()))
         {
             uploadLogsButton = new JButton(
                 resources.getI18NString("plugin.loggingutils.UPLOAD_LOGS_BUTTON"));

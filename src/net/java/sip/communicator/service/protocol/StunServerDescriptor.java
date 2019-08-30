@@ -253,7 +253,7 @@ public class StunServerDescriptor
             try
             {
                 props.put(namePrefix + STUN_USERNAME,
-                          StringUtils.toString(getUsername(), StandardCharsets.UTF_8.name()));
+                          new String(getUsername(), StandardCharsets.UTF_8.name()));
             }
             catch (UnsupportedEncodingException e)
             {

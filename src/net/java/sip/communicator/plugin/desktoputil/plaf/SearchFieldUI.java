@@ -179,12 +179,21 @@ public class SearchFieldUI
                 - searchIcon.getIconHeight()/2;
 
             g2.drawImage(searchIcon.getImage(), 3, dy, null);
-            Pattern p = Pattern.compile(".*[a-zA-Z].*");
-            Matcher m = p.matcher(c.getText());
+            String str = c.getText();
+            boolean containsLetter = false;
+
+            for (int i = 0; i < str.length(); i++)
+            {
+                if (Character.isLetter(str.charAt(i)))
+                {
+                    containsLetter = true;
+                    break;
+                }
+            }
 
             if (c.getText() != null
                 && c.getText().length() > 0
-                && !m.find()
+                && !containsLetter
                 && isSMSButtonEnabled)
             {
                 // Paint sms button.
