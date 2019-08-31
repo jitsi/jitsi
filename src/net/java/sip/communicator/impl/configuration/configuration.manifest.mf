@@ -5,6 +5,7 @@ Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 Bundle-SymbolicName: net.java.sip.communicator.configuration
 Import-Package: org.jitsi.service.configuration,
+ org.apache.commons.lang3,
  org.jitsi.service.fileaccess,
  org.jitsi.service.libjitsi,
  net.java.sip.communicator.util,

@@ -5,6 +5,7 @@ Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 Bundle-SymbolicName: net.java.sip.communicator.msghistory
 Import-Package: org.osgi.framework,
+ org.apache.commons.lang3,
  org.jitsi.service.configuration,
  org.jitsi.service.resources, net.java.sip.communicator.service.resources,
  org.jitsi.service.fileaccess,

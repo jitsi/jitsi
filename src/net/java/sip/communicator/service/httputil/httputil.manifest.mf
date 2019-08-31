@@ -7,6 +7,7 @@ Bundle-SymbolicName: net.java.sip.communicator.service.httputil
 Import-Package: org.xml.sax, 
  org.w3c.dom,
  org.osgi.framework,
+ org.apache.commons.lang3,
  org.apache.xml.serialize,
  javax.xml.transform.stream,
  javax.xml.transform.dom,
