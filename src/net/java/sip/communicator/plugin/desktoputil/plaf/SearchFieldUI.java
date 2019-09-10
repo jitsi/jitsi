@@ -182,12 +182,16 @@ public class SearchFieldUI
             String str = c.getText();
             boolean containsLetter = false;
 
-            for (int i = 0; i < str.length(); i++)
-            {
-                if (Character.isLetter(str.charAt(i)))
+            if (str != null && !str.isEmpty()) {
+                for (int i = 0; i < str.length(); i++)
                 {
-                    containsLetter = true;
-                    break;
+                    char chr = str.charAt(i);
+
+                    if (Character.isLetter(chr) || Character.isAlphabetic(chr))
+                    {
+                        containsLetter = true;
+                        break;
+                    }
                 }
             }
 
