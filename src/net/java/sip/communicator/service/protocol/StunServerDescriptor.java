@@ -258,7 +258,7 @@ public class StunServerDescriptor
             catch (UnsupportedEncodingException e)
             {
                 props.put(namePrefix + STUN_USERNAME,
-                    getUsername().toString());
+                    StringUtils.toEncodedString(getUsername(), StandardCharsets.UTF_8));
             }
 
         if (getPassword() != null && getPassword().length > 0)

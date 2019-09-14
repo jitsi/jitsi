@@ -216,8 +216,8 @@ public class IceConfigPanel
                             stunServer.getPassword(), StandardCharsets.UTF_8.name());
                     }
                     catch (UnsupportedEncodingException ex) {
-                        userName = new String(stunServer.getUsername());
-                        password = new String(stunServer.getPassword());
+                        userName = StringUtils.toEncodedString(stunServer.getUsername(), StandardCharsets.UTF_8);
+                        password = StringUtils.toEncodedString(stunServer.getPassword(), StandardCharsets.UTF_8);
                     }
 
                     StunConfigDialog dialog = new StunConfigDialog(
