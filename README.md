@@ -16,3 +16,4 @@ Before you open an issue, please discuss it on one of our [mailing lists](https:
 Contributing
 ------------
 Please, read the [contribution guidelines](CONTRIBUTING.md) before opening a new issue or pull request.
+
