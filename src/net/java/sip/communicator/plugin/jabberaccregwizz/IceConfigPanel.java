@@ -205,20 +205,8 @@ public class IceConfigPanel
 
                 if (stunServer != null)
                 {
-                    String userName;
-                    String password;
-
-                    try
-                    {
-                        userName = new String(
-                            stunServer.getUsername(), StandardCharsets.UTF_8.name());
-                        password = new String(
-                            stunServer.getPassword(), StandardCharsets.UTF_8.name());
-                    }
-                    catch (UnsupportedEncodingException ex) {
-                        userName = StringUtils.toEncodedString(stunServer.getUsername(), StandardCharsets.UTF_8);
-                        password = StringUtils.toEncodedString(stunServer.getPassword(), StandardCharsets.UTF_8);
-                    }
+                    String userName = StringUtils.toEncodedString(stunServer.getUsername(), StandardCharsets.UTF_8);
+                    String password = StringUtils.toEncodedString(stunServer.getPassword(), StandardCharsets.UTF_8);
 
                     StunConfigDialog dialog = new StunConfigDialog(
                                     stunServer.getAddress(),

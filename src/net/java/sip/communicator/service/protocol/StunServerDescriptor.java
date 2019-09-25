@@ -250,16 +250,8 @@ public class StunServerDescriptor
             props.put(namePrefix + STUN_PORT, Integer.toString( getPort() ));
 
         if (getUsername() != null && getUsername().length > 0)
-            try
-            {
-                props.put(namePrefix + STUN_USERNAME,
-                          new String(getUsername(), StandardCharsets.UTF_8.name()));
-            }
-            catch (UnsupportedEncodingException e)
-            {
                 props.put(namePrefix + STUN_USERNAME,
                           StringUtils.toEncodedString(getUsername(), StandardCharsets.UTF_8));
-            }
 
         if (getPassword() != null && getPassword().length > 0)
         {

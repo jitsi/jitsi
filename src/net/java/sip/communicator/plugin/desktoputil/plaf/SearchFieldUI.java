@@ -29,6 +29,7 @@ import javax.swing.text.*;
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.skin.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.resources.*;
 import org.jitsi.utils.*;
 
@@ -182,7 +183,7 @@ public class SearchFieldUI
             String str = c.getText();
             boolean containsLetter = false;
 
-            if (str != null && !str.isEmpty()) {
+            if (str != null && StringUtils.isNotEmpty(str)) {
                 for (int i = 0; i < str.length(); i++)
                 {
                     char chr = str.charAt(i);
