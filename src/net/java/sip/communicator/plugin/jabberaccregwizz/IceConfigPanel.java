@@ -19,7 +19,6 @@ package net.java.sip.communicator.plugin.jabberaccregwizz;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;

@@ -181,24 +181,10 @@ public class SearchFieldUI
 
             g2.drawImage(searchIcon.getImage(), 3, dy, null);
             String str = c.getText();
-            boolean containsLetter = false;
-
-            if (str != null && StringUtils.isNotEmpty(str)) {
-                for (int i = 0; i < str.length(); i++)
-                {
-                    char chr = str.charAt(i);
-
-                    if (Character.isLetter(chr) || Character.isAlphabetic(chr))
-                    {
-                        containsLetter = true;
-                        break;
-                    }
-                }
-            }
 
             if (c.getText() != null
                 && c.getText().length() > 0
-                && !containsLetter
+                && (str != null && StringUtils.isNotEmpty(str) && !StringUtils.isAlpha(str))
                 && isSMSButtonEnabled)
             {
                 // Paint sms button.
