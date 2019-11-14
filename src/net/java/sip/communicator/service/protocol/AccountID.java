@@ -427,7 +427,7 @@ public abstract class AccountID
 
         return (obj != null)
             && getClass().isInstance(obj)
-            && userID.equals(((AccountID)obj).userID);
+            && accountUID.equals(((AccountID)obj).accountUID);
     }
 
     /**
