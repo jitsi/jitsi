@@ -980,7 +980,10 @@ public class AccountManager
         // If the account with the given id is already loaded we have nothing
         // to do here.
         if (isAccountLoaded(accountID))
+        {
+            logger.warn("Account is already loaded " + accountID);
             return;
+        }
 
         ProtocolProviderFactory providerFactory
             = ProtocolProviderActivator.getProtocolProviderFactory(
@@ -993,6 +996,10 @@ public class AccountManager
                 String.valueOf(false));
             // Finally store the modified properties.
             storeAccount(providerFactory, accountID);
+        }
+        else
+        {
+            logger.warn("Account was not loaded " + accountID);
         }
     }
 

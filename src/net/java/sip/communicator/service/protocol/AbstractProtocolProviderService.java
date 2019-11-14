@@ -246,7 +246,7 @@ public abstract class AbstractProtocolProviderService
 
     /**
      * Default implementation that always returns true.
-     * 
+     *
      * @param contactId ignored.
      * @param result ignored
      * @return true
@@ -374,8 +374,7 @@ public abstract class AbstractProtocolProviderService
     @Override
     public String toString()
     {
-        return getClass().getSimpleName() + "("
-                + getAccountID().getDisplayName() + ")";
+        return getClass().getSimpleName() + "(" + getAccountID() + ")";
     }
 
     /**

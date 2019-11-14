@@ -428,8 +428,7 @@ public class ReconnectPluginActivator
     private void handleProviderAdded(ProtocolProviderService provider)
     {
         if (logger.isTraceEnabled())
-            logger.trace("New protocol provider is comming "
-            + provider.getProtocolName());
+            logger.trace("New protocol provider is coming " + provider);
 
         provider.addRegistrationStateChangeListener(this);
     }
@@ -445,7 +444,8 @@ public class ReconnectPluginActivator
     private void handleProviderRemoved(ProtocolProviderService provider)
     {
         if (logger.isTraceEnabled())
-            logger.trace("Provider modified forget every instance of it");
+            logger.trace("Provider modified forget every instance of it "
+                + provider);
 
         if(hasAtLeastOneSuccessfulConnection(provider))
         {
@@ -619,8 +619,7 @@ public class ReconnectPluginActivator
 
                             if (logger.isInfoEnabled())
                                 logger.info("Reconnect " +
-                                    pp.getAccountID().getDisplayName()
-                                    + " after " + task.delay + " ms.");
+                                    pp + " after " + task.delay + " ms.");
 
                             timer.schedule(task, task.delay);
                         }
@@ -909,9 +908,8 @@ public class ReconnectPluginActivator
                              currentlyReconnecting.put(pp, task);
 
                              if (logger.isInfoEnabled())
-                                 logger.info("Reconnect " +
-                                     pp.getAccountID().getDisplayName() +
-                                     " after " + task.delay + " ms.");
+                                 logger.info("Reconnect "
+                                     + pp + " after " + task.delay + " ms.");
 
                              timer.schedule(task, task.delay);
                          }
@@ -982,8 +980,7 @@ public class ReconnectPluginActivator
                 try
                 {
                     if (logger.isInfoEnabled())
-                        logger.info("Start reconnecting "
-                            + provider.getAccountID().getDisplayName());
+                        logger.info("Start reconnecting " + provider);
 
                     provider.register(
                         getUIService().getDefaultSecurityAuthority(provider));
