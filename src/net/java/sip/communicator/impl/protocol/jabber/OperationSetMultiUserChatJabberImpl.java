@@ -875,6 +875,14 @@ public class OperationSetMultiUserChatJabberImpl
             {
                 // clear cached chatrooms as there are no longer valid
                 chatRoomCache.clear();
+
+                XMPPConnection connection = getXmppConnection();
+                if (smackInvitationListener != null && connection != null)
+                {
+                    MultiUserChatManager.getInstanceFor(connection)
+                        .removeInvitationListener(smackInvitationListener);
+                    smackInvitationListener = null;
+                }
             }
             else if (evt.getNewState() == RegistrationState.UNREGISTERING)
             {
@@ -883,6 +891,7 @@ public class OperationSetMultiUserChatJabberImpl
                 {
                     MultiUserChatManager.getInstanceFor(connection)
                         .removeInvitationListener(smackInvitationListener);
+                    smackInvitationListener = null;
                 }
 
                 // lets check for joined rooms and leave them

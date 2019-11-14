@@ -2397,7 +2397,7 @@ public class ProtocolProviderServiceJabberImpl
             // fire that a connection failed, the reconnection mechanism
             // will look after us and will clean us, other wise we can do
             // a dead lock (connection closed is called
-            // within xmppConneciton and calling disconnect again can lock it)
+            // within xmppConnection and calling disconnect again can lock it)
             fireRegistrationStateChanged(
                 getRegistrationState(),
                 RegistrationState.CONNECTION_FAILED,
@@ -2442,12 +2442,12 @@ public class ProtocolProviderServiceJabberImpl
                         }
                     }
 
-                    disconnectAndCleanConnection();
-
                     fireRegistrationStateChanged(getRegistrationState(),
                         RegistrationState.UNREGISTERED,
                         RegistrationStateChangeEvent.REASON_MULTIPLE_LOGINS,
                         "Connecting multiple times with the same resource");
+
+                    disconnectAndCleanConnection();
 
                     return;
                 }
@@ -2480,12 +2480,12 @@ public class ProtocolProviderServiceJabberImpl
                 }
             }
 
-            disconnectAndCleanConnection();
-
             fireRegistrationStateChanged(getRegistrationState(),
                 RegistrationState.CONNECTION_FAILED,
                 reason,
                 exception.getMessage());
+
+            disconnectAndCleanConnection();
         }
 
         /**
