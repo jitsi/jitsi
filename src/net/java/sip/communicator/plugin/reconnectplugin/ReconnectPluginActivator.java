@@ -454,12 +454,15 @@ public class ReconnectPluginActivator
 
         provider.removeRegistrationStateChangeListener(this);
 
-        autoReconnEnabledProviders.remove(provider);
-        needsReconnection.remove(provider);
-
-        if(currentlyReconnecting.containsKey(provider))
+        synchronized(this)
         {
-            currentlyReconnecting.remove(provider).cancel();
+            autoReconnEnabledProviders.remove(provider);
+            needsReconnection.remove(provider);
+
+            if(currentlyReconnecting.containsKey(provider))
+            {
+                currentlyReconnecting.remove(provider).cancel();
+            }
         }
     }
 
@@ -595,6 +598,7 @@ public class ReconnectPluginActivator
                     // registrationStateChanged so make checks here
                     // to prevent synchronize in registrationStateChanged
                     // and deadlock
+                    synchronized(this) {
                     if(pp.getRegistrationState().equals(
                             RegistrationState.UNREGISTERING)
                        || pp.getRegistrationState().equals(
@@ -625,7 +629,7 @@ public class ReconnectPluginActivator
                         }
                         return;
                     }
-
+                    }
                     pp.unregister();
                 }
                 catch(Throwable t)
@@ -905,13 +909,18 @@ public class ReconnectPluginActivator
                              if(currentlyReconnecting.containsKey(pp))
                                  currentlyReconnecting.remove(pp).cancel();
 
-                             currentlyReconnecting.put(pp, task);
+                             // schedule the reconnect only if is not user
+                             // requested unregister
+                             if (!evt.isUserRequest())
+                             {
+                                 currentlyReconnecting.put(pp, task);
 
-                             if (logger.isInfoEnabled())
-                                 logger.info("Reconnect "
-                                     + pp + " after " + task.delay + " ms.");
+                                 if(logger.isInfoEnabled())
+                                     logger.info("Reconnect "
+                                         + pp + " after " + task.delay + " ms.");
 
-                             timer.schedule(task, task.delay);
+                                 timer.schedule(task, task.delay);
+                             }
                          }
                      }
                      /*
