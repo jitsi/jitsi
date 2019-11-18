@@ -86,6 +86,11 @@ public class MediaAwareCallConference
         };
 
     /**
+     * Sync around creating/removing audio and video translator.
+     */
+    private final Object translatorSyncRoot = new Object();
+
+    /**
      * The <tt>RTPTranslator</tt> which forwards video RTP and RTCP traffic
      * between the <tt>CallPeer</tt>s of the <tt>Call</tt>s participating in
      * this telephony conference when the local peer is acting as a conference
@@ -254,16 +259,19 @@ public class MediaAwareCallConference
 
         if (getCallCount() == 0)
         {
-            if (videoRTPTranslator != null)
+            synchronized (translatorSyncRoot)
             {
-                videoRTPTranslator.dispose();
-                videoRTPTranslator = null;
-            }
+                if(videoRTPTranslator != null)
+                {
+                    videoRTPTranslator.dispose();
+                    videoRTPTranslator = null;
+                }
 
-            if (audioRTPTranslator != null)
-            {
-                audioRTPTranslator.dispose();
-                audioRTPTranslator = null;
+                if(audioRTPTranslator != null)
+                {
+                    audioRTPTranslator.dispose();
+                    audioRTPTranslator = null;
+                }
             }
         }
     }
@@ -382,26 +390,28 @@ public class MediaAwareCallConference
         if (MediaType.VIDEO.equals(mediaType)
                 && (!OSUtils.IS_ANDROID || isConferenceFocus()))
         {
-            if (videoRTPTranslator == null)
+            synchronized (translatorSyncRoot)
             {
-                videoRTPTranslator
-                    = ProtocolMediaActivator
-                        .getMediaService()
-                            .createRTPTranslator();
+                if(videoRTPTranslator == null)
+                {
+                    videoRTPTranslator = ProtocolMediaActivator
+                        .getMediaService().createRTPTranslator();
+                }
+                return videoRTPTranslator;
             }
-            return videoRTPTranslator;
         }
 
         if (this.translator)
         {
-            if(audioRTPTranslator == null)
+            synchronized (translatorSyncRoot)
             {
-                audioRTPTranslator
-                    = ProtocolMediaActivator
-                        .getMediaService()
-                            .createRTPTranslator();
+                if(audioRTPTranslator == null)
+                {
+                    audioRTPTranslator = ProtocolMediaActivator
+                        .getMediaService().createRTPTranslator();
+                }
+                return audioRTPTranslator;
             }
-            return audioRTPTranslator;
         }
 
         return null;
