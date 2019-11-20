@@ -619,6 +619,12 @@ public class ReconnectPluginActivator
                             if(currentlyReconnecting.containsKey(pp))
                                 currentlyReconnecting.remove(pp).cancel();
 
+                            if (!autoReconnEnabledProviders.containsKey(pp))
+                            {
+                                logger.warn("Skips provider reconnect " + pp);
+                                return;
+                            }
+
                             currentlyReconnecting.put(pp, task);
 
                             if (logger.isInfoEnabled())
