@@ -554,7 +554,7 @@ public class ReconnectPluginActivator
                     }
 
                     // don't reconnect just unregister if needed.
-                    unregister(pp, false, null, null);
+                    unregister(pp);
                 }
 
                 connectedInterfaces.clear();
@@ -575,75 +575,19 @@ public class ReconnectPluginActivator
      * Unregisters the ProtocolProvider. Make sure to do it in separate thread
      * so we don't block other processing.
      * @param pp the protocol provider to unregister.
-     * @param reconnect if the protocol provider does not need unregistering
-     *      shall we trigger reconnect. Its true when call called from
-     *      reconnect.
-     * @param listener the listener used in reconnect method.
-     * @param task the task to use for reconnection.
      */
-    private void unregister(final ProtocolProviderService pp,
-                            final boolean reconnect,
-                            final RegistrationStateChangeListener listener,
-                            final ReconnectTask task)
+    private void unregister(final ProtocolProviderService pp)
     {
         unregisteringProviders.add(pp);
 
-        new Thread(new Runnable()
+        try
         {
-            public void run()
-            {
-                try
-                {
-                    // getRegistrationState() for some protocols(icq) can trigger
-                    // registrationStateChanged so make checks here
-                    // to prevent synchronize in registrationStateChanged
-                    // and deadlock
-                    synchronized(this) {
-                    if(pp.getRegistrationState().equals(
-                            RegistrationState.UNREGISTERING)
-                       || pp.getRegistrationState().equals(
-                            RegistrationState.UNREGISTERED)
-                       || pp.getRegistrationState().equals(
-                            RegistrationState.CONNECTION_FAILED))
-                    {
-                        if(reconnect)
-                        {
-                            if(listener != null)
-                                pp.removeRegistrationStateChangeListener(
-                                        listener);
-
-                            if(timer == null || task == null)
-                                 return;
-
-                            // cancel any existing task before overriding it
-                            if(currentlyReconnecting.containsKey(pp))
-                                currentlyReconnecting.remove(pp).cancel();
-
-                            if (!autoReconnEnabledProviders.containsKey(pp))
-                            {
-                                logger.warn("Skips provider reconnect " + pp);
-                                return;
-                            }
-
-                            currentlyReconnecting.put(pp, task);
-
-                            if (logger.isInfoEnabled())
-                                logger.info("Reconnect " +
-                                    pp + " after " + task.delay + " ms.");
-
-                            timer.schedule(task, task.delay);
-                        }
-                        return;
-                    }
-                    }
-                    pp.unregister();
-                }
-                catch(Throwable t)
-                {
-                    logger.error("Error unregistering pp:" + pp, t);
-                }
-            }
-        }).start();
+            pp.unregister();
+        }
+        catch(Throwable t)
+        {
+            logger.error("Error unregistering pp:" + pp, t);
+        }
     }
 
     /**
@@ -870,82 +814,104 @@ public class ReconnectPluginActivator
                 + Math.random() * RECONNECT_DELAY_MAX)*1000;
         }
 
+        if(pp.getRegistrationState().equals(RegistrationState.UNREGISTERING)
+            || pp.getRegistrationState().equals(RegistrationState.UNREGISTERED)
+            || pp.getRegistrationState()
+                .equals(RegistrationState.CONNECTION_FAILED))
+        {
+            scheduleReconnectIfNeeded(delay, pp, false);
+        }
+        else
+        {
+            // start registering after the pp has unregistered
+            final long delayFinal = delay;
+            RegistrationStateChangeListener listener =
+                new RegistrationStateChangeListener()
+                {
+                    public void registrationStateChanged(RegistrationStateChangeEvent evt)
+                    {
+                        if(evt.getSource() instanceof ProtocolProviderService)
+                        {
+                            if(evt.getNewState().equals(
+                                    RegistrationState.UNREGISTERED)
+                                || evt.getNewState().equals(
+                                    RegistrationState.CONNECTION_FAILED))
+                            {
+                                pp.removeRegistrationStateChangeListener(this);
+
+                                scheduleReconnectIfNeeded(
+                                    delayFinal, pp, evt.isUserRequest());
+                            }
+                             /*
+                             this unregister one way or another, and will end
+                             with unregister or connection failed
+                             if we remove listener when unregister come
+                             we will end up with unregistered provider without reconnect
+                             else if(evt.getNewState().equals(
+                                                    RegistrationState.REGISTERED))
+                             {
+                                 pp.removeRegistrationStateChangeListener(this);
+                             }*/
+                        }
+            }};
+            pp.addRegistrationStateChangeListener(listener);
+
+            // as we will reconnect, lets unregister
+            unregister(pp);
+        }
+    }
+
+    /**
+     * Schedules a reconnect if needed (if there is timer and connected
+     * interfaces and user request is not null).
+     * @param delay The delay to use when creating the reconnect task.
+     * @param pp the protocol provider that will be reconnected.
+     * @param userRequest whether this reconnect is coming from user request
+     * event that was fired.
+     */
+    private synchronized void scheduleReconnectIfNeeded(
+        long delay, ProtocolProviderService pp, boolean userRequest)
+    {
         final ReconnectTask task = new ReconnectTask(pp);
         task.delay = delay;
 
-        // start registering after the pp has unregistered
-        RegistrationStateChangeListener listener =
-            new RegistrationStateChangeListener()
+        if(timer == null)
+            return;
+
+        if(connectedInterfaces.size() == 0)
         {
-            public void registrationStateChanged(RegistrationStateChangeEvent evt)
-            {
-                 if(evt.getSource() instanceof ProtocolProviderService)
-                 {
-                    if(evt.getNewState().equals(
-                                            RegistrationState.UNREGISTERED)
-                        || evt.getNewState().equals(
-                                        RegistrationState.CONNECTION_FAILED))
-                     {
-                         synchronized(this)
-                         {
-                             pp.removeRegistrationStateChangeListener(this);
+            // well there is no network we just need
+            // this provider in needs reconnection when
+            // there is one
+            // means we started unregistering while
+            // network was going down and meanwhile there
+            // were no connected interface, this happens
+            // when we have more than one connected
+            // interface and we got 2 events for down iface
+            needsReconnection.add(pp);
 
-                             if(timer == null)
-                                 return;
+            if(currentlyReconnecting.containsKey(pp))
+                currentlyReconnecting.remove(pp).cancel();
 
-                             if(connectedInterfaces.size() == 0)
-                             {
-                                 // well there is no network we just need
-                                 // this provider in needs reconnection when
-                                 // there is one
-                                 // means we started unregistering while
-                                 // network was going down and meanwhile there
-                                 // were no connected interface, this happens
-                                 // when we have more than one connected
-                                 // interface and we got 2 events for down iface
-                                 needsReconnection.add(pp);
+            return;
+        }
 
-                                 if(currentlyReconnecting.containsKey(pp))
-                                    currentlyReconnecting.remove(pp).cancel();
+        // cancel any existing task before overriding it
+        if(currentlyReconnecting.containsKey(pp))
+            currentlyReconnecting.remove(pp).cancel();
 
-                                 return;
-                             }
+        // schedule the reconnect only if is not user
+        // requested unregister
+        if (!userRequest)
+        {
+            currentlyReconnecting.put(pp, task);
 
-                             // cancel any existing task before overriding it
-                             if(currentlyReconnecting.containsKey(pp))
-                                 currentlyReconnecting.remove(pp).cancel();
+            if(logger.isInfoEnabled())
+                logger.info("Reconnect "
+                    + pp + " after " + task.delay + " ms.");
 
-                             // schedule the reconnect only if is not user
-                             // requested unregister
-                             if (!evt.isUserRequest())
-                             {
-                                 currentlyReconnecting.put(pp, task);
-
-                                 if(logger.isInfoEnabled())
-                                     logger.info("Reconnect "
-                                         + pp + " after " + task.delay + " ms.");
-
-                                 timer.schedule(task, task.delay);
-                             }
-                         }
-                     }
-                     /*
-                     this unregister one way or another, and will end
-                     with unregister or connection failed
-                     if we remove listener when unregister come
-                     we will end up with unregistered provider without reconnect
-                     else if(evt.getNewState().equals(
-                                            RegistrationState.REGISTERED))
-                     {
-                         pp.removeRegistrationStateChangeListener(this);
-                     }*/
-                 }
-            }
-        };
-        pp.addRegistrationStateChangeListener(listener);
-
-        // as we will reconnect, lets unregister
-        unregister(pp, true, listener, task);
+            timer.schedule(task, task.delay);
+        }
     }
 
     /**
