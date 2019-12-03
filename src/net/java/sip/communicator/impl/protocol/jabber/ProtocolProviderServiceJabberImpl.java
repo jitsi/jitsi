@@ -755,6 +755,51 @@ public class ProtocolProviderServiceJabberImpl
             int serverPort = getAccountID().getAccountPropertyInt(
                     ProtocolProviderFactory.SERVER_PORT, 5222);
 
+            String boshURL = accountID.getBoshUrl();
+            boolean isBosh
+                = !org.jitsi.utils.StringUtils.isNullOrEmpty(boshURL);
+            if (isBosh)
+            {
+                BOSHConfiguration.Builder boshConfConnBuilder =
+                    (BOSHConfiguration.Builder)
+                        loginStrategy.getConnectionConfigurationBuilder();
+
+                try
+                {
+                    URI boshURI = new URI(boshURL);
+
+                    boolean useHttps = boshURI.getScheme().equals("https");
+
+                    int port = boshURI.getPort();
+                    if (port == -1)
+                    {
+                        port = useHttps ? 443 : 80;
+                    }
+
+                    String file = boshURI.getPath();
+                    // use rawQuery as getQuery() decodes the string
+                    String query = boshURI.getRawQuery();
+                    if (!StringUtils.isNullOrEmpty(query))
+                    {
+                        file += "?" + query;
+                    }
+
+                    serverPort = port;
+                    serverAddressUserSetting = boshURI.getHost();
+
+                    boshConfConnBuilder
+                        .setUseHttps(useHttps)
+                        .setFile(file)
+                        .setPort(port)
+                        .setHost(serverAddressUserSetting);
+                }
+                catch (URISyntaxException e)
+                {
+                    throw new JitsiXmppException(
+                        "Fail parsing bosh URL to retrieve DNS", e);
+                }
+            }
+
             InetSocketAddress[] addrs = null;
             try
             {
@@ -1142,47 +1187,20 @@ public class ProtocolProviderServiceJabberImpl
         // BOSH or TCP ?
         ConnectionConfiguration.Builder confConn =
             loginStrategy.getConnectionConfigurationBuilder();
-        String boshURL = accountID.getBoshUrl();
-        boolean isBosh = !org.jitsi.utils.StringUtils.isNullOrEmpty(boshURL);
 
         confConn.setXmppDomain(serviceName);
-        if (isBosh)
+
+        boolean isBosh = false;
+        if (confConn instanceof BOSHConfiguration.Builder)
         {
+            isBosh = true;
+
             BOSHConfiguration.Builder boshConfConnBuilder =
                 (BOSHConfiguration.Builder)confConn;
 
-            try
-            {
-                URI boshURI = new URI(boshURL);
-                boolean useHttps = boshURI.getScheme().equals("https");
-
-                int port = boshURI.getPort();
-                if (port == -1)
-                {
-                    port = useHttps ? 443 : 80;
-                }
-
-                String file = boshURI.getPath();
-                // use rawQuery as getQuery() decodes the string
-                String query = boshURI.getRawQuery();
-                if (!StringUtils.isNullOrEmpty(query))
-                {
-                    file += "?" + query;
-                }
-
-                boshConfConnBuilder
-                    .setUseHttps(useHttps)
-                    .setFile(file)
-                    .setPort(port)
-                    .setHost(boshURI.getHost())
-                    .setProxyInfo(proxy);
-            }
-            catch (URISyntaxException e)
-            {
-                throw new JitsiXmppException(
-                    "Fail setting bosh URL to XMPPBOSHConnection configuration",
-                    e);
-            }
+            boshConfConnBuilder
+//                .setHostAddress(address.getAddress())
+                .setProxyInfo(proxy);
         }
         else
         {
