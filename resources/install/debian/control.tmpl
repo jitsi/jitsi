@@ -59,16 +59,16 @@ Standards-Version: 3.9.5
 Package: _PACKAGE_NAME_
 Architecture: i386 amd64
 Depends: default-jre | java7-runtime,
- libavformat58 | libavformat57 | libavformat-ffmpeg56,
- libavcodec58 | libavcodec-extra58 | libavcodec57 | libavcodec-extra57 | libavcodec-ffmpeg56 | libavcodec-ffmpeg-extra56,
- libavfilter7 | libavfilter-extra7 | libavfilter6 | libavfilter-extra6 | libavfilter-ffmpeg5,
- libavutil56 | libavutil55 | libavutil-ffmpeg54,
- libswscale5 | libswscale4 | libswscale-ffmpeg3,
  libappindicator1,
  libxss1,
  libspeex1,
  libspeexdsp1,
  jitsi-archive-keyring
+Recommends:  libavformat58 | libavformat57 | libavformat-ffmpeg56,
+ libavcodec58 | libavcodec-extra58 | libavcodec57 | libavcodec-extra57 | libavcodec-ffmpeg56 | libavcodec-ffmpeg-extra56,
+ libavfilter7 | libavfilter-extra7 | libavfilter6 | libavfilter-extra6 | libavfilter-ffmpeg5,
+ libavutil56 | libavutil55 | libavutil-ffmpeg54,
+ libswscale5 | libswscale4 | libswscale-ffmpeg3
 Description: VoIP and Instant Messaging client
  _APP_NAME_ is an application that allows you to do audio/video
  conversations over the Internet through the SIP and XMPP/Jabber protocol,
