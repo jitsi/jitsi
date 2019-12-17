@@ -231,8 +231,6 @@ public class ResourceManagementServiceImpl
 
         if (path == null || path.length() == 0)
         {
-            if (logger.isInfoEnabled())
-                logger.info("Missing resource for key: " + urlKey);
             return null;
         }
         return getImageURLForPath(path);
