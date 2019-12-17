@@ -138,7 +138,8 @@ public class ResourceManagementServiceImpl
 
         if(res == null)
         {
-            logger.error("Missing color resource for key: " + key);
+            if (logger.isDebugEnabled())
+                logger.debug("Missing color resource for key: " + key);
 
             return 0xFFFFFF;
         }
@@ -160,7 +161,8 @@ public class ResourceManagementServiceImpl
 
         if(res == null)
         {
-            logger.error("Missing color resource for key: " + key);
+            if (logger.isDebugEnabled())
+                logger.debug("Missing color resource for key: " + key);
 
             return "0xFFFFFF";
         }
@@ -212,7 +214,8 @@ public class ResourceManagementServiceImpl
 
         if (path == null || path.length() == 0)
         {
-            logger.warn("Missing resource for key: " + streamKey);
+            if (logger.isDebugEnabled())
+                logger.debug("Missing resource for key: " + streamKey);
             return null;
         }
 
@@ -231,8 +234,8 @@ public class ResourceManagementServiceImpl
 
         if (path == null || path.length() == 0)
         {
-            if (logger.isInfoEnabled())
-                logger.info("Missing resource for key: " + urlKey);
+            if (logger.isDebugEnabled())
+                logger.debug("Missing resource for key: " + urlKey);
             return null;
         }
         return getImageURLForPath(path);
@@ -272,7 +275,8 @@ public class ResourceManagementServiceImpl
 
         if (path == null || path.length() == 0)
         {
-            logger.warn("Missing resource for key: " + urlKey);
+            if (logger.isDebugEnabled())
+                logger.debug("Missing resource for key: " + urlKey);
             return null;
         }
         return getSoundURLForPath(path);
@@ -348,7 +352,7 @@ public class ResourceManagementServiceImpl
     /**
      * Gets the specified setting from the config service if present, otherwise
      * from the embedded resources (resources/config/defaults.properties).
-     * 
+     *
      * @param key The setting to lookup.
      * @return The setting for the key or {@code null} if not found.
      */
