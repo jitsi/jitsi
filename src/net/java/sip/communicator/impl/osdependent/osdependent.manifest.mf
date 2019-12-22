@@ -44,4 +44,5 @@ Import-Package: com.apple.cocoa.application,
  org.jitsi.service.configuration,
  org.jitsi.service.resources,
  org.jitsi.util,
+ org.jitsi.utils.logging,
  org.osgi.framework
