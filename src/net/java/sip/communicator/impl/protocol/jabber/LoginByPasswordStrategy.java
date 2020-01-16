@@ -1,7 +1,7 @@
 /*
  * Jitsi, the OpenSource Java VoIP and Instant Messaging client.
  *
- * Copyright @ 2015 Atlassian Pty Ltd
+ * Copyright @ 2018 - present 8x8, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import org.jivesoftware.smack.*;
 import org.jxmpp.jid.*;
-import org.jxmpp.jid.parts.Resourcepart;
 
 import javax.net.ssl.*;
 import java.io.*;

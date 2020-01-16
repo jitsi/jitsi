@@ -1302,10 +1302,10 @@ public class ProtocolProviderServiceJabberImpl
                         ProtocolProviderFactory.KEEP_ALIVE_INTERVAL, -1);
         if (this.isKeepAliveEnabled && keepAliveInterval > 0)
         {
-            PingManager.getInstanceFor(connection).setPingInterval(keepAliveInterval);
+            PingManager.getInstanceFor(connection)
+                .setPingInterval(keepAliveInterval);
         }
 
-        connection.setReplyTimeout(30000);
         connection.connect();
 
         setTrafficClass();
