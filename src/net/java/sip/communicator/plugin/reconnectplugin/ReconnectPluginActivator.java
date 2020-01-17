@@ -530,7 +530,7 @@ public class ReconnectPluginActivator
      * Trace prints of current status of the lists with protocol providers,
      * that are currently in interest of the reconnect plugin.
      */
-    private void traceCurrentPPState()
+    static void traceCurrentPPState()
     {
         logger.trace("connectedInterfaces: " + connectedInterfaces);
         logger.trace("reconnectEnabledProviders: "

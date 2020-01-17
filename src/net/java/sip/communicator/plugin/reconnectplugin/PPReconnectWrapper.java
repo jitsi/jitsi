@@ -189,6 +189,7 @@ public class PPReconnectWrapper
                     if (logger.isTraceEnabled())
                     {
                         logger.trace("Got Registered for " + pp);
+                        traceCurrentPPState();
                     }
                 }
                 else if (state.equals(RegistrationState.CONNECTION_FAILED)
@@ -220,6 +221,13 @@ public class PPReconnectWrapper
                         reconnect(currentReconnect != null ?
                             currentReconnect.delay : -1);
                     }
+
+                    if(logger.isTraceEnabled())
+                    {
+                        logger.trace("Got Connection Failed for " + pp,
+                            new Exception("tracing exception"));
+                        traceCurrentPPState();
+                    }
                 }
                 else if (state.equals(RegistrationState.UNREGISTERED)
                     || isServerReturnedErroneousInputEvent)
@@ -237,6 +245,12 @@ public class PPReconnectWrapper
 
                     // if currently reconnecting cancel
                     cancelReconnect();
+
+                    if(logger.isTraceEnabled())
+                    {
+                        logger.trace("Got Unregistered for " + pp);
+                        traceCurrentPPState();
+                    }
                 }
             }
             catch(Throwable ex)
@@ -255,6 +269,9 @@ public class PPReconnectWrapper
         {
             if (this.currentReconnect != null)
             {
+                if(logger.isInfoEnabled())
+                    logger.info("Cancel reconnect " + this.currentReconnect);
+
                 this.currentReconnect.cancel();
                 this.currentReconnect = null;
             }
@@ -363,7 +380,7 @@ public class PPReconnectWrapper
     public String toString()
     {
         StringBuilder builder = new StringBuilder();
-        builder.append(super.toString())
+        builder.append(getClass().getSimpleName())
             .append("[provider=").append(provider)
             .append(", currentlyUnregistering=").append(currentlyUnregistering)
             .append(", currentReconnect=").append(currentReconnect)
@@ -459,7 +476,8 @@ public class PPReconnectWrapper
         @Override
         public String toString()
         {
-            return super.toString() + "[delay=" + delay + "]";
+            return ReconnectTask.class.getSimpleName()
+                + " [delay=" + delay + ", provider=" + provider + "]";
         }
     }
 }
