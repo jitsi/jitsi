@@ -466,7 +466,7 @@ public class ReconnectPluginActivator
         if(event.getType() == ChangeEvent.IFACE_UP)
         {
             // no connection so one is up, lets connect
-            if (noConnectedInterfaces())
+            if (!anyConnectedInterfaces())
             {
                 onNetworkUp();
 
@@ -489,7 +489,7 @@ public class ReconnectPluginActivator
             connectedInterfaces.remove(ifaceName);
 
             // one is down and at least one more is connected
-            if (!noConnectedInterfaces())
+            if (anyConnectedInterfaces())
             {
                 // lets reconnect all that were connected when this one was
                 // available, cause they maybe using it
@@ -531,11 +531,12 @@ public class ReconnectPluginActivator
 
     /**
      * Whether we have any connected interface.
-     * @return <tt>true</tt> when there is no connected interface at the moment.
+     * @return <tt>true</tt> when there is at least one connected interface at
+     * the moment.
      */
-    static boolean noConnectedInterfaces()
+    static boolean anyConnectedInterfaces()
     {
-        return connectedInterfaces.isEmpty();
+        return !connectedInterfaces.isEmpty();
     }
 
     /**
@@ -625,7 +626,7 @@ public class ReconnectPluginActivator
             return null;
         }
 
-        if (noConnectedInterfaces())
+        if (!anyConnectedInterfaces())
         {
             // There is no network, nothing to do, when
             // network is back it will be scheduled to reconnect.

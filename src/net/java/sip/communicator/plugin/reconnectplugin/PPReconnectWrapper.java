@@ -199,7 +199,7 @@ public class PPReconnectWrapper
                         return;
                     }
 
-                    if (!ReconnectPluginActivator.noConnectedInterfaces())
+                    if (ReconnectPluginActivator.anyConnectedInterfaces())
                     {
                         // network is up but something happen and cannot reconnect
                         // strange lets try again after some time
