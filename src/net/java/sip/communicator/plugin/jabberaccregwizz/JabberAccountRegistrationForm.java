@@ -423,7 +423,7 @@ public class JabberAccountRegistrationForm
 
         iceConfigPanel.setUseIce(accountReg.isUseIce());
 
-        iceConfigPanel.setAutoDiscoverStun(accountReg.isAutoDiscoverStun());
+        iceConfigPanel.setAutoDiscoverStun(accountReg.isStunServerDiscoveryEnabled());
 
         iceConfigPanel.setUseDefaultStunServer(
                 accountReg.isUseDefaultStunServer());
