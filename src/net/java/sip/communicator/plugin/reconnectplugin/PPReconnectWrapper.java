@@ -20,6 +20,8 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 
+import java.util.*;
+
 import static net.java.sip.communicator.plugin.reconnectplugin.ReconnectPluginActivator.*;
 
 /**
@@ -54,6 +56,11 @@ public class PPReconnectWrapper
     private final Object localStateMutex = new Object();
 
     /**
+     * Timer for scheduling the reconnect operation.
+     */
+    private Timer timer = null;
+
+    /**
      * Whether we had scheduled unregister for this provider.
      */
     private boolean currentlyUnregistering = false;
@@ -67,7 +74,7 @@ public class PPReconnectWrapper
     /**
      * The current reconnect task.
      */
-    private ReconnectPluginActivator.ReconnectTask currentReconnect = null;
+    private ReconnectTask currentReconnect = null;
 
     /**
      * Protects currentReconnect field.
@@ -82,6 +89,8 @@ public class PPReconnectWrapper
     public PPReconnectWrapper(ProtocolProviderService provider)
     {
         this.provider = provider;
+        this.timer = new Timer("Reconnect timer p:"
+            + provider.getAccountID().getAccountUniqueID(), true);
 
         provider.addRegistrationStateChangeListener(this);
     }
@@ -100,6 +109,12 @@ public class PPReconnectWrapper
      */
     public void clear()
     {
+        if(timer != null)
+        {
+            timer.cancel();
+            timer = null;
+        }
+
         this.provider.removeRegistrationStateChangeListener(this);
 
         // if currently reconnecting cancel
@@ -166,7 +181,7 @@ public class PPReconnectWrapper
             {
                 if (state.equals(RegistrationState.REGISTERED))
                 {
-                    ReconnectPluginActivator.addReconnectEnabledProvider(this);
+                    addReconnectEnabledProvider(this);
 
                     // if currently reconnecting cancel
                     cancelReconnect();
@@ -179,12 +194,11 @@ public class PPReconnectWrapper
                 else if (state.equals(RegistrationState.CONNECTION_FAILED)
                         && !isServerReturnedErroneousInputEvent)
                 {
-                    if (!ReconnectPluginActivator
-                            .hasAtLeastOneSuccessfulConnection(pp))
+                    if (!hasAtLeastOneSuccessfulConnection(pp))
                     {
                         // ignore providers which haven't registered successfully
                         // till now, they maybe miss-configured
-                        ReconnectPluginActivator.notifyConnectionFailed(evt);
+                        notifyConnectionFailed(evt);
 
                         return;
                     }
@@ -199,7 +213,7 @@ public class PPReconnectWrapper
                         return;
                     }
 
-                    if (ReconnectPluginActivator.anyConnectedInterfaces())
+                    if (anyConnectedInterfaces())
                     {
                         // network is up but something happen and cannot reconnect
                         // strange lets try again after some time
@@ -216,8 +230,9 @@ public class PPReconnectWrapper
                     // event is by user request
                     if (evt.isUserRequest() || isServerReturnedErroneousInputEvent)
                     {
-                        ReconnectPluginActivator
-                            .removeReconnectEnabledProviders(this);
+                        this.clear();
+
+                        removeReconnectEnabledProviders(this);
                     }
 
                     // if currently reconnecting cancel
@@ -256,8 +271,8 @@ public class PPReconnectWrapper
         {
             if (this.currentReconnect == null)
             {
-                this.currentReconnect = ReconnectPluginActivator
-                    .scheduleReconnectIfNeeded(delay, this.provider);
+                this.currentReconnect
+                    = scheduleReconnectIfNeeded(delay, this.provider);
             }
             else
             {
@@ -357,5 +372,94 @@ public class PPReconnectWrapper
             .append("]");
 
         return builder.toString();
+    }
+
+    /**
+     * Schedules a reconnect if needed (if there is timer and connected
+     * interfaces and user request is not null).
+     * @param delay The delay to use when creating the reconnect task.
+     * @param pp the protocol provider that will be reconnected.
+     */
+    private ReconnectTask scheduleReconnectIfNeeded(
+        long delay, ProtocolProviderService pp)
+    {
+        final ReconnectTask task = new ReconnectTask();
+        task.delay = delay;
+
+        if (timer == null)
+        {
+            return null;
+        }
+
+        if (!anyConnectedInterfaces())
+        {
+            // There is no network, nothing to do, when
+            // network is back it will be scheduled to reconnect.
+            // This means we started unregistering while
+            // network was going down and meanwhile there
+            // were no connected interface, this happens
+            // when we have more than one connected
+            // interface and we got 2 events for down iface
+
+            return null;
+        }
+
+        if(logger.isInfoEnabled())
+            logger.info("Reconnect " + pp + " after " + task.delay + " ms.");
+
+        timer.schedule(task, task.delay);
+
+        return task;
+    }
+
+    /**
+     * The task executed by the timer when time for reconnect comes.
+     */
+    private class ReconnectTask
+        extends TimerTask
+    {
+        /**
+         * The delay with which was this task scheduled.
+         */
+        long delay;
+
+        /**
+         * The thread to execute this task.
+         */
+        private Thread thread = null;
+
+        /**
+         * Reconnects the provider.
+         */
+        @Override
+        public void run()
+        {
+            if(thread == null || !Thread.currentThread().equals(thread))
+            {
+                thread = new Thread(this);
+                thread.start();
+            }
+            else
+            {
+                try
+                {
+                    if (logger.isInfoEnabled())
+                        logger.info("Start reconnecting " + provider);
+
+                    provider.register(
+                        getUIService().getDefaultSecurityAuthority(provider));
+                } catch (OperationFailedException ex)
+                {
+                    logger.error("cannot re-register provider will keep going",
+                        ex);
+                }
+            }
+        }
+
+        @Override
+        public String toString()
+        {
+            return super.toString() + "[delay=" + delay + "]";
+        }
     }
 }

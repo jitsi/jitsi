@@ -102,11 +102,6 @@ public class ReconnectPluginActivator
     private static final Set<String> connectedInterfaces = new HashSet<>();
 
     /**
-     * Timer for scheduling all reconnect operations.
-     */
-    private static Timer timer = null;
-
-    /**
      * Start of the delay interval when starting a reconnect.
      */
     static final int RECONNECT_DELAY_MIN = 2; // sec
@@ -169,9 +164,6 @@ public class ReconnectPluginActivator
 
         bundleContext.addServiceListener(this);
 
-        if(timer == null)
-            timer = new Timer("Reconnect timer", true);
-
         this.networkAddressManagerService
             = ServiceUtils.getService(
                     bundleContext,
@@ -222,11 +214,6 @@ public class ReconnectPluginActivator
     public void stop(BundleContext bundleContext)
         throws Exception
     {
-        if(timer != null)
-        {
-            timer.cancel();
-            timer = null;
-        }
     }
 
     /**
@@ -606,111 +593,6 @@ public class ReconnectPluginActivator
                     {   pp.getAccountID().getUserID(),
                         pp.getAccountID().getService() },
                 pp.getAccountID());
-        }
-    }
-
-    /**
-     * Schedules a reconnect if needed (if there is timer and connected
-     * interfaces and user request is not null).
-     * @param delay The delay to use when creating the reconnect task.
-     * @param pp the protocol provider that will be reconnected.
-     */
-    static ReconnectTask scheduleReconnectIfNeeded(
-        long delay, ProtocolProviderService pp)
-    {
-        final ReconnectTask task = new ReconnectTask(pp);
-        task.delay = delay;
-
-        if (timer == null)
-        {
-            return null;
-        }
-
-        if (!anyConnectedInterfaces())
-        {
-            // There is no network, nothing to do, when
-            // network is back it will be scheduled to reconnect.
-            // This means we started unregistering while
-            // network was going down and meanwhile there
-            // were no connected interface, this happens
-            // when we have more than one connected
-            // interface and we got 2 events for down iface
-
-            return null;
-        }
-
-        if(logger.isInfoEnabled())
-            logger.info("Reconnect "
-                + pp + " after " + task.delay + " ms.");
-
-        timer.schedule(task, task.delay);
-
-        return task;
-    }
-
-    /**
-     * The task executed by the timer when time for reconnect comes.
-     */
-    static class ReconnectTask
-        extends TimerTask
-    {
-        /**
-         * The provider to reconnect.
-         */
-        private ProtocolProviderService provider;
-
-        /**
-         * The delay with which was this task scheduled.
-         */
-        long delay;
-
-        /**
-         * The thread to execute this task.
-         */
-        private Thread thread = null;
-
-        /**
-         * Creates the task.
-         *
-         * @param provider the <tt>ProtocolProviderService</tt> to reconnect
-         */
-        public ReconnectTask(ProtocolProviderService provider)
-        {
-            this.provider = provider;
-        }
-
-        /**
-         * Reconnects the provider.
-         */
-        @Override
-        public void run()
-        {
-            if(thread == null || !Thread.currentThread().equals(thread))
-            {
-                thread = new Thread(this);
-                thread.start();
-            }
-            else
-            {
-                try
-                {
-                    if (logger.isInfoEnabled())
-                        logger.info("Start reconnecting " + provider);
-
-                    provider.register(
-                        getUIService().getDefaultSecurityAuthority(provider));
-                } catch (OperationFailedException ex)
-                {
-                    logger.error("cannot re-register provider will keep going",
-                                ex);
-                }
-            }
-        }
-
-        @Override
-        public String toString()
-        {
-            return super.toString() + "[delay=" + delay + "]";
         }
     }
 
