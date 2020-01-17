@@ -361,17 +361,6 @@ public class JabberAccountID
     }
 
     /**
-     * Indicates if the stun server should be automatically discovered.
-     * @return <tt>true</tt> if the stun server should be automatically
-     * discovered, otherwise returns <tt>false</tt>.
-     */
-    public boolean isAutoDiscoverStun()
-    {
-        return getAccountPropertyBoolean(
-                ProtocolProviderFactory.AUTO_DISCOVER_STUN, true);
-    }
-
-    /**
      * Sets the <tt>autoDiscoverStun</tt> property.
      * @param isAutoDiscover <tt>true</tt> to indicate that stun server should
      * be auto-discovered, <tt>false</tt> - otherwise.
