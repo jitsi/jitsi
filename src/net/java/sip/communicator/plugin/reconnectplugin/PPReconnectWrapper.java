@@ -441,35 +441,22 @@ public class PPReconnectWrapper
         long delay;
 
         /**
-         * The thread to execute this task.
-         */
-        private Thread thread = null;
-
-        /**
          * Reconnects the provider.
          */
         @Override
         public void run()
         {
-            if(thread == null || !Thread.currentThread().equals(thread))
+            try
             {
-                thread = new Thread(this);
-                thread.start();
-            }
-            else
-            {
-                try
-                {
-                    if (logger.isInfoEnabled())
-                        logger.info("Start reconnecting " + provider);
+                if (logger.isInfoEnabled())
+                    logger.info("Start reconnecting " + provider);
 
-                    provider.register(
-                        getUIService().getDefaultSecurityAuthority(provider));
-                } catch (OperationFailedException ex)
-                {
-                    logger.error("cannot re-register provider will keep going",
-                        ex);
-                }
+                provider.register(
+                    getUIService().getDefaultSecurityAuthority(provider));
+            } catch (OperationFailedException ex)
+            {
+                logger.error("cannot re-register provider will keep going",
+                    ex);
             }
         }
 
