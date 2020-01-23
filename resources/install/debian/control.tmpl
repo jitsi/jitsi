@@ -6,7 +6,7 @@ Uploaders: Emil Ivov <emcho@jitsi.org>
 Homepage: _APP_WEB_
 Build-Depends: debhelper (>= 9), javahelper,
                dpkg-dev (>= 1.16.1),
-               openjdk-8-jdk | java8-jdk | java8-sdk | default-jdk,
+               openjdk-8-jdk | java8-sdk,
                ant,
                ant-optional,
                ant-contrib-cpptasks,
@@ -58,7 +58,7 @@ Standards-Version: 3.9.5
 
 Package: _PACKAGE_NAME_
 Architecture: i386 amd64
-Depends: openjdk-8-jre-headless | java8-runtime-headless | default-jre-headless,
+Depends: openjdk-8-jre-headless | java8-runtime-headless,
  libxss1,
  libspeex1,
  libspeexdsp1
