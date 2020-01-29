@@ -2342,7 +2342,9 @@ public class ChatRoomJabberImpl
             // if we are sending this message, this either a delivery report
             // or if there is a delay extension this is a history coming from
             // the chat room
-            if(multiUserChat.getNickname().equals(msgFrom.getResourceOrThrow()))
+            if(multiUserChat.getNickname() != null
+                && multiUserChat.getNickname()
+                    .equals(msgFrom.getResourceOrThrow()))
             {
                 // message delivered
                 ChatRoomMessageDeliveredEvent msgDeliveredEvt
