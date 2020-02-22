@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.sysactivity;
 
 import net.java.sip.communicator.util.Logger;
 import org.jitsi.util.*;
+import org.jitsi.utils.*;
 
 /**
  * @author Damian Minkov

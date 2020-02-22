@@ -3179,7 +3179,7 @@
         <symlink
              resource="/usr/share/java/guava.jar"
              overwrite="true"
-             link="${debian.src.dir}/lib/installer-exclude/guava-15.0.jar"/>
+             link="${debian.src.dir}/lib/installer-exclude/guava-20.0.jar"/>
         <symlink
              resource="/usr/share/java/hsqldb.jar"
              overwrite="true"

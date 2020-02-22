@@ -26,7 +26,7 @@
 	<classpathentry kind="lib" path="lib/installer-exclude/gdata-contacts-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/gdata-contacts-meta-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/gdata-core-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/installer-exclude/guava-15.0.jar"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/guava-20.0.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/hexdump-0.2.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/httpclient-osgi-4.2.3.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/httpcore-osgi-4.2.3.jar"/>
@@ -55,7 +55,7 @@
 			<attribute name="javadoc_location" value="http://dbus.freedesktop.org/doc/dbus-java/api/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi-1.0-09fc4d0.jar" sourcepath="/libjitsi/src"/>
+	<classpathentry kind="lib" path="lib/installer-exclude/libjitsi-1.0-24-g887fe21e.jar" sourcepath="/libjitsi/src"/>
 	<classpathentry kind="lib" path="lib/bundle/log4j.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/mac_widgets-0.9.5.jar"/>
 	<classpathentry kind="lib" path="lib/installer-exclude/objenesis-1.2.jar"/>
