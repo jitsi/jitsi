@@ -21,6 +21,7 @@ import java.util.*;
 
 import org.jitsi.xmpp.extensions.condesc.*;
 import org.jitsi.xmpp.extensions.jingle.*;
+import org.jitsi.xmpp.extensions.jitsimeet.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.service.protocol.jabber.*;
@@ -49,6 +50,7 @@ import org.jxmpp.stringprep.*;
  * @author Lyubomir Marinov
  * @author Sebastien Vincent
  * @author Boris Grozev
+ * @author Cristian Florin Ghita
  */
 public class OperationSetBasicTelephonyJabberImpl
    extends AbstractOperationSetBasicTelephony<ProtocolProviderServiceJabberImpl>
@@ -1036,6 +1038,41 @@ public class OperationSetBasicTelephonyJabberImpl
 
         if(action == JingleAction.SESSION_INITIATE)
         {
+
+            StandardExtensionElement startMutedExt
+                = jingleIQ.getExtension(
+                        StartMutedPacketExtension.ELEMENT_NAME,
+                        StartMutedPacketExtension.NAMESPACE);
+
+            if (startMutedExt != null)
+            {
+                ProtocolProviderServiceJabberImpl protocolProvider
+                    = getProtocolProvider();
+
+                OperationSetJitsiMeetToolsJabberImpl operationSetJitsiMeetTools
+                    = (OperationSetJitsiMeetToolsJabberImpl)protocolProvider
+                        .getOperationSet(OperationSetJitsiMeetTools.class);
+
+                if (operationSetJitsiMeetTools != null)
+                {
+                    boolean[] startMutedFlags = {
+                        Boolean.parseBoolean(startMutedExt.getAttributeValue(
+                            StartMutedPacketExtension.AUDIO_ATTRIBUTE_NAME)),
+
+                        Boolean.parseBoolean(startMutedExt.getAttributeValue(
+                            StartMutedPacketExtension.VIDEO_ATTRIBUTE_NAME))
+                    };
+
+                    operationSetJitsiMeetTools
+                        .notifySessionStartMuted(startMutedFlags);    
+                }
+                else
+                {
+                    logger.warn("StartMutedPacketExtension not handled!" + 
+                                    "OperationSetJitsiMeetTools not available.");
+                }
+            }
+
             TransferPacketExtension transfer
                 = jingleIQ.getExtension(
                         TransferPacketExtension.ELEMENT_NAME,

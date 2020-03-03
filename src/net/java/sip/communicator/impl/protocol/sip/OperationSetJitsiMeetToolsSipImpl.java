@@ -20,7 +20,14 @@ package net.java.sip.communicator.impl.protocol.sip;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 
+import gov.nist.javax.sip.header.*;
+import javax.sip.*;
+import javax.sip.message.*;
+import javax.sip.header.*;
+import javax.sip.address.URI;
 import org.jivesoftware.smack.packet.*;
+import org.json.simple.*;
+import org.json.simple.parser.*;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -29,10 +36,34 @@ import java.util.concurrent.*;
  * The SIP implementation of {@link OperationSetJitsiMeetTools}.
  *
  * @author Pawel Domas
+ * @author Cristian Florin Ghita
  */
 public class OperationSetJitsiMeetToolsSipImpl
+    extends MethodProcessorAdapter
     implements OperationSetJitsiMeetTools
 {
+    /**
+     * The protocol provider that created this operation set.
+     */
+    private final ProtocolProviderServiceSipImpl parentProvider;
+
+    /**
+     * Parameter key used to complement handling of send/receive
+     * implementation for a protocol.
+     */
+    private static final String VIA_PARAMETER = "VIA";
+
+    /**
+     * Parameter value for VIA_PARAMETER that represents SIP
+     * INFO method to send/receive using SIP.
+     */
+    private static final String VIA_SIP_INFO = "SIP.INFO";
+
+    /**
+    * Default encoding for incoming messages.
+    */
+    public static final String DEFAULT_MIME_ENCODING = "UTF-8"; 
+
     /**
      * Name of extra INVITE header which specifies name of MUC room that is
      * hosting the Jitsi Meet conference.
@@ -69,6 +100,9 @@ public class OperationSetJitsiMeetToolsSipImpl
         // Specify custom header names
         JITSI_MEET_ROOM_HEADER = account.getAccountPropertyString(
             JITSI_MEET_ROOM_HEADER_PROPERTY, JITSI_MEET_ROOM_HEADER);
+
+        this.parentProvider = parentProvider;
+        this.parentProvider.registerMethodProcessor(Request.INFO, this);
     }
 
     /**
@@ -162,5 +196,263 @@ public class OperationSetJitsiMeetToolsSipImpl
     public void setPresenceStatus(ChatRoom chatRoom, String statusMessage)
     {
         throw new RuntimeException("Not implemented for SIP");
+    }
+
+    /**
+     * Sends a JSON to the specified <tt>callPeer</tt>.
+     *
+     * @param callPeer the CallPeer to which we send the JSONObject to.
+     * @param jsonObject the JSONObject that we send to the CallPeer.
+     *
+     * @param params a map which is used to set specific parameters
+     * for the protocol used to send the jsonObject.
+     */
+    @Override
+    public void sendJSON(CallPeer callPeer,
+                        JSONObject jsonObject,
+                        Map<String, Object> params)
+                        throws OperationFailedException
+    {
+        try
+        {
+            boolean bViaParam = params.containsKey(VIA_PARAMETER);
+
+            if (bViaParam == false)
+            {
+                throw new OperationFailedException(
+                    "Unspecified " + VIA_PARAMETER + " parameter!",
+                    OperationFailedException.ILLEGAL_ARGUMENT);
+            }
+
+            String viaParam = (String) params.get(VIA_PARAMETER);
+
+            if (viaParam.equalsIgnoreCase(VIA_SIP_INFO) == true)
+            {
+                CallPeerSipImpl peer = (CallPeerSipImpl) callPeer;
+
+                Request info = this.parentProvider
+                                    .getMessageFactory()
+                                    .createRequest( peer.getDialog(),
+                                                    Request.INFO);
+
+                ContentType ct = new ContentType("application", "json");
+
+                String content = jsonObject.toString();
+
+                ContentLength cl = new ContentLength(content.length());
+
+                info.setContentLength(cl);
+    
+                info.setContent(content.getBytes(), ct);
+
+                ClientTransaction clientTransaction = 
+                    peer.getJainSipProvider()
+                        .getNewClientTransaction(info);
+
+                if (peer.getDialog().getState()
+                    == DialogState.TERMINATED)
+                {
+                    //this is probably because the call has just ended, so don't
+                    //throw an exception. simply log and get lost.
+                    logger.warn(
+                        "Trying to send a request using a TERMINATED dialog.");
+                    return;
+                }
+
+                peer.getDialog().sendRequest(clientTransaction);
+
+                if (logger.isTraceEnabled())
+                {
+                    logger.trace("Request " + info.toString()
+                                    + " sent.");
+                }
+            }
+            else
+            {
+                throw new OperationFailedException(
+                    "Unsupported " + VIA_PARAMETER + " parameter by protocol!",
+                    OperationFailedException.ILLEGAL_ARGUMENT);
+            }
+        }
+        catch(Exception ex)
+        {
+            throw new OperationFailedException(
+                ex.getMessage(),
+                OperationFailedException.GENERAL_ERROR);
+        }
+    }
+
+    /**
+     * Processes a Request received on a SipProvider upon which this SipListener
+     * is registered.
+     * <p>
+     *
+     * @param requestEvent requestEvent fired from the SipProvider to the
+     * <tt>SipListener</tt> representing a Request received from the network.
+     *
+     * @return <tt>true</tt> if the specified event has been handled by this
+     * processor and shouldn't be offered to other processors registered for the
+     * same method; <tt>false</tt>, otherwise
+     */
+    @Override
+    public boolean processRequest(RequestEvent requestEvent)
+    {
+        try
+        {
+            Request request = requestEvent.getRequest();
+
+            ContentTypeHeader contentTypeHeader
+                = (ContentTypeHeader)
+                    request.getHeader(ContentTypeHeader.NAME);
+
+            if (contentTypeHeader != null)
+            {
+                if (contentTypeHeader.getContentType()
+                    .equalsIgnoreCase("application")
+                    &&
+                        contentTypeHeader.getContentSubType()
+                            .equalsIgnoreCase("json"))
+                {
+                    String charset = contentTypeHeader.getParameter("charset");
+
+                    if (charset == null)
+                        charset = DEFAULT_MIME_ENCODING;
+
+                    String contentString = new String(
+                        request.getRawContent(),
+                        charset);
+
+                    JSONObject receivedJson = 
+                        (JSONObject) (new JSONParser()).parse(contentString);
+
+                    OperationSetBasicTelephonySipImpl telephony
+                    = (OperationSetBasicTelephonySipImpl)parentProvider
+                            .getOperationSet(OperationSetBasicTelephony.class);
+
+                    Dialog dialog = requestEvent.getDialog();
+
+                    // Find call peer
+                    CallPeerSipImpl callPeer = null;
+                    for (Iterator<CallSipImpl> activeCalls 
+                            = telephony.getActiveCalls();
+                        activeCalls.hasNext();)
+                    {
+                        CallSipImpl call = activeCalls.next();
+                        callPeer
+                            = call.findCallPeer(dialog);
+                        if(callPeer != null)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (callPeer == null)
+                    {
+                        if (logger.isTraceEnabled() == true)
+                        {
+                            logger.trace("Could not find call peer for " +
+                                request.toString());
+                        }
+                    }
+
+                    HashMap<String, Object> params = 
+                        new HashMap<String, Object>() {{
+                            put(VIA_PARAMETER, VIA_SIP_INFO);
+                    }};
+
+                    boolean handled = false;
+
+                    for (JitsiMeetRequestListener l : requestHandlers)
+                    {
+                        l.onJSONReceived(callPeer, receivedJson, params);
+                        handled = true;
+                    }
+
+                    if (!handled)
+                    {
+                        logger.warn(
+                            "Unhandled onJSONReceived Jitsi Meet Request!");
+                    }
+
+                    // Handle response
+                    ServerTransaction serverTransaction
+                        = requestEvent.getServerTransaction();
+
+                    if (serverTransaction == null)
+                    {
+                        serverTransaction
+                            = SipStackSharing
+                                .getOrCreateServerTransaction(requestEvent);
+
+                        if (serverTransaction == null)
+                        {
+                            logger.warn("No valid server transaction " +
+                                            "to send response!");
+                            return true;
+                        }
+                    }
+
+                    /**
+                     * If no call peer send 481/Transaction does not exist?
+                     */
+                    Response response = this.parentProvider
+                        .getMessageFactory()
+                        .createResponse(Response.OK,
+                                        serverTransaction.getRequest());
+
+                    serverTransaction.sendResponse(response);
+
+                    if (logger.isTraceEnabled())
+                    {
+                        logger.trace("Response " +
+                                response.toString() + " sent.");
+                    }
+                }
+            }
+        }
+        catch(Exception exception)
+        {
+            logger.error(exception.getMessage());
+        }
+
+        return true;
+    }
+
+    /**
+     * Analyzes the incoming <tt>responseEvent</tt> and then forwards it to the
+     * proper event handler.
+     *
+     * @param responseEvent the responseEvent that we received
+     * ProtocolProviderService.
+     *
+     * @return <tt>true</tt> if the specified event has been handled by this
+     * processor and shouldn't be offered to other processors registered for the
+     * same method; <tt>false</tt>, otherwise
+     */
+    @Override
+    public boolean processResponse(ResponseEvent responseEvent)
+    {
+        Response response = responseEvent.getResponse();
+
+        CSeqHeader cseq = ((CSeqHeader) response.getHeader(CSeqHeader.NAME));
+
+        if (cseq == null)
+        {
+            logger.error("An incoming response did not contain a CSeq header");
+            return false;
+        }
+
+        String method = cseq.getMethod();
+
+        if (method.equalsIgnoreCase(Request.INFO) == true)
+        {
+            if (logger.isTraceEnabled())
+            {
+                logger.trace("Response " + response.toString()
+                                + " received.");
+            }
+        }
+
+        return false;
     }
 }
