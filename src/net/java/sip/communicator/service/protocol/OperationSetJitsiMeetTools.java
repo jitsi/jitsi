@@ -18,6 +18,8 @@
 package net.java.sip.communicator.service.protocol;
 
 import org.jivesoftware.smack.packet.*;
+import org.json.simple.*;
+import org.jxmpp.jid.*;
 
 import java.util.*;
 
@@ -26,6 +28,7 @@ import java.util.*;
  * conference and is currently used in the SIP gateway.
  *
  * @author Pawel Domas
+ * @author Cristian Florin Ghita
  */
 public interface OperationSetJitsiMeetTools
     extends OperationSet
@@ -95,6 +98,23 @@ public interface OperationSetJitsiMeetTools
     public void removeRequestListener(JitsiMeetRequestListener listener);
 
     /**
+     *  Sends a JSON to the specified <tt>callPeer</tt>.
+     *
+     * @param callPeer the CallPeer to which we send the JSONObject to.
+     * @param jsonObject the JSONObject that we send to the CallPeer.
+     * @param parametersMap a map which is used to set specific parameters
+     * for the protocol used to send the jsonObject.
+     *
+     * @throws OperationFailedException thrown in case anything goes wrong
+     * while preparing or sending the JSONObject.
+     *
+     */
+    public void sendJSON(CallPeer callPeer,
+                        JSONObject jsonObject,
+                        Map<String, Object> parameterMap)
+                        throws OperationFailedException;
+
+    /**
      * Interface used to handle Jitsi Meet conference requests.
      */
     interface JitsiMeetRequestListener
@@ -112,5 +132,26 @@ public interface OperationSetJitsiMeetTools
             Call call,
             String jitsiMeetRoom,
             Map<String, String> extraData);
+
+        /**
+         * Event is fired after startmuted extension is received.
+         *
+         * @param startMutedFlags startMutedFlags[0] represents
+         * the muted status of audio stream.
+         * startMuted[1] represents the muted status of video stream.
+         */
+        void onSessionStartMuted(boolean[] startMutedFlags);
+
+        /**
+         * Event is fired when a JSON is received from a CallPeer.
+         *
+         * @param callPeer the CallPeer that sent the JSONObject.
+         * @param jsonObject the JSONObject that was received from the CallPeer.
+         * @param parameterMap a map which describes protocol specific
+         * parameters used to receive the jsonObject.
+         */
+        void onJSONReceived(CallPeer callPeer,
+                            JSONObject jsonObject,
+                            Map<String, Object> parameterMap);
     }
 }
