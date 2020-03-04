@@ -297,6 +297,9 @@ public class OperationSetJitsiMeetToolsSipImpl
     @Override
     public boolean processRequest(RequestEvent requestEvent)
     {
+
+        boolean requestHandled = false;
+
         try
         {
             Request request = requestEvent.getRequest();
@@ -313,6 +316,9 @@ public class OperationSetJitsiMeetToolsSipImpl
                         contentTypeHeader.getContentSubType()
                             .equalsIgnoreCase("json"))
                 {
+
+                    requestHandled = true;
+
                     String charset = contentTypeHeader.getParameter("charset");
 
                     if (charset == null)
@@ -415,44 +421,6 @@ public class OperationSetJitsiMeetToolsSipImpl
             logger.error(exception.getMessage());
         }
 
-        return true;
-    }
-
-    /**
-     * Analyzes the incoming <tt>responseEvent</tt> and then forwards it to the
-     * proper event handler.
-     *
-     * @param responseEvent the responseEvent that we received
-     * ProtocolProviderService.
-     *
-     * @return <tt>true</tt> if the specified event has been handled by this
-     * processor and shouldn't be offered to other processors registered for the
-     * same method; <tt>false</tt>, otherwise
-     */
-    @Override
-    public boolean processResponse(ResponseEvent responseEvent)
-    {
-        Response response = responseEvent.getResponse();
-
-        CSeqHeader cseq = ((CSeqHeader) response.getHeader(CSeqHeader.NAME));
-
-        if (cseq == null)
-        {
-            logger.error("An incoming response did not contain a CSeq header");
-            return false;
-        }
-
-        String method = cseq.getMethod();
-
-        if (method.equalsIgnoreCase(Request.INFO) == true)
-        {
-            if (logger.isTraceEnabled())
-            {
-                logger.trace("Response " + response.toString()
-                                + " received.");
-            }
-        }
-
-        return false;
+        return requestHandled;
     }
 }
