@@ -1551,32 +1551,32 @@ public class ProtocolProviderServiceJabberImpl
      */
     public void unregisterInternal(boolean fireEvent, boolean userRequest)
     {
+        if(fireEvent)
+        {
+            eventDuringLogin = null;
+            fireRegistrationStateChanged(
+                getRegistrationState()
+                , RegistrationState.UNREGISTERING
+                , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
+                , null
+                , userRequest);
+        }
+
         synchronized(initializationLock)
         {
-            if(fireEvent)
-            {
-                eventDuringLogin = null;
-                fireRegistrationStateChanged(
-                    getRegistrationState()
-                    , RegistrationState.UNREGISTERING
-                    , RegistrationStateChangeEvent.REASON_NOT_SPECIFIED
-                    , null
-                    , userRequest);
-            }
-
             disconnectAndCleanConnection();
+        }
 
-            RegistrationState currRegState = getRegistrationState();
+        RegistrationState currRegState = getRegistrationState();
 
-            if(fireEvent)
-            {
-                eventDuringLogin = null;
-                fireRegistrationStateChanged(
-                    currRegState,
-                    RegistrationState.UNREGISTERED,
-                    RegistrationStateChangeEvent.REASON_USER_REQUEST, null,
-                    userRequest);
-            }
+        if(fireEvent)
+        {
+            eventDuringLogin = null;
+            fireRegistrationStateChanged(
+                currRegState,
+                RegistrationState.UNREGISTERED,
+                RegistrationStateChangeEvent.REASON_USER_REQUEST, null,
+                userRequest);
         }
     }
 
