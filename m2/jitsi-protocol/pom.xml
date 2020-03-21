@@ -22,6 +22,11 @@
       <artifactId>smack-core</artifactId>
       <version>${smack.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.9</version>
+    </dependency>
     <!-- org.jitsi -->
     <dependency>
       <groupId>${project.groupId}</groupId>

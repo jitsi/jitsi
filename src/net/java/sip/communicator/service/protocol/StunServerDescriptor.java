@@ -28,7 +28,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
-import org.jitsi.utils.*;
 
 /**
  * A <tt>StunServerDescriptor</tt> stores information necessary to create a
@@ -251,7 +250,8 @@ public class StunServerDescriptor
 
         if (getUsername() != null && getUsername().length > 0)
                 props.put(namePrefix + STUN_USERNAME,
-                          StringUtils.toEncodedString(getUsername(), StandardCharsets.UTF_8));
+                          StringUtils.toEncodedString(
+                              getUsername(), StandardCharsets.UTF_8));
 
         if (getPassword() != null && getPassword().length > 0)
         {

@@ -25,6 +25,11 @@
       <groupId>net.java.dev.jna</groupId>
       <artifactId>jna</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.9</version>
+    </dependency>
     <!-- org.jitsi -->
     <dependency>
       <groupId>${project.groupId}</groupId>
