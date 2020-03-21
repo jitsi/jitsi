@@ -19,6 +19,7 @@ package net.java.sip.communicator.impl.protocol.jabber;
 
 import java.beans.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import org.jitsi.xmpp.extensions.jingle.*;
@@ -247,8 +248,8 @@ public class IceUdpTransportManager
             StunCandidateHarvester autoHarvester
                 = namSer.discoverStunServer(
                         accID.getService(),
-                        StringUtils.getUTF8Bytes(username.toString()),
-                        StringUtils.getUTF8Bytes(password));
+                        username.toString().getBytes(StandardCharsets.UTF_8),
+                        password.getBytes(StandardCharsets.UTF_8));
 
             if (logger.isInfoEnabled())
                 logger.info("Auto discovered harvester is " + autoHarvester);

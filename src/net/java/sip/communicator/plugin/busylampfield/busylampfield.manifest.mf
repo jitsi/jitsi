@@ -5,6 +5,7 @@ Bundle-Vendor: jitsi.org
 Bundle-Version: 0.0.1
 Bundle-SymbolicName: net.java.sip.communicator.plugin.busylampfield
 Import-Package: org.osgi.framework,
+ org.apache.commons.lang3,
  org.jitsi.service.configuration,
  org.jitsi.utils,
  net.java.sip.communicator.service.contactsource,

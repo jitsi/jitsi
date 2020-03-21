@@ -31,6 +31,7 @@ import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.resources.*;
 import org.jitsi.utils.*;
 import org.osgi.framework.*;
@@ -399,7 +400,7 @@ public class AutoAnswerMenu
                 return true;
             }
 
-            if(!StringUtils.isNullOrEmpty(opSetAdvanced.getCallForward()))
+            if(StringUtils.isNotEmpty(opSetAdvanced.getCallForward()))
             {
                 return true;
             }
@@ -1001,13 +1002,13 @@ public class AutoAnswerMenu
                         customValueRadio.setSelected(true);
                         headerNameField.setText(fName);
 
-                        if(!StringUtils.isNullOrEmpty(fValue))
+                        if(StringUtils.isNotEmpty(fValue))
                             headerValueField.setText(fValue);
                     }
 
                 }
 
-                if(!StringUtils.isNullOrEmpty(opSetAdvanced.getCallForward()))
+                if(StringUtils.isNotEmpty(opSetAdvanced.getCallForward()))
                 {
                     callFwd.setSelected(true);
                     callFwdNumberField.setText(opSetAdvanced.getCallForward());

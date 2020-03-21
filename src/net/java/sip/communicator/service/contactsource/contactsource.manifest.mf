@@ -7,5 +7,6 @@ Bundle-SymbolicName: net.java.sip.communicator.service.contactsource
 Import-Package: org.osgi.framework,
  net.java.sip.communicator.util,
  net.java.sip.communicator.service.protocol,
+ org.apache.commons.lang3,
  org.jitsi.utils
 Export-Package: net.java.sip.communicator.service.contactsource

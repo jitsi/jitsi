@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.regex.*;
 
-import org.jitsi.utils.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import mork.*;
 import net.java.sip.communicator.service.contactsource.*;
@@ -204,7 +204,7 @@ public class ThunderbirdContactQuery
 
         // and the dispaly name
         String displayName = r.getValue("DisplayName");
-        if (StringUtils.isNullOrEmpty(displayName, true))
+        if (StringUtils.isBlank(displayName))
         {
             displayName = r.getValue("LastName");
             if (displayName != null)
@@ -213,7 +213,7 @@ public class ThunderbirdContactQuery
             }
 
             String firstName = r.getValue("FirstName");
-            if (!StringUtils.isNullOrEmpty(firstName, true))
+            if (StringUtils.isNotBlank(firstName))
             {
                 displayName = firstName + " " + displayName;
             }
@@ -240,7 +240,7 @@ public class ThunderbirdContactQuery
         String property, SubCategory category)
     {
         String phone = r.getValue(property);
-        if (StringUtils.isNullOrEmpty(phone, true))
+        if (StringUtils.isBlank(phone))
         {
             return;
         }
@@ -270,7 +270,7 @@ public class ThunderbirdContactQuery
         for (String prop : properties)
         {
             String value = r.getValue(prop);
-            if (!StringUtils.isNullOrEmpty(value, true))
+            if (StringUtils.isNotBlank(value))
             {
                 validValues.add(value);
             }

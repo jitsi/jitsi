@@ -32,6 +32,7 @@ import net.java.sip.communicator.service.muc.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.configuration.*;
 import org.jitsi.utils.*;
 import org.jitsi.utils.logging.*;
@@ -785,7 +786,7 @@ public class MessageSourceService
     @Override
     public ContactQuery createContactQuery(String queryString, int contactCount)
     {
-        if(!StringUtils.isNullOrEmpty(queryString))
+        if(StringUtils.isNotEmpty(queryString))
             return null;
 
         recentQuery = new MessageSourceContactQuery(

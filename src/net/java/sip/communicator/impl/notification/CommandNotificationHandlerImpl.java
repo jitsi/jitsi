@@ -23,6 +23,7 @@ import java.util.*;
 import net.java.sip.communicator.service.notification.*;
 import net.java.sip.communicator.util.Logger;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
 /**
@@ -61,7 +62,7 @@ public class CommandNotificationHandlerImpl
     {
         String actionDescriptor = action.getDescriptor();
 
-        if(StringUtils.isNullOrEmpty(actionDescriptor, true))
+        if(StringUtils.isBlank(actionDescriptor))
             return;
 
         if (cmdargs != null)

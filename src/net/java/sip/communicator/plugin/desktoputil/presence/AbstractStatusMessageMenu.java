@@ -26,6 +26,8 @@ import javax.swing.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.util.*;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.resources.*;
 import org.jitsi.utils.*;
 
@@ -485,7 +487,7 @@ public abstract class AbstractStatusMessageMenu
         String oldMesage = getCurrentMessage();
 
         // if message is null we cleared the status message
-        if(StringUtils.isNullOrEmpty(message))
+        if(StringUtils.isEmpty(message))
         {
             clearSelectedItems();
 

@@ -27,6 +27,8 @@ import javax.swing.*;
 import javax.swing.text.*;
 
 import net.java.sip.communicator.plugin.desktoputil.SwingWorker;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
@@ -894,7 +896,7 @@ public class AccountDetailsPanel
                     detailToTextField.get(DisplayNameDetail.class).getText();
 
                 DisplayNameDetail newDetail = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new DisplayNameDetail(text);
 
                 if (displayNameDetail != null || newDetail != null)
@@ -907,7 +909,7 @@ public class AccountDetailsPanel
                     detailToTextField.get(FirstNameDetail.class).getText();
 
                 FirstNameDetail newDetail = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new FirstNameDetail(text);
 
                 if (firstNameDetail != null || newDetail != null)
@@ -920,7 +922,7 @@ public class AccountDetailsPanel
                     detailToTextField.get(MiddleNameDetail.class).getText();
 
                 MiddleNameDetail newDetail = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new MiddleNameDetail(text);
 
                 if (middleNameDetail != null || newDetail != null)
@@ -933,7 +935,7 @@ public class AccountDetailsPanel
                     detailToTextField.get(LastNameDetail.class).getText();
                 LastNameDetail newDetail = null;
 
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new LastNameDetail(text);
 
                 if (lastNameDetail != null || newDetail != null)
@@ -945,7 +947,7 @@ public class AccountDetailsPanel
                     detailToTextField.get(NicknameDetail.class).getText();
 
                 NicknameDetail newDetail = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new NicknameDetail(text);
 
                 if (nicknameDetail != null || newDetail != null)
@@ -958,7 +960,7 @@ public class AccountDetailsPanel
                     = detailToTextField.get(URLDetail.class).getText();
 
                 URL url = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     try
                     {
                         url = new URL(text);
@@ -986,7 +988,7 @@ public class AccountDetailsPanel
 
                 GenderDetail newDetail = null;
 
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new GenderDetail(text);
 
                 if (genderDetail != null || newDetail != null)
@@ -1015,7 +1017,7 @@ public class AccountDetailsPanel
                     detailToTextField.get(AddressDetail.class).getText();
 
                 AddressDetail newDetail = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new AddressDetail(text);
 
                 if (streetAddressDetail != null || newDetail != null)
@@ -1029,7 +1031,7 @@ public class AccountDetailsPanel
                     detailToTextField.get(CityDetail.class).getText();
 
                 CityDetail newDetail = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new CityDetail(text);
 
                 if (cityDetail != null || newDetail != null)
@@ -1043,7 +1045,7 @@ public class AccountDetailsPanel
                     detailToTextField.get(ProvinceDetail.class).getText();
 
                 ProvinceDetail newDetail = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                 newDetail = new ProvinceDetail(text);
 
                 if (regionDetail != null || newDetail != null)
@@ -1057,7 +1059,7 @@ public class AccountDetailsPanel
                     detailToTextField.get(PostalCodeDetail.class).getText();
 
                 PostalCodeDetail newDetail = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new PostalCodeDetail(text);
 
                 if (postalCodeDetail != null || newDetail != null)
@@ -1069,7 +1071,7 @@ public class AccountDetailsPanel
                 String text = detailToTextField.get(CountryDetail.class).getText();
 
                 CountryDetail newDetail = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new CountryDetail(text);
 
                 if (countryDetail != null || newDetail != null)
@@ -1083,7 +1085,7 @@ public class AccountDetailsPanel
                     detailToTextField.get(EmailAddressDetail.class).getText();
 
                 EmailAddressDetail newDetail = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new EmailAddressDetail(text);
 
                 if (emailDetail != null || newDetail != null)
@@ -1098,7 +1100,7 @@ public class AccountDetailsPanel
                         .getText();
 
                 WorkEmailAddressDetail newDetail = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new WorkEmailAddressDetail(text);
 
                 if (workEmailDetail != null || newDetail != null)
@@ -1112,7 +1114,7 @@ public class AccountDetailsPanel
                     detailToTextField.get(PhoneNumberDetail.class).getText();
 
                 PhoneNumberDetail newDetail = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new PhoneNumberDetail(text);
 
                 if (phoneDetail != null || newDetail != null)
@@ -1125,7 +1127,7 @@ public class AccountDetailsPanel
                     detailToTextField.get(WorkPhoneDetail.class).getText();
 
                 WorkPhoneDetail newDetail = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new WorkPhoneDetail(text);
 
                 if (workPhoneDetail != null || newDetail != null)
@@ -1138,7 +1140,7 @@ public class AccountDetailsPanel
                     detailToTextField.get(MobilePhoneDetail.class).getText();
 
                 MobilePhoneDetail newDetail = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new MobilePhoneDetail(text);
 
                 if (mobilePhoneDetail != null || newDetail != null)
@@ -1152,7 +1154,7 @@ public class AccountDetailsPanel
                         .getText();
 
                 WorkOrganizationNameDetail newDetail = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new WorkOrganizationNameDetail(text);
 
                 if (organizationDetail != null || newDetail != null)
@@ -1166,7 +1168,7 @@ public class AccountDetailsPanel
                         .getText();
 
                 JobTitleDetail newDetail = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new JobTitleDetail(text);
 
                 if (jobTitleDetail != null || newDetail != null)
@@ -1178,7 +1180,7 @@ public class AccountDetailsPanel
                     aboutMeArea.getText();
 
                 AboutMeDetail newDetail = null;
-                if (!StringUtils.isNullOrEmpty(text, true))
+                if (StringUtils.isNotBlank(text))
                     newDetail = new AboutMeDetail(text);
 
                 if (aboutMeDetail != null || newDetail != null)

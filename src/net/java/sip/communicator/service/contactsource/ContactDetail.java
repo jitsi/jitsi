@@ -20,6 +20,8 @@ package net.java.sip.communicator.service.contactsource;
 import java.util.*;
 
 import net.java.sip.communicator.service.protocol.*;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
 /**
@@ -434,7 +436,7 @@ public class ContactDetail
         // the value of the detail
         this.contactDetailValue = contactDetailValue;
 
-        if (!StringUtils.isNullOrEmpty(detailDisplayName))
+        if (StringUtils.isNotEmpty(detailDisplayName))
         {
             this.detailDisplayName = detailDisplayName;
         }

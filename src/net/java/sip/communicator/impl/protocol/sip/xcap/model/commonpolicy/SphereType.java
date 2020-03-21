@@ -17,6 +17,7 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.commonpolicy;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
 /**
@@ -48,7 +49,7 @@ public class SphereType
      */
     public SphereType(String value)
     {
-        if (StringUtils.isNullOrEmpty(value))
+        if (StringUtils.isEmpty(value))
         {
             throw new IllegalArgumentException("value cannot be null or empty");
         }

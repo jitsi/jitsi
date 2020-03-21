@@ -28,6 +28,8 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.sip.*;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
 /**
@@ -209,10 +211,10 @@ public class ConnectionPanel
         proxyForceBypassCheckBox.setSelected(regform.getRegistration()
             .isProxyForceBypassConfigure());
 
-        if (!StringUtils.isNullOrEmpty(
+        if (StringUtils.isNotEmpty(
                 regform.getRegistration().getProxy()))
             proxyField.setText(regform.getRegistration().getProxy());
-        if(!StringUtils.isNullOrEmpty(
+        if(StringUtils.isNotEmpty(
                 regform.getRegistration().getProxyPort()))
             proxyPortField.setText(regform.getRegistration().getProxyPort());
 

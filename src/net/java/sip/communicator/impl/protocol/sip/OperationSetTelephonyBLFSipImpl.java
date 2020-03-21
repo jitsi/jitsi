@@ -22,6 +22,8 @@ import gov.nist.javax.sip.header.extensions.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.Logger;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.util.*;
 import org.jitsi.utils.*;
 import org.jitsi.util.xml.*;
@@ -282,7 +284,7 @@ public class OperationSetTelephonyBLFSipImpl
                 // broken mode for Asterisk, doesn't provide us with
                 // the proper call-id, etc. attributes.
                 // send an unspecified pickup-call if a template is set
-                if (StringUtils.isNullOrEmpty(line.getPickupTemplate(), true))
+                if (StringUtils.isBlank(line.getPickupTemplate()))
                 {
                     return;
                 }
@@ -348,9 +350,9 @@ public class OperationSetTelephonyBLFSipImpl
     
     private boolean asteriskMode(LineDetails details)
     {
-        return StringUtils.isNullOrEmpty(details.callID)
-            || StringUtils.isNullOrEmpty(details.localTag)
-            || StringUtils.isNullOrEmpty(details.remoteTag);
+        return StringUtils.isEmpty(details.callID)
+            || StringUtils.isEmpty(details.localTag)
+            || StringUtils.isEmpty(details.remoteTag);
     }
 
     /**

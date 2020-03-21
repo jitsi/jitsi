@@ -818,7 +818,7 @@ public class ProtocolProviderServiceJabberImpl
     private JabberLoginStrategy createLoginStrategy()
     {
         String boshURL = accountID.getBoshUrl();
-        boolean isBosh = !org.jitsi.utils.StringUtils.isNullOrEmpty(boshURL);
+        boolean isBosh = org.apache.commons.lang3.StringUtils.isNotEmpty(boshURL);
         ConnectionConfiguration.Builder ccBuilder;
         if (isBosh)
         {
@@ -1143,7 +1143,7 @@ public class ProtocolProviderServiceJabberImpl
         ConnectionConfiguration.Builder confConn =
             loginStrategy.getConnectionConfigurationBuilder();
         String boshURL = accountID.getBoshUrl();
-        boolean isBosh = !org.jitsi.utils.StringUtils.isNullOrEmpty(boshURL);
+        boolean isBosh = org.apache.commons.lang3.StringUtils.isNotEmpty(boshURL);
 
         confConn.setXmppDomain(serviceName);
         if (isBosh)
@@ -1165,7 +1165,7 @@ public class ProtocolProviderServiceJabberImpl
                 String file = boshURI.getPath();
                 // use rawQuery as getQuery() decodes the string
                 String query = boshURI.getRawQuery();
-                if (!StringUtils.isNullOrEmpty(query))
+                if (org.apache.commons.lang3.StringUtils.isNotEmpty(query))
                 {
                     file += "?" + query;
                 }
@@ -1476,8 +1476,8 @@ public class ProtocolProviderServiceJabberImpl
                     new Presence(Presence.Type.unavailable);
 
                 if(opSet != null
-                    && !org.jitsi.utils.StringUtils
-                        .isNullOrEmpty(opSet.getCurrentStatusMessage()))
+                    && org.apache.commons.lang3.StringUtils
+                        .isNotEmpty(opSet.getCurrentStatusMessage()))
                 {
                     unavailablePresence.setStatus(
                         opSet.getCurrentStatusMessage());

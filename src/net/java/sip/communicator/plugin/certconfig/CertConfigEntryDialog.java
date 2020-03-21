@@ -33,6 +33,7 @@ import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.service.certificate.*;
 import net.java.sip.communicator.util.Logger;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.service.resources.*;
 import org.jitsi.util.*;
 import org.jitsi.utils.*;
@@ -250,8 +251,8 @@ public class CertConfigEntryDialog
         if(e.getSource() == cmdOk)
         {
             if(cboAlias.getSelectedItem() == null
-                || StringUtils.isNullOrEmpty(txtDisplayName.getText())
-                || StringUtils.isNullOrEmpty(txtKeyStore.getText()))
+                || StringUtils.isEmpty(txtDisplayName.getText())
+                || StringUtils.isEmpty(txtKeyStore.getText()))
             {
                 JOptionPane.showMessageDialog(this,
                     R.getI18NString("plugin.certconfig.INCOMPLETE"),
@@ -500,7 +501,7 @@ public class CertConfigEntryDialog
             // to the alias of the newly selected cert
             if(
                 (
-                    StringUtils.isNullOrEmpty(currentDisplayName)
+                    StringUtils.isEmpty(currentDisplayName)
                     || (
                         currentDisplayName != null
                         && currentDisplayName.equals(currentAlias)

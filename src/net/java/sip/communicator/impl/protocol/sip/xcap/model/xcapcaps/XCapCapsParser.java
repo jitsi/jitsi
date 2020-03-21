@@ -17,7 +17,8 @@
  */
 package net.java.sip.communicator.impl.protocol.sip.xcap.model.xcapcaps;
 
-import static org.jitsi.utils.StringUtils.isNullOrEmpty;
+import org.apache.commons.lang3.StringUtils;
+
 import static org.jitsi.util.xml.XMLUtils.createDocument;
 import static org.jitsi.util.xml.XMLUtils.getNamespaceUri;
 import static org.jitsi.util.xml.XMLUtils.isStandartXmlNamespace;
@@ -59,7 +60,7 @@ public final class XCapCapsParser
     public static XCapCapsType fromXml(String xml)
             throws ParsingException
     {
-        if (isNullOrEmpty(xml))
+        if (StringUtils.isEmpty(xml))
         {
             throw new IllegalArgumentException("XML cannot be null or empty");
         }

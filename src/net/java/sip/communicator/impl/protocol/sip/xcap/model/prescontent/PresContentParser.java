@@ -21,7 +21,6 @@ import static javax.xml.XMLConstants.XML_NS_PREFIX;
 import static javax.xml.XMLConstants.XML_NS_URI;
 import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.processAny;
 import static net.java.sip.communicator.impl.protocol.sip.xcap.model.XmlUtils.processAnyAttributes;
-import static org.jitsi.utils.StringUtils.isNullOrEmpty;
 import static org.jitsi.util.xml.XMLUtils.createDocument;
 import static org.jitsi.util.xml.XMLUtils.createXml;
 import static org.jitsi.util.xml.XMLUtils.getNamespaceUri;
@@ -33,6 +32,7 @@ import javax.xml.namespace.*;
 
 import net.java.sip.communicator.impl.protocol.sip.xcap.model.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.*;
 
 /**
@@ -67,7 +67,7 @@ public class PresContentParser
     public static ContentType fromXml(String xml)
             throws ParsingException
     {
-        if (isNullOrEmpty(xml))
+        if (StringUtils.isEmpty(xml))
         {
             throw new IllegalArgumentException("XML cannot be null or empty");
         }

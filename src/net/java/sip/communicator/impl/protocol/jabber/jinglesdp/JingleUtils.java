@@ -29,7 +29,6 @@ import net.java.sip.communicator.util.Logger;
 
 import org.jitsi.service.neomedia.*;
 import org.jitsi.service.neomedia.format.*;
-import org.jitsi.util.*;
 import org.jitsi.utils.*;
 
 /**
@@ -686,7 +685,7 @@ public class JingleUtils
         if (desc != null)
         {
             String rtpMedia = desc.getMedia().toLowerCase();
-            if (!StringUtils.isNullOrEmpty(rtpMedia))
+            if (org.apache.commons.lang3.StringUtils.isNotEmpty(rtpMedia))
             {
                 mediaTypeName = rtpMedia;
             }

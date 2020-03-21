@@ -25,6 +25,7 @@ import javax.swing.*;
 import net.java.sip.communicator.util.Logger;
 import net.java.sip.communicator.util.skin.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
 /**
@@ -72,7 +73,7 @@ public class PopupNotificationPanel
         notifTitle = new JLabel(
                 DesktopUtilActivator.getResources().getSettingsString(
                     "service.gui.APPLICATION_NAME")
-                    + (StringUtils.isNullOrEmpty(titleString, true)
+                    + (StringUtils.isBlank(titleString)
                         ? ""
                         : ": " + titleString),
                 SwingConstants.LEFT);

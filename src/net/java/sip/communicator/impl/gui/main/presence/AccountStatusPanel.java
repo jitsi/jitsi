@@ -37,6 +37,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
 /**
@@ -230,7 +231,7 @@ public class AccountStatusPanel
 
             String globalDisplayName = gDService.getGlobalDisplayName();
 
-            if(!StringUtils.isNullOrEmpty(globalDisplayName))
+            if(StringUtils.isNotEmpty(globalDisplayName))
                 accountNameLabel.setText(globalDisplayName);
         }
     }
@@ -524,7 +525,7 @@ public class AccountStatusPanel
 
         String displayName = event.getNewDisplayName();
 
-        if(!StringUtils.isNullOrEmpty(displayName))
+        if(StringUtils.isNotEmpty(displayName))
             accountNameLabel.setText(displayName);
     }
 

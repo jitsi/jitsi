@@ -20,6 +20,7 @@ package net.java.sip.communicator.impl.gui.main.contactlist;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.swing.*;
 import javax.swing.text.*;
@@ -33,6 +34,8 @@ import net.java.sip.communicator.plugin.desktoputil.event.*;
 import net.java.sip.communicator.service.protocol.*;
 import net.java.sip.communicator.util.*;
 import net.java.sip.communicator.util.skin.*;
+
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
 /**
@@ -191,8 +194,7 @@ public class UnknownContactPanel
     private void initSMSButton()
     {
         if(parentWindow.hasOperationSet(OperationSetSmsMessaging.class)
-            && !StringUtils.containsLetters(
-                    parentWindow.getCurrentSearchText()))
+            && !StringUtils.isAlpha(parentWindow.getCurrentSearchText()))
         {
             if (smsButton != null && smsButton.getParent() != null)
                 return;

@@ -23,7 +23,7 @@ import java.util.List;
 
 import javax.swing.*;
 
-import org.jitsi.utils.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import net.java.sip.communicator.plugin.desktoputil.*;
 import net.java.sip.communicator.plugin.desktoputil.wizard.*;
@@ -322,7 +322,7 @@ public class JabberAccountRegistrationForm
             registration.setServerPort(serverPort);
 
         String priority = connectionPanel.getPriority();
-        if (!StringUtils.isNullOrEmpty(priority))
+        if (StringUtils.isNotEmpty(priority))
             registration.setPriority(Integer.parseInt(priority));
 
         registration.setDTMFMethod(connectionPanel.getDTMFMethod());

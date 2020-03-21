@@ -24,8 +24,10 @@ import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory
 import static net.java.sip.communicator.service.protocol.ProtocolProviderFactory.STUN_USERNAME;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jitsi.utils.*;
 
 /**
@@ -118,9 +120,9 @@ public class StunServerDescriptor
         this.address = address;
         this.port = port;
         this.isTurnSupported = supportTurn;
-        this.username = (username != null) ? StringUtils.getUTF8Bytes(username)
+        this.username = (username != null) ? username.getBytes(StandardCharsets.UTF_8)
                 : "".getBytes();
-        this.password = (password != null) ? StringUtils.getUTF8Bytes(password)
+        this.password = (password != null) ? password.getBytes(StandardCharsets.UTF_8)
                 : "".getBytes();
     }
 
@@ -203,7 +205,7 @@ public class StunServerDescriptor
      */
     public void setUsername(String username)
     {
-        this.username = StringUtils.getUTF8Bytes(username);
+        this.username = username.getBytes(StandardCharsets.UTF_8);
     }
 
     /**
@@ -223,7 +225,7 @@ public class StunServerDescriptor
      */
     public void setPassword(String password)
     {
-        this.password = StringUtils.getUTF8Bytes(password);
+        this.password = password.getBytes(StandardCharsets.UTF_8);
     }
 
     /**
@@ -248,8 +250,8 @@ public class StunServerDescriptor
             props.put(namePrefix + STUN_PORT, Integer.toString( getPort() ));
 
         if (getUsername() != null && getUsername().length > 0)
-            props.put(namePrefix + STUN_USERNAME,
-                      StringUtils.getUTF8String(getUsername()));
+                props.put(namePrefix + STUN_USERNAME,
+                          StringUtils.toEncodedString(getUsername(), StandardCharsets.UTF_8));
 
         if (getPassword() != null && getPassword().length > 0)
         {
