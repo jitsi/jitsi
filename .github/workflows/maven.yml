@@ -16,5 +16,10 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - name: Cache Maven dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.m2
+          key: m2
       - name: Build with Maven
         run: mvn -B package --file m2/pom.xml
