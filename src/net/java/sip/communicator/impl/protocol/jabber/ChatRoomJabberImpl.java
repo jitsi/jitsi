@@ -1336,7 +1336,7 @@ public class ChatRoomJabberImpl
 
             synchronized (members)
             {
-                // chnage the member key
+                // change the member key
                 ChatRoomMemberJabberImpl mem = members.remove(participant.getResourceOrThrow());
                 members.put(newNickname, mem);
             }

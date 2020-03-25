@@ -1202,7 +1202,7 @@ public class OperationSetPersistentPresenceIcqImpl
         }
 
         /**
-         * Fires the corresponding presence status chagne event. Note that this
+         * Fires the corresponding presence status change event. Note that this
          * method will be called once per sendSnac packet. When setting a new
          * status we generally send three packets - 1 for the status and 2 for
          * the status message. Make sure that only one event goes outside of

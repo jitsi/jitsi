@@ -94,7 +94,7 @@ public abstract class MetaContactPropertyChangeEvent
      * indicating the exact typ of this event.
      * @param oldValue the value of the changed property before the change
      * had occurred.
-     * @param newValue the value of the changed property after the chagne has
+     * @param newValue the value of the changed property after the change has
      * occurred.
      */
     public MetaContactPropertyChangeEvent(MetaContact source,
