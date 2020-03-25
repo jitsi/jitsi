@@ -694,7 +694,7 @@ public class TestOperationSetBasicTelephonySipImpl
             = new CallPeerStateEventCollector(
                 peerAtP2, CallPeerState.CONNECTED);
 
-        //we will now anser the call and verify that both parties change states
+        //we will now answer the call and verify that both parties change states
         //accordingly.
         basicTelephonyP2.answerCallPeer(peerAtP2);
 
