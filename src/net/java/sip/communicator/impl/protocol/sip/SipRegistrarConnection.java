@@ -584,7 +584,7 @@ public class SipRegistrarConnection
             logger.error("Couldn't find the initial register request");
             setRegistrationState(RegistrationState.CONNECTION_FAILED
                 , RegistrationStateChangeEvent.REASON_INTERNAL_ERROR
-                , "Could not find the initial regiest request.");
+                , "Could not find the initial register request.");
             throw new OperationFailedException(
                 "Could not find the initial register request."
                 , OperationFailedException.INTERNAL_ERROR);
