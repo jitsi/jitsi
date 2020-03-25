@@ -115,7 +115,7 @@ public class TestSupportForMultipleProviders
 
     /**
      * Merges contacts from the protocol providers added in the previous test
-     * and make sure the merge was successful. The metod aims to prepare the
+     * and make sure the merge was successful. The method aims to prepare the
      * contact list for the following tests on contact list persistence.
      */
     public void testMergingContactsFromDifferentProviders()

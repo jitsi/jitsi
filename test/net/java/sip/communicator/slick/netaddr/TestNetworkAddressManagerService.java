@@ -495,7 +495,7 @@ public class TestNetworkAddressManagerService
     }*/
 
     /**
-     *  test the getPublicAddressFor methode,
+     *  test the getPublicAddressFor method,
      *  but I don't know how test that
      *  it is still TODO
      *

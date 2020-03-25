@@ -543,7 +543,7 @@ public class ConnectionPanel
     {
         Object selItem = dtmfMethodBox.getSelectedItem();
 
-        // By default sets DTMF mezthod to auto.
+        // By default sets DTMF method to auto.
         if(selItem == null)
         {
             return null;

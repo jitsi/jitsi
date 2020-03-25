@@ -3633,7 +3633,7 @@ public class CallManager
         if (!SwingUtilities.isEventDispatchThread())
         {
             throw new RuntimeException(
-                    "The methon can be called only on the AWT event dispatching"
+                    "The method can be called only on the AWT event dispatching"
                         + " thread.");
         }
     }
