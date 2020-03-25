@@ -139,22 +139,22 @@ public class XmlFormatter extends ResultPrinter implements XMLConstants {
         rootElement.setAttribute(ATTR_PACKAGE, "SIP Communicator SLICK suites");
         if (out != null)
         {
-            Writer wri = null;
+            Writer writer = null;
             try {
-                wri = new BufferedWriter(new OutputStreamWriter(out, "UTF8"));
-                wri.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
-                (new DOMElementWriter()).write(rootElement, wri, 0, "  ");
-                wri.flush();
+                writer = new BufferedWriter(new OutputStreamWriter(out, "UTF8"));
+                writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
+                (new DOMElementWriter()).write(rootElement, writer, 0, "  ");
+                writer.flush();
             } catch (IOException exc)
             {
                 throw new RuntimeException("Unable to write log file", exc);
             } finally {
                 if (out != System.out && out != System.err)
                 {
-                    if (wri != null)
+                    if (writer != null)
                     {
                         try {
-                            wri.close();
+                            writer.close();
                         } catch (IOException e)
                         {
                             // ignore
