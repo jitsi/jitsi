@@ -66,7 +66,7 @@ public class XCapClientImpl extends BaseHttpXCapClient implements XCapClient
 
     /**
      * Connects user to XCap server. Loads xcap-caps server capabilities and
-     * anaylyze if resource-lists, pres-rules, pres-content is supported.
+     * analyze if resource-lists, pres-rules, pres-content is supported.
      *
      * @param uri         the server location.
      * @param userAddress the URI of the user used for requests
