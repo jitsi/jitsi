@@ -328,7 +328,7 @@ public class RootContactGroupJabberImpl
     }
 
     /**
-     * Returns a <tt>String</tt> that uniquely represnets the group. In this we
+     * Returns a <tt>String</tt> that uniquely represents the group. In this we
      * use the name of the group as an identifier. This may cause problems
      * though, in case the name is changed by some other application between
      * consecutive runs of the sip-communicator.

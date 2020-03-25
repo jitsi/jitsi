@@ -492,7 +492,7 @@ public class ContactGroupGibberishImpl
     }
 
     /**
-     * Returns a <tt>String</tt> that uniquely represnets the group inside
+     * Returns a <tt>String</tt> that uniquely represents the group inside
      * the current protocol. The string MUST be persistent (it must not change
      * across connections or runs of the application). In many cases (Jabber,
      * ICQ) the string may match the name of the group as these protocols
