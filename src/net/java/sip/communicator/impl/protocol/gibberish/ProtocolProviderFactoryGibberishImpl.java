@@ -77,7 +77,7 @@ public class ProtocolProviderFactoryGibberishImpl
 
         //first store the account and only then load it as the load generates
         //an osgi event, the osgi event triggers (through the UI) a call to the
-        //ProtocolProviderService.register() method and it needs to acces
+        //ProtocolProviderService.register() method and it needs to access
         //the configuration service and check for a stored password.
         this.storeAccount(accountID, false);
 
@@ -139,7 +139,7 @@ public class ProtocolProviderFactoryGibberishImpl
 
         // First store the account and only then load it as the load generates
         // an osgi event, the osgi event triggers (trhgough the UI) a call to
-        // the register() method and it needs to acces the configuration service
+        // the register() method and it needs to access the configuration service
         // and check for a password.
         this.storeAccount(accountID);
 
