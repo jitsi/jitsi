@@ -163,7 +163,7 @@ public class SipApplicationData
      *
      * @param container the <tt>Object</tt> to retrieve a
      * <tt>SipApplicationData</tt> from.
-     * @return the <tt>SipApplicationData</tt> rerieved, or null.
+     * @return the <tt>SipApplicationData</tt> retrieved, or null.
      */
     private static SipApplicationData getSipApplicationData(Object container)
     {
