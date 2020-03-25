@@ -515,7 +515,7 @@ public class SipCommunicatorLock extends Thread
         catch (SocketException exc)
         {
             logger.error(
-                  "Could not extract the list of local intefcaces.",
+                  "Could not extract the list of local interfaces.",
                   exc);
             return null;
         }
@@ -856,7 +856,7 @@ public class SipCommunicatorLock extends Thread
      * <tt>NetworkInterface.isLoopback()</tt> method that only comes with Java
      * 1.6.
      *
-     * @param iface the inteface that we'd like to determine as loopback or not.
+     * @param iface the interface that we'd like to determine as loopback or not.
      * @return true if <tt>iface</tt> contains at least one loopback address and
      * <tt>false</tt> otherwise.
      */
