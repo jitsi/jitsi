@@ -19,7 +19,7 @@ package net.java.sip.communicator.service.gui;
 
 /**
  * A configurable popup dialog, that could be used from other services for
- * simple interactions with the user, throught the gui interface. This dialog
+ * simple interactions with the user, through the gui interface. This dialog
  * allows showing error, warning or info messages, prompting the user for simple
  * one field input or choice, or asking the user for certain confirmation.
  *

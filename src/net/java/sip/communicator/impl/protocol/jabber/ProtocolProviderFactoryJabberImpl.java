@@ -249,7 +249,7 @@ public class ProtocolProviderFactoryJabberImpl
         accountID.setAccountProperties(accountProperties);
 
         // First store the account and only then load it as the load generates
-        // an osgi event, the osgi event triggers (trhgough the UI) a call to
+        // an osgi event, the osgi event triggers (through the UI) a call to
         // the register() method and it needs to access the configuration service
         // and check for a password.
         this.storeAccount(accountID);

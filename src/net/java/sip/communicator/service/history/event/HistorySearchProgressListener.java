@@ -19,7 +19,7 @@ package net.java.sip.communicator.service.history.event;
 
 /**
  * When searching into the history a ProgressEvent is fired whenever
- * the progress is changed. Its fired throug the search process
+ * the progress is changed. Its fired through the search process
  * informing us about the current progress.
  *
  * @author Damian Minkov
