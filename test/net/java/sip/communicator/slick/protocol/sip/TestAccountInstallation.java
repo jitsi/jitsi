@@ -268,7 +268,7 @@ public class TestAccountInstallation
         {
             table.put(SipAccountID.XCAP_ENABLE,
                     Boolean.TRUE.toString());
-            table.put(SipAccountID.OPT_CLIST_USE_SIP_CREDETIALS,
+            table.put(SipAccountID.OPT_CLIST_USE_SIP_CREDENTIALS,
                     Boolean.TRUE.toString());
             table.put(SipAccountID.OPT_CLIST_USER,
                     Boolean.TRUE.toString());

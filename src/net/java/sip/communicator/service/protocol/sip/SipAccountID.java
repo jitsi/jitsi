@@ -45,8 +45,8 @@ public class SipAccountID
      * The name of the property under which the user may specify whether to use
      * original sip credentials for the contact list.
      */
-    public static final String OPT_CLIST_USE_SIP_CREDETIALS =
-            "OPT_CLIST_USE_SIP_CREDETIALS";
+    public static final String OPT_CLIST_USE_SIP_CREDENTIALS =
+            "OPT_CLIST_USE_SIP_CREDENTIALS";
 
     /**
      * The name of the property under which the user may specify the contact
@@ -424,12 +424,12 @@ public class SipAccountID
      */
     public boolean isClistOptionUseSipCredentials()
     {
-        String val = getXcapCompatible( OPT_CLIST_USE_SIP_CREDETIALS,
-                                        "XCAP_USE_SIP_CREDETIALS",
-                                        "XIVO_USE_SIP_CREDETIALS" );
+        String val = getXcapCompatible( OPT_CLIST_USE_SIP_CREDENTIALS,
+                                        "XCAP_USE_SIP_CREDENTIALS",
+                                        "XIVO_USE_SIP_CREDENTIALS" );
 
         if(val == null)
-            getDefaultString(OPT_CLIST_USE_SIP_CREDETIALS);
+            getDefaultString(OPT_CLIST_USE_SIP_CREDENTIALS);
 
         return Boolean.parseBoolean(val);
     }
@@ -441,7 +441,7 @@ public class SipAccountID
      */
     public void setClistOptionUseSipCredentials(boolean useSipCredentials)
     {
-        putAccountProperty( OPT_CLIST_USE_SIP_CREDETIALS,
+        putAccountProperty( OPT_CLIST_USE_SIP_CREDENTIALS,
                                 useSipCredentials );
     }
 

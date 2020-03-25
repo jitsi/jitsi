@@ -324,7 +324,7 @@ public class ProvisioningForm
         bonjourButton.setEnabled(isProvEnabled);
         dnsButton.setEnabled(false);
 
-        // creadentials
+        // credentials
         forgetPasswordButton.setEnabled(isProvEnabled);
         usernameField.setText(ProvisioningActivator.getConfigurationService()
             .getString(ProvisioningServiceImpl.PROPERTY_PROVISIONING_USERNAME));
