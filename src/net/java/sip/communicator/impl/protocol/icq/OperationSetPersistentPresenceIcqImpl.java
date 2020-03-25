@@ -212,7 +212,7 @@ public class OperationSetPersistentPresenceIcqImpl
         //these are commented since we now use identifiers.
         //        if (!(contact instanceof ContactIcqImpl))
         //            throw new IllegalArgumentException(
-        //                "Cannont get status for a non-ICQ contact! ("
+        //                "Cannot get status for a non-ICQ contact! ("
         //                + contact + ")");
         //
         //        ContactIcqImpl contactImpl = (ContactIcqImpl)contact;

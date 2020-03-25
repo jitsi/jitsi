@@ -227,7 +227,7 @@ public class TestXCapParse extends TestCase
     {
         XCapErrorType cannotDelete =
                 XCapErrorParser.fromXml(XCAP_ERROR_CANNOT_DELETE_XML);
-        validateXCapErrorConnotDelete(cannotDelete);
+        validateXCapErrorCannotDelete(cannotDelete);
         XCapErrorType uniquenessFailure =
                 XCapErrorParser.fromXml(XCAP_ERROR_UNIQUENESS_FAILURE_XML);
         validateXCapErrorUniquenessFailure(uniquenessFailure);
@@ -397,7 +397,7 @@ public class TestXCapParse extends TestCase
      *
      * @param xCapError the xcap-error to analyze.
      */
-    private static void validateXCapErrorConnotDelete(
+    private static void validateXCapErrorCannotDelete(
             XCapErrorType xCapError)
     {
         assertNotNull("xcap-error cannot be null", xCapError);
