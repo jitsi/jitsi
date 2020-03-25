@@ -54,7 +54,7 @@ public class ProtocolProviderFactoryJabberImpl
     }
 
     /**
-     * Ovverides the original in order give access to protocol implementation.
+     * Overrides the original in order give access to protocol implementation.
      *
      * @param accountID the account identifier.
      */
