@@ -292,7 +292,7 @@ public class SipStackSharing
         {
             logger.error("An unexpected error happened while creating the"
                     + "SipProviders and ListeningPoints.");
-            throw new OperationFailedException("An unexpected error hapenned"
+            throw new OperationFailedException("An unexpected error happened"
                     + "while initializing the SIP stack"
                     , OperationFailedException.INTERNAL_ERROR
                     , ex);
