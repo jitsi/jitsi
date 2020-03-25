@@ -1723,7 +1723,7 @@
         </exec>
 
         <!-- force codesigning of growl framework as it has resource 1
-        signiture and will cause Jitsi.app to fail verifying
+        signature and will cause Jitsi.app to fail verifying
         Also sign the other frameworks and plugins (jre if exists).
          -->
         <delete dir="${macosx.app.dir}/${application.name}.app/Contents/Frameworks/GrowlFramework/Growl.framework/Versions/A/_CodeSignature"
@@ -1797,7 +1797,7 @@
         <ant target="version"/>
     </target>
     <target name="load-props-params"
-            unless="sparkle.signiture.location">
+            unless="sparkle.signature.location">
 
         <ant target="load-properties"/>
     </target>
@@ -1805,12 +1805,12 @@
 
     <target name="macosx-sparkle-files"
             depends="macosx-sparkle-params"
-            if="sparkle.signiture.location">
+            if="sparkle.signature.location">
 
         <exec executable="bash" os="Mac OS X" failonerror="true"
               outputproperty="signature.base64">
             <arg value="-c"/>
-            <arg value="openssl dgst -sha1 -binary &lt; '${macosx.app.dir}/${macosx.dmg.name}' | openssl dgst -dss1 -sign ${sparkle.signiture.location} | openssl enc -base64"/>
+            <arg value="openssl dgst -sha1 -binary &lt; '${macosx.app.dir}/${macosx.dmg.name}' | openssl dgst -dss1 -sign ${sparkle.signature.location} | openssl enc -base64"/>
         </exec>
 
         <length file="${macosx.app.dir}/${macosx.dmg.name}"
@@ -1872,7 +1872,7 @@
     <!-- task only finishes generating sparkle files if needed -->
     <target name="macosx-sparkle-files-finish"
             depends="macosx-sparkle-params"
-            if="sparkle.signiture.location">
+            if="sparkle.signature.location">
         <!-- To be able to insert deltas in the updates xml
             we use the token @SPARKLE_DELTAS@. And when finished
             puting deltas (no matter if there were any at all if option
@@ -1996,7 +1996,7 @@
         <exec executable="bash" os="Mac OS X" failonerror="true"
               outputproperty="delta.signature.base64">
             <arg value="-c"/>
-            <arg value="openssl dgst -sha1 -binary &lt; '${macosx.app.dir}/${application.name}-${old.sparkle.build}-to-${sparkle.build}.delta' | openssl dgst -dss1 -sign ${sparkle.signiture.location} | openssl enc -base64"/>
+            <arg value="openssl dgst -sha1 -binary &lt; '${macosx.app.dir}/${application.name}-${old.sparkle.build}-to-${sparkle.build}.delta' | openssl dgst -dss1 -sign ${sparkle.signature.location} | openssl enc -base64"/>
         </exec>
 
         <length file="${macosx.app.dir}/${application.name}-${old.sparkle.build}-to-${sparkle.build}.delta"
