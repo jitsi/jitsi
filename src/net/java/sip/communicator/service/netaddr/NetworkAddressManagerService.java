@@ -192,7 +192,7 @@ public interface NetworkAddressManagerService
                                                      byte[] password);
 
     /**
-     * Creates an <tt>IceMediaStrean</tt> and adds to it an RTP and and RTCP
+     * Creates an <tt>IceMediaStream</tt> and adds to it an RTP and and RTCP
      * component, which also implies running the currently installed
      * harvesters so that they would.
      *
@@ -217,7 +217,7 @@ public interface NetworkAddressManagerService
                IOException,
                BindException;
     /**
-     * Creates an <tt>IceMediaStrean</tt> and adds to it one or two
+     * Creates an <tt>IceMediaStream</tt> and adds to it one or two
      * components, which also implies running the currently installed
      * harvesters.
      *
