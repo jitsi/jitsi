@@ -223,7 +223,7 @@ public class DBStructSerializer {
     }
 
     /**
-     * This method seraches through all children of a given node and returns the
+     * This method searches through all children of a given node and returns the
      * first with the name matching the given one. If no node is found, null is
      * returned.
      */

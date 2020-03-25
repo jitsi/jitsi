@@ -23,7 +23,7 @@ import net.java.sip.communicator.service.history.event.*;
 import net.java.sip.communicator.service.history.records.*;
 
 /**
- * Used to serach over the history records
+ * Used to search over the history records
  *
  * @author Alexander Pelov
  * @author Damian Minkov

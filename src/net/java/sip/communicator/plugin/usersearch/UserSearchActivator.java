@@ -49,7 +49,7 @@ public class UserSearchActivator
     /**
      * A listener for
      */
-    private static UserSearchProviderStateListener userSeachListener = null;
+    private static UserSearchProviderStateListener userSearchListener = null;
 
     /**
      * A list with providers that support user search.
@@ -231,9 +231,9 @@ public class UserSearchActivator
                 = protocolProvider.getOperationSet(OperationSetUserSearch.class);
             if(opSet == null)
                 return;
-            if(userSeachListener == null)
-                userSeachListener = new UserSearchProviderStateListener();
-            opSet.addUserSearchProviderListener(userSeachListener);
+            if(userSearchListener == null)
+                userSearchListener = new UserSearchProviderStateListener();
+            opSet.addUserSearchProviderListener(userSearchListener);
             if(opSet.isEnabled())
                 addSupportedProvider(protocolProvider);
             userSearchProviders.add(protocolProvider);
@@ -254,13 +254,13 @@ public class UserSearchActivator
         {
             userSearchProviders.remove(protocolProvider);
             removeSupportedProvider(protocolProvider);
-            if(userSeachListener == null)
+            if(userSearchListener == null)
                 return;
             OperationSetUserSearch opSet
                 = protocolProvider.getOperationSet(OperationSetUserSearch.class);
             if(opSet == null)
                 return;
-            opSet.removeUserSearchProviderListener(userSeachListener);
+            opSet.removeUserSearchProviderListener(userSearchListener);
         }
 
     }
@@ -336,7 +336,7 @@ public class UserSearchActivator
     @Override
     public void stop(BundleContext context) throws Exception
     {
-        userSeachListener = null;
+        userSearchListener = null;
         userSearchProviders.clear();
         supportedProviders.clear();
         listeners.clear();

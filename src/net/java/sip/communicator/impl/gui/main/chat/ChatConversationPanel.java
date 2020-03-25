@@ -1843,7 +1843,7 @@ public class ChatConversationPanel
     /**
      * Finds the first element with <tt>name</tt> among the child elements of
      * <tt>element</tt>.
-     * @param element the element to searh for.
+     * @param element the element to search for.
      * @param name the name to search for.
      * @return the first element with <tt>name</tt>.
      */
