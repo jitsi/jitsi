@@ -123,7 +123,7 @@ public class TestMsgHistoryService
 
     public void setupContact()
     {
-        // changes the history service target derictory
+        // changes the history service target directory
         System.setProperty("HistoryServiceDirectory", "test-msghistory");
 
         mockProvider = new MockProvider("MessageHistoryMockUser");

@@ -98,7 +98,7 @@ public class TestCallHistoryService
 
     private void setupContact()
     {
-        // changes the history service target derictory
+        // changes the history service target directory
         System.setProperty("HistoryServiceDirectory", "test-callhistory");
 
         mockProvider = new MockProvider("CallHistoryMockUser");
