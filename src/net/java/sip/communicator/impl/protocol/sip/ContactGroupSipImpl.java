@@ -129,7 +129,7 @@ public class ContactGroupSipImpl
     /**
      * Sets the list custom elements.
      *
-     * @param any the custom elemets.
+     * @param any the custom elements.
      */
     void setAny(List<Element> any)
     {

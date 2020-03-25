@@ -34,7 +34,7 @@ public class OccurrenceIdType
     /**
      * Creates occurrence-id element with value.
      *
-     * @param value the elemenent value to set.
+     * @param value the element value to set.
      */
     public OccurrenceIdType(String value)
     {

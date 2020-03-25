@@ -29,17 +29,17 @@ import org.w3c.dom.*;
 public class XCapCapsType
 {
     /**
-     * The auids elemet.
+     * The auids element.
      */
     protected AuidsType auids;
 
     /**
-     * The extensions elemet.
+     * The extensions element.
      */
     protected ExtensionsType extensions;
 
     /**
-     * The namespaces elemet.
+     * The namespaces element.
      */
     protected NamespacesType namespaces;
 

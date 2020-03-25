@@ -160,7 +160,7 @@ public class ProvideDevicePermissionType
         /**
          * Creates deviceID element with value.
          *
-         * @param value the elemenent value to set.
+         * @param value the element value to set.
          */
         public DeviceIdType(String value)
         {

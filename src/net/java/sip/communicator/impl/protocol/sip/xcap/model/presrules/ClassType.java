@@ -34,7 +34,7 @@ public class ClassType
     /**
      * Creates class element with value.
      *
-     * @param value the elemenent value to set.
+     * @param value the element value to set.
      */
     public ClassType(String value)
     {

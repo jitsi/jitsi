@@ -180,7 +180,7 @@ public class ProvideServicePermissionType
         /**
          * Creates service-uri element with value.
          *
-         * @param value the elemenent value to set.
+         * @param value the element value to set.
          */
         public ServiceUriType(String value)
         {
@@ -225,7 +225,7 @@ public class ProvideServicePermissionType
         /**
          * Creates service-uri-scheme element with value.
          *
-         * @param value the elemenent value to set.
+         * @param value the element value to set.
          */
         public ServiceUriSchemeType(String value)
         {
