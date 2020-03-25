@@ -96,7 +96,7 @@ public class TestAccountUninstallationPersistence
         }
 
         //make sure we didn't retrieve a service
-        assertTrue("A SIP Protocol Provider Service was still regged as an "
+        assertTrue("A SIP Protocol Provider Service was still registered as an "
                       +"osgi service after it was explicitly uninstalled"
                       ,sipProviderRefs == null || sipProviderRefs.length == 0);
 

@@ -135,7 +135,7 @@ public class TestAccountUninstallation
         }
 
         //make sure we didn't see a service
-        assertTrue("A Protocol Provider Service was still regged as an osgi service "
+        assertTrue("A Protocol Provider Service was still registered as an osgi service "
                       +"for Jabber URI:" + fixture.userID1
                       + "After it was explicitly uninstalled"
                       ,jabberProviderRefs == null || jabberProviderRefs.length == 0);
@@ -266,7 +266,7 @@ public class TestAccountUninstallation
         }
 
         //make sure we didn't see a service
-        assertTrue("A Protocol Provider Service was still regged as an osgi "
+        assertTrue("A Protocol Provider Service was still registered as an osgi "
                       + "service for Jabber URI:" + fixture.userID1
                       + "After it was explicitly uninstalled"
                       ,jabberProviderRefs == null || jabberProviderRefs.length == 0);

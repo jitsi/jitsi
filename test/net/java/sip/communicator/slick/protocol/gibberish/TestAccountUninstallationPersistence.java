@@ -97,7 +97,7 @@ public class TestAccountUninstallationPersistence
         }
 
         //make sure we didn't retrieve a service
-        assertTrue("A Gibberish Protocol Provider Service was still regged "
+        assertTrue("A Gibberish Protocol Provider Service was still registered "
                       +"as an osgi service after it was explicitly uninstalled"
                       ,gibberishProviderRefs == null
                         || gibberishProviderRefs.length == 0);

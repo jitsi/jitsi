@@ -641,7 +641,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
         {
             try
             {
-                // if we are not registerd do nothing
+                // if we are not registered do nothing
                 if(!icqProvider.isRegistered())
                     return;
 

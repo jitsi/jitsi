@@ -96,7 +96,7 @@ public class TestAccountUninstallationPersistence
         }
 
         //make sure we didn't retrieve a service
-        assertTrue("A Jabber Protocol Provider Service was still regged as an "
+        assertTrue("A Jabber Protocol Provider Service was still registered as an "
                       +"osgi service after it was explicitly uninstalled"
                       ,jabberProviderRefs == null || jabberProviderRefs.length == 0);
 

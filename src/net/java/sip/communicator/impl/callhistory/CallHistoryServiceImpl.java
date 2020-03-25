@@ -601,7 +601,7 @@ public class CallHistoryServiceImpl
     }
 
     /**
-     * starts the service. Check the current registerd protocol providers
+     * starts the service. Check the current registered protocol providers
      * which supports BasicTelephony and adds calls listener to them
      *
      * @param bc BundleContext

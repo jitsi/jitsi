@@ -96,7 +96,7 @@ public class TestAccountUninstallationPersistence
         }
 
         //make sure we didn't retrieve a service
-        assertTrue("A Protocol Provider Service was still regged as an osgi service "
+        assertTrue("A Protocol Provider Service was still registered as an osgi service "
                       +"for ICQ UIN:" + IcqSlickFixture.icqAccountID
                       + "After it was explicitly uninstalled"
                       ,icqProviderRefs == null || icqProviderRefs.length == 0);

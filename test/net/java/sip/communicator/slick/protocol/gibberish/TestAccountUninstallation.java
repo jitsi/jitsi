@@ -136,7 +136,7 @@ public class TestAccountUninstallation
 
         //make sure we didn't see a service
         assertTrue(
-              "A Protocol Provider Service was still regged as an osgi service "
+              "A Protocol Provider Service was still registered as an osgi service "
             + "for Gibberish URI:" + fixture.userID1
             + "After it was explicitly uninstalled"
             , gibberishProviderRefs == null
@@ -266,7 +266,7 @@ public class TestAccountUninstallation
         }
 
         //make sure we didn't see a service
-        assertTrue("A Protocol Provider Service was still regged as an osgi "
+        assertTrue("A Protocol Provider Service was still registered as an osgi "
                       + "service for Gibberish URI:" + fixture.userID1
                       + "After it was explicitly uninstalled"
                       ,gibberishProviderRefs == null || gibberishProviderRefs.length == 0);

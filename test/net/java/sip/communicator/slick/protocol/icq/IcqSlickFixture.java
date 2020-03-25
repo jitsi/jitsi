@@ -177,7 +177,7 @@ public class IcqSlickFixture extends TestCase
     //used in Offline Message receive test
     //this MessageReceiver is created in IcqProtocolProviderSlick
     //registered as listener in TestProtocolProviderServiceIcqImpl
-    // as soon tested account has been registed
+    // as soon tested account has been registered
     //There is only one offline message send. And this message is the first message
     // received after the successful regitration, so this listener is removed
     // after receiving one message. This message is tested in TestOperationSetBasicInstantMessaging
