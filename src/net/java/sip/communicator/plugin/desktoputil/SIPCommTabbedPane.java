@@ -485,7 +485,7 @@ public class SIPCommTabbedPane
 
         if (!ui.isTabHighlighted(tabIndex)
                 && this.getSelectedIndex() != tabIndex)
-            ui.tabAddHightlight(tabIndex);
+            ui.tabAddHighlight(tabIndex);
 
         this.repaint();
     }

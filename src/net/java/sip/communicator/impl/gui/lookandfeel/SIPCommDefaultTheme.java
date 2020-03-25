@@ -83,8 +83,8 @@ public class SIPCommDefaultTheme
             getColor("service.gui.colors.CONTROL"));
 
     /**
-     * Used for text hightlight color, window title background, scroll bar thumb
-     * hightlight, split pane divider focus color, Tree.line, Tree.hash,
+     * Used for text highlight color, window title background, scroll bar thumb
+     * highlight, split pane divider focus color, Tree.line, Tree.hash,
      * ToolBar.floatingForeground
      */
     private static ColorUIResource PRIMARY_CONTROL_COLOR
@@ -498,7 +498,7 @@ public class SIPCommDefaultTheme
                 "ScrollBar.highlight", SELECTION_BACKGROUND,
                 "ScrollBar.darkShadow", SCROLL_BAR_DARK_SHADOW,
 
-                "TabbedPane.borderHightlightColor", TABBED_PANE_HIGHLIGHT_COLOR,
+                "TabbedPane.borderHighlightColor", TABBED_PANE_HIGHLIGHT_COLOR,
                 "TabbedPane.contentBorderInsets", new Insets(2, 2, 3, 3),
                 "TabbedPane.selected", SELECTION_BACKGROUND,
                 "TabbedPane.tabAreaInsets", new Insets(2, 2, 0, 6),

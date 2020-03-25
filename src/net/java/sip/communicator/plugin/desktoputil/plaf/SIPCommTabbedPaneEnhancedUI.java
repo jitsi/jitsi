@@ -538,7 +538,7 @@ public class SIPCommTabbedPaneEnhancedUI
         return width + WIDTHDELTA;
     }
 
-    public void tabAddHightlight(int tabIndex)
+    public void tabAddHighlight(int tabIndex)
     {
         this.highlightedTabs.add(tabIndex);
     }
