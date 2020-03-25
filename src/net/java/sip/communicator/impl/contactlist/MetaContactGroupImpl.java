@@ -603,7 +603,7 @@ public class MetaContactGroupImpl
 
     /**
      * Returns a meta contact, a child of this group or its subgroups, with
-     * address equald to <tt>contactAddress</tt> and a source protocol provider
+     * address equals to <tt>contactAddress</tt> and a source protocol provider
      * with the matching <tt>accountID</tt>. If no such meta contact exists,
      * the method would return null.
      *
