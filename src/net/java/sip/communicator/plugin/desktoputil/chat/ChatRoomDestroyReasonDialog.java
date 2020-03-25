@@ -162,9 +162,9 @@ public class ChatRoomDestroyReasonDialog extends MessageDialog
 
        if (result == MessageDialog.OK_RETURN_CODE)
        {
-           destroyOptions[0] = proccessFieldValues(reasonDialog.getReason());
+           destroyOptions[0] = processFieldValues(reasonDialog.getReason());
            destroyOptions[1]
-               = proccessFieldValues(reasonDialog.getAlternateAddress());
+               = processFieldValues(reasonDialog.getAlternateAddress());
        }
        else
        {
@@ -175,7 +175,7 @@ public class ChatRoomDestroyReasonDialog extends MessageDialog
        return destroyOptions;
    }
 
-   private static String proccessFieldValues(String value)
+   private static String processFieldValues(String value)
    {
        if(value != null)
        {
