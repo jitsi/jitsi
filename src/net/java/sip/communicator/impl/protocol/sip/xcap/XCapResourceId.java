@@ -25,9 +25,9 @@ package net.java.sip.communicator.impl.protocol.sip.xcap;
 public class XCapResourceId
 {
     /**
-     * Delimeter between document and node selectors.
+     * Delimiter between document and node selectors.
      */
-    private static String DELIMETER = "/~~";
+    private static String DELIMITER = "/~~";
 
     /**
      * Document selector.
@@ -97,7 +97,7 @@ public class XCapResourceId
         StringBuilder builder = new StringBuilder(document);
         if (node != null && node.length() != 0)
         {
-            builder.append(DELIMETER).append(node);
+            builder.append(DELIMITER).append(node);
         }
         return builder.toString();
     }
@@ -117,14 +117,14 @@ public class XCapResourceId
             throw new IllegalArgumentException(
                     "Resource identifier cannot be null or empty");
         }
-        int index = resourceId.indexOf(DELIMETER);
+        int index = resourceId.indexOf(DELIMITER);
         if (index == -1)
         {
             throw new IllegalArgumentException(
                     "Resource identifier has invalid format");
         }
         String document = resourceId.substring(0, index);
-        String node = resourceId.substring(index + DELIMETER.length());
+        String node = resourceId.substring(index + DELIMITER.length());
         return new XCapResourceId(document, node);
     }
 }
