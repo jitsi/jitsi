@@ -232,7 +232,7 @@ class Entities {
         {"lArr", "8656"}, // leftwards double arrow, U+21D0 ISOtech -->
         // <!-- ISO 10646 does not say that lArr is the same as the 'is implied by'
         // arrow but also does not have any other character for that function.
-        // So ? lArr canbe used for 'is implied by' as ISOtech suggests -->
+        // So ? lArr can be used for 'is implied by' as ISOtech suggests -->
         {"uArr", "8657"}, // upwards double arrow, U+21D1 ISOamsa -->
         {"rArr", "8658"}, // rightwards double arrow,U+21D2 ISOtech -->
         // <!-- ISO 10646 does not say this is the 'implies' character but does not
