@@ -138,7 +138,7 @@ public class PhoneNumberContactQuery
     }
 
     /**
-     * Adss the result contacts for the given group.
+     * Adds the result contacts for the given group.
      *
      * @param group the <tt>ContactGroup</tt> to check for matching contacts
      */
