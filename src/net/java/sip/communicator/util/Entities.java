@@ -942,7 +942,7 @@ class Entities {
                 int entityContentLen = entityContent.length();
                 if (entityContentLen > 0) {
                     if (entityContent.charAt(0) == '#') { // escaped value content is an integer (decimal or
-                        // hexidecimal)
+                        // hexadecimal)
                         if (entityContentLen > 1) {
                             char isHexChar = entityContent.charAt(1);
                             try {
