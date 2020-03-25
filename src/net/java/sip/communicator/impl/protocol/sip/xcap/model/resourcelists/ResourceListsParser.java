@@ -245,7 +245,7 @@ public final class ResourceListsParser
                 {
                     list.getLists().add(listFromElement(element));
                 }
-                // extenal
+                // external
                 else if (EXTERNAL_ELEMENT.equals(localName))
                 {
                     list.getExternals().add(externalFromElement(element));
