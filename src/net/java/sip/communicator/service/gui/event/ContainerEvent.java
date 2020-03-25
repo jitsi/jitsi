@@ -21,7 +21,7 @@ import java.util.*;
 
 /**
  * The <tt>ContainerEvent</tt> indicates that a change in a <tt>container</tt>
- * such a <tt>Comonent</tt> added or removed.
+ * such a <tt>Component</tt> added or removed.
  */
 public class ContainerEvent
     extends EventObject

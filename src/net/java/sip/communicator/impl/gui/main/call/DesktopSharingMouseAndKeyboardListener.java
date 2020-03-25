@@ -303,7 +303,7 @@ public class DesktopSharingMouseAndKeyboardListener
     /**
      * Sets the video displaying component for the streamed remote desktop.
      *
-     * @param videoComponenet The video component displaying the remote desktop.
+     * @param videoComponent The video component displaying the remote desktop.
      */
     public void setVideoComponent(Component videoComponent)
     {

@@ -46,7 +46,7 @@ public class PopupMessage
     private byte[] imageIcon;
 
     /**
-     * A ready to show <tt>JComponet</tt> for this <tt>PopupMessage</tt>.
+     * A ready to show <tt>JComponent</tt> for this <tt>PopupMessage</tt>.
      */
     private JComponent component;
 
