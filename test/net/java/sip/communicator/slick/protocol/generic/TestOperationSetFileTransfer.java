@@ -174,7 +174,7 @@ public abstract class TestOperationSetFileTransfer
                          ,req.getFileSize()
                          ,fileToTransfer.length());
 
-            // now we will accpet the file
+            // now we will accept the file
             // but let first clear the event listeners
             senderFTListerner.clear();
             receiverFTListerner.clear();
@@ -581,7 +581,7 @@ public abstract class TestOperationSetFileTransfer
                          ,req.getFileSize()
                          ,fileToTransfer.length());
 
-            // now we will accpet the file
+            // now we will accept the file
             // but let first clear the event listeners
             senderFTListerner.clear();
             receiverFTListerner.clear();
@@ -738,7 +738,7 @@ public abstract class TestOperationSetFileTransfer
                          ,req.getFileSize()
                          ,fileToTransfer.length());
 
-            // now we will accpet the file
+            // now we will accept the file
             // but let first clear the event listeners
             senderFTListerner.clear();
             receiverFTListerner.clear();
