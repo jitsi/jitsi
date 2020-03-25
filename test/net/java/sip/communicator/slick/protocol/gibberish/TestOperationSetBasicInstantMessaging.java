@@ -139,7 +139,7 @@ public class TestOperationSetBasicInstantMessaging
     /**
      * Creates a test suite containing tests of this class in a specific order.
      * We'll first execute tests beginning with the "test" prefix and then go to
-     * ordered tests.We first execture tests for receiving messagese, so that
+     * ordered tests.We first execute tests for receiving messagese, so that
      * a volatile contact is created for the sender. we'll then be able to
      * retrieve this volatile contact and send them a message on our turn.
      * We need to do things this way as the contact corresponding to the tester
