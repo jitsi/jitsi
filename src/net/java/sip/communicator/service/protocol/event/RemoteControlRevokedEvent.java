@@ -23,7 +23,7 @@ import net.java.sip.communicator.service.protocol.*;
 
 /**
  * Event that notify that remote control feature has been revoked. This is used
- * in desktop sharing related usage. After rights beeing revoked, local
+ * in desktop sharing related usage. After rights being revoked, local
  * peer must not notify keyboard and mouse events to remote peer.
  *
  * @author Sebastien Vincent

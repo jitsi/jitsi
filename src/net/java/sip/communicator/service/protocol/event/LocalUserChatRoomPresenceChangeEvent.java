@@ -63,7 +63,7 @@ public class LocalUserChatRoomPresenceChangeEvent
 
     /**
      * Indicates that this event was triggered as a result of the local
-     * participant beeing disconnected from the server brutally, or ping timeout.
+     * participant being disconnected from the server brutally, or ping timeout.
      */
     public static final String LOCAL_USER_DROPPED = "LocalUserDropped";
 

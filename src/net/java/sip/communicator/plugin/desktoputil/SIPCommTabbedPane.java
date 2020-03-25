@@ -240,7 +240,7 @@ public class SIPCommTabbedPane
          * window from stealing focus (without this windowFocusListener, most of
          * the time the new frame would just blink from foreground to
          * background). A windowFocusListener is added to the frame, and if the
-         * time between the frame beeing in foreground and the frame beeing in
+         * time between the frame being in foreground and the frame being in
          * background is less that 100ms, it just brings the windows to the
          * front once again. Then it removes the windowFocusListener. Note that
          * this hack would not be required on Linux or UNIX based systems.
