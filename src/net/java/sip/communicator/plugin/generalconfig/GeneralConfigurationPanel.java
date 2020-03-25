@@ -572,29 +572,29 @@ public class GeneralConfigurationPanel
      */
     private Component createTypingNotificationsCheckBox()
     {
-        final JCheckBox enableTypingNotifiCheckBox = new SIPCommCheckBox();
+        final JCheckBox enableTypingNotifyCheckBox = new SIPCommCheckBox();
 
-        enableTypingNotifiCheckBox.setLayout(null);
-        enableTypingNotifiCheckBox.setAlignmentX(JCheckBox.LEFT_ALIGNMENT);
+        enableTypingNotifyCheckBox.setLayout(null);
+        enableTypingNotifyCheckBox.setAlignmentX(JCheckBox.LEFT_ALIGNMENT);
 
-        enableTypingNotifiCheckBox.setText(
+        enableTypingNotifyCheckBox.setText(
             Resources.getString("service.gui.ENABLE_TYPING_NOTIFICATIONS"));
-        enableTypingNotifiCheckBox.setPreferredSize(
+        enableTypingNotifyCheckBox.setPreferredSize(
             new Dimension(253, 20));
 
-        enableTypingNotifiCheckBox.setSelected(
+        enableTypingNotifyCheckBox.setSelected(
             ConfigurationUtils.isSendTypingNotifications());
 
-        enableTypingNotifiCheckBox.addActionListener(new ActionListener()
+        enableTypingNotifyCheckBox.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent e)
             {
                 ConfigurationUtils.setSendTypingNotifications(
-                    enableTypingNotifiCheckBox.isSelected());
+                    enableTypingNotifyCheckBox.isSelected());
             }
         });
 
-        return enableTypingNotifiCheckBox;
+        return enableTypingNotifyCheckBox;
     }
 
     /**
