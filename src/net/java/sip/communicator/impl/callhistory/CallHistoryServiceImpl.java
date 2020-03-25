@@ -1383,7 +1383,7 @@ public class CallHistoryServiceImpl
                 lastHistoryProgress = 0;
 
                 // this is the last one and the last event fire the max
-                // there will be looses in currentProgress due to the division
+                // there will be losses in currentProgress due to the division
                 if(currentContactCount == contactCount)
                     currentProgress =
                         CallHistorySearchProgressListener.PROGRESS_MAXIMUM_VALUE;
