@@ -563,7 +563,7 @@ public class OperationSetFileTransferJabberImpl
 
                         // sometimes a filetransfer can be preparing
                         // and than completed :
-                        // transfered in one iteration of current thread
+                        // transferred in one iteration of current thread
                         // so it won't go through intermediate state - inProgress
                         // make sure this won't happen
                         if(status == FileTransferStatusChangeEvent.COMPLETED

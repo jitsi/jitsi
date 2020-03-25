@@ -58,9 +58,9 @@ public abstract class AbstractFileTransfer
     abstract public void cancel();
 
     /**
-     * Returns the number of bytes already transfered through this file transfer.
+     * Returns the number of bytes already transferred through this file transfer.
      *
-     * @return the number of bytes already transfered through this file transfer
+     * @return the number of bytes already transferred through this file transfer
      */
     abstract public long getTransferedBytes();
 

@@ -24,7 +24,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 /**
  * The <tt>FileTransfer</tt> interface is meant to be used by parties interested
  * in the file transfer process. It contains information about the status and
- * the progress of the transfer as well as the bytes that have been transfered.
+ * the progress of the transfer as well as the bytes that have been transferred.
  *
  * @author Yana Stamcheva
  */
@@ -85,9 +85,9 @@ public interface FileTransfer
     public int getStatus();
 
     /**
-     * Returns the number of bytes already transfered through this file transfer.
+     * Returns the number of bytes already transferred through this file transfer.
      *
-     * @return the number of bytes already transfered through this file transfer
+     * @return the number of bytes already transferred through this file transfer
      */
     public long getTransferedBytes();
 

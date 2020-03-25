@@ -36,7 +36,7 @@ public class TransferCallButton
     extends CallToolBarButton
 {
     /**
-     * The <tt>Call</tt> to be transfered.
+     * The <tt>Call</tt> to be transferred.
      */
     private final Call call;
 
@@ -46,7 +46,7 @@ public class TransferCallButton
      * <tt>CallPeer</tt>.
      *
      * @param c the <tt>Call</tt> to be associated with the new instance and
-     * to be transfered
+     * to be transferred
      */
     public TransferCallButton(Call c)
     {

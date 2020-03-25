@@ -1031,8 +1031,8 @@ public class NotificationManager
 
         // the call can have two peers at the same time and there is no one
         // is conference focus. This is situation when some one has made an
-        // attended transfer and has transfered us. We have one call with two
-        // peers the one we are talking to and the one we have been transfered
+        // attended transfer and has transferred us. We have one call with two
+        // peers the one we are talking to and the one we have been transferred
         // to. And the first one is been hanguped and so the call passes through
         // conference call fo a moment and than go again to one to one call.
         return call.getCallPeerCount() > 1;

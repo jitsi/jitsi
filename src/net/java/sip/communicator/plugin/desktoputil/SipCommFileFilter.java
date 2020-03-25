@@ -38,7 +38,7 @@ import javax.swing.filechooser.FileFilter;
  *
  * You won't have to redefine 'public boolean accept(File dir, String name)'
  * from the Java FilenameFilter interface since it's done here: the method is
- * transfered toward the accept method of Java FileFilter class.
+ * transferred toward the accept method of Java FileFilter class.
  *
  * @author Valentin Martinet
  */

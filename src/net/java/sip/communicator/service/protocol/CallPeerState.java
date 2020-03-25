@@ -223,7 +223,7 @@ public class CallPeerState
 
     /**
      * This constant value indicates that the state of the call peer is
-     * is REFERRED - which means that this peer has transfered us to another
+     * is REFERRED - which means that this peer has transferred us to another
      * peer.
      */
     public static final CallPeerState REFERRED

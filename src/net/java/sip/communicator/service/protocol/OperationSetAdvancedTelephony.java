@@ -39,7 +39,7 @@ public interface OperationSetAdvancedTelephony<T extends ProtocolProviderService
      * transfer (though no such requirement is imposed).
      * </p>
      *
-     * @param peer the <tt>CallPeer</tt> to be transfered to the specified
+     * @param peer the <tt>CallPeer</tt> to be transferred to the specified
      * callee address
      * @param target the address in the form of <tt>CallPeer</tt> of the callee
      * to transfer <tt>peer</tt> to
@@ -57,7 +57,7 @@ public interface OperationSetAdvancedTelephony<T extends ProtocolProviderService
      * call transfer (though no such requirement is imposed).
      * </p>
      *
-     * @param peer the <tt>CallPeer</tt> to be transfered to the specified
+     * @param peer the <tt>CallPeer</tt> to be transferred to the specified
      * callee address
      * @param target the address of the callee to transfer <tt>peer</tt> to
      * @throws OperationFailedException if something goes wrong.

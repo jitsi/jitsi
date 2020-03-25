@@ -1311,7 +1311,7 @@ public class OperationSetBasicTelephonyJabberImpl
      * transfer (though no such requirement is imposed).
      * </p>
      *
-     * @param peer the <tt>CallPeer</tt> to be transfered to the specified
+     * @param peer the <tt>CallPeer</tt> to be transferred to the specified
      * callee address
      * @param target the address in the form of <tt>CallPeer</tt> of the callee
      * to transfer <tt>peer</tt> to
@@ -1366,7 +1366,7 @@ public class OperationSetBasicTelephonyJabberImpl
      * call transfer (though no such requirement is imposed).
      * </p>
      *
-     * @param peer the <tt>CallPeer</tt> to be transfered to the specified
+     * @param peer the <tt>CallPeer</tt> to be transferred to the specified
      * callee address
      * @param target the address of the callee to transfer <tt>peer</tt> to
      * @throws OperationFailedException if something goes wrong
@@ -1384,7 +1384,7 @@ public class OperationSetBasicTelephonyJabberImpl
      * a specific callee address which may optionally be participating in an
      * active <tt>Call</tt>.
      *
-     * @param peer the <tt>CallPeer</tt> to be transfered to the specified
+     * @param peer the <tt>CallPeer</tt> to be transferred to the specified
      * callee address
      * @param to the address of the callee to transfer <tt>peer</tt> to
      * @param sid the Jingle session ID of the active <tt>Call</tt> between the

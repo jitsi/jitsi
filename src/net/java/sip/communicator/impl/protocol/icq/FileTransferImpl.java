@@ -38,7 +38,7 @@ public class FileTransferImpl
     private Contact contact = null;
     private File file = null;
     private int direction = -1;
-    private long transferedBytes;
+    private long transferredBytes;
     private FileTransfer fileTransfer;
 
     public FileTransferImpl(
@@ -65,14 +65,14 @@ public class FileTransferImpl
     }
 
     /**
-     * Returns the number of bytes already transfered through this file transfer.
+     * Returns the number of bytes already transferred through this file transfer.
      *
-     * @return the number of bytes already transfered through this file transfer
+     * @return the number of bytes already transferred through this file transfer
      */
     @Override
     public long getTransferedBytes()
     {
-        return transferedBytes;
+        return transferredBytes;
     }
 
     /**
@@ -115,11 +115,11 @@ public class FileTransferImpl
     }
 
     /**
-     * @param transferedBytes the transferedBytes to set
+     * @param transferredBytes the transferredBytes to set
      */
-    public void setTransferedBytes(long transferedBytes)
+    public void setTransferedBytes(long transferredBytes)
     {
-        this.transferedBytes = transferedBytes;
+        this.transferredBytes = transferredBytes;
     }
 
     /**
@@ -212,11 +212,11 @@ public class FileTransferImpl
                         {
                             while (transfer.isOpen())
                             {
-                                long transfered = psp.getPosition();
+                                long transferred = psp.getPosition();
 
-                                setTransferedBytes(transfered);
+                                setTransferedBytes(transferred);
                                 fireProgressChangeEvent(
-                                    System.currentTimeMillis(), transfered);
+                                    System.currentTimeMillis(), transferred);
 
                                 try {
                                     Thread.sleep(100);

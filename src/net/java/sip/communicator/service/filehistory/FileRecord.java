@@ -116,7 +116,7 @@ public class FileRecord
     }
 
     /**
-     * The file that was transfered.
+     * The file that was transferred.
      * @return the file
      */
     public File getFile()

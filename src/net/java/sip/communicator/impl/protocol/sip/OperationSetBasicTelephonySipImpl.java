@@ -2024,7 +2024,7 @@ public class OperationSetBasicTelephonySipImpl
      * Transfers (in the sense of call transfer) a specific
      * <tt>CallPeer</tt> to a specific callee address.
      *
-     * @param peer the <tt>CallPeer</tt> to be transfered to the specified
+     * @param peer the <tt>CallPeer</tt> to be transferred to the specified
      * callee address
      * @param target the <tt>Address</tt> the callee to transfer <tt>peer</tt>
      * to
@@ -2124,7 +2124,7 @@ public class OperationSetBasicTelephonySipImpl
      * transfer (though no such requirement is imposed).
      * </p>
      *
-     * @param peer the <tt>CallPeer</tt> to be transfered to the specified
+     * @param peer the <tt>CallPeer</tt> to be transferred to the specified
      * callee address
      * @param target the address in the form of <tt>CallPeer</tt> of the callee
      * to transfer <tt>peer</tt> to

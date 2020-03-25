@@ -630,7 +630,7 @@ public abstract class FileTransferConversationComponent
     /**
      * Returns the label to show on the progress bar.
      *
-     * @param bytesString the bytes that have been transfered
+     * @param bytesString the bytes that have been transferred
      * @return the label to show on the progress bar
      */
     protected abstract String getProgressLabel(String bytesString);
