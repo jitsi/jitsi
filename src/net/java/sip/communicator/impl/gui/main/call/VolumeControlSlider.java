@@ -142,7 +142,7 @@ public class VolumeControlSlider
     {
         super.addNotify();
 
-        // Updates the slider level in correspodance with the system volume
+        // Updates the slider level in correspondence with the system volume
         // level.
         volumeChange(new VolumeChangeEvent(
                     volumeControl,
