@@ -302,7 +302,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
 
     /**
      * A very simple straightforward implementation of a security authority
-     * that would authentify our tested implementation if necessary, by
+     * that would authenticate our tested implementation if necessary, by
      * retrieving its password through the system properties.
      */
     public class SecurityAuthorityImpl implements SecurityAuthority
@@ -310,7 +310,7 @@ public class TestProtocolProviderServiceIcqImpl extends TestCase
         private boolean isUserNameEditable = false;
 
         /**
-         * Creates an instance of this class that would would authentify our
+         * Creates an instance of this class that would would authenticate our
          * tested implementation if necessary, by retrieving its password
          * through the system properties.
          */
