@@ -1558,7 +1558,7 @@ public class ChatWindowManager
      * displayed; if null, or if the parentComponent has no Frame, a default
      * Frame is used
      *
-     * @return The integer corresponding to the option choosen by the user.
+     * @return The integer corresponding to the option chosen by the user.
      */
     private static int showWarningMessage(
             String resourceString,

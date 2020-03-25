@@ -55,7 +55,7 @@ public class SparkleActivator
      * updates on startup.
      * @param checkInterval specifies an interval for the update checks.
      * @param downloadLink a custom download link for sparkle (i.e. the
-     * SUFeedURL). If null the default URL will be choosen (the
+     * SUFeedURL). If null the default URL will be chosen (the
      * SUFeedURL parameter in the .app/Contents/Info.pList).
      * @param menuItemTitle localized string to be used for the menu item title
      *                      in macosx specific menu.

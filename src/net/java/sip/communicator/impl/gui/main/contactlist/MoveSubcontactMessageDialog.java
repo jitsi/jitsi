@@ -34,7 +34,7 @@ import net.java.sip.communicator.util.skin.*;
  * The <tt>MoveSubcontactMessageDialog</tt> is the the dialog shown when user
  * tries to move a subcontact in the contact list. It is meant to inform the
  * user that she should select another meta contact, where the previously
- * choosen contact will be moved.
+ * chosen contact will be moved.
  *
  * @author Yana Stamcheva
  * @author Adam Netocny

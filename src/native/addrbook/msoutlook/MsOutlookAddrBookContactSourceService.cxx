@@ -544,7 +544,7 @@ void MsOutlookAddrBookContactSourceService_MAPIUninitializeCOMServer(void)
  * java available here.
  *
  * @param version The version of MAPI to load.
- * @param flags The option choosen to load the MAPI to lib.
+ * @param flags The option chosen to load the MAPI to lib.
  * @param deletedMethod A function pointer used as a callback on notification
  * from outlook when a contact has been removed.
  * @param insertedMethod A function pointer used as a callback on notification
