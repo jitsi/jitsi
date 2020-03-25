@@ -350,7 +350,7 @@ HRESULT MsOutlookAddrBookContactQuery_createEmailAddress
  *
  * @param nativeEntryId The identifer of the outlook contact to remove.
  *
- * @return 1 if the deletion succeded. 0 otherwise.
+ * @return 1 if the deletion succeeded. 0 otherwise.
  */
 int MsOutlookAddrBookContactQuery_deleteContact(const char * nativeEntryId)
 {
@@ -1087,7 +1087,7 @@ MsOutlookAddrBookContactQuery_getPropTagFromLid(LPMAPIPROP mapiProp, LONG lid,
  * @param propId The outlook property identifier.
  * @param nativeEntryId The identifer of the outlook entry to modify.
  *
- * @return 1 if the deletion succeded. 0 otherwise.
+ * @return 1 if the deletion succeeded. 0 otherwise.
  */
 int MsOutlookAddrBookContactQuery_IMAPIProp_1DeleteProp
     (long propId, const char * nativeEntryId)
@@ -1431,7 +1431,7 @@ HRESULT MsOutlookAddrBookContactQuery_IMAPIProp_1GetProps(
  * @param nativeValue The value to set to the outlook property.
  * @param nativeEntryId The identifer of the outlook entry to modify.
  *
- * @return 1 if the modification succeded. 0 otherwise.
+ * @return 1 if the modification succeeded. 0 otherwise.
  */
 int MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
     (long propId, const wchar_t* nativeValue, const char* nativeEntryId)

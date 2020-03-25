@@ -72,7 +72,7 @@ JNIEXPORT jstring JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlo
  * @param clazz A Java class Object.
  * @param id The identifer of the outlook contact to remove.
  *
- * @return JNI_TRUE if the deletion succeded. JNI_FALSE otherwise.
+ * @return JNI_TRUE if the deletion succeeded. JNI_FALSE otherwise.
  */
 JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_deleteContact
   (JNIEnv *jniEnv, jclass clazz, jstring id)
@@ -133,7 +133,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
  * @param propId The outlook property identifier.
  * @param entryId The identifer of the outlook entry to modify.
  *
- * @return JNI_TRUE if the deletion succeded. JNI_FALSE otherwise.
+ * @return JNI_TRUE if the deletion succeeded. JNI_FALSE otherwise.
  */
 JNIEXPORT jboolean JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_IMAPIProp_1DeleteProp
@@ -169,7 +169,7 @@ Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContac
  * @param value The value to set to the outlook property.
  * @param entryId The identifer of the outlook entry to modify.
  *
- * @return JNI_TRUE if the modification succeded. JNI_FALSE otherwise.
+ * @return JNI_TRUE if the modification succeeded. JNI_FALSE otherwise.
  */
 JNIEXPORT jboolean JNICALL
 Java_net_java_sip_communicator_plugin_addrbook_msoutlook_MsOutlookAddrBookContactQuery_IMAPIProp_1SetPropString
