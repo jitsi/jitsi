@@ -8,7 +8,7 @@
 
     <target name="debug-nb-wholeApp"
             depends="deploy-os-specific-bundles"
-            description="Starts felix and runs sip-comunicator gui (use latest build).">
+            description="Starts felix and runs sip-communicator gui (use latest build).">
         <nbjpdastart addressproperty="jpda.address"
                      name="SIP Communicator"
                      transport="dt_socket">

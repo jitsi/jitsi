@@ -787,7 +787,7 @@
 
     <!--RUN-JITSI -->
     <target name="run" depends="deploy-os-specific-bundles,load-properties"
-        description="Starts felix and runs sip-comunicator gui (use latest build).">
+        description="Starts felix and runs sip-communicator gui (use latest build).">
 
         <!-- we allow users to pass command line args using the "args" system
              property. However we need to manually set tha prop to an empty
