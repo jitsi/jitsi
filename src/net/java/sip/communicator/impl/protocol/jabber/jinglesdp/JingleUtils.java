@@ -282,7 +282,7 @@ public class JingleUtils
      * Converts the specified media <tt>direction</tt> into the corresponding
      * {@link SendersEnum} value so that we could add it to a content element.
      * The <tt>initiatorPerspectice</tt> allows callers to specify whether the
-     * direction is to be considered from the session initator's perspective
+     * direction is to be considered from the session initiator's perspective
      * or that of the responder.
      * <p>
      * Example: A {@link MediaDirection#SENDONLY} value would be translated to
