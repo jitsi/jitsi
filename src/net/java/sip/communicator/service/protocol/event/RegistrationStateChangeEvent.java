@@ -64,7 +64,7 @@ public class RegistrationStateChangeEvent extends PropertyChangeEvent
 
     /**
      * Indicates that the same user identifier has logged somewhere else. This
-     * code is often returned when transitting into disconnected state. Some
+     * code is often returned when transitioning into disconnected state. Some
      * protocols, however, support multiple logins and servers would only return
      * this code for purely informational reasons.
      */
