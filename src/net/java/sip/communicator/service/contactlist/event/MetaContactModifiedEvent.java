@@ -20,7 +20,7 @@ package net.java.sip.communicator.service.contactlist.event;
 import net.java.sip.communicator.service.contactlist.*;
 
 /**
- * Indicates that a meta contact has chaned.
+ * Indicates that a meta contact has changed.
  * @author Damian Minkov
  */
 public class MetaContactModifiedEvent

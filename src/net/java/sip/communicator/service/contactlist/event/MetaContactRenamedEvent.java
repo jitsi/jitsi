@@ -20,7 +20,7 @@ package net.java.sip.communicator.service.contactlist.event;
 import net.java.sip.communicator.service.contactlist.*;
 
 /**
- * Indicates that a meta contact has chaned its display name.
+ * Indicates that a meta contact has changed its display name.
  * @author Emil Ivov
  */
 public class MetaContactRenamedEvent
