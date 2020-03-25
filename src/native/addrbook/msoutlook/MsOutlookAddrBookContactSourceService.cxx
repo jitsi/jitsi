@@ -212,7 +212,7 @@ HRESULT MsOutlookAddrBookContactSourceService_MAPIInitialize
             }
 			else
 			{
-				MsOutlookUtils_logInfo("Error openning the key.");
+				MsOutlookUtils_logInfo("Error opening the key.");
 			}
         }
         RegCloseKey(regKey);

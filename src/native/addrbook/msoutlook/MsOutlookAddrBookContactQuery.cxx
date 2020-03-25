@@ -1218,7 +1218,7 @@ HRESULT MsOutlookAddrBookContactQuery_IMAPIProp_1GetProps(
                     MsOutlookAddrBookContactQuery_rdOpenEntryUlFlags))
             == NULL)
     {
-    	MsOutlookUtils_log("Error openning ID string.");
+    	MsOutlookUtils_log("Error opening ID string.");
         return hr;
     }
 
