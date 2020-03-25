@@ -90,7 +90,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
 
     /**
      * The initial content of a hole punch packet. It has some fields pre-set.
-     * Like rtp verion, sequence number and timestamp.
+     * Like rtp version, sequence number and timestamp.
      */
     private static final byte[] HOLE_PUNCH_PACKET =
     {
