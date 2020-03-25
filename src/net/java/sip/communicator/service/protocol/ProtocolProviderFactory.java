@@ -226,7 +226,7 @@ public abstract class ProtocolProviderFactory
     public static final String ENCRYPTION_PROTOCOL = "ENCRYPTION_PROTOCOL";
 
     /**
-     * The name of the property that indicates the status (enabed or disabled)
+     * The name of the property that indicates the status (enabled or disabled)
      * encryption protocols for this account.
      */
     public static final String ENCRYPTION_PROTOCOL_STATUS
