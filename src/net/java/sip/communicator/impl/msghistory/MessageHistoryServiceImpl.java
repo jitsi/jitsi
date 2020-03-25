@@ -626,7 +626,7 @@ public class MessageHistoryServiceImpl
                 // attribute timestamp. Most of the times there is 1 or 2 mills
                 // difference between the two dates. So we will request more
                 // records from the reader and than will get the needed count
-                // according to the correct field comparsion (receivedTimestamp)
+                // according to the correct field comparison (receivedTimestamp)
                 Iterator<HistoryRecord> recs
                     = reader.findFirstRecordsAfter(date, count + 4);
                 while (recs.hasNext())
