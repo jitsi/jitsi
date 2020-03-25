@@ -347,7 +347,7 @@ public class TestNetworkAddressManagerService
 
         try
         {
-            configurationService.setProperty(propertIpV4Stack, propertyIpV4Stack);
+            configurationService.setProperty(propertyIpV4Stack, propertyIpV4Stack);
             configurationService.setProperty(propertyStunName,propertiesStunValue );
             configurationService.setProperty(propertyStunPort,propertiesStunPort );
             configurationService.setProperty(propertyV6,propertyIpV6Pref );
@@ -389,7 +389,7 @@ public class TestNetworkAddressManagerService
         Boolean natBoolean = new Boolean(nat);
         try
         {
-            configurationService.setProperty(propertIpV4Stack, propertyIpV4Stack);
+            configurationService.setProperty(propertyIpV4Stack, propertyIpV4Stack);
             configurationService.setProperty(propertyStunName,propertiesStunValue );
             configurationService.setProperty(propertyStunPort,propertiesStunPort );
             configurationService.setProperty(propertyV6,propertyIpV6Pref );
@@ -431,7 +431,7 @@ public class TestNetworkAddressManagerService
         Boolean natBoolean = new Boolean(nat);
         try
         {
-            configurationService.setProperty(propertIpV4Stack, propertyIpV4Stack);
+            configurationService.setProperty(propertyIpV4Stack, propertyIpV4Stack);
             configurationService.setProperty(propertyStunName,propertiesStunValue );
             configurationService.setProperty(propertyStunPort,propertiesStunPort );
             configurationService.setProperty(propertyV6,propertyIpV6Pref );
@@ -510,7 +510,7 @@ public class TestNetworkAddressManagerService
         Boolean natBoolean = new Boolean(nat);
         try
         {
-            configurationService.setProperty(propertIpV4Stack, propertyIpV4Stack);
+            configurationService.setProperty(propertyIpV4Stack, propertyIpV4Stack);
             configurationService.setProperty(propertyStunName,propertiesStunValue );
             configurationService.setProperty(propertyStunPort,propertiesStunPort );
             configurationService.setProperty(propertyV6,propertyIpV6Pref );
@@ -528,7 +528,7 @@ public class TestNetworkAddressManagerService
         propertyIpV6Pref = new Boolean(false);
         try
         {
-            configurationService.setProperty(propertIpV4Stack, propertyIpV4Stack);
+            configurationService.setProperty(propertyIpV4Stack, propertyIpV4Stack);
             configurationService.setProperty(propertyV6,propertyIpV6Pref );
         }
         catch (Exception e) {}

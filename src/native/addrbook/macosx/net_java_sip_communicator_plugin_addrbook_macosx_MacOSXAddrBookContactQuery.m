@@ -267,7 +267,7 @@ JNIEXPORT jboolean JNICALL Java_net_java_sip_communicator_plugin_addrbook_macosx
             {
                 [(ABMutableMultiValue *) data addValue:addr withLabel:subProp];
                 addr = [NSMutableDictionary dictionary];
-                // Sets the new current proeperty
+                // Sets the new current property
                 subProp = lastSubProp;
             }
 

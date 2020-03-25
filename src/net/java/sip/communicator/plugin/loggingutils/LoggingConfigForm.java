@@ -58,7 +58,7 @@ public class LoggingConfigForm
     /**
      * Upload location property.
      */
-    private static final String UPLOAD_LOCATION_PROPETY =
+    private static final String UPLOAD_LOCATION_PROPERTY =
             "plugin.loggingutils.uploadlocation";
 
     /**
@@ -270,12 +270,12 @@ public class LoggingConfigForm
         // or by provisioning
         String uploadLocation =
             LoggingUtilsActivator.getConfigurationService()
-                .getString(UPLOAD_LOCATION_PROPETY);
+                .getString(UPLOAD_LOCATION_PROPERTY);
         // if missing check default settings
         if(uploadLocation == null || uploadLocation.length() == 0)
         {
             uploadLocation = LoggingUtilsActivator.getResourceService()
-                .getSettingsString(UPLOAD_LOCATION_PROPETY);
+                .getSettingsString(UPLOAD_LOCATION_PROPERTY);
         }
 
         return uploadLocation;

@@ -332,12 +332,12 @@ public class MacOSXAddrBookContactQuery
      * Sets property for the supplied person id.
      * @param id the person id
      * @param property the property to use.
-     * @param subPropety any sub property if available.
+     * @param subProperty any sub property if available.
      * @param value the value to set.
      * @return whether the result was successfully added.
      */
     public static native boolean setProperty(
-        String id, long property, String subPropety, Object value);
+        String id, long property, String subProperty, Object value);
 
     /**
      * Remove a property.

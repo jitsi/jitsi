@@ -259,7 +259,7 @@ boolean MsOutlookAddrBookServer::foreachMailUserCallback(
  * @param propIds The list of property identifiers requested (long).
  * @param flags A bitmask of flags that indicates the format for properties.
  * @param props Used to return the properties gathered.
- * @param propsLength Used to return the list of porperty length.
+ * @param propsLength Used to return the list of property length.
  * @param propsType Used to return the list of type of property. b = byteArray,
  * l = long, s = 8 bits string, u = 16 bits string.
  *
