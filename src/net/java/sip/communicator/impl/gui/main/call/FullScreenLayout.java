@@ -55,7 +55,7 @@ public class FullScreenLayout
      * @param overlay <tt>true</tt> to lay out the <tt>Component</tt> at
      * {@link #SOUTH} on top of the <tt>Component</tt> at {@link #CENTER} i.e as
      * an overlay; otherwise, <tt>false</tt>
-     * @oaram yGap the gap betwen the center and the south component
+     * @oaram yGap the gap between the center and the south component
      */
     public FullScreenLayout(boolean overlay, int yGap)
     {
