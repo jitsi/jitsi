@@ -606,7 +606,7 @@ static int convertX11KeycodeToJava(int keycode)
 
 /**
  * \brief Convert X11 modifiers to Java user-defined ones.
- * \param modfiers X11 modifiers
+ * \param modifiers X11 modifiers
  * \return Java user-defined modifiers
  */
 static int X11ModifiersToJavaUserDefined(int modifiers)
