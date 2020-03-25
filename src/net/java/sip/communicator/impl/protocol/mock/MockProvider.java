@@ -24,7 +24,7 @@ import net.java.sip.communicator.service.protocol.event.*;
 
 /**
  * A mock protocol provider implementation that comes with a single operation
- * set (OperationSetPersistentPresence) for use by the MetaContactListSlcik.
+ * set (OperationSetPersistentPresence) for use by the MetaContactListSlick.
  *
  * @author Emil Ivov
  */
