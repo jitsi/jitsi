@@ -484,14 +484,14 @@ public abstract class AbstractStatusMessageMenu
             return;
         }
 
-        String oldMesage = getCurrentMessage();
+        String oldMessage = getCurrentMessage();
 
         // if message is null we cleared the status message
         if(StringUtils.isEmpty(message))
         {
             clearSelectedItems();
 
-            fireStatusMessageUpdated(oldMesage, null);
+            fireStatusMessageUpdated(oldMessage, null);
 
             return;
         }
@@ -525,14 +525,14 @@ public abstract class AbstractStatusMessageMenu
             // fire that we have added a new message
             fireCustomStatusMessagesUpdated();
 
-            fireStatusMessageUpdated(oldMesage, message);
+            fireStatusMessageUpdated(oldMessage, message);
         }
         else if(menuItem instanceof JCheckBoxMenuItem
             || menuItem instanceof CheckboxMenuItem)
         {
             clearSelectedItems();
 
-            selectMenuItem(menuItem, oldMesage);
+            selectMenuItem(menuItem, oldMessage);
         }
     }
 
@@ -861,7 +861,7 @@ public abstract class AbstractStatusMessageMenu
      * @param item the item to change
      * @return the name of the item.
      */
-    private String selectMenuItem(Object item, String oldMesage)
+    private String selectMenuItem(Object item, String oldMessage)
     {
         String name = null;
         if(item instanceof JCheckBoxMenuItem)
@@ -877,7 +877,7 @@ public abstract class AbstractStatusMessageMenu
             name = checkItem.getName();
             checkItem.setState(true);
         }
-        fireStatusMessageUpdated(oldMesage, name);
+        fireStatusMessageUpdated(oldMessage, name);
 
         return null;
     }

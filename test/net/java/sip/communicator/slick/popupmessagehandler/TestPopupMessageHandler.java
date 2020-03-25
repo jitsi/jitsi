@@ -95,7 +95,7 @@ public class TestPopupMessageHandler
     }
 
     /**
-     * here we will test (get/set)ActivePopupMesssageHandler()
+     * here we will test (get/set)ActivePopupMessageHandler()
      */
     public void testHandlerModification()
     {

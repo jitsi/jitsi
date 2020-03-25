@@ -24,7 +24,7 @@ import net.java.sip.communicator.service.systray.*;
 import net.java.sip.communicator.service.systray.event.*;
 
 /**
- * An implementation  of the <tt>PopupMsystrayessageHandler</tt> using the
+ * An implementation  of the <tt>PopupMessageHandler</tt> using the
  * tray icon.
  */
 public class PopupMessageHandlerTrayIconImpl
