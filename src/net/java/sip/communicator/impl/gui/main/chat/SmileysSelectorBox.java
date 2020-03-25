@@ -98,9 +98,9 @@ public class SmileysSelectorBox
     }
 
     /**
-     * Sets the chat panel, for which smilieys would be created.
+     * Sets the chat panel, for which smileys would be created.
      *
-     * @param chatPanel the chat panel, for which smilieys would be created
+     * @param chatPanel the chat panel, for which smileys would be created
      */
     public void setChat(ChatPanel chatPanel)
     {
