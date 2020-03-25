@@ -614,7 +614,7 @@ public class OperationSetBasicInstantMessagingSipImpl
                         return true;
             }
 
-            // this is normaly handled by the SIP stack
+            // this is normally handled by the SIP stack
             logger.error("Timeout event thrown : " + timeoutEvent.toString());
 
             if (timeoutEvent.isServerTransaction()) {
