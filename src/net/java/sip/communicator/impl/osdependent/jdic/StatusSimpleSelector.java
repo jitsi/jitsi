@@ -104,7 +104,7 @@ public class StatusSimpleSelector
     }
 
     /**
-     * Changes status corresponding the seelcted object.
+     * Changes status corresponding the selected object.
      * @param source the source object selected
      */
     private void changeStatus(Object source)
