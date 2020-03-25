@@ -1605,7 +1605,7 @@ public class ProtocolProviderServiceSipImpl
         catch(InvalidSyntaxException ex)
         {
             if (logger.isDebugEnabled())
-                logger.debug("Problem parcing an osgi expression", ex);
+                logger.debug("Problem parsing an osgi expression", ex);
             // should never happen so crash if it ever happens
             throw new RuntimeException(
                     "getServiceReferences() wasn't supposed to fail!"
