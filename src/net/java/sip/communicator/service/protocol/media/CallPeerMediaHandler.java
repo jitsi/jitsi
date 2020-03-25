@@ -1447,7 +1447,7 @@ public abstract class CallPeerMediaHandler<T extends MediaAwareCallPeer<?,?,?>>
      * <tt>MediaType</tt>.
      *
      * @param mediaType the <tt>MediaType</tt> for which it is to be determined
-     * whether RTP translation is enabled for the <tT>CallPeeer</tt> represented
+     * whether RTP translation is enabled for the <tT>CallPeer</tt> represented
      * by this <tt>CallPeerMediaHandler</tt>
      * @return <tt>true</tt> if RTP translation is enabled for the
      * <tt>CallPeer</tt> represented by this <tt>CallPeerMediaHandler</tt> and
