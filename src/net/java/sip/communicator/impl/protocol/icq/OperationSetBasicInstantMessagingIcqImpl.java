@@ -461,7 +461,7 @@ public class OperationSetBasicInstantMessagingIcqImpl
     {
         /**
          * Register our icbm listener so that we get notified when new
-         * conversations are cretaed and register ourselvers as listeners in
+         * conversations are created and register ourselvers as listeners in
          * them.
          *
          * @param service the <tt>IcbmService</tt> that is clling us

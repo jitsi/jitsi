@@ -47,7 +47,7 @@ public class ActiveCallsRepositorySipImpl
      * Creates a new instance of this repository.
      *
      * @param opSet a reference to the
-     * <tt>OperationSetBasicTelephonySipImpl</tt> that craeted us.
+     * <tt>OperationSetBasicTelephonySipImpl</tt> that created us.
      */
     public ActiveCallsRepositorySipImpl(OperationSetBasicTelephonySipImpl opSet)
     {
