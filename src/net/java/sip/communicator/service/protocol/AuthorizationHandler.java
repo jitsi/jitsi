@@ -25,7 +25,7 @@ package net.java.sip.communicator.service.protocol;
  * we need to first generate an authorization request demanding permission to
  * subscibe.
  * <p>
- * The <tt>AuthorizationHandler</tt> is to be implmented by the User Interface
+ * The <tt>AuthorizationHandler</tt> is to be implemented by the User Interface
  * as all its methods would require user intervention.
  *<p>
  * Note that some protocols do not support authorizations or allow them to be
