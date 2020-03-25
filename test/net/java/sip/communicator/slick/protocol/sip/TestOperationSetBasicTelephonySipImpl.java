@@ -182,7 +182,7 @@ public class TestOperationSetBasicTelephonySipImpl
                     SipProtocolProviderServiceLick.ACCOUNT_2_PREFIX
                     + ProtocolProviderFactory.DISPLAY_NAME);
 
-            //do not asser equals here since one of the addresses may contain a
+            //do not assert equals here since one of the addresses may contain a
             //display name or something of the kind
             assertTrue("Provider 2 did not advertise their "
                        + "accountID.getAccountAddress() address."
@@ -204,7 +204,7 @@ public class TestOperationSetBasicTelephonySipImpl
                     SipProtocolProviderServiceLick.ACCOUNT_1_PREFIX
                     + ProtocolProviderFactory.DISPLAY_NAME);
 
-            //do not asser equals here since one of the addresses may contain a
+            //do not assert equals here since one of the addresses may contain a
             //display name or something of the kind
             assertTrue("Provider 1 did not advertise their "
                        + "accountID.getAccountAddress() address."
@@ -412,7 +412,7 @@ public class TestOperationSetBasicTelephonySipImpl
                     SipProtocolProviderServiceLick.ACCOUNT_2_PREFIX
                     + ProtocolProviderFactory.DISPLAY_NAME);
 
-            //do not asser equals here since one of the addresses may contain a
+            //do not assert equals here since one of the addresses may contain a
             //display name or something of the kind
             assertTrue("Provider 2 did not advertise their "
                        + "accountID.getAccountAddress() address."
@@ -434,7 +434,7 @@ public class TestOperationSetBasicTelephonySipImpl
                     SipProtocolProviderServiceLick.ACCOUNT_1_PREFIX
                     + ProtocolProviderFactory.DISPLAY_NAME);
 
-            //do not asser equals here since one of the addresses may contain a
+            //do not assert equals here since one of the addresses may contain a
             //display name or something of the kind
             assertTrue("Provider 1 did not advertise their "
                        + "accountID.getAccountAddress() address."
@@ -649,7 +649,7 @@ public class TestOperationSetBasicTelephonySipImpl
                     SipProtocolProviderServiceLick.ACCOUNT_2_PREFIX
                     + ProtocolProviderFactory.DISPLAY_NAME);
 
-            //do not asser equals here since one of the addresses may contain a
+            //do not assert equals here since one of the addresses may contain a
             //display name or something of the kind
             assertTrue("Provider 2 did not advertise their "
                        + "accountID.getAccountAddress() address."
@@ -671,7 +671,7 @@ public class TestOperationSetBasicTelephonySipImpl
                     SipProtocolProviderServiceLick.ACCOUNT_1_PREFIX
                     + ProtocolProviderFactory.DISPLAY_NAME);
 
-            //do not asser equals here since one of the addresses may contain a
+            //do not assert equals here since one of the addresses may contain a
             //display name or something of the kind
             assertTrue("Provider 1 did not advertise their "
                        + "accountID.getAccountAddress() address."
