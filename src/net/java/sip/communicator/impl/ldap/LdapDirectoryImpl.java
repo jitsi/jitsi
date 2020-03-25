@@ -680,7 +680,7 @@ public class LdapDirectoryImpl
      *
      * @param query the initial query issued
      * @param dn the distinguished name of the person in the directory
-     * @return the LdapPersonFoulnd built
+     * @return the LdapPersonFound built
      */
     private LdapPersonFound
         buildPerson(
